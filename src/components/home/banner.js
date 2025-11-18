@@ -993,7 +993,7 @@ export default function Banner() {
                             <div
                               key={index}
                               style={{
-                                minWidth: "calc(33.333% - 8px)",
+                                minWidth: "calc(50% - 6px)",
                                 backgroundColor: "white",
                                 borderRadius: "16px",
                                 padding: "16px",
@@ -1036,7 +1036,7 @@ export default function Banner() {
                               key={therapist._id}
                               to={`/therapist-checkout/${therapist._id}`}
                               style={{
-                                minWidth: "calc(33.333% - 8px)",
+                                minWidth: "calc(50% - 6px)",
                                 backgroundColor: "rgba(255,255,255,0.98)",
                                 borderRadius: "20px",
                                 padding: "18px 16px",
