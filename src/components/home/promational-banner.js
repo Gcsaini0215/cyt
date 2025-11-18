@@ -1,5 +1,5 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { useNavigate } from "react-router-dom";
@@ -69,12 +69,17 @@ export default function PromotionalBannerCTA() {
           spaceBetween={0}
           slidesPerView={1}
           autoplay={{ delay: 6000, disableOnInteraction: false }}
-          modules={[Autoplay]}
+          modules={[Autoplay, Pagination]}
           className="mySwiper"
           style={{
             borderRadius: 24,
             overflow: 'hidden'
           }}
+          pagination={{
+            clickable: true,
+            dynamicBullets: true,
+          }}
+          navigation={false}
         >
           {banners.map((banner) => (
             <SwiperSlide key={banner.id}>
@@ -224,43 +229,84 @@ export default function PromotionalBannerCTA() {
             transform: translateY(-1px) scale(1.02);
           }
 
+          /* Mobile App-like Enhancements */
           @media (max-width: 768px) {
             .banner-slide {
-              min-height: 280px !important;
-              max-height: 320px !important;
-              padding: 40px 25px !important;
+              min-height: 240px !important;
+              max-height: 280px !important;
+              padding: 32px 20px !important;
+              cursor: grab;
+            }
+            .banner-slide:active {
+              cursor: grabbing;
             }
             .banner-slide h2 {
-              font-size: 28px !important;
-              margin-bottom: 14px !important;
+              font-size: 26px !important;
+              font-weight: 800 !important;
+              margin-bottom: 12px !important;
+              line-height: 1.2 !important;
             }
             .banner-slide p {
-              font-size: 16px !important;
-              margin-bottom: 28px !important;
+              font-size: 15px !important;
+              margin-bottom: 24px !important;
+              line-height: 1.5 !important;
             }
             .banner-button {
-              padding: 14px 32px !important;
+              padding: 16px 36px !important;
               font-size: 15px !important;
+              font-weight: 700 !important;
+              min-height: 48px !important; /* Touch-friendly height */
+              width: 100% !important;
+              max-width: 280px !important;
             }
           }
 
           @media (max-width: 480px) {
             .banner-slide {
-              min-height: 260px !important;
-              max-height: 300px !important;
-              padding: 30px 20px !important;
+              min-height: 220px !important;
+              max-height: 260px !important;
+              padding: 28px 16px !important;
             }
             .banner-slide h2 {
               font-size: 24px !important;
-              margin-bottom: 12px !important;
+              margin-bottom: 10px !important;
             }
             .banner-slide p {
-              font-size: 15px !important;
-              margin-bottom: 24px !important;
+              font-size: 14px !important;
+              margin-bottom: 20px !important;
             }
             .banner-button {
-              padding: 12px 28px !important;
+              padding: 14px 32px !important;
               font-size: 14px !important;
+              min-height: 44px !important;
+              max-width: 240px !important;
+            }
+          }
+
+          /* Swiper Pagination Mobile Styles */
+          .swiper-pagination {
+            bottom: 16px !important;
+          }
+          .swiper-pagination-bullet {
+            width: 8px !important;
+            height: 8px !important;
+            background: rgba(255, 255, 255, 0.5) !important;
+            opacity: 1 !important;
+            transition: all 0.3s ease !important;
+          }
+          .swiper-pagination-bullet-active {
+            background: #ffffff !important;
+            transform: scale(1.2) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+          }
+
+          /* Mobile touch improvements */
+          @media (hover: none) and (pointer: coarse) {
+            .banner-button {
+              transition: all 0.1s ease !important;
+            }
+            .banner-button:active {
+              transform: scale(0.98) !important;
             }
           }
         `}

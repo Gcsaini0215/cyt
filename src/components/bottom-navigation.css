@@ -1,0 +1,283 @@
+.bottom-navigation {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-top: 2px solid rgba(34, 135, 86, 0.2);
+  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.15);
+  z-index: 9999 !important;
+  padding: 0;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-nav-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0 10px;
+  align-items: center;
+  justify-content: space-around;
+  max-width: 100%;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #666;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px;
+  margin: 4px;
+  position: relative;
+  padding: 8px 4px;
+  min-height: 60px;
+  max-width: none;
+}
+
+.bottom-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(34, 135, 86, 0.1) 0%, rgba(0, 127, 153, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+}
+
+.bottom-nav-item.active::before {
+  opacity: 1;
+}
+
+.bottom-nav-item:hover {
+  color: #228756;
+  transform: translateY(-1px);
+}
+
+.bottom-nav-item.active {
+  color: #228756;
+  transform: translateY(-2px);
+}
+
+.nav-icon {
+  margin-bottom: 4px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.nav-icon i {
+  font-size: 28px;
+  display: block;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.bottom-nav-item.active .nav-icon i {
+  transform: scale(1.15);
+  color: #228756;
+  filter: drop-shadow(0 2px 4px rgba(34, 135, 86, 0.3));
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  margin-top: 2px;
+}
+
+.bottom-nav-item.active .nav-label {
+  color: #228756;
+  font-weight: 700;
+}
+
+/* Touch-friendly interactions */
+@media (hover: none) and (pointer: coarse) {
+  .bottom-nav-item {
+    min-height: 48px;
+    padding: 8px 4px;
+  }
+
+  .bottom-nav-item:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* Ensure proper touch targets on all mobile devices */
+@media (max-width: 1200px) {
+  .bottom-nav-item {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
+
+/* Safe area for devices with notches */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-navigation {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0));
+    height: calc(75px + env(safe-area-inset-bottom, 0));
+  }
+}
+
+/* iPhone specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  .bottom-navigation {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    height: calc(75px + env(safe-area-inset-bottom, 0));
+  }
+}
+
+/* Adjust for cookie banner */
+.bottom-navigation.with-cookie-banner {
+  bottom: 100px;
+}
+
+/* Better zoom handling - ensure navigation stays hidden on desktop */
+@media (min-width: 1201px) {
+  .bottom-navigation {
+    display: none !important;
+  }
+  body {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Show on tablets and mobile devices */
+@media (max-width: 1200px) {
+  .bottom-navigation {
+    display: flex !important;
+  }
+  body {
+    padding-bottom: 75px !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .bottom-navigation {
+    height: 70px;
+  }
+
+  .bottom-nav-container {
+    padding: 0 8px;
+  }
+
+  .bottom-nav-item {
+    margin: 3px;
+    padding: 6px 3px;
+    min-height: 55px;
+  }
+
+  .nav-icon i {
+    font-size: 26px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+  }
+}
+
+/* Hide on landscape for very small screens */
+@media (max-height: 400px) and (orientation: landscape) {
+  .bottom-navigation {
+    display: none !important;
+  }
+  body {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* iPhone SE and small phones */
+@media (max-width: 375px) {
+  .bottom-navigation {
+    height: 68px;
+  }
+
+  .bottom-nav-container {
+    padding: 0 6px;
+  }
+
+  .bottom-nav-item {
+    margin: 2px;
+    padding: 5px 2px;
+    min-height: 52px;
+  }
+
+  .nav-icon i {
+    font-size: 24px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+  }
+}
+
+/* Large phones and small tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .bottom-navigation {
+    height: 72px;
+    min-height: 72px;
+  }
+
+  .nav-icon i {
+    font-size: 22px;
+  }
+
+  .nav-label {
+    font-size: 11px;
+  }
+}
+
+/* iPad and larger tablets */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .bottom-navigation {
+    height: 76px;
+    min-height: 76px;
+  }
+
+  .nav-icon i {
+    font-size: 24px;
+  }
+
+  .nav-label {
+    font-size: 12px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .bottom-navigation {
+    background: rgba(28, 28, 30, 0.95);
+    border-top-color: rgba(142, 142, 147, 0.3);
+  }
+
+  .bottom-nav-item {
+    color: #98989d;
+  }
+
+  .bottom-nav-item:hover {
+    background-color: rgba(142, 142, 147, 0.2);
+  }
+
+  .bottom-nav-item.active {
+    background-color: rgba(34, 135, 86, 0.2);
+  }
+}

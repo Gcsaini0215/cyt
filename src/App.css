@@ -40243,6 +40243,7 @@ blockquote.has-text-align-right cite {
 @media only screen and (max-width: 767px) {
   .rbt-banner-1 {
     padding: 0 5px;
+    background-image: none;
   }
 }
 .rbt-banner-1:after {

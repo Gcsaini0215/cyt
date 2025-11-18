@@ -2,14 +2,30 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { getDecodedToken, getToken } from "../utils/jwt";
+import "./bottom-navigation.css";
 
 export default function BottomNavigation() {
   const location = useLocation();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [isMobile, setIsMobile] = useState(false);
   const [userType, setUserType] = useState(0);
   const [cookiesAccepted, setCookiesAccepted] = useState(true);
 
   useEffect(() => {
+    const checkMobile = () => {
+      // Comprehensive mobile detection - show on all mobile/tablet devices
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth <= 1200;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+      // Always show on mobile devices, touch devices, iOS, or small screens
+      setIsMobile(isMobileDevice || isTouchDevice || isIOS || isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    window.addEventListener('orientationchange', checkMobile);
+
     const data = getToken();
     if (data) {
       const userData = getDecodedToken();
@@ -23,10 +39,17 @@ export default function BottomNavigation() {
     // Check if cookies are accepted
     const isAccepted = localStorage.getItem("cookiesAccepted") === "true";
     setCookiesAccepted(isAccepted);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('orientationchange', checkMobile);
+    };
   }, []);
 
-  // Only show on mobile
-  if (!isMobile) return null;
+  // Don't render if not mobile
+  if (!isMobile) {
+    return null;
+  }
 
   const profilePath = userType === 1 ? "/my-dashboard" : userType === 2 ? "/therapist-dashboard" : "/login";
 
@@ -84,144 +107,6 @@ export default function BottomNavigation() {
           </Link>
         ))}
       </div>
-
-      <style jsx>{`
-        .bottom-navigation {
-          position: fixed !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          right: 0 !important;
-          background: #ffffff;
-          border-top: 1px solid #e8e8e8;
-          box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-          z-index: 10000 !important;
-          padding-bottom: 0;
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          transform: translateZ(0);
-          will-change: transform;
-        }
-
-        .bottom-nav-container {
-          display: flex;
-          height: 70px;
-          padding: 0 12px;
-          align-items: center;
-        }
-
-        .bottom-nav-item {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          text-decoration: none;
-          color: #8e8e93;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          border-radius: 12px;
-          margin: 6px;
-          position: relative;
-          padding: 4px 0;
-          min-height: 50px;
-        }
-
-        .bottom-nav-item:hover {
-          background-color: rgba(142, 142, 147, 0.1);
-          transform: translateY(-1px);
-        }
-
-        .bottom-nav-item.active {
-          color: #228756;
-          background-color: rgba(34, 135, 86, 0.12);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(34, 135, 86, 0.25);
-        }
-
-        .bottom-nav-item.active::before {
-          content: '';
-          position: absolute;
-          top: -6px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 32px;
-          height: 4px;
-          background: linear-gradient(135deg, #228756 0%, #56ab2f 100%);
-          border-radius: 2px;
-          box-shadow: 0 2px 4px rgba(34, 135, 86, 0.3);
-        }
-
-        .nav-icon {
-          margin-bottom: 3px;
-          transition: transform 0.2s ease;
-        }
-
-        .nav-icon i {
-          font-size: 22px;
-          display: block;
-          transition: all 0.2s ease;
-        }
-
-        .bottom-nav-item.active .nav-icon i {
-          transform: scale(1.1);
-        }
-
-        .nav-label {
-          font-size: 10px;
-          font-weight: 600;
-          text-align: center;
-          line-height: 1.2;
-          letter-spacing: 0.3px;
-          text-transform: uppercase;
-        }
-
-        /* Active state styling */
-        .bottom-nav-item.active .nav-icon i {
-          color: #228756;
-        }
-
-        .bottom-nav-item.active .nav-label {
-          color: #228756;
-          font-weight: 700;
-        }
-
-        /* Ripple effect for touch */
-        .bottom-nav-item:active {
-          transform: translateY(0);
-          transition: transform 0.1s ease;
-        }
-
-        /* Safe area for iPhone X and newer */
-        @supports (padding-bottom: env(safe-area-inset-bottom)) {
-          .bottom-navigation {
-            padding-bottom: env(safe-area-inset-bottom, 0);
-          }
-        }
-
-        /* Adjust for cookie banner */
-        .bottom-navigation.with-cookie-banner {
-          bottom: 100px; /* Account for cookie banner height + margin */
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-          .bottom-navigation {
-            background: rgba(28, 28, 30, 0.95);
-            border-top-color: rgba(142, 142, 147, 0.3);
-          }
-
-          .bottom-nav-item {
-            color: #98989d;
-          }
-
-          .bottom-nav-item:hover {
-            background-color: rgba(142, 142, 147, 0.2);
-          }
-
-          .bottom-nav-item.active {
-            background-color: rgba(34, 135, 86, 0.2);
-          }
-        }
-      `}</style>
     </div>
   );
 }

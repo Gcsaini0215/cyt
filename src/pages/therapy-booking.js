@@ -31,137 +31,162 @@ export default function TherapyBooking() {
       </Helmet>
     <div id="__next">
       <MyNavbar />
-      {/* Hero Section */}
-      <div className="rbt-banner-area rbt-banner-1" style={{
-        paddingTop: isMobile ? "40px" : "80px",
-        paddingBottom: isMobile ? "40px" : "80px",
-        background: "linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e8f5e8 100%)",
+      {/* Mobile App-like Hero Banner */}
+      <div className="mobile-app-banner" style={{
+        minHeight: isMobile ? "100vh" : "80vh",
+        background: "linear-gradient(135deg, #228756 0%, #2e7d32 50%, #1b5e20 100%)",
         position: "relative",
-        overflow: "hidden"
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
       }}>
-        {/* Watermark Background Image */}
+        {/* Animated Background Elements */}
         <div style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          opacity: 0.08,
-          backgroundImage: `url("https://i.postimg.cc/259Rrm3G/three_shapefb0d.png")`,
-          backgroundSize: "contain",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          pointerEvents: "none"
+          top: "-20%",
+          right: "-10%",
+          width: "300px",
+          height: "300px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)",
+          animation: "float 6s ease-in-out infinite"
         }}></div>
-        {/* Background Pattern */}
         <div style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          opacity: 0.05,
-          backgroundImage: `url("data:image/svg+xml,%3csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23228756' fill-opacity='0.1'%3e%3ccircle cx='30' cy='30' r='2'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e")`,
-          backgroundSize: "60px 60px"
+          bottom: "-15%",
+          left: "-10%",
+          width: "250px",
+          height: "250px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
+          animation: "float 8s ease-in-out infinite reverse"
         }}></div>
 
-        <div className="container">
-          <div className="row justify-content-center align-items-center">
-            <div className="col-lg-10 col-md-12 col-sm-12 col-12">
-              <div className="row align-items-center">
-                {/* Left Content */}
-                <div className="col-lg-7 col-md-12 text-center text-lg-start">
-                  {/* Free Badge */}
+        {/* Floating particles effect */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `url("data:image/svg+xml,%3csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='white' fill-opacity='0.05'%3e%3ccircle cx='30' cy='30' r='1.5'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e")`,
+          backgroundSize: "60px 60px",
+          animation: "particleFloat 20s linear infinite"
+        }}></div>
+
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
+          <div className="row justify-content-center">
+            <div className="col-lg-8 col-md-10 col-12">
+              {/* Mobile App Card Layout */}
+              <div style={{
+                background: "rgba(255, 255, 255, 0.95)",
+                backdropFilter: "blur(20px)",
+                borderRadius: isMobile ? "20px" : "24px",
+                padding: isMobile ? "24px 20px" : "40px 32px",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                position: "relative",
+                overflow: "hidden"
+              }}>
+                {/* Card Header with Free Badge */}
+                <div style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: isMobile ? "20px" : "24px"
+                }}>
                   <div style={{
-                    display: "inline-block",
-                    background: "linear-gradient(135deg, #228756 0%, #56ab2f 100%)",
+                    background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
                     color: "white",
-                    padding: isMobile ? "6px 16px" : "8px 20px",
-                    borderRadius: "25px",
-                    fontSize: isMobile ? "12px" : "14px",
+                    padding: "10px 20px",
+                    borderRadius: "30px",
+                    fontSize: isMobile ? "14px" : "16px",
                     fontWeight: "700",
-                    marginBottom: isMobile ? "15px" : "20px",
-                    boxShadow: "0 4px 15px rgba(34, 135, 86, 0.3)",
+                    boxShadow: "0 4px 15px rgba(255, 107, 107, 0.3)",
                     textTransform: "uppercase",
-                    letterSpacing: "1px"
+                    letterSpacing: "1px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
                   }}>
-                    🎁 Completely Free
+                    <span>🎁</span>
+                    <span>100% FREE</span>
                   </div>
+                </div>
 
-                  {/* Main Heading */}
-                  <h1 className="title" style={{
-                    fontSize: isMobile ? "clamp(2rem, 8vw, 2.8rem)" : "clamp(3rem, 4vw, 4.2rem)",
-                    marginBottom: isMobile ? "12px" : "15px",
-                    color: "#228756",
+                {/* Main Content */}
+                <div style={{ textAlign: "center", marginBottom: isMobile ? "24px" : "32px" }}>
+                  <h1 style={{
+                    fontSize: isMobile ? "28px" : "42px",
                     fontWeight: "800",
-                    lineHeight: "1.1",
-                    textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                    color: "#228756",
+                    marginBottom: isMobile ? "12px" : "16px",
+                    lineHeight: "1.2",
+                    letterSpacing: "-0.5px"
                   }}>
-                    Get Your <span style={{
-                      background: "linear-gradient(135deg, #228756 0%, #56ab2f 100%)",
+                    Free 15-Minute
+                    <br />
+                    <span style={{
+                      background: "linear-gradient(135deg, #228756 0%, #2e7d32 100%)",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text"
-                    }}>Free 15-Minute</span> Consultation
+                    }}>Consultation</span>
                   </h1>
 
-                  {/* Subheading */}
-                  <h2 style={{
-                    fontSize: isMobile ? "clamp(1.1rem, 4vw, 1.4rem)" : "clamp(1.4rem, 2vw, 1.8rem)",
-                    color: "#2d5a47",
-                    fontWeight: "600",
-                    marginBottom: isMobile ? "15px" : "20px",
-                    lineHeight: "1.3"
+                  <p style={{
+                    fontSize: isMobile ? "16px" : "18px",
+                    color: "#666",
+                    marginBottom: isMobile ? "20px" : "24px",
+                    lineHeight: "1.5",
+                    fontWeight: "500"
                   }}>
-                    Talk with a Professional Psychologist Today
-                  </h2>
-
-                  {/* Description */}
-                  <p className="description" style={{
-                    fontSize: isMobile ? "clamp(0.95rem, 4vw, 1.1rem)" : "clamp(1.1rem, 1.5vw, 1.3rem)",
-                    color: "#555",
-                    marginBottom: isMobile ? "20px" : "30px",
-                    lineHeight: "1.6",
-                    maxWidth: isMobile ? "100%" : "500px"
-                  }}>
-                    Take the first step towards better mental health. Our experienced psychologists are here to listen, understand, and guide you through your journey.
+                    Talk with a professional psychologist today
                   </p>
 
-                  {/* Trust Indicators - Compact */}
+                  {/* Trust Badges */}
                   <div style={{
                     display: "flex",
-                    justifyContent: isMobile ? "center" : "flex-start",
-                    alignItems: "center",
-                    gap: isMobile ? "15px" : "20px",
-                    marginBottom: isMobile ? "15px" : "20px",
+                    justifyContent: "center",
+                    gap: isMobile ? "16px" : "24px",
+                    marginBottom: isMobile ? "24px" : "32px",
                     flexWrap: "wrap"
                   }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ color: "#228756", fontSize: isMobile ? "16px" : "18px" }}>✓</span>
-                      <span style={{ fontSize: isMobile ? "12px" : "14px", color: "#228756", fontWeight: "500" }}>Verified</span>
+                    <div style={{
+                      background: "rgba(34, 135, 86, 0.1)",
+                      padding: "8px 16px",
+                      borderRadius: "20px",
+                      border: "1px solid rgba(34, 135, 86, 0.2)"
+                    }}>
+                      <span style={{ color: "#228756", fontWeight: "600", fontSize: "14px" }}>✓ Verified</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ color: "#228756", fontSize: isMobile ? "16px" : "18px" }}>✓</span>
-                      <span style={{ fontSize: isMobile ? "12px" : "14px", color: "#228756", fontWeight: "500" }}>Confidential</span>
+                    <div style={{
+                      background: "rgba(34, 135, 86, 0.1)",
+                      padding: "8px 16px",
+                      borderRadius: "20px",
+                      border: "1px solid rgba(34, 135, 86, 0.2)"
+                    }}>
+                      <span style={{ color: "#228756", fontWeight: "600", fontSize: "14px" }}>✓ Confidential</span>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span style={{ color: "#228756", fontSize: isMobile ? "16px" : "18px" }}>✓</span>
-                      <span style={{ fontSize: isMobile ? "12px" : "14px", color: "#228756", fontWeight: "500" }}>No Hidden Costs</span>
+                    <div style={{
+                      background: "rgba(34, 135, 86, 0.1)",
+                      padding: "8px 16px",
+                      borderRadius: "20px",
+                      border: "1px solid rgba(34, 135, 86, 0.2)"
+                    }}>
+                      <span style={{ color: "#228756", fontWeight: "600", fontSize: "14px" }}>✓ No Hidden Costs</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Right Content - Form */}
-                <div className="col-lg-5 col-md-12" style={{ marginTop: isMobile ? "30px" : "0" }}>
-                  <div style={{
-                    backgroundColor: "white",
-                    padding: isMobile ? "20px" : "30px",
-                    borderRadius: "15px",
-                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-                    border: "2px solid #e8f5e8"
-                  }}>
-                    <ConsultationForm showHeading={false} />
-                  </div>
+                {/* Consultation Form */}
+                <div style={{
+                  background: "linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)",
+                  padding: isMobile ? "20px" : "24px",
+                  borderRadius: "16px",
+                  border: "1px solid rgba(0, 0, 0, 0.05)"
+                }}>
+                  <ConsultationForm showHeading={false} />
                 </div>
               </div>
             </div>
@@ -173,6 +198,41 @@ export default function TherapyBooking() {
       <NewsLetter />
 
       <Footer />
+
+      {/* Mobile App Animations */}
+      <style>
+        {`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(5deg); }
+            66% { transform: translateY(10px) rotate(-3deg); }
+          }
+
+          @keyframes particleFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-60px); }
+          }
+
+          /* Mobile-specific enhancements */
+          @media (max-width: 768px) {
+            .mobile-app-banner {
+              padding: 20px 0;
+            }
+
+            /* Touch-friendly interactions */
+            .mobile-app-banner * {
+              -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
+            }
+          }
+
+          /* Smooth scrolling for mobile */
+          @media (max-width: 768px) {
+            html {
+              scroll-behavior: smooth;
+            }
+          }
+        `}
+      </style>
     </div>
     </>
   );

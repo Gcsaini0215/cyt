@@ -337,6 +337,52 @@ const BannerSlider = ({ isMobile }) => {
           --slide-direction-bottom: 0;
         }
 
+        /* New mobile banner animations */
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px) rotate(0deg);
+          }
+          33% {
+            transform: translateY(-10px) rotate(1deg);
+          }
+          66% {
+            transform: translateY(5px) rotate(-1deg);
+          }
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.7;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
+        }
+
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-30px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+
+        @keyframes slideInRight {
+          from {
+            opacity: 0;
+            transform: translateX(30px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+          }
+        }
+
 
 
       `}</style>
@@ -354,6 +400,7 @@ export default function Banner() {
   // State for top therapists section
   const [topTherapists, setTopTherapists] = useState([]);
   const [topTherapistsLoading, setTopTherapistsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch top therapists data
   useEffect(() => {
@@ -391,15 +438,23 @@ export default function Banner() {
     getTopTherapists();
   }, []);
 
+  // Filter therapists based on search query
+  const filteredTherapists = topTherapists.filter((therapist) => {
+    const name = therapist.user?.name || "";
+    const profileType = therapist.profile_type || "";
+    const query = searchQuery.toLowerCase();
+    return name.toLowerCase().includes(query) || profileType.toLowerCase().includes(query);
+  });
+
   return (
     <section
         className="rbt-banner-area rbt-banner-1"
         style={{
           paddingTop: isMobile ? "30px" : "40px",
           marginTop: isMobile ? "-50px" : "0px",
-          paddingBottom: isMobile ? "40px" : "30px",
-          marginBottom: isMobile ? "10px" : "20px",
-
+          paddingBottom: isMobile ? "0px" : "30px",
+          marginBottom: isMobile ? "0px" : "20px",
+          backgroundColor: isMobile ? "transparent" : "inherit"
         }}
       >
 
@@ -491,362 +546,427 @@ export default function Banner() {
 
                 {isMobile && (
                   <>
-                    {/* Professional App-like Mobile Banner */}
+                    {/* Modern Therapist-Focused Mobile Banner */}
                     <div style={{
-                      background: "linear-gradient(135deg, #228756 0%, #2d8a5a 25%, #36b477 50%, #2d8a5a 75%, #228756 100%)",
-                      borderRadius: "0 0 24px 24px",
-                      padding: "20px",
-                      margin: "0 -20px 20px -20px",
-                      boxShadow: "0 8px 32px rgba(34, 135, 86, 0.3), 0 4px 16px rgba(0,0,0,0.1)",
+                      background: "linear-gradient(135deg, #228756 0%, #36b477 50%, #4ecdc4 100%)",
+                      borderRadius: "0 0 32px 32px",
+                      padding: "24px",
+                      margin: "0 -20px 0 -20px",
+                      boxShadow: "none",
                       position: "relative",
-                      overflow: "hidden"
+                      overflow: "hidden",
+                      minHeight: "320px"
                     }}>
-                      {/* Decorative background elements */}
+                      {/* Soft Rounded Shapes Background */}
                       <div style={{
                         position: "absolute",
                         top: "-50px",
-                        right: "-50px",
-                        width: "100px",
-                        height: "100px",
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.1)",
-                        filter: "blur(20px)"
+                        right: "-30px",
+                        width: "150px",
+                        height: "150px",
+                        borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
+                        background: "rgba(255, 255, 255, 0.08)",
+                        filter: "blur(25px)",
+                        animation: "float 6s ease-in-out infinite"
                       }}></div>
                       <div style={{
                         position: "absolute",
-                        bottom: "-30px",
-                        left: "-30px",
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.08)",
-                        filter: "blur(15px)"
+                        bottom: "-60px",
+                        left: "-40px",
+                        width: "180px",
+                        height: "180px",
+                        borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
+                        background: "rgba(255, 255, 255, 0.1)",
+                        filter: "blur(30px)",
+                        animation: "float 8s ease-in-out infinite reverse"
                       }}></div>
                       <div style={{
                         position: "absolute",
-                        top: "20px",
-                        left: "20px",
-                        width: "4px",
-                        height: "4px",
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.6)"
-                      }}></div>
-                      <div style={{
-                        position: "absolute",
-                        top: "60px",
-                        right: "40px",
-                        width: "2px",
-                        height: "2px",
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.4)"
-                      }}></div>
-                      <div style={{
-                        position: "absolute",
-                        bottom: "40px",
-                        left: "60px",
-                        width: "3px",
-                        height: "3px",
-                        borderRadius: "50%",
-                        background: "rgba(255,255,255,0.5)"
+                        top: "50%",
+                        right: "-60px",
+                        width: "120px",
+                        height: "120px",
+                        borderRadius: "50% 40% 60% 30% / 60% 50% 30% 40%",
+                        background: "rgba(255, 255, 255, 0.06)",
+                        filter: "blur(20px)",
+                        animation: "float 7s ease-in-out infinite"
                       }}></div>
 
-                      {/* Header Section */}
-                      <div style={{ textAlign: "center", marginBottom: "20px", position: "relative", zIndex: 1 }}>
+                      {/* Main content */}
+                      <div style={{
+                        textAlign: "center",
+                        marginBottom: "24px",
+                        position: "relative",
+                        zIndex: 2,
+                        marginTop: "20px"
+                      }}>
                         <h1 style={{
-                          fontSize: "clamp(2.2rem, 10vw, 2.8rem)",
+                          fontSize: "clamp(2.4rem, 11vw, 3.2rem)",
                           fontWeight: "900",
                           color: "white",
-                          marginBottom: "10px",
-                          lineHeight: "1.1",
-                          textShadow: "0 4px 8px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)",
-                          letterSpacing: "-0.02em"
+                          marginBottom: "12px",
+                          lineHeight: "1.05",
+                          textShadow: "0 6px 12px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)",
+                          letterSpacing: "-0.03em",
+                          animation: "fadeInUp 0.8s ease-out"
                         }}>
-                          Find Your Afffordable Therapist
+                          Find Your Best Therapist
                         </h1>
+
+                        <p style={{
+                          color: "rgba(255,255,255,0.9)",
+                          fontSize: "14px",
+                          fontWeight: "400",
+                          margin: "0 0 16px 0",
+                          lineHeight: "1.5",
+                          textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                          animation: "fadeInUp 0.8s ease-out 0.15s both"
+                        }}>
+                          We provide affordable therapists with a free follow-up session for added support.
+                        </p>
+
                         <p style={{
                           color: "rgba(255,255,255,0.95)",
-                          fontSize: "15px",
+                          fontSize: "16px",
                           fontWeight: "500",
-                          margin: "0",
+                          margin: "0 0 20px 0",
                           lineHeight: "1.4",
-                          textShadow: "0 1px 2px rgba(0,0,0,0.2)"
+                          textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                          animation: "fadeInUp 0.8s ease-out 0.3s both"
                         }}>
-                          Professional mental health support at your fingertips
+                           <span style={{ fontWeight: "700", color: "#FFE259" }}>Starting from ₹500/session</span>
                         </p>
                       </div>
 
-                      {/* Compact Search Bar */}
+                      {/* Enhanced Action Buttons */}
+                      <div style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr 1fr",
+                        gap: "16px",
+                        marginBottom: "20px",
+                        position: "relative",
+                        zIndex: 2
+                      }}>
+                        <div style={{
+                          background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(225, 242, 251, 0.98) 100%)",
+                          borderRadius: "24px",
+                          padding: "20px 16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "12px",
+                          boxShadow: "0 8px 32px rgba(52, 152, 219, 0.15), 0 2px 8px rgba(52, 152, 219, 0.1)",
+                          transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
+                          border: "2px solid rgba(52, 152, 219, 0.2)",
+                          backdropFilter: "blur(20px)",
+                          position: "relative",
+                          overflow: "hidden",
+                          cursor: "pointer"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = "translateY(-8px)";
+                          e.currentTarget.style.boxShadow = "0 16px 48px rgba(52, 152, 219, 0.25), 0 6px 20px rgba(52, 152, 219, 0.2)";
+                          e.currentTarget.style.borderColor = "rgba(52, 152, 219, 0.4)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(52, 152, 219, 0.15), 0 2px 8px rgba(52, 152, 219, 0.1)";
+                          e.currentTarget.style.borderColor = "rgba(52, 152, 219, 0.2)";
+                        }}>
+                          <div style={{
+                            position: "absolute",
+                            top: "-25px",
+                            right: "-25px",
+                            width: "60px",
+                            height: "60px",
+                            borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(52, 152, 219, 0.1) 0%, transparent 70%)",
+                            filter: "blur(15px)"
+                          }}></div>
+                          <div style={{
+                            background: "linear-gradient(135deg, #3498db 0%, #2980b9 100%)",
+                            borderRadius: "20px",
+                            width: "56px",
+                            height: "56px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 8px 24px rgba(52, 152, 219, 0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
+                            position: "relative",
+                            zIndex: 1,
+                            border: "2px solid rgba(255,255,255,0.3)"
+                          }}>
+                            <i className="feather-phone" style={{
+                              color: "white",
+                              fontSize: "24px",
+                              fontWeight: "bold"
+                            }}></i>
+                          </div>
+                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+                            <div style={{
+                              fontSize: "13px",
+                              fontWeight: "900",
+                              color: "#1a1a1a",
+                              marginBottom: "4px",
+                              letterSpacing: "-0.5px"
+                            }}>
+                              Free Consultation
+                            </div>
+                            <div style={{
+                              fontSize: "10px",
+                              color: "#3498db",
+                              fontWeight: "700",
+                              background: "linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(41, 128, 185, 0.08) 100%)",
+                              borderRadius: "8px",
+                              padding: "4px 8px",
+                              display: "inline-block",
+                              border: "1px solid rgba(52, 152, 219, 0.2)"
+                            }}>
+                              15 min call
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{
+                          background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240, 248, 245, 0.98) 100%)",
+                          borderRadius: "24px",
+                          padding: "20px 16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "12px",
+                          boxShadow: "0 8px 32px rgba(30, 125, 78, 0.15), 0 2px 8px rgba(30, 125, 78, 0.1)",
+                          transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
+                          border: "2px solid rgba(30, 125, 78, 0.2)",
+                          backdropFilter: "blur(20px)",
+                          position: "relative",
+                          overflow: "hidden",
+                          cursor: "pointer"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = "translateY(-8px)";
+                          e.currentTarget.style.boxShadow = "0 16px 48px rgba(30, 125, 78, 0.25), 0 6px 20px rgba(30, 125, 78, 0.2)";
+                          e.currentTarget.style.borderColor = "rgba(30, 125, 78, 0.4)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(30, 125, 78, 0.15), 0 2px 8px rgba(30, 125, 78, 0.1)";
+                          e.currentTarget.style.borderColor = "rgba(30, 125, 78, 0.2)";
+                        }}>
+                          <div style={{
+                            position: "absolute",
+                            bottom: "-30px",
+                            left: "-30px",
+                            width: "70px",
+                            height: "70px",
+                            borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(245, 87, 108, 0.1) 0%, transparent 70%)",
+                            filter: "blur(18px)"
+                          }}></div>
+                          <div style={{
+                            background: "linear-gradient(135deg, #1e7d4e 0%, #228756 100%)",
+                            borderRadius: "20px",
+                            width: "56px",
+                            height: "56px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 8px 24px rgba(30, 125, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
+                            position: "relative",
+                            zIndex: 1,
+                            border: "2px solid rgba(255,255,255,0.3)"
+                          }}>
+                            <i className="feather-users" style={{
+                              color: "white",
+                              fontSize: "24px",
+                              fontWeight: "bold"
+                            }}></i>
+                          </div>
+                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+                            <div style={{
+                              fontSize: "13px",
+                              fontWeight: "900",
+                              color: "#1a1a1a",
+                              marginBottom: "4px",
+                              letterSpacing: "-0.5px"
+                            }}>
+                              Browse Therapists
+                            </div>
+                            <div style={{
+                              fontSize: "10px",
+                              color: "#1e7d4e",
+                              fontWeight: "700",
+                              background: "linear-gradient(135deg, rgba(30, 125, 78, 0.12) 0%, rgba(34, 135, 86, 0.08) 100%)",
+                              borderRadius: "8px",
+                              padding: "4px 8px",
+                              display: "inline-block",
+                              border: "1px solid rgba(30, 125, 78, 0.2)"
+                            }}>
+                              500+ verified
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{
+                          background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240, 248, 245, 0.98) 100%)",
+                          borderRadius: "24px",
+                          padding: "20px 16px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "12px",
+                          boxShadow: "0 8px 32px rgba(39, 174, 96, 0.15), 0 2px 8px rgba(39, 174, 96, 0.1)",
+                          transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
+                          border: "2px solid rgba(39, 174, 96, 0.2)",
+                          backdropFilter: "blur(20px)",
+                          position: "relative",
+                          overflow: "hidden",
+                          cursor: "pointer"
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = "translateY(-8px)";
+                          e.currentTarget.style.boxShadow = "0 16px 48px rgba(39, 174, 96, 0.25), 0 6px 20px rgba(39, 174, 96, 0.2)";
+                          e.currentTarget.style.borderColor = "rgba(39, 174, 96, 0.4)";
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(39, 174, 96, 0.15), 0 2px 8px rgba(39, 174, 96, 0.1)";
+                          e.currentTarget.style.borderColor = "rgba(39, 174, 96, 0.2)";
+                        }}>
+                          <div style={{
+                            position: "absolute",
+                            top: "-35px",
+                            right: "-20px",
+                            width: "80px",
+                            height: "80px",
+                            borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(39, 174, 96, 0.1) 0%, transparent 70%)",
+                            filter: "blur(20px)"
+                          }}></div>
+                          <div style={{
+                            background: "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)",
+                            borderRadius: "20px",
+                            width: "56px",
+                            height: "56px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            boxShadow: "0 8px 24px rgba(39, 174, 96, 0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
+                            position: "relative",
+                            zIndex: 1,
+                            border: "2px solid rgba(255,255,255,0.3)"
+                          }}>
+                            <i className="feather-book" style={{
+                              color: "white",
+                              fontSize: "24px",
+                              fontWeight: "bold"
+                            }}></i>
+                          </div>
+                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+                            <div style={{
+                              fontSize: "13px",
+                              fontWeight: "900",
+                              color: "#1a1a1a",
+                              marginBottom: "4px",
+                              letterSpacing: "-0.5px"
+                            }}>
+                              Mental Health Resources
+                            </div>
+                            <div style={{
+                              fontSize: "10px",
+                              color: "#27ae60",
+                              fontWeight: "700",
+                              background: "linear-gradient(135deg, rgba(39, 174, 96, 0.12) 0%, rgba(46, 204, 113, 0.08) 100%)",
+                              borderRadius: "8px",
+                              padding: "4px 8px",
+                              display: "inline-block",
+                              border: "1px solid rgba(39, 174, 96, 0.2)"
+                            }}>
+                              Articles & Tips
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Search Bar */}
                       <div style={{
                         backgroundColor: "rgba(255,255,255,0.98)",
-                        borderRadius: "16px",
-                        padding: "14px 18px",
-                        marginBottom: "18px",
-                        boxShadow: "0 6px 20px rgba(0,0,0,0.12), 0 2px 8px rgba(34, 135, 86, 0.1)",
+                        borderRadius: "20px",
+                        padding: "16px 20px",
+                        marginBottom: "24px",
+                        boxShadow: "0 8px 24px rgba(0,0,0,0.15), 0 4px 12px rgba(34, 135, 86, 0.15)",
                         display: "flex",
                         alignItems: "center",
-                        gap: "14px",
-                        border: "1px solid rgba(255,255,255,0.2)",
-                        backdropFilter: "blur(10px)",
+                        gap: "16px",
+                        border: "2px solid rgba(34, 135, 86, 0.1)",
+                        backdropFilter: "blur(15px)",
                         position: "relative",
-                        zIndex: 1
+                        zIndex: 2
                       }}>
                         <div style={{
                           backgroundColor: "#228756",
-                          borderRadius: "10px",
-                          width: "32px",
-                          height: "32px",
+                          borderRadius: "12px",
+                          width: "36px",
+                          height: "36px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          boxShadow: "0 2px 8px rgba(34, 135, 86, 0.3)"
+                          boxShadow: "0 3px 10px rgba(34, 135, 86, 0.3)",
+                          flexShrink: 0
                         }}>
                           <i className="feather-search" style={{
                             color: "white",
-                            fontSize: "14px"
+                            fontSize: "16px"
                           }}></i>
                         </div>
                         <input
                           type="text"
-                          placeholder="Search therapists..."
+                          placeholder="Search therapists by name, specialty..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
                           style={{
                             border: "none",
                             outline: "none",
                             flex: 1,
-                            fontSize: "15px",
+                            fontSize: "16px",
                             color: "#333",
                             background: "transparent",
                             fontWeight: "500",
-                            placeholder: "#999"
+                            placeholder: "#888",
+                            fontFamily: "inherit"
                           }}
                         />
                         <div style={{
                           background: "linear-gradient(135deg, #228756 0%, #36b477 100%)",
-                          borderRadius: "12px",
-                          padding: "8px 16px",
+                          borderRadius: "14px",
+                          padding: "10px 18px",
                           color: "white",
-                          fontSize: "13px",
+                          fontSize: "14px",
                           fontWeight: "700",
                           cursor: "pointer",
-                          boxShadow: "0 3px 12px rgba(34, 135, 86, 0.4)",
+                          boxShadow: "0 4px 14px rgba(34, 135, 86, 0.4)",
                           transition: "all 0.2s ease",
-                          border: "1px solid rgba(255,255,255,0.2)"
+                          border: "1px solid rgba(255,255,255,0.2)",
+                          flexShrink: 0
                         }}
                         onMouseOver={(e) => {
                           e.target.style.transform = "translateY(-1px)";
-                          e.target.style.boxShadow = "0 4px 16px rgba(34, 135, 86, 0.5)";
+                          e.target.style.boxShadow = "0 6px 18px rgba(34, 135, 86, 0.5)";
                         }}
                         onMouseOut={(e) => {
                           e.target.style.transform = "translateY(0)";
-                          e.target.style.boxShadow = "0 3px 12px rgba(34, 135, 86, 0.4)";
+                          e.target.style.boxShadow = "0 4px 14px rgba(34, 135, 86, 0.4)";
                         }}>
                           Search
                         </div>
                       </div>
 
-                      {/* Quick Action Buttons */}
-                      <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "16px",
-                        marginBottom: "24px",
-                        position: "relative",
-                        zIndex: 1
-                      }}>
-                        <Link to="/therapy-booking" style={{
-                          backgroundColor: "rgba(255,255,255,0.98)",
-                          borderRadius: "20px",
-                          padding: "20px 16px",
-                          textDecoration: "none",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: "10px",
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.12), 0 4px 12px rgba(34, 135, 86, 0.15)",
-                          transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                          border: "1px solid rgba(255,255,255,0.3)",
-                          backdropFilter: "blur(15px)",
-                          position: "relative",
-                          overflow: "hidden"
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.transform = "translateY(-4px) scale(1.02)";
-                          e.target.style.boxShadow = "0 12px 32px rgba(0,0,0,0.18), 0 6px 16px rgba(34, 135, 86, 0.25)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.transform = "translateY(0) scale(1)";
-                          e.target.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12), 0 4px 12px rgba(34, 135, 86, 0.15)";
-                        }}>
-                          <div style={{
-                            position: "absolute",
-                            top: "-20px",
-                            right: "-20px",
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
-                            background: "linear-gradient(135deg, rgba(34, 135, 86, 0.1) 0%, rgba(54, 180, 119, 0.1) 100%)",
-                            filter: "blur(10px)"
-                          }}></div>
-                          <div style={{
-                            background: "linear-gradient(135deg, #228756 0%, #36b477 100%)",
-                            borderRadius: "16px",
-                            width: "48px",
-                            height: "48px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 6px 16px rgba(34, 135, 86, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
-                            position: "relative",
-                            zIndex: 1
-                          }}>
-                            <i className="feather-calendar" style={{
-                              color: "white",
-                              fontSize: "20px"
-                            }}></i>
-                          </div>
-                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                            <div style={{
-                              fontSize: "14px",
-                              fontWeight: "700",
-                              color: "#333",
-                              marginBottom: "3px",
-                              textShadow: "0 1px 2px rgba(0,0,0,0.05)"
-                            }}>
-                              Book Consultation
-                            </div>
-                            <div style={{
-                              fontSize: "12px",
-                              color: "#666",
-                              fontWeight: "500"
-                            }}>
-                              15 min free call
-                            </div>
-                          </div>
-                        </Link>
-
-                        <Link to="/view-all-therapist" style={{
-                          backgroundColor: "rgba(255,255,255,0.98)",
-                          borderRadius: "20px",
-                          padding: "20px 16px",
-                          textDecoration: "none",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: "10px",
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.12), 0 4px 12px rgba(34, 135, 86, 0.15)",
-                          transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                          border: "1px solid rgba(255,255,255,0.3)",
-                          backdropFilter: "blur(15px)",
-                          position: "relative",
-                          overflow: "hidden"
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.transform = "translateY(-4px) scale(1.02)";
-                          e.target.style.boxShadow = "0 12px 32px rgba(0,0,0,0.18), 0 6px 16px rgba(34, 135, 86, 0.25)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.transform = "translateY(0) scale(1)";
-                          e.target.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12), 0 4px 12px rgba(34, 135, 86, 0.15)";
-                        }}>
-                          <div style={{
-                            position: "absolute",
-                            top: "-15px",
-                            left: "-15px",
-                            width: "35px",
-                            height: "35px",
-                            borderRadius: "50%",
-                            background: "linear-gradient(135deg, rgba(54, 180, 119, 0.1) 0%, rgba(34, 135, 86, 0.1) 100%)",
-                            filter: "blur(8px)"
-                          }}></div>
-                          <div style={{
-                            background: "linear-gradient(135deg, #36b477 0%, #228756 100%)",
-                            borderRadius: "16px",
-                            width: "48px",
-                            height: "48px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 6px 16px rgba(34, 135, 86, 0.4), inset 0 1px 0 rgba(255,255,255,0.2)",
-                            position: "relative",
-                            zIndex: 1
-                          }}>
-                            <i className="feather-users" style={{
-                              color: "white",
-                              fontSize: "20px"
-                            }}></i>
-                          </div>
-                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                            <div style={{
-                              fontSize: "14px",
-                              fontWeight: "700",
-                              color: "#333",
-                              marginBottom: "3px",
-                              textShadow: "0 1px 2px rgba(0,0,0,0.05)"
-                            }}>
-                              Find Therapists
-                            </div>
-                            <div style={{
-                              fontSize: "12px",
-                              color: "#666",
-                              fontWeight: "500"
-                            }}>
-                              Browse directory
-                            </div>
-                          </div>
-                        </Link>
-                      </div>
-
-                    </div>
 
 
 
-                    {/* Top Therapists Section */}
-                    <div style={{ padding: "0 20px", marginBottom: "100px" }}>
-                      <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        marginBottom: "20px",
-                        padding: "16px 20px",
-                        backgroundColor: "rgba(255,255,255,0.9)",
-                        borderRadius: "16px",
-                        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-                        border: "1px solid rgba(34, 135, 86, 0.1)",
-                        backdropFilter: "blur(10px)"
-                      }}>
-                        <h3 style={{
-                          fontSize: "20px",
-                          fontWeight: "800",
-                          color: "#333",
-                          margin: "0",
-                          background: "linear-gradient(135deg, #228756 0%, #36b477 100%)",
-                          WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          backgroundClip: "text"
-                        }}>
-                          Top Therapists
-                        </h3>
-                        <Link to="/view-all-therapist" style={{
-                          color: "#228756",
-                          textDecoration: "none",
-                          fontSize: "15px",
-                          fontWeight: "700",
-                          padding: "8px 16px",
-                          borderRadius: "12px",
-                          backgroundColor: "rgba(34, 135, 86, 0.1)",
-                          transition: "all 0.2s ease",
-                          border: "1px solid rgba(34, 135, 86, 0.2)"
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.backgroundColor = "rgba(34, 135, 86, 0.15)";
-                          e.target.style.transform = "translateX(2px)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.backgroundColor = "rgba(34, 135, 86, 0.1)";
-                          e.target.style.transform = "translateX(0)";
-                        }}>
-                          View All →
-                        </Link>
-                      </div>
+
+
+                     
 
                       {/* Horizontal Scrollable Therapist Cards */}
                       <div style={{
@@ -856,7 +976,11 @@ export default function Banner() {
                         paddingBottom: "8px",
                         scrollbarWidth: "none",
                         msOverflowStyle: "none",
-                        WebkitOverflowScrolling: "touch"
+                        WebkitOverflowScrolling: "touch",
+                        marginTop: "8px",
+                        marginBottom: "24px",
+                        paddingLeft: "0",
+                        paddingRight: "0"
                       }}
                       className="hide-scrollbar">
                         {/* Therapist Cards */}
@@ -866,7 +990,7 @@ export default function Banner() {
                             <div
                               key={index}
                               style={{
-                                minWidth: "140px",
+                                minWidth: "calc(33.333% - 8px)",
                                 backgroundColor: "white",
                                 borderRadius: "16px",
                                 padding: "16px",
@@ -903,13 +1027,13 @@ export default function Banner() {
                               </div>
                             </div>
                           ))
-                        ) : topTherapists.length > 0 ? (
-                          topTherapists.map((therapist) => (
+                        ) : filteredTherapists.length > 0 ? (
+                          filteredTherapists.map((therapist, index) => (
                             <Link
                               key={therapist._id}
                               to={`/therapist-checkout/${therapist._id}`}
                               style={{
-                                minWidth: "150px",
+                                minWidth: "calc(33.333% - 8px)",
                                 backgroundColor: "rgba(255,255,255,0.98)",
                                 borderRadius: "20px",
                                 padding: "18px 16px",
@@ -923,16 +1047,10 @@ export default function Banner() {
                                 transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
                                 backdropFilter: "blur(10px)",
                                 position: "relative",
-                                overflow: "hidden"
+                                overflow: "hidden",
+
                               }}
-                              onMouseOver={(e) => {
-                                e.target.style.transform = "translateY(-4px) scale(1.02)";
-                                e.target.style.boxShadow = "0 12px 32px rgba(0,0,0,0.15), 0 4px 16px rgba(34, 135, 86, 0.12)";
-                              }}
-                              onMouseOut={(e) => {
-                                e.target.style.transform = "translateY(0) scale(1)";
-                                e.target.style.boxShadow = "0 6px 20px rgba(0,0,0,0.1), 0 2px 8px rgba(34, 135, 86, 0.08)";
-                              }}
+
                             >
                               {/* Decorative background element */}
                               <div style={{
@@ -953,7 +1071,6 @@ export default function Banner() {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                border: "3px solid #228756",
                                 overflow: "hidden",
                                 boxShadow: "0 4px 16px rgba(34, 135, 86, 0.2), inset 0 1px 0 rgba(255,255,255,0.3)",
                                 position: "relative",
@@ -978,14 +1095,13 @@ export default function Banner() {
                               </div>
                               <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
                                 <div style={{
-                                  fontSize: "15px",
+                                  fontSize: "14px",
                                   fontWeight: "800",
                                   color: "#333",
                                   marginBottom: "4px",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
                                   maxWidth: "130px",
+                                  lineHeight: "1.2",
+                                  wordBreak: "break-word",
                                   textShadow: "0 1px 2px rgba(0,0,0,0.05)",
                                   cursor: "default",
                                   userSelect: "none"
@@ -993,45 +1109,17 @@ export default function Banner() {
                                   {therapist.user?.name || 'Therapist'}
                                 </div>
                                 <div style={{
-                                  fontSize: "13px",
+                                  fontSize: "12px",
                                   color: "#228756",
                                   marginBottom: "6px",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                  maxWidth: "130px",
                                   fontWeight: "600",
                                   cursor: "default",
-                                  userSelect: "none"
+                                  userSelect: "none",
+                                  lineHeight: "1.3",
+                                  wordBreak: "break-word",
+                                  maxWidth: "130px"
                                 }}>
                                   {therapist.profile_type || 'Counselor'}
-                                </div>
-                                <div style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "3px",
-                                  justifyContent: "center",
-                                  backgroundColor: "rgba(34, 135, 86, 0.08)",
-                                  borderRadius: "12px",
-                                  padding: "4px 8px",
-                                  cursor: "default",
-                                  userSelect: "none"
-                                }}>
-                                  {[1,2,3,4,5].map((star) => (
-                                    <i key={star} className="feather-star" style={{
-                                      fontSize: "11px",
-                                      color: star <= 4 ? "#FFD700" : "#ddd",
-                                      filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.1))"
-                                    }}></i>
-                                  ))}
-                                  <span style={{
-                                    fontSize: "11px",
-                                    color: "#228756",
-                                    marginLeft: "4px",
-                                    fontWeight: "700"
-                                  }}>
-                                    4.8
-                                  </span>
                                 </div>
                               </div>
                             </Link>
@@ -1044,7 +1132,7 @@ export default function Banner() {
                             color: "#666",
                             fontSize: "14px"
                           }}>
-                            No therapists available
+                            {searchQuery ? "No therapists found matching your search" : "No therapists available"}
                           </div>
                         )}
                       </div>
@@ -1060,7 +1148,6 @@ export default function Banner() {
                       `}</style>
                     </div>
 
-
                   </>
                 )}
 
@@ -1068,21 +1155,7 @@ export default function Banner() {
 
 
 
-                {/* Centered description on mobile */}
-                <p
-                  className="description"
-                  style={{
-                    textAlign: isMobile ? "center" : "left",
-                    marginTop: "15px",
-                    color: isMobile ? "black" : "inherit",
-                  }}
-                >
-                  Book{" "}
-                  <span style={{ color: "#004e92", fontWeight: "bold" }}>
-                    verified psychologists
-                  </span>{" "}
-                  online or in-person in Noida. Trusted therapist anytime.
-                </p>
+
 
                 {!isMobile && (
                   <>

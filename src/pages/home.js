@@ -11,6 +11,7 @@ import PromationalBanner from "../components/home/promational-banner";
 import Services from "../components/home/services";
 import HomeWorkshop from "../components/home/workshops";
 import MyNavbar from "../components/navbar";
+import BottomNavigation from "../components/bottom-navigation";
 
 import Brands from "../components/about/brands";
 import HorTherapistCards from "../components/home/HorTherapistCard";
@@ -20,7 +21,7 @@ export default function HomePage() {
   // const [showPopup, setShowPopup] = useState(false); // agar popup use karna ho
 
   return (
-    <div id="__next">
+    <div id="__next" style={{ overflowX: 'hidden', width: '100%' }}>
       {/* SEO Meta Tags with Local SEO & Keywords */}
       <Helmet>
         <title>
@@ -67,6 +68,9 @@ export default function HomePage() {
 
         {/* Footer */}
         <Footer />
+
+        {/* Bottom Navigation for Mobile */}
+        <BottomNavigation />
       </main>
     </div>
   );
