@@ -88,6 +88,13 @@ export default function MobileBottomNav() {
             align-items: center;
             height: 70px;
             max-height: 70px;
+            will-change: transform;
+            transform: translateZ(0);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
           }
 
           .mobile-bottom-nav li {
@@ -202,16 +209,22 @@ export default function MobileBottomNav() {
             }
           }
 
-          /* Ensure navigation stays at bottom */
-          body {
-            padding-bottom: 70px;
+          /* Ensure navigation stays at bottom and doesn't overlap content */
+          html, body {
+            overflow-x: hidden;
+          }
+
+          @media (max-width: 1024px) {
+            html, body {
+              padding-bottom: 80px;
+            }
           }
 
           @media (min-width: 1025px) {
             .mobile-bottom-nav {
               display: none !important;
             }
-            body {
+            html, body {
               padding-bottom: 0;
             }
           }

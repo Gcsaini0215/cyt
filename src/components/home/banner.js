@@ -550,12 +550,12 @@ export default function Banner() {
                     <div style={{
                       background: "linear-gradient(135deg, #228756 0%, #36b477 50%, #4ecdc4 100%)",
                       borderRadius: "0 0 32px 32px",
-                      padding: "24px",
+                      padding: isMobile ? "16px 20px" : "24px",
                       margin: "0 -20px 0 -20px",
                       boxShadow: "none",
                       position: "relative",
                       overflow: "hidden",
-                      minHeight: "320px"
+                      minHeight: isMobile ? "280px" : "320px"
                     }}>
                       {/* Soft Rounded Shapes Background */}
                       <div style={{
@@ -601,24 +601,27 @@ export default function Banner() {
                         marginTop: "20px"
                       }}>
                         <h1 style={{
-                          fontSize: "clamp(2.4rem, 11vw, 3.2rem)",
+                          fontSize: isMobile ? "clamp(1.6rem, 9vw, 2.2rem)" : "clamp(2.4rem, 11vw, 3.2rem)",
                           fontWeight: "900",
                           color: "white",
                           marginBottom: "12px",
-                          lineHeight: "1.05",
+                          lineHeight: isMobile ? "1.1" : "1.05",
                           textShadow: "0 6px 12px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)",
                           letterSpacing: "-0.03em",
-                          animation: "fadeInUp 0.8s ease-out"
+                          animation: "fadeInUp 0.8s ease-out",
+                          whiteSpace: isMobile ? "nowrap" : "normal",
+                          overflow: isMobile ? "hidden" : "visible",
+                          textOverflow: isMobile ? "ellipsis" : "clip"
                         }}>
                           Find Your Best Therapist
                         </h1>
 
                         <p style={{
                           color: "rgba(255,255,255,0.9)",
-                          fontSize: "14px",
+                          fontSize: isMobile ? "12px" : "14px",
                           fontWeight: "400",
-                          margin: "0 0 16px 0",
-                          lineHeight: "1.5",
+                          margin: isMobile ? "0 0 8px 0" : "0 0 16px 0",
+                          lineHeight: "1.4",
                           textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                           animation: "fadeInUp 0.8s ease-out 0.15s both"
                         }}>
@@ -627,10 +630,10 @@ export default function Banner() {
 
                         <p style={{
                           color: "rgba(255,255,255,0.95)",
-                          fontSize: "16px",
+                          fontSize: isMobile ? "13px" : "16px",
                           fontWeight: "500",
-                          margin: "0 0 20px 0",
-                          lineHeight: "1.4",
+                          margin: isMobile ? "0 0 12px 0" : "0 0 20px 0",
+                          lineHeight: "1.3",
                           textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                           animation: "fadeInUp 0.8s ease-out 0.3s both"
                         }}>
@@ -642,19 +645,19 @@ export default function Banner() {
                       <div style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr 1fr",
-                        gap: "16px",
-                        marginBottom: "20px",
+                        gap: isMobile ? "10px" : "16px",
+                        marginBottom: isMobile ? "12px" : "20px",
                         position: "relative",
                         zIndex: 2
                       }}>
                         <div style={{
                           background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(225, 242, 251, 0.98) 100%)",
                           borderRadius: "24px",
-                          padding: "20px 16px",
+                          padding: isMobile ? "12px 10px" : "20px 16px",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          gap: "12px",
+                          gap: isMobile ? "8px" : "12px",
                           boxShadow: "0 8px 32px rgba(52, 152, 219, 0.15), 0 2px 8px rgba(52, 152, 219, 0.1)",
                           transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
                           border: "2px solid rgba(52, 152, 219, 0.2)",
