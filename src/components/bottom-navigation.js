@@ -76,8 +76,8 @@ export default function BottomNavigation() {
     },
     {
       id: "profile",
-      label: "Profile",
-      icon: "feather-user",
+      label: userType === 0 ? "Login" : "Profile",
+      icon: userType === 0 ? "feather-log-in" : "feather-user",
       path: profilePath,
       active: location.pathname === "/my-dashboard" || location.pathname === "/therapist-dashboard" || location.pathname === "/login"
     },
