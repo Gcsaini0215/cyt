@@ -57,6 +57,8 @@ import MindMatters from "./pages/mind-matters";
 import HowItWorks from "./pages/how-it-works";
 import EmergencySupport from "./pages/emergency-support";
 import MentorshipForStudents from "./pages/mentorship-for-students";
+import AIChat from "./pages/ai-chat";
+import AIAffirmation from "./pages/ai-affirmation";
 const theme = createTheme();
 
 function App() {
@@ -124,6 +126,8 @@ function App() {
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/emergency-support" element={<EmergencySupport />} />
               <Route path="/mentorship-for-students" element={<MentorshipForStudents />} />
+              <Route path="/ai-chat" element={<AIChat />} />
+              <Route path="/ai-affirmation" element={<AIAffirmation />} />
 
               <Route
                 path="/workshop-detail/:id"

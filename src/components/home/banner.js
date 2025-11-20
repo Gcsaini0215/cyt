@@ -1,4 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
+import { 
+  Thunderstorm, 
+  Cloud, 
+  Bolt, 
+  Favorite, 
+  Work, 
+  Spa, 
+  Psychology, 
+  VolunteerActivism,
+  SelfImprovement,
+  SentimentDissatisfied,
+  Search,
+  Star,
+  BusinessCenter,
+  ArrowForward,
+  Person,
+  SupportAgent,
+  CrisisAlert
+} from "@mui/icons-material";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -402,6 +421,7 @@ export default function Banner() {
   const [topTherapistsLoading, setTopTherapistsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [dynamicFeelingCards, setDynamicFeelingCards] = useState([]);
 
   // Animated placeholder texts
   const placeholderTexts = [
@@ -409,6 +429,20 @@ export default function Banner() {
     "Search by expertise...",
     "Search by state..."
   ];
+
+  // Helper to assign icons and colors based on expertise text
+  const getStyleForExpertise = (text) => {
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes("anxi")) return { icon: <Thunderstorm sx={{ fontSize: 24 }} />, color: "#F0FDF4", border: "#DCFCE7", iconColor: "#228756" }; // Anxiety
+    if (lowerText.includes("depress")) return { icon: <Cloud sx={{ fontSize: 24 }} />, color: "#EFF6FF", border: "#DBEAFE", iconColor: "#3B82F6" }; // Depression
+    if (lowerText.includes("stress")) return { icon: <Bolt sx={{ fontSize: 24 }} />, color: "#FFF7ED", border: "#FFEDD5", iconColor: "#F97316" }; // Stress
+    if (lowerText.includes("relation") || lowerText.includes("couple")) return { icon: <Favorite sx={{ fontSize: 24 }} />, color: "#FEF2F2", border: "#FECACA", iconColor: "#EF4444" }; // Relationships
+    if (lowerText.includes("child") || lowerText.includes("parent")) return { icon: <VolunteerActivism sx={{ fontSize: 24 }} />, color: "#F0F9FF", border: "#BAE6FD", iconColor: "#0EA5E9" }; // Parenting
+    if (lowerText.includes("trauma") || lowerText.includes("ptsd")) return { icon: <SentimentDissatisfied sx={{ fontSize: 24 }} />, color: "#FAF5FF", border: "#E9D5FF", iconColor: "#A855F7" }; // Trauma
+    if (lowerText.includes("career") || lowerText.includes("work")) return { icon: <Work sx={{ fontSize: 24 }} />, color: "#F8FAFC", border: "#E2E8F0", iconColor: "#64748B" }; // Career
+    if (lowerText.includes("addiction")) return { icon: <SelfImprovement sx={{ fontSize: 24 }} />, color: "#FFF1F2", border: "#FECDD3", iconColor: "#E11D48" }; // Addiction
+    return { icon: <Spa sx={{ fontSize: 24 }} />, color: "#F0FDF4", border: "#DCFCE7", iconColor: "#228756" }; // Default
+  };
 
   // Fetch top therapists data
   useEffect(() => {
@@ -418,6 +452,32 @@ export default function Banner() {
         if (res.status && res.data) {
           // Get all therapists data
           const allTherapists = res.data || [];
+
+          // --- LOGIC TO EXTRACT TOP EXPERTISE ---
+          const expertiseCounts = {};
+          allTherapists.forEach(therapist => {
+            if (therapist.experties) {
+              // Split by comma, trim whitespace
+              const tags = therapist.experties.split(',').map(t => t.trim());
+              tags.forEach(tag => {
+                if (tag) {
+                  expertiseCounts[tag] = (expertiseCounts[tag] || 0) + 1;
+                }
+              });
+            }
+          });
+
+          // Sort by count and take top 8
+          const sortedExpertise = Object.entries(expertiseCounts)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 8)
+            .map(([label]) => {
+              const style = getStyleForExpertise(label);
+              return { label, ...style };
+            });
+          
+          setDynamicFeelingCards(sortedExpertise);
+          // --------------------------------------
 
           // First, get all priority 1 therapists
           const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1);
@@ -566,626 +626,281 @@ export default function Banner() {
 
 
                 {isMobile && (
-                  <>
-                    {/* Modern Therapist-Focused Mobile Banner */}
-                    <div style={{
-                      background: "linear-gradient(135deg, #228756 0%, #36b477 30%, #4ecdc4 60%, #ffffff 100%)",
-                      borderRadius: "0 0 32px 32px",
-                      padding: isMobile ? "16px 20px" : "24px",
-                      margin: "0 -20px 0 -20px",
-                      boxShadow: "none",
-                      position: "relative",
-                      overflow: "hidden",
-                      minHeight: isMobile ? "280px" : "320px"
+                  <div style={{ 
+                    backgroundColor: "#f8f9fa", // Light grey background like Practo
+                    paddingBottom: "20px",
+                    marginBottom: "20px",
+                    marginLeft: "-20px",
+                    marginRight: "-20px",
+                  }}>
+                    
+                    {/* 1. Top Section: Search Bar (Practo Style) */}
+                    <div style={{ 
+                      backgroundColor: "white", 
+                      padding: "15px 20px 20px 20px",
+                      borderBottomLeftRadius: "20px",
+                      borderBottomRightRadius: "20px",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.03)"
                     }}>
-                      {/* Soft Rounded Shapes Background */}
-                      <div style={{
-                        position: "absolute",
-                        top: "-50px",
-                        right: "-30px",
-                        width: "150px",
-                        height: "150px",
-                        borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
-                        background: "rgba(255, 255, 255, 0.08)",
-                        filter: "blur(25px)",
-                        animation: "float 6s ease-in-out infinite"
-                      }}></div>
-                      <div style={{
-                        position: "absolute",
-                        bottom: "-60px",
-                        left: "-40px",
-                        width: "180px",
-                        height: "180px",
-                        borderRadius: "60% 40% 30% 70% / 60% 30% 70% 40%",
-                        background: "rgba(255, 255, 255, 0.1)",
-                        filter: "blur(30px)",
-                        animation: "float 8s ease-in-out infinite reverse"
-                      }}></div>
-                      <div style={{
-                        position: "absolute",
-                        top: "50%",
-                        right: "-60px",
-                        width: "120px",
-                        height: "120px",
-                        borderRadius: "50% 40% 60% 30% / 60% 50% 30% 40%",
-                        background: "rgba(255, 255, 255, 0.06)",
-                        filter: "blur(20px)",
-                        animation: "float 7s ease-in-out infinite"
-                      }}></div>
-
-                      {/* Main content */}
-                      <div style={{
-                        textAlign: "center",
-                        marginBottom: "24px",
-                        position: "relative",
-                        zIndex: 2,
-                        marginTop: "20px"
-                      }}>
-                        <h1 style={{
-                          fontSize: isMobile ? "clamp(1.8rem, 10vw, 2.5rem)" : "clamp(2.8rem, 12vw, 3.5rem)",
-                          fontWeight: "900",
-                          color: "white",
-                          marginBottom: "12px",
-                          lineHeight: isMobile ? "1.1" : "1.05",
-                          textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                          letterSpacing: "-0.03em",
-                          animation: "fadeInUp 0.8s ease-out",
-                          whiteSpace: isMobile ? "nowrap" : "normal",
-                          overflow: isMobile ? "hidden" : "visible",
-                          textOverflow: isMobile ? "ellipsis" : "clip"
-                        }}>
-                          Find Your Best Therapist
-                        </h1>
-
-                        <p style={{
-                          color: "rgba(255,255,255,0.9)",
-                          fontSize: isMobile ? "12px" : "14px",
-                          fontWeight: "400",
-                          margin: isMobile ? "0 0 8px 0" : "0 0 16px 0",
-                          lineHeight: "1.4",
-                          textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                          animation: "fadeInUp 0.8s ease-out 0.15s both"
-                        }}>
-                          We provide affordable therapists<br />with a free follow-up session for added support.
-                        </p>
-
-                        <p style={{
-                          color: "rgba(255,255,255,0.95)",
-                          fontSize: isMobile ? "15px" : "18px",
-                          fontWeight: "500",
-                          margin: isMobile ? "0 0 12px 0" : "0 0 20px 0",
-                          lineHeight: "1.3",
-                          textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                          animation: "fadeInUp 0.8s ease-out 0.3s both"
-                        }}>
-                           <span style={{ fontWeight: "700", color: "#FFE259" }}>Starting from ₹500/session</span>
-                        </p>
-                      </div>
-
-                      {/* Enhanced Action Buttons */}
-                      <div style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr 1fr",
-                        gap: isMobile ? "10px" : "16px",
-                        marginBottom: isMobile ? "12px" : "20px",
-                        position: "relative",
-                        zIndex: 2
-                      }}>
-                        <div style={{
-                          background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(225, 242, 251, 0.98) 100%)",
-                          borderRadius: "24px",
-                          padding: isMobile ? "12px 10px" : "20px 16px",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: isMobile ? "8px" : "12px",
-                          boxShadow: "0 8px 32px rgba(52, 152, 219, 0.15), 0 2px 8px rgba(52, 152, 219, 0.1)",
-                          transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
-                          border: "2px solid rgba(52, 152, 219, 0.2)",
-                          backdropFilter: "blur(20px)",
-                          position: "relative",
-                          overflow: "hidden",
-                          cursor: "pointer"
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = "translateY(-8px)";
-                          e.currentTarget.style.boxShadow = "0 16px 48px rgba(52, 152, 219, 0.25), 0 6px 20px rgba(52, 152, 219, 0.2)";
-                          e.currentTarget.style.borderColor = "rgba(52, 152, 219, 0.4)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(52, 152, 219, 0.15), 0 2px 8px rgba(52, 152, 219, 0.1)";
-                          e.currentTarget.style.borderColor = "rgba(52, 152, 219, 0.2)";
-                        }}>
-                          <div style={{
-                            position: "absolute",
-                            top: "-25px",
-                            right: "-25px",
-                            width: "60px",
-                            height: "60px",
-                            borderRadius: "50%",
-                            background: "radial-gradient(circle, rgba(52, 152, 219, 0.1) 0%, transparent 70%)",
-                            filter: "blur(15px)"
-                          }}></div>
-                          <div style={{
-                            background: "linear-gradient(135deg, #3498db 0%, #2980b9 100%)",
-                            borderRadius: "20px",
-                            width: "56px",
-                            height: "56px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 8px 24px rgba(52, 152, 219, 0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
-                            position: "relative",
-                            zIndex: 1,
-                            border: "2px solid rgba(255,255,255,0.3)"
-                          }}>
-                            <i className="feather-phone" style={{
-                              color: "white",
-                              fontSize: "24px",
-                              fontWeight: "bold"
-                            }}></i>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "15px" }}>
+                        <div>
+                          <div style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>
+                            <BusinessCenter sx={{ color: "#228756", fontSize: 14, marginRight: "5px", verticalAlign: "middle" }} />
+                            Online / India
                           </div>
-                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                            <div style={{
-                              fontSize: "13px",
-                              fontWeight: "900",
-                              color: "#1a1a1a",
-                              marginBottom: "4px",
-                              letterSpacing: "-0.5px"
-                            }}>
-                              Free Consultation
-                            </div>
-                            <div style={{
-                              fontSize: "10px",
-                              color: "#3498db",
-                              fontWeight: "700",
-                              background: "linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(41, 128, 185, 0.08) 100%)",
-                              borderRadius: "8px",
-                              padding: "4px 8px",
-                              display: "inline-block",
-                              border: "1px solid rgba(52, 152, 219, 0.2)"
-                            }}>
-                              15 min call
-                            </div>
+                          <div style={{ fontSize: "16px", fontWeight: "700", color: "#1a1a1a" }}>
+                            Find your therapist
                           </div>
                         </div>
-
-                        <div style={{
-                          background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240, 248, 245, 0.98) 100%)",
-                          borderRadius: "24px",
-                          padding: isMobile ? "12px 10px" : "20px 16px",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: isMobile ? "8px" : "12px",
-                          boxShadow: "0 8px 32px rgba(30, 125, 78, 0.15), 0 2px 8px rgba(30, 125, 78, 0.1)",
-                          transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
-                          border: "2px solid rgba(30, 125, 78, 0.2)",
-                          backdropFilter: "blur(20px)",
-                          position: "relative",
-                          overflow: "hidden",
-                          cursor: "pointer"
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = "translateY(-8px)";
-                          e.currentTarget.style.boxShadow = "0 16px 48px rgba(30, 125, 78, 0.25), 0 6px 20px rgba(30, 125, 78, 0.2)";
-                          e.currentTarget.style.borderColor = "rgba(30, 125, 78, 0.4)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(30, 125, 78, 0.15), 0 2px 8px rgba(30, 125, 78, 0.1)";
-                          e.currentTarget.style.borderColor = "rgba(30, 125, 78, 0.2)";
+                        <div style={{ 
+                          width: "35px", height: "35px", borderRadius: "50%", 
+                          backgroundColor: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" 
                         }}>
-                          <div style={{
-                            position: "absolute",
-                            top: "-25px",
-                            right: "-25px",
-                            width: "60px",
-                            height: "60px",
-                            borderRadius: "50%",
-                            background: "radial-gradient(circle, rgba(34, 135, 86, 0.1) 0%, transparent 70%)",
-                            filter: "blur(15px)"
-                          }}></div>
-                          <div style={{
-                            background: "linear-gradient(135deg, #1e7d4e 0%, #228756 100%)",
-                            borderRadius: "20px",
-                            width: "56px",
-                            height: "56px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 8px 24px rgba(30, 125, 78, 0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
-                            position: "relative",
-                            zIndex: 1,
-                            border: "2px solid rgba(255,255,255,0.3)"
-                          }}>
-                            <i className="feather-users" style={{
-                              color: "white",
-                              fontSize: "24px",
-                              fontWeight: "bold"
-                            }}></i>
-                          </div>
-                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                            <div style={{
-                              fontSize: "13px",
-                              fontWeight: "900",
-                              color: "#1a1a1a",
-                              marginBottom: "4px",
-                              letterSpacing: "-0.5px"
-                            }}>
-                              Therapists
-                            </div>
-                            <div style={{
-                              fontSize: "10px",
-                              color: "#1e7d4e",
-                              fontWeight: "700",
-                              background: "linear-gradient(135deg, rgba(30, 125, 78, 0.12) 0%, rgba(34, 135, 86, 0.08) 100%)",
-                              borderRadius: "8px",
-                              padding: "4px 8px",
-                              display: "inline-block",
-                              border: "1px solid rgba(30, 125, 78, 0.2)"
-                            }}>
-                              500+ verified
-                            </div>
-                          </div>
-                        </div>
-
-                        <div style={{
-                          background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240, 248, 245, 0.98) 100%)",
-                          borderRadius: "24px",
-                          padding: isMobile ? "12px 10px" : "20px 16px",
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: isMobile ? "8px" : "12px",
-                          boxShadow: "0 8px 32px rgba(39, 174, 96, 0.15), 0 2px 8px rgba(39, 174, 96, 0.1)",
-                          transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
-                          border: "2px solid rgba(39, 174, 96, 0.2)",
-                          backdropFilter: "blur(20px)",
-                          position: "relative",
-                          overflow: "hidden",
-                          cursor: "pointer"
-                        }}
-                        onMouseOver={(e) => {
-                          e.currentTarget.style.transform = "translateY(-8px)";
-                          e.currentTarget.style.boxShadow = "0 16px 48px rgba(39, 174, 96, 0.25), 0 6px 20px rgba(39, 174, 96, 0.2)";
-                          e.currentTarget.style.borderColor = "rgba(39, 174, 96, 0.4)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.currentTarget.style.transform = "translateY(0)";
-                          e.currentTarget.style.boxShadow = "0 8px 32px rgba(39, 174, 96, 0.15), 0 2px 8px rgba(39, 174, 96, 0.1)";
-                          e.currentTarget.style.borderColor = "rgba(39, 174, 96, 0.2)";
-                        }}>
-                          <div style={{
-                            position: "absolute",
-                            top: "-25px",
-                            right: "-25px",
-                            width: "60px",
-                            height: "60px",
-                            borderRadius: "50%",
-                            background: "radial-gradient(circle, rgba(39, 174, 96, 0.1) 0%, transparent 70%)",
-                            filter: "blur(15px)"
-                          }}></div>
-                          <div style={{
-                            background: "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)",
-                            borderRadius: "20px",
-                            width: "56px",
-                            height: "56px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            boxShadow: "0 8px 24px rgba(39, 174, 96, 0.35), inset 0 1px 0 rgba(255,255,255,0.3)",
-                            position: "relative",
-                            zIndex: 1,
-                            border: "2px solid rgba(255,255,255,0.3)"
-                          }}>
-                            <i className="feather-heart" style={{
-                              color: "white",
-                              fontSize: "24px",
-                              fontWeight: "bold"
-                            }}></i>
-                          </div>
-                          <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                            <div style={{
-                              fontSize: "13px",
-                              fontWeight: "900",
-                              color: "#1a1a1a",
-                              marginBottom: "4px",
-                              letterSpacing: "-0.5px"
-                            }}>
-                              Community
-                            </div>
-                            <div style={{
-                              fontSize: "10px",
-                              color: "#27ae60",
-                              fontWeight: "700",
-                              background: "linear-gradient(135deg, rgba(39, 174, 96, 0.12) 0%, rgba(46, 204, 113, 0.08) 100%)",
-                              borderRadius: "8px",
-                              padding: "4px 8px",
-                              display: "inline-block",
-                              border: "1px solid rgba(39, 174, 96, 0.2)"
-                            }}>
-                              Connect & Share
-                            </div>
-                          </div>
+                          <Person sx={{ color: "#228756", fontSize: 20 }} />
                         </div>
                       </div>
 
-                      {/* Search Bar */}
                       <div style={{
-                        backgroundColor: "rgba(255,255,255,0.98)",
-                        borderRadius: "20px",
-                        padding: "16px 20px",
-                        marginBottom: "24px",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.15), 0 4px 12px rgba(34, 135, 86, 0.15)",
+                        backgroundColor: "#f8f9fa", // Input bg
+                        borderRadius: "12px",
+                        padding: "12px 16px",
                         display: "flex",
                         alignItems: "center",
-                        gap: "16px",
-                        border: "2px solid rgba(34, 135, 86, 0.1)",
-                        backdropFilter: "blur(15px)",
-                        position: "relative",
-                        zIndex: 2
+                        gap: "12px",
+                        border: "1px solid #e9ecef"
                       }}>
-                        <div style={{
-                          backgroundColor: "#228756",
-                          borderRadius: "12px",
-                          width: "36px",
-                          height: "36px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          boxShadow: "0 3px 10px rgba(34, 135, 86, 0.3)",
-                          flexShrink: 0
-                        }}>
-                          <i className="feather-search" style={{
-                            color: "white",
-                            fontSize: "16px"
-                          }}></i>
-                        </div>
+                        <Search sx={{ color: "#666", fontSize: 22 }} />
                         <input
                           type="text"
-                          placeholder={placeholderTexts[placeholderIndex]}
+                          placeholder="Search for anxiety, depression..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           style={{
                             border: "none",
                             outline: "none",
-                            flex: 1,
-                            fontSize: "16px",
-                            color: "#333",
-                            background: "transparent",
+                            width: "100%",
+                            fontSize: "14px",
                             fontWeight: "500",
-                            placeholder: "#888",
-                            fontFamily: "inherit",
-                            whiteSpace: "nowrap"
+                            color: "#333",
+                            backgroundColor: "transparent"
                           }}
                         />
-                        <div style={{
-                          background: "linear-gradient(135deg, #228756 0%, #36b477 100%)",
-                          borderRadius: "14px",
-                          padding: "10px 18px",
-                          color: "white",
-                          fontSize: "14px",
-                          fontWeight: "700",
-                          cursor: "pointer",
-                          boxShadow: "0 4px 14px rgba(34, 135, 86, 0.4)",
-                          transition: "all 0.2s ease",
-                          border: "1px solid rgba(255,255,255,0.2)",
-                          flexShrink: 0
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.transform = "translateY(-1px)";
-                          e.target.style.boxShadow = "0 6px 18px rgba(34, 135, 86, 0.5)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.transform = "translateY(0)";
-                          e.target.style.boxShadow = "0 4px 14px rgba(34, 135, 86, 0.4)";
+                      </div>
+                    </div>
+                    {/* 2. PROMOTIONAL BANNER SLIDER (Horizontal Scroll) */}
+                    <div style={{ padding: "0 20px 20px 20px" }}>
+                      <div className="hide-scrollbar" style={{ 
+                        display: "flex", 
+                        gap: "15px", 
+                        overflowX: "auto", 
+                        paddingBottom: "5px",
+                        scrollSnapType: "x mandatory",
+                        scrollPadding: "20px"
+                      }}>
+                        
+                        {/* Banner 1 */}
+                        <div style={{ 
+                          minWidth: "280px", 
+                          height: "140px", 
+                          borderRadius: "20px", 
+                          background: "linear-gradient(135deg, #228756 0%, #4ade80 100%)", 
+                          position: "relative",
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "20px",
+                          boxShadow: "0 8px 20px rgba(34, 135, 86, 0.25)",
+                          scrollSnapAlign: "start"
                         }}>
-                          Search
-                        </div>
-                      </div>
-
-
-
-
-
-
-                     
-
-                      {/* Horizontal Scrollable Therapist Cards */}
-                      <div style={{
-                        display: "flex",
-                        gap: "12px",
-                        overflowX: "auto",
-                        paddingBottom: "8px",
-                        scrollbarWidth: "none",
-                        msOverflowStyle: "none",
-                        WebkitOverflowScrolling: "touch",
-                        marginTop: "8px",
-                        marginBottom: "24px",
-                        paddingLeft: "0",
-                        paddingRight: "0"
-                      }}
-                      className="hide-scrollbar">
-                        {/* Therapist Cards */}
-                        {topTherapistsLoading ? (
-                          // Loading skeleton
-                          Array.from({ length: 10 }).map((_, index) => (
-                            <div
-                              key={index}
-                              style={{
-                                minWidth: "calc(50% - 6px)",
-                                backgroundColor: "white",
-                                borderRadius: "16px",
-                                padding: "16px",
-                                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                                border: "1px solid #f0f0f0",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                gap: "8px"
-                              }}
-                            >
-                              <div style={{
-                                width: "60px",
-                                height: "60px",
-                                borderRadius: "50%",
-                                backgroundColor: "#f0f0f0",
-                                animation: "shimmer 1.5s infinite"
-                              }} />
-                              <div style={{ textAlign: "center", width: "100%" }}>
-                                <div style={{
-                                  height: "14px",
-                                  backgroundColor: "#f0f0f0",
-                                  marginBottom: "4px",
-                                  borderRadius: "4px",
-                                  animation: "shimmer 1.5s infinite"
-                                }} />
-                                <div style={{
-                                  height: "12px",
-                                  backgroundColor: "#f0f0f0",
-                                  marginBottom: "4px",
-                                  borderRadius: "4px",
-                                  animation: "shimmer 1.5s infinite"
-                                }} />
-                              </div>
-                            </div>
-                          ))
-                        ) : filteredTherapists.length > 0 ? (
-                          filteredTherapists.map((therapist, index) => (
-                            <Link
-                              key={therapist._id}
-                              to={`/therapist-checkout/${therapist._id}`}
-                              style={{
-                                minWidth: "calc(50% - 6px)",
-                                backgroundColor: "rgba(255,255,255,0.98)",
-                                borderRadius: "20px",
-                                padding: "18px 16px",
-                                boxShadow: "0 6px 20px rgba(0,0,0,0.1), 0 2px 8px rgba(34, 135, 86, 0.08)",
-                                border: "1px solid rgba(255,255,255,0.3)",
-                                textDecoration: "none",
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                gap: "10px",
-                                transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                                backdropFilter: "blur(10px)",
-                                position: "relative",
-                                overflow: "hidden",
-
-                              }}
-
-                            >
-                              {/* Decorative background element */}
-                              <div style={{
-                                position: "absolute",
-                                top: "-25px",
-                                right: "-25px",
-                                width: "50px",
-                                height: "50px",
-                                borderRadius: "50%",
-                                background: "linear-gradient(135deg, rgba(34, 135, 86, 0.08) 0%, rgba(54, 180, 119, 0.08) 100%)",
-                                filter: "blur(12px)"
-                              }}></div>
-                              <div style={{
-                                width: "64px",
-                                height: "64px",
-                                borderRadius: "50%",
-                                background: "linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                overflow: "hidden",
-                                boxShadow: "0 4px 16px rgba(34, 135, 86, 0.2), inset 0 1px 0 rgba(255,255,255,0.3)",
-                                position: "relative",
-                                zIndex: 1
-                              }}>
-                                {therapist.user?.profile ? (
-                                  <ImageTag
-                                    src={`${imagePath}/${therapist.user.profile}`}
-                                    alt={therapist.user?.name || 'Therapist'}
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover"
-                                    }}
-                                  />
-                                ) : (
-                                  <i className="feather-user" style={{
-                                    color: "#228756",
-                                    fontSize: "24px"
-                                  }}></i>
-                                )}
-                              </div>
-                              <div style={{ textAlign: "center", position: "relative", zIndex: 1 }}>
-                                <div style={{
-                                  fontSize: "14px",
-                                  fontWeight: "800",
-                                  color: "#333",
-                                  marginBottom: "4px",
-                                  maxWidth: "130px",
-                                  lineHeight: "1.2",
-                                  wordBreak: "break-word",
-                                  textShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                                  cursor: "default",
-                                  userSelect: "none"
-                                }}>
-                                  {therapist.user?.name || 'Therapist'}
-                                </div>
-                                <div style={{
-                                  fontSize: "12px",
-                                  color: "#228756",
-                                  marginBottom: "4px",
-                                  fontWeight: "600",
-                                  cursor: "default",
-                                  userSelect: "none",
-                                  lineHeight: "1.3",
-                                  wordBreak: "break-word",
-                                  maxWidth: "130px"
-                                }}>
-                                  {therapist.profile_type || 'Counselor'}
-                                </div>
-                                <div style={{
-                                  fontSize: "11px",
-                                  color: "#666",
-                                  fontWeight: "500",
-                                  cursor: "default",
-                                  userSelect: "none",
-                                  lineHeight: "1.2",
-                                  wordBreak: "break-word",
-                                  maxWidth: "130px"
-                                }}>
-                                  ({therapist.state || 'Location not specified'})
-                                </div>
-                              </div>
-                            </Link>
-                          ))
-                        ) : (
-                          // No therapists available
-                          <div style={{
-                            padding: "20px",
-                            textAlign: "center",
-                            color: "white",
-                            fontSize: "14px"
-                          }}>
-                            {searchQuery ? "No therapists found matching your search" : "No therapists available"}
+                          <div style={{ position: "relative", zIndex: 2, color: "white" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "700", background: "rgba(255,255,255,0.2)", padding: "4px 8px", borderRadius: "4px" }}>NEW</span>
+                            <h3 style={{ fontSize: "18px", fontWeight: "800", margin: "8px 0 4px 0", color: "white" }}>15 Minute<br/>Free Consultation</h3>
+                            <p style={{ fontSize: "12px", margin: 0, opacity: 0.9 }}>Get matched with the right expert.</p>
                           </div>
-                        )}
-                      </div>
+                          <div style={{ position: "absolute", right: "-30px", bottom: "-30px", width: "140px", height: "140px", color: "rgba(255,255,255,0.2)" }}>
+                            <SupportAgent sx={{ fontSize: 140 }} />
+                          </div>
+                        </div>
 
-                      <style jsx>{`
-                        .hide-scrollbar::-webkit-scrollbar {
-                          display: none;
-                        }
-                        .hide-scrollbar {
-                          -ms-overflow-style: none;
-                          scrollbar-width: none;
-                        }
-                      `}</style>
+                        {/* Banner 2 */}
+                        <div style={{ 
+                          minWidth: "280px", 
+                          height: "140px", 
+                          borderRadius: "20px", 
+                          background: "linear-gradient(135deg, #3B82F6 0%, #93C5FD 100%)", 
+                          position: "relative",
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "20px",
+                          boxShadow: "0 8px 20px rgba(59, 130, 246, 0.25)",
+                          scrollSnapAlign: "start"
+                        }}>
+                          <div style={{ position: "relative", zIndex: 2, color: "white" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "700", background: "rgba(255,255,255,0.2)", padding: "4px 8px", borderRadius: "4px" }}>POPULAR</span>
+                            <h3 style={{ fontSize: "18px", fontWeight: "800", margin: "8px 0 4px 0", color: "white" }}>Anxiety<br/>Support</h3>
+                            <p style={{ fontSize: "12px", margin: 0, opacity: 0.9 }}>Talk to a verified specialist today.</p>
+                          </div>
+                          <div style={{ position: "absolute", right: "-20px", bottom: "-20px", width: "120px", height: "120px", color: "rgba(255,255,255,0.2)" }}>
+                            <SelfImprovement sx={{ fontSize: 120 }} />
+                          </div>
+                        </div>
+
+                        {/* Banner 3 - Panic Attack */}
+                        <div style={{ 
+                          minWidth: "280px", 
+                          height: "140px", 
+                          borderRadius: "20px", 
+                          background: "linear-gradient(135deg, #EF4444 0%, #FCA5A5 100%)", 
+                          position: "relative",
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "20px",
+                          boxShadow: "0 8px 20px rgba(239, 68, 68, 0.25)",
+                          scrollSnapAlign: "start"
+                        }}>
+                          <div style={{ position: "relative", zIndex: 2, color: "white" }}>
+                            <span style={{ fontSize: "10px", fontWeight: "700", background: "rgba(255,255,255,0.2)", padding: "4px 8px", borderRadius: "4px" }}>URGENT</span>
+                            <h3 style={{ fontSize: "18px", fontWeight: "800", margin: "8px 0 4px 0", color: "white" }}>Panic<br/>Attack?</h3>
+                            <p style={{ fontSize: "12px", margin: 0, opacity: 0.9 }}>Get immediate help now.</p>
+                          </div>
+                          <div style={{ position: "absolute", right: "-20px", bottom: "-20px", width: "120px", height: "120px", color: "rgba(255,255,255,0.2)" }}>
+                            <CrisisAlert sx={{ fontSize: 120 }} />
+                          </div>
+                        </div>
+
+                      </div>
                     </div>
 
-                  </>
+                    {/* 3. CATEGORIES PILLS (Horizontal Scroll) */}
+                    <div style={{ padding: "0 20px 20px 20px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                        <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#1a1a1a", margin: 0 }}>What concerns you?</h3>
+                      </div>
+
+                      <div className="hide-scrollbar" style={{ display: "flex", gap: "10px", overflowX: "auto", paddingBottom: "5px" }}>
+                        {(dynamicFeelingCards.length > 0 ? dynamicFeelingCards : [
+                          { icon: <Thunderstorm sx={{ fontSize: 18 }} />, label: "Anxiety", color: "#FFF", border: "#E5E7EB", iconColor: "#228756" }, 
+                          { icon: <Cloud sx={{ fontSize: 18 }} />, label: "Depression", color: "#FFF", border: "#E5E7EB", iconColor: "#228756" }, 
+                          { icon: <Bolt sx={{ fontSize: 18 }} />, label: "Stress", color: "#FFF", border: "#E5E7EB", iconColor: "#228756" }, 
+                          { icon: <Favorite sx={{ fontSize: 18 }} />, label: "Relationships", color: "#FFF", border: "#E5E7EB", iconColor: "#228756" }, 
+                          { icon: <Work sx={{ fontSize: 18 }} />, label: "Career", color: "#FFF", border: "#E5E7EB", iconColor: "#228756" }, 
+                          { icon: <Spa sx={{ fontSize: 18 }} />, label: "More", color: "#FFF", border: "#E5E7EB", iconColor: "#228756" }
+                        ]).map((item, i) => (
+                          <div 
+                            key={i}
+                            onClick={() => setSearchQuery(item.label)}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              padding: "10px 16px",
+                              backgroundColor: searchQuery === item.label ? "#228756" : "white",
+                              borderRadius: "30px", // PILL SHAPE
+                              border: `1px solid ${searchQuery === item.label ? "#228756" : "#E5E7EB"}`,
+                              cursor: "pointer",
+                              whiteSpace: "nowrap",
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                              transition: "all 0.2s ease"
+                            }}
+                          >
+                            <div style={{ color: searchQuery === item.label ? "white" : item.iconColor, display: "flex" }}>
+                              {item.icon}
+                            </div>
+                            <span style={{ 
+                              fontSize: "13px", 
+                              fontWeight: "600", 
+                              color: searchQuery === item.label ? "white" : "#333"
+                            }}>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+
+
+                    {/* 3. Top Therapists (Horizontal List) */}
+                    <div style={{ padding: "10px 20px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
+                        <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#1a1a1a", margin: 0 }}>Top Therapists</h3>
+                        <Link to="/view-all-therapist" style={{ fontSize: "12px", color: "#228756", fontWeight: "600" }}>View All</Link>
+                      </div>
+
+                      <div className="hide-scrollbar" style={{ display: "flex", gap: "15px", overflowX: "auto", paddingBottom: "10px" }}>
+                        {filteredTherapists.map((therapist) => (
+                          <Link 
+                            key={therapist._id} 
+                            to={`/therapist-checkout/${therapist._id}`}
+                            style={{
+                              minWidth: "140px",
+                              backgroundColor: "white",
+                              borderRadius: "12px",
+                              padding: "12px",
+                              border: "1px solid #f0f0f0",
+                              textDecoration: "none",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.02)"
+                            }}
+                          >
+                            <div style={{ marginBottom: "10px", textAlign: "center" }}>
+                                {therapist.user?.profile ? (
+                                  <ImageTag 
+                                    src={`${imagePath}/${therapist.user.profile}`} 
+                                    style={{ width: "60px", height: "60px", borderRadius: "50%", objectFit: "cover", border: "2px solid #f8f9fa" }} 
+                                    alt={therapist.user?.name || "Therapist"}
+                                  />
+                                ) : (
+                                  <div style={{ width: "60px", height: "60px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "#f0f0f0", margin: "0 auto", border: "2px solid #f8f9fa" }}>
+                                    <Person sx={{ color: "#999", fontSize: 30 }} />
+                                  </div>
+                                )}
+                            </div>
+                            
+                            <div style={{ textAlign: "center" }}>
+                              <div style={{ 
+                                fontSize: "13px", 
+                                fontWeight: "700", 
+                                color: "#1a1a1a", 
+                                whiteSpace: "nowrap", 
+                                overflow: "hidden", 
+                                textOverflow: "ellipsis" 
+                              }}>
+                                {therapist.user?.name ? therapist.user.name : "Therapist"}
+                              </div>
+                              <div style={{ fontSize: "11px", color: "#666", marginBottom: "8px" }}>
+                                {therapist.profile_type || 'Counselor'}
+                              </div>
+                              <div style={{ 
+                                fontSize: "10px", 
+                                color: "#228756", 
+                                background: "#f0fdf4", 
+                                padding: "4px 8px", 
+                                borderRadius: "4px", 
+                                display: "inline-block",
+                                fontWeight: "600",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "3px"
+                              }}>
+                                <Star sx={{ fontSize: 10, marginRight: "3px", verticalAlign: "middle" }} />
+                                4.9 Rating
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    <style jsx>{`
+                      .hide-scrollbar::-webkit-scrollbar {
+                        display: none;
+                      }
+                      .hide-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                      }
+                    `}</style>
+                  </div>
                 )}
 
 
@@ -1244,10 +959,10 @@ export default function Banner() {
                         <span className="icon-reverse-wrapper">
                           <span className="btn-text">Check Therapist Directory</span>
                           <span className="btn-icon">
-                            <i className="feather-arrow-right"></i>
+                            <ArrowForward />
                           </span>
                           <span className="btn-icon">
-                            <i className="feather-arrow-right"></i>
+                            <ArrowForward />
                           </span>
                         </span>
                       </Link>
