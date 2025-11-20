@@ -12,9 +12,12 @@
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   height: 75px;
+  min-height: 75px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  contain: layout style paint;
 }
 
 .bottom-nav-container {
@@ -25,6 +28,8 @@
   align-items: center;
   justify-content: space-around;
   max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .bottom-nav-item {
@@ -129,19 +134,19 @@
   }
 }
 
-/* Safe area for devices with notches */
+/* Safe area for devices with notches - fixed height to prevent scrolling issues */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .bottom-navigation {
-    padding-bottom: calc(env(safe-area-inset-bottom, 0));
-    height: calc(75px + env(safe-area-inset-bottom, 0));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+    min-height: 75px;
   }
 }
 
-/* iPhone specific adjustments */
+/* iPhone specific adjustments - fixed height to prevent scrolling issues */
 @supports (-webkit-touch-callout: none) {
   .bottom-navigation {
     padding-bottom: max(0px, env(safe-area-inset-bottom));
-    height: calc(75px + env(safe-area-inset-bottom, 0));
+    min-height: 75px;
   }
 }
 
@@ -262,22 +267,3 @@
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .bottom-navigation {
-    background: rgba(28, 28, 30, 0.95);
-    border-top-color: rgba(142, 142, 147, 0.3);
-  }
-
-  .bottom-nav-item {
-    color: #98989d;
-  }
-
-  .bottom-nav-item:hover {
-    background-color: rgba(142, 142, 147, 0.2);
-  }
-
-  .bottom-nav-item.active {
-    background-color: rgba(34, 135, 86, 0.2);
-  }
-}

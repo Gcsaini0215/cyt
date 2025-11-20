@@ -601,12 +601,12 @@ export default function Banner() {
                         marginTop: "20px"
                       }}>
                         <h1 style={{
-                          fontSize: isMobile ? "clamp(1.6rem, 9vw, 2.2rem)" : "clamp(2.4rem, 11vw, 3.2rem)",
+                          fontSize: isMobile ? "clamp(1.8rem, 10vw, 2.5rem)" : "clamp(2.8rem, 12vw, 3.5rem)",
                           fontWeight: "900",
                           color: "white",
                           marginBottom: "12px",
                           lineHeight: isMobile ? "1.1" : "1.05",
-                          textShadow: "0 6px 12px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)",
+                          textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                           letterSpacing: "-0.03em",
                           animation: "fadeInUp 0.8s ease-out",
                           whiteSpace: isMobile ? "nowrap" : "normal",
@@ -625,12 +625,12 @@ export default function Banner() {
                           textShadow: "0 2px 4px rgba(0,0,0,0.2)",
                           animation: "fadeInUp 0.8s ease-out 0.15s both"
                         }}>
-                          We provide affordable therapists with a free follow-up session for added support.
+                          We provide affordable therapists<br />with a free follow-up session for added support.
                         </p>
 
                         <p style={{
                           color: "rgba(255,255,255,0.95)",
-                          fontSize: isMobile ? "13px" : "16px",
+                          fontSize: isMobile ? "15px" : "18px",
                           fontWeight: "500",
                           margin: isMobile ? "0 0 12px 0" : "0 0 20px 0",
                           lineHeight: "1.3",
@@ -733,11 +733,11 @@ export default function Banner() {
                         <div style={{
                           background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240, 248, 245, 0.98) 100%)",
                           borderRadius: "24px",
-                          padding: "20px 16px",
+                          padding: isMobile ? "12px 10px" : "20px 16px",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          gap: "12px",
+                          gap: isMobile ? "8px" : "12px",
                           boxShadow: "0 8px 32px rgba(30, 125, 78, 0.15), 0 2px 8px rgba(30, 125, 78, 0.1)",
                           transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
                           border: "2px solid rgba(30, 125, 78, 0.2)",
@@ -758,13 +758,13 @@ export default function Banner() {
                         }}>
                           <div style={{
                             position: "absolute",
-                            bottom: "-30px",
-                            left: "-30px",
-                            width: "70px",
-                            height: "70px",
+                            top: "-25px",
+                            right: "-25px",
+                            width: "60px",
+                            height: "60px",
                             borderRadius: "50%",
-                            background: "radial-gradient(circle, rgba(245, 87, 108, 0.1) 0%, transparent 70%)",
-                            filter: "blur(18px)"
+                            background: "radial-gradient(circle, rgba(34, 135, 86, 0.1) 0%, transparent 70%)",
+                            filter: "blur(15px)"
                           }}></div>
                           <div style={{
                             background: "linear-gradient(135deg, #1e7d4e 0%, #228756 100%)",
@@ -793,7 +793,7 @@ export default function Banner() {
                               marginBottom: "4px",
                               letterSpacing: "-0.5px"
                             }}>
-                              Browse Therapists
+                              Therapists
                             </div>
                             <div style={{
                               fontSize: "10px",
@@ -813,11 +813,11 @@ export default function Banner() {
                         <div style={{
                           background: "linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240, 248, 245, 0.98) 100%)",
                           borderRadius: "24px",
-                          padding: "20px 16px",
+                          padding: isMobile ? "12px 10px" : "20px 16px",
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          gap: "12px",
+                          gap: isMobile ? "8px" : "12px",
                           boxShadow: "0 8px 32px rgba(39, 174, 96, 0.15), 0 2px 8px rgba(39, 174, 96, 0.1)",
                           transition: "all 0.4s cubic-bezier(0.23, 1, 0.320, 1)",
                           border: "2px solid rgba(39, 174, 96, 0.2)",
@@ -838,13 +838,13 @@ export default function Banner() {
                         }}>
                           <div style={{
                             position: "absolute",
-                            top: "-35px",
-                            right: "-20px",
-                            width: "80px",
-                            height: "80px",
+                            top: "-25px",
+                            right: "-25px",
+                            width: "60px",
+                            height: "60px",
                             borderRadius: "50%",
                             background: "radial-gradient(circle, rgba(39, 174, 96, 0.1) 0%, transparent 70%)",
-                            filter: "blur(20px)"
+                            filter: "blur(15px)"
                           }}></div>
                           <div style={{
                             background: "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)",
@@ -859,7 +859,7 @@ export default function Banner() {
                             zIndex: 1,
                             border: "2px solid rgba(255,255,255,0.3)"
                           }}>
-                            <i className="feather-book" style={{
+                            <i className="feather-heart" style={{
                               color: "white",
                               fontSize: "24px",
                               fontWeight: "bold"
@@ -873,7 +873,7 @@ export default function Banner() {
                               marginBottom: "4px",
                               letterSpacing: "-0.5px"
                             }}>
-                              Mental Health Resources
+                              Community
                             </div>
                             <div style={{
                               fontSize: "10px",
@@ -885,7 +885,7 @@ export default function Banner() {
                               display: "inline-block",
                               border: "1px solid rgba(39, 174, 96, 0.2)"
                             }}>
-                              Articles & Tips
+                              Connect & Share
                             </div>
                           </div>
                         </div>
@@ -1132,7 +1132,7 @@ export default function Banner() {
                           <div style={{
                             padding: "20px",
                             textAlign: "center",
-                            color: "#666",
+                            color: "white",
                             fontSize: "14px"
                           }}>
                             {searchQuery ? "No therapists found matching your search" : "No therapists available"}
