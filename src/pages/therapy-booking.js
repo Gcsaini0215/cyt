@@ -28,6 +28,71 @@ export default function TherapyBooking() {
         <meta name="twitter:description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health with verified therapists at Choose Your Therapist." />
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta name="twitter:card" content="summary_large_image" />
+
+        {/* Structured Data for Therapy Booking Page */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "Book Therapy Session - Choose Your Therapist",
+            "description": "Book your free 15-minute consultation with verified psychologists. Professional mental health counseling and therapy services.",
+            "url": "https://chooseyourtherapist.in/therapy-booking",
+            "isPartOf": {
+              "@type": "WebSite",
+              "@id": "https://chooseyourtherapist.in/#website"
+            },
+            "about": {
+              "@type": "Service",
+              "name": "Mental Health Consultation",
+              "description": "Free initial consultation with verified therapists",
+              "provider": {
+                "@type": "Organization",
+                "@id": "https://chooseyourtherapist.in/#organization"
+              }
+            },
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://chooseyourtherapist.in"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Book Therapy",
+                  "item": "https://chooseyourtherapist.in/therapy-booking"
+                }
+              ]
+            }
+          })}
+        </script>
+
+        {/* Service Offer Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Offer",
+            "name": "Free 15-Minute Therapy Consultation",
+            "description": "Complimentary initial consultation with a verified psychologist to discuss your mental health needs and therapy options.",
+            "price": "0",
+            "priceCurrency": "INR",
+            "availability": "https://schema.org/InStock",
+            "validFrom": "2024-01-01",
+            "priceValidUntil": "2024-12-31",
+            "seller": {
+              "@type": "Organization",
+              "@id": "https://chooseyourtherapist.in/#organization"
+            },
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Mental Health Consultation",
+              "description": "Professional assessment and guidance for mental health concerns"
+            }
+          })}
+        </script>
       </Helmet>
     <div id="__next">
       <MyNavbar />

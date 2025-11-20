@@ -474,7 +474,8 @@ export default function Banner() {
           marginTop: isMobile ? "-50px" : "0px",
           paddingBottom: isMobile ? "0px" : "30px",
           marginBottom: isMobile ? "0px" : "20px",
-          backgroundColor: isMobile ? "transparent" : "inherit"
+          backgroundColor: isMobile ? "transparent" : "inherit",
+          overflowX: "hidden"
         }}
       >
 
