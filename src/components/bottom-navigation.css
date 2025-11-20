@@ -137,16 +137,18 @@
 /* Safe area for devices with notches - fixed height to prevent scrolling issues */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .bottom-navigation {
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-    min-height: 75px;
+    height: 75px !important;
+    min-height: 75px !important;
+    max-height: 75px !important;
   }
 }
 
 /* iPhone specific adjustments - fixed height to prevent scrolling issues */
 @supports (-webkit-touch-callout: none) {
   .bottom-navigation {
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-    min-height: 75px;
+    height: 75px !important;
+    min-height: 75px !important;
+    max-height: 75px !important;
   }
 }
 

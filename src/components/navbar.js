@@ -106,11 +106,13 @@ export default function App() {
               <div className="header-right">
                 <ul className="quick-access">
                   <li className="access-icon">
-                    <button
-                      onClick={() => setShowChatbot(true)}
+                    <a
+                      href="https://wa.me/918077757951?text=Hi%20Choose%20Your%20Therapist%20team,%20I%20need%20help"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="rbt-round-btn"
                       style={{
-                        backgroundColor: "#228756",
+                        backgroundColor: "#25D366",
                         border: "none",
                         display: "flex",
                         alignItems: "center",
@@ -118,14 +120,15 @@ export default function App() {
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
-                        cursor: "pointer"
+                        cursor: "pointer",
+                        textDecoration: "none"
                       }}
                     >
                       <i
-                        className="feather-help-circle"
+                        className="fab fa-whatsapp"
                         style={{ color: "#fff", fontSize: "18px" }}
                       ></i>
-                    </button>
+                    </a>
                   </li>
                   <li className="account-access rbt-user-wrapper d-none d-xl-block">
                     {userType === 1 || userType === 2 ? (

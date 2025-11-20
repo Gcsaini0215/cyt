@@ -36,9 +36,8 @@ export default function BottomNavigation() {
       }
     }
 
-    // Check if cookies are accepted
-    const isAccepted = localStorage.getItem("cookiesAccepted") === "true";
-    setCookiesAccepted(isAccepted);
+    // Always consider cookies as accepted on mobile
+    setCookiesAccepted(true);
 
     return () => {
       window.removeEventListener('resize', checkMobile);
