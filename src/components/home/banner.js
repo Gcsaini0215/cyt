@@ -401,6 +401,14 @@ export default function Banner() {
   const [topTherapists, setTopTherapists] = useState([]);
   const [topTherapistsLoading, setTopTherapistsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // Animated placeholder texts
+  const placeholderTexts = [
+    "Search by therapist name...",
+    "Search by expertise...",
+    "Search by state..."
+  ];
 
   // Fetch top therapists data
   useEffect(() => {
@@ -438,12 +446,24 @@ export default function Banner() {
     getTopTherapists();
   }, []);
 
+  // Animated placeholder cycling
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholderTexts.length);
+    }, 3000); // Change every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [placeholderTexts.length]);
+
   // Filter therapists based on search query
   const filteredTherapists = topTherapists.filter((therapist) => {
     const name = therapist.user?.name || "";
     const profileType = therapist.profile_type || "";
+    const state = therapist.state || "";
     const query = searchQuery.toLowerCase();
-    return name.toLowerCase().includes(query) || profileType.toLowerCase().includes(query);
+    return name.toLowerCase().includes(query) ||
+           profileType.toLowerCase().includes(query) ||
+           state.toLowerCase().includes(query);
   });
 
   return (
@@ -548,7 +568,7 @@ export default function Banner() {
                   <>
                     {/* Modern Therapist-Focused Mobile Banner */}
                     <div style={{
-                      background: "linear-gradient(135deg, #228756 0%, #36b477 50%, #4ecdc4 100%)",
+                      background: "linear-gradient(135deg, #228756 0%, #36b477 30%, #4ecdc4 60%, #ffffff 100%)",
                       borderRadius: "0 0 32px 32px",
                       padding: isMobile ? "16px 20px" : "24px",
                       margin: "0 -20px 0 -20px",
@@ -924,7 +944,7 @@ export default function Banner() {
                         </div>
                         <input
                           type="text"
-                          placeholder="Search therapists by name, specialty..."
+                          placeholder={placeholderTexts[placeholderIndex]}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           style={{
@@ -936,7 +956,8 @@ export default function Banner() {
                             background: "transparent",
                             fontWeight: "500",
                             placeholder: "#888",
-                            fontFamily: "inherit"
+                            fontFamily: "inherit",
+                            whiteSpace: "nowrap"
                           }}
                         />
                         <div style={{
@@ -1114,7 +1135,7 @@ export default function Banner() {
                                 <div style={{
                                   fontSize: "12px",
                                   color: "#228756",
-                                  marginBottom: "6px",
+                                  marginBottom: "4px",
                                   fontWeight: "600",
                                   cursor: "default",
                                   userSelect: "none",
@@ -1123,6 +1144,18 @@ export default function Banner() {
                                   maxWidth: "130px"
                                 }}>
                                   {therapist.profile_type || 'Counselor'}
+                                </div>
+                                <div style={{
+                                  fontSize: "11px",
+                                  color: "#666",
+                                  fontWeight: "500",
+                                  cursor: "default",
+                                  userSelect: "none",
+                                  lineHeight: "1.2",
+                                  wordBreak: "break-word",
+                                  maxWidth: "130px"
+                                }}>
+                                  ({therapist.state || 'Location not specified'})
                                 </div>
                               </div>
                             </Link>

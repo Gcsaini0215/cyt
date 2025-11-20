@@ -107,7 +107,7 @@ export default function App() {
                 <ul className="quick-access">
                   <li className="access-icon">
                     <a
-                      href="https://wa.me/918077757951?text=Hi%20Choose%20Your%20Therapist%20team,%20I%20need%20help"
+                      href="https://api.whatsapp.com/send?phone=918077757951&text=Hi%20Choose%20Your%20Therapist%20team,%20I%20need%20help"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rbt-round-btn"
@@ -121,7 +121,8 @@ export default function App() {
                         height: "40px",
                         borderRadius: "50%",
                         cursor: "pointer",
-                        textDecoration: "none"
+                        textDecoration: "none",
+                        boxShadow: "0 2px 8px rgba(37, 211, 102, 0.3)"
                       }}
                     >
                       <i
@@ -667,6 +668,17 @@ export default function App() {
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes whatsappPulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
           }
         }
       `}</style>
