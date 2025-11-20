@@ -54,6 +54,9 @@ import AppointmentsPage from "./pages/therapists/appointment";
 import ComingSoon from "./pages/coming-soon";
 import TherapyBooking from "./pages/therapy-booking";
 import MindMatters from "./pages/mind-matters";
+import HowItWorks from "./pages/how-it-works";
+import EmergencySupport from "./pages/emergency-support";
+import MentorshipForStudents from "./pages/mentorship-for-students";
 const theme = createTheme();
 
 function App() {
@@ -118,6 +121,9 @@ function App() {
               <Route path="/new-service" element={<SerivcePage />} />
               <Route path="/therapy-booking" element={<TherapyBooking />} />
               <Route path="/mind-matters" element={<MindMatters />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/emergency-support" element={<EmergencySupport />} />
+              <Route path="/mentorship-for-students" element={<MentorshipForStudents />} />
 
               <Route
                 path="/workshop-detail/:id"
