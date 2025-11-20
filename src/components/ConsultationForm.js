@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { Box, Grid, TextField, MenuItem, Button, Typography } from "@mui/material";
 import { motion } from "framer-motion";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function ConsultationFormSection() {
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -82,7 +85,7 @@ export default function ConsultationFormSection() {
                 margin: "auto",
               }}
             >
-              Connect with a verified therapist to discuss your concerns in a private,
+              Connect with a {isMobile ? "" : "verified "}therapist to discuss your concerns in a private,
               supportive space. Whether it’s stress, anxiety, or relationship challenges —
               your first step towards healing starts here.
             </Typography>
@@ -96,7 +99,7 @@ export default function ConsultationFormSection() {
               }}
             >
               <li>🧠 Confidential one-on-one conversation</li>
-              <li>🌿 Talk to verified mental health experts</li>
+              <li>🌿 Talk to {isMobile ? "" : "verified "}mental health experts</li>
               <li>💬 Online or in-person options available</li>
             </ul>
           </motion.div>

@@ -4,11 +4,14 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import MessageIcon from "@mui/icons-material/Message";
+
 import { postJsonDataNoAuth } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 
 export default function ConsultationForm({ showHeading = true }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+
+
 
   const [formData, setFormData] = useState({
     name: "",
@@ -49,6 +52,8 @@ export default function ConsultationForm({ showHeading = true }) {
       errors.push("Please enter a valid email address");
     }
 
+
+
     return errors;
   };
 
@@ -77,7 +82,7 @@ export default function ConsultationForm({ showHeading = true }) {
         concern: formData.concern.trim()
       };
 
-      console.log("Sending consultation data:", dataToSend);
+
 
       // Try different data structures that the backend might expect
       const response = await postJsonDataNoAuth(SubmitConsultationUrl, dataToSend);
@@ -93,7 +98,7 @@ export default function ConsultationForm({ showHeading = true }) {
       //   message: formData.concern.trim()
       // });
 
-      console.log("Consultation response:", response);
+
 
       if (response.status) {
         setShowSuccessPopup(true);
@@ -118,38 +123,28 @@ export default function ConsultationForm({ showHeading = true }) {
   };
 
   return (
-    <div className="content" style={{
-      backgroundColor: "white",
-      padding: isMobile ? "20px" : "25px",
-      borderRadius: "15px",
-      boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-      border: "2px solid #228756",
+    <div style={{
       width: "100%",
-      maxWidth: "100%",
-      margin: "0 auto",
-      boxSizing: "border-box"
+      maxWidth: "100%"
     }}>
       <div className="inner">
         {showHeading && (
-          <div style={{ marginBottom: 20, backgroundColor: "#e8f5e8", color: "#228756", padding: "15px", borderRadius: "10px", textAlign: "center", border: "2px solid #228756" }}>
+          <div style={{ marginBottom: 24, textAlign: "center" }}>
             <h3 style={{
-              color: "#228756",
-              fontSize: isMobile ? "clamp(16px, 4.5vw, 20px)" : "32px",
-              fontWeight: "600",
+              color: "#333",
+              fontSize: isMobile ? "24px" : "28px",
+              fontWeight: "700",
               marginBottom: "8px",
-              whiteSpace: isMobile ? "nowrap" : "normal",
-              overflow: isMobile ? "hidden" : "visible",
-              textOverflow: isMobile ? "ellipsis" : "clip"
+              lineHeight: "1.3"
             }}>
               15-Minute Free Consultation
             </h3>
             <p style={{
-              color: "#228756",
-              fontSize: isMobile ? "clamp(8px, 2.2vw, 10px)" : "11px",
+              color: "#666",
+              fontSize: isMobile ? "14px" : "16px",
               marginBottom: "0",
-              whiteSpace: isMobile ? "nowrap" : "normal",
-              overflow: isMobile ? "hidden" : "visible",
-              textOverflow: isMobile ? "ellipsis" : "clip"
+              lineHeight: "1.5",
+              fontWeight: "400"
             }}>
               A free consultation to explore your therapy needs with a psychologist.
             </p>
@@ -171,13 +166,8 @@ export default function ConsultationForm({ showHeading = true }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{
-          width: "100%",
-          margin: "0 auto",
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center"
+        <form onSubmit={handleSubmit} onContextMenu={(e) => e.preventDefault()} style={{
+          width: "100%"
         }}>
           <div style={{ marginBottom: "15px", position: "relative", width: "100%" }}>
             <PersonIcon style={{ position: "absolute", left: 12, top: 12, color: "#228756", fontSize: 20 }} />
@@ -195,17 +185,16 @@ export default function ConsultationForm({ showHeading = true }) {
                 borderRadius: "8px",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.3s, transform 0.3s, box-shadow 0.3s",
-                boxSizing: "border-box"
+                transition: "border-color 0.3s, box-shadow 0.3s",
+                boxSizing: "border-box",
+                backgroundColor: "white"
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#228756";
-                e.target.style.transform = "scale(1.02)";
-                e.target.style.boxShadow = "0 0 8px rgba(34, 135, 86, 0.3)";
+                e.target.style.borderColor = "#007bff";
+                e.target.style.boxShadow = "0 0 0 3px rgba(0, 123, 255, 0.1)";
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = "#ddd";
-                e.target.style.transform = "scale(1)";
                 e.target.style.boxShadow = "none";
               }}
             />
@@ -227,17 +216,16 @@ export default function ConsultationForm({ showHeading = true }) {
                 borderRadius: "8px",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.3s, transform 0.3s, box-shadow 0.3s",
-                boxSizing: "border-box"
+                transition: "border-color 0.3s, box-shadow 0.3s",
+                boxSizing: "border-box",
+                backgroundColor: "white"
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#228756";
-                e.target.style.transform = "scale(1.02)";
-                e.target.style.boxShadow = "0 0 8px rgba(34, 135, 86, 0.3)";
+                e.target.style.borderColor = "#007bff";
+                e.target.style.boxShadow = "0 0 0 3px rgba(0, 123, 255, 0.1)";
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = "#ddd";
-                e.target.style.transform = "scale(1)";
                 e.target.style.boxShadow = "none";
               }}
             />
@@ -259,17 +247,16 @@ export default function ConsultationForm({ showHeading = true }) {
                 borderRadius: "8px",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.3s, transform 0.3s, box-shadow 0.3s",
-                boxSizing: "border-box"
+                transition: "border-color 0.3s, box-shadow 0.3s",
+                boxSizing: "border-box",
+                backgroundColor: "white"
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#228756";
-                e.target.style.transform = "scale(1.02)";
-                e.target.style.boxShadow = "0 0 8px rgba(34, 135, 86, 0.3)";
+                e.target.style.borderColor = "#007bff";
+                e.target.style.boxShadow = "0 0 0 3px rgba(0, 123, 255, 0.1)";
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = "#ddd";
-                e.target.style.transform = "scale(1)";
                 e.target.style.boxShadow = "none";
               }}
             />
@@ -290,19 +277,18 @@ export default function ConsultationForm({ showHeading = true }) {
                 borderRadius: "8px",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.3s, transform 0.3s, box-shadow 0.3s",
+                transition: "border-color 0.3s, box-shadow 0.3s",
                 resize: "vertical",
                 minHeight: "80px",
-                boxSizing: "border-box"
+                boxSizing: "border-box",
+                backgroundColor: "white"
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#228756";
-                e.target.style.transform = "scale(1.02)";
-                e.target.style.boxShadow = "0 0 8px rgba(34, 135, 86, 0.3)";
+                e.target.style.borderColor = "#007bff";
+                e.target.style.boxShadow = "0 0 0 3px rgba(0, 123, 255, 0.1)";
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = "#ddd";
-                e.target.style.transform = "scale(1)";
                 e.target.style.boxShadow = "none";
               }}
             />
@@ -314,26 +300,33 @@ export default function ConsultationForm({ showHeading = true }) {
               disabled={loading}
               style={{
                 width: "100%",
-                padding: "12px 20px",
-                backgroundColor: loading ? "#ccc" : "#228756",
+                padding: "14px 20px",
+                backgroundColor: loading ? "#6c757d" : "#007bff",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
                 fontSize: "16px",
                 fontWeight: "600",
                 cursor: loading ? "not-allowed" : "pointer",
-                transition: "background-color 0.3s",
-                boxSizing: "border-box"
+                transition: "background-color 0.3s, box-shadow 0.3s",
+                boxSizing: "border-box",
+                boxShadow: loading ? "none" : "0 2px 4px rgba(0, 123, 255, 0.2)"
               }}
-            onMouseOver={(e) => {
-              if (!loading) e.target.style.backgroundColor = "#1a6b45";
-            }}
-            onMouseOut={(e) => {
-              if (!loading) e.target.style.backgroundColor = "#228756";
-            }}
-          >
-            {loading ? "Submitting..." : "Request a Call "}
-          </button>
+              onMouseOver={(e) => {
+                if (!loading) {
+                  e.target.style.backgroundColor = "#0056b3";
+                  e.target.style.boxShadow = "0 4px 8px rgba(0, 123, 255, 0.3)";
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!loading) {
+                  e.target.style.backgroundColor = "#007bff";
+                  e.target.style.boxShadow = "0 2px 4px rgba(0, 123, 255, 0.2)";
+                }
+              }}
+            >
+              {loading ? "Submitting..." : "Request a Call"}
+            </button>
           </div>
         </form>
       </div>

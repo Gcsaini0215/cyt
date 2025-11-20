@@ -31,63 +31,24 @@ export default function TherapyBooking() {
       </Helmet>
     <div id="__next">
       <MyNavbar />
-      {/* Mobile App-like Hero Banner */}
-      <div className="mobile-app-banner" style={{
-        minHeight: isMobile ? "100vh" : "80vh",
-        background: "linear-gradient(135deg, #228756 0%, #2e7d32 50%, #1b5e20 100%)",
-        position: "relative",
-        overflow: "hidden",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center"
+      {/* Standard Page Layout */}
+      <div style={{
+        paddingTop: isMobile ? "20px" : "40px",
+        paddingBottom: isMobile ? "40px" : "60px",
+        backgroundColor: "#f8f9fa"
       }}>
-        {/* Animated Background Elements */}
-        <div style={{
-          position: "absolute",
-          top: "-20%",
-          right: "-10%",
-          width: "300px",
-          height: "300px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)",
-          animation: "float 6s ease-in-out infinite"
-        }}></div>
-        <div style={{
-          position: "absolute",
-          bottom: "-15%",
-          left: "-10%",
-          width: "250px",
-          height: "250px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)",
-          animation: "float 8s ease-in-out infinite reverse"
-        }}></div>
 
-        {/* Floating particles effect */}
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: `url("data:image/svg+xml,%3csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='white' fill-opacity='0.05'%3e%3ccircle cx='30' cy='30' r='1.5'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e")`,
-          backgroundSize: "60px 60px",
-          animation: "particleFloat 20s linear infinite"
-        }}></div>
-
-        <div className="container" style={{ position: "relative", zIndex: 2 }}>
+        <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-8 col-md-10 col-12">
-              {/* Mobile App Card Layout */}
+              {/* Standard Card Layout */}
               <div style={{
-                background: "rgba(255, 255, 255, 0.95)",
-                backdropFilter: "blur(20px)",
-                borderRadius: isMobile ? "20px" : "24px",
+                background: "white",
+                borderRadius: isMobile ? "16px" : "20px",
                 padding: isMobile ? "24px 20px" : "40px 32px",
-                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-                position: "relative",
-                overflow: "hidden"
+                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04)",
+                border: "1px solid #e9ecef",
+                position: "relative"
               }}>
                 {/* Card Header with Free Badge */}
                 <div style={{
@@ -124,8 +85,7 @@ export default function TherapyBooking() {
                     lineHeight: "1.2",
                     letterSpacing: "-0.5px"
                   }}>
-                    Free 15-Minute
-                    <br />
+                    Free 15-Minute{" "}
                     <span style={{
                       background: "linear-gradient(135deg, #228756 0%, #2e7d32 100%)",
                       WebkitBackgroundClip: "text",
@@ -149,8 +109,7 @@ export default function TherapyBooking() {
                     display: "flex",
                     justifyContent: "center",
                     gap: isMobile ? "16px" : "24px",
-                    marginBottom: isMobile ? "24px" : "32px",
-                    flexWrap: "wrap"
+                    marginBottom: isMobile ? "24px" : "32px"
                   }}>
                     <div style={{
                       background: "rgba(34, 135, 86, 0.1)",
@@ -181,10 +140,10 @@ export default function TherapyBooking() {
 
                 {/* Consultation Form */}
                 <div style={{
-                  background: "linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)",
+                  background: "#f8f9fa",
                   padding: isMobile ? "20px" : "24px",
-                  borderRadius: "16px",
-                  border: "1px solid rgba(0, 0, 0, 0.05)"
+                  borderRadius: "12px",
+                  border: "1px solid #e9ecef"
                 }}>
                   <ConsultationForm showHeading={false} />
                 </div>
@@ -199,32 +158,9 @@ export default function TherapyBooking() {
 
       <Footer />
 
-      {/* Mobile App Animations */}
+      {/* Page Styles */}
       <style>
         {`
-          @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(5deg); }
-            66% { transform: translateY(10px) rotate(-3deg); }
-          }
-
-          @keyframes particleFloat {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-60px); }
-          }
-
-          /* Mobile-specific enhancements */
-          @media (max-width: 768px) {
-            .mobile-app-banner {
-              padding: 20px 0;
-            }
-
-            /* Touch-friendly interactions */
-            .mobile-app-banner * {
-              -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
-            }
-          }
-
           /* Smooth scrolling for mobile */
           @media (max-width: 768px) {
             html {
