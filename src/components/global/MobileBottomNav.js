@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { getToken } from "../../utils/jwt";
 
@@ -6,6 +6,9 @@ export default function MobileBottomNav() {
   const location = useLocation();
   const isLoggedIn = !!getToken();
   const [isMobile, setIsMobile] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollRef = useRef(0);
+  const scrollTimeoutRef = useRef(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -27,6 +30,33 @@ export default function MobileBottomNav() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScroll = window.scrollY || document.documentElement.scrollTop;
+      
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+
+      scrollTimeoutRef.current = setTimeout(() => {
+        if (currentScroll > lastScrollRef.current && currentScroll > 100) {
+          setIsVisible(false);
+        } else {
+          setIsVisible(true);
+        }
+        lastScrollRef.current = currentScroll;
+      }, 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Don't render if not mobile
   if (!isMobile) {
     return null;
@@ -39,7 +69,9 @@ export default function MobileBottomNav() {
       left: 0,
       right: 0,
       zIndex: 9999,
-      display: isMobile ? 'flex' : 'none'
+      display: isMobile ? 'flex' : 'none',
+      transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
+      transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
       <li className={location.pathname === "/" ? "active" : ""}>
         <Link to="/">
@@ -76,18 +108,18 @@ export default function MobileBottomNav() {
       <style>
         {`
           .mobile-bottom-nav {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-top: 1px solid rgba(34, 135, 86, 0.1);
-            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 8px 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,249,250,0.98) 100%);
+            border-top: 2px solid rgba(34, 135, 86, 0.15);
+            box-shadow: 0 -4px 32px rgba(34, 135, 86, 0.12), 0 -2px 8px rgba(0, 0, 0, 0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 6px 0;
             margin: 0;
             list-style: none;
             justify-content: space-around;
             align-items: center;
-            height: 70px;
-            max-height: 70px;
+            height: 68px;
+            max-height: 68px;
             will-change: transform;
             transform: translateZ(0);
             position: fixed;
@@ -101,6 +133,9 @@ export default function MobileBottomNav() {
             flex: 1;
             text-align: center;
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
           }
 
           .mobile-bottom-nav li a {
@@ -108,15 +143,15 @@ export default function MobileBottomNav() {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 6px 8px;
+            padding: 8px 10px;
             text-decoration: none;
-            color: #666;
+            color: #888;
             font-size: 11px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            margin: 0 4px;
-            min-height: 54px;
+            font-weight: 600;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 14px;
+            margin: 0 6px;
+            min-height: 56px;
             position: relative;
             overflow: hidden;
           }
@@ -128,10 +163,10 @@ export default function MobileBottomNav() {
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(34, 135, 86, 0.1) 0%, rgba(0, 127, 153, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(34, 135, 86, 0.15) 0%, rgba(34, 135, 86, 0.08) 100%);
             opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: 12px;
+            transition: opacity 0.35s ease;
+            border-radius: 14px;
           }
 
           .mobile-bottom-nav li.active a::before {
@@ -139,51 +174,58 @@ export default function MobileBottomNav() {
           }
 
           .mobile-bottom-nav li a i {
-            font-size: 18px;
-            margin-bottom: 2px;
-            transition: all 0.3s ease;
+            font-size: 20px;
+            margin-bottom: 4px;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             z-index: 1;
+            color: inherit;
           }
 
           .mobile-bottom-nav li a span {
             font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            text-transform: capitalize;
+            letter-spacing: 0.3px;
             position: relative;
             z-index: 1;
+            color: inherit;
           }
 
           .mobile-bottom-nav li.active a {
             color: #228756;
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
           }
 
           .mobile-bottom-nav li.active a i {
             color: #228756;
-            transform: scale(1.1);
+            transform: scale(1.15) rotate(5deg);
+            filter: drop-shadow(0 2px 4px rgba(34, 135, 86, 0.3));
           }
 
           .mobile-bottom-nav li a:hover {
             color: #228756;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
           }
 
           .mobile-bottom-nav li a:hover i {
-            transform: scale(1.05);
+            transform: scale(1.1);
           }
 
           /* Touch-friendly interactions */
           @media (hover: none) and (pointer: coarse) {
             .mobile-bottom-nav li a {
-              min-height: 48px;
-              padding: 8px 6px;
+              min-height: 52px;
+              padding: 10px 8px;
             }
 
             .mobile-bottom-nav li a:active {
-              transform: scale(0.95);
+              transform: scale(0.92);
               transition: transform 0.1s ease;
+            }
+
+            .mobile-bottom-nav li.active a:active {
+              transform: scale(0.95) translateY(-2px);
             }
           }
 
