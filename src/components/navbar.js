@@ -83,6 +83,7 @@ export default function App() {
                   <ul className="mainmenu">
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/view-all-therapist">Therapist Directory</Link></li>
+                    <li><Link to="/plans">Therapy Plan</Link></li>
                     <li className="has-dropdown">
                       <Link to="#">Services <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
@@ -180,6 +181,7 @@ export default function App() {
           <ul className="mobile-menu">
             <li><Link to="/" onClick={() => setShow(false)}>Home</Link></li>
             <li><Link to="/view-all-therapist" onClick={() => setShow(false)}>Therapist Directory</Link></li>
+            <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
             <li className="has-dropdown">
               <Link to="#" onClick={() => setShow(false)}>Services <i className="feather-chevron-down"></i></Link>
               <ul className="submenu">

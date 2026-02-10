@@ -12,36 +12,40 @@ import {
   SentimentDissatisfied,
   Search,
   Star,
+  BusinessCenter,
   ArrowForward,
-  Close,
-  CheckCircle,
-  QuestionAnswer,
-  CalendarMonth
+  Person,
+  SupportAgent,
+  CrisisAlert
 } from "@mui/icons-material";
+// Explicit import for Psychology icon to avoid ReferenceError
+import Psychology from "@mui/icons-material/Psychology";
 
 import {
+  Grid,
+  Paper,
+  InputBase,
   Avatar,
   Box,
   Typography,
   IconButton,
-  Skeleton,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Button,
-  Zoom,
+  Chip,
+  Skeleton
 } from "@mui/material";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 import ImageTag from "../../utils/image-tag";
 
 import ConsultationForm from "./consultation-form";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles, imagePath } from "../../utils/url";
-import BannerImg from "../../assets/img/banner-012304.png";
 // Therapist avatar images
 import ClientImg from "../../assets/img/avatar-027dc8.png";
 import Fabiha from "../../assets/img/psychologist.png";
@@ -141,12 +145,12 @@ const BannerSlider = ({ isMobile }) => {
     }
   }, [loading, therapists.length]);
 
-  if (loading) {
+  if (loading || therapists.length < 3) {
     return (
       <div style={{
         borderRadius: isMobile ? "12px" : "10px",
         border: "2px solid #228756",
-        height: isMobile ? "140px" : "130px",
+        height: isMobile ? "120px" : "100px",
         backgroundColor: "#f8f9fa",
         display: "flex",
         alignItems: "center",
@@ -155,10 +159,6 @@ const BannerSlider = ({ isMobile }) => {
         <div style={{ color: "#228756", fontSize: "14px" }}>Loading...</div>
       </div>
     );
-  }
-
-  if (therapists.length === 0) {
-    return null;
   }
 
   // Handle image loading states for progressive loading
@@ -425,59 +425,6 @@ const BannerSlider = ({ isMobile }) => {
   );
 };
 
-// Marketing Pipeline Component
-const MarketingPipeline = ({ isMobile }) => {
-  const steps = [
-    { icon: <QuestionAnswer sx={{ fontSize: isMobile ? 24 : 30 }} />, title: "Inquiry", desc: "Share your needs" },
-    { icon: <CalendarMonth sx={{ fontSize: isMobile ? 24 : 30 }} />, title: "Match", desc: "Find your therapist" },
-    { icon: <CheckCircle sx={{ fontSize: isMobile ? 24 : 30 }} />, title: "Connect", desc: "Start your journey" }
-  ];
-
-  return (
-    <Box sx={{ 
-      display: "flex", 
-      gap: isMobile ? 3 : 4, 
-      mt: isMobile ? 4 : 6, 
-      flexDirection: "row",
-      justifyContent: isMobile ? "space-around" : "flex-start",
-      alignItems: "flex-start",
-      width: "100%",
-      px: isMobile ? 1 : 0
-    }}>
-      {steps.map((step, index) => (
-        <Box key={index} sx={{ 
-          display: "flex", 
-          flexDirection: "column", 
-          alignItems: "center",
-          textAlign: "center",
-          position: "relative",
-          maxWidth: isMobile ? "80px" : "120px",
-          animation: `fadeInUp 0.6s ease-out ${index * 0.2}s both`
-        }}>
-          <Box sx={{ 
-            width: isMobile ? 50 : 64, 
-            height: isMobile ? 50 : 64, 
-            borderRadius: "50%", 
-            bgcolor: "white", 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center",
-            color: "#228756",
-            mb: 1.5,
-            boxShadow: "0 8px 24px rgba(34, 135, 86, 0.12)",
-            border: "2px solid #e8f5e9",
-            animation: `soothingFloat ${3 + index}s ease-in-out infinite`,
-          }}>
-            {step.icon}
-          </Box>
-          <Typography variant="body2" sx={{ fontWeight: 800, color: "#1a1a1a", fontSize: isMobile ? "12px" : "15px", mb: 0.5 }}>{step.title}</Typography>
-          <Typography variant="caption" sx={{ color: "#64748b", fontSize: isMobile ? "10px" : "12px", lineHeight: 1.2 }}>{step.desc}</Typography>
-        </Box>
-      ))}
-    </Box>
-  );
-};
-
 export default function Banner() {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -490,11 +437,7 @@ export default function Banner() {
   const [inputValue, setInputValue] = useState("");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [dynamicFeelingCards, setDynamicFeelingCards] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const searchTimeoutRef = useRef(null);
-
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
 
   // Animated placeholder texts
   const placeholderTexts = [
@@ -627,28 +570,14 @@ export default function Banner() {
     <section
         className="rbt-banner-area rbt-banner-1"
         style={{
-          paddingTop: isMobile ? "20px" : "40px",
-          marginTop: isMobile ? "-40px" : "0px",
-          paddingBottom: isMobile ? "0px" : "100px",
+          paddingTop: isMobile ? "30px" : "40px",
+          marginTop: isMobile ? "-50px" : "0px",
+          paddingBottom: isMobile ? "0px" : "30px",
           marginBottom: isMobile ? "0px" : "20px",
-          backgroundColor: "#f0fdf4",
-          backgroundImage: `url(${BannerImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          overflowX: "hidden",
-          position: "relative"
+          backgroundColor: isMobile ? "transparent" : "inherit",
+          overflowX: "hidden"
         }}
       >
-
-      <div style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: isMobile ? "rgba(240, 253, 244, 0.85)" : "rgba(240, 253, 244, 0.7)",
-        zIndex: 0
-      }}></div>
 
       <Helmet>
         <title>
@@ -666,287 +595,419 @@ export default function Banner() {
         <link rel="canonical" href="https://chooseyourtherapist.in/" />
       </Helmet>
 
-      <div className="container mt--20" style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
-        <div className="row justify-content-center text-center" style={{ width: '100%' }}>
-          <div className="col-lg-12 col-md-12 col-sm-12 col-12">
-            <div className="content" style={{ display: 'flex', justifyContent: 'center' }}>
-              <div className="inner" style={{ width: '100%' }}>
-                {/* Unified Banner Content */}
-                <Box sx={{ 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  alignItems: "center", 
-                  justifyContent: "center",
-                  textAlign: "center",
-                  py: isMobile ? 3 : 4,
-                  px: 2,
-                  width: "100%",
-                  mx: "auto",
-                  mt: isMobile ? -2 : 0
-                }}>
-                  {/* Two-line Heading with Split-Text Reveal Animation */}
+      <div className="container mt--20">
+        <div className="row justify-content-between align-items-center">
+          {/* Banner Text */}
+          <div
+            className="col-lg-8 col-md-12 col-sm-12 col-12"
+            style={{
+              display: "flex",
+              justifyContent: "flex-start", // left aligned
+              textAlign: "left",
+              flexDirection: "column",
+            }}
+          >
+            <div className="content">
+              <div className="inner">
+                {!isMobile && (
+                  <div
+                    className="rbt-new-badge rbt-new-badge-one"
+                    style={{ marginTop: isTablet ? 25 : 0 }}
+                  >
+                    <span className="rbt-new-badge-icon">
+                      <PersonSearchIcon sx={{ color: "#228756", fontSize: 30 }} />
+                    </span>{" "}
+                    Trusted by People, Powered by Verified Therapists
+                  </div>
+                )}
+
+                {/* H1 Banner */}
+                {!isMobile && (
                   <h1
                     className="title"
+                    aria-label="Bharat's Growing Network of Verified Therapists Connecting You to Trusted Counselling Support"
                     style={{
-                      fontSize: isMobile ? "2.2rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "2.8rem" : isTablet ? "3.8rem" : "5.5rem",
+                      fontSize: "4rem",
+                      lineHeight: "4.5rem",
                       marginTop: 0,
-                      marginBottom: "24px",
-                      fontWeight: 900,
-                      textAlign: "center",
-                      width: "100%",
-                      display: "block"
+                      textAlign: "left",
+                      wordBreak: "break-word",
                     }}
                   >
-                    Find a <Box component="span" sx={{ 
-                      position: 'relative',
-                      display: 'inline-block',
-                      px: 1
-                    }}>
-                      <span style={{ 
-                        backgroundImage: "linear-gradient(to right, #005bea, #228756)", 
-                        WebkitBackgroundClip: "text", 
-                        backgroundClip: "text",
+                    India's Growing Network of{" "}
+                    <span
+                      className="theme-gradient"
+                      style={{
+                        background: "linear-gradient(90deg, #228756, #56ab2f)",
+                        WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent",
-                        color: "transparent",
-                        display: "inline"
-                      }}>Therapist</span>
-                      <svg 
-                        viewBox="0 0 100 20" 
-                        preserveAspectRatio="none" 
-                        style={{ 
-                          position: 'absolute', 
-                          bottom: isMobile ? '-8px' : '-12px', 
-                          left: 0, 
-                          width: '100%', 
-                          height: '15px', 
-                          zIndex: -1 
+                      }}
+                    >
+                      Verified Therapists
+                    </span>{" "}
+                    Connecting You to{" "}
+                    <span
+                      className="theme-gradient-alt"
+                      style={{
+                        background: "linear-gradient(90deg, #004e92, #005bea)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                      }}
+                    >
+                      Trusted Counselling Support
+                    </span>
+                  </h1>
+                )}
+
+                {isMobile && (
+                  <Box sx={{ backgroundColor: "#ffffff", minHeight: "100vh", paddingBottom: "80px" }}>
+                    {/* Google-like Banner */}
+                    <Box sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      py: 6,
+                      px: 2
+                    }}>
+                      {/* Logo/Brand Text - Smaller */}
+                      <Typography sx={{
+                        fontSize: "32px",
+                        fontWeight: 750,
+                        background: "linear-gradient(90deg, #228756 0%, #1d9b5f 40%, #0097ff 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        mb: 4,
+                        textAlign: "center",
+                        letterSpacing: "-1px"
+                      }}>
+                        chooseyourtherapist.in
+                      </Typography>
+
+                      {/* Search Box */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.2,
+                          borderRadius: '28px',
+                          border: "1px solid #e8e8e8",
+                          backgroundColor: "#fafafa",
+                          boxShadow: "0 1px 6px rgba(32, 33, 36, 0.08), inset 0 1px 3px rgba(255, 255, 255, 0.5)",
+                          width: "100%",
+                          maxWidth: "420px",
+                          px: 4,
+                          py: 2,
+                          transition: "all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                          mb: 1.5,
+                          '&:hover': {
+                            boxShadow: "0 2px 12px rgba(32, 33, 36, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.5)",
+                            backgroundColor: "#fff"
+                          },
+                          '&:focus-within': {
+                            boxShadow: "0 4px 16px rgba(14, 165, 233, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.5)",
+                            border: "1px solid #0ea5e9",
+                            backgroundColor: "#fff"
+                          }
                         }}
                       >
-                        <path 
-                          d="M5 15 Q 30 5, 50 15 T 95 15" 
-                          stroke="#004e92" 
-                          strokeWidth="6" 
-                          fill="none" 
-                          strokeLinecap="round" 
-                          style={{ opacity: 0.3 }}
+                        <Search sx={{ color: "#9ca3af", fontSize: 18, flexShrink: 0 }} />
+                        <input
+                          type="text"
+                          placeholder="Search therapists..."
+                          value={inputValue}
+                          onChange={(e) => {
+                            setInputValue(e.target.value);
+                            debouncedSetSearchQuery(e.target.value);
+                          }}
+                          style={{
+                            flex: 1,
+                            border: 'none',
+                            outline: 'none',
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            color: '#1a1a1a',
+                            backgroundColor: 'transparent',
+                            fontFamily: 'inherit'
+                          }}
+                          aria-label="Search for therapists"
                         />
-                      </svg>
-                    </Box> Across India.
-                  </h1>
+                      </Box>
 
-                  {/* Description */}
-                  <Typography variant="h6" sx={{ 
-                    color: "#000000", 
-                    maxWidth: "800px", 
-                    margin: "0 auto", 
-                    lineHeight: 1.6,
-                    fontSize: isMobile ? "18px" : "22px",
-                    animation: "fadeInUp 1s ease-out",
-                    mb: 4,
-                    fontWeight: 500,
-                    textAlign: "center"
-                  }}>
-                    Therapy works when you feel safe, heard, and understood.
-                    <br />
-                    Discover therapists across India who match your needs and values.
-                  </Typography>
+                      {/* Search Description Text */}
+                      <Box sx={{ 
+                        display: "flex", 
+                        gap: 2, 
+                        justifyContent: "center",
+                        mt: 0.8,
+                        mb: 0.5
+                      }}>
+                        <Typography sx={{ 
+                          fontSize: "12px", 
+                          color: "#5f5f5f",
+                          cursor: "pointer",
+                          '&:hover': {
+                            textDecoration: 'underline'
+                          }
+                        }}>
+                          Anxiety
+                        </Typography>
+                        <Typography sx={{ 
+                          fontSize: "12px", 
+                          color: "#5f5f5f",
+                          cursor: "pointer",
+                          '&:hover': {
+                            textDecoration: 'underline'
+                          }
+                        }}>
+                          Depression
+                        </Typography>
+                        <Typography sx={{ 
+                          fontSize: "12px", 
+                          color: "#5f5f5f",
+                          cursor: "pointer",
+                          '&:hover': {
+                            textDecoration: 'underline'
+                          }
+                        }}>
+                          Stress
+                        </Typography>
+                      </Box>
+                    </Box>
 
-                  {/* Banner Buttons */}
-                  <Box sx={{ 
-                    display: "flex", 
-                    gap: 2, 
-                    flexWrap: "wrap", 
-                    justifyContent: "center",
-                    animation: "fadeInUp 1s ease-out 0.2s both"
-                  }}>
-                    <Button 
-                      component={Link}
-                      to="/therapists"
-                      variant="contained" 
-                      sx={{
-                        bgcolor: "#228756",
-                        color: "white",
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: "50px",
-                        fontWeight: 800,
-                        textTransform: "none",
-                        fontSize: "16px",
-                        boxShadow: "0 10px 20px rgba(34, 135, 86, 0.2)",
-                        "&:hover": {
-                          bgcolor: "#1a6b44",
-                          transform: "translateY(-2px)",
-                          boxShadow: "0 15px 25px rgba(34, 135, 86, 0.3)"
-                        },
-                        transition: "all 0.3s ease"
-                      }}
-                    >
-                      Find a Therapist
-                    </Button>
-                    <Button 
-                      component={Link}
-                      to="/plans"
-                      variant="outlined" 
-                      sx={{
-                        borderColor: "#228756",
-                        color: "#228756",
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: "50px",
-                        fontWeight: 800,
-                        textTransform: "none",
-                        fontSize: "16px",
-                        borderWidth: "2px",
-                        "&:hover": {
-                          borderColor: "#1a6b44",
-                          bgcolor: "rgba(34, 135, 86, 0.05)",
-                          borderWidth: "2px",
-                          transform: "translateY(-2px)"
-                        },
-                        transition: "all 0.3s ease"
-                      }}
-                    >
-                      Therapy Plans
-                    </Button>
+                    {/* Top Rated Therapists Section */}
+                    <Box sx={{ bgcolor: "white", py: 2, px: 2.5, mt: -0.5, borderRadius: "16px", mx: 2.5, mb: 2 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 800, color: "#1a1a1a", fontSize: "15px", display: "flex", alignItems: "center", gap: 0.8 }}>
+                          <Box sx={{ fontSize: "18px" }}>⭐</Box> Top Rated
+                        </Typography>
+                        <Link to="/view-all-therapist" style={{ color: "#0ea5e9", fontSize: "11px", fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: "3px" }}>View All <ArrowForward sx={{ fontSize: 13 }} /></Link>
+                      </Box>
+
+                      {topTherapistsError ? (
+                        <Box sx={{ textAlign: "center", py: 3, px: 3 }}>
+                          <Typography sx={{ color: "#666", mb: 1.5, fontSize: "13px" }}>
+                            Unable to load therapists
+                          </Typography>
+                          <Box
+                            onClick={retryFetchData}
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              px: 2,
+                              py: 0.75,
+                              bgcolor: "#0ea5e9",
+                              color: "white",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                              transition: "all 0.2s ease",
+                              '&:hover': {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 4px 12px rgba(14, 165, 233, 0.3)"
+                              }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            Retry
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", paddingBottom: "4px" }}>
+                          {topTherapistsLoading ? (
+                            Array.from({ length: 6 }).map((_, index) => (
+                              <Box key={index} sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <Skeleton variant="circular" width={70} height={70} />
+                                <Skeleton variant="text" width={60} height={14} sx={{ mt: 1.2 }} />
+                                <Skeleton variant="text" width={50} height={12} sx={{ mt: 0.5 }} />
+                              </Box>
+                            ))
+                          ) : filteredTherapists.length > 0 ? (
+                            filteredTherapists.slice(0, 6).map((therapist) => (
+                              <Link
+                                key={therapist._id}
+                                to={`/therapist-checkout/${therapist._id}`}
+                                style={{ textDecoration: "none", color: "inherit" }}
+                              >
+                                <Box sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  cursor: "pointer",
+                                  gap: 0.8,
+                                  transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                                  "&:hover": {
+                                    transform: "translateY(-6px) scale(1.05)"
+                                  }
+                                }}>
+                                  <Box sx={{
+                                    position: "relative",
+                                    width: 70,
+                                    height: 70
+                                  }}>
+                                    <Avatar
+                                      src={therapist.user?.profile ? `${imagePath}/${therapist.user.profile}` : null}
+                                      sx={{
+                                        width: 70,
+                                        height: 70,
+                                        border: "3px solid #0ea5e9",
+                                        boxShadow: "0 4px 16px rgba(14, 165, 233, 0.25)",
+                                        transition: "all 0.3s ease"
+                                      }}
+                                    />
+                                    <Box sx={{
+                                      position: "absolute",
+                                      bottom: -4,
+                                      right: -4,
+                                      bgcolor: "#fff3e0",
+                                      border: "3px solid white",
+                                      borderRadius: "50%",
+                                      width: 26,
+                                      height: 26,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: "13px",
+                                      fontWeight: 700,
+                                      color: "#ff6b35",
+                                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                                    }}>
+                                      <Star sx={{ fontSize: 13 }} />
+                                    </Box>
+                                  </Box>
+                                  <Typography sx={{
+                                    fontSize: "13px",
+                                    color: "#1a1a1a",
+                                    textAlign: "center",
+                                    fontWeight: 700,
+                                    maxWidth: "70px",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap"
+                                  }}>
+                                    {therapist.user?.name?.split(' ')[0] || 'Dr.'}
+                                  </Typography>
+                                  <Typography sx={{
+                                    fontSize: "12px",
+                                    color: "#ff6b35",
+                                    fontWeight: 700,
+                                    textAlign: "center"
+                                  }}>
+                                    ⭐ 4.9
+                                  </Typography>
+                                </Box>
+                              </Link>
+                            ))
+                          ) : (
+                            <Box sx={{ width: "100%", textAlign: "center", py: 3, gridColumn: "1 / -1" }}>
+                              <Typography sx={{ color: "#999", fontSize: "13px" }}>
+                                No therapists found matching your search
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+
+                    <style jsx>{`
+                      .hide-scrollbar::-webkit-scrollbar {
+                        display: none;
+                      }
+                      .hide-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                      }
+                    `}</style>
                   </Box>
-                </Box>
+                )}
+
+                {!isMobile && (
+                  <>
+                    {/* Avatar Section */}
+                    <div className="rbt-like-total">
+                      <div className="profile-share" style={{ justifyContent: "flex-start" }}>
+                        {[ClientImg, Fabiha, counselling1].map((img, i) => (
+                          <Link
+                            key={i}
+                            to="#"
+                            className="avatar"
+                            data-tooltip={`Verified Psychologist ${i + 1}`}
+                            tabIndex="0"
+                          >
+                            <ImageTag
+                              src={img}
+                              width={55}
+                              height={55}
+                              alt={`Certified Psychologist Avatar ${i + 1} - Choose Your Therapist`}
+                            />
+                          </Link>
+                        ))}
+
+                        <div className="more-author-text" style={{ textAlign: "left" }}>
+                          <h5 className="total-join-students">
+                            Over 5,245+ already on their wellness journey.
+                          </h5>
+                          <p className="subtitle">Your well-being awaits.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Get Started Button */}
+                    <div
+                      className="slider-btn"
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        marginTop: "20px",
+                      }}
+                    >
+                      <Link
+                        className="rbt-btn btn-gradient hover-icon-reverse"
+                        to="/view-all-therapist"
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      >
+                        <span className="icon-reverse-wrapper">
+                          <span className="btn-text">Check Therapist Directory</span>
+                          <span className="btn-icon">
+                            <ArrowForward />
+                          </span>
+                          <span className="btn-icon">
+                            <ArrowForward />
+                          </span>
+                        </span>
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Consultation Form */}
+          {!isMobile && (
+            <div
+              className="col-lg-4 col-md-12 col-sm-12 col-12"
+              style={{ marginTop: 20, marginBottom: 30 }}
+            >
+              <div style={{
+                backgroundColor: "white",
+                padding: isMobile ? "20px" : "30px",
+                borderRadius: "15px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+                border: "2px solid #e8f5e8",
+                marginBottom: "20px"
+              }}>
+                <ConsultationForm showHeading={false} />
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Trusted Therapists Full-Width Strip */}
-      <Box sx={{ 
-        width: "100vw", 
-        position: "relative",
-        left: "50%",
-        right: "50%",
-        marginLeft: "-50vw",
-        marginRight: "-50vw",
-        bgcolor: "white", 
-        py: 3, 
-        borderTop: "1px solid #f1f5f9",
-        borderBottom: "1px solid #f1f5f9",
-        overflow: "hidden",
-        zIndex: 2,
-        mt: -2
-      }}>
-        <Box sx={{ 
-          display: "flex", 
-          width: "max-content",
-          animation: "scrollRightToLeft 120s linear infinite",
-          "&:hover": { animationPlayState: "paused" }
-        }}>
-          {[...topTherapists, ...topTherapists, ...topTherapists].map((therapist, i) => (
-            <Box key={i} sx={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: 2, 
-              mx: 6,
-              cursor: "pointer"
-            }}>
-              <Avatar 
-                src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
-                sx={{ 
-                  width: 55, 
-                  height: 55, 
-                  border: "2px solid #f8fafc",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
-                }} 
-              />
-              <Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <Typography sx={{ fontSize: "15px", fontWeight: 800, color: "#1a1a1a", whiteSpace: "nowrap" }}>
-                    {therapist.user?.name}
-                  </Typography>
-                  <CheckCircle sx={{ fontSize: 16, color: "#228756" }} />
-                </Box>
-                <Typography sx={{ fontSize: "12px", color: "#228756", fontWeight: 700, whiteSpace: "nowrap", textTransform: "capitalize" }}>
-                  {therapist.profile_type || "Verified Specialist"}
-                </Typography>
-                {therapist.state && (
-                  <Typography sx={{ fontSize: "11px", color: "#64748b", fontWeight: 500, whiteSpace: "nowrap" }}>
-                    {therapist.state}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          ))}
-        </Box>
-      </Box>
-
-      {/* Soft Mist / Gradient Fade Bottom */}
-      <div style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        height: isMobile ? "100px" : "200px",
-        background: "linear-gradient(to bottom, rgba(240, 253, 244, 0) 0%, rgba(255, 255, 255, 0.8) 50%, #ffffff 100%)",
-        zIndex: 1,
-        pointerEvents: "none"
-      }}></div>
-
-      {/* Consultation Modal */}
-      <Dialog 
-        open={isModalOpen} 
-        onClose={handleCloseModal}
-        TransitionComponent={Zoom}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: "24px",
-            p: 1,
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-          }
-        }}
-      >
-        <DialogTitle sx={{ m: 0, p: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h5" sx={{ fontWeight: 900, color: "#228756", letterSpacing: "-0.5px" }}>
-            Free Consultation
-          </Typography>
-          <IconButton onClick={handleCloseModal} sx={{ color: "#94a3b8" }}>
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ pb: 4 }}>
-          <ConsultationForm showHeading={true} />
-        </DialogContent>
-      </Dialog>
-
-      <style>{`
-        @keyframes revealText {
-          from { transform: translateY(110%); }
-          to { transform: translateY(0); }
-        }
-        @keyframes gradientSwipe {
-          0% { background-position: 0% 100%; }
-          100% { background-position: 0% -100%; }
-        }
-        @keyframes soothingFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-        @keyframes fadeInLeft {
-          from { opacity: 0; transform: translateX(-40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scrollRightToLeft {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
   );
 }

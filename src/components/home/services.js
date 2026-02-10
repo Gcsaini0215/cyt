@@ -27,14 +27,7 @@ export default function Services() {
             <div className="col-lg-12">
               <div className="section-title" style={{ marginTop: "40px" }}>
 
-                <h2 className="title">
-                  <span className="theme-gradient">Personalized Care for You</span>
-                </h2>
-                <p style={{ textAlign: "justify" }}>
-                  Personalized care that puts you first. From emotional support to
-                  mental clarity, we create a safe space to nurture your unique path
-                  toward lasting well-being.
-                </p>
+                
               </div>
             </div>
           </div>
@@ -72,24 +65,7 @@ export default function Services() {
           </div>
 
           {/* Premium Banner Section */}
-          <div className="premium-banner">
-            <i className="feather-phone-call banner-icon"></i>
-            <span className="premium-text">
-              To Book a Session Call Now:{" "}
-              <a
-                href="tel:+918077757951"
-                style={{
-                  color: "#fff",
-                  textDecoration: "underline",
-                  fontWeight: 700,
-                }}
-              >
-                +91 80777 57951
-              </a>{" "}
-              – Available 24/7
-            </span>
-          </div>
-
+        
 
 
           {/* Inline CSS */}

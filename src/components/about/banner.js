@@ -157,7 +157,8 @@ export default function AboutUsBanner() {
           </div>
 
           <h1 className="about-title">
-            Because Therapists should be{" "}
+            Because Your Mental Health Matters, <br />
+            Therapists should be{" "}
             <span className="about-type-wrapper">
               <TypeAnimation
                 sequence={[
