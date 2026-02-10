@@ -41,7 +41,6 @@ import ImageTag from "../../utils/image-tag";
 import ConsultationForm from "./consultation-form";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles, imagePath } from "../../utils/url";
-import BannerImg from "../../assets/img/banner-012304.png";
 // Therapist avatar images
 import ClientImg from "../../assets/img/avatar-027dc8.png";
 import Fabiha from "../../assets/img/psychologist.png";
@@ -624,31 +623,19 @@ export default function Banner() {
   }, [topTherapists, searchQuery]);
 
   return (
-    <section
+      <section
         className="rbt-banner-area rbt-banner-1"
         style={{
-          paddingTop: isMobile ? "20px" : "40px",
-          marginTop: isMobile ? "-40px" : "0px",
-          paddingBottom: isMobile ? "0px" : "100px",
+          paddingTop: isMobile ? "60px" : "40px",
+          marginTop: "0px",
+          paddingBottom: isMobile ? "40px" : "30px",
           marginBottom: isMobile ? "0px" : "20px",
-          backgroundColor: "#f0fdf4",
-          backgroundImage: `url(${BannerImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundColor: "inherit",
           overflowX: "hidden",
-          position: "relative"
+          backgroundSize: "cover",
+          backgroundPosition: "center"
         }}
       >
-
-      <div style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: isMobile ? "rgba(240, 253, 244, 0.85)" : "rgba(240, 253, 244, 0.7)",
-        zIndex: 0
-      }}></div>
 
       <Helmet>
         <title>
@@ -678,18 +665,18 @@ export default function Banner() {
                   alignItems: "center", 
                   justifyContent: "center",
                   textAlign: "center",
-                  py: isMobile ? 3 : 4,
+                  py: isMobile ? 4 : 4,
                   px: 2,
                   width: "100%",
                   mx: "auto",
-                  mt: isMobile ? -2 : 0
+                  mt: 0
                 }}>
                   {/* Two-line Heading with Split-Text Reveal Animation */}
                   <h1
                     className="title"
                     style={{
-                      fontSize: isMobile ? "2.2rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "2.8rem" : isTablet ? "3.8rem" : "5.5rem",
+                      fontSize: isMobile ? "2.5rem" : isTablet ? "3.2rem" : "4.8rem",
+                      lineHeight: isMobile ? "3.2rem" : isTablet ? "3.8rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: "24px",
                       fontWeight: 900,

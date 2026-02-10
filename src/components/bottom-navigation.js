@@ -46,9 +46,7 @@ export default function BottomNavigation() {
   }, []);
 
   // Don't render if not mobile
-  if (!isMobile) {
-    return null;
-  }
+  return null;
 
   const profilePath = userType === 1 ? "/my-dashboard" : userType === 2 ? "/therapist-dashboard" : "/login";
 

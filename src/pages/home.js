@@ -381,9 +381,6 @@ export default function HomePage() {
 
         {/* Footer */}
         <Footer />
-
-        {/* Bottom Navigation for Mobile */}
-        <BottomNavigation />
       </main>
     </div>
   );

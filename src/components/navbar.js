@@ -156,8 +156,8 @@ export default function App() {
                   </Link>
                 </div>
 
-                {/* Mobile Menu Button - Hidden on mobile since we use bottom nav */}
-                <div className="mobile-menu-bar d-none d-xl-none" onClick={() => setShow(true)}>
+                {/* Mobile Menu Button - Moved to right corner */}
+                <div className="mobile-menu-bar d-flex d-xl-none" onClick={() => setShow(true)}>
                   <div className="hamberger">
                     <button className="hamberger-button rbt-round-btn">
                       <i className="feather-menu"></i>
@@ -686,7 +686,6 @@ export default function App() {
       `}</style>
 
       {/* Bottom Navigation for Mobile */}
-      <BottomNavigation />
     </>
   );
 }
