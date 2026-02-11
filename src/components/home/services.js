@@ -13,27 +13,31 @@ export default function Services() {
     <>
       {/* Services Section */}
       <div
-        className="rbt-categories-area bg-color-white rbt-section-gapBottom mt--60"
-        style={{ marginTop: 0 }}
+        className="rbt-categories-area bg-color-white"
+        style={{ marginTop: "20px" }}
       >
         <div className="container">
-          {/* About Choose Your Therapist Section - Moved to Top */}
-          
-
-              
-       
-
-          <div className="row">
+          <div className="row mb--60">
             <div className="col-lg-12">
-              <div className="section-title" style={{ marginTop: "40px" }}>
-
-                
+              <div className="section-title text-center">
+                <h2 className="title" style={{ 
+                  fontSize: "3rem", 
+                  fontWeight: "800", 
+                  color: "#000000",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "20px"
+                }}>
+                  <span style={{ height: "3px", width: "60px", backgroundColor: "#000000", borderRadius: "10px", display: "inline-block" }}></span>
+                  Comprehensive Mental Wellness
+                  <span style={{ height: "3px", width: "60px", backgroundColor: "#000000", borderRadius: "10px", display: "inline-block" }}></span>
+                </h2>
               </div>
             </div>
           </div>
 
-          {/* Service Cards */}
-          <div className="row g-5 mt--20">
+          <div className="row g-5">
             {[
               { img: TherypyImg, title: "Therapist", btn: "Book Now", link: "/view-all-therapist" },
               { img: SupportImg, title: "Community", btn: "Register Now", link: "#" },

@@ -745,7 +745,8 @@ export default function Banner() {
                     gap: 2, 
                     flexWrap: "wrap", 
                     justifyContent: "center",
-                    animation: "fadeInUp 1s ease-out 0.2s both"
+                    animation: "fadeInUp 1s ease-out 0.2s both",
+                    mb: isMobile ? 8 : 10
                   }}>
                     <Button 
                       component={Link}
@@ -813,12 +814,12 @@ export default function Banner() {
         marginLeft: "-50vw",
         marginRight: "-50vw",
         bgcolor: "white", 
-        py: 3, 
+        py: 1, 
         borderTop: "1px solid #f1f5f9",
         borderBottom: "1px solid #f1f5f9",
         overflow: "hidden",
         zIndex: 2,
-        mt: -2
+        mt: -4
       }}>
         <Box sx={{ 
           display: "flex", 
