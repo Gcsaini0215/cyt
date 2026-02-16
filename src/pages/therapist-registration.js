@@ -147,9 +147,9 @@ export default function TherapistRegistration()
   };
 
   const stats = [
-    { label: "Verified Therapists", value: "500+", color: "#e1f5e3", textColor: "#166534" },
-    { label: "Monthly Reach", value: "10k+", color: "#e0f2fe", textColor: "#0369a1" },
-    { label: "Commission", value: "0%", color: "#fef3c7", textColor: "#92400e" },
+    { label: "Recieved Resume", value: "100+", color: "#e1f5e3", textColor: "#166534" },
+    { label: "Active Profile", value: "48+", color: "#e0f2fe", textColor: "#0369a1" },
+    { label: "Approval Duration", value: "7D", color: "#fef3c7", textColor: "#92400e" },
   ];
 
   const profileOptions = [
@@ -242,10 +242,10 @@ export default function TherapistRegistration()
                   fontSize: '14px', 
                   fontWeight: '600' 
                 }}>
-                  Empowering 500+ Professionals
+                  Empowering Mental Health Professionals
                 </span>
                 <h2 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
-                  Join as a Therapist and Build Client Trust with Your Professional Profile
+                 Become a Preferred Therapist with CYT
                 </h2>
                 <p className="text-muted" style={{ fontSize: '18px' }}>
                   Register as a verified psychologist or therapist and create a trusted profile to connect with clients across India. Offer online or in-person sessions, manage appointments easily, and grow your practice on a secure, commission-free platform.

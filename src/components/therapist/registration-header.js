@@ -107,19 +107,19 @@ export default function RegistrationHeader() {
           <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             <div className="reg-badge">
               <VerifiedIcon sx={{ fontSize: 18 }} />
-              <span>Join Our Network</span>
+              <span>Be a Preferred Therapist</span>
             </div>
             
             <h1 className="reg-title">
-              Empower Lives as a{" "}
+              Join Our Platform to{" "}
               <span className="reg-animated-text">
                 <TypeAnimation
                   sequence={[
-                    "Verified Therapist",
+                    "Build Your Presence",
                     2000,
-                    "Mental Health Expert",
+                    "Strengthen Your Impact",
                     2000,
-                    "Counselling Pro",
+                    "Expand Your Reach",
                     2000,
                   ]}
                   wrapper="span"
@@ -127,12 +127,12 @@ export default function RegistrationHeader() {
                   repeat={Infinity}
                 />
               </span>
-              <br /> Join Choose Your Therapist
+              <br /> List Yourself on Choose Your Therapist
             </h1>
             
             <p className="reg-subtitle">
-              Become part of India's most trusted network of verified mental health professionals.
-              <br /> Connect with clients, manage your practice, and grow your impact.
+              Connect with clients seeking support, showcase your specializations, and offer secure online or in-person sessions for stress, anxiety, relationships, and emotional well-being.
+              
             </p>
           </Box>
         </Container>
