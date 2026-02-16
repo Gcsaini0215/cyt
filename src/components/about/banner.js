@@ -7,7 +7,7 @@ import { TypeAnimation } from "react-type-animation";
 const styles = `
 .about-banner {
   position: relative;
-  background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+  background-image: url('https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
