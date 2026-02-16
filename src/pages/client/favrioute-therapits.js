@@ -16,9 +16,9 @@ export default function FavriouteTherapistPage() {
   const getData = async () => {
     try {
       const res = await fetchById(GetFavriouteTherapistUrl);
-      if (res.status) {
+      if (res && res.data) {
         setData(res.data);
-      } else {
+      } else if (res && res.message) {
         toast.error(res.message);
       }
     } catch (err) {

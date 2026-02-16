@@ -17,12 +17,12 @@ export default function HomeWorkshop({ isWhite = false }) {
     getData(id);
   };
 
-  const getData = async (tab) => {
+  const getData = async (categoryTab = tab) => {
     try {
       const res = await fetchData(getWorkshopsWebUrl, {
-        category: tab === "See All" ? "" : tab,
+        category: categoryTab === "See All" ? "" : categoryTab,
       });
-      if (res.status) {
+      if (res && res.data) {
         setData(res.data);
       }
     } catch (err) {

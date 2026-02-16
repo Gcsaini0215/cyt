@@ -29,10 +29,10 @@ export default function ViewProfile() {
         console.log("URL:", getTherapistProfile + id);
         const res = await fetchData(getTherapistProfile + id);
         console.log("Profile Response:", res);
-        if (res.status && Object.keys(res.data).length > 0) {
+        if (res && res.data && Object.keys(res.data).length > 0) {
           setProfile(res.data);
         } else {
-          console.error("Profile not found or status false");
+          console.error("Profile not found or empty data");
           setError(true);
         }
         setLoading(false);
@@ -46,7 +46,7 @@ export default function ViewProfile() {
     const getFavrioutes = async () => {
       try {
         const res = await fetchById(GetFavriouteTherapistListUrl);
-        if (res.status) {
+        if (res && res.data) {
           setFavrioutes(res.data.therapists || []);
         }
       } catch (err) {

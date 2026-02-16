@@ -1,141 +1,58 @@
 import React from "react";
 
-export default function InvoicesHeader() {
-  return (
-    <>
-      <div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
-        <div class="content">
-          <div class="section-title">
-            <h4 class="rbt-title-style-3">Recent Invoices</h4>
-          </div>
-          <div class="rbt-dashboard-table table-responsive mobile-table-750">
-            <table class="rbt-table table table-borderless">
-              <thead>
-              <tr>
-                  <th>Invoices ID</th>
-                  <th>Client Name</th>
-                  <th>Booking Date</th>
-                  <th>Payment</th>
-                  <th>Invoices</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                <th>#INV-24-490</th>
-                  <td>Suresh Sharma</td>
-                  <td>January 27, 2022</td>
-                  <td>1000 INR</td>
-                  <td>
-                  <a class="rbt-btn btn-gradient btn-sm" href="/my-account#">Download</a>
-                  </td>
-                </tr>
-                
-                <tr>
-                <th>#INV-24-491</th>
-                  <td>Priyanka Tiwari</td>
-                  <td>January 27, 2022</td>
-                  <td>2000 INR</td>
-                  <td>
-                  <a class="rbt-btn btn-gradient btn-sm" href="/my-account#">Download</a>
-                  </td>
-                </tr>
-                <tr>
-                <th>#INV-24-492</th>
-                  <td>Ravikant</td>
-                  <td>January 27, 2022</td>
-                  <td>2000 INR</td>
-                  <td>
-                  <a class="rbt-btn btn-gradient btn-sm" href="/my-account#">Download</a>
-                  </td>
-                </tr>
-                <tr>
-                <th>#INV-24-493</th>
-                  <td>Lavnya Singh</td>
-                  <td>January 27, 2022</td>
-                  <td>2000 INR</td>
-                  <td>
-                  <a class="rbt-btn btn-gradient btn-sm" href="/my-account#">Download</a>
-                  </td>
-                </tr>
-                <div class="load-more-btn text-center"><a class="rbt-btn-link" href="#">Browse All Invoices<i class="feather-arrow-right"></i></a></div>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+export default function RecentInvoices({ data }) {
+  const invoices = data || [];
 
-      {/* <div className="col-lg-15 col-xl-15">
-        <div className="dashboard-header">
-          <h3>Invoices</h3>
+  return (
+    <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mt--40">
+      <div className="content">
+        <div className="section-title">
+          <h4 className="rbt-title-style-3">Recent Invoices</h4>
         </div>
-        <div className="search-header">
-          <div className="search-field">
-            <input type="text" className="form-control" placeholder="Search" />
-            <span className="search-icon">
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </span>
-          </div>
-        </div>
-        <div className="custom-table">
-          <div className="table-responsive">
-            <table className="table table-center mb-0">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Patient</th>
-                  <th>Appointment Date</th>
-                  <th>Booked on</th>
-                  <th>Amount</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoices.map((invoice, index) => (
-                  <tr key={index}>
+        <div className="rbt-dashboard-table table-responsive mobile-table-750">
+          <table className="rbt-table table table-borderless">
+            <thead>
+              <tr>
+                <th>Invoice ID</th>
+                <th>Client Name</th>
+                <th>Booking Date</th>
+                <th>Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.length > 0 ? (
+                invoices.map((invoice) => (
+                  <tr key={invoice.id}>
+                    <th>#{invoice.invoice_id || invoice.id}</th>
+                    <td>{invoice.client_name}</td>
+                    <td>{invoice.booking_date}</td>
+                    <td>{invoice.amount} INR</td>
                     <td>
-                      <a
-                        href="#"
-                        className="text-blue-600"
-                        data-bs-toggle="modal"
-                        data-bs-target="#invoice_view"
-                      >
-                        {invoice.id}
+                      <a className="rbt-btn btn-gradient btn-sm" href="#">
+                        Download
                       </a>
                     </td>
-                    <td>
-                      <div className="table-avatar-patient">
-                        <a href="docter-profile.html">
-                          <img src={invoice.patientImage} alt="user image" />
-                        </a>
-                        <a className="patient-name" href="doctor-profile.html">
-                          {invoice.patient}
-                        </a>
-                      </div>
-                    </td>
-                    <td>{invoice.appointmentDate}</td>
-                    <td>{invoice.bookedOn}</td>
-                    <td>{invoice.amount}</td>
-                    <td>
-                      <div className="action-item">
-                        <a
-                          href="#"
-                          data-bs-toggle="modal"
-                          data-bs-target="#invoice_view"
-                        >
-                          <i className="fa-solid fa-link"></i>
-                        </a>
-                        <a href="#">
-                          <i className="fa-solid fa-print"></i>
-                        </a>
-                      </div>
-                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
+                    No recent invoices
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          {invoices.length > 0 && (
+            <div className="load-more-btn text-center">
+              <a className="rbt-btn-link" href="#">
+                Browse All Invoices<i className="feather-arrow-right"></i>
+              </a>
+            </div>
+          )}
         </div>
-      </div> */}
-    </>
+      </div>
+    </div>
   );
 }

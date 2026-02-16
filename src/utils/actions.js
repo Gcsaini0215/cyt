@@ -42,13 +42,30 @@ export const deleteById = (url, params = {}) => {
 
 export const fetchData = (url, params = {}) => {
   return new Promise((resolve, reject) => {
+    console.log("Fetching data from:", url, "with params:", params);
     axios
-      .get(url, { params })
+      .get(url, { 
+        params,
+        timeout: 10000 // 10 seconds timeout
+      })
       .then((response) => {
+        console.log(`Response received from ${url}:`, {
+          status: response.status,
+          dataType: typeof response.data,
+          dataLength: Array.isArray(response.data) ? response.data.length : (response.data?.data ? response.data.data.length : 'N/A')
+        });
         resolve(response.data);
       })
       .catch((error) => {
-        console.error("API Fetch Error:", url, error);
+        console.error("API Fetch Error:", url);
+        if (error.response) {
+          console.error("- Status:", error.response.status);
+          console.error("- Data:", error.response.data);
+        } else if (error.request) {
+          console.error("- No response received. Possible CORS issue or Network error.");
+        } else {
+          console.error("- Message:", error.message);
+        }
         reject(error);
       });
   });

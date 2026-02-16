@@ -78,12 +78,12 @@ export default function FavriouteTherapist() {
     const getData = async () => {
       try {
         const res = await fetchById(GetFavriouteTherapistUrl, filter);
-        if (res.status) {
+        if (res && res.data) {
           setData(res.data);
           setCount(res.totalCount);
           setTotalPages(Math.ceil(res.totalCount / 10));
         } else {
-          return <ErrorPage />;
+          console.error("No favorites data found");
         }
       } catch (err) {
         return <ErrorPage />;

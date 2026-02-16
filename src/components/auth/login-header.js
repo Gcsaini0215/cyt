@@ -10,7 +10,7 @@ const styles = `
   background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  background-attachment: scroll;
   padding: 140px 0 100px 0;
   overflow: hidden;
   margin-top: 0px;
@@ -84,7 +84,9 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .login-banner { padding: 100px 0 60px 0; }
+  .login-banner { 
+    padding: 100px 0 60px 0;
+  }
   .login-title { font-size: 32px; }
   .login-subtitle { font-size: 16px; }
   .login-animated-text { min-width: 100%; text-align: center; }

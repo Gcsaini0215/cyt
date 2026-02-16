@@ -54,12 +54,13 @@ export default function ViewAllTherapist() {
       try {
         setLoading(true);
         const res = await fetchData(getTherapistProfiles, filter);
-        if (res.status) {
+        console.log("ViewAllTherapist API Response:", res);
+        if (res && res.data) {
           setAllData(res.data || []);
-          setCount(res.totalCount || 0);
+          setCount(res.totalCount || res.data?.length || 0);
           setData(res.data?.slice(0, visibleCount) || []);
         } else {
-          return <ErrorPage />;
+          console.error("API returned failure:", res);
         }
       } catch (err) {
         return <ErrorPage />;
@@ -71,7 +72,7 @@ export default function ViewAllTherapist() {
     const getFavrioutes = async () => {
       try {
         const res = await fetchById(GetFavriouteTherapistListUrl);
-        if (res.status) {
+        if (res && res.data) {
           setFavrioutes(res.data.therapists || []);
         }
       } catch (err) {

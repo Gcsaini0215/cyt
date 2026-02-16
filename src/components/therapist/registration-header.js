@@ -10,7 +10,7 @@ const styles = `
   background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  background-attachment: scroll;
   padding: 140px 0 100px 0;
   overflow: hidden;
   margin-top: 0px;
@@ -84,7 +84,9 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .reg-banner { padding: 100px 0 60px 0; }
+  .reg-banner { 
+    padding: 100px 0 60px 0;
+  }
   .reg-title { font-size: 32px; }
   .reg-subtitle { font-size: 16px; }
   .reg-animated-text { min-width: 100%; text-align: center; }

@@ -24912,7 +24912,7 @@ textarea:-ms-input-placeholder {
   white-space: nowrap;
 }
 .rbt-gradient-border {
-  background: linear-gradient(-145deg, #cfa2e8, #637fea) !important;
+  background: linear-gradient(-145deg, #228756, #59c82f) !important;
   z-index: 10;
 }
 .rbt-gradient-border:before {

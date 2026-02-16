@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogActions } from "@mui/material";
 import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { threapistRegistrationUrl, verifyOtpUrl } from "../utils/url";
+import { therapistRegistrationUrl, verifyOtpUrl } from "../utils/url";
 import { Link } from "react-router-dom";
 import { postData, postFormData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
@@ -97,7 +97,7 @@ export default function TherapistRegistration()
     data.append("serve", checkedValues.join(", "));
 
     try {
-      const response = await postFormData(threapistRegistrationUrl, data);
+      const response = await postFormData(therapistRegistrationUrl, data);
       if (response.status) {
         setRegisteredEmail(email);
         setOpen(true);

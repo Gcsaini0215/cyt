@@ -18,18 +18,20 @@ export default function ProfileCard() {
   const [tab, setTab] = React.useState("");
   const [data, setData] = React.useState([]);
   const [favrioutes, setFavrioutes] = React.useState([]);
-  const getData = async (tab) => {
+  const getData = async (profileType = tab) => {
+    console.log("getData called with profileType:", profileType);
     try {
       const res = await fetchData(getTherapistProfiles, {
-        profile_type: tab,
+        profile_type: profileType,
       });
-      if (res.status) {
+      console.log("getData response:", res);
+      if (res && res.data) {
         setData(res.data);
       } else {
-        return <ErrorPage />;
+        console.log("getData: No data found in response");
       }
     } catch (err) {
-      return <ErrorPage />;
+      console.error("getData error:", err);
     }
   };
 
@@ -41,7 +43,7 @@ export default function ProfileCard() {
   const getFavrioutes = async () => {
     try {
       const res = await fetchById(GetFavriouteTherapistListUrl);
-      if (res.status) {
+      if (res && res.data) {
         setFavrioutes(res.data.therapists || []);
       }
     } catch (err) {
@@ -274,39 +276,44 @@ export default function ProfileCard() {
           </div>
         </div>
         <div className="row row--15" style={{ margin: isMobile ? 5 : 0 }}>
-          <Swiper
-            spaceBetween={50}
-            breakpoints={{
-              640: {
-                slidesPerView: isMobile ? 1 : 2,
-                spaceBetween: 40,
-              },
-              768: {
-                slidesPerView: 2,
-                spaceBetween: 30,
-              },
-              1024: {
-                slidesPerView: 2,
-                spaceBetween: 40,
-              },
-            }}
-            loop={data.length > 2}
-            autoplay={{
-              delay: 2500,
-              disableOnInteraction: false,
-            }}
-            modules={[Autoplay]}
-            className="mySwiper"
-          >
-            {data &&
-              data.map((item) => {
+          {data && data.length > 0 ? (
+            <Swiper
+              spaceBetween={50}
+              breakpoints={{
+                640: {
+                  slidesPerView: isMobile ? 1 : 2,
+                  spaceBetween: 40,
+                },
+                768: {
+                  slidesPerView: 2,
+                  spaceBetween: 30,
+                },
+                1024: {
+                  slidesPerView: 2,
+                  spaceBetween: 40,
+                },
+              }}
+              loop={data.length > 2}
+              autoplay={{
+                delay: 2500,
+                disableOnInteraction: false,
+              }}
+              modules={[Autoplay]}
+              className="mySwiper"
+            >
+              {data.map((item) => {
                 return (
                   <SwiperSlide key={item._id}>
                     <ProfileCardHor pageData={item} favrioutes={favrioutes} />
                   </SwiperSlide>
                 );
               })}
-          </Swiper>
+            </Swiper>
+          ) : (
+            <div className="col-lg-12 text-center" style={{ padding: '40px', background: 'rgba(255,255,255,0.5)', borderRadius: '15px' }}>
+              <p style={{ fontSize: '1.2rem', color: '#666' }}>No therapists found for this category.</p>
+            </div>
+          )}
         </div>
         <div className="row">
           <div className="col-lg-12">

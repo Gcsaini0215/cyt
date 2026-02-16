@@ -5,15 +5,45 @@ let baseFrontendUrl;
 const isServer = typeof window === "undefined";
 const currentDomain = isServer ? "" : window.location.hostname;
 
+// Static assignment for environment variables to ensure they are picked up by bundlers (Next.js/CRA)
+const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
+const envBaseApi = process.env.NEXT_PUBLIC_BASE_API || process.env.REACT_APP_BASE_API;
+
+console.log("Environment Variables detected:", {
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+  NEXT_PUBLIC_BASE_API: process.env.NEXT_PUBLIC_BASE_API,
+  REACT_APP_BASE_API: process.env.REACT_APP_BASE_API
+});
+
+const defaultApiUrl = "https://api.chooseyourtherapist.in/api";
+const defaultBaseApi = "https://api.chooseyourtherapist.in";
+
+// Helper to remove trailing slash
+const removeTrailingSlash = (str) => {
+  if (typeof str !== "string") return str;
+  return str.endsWith("/") ? str.slice(0, -1) : str;
+};
+
+const rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : defaultApiUrl;
+const rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : defaultBaseApi;
+
+apiUrl = removeTrailingSlash(rawApiUrl);
+baseApi = removeTrailingSlash(rawBaseApi);
+
 if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
-  apiUrl = "https://api.chooseyourtherapist.in/api";
-  baseApi = "https://api.chooseyourtherapist.in";
-  baseFrontendUrl = "http://localhost:3000/";
+  baseFrontendUrl = "http://localhost:3000";
 } else {
-  apiUrl = "https://api.chooseyourtherapist.in/api";
-  baseApi = "https://api.chooseyourtherapist.in";
-  baseFrontendUrl = "https://chooseyourtherapist.in/";
+  baseFrontendUrl = "https://chooseyourtherapist.in";
 }
+
+console.log("API Configuration:", { 
+  apiUrl, 
+  baseApi, 
+  currentDomain,
+  envApiUrl,
+  envBaseApi
+});
 
 export const defaultProfile =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
@@ -21,7 +51,7 @@ export const defaultProfile =
 export const frontendUrl = baseFrontendUrl;
 export const imagePath = `${baseApi}/uploads/images`;
 export const loginUrl = `${apiUrl}/login`;
-export const threapistRegistrationUrl = `${apiUrl}/therapist-registeration`;
+export const therapistRegistrationUrl = `${apiUrl}/therapist-registeration`;
 export const registerUrl = `${apiUrl}/register`;
 export const sendOtpUrl = `${apiUrl}/send-otp`;
 export const sendForgotPasswordOtpUrl = `${apiUrl}/send-forgot-password-otp`;

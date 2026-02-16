@@ -84,7 +84,10 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .about-banner { padding: 100px 0 60px 0; }
+  .about-banner { 
+    padding: 100px 0 60px 0;
+    background-attachment: scroll;
+  }
   .about-title { font-size: 32px; }
   .about-subtitle { font-size: 16px; }
   .about-animated-text { min-width: 100%; text-align: center; }
