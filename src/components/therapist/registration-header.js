@@ -117,7 +117,7 @@ export default function RegistrationHeader() {
                   sequence={[
                     "Build Your Presence",
                     2000,
-                    "Strengthen Your Impact",
+                    "Create Your Impact",
                     2000,
                     "Expand Your Reach",
                     2000,

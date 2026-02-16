@@ -248,7 +248,7 @@ export default function TherapistRegistration()
                  Become a Preferred Therapist with CYT
                 </h2>
                 <p className="text-muted" style={{ fontSize: '18px' }}>
-                  Register as a verified psychologist or therapist and create a trusted profile to connect with clients across India. Offer online or in-person sessions, manage appointments easily, and grow your practice on a secure, commission-free platform.
+                  Register as a verified psychologist or therapist and create a trusted profile to connect with clients across Worldwide. Offer online or in-person sessions, track booking easily, and grow your practice on a secure, well-being centered platform.
                 </p>
               </div>
 
