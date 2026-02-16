@@ -10,8 +10,8 @@ export default function Success() {
             <div className="col-lg-12">
               <div className="section-title text-center">
                 <h2 className="title">
-                  Porfile has been submited <br />
-                  Please wait till aproval?
+                  Profile has been submitted <br />
+                  Please wait for approval
                 </h2>
                 <form
                   action="#"

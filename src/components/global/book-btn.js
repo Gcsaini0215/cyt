@@ -4,7 +4,7 @@ export default function BookBtn() {
   return (
     <Link
       className="rbt-btn btn-gradient book-btn"
-      to=""
+      to="#"
       style={{ display: "flex", justifyContent: "center" }}
     >
       <span>Book Now</span>

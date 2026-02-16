@@ -94,7 +94,7 @@ export default function TherapyBooking() {
           })}
         </script>
       </Helmet>
-    <div id="__next">
+    <div>
       <MyNavbar />
       {/* Standard Page Layout */}
       <div style={{

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
@@ -248,8 +248,8 @@ const MetaItem = styled(Box)(({ theme }) => ({
 }));
 
 export default function BlogDetails() {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const blog = blogsData.find(b => b.id === parseInt(id));

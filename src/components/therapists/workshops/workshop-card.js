@@ -31,7 +31,7 @@ export default function WorkshopCard({ data, onDelete }) {
     <div className="col-lg-4 col-md-6 col-12">
       <div className="rbt-card variation-01 rbt-hover">
         <div className="rbt-card-img">
-          <Link href="">
+          <Link to="">
             <ImageTag
               alt={truncateString(data.title, 20)}
               loading="lazy"

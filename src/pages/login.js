@@ -3,9 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
-import ClientImg from "../assets/img/avatar-027dc8.png";
-import Fabiha from "../assets/img/psychologist.png";
-import ClientImg3 from "../assets/img/counselling.png";
 import ImageTag from "../utils/image-tag";
 import { isValidMail } from "../utils/validators";
 import { loginUrl, verifyOtpUrl } from "../utils/url";
@@ -16,6 +13,7 @@ import { postData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
 import FormProgressBar from "../components/global/form-progressbar";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -48,8 +46,8 @@ export default function Login() {
         setError(response.message);
       }
     } catch (error) {
-      console.log("error",error);
-      setError(error.response?.data?.message || "Something went wrong");
+      console.error("Login Error:", error);
+      setError(error.response?.data?.message || error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -140,7 +138,7 @@ export default function Login() {
                             alt="education"
                             width="55"
                             height="55"
-                            src={ClientImg}
+                            src="/assets/img/avatar-027dc8.png"
                           />
                         </Link>
                         <Link
@@ -153,7 +151,7 @@ export default function Login() {
                             alt="education"
                             width="55"
                             height="55"
-                            src={Fabiha}
+                            src="/assets/img/psychologist.png"
                           />
                         </Link>
                         <Link
@@ -166,7 +164,7 @@ export default function Login() {
                             alt="education"
                             width="55"
                             height="55"
-                            src={ClientImg3}
+                            src="/assets/img/counselling.png"
                           />
                         </Link>
                         <div className="more-author-text">

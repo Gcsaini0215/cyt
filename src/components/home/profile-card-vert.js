@@ -77,7 +77,7 @@ export default function ProfileCardVert(props) {
                 height: "250px",
                 objectFit: "cover",
               }}
-              src={`${imagePath}/${data.user.profile}`}
+              src={`${imagePath}/${data.user?.profile}`}
             />
 
             {/* Badge */}
@@ -178,7 +178,7 @@ export default function ProfileCardVert(props) {
               }}
             >
               <Link to={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "#111" }}>
-                {data.user.name}
+                {data.user?.name || "Therapist"}
               </Link>
               {data.priority === 1 && <RecommendIcon sx={{ fontSize: 18, color: "#34d399" }} />}
               {data.priority === 2 && <VerifiedIcon sx={{ fontSize: 18, color: "#60a5fa" }} />}

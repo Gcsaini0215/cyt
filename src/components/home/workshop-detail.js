@@ -167,7 +167,7 @@ export default function WorkshopDetail(props) {
                           <h5 className="title" style={{ lineHeight: 0.24 }}>
                             <Link
                               className="hover-flip-item-wrapper"
-                              to={`view-profile/${data.post_by._id}`}
+                              to={`/view-profile/${data.post_by._id}`}
                             >
                               {data.post_by.user.name}
                             </Link>

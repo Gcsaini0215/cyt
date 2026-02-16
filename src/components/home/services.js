@@ -1,12 +1,13 @@
-import TherypyImg from "../../assets/img/therapysessioncyt.png";
-import SupportImg from "../../assets/img/support.png";
-import StudentImg from "../../assets/img/studentorientation.png";
-import WorkplaceImg from "../../assets/img/workplacetraining.png";
-import ActivitesImg from "../../assets/img/therapeutic.png";
-import AssessmentImg from "../../assets/img/assessmentss.png";
-import ProjectsImg from "../../assets/img/projectscyt.png";
-import specialoffer from "../../assets/img/special.png";
+const TherypyImg = "/assets/img/therapysessioncyt.png";
+const SupportImg = "/assets/img/support.png";
+const StudentImg = "/assets/img/studentorientation.png";
+const WorkplaceImg = "/assets/img/workplacetraining.png";
+const ActivitesImg = "/assets/img/therapeutic.png";
+const AssessmentImg = "/assets/img/assessmentss.png";
+const ProjectsImg = "/assets/img/projectscyt.png";
+const specialoffer = "/assets/img/special.png";
 import LazyImage from "../../utils/lazy-image";
+import { Link } from "react-router-dom";
 
 export default function Services() {
   return (
@@ -49,7 +50,7 @@ export default function Services() {
               { img: specialoffer, title: "Offers", btn: "Grab Deal", link: "#", special: true },
             ].map((card, index) => (
               <div className="col-lg-3 col-md-6 col-sm-6 col-6" key={index}>
-                <a href={card.link} className={`service-card ${card.special ? "special-offer" : ""}`}>
+                <Link to={card.link} className={`service-card ${card.special ? "special-offer" : ""}`}>
                   <div className="inner">
                     <div className="icons">
                       <LazyImage alt={card.title} dim={"80"} src={card.img} />
@@ -63,7 +64,7 @@ export default function Services() {
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
             ))}
           </div>

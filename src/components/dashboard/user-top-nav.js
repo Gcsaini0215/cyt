@@ -1,5 +1,5 @@
 import React from "react";
-import logo1 from "../../assets/img/logo.png";
+const logo1 = "/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import ImageTag from "../../utils/image-tag";
 import useUserStore from "../../store/userStore";
@@ -223,6 +223,7 @@ export default function UserDashboardTopNav() {
           </div>
         </div>
       </header>
+
     </>
   );
 }

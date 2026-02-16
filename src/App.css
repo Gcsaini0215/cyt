@@ -19344,7 +19344,7 @@ ul.rbt-dropdown-menu li:hover .sub-menu {
 }
 .bg-gradient-9:after,
 .rbt-page-banner-wrapper .rbt-banner-image:after {
-  background: linear-gradient(#fff, hsla(0, 0%, 100%, 0.1));
+  background: linear-gradient(rgba(255, 255, 255, 0.4), hsla(0, 0%, 100%, 0.05));
   position: absolute;
   top: 0;
   left: 0;

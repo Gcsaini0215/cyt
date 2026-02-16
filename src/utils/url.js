@@ -1,17 +1,14 @@
 let apiUrl;
 let baseApi;
 let baseFrontendUrl;
-const currentDomain = window.location.hostname;
 
-if (currentDomain === "localhost") {
-  // apiUrl = "https://api.chooseyourtherapist.in/api";
-  // apiUrl = "http://localhost:4000/api";
-  // baseApi = "http://localhost:4000";
-  // baseFrontendUrl = "http://localhost:3000/";
+const isServer = typeof window === "undefined";
+const currentDomain = isServer ? "" : window.location.hostname;
 
+if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
   apiUrl = "https://api.chooseyourtherapist.in/api";
   baseApi = "https://api.chooseyourtherapist.in";
-  baseFrontendUrl = "https://chooseyourtherapist.in/";
+  baseFrontendUrl = "http://localhost:3000/";
 } else {
   apiUrl = "https://api.chooseyourtherapist.in/api";
   baseApi = "https://api.chooseyourtherapist.in";

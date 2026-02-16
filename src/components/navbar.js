@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
-import logo1 from "../assets/img/logo.png";
 import { Link } from "react-router-dom";
 import ImageTag from "../utils/image-tag";
 import { getDecodedToken, getToken } from "../utils/jwt";
@@ -71,7 +70,7 @@ export default function App() {
                 <div className="header-info">
                   <div className="logo">
                     <Link to="/" style={{ cursor: "pointer" }}>
-                      <ImageTag alt="Education Logo Images" height={"50"} width={"152"} src={logo1} />
+                      <ImageTag alt="Education Logo Images" height={"50"} width={"152"} src="/assets/img/logo.png" />
                     </Link>
                   </div>
                 </div>
@@ -83,12 +82,12 @@ export default function App() {
                   <ul className="mainmenu">
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/view-all-therapist">Therapist Directory</Link></li>
-                    <li><Link to="/plans">Therapy Plan</Link></li>
                     <li className="has-dropdown">
                       <Link to="#">Services <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
                         <li><Link to="/therapy-booking">Therapy Booking</Link></li>
                         <li><Link to="/mind-matters">Mind Matters Programs</Link></li>
+                        <li><Link to="/plans">Therapy Plan</Link></li>
                       </ul>
                     </li>
                     <li className="has-dropdown">
@@ -181,12 +180,12 @@ export default function App() {
           <ul className="mobile-menu">
             <li><Link to="/" onClick={() => setShow(false)}>Home</Link></li>
             <li><Link to="/view-all-therapist" onClick={() => setShow(false)}>Therapist Directory</Link></li>
-            <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
             <li className="has-dropdown">
               <Link to="#" onClick={() => setShow(false)}>Services <i className="feather-chevron-down"></i></Link>
               <ul className="submenu">
                 <li><Link to="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
                 <li><Link to="/mind-matters" onClick={() => setShow(false)}>Mind Matters Programs</Link></li>
+                <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
               </ul>
             </li>
             <li className="has-dropdown">

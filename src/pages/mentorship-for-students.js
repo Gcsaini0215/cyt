@@ -2,6 +2,7 @@ import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
+import { Link } from "react-router-dom";
 
 export default function MentorshipForStudents() {
   return (
@@ -21,14 +22,14 @@ export default function MentorshipForStudents() {
                   Gain practical insights, build your network, and develop essential skills for your career.
                 </p>
                 <div className="hero-btns mt--30">
-                  <a className="rbt-btn btn-gradient hover-icon-reverse" href="/therapist-registration">
+                  <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/therapist-registration">
                     <div className="icon-reverse-wrapper">
                       <span className="btn-text">Join as Mentor</span>
                       <span className="btn-icon">
                         <i className="feather-arrow-right"></i>
                       </span>
                     </div>
-                  </a>
+                  </Link>
                   <a className="rbt-btn btn-border-gradient radius-round ml--20" href="#mentorship-programs">
                     <span className="btn-text">Explore Programs</span>
                   </a>
@@ -251,14 +252,14 @@ export default function MentorshipForStudents() {
                   Connect with experienced mentors and begin your transformative learning experience.
                 </p>
                 <div className="call-to-action-btn mt--30">
-                  <a className="rbt-btn btn-gradient hover-icon-reverse" href="/contact-us">
+                  <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/contact-us">
                     <div className="icon-reverse-wrapper">
                       <span className="btn-text">Get Started Today</span>
                       <span className="btn-icon">
                         <i className="feather-arrow-right"></i>
                       </span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

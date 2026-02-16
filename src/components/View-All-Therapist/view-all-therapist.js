@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   GetFavriouteTherapistListUrl,
   getTherapistProfiles,
@@ -98,7 +99,7 @@ export default function ViewAllTherapist() {
       const searchText = filter.search.toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          (item.user.name || "").toLowerCase().includes(searchText) ||
+          (item.user?.name || "").toLowerCase().includes(searchText) ||
           (item.services || "").toLowerCase().includes(searchText) ||
           (item.language_spoken || "").toLowerCase().includes(searchText) ||
           (item.state || "").toLowerCase().includes(searchText)
@@ -144,16 +145,11 @@ export default function ViewAllTherapist() {
             <div className="container">
               <div className="row">
                 <div className="col-lg-12">
-                  <ul className="page-list">
-                    <li className="rbt-breadcrumb-item"><a href="/">Home</a></li>
-                    <li><div className="icon-right"><i className="feather-chevron-right"></i></div></li>
-                    <li className="rbt-breadcrumb-item active">All Therapist</li>
-                  </ul>
                   <div className=" title-wrapper">
                     <h1 className="title mb--0"> Search Therapist</h1>
-                    <a className="rbt-badge-2" href="/course-card-3#">
+                    <Link className="rbt-badge-2" to="#">
                       <div className="image">🎉</div> {count} Therapist
-                    </a>
+                    </Link>
                   </div>
                   <p className="description">Discover the right therapist for your unique needs, all in one place.</p>
                 </div>
@@ -253,6 +249,18 @@ export default function ViewAllTherapist() {
       </div>
 
       <style>{`
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
         .btn-load-more {
           background: linear-gradient(90deg, #28a745, #20c997);
           color: #fff;

@@ -83,7 +83,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           <Link to={`/view-profile/${pageData._id}`}>
             <ImageTag
               alt="profile image"
-              src={`${imagePath}/${pageData.user.profile}`}
+              src={`${imagePath}/${pageData.user?.profile}`}
               style={{
                 height: isMobile ? 255 : 235,
                 width: "100%",
@@ -140,17 +140,17 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         {/* Card Body */}
         <div className="rbt-card-body">
           <div className="rbt-card-top">
-            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <h4 className="rbt-card-title" style={{ margin: 0 }}>
+            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <h4 className="rbt-card-title" style={{ margin: 0, fontSize: "24px", fontWeight: "700" }}>
                 <Link to={`/view-profile/${pageData._id}`}>
-                  {pageData.user.name}
+                  {pageData.user?.name || "Therapist"}
                 </Link>
               </h4>
               {/* Icon next to name - Verified or Recommended */}
               {isRecommended ? (
-                <ThumbUpIcon sx={{ fontSize: 18, color: "#228756" }} />
+                <ThumbUpIcon sx={{ fontSize: 22, color: "#228756" }} />
               ) : (
-                <VerifiedIcon sx={{ fontSize: 18, color: "#1976d2" }} />
+                <VerifiedIcon sx={{ fontSize: 22, color: "#1976d2" }} />
               )}
             </div>
             {showBookmark && (
@@ -162,9 +162,9 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                   onClick={() => handleBookmark(pageData._id, bookmark)}
                 >
                   {bookmark ? (
-                    <BookmarkAddedIcon sx={{ fontSize: 24 }} />
+                    <BookmarkAddedIcon sx={{ fontSize: 28 }} />
                   ) : (
-                    <BookmarkBorderIcon sx={{ fontSize: 24 }} />
+                    <BookmarkBorderIcon sx={{ fontSize: 28 }} />
                   )}
                 </button>
               </div>
@@ -172,28 +172,28 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           </div>
 
           {/* Meta info with new icons */}
-          <ul className="rbt-meta" style={{ marginTop: 0 }}>
+          <ul className="rbt-meta" style={{ marginTop: "10px", gap: "15px" }}>
             <li style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",
+              gap: "8px",
               color: "#228756",
-              fontWeight: "600",
-              fontSize: "14px"
+              fontWeight: "700",
+              fontSize: "16px"
             }}>
-              <PersonIcon sx={{ fontSize: 18, color: "#228756" }} /> {pageData.profile_type}
+              <PersonIcon sx={{ fontSize: 20, color: "#228756" }} /> {pageData.profile_type}
             </li>
-            <li style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <LanguageIcon sx={{ fontSize: 18 }} /> {pageData.language_spoken}
+            <li style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px" }}>
+              <LanguageIcon sx={{ fontSize: 20 }} /> {pageData.language_spoken}
             </li>
             {pageData.state && (
-              <li style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <LocationOnIcon sx={{ fontSize: 18 }} /> {pageData.state}
+              <li style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px" }}>
+                <LocationOnIcon sx={{ fontSize: 20 }} /> {pageData.state}
               </li>
             )}
             {pageData.year_of_exp && (
-              <li style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <WorkIcon sx={{ fontSize: 18 }} /> {pageData.year_of_exp} experience
+              <li style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px" }}>
+                <WorkIcon sx={{ fontSize: 20 }} /> {pageData.year_of_exp} experience
               </li>
             )}
           </ul>

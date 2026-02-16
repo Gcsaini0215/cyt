@@ -71,6 +71,7 @@ export default function ProfileInfoTab({ pageData }) {
                     id="home-tab-4"
                     aria-selected={tab === 1 ? "true" : "false"}
                     onClick={() => handleClick(1)}
+                    to="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Overview
@@ -83,6 +84,7 @@ export default function ProfileInfoTab({ pageData }) {
                     id="contact-tab-4"
                     aria-selected={tab === 3 ? "true" : "false"}
                     onClick={() => handleClick(3)}
+                    to="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Fees
@@ -95,6 +97,7 @@ export default function ProfileInfoTab({ pageData }) {
                     id="business-tab-4"
                     aria-selected={tab === 4 ? "true" : "false"}
                     onClick={() => handleClick(4)}
+                    to="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Availability

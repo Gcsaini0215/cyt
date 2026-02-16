@@ -36,7 +36,7 @@ export default function BrandsSection() {
                 1024: { slidesPerView: 5, spaceBetween: 30 },
               }}
               autoplay={{ delay: 2500, disableOnInteraction: false }}
-              loop={true}
+              loop={brands.length > 5}
               modules={[Autoplay]}
               className="brand-swiper"
             >

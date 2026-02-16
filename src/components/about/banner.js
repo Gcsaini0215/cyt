@@ -1,202 +1,127 @@
 import React from "react";
-import { TypeAnimation } from "react-type-animation";
-import PersonSearchIcon from "@mui/icons-material/PersonSearch";
-
-const styles = `
-.about-banner {
-  position: relative;
-  background: linear-gradient(135deg, #e6f4ea, #d1f0d1);
-  color: #065f28;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  min-height: 90vh;
-  padding: 50px 20px;
-  overflow: hidden;
-  font-family: 'Poppins', sans-serif;
-}
-
-.about-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 95, 40, 0.05);
-  z-index: 0;
-  border-radius: 20px;
-}
-
-.about-content {
-  position: relative;
-  z-index: 2;
-  max-width: 900px;
-  background: #ffffff;
-  padding: 50px 30px;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
-/* Badge */
-.about-badge {
-  display: inline-flex;
-  align-items: center;
-  background: #22c55e;
-  color: #ffffff;
-  padding: 10px 25px;
-  border-radius: 50px;
-  font-weight: 600;
-  margin-bottom: 25px;
-  font-size: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-}
-
-/* Title */
-.about-title {
-  font-size: 50px;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 25px;
-  color: #065f28;
-}
-
-@media (max-width: 768px) {
-  .about-title {
-    font-size: 32px;
-  }
-}
-
-/* Type animation wrapper to fix jump */
-.about-type-wrapper {
-  display: inline-block;
-  min-width: 180px; /* fixed width prevents jump */
-  text-align: left;
-  vertical-align: middle;
-}
-
-.about-type {
-  background: linear-gradient(to right, #22c55e, #16a34a);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 900;
-  display: inline-block;
-}
-
-/* Subtitle */
-.about-subtitle {
-  font-size: 18px;
-  line-height: 1.6;
-  margin-bottom: 35px;
-  color: #555;
-  max-width: 750px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Buttons */
-.about-buttons {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.btn {
-  padding: 14px 35px;
-  border-radius: 50px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-size: 16px;
-}
-
-.btn-primary {
-  background: linear-gradient(to right, #22c55e, #16a34a);
-  color: #ffffff;
-  box-shadow: 0 6px 20px rgba(34,197,94,0.3);
-}
-
-.btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(34,197,94,0.4);
-}
-
-.btn-outline {
-  background: #ffffff;
-  border: 2px solid #22c55e;
-  color: #22c55e;
-}
-
-.btn-outline:hover {
-  background: #22c55e;
-  color: #ffffff;
-}
-
-/* Decorative wave at bottom */
-.about-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 80px;
-  background: url('https://svgshare.com/i/15C2.svg') repeat-x;
-  background-size: cover;
-  z-index: 1;
-}
-`;
+import { Link } from "react-router-dom";
+import ImageTag from "../../utils/image-tag";
+import PageBreadCrumb from "../../components/global/page-breadcrumb";
 
 export default function AboutUsBanner() {
   return (
     <>
-      <style>{styles}</style>
+      <PageBreadCrumb title="About Our Mission" linkTitle="About Us" />
 
-      <section className="about-banner">
-        <div className="about-overlay" />
-        <div className="about-content">
-          <div className="about-badge">
-            <PersonSearchIcon style={{ fontSize: 24, marginRight: "8px" }} />
-            <span>About CYT</span>
-          </div>
+      <div className="rbt-banner-area rbt-banner-3 header-transperent-spacer" style={{ background: 'linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)' }}>
+        <div className="wrapper">
+          <div className="container">
+            <div className="row g-5 align-items-center">
+              <div className="col-lg-7">
+                <div className="banner-content">
+                  <div className="inner">
+                    <div className="section-title text-start">
+                      <span className="subtitle bg-pink-opacity">
+                        Our Story & Commitment
+                      </span>
+                    </div>
+                    <h1 className="title">
+                      Empowering Minds, <br />
+                      Transforming <span className="color-primary">Lives</span>.
+                    </h1>
+                    <p className="description">
+                      At CYT, we believe that mental health is a fundamental human right. 
+                      Our mission is to provide a safe, accessible, and professional platform 
+                      where everyone can find their perfect therapist match and begin their 
+                      journey toward emotional well-being.
+                    </p>
+                    <div className="rbt-like-total">
+                      <div className="profile-share">
+                        <Link
+                          to="#"
+                          className="avatar"
+                          data-tooltip="Counselling Psychologist"
+                          tabIndex="0"
+                        >
+                          <ImageTag
+                            alt="avatar"
+                            width="55"
+                            height="55"
+                            src="/assets/img/avatar-027dc8.png"
+                          />
+                        </Link>
+                        <Link
+                          to="#"
+                          className="avatar"
+                          data-tooltip="Psychologist"
+                          tabIndex="0"
+                        >
+                          <ImageTag
+                            alt="avatar"
+                            width="55"
+                            height="55"
+                            src="/assets/img/psychologist.png"
+                          />
+                        </Link>
+                        <Link
+                          to="#"
+                          className="avatar"
+                          data-tooltip="Therapist"
+                          tabIndex="0"
+                        >
+                          <ImageTag
+                            alt="avatar"
+                            width="55"
+                            height="55"
+                            src="/assets/img/counselling.png"
+                          />
+                        </Link>
+                        <div className="more-author-text">
+                          <h5 className="total-join-students">
+                            10,000+ Journeys Supported
+                          </h5>
+                          <p className="subtitle">Across India & beyond.</p>
+                        </div>
+                      </div>
+                    </div>
 
-          <h1 className="about-title">
-            Because Your Mental Health Matters, <br />
-            Therapists should be{" "}
-            <span className="about-type-wrapper">
-              <TypeAnimation
-                sequence={[
-                  "Verified",
-                  2000,
-                  "Accessible",
-                  2000,
-                  "Specialized",
-                  2000,
-                ]}
-                wrapper="span"
-                speed={40}
-                deletionSpeed={30}
-                repeat={Infinity}
-                className="about-type"
-              />
-            </span>
-          </h1>
-
-          <p className="about-subtitle">
-            At CYT, therapy is safe, easy to access, and delivered by trusted
-            professionals. Join India’s leading network of verified therapists
-            and experience premium healthcare with a hospital-grade, professional feel.
-          </p>
-
-          <div className="about-buttons">
-            <a href="/login" className="btn btn-primary">
-              Log in to Start
-            </a>
-            <a href="/contact" className="btn btn-outline">
-              Contact Us
-            </a>
+                    <div className="rbt-button-group justify-content-start mt--30">
+                      <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/view-all-therapist">
+                        <span className="icon-reverse-wrapper">
+                          <span className="btn-text">Explore Therapists</span>
+                          <span className="btn-icon"><i className="feather-arrow-right"></i></span>
+                          <span className="btn-icon"><i className="feather-arrow-right"></i></span>
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="col-lg-5">
+                <div className="thumbnail" style={{ position: 'relative' }}>
+                  <ImageTag
+                    src="/assets/img/counselling.png"
+                    alt="Soothing Therapy"
+                    style={{ 
+                      borderRadius: '30px', 
+                      boxShadow: '0 30px 60px rgba(0,0,0,0.12)',
+                      width: '100%',
+                      height: 'auto',
+                      objectFit: 'cover'
+                    }}
+                  />
+                  {/* Decorative element */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-20px',
+                    right: '-20px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(34, 135, 86, 0.1)',
+                    borderRadius: '50%',
+                    zIndex: -1
+                  }}></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Decorative wave */}
-        <div className="about-wave"></div>
-      </section>
+      </div>
     </>
   );
 }

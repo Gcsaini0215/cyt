@@ -1,9 +1,14 @@
-import BlogCardImg from "../../assets/img/blog1.png";
+import React from "react";
+import BlogCardImg from "../../assets/img/bg-image-12dabd.jpg";
 import BlogCardImg2 from "../../assets/img/blog2.png";
 import BlogCardImg3 from "../../assets/img/blog3.png";
 import BlogCardImg4 from "../../assets/img/blog5.png";
 import ImageTag from "../../utils/image-tag";
+import { Link } from "react-router-dom";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 export default function Blogs() {
+  const isMobile = useMediaQuery("(max-width:768px)");
   return (
     <div className="rbt-rbt-blog-area rbt-section-gap" style={{
       background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)',
@@ -22,72 +27,57 @@ export default function Blogs() {
       }}></div>
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="row g-5 align-items-center" style={{ marginBottom: '30px' }}>
-          <div className="col-lg-6 col-md-6 col-12">
-            <div className="section-title">
-              <span className="subtitle" style={{
-                background: 'linear-gradient(135deg, rgba(34, 135, 86, 0.1) 0%, rgba(0, 127, 153, 0.1) 100%)',
-                color: '#228756',
-                padding: '8px 16px',
+        <div className="row g-5 align-items-end" style={{ marginBottom: '50px' }}>
+          <div className="col-lg-8 col-md-12 col-12">
+            <div className="section-title text-start">
+              <span className="subtitle" style={{ 
+                background: '#228756', 
+                color: '#ffffff', 
+                padding: '8px 20px', 
                 borderRadius: '50px',
-                fontSize: '14px',
-                fontWeight: '600',
-                display: 'inline-block',
-                marginBottom: '16px',
-                border: '1px solid rgba(34, 135, 86, 0.2)'
-              }}>
-                Blog Post
-              </span>
-              <h2 className="title" style={{
-                fontSize: '2.8rem',
-                fontWeight: '800',
-                background: 'linear-gradient(135deg, #228756 0%, #007f99 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                marginBottom: '0',
-                lineHeight: 1.2,
-                letterSpacing: '-0.02em'
+                fontWeight: '700',
+                fontSize: '1rem',
+                textTransform: 'uppercase',
+                letterSpacing: '1.5px',
+                boxShadow: '0 4px 10px rgba(34, 135, 86, 0.2)'
               }}>
                 Mental Health Chronicles
+              </span>
+              <h2 className="title" style={{ 
+                fontSize: isMobile ? "2.5rem" : "4.5rem", 
+                fontWeight: "900", 
+                color: "#000000",
+                marginTop: '25px',
+                lineHeight: isMobile ? '3rem' : '1.1'
+              }}>
+                Latest <span style={{ 
+                  backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
+                  WebkitBackgroundClip: "text", 
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  color: "transparent"
+                }}>Articles</span>
               </h2>
+              <p style={{ 
+                fontSize: isMobile ? '1.2rem' : '1.5rem', 
+                color: '#444', 
+                maxWidth: '850px', 
+                margin: '20px 0 0',
+                lineHeight: '1.6',
+                fontWeight: '500',
+                padding: '0'
+              }}>
+                Explore insightful articles and practical advice to support your mental health journey.
+              </p>
             </div>
           </div>
-          <div className="col-lg-6 col-md-6 col-12">
-            <div className="read-more-btn text-start text-md-end">
-              <a
-                className="rbt-btn btn-gradient hover-icon-reverse"
-                href="404-3"
-                style={{
-                  background: 'linear-gradient(135deg, #228756 0%, #1a6b45 100%)',
-                  color: '#fff',
-                  padding: '14px 28px',
-                  borderRadius: '50px',
-                  textDecoration: 'none',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  boxShadow: '0 4px 15px rgba(34, 135, 86, 0.3)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #1a6b45 0%, #228756 100%)';
-                  e.target.style.transform = 'translateY(-3px) scale(1.02)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(34, 135, 86, 0.4)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #228756 0%, #1a6b45 100%)';
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(34, 135, 86, 0.3)';
-                }}
+          <div className="col-lg-4 col-md-12 col-12 text-start text-lg-end">
+            <div className="read-more-btn">
+              <Link
+                className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
+                to="/blogs"
               >
-                <div className="icon-reverse-wrapper">
+                <span className="icon-reverse-wrapper">
                   <span className="btn-text">See All Articles</span>
                   <span className="btn-icon">
                     <i className="feather-arrow-right"></i>
@@ -95,184 +85,132 @@ export default function Blogs() {
                   <span className="btn-icon">
                     <i className="feather-arrow-right"></i>
                   </span>
-                </div>
-              </a>
+                </span>
+              </Link>
             </div>
           </div>
         </div>
         <div className="row g-5">
-          <div className="col-lg-6 col-md-12 col-sm-12 col-12">
-            <div className="rbt-card variation-02 height-330 rbt-hover">
-              <div className="rbt-card-img">
-                <a href="blog-details/%5bblogId%5d">
+          {/* Featured Editorial Story */}
+          <div className="col-lg-12">
+            <div 
+              className="rbt-card variation-02 rbt-hover" 
+              style={{ 
+                height: isMobile ? '400px' : '500px',
+                position: 'relative',
+                overflow: 'hidden',
+                borderRadius: '24px',
+                border: 'none',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+                padding: '0'
+              }}
+            >
+              <div className="rbt-card-img" style={{ height: '100%', width: '100%' }}>
+                <Link to="/blog-details/1" style={{ height: '100%', width: '100%', display: 'block' }}>
                   <ImageTag
-                    alt="Card"
-                    height={"300"}
-                    width={"580"}
+                    alt="Featured Blog"
                     src={BlogCardImg}
+                    style={{ height: '100%', width: '100%', objectFit: 'cover' }}
                   />
-                </a>
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
+                    zIndex: 1
+                  }}></div>
+                </Link>
               </div>
-              <div className="rbt-card-body">
-                <h3 className="rbt-card-title">
-                  <a href="blog-details/%5bblogId%5d">
+              <div className="rbt-card-body" style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: isMobile ? '20px' : '50px',
+                zIndex: 2,
+                textAlign: 'left'
+              }}>
+                <span style={{
+                  background: '#ff5421',
+                  color: '#fff',
+                  padding: '4px 12px',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  marginBottom: '15px',
+                  display: 'inline-block'
+                }}>
+                  Must Read • Editor's Choice
+                </span>
+                <h2 className="rbt-card-title" style={{ color: '#fff', fontSize: isMobile ? '24px' : '42px', lineHeight: 1.2, fontWeight: 800, marginBottom: '15px' }}>
+                  <Link to="/blog-details/1" style={{ color: '#fff' }}>
                     The Art of Setting Boundaries without Feeling Guilty
-                  </a>
-                </h3>
-                <p className="rbt-card-text">
-                  Have you ever found yourself saying “yes” when deep down you wanted to scream “no”? 
+                  </Link>
+                </h2>
+                <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '16px', maxWidth: '700px', marginBottom: '25px', display: isMobile ? 'none' : 'block' }}>
+                  Have you ever found yourself saying “yes” when deep down you wanted to scream “no”? Learn how to protect your peace of mind.
                 </p>
-                <div className="rbt-card-bottom">
-                  <a
-                    className="transparent-button"
-                    href="blog-details/%5bblogId%5d"
-                  >
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </a>
-                </div>
+                <Link className="rbt-btn btn-white btn-sm" to="/blog-details/1">
+                  <span className="btn-text">Read Full Story</span>
+                </Link>
               </div>
             </div>
           </div>
-          <div className="col-lg-6 col-md-12 col-sm-12 col-12">
-            <div className="rbt-card card-list variation-02 rbt-hover">
+
+          {/* Recent Stories Grid */}
+          <div className="col-lg-4 col-md-6 col-12 mt--30">
+            <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
               <div className="rbt-card-img">
-                <a href="blog-details/%5bblogId%5d-2">
-                  <ImageTag
-                    alt="Card"
-                    height={"300"}
-                    width={"580"}
-                    src={BlogCardImg2}
-                  />
-                </a>
+                <Link to="/blog-details/2">
+                  <ImageTag alt="Card" src={BlogCardImg2} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
+                </Link>
               </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <a href="blog-details/%5bblogId%5d-2">
-                   Is Your Relationship Missing the Intimacy?
-                  </a>
+              <div className="rbt-card-body" style={{ padding: '20px' }}>
+                <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
+                  <Link to="/blog-details/2">Is Your Relationship Missing the Intimacy?</Link>
                 </h5>
-                <div className="rbt-card-bottom">
-                  <a
-                    className="transparent-button"
-                    href="blog-details/%5bblogId%5d-2"
-                  >
-                    Read Article
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </a>
-                </div>
+                <Link className="transparent-button" to="/blog-details/2" style={{ fontSize: '14px', fontWeight: 600 }}>
+                  Read Article <i className="feather-arrow-right"></i>
+                </Link>
               </div>
             </div>
-            <div className="rbt-card card-list variation-02 rbt-hover mt--30">
+          </div>
+
+          <div className="col-lg-4 col-md-6 col-12 mt--30">
+            <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
               <div className="rbt-card-img">
-                <a href="blog-details/%5bblogId%5d-3">
-                  <ImageTag
-                    alt="Card"
-                    height={"300"}
-                    width={"580"}
-                    src={BlogCardImg3}
-                  />
-                </a>
+                <Link to="/blog-details/3">
+                  <ImageTag alt="Card" src={BlogCardImg3} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
+                </Link>
               </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <a href="blog-details/%5bblogId%5d-3">
-                   How to Help a Friend during a Panic Attack ?
-                  </a>
+              <div className="rbt-card-body" style={{ padding: '20px' }}>
+                <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
+                  <Link to="/blog-details/3">How to Help a Friend during a Panic Attack?</Link>
                 </h5>
-                <div className="rbt-card-bottom">
-                  <a
-                    className="transparent-button"
-                    href="blog-details/%5bblogId%5d-3"
-                  >
-                    Read Article
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </a>
-                </div>
+                <Link className="transparent-button" to="/blog-details/3" style={{ fontSize: '14px', fontWeight: 600 }}>
+                  Read Article <i className="feather-arrow-right"></i>
+                </Link>
               </div>
             </div>
-            <div className="rbt-card card-list variation-02 rbt-hover mt--30">
+          </div>
+
+          <div className="col-lg-4 col-md-6 col-12 mt--30">
+            <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
               <div className="rbt-card-img">
-                <a href="blog-details/%5bblogId%5d-4">
-                  <ImageTag
-                    alt="Card"
-                    height={"300"}
-                    width={"580"}
-                    src={BlogCardImg4}
-                  />
-                </a>
+                <Link to="/blog-details/4">
+                  <ImageTag alt="Card" src={BlogCardImg4} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
+                </Link>
               </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <a href="blog-details/%5bblogId%5d-4">
-                    Effective Communication Strategies for Couples
-                  </a>
+              <div className="rbt-card-body" style={{ padding: '20px' }}>
+                <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
+                  <Link to="/blog-details/4">Effective Communication Strategies for Couples</Link>
                 </h5>
-                <div className="rbt-card-bottom">
-                  <a
-                    className="transparent-button"
-                    href="blog-details/%5bblogId%5d-4"
-                  >
-                    Read Article
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </a>
-                </div>
+                <Link className="transparent-button" to="/blog-details/4" style={{ fontSize: '14px', fontWeight: 600 }}>
+                  Read Article <i className="feather-arrow-right"></i>
+                </Link>
               </div>
             </div>
           </div>

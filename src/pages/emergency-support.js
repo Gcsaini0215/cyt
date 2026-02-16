@@ -2,6 +2,7 @@ import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
+import { Link } from "react-router-dom";
 
 export default function EmergencySupport() {
   return (
@@ -200,9 +201,9 @@ export default function EmergencySupport() {
                 <div className="contact-options mt--30">
                   <div className="row justify-content-center">
                     <div className="col-lg-4 col-md-6">
-                      <a className="rbt-btn btn-border-gradient radius-round" href="/view-all-therapist">
+                      <Link className="rbt-btn btn-border-gradient radius-round" to="/view-all-therapist">
                         <span className="btn-text">Find a Therapist</span>
-                      </a>
+                      </Link>
                     </div>
                     <div className="col-lg-4 col-md-6">
                       <a className="rbt-btn btn-gradient hover-icon-reverse" href="tel:+918077757951">

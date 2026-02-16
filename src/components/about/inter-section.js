@@ -1,12 +1,11 @@
-import TeamImg from "../../assets/img/shivangi.png";
-import Priya from "../../assets/img/Priya.png";
-import TeamImg2 from "../../assets/img/aparajitab.png";
-import shivangirana from "../../assets/img/shivangirana.png";
-import avika from "../../assets/img/avika.png";
-import priya from "../../assets/img/priyaa.png";
+const TeamImg = "/assets/img/shivangi.png";
+const Priya = "/assets/img/Priya.png";
+const TeamImg2 = "/assets/img/aparajitab.png";
+const shivangirana = "/assets/img/shivangirana.png";
+const avika = "/assets/img/avika.png";
+const priya = "/assets/img/priyaa.png";
 import ImageTag from "../../utils/image-tag";
 import React from "react";
-import { Link } from "react-router-dom";
 const internInfo = [
    
  {
@@ -115,9 +114,10 @@ export default function InterSection() {
               {internInfo.map((item, index) => {
                 return (
                   <li key={item.name}>
-                    <Link
+                    <a
                       className={index === selectedIndex ? "active" : ""}
                       id="testimonial-tab1-tab"
+                      style={{ cursor: "pointer" }}
                       aria-selected={index === selectedIndex ? "true" : "false"}
                       onClick={() => handleClick(index)}
                     >
@@ -131,7 +131,7 @@ export default function InterSection() {
                           />
                         </div>
                       </div>
-                    </Link>
+                    </a>
                   </li>
                 );
               })}

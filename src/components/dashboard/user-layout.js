@@ -18,12 +18,12 @@ export default function UserLayout(props) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const { userInfo } = useUserStore();
   const location = useLocation();
+  const pathname = location.pathname;
   const navigate = useNavigate();
   const [otpView, setOtpView] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState();
-  const currentPath = location.pathname;
 
   const handleLogout = () => {
     removeToken();
@@ -131,7 +131,7 @@ export default function UserLayout(props) {
                                   <Link
                                     to={"/my-dashboard"}
                                     className={
-                                      currentPath === "/my-dashboard"
+                                      pathname === "/my-dashboard"
                                         ? "active"
                                         : ""
                                     }
@@ -142,7 +142,7 @@ export default function UserLayout(props) {
                                 </li>
                                 <li className="nav-item">
                                   <Link className={
-                                    currentPath === "/my-bookings"
+                                    pathname === "/my-bookings"
                                       ? "active"
                                       : ""
                                   } to="/my-bookings">
@@ -153,7 +153,7 @@ export default function UserLayout(props) {
                                 <li className="nav-item">
                                   <Link
                                     className={
-                                      currentPath === "/my-therapists"
+                                      pathname === "/my-therapists"
                                         ? "active"
                                         : ""
                                     }
@@ -166,7 +166,7 @@ export default function UserLayout(props) {
 
                                 <li className="nav-item">
                                   <Link  className={
-                                      currentPath === "/my-workshop-bookings"
+                                      pathname === "/my-workshop-bookings"
                                         ? "active"
                                         : ""
                                     } to="/my-workshop-bookings">
@@ -186,7 +186,7 @@ export default function UserLayout(props) {
                                 <li>
                                   <Link
                                     className={
-                                      currentPath === "/my-settings"
+                                      pathname === "/my-settings"
                                         ? "active"
                                         : ""
                                     }
@@ -196,7 +196,19 @@ export default function UserLayout(props) {
                                     <span>My Edit</span>
                                   </Link>
                                 </li>
-
+                                <li>
+                                  <Link
+                                    className={
+                                      pathname === "/my-change-password"
+                                        ? "active"
+                                        : ""
+                                    }
+                                    to="/my-change-password"
+                                  >
+                                    <i className="feather-lock"></i>
+                                    <span>Change Password</span>
+                                  </Link>
+                                </li>
                                 <li>
                                   <a onClick={handleLogout}>
                                     <i className="feather-log-out"></i>

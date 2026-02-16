@@ -1,8 +1,8 @@
 import LazyImage from "../../utils/lazy-image";
-import BulbImg from "../../assets/img/001-bulbf434.png";
-import HatImg from "../../assets/img/002-hat387c.png";
-import IdCard from "../../assets/img/003-id-cardae63.png";
-import PassImg from "../../assets/img/004-pass56c5.png";
+const BulbImg = "/assets/img/001-bulbf434.png";
+const HatImg = "/assets/img/002-hat387c.png";
+const IdCard = "/assets/img/003-id-cardae63.png";
+const PassImg = "/assets/img/004-pass56c5.png";
 export default function ServiceQuality() {
   return (
     <div className="rbt-rbt-card-area bg-color-white rbt-section-gap">

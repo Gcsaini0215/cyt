@@ -1,14 +1,14 @@
 import React from "react";
 import ImageTag from "../../utils/image-tag";
 
-import TeamImg from "../../assets/img/deepdirec.png";
-import TeamImg3 from "../../assets/img/ffabb.png";
-import TeamImg4 from "../../assets/img/akt.png";
-import TeamImg5 from "../../assets/img/gopichand.png";
-import vibhor from "../../assets/img/vibhor.png";
-import RitikaGupta from "../../assets/img/RitikaGupta.png";
-import anushka from "../../assets/img/anushka.png";
-import Ayushi from "../../assets/img/ayushi.png";
+const TeamImg = "/assets/img/deepdirec.png";
+const TeamImg3 = "/assets/img/ffabb.png";
+const TeamImg4 = "/assets/img/akt.png";
+const TeamImg5 = "/assets/img/gopichand.png";
+const vibhor = "/assets/img/vibhor.png";
+const RitikaGupta = "/assets/img/RitikaGupta.png";
+const anushka = "/assets/img/anushka.png";
+const Ayushi = "/assets/img/ayushi.png";
 
 const teamInfo = [
   {

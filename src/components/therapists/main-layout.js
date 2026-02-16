@@ -12,8 +12,8 @@ export default function MainLayout(props) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const { profileSet, setProfileSet, therapistInfo } = useTherapistStore();
   const location = useLocation();
+  const pathname = location.pathname;
   const navigate = useNavigate();
-  const currentPath = location.pathname;
 
   const handleLogout = () => {
     removeToken();
@@ -67,7 +67,7 @@ export default function MainLayout(props) {
                                   <Link
                                     to="/therapist-dashboard"
                                     className={
-                                      currentPath === "/therapist-dashboard"
+                                      pathname === "/therapist-dashboard"
                                         ? "active"
                                         : ""
                                     }
@@ -81,7 +81,7 @@ export default function MainLayout(props) {
                                   <Link
                                     to="/appointments"
                                     className={
-                                      currentPath === "/appointments"
+                                      pathname === "/appointments"
                                         ? "active"
                                         : ""
                                     }
@@ -95,8 +95,8 @@ export default function MainLayout(props) {
                                   <Link
                                     to="/workshops"
                                     className={
-                                      currentPath === "/workshops" ||
-                                      currentPath === "/create-workshop"
+                                      pathname === "/workshops" ||
+                                      pathname === "/create-workshop"
                                         ? "active"
                                         : ""
                                     }
@@ -110,8 +110,8 @@ export default function MainLayout(props) {
                                   <Link
                                     to="/coupons"
                                     className={
-                                      currentPath === "/coupons" ||
-                                      currentPath === "/create-coupon"
+                                      pathname === "/coupons" ||
+                                      pathname === "/create-coupon"
                                         ? "active"
                                         : ""
                                     }
@@ -133,7 +133,7 @@ export default function MainLayout(props) {
                                   <Link
                                     to="/settings"
                                     className={
-                                      currentPath === "/settings" ? "active" : ""
+                                      pathname === "/settings" ? "active" : ""
                                     }
                                   >
                                     <i className="feather-settings"></i>
@@ -143,6 +143,17 @@ export default function MainLayout(props) {
                                     ) : (
                                       <CircleIcon sx={{ color: "red", marginLeft: 2 }} />
                                     )}
+                                  </Link>
+                                </li>
+                                <li>
+                                  <Link
+                                    to="/change-password"
+                                    className={
+                                      pathname === "/change-password" ? "active" : ""
+                                    }
+                                  >
+                                    <i className="feather-lock"></i>
+                                    <span>Change Password</span>
                                   </Link>
                                 </li>
                                 <li>

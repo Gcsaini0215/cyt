@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { GetFavriouteTherapistUrl } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import ErrorPage from "../../pages/error-page";
@@ -64,9 +65,9 @@ export default function FavriouteTherapist() {
     for (let i = 1; i <= totalPages; i++) {
       pageNumbers.push(
         <li key={i} className={currentPage === i ? "active" : ""}>
-          <a href="#!" onClick={() => handlePageChange(i)}>
+          <Link to="#" onClick={() => handlePageChange(i)}>
             {i}
-          </a>
+          </Link>
         </li>
       );
     }
@@ -102,7 +103,7 @@ export default function FavriouteTherapist() {
                 <div className="col-lg-12">
                   <ul className="page-list">
                     <li className="rbt-breadcrumb-item">
-                      <a href="/">Home</a>
+                      <Link to="/">Home</Link>
                     </li>
                     <li>
                       <div className="icon-right">
@@ -300,25 +301,25 @@ export default function FavriouteTherapist() {
                 <div className="nav-links">
                   <ul className="rbt-pagination">
                     <li className={currentPage === 1 ? "disabled" : ""}>
-                      <a
+                      <Link
                         aria-label="Previous"
-                        href="#!"
+                        to="#"
                         onClick={() => handlePageChange(currentPage - 1)}
                       >
                         <i className="feather-chevron-left"></i>
-                      </a>
+                      </Link>
                     </li>
                     {renderPageNumbers()}
                     <li
                       className={currentPage === totalPages ? "disabled" : ""}
                     >
-                      <a
+                      <Link
                         aria-label="Next"
-                        href="#!"
+                        to="#"
                         onClick={() => handlePageChange(currentPage + 1)}
                       >
                         <i className="feather-chevron-right"></i>
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </div>

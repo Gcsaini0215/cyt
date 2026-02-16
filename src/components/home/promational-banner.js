@@ -2,7 +2,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 // Banner data
@@ -34,8 +34,6 @@ const banners = [
 ];
 
 export default function PromotionalBannerCTA() {
-  const navigate = useNavigate();
-
   return (
     <div className="rbt-banner-area" style={{
       position: "relative",
@@ -172,29 +170,30 @@ export default function PromotionalBannerCTA() {
                   >
                     {banner.description}
                   </p>
-                  <button
-                    onClick={() => navigate(banner.link)}
-                    className="banner-button"
-                    style={{
-                      background: banner.buttonColor,
-                      color: banner.buttonTextColor,
-                      position: "relative",
-                      overflow: "hidden"
-                    }}
-                  >
-                    <span style={{ position: "relative", zIndex: 1 }}>
-                      {banner.buttonText}
-                    </span>
-                    <div style={{
-                      position: "absolute",
-                      top: 0,
-                      left: "-100%",
-                      width: "100%",
-                      height: "100%",
-                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
-                      transition: "left 0.5s",
-                    }} className="button-shine"></div>
-                  </button>
+                  <Link to={banner.link}>
+                    <button
+                      className="banner-button"
+                      style={{
+                        background: banner.buttonColor,
+                        color: banner.buttonTextColor,
+                        position: "relative",
+                        overflow: "hidden"
+                      }}
+                    >
+                      <span style={{ position: "relative", zIndex: 1 }}>
+                        {banner.buttonText}
+                      </span>
+                      <div style={{
+                        position: "absolute",
+                        top: 0,
+                        left: "-100%",
+                        width: "100%",
+                        height: "100%",
+                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+                        transition: "left 0.5s",
+                      }} className="button-shine"></div>
+                    </button>
+                  </Link>
                 </div>
               </div>
             </SwiperSlide>

@@ -22,7 +22,6 @@ export default function ProfileCard() {
     try {
       const res = await fetchData(getTherapistProfiles, {
         profile_type: tab,
-        priority:2
       });
       if (res.status) {
         setData(res.data);
@@ -60,43 +59,119 @@ export default function ProfileCard() {
   }, []);
   return (
     <div className="rbt-rbt-card-area rbt-section-gap" style={{
-      background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)',
+      background: 'linear-gradient(180deg, #eefbff 0%, #ffffff 50%, #f0fdf4 100%)',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      padding: '100px 0'
     }}>
-      {/* Background decorative elements */}
+      {/* Wave transition at top */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'radial-gradient(circle at 25% 25%, rgba(34, 135, 86, 0.03) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(0, 127, 153, 0.03) 0%, transparent 50%)',
+        width: '100%',
+        lineHeight: 0,
+        transform: 'rotate(180deg)'
+      }}>
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ width: '100%', height: '60px', fill: '#ffffff' }}>
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V120c68.47-14.46,140.24-21.41,210.45-12.09,60.2,8,118,25.43,178.61,23.32,54.12-1.89,103.52-21,154.77-33.87,51.25-12.87,105.15-20.41,158-11.88,52.85,8.53,101.45,34.1,153.6,33.56,52.15-.54,101.52-25.13,153.37-23.07C1100.86,110.15,1151,126.31,1200,120V0H0V120Z" opacity=".1"></path>
+        </svg>
+      </div>
+
+      {/* Decorative Blur Blobs */}
+      <div style={{
+        position: 'absolute',
+        top: '20%',
+        left: '10%',
+        width: '300px',
+        height: '300px',
+        background: 'rgba(34, 135, 86, 0.07)',
+        filter: 'blur(80px)',
+        borderRadius: '50%',
         pointerEvents: 'none'
       }}></div>
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
           <div className="col-lg-12">
-            <div className="section-title text-center" style={{ marginBottom: '15px' }}>
-              <span className="subtitle">
-                Mental Health Professional
+            <div className="section-title text-center" style={{ marginBottom: '50px' }}>
+              <span className="subtitle" style={{ 
+                background: '#228756', 
+                color: '#ffffff', 
+                padding: '8px 20px', 
+                borderRadius: '50px',
+                fontWeight: '700',
+                fontSize: '1rem',
+                textTransform: 'uppercase',
+                letterSpacing: '1.5px',
+                boxShadow: '0 4px 10px rgba(34, 135, 86, 0.2)'
+              }}>
+                Verified Professionals
               </span>
-              <h2 className="title">
-                Therapist Directory
+              <h2 className="title" style={{ 
+                fontSize: isMobile ? "2.5rem" : "4.5rem", 
+                fontWeight: "900", 
+                color: "#000000",
+                marginTop: '25px',
+                lineHeight: isMobile ? '3rem' : '1.1',
+                whiteSpace: isMobile ? 'nowrap' : 'normal'
+              }}>
+                Find Your Perfect <span style={{ 
+                  backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
+                  WebkitBackgroundClip: "text", 
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  color: "transparent"
+                }}>Therapist</span> Match
               </h2>
-              <p>
-                Looking for the right therapist? Our comprehensive profiles make
-                it easy to find a therapist who meets your needs and
-                preferences. Start your search here.
+              <p style={{ 
+                fontSize: isMobile ? '1.2rem' : '1.5rem', 
+                color: '#444', 
+                maxWidth: '850px', 
+                margin: '20px auto 0',
+                lineHeight: '1.6',
+                fontWeight: '500',
+                padding: isMobile ? '0 10px' : '0'
+              }}>
+                Therapy works when you feel safe, heard, and understood. Discover professionals who match your needs and values.
               </p>
-              <div className="row">
+              <div className="row mt--40">
                 <div className="col-lg-12">
                   <div className="advance-tab-button">
                     <ul
                       className="nav nav-tabs tab-button-style-2"
                       id="myTab-4"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.7)',
+                        backdropFilter: 'blur(15px)',
+                        padding: '10px',
+                        borderRadius: isMobile ? '15px' : '100px',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        flexWrap: isMobile ? 'nowrap' : 'wrap',
+                        overflowX: isMobile ? 'auto' : 'visible',
+                        WebkitOverflowScrolling: 'touch',
+                        border: '1px solid rgba(34, 135, 86, 0.2)',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                        justifyContent: isMobile ? 'flex-start' : 'center',
+                        width: isMobile ? '100%' : 'auto',
+                        msOverflowStyle: 'none',
+                        scrollbarWidth: 'none',
+                        gap: '5px'
+                      }}
                     >
+                      <style>{`
+                        ul#myTab-4::-webkit-scrollbar {
+                          display: none;
+                        }
+                        @media (max-width: 768px) {
+                          .advance-tab-button ul.nav-tabs li a.tab-button {
+                            padding: 8px 16px !important;
+                            font-size: 14px !important;
+                            white-space: nowrap !important;
+                          }
+                        }
+                      `}</style>
                       <li>
                         <Link
                           className={
@@ -104,6 +179,7 @@ export default function ProfileCard() {
                           }
                           aria-selected={tab === "" ? "true" : "false"}
                           onClick={() => handleClick("")}
+                          to="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             See all
@@ -126,6 +202,7 @@ export default function ProfileCard() {
                           onClick={() =>
                             handleClick("Counselling Psychologist")
                           }
+                          to="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Counselling Psychologist
@@ -144,6 +221,7 @@ export default function ProfileCard() {
                             tab === "Clinical Psychologist" ? "true" : "false"
                           }
                           onClick={() => handleClick("Clinical Psychologist")}
+                          to="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Clinical Psychologist
@@ -162,6 +240,7 @@ export default function ProfileCard() {
                             tab === "Psychiatrist" ? "true" : "false"
                           }
                           onClick={() => handleClick("Psychiatrist")}
+                          to="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Psychiatrist
@@ -180,6 +259,7 @@ export default function ProfileCard() {
                             tab === "Special Educator" ? "true" : "false"
                           }
                           onClick={() => handleClick("Special Educator")}
+                          to="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Special Educator
@@ -210,7 +290,7 @@ export default function ProfileCard() {
                 spaceBetween: 40,
               },
             }}
-            loop={true}
+            loop={data.length > 2}
             autoplay={{
               delay: 2500,
               disableOnInteraction: false,

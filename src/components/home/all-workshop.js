@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import demoPhoto from "../../assets/img/2.png";
+const demoPhoto = "/assets/img/2.png";
 export default function AllWorkshops() {
   return (
     <>
@@ -12,7 +12,7 @@ export default function AllWorkshops() {
                 <div className="col-lg-12">
                   <ul className="page-list">
                     <li className="rbt-breadcrumb-item">
-                      <a href="/">Home</a>
+                      <Link to="/">Home</Link>
                     </li>
                     <li>
                       <div className="icon-right">
@@ -23,9 +23,9 @@ export default function AllWorkshops() {
                   </ul>
                   <div className=" title-wrapper">
                     <h1 className="title mb--0">All Event</h1>
-                    <a className="rbt-badge-2" href="/pages/event-list#">
+                    <Link className="rbt-badge-2" to="#">
                       <div className="image">🎉</div> 9 Events
-                    </a>
+                    </Link>
                   </div>
                   <p className="description">
                     Event that help beginner designers become true unicorns.{" "}
@@ -50,7 +50,6 @@ export default function AllWorkshops() {
                       height="240"
                       decoding="async"
                       data-nimg="1"
-                      srcset={demoPhoto}
                       src={demoPhoto}
                       style={{ color: "transparent" }}
                     />
@@ -70,14 +69,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <a href="/new-workshop">
+                    <Link to="/new-workshop">
                       International Education Fair 2024
-                    </a>
+                    </Link>
                   </h4>
                   <div className="read-more-btn">
-                    <a
+                    <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      href="/pages/event-details/1"
+                      to="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -88,7 +87,7 @@ export default function AllWorkshops() {
                           <i className="feather-arrow-right"></i>
                         </span>
                       </span>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -96,7 +95,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <a href="/pages/event-details/2">
+                  <Link to="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -104,15 +103,14 @@ export default function AllWorkshops() {
                       height="240"
                       decoding="async"
                       data-nimg="1"
-                      srcset="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-02.jpg&amp;w=384&amp;q=75 1x, /_next/image?url=%2Fimages%2Fevent%2Fgrid-type-02.jpg&amp;w=750&amp;q=75 2x"
-                      src="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-02.jpg&amp;w=750&amp;q=75"
+                      src="/assets/img/grid-type-02ed6c.jpg"
                       style={{ color: "transparent" }}
                     />
                     <div className="rbt-badge-3 bg-white">
                       <span>9 Mar</span>
                       <span>2024</span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
                 <div className="rbt-card-body">
                   <ul className="rbt-meta">
@@ -124,14 +122,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <a href="/pages/event-details/2">
+                    <Link to="#">
                       Painting Art Contest 2020
-                    </a>
+                    </Link>
                   </h4>
                   <div className="read-more-btn">
-                    <a
+                    <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      href="/pages/event-details/2"
+                      to="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -142,7 +140,7 @@ export default function AllWorkshops() {
                           <i className="feather-arrow-right"></i>
                         </span>
                       </span>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -150,7 +148,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <a href="/pages/event-details/3">
+                  <Link to="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -158,15 +156,14 @@ export default function AllWorkshops() {
                       height="240"
                       decoding="async"
                       data-nimg="1"
-                      srcset="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-03.jpg&amp;w=384&amp;q=75 1x, /_next/image?url=%2Fimages%2Fevent%2Fgrid-type-03.jpg&amp;w=750&amp;q=75 2x"
-                      src="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-03.jpg&amp;w=750&amp;q=75"
+                      src="/assets/img/grid-type-033752.jpg"
                       style={{ color: "transparent" }}
                     />
                     <div className="rbt-badge-3 bg-white">
                       <span>10 Oct</span>
                       <span>2024</span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
                 <div className="rbt-card-body">
                   <ul className="rbt-meta">
@@ -178,14 +175,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <a href="/pages/event-details/3">
+                    <Link to="#">
                       Histudy Education Fair 2024
-                    </a>
+                    </Link>
                   </h4>
                   <div className="read-more-btn">
-                    <a
+                    <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      href="/pages/event-details/3"
+                      to="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -196,7 +193,7 @@ export default function AllWorkshops() {
                           <i className="feather-arrow-right"></i>
                         </span>
                       </span>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -204,7 +201,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <a href="/pages/event-details/4">
+                  <Link to="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -212,15 +209,14 @@ export default function AllWorkshops() {
                       height="240"
                       decoding="async"
                       data-nimg="1"
-                      srcset="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-04.jpg&amp;w=384&amp;q=75 1x, /_next/image?url=%2Fimages%2Fevent%2Fgrid-type-04.jpg&amp;w=750&amp;q=75 2x"
-                      src="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-04.jpg&amp;w=750&amp;q=75"
+                      src="/assets/img/grid-type-04a743.jpg"
                       style={{ color: "transparent" }}
                     />
                     <div className="rbt-badge-3 bg-white">
                       <span>8 Jan</span>
                       <span>2024</span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
                 <div className="rbt-card-body">
                   <ul className="rbt-meta">
@@ -232,14 +228,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <a href="/pages/event-details/4">
+                    <Link to="#">
                       Elegant Light Box Paper Cut Dioramas
-                    </a>
+                    </Link>
                   </h4>
                   <div className="read-more-btn">
-                    <a
+                    <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      href="/pages/event-details/4"
+                      to="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -250,7 +246,7 @@ export default function AllWorkshops() {
                           <i className="feather-arrow-right"></i>
                         </span>
                       </span>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -258,7 +254,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <a href="/pages/event-details/5">
+                  <Link to="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -266,15 +262,14 @@ export default function AllWorkshops() {
                       height="240"
                       decoding="async"
                       data-nimg="1"
-                      srcset="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-05.jpg&amp;w=384&amp;q=75 1x, /_next/image?url=%2Fimages%2Fevent%2Fgrid-type-05.jpg&amp;w=750&amp;q=75 2x"
-                      src="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-05.jpg&amp;w=750&amp;q=75"
+                      src="/assets/img/grid-type-05073e.jpg"
                       style={{ color: "transparent" }}
                     />
                     <div className="rbt-badge-3 bg-white">
                       <span>12 Mar</span>
                       <span>2024</span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
                 <div className="rbt-card-body">
                   <ul className="rbt-meta">
@@ -286,14 +281,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <a href="/pages/event-details/5">
+                    <Link to="#">
                       Most Effective Ways Education's Problem.
-                    </a>
+                    </Link>
                   </h4>
                   <div className="read-more-btn">
-                    <a
+                    <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      href="/pages/event-details/5"
+                      to="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -304,7 +299,7 @@ export default function AllWorkshops() {
                           <i className="feather-arrow-right"></i>
                         </span>
                       </span>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -312,7 +307,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <a href="/pages/event-details/6">
+                  <Link to="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -320,15 +315,14 @@ export default function AllWorkshops() {
                       height="240"
                       decoding="async"
                       data-nimg="1"
-                      srcset="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-06.jpg&amp;w=384&amp;q=75 1x, /_next/image?url=%2Fimages%2Fevent%2Fgrid-type-06.jpg&amp;w=750&amp;q=75 2x"
-                      src="/_next/image?url=%2Fimages%2Fevent%2Fgrid-type-06.jpg&amp;w=750&amp;q=75"
+                      src="/assets/img/grid-type-069af9.jpg"
                       style={{ color: "transparent" }}
                     />
                     <div className="rbt-badge-3 bg-white">
                       <span>11 Oct</span>
                       <span>2024</span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
                 <div className="rbt-card-body">
                   <ul className="rbt-meta">
@@ -340,14 +334,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <a href="/pages/event-details/6">
+                    <Link to="#">
                       Top 7 Common About Education.
-                    </a>
+                    </Link>
                   </h4>
                   <div className="read-more-btn">
-                    <a
+                    <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      href="/pages/event-details/6"
+                      to="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -358,7 +352,7 @@ export default function AllWorkshops() {
                           <i className="feather-arrow-right"></i>
                         </span>
                       </span>
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -370,20 +364,20 @@ export default function AllWorkshops() {
                 <div className="nav-links">
                   <ul className="rbt-pagination">
                     <li className="disabled">
-                      <a aria-label="Previous" href="/pages/event-list#">
+                      <Link aria-label="Previous" to="/pages/event-list#">
                         <i className="feather-chevron-left"></i>
-                      </a>
+                      </Link>
                     </li>
                     <li className="active">
-                      <a href="/pages/event-list#">1</a>
+                      <Link to="/pages/event-list#">1</Link>
                     </li>
                     <li className="">
-                      <a href="/pages/event-list#">2</a>
+                      <Link to="/pages/event-list#">2</Link>
                     </li>
                     <li className="">
-                      <a aria-label="Next" href="/pages/event-list#">
+                      <Link aria-label="Next" to="/pages/event-list#">
                         <i className="feather-chevron-right"></i>
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </div>

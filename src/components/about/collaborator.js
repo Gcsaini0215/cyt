@@ -1,5 +1,5 @@
 import ImageTag from "../../utils/image-tag";
-import TeamImg from "../../assets/img/neha.png";
+const TeamImg = "/assets/img/neha.png";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Link } from "react-router-dom";
 export default function Collaborator() {
@@ -16,7 +16,7 @@ export default function Collaborator() {
               <div className="col-lg-3 col-xl-3 offset-xl-2">
                 <div className="thumbnail">
                   <Link
-                    href=""
+                    to="#"
                     style={{
                       display: isMobile ? "flex" : "",
                       justifyContent: isMobile ? "center" : "normal",

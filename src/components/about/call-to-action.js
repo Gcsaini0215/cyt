@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function CallToActionAbout() {
   return (
@@ -21,16 +22,16 @@ export default function CallToActionAbout() {
                     </p>
 
                     <div className="call-to-btn text-start mt--30">
-                      <a
+                      <Link
                         className="rbt-btn btn-gradient hover-icon-reverse"
-                        href="/therapist-registration"
+                        to="/therapist-registration"
                       >
                         <span className="icon-reverse-wrapper">
                           <span className="btn-text">Join Us</span>
                           <span className="btn-icon"><i className="feather-arrow-right"></i></span>
                           <span className="btn-icon"><i className="feather-arrow-right"></i></span>
                         </span>
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 </div>

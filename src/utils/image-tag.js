@@ -1,15 +1,17 @@
-export default function ImageTag(props) {
+export default function ImageTag({ src, alt, style, class: className, ...rest }) {
+  const imageSrc = src && typeof src === 'object' ? src.src : src;
+  
   return (
     <img
-      alt={props.alt}
+      alt={alt}
       fetchpriority="high"
       loading="lazy"
       decoding="async"
       data-nimg="1"
-      style={props.style}
-      src={props.src}
-      className={props.class ? props.class : ""}
-      {...props}
+      style={style}
+      src={imageSrc}
+      className={className ? className : ""}
+      {...rest}
     />
   );
 }

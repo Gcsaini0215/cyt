@@ -5,6 +5,7 @@ import FormMessage from "../../global/form-message";
 import FormProgressBar from "../../global/form-progressbar";
 import { removeToken } from "../../../utils/jwt";
 import { useNavigate } from "react-router-dom";
+
 export default function Password() {
   const navigate = useNavigate();
   const [data, setData] = React.useState({

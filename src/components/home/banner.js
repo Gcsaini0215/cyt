@@ -1,5 +1,5 @@
-// src/components/banner/index.jsx
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { Loader } from "@googlemaps/js-api-loader";
 import { 
   Thunderstorm, 
   Cloud, 
@@ -33,7 +33,7 @@ import {
 } from "@mui/material";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 import ImageTag from "../../utils/image-tag";
@@ -42,9 +42,9 @@ import ConsultationForm from "./consultation-form";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles, imagePath } from "../../utils/url";
 // Therapist avatar images
-import ClientImg from "../../assets/img/avatar-027dc8.png";
-import Fabiha from "../../assets/img/psychologist.png";
-import counselling1 from "../../assets/img/counselling.png";
+const ClientImg = "/assets/img/avatar-027dc8.png";
+const Fabiha = "/assets/img/psychologist.png";
+const counselling1 = "/assets/img/counselling.png";
 
 // Therapist Image Slider Component
 const BannerSlider = ({ isMobile }) => {
@@ -490,7 +490,56 @@ export default function Banner() {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [dynamicFeelingCards, setDynamicFeelingCards] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [googleReviews, setGoogleReviews] = useState({ rating: 4.9, count: 500, loading: true });
   const searchTimeoutRef = useRef(null);
+
+  // Fetch Google Reviews Data
+  useEffect(() => {
+    const fetchGoogleData = async () => {
+      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+      if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
+        setGoogleReviews(prev => ({ ...prev, loading: false }));
+        return;
+      }
+
+      try {
+        const loader = new Loader({
+          apiKey: apiKey,
+          version: "weekly",
+          libraries: ["places"]
+        });
+
+        const google = await loader.load();
+        const service = new google.maps.places.PlacesService(document.createElement('div'));
+        
+        // Use the CID to find the place (Search by name + proximity is more reliable client-side)
+        // For CID 12001203109189345391, we try to get details if we had a placeId.
+        // Since we only have CID, we use a query that typically works for CID lookup
+        const request = {
+          query: 'Choose Your Therapist', // This should match your exact Google Business name
+          fields: ['name', 'rating', 'user_ratings_total'],
+        };
+
+        service.findPlaceFromQuery(request, (results, status) => {
+          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+            setGoogleReviews({
+              rating: results[0].rating || 4.9,
+              count: results[0].user_ratings_total || 532,
+              loading: false
+            });
+          } else {
+            // If API fails, we use the baseline from your profile
+            setGoogleReviews({ rating: 4.9, count: 532, loading: false }); 
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching Google Reviews:", error);
+        setGoogleReviews(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    fetchGoogleData();
+  }, []);
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -637,21 +686,7 @@ export default function Banner() {
         }}
       >
 
-      <Helmet>
-        <title>
-          India's Growing Network of Verified Therapists Connecting You to Trusted Counselling Support | Choose Your Therapist
-        </title>
-        <meta
-          name="description"
-          content="Connect with our trusted network of psychologists in Noida through Choose Your Therapist. Book affordable in-person or online therapy sessions, mental health counseling, and expert support from local psychologists near you."
-        />
-        <meta
-          name="keywords"
-          content="Affordable Psychologists, Network of Psychologists, Online Therapy, In-Person Therapy, Mental Health Counseling, Expert Psychologists, Choose Your Therapist, Psychologists in Noida, Local Therapy Noida"
-        />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/" />
-      </Helmet>
+
 
       <div className="container mt--20" style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
         <div className="row justify-content-center text-center" style={{ width: '100%' }}>
@@ -671,133 +706,189 @@ export default function Banner() {
                   mx: "auto",
                   mt: 0
                 }}>
-                  {/* Two-line Heading with Split-Text Reveal Animation */}
-                  <h1
+                  {/* Two-line Heading */}
+                    <h1
                     className="title"
                     style={{
                       fontSize: isMobile ? "2.5rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "3.2rem" : isTablet ? "3.8rem" : "5.5rem",
+                      lineHeight: isMobile ? "3rem" : isTablet ? "3.8rem" : "5.5rem",
                       marginTop: 0,
-                      marginBottom: "24px",
+                      marginBottom: isMobile ? "16px" : "24px",
                       fontWeight: 900,
                       textAlign: "center",
                       width: "100%",
-                      display: "block"
+                      display: "block",
+                      padding: isMobile ? "0 5px" : "0"
                     }}
                   >
                     Find a <Box component="span" sx={{ 
                       position: 'relative',
                       display: 'inline-block',
-                      px: 1
+                      px: isMobile ? 0.2 : 1
                     }}>
                       <span style={{ 
-                        backgroundImage: "linear-gradient(to right, #005bea, #228756)", 
+                        backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
                         WebkitBackgroundClip: "text", 
                         backgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         color: "transparent",
-                        display: "inline"
+                        display: "inline-block",
+                        animation: "handDrawnWobble 0.5s ease-in-out infinite alternate"
                       }}>Therapist</span>
-                      <svg 
-                        viewBox="0 0 100 20" 
-                        preserveAspectRatio="none" 
-                        style={{ 
-                          position: 'absolute', 
-                          bottom: isMobile ? '-8px' : '-12px', 
-                          left: 0, 
-                          width: '100%', 
-                          height: '15px', 
-                          zIndex: -1 
+                      {/* Stylish underline SVG */}
+                      <svg
+                        viewBox="0 0 100 20"
+                        preserveAspectRatio="none"
+                        style={{
+                          position: 'absolute',
+                          bottom: isMobile ? '-5px' : '-10px',
+                          left: 0,
+                          width: '100%',
+                          height: isMobile ? '10px' : '15px',
+                          zIndex: -1
                         }}
                       >
-                        <path 
-                          d="M5 15 Q 30 5, 50 15 T 95 15" 
-                          stroke="#004e92" 
-                          strokeWidth="6" 
-                          fill="none" 
-                          strokeLinecap="round" 
-                          style={{ opacity: 0.3 }}
+                        <path
+                          d="M5 15 Q 50 20 95 15"
+                          stroke="url(#underline-gradient)"
+                          strokeWidth="4"
+                          fill="none"
+                          strokeLinecap="round"
+                          style={{
+                            strokeDasharray: 100,
+                            strokeDashoffset: 100,
+                            animation: "drawLine 2s ease-out 0.8s forwards"
+                          }}
                         />
+                        <defs>
+                          <linearGradient id="underline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style={{ stopColor: '#27ae60', stopOpacity: 0.6 }} />
+                            <stop offset="50%" style={{ stopColor: '#10b981', stopOpacity: 0.8 }} />
+                            <stop offset="100%" style={{ stopColor: '#007f99', stopOpacity: 0.6 }} />
+                          </linearGradient>
+                        </defs>
                       </svg>
                     </Box> Across India.
                   </h1>
 
                   {/* Description */}
                   <Typography variant="h6" sx={{ 
-                    color: "#000000", 
+                    color: "#444444", 
                     maxWidth: "800px", 
                     margin: "0 auto", 
-                    lineHeight: 1.6,
-                    fontSize: isMobile ? "18px" : "22px",
-                    animation: "fadeInUp 1s ease-out",
-                    mb: 4,
+                    lineHeight: isMobile ? 1.4 : 1.6,
+                    fontSize: isMobile ? "15px" : "22px",
+                    mb: 3,
+                    px: isMobile ? 2 : 0,
                     fontWeight: 500,
-                    textAlign: "center"
+                    textAlign: "center",
+                    display: "block"
                   }}>
-                    Therapy works when you feel safe, heard, and understood.
-                    <br />
-                    Discover therapists across India who match your needs and values.
+                    Find a qualified psychologist anywhere in India for online or in-person therapy. 
+                    {!isMobile && <br />}
+                     Explore verified professionals, compare specializations, and book confidential sessions for anxiety, stress, relationships, and emotional well-being.
                   </Typography>
 
-                  {/* Banner Buttons */}
-                  <Box sx={{ 
-                    display: "flex", 
-                    gap: 2, 
-                    flexWrap: "wrap", 
-                    justifyContent: "center",
-                    animation: "fadeInUp 1s ease-out 0.2s both",
-                    mb: isMobile ? 8 : 10
-                  }}>
-                    <Button 
-                      component={Link}
-                      to="/therapists"
-                      variant="contained" 
-                      sx={{
-                        bgcolor: "#228756",
-                        color: "white",
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: "50px",
-                        fontWeight: 800,
-                        textTransform: "none",
-                        fontSize: "16px",
-                        boxShadow: "0 10px 20px rgba(34, 135, 86, 0.2)",
-                        "&:hover": {
-                          bgcolor: "#1a6b44",
-                          transform: "translateY(-2px)",
-                          boxShadow: "0 15px 25px rgba(34, 135, 86, 0.3)"
-                        },
-                        transition: "all 0.3s ease"
-                      }}
-                    >
-                      Find a Therapist
-                    </Button>
-                    <Button 
-                      component={Link}
-                      to="/plans"
-                      variant="outlined" 
-                      sx={{
-                        borderColor: "#228756",
-                        color: "#228756",
-                        px: 4,
-                        py: 1.5,
-                        borderRadius: "50px",
-                        fontWeight: 800,
-                        textTransform: "none",
-                        fontSize: "16px",
-                        borderWidth: "2px",
-                        "&:hover": {
-                          borderColor: "#1a6b44",
-                          bgcolor: "rgba(34, 135, 86, 0.05)",
-                          borderWidth: "2px",
-                          transform: "translateY(-2px)"
-                        },
-                        transition: "all 0.3s ease"
-                      }}
-                    >
-                      Therapy Plans
-                    </Button>
+                  {/* Google Reviews One-Liner */}
+                  <Box 
+                    component="a" 
+                    href="https://share.google/oHqh7oihfysiPmGd1" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    sx={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: isMobile ? 1 : 1.5, 
+                      mb: 4, 
+                      textDecoration: "none",
+                      background: "rgba(255, 255, 255, 0.8)",
+                      padding: isMobile ? "6px 12px" : "8px 20px",
+                      borderRadius: "50px",
+                      border: "1px solid #e2e8f0",
+                      transition: "all 0.3s ease",
+                      maxWidth: "100%",
+                      width: "fit-content",
+                      flexWrap: "nowrap",
+                      overflow: "hidden",
+                      "&:hover": {
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
+                        borderColor: "#228756"
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+                      <Box sx={{ 
+                        width: isMobile ? 6 : 8, 
+                        height: isMobile ? 6 : 8, 
+                        bgcolor: "#228756", 
+                        borderRadius: "50%", 
+                        animation: "pulse 2s infinite" 
+                      }} />
+                      {!isMobile && <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: 1 }}>Live</Typography>}
+                    </Box>
+                    <Box sx={{ width: "1px", height: "15px", bgcolor: "#cbd5e1", flexShrink: 0 }} />
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+                      <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{googleReviews.rating}/5</Typography>
+                      <Box sx={{ display: "flex", color: "#f59e0b" }}>
+                        {isMobile ? (
+                          <Star sx={{ fontSize: 16 }} />
+                        ) : (
+                          [...Array(5)].map((_, i) => <Star key={i} sx={{ fontSize: 18 }} />)
+                        )}
+                      </Box>
+                    </Box>
+                    <Typography sx={{ color: "#64748b", fontSize: isMobile ? "12px" : "14px", fontWeight: 500, whiteSpace: "nowrap" }}>
+                      ({googleReviews.count}+ Reviews)
+                    </Typography>
                   </Box>
+
+                  {/* Banner Buttons */}
+                  <div className="rbt-button-group justify-content-center" style={{ 
+                    display: "flex", 
+                    gap: isMobile ? "15px" : "20px", 
+                    flexDirection: isMobile ? "column" : "row",
+                    width: isMobile ? "100%" : "auto",
+                    maxWidth: isMobile ? "320px" : "none",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginBottom: isMobile ? "40px" : "60px"
+                  }}>
+                    <Link
+                      className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
+                      to="/view-all-therapist"
+                      style={{ width: isMobile ? "100%" : "auto", textAlign: "center" }}
+                    >
+                      <span className="icon-reverse-wrapper">
+                        <span className="btn-text">Find a Therapist</span>
+                        <span className="btn-icon">
+                          <i className="feather-arrow-right"></i>
+                        </span>
+                        <span className="btn-icon">
+                          <i className="feather-arrow-right"></i>
+                        </span>
+                      </span>
+                    </Link>
+                    <Link
+                      className="rbt-btn btn-white btn-sm hover-icon-reverse"
+                      to="/therapists"
+                      style={{ 
+                        width: isMobile ? "100%" : "auto", 
+                        textAlign: "center",
+                        border: "2px solid #27ae60"
+                      }}
+                    >
+                      <span className="icon-reverse-wrapper">
+                        <span className="btn-text">Therapy Plans</span>
+                        <span className="btn-icon">
+                          <i className="feather-arrow-right"></i>
+                        </span>
+                        <span className="btn-icon">
+                          <i className="feather-arrow-right"></i>
+                        </span>
+                      </span>
+                    </Link>
+                  </div>
                 </Box>
               </div>
             </div>
@@ -872,7 +963,7 @@ export default function Banner() {
         left: 0,
         width: "100%",
         height: isMobile ? "100px" : "200px",
-        background: "linear-gradient(to bottom, rgba(240, 253, 244, 0) 0%, rgba(255, 255, 255, 0.8) 50%, #ffffff 100%)",
+        background: "linear-gradient(to bottom, rgba(240, 253, 244, 0) 0%, rgba(255, 255, 255, 0.4) 50%, #ffffff 100%)",
         zIndex: 1,
         pointerEvents: "none"
       }}></div>
@@ -930,9 +1021,33 @@ export default function Banner() {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes scrollRightToLeft {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
+        }
+        @keyframes drawLine {
+          from { stroke-dashoffset: 100; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes doodleScroll {
+          0% { background-position: 0% 0%; }
+          100% { background-position: 100% 100%; }
+        }
+        @keyframes growthBloom {
+          0% { background-size: 100% 100%; background-position: center; }
+          50% { background-size: 150% 150%; background-position: center; }
+          100% { background-size: 100% 100%; background-position: center; }
+        }
+        @keyframes handDrawnWobble {
+          0% { transform: rotate(-0.5deg) skewX(-0.5deg); }
+          25% { transform: rotate(0.5deg) skewX(0.5deg); }
+          50% { transform: rotate(-0.3deg) skewX(-0.3deg); }
+          75% { transform: rotate(0.3deg) skewX(0.3deg); }
+          100% { transform: rotate(-0.5deg) skewX(-0.5deg); }
         }
       `}</style>
     </section>

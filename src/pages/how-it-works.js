@@ -2,6 +2,7 @@ import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
+import { Link } from "react-router-dom";
 
 export default function HowItWorks() {
   return (
@@ -155,14 +156,14 @@ export default function HowItWorks() {
                   Take the first step towards better mental health. Browse our therapist directory and book your consultation today.
                 </p>
                 <div className="call-to-action-btn mt--30">
-                  <a className="rbt-btn btn-gradient hover-icon-reverse" href="/view-all-therapist">
+                  <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/view-all-therapist">
                     <div className="icon-reverse-wrapper">
                       <span className="btn-text">Find Your Therapist</span>
                       <span className="btn-icon">
                         <i className="feather-arrow-right"></i>
                       </span>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

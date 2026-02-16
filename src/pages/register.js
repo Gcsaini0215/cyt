@@ -5,9 +5,9 @@ import { registerUrl, verifyOtpUrl } from "../utils/url";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
-import ClientImg from "../assets/img/avatar-027dc8.png";
-import Fabiha from "../assets/img/psychologist.png";
-import ClientImg3 from "../assets/img/counselling.png";
+const ClientImg = "/assets/img/avatar-027dc8.png";
+const Fabiha = "/assets/img/psychologist.png";
+const ClientImg3 = "/assets/img/counselling.png";
 import ImageTag from "../utils/image-tag";
 import FormProgressBar from "../components/global/form-progressbar";
 import FormMessage from "../components/global/form-message";
@@ -59,7 +59,8 @@ export default function Register() {
         setError(response.message);
       }
     } catch (error) {
-      setError(error.response.data.message);
+      console.error("Registration Error:", error);
+      setError(error.response?.data?.message || error.message || "Something went wrong");
     }
     setLoading(false);
   };
@@ -88,8 +89,9 @@ export default function Register() {
         setError("Something went wrong");
       }
     } catch (error) {
+      console.error("OTP Verification Error:", error);
       setSuccess("");
-      setError(error.response.data.message);
+      setError(error.response?.data?.message || error.message || "Something went wrong");
     }
 
     setLoading(false);

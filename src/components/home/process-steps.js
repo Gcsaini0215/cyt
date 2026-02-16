@@ -1,7 +1,7 @@
 import React from "react";
 import { Search, CalendarDays, HeartHandshake, CheckCircle2 } from "lucide-react";
 import { Box, Typography, Container, Grid, useTheme, useMediaQuery } from "@mui/material";
-import TherapeuticImg from "../../assets/img/psychologist.png";
+const TherapeuticImg = "/assets/img/psychologist.png";
 
 const ProcessSteps = () => {
   const theme = useTheme();

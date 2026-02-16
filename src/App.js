@@ -2,65 +2,73 @@ import "./App.css";
 import "./index.css";
 import { Route, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Login from "./pages/login";
-import HomePage from "./pages/home";
-import NotFoundPage from "./pages/notfound";
-import ProtectedRoute from "./pages/protectedroute";
-import AboutUs from "./pages/about-us";
-import Services from "./pages/services";
-import ContactUs from "./pages/contact-us";
-import JoinUs from "./pages/join-us";
-import Plans from "./pages/plans";
-import FaqPage from "./pages/faqs";
-import Blogs from "./pages/blogs";
-import UserDashboard from "./pages/client/user-dashboard";
-import ViewProfile from "./pages/view-profile";
-import TherapistRegistration from "./pages/therapist-registration";
-import Register from "./pages/register";
-import Success from "./pages/success";
-import TherapistDashboard from "./pages/therapists/dashboard";
-import ProfileSettings from "./pages/therapists/settings";
-
-import TherapistProtectedRoute from "./utils/therapistProtectedRoute";
-import { useEffect } from "react";
+import { useEffect, lazy } from "react";
 import useTherapistStore from "./store/therapistStore";
 import useUserStore from "./store/userStore";
 import { getDecodedToken, getToken, removeToken } from "./utils/jwt";
-import ClientSettings from "./pages/client/settings";
-import AllWorkshop from "./pages/allworkshop";
-import ViewAllTherapist from "./pages/view-all-therapist-page";
-import CreateWorkshopPage from "./pages/therapists/create-workshop";
-import Workshops from "./pages/therapists/workshops";
-import UpdateWorkshopPage from "./pages/therapists/update-workshop";
-import WrokshopDetailPage from "./pages/workshop-detail-page";
-import Forgotpassword from "./pages/forgot-password";
-import FavriouteTherapistPage from "./pages/client/favrioute-therapits";
-import TherapistCheckoutPage from "./pages/therapist-checkout";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsCondition from "./pages/TermsCondition";
-import CancellationPolicy from "./pages/cancel-policy";
+import TherapistProtectedRoute from "./utils/therapistProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PaymentPendingPage from "./pages/payment-pending";
-import MyBookingsPage from "./pages/client/my-bookings";
-import SerivcePage from "./pages/ServicePage";
-import WorkshopBookingPage from "./pages/workshop-booking";
-import PaymentWorkshopPage from "./pages/payment-workshop";
-import MyWorkshopBookingsPage from "./pages/client/my-workshop-bookings";
-import CoupansPage from "./pages/therapists/coupans";
-import CreateCoupanPage from "./pages/therapists/create-coupan";
-import UpdateCoupanPage from "./pages/therapists/update-coupan";
-import AppointmentsPage from "./pages/therapists/appointment";
-import ComingSoon from "./pages/coming-soon";
-import TherapyBooking from "./pages/therapy-booking";
-import MindMatters from "./pages/mind-matters";
-import HowItWorks from "./pages/how-it-works";
-import EmergencySupport from "./pages/emergency-support";
-import MentorshipForStudents from "./pages/mentorship-for-students";
-import SupervisionDetails from "./pages/supervision-details";
-import AIChat from "./pages/ai-chat";
-import AIAffirmation from "./pages/ai-affirmation";
-import AddressSelectionPage from "./pages/address-selection";
+
+const Login = lazy(() => import("./components/legacy-pages/login"));
+const HomePage = lazy(() => import("./pages/index"));
+const NotFoundPage = lazy(() => import("./pages/notfound"));
+const ProtectedRoute = lazy(() => import("./pages/protectedroute"));
+const AboutUs = lazy(() => import("./pages/about-us"));
+const Services = lazy(() => import("./pages/services/[id]"));
+const ContactUs = lazy(() => import("./pages/contact-us"));
+const JoinUs = lazy(() => import("./pages/join-us"));
+const Plans = lazy(() => import("./pages/plans"));
+const FaqPage = lazy(() => import("./pages/faqs"));
+const Blogs = lazy(() => import("./pages/blogs"));
+const UserDashboard = lazy(() => import("./pages/my-dashboard"));
+const ViewProfile = lazy(() => import("./pages/view-profile/[id]"));
+const TherapistRegistration = lazy(() => import("./pages/therapist-registration"));
+const Register = lazy(() => import("./pages/register"));
+const Success = lazy(() => import("./pages/success"));
+const TherapistDashboard = lazy(() => import("./pages/therapist-dashboard"));
+const ProfileSettings = lazy(() => import("./pages/settings"));
+const ClientSettings = lazy(() => import("./pages/my-settings"));
+const AllWorkshop = lazy(() => import("./pages/allworkshop"));
+const ViewAllTherapist = lazy(() => import("./pages/view-all-therapist"));
+const CreateWorkshopPage = lazy(() => import("./pages/create-workshop"));
+const Workshops = lazy(() => import("./pages/workshops"));
+const UpdateWorkshopPage = lazy(() => import("./pages/update-workshop/[id]"));
+const WrokshopDetailPage = lazy(() => import("./pages/workshop-detail/[id]"));
+const Forgotpassword = lazy(() => import("./pages/forgot-password"));
+const FavriouteTherapistPage = lazy(() => import("./pages/client/favrioute-therapits"));
+const TherapistCheckoutPage = lazy(() => import("./pages/therapist-checkout/[id]"));
+const PrivacyPolicy = lazy(() => import("./pages/privacy-policy"));
+const TermsCondition = lazy(() => import("./pages/terms-conditions"));
+const CancellationPolicy = lazy(() => import("./pages/cancellation-policy"));
+const PaymentPendingPage = lazy(() => import("./pages/payment-pending/[id]"));
+const MyBookingsPage = lazy(() => import("./pages/client/my-bookings"));
+const SerivcePage = lazy(() => import("./pages/service-page"));
+const WorkshopBookingPage = lazy(() => import("./pages/workshop-booking/[id]"));
+const PaymentWorkshopPage = lazy(() => import("./pages/payment-workshop/[id]"));
+const MyWorkshopBookingsPage = lazy(() => import("./pages/client/my-workshop-bookings"));
+const CoupansPage = lazy(() => import("./pages/coupons"));
+const CreateCoupanPage = lazy(() => import("./pages/coupon/create"));
+const UpdateCoupanPage = lazy(() => import("./pages/coupon/update/[id]"));
+const AppointmentsPage = lazy(() => import("./pages/appointments"));
+const ComingSoon = lazy(() => import("./pages/coming-soon"));
+const TherapyBooking = lazy(() => import("./pages/therapy-booking"));
+const MindMatters = lazy(() => import("./pages/mind-matters"));
+const HowItWorks = lazy(() => import("./pages/how-it-works"));
+const EmergencySupport = lazy(() => import("./pages/emergency-support"));
+const MentorshipForStudents = lazy(() => import("./pages/mentorship-for-students"));
+const SupervisionDetails = lazy(() => import("./pages/supervision-details"));
+const AIChat = lazy(() => import("./pages/ai-chat"));
+const AIAffirmation = lazy(() => import("./pages/ai-affirmation"));
+const AddressSelectionPage = lazy(() => import("./pages/address-selection"));
+const BlogDetails = lazy(() => import("./pages/blog-details"));
+const Invoices = lazy(() => import("./pages/therapists/invoices"));
+const Reviews = lazy(() => import("./pages/therapists/reviews"));
+const Notifications = lazy(() => import("./pages/therapists/notifications"));
+const TherapistChangePassword = lazy(() => import("./pages/therapists/change-password"));
+const ClientChangePassword = lazy(() => import("./pages/client/change-password"));
+const StartHealing = lazy(() => import("./pages/starthealing"));
+const NotAuthorizedPage = lazy(() => import("./pages/not-authorized"));
 const theme = createTheme();
 
 function App() {
@@ -84,6 +92,17 @@ function App() {
           fetchUserInfo();
         }
       }
+    }
+
+    // Tawk.to Script Integration
+    if (window.innerWidth > 768) {
+      const s1 = document.createElement("script");
+      const s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = 'https://embed.tawk.to/667414b4dd590416e2580cc6/1i0qn1osp';
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      s0.parentNode.insertBefore(s1, s0);
     }
   }, [fetchUserInfo, fetchTherapistInfo]);
   return (
@@ -121,6 +140,7 @@ function App() {
               <Route path="/plans" element={<Plans />} />
               <Route path="/faqs" element={<FaqPage />} />
               <Route path="/blogs" element={<Blogs />} />
+              <Route path="/blog-details/:id" element={<BlogDetails />} />
               <Route path="/all-workshop" element={<AllWorkshop />} />
               <Route path="/new-service" element={<SerivcePage />} />
               <Route path="/therapy-booking" element={<TherapyBooking />} />
@@ -132,6 +152,8 @@ function App() {
               <Route path="/ai-chat" element={<AIChat />} />
               <Route path="/ai-affirmation" element={<AIAffirmation />} />
               <Route path="/address-selection" element={<AddressSelectionPage />} />
+              <Route path="/start-healing" element={<StartHealing />} />
+              <Route path="/not-authorized" element={<NotAuthorizedPage />} />
 
               <Route
                 path="/workshop-detail/:id"
@@ -170,6 +192,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ClientSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-change-password"
+                element={
+                  <ProtectedRoute>
+                    <ClientChangePassword />
                   </ProtectedRoute>
                 }
               />
@@ -279,7 +309,7 @@ function App() {
                 path="/invoices"
                 element={
                   <TherapistProtectedRoute>
-                    <ComingSoon />
+                    <Invoices />
                   </TherapistProtectedRoute>
                 }
               />
@@ -288,7 +318,15 @@ function App() {
                 path="/reviews"
                 element={
                   <TherapistProtectedRoute>
-                    <ComingSoon />
+                    <Reviews />
+                  </TherapistProtectedRoute>
+                }
+              />
+              <Route
+                path="/change-password"
+                element={
+                  <TherapistProtectedRoute>
+                    <TherapistChangePassword />
                   </TherapistProtectedRoute>
                 }
               />
@@ -297,26 +335,7 @@ function App() {
                 path="/notifications"
                 element={
                   <TherapistProtectedRoute>
-                    <ComingSoon />
-                  </TherapistProtectedRoute>
-                }
-              />
-
-              <Route
-                exact
-                path="/case-history"
-                element={
-                  <TherapistProtectedRoute>
-                    <ComingSoon />
-                  </TherapistProtectedRoute>
-                }
-              />
-              <Route
-                exact
-                path="/blogs"
-                element={
-                  <TherapistProtectedRoute>
-                    <ComingSoon />
+                    <Notifications />
                   </TherapistProtectedRoute>
                 }
               />

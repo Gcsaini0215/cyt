@@ -188,7 +188,7 @@ const HorTherapistCards = () => {
               disableOnInteraction: false,
               pauseOnMouseEnter: true,
             }}
-            loop={true}
+            loop={therapists.length > 2}
             speed={1000}
             grabCursor={true}
             style={{

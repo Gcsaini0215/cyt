@@ -6,52 +6,53 @@ import bgImg2 from "../../assets/img/kindergarten-03-back6149.jpg";
 import bgImg3 from "../../assets/img/kindergarten-04-backab08.jpg";
 import LazyImage from "../../utils/lazy-image";
 import { Link, useNavigate } from "react-router-dom";
+
 export default function ServiceBenefits() {
   const navigate = useNavigate();
   return (
-    <div class="rbt-article-content-wrapper">
-      <div class="row row--15 mt_dec--30">
-        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
-          <div class="rbt-flipbox variation-2">
-            <div class="rbt-flipbox-wrap rbt-service rbt-service-1 card-bg-1">
-              <div class="rbt-flipbox-front rbt-flipbox-face inner">
-                <div class="front-thumb w-100">
+    <div className="rbt-article-content-wrapper">
+      <div className="row row--15 mt_dec--30">
+        <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
+          <div className="rbt-flipbox variation-2">
+            <div className="rbt-flipbox-wrap rbt-service rbt-service-1 card-bg-1">
+              <div className="rbt-flipbox-front rbt-flipbox-face inner">
+                <div className="front-thumb w-100">
                   <LazyImage alt="card-icon" dim={"300-490"} src={Img} />
                 </div>
-                <div class="content">
-                  <h5 class="title">
+                <div className="content">
+                  <h5 className="title">
                     <Link to="#">Appointment Scheduling</Link>
                   </h5>
-                  <ul class="rbt-list-style-3">
+                  <ul className="rbt-list-style-3">
                     <li>
-                      <i class="feather-heart"></i> Health and Wellness
+                      <i className="feather-heart"></i> Health and Wellness
                     </li>
                     <li>
-                      <i class="feather-flag"></i> Literacy and Language
+                      <i className="feather-flag"></i> Literacy and Language
                     </li>
                     <li>
-                      <i class="feather-eye"></i> Social-Emotional Learning
+                      <i className="feather-eye"></i> Social-Emotional Learning
                     </li>
                     <li>
-                      <i class="feather-edit-2"></i> Visual and Creative Arts
+                      <i className="feather-edit-2"></i> Visual and Creative Arts
                     </li>
                     <li>
-                      <i class="feather-battery-charging"></i> Thinking and
+                      <i className="feather-battery-charging"></i> Thinking and
                       Learning
                     </li>
                   </ul>
                   <Link
                     style={{ cursor: "pointer" }}
-                    class="rbt-btn-link stretched-link"
-                    onClick={() => navigate("/therapist-registration")}
+                    className="rbt-btn-link stretched-link"
+                    to="/therapist-registration"
                   >
-                    Learn More<i class="feather-arrow-right"></i>
+                    Learn More<i className="feather-arrow-right"></i>
                   </Link>
                 </div>
               </div>
-              <div class="rbt-flipbox-back rbt-flipbox-face inner">
-                <div class="flip-back-top">
-                  <div class="back-thumb w-100">
+              <div className="rbt-flipbox-back rbt-flipbox-face inner">
+                <div className="flip-back-top">
+                  <div className="back-thumb w-100">
                     <LazyImage alt="card-icon" dim={"300-490"} src={bgImg1} />
                   </div>
                   <p>
@@ -60,9 +61,9 @@ export default function ServiceBenefits() {
                   </p>
                 </div>
                 <Link
-                  class="rbt-btn rbt-switch-btn btn-white btn-sm"
+                  className="rbt-btn rbt-switch-btn btn-white btn-sm"
                   style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/therapist-registration")}
+                  to="/therapist-registration"
                 >
                   <span data-text="Learn More">Learn More</span>
                 </Link>
@@ -70,47 +71,47 @@ export default function ServiceBenefits() {
             </div>
           </div>
         </div>
-        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
-          <div class="rbt-flipbox variation-2">
-            <div class="rbt-flipbox-wrap rbt-service rbt-service-1 card-bg-2">
-              <div class="rbt-flipbox-front rbt-flipbox-face inner">
-                <div class="front-thumb w-100">
+        <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
+          <div className="rbt-flipbox variation-2">
+            <div className="rbt-flipbox-wrap rbt-service rbt-service-1 card-bg-2">
+              <div className="rbt-flipbox-front rbt-flipbox-face inner">
+                <div className="front-thumb w-100">
                   <LazyImage alt="card-icon" dim={"300-490"} src={Img2} />
                 </div>
-                <div class="content">
-                  <h5 class="title">
+                <div className="content">
+                  <h5 className="title">
                     <Link to="#">Toddler/Twos</Link>
                   </h5>
-                  <ul class="rbt-list-style-3">
+                  <ul className="rbt-list-style-3">
                     <li>
-                      <i class="feather-heart"></i> Health and Wellness
+                      <i className="feather-heart"></i> Health and Wellness
                     </li>
                     <li>
-                      <i class="feather-flag"></i> Literacy and Language
+                      <i className="feather-flag"></i> Literacy and Language
                     </li>
                     <li>
-                      <i class="feather-eye"></i> Social-Emotional Learning
+                      <i className="feather-eye"></i> Social-Emotional Learning
                     </li>
                     <li>
-                      <i class="feather-edit-2"></i> Visual and Creative Arts
+                      <i className="feather-edit-2"></i> Visual and Creative Arts
                     </li>
                     <li>
-                      <i class="feather-battery-charging"></i> Thinking and
+                      <i className="feather-battery-charging"></i> Thinking and
                       Learning
                     </li>
                   </ul>
                   <Link
-                    class="rbt-btn-link stretched-link"
-                    onClick={() => navigate("/therapist-registration")}
+                    className="rbt-btn-link stretched-link"
+                    to="/therapist-registration"
                     style={{ cursor: "pointer" }}
                   >
-                    Learn More<i class="feather-arrow-right"></i>
+                    Learn More<i className="feather-arrow-right"></i>
                   </Link>
                 </div>
               </div>
-              <div class="rbt-flipbox-back rbt-flipbox-face inner">
-                <div class="flip-back-top">
-                  <div class="back-thumb w-100">
+              <div className="rbt-flipbox-back rbt-flipbox-face inner">
+                <div className="flip-back-top">
+                  <div className="back-thumb w-100">
                     <LazyImage alt="card-icon" dim={"300-490"} src={bgImg3} />
                   </div>
                   <p>
@@ -119,9 +120,9 @@ export default function ServiceBenefits() {
                   </p>
                 </div>
                 <Link
-                  class="rbt-btn rbt-switch-btn btn-white btn-sm"
+                  className="rbt-btn rbt-switch-btn btn-white btn-sm"
                   style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/therapist-registration")}
+                  to="/therapist-registration"
                 >
                   <span data-text="Learn More">Learn More</span>
                 </Link>
@@ -129,36 +130,36 @@ export default function ServiceBenefits() {
             </div>
           </div>
         </div>
-        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
-          <div class="rbt-flipbox variation-2">
-            <div class="rbt-flipbox-wrap rbt-service rbt-service-1 card-bg-3">
-              <div class="rbt-flipbox-front rbt-flipbox-face inner">
-                <div class="front-thumb w-100">
+        <div className="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
+          <div className="rbt-flipbox variation-2">
+            <div className="rbt-flipbox-wrap rbt-service rbt-service-1 card-bg-3">
+              <div className="rbt-flipbox-front rbt-flipbox-face inner">
+                <div className="front-thumb w-100">
                   <LazyImage alt="card-icon" dim={"300-490"} src={Img3} />
                 </div>
-                <div class="content">
-                  <h5 class="title">
+                <div className="content">
+                  <h5 className="title">
                     <Link to="#">Time-Saving Features</Link>
                   </h5>
-                  <ul class="rbt-list-style-3">
+                  <ul className="rbt-list-style-3">
                     <li>
-                      <i class="feather-heart"></i> Follow-Up Receipts
+                      <i className="feather-heart"></i> Follow-Up Receipts
                     </li>
                     <li>
-                      <i class="feather-flag"></i> Create Case History
+                      <i className="feather-flag"></i> Create Case History
                     </li>
                     <li>
-                      <i class="feather-eye"></i> Record Client's Invoices
+                      <i className="feather-eye"></i> Record Client's Invoices
                     </li>
                     <li>
-                      <i class="feather-edit-2"></i> Share Feedback Form
+                      <i className="feather-edit-2"></i> Share Feedback Form
                     </li>
                   </ul>
                 </div>
               </div>
-              <div class="rbt-flipbox-back rbt-flipbox-face inner">
-                <div class="flip-back-top">
-                  <div class="back-thumb w-100">
+              <div className="rbt-flipbox-back rbt-flipbox-face inner">
+                <div className="flip-back-top">
+                  <div className="back-thumb w-100">
                     <LazyImage alt="card-icon" dim={"300-490"} src={bgImg2} />
                   </div>
                   <p>

@@ -48,6 +48,7 @@ export const fetchData = (url, params = {}) => {
         resolve(response.data);
       })
       .catch((error) => {
+        console.error("API Fetch Error:", url, error);
         reject(error);
       });
   });
@@ -85,6 +86,7 @@ export const postData = (url, data) => {
         resolve(response.data);
       })
       .catch((error) => {
+        console.error("API Post Error:", url, error);
         reject(error);
       });
   });
