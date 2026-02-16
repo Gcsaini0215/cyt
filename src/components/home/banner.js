@@ -120,14 +120,14 @@ const BannerSlider = ({ isMobile }) => {
 
   // Auto-rotate slides with smooth animation
   useEffect(() => {
-    if (therapists.length >= 3) {
+    if (therapists.length >= 3 && !isMobile) {
       const timer = setInterval(() => {
         setCurrentSlide((prev) => {
           const newSlide = (prev + 1) % Math.ceil(therapists.length / 3);
           trackSlideChange(newSlide);
           return newSlide;
         });
-      }, isMobile ? 4000 : 5000); // Faster rotation on mobile for better engagement
+      }, 5000);
 
       return () => clearInterval(timer);
     }
@@ -187,9 +187,8 @@ const BannerSlider = ({ isMobile }) => {
     });
   };
 
-  // Get current 3 therapists for the slide
-  const startIndex = currentSlide * 3;
-  const currentTherapists = therapists.slice(startIndex, startIndex + 3);
+  // Get therapists to display
+  const displayTherapists = isMobile ? therapists : therapists.slice(currentSlide * 3, currentSlide * 3 + 3);
 
   return (
     <div style={{
@@ -228,22 +227,29 @@ const BannerSlider = ({ isMobile }) => {
         Recommended
       </div>
       {/* Therapist Images Row with Enhanced Animation */}
-      <div style={{
-        display: "flex",
-        height: "100%",
-        alignItems: "center",
-        transition: "all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-      }}>
-        {currentTherapists.map((therapist, index) => (
+      <div 
+        className="therapist-scroll-container"
+        style={{
+          display: "flex",
+          height: "100%",
+          alignItems: "center",
+          transition: "all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          overflowX: isMobile ? "auto" : "hidden",
+          scrollSnapType: isMobile ? "x mandatory" : "none",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        {displayTherapists.map((therapist, index) => (
           <div
             key={`${therapist._id || index}-${currentSlide}`}
             style={{
-              flex: 1,
+              flex: isMobile ? "0 0 110px" : 1,
               height: "100%",
               position: "relative",
               overflow: "hidden",
               cursor: isMobile ? "default" : "pointer",
-              animation: `slideInFromDirection ${isMobile ? 0.6 : 0.8}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${index * (isMobile ? 0.1 : 0.15)}s both`,
+              scrollSnapAlign: "start",
+              animation: isMobile ? "none" : `slideInFromDirection ${isMobile ? 0.6 : 0.8}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${index * (isMobile ? 0.1 : 0.15)}s both`,
               "--slide-direction": index === 0 ? "left" : index === 1 ? "bottom" : "right"
             }}
           >
@@ -281,34 +287,90 @@ const BannerSlider = ({ isMobile }) => {
                   imageRendering: "auto",
                   opacity: imageLoadingStates[therapist._id] ? 1 : 0.7
                 }}
-                onMouseOver={isMobile ? undefined : (e) => {
-                  if (imageLoadingStates[therapist._id]) {
-                    e.target.style.transform = "scale(1.08) rotate(1deg)";
-                    e.target.style.filter = "brightness(1.1) contrast(1.1) saturate(1.2)";
-                    e.target.style.boxShadow = "0 8px 25px rgba(34, 135, 86, 0.3)";
-                    trackImageHover(therapist._id, therapist.user?.name || 'Unknown');
-                  }
-                }}
-                onMouseOut={isMobile ? undefined : (e) => {
-                  if (imageLoadingStates[therapist._id]) {
-                    e.target.style.transform = "scale(1) rotate(0deg)";
-                    e.target.style.filter = "brightness(1) contrast(1.05) saturate(1.1)";
-                    e.target.style.boxShadow = "none";
-                  }
-                }}
               />
+
+              {/* Verified Badge */}
+              <div style={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                zIndex: 5,
+                background: "rgba(255,255,255,0.9)",
+                borderRadius: "50%",
+                width: "20px",
+                height: "20px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                border: "1px solid #228756"
+              }}>
+                <CheckCircle style={{ color: "#228756", fontSize: "14px" }} />
+              </div>
+
+              {/* Glassmorphism Info Overlay */}
+              <div style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: "rgba(255, 255, 255, 0.15)",
+                backdropFilter: "blur(10px)",
+                padding: "8px 10px",
+                borderTop: "1px solid rgba(255, 255, 255, 0.3)",
+                zIndex: 5
+              }}>
+                <Typography style={{ 
+                  color: "white", 
+                  fontSize: isMobile ? "10px" : "12px", 
+                  fontWeight: 800,
+                  lineHeight: 1.2,
+                  textShadow: "0 1px 4px rgba(0,0,0,0.5)"
+                }}>
+                  {therapist.user?.name}
+                </Typography>
+                <Typography style={{ 
+                  color: "#4ade80", 
+                  fontSize: isMobile ? "8px" : "10px", 
+                  fontWeight: 600,
+                  textShadow: "0 1px 2px rgba(0,0,0,0.5)"
+                }}>
+                  {therapist.type || "Expert Therapist"}
+                </Typography>
+              </div>
             </div>
 
             {/* Subtle overlay gradient */}
-            <div style={{
+            <div className="hover-btn-overlay" style={{
               position: "absolute",
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              background: "linear-gradient(45deg, rgba(34, 135, 86, 0.1) 0%, transparent 70%)",
-              pointerEvents: "none"
-            }}></div>
+              background: "linear-gradient(to top, rgba(34, 135, 86, 0.4), transparent)",
+              opacity: 0,
+              transition: "opacity 0.3s ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 6
+            }}>
+               <Link 
+                to={`/view-profile/${therapist.user?._id}`}
+                style={{
+                  padding: "6px 12px",
+                  background: "#228756",
+                  color: "white",
+                  borderRadius: "20px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
+                }}
+              >
+                View Profile
+              </Link>
+            </div>
           </div>
         ))}
       </div>
@@ -361,6 +423,18 @@ const BannerSlider = ({ isMobile }) => {
         [style*="--slide-direction: left"] {
           --slide-direction-left: -50px;
           --slide-direction-bottom: 0;
+        }
+
+        .hover-btn-overlay:hover {
+          opacity: 1 !important;
+        }
+
+        .therapist-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+        .therapist-scroll-container {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
 
         [style*="--slide-direction: bottom"] {

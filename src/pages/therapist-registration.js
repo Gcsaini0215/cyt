@@ -1,5 +1,6 @@
 
 import MyNavbar from "../components/navbar";
+import RegistrationHeader from "../components/therapist/registration-header";
 import NewsLetter from "../components/home/newsletter";
 import Footer from "../components/footer";
 import { Dialog, DialogContent, DialogActions } from "@mui/material";
@@ -11,10 +12,11 @@ import { Link } from "react-router-dom";
 import { postData, postFormData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
 import FormProgressBar from "../components/global/form-progressbar";
-import { FaPhoneAlt } from "react-icons/fa";
+import { FaPhoneAlt, FaLaptop, FaMapMarkerAlt, FaGlobe } from "react-icons/fa";
 
 export default function TherapistRegistration() 
 {
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -30,6 +32,7 @@ export default function TherapistRegistration()
   const [open, setOpen] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [otp, setOtp] = useState("");
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -55,17 +58,30 @@ export default function TherapistRegistration()
     }));
   };
 
+  const nextStep = () => {
+    setError("");
+    if (step === 1) {
+      if (!formData.profileType) return setError("Please select profile type");
+      if (!formData.mode) return setError("Please select service mode");
+    } else if (step === 2) {
+      if (formData.name.length < 5) return setError("Please enter full name");
+      if (!validateEmail(formData.email)) return setError("Please enter valid email id");
+      if (formData.phone.length !== 10) return setError("Please enter valid phone number");
+    }
+    setStep(step + 1);
+  };
+
+  const prevStep = () => {
+    setError("");
+    setStep(step - 1);
+  };
+
   const handleSubmit = async () => {
     const { name, phone, email, profileType, mode, checkedValues, selectedFile } = formData;
 
     setError("");
     setSuccess("");
 
-    if (!profileType) return setError("Please select profile type");
-    if (!mode) return setError("Please select service mode");
-    if (name.length < 5) return setError("Please enter full name");
-    if (!validateEmail(email)) return setError("Please enter valid email id");
-    if (phone.length !== 10) return setError("Please enter valid phone number");
     if (!checkedValues.length)
       return setError("Please check any 'Interested to serve'");
     if (!selectedFile) return setError("Please upload your resume");
@@ -83,16 +99,8 @@ export default function TherapistRegistration()
     try {
       const response = await postFormData(threapistRegistrationUrl, data);
       if (response.status) {
+        setRegisteredEmail(email);
         setOpen(true);
-        setFormData({
-          name: "",
-          phone: "",
-          email: "",
-          profileType: "",
-          mode: "",
-          checkedValues: [],
-          selectedFile: null,
-        });
         setError("");
       } else {
         setError("Something went wrong");
@@ -112,329 +120,325 @@ export default function TherapistRegistration()
 
     try {
       setLoading(true);
-      const response = await postData(verifyOtpUrl, { email: formData.email, otp });
+      const response = await postData(verifyOtpUrl, { email: registeredEmail, otp });
       if (response.status) {
         setOtp("");
         setOpen(false);
+        setFormData({
+          name: "",
+          phone: "",
+          email: "",
+          profileType: "",
+          mode: "",
+          checkedValues: [],
+          selectedFile: null,
+        });
+        setStep(1);
         setSuccess(
-          "Thank you for submitting your resume. Our admin will review your profile soon. You will receive approval via email."
+          response.message || "Thank you for submitting your resume. Our admin will review your profile soon. You will receive approval via email."
         );
       } else {
-        setOtpError(response.message);
+        setOtpError(response.message || "Invalid OTP");
       }
     } catch (err) {
-      setOtpError(err.response?.data?.message || "OTP verification failed");
+      setOtpError(err.response?.data?.message || "OTP verification failed. Please try again.");
     }
     setLoading(false);
   };
 
-  const joinSteps = [
-    { icon: "📄", title: "Submit Resume", desc: "Send us your credentials for verification." },
-    { icon: "✅", title: "Receive Approval", desc: "Within 7 days, get confirmation email for eligibility." },
-    { icon: "💳", title: "Activate Profile", desc: "Complete verification to activate your therapist profile." },
-    { icon: "🌐", title: "Connect Independently", desc: "Manage visibility and connect with clients freely." },
+  const stats = [
+    { label: "Verified Therapists", value: "500+", color: "#e1f5e3", textColor: "#166534" },
+    { label: "Monthly Reach", value: "10k+", color: "#e0f2fe", textColor: "#0369a1" },
+    { label: "Commission", value: "0%", color: "#fef3c7", textColor: "#92400e" },
   ];
 
-  const premiumFeatures = [
-    { icon: "🏅", title: "Verified Badge", desc: "Stand out with a verified professional badge." },
-    { icon: "💎", title: "Featured Listings", desc: "Get featured for faster client acquisition." },
-    { icon: "📊", title: "Analytics Dashboard", desc: "Track profile views and client interest." },
-    { icon: "🗂", title: "Client Management", desc: "Manage appointments, payments, and feedback easily." },
-    { icon: "📣", title: "Marketing Support", desc: "Optional promotion to a wider audience." },
+  const profileOptions = [
+    "Counselling Psychologist",
+    "Psychiatrist",
+    "Clinical Psychologist",
+    "Special Educator"
+  ];
+
+  const modeOptions = [
+    { label: "Virtual", value: 1, icon: <FaLaptop /> },
+    { label: "In-Person", value: 2, icon: <FaMapMarkerAlt /> },
+    { label: "Both", value: 3, icon: <FaGlobe /> }
   ];
 
   return (
     <>
-      {/* Remove blue focus outline */}
       <style>{`
         input:focus, select:focus, textarea:focus, button:focus {
           outline: none !important;
           box-shadow: none !important;
         }
+        .stat-card {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          padding: 15px;
+          border-radius: 12px;
+          text-align: center;
+          flex: 1;
+        }
+        .selection-card {
+          border: 2px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 15px 10px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: center;
+          background: #fff;
+          height: 100%;
+          min-height: 70px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .selection-card:hover {
+          border-color: #22bb33;
+          background: rgba(34, 187, 51, 0.02);
+        }
+        .selection-card.selected {
+          border-color: #22bb33;
+          background: rgba(34, 187, 51, 0.05);
+          box-shadow: 0 4px 12px rgba(34, 187, 51, 0.1);
+        }
+        .form-control-custom {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          padding: 12px 15px;
+          width: 100%;
+          font-size: 14px;
+          transition: all 0.3s ease;
+        }
+        .form-control-custom:focus {
+          border-color: #22bb33;
+          box-shadow: 0 0 0 3px rgba(34, 187, 51, 0.1) !important;
+        }
       `}</style>
 
       <MyNavbar />
+      <RegistrationHeader />
 
       <div
         style={{
-          background: "linear-gradient(135deg, #e6f5ea 0%, #ffffff 60%, #d9f0e6 100%)",
-          padding: isMobile ? "60px 15px" : "100px 0",
+          background: "#ffffff",
+          padding: isMobile ? "40px 15px" : "80px 0",
         }}
       >
         <div className="container">
           <div className="row align-items-start g-5">
             {/* Left Section */}
             <div className="col-lg-7">
-              <h1
-                style={{
-                  fontWeight: 900,
-                  fontSize: isMobile ? "35px" : "60px",
-                  color: "#000",
-                  lineHeight: 1.2,
-                }}
-              >
-                Join{" "}
-                <span
-                  style={{
-                    background: "linear-gradient(90deg, #020802ff, #000000ff)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  India’s Verified Therapist Network
+              <div className="mb-5">
+                <span style={{ 
+                  background: '#e1f5e3', 
+                  color: '#166534', 
+                  padding: '6px 16px', 
+                  borderRadius: '50px', 
+                  fontSize: '14px', 
+                  fontWeight: '600' 
+                }}>
+                  Empowering 500+ Professionals
                 </span>
-              </h1>
-
-              <p style={{ fontSize: 18, color: "#000", maxWidth: 550 }}>
-                Create your verified therapist profile today and make it easier for clients to find and trust your services.
-              </p>
-
-              <div
-                style={{
-                  marginTop: 20,
-                  display: "inline-block",
-                  padding: "8px 16px",
-                  background: "#e1f5e3",
-                  color: "#000",
-                  borderRadius: 25,
-                  fontSize: 16,
-                }}
-              >
-                Join a growing community empowering lives every day.
+                <h2 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
+                  Join as a Therapist and Build Client Trust with Your Professional Profile
+                </h2>
+                <p className="text-muted" style={{ fontSize: '18px' }}>
+                  Register as a verified psychologist or therapist and create a trusted profile to connect with clients across India. Offer online or in-person sessions, manage appointments easily, and grow your practice on a secure, commission-free platform.
+                </p>
               </div>
 
-              <div style={{ marginTop: 40 }}>
-                {joinSteps.map((step, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: "flex",
-                      gap: 15,
-                      background: "#ffffff",
-                      padding: "15px 20px",
-                      borderRadius: 12,
-                      boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-                      marginBottom: 15,
-                    }}
-                  >
-                    <div style={{ fontSize: 28 }}>{step.icon}</div>
-                    <div>
-                      <strong style={{ color: "#22bb33" }}>{step.title}</strong>
-                      <p style={{ margin: 2, fontSize: 14, color: "#555" }}>{step.desc}</p>
-                    </div>
+              {/* Stats Grid */}
+              <div className="d-flex gap-3 mb-5">
+                {stats.map((stat, idx) => (
+                  <div key={idx} className="stat-card" style={{ background: stat.color, border: 'none' }}>
+                    <h3 style={{ margin: 0, color: stat.textColor, fontWeight: 800 }}>{stat.value}</h3>
+                    <p style={{ margin: 0, fontSize: '12px', color: stat.textColor, fontWeight: 600, opacity: 0.8 }}>{stat.label}</p>
                   </div>
                 ))}
-              </div>
-
-              <div style={{ marginTop: 30 }}>
-                <h5 style={{ fontWeight: 600, marginBottom: 15 }}>Premium Features:</h5>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
-                    flexWrap: isMobile ? "unset" : "wrap",
-                    gap: 15,
-                  }}
-                >
-                  {premiumFeatures.map((item, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        flex: isMobile ? "unset" : "1 1 45%",
-                        display: "flex",
-                        gap: 10,
-                        background: "#fff",
-                        padding: 15,
-                        borderRadius: 12,
-                        boxShadow: "0 5px 15px rgba(0,0,0,0.05)",
-                      }}
-                    >
-                      <div style={{ fontSize: 28 }}>{item.icon}</div>
-                      <div>
-                        <strong>{item.title}</strong>
-                        <p style={{ fontSize: 14, margin: 0, color: "#555" }}>{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginTop: 20 }}>
-                <Link
-                  to="/view-all-therapist"
-                  style={{
-                    display: "inline-block",
-                    padding: "10px 20px",
-                    background: "#22bb33",
-                    color: "#fff",
-                    borderRadius: 10,
-                    fontWeight: 600,
-                    textDecoration: "none",
-                  }}
-                >
-                  Check Therapist Directory
-                </Link>
               </div>
             </div>
 
             {/* Right Section - Form */}
             <div className="col-lg-5">
               <div className="rbt-contact-form p-5 rounded shadow bg-white">
-                <h4 className="title mb-3">Tell Us About You!</h4>
-                <p style={{ color: "#d50000" }}>{error}</p>
-
-                <div className="form-group mb-3">
-                  <select
-                    value={formData.profileType}
-                    onChange={(e) => setFormData((p) => ({ ...p, profileType: e.target.value }))}
-                    className="form-control"
-                  >
-                    <option value="">Select profile type</option>
-                    <option value="Counselling Psychologist">Counselling Psychologist</option>
-                    <option value="Psychiatrist">Psychiatrist</option>
-                   
-                    
-                    <option value="Clinical Psychologist">Clinical Psychologist</option>
-                    <option value="Rehabilitation Psychologist">Rehabilitation Psychologist</option>
-                    <option value="Special Educator">Special Educator</option>
-                    
-                  </select>
+                <div className="mb-4">
+                  <h4 className="title mb-1">Therapist Registration</h4>
+                  <p className="text-muted small mb-0">Step {step} of 3</p>
+                  
+                  {/* Progress Bar */}
+                  <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '10px', marginTop: '10px' }}>
+                    <div style={{ 
+                      height: '100%', 
+                      width: `${(step / 3) * 100}%`, 
+                      background: '#22bb33', 
+                      borderRadius: '10px',
+                      transition: 'width 0.3s ease'
+                    }}></div>
+                  </div>
                 </div>
 
-                <div className="form-group mb-3">
-                  <select
-                    value={formData.mode}
-                    onChange={(e) => setFormData((p) => ({ ...p, mode: e.target.value }))}
-                    className="form-control"
-                  >
-                    <option value="">Service Mode</option>
-                    <option value={1}>Virtual</option>
-                    <option value={2}>In-Person</option>
-                    <option value={3}>Virtual & In-Person</option>
-                  </select>
-                </div>
+                <p style={{ color: "#d50000", fontSize: '14px' }}>{error}</p>
 
-                <div className="form-group mb-3">
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={formData.name}
-                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                    className="form-control"
-                  />
-                </div>
+                {step === 1 && (
+                  <div className="step-1">
+                    <h6 className="mb-3">Select Profile Type</h6>
+                    <div className="row g-2 mb-4">
+                      {profileOptions.map((opt) => (
+                        <div key={opt} className="col-md-6 col-12">
+                          <div 
+                            className={`selection-card ${formData.profileType === opt ? 'selected' : ''}`}
+                            onClick={() => setFormData(p => ({ ...p, profileType: opt }))}
+                          >
+                            <span style={{ fontSize: '13px', fontWeight: 600, lineHeight: '1.2' }}>{opt}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-                <div className="form-group mb-3">
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                    className="form-control"
-                  />
-                </div>
+                    <h6 className="mb-3">Select Service Mode</h6>
+                    <div className="row g-2 mb-4">
+                      {modeOptions.map((opt) => (
+                        <div key={opt.value} className="col-md-4 col-4">
+                          <div 
+                            className={`selection-card ${formData.mode == opt.value ? 'selected' : ''}`}
+                            onClick={() => setFormData(p => ({ ...p, mode: opt.value }))}
+                          >
+                            <div style={{ color: formData.mode == opt.value ? '#22bb33' : '#64748b', fontSize: '20px' }}>{opt.icon}</div>
+                            <span style={{ fontSize: '12px', fontWeight: 600 }}>{opt.label}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                <div className="form-group mb-3">
-                  <input
-                    type="text"
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-                    className="form-control"
-                  />
-                </div>
-
-                <div className="form-group mb-3">
-                  <span>Interested to serve:</span>
-                  {[
-                    "Prescribe Medication(Only for Psychiatrist)",
-                    "Individual counselling",
-                    "Couple counselling",
-                    "Teen counselling",
-                    "Workshops/Events conducting",
-                    "Internship/Training",
-                  ].map((val, i) => (
-                    <p key={i} className="rbt-checkbox-wrapper mb-1">
+                {step === 2 && (
+                  <div className="step-2">
+                    <h6 className="mb-3">Personal Information</h6>
+                    <div className="form-group mb-3">
                       <input
-                        type="checkbox"
-                        value={val}
-                        onChange={handleCheckboxChange}
-                        checked={formData.checkedValues.includes(val)}
+                        type="text"
+                        placeholder="Full Name"
+                        value={formData.name}
+                        onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                        className="form-control-custom"
                       />
-                      <label>{val}</label>
-                    </p>
-                  ))}
-                </div>
+                    </div>
 
-                <div className="form-group mb-3">
-                  <span>Resume</span>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    className="resume-upload"
-                    onChange={handleFileChange}
-                  />
-                </div>
+                    <div className="form-group mb-3">
+                      <input
+                        type="email"
+                        placeholder="Email Address"
+                        value={formData.email}
+                        onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
+                        className="form-control-custom"
+                      />
+                    </div>
 
-                <div className="form-submit-group mb-3">
+                    <div className="form-group mb-4">
+                      <input
+                        type="text"
+                        placeholder="Phone Number"
+                        value={formData.phone}
+                        onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
+                        className="form-control-custom"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="step-3">
+                    <h6 className="mb-3">Expertise & Resume</h6>
+                    <div className="form-group mb-3">
+                      <span className="small mb-2 d-block">Interested to serve:</span>
+                      <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '10px', border: '1px solid #eee', borderRadius: '8px' }}>
+                        {[
+                          "Prescribe Medication(Only for Psychiatrist)",
+                          "Individual counselling",
+                          "Couple counselling",
+                          "Teen counselling",
+                          "Workshops/Events conducting",
+                          "Internship/Training",
+                        ].map((val, i) => (
+                          <p key={i} className="rbt-checkbox-wrapper mb-2" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <input
+                              type="checkbox"
+                              value={val}
+                              onChange={handleCheckboxChange}
+                              checked={formData.checkedValues.includes(val)}
+                              id={`check-${i}`}
+                            />
+                            <label htmlFor={`check-${i}`} style={{ fontSize: '13px', margin: 0 }}>{val}</label>
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="form-group mb-4">
+                      <span className="small mb-1 d-block">Resume (PDF)</span>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="form-control-custom"
+                        style={{ padding: '8px' }}
+                        onChange={handleFileChange}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="form-submit-group mt-4">
                   <p style={{ color: "#22bb33" }}>{success}</p>
-                  {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center" }}>
-                      <CircularProgress />
-                    </Box>
-                  ) : (
-                    <button
-                      onClick={handleSubmit}
-                      className="rbt-btn btn-gradient radius-round w-100"
-                    >
-                      Submit
-                    </button>
-                  )}
+                  
+                  <div className="d-flex gap-2">
+                    {step > 1 && (
+                      <button
+                        onClick={prevStep}
+                        className="rbt-btn btn-border radius-round w-100"
+                        style={{ background: 'transparent', border: '1px solid #ccc', color: '#666', minHeight: '50px' }}
+                      >
+                        Back
+                      </button>
+                    )}
+                    
+                    {step < 3 ? (
+                      <button
+                        onClick={nextStep}
+                        className="rbt-btn btn-gradient radius-round w-100"
+                        style={{ minHeight: '50px' }}
+                      >
+                        Continue
+                      </button>
+                    ) : (
+                      <>
+                        {loading ? (
+                          <Box sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
+                            <CircularProgress size={24} />
+                          </Box>
+                        ) : (
+                          <button
+                            onClick={handleSubmit}
+                            className="rbt-btn btn-gradient radius-round w-100"
+                            style={{ minHeight: '50px' }}
+                          >
+                            Complete Registration
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
 
-                <div className="rbt-lost-password text-end mt-2">
-                  <Link className="rbt-btn-link" to="/login">
-                    Already have an account? Login
+                <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
+                  <Link to="/login" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
+                    Already have an account? <span style={{ color: '#22bb33' }}>Login here</span>
                   </Link>
-                </div>
-
-                {/* Call to Action */}
-                <div
-                  style={{
-                    marginTop: 30,
-                    padding: 20,
-                    borderRadius: 12,
-                    background: "linear-gradient(135deg, #22bb33 0%, #a1e887 100%)",
-                    color: "#fff",
-                    textAlign: "center",
-                    boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 10,
-                  }}
-                >
-                  <FaPhoneAlt size={28} />
-                  <h5 style={{ fontWeight: 600, marginBottom: 5 }}>
-                    Have Questions or Need Help?
-                  </h5>
-                  <p style={{ marginBottom: 10 }}>
-                    Call us now for registration or query support.
-                  </p>
-                  <a
-                    href="tel:+918077757951"
-                    style={{
-                      display: "inline-block",
-                      padding: "10px 20px",
-                      background: "#fff",
-                      color: "#22bb33",
-                      fontWeight: 600,
-                      borderRadius: 10,
-                      textDecoration: "none",
-                    }}
-                  >
-                    +91 80777 57951
-                  </a>
                 </div>
               </div>
             </div>
@@ -442,32 +446,31 @@ export default function TherapistRegistration()
         </div>
       </div>
 
-      {/* OTP Dialog */}
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <div style={{ padding: 16 }}>
-          <h5>Enter OTP</h5>
-          <FormMessage success={success} error={otpError} />
-          <DialogContent dividers>
-            <div className="col-md-6 col-12 mb-3">
-              <label htmlFor="otp">OTP*</label>
-              <input
-                type="text"
-                placeholder="OTP"
-                value={otp}
-                onChange={(e) => handleOtpChange(e.target.value)}
-              />
-            </div>
-          </DialogContent>
-          <DialogActions>
-            {loading ? (
-              <FormProgressBar />
-            ) : (
-              <button className="rbt-btn btn-gradient w-100" onClick={verifyOtp}>
-                Submit OTP
-              </button>
-            )}
-          </DialogActions>
-        </div>
+      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+        <DialogContent className="p-5 text-center">
+          <h3 style={{ fontWeight: 800, color: "#22bb33" }}>Verify Your Email</h3>
+          <p className="mb-4">We've sent a 6-digit OTP to your email address. Please enter it below to complete your registration.</p>
+          
+          <div className="form-group mb-4">
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => handleOtpChange(e.target.value)}
+              className="form-control text-center"
+              style={{ fontSize: 24, letterSpacing: 8, fontWeight: 700 }}
+            />
+            <p className="text-danger mt-2">{otpError}</p>
+          </div>
+
+          <button
+            disabled={loading}
+            onClick={verifyOtp}
+            className="rbt-btn btn-gradient radius-round w-100"
+          >
+            {loading ? <CircularProgress size={20} /> : "Verify & Submit"}
+          </button>
+        </DialogContent>
       </Dialog>
 
       <NewsLetter />
