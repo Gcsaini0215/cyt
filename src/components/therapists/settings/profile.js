@@ -25,6 +25,10 @@ export default function Profile() {
   const [success, setSuccess] = useState(false);
 
   const handleLanguageSelect = (selectedOptions) => {
+    if (!selectedOptions) {
+      setInfo("language_spoken", []);
+      return;
+    }
     if (selectedOptions.length > 2) {
       selectedOptions = selectedOptions.slice(0, 2);
     }
@@ -255,7 +259,6 @@ export default function Profile() {
               Language(Select any 2)
             </label>
             <Select
-              defaultValue={[languageSpoken[1]]}
               isMulti
               value={therapistInfo.language_spoken}
               onChange={handleLanguageSelect}
@@ -311,7 +314,7 @@ export default function Profile() {
               id="phonenumber"
               type="tel"
               value={therapistInfo.user.phone}
-              onChange={(e) => setInfo("phone", e.target.value)}
+              onChange={(e) => setInfo("user.phone", e.target.value)}
             />
           </div>
         </div>

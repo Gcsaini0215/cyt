@@ -15,17 +15,15 @@ export default function ProfileSettings() {
     cursor: "pointer",
   };
 
-  const isEmpty = () => {
-    return Object.values(therapistInfo).every(
-      (value) => value === "" || (Array.isArray(value) && value.length === 0)
-    );
-  };
+  const isEmpty = React.useCallback(() => {
+    return !therapistInfo?.user?.email;
+  }, [therapistInfo]);
 
   React.useEffect(() => {
-    if (isEmpty) {
+    if (isEmpty()) {
       fetchTherapistInfo();
     }
-  }, [isEmpty, fetchTherapistInfo]);
+  }, [fetchTherapistInfo, isEmpty]);
 
   return (
     <MainLayout>
