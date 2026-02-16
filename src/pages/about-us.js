@@ -15,7 +15,7 @@ export default function AboutUs() {
       <MyNavbar />
       <AboutUsBanner />
       <AboutCyt />
-      <TeamBanner/>
+      
  
   
       <CallToActionAbout />
