@@ -86,18 +86,19 @@ export default function App() {
                       <Link to="#">Services <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
                         <li><Link to="/therapy-booking">Therapy Booking</Link></li>
-                        <li><Link to="/mind-matters">Mind Matters Programs</Link></li>
+                        
                         <li><Link to="/plans">Therapy Plan</Link></li>
                       </ul>
                     </li>
                     <li className="has-dropdown">
                       <Link to="#">About <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
-                        <li><Link to="/about-us">About us</Link></li>
+                        <li><Link to="/about-us">Our Story</Link></li>
                         <li><Link to="/contact-us">Contact us</Link></li>
+                         <li><Link to="/faqs">Faqs</Link></li>
                       </ul>
                     </li>
-                    <li><Link to="/faqs">Faqs</Link></li>
+                    <li><Link to="#">Articles</Link></li>
                   </ul>
                 </nav>
               </div>
