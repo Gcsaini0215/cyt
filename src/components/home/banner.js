@@ -305,7 +305,7 @@ export default function Banner() {
                     }}
                   >
                     <Box component="span" sx={{ display: isMobile ? "block" : "inline" }}>
-                      Find a <span style={{ 
+                      Find <span style={{ 
                         backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
                         WebkitBackgroundClip: "text", 
                         backgroundClip: "text",
@@ -313,7 +313,7 @@ export default function Banner() {
                         color: "transparent",
                         display: "inline-block",
                         animation: "handDrawnWobble 0.5s ease-in-out infinite alternate"
-                      }}>Therapist</span>
+                      }}>Best Therapist</span>
                     </Box>
                     {isMobile ? "" : " "}
                     <Box component="span" sx={{ display: isMobile ? "block" : "inline" }}>
@@ -511,6 +511,7 @@ export default function Banner() {
                 <Box sx={{ position: "relative" }}>
                   <Avatar 
                     src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
+                    alt={therapist.user?.name || "Therapist"}
                     sx={{ 
                       width: isMobile ? 70 : 80, 
                       height: isMobile ? 70 : 80, 
@@ -663,6 +664,7 @@ export default function Banner() {
           
           <Avatar 
             src={`${imagePath}/${selectedTherapist?.user?.profile || 'default-profile.png'}`}
+            alt={selectedTherapist?.user?.name || "Therapist"}
             sx={{ 
               width: 120, 
               height: 120, 

@@ -16,7 +16,7 @@ export default function UpcomingAppointment({ data }) {
             <div className="upcoming-patient-info">
               <div className="info-details">
                 <span className="img-avatar">
-                  <img src={appointment.imgSrc || defaultProfile} alt="Img" />
+                  <img src={appointment.imgSrc || defaultProfile} alt={appointment.name || "Patient Avatar"} />
                 </span>
                 <div className="name-info">
                   <span>#{appointment.id}</span>

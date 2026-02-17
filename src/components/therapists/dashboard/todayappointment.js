@@ -21,7 +21,7 @@ export default function TodayAppointment({ data }) {
                   <a href="appointments.html" className="table-avatar1">
                     <img
                       src={appointment.imgSrc || defaultProfile}
-                      alt="avatar"
+                      alt={appointment.name || "Patient Avatar"}
                     />
                   </a>
                   <div className="patient-name-info">
