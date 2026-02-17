@@ -50,7 +50,7 @@ export default function Password() {
           setError("Something went wrong");
         }
       } catch (error) {
-        setError(error.response.data.message);
+        setError(error?.response?.data?.message || "Something went wrong");
       }
       setLoading(false);
     }

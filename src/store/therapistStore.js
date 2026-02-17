@@ -155,6 +155,8 @@ const useTherapistStore = create((set) => ({
           }))
           : [];
 
+        fetchedData.fees = Array.isArray(fetchedData.fees) ? fetchedData.fees : [];
+
         set((state) => ({
           therapistInfo: { ...state.therapistInfo, ...fetchedData },
         }));
