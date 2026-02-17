@@ -69,7 +69,7 @@ const Specializations = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .spec-card {
           display: block;
           text-decoration: none;

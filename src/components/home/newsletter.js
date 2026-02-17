@@ -31,7 +31,7 @@ export default function NewsLetter() {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState();
+  const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const duration = 50;

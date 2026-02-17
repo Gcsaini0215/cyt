@@ -140,7 +140,7 @@ export default function State() {
       </div>
 
       {/* Premium CSS */}
-      <style jsx>{`
+      <style>{`
         .state-section {
           padding: 50px 20px;
           background: #f9f9f9;

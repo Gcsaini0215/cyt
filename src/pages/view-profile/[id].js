@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Head from "next/head";
+import { Helmet } from "react-helmet-async";
 import ProfileHeader from "../../components/view_profile/header";
 import ProfileInfoTab from "../../components/view_profile/profile-info-tab";
 import Footer from "../../components/footer";
@@ -74,7 +74,7 @@ export default function ViewProfile() {
     <PageProgressBar />
   ) : (
     <div id="__next">
-      <Head>
+      <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
         
@@ -95,7 +95,7 @@ export default function ViewProfile() {
 
         {/* Canonical */}
         <link rel="canonical" href={currentUrl} />
-      </Head>
+      </Helmet>
       <MyNavbar />
       <ProfileHeader pageData={profile} favrioutes={favrioutes} />
       <ProfileInfoTab pageData={profile} />

@@ -646,7 +646,7 @@ export default function App() {
       )}
 
       {/* CSS */}
-      <style jsx>{`
+      <style>{`
         .top-strip {
           width: 100%;
           position: sticky;

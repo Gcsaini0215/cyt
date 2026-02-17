@@ -1,4 +1,4 @@
-import Head from "next/head"; // SEO ke liye
+import { Helmet } from "react-helmet-async"; // SEO ke liye
 import Footer from "../components/footer";
 import Banner from "../components/home/banner";
 import Specializations from "../components/home/specializations";
@@ -21,7 +21,7 @@ export default function HomePage() {
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       {/* Comprehensive SEO Meta Tags */}
-      <Head>
+      <Helmet>
         {/* Basic Meta Tags */}
         <title>Best Psychologist in India | Online & In-Person Therapy | Choose Your Therapist</title>
         <meta name="description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals for anxiety, stress, relationships, and emotional well-being." />
@@ -95,7 +95,7 @@ export default function HomePage() {
             "priceRange": "₹500-₹2000"
           })}
         </script>
-      </Head>
+      </Helmet>
 
       <main className="">
         {/* Navbar */}

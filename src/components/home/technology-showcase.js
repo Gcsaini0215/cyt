@@ -259,7 +259,7 @@ export default function TechnologyShowcase() {
       </div>
 
       {/* Custom CSS */}
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .rbt-technology-showcase-area {
             padding: 50px 0 !important;

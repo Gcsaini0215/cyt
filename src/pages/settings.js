@@ -225,7 +225,7 @@ export default function ProfileSettings() {
         </DialogContent>
       </Dialog>
 
-      <style jsx>{`
+      <style>{`
         .settings-sticky-bar-container {
           position: fixed;
           bottom: 20px;

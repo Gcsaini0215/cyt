@@ -1,0 +1,52 @@
+
+> cyt@0.2.0 start
+> react-scripts start
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+(node:16256) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:16256) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled with warnings.
+
+Failed to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\amp-context.shared-runtime.ts' file: Error: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\amp-context.shared-runtime.ts'
+
+Failed to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\amp-mode.ts' file: Error: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\amp-mode.ts'
+
+Failed to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\head-manager-context.shared-runtime.ts' file: Error: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\head-manager-context.shared-runtime.ts'
+
+Failed to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\head.tsx' file: Error: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\head.tsx'
+
+Failed to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\side-effect.tsx' file: Error: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\side-effect.tsx'
+
+Failed to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\utils\warn-once.ts' file: Error: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\utils\warn-once.ts'
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/next/dist/shared/lib/amp-context.shared-runtime.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\amp-context.shared-runtime.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\amp-context.shared-runtime.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/next/dist/shared/lib/amp-mode.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\amp-mode.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\amp-mode.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/next/dist/shared/lib/head-manager-context.shared-runtime.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\head-manager-context.shared-runtime.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\head-manager-context.shared-runtime.ts'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/next/dist/shared/lib/head.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\head.tsx' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\head.tsx'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/next/dist/shared/lib/side-effect.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\side-effect.tsx' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\side-effect.tsx'[39m[22m
+
+[1m[33mWARNING[39m[22m in [1m./node_modules/next/dist/shared/lib/utils/warn-once.js[39m[22m
+[1mModule Warning (from ./node_modules/source-map-loader/dist/cjs.js):
+[1m[31mFailed[39m[22m[1m to parse source map from 'e:\Therapist\node_modules\next\src\shared\lib\utils\warn-once.ts' file: [1m[31mError[39m[22m[1m: ENOENT: no such file or directory, open 'e:\Therapist\node_modules\next\src\shared\lib\utils\warn-once.ts'[39m[22m
+
+webpack compiled with [1m[33m6 warnings[39m[22m
