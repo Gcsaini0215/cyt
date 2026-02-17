@@ -293,8 +293,8 @@ export default function Banner() {
                     <h1
                     className="title"
                     style={{
-                      fontSize: isMobile ? "2.6rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "3.2rem" : isTablet ? "3.8rem" : "5.5rem",
+                      fontSize: isMobile ? "3.2rem" : isTablet ? "3.2rem" : "4.8rem",
+                      lineHeight: isMobile ? "3.8rem" : isTablet ? "3.8rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
                       fontWeight: 900,
@@ -338,7 +338,7 @@ export default function Banner() {
                     mb: isMobile ? 1.5 : 2,
                     px: isMobile ? 1 : 0,
                     fontWeight: 500,
-                    textAlign: isMobile ? "justify" : "center",
+                    textAlign: "center",
                     display: "block"
                   }}>
                     Find a qualified psychologist anywhere in India for online or in-person therapy. 
