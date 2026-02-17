@@ -324,7 +324,7 @@ export default function Banner() {
                         WebkitTextFillColor: "transparent",
                         color: "transparent",
                         display: "inline-block"
-                      }}>India</span>.
+                      }}>India</span>
                     </Box>
                   </h1>
 
