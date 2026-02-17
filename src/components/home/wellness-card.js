@@ -2,38 +2,71 @@ import { Link } from "react-router-dom";
 import ImageTag from "../../utils/image-tag";
 import { truncateString } from "../../utils/helpers";
 import { imagePath } from "../../utils/url";
-import { FaCalendarAlt, FaHeart, FaTag } from "react-icons/fa";
+import { FaCalendarAlt, FaTag, FaArrowRight } from "react-icons/fa";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function WellnessCard({ data }) {
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   return (
     <div
       style={{
         display: "flex",
-        justifyContent: "center", // centers the card horizontally
-        padding: 16,
+        justifyContent: "center",
+        padding: "16px 8px",
       }}
     >
       <div
         style={{
-          borderRadius: 16,
+          borderRadius: 24,
           overflow: "hidden",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
-          transition: "transform 0.3s, box-shadow 0.3s",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
           background: "#fff",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: isMobile ? "column" : "row",
           cursor: "pointer",
-          maxWidth: 300,
-          width: "100%", // responsive width for mobile
+          maxWidth: isMobile ? 320 : 650,
+          width: "100%",
+          border: "1px solid #e2e8f0",
+          position: "relative",
         }}
         className="wellness-card"
       >
-        {/* Image */}
-        <Link to={`/workshop-detail/${data._id}`} style={{ display: "block" }}>
+        {/* Badge */}
+        <div style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          zIndex: 10,
+          background: "#228756",
+          padding: "6px 14px",
+          borderRadius: 100,
+          fontSize: 11,
+          fontWeight: 700,
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          boxShadow: "0 4px 12px rgba(34, 135, 86, 0.3)"
+        }}>
+          <FaTag size={10} /> {data.category}
+        </div>
+
+        {/* Image Section - Horizontal Fit */}
+        <Link 
+          to={`/workshop-detail/${data._id}`} 
+          style={{ 
+            display: "block", 
+            position: "relative",
+            width: isMobile ? "100%" : "240px",
+            flexShrink: 0
+          }}
+        >
           <div
             style={{
-              padding: 12, // 👈 gives breathing space
-              borderRadius: 16,
+              padding: 0,
+              height: "100%",
               overflow: "hidden",
             }}
           >
@@ -41,126 +74,116 @@ export default function WellnessCard({ data }) {
               alt={truncateString(data.title, 20)}
               loading="lazy"
               style={{
-                height: 200,
+                height: isMobile ? 220 : "100%",
                 width: "100%",
                 objectFit: "cover",
-                transition: "transform 0.3s",
-                borderRadius: 12, // 👈 rounded image edges
+                transition: "transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1)",
               }}
               src={`${imagePath}/${data.workshop_image}`}
             />
           </div>
         </Link>
 
-        {/* Card Body */}
+        {/* Card Content */}
         <div
           style={{
-            padding: 16,
+            padding: isMobile ? "24px" : "24px 32px",
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            flexGrow: 1,
+            justifyContent: "center"
           }}
         >
-          {/* Price */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ fontWeight: 600, fontSize: 16, color: "#007f99" }}>
-              ₹{data.price}
-            </div>
-            <div
-              style={{
-                fontSize: 14,
-                color: "#888",
-                textDecoration: "line-through",
-              }}
-            >
-              ₹{data.mrp}
-            </div>
-          </div>
-
           {/* Title */}
           <h4
             style={{
-              margin: 0,
-              fontSize: 16,
-              fontWeight: 600,
-              color: "#333",
+              margin: "0 0 12px",
+              fontSize: 20,
+              fontWeight: 800,
+              color: "#1e293b",
+              lineHeight: 1.3,
             }}
           >
             <Link
               to={`/workshop-detail/${data._id}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              {truncateString(data.title, 60)}
+              {truncateString(data.title, 55)}
             </Link>
           </h4>
 
-          {/* Meta Info */}
-          <div
-            style={{
-              display: "flex",
-              gap: 12,
-              fontSize: 13,
-              color: "#555",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <FaTag color="#007f99" /> {data.category}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <FaHeart color="#ff4d4f" /> {data.level}
-            </div>
-          </div>
-
+          {/* Date & Time */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 6,
+              gap: 8,
               fontSize: 13,
-              color: "#555",
+              color: "#64748b",
+              marginBottom: 20,
+              borderLeft: "3px solid #228756",
+              paddingLeft: 12
             }}
           >
-            <FaCalendarAlt color="#28a745" /> {data.event_date} (
-            {data.event_time})
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontWeight: 700, color: "#1e293b" }}>{data.event_date}</span>
+              <span style={{ fontSize: 12 }}>{data.event_time}</span>
+            </div>
           </div>
 
-          {/* Check Now Button */}
-          <Link
-            to={`/workshop-detail/${data._id}`}
+          {/* Pricing & CTA Row */}
+          <div
             style={{
-              marginTop: 12,
-              padding: "10px 0",
-              background: "linear-gradient(135deg, #007f99, #00d2ff)",
-              color: "#fff",
-              borderRadius: 12,
-              textAlign: "center",
-              fontWeight: 600,
-              fontSize: 14,
-              textDecoration: "none",
-              transition: "all 0.3s",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              marginTop: "auto",
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "scale(1.05)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.transform = "scale(1)")
-            }
           >
-            Check Now
-          </Link>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>Investment</span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                <span style={{ fontWeight: 900, fontSize: 24, color: "#228756" }}>₹{data.price}</span>
+                <span style={{ fontSize: 14, color: "#cbd5e1", textDecoration: "line-through" }}>₹{data.mrp}</span>
+              </div>
+            </div>
+
+            <Link
+              to={`/workshop-detail/${data._id}`}
+              style={{
+                padding: "12px 28px",
+                background: "#228756",
+                color: "#fff",
+                borderRadius: "50px",
+                fontSize: "14px",
+                fontWeight: "700",
+                textDecoration: "none",
+                transition: "all 0.3s",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                boxShadow: "0 4px 12px rgba(34, 135, 86, 0.2)"
+              }}
+              className="cta-button"
+            >
+              Join Now <FaArrowRight size={12} />
+            </Link>
+          </div>
         </div>
 
-        {/* Hover Effect */}
         <style>
           {`
+            .wellness-card:hover {
+              transform: translateY(-10px);
+              box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important;
+              border-color: #228756;
+            }
             .wellness-card:hover img {
-              transform: scale(1.05);
+              transform: scale(1.1);
+            }
+            .wellness-card:hover .cta-arrow {
+              transform: scale(1.1) rotate(-45deg);
+              background: #1a6b44;
             }
           `}
         </style>

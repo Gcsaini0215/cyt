@@ -71,7 +71,7 @@ export default function FreeResources() {
               lineHeight: isMobile ? '3rem' : '1',
               maxWidth: '900px',
               margin: '0 auto 30px',
-              whiteSpace: isMobile ? 'nowrap' : 'normal'
+              whiteSpace: "normal"
             }}>
               Your Journey to <span style={{ 
                 backgroundImage: "linear-gradient(135deg, #228756 0%, #10b981 50%, #007f99 100%)", 
@@ -93,82 +93,92 @@ export default function FreeResources() {
           </div>
         </div>
 
-        <div className="row g-5">
+        <div className="row g-3 g-lg-5">
           {tools.map((tool, index) => (
-            <div key={index} className="col-lg-6">
+            <div key={index} className="col-6 col-lg-6">
               <div className="resource-card" style={{
                 background: '#ffffff',
-                padding: isMobile ? '30px' : '50px',
-                borderRadius: '32px',
+                padding: isMobile ? '15px' : '50px',
+                borderRadius: isMobile ? '20px' : '32px',
                 display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: isMobile ? 'flex-start' : 'center',
-                gap: '30px',
+                flexDirection: 'column',
+                alignItems: isMobile ? 'center' : 'center',
+                textAlign: isMobile ? 'center' : 'left',
+                gap: isMobile ? '15px' : '30px',
                 boxShadow: '0 10px 40px rgba(0,0,0,0.03)',
                 border: '1px solid rgba(0,0,0,0.05)',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 cursor: 'pointer',
-                position: 'relative'
+                position: 'relative',
+                height: '100%'
               }}>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '20px',
+                  width: isMobile ? '50px' : '80px',
+                  height: isMobile ? '50px' : '80px',
+                  borderRadius: isMobile ? '12px' : '20px',
                   background: `${tool.color}10`,
                   color: tool.color,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '36px',
+                  fontSize: isMobile ? '24px' : '36px',
                   flexShrink: 0
                 }}>
                   {tool.icon}
                 </div>
-                <div style={{ flexGrow: 1 }}>
-                  <span style={{ 
-                    fontSize: '0.8rem', 
-                    fontWeight: '700', 
-                    color: tool.color, 
-                    textTransform: 'uppercase',
-                    background: `${tool.color}15`,
-                    padding: '4px 12px',
-                    borderRadius: '50px',
-                    marginBottom: '10px',
-                    display: 'inline-block'
-                  }}>
-                    {tool.tag}
-                  </span>
+                <div style={{ flexGrow: 1, width: '100%' }}>
+                  {!isMobile && (
+                    <span style={{ 
+                      fontSize: '0.8rem', 
+                      fontWeight: '700', 
+                      color: tool.color, 
+                      textTransform: 'uppercase',
+                      background: `${tool.color}15`,
+                      padding: '4px 12px',
+                      borderRadius: '50px',
+                      marginBottom: '10px',
+                      display: 'inline-block'
+                    }}>
+                      {tool.tag}
+                    </span>
+                  )}
                   <h3 style={{ 
-                    fontSize: isMobile ? '1.8rem' : '2.4rem', 
+                    fontSize: isMobile ? '1.2rem' : '2.4rem', 
                     fontWeight: '800', 
                     color: '#1e293b',
-                    marginBottom: '10px'
+                    marginBottom: '5px'
                   }}>
                     {tool.title}
                   </h3>
                   <p style={{ 
-                    fontSize: isMobile ? '1.1rem' : '1.3rem', 
+                    fontSize: isMobile ? '0.9rem' : '1.3rem', 
                     color: '#64748b',
                     margin: 0,
-                    lineHeight: '1.5'
+                    lineHeight: '1.4',
+                    display: isMobile ? '-webkit-box' : 'block',
+                    WebkitLineClamp: isMobile ? 2 : 'none',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
                   }}>
                     {tool.desc}
                   </p>
                 </div>
-                <div className="arrow-icon" style={{
-                  width: '50px',
-                  height: '50px',
-                  borderRadius: '50%',
-                  border: '2px solid #e2e8f0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '20px',
-                  color: '#94a3b8',
-                  transition: 'all 0.3s ease'
-                }}>
-                  <FiArrowRight />
-                </div>
+                {!isMobile && (
+                  <div className="arrow-icon" style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    border: '2px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '20px',
+                    color: '#94a3b8',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <FiArrowRight />
+                  </div>
+                )}
               </div>
             </div>
           ))}

@@ -116,7 +116,7 @@ export default function ProfileCard() {
                 color: "#000000",
                 marginTop: '25px',
                 lineHeight: isMobile ? '3rem' : '1.1',
-                whiteSpace: isMobile ? 'nowrap' : 'normal'
+                whiteSpace: "normal"
               }}>
                 Find Your Perfect <span style={{ 
                   backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 

@@ -293,8 +293,8 @@ export default function Banner() {
                     <h1
                     className="title"
                     style={{
-                      fontSize: isMobile ? "3.2rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "3.8rem" : isTablet ? "3.8rem" : "5.5rem",
+                      fontSize: isMobile ? "2.6rem" : isTablet ? "3.2rem" : "4.8rem",
+                      lineHeight: isMobile ? "3.2rem" : isTablet ? "3.8rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
                       fontWeight: 900,
@@ -304,7 +304,7 @@ export default function Banner() {
                       padding: isMobile ? "0 5px" : "0"
                     }}
                   >
-                    <Box component="span" sx={{ display: isMobile ? "block" : "inline" }}>
+                    <Box component="span" sx={{ display: "inline" }}>
                       Find <span style={{ 
                         backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
                         WebkitBackgroundClip: "text", 
@@ -315,8 +315,8 @@ export default function Banner() {
                         animation: "handDrawnWobble 0.5s ease-in-out infinite alternate"
                       }}>Best Therapist</span>
                     </Box>
-                    {isMobile ? "" : " "}
-                    <Box component="span" sx={{ display: isMobile ? "block" : "inline" }}>
+                    {" "}
+                    <Box component="span" sx={{ display: "inline" }}>
                       Across <span style={{
                         backgroundImage: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", 
                         WebkitBackgroundClip: "text", 
@@ -338,7 +338,7 @@ export default function Banner() {
                     mb: isMobile ? 1.5 : 2,
                     px: isMobile ? 1 : 0,
                     fontWeight: 500,
-                    textAlign: "center",
+                    textAlign: isMobile ? "justify" : "center",
                     display: "block"
                   }}>
                     Find a qualified psychologist anywhere in India for online or in-person therapy. 

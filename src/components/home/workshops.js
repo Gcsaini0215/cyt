@@ -36,7 +36,10 @@ export default function HomeWorkshop({ isWhite = false }) {
 
   return (
     <div className={`rbt-course-area rbt-section-gap`} style={{
-      background: 'linear-gradient(180deg, #f0fdf4 0%, #ffffff 50%, #eefbff 100%)',
+      background: '#f0fdf4',
+      backgroundImage: `radial-gradient(#228756 0.5px, transparent 0.5px), radial-gradient(#228756 0.5px, #f0fdf4 0.5px)`,
+      backgroundSize: '20px 20px',
+      backgroundPosition: '0 0,10px 10px',
       position: 'relative',
       overflow: 'hidden',
       padding: '100px 0'
@@ -247,7 +250,7 @@ export default function HomeWorkshop({ isWhite = false }) {
             {data &&
               data.slice(0, 8).map((item) => {
                 return (
-                  <div className="col-lg-3 col-md-6 col-12" key={item._id}>
+                  <div className="col-lg-6 col-md-12 col-12" key={item._id}>
                     <WellNessCard data={item} />
                   </div>
                 );
