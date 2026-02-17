@@ -46,31 +46,31 @@ export default function FreeResources() {
   return (
     <div className="rbt-free-resources-area rbt-section-gap" style={{
       background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-      padding: '120px 0',
+      padding: isMobile ? '60px 0' : '100px 0',
       position: 'relative',
       overflow: 'hidden'
     }}>
       <div className="container">
-        <div className="row mb--60">
+        <div className="row mb--40">
           <div className="col-lg-12 text-center">
             <span className="subtitle" style={{ 
               color: '#228756', 
               fontWeight: '700', 
-              fontSize: '1.2rem', 
+              fontSize: '1rem', 
               textTransform: 'uppercase', 
               letterSpacing: '2px',
               display: 'block',
-              marginBottom: '20px'
+              marginBottom: '15px'
             }}>
               Complimentary Tools
             </span>
             <h2 className="title" style={{ 
-              fontSize: isMobile ? "2.5rem" : "5.5rem", 
+              fontSize: isMobile ? "2.5rem" : "4rem", 
               fontWeight: "900", 
               color: "#1e293b",
-              lineHeight: isMobile ? '3rem' : '1',
+              lineHeight: isMobile ? '3rem' : '1.1',
               maxWidth: '900px',
-              margin: '0 auto 30px',
+              margin: '0 auto 20px',
               whiteSpace: "normal"
             }}>
               Your Journey to <span style={{ 
@@ -82,7 +82,7 @@ export default function FreeResources() {
               }}>Healing</span> Starts for Free
             </h2>
             <p style={{ 
-              fontSize: isMobile ? '1.3rem' : '1.8rem', 
+              fontSize: isMobile ? '1.3rem' : '1.5rem', 
               color: '#64748b', 
               maxWidth: '800px', 
               margin: '0 auto',
@@ -93,18 +93,18 @@ export default function FreeResources() {
           </div>
         </div>
 
-        <div className="row g-3 g-lg-5">
+        <div className="row g-3 g-lg-4">
           {tools.map((tool, index) => (
-            <div key={index} className="col-6 col-lg-6">
+            <div key={index} className="col-6 col-lg-3">
               <div className="resource-card" style={{
                 background: '#ffffff',
-                padding: isMobile ? '15px' : '50px',
-                borderRadius: isMobile ? '20px' : '32px',
+                padding: isMobile ? '15px' : '30px',
+                borderRadius: isMobile ? '20px' : '24px',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: isMobile ? 'center' : 'center',
+                alignItems: isMobile ? 'center' : 'flex-start',
                 textAlign: isMobile ? 'center' : 'left',
-                gap: isMobile ? '15px' : '30px',
+                gap: isMobile ? '15px' : '20px',
                 boxShadow: '0 10px 40px rgba(0,0,0,0.03)',
                 border: '1px solid rgba(0,0,0,0.05)',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -113,15 +113,15 @@ export default function FreeResources() {
                 height: '100%'
               }}>
                 <div style={{
-                  width: isMobile ? '50px' : '80px',
-                  height: isMobile ? '50px' : '80px',
-                  borderRadius: isMobile ? '12px' : '20px',
+                  width: isMobile ? '50px' : '64px',
+                  height: isMobile ? '50px' : '64px',
+                  borderRadius: isMobile ? '12px' : '16px',
                   background: `${tool.color}10`,
                   color: tool.color,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: isMobile ? '24px' : '36px',
+                  fontSize: isMobile ? '24px' : '30px',
                   flexShrink: 0
                 }}>
                   {tool.icon}
@@ -143,7 +143,7 @@ export default function FreeResources() {
                     </span>
                   )}
                   <h3 style={{ 
-                    fontSize: isMobile ? '1.2rem' : '2.4rem', 
+                    fontSize: isMobile ? '1.2rem' : '1.8rem', 
                     fontWeight: '800', 
                     color: '#1e293b',
                     marginBottom: '5px'
@@ -151,7 +151,7 @@ export default function FreeResources() {
                     {tool.title}
                   </h3>
                   <p style={{ 
-                    fontSize: isMobile ? '0.9rem' : '1.3rem', 
+                    fontSize: isMobile ? '0.9rem' : '1.1rem', 
                     color: '#64748b',
                     margin: 0,
                     lineHeight: '1.4',
