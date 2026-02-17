@@ -7,10 +7,13 @@ import { TypeAnimation } from "react-type-animation";
 const styles = `
 .plans-banner {
   position: relative;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  padding: 120px 0 80px 0;
+  background-image: url('https://i.postimg.cc/QCWfQP8N/Choose_Your_Therapist_LLP_(1).png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  padding: 140px 0 100px 0;
   overflow: hidden;
-  margin-top: 0px; /* Removed margin to fix gap */
+  margin-top: 0px;
 }
 
 .plans-banner::before {
@@ -20,17 +23,16 @@ const styles = `
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(circle at 20% 30%, rgba(34, 135, 86, 0.05) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(34, 135, 86, 0.05) 0%, transparent 50%);
-  pointer-events: none;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
 }
 
 .plans-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(34, 135, 86, 0.1);
-  color: #228756;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
   padding: 8px 20px;
   border-radius: 50px;
   font-weight: 700;
@@ -38,19 +40,21 @@ const styles = `
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 24px;
-  border: 1px solid rgba(34, 135, 86, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
 }
 
 .plans-title {
   font-size: 48px;
   font-weight: 900;
-  color: #1a1a1a;
+  color: #ffffff;
   line-height: 1.2;
   margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .plans-animated-text {
-  color: #228756;
+  color: #4ade80;
   display: inline-block;
   min-width: 280px;
   text-align: left;
@@ -58,7 +62,7 @@ const styles = `
 
 .plans-subtitle {
   font-size: 18px;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.9);
   max-width: 800px;
   margin: 0 auto;
   line-height: 1.6;
@@ -66,7 +70,7 @@ const styles = `
 
 .floating-icon {
   position: absolute;
-  color: rgba(34, 135, 86, 0.1);
+  color: rgba(255, 255, 255, 0.1);
   z-index: 0;
 }
 
@@ -80,7 +84,10 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .plans-banner { padding: 100px 0 60px 0; }
+  .plans-banner { 
+    padding: 100px 0 60px 0;
+    background-attachment: scroll;
+  }
   .plans-title { font-size: 32px; }
   .plans-subtitle { font-size: 16px; }
   .plans-animated-text { min-width: 100%; text-align: center; }

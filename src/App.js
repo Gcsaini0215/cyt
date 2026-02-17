@@ -96,6 +96,8 @@ function App() {
 
     // Tawk.to Script Integration
     if (window.innerWidth > 768) {
+      window.Tawk_API = window.Tawk_API || {};
+      window.Tawk_LoadStart = new Date();
       const s1 = document.createElement("script");
       const s0 = document.getElementsByTagName("script")[0];
       s1.async = true;
