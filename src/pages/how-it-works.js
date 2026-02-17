@@ -1,5 +1,6 @@
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
+import { Helmet } from "react-helmet";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
 import { Link } from "react-router-dom";
@@ -7,6 +8,23 @@ import { Link } from "react-router-dom";
 export default function HowItWorks() {
   return (
     <div id="__next">
+      <Helmet>
+        <title>How It Works | Find Your Perfect Therapist | Choose Your Therapist</title>
+        <meta name="description" content="Discover how Choose Your Therapist simplifies finding and booking sessions with verified psychologists in India. Three simple steps to start your mental health journey." />
+        <meta name="keywords" content="How to Book Therapist, Therapy Process, Verified Psychologists India, Mental Health Journey" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/how-it-works" />
+        
+        <meta property="og:title" content="How It Works | Find Your Perfect Therapist | Choose Your Therapist" />
+        <meta property="og:description" content="A simple 3-step process to connect with verified mental health professionals." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/how-it-works" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="How It Works | Find Your Perfect Therapist | Choose Your Therapist" />
+        <meta name="twitter:description" content="Learn how easy it is to start your therapy journey with us." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <PageBreadCrumb title="How It Works" linkTitle="Find Your Perfect Therapist" />
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import { Link, useNavigate } from "react-router-dom";
 import { isValidMail } from "../utils/validators";
 import { registerUrl, verifyOtpUrl } from "../utils/url";
@@ -107,8 +108,26 @@ export default function Register() {
       }
     }
   }, [navigate]);
+
   return (
     <div>
+      <Helmet>
+        <title>Client Registration | Start Your Healing Journey | Choose Your Therapist</title>
+        <meta name="description" content="Join Choose Your Therapist today. Register as a client to find verified psychologists, book sessions, and manage your mental health journey in a secure and confidential environment." />
+        <meta name="keywords" content="Client Registration, Book Therapist India, Start Counseling, Mental Health Support Signup" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/register" />
+        
+        <meta property="og:title" content="Client Registration | Start Your Healing Journey | Choose Your Therapist" />
+        <meta property="og:description" content="Register as a client to find verified psychologists and book sessions in a secure and confidential environment." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/register" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Client Registration | Start Your Healing Journey | Choose Your Therapist" />
+        <meta name="twitter:description" content="Register today and take the first step towards better mental health." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <PageBreadCrumb title="The Right Therapist, Just for You" linkTitle="Register"/>
       <div className="rbt-banner-area rbt-banner-3 header-transperent-spacer">

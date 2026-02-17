@@ -278,54 +278,56 @@ export default function Profile() {
         <div
           className="tutor-bg-photo"
           style={{ 
-            height: 180, 
+            height: isMobile ? 120 : 180, 
             background: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
             borderRadius: "15px 15px 0 0",
             position: "relative",
             display: "flex",
             alignItems: "flex-end",
-            padding: isMobile ? "0 20px 60px" : "0 30px 30px 180px"
+            padding: isMobile ? "0 20px 20px" : "0 30px 30px 180px"
           }}
         >
-          <div className="banner-text-content">
-            <h4 className="title" style={{ color: "white", marginBottom: "4px", fontWeight: "600" }}>
-              {therapistInfo.user.name}
-              {therapistInfo.profile_code !== "" && (
-                <span style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", marginLeft: "10px", fontWeight: "400" }}>
-                  ({therapistInfo.profile_code})
+          {!isMobile && (
+            <div className="banner-text-content">
+              <h4 className="title" style={{ color: "white", marginBottom: "4px", fontWeight: "600" }}>
+                {therapistInfo.user.name}
+                {therapistInfo.profile_code !== "" && (
+                  <span style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", marginLeft: "10px", fontWeight: "400" }}>
+                    ({therapistInfo.profile_code})
+                  </span>
+                )}
+              </h4>
+              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "14px" }}>
+                  <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
                 </span>
-              )}
-            </h4>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-              <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "14px" }}>
-                <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
-              </span>
-              <span 
-                className="badge" 
-                style={{ 
-                  backgroundColor: "rgba(255,255,255,0.2)", 
-                  color: "white",
-                  padding: "2px 12px",
-                  borderRadius: "4px",
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  backdropFilter: "blur(4px)"
-                }}
-              >
-                {therapistInfo.profile_type}
-              </span>
+                <span 
+                  className="badge" 
+                  style={{ 
+                    backgroundColor: "rgba(255,255,255,0.2)", 
+                    color: "white",
+                    padding: "2px 12px",
+                    borderRadius: "4px",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    backdropFilter: "blur(4px)"
+                  }}
+                >
+                  {therapistInfo.profile_type}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="rbt-tutor-information" style={{ padding: "0 25px", position: "relative" }}>
-          <div className="rbt-tutor-information-left">
-            <div className="thumbnail rbt-avatars size-lg position-relative" style={{ marginTop: "-80px" }}>
+          <div className="rbt-tutor-information-left" style={{ flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : "flex-start", textAlign: isMobile ? "center" : "left" }}>
+            <div className="thumbnail rbt-avatars size-lg position-relative" style={{ marginTop: isMobile ? "-40px" : "-80px" }}>
               {(previewImage || (therapistInfo.user.profile && therapistInfo.user.profile !== "null")) ? (
                 <ImageTag
                   alt={therapistInfo.user.name || "Profile"}
                   style={{
-                    height: 130,
-                    width: 130,
+                    height: isMobile ? 100 : 130,
+                    width: isMobile ? 100 : 130,
                     borderRadius: "12px",
                     objectFit: "cover",
                     backgroundColor: "#fff",
@@ -337,8 +339,8 @@ export default function Profile() {
               ) : (
                 <div 
                   style={{
-                    height: 130,
-                    width: 130,
+                    height: isMobile ? 100 : 130,
+                    width: isMobile ? 100 : 130,
                     borderRadius: "12px",
                     backgroundColor: "#f3f4f6",
                     display: "flex",
@@ -349,25 +351,25 @@ export default function Profile() {
                     color: "#9ca3af"
                   }}
                 >
-                  <i className="feather-user" style={{ fontSize: "50px" }}></i>
+                  <i className="feather-user" style={{ fontSize: isMobile ? "40px" : "50px" }}></i>
                 </div>
               )}
-              <div className="rbt-edit-photo-inner" style={{ bottom: "10px", right: "10px" }}>
+              <div className="rbt-edit-photo-inner" style={{ bottom: "5px", right: "5px" }}>
                 <button
                   className="rbt-edit-photo"
                   title="Upload Photo"
                   onClick={handleImageUpload}
                   style={{ 
                     backgroundColor: "#059669",
-                    width: "36px",
-                    height: "36px",
-                    lineHeight: "36px",
-                    border: "3px solid #fff",
+                    width: isMobile ? "30px" : "36px",
+                    height: isMobile ? "30px" : "36px",
+                    lineHeight: isMobile ? "30px" : "36px",
+                    border: "2px solid #fff",
                     borderRadius: "50%",
                     boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
                   }}
                 >
-                  <i className="feather-camera" style={{ fontSize: "16px", color: "#fff" }}></i>
+                  <i className="feather-camera" style={{ fontSize: isMobile ? "12px" : "16px", color: "#fff" }}></i>
                 </button>
                 <input
                   type="file"
@@ -378,6 +380,32 @@ export default function Profile() {
                 />
               </div>
             </div>
+            {isMobile && (
+              <div className="tutor-content mt--10">
+                <h5 className="title" style={{ marginBottom: "2px", fontSize: "18px", color: "#1a1a1a" }}>
+                  {therapistInfo.user.name}
+                </h5>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px" }}>
+                  <span style={{ color: "#6b7385", fontSize: "13px" }}>
+                    <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
+                  </span>
+                  <span 
+                    className="badge" 
+                    style={{ 
+                      backgroundColor: "#ecfdf5", 
+                      color: "#065f46",
+                      padding: "2px 10px",
+                      borderRadius: "4px",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      border: "1px solid #a7f3d0"
+                    }}
+                  >
+                    {therapistInfo.profile_type}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -573,10 +601,16 @@ export default function Profile() {
         {loading && <FormProgressBar />}
       </div>
 
-      <Dialog open={isCropModalOpen} onClose={() => setIsCropModalOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog 
+        open={isCropModalOpen} 
+        onClose={() => setIsCropModalOpen(false)} 
+        maxWidth="sm" 
+        fullWidth
+        fullScreen={isMobile}
+      >
         <DialogTitle>Crop Profile Picture</DialogTitle>
         <DialogContent>
-          <div style={{ position: 'relative', width: '100%', height: 400, background: '#333' }}>
+          <div style={{ position: 'relative', width: '100%', height: isMobile ? '60vh' : 400, background: '#333' }}>
             <Cropper
               image={imageToCrop}
               crop={crop}
@@ -585,6 +619,7 @@ export default function Profile() {
               onCropChange={setCrop}
               onCropComplete={onCropComplete}
               onZoomChange={setZoom}
+              touchAction="none"
             />
           </div>
           <div style={{ padding: '20px 0' }}>

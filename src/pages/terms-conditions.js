@@ -1,5 +1,6 @@
 import MyNavbar from "../components/navbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Helmet } from "react-helmet";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 export default function TermsCondition() {
@@ -13,6 +14,23 @@ export default function TermsCondition() {
   };
   return (
     <>
+      <Helmet>
+        <title>Terms and Conditions | Choose Your Therapist</title>
+        <meta name="description" content="Review the terms and conditions for using the Choose Your Therapist platform. Understand our service nature, user responsibilities, and booking policies." />
+        <meta name="keywords" content="Terms and Conditions, User Agreement, Therapy Service Terms, Choose Your Therapist" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/terms-conditions" />
+        
+        <meta property="og:title" content="Terms and Conditions | Choose Your Therapist" />
+        <meta property="og:description" content="Our platform's terms of service and user agreement." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/terms-conditions" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Terms and Conditions | Choose Your Therapist" />
+        <meta name="twitter:description" content="Review our platform's terms of service." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <div style={styles.container}>
         <h1>Terms and Conditions for Using Choose Your Therapist</h1>

@@ -23,37 +23,31 @@ export default function HomePage() {
       {/* Comprehensive SEO Meta Tags */}
       <Helmet>
         {/* Basic Meta Tags */}
-        <title>
-          Best Psychologist in India | Book Online & In-Person Therapist
-        </title>
-        <meta
-          name="description"
-          content="Find a qualified psychologist anywhere in India. Book online or in-person therapy with verified professionals for anxiety, stress, relationships, and more."
-        />
-        <meta
-          name="keywords"
-          content="Best Psychologist India, Online Therapy India, In-Person Therapy, Mental Health Counseling, Verified Therapists, Anxiety Counseling, Stress Management, Relationship Therapy, Choose Your Therapist, Psychologists in Noida"
-        />
+        <title>Best Psychologist in India | Online & In-Person Therapy | Choose Your Therapist</title>
+        <meta name="description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals for anxiety, stress, relationships, and emotional well-being." />
+        <meta name="keywords" content="Best Psychologist India, Online Therapy India, In-Person Therapy, Mental Health Counseling, Verified Therapists, Anxiety Counseling, Stress Management, Relationship Therapy, Choose Your Therapist, Psychologists in Noida" />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="language" content="English" />
         <meta name="revisit-after" content="7 days" />
         <link rel="canonical" href="https://chooseyourtherapist.in/" />
 
-        {/* Open Graph Meta Tags for Facebook */}
-        <meta property="og:title" content="Best Psychologist in India | Book Online & In-Person Therapist" />
-        <meta property="og:description" content="Find a qualified psychologist anywhere in India. Book online or in-person therapy with verified professionals for anxiety, stress, and relationships." />
-        <meta property="og:image" content="https://chooseyourtherapist.in/images/banner-og-image.jpg" />
+        {/* Open Graph Meta Tags for Facebook / LinkedIn */}
+        <meta property="og:title" content="Best Psychologist in India | Online & In-Person Therapy" />
+        <meta property="og:description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals." />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
         <meta property="og:url" content="https://chooseyourtherapist.in/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
 
         {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Best Psychologist in India | Book Online & In-Person Therapist" />
-        <meta name="twitter:description" content="Find a qualified psychologist anywhere in India. Book online or in-person therapy with verified professionals." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/images/banner-twitter-image.jpg" />
+        <meta name="twitter:title" content="Best Psychologist in India | Online & In-Person Therapy" />
+        <meta name="twitter:description" content="Connect with verified therapists in India for online or in-person support." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
         <meta name="twitter:site" content="@chooseyourtherapist" />
         <meta name="twitter:creator" content="@chooseyourtherapist" />
 

@@ -309,6 +309,23 @@ export default function BlogDetails() {
       <Helmet>
         <title>{blog.title} | Choose Your Therapist</title>
         <meta name="description" content={blog.description} />
+        <meta name="keywords" content={`${blog.category}, Mental Health Blog, Therapy Insights, ${blog.title}`} />
+        <link rel="canonical" href={`https://chooseyourtherapist.in/blog-details/${id}`} />
+        
+        <meta property="og:title" content={`${blog.title} | Choose Your Therapist`} />
+        <meta property="og:description" content={blog.description} />
+        <meta property="og:url" content={`https://chooseyourtherapist.in/blog-details/${id}`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content={blog.image || "https://chooseyourtherapist.in/assets/img/og-image.jpg"} />
+        <meta property="article:published_time" content={blog.date} />
+        <meta property="article:author" content={blog.author} />
+        <meta property="article:section" content={blog.category} />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${blog.title} | Choose Your Therapist`} />
+        <meta name="twitter:description" content={blog.description} />
+        <meta name="twitter:image" content={blog.image || "https://chooseyourtherapist.in/assets/img/og-image.jpg"} />
+        
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </Helmet>
 

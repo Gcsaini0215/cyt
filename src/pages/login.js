@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
@@ -118,6 +119,23 @@ export default function Login() {
 
   return (
     <>
+      <Helmet>
+        <title>Login | Access Your Therapy Dashboard | Choose Your Therapist</title>
+        <meta name="description" content="Securely log in to your Choose Your Therapist account. Manage your sessions, connect with your psychologist, and track your mental health progress." />
+        <meta name="keywords" content="Therapist Login, Client Login, Mental Health Dashboard, Secure Therapy Login" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/login" />
+        
+        <meta property="og:title" content="Login | Access Your Therapy Dashboard | Choose Your Therapist" />
+        <meta property="og:description" content="Securely log in to manage your therapy sessions and mental health journey." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/login" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Login | Access Your Therapy Dashboard | Choose Your Therapist" />
+        <meta name="twitter:description" content="Log in to your secure dashboard to manage your therapy sessions." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <style>{`
         input:focus {
           outline: none !important;

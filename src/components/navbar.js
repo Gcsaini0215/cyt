@@ -5,11 +5,14 @@ import { Link } from "react-router-dom";
 import ImageTag from "../utils/image-tag";
 import { getDecodedToken, getToken } from "../utils/jwt";
 import BottomNavigation from "./bottom-navigation";
+import useTherapistStore from "../store/therapistStore";
+import { imagePath, defaultProfile } from "../utils/url";
 
 export default function App() {
   const [show, setShow] = React.useState(false);
   const [showChatbot, setShowChatbot] = React.useState(false);
   const [userType, setUserType] = React.useState(0);
+  const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
 
   useEffect(() => {
     const data = getToken();
@@ -17,6 +20,7 @@ export default function App() {
       const userData = getDecodedToken();
       if (userData.role === 1) {
         setUserType(2);
+        fetchTherapistInfo();
       } else {
         setUserType(1);
       }
@@ -98,7 +102,6 @@ export default function App() {
                          <li><Link to="/faqs">Faqs</Link></li>
                       </ul>
                     </li>
-                    <li><Link to="#">Articles</Link></li>
                   </ul>
                 </nav>
               </div>
@@ -136,9 +139,29 @@ export default function App() {
                     {userType === 1 || userType === 2 ? (
                       <Link
                         to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"}
-                        className="service-menu-parent"
+                        className="service-menu-parent d-flex align-items-center gap-2"
                       >
-                        <i className="feather-user"></i> {userType === 1 ? "Profile" : "Therapist Profile"}
+                        {userType === 2 && (
+                          <div className="thumbnail rbt-avatars size-xs">
+                            <ImageTag
+                              alt={therapistInfo.user.name || "Profile"}
+                              style={{
+                                height: 35,
+                                width: 35,
+                                borderRadius: "50%",
+                                objectFit: "cover",
+                                border: "1.5px solid #2ecc71"
+                              }}
+                              src={therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
+                                ? `${imagePath}/${therapistInfo.user.profile}` 
+                                : defaultProfile}
+                            />
+                          </div>
+                        )}
+                        {userType === 1 && <i className="feather-user"></i>}
+                        <span style={{ fontWeight: 600, color: "#228756", fontSize: "14px" }}>
+                          {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist Profile")}
+                        </span>
                       </Link>
                     ) : (
                       <Link to="/login" className="service-menu-parent">
@@ -199,8 +222,30 @@ export default function App() {
             <li><Link to="/faqs" onClick={() => setShow(false)}>Faqs</Link></li>
             <li>
               {userType === 1 || userType === 2 ? (
-                <Link to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} onClick={() => setShow(false)}>
-                  {userType === 1 ? "Profile" : "Therapist Profile"}
+                <Link 
+                  to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} 
+                  onClick={() => setShow(false)}
+                  className="d-flex align-items-center gap-2"
+                >
+                  {userType === 2 && (
+                    <ImageTag
+                      alt="Profile"
+                      style={{
+                        height: 35,
+                        width: 35,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "1.5px solid #2ecc71"
+                      }}
+                      src={therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
+                        ? `${imagePath}/${therapistInfo.user.profile}` 
+                        : defaultProfile}
+                    />
+                  )}
+                  {userType === 1 && <i className="feather-user"></i>}
+                  <span style={{ fontWeight: 600, color: "#228756" }}>
+                    {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist Profile")}
+                  </span>
                 </Link>
               ) : (
                 <Link to="/login" onClick={() => setShow(false)}>Sign In/Sign Up</Link>

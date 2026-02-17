@@ -1,5 +1,6 @@
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
+import { Helmet } from "react-helmet";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
 import { Link } from "react-router-dom";
@@ -7,6 +8,23 @@ import { Link } from "react-router-dom";
 export default function EmergencySupport() {
   return (
     <div id="__next">
+      <Helmet>
+        <title>Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist</title>
+        <meta name="description" content="In a mental health crisis? Access immediate support with 24/7 emergency helplines across India. Find contacts for Tele Manas, Vandrevala Foundation, and more." />
+        <meta name="keywords" content="Emergency Mental Health Support, Suicide Helpline India, Tele Manas, 24/7 Crisis Support" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/emergency-support" />
+        
+        <meta property="og:title" content="Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist" />
+        <meta property="og:description" content="Immediate help and crisis support resources for mental health emergencies." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/emergency-support" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist" />
+        <meta name="twitter:description" content="Find immediate help for mental health crises." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <PageBreadCrumb title="Emergency Support" linkTitle="Get Help When You Need It Most" />
 

@@ -1,5 +1,6 @@
 import MyNavbar from "../components/navbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Helmet } from "react-helmet";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 export default function CancellationPolicy() {
@@ -13,6 +14,23 @@ export default function CancellationPolicy() {
   };
   return (
     <>
+      <Helmet>
+        <title>Cancellation Policy | Refund & Rescheduling | Choose Your Therapist</title>
+        <meta name="description" content="Review our cancellation and refund policy. Understand the terms for rescheduling or canceling your therapy sessions with independent therapists." />
+        <meta name="keywords" content="Cancellation Policy, Refund Policy, Reschedule Therapy Session, Choose Your Therapist" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/cancellation-policy" />
+        
+        <meta property="og:title" content="Cancellation Policy | Refund & Rescheduling | Choose Your Therapist" />
+        <meta property="og:description" content="Our terms for canceling or rescheduling therapy sessions." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/cancellation-policy" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Cancellation Policy | Refund & Rescheduling | Choose Your Therapist" />
+        <meta name="twitter:description" content="Review our cancellation and refund terms." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <br />
       <div style={styles.container}>

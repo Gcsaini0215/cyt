@@ -1,5 +1,6 @@
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
+import { Helmet } from "react-helmet";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
 import { Link } from "react-router-dom";
@@ -7,6 +8,23 @@ import { Link } from "react-router-dom";
 export default function MentorshipForStudents() {
   return (
     <div id="__next">
+      <Helmet>
+        <title>Student Mentorship | Career Guidance in Psychology | Choose Your Therapist</title>
+        <meta name="description" content="Empowering the next generation of mental health professionals. Join our mentorship program for internships, practical training, research guidance, and career support in psychology." />
+        <meta name="keywords" content="Psychology Mentorship, Internship for Students, Research Guidance Psychology, Career in Mental Health India" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/mentorship-for-students" />
+        
+        <meta property="og:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
+        <meta property="og:description" content="Shape your future in mental health with our comprehensive mentorship program for students." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/mentorship-for-students" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
+        <meta name="twitter:description" content="Join our mentorship program to jumpstart your psychology career." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <PageBreadCrumb title="Mentorship for Students" linkTitle="Guidance for Future Mental Health Professionals" />
 

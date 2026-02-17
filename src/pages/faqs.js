@@ -1,3 +1,5 @@
+import React from "react";
+import { Helmet } from "react-helmet";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
@@ -6,6 +8,23 @@ import PageBreadCrumb from "../components/global/page-breadcrumb";
 export default function FaqPage() {
   return (
     <div id="__next">
+      <Helmet>
+        <title>Frequently Asked Questions | Help & Support | Choose Your Therapist</title>
+        <meta name="description" content="Find answers to common questions about therapy, booking sessions, verified psychologists, and how Choose Your Therapist works to support your mental health." />
+        <meta name="keywords" content="Therapy FAQ, Psychology Support India, Mental Health Questions, Choose Your Therapist Help" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/faqs" />
+        
+        <meta property="og:title" content="Frequently Asked Questions | Help & Support | Choose Your Therapist" />
+        <meta property="og:description" content="Find answers to common questions about therapy, booking sessions, and verified psychologists." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/faqs" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Frequently Asked Questions | Help & Support | Choose Your Therapist" />
+        <meta name="twitter:description" content="Find answers to common questions about Choose Your Therapist." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <PageBreadCrumb title="Frequently Asked Questions (FAQ)" linkTitle="Help and Support for Clients"/>
       <Faqs />

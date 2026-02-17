@@ -1,5 +1,6 @@
 import MyNavbar from "../components/navbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Helmet } from "react-helmet";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 export default function PrivacyPolicy() {
@@ -13,6 +14,23 @@ export default function PrivacyPolicy() {
   };
   return (
     <>
+      <Helmet>
+        <title>Privacy Policy | Your Data Security | Choose Your Therapist</title>
+        <meta name="description" content="Read our privacy policy to understand how Choose Your Therapist protects your personal information and maintains confidentiality in your mental health journey." />
+        <meta name="keywords" content="Privacy Policy, Data Security, Confidentiality, Therapy Data Protection" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/privacy-policy" />
+        
+        <meta property="og:title" content="Privacy Policy | Your Data Security | Choose Your Therapist" />
+        <meta property="og:description" content="Learn how we protect your personal information and maintain your privacy." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/privacy-policy" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Privacy Policy | Your Data Security | Choose Your Therapist" />
+        <meta name="twitter:description" content="Our commitment to your privacy and data security." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
       <MyNavbar />
       <div style={styles.container}>
         <h1>Privacy and Policy</h1>

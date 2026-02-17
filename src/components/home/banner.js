@@ -212,37 +212,49 @@ const BannerSlider = ({ isMobile }) => {
       position: "relative",
       borderRadius: isMobile ? "12px" : "15px",
       overflow: "hidden",
-      boxShadow: "0 8px 32px rgba(34, 135, 86, 0.15)",
-      border: "2px solid #228756",
-      height: isMobile ? "160px" : "180px",
-      backgroundColor: "white",
-      animation: "slideInUp 0.6s ease-out"
+      boxShadow: "0 12px 40px rgba(34, 135, 86, 0.12)",
+      border: "1.5px solid rgba(34, 135, 86, 0.2)",
+      height: isMobile ? "165px" : "190px",
+      background: "linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)",
+      animation: "slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)"
     }}>
+      {/* Dynamic Background Circles */}
+      <div style={{
+        position: "absolute",
+        width: "150px",
+        height: "150px",
+        borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(34, 135, 86, 0.05) 0%, transparent 70%)",
+        top: "-50px",
+        left: "-50px",
+        zIndex: 0
+      }} />
+
       {/* Recommended Therapists Ribbon */}
       <div style={{
         position: "absolute",
-        top: isMobile ? "15px" : "20px",
-        right: "0",
+        top: "0",
+        right: isMobile ? "10px" : "20px",
         zIndex: 20,
-        background: "linear-gradient(135deg, #36b477ff 0%, #35c06fff 50%, #2c7754ff 100%)",
+        background: "linear-gradient(180deg, #228756 0%, #10b981 100%)",
         color: "#fff",
-        padding: isMobile ? "10px 6px" : "12px 8px",
-        fontSize: isMobile ? "10px" : "11px",
-        fontWeight: "700",
+        padding: "8px 4px",
+        fontSize: "9px",
+        fontWeight: "800",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "4px",
-        borderRadius: "0 0 0 20px",
-        boxShadow: "0 4px 15px rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.2)",
-        textShadow: "0 1px 2px rgba(0,0,0,0.3)",
-        border: "1px solid rgba(255,255,255,0.2)",
-        backdropFilter: "blur(8px)",
+        justifyContent: "center",
+        borderRadius: "0 0 6px 6px",
+        boxShadow: "0 4px 10px rgba(34, 135, 86, 0.2)",
         writingMode: "vertical-rl",
-        textOrientation: "mixed"
+        textOrientation: "mixed",
+        textTransform: "uppercase",
+        letterSpacing: "1px"
       }}>
         Recommended
       </div>
+
       {/* Therapist Images Row with Enhanced Animation */}
       <div 
         ref={containerRef}
@@ -252,14 +264,16 @@ const BannerSlider = ({ isMobile }) => {
           display: "flex",
           height: "100%",
           alignItems: "center",
-          padding: isMobile ? "0 12.5%" : "0 30%", // Center the first card
-          transition: "all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+          padding: isMobile ? "0 15%" : "0 35%", 
+          transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
           overflowX: "auto",
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
-          gap: isMobile ? "10px" : "20px",
-          scrollbarWidth: "none", // Hide scrollbar for Firefox
-          msOverflowStyle: "none", // Hide scrollbar for IE/Edge
+          gap: isMobile ? "12px" : "25px",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          zIndex: 5,
+          position: "relative"
         }}
       >
         <style>{`
@@ -273,143 +287,136 @@ const BannerSlider = ({ isMobile }) => {
             <div
               key={`${therapist._id || index}`}
               style={{
-                flex: isMobile ? "0 0 75%" : "0 0 40%",
-                height: isActive ? "90%" : "80%",
-                position: "relative",
-                overflow: "hidden",
-                cursor: "pointer",
+                flex: isMobile ? "0 0 65%" : "0 0 22%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
                 scrollSnapAlign: "center",
-                transition: "all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                transform: isActive ? "scale(1)" : "scale(0.9)",
-                opacity: isActive ? 1 : 0.6,
-                borderRadius: "15px",
-                boxShadow: isActive ? "0 10px 25px rgba(34, 135, 86, 0.3)" : "none",
+                transition: "all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                transform: isActive ? "scale(1.1) translateY(-5px)" : "scale(0.85)",
+                opacity: isActive ? 1 : 0.4,
                 zIndex: isActive ? 10 : 1,
-                filter: isActive ? "none" : "blur(1px)",
               }}
             >
-              <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                {/* Progressive loading blur placeholder */}
-                {!imageLoadingStates[therapist._id] && (
-                  <div style={{
+              <div 
+                style={{ 
+                  position: "relative", 
+                  width: isMobile ? "85px" : "105px", 
+                  height: isMobile ? "85px" : "105px",
+                  borderRadius: "50%",
+                  padding: "3px",
+                  background: isActive 
+                    ? "linear-gradient(135deg, #228756 0%, #3b82f6 100%)" 
+                    : "rgba(226, 232, 240, 0.8)",
+                  boxShadow: isActive ? "0 8px 25px rgba(34, 135, 86, 0.25)" : "none",
+                  transition: "all 0.5s ease"
+                }}
+              >
+                <div style={{ 
+                  width: "100%", 
+                  height: "100%", 
+                  borderRadius: "50%", 
+                  overflow: "hidden",
+                  backgroundColor: "white",
+                  border: "2px solid white",
+                  position: "relative"
+                }}>
+                  <ImageTag
+                    src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
+                    alt={therapist.user?.name || 'Therapist'}
+                    loading="lazy"
+                    onLoad={() => handleImageLoad(therapist._id)}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  {!isActive && <div style={{
                     position: "absolute",
                     top: 0,
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    background: "linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)",
-                    backgroundSize: "200% 100%",
-                    animation: "shimmer 1.5s infinite",
-                    borderRadius: "8px",
-                    filter: "blur(10px)"
-                  }} />
+                    background: "rgba(255,255,255,0.2)",
+                    backdropFilter: "grayscale(50%)"
+                  }} />}
+                </div>
+                
+                {/* Verified Pulse Badge */}
+                {isActive && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: "5px",
+                    right: "5px",
+                    zIndex: 15,
+                    background: "#228756",
+                    borderRadius: "50%",
+                    width: "22px",
+                    height: "22px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+                    border: "2.5px solid white",
+                    animation: "pulse 2s infinite"
+                  }}>
+                    <CheckCircle style={{ color: "white", fontSize: "12px" }} />
+                  </div>
                 )}
-
-                <ImageTag
-                  src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
-                  alt={therapist.user?.name || 'Therapist'}
-                  loading="lazy"
-                  onLoad={() => handleImageLoad(therapist._id)}
-                  onError={() => handleImageError(therapist._id)}
-                  onLoadStart={() => handleImageLoadStart(therapist._id)}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transition: "all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-                    filter: imageLoadingStates[therapist._id] ? "brightness(1) contrast(1.05) saturate(1.1)" : "blur(10px) brightness(0.8)",
-                    transform: "scale(1)",
-                    imageRendering: "auto",
-                    opacity: imageLoadingStates[therapist._id] ? 1 : 0.7
-                  }}
-                />
-
-                {/* Verified Badge */}
-                <div style={{
-                  position: "absolute",
-                  top: "10px",
-                  left: "10px",
-                  zIndex: 5,
-                  background: "rgba(255,255,255,0.9)",
-                  borderRadius: "50%",
-                  width: "24px",
-                  height: "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                  border: "1px solid #228756"
-                }}>
-                  <CheckCircle style={{ color: "#228756", fontSize: "16px" }} />
-                </div>
-
-                {/* Glassmorphism Info Overlay */}
-                <div style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: isActive ? "rgba(34, 135, 86, 0.85)" : "rgba(255, 255, 255, 0.15)",
-                  backdropFilter: "blur(10px)",
-                  padding: isActive ? "12px 15px" : "8px 10px",
-                  borderTop: "1px solid rgba(255, 255, 255, 0.3)",
-                  zIndex: 5,
-                  transition: "all 0.5s ease"
-                }}>
-                  <Typography style={{ 
-                    color: "white", 
-                    fontSize: isMobile ? "12px" : "14px", 
-                    fontWeight: 800,
-                    lineHeight: 1.2,
-                    textShadow: "0 1px 4px rgba(0,0,0,0.5)"
-                  }}>
-                    {therapist.user?.name}
-                  </Typography>
-                  <Typography style={{ 
-                    color: isActive ? "#fff" : "#4ade80", 
-                    fontSize: isMobile ? "10px" : "12px", 
-                    fontWeight: 600,
-                    opacity: 0.9,
-                    textShadow: "0 1px 2px rgba(0,0,0,0.5)"
-                  }}>
-                    {therapist.type || "Expert Therapist"}
-                  </Typography>
-                </div>
               </div>
 
-              {/* Hover/Active View Profile Button */}
-              <div className="hover-btn-overlay" style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: "linear-gradient(to top, rgba(34, 135, 86, 0.4), transparent)",
-                opacity: isActive ? 1 : 0,
-                transition: "opacity 0.3s ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 6
+              {/* Text Info Below Circle */}
+              <div style={{ 
+                marginTop: "12px", 
+                textAlign: "center",
+                width: "100%",
+                padding: "0 8px",
+                opacity: isActive ? 1 : 0.7
               }}>
-                 <Link 
+                <Typography style={{ 
+                  color: "#0f172a", 
+                  fontSize: isMobile ? "12px" : "14px", 
+                  fontWeight: 800,
+                  lineHeight: 1.1,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  letterSpacing: "-0.2px"
+                }}>
+                  {therapist.user?.name}
+                </Typography>
+                <Typography style={{ 
+                  color: isActive ? "#228756" : "#64748b", 
+                  fontSize: isMobile ? "9px" : "10px", 
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.8px",
+                  marginTop: "2px"
+                }}>
+                  {therapist.profile_type?.split(" ")[0] || "Expert"}
+                </Typography>
+              </div>
+
+              {/* View Profile Link - Only visible when active */}
+              {isActive && (
+                <Link 
                   to={`/view-profile/${therapist.user?._id}`}
                   style={{
-                    padding: "8px 16px",
-                    background: "#228756",
-                    color: "white",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                    transform: isActive ? "translateY(0)" : "translateY(20px)",
-                    transition: "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 11,
+                    textDecoration: "none"
                   }}
                 >
-                  View Profile
+                  <span className="sr-only">View Profile</span>
                 </Link>
-              </div>
+              )}
             </div>
           );
         })}
@@ -824,10 +831,10 @@ export default function Banner() {
                     <h1
                     className="title"
                     style={{
-                      fontSize: isMobile ? "2.5rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "3rem" : isTablet ? "3.8rem" : "5.5rem",
+                      fontSize: isMobile ? "2.2rem" : isTablet ? "3.2rem" : "4.8rem",
+                      lineHeight: isMobile ? "2.4rem" : isTablet ? "3.8rem" : "5.5rem",
                       marginTop: 0,
-                      marginBottom: isMobile ? "16px" : "24px",
+                      marginBottom: isMobile ? "12px" : "24px",
                       fontWeight: 900,
                       textAlign: "center",
                       width: "100%",
@@ -838,7 +845,8 @@ export default function Banner() {
                     Find a <Box component="span" sx={{ 
                       position: 'relative',
                       display: 'inline-block',
-                      px: isMobile ? 0.2 : 1
+                      px: isMobile ? 0.2 : 1,
+                      zIndex: 1
                     }}>
                       <span style={{ 
                         backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
@@ -848,41 +856,15 @@ export default function Banner() {
                         color: "transparent",
                         display: "inline-block",
                         animation: "handDrawnWobble 0.5s ease-in-out infinite alternate"
-                      }}>Therapist</span>
-                      {/* Stylish underline SVG */}
-                      <svg
-                        viewBox="0 0 100 20"
-                        preserveAspectRatio="none"
-                        style={{
-                          position: 'absolute',
-                          bottom: isMobile ? '-5px' : '-10px',
-                          left: 0,
-                          width: '100%',
-                          height: isMobile ? '10px' : '15px',
-                          zIndex: -1
-                        }}
-                      >
-                        <path
-                          d="M5 15 Q 50 20 95 15"
-                          stroke="url(#underline-gradient)"
-                          strokeWidth="4"
-                          fill="none"
-                          strokeLinecap="round"
-                          style={{
-                            strokeDasharray: 100,
-                            strokeDashoffset: 100,
-                            animation: "drawLine 2s ease-out 0.8s forwards"
-                          }}
-                        />
-                        <defs>
-                          <linearGradient id="underline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style={{ stopColor: '#27ae60', stopOpacity: 0.6 }} />
-                            <stop offset="50%" style={{ stopColor: '#10b981', stopOpacity: 0.8 }} />
-                            <stop offset="100%" style={{ stopColor: '#007f99', stopOpacity: 0.6 }} />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    </Box> Across India.
+                      }}>Therapist</span> Across <span style={{
+                        backgroundImage: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", 
+                        WebkitBackgroundClip: "text", 
+                        backgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        color: "transparent",
+                        display: "inline-block"
+                      }}>India</span>.
+                    </Box>
                   </h1>
 
                   {/* Description */}
@@ -960,13 +942,13 @@ export default function Banner() {
                   {/* Banner Buttons */}
                   <div className="rbt-button-group justify-content-center" style={{ 
                     display: "flex", 
-                    gap: isMobile ? "15px" : "20px", 
+                    gap: isMobile ? "6px" : "20px", 
                     flexDirection: isMobile ? "column" : "row",
                     width: isMobile ? "100%" : "auto",
                     maxWidth: isMobile ? "320px" : "none",
                     justifyContent: "center",
                     alignItems: "center",
-                    marginBottom: isMobile ? "40px" : "60px"
+                    marginBottom: isMobile ? "30px" : "60px"
                   }}>
                     <Link
                       className="rbt-btn btn-gradient btn-sm hover-icon-reverse"

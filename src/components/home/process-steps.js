@@ -11,7 +11,7 @@ const ProcessSteps = () => {
     {
       icon: <Search size={32} />,
       title: "Discover Your Match",
-      description: "Browse through India's largest network of verified therapists. Use our smart filters to find someone who truly understands your cultural and emotional context.",
+      description: "Browse through our list of verified therapists. Use our smart filters to find someone who truly understands your cultural and emotional context.",
       color: "#228756",
       tag: "STEP 01"
     },

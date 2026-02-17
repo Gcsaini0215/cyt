@@ -1,4 +1,6 @@
 
+import React from "react";
+import { Helmet } from "react-helmet";
 import MyNavbar from "../components/navbar";
 import RegistrationHeader from "../components/therapist/registration-header";
 import NewsLetter from "../components/home/newsletter";
@@ -167,6 +169,24 @@ export default function TherapistRegistration()
 
   return (
     <>
+      <Helmet>
+        <title>Therapist Registration | Join Our Network of Mental Health Experts | Choose Your Therapist</title>
+        <meta name="description" content="Are you a qualified psychologist or psychiatrist? Register with Choose Your Therapist to connect with clients across India and grow your professional practice on our secure platform." />
+        <meta name="keywords" content="Therapist Registration, Join Mental Health Network, Psychologist Jobs India, Online Therapy Practice" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/therapist-registration" />
+        
+        <meta property="og:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
+        <meta property="og:description" content="Register with Choose Your Therapist to connect with clients across India and grow your professional practice." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/therapist-registration" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
+        <meta name="twitter:description" content="Register as a verified therapist and grow your practice with Choose Your Therapist." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+      </Helmet>
+
       <style>{`
         input:focus, select:focus, textarea:focus, button:focus {
           outline: none !important;
