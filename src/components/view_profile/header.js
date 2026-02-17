@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
@@ -18,8 +17,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const [showBookmark, setShowBookmark] = React.useState(false);
 
   const profileUrl = `${window.location.origin}/view-profile/${pageData._id}`;
-  const title = `${pageData.user.name} - ${pageData.profile_type}`;
-  const description = `${pageData.user.name} is a ${pageData.qualification} & ${pageData.profile_type} based in ${pageData.state}. Gender: ${pageData.user?.gender || "-"}.`;
 
   React.useEffect(() => {
     const data = getDecodedToken();
@@ -83,21 +80,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   return (
     <>
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={profileUrl} />
-        <meta property="og:image" content={`${imagePath}/${pageData.user.profile}`} />
-        <meta property="og:type" content="profile" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={`${imagePath}/${pageData.user.profile}`} />
-        <link rel="canonical" href={profileUrl} />
-      </Helmet>
-
       {/* Banner wrapper */}
       <div
         className="rbt-page-banner-wrapper"

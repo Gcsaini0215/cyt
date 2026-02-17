@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet"; // SEO ke liye
+import Head from "next/head"; // SEO ke liye
 import Footer from "../components/footer";
 import Banner from "../components/home/banner";
 import Specializations from "../components/home/specializations";
@@ -21,7 +21,7 @@ export default function HomePage() {
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       {/* Comprehensive SEO Meta Tags */}
-      <Helmet>
+      <Head>
         {/* Basic Meta Tags */}
         <title>Best Psychologist in India | Online & In-Person Therapy | Choose Your Therapist</title>
         <meta name="description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals for anxiety, stress, relationships, and emotional well-being." />
@@ -32,28 +32,24 @@ export default function HomePage() {
         <meta name="revisit-after" content="7 days" />
         <link rel="canonical" href="https://chooseyourtherapist.in/" />
 
-        {/* Open Graph Meta Tags for Facebook / LinkedIn */}
+        {/* Open Graph Meta Tags for Facebook / LinkedIn / WhatsApp */}
         <meta property="og:title" content="Best Psychologist in India | Online & In-Person Therapy" />
         <meta property="og:description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals." />
-        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta property="og:url" content="https://chooseyourtherapist.in/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
 
         {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Best Psychologist in India | Online & In-Person Therapy" />
         <meta name="twitter:description" content="Connect with verified therapists in India for online or in-person support." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta name="twitter:site" content="@chooseyourtherapist" />
-        <meta name="twitter:creator" content="@chooseyourtherapist" />
 
         {/* Additional SEO Meta Tags */}
         <meta name="theme-color" content="#228756" />
-        <meta name="msapplication-TileColor" content="#228756" />
         <meta name="application-name" content="Choose Your Therapist" />
 
         {/* Local SEO */}
@@ -71,14 +67,14 @@ export default function HomePage() {
             "name": "Choose Your Therapist",
             "alternateName": "CYT - Best Psychologist in India",
             "url": "https://chooseyourtherapist.in",
-            "logo": "https://chooseyourtherapist.in/logo.png",
+            "logo": "https://i.postimg.cc/gj1yngrd/choose.png",
             "description": "Find a qualified psychologist anywhere in India. Book online or in-person therapy with verified professionals for anxiety, stress, relationships, and more.",
-            "image": "https://chooseyourtherapist.in/images/banner-og-image.jpg",
-            "telephone": "+91-XXXXXXXXXX",
+            "image": "https://i.postimg.cc/gj1yngrd/choose.png",
+            "telephone": "+918077757951",
             "email": "support@chooseyourtherapist.in",
             "address": {
               "@type": "PostalAddress",
-              "streetAddress": "Your Street Address",
+              "streetAddress": "Sector 51",
               "addressLocality": "Noida",
               "addressRegion": "UP",
               "postalCode": "201301",
@@ -93,258 +89,13 @@ export default function HomePage() {
               {
                 "@type": "Place",
                 "name": "India"
-              },
-              {
-                "@type": "Place",
-                "name": "Noida"
-              },
-              {
-                "@type": "Place",
-                "name": "Delhi NCR"
               }
             ],
             "serviceType": ["Mental Health Counseling", "Online Therapy", "In-Person Therapy", "Psychological Support"],
-            "priceRange": "₹500-₹2000",
-            "paymentAccepted": ["Cash", "Credit Card", "UPI", "Net Banking"],
-            "currenciesAccepted": "INR",
-            "openingHours": "Mo-Su 09:00-21:00",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "150",
-              "bestRating": "5",
-              "worstRating": "1"
-            },
-            "review": [
-              {
-                "@type": "Review",
-                "author": {
-                  "@type": "Person",
-                  "name": "Anonymous Patient"
-                },
-                "reviewRating": {
-                  "@type": "Rating",
-                  "ratingValue": "5",
-                  "bestRating": "5"
-                },
-                "reviewBody": "Excellent platform for finding verified therapists. The booking process was smooth and I found great support."
-              }
-            ],
-            "contactPoint": [
-              {
-                "@type": "ContactPoint",
-                "telephone": "+91-XXXXXXXXXX",
-                "contactType": "customer service",
-                "availableLanguage": ["English", "Hindi"],
-                "hoursAvailable": {
-                  "@type": "OpeningHoursSpecification",
-                  "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-                  "opens": "09:00",
-                  "closes": "21:00"
-                }
-              }
-            ],
-            "sameAs": [
-              "https://www.facebook.com/chooseyourtherapist",
-              "https://www.instagram.com/chooseyourtherapist",
-              "https://www.linkedin.com/company/chooseyourtherapist",
-              "https://twitter.com/chooseyourtherapist"
-            ],
-            "hasOfferCatalog": {
-              "@type": "OfferCatalog",
-              "name": "Therapy Services",
-              "itemListElement": [
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Individual Therapy Session",
-                    "description": "One-on-one therapy session with a verified psychologist"
-                  },
-                  "priceSpecification": {
-                    "@type": "PriceSpecification",
-                    "price": "500",
-                    "priceCurrency": "INR"
-                  }
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Free Consultation",
-                    "description": "15-minute free consultation to discuss your therapy needs"
-                  },
-                  "priceSpecification": {
-                    "@type": "PriceSpecification",
-                    "price": "0",
-                    "priceCurrency": "INR"
-                  }
-                }
-              ]
-            }
+            "priceRange": "₹500-₹2000"
           })}
         </script>
-
-        {/* Breadcrumb Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": "https://chooseyourtherapist.in"
-              }
-            ]
-          })}
-        </script>
-
-        {/* Service Schema */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Service",
-            "name": "Online Therapy & Counseling",
-            "description": "Professional mental health counseling and therapy services provided by verified psychologists and therapists.",
-            "provider": {
-              "@type": "LocalBusiness",
-              "@id": "https://chooseyourtherapist.in/#organization"
-            },
-            "serviceType": "Mental Health Service",
-            "areaServed": {
-              "@type": "Country",
-              "name": "India"
-            },
-            "hasOfferCatalog": {
-              "@type": "OfferCatalog",
-              "name": "Therapy Services",
-              "itemListElement": [
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Individual Counseling Session",
-                    "description": "45-minute one-on-one therapy session"
-                  },
-                  "priceSpecification": {
-                    "@type": "PriceSpecification",
-                    "price": "500",
-                    "priceCurrency": "INR",
-                    "valueAddedTaxIncluded": false
-                  },
-                  "availability": "https://schema.org/InStock"
-                },
-                {
-                  "@type": "Offer",
-                  "itemOffered": {
-                    "@type": "Service",
-                    "name": "Free Initial Consultation",
-                    "description": "15-minute free consultation to assess therapy needs"
-                  },
-                  "priceSpecification": {
-                    "@type": "PriceSpecification",
-                    "price": "0",
-                    "priceCurrency": "INR"
-                  },
-                  "availability": "https://schema.org/InStock"
-                }
-              ]
-            },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "150",
-              "bestRating": "5",
-              "worstRating": "1"
-            }
-          })}
-        </script>
-
-        {/* FAQ Schema */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "How do I book a therapy session?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Booking a therapy session is simple. Choose your preferred therapist from our verified network, select a convenient time slot, and complete the secure payment process. You'll receive confirmation and session details via email and SMS."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Are your therapists verified and qualified?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes, all therapists on our platform are thoroughly verified and hold valid qualifications in psychology, counseling, or psychiatry. We conduct background checks and verify credentials before onboarding any professional."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "What types of therapy do you offer?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "We offer various types of therapy including Cognitive Behavioral Therapy (CBT), counseling for anxiety, depression, relationship issues, stress management, and more. Both online and in-person sessions are available."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "How much does a therapy session cost?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Session prices start from ₹500 and vary based on the therapist's experience and specialization. We offer competitive pricing with a free initial consultation to help you choose the right therapist."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Is my information confidential?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Absolutely. We maintain strict confidentiality standards. All communications between you and your therapist are private and protected. We comply with professional ethics and data protection regulations."
-                }
-              }
-            ]
-          })}
-        </script>
-
-        {/* Event Schema for Workshops */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Event",
-            "name": "Mental Health Workshop",
-            "description": "Join our expert-led workshops on mental health awareness, stress management, and emotional well-being.",
-            "startDate": "2024-12-01T10:00:00+05:30",
-            "endDate": "2024-12-01T12:00:00+05:30",
-            "eventStatus": "https://schema.org/EventScheduled",
-            "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-            "location": {
-              "@type": "VirtualLocation",
-              "url": "https://chooseyourtherapist.in/workshop-link"
-            },
-            "organizer": {
-              "@type": "Organization",
-              "@id": "https://chooseyourtherapist.in/#organization"
-            },
-            "performer": {
-              "@type": "Person",
-              "name": "Expert Psychologist"
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": "299",
-              "priceCurrency": "INR",
-              "availability": "https://schema.org/InStock",
-              "validFrom": "2024-01-01"
-            }
-          })}
-        </script>
-      </Helmet>
+      </Head>
 
       <main className="">
         {/* Navbar */}
