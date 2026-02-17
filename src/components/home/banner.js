@@ -249,9 +249,9 @@ export default function Banner() {
       <section
         className="rbt-banner-area rbt-banner-1"
         style={{
-          paddingTop: isMobile ? "60px" : "40px",
+          paddingTop: isMobile ? "20px" : "40px",
           marginTop: "0px",
-          paddingBottom: isMobile ? "40px" : "30px",
+          paddingBottom: isMobile ? "20px" : "30px",
           marginBottom: isMobile ? "0px" : "20px",
           backgroundColor: "inherit",
           overflowX: "hidden",
@@ -274,7 +274,7 @@ export default function Banner() {
                   alignItems: "center", 
                   justifyContent: "center",
                   textAlign: "center",
-                  py: isMobile ? 4 : 4,
+                  py: isMobile ? 1 : 4,
                   px: 2,
                   width: "100%",
                   mx: "auto",
@@ -284,8 +284,8 @@ export default function Banner() {
                     <h1
                     className="title"
                     style={{
-                      fontSize: isMobile ? "2.2rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "2.4rem" : isTablet ? "3.8rem" : "5.5rem",
+                      fontSize: isMobile ? "3.8rem" : isTablet ? "3.2rem" : "4.8rem",
+                      lineHeight: isMobile ? "4.2rem" : isTablet ? "3.8rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
                       fontWeight: 900,
@@ -295,13 +295,8 @@ export default function Banner() {
                       padding: isMobile ? "0 5px" : "0"
                     }}
                   >
-                    Find a <Box component="span" sx={{ 
-                      position: 'relative',
-                      display: 'inline-block',
-                      px: isMobile ? 0.2 : 1,
-                      zIndex: 1
-                    }}>
-                      <span style={{ 
+                    <Box component="span" sx={{ display: isMobile ? "block" : "inline" }}>
+                      Find a <span style={{ 
                         backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
                         WebkitBackgroundClip: "text", 
                         backgroundClip: "text",
@@ -309,7 +304,11 @@ export default function Banner() {
                         color: "transparent",
                         display: "inline-block",
                         animation: "handDrawnWobble 0.5s ease-in-out infinite alternate"
-                      }}>Therapist</span> Across <span style={{
+                      }}>Therapist</span>
+                    </Box>
+                    {isMobile ? "" : " "}
+                    <Box component="span" sx={{ display: isMobile ? "block" : "inline" }}>
+                      Across <span style={{
                         backgroundImage: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", 
                         WebkitBackgroundClip: "text", 
                         backgroundClip: "text",
@@ -323,7 +322,7 @@ export default function Banner() {
                   {/* Description */}
                   <Typography variant="h6" sx={{ 
                     color: "#444444", 
-                    maxWidth: "800px", 
+                    maxWidth: isMobile ? "310px" : "800px", 
                     margin: "0 auto", 
                     lineHeight: isMobile ? 1.4 : 1.6,
                     fontSize: isMobile ? "15px" : "22px",
@@ -334,8 +333,7 @@ export default function Banner() {
                     display: "block"
                   }}>
                     Find a qualified psychologist anywhere in India for online or in-person therapy. 
-                    {!isMobile && <br />}
-                     Explore verified professionals, compare specializations, and book confidential sessions for anxiety, stress, relationships, and emotional well-being.
+                    Explore verified professionals, compare specializations, and book confidential sessions for anxiety, stress, relationships, and emotional well-being.
                   </Typography>
 
                   {/* Google Reviews One-Liner */}
@@ -348,7 +346,7 @@ export default function Banner() {
                       display: "flex", 
                       alignItems: "center", 
                       gap: isMobile ? 1 : 1.5, 
-                      mb: 4, 
+                      mb: 2, 
                       textDecoration: "none",
                       background: "rgba(255, 255, 255, 0.8)",
                       padding: isMobile ? "6px 12px" : "8px 20px",
@@ -395,21 +393,22 @@ export default function Banner() {
                   {/* Banner Buttons */}
                   <div className="rbt-button-group justify-content-center" style={{ 
                     display: "flex", 
-                    gap: isMobile ? "6px" : "20px", 
-                    flexDirection: isMobile ? "column" : "row",
+                    gap: isMobile ? "5px" : "20px", 
+                    flexDirection: isMobile ? "row" : "row",
+                    flexWrap: isMobile ? "nowrap" : "nowrap",
                     width: isMobile ? "100%" : "auto",
-                    maxWidth: isMobile ? "320px" : "none",
+                    maxWidth: isMobile ? "100%" : "none",
                     justifyContent: "center",
                     alignItems: "center",
-                    marginBottom: isMobile ? "30px" : "60px"
+                    marginBottom: isMobile ? "20px" : "60px"
                   }}>
                     <Link
                       className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
                       to="/view-all-therapist"
-                      style={{ width: isMobile ? "100%" : "auto", textAlign: "center" }}
+                      style={{ width: isMobile ? "auto" : "auto", textAlign: "center", padding: isMobile ? "0 15px" : "" }}
                     >
                       <span className="icon-reverse-wrapper">
-                        <span className="btn-text">Find a Therapist</span>
+                        <span className="btn-text" style={{ fontSize: isMobile ? "12px" : "" }}>Find a Therapist</span>
                         <span className="btn-icon">
                           <i className="feather-arrow-right"></i>
                         </span>
@@ -422,13 +421,14 @@ export default function Banner() {
                       className="rbt-btn btn-white btn-sm hover-icon-reverse"
                       to="/therapists"
                       style={{ 
-                        width: isMobile ? "100%" : "auto", 
+                        width: isMobile ? "auto" : "auto", 
                         textAlign: "center",
-                        border: "2px solid #27ae60"
+                        border: "2px solid #27ae60",
+                        padding: isMobile ? "0 15px" : ""
                       }}
                     >
                       <span className="icon-reverse-wrapper">
-                        <span className="btn-text">Therapy Plans</span>
+                        <span className="btn-text" style={{ fontSize: isMobile ? "12px" : "" }}>Therapy Plans</span>
                         <span className="btn-icon">
                           <i className="feather-arrow-right"></i>
                         </span>
@@ -445,7 +445,7 @@ export default function Banner() {
         </div>
       </div>
 
-      {/* Trusted Therapists Full-Width Strip */}
+      {/* Blended Therapist Cards Section */}
       <Box sx={{ 
         width: "100vw", 
         position: "relative",
@@ -453,13 +453,11 @@ export default function Banner() {
         right: "50%",
         marginLeft: "-50vw",
         marginRight: "-50vw",
-        bgcolor: "white", 
-        py: 1, 
-        borderTop: "1px solid #f1f5f9",
-        borderBottom: "1px solid #f1f5f9",
+        bgcolor: "transparent", 
+        py: isMobile ? 2 : 4, 
         overflow: "hidden",
         zIndex: 2,
-        mt: -4
+        mt: isMobile ? -2 : -4
       }}>
         <Box sx={{ 
           display: "flex", 
@@ -468,37 +466,72 @@ export default function Banner() {
           "&:hover": { animationPlayState: "paused" }
         }}>
           {[...topTherapists, ...topTherapists, ...topTherapists].map((therapist, i) => (
-            <Box key={i} sx={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: 2, 
-              mx: 6,
-              cursor: "pointer"
-            }}>
-              <Avatar 
-                src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
-                sx={{ 
-                  width: 55, 
-                  height: 55, 
-                  border: "2px solid #f8fafc",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
-                }} 
-              />
-              <Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <Typography sx={{ fontSize: "15px", fontWeight: 800, color: "#1a1a1a", whiteSpace: "nowrap" }}>
-                    {therapist.user?.name}
+            <Box 
+              key={i} 
+              component={Link}
+              to={`/view-profile/${therapist.id}`}
+              sx={{ 
+                display: "flex", 
+                flexDirection: "column",
+                bgcolor: "white",
+                p: 2,
+                mx: 2,
+                borderRadius: "20px",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                border: "1px solid #f1f5f9",
+                minWidth: isMobile ? "240px" : "280px",
+                textDecoration: "none",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-8px)",
+                  boxShadow: "0 15px 35px rgba(39, 174, 96, 0.12)",
+                  borderColor: "#27ae60"
+                }
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+                <Avatar 
+                  src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
+                  sx={{ 
+                    width: 60, 
+                    height: 60, 
+                    border: "2px solid #f0fdf4",
+                  }} 
+                />
+                <Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <Typography sx={{ fontSize: "15px", fontWeight: 800, color: "#1a1a1a", whiteSpace: "nowrap" }}>
+                      {therapist.user?.name}
+                    </Typography>
+                    <CheckCircle sx={{ fontSize: 16, color: "#228756" }} />
+                  </Box>
+                  <Typography sx={{ fontSize: "12px", color: "#228756", fontWeight: 700, whiteSpace: "nowrap", textTransform: "capitalize" }}>
+                    {therapist.profile_type || "Verified Specialist"}
                   </Typography>
-                  <CheckCircle sx={{ fontSize: 16, color: "#228756" }} />
                 </Box>
-                <Typography sx={{ fontSize: "12px", color: "#228756", fontWeight: 700, whiteSpace: "nowrap", textTransform: "capitalize" }}>
-                  {therapist.profile_type || "Verified Specialist"}
+              </Box>
+              
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: "auto" }}>
+                <Typography sx={{ fontSize: "11px", color: "#64748b", fontWeight: 500 }}>
+                  {therapist.state || "India"}
                 </Typography>
-                {therapist.state && (
-                  <Typography sx={{ fontSize: "11px", color: "#64748b", fontWeight: 500, whiteSpace: "nowrap" }}>
-                    {therapist.state}
-                  </Typography>
-                )}
+                <Box
+                  sx={{ 
+                    fontSize: "12px", 
+                    fontWeight: 700, 
+                    color: "white", 
+                    backgroundColor: "#228756",
+                    padding: "6px 14px",
+                    borderRadius: "50px",
+                    transition: "all 0.3s ease",
+                    display: "inline-block",
+                    "&:hover": {
+                      backgroundColor: "#1a6b44"
+                    }
+                  }}
+                >
+                  View Profile
+                </Box>
               </Box>
             </Box>
           ))}
@@ -546,6 +579,19 @@ export default function Banner() {
       </Dialog>
 
       <style>{`
+        @keyframes orbitRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes counterRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-360deg); }
+        }
+        @keyframes pulseCenter {
+          0% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+          50% { transform: scale(1.05); box-shadow: 0 15px 45px rgba(39, 174, 96, 0.15); }
+          100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        }
         @keyframes revealText {
           from { transform: translateY(110%); }
           to { transform: translateY(0); }
