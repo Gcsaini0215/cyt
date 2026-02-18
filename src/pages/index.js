@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useCallback } from "react";
 import { Helmet } from "react-helmet-async"; // SEO ke liye
 import Footer from "../components/footer";
 import Banner from "../components/home/banner";
@@ -13,10 +14,36 @@ import MyNavbar from "../components/navbar";
 import BottomNavigation from "../components/bottom-navigation";
 
 import Brands from "../components/about/brands";
+import { fetchData } from "../utils/actions";
+import { getTherapistProfiles } from "../utils/url";
 
 
 export default function HomePage() {
-  // const [showPopup, setShowPopup] = useState(false); // agar popup use karna ho
+  const [topTherapists, setTopTherapists] = useState([]);
+
+  const getTopTherapists = useCallback(async () => {
+    try {
+      const res = await fetchData(getTherapistProfiles);
+      if (res && res.status && res.data) {
+        const allTherapists = res.data || [];
+        const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1);
+        let recommendedTherapists = [...priorityTherapists];
+
+        if (recommendedTherapists.length < 10) {
+          const remainingNeeded = 10 - recommendedTherapists.length;
+          const otherTherapists = allTherapists.filter(therapist => therapist.priority !== 1).slice(0, remainingNeeded);
+          recommendedTherapists = [...recommendedTherapists, ...otherTherapists];
+        }
+        setTopTherapists(recommendedTherapists.slice(0, 10));
+      }
+    } catch (error) {
+      console.log("Error fetching top therapists:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getTopTherapists();
+  }, [getTopTherapists]);
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
@@ -103,7 +130,7 @@ export default function HomePage() {
 
         <main className="rbt-main-wrapper">
           {/* Homepage Sections */}
-          <Banner />
+          <Banner topTherapists={topTherapists} />
           <Specializations />
           <ProfileCard />
           <FreeResources />

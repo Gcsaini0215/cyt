@@ -47,23 +47,64 @@ const ClientImg = "/assets/img/avatar-027dc8.png";
 const Fabiha = "/assets/img/psychologist.png";
 const counselling1 = "/assets/img/counselling.png";
 
+const bannerStyles = `
+.home-banner-with-img {
+  position: relative;
+  overflow: hidden;
+  background-image: url('/assets/img/bg-image-10e53d.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+@keyframes flipWord {
+  0% { transform: translateY(100%); opacity: 0; }
+  10% { transform: translateY(0); opacity: 1; }
+  90% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+.flipping-word {
+  display: inline-block;
+  animation: flipWord 3s infinite;
+  font-weight: 900;
+}
+
+@media (max-width: 768px) {
+  .home-banner-with-img {
+    background-attachment: scroll;
+  }
+}
+`;
 
 
-
-export default function Banner() {
+export default function Banner({ topTherapists = [] }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
-  // State for top therapists section
-
+  // State
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [dynamicFeelingCards, setDynamicFeelingCards] = useState([]);
-  const [topTherapists, setTopTherapists] = useState([]);
 
-  const [topTherapistsLoading, setTopTherapistsLoading] = useState(true);
-  const [topTherapistsError, setTopTherapistsError] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
+  const [wordIndex, setWordIndex] = useState(0);
+
+  const rotatingWords = [
+    { text: "Mental Wellness", gradient: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)" }, // Violet to Purple for calm/peace
+    { text: "Expert Guidance", gradient: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }, // Deep Blue to Royal Blue
+    { text: "Personal Growth", gradient: "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)" }, // Amber to Deep Orange for growth/energy
+    { text: "Anxiety Support", gradient: "linear-gradient(135deg, #4338ca 0%, #6366f1 100%)" }, // Indigo to Slate Blue
+    { text: "Better Living", gradient: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)" }   // Deep Sky Blue to Cyan
+  ];
+
+  useEffect(() => {
+    const wordInterval = setInterval(() => {
+      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
+    }, 3000);
+    return () => clearInterval(wordInterval);
+  }, []);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTherapist, setSelectedTherapist] = useState(null);
@@ -89,11 +130,8 @@ export default function Banner() {
         const google = await loader.load();
         const service = new google.maps.places.PlacesService(document.createElement('div'));
         
-        // Use the CID to find the place (Search by name + proximity is more reliable client-side)
-        // For CID 12001203109189345391, we try to get details if we had a placeId.
-        // Since we only have CID, we use a query that typically works for CID lookup
         const request = {
-          query: 'Choose Your Therapist', // This should match your exact Google Business name
+          query: 'Choose Your Therapist',
           fields: ['name', 'rating', 'user_ratings_total'],
         };
 
@@ -105,7 +143,6 @@ export default function Banner() {
               loading: false
             });
           } else {
-            // If API fails, we use the baseline from your profile
             setGoogleReviews({ rating: 4.9, count: 532, loading: false }); 
           }
         });
@@ -144,75 +181,6 @@ export default function Banner() {
     }, 300);
   }, []);
 
-  // Fetch top therapists data
-  const getTopTherapists = useCallback(async () => {
-    try {
-      const res = await fetchData(getTherapistProfiles);
-      if (res && res.status && res.data) {
-        // Get all therapists data
-        const allTherapists = res.data || [];
-
-        // --- LOGIC TO EXTRACT TOP EXPERTISE ---
-        const expertiseCounts = {};
-        allTherapists.forEach(therapist => {
-          if (therapist.experties) {
-            // Split by comma, trim whitespace
-            const tags = therapist.experties.split(',').map(t => t.trim());
-            tags.forEach(tag => {
-              if (tag) {
-                expertiseCounts[tag] = (expertiseCounts[tag] || 0) + 1;
-              }
-            });
-          }
-        });
-
-        // Sort by count and take top 8
-        const sortedExpertise = Object.entries(expertiseCounts)
-          .sort(([,a], [,b]) => b - a)
-          .slice(0, 8)
-          .map(([label]) => {
-            const style = getStyleForExpertise(label);
-            return { label, ...style };
-          });
-
-        setDynamicFeelingCards(sortedExpertise);
-        // --------------------------------------
-
-        // First, get all priority 1 therapists
-        const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1);
-
-        // If we have less than 10 priority therapists, fill with other therapists
-        let recommendedTherapists = [...priorityTherapists];
-
-        if (recommendedTherapists.length < 10) {
-          const remainingNeeded = 10 - recommendedTherapists.length;
-          const otherTherapists = allTherapists.filter(therapist => therapist.priority !== 1).slice(0, remainingNeeded);
-          recommendedTherapists = [...recommendedTherapists, ...otherTherapists];
-        }
-
-        // Limit to 10 therapists for mobile view
-        setTopTherapists(recommendedTherapists.slice(0, 10));
-      } else {
-        setTopTherapists([]);
-      }
-    } catch (error) {
-      console.log("Error fetching top therapists:", error);
-      // Set error state
-      setTopTherapistsError(true);
-      setTopTherapists([]);
-      setDynamicFeelingCards([]);
-    } finally {
-      setTopTherapistsLoading(false);
-    }
-  }, []);
-
-  // Retry function for failed data loads
-  const retryFetchData = useCallback(() => {
-    setTopTherapistsError(false);
-    setTopTherapistsLoading(true);
-    getTopTherapists();
-  }, [getTopTherapists]);
-
   // Helper to assign icons and colors based on expertise text
   const getStyleForExpertise = (text) => {
     const lowerText = (text || "").toLowerCase();
@@ -227,36 +195,46 @@ export default function Banner() {
     return { icon: <Spa sx={{ fontSize: 24 }} />, color: "#F0FDF4", border: "#DCFCE7", iconColor: "#228756" }; // Default
   };
 
-  // Fetch top therapists data on mount
   useEffect(() => {
-    getTopTherapists();
-  }, [getTopTherapists]);
+    if (topTherapists && topTherapists.length > 0) {
+      const expertiseCounts = {};
+      topTherapists.forEach(therapist => {
+        if (therapist.experties) {
+          const tags = therapist.experties.split(',').map(t => t.trim());
+          tags.forEach(tag => {
+            if (tag) {
+              expertiseCounts[tag] = (expertiseCounts[tag] || 0) + 1;
+            }
+          });
+        }
+      });
 
-  // Animated placeholder cycling (reduced frequency on mobile for better performance)
+      const sortedExpertise = Object.entries(expertiseCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 8)
+        .map(([label]) => {
+          const style = getStyleForExpertise(label);
+          return { label, ...style };
+        });
+
+      setDynamicFeelingCards(sortedExpertise);
+    }
+  }, [topTherapists]);
+
+  // Animated placeholder cycling
   useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIndex((prev) => (prev + 1) % placeholderTexts.length);
-    }, isMobile ? 5000 : 3000); // Slower on mobile
+    }, isMobile ? 5000 : 3000);
 
     return () => clearInterval(interval);
   }, [placeholderTexts.length, isMobile]);
 
-  // Filter therapists based on search query
-  const filteredTherapists = useMemo(() => {
-    return topTherapists.filter((therapist) => {
-      const name = therapist.user?.name || "";
-      const profileType = therapist.profile_type || "";
-      const state = therapist.state || "";
-      const query = searchQuery.toLowerCase();
-      return name.toLowerCase().includes(query) ||
-             profileType.toLowerCase().includes(query) ||
-             state.toLowerCase().includes(query);
-    });
-  }, [topTherapists, searchQuery]);
-
   return (
+    <>
+      <style>{bannerStyles}</style>
       <section
-        className="rbt-banner-area rbt-banner-1"
+        className="rbt-banner-area rbt-banner-1 home-banner-with-img"
         style={{
           paddingTop: isMobile ? "20px" : "40px",
           marginTop: "0px",
@@ -268,9 +246,6 @@ export default function Banner() {
           backgroundPosition: "center"
         }}
       >
-
-
-
       <div className="container mt--20" style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
         <div className="row justify-content-center text-center" style={{ width: '100%' }}>
           <div className="col-lg-12 col-md-12 col-sm-12 col-12">
@@ -301,30 +276,56 @@ export default function Banner() {
                       textAlign: "center",
                       width: "100%",
                       display: "block",
-                      padding: isMobile ? "0 5px" : "0"
+                      padding: isMobile ? "0 5px" : "0",
+                      color: "#1e293b"
                     }}
                   >
-                    <Box component="span" sx={{ display: "inline" }}>
+                    <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
                       Find <span style={{ 
-                        backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
+                        color: "#2ecc71", 
+                        display: "inline-block",
+                        margin: "0 10px",
+                        fontWeight: 900
+                      }}>Best Therapist</span>
+                      Across <span style={{
+                        backgroundImage: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", 
                         WebkitBackgroundClip: "text", 
                         backgroundClip: "text",
                         WebkitTextFillColor: "transparent",
                         color: "transparent",
                         display: "inline-block",
-                        animation: "handDrawnWobble 0.5s ease-in-out infinite alternate"
-                      }}>Best Therapist</span>
-                    </Box>
-                    {" "}
-                    <Box component="span" sx={{ display: "inline" }}>
-                      Across <span style={{
-                        backgroundImage: "linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)", 
-                        WebkitBackgroundClip: "text", 
-                        backgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        color: "transparent",
-                        display: "inline-block"
-                      }}>India</span>
+                        margin: "0 10px",
+                        fontWeight: 800
+                      }}>India</span> for
+                      <Box component="span" sx={{ 
+                        display: "inline-block", 
+                        position: "relative",
+                        verticalAlign: "bottom",
+                        height: isMobile ? "3.2rem" : "6.5rem",
+                        overflow: "hidden",
+                        width: isMobile ? "240px" : "480px", 
+                        textAlign: "center",
+                        ml: isMobile ? 0 : 1
+                      }}>
+                        <span 
+                          key={wordIndex}
+                          className="flipping-word"
+                          style={{ 
+                            backgroundImage: rotatingWords[wordIndex].gradient, 
+                            WebkitBackgroundClip: "text", 
+                            backgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            color: "transparent",
+                            fontSize: isMobile ? "0.9em" : "1em",
+                            lineHeight: isMobile ? "3.2rem" : "6.5rem",
+                            whiteSpace: "nowrap",
+                            width: "100%",
+                            display: "block"
+                          }}
+                        >
+                          {rotatingWords[wordIndex].text}
+                        </span>
+                      </Box>
                     </Box>
                   </h1>
 
@@ -804,5 +805,6 @@ export default function Banner() {
         }
       `}</style>
     </section>
+    </>
   );
 }
