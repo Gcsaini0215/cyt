@@ -277,18 +277,18 @@ export default function Banner({ topTherapists = [] }) {
                       width: "100%",
                       display: "block",
                       padding: isMobile ? "0 5px" : "0",
-                      color: "#1e293b"
+                      color: "#0f172a"
                     }}
                   >
                     <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
-                      Find <span style={{ 
-                        color: "#2ecc71", 
+                      Explore <span style={{ 
+                        color: "#228756", 
                         display: "inline-block",
                         margin: "0 10px",
                         fontWeight: 900
                       }}>Best Therapist</span>
                       Across <span style={{
-                        backgroundImage: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", 
+                        backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
                         WebkitBackgroundClip: "text", 
                         backgroundClip: "text",
                         WebkitTextFillColor: "transparent",
@@ -331,14 +331,14 @@ export default function Banner({ topTherapists = [] }) {
 
                   {/* Description */}
                   <Typography variant="h6" sx={{ 
-                    color: "#444444", 
+                    color: "#333333", 
                     maxWidth: isMobile ? "320px" : "800px", 
                     margin: "0 auto", 
                     lineHeight: isMobile ? 1.5 : 1.6,
                     fontSize: isMobile ? "13px" : "18px",
                     mb: isMobile ? 2 : 3,
                     px: isMobile ? 1 : 0,
-                    fontWeight: 400,
+                    fontWeight: 500,
                     textAlign: "center",
                     display: "block",
                     fontFamily: "'Inter', 'Poppins', sans-serif",
@@ -360,7 +360,7 @@ export default function Banner({ topTherapists = [] }) {
                       gap: isMobile ? 1 : 1.5, 
                       mb: 2, 
                       textDecoration: "none",
-                      background: "rgba(255, 255, 255, 0.8)",
+                      background: "#ffffff",
                       padding: isMobile ? "6px 12px" : "8px 20px",
                       borderRadius: "50px",
                       border: "1px solid #e2e8f0",
@@ -417,7 +417,7 @@ export default function Banner({ topTherapists = [] }) {
                       className="rbt-btn btn-gradient btn-sm"
                       to="/view-all-therapist"
                       style={{ 
-                        width: isMobile ? "100%" : "220px", 
+                        width: isMobile ? "100%" : "280px", 
                         textAlign: "center", 
                         padding: isMobile ? "0 10px" : "0 30px",
                         height: isMobile ? "45px" : "55px",
@@ -428,22 +428,23 @@ export default function Banner({ topTherapists = [] }) {
                     >
                       <span className="btn-text">Find a Therapist</span>
                     </Link>
-                    <Link
+                    <Box
                       className="rbt-btn btn-white btn-sm"
-                      to="/plans"
+                      onClick={handleOpenModal}
                       style={{ 
-                        width: isMobile ? "100%" : "220px", 
+                        width: isMobile ? "100%" : "280px", 
                         textAlign: "center",
                         border: "2px solid #27ae60",
                         padding: isMobile ? "0 10px" : "0 30px",
                         height: isMobile ? "45px" : "55px",
                         lineHeight: isMobile ? "45px" : "55px",
                         fontSize: isMobile ? "14px" : "16px",
-                        fontWeight: 700
+                        fontWeight: 700,
+                        cursor: "pointer"
                       }}
                     >
-                      <span className="btn-text">Therapy Plans</span>
-                    </Link>
+                      <span className="btn-text">15 Min Free Consultation</span>
+                    </Box>
                   </div>
                 </Box>
               </div>
@@ -621,11 +622,25 @@ export default function Banner({ topTherapists = [] }) {
         TransitionComponent={Zoom}
         maxWidth="sm"
         fullWidth
+        scroll="paper"
         PaperProps={{
           sx: {
             borderRadius: "24px",
             p: 1,
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            margin: isMobile ? "20px" : "32px",
+            maxHeight: isMobile ? "calc(100% - 40px)" : "calc(100% - 64px)",
+            position: "relative",
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column"
+          }
+        }}
+        sx={{
+          zIndex: 9999,
+          '& .MuiDialog-container': {
+            alignItems: 'center',
+            justifyContent: 'center',
           }
         }}
       >

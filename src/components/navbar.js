@@ -12,7 +12,12 @@ export default function App() {
   const [show, setShow] = React.useState(false);
   const [showChatbot, setShowChatbot] = React.useState(false);
   const [userType, setUserType] = React.useState(0);
+  const [activeDropdown, setActiveDropdown] = React.useState("");
   const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
+
+  const toggleDropdown = (name) => {
+    setActiveDropdown(activeDropdown === name ? "" : name);
+  };
 
   useEffect(() => {
     const data = getToken();
@@ -72,9 +77,9 @@ export default function App() {
             <div className="mainbar-row rbt-navigation-start align-items-center">
               <div className="header-left rbt-header-content">
                 <div className="header-info">
-                  <div className="logo">
+                  <div className="logo d-flex align-items-center">
                     <Link to="/" style={{ cursor: "pointer" }}>
-                      <ImageTag alt="Education Logo Images" height={"50"} width={"152"} src="/assets/img/logo.png" />
+                      <ImageTag alt="Education Logo Images" height={"40"} width={"120"} src="/assets/img/logo.png" />
                     </Link>
                   </div>
                 </div>
@@ -109,32 +114,6 @@ export default function App() {
               {/* Header Right */}
               <div className="header-right">
                 <ul className="quick-access">
-                  <li className="access-icon">
-                    <a
-                      href="https://api.whatsapp.com/send?phone=918077757951&text=Hi%20Choose%20Your%20Therapist%20team,%20I%20need%20help"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rbt-round-btn"
-                      style={{
-                        backgroundColor: "#25D366",
-                        border: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        cursor: "pointer",
-                        textDecoration: "none",
-                        boxShadow: "0 2px 8px rgba(37, 211, 102, 0.3)"
-                      }}
-                    >
-                      <i
-                        className="fab fa-whatsapp"
-                        style={{ color: "#fff", fontSize: "18px" }}
-                      ></i>
-                    </a>
-                  </li>
                   <li className="account-access rbt-user-wrapper d-none d-xl-block">
                     {userType === 1 || userType === 2 ? (
                       <Link
@@ -195,66 +174,253 @@ export default function App() {
 
       {/* Mobile Menu */}
       <div className={show ? "popup-mobile-menu active" : "popup-mobile-menu"}>
+        <style>{`
+          .popup-mobile-menu .inner-wrapper::-webkit-scrollbar {
+            display: none;
+          }
+          .popup-mobile-menu .inner-wrapper {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            width: 260px !important;
+            padding: 0 !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+          }
+          .mobile-menu-header {
+            padding: 20px !important;
+            background: transparent;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+          }
+          .popup-mobile-menu .mobile-menu {
+            padding: 10px 20px !important;
+            flex: 1;
+          }
+          .popup-mobile-menu .mobile-menu li a {
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            color: #334155 !important;
+            padding: 12px 0 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          .popup-mobile-menu .mobile-menu li a i {
+            font-size: 14px;
+            color: #94a3b8;
+          }
+          .popup-mobile-menu .mobile-menu li.has-dropdown > a::after {
+            display: none !important;
+          }
+          .popup-mobile-menu .mobile-menu .submenu {
+            background: #f8fafc !important;
+            border-radius: 12px !important;
+            margin: 8px 0 !important;
+            padding: 8px 12px !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+          }
+          .popup-mobile-menu .mobile-menu .submenu li a {
+            border-bottom: none !important;
+            font-size: 13px !important;
+            color: #64748b !important;
+            padding: 8px 0 !important;
+          }
+          .nav-ad-banner {
+            margin: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #228756 0%, #1a6d45 100%);
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(34, 135, 86, 0.2);
+          }
+          .nav-ad-banner::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+          }
+          .mobile-footer-section {
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+          }
+          .social-links-mobile {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+          }
+          .social-links-mobile a {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+          }
+          .social-links-mobile a:hover {
+            color: #228756;
+            transform: translateY(-2px);
+          }
+          .contact-pill-mobile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #475569;
+            border: 1px solid #f1f5f9;
+          }
+          .contact-pill-mobile i {
+            color: #228756;
+          }
+        `}</style>
         <div className="inner-wrapper">
           <div className="mobile-menu-header">
-            <button className="close-menu" onClick={() => setShow(false)}>
-              <i className="feather-x"></i>
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+              <div className="logo">
+                <Link to="/" onClick={() => setShow(false)}>
+                  <ImageTag alt="Logo" height={"35"} width={"110"} src="/assets/img/logo.png" />
+                </Link>
+              </div>
+              <button className="close-menu" onClick={() => setShow(false)} style={{ background: '#f8fafc', width: '36px', height: '36px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f1f5f9' }}>
+                <i className="feather-x" style={{ fontSize: '18px', color: '#64748b' }}></i>
+              </button>
+            </div>
           </div>
-          <ul className="mobile-menu">
-            <li><Link to="/" onClick={() => setShow(false)}>Home</Link></li>
-            <li><Link to="/view-all-therapist" onClick={() => setShow(false)}>Therapist Directory</Link></li>
-            <li className="has-dropdown">
-              <Link to="#" onClick={() => setShow(false)}>Services <i className="feather-chevron-down"></i></Link>
-              <ul className="submenu">
+          
+          <ul className="mobile-menu" style={{ borderTop: 'none' }}>
+            <li className="mb-2">
+              {userType === 1 || userType === 2 ? (
+                <div 
+                  style={{ 
+                    background: '#f8fafc',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '1px solid #f1f5f9',
+                    marginBottom: '10px'
+                  }}
+                >
+                  <Link 
+                    to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} 
+                    onClick={() => setShow(false)}
+                    className="d-flex align-items-center gap-3"
+                    style={{ borderBottom: 'none !important', padding: '0 !important' }}
+                  >
+                    <div style={{ position: 'relative' }}>
+                      <ImageTag
+                        alt="Profile"
+                        style={{
+                          height: 40,
+                          width: 40,
+                          borderRadius: "12px",
+                          objectFit: "cover",
+                          border: "2px solid #fff",
+                          boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
+                        }}
+                        src={userType === 2 && therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
+                          ? `${imagePath}/${therapistInfo.user.profile}` 
+                          : defaultProfile}
+                      />
+                      <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', background: '#228756', borderRadius: '50%', border: '2px solid #fff' }}></div>
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#1e293b', display: 'block' }}>
+                        {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist")}
+                      </span>
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>View Dashboard</span>
+                    </div>
+                  </Link>
+                </div>
+              ) : (
+                <Link to="/login" onClick={() => setShow(false)} style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #f1f5f9', color: '#228756 !important', fontWeight: '700', justifyContent: 'center' }}>
+                  <i className="feather-user" style={{ marginRight: '8px', color: '#228756' }}></i> Sign In / Sign Up
+                </Link>
+              )}
+            </li>
+
+            <li><Link to="/" onClick={() => setShow(false)}>Home <i className="feather-chevron-right"></i></Link></li>
+            <li><Link to="/view-all-therapist" onClick={() => setShow(false)}>Therapist Directory <i className="feather-chevron-right"></i></Link></li>
+            <li className={`has-dropdown ${activeDropdown === "services" ? "open" : ""}`}>
+              <Link to="#" onClick={(e) => { e.preventDefault(); toggleDropdown("services"); }}>
+                Services <i className={`feather-chevron-${activeDropdown === "services" ? "up" : "down"}`}></i>
+              </Link>
+              <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
                 <li><Link to="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
-                <li><Link to="/mind-matters" onClick={() => setShow(false)}>Mind Matters Programs</Link></li>
                 <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
               </ul>
             </li>
-            <li className="has-dropdown">
-              <Link to="#" onClick={() => setShow(false)}>About <i className="feather-chevron-down"></i></Link>
-              <ul className="submenu">
-                <li><Link to="/about-us" onClick={() => setShow(false)}>About us</Link></li>
+            <li className={`has-dropdown ${activeDropdown === "about" ? "open" : ""}`}>
+              <Link to="#" onClick={(e) => { e.preventDefault(); toggleDropdown("about"); }}>
+                About <i className={`feather-chevron-${activeDropdown === "about" ? "up" : "down"}`}></i>
+              </Link>
+              <ul className="submenu" style={{ display: activeDropdown === "about" ? "block" : "none" }}>
+                <li><Link to="/about-us" onClick={() => setShow(false)}>Our Story</Link></li>
                 <li><Link to="/contact-us" onClick={() => setShow(false)}>Contact us</Link></li>
+                <li><Link to="/faqs" onClick={() => setShow(false)}>Faqs</Link></li>
               </ul>
             </li>
-            <li><Link to="/faqs" onClick={() => setShow(false)}>Faqs</Link></li>
-            <li>
-              {userType === 1 || userType === 2 ? (
-                <Link 
-                  to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} 
-                  onClick={() => setShow(false)}
-                  className="d-flex align-items-center gap-2"
-                >
-                  {userType === 2 && (
-                    <ImageTag
-                      alt="Profile"
-                      style={{
-                        height: 35,
-                        width: 35,
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "1.5px solid #2ecc71"
-                      }}
-                      src={therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
-                        ? `${imagePath}/${therapistInfo.user.profile}` 
-                        : defaultProfile}
-                    />
-                  )}
-                  {userType === 1 && <i className="feather-user"></i>}
-                  <span style={{ fontWeight: 600, color: "#228756" }}>
-                    {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist Profile")}
-                  </span>
-                </Link>
-              ) : (
-                <Link to="/login" onClick={() => setShow(false)}>Sign In/Sign Up</Link>
-              )}
-            </li>
-            <li>
-              <Link to="/therapist-registration" onClick={() => setShow(false)}>Are You a Therapist?</Link>
-            </li>
           </ul>
+
+          <div className="nav-ad-banner">
+            <h4 style={{ color: 'white', fontSize: '15px', fontWeight: '800', marginBottom: '4px' }}>Grow Your Practice</h4>
+            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '11px', marginBottom: '14px', lineHeight: '1.4' }}>India's leading network of verified therapists.</p>
+            <Link 
+              to="/therapist-registration" 
+              onClick={() => setShow(false)}
+              style={{ 
+                display: 'inline-block',
+                background: 'white',
+                color: '#228756',
+                padding: '8px 20px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '700',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+              }}
+            >
+              Join Now
+            </Link>
+          </div>
+
+          <div className="mobile-footer-section">
+            <div className="contact-pill-mobile">
+              <i className="feather-phone"></i>
+              <span>+91-807-775-7951</span>
+            </div>
+            <div className="contact-pill-mobile">
+              <i className="feather-mail"></i>
+              <span>info.cyt@gmail.com</span>
+            </div>
+            
+            <div className="social-links-mobile">
+              <a href="#"><i className="feather-instagram"></i></a>
+              <a href="#"><i className="feather-facebook"></i></a>
+              <a href="#"><i className="feather-linkedin"></i></a>
+              <a href="#"><i className="feather-twitter"></i></a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -618,12 +784,12 @@ export default function App() {
             >
               <button
                 onClick={() => {
-                  window.open('https://wa.me/918077757951?text=Hi, I have a question about your therapy services.', '_blank');
+                  window.location.href = 'tel:+918077757951';
                   setShowChatbot(false);
                 }}
                 style={{
                   width: "100%",
-                  backgroundColor: "#25D366",
+                  backgroundColor: "#228756",
                   color: "#fff",
                   border: "none",
                   borderRadius: "8px",
@@ -637,8 +803,8 @@ export default function App() {
                   gap: "8px"
                 }}
               >
-                <i className="feather-message-circle" style={{ fontSize: "16px" }}></i>
-                Still need help? Chat with us on WhatsApp
+                <i className="feather-phone" style={{ fontSize: "16px" }}></i>
+                Call Support
               </button>
             </div>
           </div>
@@ -685,23 +851,40 @@ export default function App() {
         .popup-mobile-menu {
           position: fixed;
           top: 0;
-          left: -100%;
-          width: 80%;
+          left: 0;
+          width: 100%;
           height: 100%;
-          background: #fff;
+          background: rgba(0,0,0,0.5);
           z-index: 10010;
-          overflow-y: auto;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease-in-out;
+        }
+        .popup-mobile-menu.active {
+          opacity: 1;
+          visibility: visible;
+        }
+        .popup-mobile-menu .inner-wrapper {
+          position: absolute;
+          top: 0;
+          left: -230px;
+          width: 230px !important;
+          height: 100%;
+          background: #fff !important;
           transition: all 0.3s ease-in-out;
           box-shadow: 2px 0 12px rgba(0,0,0,0.2);
+          display: flex;
+          flex-direction: column;
         }
-        .popup-mobile-menu.active { left: 0; }
+        .popup-mobile-menu.active .inner-wrapper {
+          left: 0;
+        }
         .mobile-menu-header { display: flex; justify-content: flex-end; padding: 15px; border-bottom: 1px solid #eee; }
-        .mobile-menu { list-style: none; padding: 20px; }
+        .mobile-menu { list-style: none; padding: 20px; flex: 1; overflow-y: auto; }
         .mobile-menu li { margin-bottom: 15px; }
         .mobile-menu li a { text-decoration: none; color: #333; font-weight: 500; }
         .mobile-menu .submenu { padding-left: 15px; list-style: disc; }
 
-        /* WhatsApp Chat Widget Animations */
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -715,17 +898,6 @@ export default function App() {
           to {
             opacity: 1;
             transform: translateY(0) scale(1);
-          }
-        }
-
-        @keyframes whatsappPulse {
-          0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
-          }
-          50% {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
           }
         }
       `}</style>

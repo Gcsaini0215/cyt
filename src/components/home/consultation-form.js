@@ -12,14 +12,21 @@ import { SubmitConsultationUrl } from "../../utils/url";
 const formStyles = `
 .consultation-form-input {
   width: 100%;
-  padding: 14px 15px 14px 45px !important;
+  padding: 12px 15px 12px 42px !important;
   border: 2px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  font-size: 16px !important;
+  border-radius: 10px !important;
+  font-size: 15px !important;
   outline: none !important;
   transition: all 0.3s ease !important;
   background-color: #ffffff !important;
   color: #1e293b !important;
+}
+
+@media (max-width: 768px) {
+  .consultation-form-input {
+    padding: 10px 12px 10px 40px !important;
+    font-size: 14px !important;
+  }
 }
 
 .consultation-form-input:focus {
@@ -30,24 +37,24 @@ const formStyles = `
 
 .consultation-form-label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #64748b;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 16px 20px;
+  padding: 14px 20px;
   background: linear-gradient(135deg, #228756 0%, #1a6b44 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 10px 15px -3px rgba(34, 135, 86, 0.3);
+  box-shadow: 0 8px 12px -3px rgba(34, 135, 86, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -180,46 +187,48 @@ export default function ConsultationForm({ showHeading = true }) {
           )}
 
           <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-            <div style={{ marginBottom: "20px" }}>
-              <label className="consultation-form-label">Full Name</label>
-              <div style={{ position: "relative" }}>
-                <PersonIcon style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 20 }} />
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="consultation-form-input"
-                />
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "0" : "15px" }}>
+              <div style={{ marginBottom: isMobile ? "12px" : "15px", flex: 1 }}>
+                <label className="consultation-form-label">Full Name</label>
+                <div style={{ position: "relative" }}>
+                  <PersonIcon style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18 }} />
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="consultation-form-input"
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: isMobile ? "12px" : "15px", flex: 1 }}>
+                <label className="consultation-form-label">Phone Number</label>
+                <div style={{ position: "relative" }}>
+                  <PhoneIcon style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18 }} />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    required
+                    className="consultation-form-input"
+                  />
+                </div>
               </div>
             </div>
 
-            <div style={{ marginBottom: "20px" }}>
-              <label className="consultation-form-label">Phone Number</label>
-              <div style={{ position: "relative" }}>
-                <PhoneIcon style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 20 }} />
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="9876543210"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  className="consultation-form-input"
-                />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: "20px" }}>
+            <div style={{ marginBottom: isMobile ? "12px" : "15px" }}>
               <label className="consultation-form-label">Email Address</label>
               <div style={{ position: "relative" }}>
-                <EmailIcon style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 20 }} />
+                <EmailIcon style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18 }} />
                 <input
                   type="email"
                   name="email"
-                  placeholder="john@example.com"
+                  placeholder="Email Address"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -228,18 +237,18 @@ export default function ConsultationForm({ showHeading = true }) {
               </div>
             </div>
 
-            <div style={{ marginBottom: "28px" }}>
+            <div style={{ marginBottom: isMobile ? "15px" : "20px" }}>
               <label className="consultation-form-label">Tell us your concern</label>
               <div style={{ position: "relative" }}>
-                <MessageIcon style={{ position: "absolute", left: 16, top: 16, color: "#94a3b8", fontSize: 20 }} />
+                <MessageIcon style={{ position: "absolute", left: 14, top: 12, color: "#94a3b8", fontSize: 18 }} />
                 <textarea
                   name="message"
-                  placeholder="How can we help you today?"
+                  placeholder="How can we help you?"
                   value={formData.message}
                   onChange={handleChange}
-                  rows={4}
+                  rows={isMobile ? 2 : 3}
                   className="consultation-form-input"
-                  style={{ minHeight: "120px", paddingTop: "14px", resize: "none" }}
+                  style={{ minHeight: isMobile ? "70px" : "90px", paddingTop: "10px", resize: "none" }}
                 />
               </div>
             </div>

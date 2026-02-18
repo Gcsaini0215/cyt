@@ -61,7 +61,7 @@ export default function ProfileCard() {
   }, []);
   return (
     <div className="rbt-rbt-card-area rbt-section-gap" style={{
-      background: 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%)',
+      background: 'linear-gradient(180deg, #fdf8f3 0%, #f5ece1 50%, #fdf8f3 100%)',
       position: 'relative',
       overflow: 'hidden',
       padding: '100px 0'
@@ -87,7 +87,7 @@ export default function ProfileCard() {
         left: '10%',
         width: '300px',
         height: '300px',
-        background: 'rgba(34, 135, 86, 0.12)',
+        background: 'rgba(139, 94, 60, 0.12)',
         filter: 'blur(80px)',
         borderRadius: '50%',
         pointerEvents: 'none'
@@ -98,7 +98,7 @@ export default function ProfileCard() {
           <div className="col-lg-12">
             <div className="section-title text-center" style={{ marginBottom: '50px' }}>
               <span className="subtitle" style={{ 
-                background: '#228756', 
+                background: '#8b5e3c', 
                 color: '#ffffff', 
                 padding: '8px 20px', 
                 borderRadius: '50px',
@@ -106,7 +106,7 @@ export default function ProfileCard() {
                 fontSize: '1rem',
                 textTransform: 'uppercase',
                 letterSpacing: '1.5px',
-                boxShadow: '0 4px 10px rgba(34, 135, 86, 0.2)'
+                boxShadow: '0 4px 10px rgba(139, 94, 60, 0.2)'
               }}>
                 Verified Professionals
               </span>
@@ -144,7 +144,7 @@ export default function ProfileCard() {
                       className="nav nav-tabs tab-button-style-2"
                       id="myTab-4"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.7)',
+                        background: '#ffffff',
                         backdropFilter: 'blur(15px)',
                         padding: '10px',
                         borderRadius: isMobile ? '15px' : '100px',
@@ -153,7 +153,7 @@ export default function ProfileCard() {
                         flexWrap: isMobile ? 'nowrap' : 'wrap',
                         overflowX: isMobile ? 'auto' : 'visible',
                         WebkitOverflowScrolling: 'touch',
-                        border: '1px solid rgba(34, 135, 86, 0.2)',
+                        border: '1px solid rgba(139, 94, 60, 0.2)',
                         boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                         justifyContent: isMobile ? 'flex-start' : 'center',
                         width: isMobile ? '100%' : 'auto',

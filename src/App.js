@@ -98,6 +98,15 @@ function App() {
     if (window.innerWidth > 768) {
       const tawkId = '667414b4dd590416e2580cc6/1i0qn1osp';
       if (!document.getElementById('tawk-script')) {
+        // Mock i18next to prevent t.$_Tawk.i18next is not a function error
+        if (typeof window !== 'undefined' && !window.i18next) {
+          window.i18next = {
+            t: (key) => key,
+            init: () => {},
+            on: () => {},
+          };
+        }
+        
         window.Tawk_API = window.Tawk_API || {};
         window.Tawk_LoadStart = new Date();
         const s1 = document.createElement("script");
