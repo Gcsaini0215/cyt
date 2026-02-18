@@ -45,84 +45,43 @@ export default function FreeResources() {
 
   return (
     <div className="rbt-free-resources-area rbt-section-gap" style={{
-      background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+      background: '#27ae60',
       padding: isMobile ? '60px 0' : '100px 0',
       position: 'relative',
       overflow: 'hidden'
     }}>
       <div className="container">
-        <div className="row mb--40">
-          <div className="col-lg-12 text-center">
-            <span className="subtitle" style={{ 
-              color: '#228756', 
-              fontWeight: '700', 
-              fontSize: '1rem', 
-              textTransform: 'uppercase', 
-              letterSpacing: '2px',
-              display: 'block',
-              marginBottom: '15px'
-            }}>
-              Complimentary Tools
-            </span>
-            <h2 className="title" style={{ 
-              fontSize: isMobile ? "2.5rem" : "4rem", 
-              fontWeight: "900", 
-              color: "#1e293b",
-              lineHeight: isMobile ? '3rem' : '1.1',
-              maxWidth: '900px',
-              margin: '0 auto 20px',
-              whiteSpace: "normal"
-            }}>
-              Your Journey to <span style={{ 
-                backgroundImage: "linear-gradient(135deg, #228756 0%, #10b981 50%, #007f99 100%)", 
-                WebkitBackgroundClip: "text", 
-                backgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                color: "transparent"
-              }}>Healing</span> Starts for Free
-            </h2>
-            <p style={{ 
-              fontSize: isMobile ? '1.3rem' : '1.5rem', 
-              color: '#64748b', 
-              maxWidth: '800px', 
-              margin: '0 auto',
-              fontWeight: '500'
-            }}>
-              Access professional-grade mental health resources without spending a rupee.
-            </p>
-          </div>
-        </div>
-
         <div className="row g-3 g-lg-4">
           {tools.map((tool, index) => (
             <div key={index} className="col-6 col-lg-3">
               <div className="resource-card" style={{
                 background: '#ffffff',
-                padding: isMobile ? '15px' : '30px',
-                borderRadius: isMobile ? '20px' : '24px',
+                padding: isMobile ? '20px' : '35px',
+                borderRadius: isMobile ? '24px' : '32px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: isMobile ? 'center' : 'flex-start',
                 textAlign: isMobile ? 'center' : 'left',
-                gap: isMobile ? '15px' : '20px',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.03)',
-                border: '1px solid rgba(0,0,0,0.05)',
+                gap: isMobile ? '18px' : '24px',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                border: '1px solid rgba(255,255,255,0.8)',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 cursor: 'pointer',
                 position: 'relative',
                 height: '100%'
               }}>
                 <div style={{
-                  width: isMobile ? '50px' : '64px',
-                  height: isMobile ? '50px' : '64px',
-                  borderRadius: isMobile ? '12px' : '16px',
-                  background: `${tool.color}10`,
+                  width: isMobile ? '56px' : '72px',
+                  height: isMobile ? '56px' : '72px',
+                  borderRadius: isMobile ? '16px' : '20px',
+                  background: `${tool.color}18`,
                   color: tool.color,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: isMobile ? '24px' : '30px',
-                  flexShrink: 0
+                  fontSize: isMobile ? '28px' : '36px',
+                  flexShrink: 0,
+                  border: `1px solid ${tool.color}30`
                 }}>
                   {tool.icon}
                 </div>
@@ -182,26 +141,6 @@ export default function FreeResources() {
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="row mt--80">
-          <div className="col-lg-12 text-center">
-            <Link
-              className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
-              to={"/resources"}
-            >
-              <span className="icon-reverse-wrapper">
-                <span className="btn-text">Explore All Free Resources</span>
-
-                <span className="btn-icon">
-                  <i className="feather-arrow-right"></i>
-                </span>
-                <span className="btn-icon">
-                  <i className="feather-arrow-right"></i>
-                </span>
-              </span>
-            </Link>
-          </div>
         </div>
       </div>
 

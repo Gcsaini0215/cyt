@@ -334,12 +334,14 @@ export default function Banner() {
                     maxWidth: isMobile ? "320px" : "800px", 
                     margin: "0 auto", 
                     lineHeight: isMobile ? 1.5 : 1.6,
-                    fontSize: isMobile ? "14px" : "22px",
-                    mb: isMobile ? 1.5 : 2,
+                    fontSize: isMobile ? "13px" : "18px",
+                    mb: isMobile ? 2 : 3,
                     px: isMobile ? 1 : 0,
-                    fontWeight: 500,
+                    fontWeight: 400,
                     textAlign: "center",
-                    display: "block"
+                    display: "block",
+                    fontFamily: "'Inter', 'Poppins', sans-serif",
+                    letterSpacing: "-0.01em"
                   }}>
                     Find a qualified psychologist anywhere in India for online or in-person therapy. 
                     Explore verified professionals, compare specializations, and book confidential sessions for anxiety, stress, relationships, and emotional well-being.

@@ -61,7 +61,7 @@ export default function ProfileCard() {
   }, []);
   return (
     <div className="rbt-rbt-card-area rbt-section-gap" style={{
-      background: 'linear-gradient(180deg, #eefbff 0%, #ffffff 50%, #f0fdf4 100%)',
+      background: 'linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%)',
       position: 'relative',
       overflow: 'hidden',
       padding: '100px 0'
@@ -87,7 +87,7 @@ export default function ProfileCard() {
         left: '10%',
         width: '300px',
         height: '300px',
-        background: 'rgba(34, 135, 86, 0.07)',
+        background: 'rgba(34, 135, 86, 0.12)',
         filter: 'blur(80px)',
         borderRadius: '50%',
         pointerEvents: 'none'
