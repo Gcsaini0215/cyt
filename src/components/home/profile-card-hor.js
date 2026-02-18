@@ -76,10 +76,20 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
   }, [pageData, favrioutes]);
 
   return (
-    <div className="col-12 mt--30 sal-animate">
-      <div className="rbt-card variation-01 rbt-hover card-list-2">
+    <div className="col-12 sal-animate">
+      <div 
+        className="rbt-card variation-01 rbt-hover card-list-2" 
+        style={{
+          borderRadius: "20px",
+          overflow: "hidden",
+          border: "1px solid #f1f5f9",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+          background: "#fff",
+          transition: "all 0.3s ease"
+        }}
+      >
         {/* Image + Badge */}
-        <div className="rbt-card-img" style={{ position: "relative" }}>
+        <div className="rbt-card-img" style={{ position: "relative", overflow: "hidden" }}>
           <Link to={`/view-profile/${pageData._id}`}>
             <ImageTag
               alt="profile image"
@@ -88,7 +98,9 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                 height: isMobile ? 255 : 235,
                 width: "100%",
                 objectFit: "cover",
+                transition: "transform 0.5s ease"
               }}
+              className="card-profile-img"
             />
             {/* Badge - Verified or Recommended based on prop */}
             <div
@@ -138,62 +150,82 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         </div>
 
         {/* Card Body */}
-        <div className="rbt-card-body">
-          <div className="rbt-card-top">
-            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <h4 className="rbt-card-title" style={{ margin: 0, fontSize: "24px", fontWeight: "700" }}>
-                <Link to={`/view-profile/${pageData._id}`}>
+        <div className="rbt-card-body" style={{ padding: "24px" }}>
+          <div className="rbt-card-top" style={{ alignItems: "center" }}>
+            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <h4 className="rbt-card-title" style={{ 
+                margin: 0, 
+                fontSize: "22px", 
+                fontWeight: "800",
+                letterSpacing: "-0.5px",
+                color: "#1e293b"
+              }}>
+                <Link to={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
                   {pageData.user?.name || "Therapist"}
                 </Link>
               </h4>
               {/* Icon next to name - Verified or Recommended */}
               {isRecommended ? (
-                <ThumbUpIcon sx={{ fontSize: 22, color: "#228756" }} />
+                <ThumbUpIcon sx={{ fontSize: 20, color: "#228756" }} />
               ) : (
-                <VerifiedIcon sx={{ fontSize: 22, color: "#1976d2" }} />
+                <VerifiedIcon sx={{ fontSize: 20, color: "#1976d2" }} />
               )}
             </div>
             {showBookmark && (
               <div className="rbt-bookmark-btn">
                 <button
-                  style={{ cursor: "pointer" }}
-                  className="rbt-round-btn"
+                  style={{ 
+                    cursor: "pointer", 
+                    background: "#f8fafc",
+                    border: "1px solid #f1f5f9",
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: bookmark ? "#228756" : "#94a3b8",
+                    transition: "all 0.3s ease"
+                  }}
                   title="Bookmark"
                   onClick={() => handleBookmark(pageData._id, bookmark)}
                 >
                   {bookmark ? (
-                    <BookmarkAddedIcon sx={{ fontSize: 28 }} />
+                    <BookmarkAddedIcon sx={{ fontSize: 24 }} />
                   ) : (
-                    <BookmarkBorderIcon sx={{ fontSize: 28 }} />
+                    <BookmarkBorderIcon sx={{ fontSize: 24 }} />
                   )}
                 </button>
               </div>
             )}
           </div>
 
-          {/* Meta info with new icons */}
-          <ul className="rbt-meta" style={{ marginTop: "10px", gap: "15px" }}>
+          {/* Meta info with monochrome icons */}
+          <ul className="rbt-meta" style={{ marginTop: "15px", gap: "12px", display: "flex", flexWrap: "wrap" }}>
             <li style={{
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              gap: "6px",
               color: "#228756",
               fontWeight: "700",
-              fontSize: "16px"
+              fontSize: "14px",
+              background: "#e8f5e9",
+              padding: "4px 10px",
+              borderRadius: "8px"
             }}>
-              <PersonIcon sx={{ fontSize: 20, color: "#228756" }} /> {pageData.profile_type}
+              <PersonIcon sx={{ fontSize: 18, color: "#228756" }} /> {pageData.profile_type}
             </li>
-            <li style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px" }}>
-              <LanguageIcon sx={{ fontSize: 20 }} /> {pageData.language_spoken}
+            <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", color: "#64748b" }}>
+              <LanguageIcon sx={{ fontSize: 18, color: "#94a3b8" }} /> {pageData.language_spoken}
             </li>
             {pageData.state && (
-              <li style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px" }}>
-                <LocationOnIcon sx={{ fontSize: 20 }} /> {pageData.state}
+              <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", color: "#64748b" }}>
+                <LocationOnIcon sx={{ fontSize: 18, color: "#94a3b8" }} /> {pageData.state}
               </li>
             )}
             {pageData.year_of_exp && (
-              <li style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "15px" }}>
-                <WorkIcon sx={{ fontSize: 20 }} /> {pageData.year_of_exp} experience
+              <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", color: "#64748b" }}>
+                <WorkIcon sx={{ fontSize: 18, color: "#94a3b8" }} /> {pageData.year_of_exp} experience
               </li>
             )}
           </ul>

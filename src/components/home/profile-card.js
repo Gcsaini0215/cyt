@@ -64,7 +64,7 @@ export default function ProfileCard() {
       background: 'linear-gradient(180deg, #fdf8f3 0%, #f5ece1 50%, #fdf8f3 100%)',
       position: 'relative',
       overflow: 'hidden',
-      padding: '100px 0'
+      padding: '80px 0 60px'
     }}>
       {/* Wave transition at top */}
       <div style={{
@@ -96,7 +96,7 @@ export default function ProfileCard() {
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
           <div className="col-lg-12">
-            <div className="section-title text-center" style={{ marginBottom: '50px' }}>
+            <div className="section-title text-center" style={{ marginBottom: '30px' }}>
               <span className="subtitle" style={{ 
                 background: '#8b5e3c', 
                 color: '#ffffff', 
@@ -137,7 +137,7 @@ export default function ProfileCard() {
               }}>
                 Therapy works when you feel safe, heard, and understood. Discover professionals who match your needs and values.
               </p>
-              <div className="row mt--40">
+              <div className="row mt--30">
                 <div className="col-lg-12">
                   <div className="advance-tab-button">
                     <ul
