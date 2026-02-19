@@ -44,3 +44,294 @@
 .custom-datepicker .react-datepicker__time-list-item {
   font-size: 16px; /* Set your desired font size for the time list items */
 }
+
+/* Selection Cards Styling */
+.selection-cards-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.selection-card {
+    border: 2px solid #f1f5f9;
+    padding: 16px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.selection-card:hover {
+    transform: translateY(-2px);
+    border-color: #228756;
+    box-shadow: 0 4px 12px rgba(34, 135, 86, 0.1);
+}
+
+.selection-card.active {
+    border-color: #228756;
+    background: #f0fdf4;
+    box-shadow: 0 4px 12px rgba(34, 135, 86, 0.15);
+}
+
+.selection-card.active .card-icon i {
+    color: #228756;
+}
+
+.selection-card.active .card-label {
+    color: #228756;
+    font-weight: 700;
+}
+
+.card-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.card-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    text-transform: capitalize;
+    line-height: 1.2;
+}
+
+.active-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #228756;
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border: 2px solid #fff;
+    z-index: 1;
+}
+
+/* Mini Therapist Card Styling - Enhanced Dark Theme with Depth */
+.mini-therapist-card {
+    background: linear-gradient(135deg, #0a1f14 0%, #05140d 100%);
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 0 15px rgba(46, 204, 113, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.mini-therapist-card::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.mini-card-img-wrapper {
+    position: relative;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.mini-card-img {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+}
+
+.mini-therapist-card:hover .mini-card-img {
+    transform: scale(1.05);
+}
+
+.verified-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: #2ecc71;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    border: 2px solid #1a4d32;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.mini-card-info {
+    flex-grow: 1;
+    z-index: 1;
+}
+
+.mini-card-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.mini-card-type {
+    font-size: 15px;
+    color: #2ecc71;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mini-card-code {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 3px 10px;
+    border-radius: 100px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.5px;
+}
+
+.mini-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mini-meta-item {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.mini-meta-item i {
+    color: #2ecc71;
+    font-size: 16px;
+    filter: drop-shadow(0 0 5px rgba(46, 204, 113, 0.3));
+}
+
+/* Checkout Banner Styling */
+.checkout-banner-area {
+    background: linear-gradient(135deg, #0d2b1c 0%, #1a4d32 100%);
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: -50px; /* Overlap with content for modern look */
+    z-index: 0;
+}
+
+.checkout-banner-area::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    opacity: 0.1;
+}
+
+.checkout-banner-inner {
+    position: relative;
+    z-index: 1;
+}
+
+.checkout-banner-title {
+    color: #ffffff;
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.checkout-banner-subtitle {
+    color: rgba(255,255,255,0.8);
+    font-size: 18px;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.trust-badges-row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.trust-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.trust-badge-item i {
+    color: #2ecc71;
+    font-size: 16px;
+}
+
+@media (max-width: 576px) {
+    .mini-therapist-card {
+        padding: 16px;
+        gap: 16px;
+        flex-direction: column;
+        text-align: center;
+        margin-top: 25px; /* Added gap from banner */
+    }
+    .mini-card-img {
+        width: 100px;
+        height: 100px;
+    }
+    .mini-card-name {
+        font-size: 20px;
+        justify-content: center;
+    }
+    .mini-card-meta {
+        justify-content: center;
+        gap: 12px;
+    }
+    .mini-meta-item {
+        font-size: 13px;
+    }
+}

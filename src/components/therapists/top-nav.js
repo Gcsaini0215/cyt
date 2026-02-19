@@ -9,6 +9,20 @@ export default function DashboardTopNav() {
   const { therapistInfo } = useTherapistStore();
   const navigate = useNavigate();
   const [show, setShow] = React.useState(false);
+  const [isSticky, setIsSticky] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 150) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleLogout = () => {
     removeToken();
     navigate("/login");
@@ -108,8 +122,8 @@ export default function DashboardTopNav() {
           </nav>
         </div>
       </div>
-      <header className="rbt-header rbt-header-10">
-        <div className="rbt-header-wrapper header-space-betwween header-sticky rbt-sticky">
+      <header className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
+        <div className={`rbt-header-wrapper ${isSticky ? "rbt-sticky" : "header-space-betwween"}`}>
           <div className="container-fluid">
             <div className="mainbar-row rbt-navigation-start align-items-center">
               <div className="header-left rbt-header-content">
@@ -157,12 +171,14 @@ export default function DashboardTopNav() {
                         <div className="admin-thumbnail">
                           <ImageTag
                             alt="User"
-                            height={"43"}
+                            height={"50"}
+                            width={"50"}
+                            style={{ borderRadius: "50%", objectFit: "cover" }}
                             src={`${imagePath}/${therapistInfo.user.profile}` || defaultProfile}
                           />
                         </div>
                         <div className="admin-info">
-                          <span className="name">{therapistInfo.user.name}</span>
+                          <span className="name" style={{ fontSize: "16px", fontWeight: "600" }}>{therapistInfo.user.name}</span>
                         </div>
                       </div>
                     </div>

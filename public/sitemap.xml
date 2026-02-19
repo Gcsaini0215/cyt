@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <!-- Home Page -->
   <url>
-    <loc>https://chooseyourtherapist.in/</loc>
-    <lastmod>2025-09-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://www.chooseyourtherapist.in/</loc>
+    <lastmod>2024-05-20</lastmod>
     <priority>1.0</priority>
   </url>
-
-  <!-- About Us Page -->
   <url>
-    <loc>https://chooseyourtherapist.in/about-us</loc>
-    <lastmod>2025-09-22</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.chooseyourtherapist.in/view-all-therapist</loc>
+    <lastmod>2024-05-20</lastmod>
     <priority>0.8</priority>
   </url>
-
-  <!-- Therapist Directory -->
   <url>
-    <loc>https://chooseyourtherapist.in/view-all-therapist</loc>
-    <lastmod>2025-09-22</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.chooseyourtherapist.in/therapy-booking</loc>
+    <lastmod>2024-05-20</lastmod>
     <priority>0.8</priority>
   </url>
-
-  <!-- Join Us / Therapist Registration -->
   <url>
-    <loc>https://chooseyourtherapist.in/therapist-registration</loc>
-    <lastmod>2025-09-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://www.chooseyourtherapist.in/plans</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.7</priority>
   </url>
-
+  <url>
+    <loc>https://www.chooseyourtherapist.in/about-us</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.chooseyourtherapist.in/contact-us</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.6</priority>
+  </url>
 </urlset>

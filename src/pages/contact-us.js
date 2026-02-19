@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import ContactForm from "../components/contact/form";
+import Map from "../components/contact/map";
 import Header from "../components/contact/header";
 import NewsLetter from "../components/home/newsletter";
 export default function ContactUs() {
@@ -29,6 +30,7 @@ export default function ContactUs() {
       <MyNavbar />
       <Header />
       <ContactForm />
+      <Map />
       <NewsLetter />
       <Footer />
     </div>

@@ -13,6 +13,7 @@ export default function App() {
   const [showChatbot, setShowChatbot] = React.useState(false);
   const [userType, setUserType] = React.useState(0);
   const [activeDropdown, setActiveDropdown] = React.useState("");
+  const [isSticky, setIsSticky] = React.useState(false);
   const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
 
   const toggleDropdown = (name) => {
@@ -20,6 +21,15 @@ export default function App() {
   };
 
   useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 150) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
     const data = getToken();
     if (data) {
       const userData = getDecodedToken();
@@ -47,6 +57,7 @@ export default function App() {
     document.head.appendChild(script2);
 
     return () => {
+      window.removeEventListener("scroll", handleScroll);
       document.head.removeChild(script1);
       document.head.removeChild(script2);
     };
@@ -71,8 +82,8 @@ export default function App() {
       </div>
 
       {/* Header */}
-      <header className="rbt-header rbt-header-10 header-sticky">
-        <div className="rbt-header-wrapper header-space-betwween">
+      <header className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
+        <div className={`rbt-header-wrapper ${isSticky ? "rbt-sticky" : "header-space-betwween"}`}>
           <div className="container-fluid">
             <div className="mainbar-row rbt-navigation-start align-items-center">
               <div className="header-left rbt-header-content">
@@ -99,14 +110,8 @@ export default function App() {
                         <li><Link to="/plans">Therapy Plan</Link></li>
                       </ul>
                     </li>
-                    <li className="has-dropdown">
-                      <Link to="#">About <i className="feather-chevron-down"></i></Link>
-                      <ul className="submenu">
-                        <li><Link to="/about-us">Our Story</Link></li>
-                        <li><Link to="/contact-us">Contact us</Link></li>
-                         <li><Link to="/faqs">Faqs</Link></li>
-                      </ul>
-                    </li>
+                    <li><Link to="/about-us">Our Story</Link></li>
+                    <li><Link to="/contact-us">Contact us</Link></li>
                   </ul>
                 </nav>
               </div>
@@ -125,8 +130,8 @@ export default function App() {
                             <ImageTag
                               alt={therapistInfo.user.name || "Profile"}
                               style={{
-                                height: 35,
-                                width: 35,
+                                height: 42,
+                                width: 42,
                                 borderRadius: "50%",
                                 objectFit: "cover",
                                 border: "1.5px solid #2ecc71"
@@ -138,7 +143,7 @@ export default function App() {
                           </div>
                         )}
                         {userType === 1 && <i className="feather-user"></i>}
-                        <span style={{ fontWeight: 600, color: "#228756", fontSize: "14px" }}>
+                        <span style={{ fontWeight: 600, color: "#228756", fontSize: "16px" }}>
                           {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist Profile")}
                         </span>
                       </Link>
@@ -175,93 +180,90 @@ export default function App() {
       {/* Mobile Menu */}
       <div className={show ? "popup-mobile-menu active" : "popup-mobile-menu"}>
         <style>{`
-          .popup-mobile-menu .inner-wrapper::-webkit-scrollbar {
-            display: none;
-          }
           .popup-mobile-menu .inner-wrapper {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            width: 260px !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            width: 280px !important;
             padding: 0 !important;
-            background: rgba(255, 255, 255, 0.98) !important;
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(0,0,0,0.05);
+            background: #ffffff !important;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: 100% !important;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1) !important;
+            overflow: -moz-scrollbars-none !important;
+          }
+          .popup-mobile-menu .inner-wrapper::-webkit-scrollbar {
+            width: 0 !important;
+            display: none !important;
+            background: transparent !important;
           }
           .mobile-menu-header {
             padding: 20px !important;
-            background: transparent;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            border-bottom: 1px solid #f1f5f9;
           }
           .popup-mobile-menu .mobile-menu {
-            padding: 10px 20px !important;
+            padding: 10px 15px !important;
             flex: 1;
+            display: block !important;
+          }
+          .popup-mobile-menu .mobile-menu li {
+            margin: 0 !important;
           }
           .popup-mobile-menu .mobile-menu li a {
-            font-size: 14px !important;
+            font-size: 15px !important;
             font-weight: 500 !important;
             color: #334155 !important;
-            padding: 12px 0 !important;
-            border-bottom: 1px solid #f1f5f9 !important;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 12px 10px !important;
+            border-bottom: 1px solid #f8fafc !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 12px !important;
+            background: transparent !important;
+            transition: all 0.2s ease !important;
+            text-align: left !important;
+            border-radius: 0 !important;
+            border-left: 3px solid transparent !important;
+          }
+          .popup-mobile-menu .mobile-menu li a:hover {
+            color: #2ecc71 !important;
+            background: #f8fafc !important;
+            border-left-color: #2ecc71 !important;
           }
           .popup-mobile-menu .mobile-menu li a i {
-            font-size: 14px;
+            font-size: 18px !important;
             color: #94a3b8;
+            margin-bottom: 0 !important;
           }
-          .popup-mobile-menu .mobile-menu li.has-dropdown > a::after {
-            display: none !important;
+          .popup-mobile-menu .mobile-menu li a:hover i {
+            color: #2ecc71;
+          }
+          .popup-mobile-menu .mobile-menu li.has-dropdown > a {
+            justify-content: space-between !important;
           }
           .popup-mobile-menu .mobile-menu .submenu {
             background: #f8fafc !important;
-            border-radius: 12px !important;
-            margin: 8px 0 !important;
-            padding: 8px 12px !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            border-radius: 0 !important;
+            margin: 0 !important;
+            padding: 0 15px 10px 45px !important;
+            display: block !important;
           }
           .popup-mobile-menu .mobile-menu .submenu li a {
-            border-bottom: none !important;
-            font-size: 13px !important;
-            color: #64748b !important;
             padding: 8px 0 !important;
-          }
-          .nav-ad-banner {
-            margin: 20px;
-            padding: 16px;
-            background: linear-gradient(135deg, #228756 0%, #1a6d45 100%);
-            border-radius: 16px;
-            color: white;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(34, 135, 86, 0.2);
-          }
-          .nav-ad-banner::before {
-            content: "";
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 70px;
-            height: 70px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
+            font-size: 14px !important;
+            border: none !important;
           }
           .mobile-footer-section {
-            padding: 20px;
+            padding: 15px !important;
             background: #f8fafc;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
             border-top: 1px solid #f1f5f9;
           }
-          .social-links-mobile {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 15px;
+          .profile-section-mobile {
+            margin-bottom: 10px !important;
           }
           .social-links-mobile a {
             width: 32px;
@@ -301,7 +303,7 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
               <div className="logo">
                 <Link to="/" onClick={() => setShow(false)}>
-                  <ImageTag alt="Logo" height={"35"} width={"110"} src="/assets/img/logo.png" />
+                  <ImageTag alt="Logo" height={"45"} width={"135"} src="/assets/img/logo.png" />
                 </Link>
               </div>
               <button className="close-menu" onClick={() => setShow(false)} style={{ background: '#f8fafc', width: '36px', height: '36px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f1f5f9' }}>
@@ -311,115 +313,72 @@ export default function App() {
           </div>
           
           <ul className="mobile-menu" style={{ borderTop: 'none' }}>
-            <li className="mb-2">
+            <li className="profile-section-mobile">
               {userType === 1 || userType === 2 ? (
                 <div 
                   style={{ 
                     background: '#f8fafc',
-                    padding: '12px',
-                    borderRadius: '12px',
-                    border: '1px solid #f1f5f9',
-                    marginBottom: '10px'
+                    padding: '12px 16px',
+                    borderRadius: '20px',
+                    border: '1.5px solid #f1f5f9',
                   }}
                 >
                   <Link 
                     to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} 
                     onClick={() => setShow(false)}
                     className="d-flex align-items-center gap-3"
-                    style={{ borderBottom: 'none !important', padding: '0 !important' }}
+                    style={{ border: 'none !important', padding: '0 !important', background: 'transparent !important', flexDirection: 'row !important' }}
                   >
-                    <div style={{ position: 'relative' }}>
-                      <ImageTag
-                        alt="Profile"
-                        style={{
-                          height: 40,
-                          width: 40,
-                          borderRadius: "12px",
-                          objectFit: "cover",
-                          border: "2px solid #fff",
-                          boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
-                        }}
-                        src={userType === 2 && therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
-                          ? `${imagePath}/${therapistInfo.user.profile}` 
-                          : defaultProfile}
-                      />
-                      <div style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '12px', height: '12px', background: '#228756', borderRadius: '50%', border: '2px solid #fff' }}></div>
-                    </div>
-                    <div>
-                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#1e293b', display: 'block' }}>
+                    <ImageTag
+                      alt="Profile"
+                      style={{
+                        height: 44,
+                        width: 44,
+                        borderRadius: "14px",
+                        objectFit: "cover",
+                        border: "2px solid #fff",
+                        boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
+                      }}
+                      src={userType === 2 && therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
+                        ? `${imagePath}/${therapistInfo.user.profile}` 
+                        : defaultProfile}
+                    />
+                    <div style={{ textAlign: 'left' }}>
+                      <span style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b', display: 'block' }}>
                         {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist")}
                       </span>
-                      <span style={{ fontSize: '11px', color: '#64748b' }}>View Dashboard</span>
+                      <span style={{ fontSize: '11px', color: '#2ecc71', fontWeight: '700' }}>ONLINE DASHBOARD</span>
                     </div>
                   </Link>
                 </div>
               ) : (
-                <Link to="/login" onClick={() => setShow(false)} style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #f1f5f9', color: '#228756 !important', fontWeight: '700', justifyContent: 'center' }}>
-                  <i className="feather-user" style={{ marginRight: '8px', color: '#228756' }}></i> Sign In / Sign Up
+                <Link to="/login" onClick={() => setShow(false)}>
+                  <i className="feather-user"></i> Sign In / Sign Up
                 </Link>
               )}
             </li>
 
-            <li><Link to="/" onClick={() => setShow(false)}>Home <i className="feather-chevron-right"></i></Link></li>
-            <li><Link to="/view-all-therapist" onClick={() => setShow(false)}>Therapist Directory <i className="feather-chevron-right"></i></Link></li>
+            <li><Link to="/" onClick={() => setShow(false)}><i className="feather-home"></i> Home</Link></li>
+            <li><Link to="/view-all-therapist" onClick={() => setShow(false)}><i className="feather-users"></i> Directory</Link></li>
+            <li><Link to="/about-us" onClick={() => setShow(false)}><i className="feather-heart"></i> Our Story</Link></li>
+            <li><Link to="/contact-us" onClick={() => setShow(false)}><i className="feather-mail"></i> Contact</Link></li>
+            
             <li className={`has-dropdown ${activeDropdown === "services" ? "open" : ""}`}>
               <Link to="#" onClick={(e) => { e.preventDefault(); toggleDropdown("services"); }}>
-                Services <i className={`feather-chevron-${activeDropdown === "services" ? "up" : "down"}`}></i>
+                <div className="d-flex align-items-center gap-2">
+                  <i className="feather-grid" style={{ marginBottom: '0 !important' }}></i>
+                  <span>Our Services</span>
+                </div>
+                <i className={`feather-chevron-${activeDropdown === "services" ? "up" : "down"}`} style={{ color: '#94a3b8' }}></i>
               </Link>
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
                 <li><Link to="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
                 <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
               </ul>
             </li>
-            <li className={`has-dropdown ${activeDropdown === "about" ? "open" : ""}`}>
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleDropdown("about"); }}>
-                About <i className={`feather-chevron-${activeDropdown === "about" ? "up" : "down"}`}></i>
-              </Link>
-              <ul className="submenu" style={{ display: activeDropdown === "about" ? "block" : "none" }}>
-                <li><Link to="/about-us" onClick={() => setShow(false)}>Our Story</Link></li>
-                <li><Link to="/contact-us" onClick={() => setShow(false)}>Contact us</Link></li>
-                <li><Link to="/faqs" onClick={() => setShow(false)}>Faqs</Link></li>
-              </ul>
-            </li>
           </ul>
 
-          <div className="nav-ad-banner">
-            <h4 style={{ color: 'white', fontSize: '15px', fontWeight: '800', marginBottom: '4px' }}>Grow Your Practice</h4>
-            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '11px', marginBottom: '14px', lineHeight: '1.4' }}>India's leading network of verified therapists.</p>
-            <Link 
-              to="/therapist-registration" 
-              onClick={() => setShow(false)}
-              style={{ 
-                display: 'inline-block',
-                background: 'white',
-                color: '#228756',
-                padding: '8px 20px',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '700',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-              }}
-            >
-              Join Now
-            </Link>
-          </div>
-
-          <div className="mobile-footer-section">
-            <div className="contact-pill-mobile">
-              <i className="feather-phone"></i>
-              <span>+91-807-775-7951</span>
-            </div>
-            <div className="contact-pill-mobile">
-              <i className="feather-mail"></i>
-              <span>info.cyt@gmail.com</span>
-            </div>
-            
-            <div className="social-links-mobile">
-              <a href="#"><i className="feather-instagram"></i></a>
-              <a href="#"><i className="feather-facebook"></i></a>
-              <a href="#"><i className="feather-linkedin"></i></a>
-              <a href="#"><i className="feather-twitter"></i></a>
-            </div>
+          <div className="mobile-footer-section" style={{ borderTop: 'none', background: 'transparent' }}>
           </div>
         </div>
       </div>

@@ -618,42 +618,8 @@ const setConfig = async (profile) => {
               </div>
             </div>
           </div>
+
           <div className="col-lg-5">
-            <div className="col-12 mb--20">
-              <div className="checkout-cart-total">
-                <h4 style={{ fontSize: 24 }}>Choose Your Therapist LLP Office</h4>
-
-                <div className="single-list" style={{ marginTop: 15 }}>
-                  <h5 className="price-title" style={{ fontSize: "16px" }}>
-                    Address
-                  </h5>
-
-                  <div
-                    className="row plan-offer-list"
-                    style={{ borderBottom: "none", marginTop: "-10px" }}
-                  >
-                    <h6>
-                      D-137, near LPS GLOBAL SCHOOL, Block D, Sector
-                      51, Noida, Uttar Pradesh 201301
-                    </h6>
-                  </div>
-
-                  <div
-                    className="row plan-offer-list"
-                    style={{ borderBottom: "none", marginTop: "-10px" }}
-                  >
-                    <a
-                      href="https://maps.app.goo.gl/2byXtVajMfGuLRSF8?g_st=ipc"
-                      style={{ color: "#20c2a6" }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Map Location
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div className="col-12 mb--30">
               <div className="checkout-cart-total">
                 <h4>

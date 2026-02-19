@@ -12,13 +12,13 @@ import {
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import RecommendIcon from "@mui/icons-material/ThumbUpAlt";
 
 export default function ProfileCardVert(props) {
   const { data, favrioutes } = props;
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const [bookmark, setBookmark] = React.useState(favrioutes.includes(data._id));
+  const [bookmark, setBookmark] = React.useState(favrioutes?.includes(data._id) || false);
   const [showBookmark, setShowBookmark] = React.useState(true);
   const [fees, setFees] = React.useState([]);
 
@@ -49,238 +49,135 @@ export default function ProfileCardVert(props) {
   React.useEffect(() => {
     const token = getDecodedToken();
     if (token && token.role === 1) setShowBookmark(false);
-    setBookmark(favrioutes.includes(data._id));
-    setFees(data.fees);
+    setBookmark(favrioutes?.includes(data._id) || false);
+    setFees(data.fees || []);
   }, [data, favrioutes]);
 
   return (
     <div className="swiper-slide">
       <div
-        className="rbt-card variation-01"
+        className="rbt-card variation-01 therapist-premium-card"
         style={{
-          borderRadius: "16px",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
-          transition: "transform 0.3s ease",
+          borderRadius: "20px",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           backgroundColor: "#fff",
           display: "flex",
           flexDirection: "column",
+          border: "1px solid #f1f5f9",
+          overflow: "hidden",
+          height: "100%",
+          color: "#1e293b"
         }}
       >
-        {/* Profile Image */}
-        <div style={{ position: "relative", overflow: "hidden", borderTopLeftRadius: "16px", borderTopRightRadius: "16px" }}>
+        <div className="card-image-wrap" style={{ position: "relative", overflow: "hidden" }}>
           <Link to={`/view-profile/${data._id}`} style={{ display: "block" }}>
             <ImageTag
-              alt="Profile-photo"
+              alt={data.user?.name}
+              className="therapist-img"
               style={{
                 display: "block",
                 width: "100%",
-                height: "250px",
+                height: isMobile ? "320px" : "260px",
                 objectFit: "cover",
+                objectPosition: "center",
+                transition: "transform 0.5s ease"
               }}
               src={`${imagePath}/${data.user?.profile}`}
             />
 
-            {/* Badge */}
             <div
-              className="rbt-badge-group"
+              className="badge-container"
               style={{
                 position: "absolute",
-                bottom: "10px",
-                left: "10px",
+                top: "12px",
+                left: "12px",
                 display: "flex",
-                gap: "8px",
+                flexDirection: "column",
+                gap: "6px",
+                zIndex: 2
               }}
             >
               {data.priority === 1 && (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    background: "linear-gradient(135deg, #34d399, #059669)",
-                    color: "#fff",
-                    padding: "5px 14px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  }}
-                >
-                  <RecommendIcon sx={{ fontSize: 16 }} />
-                  Recommended
+                <span className="premium-badge recommended">
+                  <ThumbUpIcon sx={{ fontSize: 14 }} /> Recommended
                 </span>
               )}
               {data.priority === 2 && (
-                <span
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "5px",
-                    background: "linear-gradient(135deg, #60a5fa, #1d4ed8)",
-                    color: "#fff",
-                    padding: "5px 14px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  }}
-                >
-                  <VerifiedIcon sx={{ fontSize: 16 }} />
-                  Verified
+                <span className="premium-badge verified">
+                  <VerifiedIcon sx={{ fontSize: 14 }} /> Verified
                 </span>
               )}
+            </div>
+            
+            <div className="price-overlay-badge">
+              {getMinMaxPrice(fees)}
             </div>
           </Link>
         </div>
 
-        {/* Card Body */}
-        <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "12px", flexGrow: 1 }}>
-          {/* Language & State */}
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <span
-              style={{
-                backgroundColor: "rgba(0,0,0,0.05)",
-                padding: "4px 10px",
-                borderRadius: "12px",
-                fontSize: 14,
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <i className="fas fa-globe"></i> {data.language_spoken}
-            </span>
-            <span
-              style={{
-                backgroundColor: "rgba(0,0,0,0.05)",
-                padding: "4px 10px",
-                borderRadius: "12px",
-                fontSize: 14,
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <i className="fas fa-map-marker-alt"></i> {data.state}
-            </span>
-          </div>
-
-          {/* Name + Bookmark */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h4
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontWeight: "700",
-                fontSize: "20px",
-                margin: 0,
-              }}
-            >
-              <Link to={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "#111" }}>
-                {data.user?.name || "Therapist"}
-              </Link>
-              {data.priority === 1 && <RecommendIcon sx={{ fontSize: 18, color: "#34d399" }} />}
-              {data.priority === 2 && <VerifiedIcon sx={{ fontSize: 18, color: "#60a5fa" }} />}
-            </h4>
+        <div className="card-body-content" style={{ padding: isMobile ? "16px" : "20px", display: "flex", flexDirection: "column", gap: "10px", flexGrow: 1 }}>
+          <div className="card-top-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div className="name-type-wrap">
+              <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0 0 4px 0", color: "inherit" }}>
+                <Link to={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  {data.user?.name || "Therapist"}
+                </Link>
+              </h4>
+              <span className="profile-type-text" style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                {data.profile_type}
+              </span>
+            </div>
 
             {showBookmark && (
-              <div>
-                <a
-                  style={{
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    backgroundColor: "#fff",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                    transition: "transform 0.2s",
-                  }}
-                  title="Bookmark"
-                  onClick={() => handleBookmark(data._id, bookmark)}
-                  onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.9)")}
-                  onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                >
-                  {bookmark ? <BookmarkAddedIcon sx={{ fontSize: 24, color: "#f59e0b" }} /> : <BookmarkBorderIcon sx={{ fontSize: 24, color: "#888" }} />}
-                </a>
-              </div>
+              <button
+                className={`bookmark-btn ${bookmark ? 'active' : ''}`}
+                onClick={() => handleBookmark(data._id, bookmark)}
+                style={{
+                  border: "none",
+                  background: bookmark ? "#fff7ed" : "#f8fafc",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  boxShadow: bookmark ? "0 4px 10px rgba(245, 158, 11, 0.1)" : "none",
+                  border: bookmark ? "1px solid #fde68a" : "1px solid #f1f5f9"
+                }}
+              >
+                {bookmark ? <BookmarkAddedIcon sx={{ fontSize: 20, color: "#f59e0b" }} /> : <BookmarkBorderIcon sx={{ fontSize: 20, color: "#94a3b8" }} />}
+              </button>
             )}
           </div>
 
-          {/* Stars */}
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <div style={{ color: "#fbbf24", display: "flex", gap: "2px" }}>
-              {[...Array(5)].map((_, i) => (
-                <i key={i} className="fas fa-star"></i>
-              ))}
+          <div className="meta-info-grid" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+            <div className="meta-pill">
+              <i className="feather-briefcase"></i> {data.year_of_exp} Exp.
             </div>
-            <span style={{ fontSize: "14px", color: "#555" }}>4.8/5</span>
+            <div className="meta-pill">
+              <i className="feather-globe"></i> {data.language_spoken?.split(',')[0]}
+            </div>
+            <div className="meta-pill">
+              <i className="feather-map-pin"></i> {data.state}
+            </div>
           </div>
 
-          {/* Profile Type & Fees */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <span style={{ fontSize: "14px", color: "#555" }}>
-              <i className="fas fa-user-md"></i> {data.profile_type}
-            </span>
-            <span
-              style={{
-                fontSize: "14px",
-                color: "#111",
-                fontWeight: 600,
-              }}
-            >
-              <i className="fas fa-credit-card"></i> {getMinMaxPrice(fees)} per session
-            </span>
-          </div>
-
-          {/* Buttons */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: isMobile ? "8px" : "10px",
-              marginTop: "auto",
-            }}
-          >
+          <div className="card-action-btns" style={{ display: "flex", gap: "10px", marginTop: "auto", paddingTop: "10px" }}>
             <Link
               to={`/view-profile/${data._id}`}
-              style={{
-                flex: 1,
-                padding: isMobile ? "12px 0" : "8px 20px",
-                borderRadius: "12px",
-                border: "1px solid #1976d2",
-                color: "#1976d2",
-                textDecoration: "none",
-                fontWeight: 600,
-                fontSize: isMobile ? "16px" : "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.3s",
-              }}
+              className="btn-outline-premium"
+              style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", border: "1.5px solid #e2e8f0", color: "#475569", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s" }}
             >
-              View Profile
+              Profile
             </Link>
 
             <Link
               to={`/therapist-checkout/${data._id}`}
-              style={{
-                flex: 1,
-                padding: isMobile ? "12px 0" : "8px 20px",
-                borderRadius: "12px",
-                background: "linear-gradient(135deg, #34d399, #059669)",
-                color: "#fff",
-                textDecoration: "none",
-                fontWeight: 600,
-                fontSize: isMobile ? "16px" : "14px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                transition: "all 0.3s",
-              }}
+              className="btn-fill-premium"
+              style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", background: "#228756", color: "#fff", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 12px rgba(34, 135, 86, 0.2)" }}
             >
               Book Now
             </Link>

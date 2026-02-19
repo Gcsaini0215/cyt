@@ -5,8 +5,7 @@ import {
   getTherapistProfiles,
 } from "../../utils/url";
 import { fetchById, fetchData } from "../../utils/actions";
-import ErrorPage from "../../pages/error-page";
-import ProfileCardVert from "../home/profile-card-vert";
+import ProfileCardVert from "../home/profile-card-vert.js";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
 
@@ -18,7 +17,12 @@ export default function ViewAllTherapist() {
   const [favrioutes, setFavrioutes] = React.useState([]);
   const timeoutRef = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
-  const [visibleCount, setVisibleCount] = React.useState(6);
+  const [visibleCount, setVisibleCount] = React.useState(9);
+  const resultsRef = React.useRef(null);
+
+  const scrollToResults = () => {
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const [filter, setFilter] = React.useState({
     profile_type: "",
@@ -54,16 +58,13 @@ export default function ViewAllTherapist() {
       try {
         setLoading(true);
         const res = await fetchData(getTherapistProfiles, filter);
-        console.log("ViewAllTherapist API Response:", res);
         if (res && res.data) {
           setAllData(res.data || []);
           setCount(res.totalCount || res.data?.length || 0);
           setData(res.data?.slice(0, visibleCount) || []);
-        } else {
-          console.error("API returned failure:", res);
         }
       } catch (err) {
-        return <ErrorPage />;
+        console.error("Error fetching therapists:", err);
       } finally {
         setLoading(false);
       }
@@ -81,8 +82,8 @@ export default function ViewAllTherapist() {
     };
 
     getData();
-    const data = getDecodedToken();
-    if (data && data.role !== 1) {
+    const tokenData = getDecodedToken();
+    if (tokenData && tokenData.role !== 1) {
       getFavrioutes();
     }
   }, []);
@@ -139,89 +140,86 @@ export default function ViewAllTherapist() {
 
   return (
     <>
-      <div className="rbt-page-banner-wrapper">
-        <div className="rbt-banner-image"></div>
-        <div className="rbt-banner-content">
-          <div className="rbt-banner-content-top">
-            <div className="container">
-              <div className="row">
-                <div className="col-lg-12">
-                  <div className=" title-wrapper">
-                    <h1 className="title mb--0"> Search Therapist</h1>
-                    <Link className="rbt-badge-2" to="#">
-                      <div className="image">🎉</div> {count} Therapist
-                    </Link>
-                  </div>
-                  <p className="description">Discover the right therapist for your unique needs, all in one place.</p>
+      <div className="rbt-page-banner-wrapper dark-premium-banner">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-12">
+              <div className="banner-content-inner text-center pt--50 pb--50 pt_sm--30 pb_sm--30">
+                <div className="section-title">
+                  <h1 className="title text-white mb--10">Find Your Therapist</h1>
+                  <p className="description text-white-opacity mb--25">Expert mental health support, tailored to your needs.</p>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rbt-course-top-wrapper mt--40 mt_sm--20">
-            <div className="container">
-              <div className="row g-5 align-items-center">
-                <div className="col-lg-5 col-md-12">
-                  <div className="rbt-sorting-list d-flex flex-wrap align-items-center">
-                    <div className="rbt-short-item">
-                      <span className="course-index">
-                        Showing {data.length} of {count}<span className="ms-1">results</span>
-                      </span>
+                
+                <div className="search-filter-card banner-integrated-search">
+                  <div className="row g-3 align-items-center">
+                    <div className="col-lg-12">
+                      <div className="search-box-wrap">
+                        <input 
+                          type="text" 
+                          placeholder="Search by name, concern, or language..." 
+                          value={search} 
+                          onChange={handleSearchChange} 
+                          className="main-search-input"
+                        />
+                        <button className="search-icon-btn">
+                          <i className="feather-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="col-lg-12">
+                      <div className="filter-grid">
+                        <div className="filter-item">
+                          <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="premium-select">
+                            <option value="">Profile Type</option>
+                            {profileTypeOptions.map((item, index) => <option key={index} value={item.value}>{renderOption(item)}</option>)}
+                          </select>
+                        </div>
+                        <div className="filter-item">
+                          <select name="services" value={filter.services} onChange={handleChange} className="premium-select">
+                            <option value="">Services</option>
+                            {services.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
+                          </select>
+                        </div>
+                        <div className="filter-item">
+                          <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className="premium-select">
+                            <option value="">Experience</option>
+                            {ExpList.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
+                          </select>
+                        </div>
+                        <div className="filter-item">
+                          <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className="premium-select">
+                            <option value="">Language</option>
+                            {languageSpoken.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
+                          </select>
+                        </div>
+                        <div className="filter-item">
+                          <select name="state" value={filter.state} onChange={handleChange} className="premium-select">
+                            <option value="">State</option>
+                            {stateList.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="col-lg-7 col-md-12">
-                  <div className="rbt-sorting-list d-flex flex-wrap align-items-end justify-content-start justify-content-lg-end">
-                    <div className="rbt-short-item">
-                      <form action="#" className="rbt-search-style me-0">
-                        <input type="text" placeholder="Search Your Therapist.." value={search} onChange={handleSearchChange} />
-                        <button type="submit" className="rbt-search-btn rbt-round-btn"><i className="feather-search"></i></button>
-                      </form>
-                    </div>
+
+                {allData.length > 0 && (
+                  <div className="results-jump-container mt--30">
+                    <button onClick={scrollToResults} className="results-jump-btn">
+                      <span className="count-badge">{allData.length}</span>
+                      <span className="text">Therapists Found</span>
+                      <i className="feather-arrow-down-circle"></i>
+                    </button>
                   </div>
-                </div>
-              </div>
-
-              {/* Filters always visible */}
-              <div className="row mt-3 filter-row">
-                <div className="col-md-2 col-6 mb-2">
-                  <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="form-select">
-                    <option value="">Profile Type</option>
-                    {profileTypeOptions.map((item, index) => <option key={index} value={item.value}>{renderOption(item)}</option>)}
-                  </select>
-                </div>
-                <div className="col-md-2 col-6 mb-2">
-                  <select name="services" value={filter.services} onChange={handleChange} className="form-select">
-                    <option value="">Services</option>
-                    {services.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
-                  </select>
-                </div>
-                <div className="col-md-2 col-6 mb-2">
-                  <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className="form-select">
-                    <option value="">Experience</option>
-                    {ExpList.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
-                  </select>
-                </div>
-
-                <div className="col-md-3 col-6 mb-2">
-                  <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className="form-select">
-                    <option value="">Language</option>
-                    {languageSpoken.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
-                  </select>
-                </div>
-                <div className="col-md-3 col-6 mb-2">
-                  <select name="state" value={filter.state} onChange={handleChange} className="form-select">
-                    <option value="">State</option>
-                    {stateList.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
-                  </select>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="rbt-section-overlayping-top rbt-section-gapBottom">
+      <div ref={resultsRef} className="rbt-section-gapTop rbt-section-gapBottom">
         <div className="container">
           {loading ? (
             <div className="text-center my-4">
@@ -250,50 +248,201 @@ export default function ViewAllTherapist() {
       </div>
 
       <style>{`
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
+        .dark-premium-banner {
+          background: linear-gradient(135deg, #0d2b1c 0%, #1a4d32 100%);
+          position: relative;
+          padding-bottom: 30px;
         }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        .text-white-opacity {
+          color: rgba(255, 255, 255, 0.8);
         }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        .banner-integrated-search {
+          background: white;
+          padding: 24px;
+          border-radius: 20px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+          max-width: 1000px;
+          margin: 0 auto;
+        }
+        .search-box-wrap {
+          position: relative;
+          margin-bottom: 15px;
+        }
+        .main-search-input {
+          width: 100%;
+          padding: 12px 60px 12px 20px !important;
+          border-radius: 12px !important;
+          border: 1px solid #e2e8f0 !important;
+          font-size: 15px !important;
+          background: #f8fafc !important;
+        }
+        .search-icon-btn {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: #2ecc71;
+          color: white;
+          border: none;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .filter-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 10px;
+        }
+        .premium-select {
+          width: 100%;
+          padding: 8px 10px !important;
+          border-radius: 8px !important;
+          border: 1px solid #e2e8f0 !important;
+          font-size: 13px !important;
+          background-color: white !important;
+        }
+        
+        /* Premium Card Styles */
+        .therapist-premium-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.12) !important;
+          border-color: #2ecc71 !important;
+        }
+        .card-image-wrap:hover .therapist-img {
+          transform: scale(1.08);
+        }
+        .premium-badge {
+          padding: 4px 12px;
+          border-radius: 8px;
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          backdrop-filter: blur(8px);
+          color: white;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .premium-badge.recommended {
+          background: rgba(34, 135, 86, 0.9);
+        }
+        .premium-badge.verified {
+          background: rgba(37, 99, 235, 0.9);
+        }
+        .price-overlay-badge {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          background: white;
+          color: #1e293b;
+          padding: 5px 12px;
+          border-radius: 8px;
+          font-weight: 800;
+          font-size: 14px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          z-index: 2;
+        }
+        .meta-pill {
+          background: #f1f5f9;
+          color: #475569;
+          padding: 4px 10px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .meta-pill i {
+          color: #2ecc71;
+          font-size: 12px;
+        }
+        .btn-outline-premium:hover {
+          background: #f8fafc;
+          border-color: #2ecc71 !important;
+          color: #2ecc71 !important;
+        }
+        .btn-fill-premium:hover {
+          background: #1a6d45 !important;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 15px rgba(34, 135, 86, 0.3) !important;
+        }
+        .bookmark-btn:hover {
+          transform: scale(1.1);
         }
         .btn-load-more {
-          background: linear-gradient(90deg, #28a745, #20c997);
+          background: linear-gradient(90deg, #2ecc71, #27ae60);
           color: #fff;
           border: none;
-          padding: 12px 30px;
+          padding: 14px 40px;
           font-size: 16px;
-          border-radius: 30px;
+          font-weight: 700;
+          border-radius: 100px;
           cursor: pointer;
           transition: all 0.3s ease;
         }
-        .btn-load-more:hover {
-          opacity: 0.9;
-          transform: translateY(-2px);
+
+        .results-jump-btn {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 10px 24px;
+          border-radius: 100px;
+          color: white;
+          font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          backdrop-filter: blur(10px);
         }
-        .form-select {
-          font-size: 16px;
-          padding: 8px 12px;
-          width: 100%;
+        .results-jump-btn:hover {
+          background: white;
+          color: #0d2b1c;
+          transform: translateY(-3px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .count-badge {
+          background: #2ecc71;
+          color: white;
+          padding: 2px 10px;
+          border-radius: 20px;
+          font-size: 14px;
+          font-weight: 800;
+        }
+        .results-jump-btn i {
+          font-size: 18px;
+          animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+          40% {transform: translateY(-5px);}
+          60% {transform: translateY(-3px);}
         }
 
-        @media (max-width: 768px) {
-          .filter-row .col-md-2,
-          .filter-row .col-md-3 {
-            width: 48%;
+        @media (max-width: 991px) {
+          .filter-grid {
+            grid-template-columns: repeat(3, 1fr);
           }
         }
 
-        @media (min-width: 769px) {
-          /* Desktop: make all dropdowns equal inline width */
-          .filter-row .col-md-2, 
-          .filter-row .col-md-3 {
-            width: calc(100% / 5 - 10px); /* 5 dropdowns equally inline with small gap */
+        @media (max-width: 768px) {
+          .filter-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 480px) {
+          .filter-grid {
+            grid-template-columns: 1fr;
+          }
+          .banner-integrated-search {
+            padding: 15px;
           }
         }
       `}</style>

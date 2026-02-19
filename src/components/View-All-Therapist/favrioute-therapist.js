@@ -277,7 +277,7 @@ export default function FavriouteTherapist() {
           </div>
         </div>
       </div>
-      <div className="rbt-section-overlayping-top rbt-section-gapBottom">
+      <div className="rbt-section-gapTop rbt-section-gapBottom">
         <div className="container">
           <div className="row g-5">
             {data &&

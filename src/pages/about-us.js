@@ -9,7 +9,7 @@ import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
 import NewsLetter from "../components/home/newsletter";
-import InterSection from "../components/about/inter-section";
+
 
 export default function AboutUs() {
   return (
@@ -39,7 +39,7 @@ export default function AboutUs() {
       
       <CallToActionAbout />
       <Feedback />
-      <InterSection />
+
 
       <NewsLetter />
       <Footer />
