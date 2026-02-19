@@ -1,9 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import AboutCyt from "../components/about/about-cyt";
 import AboutUsBanner from "../components/about/banner";
-import CallToActionAbout from "../components/about/call-to-action";
 import ServiceQuality from "../components/about/service-quality";
+import AboutCyt from "../components/about/about-cyt";
+import CallToActionAbout from "../components/about/call-to-action";
 import TeamBanner from "../components/about/team-banner";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
@@ -35,12 +35,11 @@ export default function AboutUs() {
       <MyNavbar />
       <AboutUsBanner />
       <AboutCyt />
+      <ServiceQuality />
       
- 
-  
       <CallToActionAbout />
-      <InterSection />
       <Feedback />
+      <InterSection />
 
       <NewsLetter />
       <Footer />

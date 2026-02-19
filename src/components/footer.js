@@ -1,115 +1,11 @@
-import { useState, useEffect } from "react";
+import React from "react";
 const logo1 = "/logo.png";
 import ImageTag from "../utils/image-tag";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
-  const [cookiesAccepted, setCookiesAccepted] = useState(false);
-
-  useEffect(() => {
-    const isAccepted = localStorage.getItem("cookiesAccepted") === "true";
-    setCookiesAccepted(isAccepted);
-  }, []);
-
-  const handleAcceptCookies = () => {
-    localStorage.setItem("cookiesAccepted", "true");
-    setCookiesAccepted(true);
-  };
-
   return (
     <div style={{ position: "relative" }}>
-      {/* 🍪 Cookie Consent Banner */}
-      {!cookiesAccepted && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "90%",
-            maxWidth: "600px",
-            background: "#f0fff4",
-            border: "1px solid #a5d6a7",
-            borderRadius: "12px",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-            padding: "16px 20px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            zIndex: 9999,
-            animation: "fadeIn 0.4s ease-in-out",
-          }}
-        >
-          <div
-            style={{
-              color: "#1b5e20",
-              textAlign: "center",
-              fontSize: "15px",
-              lineHeight: 1.5,
-              marginBottom: "12px",
-            }}
-          >
-            🍪 We use cookies to enhance your browsing experience and ensure a
-            secure connection. Please read our{" "}
-            <Link
-              to="/privacy-policy"
-              style={{
-                color: "#2e7d32",
-                fontWeight: 600,
-                textDecoration: "underline",
-              }}
-            >
-              Privacy Policy
-            </Link>
-            .
-          </div>
-          <button
-            onClick={handleAcceptCookies}
-            style={{
-              background: "#2e7d32",
-              color: "#fff",
-              border: "none",
-              borderRadius: "25px",
-              padding: "8px 30px",
-              cursor: "pointer",
-              fontWeight: 600,
-              fontSize: "15px",
-              boxShadow: "0 2px 6px rgba(46,125,50,0.2)",
-              transition: "all 0.3s ease",
-            }}
-            onMouseOver={(e) => (e.target.style.background = "#1b5e20")}
-            onMouseOut={(e) => (e.target.style.background = "#2e7d32")}
-          >
-            Accept
-          </button>
-        </div>
-      )}
-
-
-
-      {/* Animation CSS */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translate(-50%, 20px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
-          }
-
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          @media (max-width: 600px) {
-            .cookie-banner {
-              width: 95%;
-              padding: 14px 16px;
-              font-size: 14px;
-            }
-          }
-        `}
-      </style>
-
       {/* Separator */}
       <div className="rbt-separator-mid">
         <div className="container">
@@ -129,8 +25,8 @@ export default function Footer() {
                     <Link to="/">
                       <ImageTag
                         alt="Choose Your Therapist"
-                        height={"50"}
-                        width={"152"}
+                        height={"55"}
+                        width={"167"}
                         src={logo1}
                       />
                     </Link>

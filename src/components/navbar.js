@@ -79,7 +79,7 @@ export default function App() {
                 <div className="header-info">
                   <div className="logo d-flex align-items-center">
                     <Link to="/" style={{ cursor: "pointer" }}>
-                      <ImageTag alt="Education Logo Images" height={"40"} width={"120"} src="/assets/img/logo.png" />
+                      <ImageTag alt="Education Logo Images" height={"55"} width={"165"} src="/assets/img/logo.png" />
                     </Link>
                   </div>
                 </div>

@@ -103,8 +103,8 @@ export default function UserDashboardTopNav() {
                     <Link to="/my-dashboard" style={{ cursor: "pointer" }}>
                       <ImageTag
                         alt="Education Logo Images"
-                        height={"50"}
-                        width={"152"}
+                        height={"55"}
+                        width={"167"}
                         src={logo1}
                       />
                     </Link>

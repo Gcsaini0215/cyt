@@ -5,7 +5,6 @@ import "swiper/css/pagination";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
 import { Link } from "react-router-dom";
-import ErrorPage from "../../pages/error-page";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
   GetFavriouteTherapistListUrl,

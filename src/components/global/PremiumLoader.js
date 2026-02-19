@@ -10,6 +10,8 @@ const PremiumLoader = () => {
             src={favicon} 
             alt="Logo" 
             className="loader-logo"
+            width="60"
+            height="60"
           />
           <div className="loader-spinner"></div>
         </div>
@@ -50,8 +52,9 @@ const PremiumLoader = () => {
         }
 
         .loader-logo {
-          width: 80px;
-          height: auto;
+          width: 60px;
+          height: 60px;
+          object-fit: contain;
           z-index: 2;
           animation: pulse 2s infinite ease-in-out;
         }

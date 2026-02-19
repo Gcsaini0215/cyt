@@ -6,7 +6,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import MessageIcon from "@mui/icons-material/Message";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import { postJsonDataNoAuth } from "../../utils/actions";
+import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 
 const formStyles = `
@@ -136,7 +136,7 @@ export default function ConsultationForm({ showHeading = true }) {
         subject: "Free Consultation Request",
         message: formData.message.trim()
       };
-      const response = await postJsonDataNoAuth(SubmitConsultationUrl, dataToSend);
+      const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {
         setShowSuccessPopup(true);
         setFormData({ name: "", phone: "", email: "", message: "" });
