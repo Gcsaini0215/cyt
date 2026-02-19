@@ -5,7 +5,7 @@ import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import LazyImage from "../../utils/lazy-image";
 import Img from "../../assets/img/Individual.png";
-import Img2 from "../../assets/img/couple.png";
+import Img2 from "../../assets/img/couplebg.png";
 import Img3 from "../../assets/img/teen.png";
 import bgImg1 from "../../assets/img/individualbg.png";
 import bgImg2 from "../../assets/img/couplebg.png";

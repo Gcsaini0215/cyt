@@ -30,24 +30,37 @@ export default function ProfileInfoTab({ pageData }) {
   const glassCard = {
     backdropFilter: "blur(10px)",
     background: "rgba(255, 255, 255, 0.8)",
-    borderRadius: "15px",
-    padding: "20px",
+    borderRadius: "20px",
+    padding: "30px",
     marginBottom: "20px",
-    boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.1)",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    boxShadow: "0 10px 40px 0 rgba(0, 0, 0, 0.05)",
+    border: "1px solid rgba(0, 0, 0, 0.05)",
     transition: "all 0.3s ease",
+  };
+
+  const bioTextStyle = {
+    fontSize: "17px",
+    lineHeight: "1.8",
+    color: "#4a5568",
+    fontFamily: "'Inter', 'Roboto', sans-serif",
+    textAlign: "left",
+    letterSpacing: "0.2px",
+    whiteSpace: "pre-line",
+    wordSpacing: "1px"
   };
 
   const chipStyle = {
     display: "inline-block",
-    padding: "6px 12px",
-    borderRadius: "20px",
-    margin: "4px",
-    background: "rgba(0,0,0,0.05)",
-    color: "#333",
-    fontWeight: 500,
+    padding: "8px 16px",
+    borderRadius: "12px",
+    margin: "6px",
+    background: "rgba(46, 204, 113, 0.08)",
+    color: "#000",
+    fontWeight: 600,
     fontSize: 14,
     cursor: "default",
+    fontFamily: "'Inter', sans-serif",
+    border: "1px solid rgba(46, 204, 113, 0.1)"
   };
 
   return (
@@ -60,6 +73,20 @@ export default function ProfileInfoTab({ pageData }) {
       }}
     >
       <div className="container">
+        <style>{`
+          .profile-bio-text {
+            word-spacing: 2px;
+            letter-spacing: 0.1px;
+          }
+          @media (max-width: 768px) {
+            .profile-bio-text {
+              text-align: left !important;
+              word-spacing: 1px;
+              font-size: 15px !important;
+              line-height: 1.7 !important;
+            }
+          }
+        `}</style>
         <div className="row g-5">
           <div className="col-lg-10 offset-lg-1">
             {/* Tabs */}
@@ -119,15 +146,15 @@ export default function ProfileInfoTab({ pageData }) {
               >
                 {/* About Me */}
                 <div style={glassCard}>
-                  <h4 className="rbt-title-style-3 mb-3">About Me</h4>
-                  <p style={{ fontSize: 16, lineHeight: 1.6, color: "#333",  textAlign: "justify" }}>
+                  <h4 className="rbt-title-style-3 mb-3" style={{ fontWeight: 800, color: '#1a202c' }}>About Me</h4>
+                  <p className="profile-bio-text" style={bioTextStyle}>
                     {pageData.user.bio}
                   </p>
                 </div>
 
                 {/* Services */}
                 <div style={glassCard}>
-                  <h4 className="rbt-title-style-3 mb-3">Services</h4>
+                  <h4 className="rbt-title-style-3 mb-3" style={{ fontWeight: 800, color: '#1a202c' }}>Services</h4>
                   <div>
                     {pageData.services.split(",").map((item) => (
                       <span key={item} style={chipStyle}>{item}</span>
@@ -137,7 +164,7 @@ export default function ProfileInfoTab({ pageData }) {
 
                 {/* Expertise */}
                 <div style={glassCard}>
-                  <h4 className="rbt-title-style-3 mb-3">Expertise</h4>
+                  <h4 className="rbt-title-style-3 mb-3" style={{ fontWeight: 800, color: '#1a202c' }}>Expertise</h4>
                   <div>
                     {pageData.experties.split(",").map((item) => (
                       <span key={item} style={chipStyle}>{item}</span>

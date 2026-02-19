@@ -10,6 +10,8 @@ import {
 } from "../../utils/url";
 import { postData } from "../../utils/actions";
 
+import bannerImg from "../../assets/img/choosetherapist.jpg";
+
 export default function ProfileHeader({ pageData, favrioutes }) {
   const navigate = useNavigate();
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -86,87 +88,96 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         style={{
           position: "relative",
           zIndex: 1,
-          height: isMobile ? 230 : 250,
+          height: isMobile ? 280 : 350,
+          background: `linear-gradient(135deg, #0a2417 0%, #0d2b1c 100%)`,
+          overflow: 'hidden'
         }}
       >
-        <div
-          className="rbt-banner-image"
-          style={{
-            height: "100%",
-          }}
-        ></div>
       </div>
 
       {/* Floating header */}
       <div
         style={{
           position: "relative",
-          marginTop: -(isMobile ? 115 : 125),
+          marginTop: -(isMobile ? 180 : 200),
           zIndex: 10,
           display: "flex",
           justifyContent: "center",
-          padding: isMobile ? "0 10px" : 0,
+          padding: isMobile ? "0 15px" : "0 20px",
         }}
       >
         <div
           style={{
-            background: "linear-gradient(135deg, #0f3d2f, #138556)",
-            borderRadius: 20,
-            padding: isMobile ? "120px 15px 40px" : "140px 40px 50px",
-            maxWidth: isMobile ? 500 : 1100,
+            background: "linear-gradient(135deg, #138556, #0f3d2f)",
+            borderRadius: 30,
+            padding: isMobile ? "80px 20px 25px" : "25px 40px",
+            maxWidth: 1200,
             width: "100%",
-            boxShadow: "0 8px 25px rgba(0,0,0,0.25)",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
             color: "#fff",
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
-            alignItems: isMobile ? "center" : "flex-start",
-            gap: isMobile ? 20 : 60,
+            alignItems: "center",
+            gap: isMobile ? 20 : 40,
             position: "relative",
           }}
         >
-          {/* Profile Picture with Premium Style */}
+          {/* Subtle Glow Effect */}
+          <div style={{
+            position: 'absolute',
+            top: '-20%',
+            left: '10%',
+            width: '100px',
+            height: '100px',
+            background: 'rgba(46, 204, 113, 0.15)',
+            filter: 'blur(60px)',
+            borderRadius: '50%',
+            zIndex: -1
+          }}></div>
+
+          {/* Profile Picture Section */}
           <div
             style={{
               flexShrink: 0,
               borderRadius: "50%",
-              overflow: "visible",
               position: "relative",
               padding: 5,
-              background: "linear-gradient(135deg, #2ecc71, #27ae60)",
-              boxShadow: "0px 6px 20px rgba(0,0,0,0.3)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: isMobile ? -60 : 0,
+              background: "linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1))",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+              marginTop: isMobile ? -70 : 0,
             }}
           >
             <ImageTag
-              alt={`${pageData.user.name} - ${pageData.qualification}`}
+              alt={`${pageData.user.name}`}
               src={`${imagePath}/${pageData.user.profile}`}
               style={{
                 objectFit: "cover",
                 borderRadius: "50%",
-                width: isMobile ? 160 : 200,
-                height: isMobile ? 160 : 200,
+                width: isMobile ? 130 : 160,
+                height: isMobile ? 130 : 160,
                 background: "#fff",
+                border: "3px solid rgba(255,255,255,0.8)"
               }}
             />
-            {/* Premium Badge */}
+            {/* Verified Badge */}
             <div
               style={{
                 position: "absolute",
-                bottom: 8,
-                right: 8,
-                background: "#fff",
+                bottom: 10,
+                right: 10,
+                background: "#2ecc71",
                 borderRadius: "50%",
-                padding: 5,
-                boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                border: "2px solid #fff"
               }}
             >
-              <i
-                className="feather-star"
-                style={{ color: "#f1c40f", fontSize: 20 }}
-              ></i>
+              <i className="feather-check" style={{ color: "#fff", fontSize: 14 }}></i>
             </div>
           </div>
 
@@ -175,204 +186,140 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             style={{
               flex: 1,
               textAlign: isMobile ? "center" : "left",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
             }}
           >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: isMobile ? 'center' : 'flex-start', marginBottom: 8 }}>
+               <span style={{ 
+                 background: "rgba(46, 204, 113, 0.2)", 
+                 color: "#2ecc71", 
+                 padding: "3px 10px", 
+                 borderRadius: 100, 
+                 fontSize: 11, 
+                 fontWeight: 700,
+                 textTransform: 'uppercase',
+                 letterSpacing: 1
+               }}>
+                 {pageData.profile_type}
+               </span>
+               {pageData.year_of_exp && (
+                 <span style={{ 
+                   background: "rgba(255, 255, 255, 0.15)", 
+                   color: "#fff", 
+                   padding: "3px 10px", 
+                   borderRadius: 100, 
+                   fontSize: 11, 
+                   fontWeight: 600 
+                 }}>
+                   {pageData.year_of_exp}+ Years Exp
+                 </span>
+               )}
+            </div>
+
             <h1
               style={{
                 color: "#fff",
-                fontSize: isMobile ? 26 : 36,
-                marginBottom: 5,
-                fontWeight: 700,
+                fontSize: isMobile ? 26 : 32,
+                marginBottom: 4,
+                fontWeight: 800,
+                letterSpacing: '-0.5px'
               }}
             >
               {pageData.user.name}
             </h1>
-            <h2
+            
+            <p
               style={{
-                color: "#fff",
-                fontSize: isMobile ? 18 : 24,
+                color: "rgba(255,255,255,0.9)",
+                fontSize: isMobile ? 14 : 16,
                 fontWeight: 500,
-                marginBottom: 5,
-              }}
-            >
-              {pageData.profile_type}
-            </h2>
-            <h3
-              style={{
-                color: "#fff",
-                fontSize: isMobile ? 14 : 18,
-                fontWeight: 400,
-                marginBottom: 10,
-                wordBreak: "break-word",
-                overflowWrap: "break-word",
+                marginBottom: 15,
+                lineHeight: 1.2
               }}
             >
               {pageData.qualification}
-            </h3>
+            </p>
 
-            <ul
+            <div
               style={{
-                listStyle: "none",
-                padding: 0,
                 display: "flex",
+                flexWrap: "wrap",
                 gap: 15,
                 justifyContent: isMobile ? "center" : "flex-start",
-                fontSize: 14,
-                marginBottom: 5,
+                marginBottom: 0,
               }}
             >
-              <li style={{ display: "flex", alignItems: "center", gap: 5, color: "#fff" }}>
-                <i className="feather-message-circle" style={{ color: "#fff" }}></i>
-                <span>{pageData.language_spoken}</span>
-              </li>
-              <li style={{ display: "flex", alignItems: "center", gap: 5, color: "#fff" }}>
-                <i className="feather-map-pin" style={{ color: "#fff" }}></i>
-                <span>{pageData.state}</span>
-              </li>
-              <li style={{ display: "flex", alignItems: "center", gap: 5, color: "#fff" }}>
-                <i className="feather-users" style={{ color: "#fff" }}></i>
-                <span>{pageData.user?.gender || "-"}</span>
-              </li>
-            </ul>
-
-            {/* Premium Experience Badge */}
-            {pageData.year_of_exp && (
-              <div
-                style={{
-                  marginTop: 8,
-                  alignSelf: isMobile ? "center" : "flex-start",
-                  background: "linear-gradient(135deg, #f39c12, #e74c3c)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  fontSize: isMobile ? 12 : 14,
-                  padding: "6px 12px",
-                  borderRadius: 25,
-                  boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-                  display: "inline-block",
-                }}
-              >
-                {pageData.year_of_exp} years experience
+              <div style={{ display: "flex", alignItems: "center", gap: 6, opacity: 0.9 }}>
+                <i className="feather-globe" style={{ color: "#2ecc71", fontSize: 14 }}></i>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>{pageData.language_spoken}</span>
               </div>
-            )}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, opacity: 0.9 }}>
+                <i className="feather-map-pin" style={{ color: "#2ecc71", fontSize: 14 }}></i>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>{pageData.state}</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, opacity: 0.9 }}>
+                <i className="feather-user" style={{ color: "#2ecc71", fontSize: 14 }}></i>
+                <span style={{ fontSize: 13, fontWeight: 500 }}>{pageData.user?.gender || "N/A"}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Buttons for Laptop Right Vertical Stack */}
-          {!isMobile && (
-            <div
+          {/* Action Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: 12, 
+            flexDirection: isMobile ? 'column' : 'row',
+            width: isMobile ? '100%' : 'auto'
+          }}>
+            <button
+              onClick={handleClick}
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 15,
-                position: "absolute",
-                right: 40,
-                top: 200, // adjusted a bit lower
+                padding: "12px 25px",
+                borderRadius: 12,
+                background: "#2ecc71",
+                color: "#fff",
+                fontWeight: 700,
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 8px 15px rgba(46, 204, 113, 0.2)",
+                transition: "all 0.3s ease",
+                fontSize: 15,
+                whiteSpace: 'nowrap'
               }}
+              onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
+              onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
             >
-              <button
-                onClick={handleClick}
-                style={{
-                  padding: "12px 25px",
-                  borderRadius: 25,
-                  background: "linear-gradient(90deg, #00c6ff, #0072ff)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  transition: "0.3s transform",
-                  minWidth: 150,
-                  textAlign: "center",
-                }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Book Now
-              </button>
+              Book Session
+            </button>
 
-              <button
-                onClick={handleShare}
-                style={{
-                  padding: "12px 25px",
-                  borderRadius: 25,
-                  background: "linear-gradient(90deg, #43e97b, #38f9d7)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  transition: "0.3s transform",
-                  minWidth: 150,
-                  textAlign: "center",
-                }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Share Profile
-              </button>
-            </div>
-          )}
-
-          {/* Mobile Buttons */}
-          {isMobile && (
-            <div
+            <button
+              onClick={handleShare}
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 15,
-                width: "100%",
+                padding: "12px 25px",
+                borderRadius: 12,
+                background: "rgba(255, 255, 255, 0.1)",
+                color: "#fff",
+                fontWeight: 600,
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                fontSize: 15,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                whiteSpace: 'nowrap'
               }}
+              onMouseEnter={(e) => (e.target.style.background = "rgba(255, 255, 255, 0.2)")}
+              onMouseLeave={(e) => (e.target.style.background = "rgba(255, 255, 255, 0.1)")}
             >
-              <button
-                onClick={handleClick}
-                style={{
-                  padding: "12px 25px",
-                  borderRadius: 25,
-                  background: "linear-gradient(90deg, #00c6ff, #0072ff)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  transition: "0.3s transform",
-                  width: "100%",
-                  textAlign: "center",
-                }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Book Now
-              </button>
-
-              <button
-                onClick={handleShare}
-                style={{
-                  padding: "12px 25px",
-                  borderRadius: 25,
-                  background: "linear-gradient(90deg, #43e97b, #38f9d7)",
-                  color: "#fff",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                  transition: "0.3s transform",
-                  width: "100%",
-                  textAlign: "center",
-                }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-              >
-                Share Profile
-              </button>
-            </div>
-          )}
+              <i className="feather-share-2" style={{ fontSize: 14 }}></i>
+              Share
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Content below */}
-      <div style={{ paddingTop: isMobile ? 60 : 80 }}></div>
+      <div style={{ paddingTop: isMobile ? 40 : 60 }}></div>
     </>
   );
 }

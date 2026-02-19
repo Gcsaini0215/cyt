@@ -8,6 +8,7 @@ import { fetchById, fetchData } from "../../utils/actions";
 import ProfileCardVert from "../home/profile-card-vert.js";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
+import bannerImg from "../../assets/img/choosetherapist.jpg";
 
 export default function ViewAllTherapist() {
   const [data, setData] = React.useState([]);
@@ -249,7 +250,9 @@ export default function ViewAllTherapist() {
 
       <style>{`
         .dark-premium-banner {
-          background: linear-gradient(135deg, #0d2b1c 0%, #1a4d32 100%);
+          background: linear-gradient(135deg, rgba(13, 43, 28, 0.85) 0%, rgba(26, 77, 50, 0.85) 100%), url('${bannerImg}');
+          background-size: cover;
+          background-position: center;
           position: relative;
           padding-bottom: 30px;
         }

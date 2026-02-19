@@ -16,6 +16,7 @@ import {
 import ErrorPage from "../error-page";
 import PageProgressBar from "../../components/global/page-progress";
 import ProfileWorkshop from "../../components/view_profile/profile-workshop";
+import ProfileReview from "../../components/view_profile/profile-review";
 import { getDecodedToken } from "../../utils/jwt";
 
 export default function ViewProfile() {
@@ -97,10 +98,12 @@ export default function ViewProfile() {
         <link rel="canonical" href={currentUrl} />
       </Helmet>
       <MyNavbar />
-      <ProfileHeader pageData={profile} favrioutes={favrioutes} />
-      <ProfileInfoTab pageData={profile} />
-       {profile && profile.workshops.length > 0 && (
-        <ProfileWorkshop data={profile.workshops} />
+      {profile && (
+        <>
+          <ProfileHeader pageData={profile} favrioutes={favrioutes} />
+          <ProfileInfoTab pageData={profile} />
+          <ProfileReview profile={profile} />
+        </>
       )}
       <NewsLetter />
       <Footer />

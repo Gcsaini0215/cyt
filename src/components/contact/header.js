@@ -2,9 +2,9 @@ export default function Header() {
   return (
     <div className="rbt-conatct-area dark-premium-contact-header rbt-section-gap">
       <div className="container">
-        <div className="row mt--40">
+        <div className="row mt--20">
           <div className="col-lg-12">
-            <div className="section-title text-center mb--60">
+            <div className="section-title text-center mb--30">
               <span className="subtitle premium-badge-green">GET IN TOUCH</span>
               <h2 className="title text-white">
                 We're Here to Listen & <br />
@@ -81,6 +81,8 @@ export default function Header() {
           background: linear-gradient(135deg, #0d2b1c 0%, #1a4d32 100%);
           position: relative;
           overflow: hidden;
+          padding-top: 60px !important;
+          padding-bottom: 60px !important;
         }
         .premium-badge-green {
           background: rgba(46, 204, 113, 0.15) !important;
@@ -99,7 +101,7 @@ export default function Header() {
         }
         .text-white-opacity {
           color: rgba(255, 255, 255, 0.7);
-          max-width: 600px;
+          max-width: 800px;
           margin: 0 auto;
         }
         .premium-contact-card {

@@ -45,26 +45,11 @@ export default function FreeResources() {
 
   return (
     <div className="rbt-free-resources-area rbt-section-gap" style={{
-      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+      background: '#1a4d32',
       padding: isMobile ? '80px 0' : '120px 0',
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Wave transition at top */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        lineHeight: 0,
-        transform: 'rotate(180deg)',
-        zIndex: 1
-      }}>
-        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ width: '100%', height: '60px', fill: '#fdf8f3' }}>
-          <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z"></path>
-        </svg>
-      </div>
-
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         <div className="row g-3 g-lg-4">
           {tools.map((tool, index) => (

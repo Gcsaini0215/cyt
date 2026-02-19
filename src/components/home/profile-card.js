@@ -60,7 +60,7 @@ export default function ProfileCard() {
   }, []);
   return (
     <div className="rbt-rbt-card-area rbt-section-gap" style={{
-      background: 'linear-gradient(180deg, #fdf8f3 0%, #f5ece1 50%, #fdf8f3 100%)',
+      background: 'linear-gradient(180deg, #f0fdf4 0%, #e6f4ea 50%, #f0fdf4 100%)',
       position: 'relative',
       overflow: 'hidden',
       padding: '80px 0 60px'
