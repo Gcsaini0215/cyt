@@ -15,6 +15,7 @@ const HomePage = lazy(() => import("./pages/index"));
 const NotFoundPage = lazy(() => import("./pages/notfound"));
 const ProtectedRoute = lazy(() => import("./pages/protectedroute"));
 const AboutUs = lazy(() => import("./pages/about-us"));
+const SelfAssessment = lazy(() => import("./pages/self-assessment"));
 const Services = lazy(() => import("./pages/services/[id]"));
 const ContactUs = lazy(() => import("./pages/contact-us"));
 const JoinUs = lazy(() => import("./pages/join-us"));
@@ -126,6 +127,7 @@ function App() {
               />
               <Route exact path="/auth/success" element={<Success />} />
               <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/self-assessment" element={<SelfAssessment />} />
               <Route path="/services/:id" element={<Services />} />
               <Route path="/view-profile/:id" element={<ViewProfile />} />
               <Route path="/contact-us" element={<ContactUs />} />

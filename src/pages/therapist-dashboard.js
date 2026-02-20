@@ -105,7 +105,13 @@ export default function TherapistDashboard() {
                 <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e293b', mb: 3 }}>
                   Upcoming Sessions
                 </Typography>
-                <UpcomingAppointment data={upcomingList} />
+                <Box sx={{ 
+                  overflowX: { xs: 'auto', sm: 'visible' },
+                  overflowY: { xs: 'hidden', sm: 'visible' },
+                  pb: { xs: 2, sm: 0 }
+                }}>
+                  <UpcomingAppointment data={upcomingList} />
+                </Box>
               </Box>
               
               <TodayAppointment data={pageData?.today_appointments} />

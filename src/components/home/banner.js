@@ -27,8 +27,6 @@ import {
   IconButton,
   Skeleton,
   Dialog,
-  DialogContent,
-  DialogTitle,
   Button,
   Zoom,
 } from "@mui/material";
@@ -39,7 +37,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 import ImageTag from "../../utils/image-tag";
 
-import ConsultationForm from "./consultation-form";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles, imagePath } from "../../utils/url";
 // Therapist avatar images
@@ -105,7 +102,6 @@ export default function Banner({ topTherapists = [] }) {
     return () => clearInterval(wordInterval);
   }, []);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTherapist, setSelectedTherapist] = useState(null);
   const [googleReviews, setGoogleReviews] = useState({ rating: 4.9, count: 500, loading: true });
@@ -154,9 +150,6 @@ export default function Banner({ topTherapists = [] }) {
 
     fetchGoogleData();
   }, []);
-
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleOpenProfileModal = (therapist) => {
     setSelectedTherapist(therapist);
@@ -428,9 +421,9 @@ export default function Banner({ topTherapists = [] }) {
                     >
                       <span className="btn-text">Find a Therapist</span>
                     </Link>
-                    <Box
+                    <Link
                       className="rbt-btn btn-white btn-sm"
-                      onClick={handleOpenModal}
+                      to="/self-assessment"
                       style={{ 
                         width: isMobile ? "100%" : "280px", 
                         textAlign: "center",
@@ -440,11 +433,12 @@ export default function Banner({ topTherapists = [] }) {
                         lineHeight: isMobile ? "45px" : "55px",
                         fontSize: isMobile ? "14px" : "16px",
                         fontWeight: 700,
-                        cursor: "pointer"
+                        textDecoration: "none",
+                        display: "block"
                       }}
                     >
-                      <span className="btn-text">15 Min Free Consultation</span>
-                    </Box>
+                      <span className="btn-text">Self Assessment</span>
+                    </Link>
                   </div>
                 </Box>
               </div>
@@ -614,48 +608,6 @@ export default function Banner({ topTherapists = [] }) {
         zIndex: 1,
         pointerEvents: "none"
       }}></div>
-
-      {/* Consultation Modal */}
-      <Dialog 
-        open={isModalOpen} 
-        onClose={handleCloseModal}
-        TransitionComponent={Zoom}
-        maxWidth="sm"
-        fullWidth
-        scroll="paper"
-        PaperProps={{
-          sx: {
-            borderRadius: "24px",
-            p: 1,
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-            margin: isMobile ? "20px" : "32px",
-            maxHeight: isMobile ? "calc(100% - 40px)" : "calc(100% - 64px)",
-            position: "relative",
-            zIndex: 9999,
-            display: "flex",
-            flexDirection: "column"
-          }
-        }}
-        sx={{
-          zIndex: 9999,
-          '& .MuiDialog-container': {
-            alignItems: 'center',
-            justifyContent: 'center',
-          }
-        }}
-      >
-        <DialogTitle sx={{ m: 0, p: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h5" sx={{ fontWeight: 900, color: "#228756", letterSpacing: "-0.5px" }}>
-            Free Consultation
-          </Typography>
-          <IconButton onClick={handleCloseModal} sx={{ color: "#94a3b8" }}>
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ pb: 4 }}>
-          <ConsultationForm showHeading={true} />
-        </DialogContent>
-      </Dialog>
 
       {/* Therapist Profile Quick View Modal */}
       <Dialog 

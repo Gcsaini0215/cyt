@@ -106,7 +106,7 @@ export default function App() {
                       <Link to="#">Services <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
                         <li><Link to="/therapy-booking">Therapy Booking</Link></li>
-                        
+                        <li><Link to="/self-assessment">Self Assessment</Link></li>
                         <li><Link to="/plans">Therapy Plan</Link></li>
                       </ul>
                     </li>
@@ -373,6 +373,7 @@ export default function App() {
               </Link>
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
                 <li><Link to="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
+                <li><Link to="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
                 <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
               </ul>
             </li>

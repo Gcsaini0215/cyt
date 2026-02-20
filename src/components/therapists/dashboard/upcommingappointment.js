@@ -10,7 +10,7 @@ export default function UpcomingAppointment({ data }) {
   const appointments = data || [];
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: { xs: 'max-content', sm: '100%' } }}>
       {appointments.length > 0 ? (
         appointments.map((appointment) => (
           <Paper
@@ -22,9 +22,11 @@ export default function UpcomingAppointment({ data }) {
               background: "#ffffff",
               border: "1px solid #f1f5f9",
               display: "flex",
-              alignItems: "center",
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: "stretch",
               justifyContent: "space-between",
               transition: "all 0.3s ease",
+              minWidth: { xs: '320px', sm: '100%' },
               "&:hover": {
                 boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
                 borderColor: "#e2e8f0",
@@ -32,7 +34,7 @@ export default function UpcomingAppointment({ data }) {
               }
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 3, width: { xs: '100%', sm: 'auto' } }}>
               <Avatar
                 src={appointment.imgSrc || defaultProfile}
                 alt={appointment.name}
@@ -60,16 +62,16 @@ export default function UpcomingAppointment({ data }) {
               display: "flex", 
               alignItems: "center", 
               gap: { xs: 1.5, sm: 3 },
-              flexDirection: { xs: 'column', sm: 'row' },
+              flexDirection: { xs: 'row', sm: 'row' },
               width: { xs: '100%', sm: 'auto' },
-              mt: { xs: 2, sm: 0 },
-              justifyContent: 'flex-end'
+              mt: { xs: 1.5, sm: 0 },
+              justifyContent: { xs: 'space-between', sm: 'flex-end' }
             }}>
               <Box sx={{ 
                 textAlign: 'right', 
-                width: { xs: '100%', sm: 'auto' },
+                width: { xs: 'auto', sm: 'auto' },
                 display: 'flex',
-                justifyContent: { xs: 'flex-start', sm: 'flex-end' }
+                justifyContent: { xs: 'center', sm: 'flex-end' }
               }}>
                 <Chip 
                   label={appointment.badge || "Online"} 
@@ -86,11 +88,11 @@ export default function UpcomingAppointment({ data }) {
               <Box sx={{ 
                 display: 'flex', 
                 gap: 1, 
-                width: { xs: '100%', sm: 'auto' },
-                justifyContent: { xs: 'space-between', sm: 'flex-end' },
+                width: { xs: 'auto', sm: 'auto' },
+                justifyContent: 'flex-end',
                 alignItems: 'center'
               }}>
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 1 }}>
                   <Tooltip title="Patient Details">
                     <IconButton size="small" sx={{ color: '#64748b' }}>
                       <InfoIcon fontSize="small" />

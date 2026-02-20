@@ -37,9 +37,14 @@ export default function RecentInvoices({ data }) {
         </Button>
       </Box>
 
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: '24px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
-        <Table>
-          <TableHead sx={{ bgcolor: '#f8fafc' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ 
+        borderRadius: '24px', 
+        border: '1px solid #f1f5f9', 
+        overflow: { xs: 'auto', sm: 'hidden' },
+        overflowY: { xs: 'hidden', sm: 'visible' }
+      }}>
+        <Table sx={{ minWidth: { xs: '600px', sm: '100%' } }}>
+          <TableHead sx={{ bgcolor: '#f8fafc', position: { xs: 'sticky', sm: 'unset' }, top: 0, zIndex: 5 }}>
             <TableRow>
               <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>ID</TableCell>
               <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>Client</TableCell>
