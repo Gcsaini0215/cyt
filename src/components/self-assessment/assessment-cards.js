@@ -87,30 +87,31 @@ const assessments = [
 
 export default function AssessmentCards({ onSelectAssessment }) {
   return (
-    <Box sx={{ py: 8, px: { xs: 2, sm: 4 } }}>
-      <Box sx={{ mb: 8, textAlign: 'center' }}>
-        <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 3, fontSize: { xs: '28px', sm: '36px' } }}>
+    <Box sx={{ py: { xs: 4, sm: 8 }, px: { xs: 1.5, sm: 4 }, width: '100%', overflow: 'hidden' }}>
+      <Box sx={{ mb: { xs: 4, sm: 8 }, textAlign: 'center', px: { xs: 1, sm: 0 } }}>
+        <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 3, fontSize: { xs: '24px', sm: '36px' } }}>
           Choose Your Assessment
         </Typography>
-        <Typography variant="h6" sx={{ color: '#64748b', maxWidth: '700px', mx: 'auto', fontSize: { xs: '16px', sm: '18px' }, fontWeight: 500 }}>
+        <Typography variant="h6" sx={{ color: '#64748b', maxWidth: '700px', mx: 'auto', fontSize: { xs: '14px', sm: '18px' }, fontWeight: 500 }}>
           Select a mental health assessment to get personalized insights about your well-being. 
           Each assessment takes just a few minutes to complete.
         </Typography>
       </Box>
 
-      <Grid container spacing={3} sx={{ maxWidth: '1400px', mx: 'auto' }}>
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ maxWidth: '1400px', mx: 'auto', width: '100%' }}>
         {assessments.map((assessment) => (
           <Grid item xs={12} sm={6} md={6} lg={3} key={assessment.id}>
             <Card 
               elevation={0}
               sx={{
-                borderRadius: '16px',
+                borderRadius: { xs: '12px', sm: '16px' },
                 border: '1px solid #e2e8f0',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
+                overflow: 'hidden',
                 '&:hover': {
                   boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
                   transform: 'translateY(-4px)',
@@ -118,36 +119,36 @@ export default function AssessmentCards({ onSelectAssessment }) {
                 }
               }}
             >
-              <CardContent sx={{ pb: 3 }}>
-                <Box sx={{ mb: 3 }}>
+              <CardContent sx={{ pb: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, pt: { xs: 2.5, sm: 3 } }}>
+                <Box sx={{ mb: { xs: 2, sm: 3 } }}>
                   <Box
                     sx={{
-                      width: 100,
-                      height: 100,
+                      width: { xs: 80, sm: 100 },
+                      height: { xs: 80, sm: 100 },
                       borderRadius: '12px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       bgcolor: assessment.bgColor,
                       color: assessment.color,
-                      mb: 2,
+                      mb: 1.5,
                       mx: 'auto'
                     }}
                   >
                     {assessment.icon}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', mb: 1, fontSize: '18px', textAlign: 'center' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', mb: 0.5, fontSize: { xs: '16px', sm: '18px' }, textAlign: 'center' }}>
                     {assessment.title}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#7c3aed', fontWeight: 700, fontSize: '12px', display: 'block', textAlign: 'center', mb: 1.5 }}>
+                  <Typography variant="caption" sx={{ color: '#7c3aed', fontWeight: 700, fontSize: { xs: '10px', sm: '12px' }, display: 'block', textAlign: 'center', mb: 1 }}>
                     ({assessment.originalName})
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b', mb: 2, fontSize: '14px', textAlign: 'center' }}>
+                  <Typography variant="body2" sx={{ color: '#64748b', mb: 1.5, fontSize: { xs: '12px', sm: '14px' }, textAlign: 'center', lineHeight: 1.4 }}>
                     {assessment.description}
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Box sx={{ display: 'flex', gap: 0.75, mb: 1.5, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <Chip
                     label={`${assessment.questions} Q`}
                     size="small"
@@ -155,7 +156,8 @@ export default function AssessmentCards({ onSelectAssessment }) {
                       bgcolor: `${assessment.color}15`,
                       color: assessment.color,
                       fontWeight: 800,
-                      fontSize: '11px'
+                      fontSize: { xs: '9px', sm: '11px' },
+                      height: { xs: '24px', sm: '28px' }
                     }}
                   />
                   <Chip
@@ -165,7 +167,8 @@ export default function AssessmentCards({ onSelectAssessment }) {
                       bgcolor: '#f1f5f9',
                       color: '#475569',
                       fontWeight: 800,
-                      fontSize: '11px'
+                      fontSize: { xs: '9px', sm: '11px' },
+                      height: { xs: '24px', sm: '28px' }
                     }}
                   />
                   <Chip
@@ -175,29 +178,30 @@ export default function AssessmentCards({ onSelectAssessment }) {
                       bgcolor: `${assessment.color}15`,
                       color: assessment.color,
                       fontWeight: 800,
-                      fontSize: '11px'
+                      fontSize: { xs: '9px', sm: '11px' },
+                      height: { xs: '24px', sm: '28px' }
                     }}
                   />
                 </Box>
 
-                <Box sx={{ mb: 2, textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '12px', display: 'block' }}>
+                <Box sx={{ mb: 1.5, textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: { xs: '10px', sm: '12px' }, display: 'block' }}>
                     {assessment.citation}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 500, fontSize: '11px', display: 'block', mt: 0.5, fontStyle: 'italic' }}>
+                  <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 500, fontSize: { xs: '9px', sm: '11px' }, display: 'block', mt: 0.3, fontStyle: 'italic' }}>
                     {assessment.reference}
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: '12px' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center' }}>
+                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: { xs: '10px', sm: '12px' } }}>
                     ⭐ {assessment.accuracy}
                   </Typography>
                   <Rating value={assessment.accuracy} readOnly size="small" />
                 </Box>
               </CardContent>
 
-              <CardActions sx={{ pt: 0, mt: 'auto' }}>
+              <CardActions sx={{ pt: { xs: 1, sm: 0 }, mt: 'auto', px: { xs: 1.5, sm: 2 }, pb: { xs: 1.5, sm: 2 } }}>
                 <Button
                   fullWidth
                   endIcon={<ArrowForwardIcon />}
@@ -206,10 +210,10 @@ export default function AssessmentCards({ onSelectAssessment }) {
                     bgcolor: assessment.color,
                     color: '#fff',
                     fontWeight: 800,
-                    py: 1.8,
+                    py: { xs: 1.4, sm: 1.8 },
                     borderRadius: '8px',
                     textTransform: 'none',
-                    fontSize: '16px',
+                    fontSize: { xs: '14px', sm: '16px' },
                     letterSpacing: '0.5px',
                     '&:hover': {
                       bgcolor: assessment.color,
