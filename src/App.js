@@ -68,6 +68,8 @@ const TherapistBlogsPage = lazy(() => import("./pages/therapist-blogs"));
 const TherapistAIBlogPage = lazy(() => import("./pages/therapist-ai-blog"));
 const Notifications = lazy(() => import("./pages/therapists/notifications"));
 const TherapistChangePassword = lazy(() => import("./pages/therapists/change-password"));
+const ClinicPatientsPage = lazy(() => import("./pages/clinic-patients"));
+const AddOfflineClientPage = lazy(() => import("./pages/add-offline-client"));
 const ClientChangePassword = lazy(() => import("./pages/client/change-password"));
 const StartHealing = lazy(() => import("./pages/starthealing"));
 const NotAuthorizedPage = lazy(() => import("./pages/not-authorized"));
@@ -383,6 +385,24 @@ function App() {
                 element={
                   <TherapistProtectedRoute>
                     <CoupansPage />
+                  </TherapistProtectedRoute>
+                }
+              />
+              <Route
+                exact
+                path="/clinic-patients"
+                element={
+                  <TherapistProtectedRoute>
+                    <ClinicPatientsPage />
+                  </TherapistProtectedRoute>
+                }
+              />
+              <Route
+                exact
+                path="/add-offline-client"
+                element={
+                  <TherapistProtectedRoute>
+                    <AddOfflineClientPage />
                   </TherapistProtectedRoute>
                 }
               />

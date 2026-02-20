@@ -71,6 +71,7 @@ export default function MainLayout(props) {
                   {[
                     { to: "/therapist-dashboard", icon: "feather-home", title: "Home" },
                     { to: "/appointments", icon: "fa-regular fa-calendar-check", title: "Sessions" },
+                    { to: "/clinic-patients", icon: "feather-users", title: "Clinic Client" },
                     { 
                       id: 'event-menu',
                       icon: "fa-solid fa-file-medical", 
@@ -291,6 +292,7 @@ export default function MainLayout(props) {
             {[
               { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
               { to: "/appointments", icon: "fa-regular fa-calendar-check", label: "Sessions" },
+              { to: "/clinic-patients", icon: "feather-users", label: "Clinic" },
               { to: "/settings", icon: "feather-user", label: "Profile" }
             ].map((item) => (
               <Link

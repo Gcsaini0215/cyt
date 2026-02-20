@@ -168,3 +168,23 @@ export const postJsonDataNoAuth = (url, data) => {
       });
   });
 };
+
+export const putData = (url, data) => {
+  return new Promise((resolve, reject) => {
+    const token = getToken();
+    axios
+      .put(url, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        console.error("API Put Error:", url, error);
+        reject(error);
+      });
+  });
+};
