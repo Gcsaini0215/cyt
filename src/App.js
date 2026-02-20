@@ -64,6 +64,8 @@ const AddressSelectionPage = lazy(() => import("./pages/address-selection"));
 const BlogDetails = lazy(() => import("./pages/blog-details"));
 const Invoices = lazy(() => import("./pages/therapists/invoices"));
 const Reviews = lazy(() => import("./pages/therapists/reviews"));
+const TherapistBlogsPage = lazy(() => import("./pages/therapist-blogs"));
+const TherapistAIBlogPage = lazy(() => import("./pages/therapist-ai-blog"));
 const Notifications = lazy(() => import("./pages/therapists/notifications"));
 const TherapistChangePassword = lazy(() => import("./pages/therapists/change-password"));
 const ClientChangePassword = lazy(() => import("./pages/client/change-password"));
@@ -345,6 +347,24 @@ function App() {
                 element={
                   <TherapistProtectedRoute>
                     <Workshops />
+                  </TherapistProtectedRoute>
+                }
+              />
+              <Route
+                exact
+                path="/therapist-blogs"
+                element={
+                  <TherapistProtectedRoute>
+                    <TherapistBlogsPage />
+                  </TherapistProtectedRoute>
+                }
+              />
+              <Route
+                exact
+                path="/therapist-ai-blog"
+                element={
+                  <TherapistProtectedRoute>
+                    <TherapistAIBlogPage />
                   </TherapistProtectedRoute>
                 }
               />

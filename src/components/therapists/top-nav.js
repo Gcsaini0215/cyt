@@ -67,6 +67,11 @@ export default function DashboardTopNav() {
                 </Link>
               </li>
               <li className="position-static">
+                <Link to="/therapists/invoices" style={{ cursor: "pointer" }}>
+                  Invoices<i className="feather-chevron-down"></i>
+                </Link>
+              </li>
+              <li className="position-static">
                 <Link to="/coupons" style={{ cursor: "pointer" }}>
                   Create Coupons<i className="feather-chevron-down"></i>
                 </Link>
@@ -122,8 +127,8 @@ export default function DashboardTopNav() {
           </nav>
         </div>
       </div>
-      <header className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
-        <div className={`rbt-header-wrapper ${isSticky ? "rbt-sticky" : "header-space-betwween"}`}>
+      <header className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`} style={{ zIndex: 1000 }}>
+        <div className={`rbt-header-wrapper ${isSticky ? "rbt-sticky" : "header-space-betwween"}`} style={{ zIndex: 1000 }}>
           <div className="container-fluid">
             <div className="mainbar-row rbt-navigation-start align-items-center">
               <div className="header-left rbt-header-content">

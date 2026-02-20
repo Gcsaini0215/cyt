@@ -31,12 +31,25 @@ export default function AppointmentHeader() {
         {`
           .premium-header-container {
             width: 100%;
-            padding: 40px 36px;
-            background: linear-gradient(135deg, #00b874, #00d2ff); /* green-blue gradient */
-            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
-            border-radius: 22px;
-            margin-bottom: 32px;
+            padding: 50px 40px;
+            background: linear-gradient(135deg, #228756 0%, #1b6843 100%);
+            box-shadow: 0 20px 40px rgba(27, 104, 67, 0.2);
+            border-radius: 24px;
+            margin-bottom: 40px;
             position: relative;
+            overflow: hidden;
+          }
+
+          .premium-header-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 50%;
+            background: radial-gradient(circle at top right, rgba(89, 200, 47, 0.3), transparent 70%);
+            z-index: 0;
+            pointer-events: none;
           }
 
           .premium-header {

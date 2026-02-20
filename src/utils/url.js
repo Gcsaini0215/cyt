@@ -89,6 +89,7 @@ export const disableWorkshopUrl = `${apiUrl}/disable-workshop`;
 export const deleteWorkshopUrl = `${apiUrl}/delete-workshop`;
 export const UpdateWorkshopUrl = `${apiUrl}/update-workshop`;
 export const GetDashboardDataUrl = `${apiUrl}/get-dashabord-data`;
+export const createBlogUrl = `${apiUrl}/create-blog`;
 export const InsertFavriouteTherapistUrl = `${apiUrl}/insert-favrioute-therapist`;
 export const RemoveFavriouteTherapistUrl = `${apiUrl}/remove-favrioute-therapist`;
 export const GetFavriouteTherapistUrl = `${apiUrl}/get-favrioute-therapists`;

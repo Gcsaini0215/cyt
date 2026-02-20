@@ -14,6 +14,8 @@ export default function MainLayout(props) {
   const location = useLocation();
   const pathname = location.pathname;
   const navigate = useNavigate();
+  const [blogDropdownOpen, setBlogDropdownOpen] = React.useState(false);
+  const [eventDropdownOpen, setEventDropdownOpen] = React.useState(false);
 
   const handleLogout = () => {
     removeToken();
@@ -48,15 +50,15 @@ export default function MainLayout(props) {
           <aside 
             style={{ 
               position: "fixed",
-              top: "80px", 
+              top: 0, 
               left: 0,
               bottom: 0,
               width: sidebarWidth,
               background: "#ffffff",
-              zIndex: 100,
+              zIndex: 90, // Lower than TopNav
               display: "flex",
               flexDirection: "column",
-              padding: "10px 0",
+              padding: "80px 0 10px 0",
               boxShadow: "none",
               borderRight: "none"
             }}
@@ -69,28 +71,121 @@ export default function MainLayout(props) {
                   {[
                     { to: "/therapist-dashboard", icon: "feather-home", title: "Home" },
                     { to: "/appointments", icon: "fa-regular fa-calendar-check", title: "Sessions" },
-                    { to: "/workshops", icon: "fa-solid fa-file-medical", title: "Events" },
-                    { to: "/coupons", icon: "feather-star", title: "Coupons" },
+                    { 
+                      id: 'event-menu',
+                      icon: "fa-solid fa-file-medical", 
+                      title: "Events",
+                      isDropdown: true,
+                      isOpen: eventDropdownOpen,
+                      setOpen: setEventDropdownOpen,
+                      activePaths: ["/workshops", "/coupons"],
+                      subItems: [
+                        { to: "/workshops", title: "Manage Events", icon: "feather-calendar" },
+                        { to: "/coupons", title: "Coupons", icon: "feather-star" }
+                      ]
+                    },
+                    { 
+                      id: 'blog-menu',
+                      icon: "feather-edit", 
+                      title: "Blog",
+                      isDropdown: true,
+                      isOpen: blogDropdownOpen,
+                      setOpen: setBlogDropdownOpen,
+                      activePaths: ["/therapist-blogs", "/therapist-ai-blog"],
+                      subItems: [
+                        { to: "/therapist-blogs", title: "Write Blog", icon: "feather-edit-2" },
+                        { to: "/therapist-ai-blog", title: "Write with AI", icon: "feather-zap" }
+                      ]
+                    },
                   ].map((item) => (
-                    <li key={item.to} style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                      <Link
-                        to={item.to}
-                        title={item.title}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "56px",
-                          height: "56px",
-                          borderRadius: "14px",
-                          color: pathname === item.to ? "#228756" : "#64748b",
-                          background: pathname === item.to ? "#e8f5e9" : "transparent",
-                          textDecoration: "none",
-                          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
-                        }}
-                      >
-                        <i className={item.icon} style={{ fontSize: "28px" }}></i>
-                      </Link>
+                    <li key={item.to || item.id} style={{ width: "100%", display: "flex", justifyContent: "center", position: "relative" }}>
+                      {item.isDropdown ? (
+                        <div 
+                          onMouseEnter={() => item.setOpen(true)}
+                          onMouseLeave={() => item.setOpen(false)}
+                          style={{ position: 'relative' }}
+                        >
+                          <div
+                            title={item.title}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "56px",
+                              height: "56px",
+                              borderRadius: "14px",
+                              color: item.activePaths.includes(pathname) ? "#228756" : "#64748b",
+                              background: item.activePaths.includes(pathname) ? "#e8f5e9" : "transparent",
+                              cursor: "pointer",
+                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                            }}
+                          >
+                            <i className={item.icon} style={{ fontSize: "28px" }}></i>
+                          </div>
+                          
+                          {/* Dropdown Menu */}
+                          {item.isOpen && (
+                            <div style={{
+                              position: 'absolute',
+                              left: '56px',
+                              top: '0',
+                              paddingLeft: '10px',
+                              zIndex: 1000,
+                            }}>
+                              <div style={{
+                                background: '#fff',
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                borderRadius: '12px',
+                                padding: '8px',
+                                width: '180px',
+                                border: '1px solid #f1f5f9'
+                              }}>
+                                {item.subItems.map((sub) => (
+                                  <Link
+                                    key={sub.to}
+                                    to={sub.to}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '10px',
+                                      padding: '10px 12px',
+                                      color: pathname === sub.to ? '#228756' : '#64748b',
+                                      background: pathname === sub.to ? '#f0fdf4' : 'transparent',
+                                      textDecoration: 'none',
+                                      borderRadius: '8px',
+                                      fontSize: '14px',
+                                      fontWeight: '500',
+                                      transition: 'all 0.2s'
+                                    }}
+                                  >
+                                    <i className={sub.icon} style={{ fontSize: '16px' }}></i>
+                                    {sub.title}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <Link
+                          to={item.to}
+                          title={item.title}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "56px",
+                            height: "56px",
+                            borderRadius: "14px",
+                            color: pathname === item.to ? "#228756" : "#64748b",
+                            background: pathname === item.to ? "#e8f5e9" : "transparent",
+                            textDecoration: "none",
+                            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                          }}
+                        >
+                          <i className={item.icon} style={{ fontSize: "28px" }}></i>
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -176,14 +271,57 @@ export default function MainLayout(props) {
           </aside>
         )}
 
+        {/* Mobile Bottom Navigation */}
+        {isMobile && (
+          <nav 
+            style={{ 
+              position: 'fixed', 
+              bottom: 0, 
+              left: 0, 
+              right: 0, 
+              background: '#fff', 
+              borderTop: '1px solid #f1f5f9',
+              display: 'flex',
+              justifyContent: 'space-around',
+              padding: '12px 0',
+              zIndex: 1000,
+              boxShadow: '0 -4px 20px rgba(0,0,0,0.05)'
+            }}
+          >
+            {[
+              { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
+              { to: "/appointments", icon: "fa-regular fa-calendar-check", label: "Sessions" },
+              { to: "/settings", icon: "feather-user", label: "Profile" }
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px',
+                  color: pathname === item.to ? '#228756' : '#94a3b8',
+                  textDecoration: 'none',
+                  fontSize: '11px',
+                  fontWeight: pathname === item.to ? '700' : '500'
+                }}
+              >
+                <i className={item.icon} style={{ fontSize: '22px' }}></i>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        )}
+
         {/* Main Content Area */}
         <main 
           style={{ 
             marginLeft: isMobile ? 0 : sidebarWidth,
-            padding: isMobile ? "20px" : "30px 40px"
+            padding: isMobile ? "20px 20px 80px 20px" : "30px 40px"
           }}
         >
-          <div className="container-fluid" style={{ maxWidth: "1500px", margin: "0 auto", marginTop: "40px" }}>
+          <div className="container-fluid" style={{ maxWidth: "1500px", margin: "0 auto", marginTop: "10px" }}>
             {/* Smooth Content Loading Logic would be in the children components */}
             {props.children}
           </div>
