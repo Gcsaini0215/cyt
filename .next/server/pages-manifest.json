@@ -1,8 +1,1 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/therapy-booking": "pages/therapy-booking.js",
-  "/view-all-therapist": "pages/view-all-therapist.js",
-  "/about-us": "pages/about-us.js"
-}
+{}
