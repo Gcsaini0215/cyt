@@ -160,27 +160,7 @@ export default function ProfileReview({ profile }) {
             </form>
           </div>
 
-          {/* Mock Reviews Section */}
-          <div className="mt-5">
-            <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#1a202c' }}>
-              Recent Reviews
-            </h4>
-            <div style={glassCard}>
-               <div className="d-flex align-items-center mb-3">
-                  <div className="rating" style={{ marginRight: "10px" }}>
-                    {[...Array(5)].map((_, i) => (
-                      <StarIcon key={i} style={{ color: "#ffb400", fontSize: 18 }} />
-                    ))}
-                  </div>
-                  <span style={{ fontWeight: 700, fontSize: "14px" }}>5.0</span>
-                  <span className="ms-3" style={{ color: "#718096", fontSize: "14px" }}>by Anonymous</span>
-               </div>
-               <p style={{ color: "#4a5568", lineHeight: "1.6" }}>
-                 Extremely helpful session. The therapist was very patient and understanding. 
-                 Highly recommend for anyone seeking professional support.
-               </p>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

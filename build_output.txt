@@ -1,0 +1,71 @@
+
+> cyt@0.2.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env
+
+   Linting and checking validity of types ...
+   Creating an optimized production build ...
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|d:\cyt\node_modules\next\dist\build\webpack\loaders\css-loader\src\index.js??ruleSet[1].rules[7].oneOf[14].use[1]!d:\cyt\node_modules\next\dist\build\webpack\loaders\postcss-loader\src\index.js??ruleSet[1].rules[7].oneOf[14].use[2]!d:\cyt\src\App.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ ⚠ Compiled with warnings
+
+./src/App.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[7].oneOf[14].use[1]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[7].oneOf[14].use[2]!./src/App.css
+Warning
+
+(42583:3) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./src/App.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[7].oneOf[14].use[1]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[7].oneOf[14].use[2]!./src/App.css
+./src/App.css
+
+ ✓ Compiled successfully
+   Collecting page data ...
+Environment Variables detected: {
+  NEXT_PUBLIC_API_URL: 'https://api.chooseyourtherapist.in/api',
+  REACT_APP_API_URL: 'https://api.chooseyourtherapist.in/api',
+  NEXT_PUBLIC_BASE_API: 'https://api.chooseyourtherapist.in',
+  REACT_APP_BASE_API: 'https://api.chooseyourtherapist.in'
+}
+API Configuration: {
+  apiUrl: 'https://api.chooseyourtherapist.in/api',
+  baseApi: 'https://api.chooseyourtherapist.in',
+  currentDomain: '',
+  envApiUrl: 'https://api.chooseyourtherapist.in/api',
+  envBaseApi: 'https://api.chooseyourtherapist.in'
+}
+Environment Variables detected: {
+  NEXT_PUBLIC_API_URL: 'https://api.chooseyourtherapist.in/api',
+  REACT_APP_API_URL: 'https://api.chooseyourtherapist.in/api',
+  NEXT_PUBLIC_BASE_API: 'https://api.chooseyourtherapist.in',
+  REACT_APP_BASE_API: 'https://api.chooseyourtherapist.in'
+}
+API Configuration: {
+  apiUrl: 'https://api.chooseyourtherapist.in/api',
+  baseApi: 'https://api.chooseyourtherapist.in',
+  currentDomain: '',
+  envApiUrl: 'https://api.chooseyourtherapist.in/api',
+  envBaseApi: 'https://api.chooseyourtherapist.in'
+}
+Environment Variables detected: {
+  NEXT_PUBLIC_API_URL: 'https://api.chooseyourtherapist.in/api',
+  REACT_APP_API_URL: 'https://api.chooseyourtherapist.in/api',
+  NEXT_PUBLIC_BASE_API: 'https://api.chooseyourtherapist.in',
+  REACT_APP_BASE_API: 'https://api.chooseyourtherapist.in'
+}
+API Configuration: {
+  apiUrl: 'https://api.chooseyourtherapist.in/api',
+  baseApi: 'https://api.chooseyourtherapist.in',
+  currentDomain: '',
+  envApiUrl: 'https://api.chooseyourtherapist.in/api',
+  envBaseApi: 'https://api.chooseyourtherapist.in'
+}
+   Generating static pages (0/66) ...
+   Generating static pages (16/66) 
+dataaaaa {}
+   Generating static pages (32/66) 
+dataaa []
+error 
+   Generating static pages (49/66) 
+ ✓ Generating static pages (66/66)

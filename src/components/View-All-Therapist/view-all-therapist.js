@@ -5,7 +5,6 @@ import {
   getTherapistProfiles,
 } from "../../utils/url";
 import { fetchById, fetchData } from "../../utils/actions";
-import { fetchMockData } from "../../utils/mock-api";
 import ProfileCardVert from "../home/profile-card-vert.js";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
@@ -58,14 +57,7 @@ export default function ViewAllTherapist() {
     const getData = async () => {
       try {
         setLoading(true);
-        let res;
-        try {
-          res = await fetchData(getTherapistProfiles, filter);
-        } catch (apiErr) {
-          console.warn("Real API failed, using mock data:", apiErr.message);
-          res = await fetchMockData(filter);
-        }
-        
+        const res = await fetchData(getTherapistProfiles, filter);
         if (res && res.data) {
           setAllData(res.data || []);
           setCount(res.totalCount || res.data?.length || 0);
