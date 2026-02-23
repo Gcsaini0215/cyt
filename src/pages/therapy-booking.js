@@ -296,7 +296,7 @@ export default function TherapyBooking() {
           <Container maxWidth="lg">
             <Box sx={{ mb: 8 }}>
               <Typography variant="h3" sx={{ fontWeight: 800, color: "#1e293b", mb: 2, textAlign: "center", fontSize: isMobile ? "28px" : "42px", letterSpacing: "-1px" }}>
-                ✔ This Consultation Is For You If:
+                ✔ This Consultation Is For You If
               </Typography>
               <Typography sx={{ color: "#64748b", mb: 6, textAlign: "center", fontSize: "16px", maxWidth: "700px", mx: "auto" }}>
                 Recognize yourself? You're not alone. Thousands have taken this step. Let's talk.

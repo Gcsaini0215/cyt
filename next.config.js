@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   swcMinify: true,
-  // We can add more config here as needed, like images domains
+  onDemandEntries: {
+    maxInactiveAge: 60000,
+    pagesBufferLength: 5,
+  },
 };
 
 module.exports = nextConfig;

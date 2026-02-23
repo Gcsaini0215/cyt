@@ -1,0 +1,58 @@
+
+> cyt@0.2.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env
+
+   Linting and checking validity of types ...
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Collecting page data ...
+Environment Variables detected: {
+  NEXT_PUBLIC_API_URL: 'https://api.chooseyourtherapist.in/api',
+  REACT_APP_API_URL: 'https://api.chooseyourtherapist.in/api',
+  NEXT_PUBLIC_BASE_API: 'https://api.chooseyourtherapist.in',
+  REACT_APP_BASE_API: 'https://api.chooseyourtherapist.in'
+}
+API Configuration: {
+  apiUrl: 'https://api.chooseyourtherapist.in/api',
+  baseApi: 'https://api.chooseyourtherapist.in',
+  currentDomain: '',
+  envApiUrl: 'https://api.chooseyourtherapist.in/api',
+  envBaseApi: 'https://api.chooseyourtherapist.in'
+}
+Environment Variables detected: {
+  NEXT_PUBLIC_API_URL: 'https://api.chooseyourtherapist.in/api',
+  REACT_APP_API_URL: 'https://api.chooseyourtherapist.in/api',
+  NEXT_PUBLIC_BASE_API: 'https://api.chooseyourtherapist.in',
+  REACT_APP_BASE_API: 'https://api.chooseyourtherapist.in'
+}
+API Configuration: {
+  apiUrl: 'https://api.chooseyourtherapist.in/api',
+  baseApi: 'https://api.chooseyourtherapist.in',
+  currentDomain: '',
+  envApiUrl: 'https://api.chooseyourtherapist.in/api',
+  envBaseApi: 'https://api.chooseyourtherapist.in'
+}
+Environment Variables detected: {
+  NEXT_PUBLIC_API_URL: 'https://api.chooseyourtherapist.in/api',
+  REACT_APP_API_URL: 'https://api.chooseyourtherapist.in/api',
+  NEXT_PUBLIC_BASE_API: 'https://api.chooseyourtherapist.in',
+  REACT_APP_BASE_API: 'https://api.chooseyourtherapist.in'
+}
+API Configuration: {
+  apiUrl: 'https://api.chooseyourtherapist.in/api',
+  baseApi: 'https://api.chooseyourtherapist.in',
+  currentDomain: '',
+  envApiUrl: 'https://api.chooseyourtherapist.in/api',
+  envBaseApi: 'https://api.chooseyourtherapist.in'
+}
+   Generating static pages (0/66) ...
+   Generating static pages (16/66) 
+dataaaaa {}
+dataaa []
+   Generating static pages (32/66) 
+error 
+   Generating static pages (49/66) 
+ ✓ Generating static pages (66/66)
