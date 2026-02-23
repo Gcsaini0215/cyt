@@ -299,7 +299,7 @@ export default function TherapyBooking() {
                  This Consultation Is For You If
               </Typography>
               <Typography sx={{ color: "#64748b", mb: 6, textAlign: "center", fontSize: "16px", maxWidth: "700px", mx: "auto" }}>
-                Recognize yourself? You're not alone. Thousands have taken this step. Let's talk.
+                Recognize yourself? You're not alone. Thousands have taken this step. Let's talk..
               </Typography>
             </Box>
 
