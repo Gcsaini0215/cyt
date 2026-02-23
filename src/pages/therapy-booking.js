@@ -295,11 +295,8 @@ export default function TherapyBooking() {
         <div style={{ paddingTop: "80px", paddingBottom: "80px", backgroundColor: "#ffffff" }}>
           <Container maxWidth="lg">
             <Box sx={{ mb: 8 }}>
-              <Typography variant="h3" sx={{ fontWeight: 800, color: "#1e293b", mb: 2, textAlign: "center", fontSize: isMobile ? "28px" : "42px", letterSpacing: "-1px" }}>
-                 This Consultation Is For You If
-              </Typography>
-              <Typography sx={{ color: "#64748b", mb: 6, textAlign: "center", fontSize: "16px", maxWidth: "700px", mx: "auto" }}>
-                Recognize yourself? You're not alone. Thousands have taken this step. Let's talk..
+              <Typography variant="h3" sx={{ fontWeight: 800, color: "#1e293b", mb: 2, textAlign: "center", fontSize: isMobile ? "22px" : "42px", letterSpacing: "-1px", whiteSpace: isMobile ? "nowrap" : "normal", overflow: isMobile ? "hidden" : "visible", textOverflow: isMobile ? "ellipsis" : "clip" }}>
+                 ✔ This Consultation Is For You If..
               </Typography>
             </Box>
 
@@ -314,6 +311,10 @@ export default function TherapyBooking() {
                     <CheckCircleIcon className="who-icon" />
                     <div className="who-text">You're struggling in relationships</div>
                   </div>
+                  <div className="who-item">
+                    <CheckCircleIcon className="who-icon" />
+                    <div className="who-text">You're unsure if therapy is right for you</div>
+                  </div>
                 </div>
                 <div className="col-lg-6 col-md-12">
                   <div className="who-item">
@@ -326,11 +327,6 @@ export default function TherapyBooking() {
                   </div>
                 </div>
               </div>
-              <Box sx={{ mt: 4, pt: 4, borderTop: "2px solid #dcfce7", textAlign: "center" }}>
-                <Typography sx={{ color: "#228756", fontWeight: 700, fontSize: "16px" }}>
-                  You're unsure if therapy is right for you
-                </Typography>
-              </Box>
             </Box>
           </Container>
         </div>

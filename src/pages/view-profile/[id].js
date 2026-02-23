@@ -29,6 +29,8 @@ export default function ViewProfile() {
   const [favrioutes, setFavrioutes] = useState([]);
 
   useEffect(() => {
+    if (!router.isReady || !id) return;
+
     const getData = async () => {
       try {
         const res = await fetchData(getTherapistProfile + id);
@@ -60,7 +62,7 @@ export default function ViewProfile() {
     if (data && data.role !== 1) {
       getFavrioutes();
     }
-  }, [id]);
+  }, [router.isReady, id]);
 
   if (error) {
     return <ErrorPage />;
