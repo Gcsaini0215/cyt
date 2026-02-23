@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function StoryCyt() {
   return (
@@ -19,7 +19,7 @@ Rather than being “just a platform,” Choose Your Therapist is a continuing j
               <Link
                 style={{ cursor: "pointer" }}
                 className="rbt-moderbt-btn"
-                to={"/therapist-registration"}
+                href={"/therapist-registration"}
               >
                 <span className="moderbt-btn-text">Join us</span>
                 <i className="feather-arrow-right"></i>

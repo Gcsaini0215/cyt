@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function CallToActionAbout() {
   return (
@@ -80,7 +80,7 @@ export default function CallToActionAbout() {
                     </p>
 
                     <div className="call-to-btn">
-                      <Link to="/therapist-registration" className="btn-white-custom">
+                      <Link href="/therapist-registration" className="btn-white-custom">
                         <span>Join Us Today</span>
                         <i className="feather-arrow-right"></i>
                       </Link>

@@ -1,14 +1,14 @@
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function MentorshipForStudents() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Student Mentorship | Career Guidance in Psychology | Choose Your Therapist</title>
         <meta name="description" content="Empowering the next generation of mental health professionals. Join our mentorship program for internships, practical training, research guidance, and career support in psychology." />
         <meta name="keywords" content="Psychology Mentorship, Internship for Students, Research Guidance Psychology, Career in Mental Health India" />
@@ -24,7 +24,7 @@ export default function MentorshipForStudents() {
         <meta name="twitter:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
         <meta name="twitter:description" content="Join our mentorship program to jumpstart your psychology career." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <PageBreadCrumb title="Mentorship for Students" linkTitle="Guidance for Future Mental Health Professionals" />
 
@@ -40,7 +40,7 @@ export default function MentorshipForStudents() {
                   Gain practical insights, build your network, and develop essential skills for your career.
                 </p>
                 <div className="hero-btns mt--30">
-                  <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/therapist-registration">
+                  <Link className="rbt-btn btn-gradient hover-icon-reverse" href="/therapist-registration">
                     <div className="icon-reverse-wrapper">
                       <span className="btn-text">Join as Mentor</span>
                       <span className="btn-icon">
@@ -270,7 +270,7 @@ export default function MentorshipForStudents() {
                   Connect with experienced mentors and begin your transformative learning experience.
                 </p>
                 <div className="call-to-action-btn mt--30">
-                  <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/contact-us">
+                  <Link className="rbt-btn btn-gradient hover-icon-reverse" href="/contact-us">
                     <div className="icon-reverse-wrapper">
                       <span className="btn-text">Get Started Today</span>
                       <span className="btn-icon">

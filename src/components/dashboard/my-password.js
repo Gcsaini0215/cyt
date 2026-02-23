@@ -4,9 +4,9 @@ import { changeClientPasswordUrl } from "../../utils/url";
 import FormMessage from "../global/form-message";
 import FormProgressBar from "../global/form-progressbar";
 import { removeToken } from "../../utils/jwt";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 export default function MyPassword() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [data, setData] = React.useState({
     password: "",
     npassword: "",
@@ -43,7 +43,7 @@ export default function MyPassword() {
           setSuccess("Password has been changed! Redirecting to login page");
           removeToken();
           setTimeout(() => {
-            navigate("/login");
+            router.push("/login");
           }, 5000);
         } else {
           setError("Something went wrong");

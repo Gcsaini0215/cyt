@@ -3,11 +3,11 @@ import { postData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";
 import FormProgressBar from "../../global/form-progressbar";
 import { CreateCoupansUrl} from "../../../utils/url";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 
 export default function CreateCoupan() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -77,7 +77,7 @@ export default function CreateCoupan() {
         if (response.status) {
           setSuccess(response.message);
           setError("");
-          navigate("/coupons");
+          router.push("/coupons");
         } else {
           setError("Something went wrong");
         }

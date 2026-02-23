@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { Helmet } from 'react-helmet-async';
+import Link from "next/link";
+import { useRouter } from "next/router";
+import Head from "next/head";
 import {
   Box,
   Container,
@@ -248,8 +249,8 @@ const MetaItem = styled(Box)(({ theme }) => ({
 }));
 
 export default function BlogDetails() {
-  const navigate = useNavigate();
-  const { id } = useParams();
+  const router = useRouter();
+  const { id  } = router.query;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const blog = blogsData.find(b => b.id === parseInt(id));
@@ -280,7 +281,7 @@ export default function BlogDetails() {
           <Button
             variant="contained"
             size="large"
-            onClick={() => navigate('/blogs')}
+            onClick={() => router.push('/blogs')}
             sx={{
               px: 5,
               py: 2,
@@ -306,7 +307,7 @@ export default function BlogDetails() {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
-      <Helmet>
+      <Head>
         <title>{blog.title} | Choose Your Therapist</title>
         <meta name="description" content={blog.description} />
         <meta name="keywords" content={`${blog.category}, Mental Health Blog, Therapy Insights, ${blog.title}`} />
@@ -327,7 +328,7 @@ export default function BlogDetails() {
         <meta name="twitter:image" content={blog.image || "https://chooseyourtherapist.in/assets/img/og-image.jpg"} />
         
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-      </Helmet>
+      </Head>
 
       <MyNavbar />
 
@@ -669,7 +670,7 @@ export default function BlogDetails() {
                       {recentPosts.map((post) => (
                         <Box
                           key={post.id}
-                          onClick={() => navigate(post.link)}
+                          onClick={() => router.push(post.link)}
                           sx={{
                             display: 'flex',
                             gap: 2,
@@ -727,7 +728,7 @@ export default function BlogDetails() {
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => navigate('/view-all-therapist')}
+                    onClick={() => router.push('/view-all-therapist')}
                     sx={{
                       py: 2,
                       fontSize: '1.1rem',

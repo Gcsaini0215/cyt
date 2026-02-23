@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+;
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { getDecodedToken, getToken } from "../utils/jwt";
 
 export default function BottomNavigation() {
-  const location = useLocation();
+  ;
   const [isMobile, setIsMobile] = useState(false);
   const [userType, setUserType] = useState(0);
   const [cookiesAccepted, setCookiesAccepted] = useState(true);
@@ -49,7 +50,7 @@ export default function BottomNavigation() {
     };
   }, []);
 
-  const locationPathname = location.pathname;
+  const locationPathname = router.pathname;
 
   // Don't render if not mobile
   if (!isMobile) return null;
@@ -100,7 +101,7 @@ export default function BottomNavigation() {
         {navItems.map((item) => (
           <Link
             key={item.id}
-            to={item.path}
+            href={item.path}
             className={`bottom-nav-item ${item.active ? 'active' : ''}`}
           >
             <div className="nav-icon">

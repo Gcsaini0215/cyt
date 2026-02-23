@@ -1,7 +1,7 @@
 import React from "react";
 const logo1 = "/logo.png";
 import ImageTag from "../utils/image-tag";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -22,7 +22,7 @@ export default function Footer() {
               <div className="col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
                 <div className="footer-widget">
                   <div className="logo">
-                    <Link to="/">
+                    <Link href="/">
                       <ImageTag
                         alt="Choose Your Therapist"
                         height={"55"}
@@ -37,7 +37,7 @@ export default function Footer() {
                   <div className="contact-btn mt--30">
                     <Link
                       className="rbt-btn hover-icon-reverse btn-border-gradient radius-round"
-                      to="/contact-us"
+                      href="/contact-us"
                     >
                       <div className="icon-reverse-wrapper">
                         <span className="btn-text">Connect With Us</span>
@@ -54,11 +54,11 @@ export default function Footer() {
                   <div className="mt-4">
                     <h5 className="ft-title">Quick Links</h5>
                     <ul className="ft-link">
-                      <li><Link to="/how-it-works">How It Works</Link></li>
+                      <li><Link href="/how-it-works">How It Works</Link></li>
 
-                      <li><Link to="/emergency-support">Emergency Support</Link></li>
-                      <li><Link to="/mentorship-for-students">Student Mentorship</Link></li>
-                      <li><Link to="/therapist-registration">Therapist Registration</Link></li>
+                      <li><Link href="/emergency-support">Emergency Support</Link></li>
+                      <li><Link href="/mentorship-for-students">Student Mentorship</Link></li>
+                      <li><Link href="/therapist-registration">Therapist Registration</Link></li>
                     </ul>
                   </div>
                 </div>
@@ -69,19 +69,19 @@ export default function Footer() {
                 <div className="footer-widget">
                   <h5 className="ft-title">For Clients</h5>
                   <ul className="ft-link">
-                    <li><Link to="/login">Login</Link></li>
-                    <li><Link to="/register">Sign Up</Link></li>
-                    <li><Link to="/view-all-therapist">Therapist Directory</Link></li>
+                    <li><Link href="/login">Login</Link></li>
+                    <li><Link href="/register">Sign Up</Link></li>
+                    <li><Link href="/view-all-therapist">Therapist Directory</Link></li>
                   </ul>
                   <h5 className="ft-title mt-3">Services for Daily Life Issues</h5>
                   <ul className="ft-link">
-                    <li><Link to="#">Stress & Anxiety Management</Link></li>
-                    <li><Link to="#">Depression Support</Link></li>
-                    <li><Link to="#">Relationship & Marriage Counseling</Link></li>
-                    <li><Link to="#">Teen & Adolescent Guidance</Link></li>
-                    <li><Link to="#">Workplace Stress & Burnout</Link></li>
-                    <li><Link to="#">Self-Esteem & Confidence Building</Link></li>
-                    <li><Link to="#">Mindfulness & Meditation</Link></li>
+                    <li><Link href="#">Stress & Anxiety Management</Link></li>
+                    <li><Link href="#">Depression Support</Link></li>
+                    <li><Link href="#">Relationship & Marriage Counseling</Link></li>
+                    <li><Link href="#">Teen & Adolescent Guidance</Link></li>
+                    <li><Link href="#">Workplace Stress & Burnout</Link></li>
+                    <li><Link href="#">Self-Esteem & Confidence Building</Link></li>
+                    <li><Link href="#">Mindfulness & Meditation</Link></li>
                   </ul>
                 </div>
               </div>
@@ -91,15 +91,15 @@ export default function Footer() {
                 <div className="footer-widget">
                   <h5 className="ft-title">Mentorship for Students</h5>
                   <ul className="ft-link">
-                    <li><Link to="#">Internship & Practical Training</Link></li>
-                    <li><Link to="#">Career Mentorship</Link></li>
-                    <li><Link to="#">Research Guidance</Link></li>
-                    <li><Link to="#">Workshops & Webinars</Link></li>
-                    <li><Link to="#">Networking Opportunities</Link></li>
-                    <li><Link to="#">Case Study Discussions</Link></li>
-                    <li><Link to="#">Resume & Portfolio Support</Link></li>
-                    <li><Link to="#">Clinical Skills Development</Link></li>
-                    <li><Link to="#">Ethical Practice & Guidelines</Link></li>
+                    <li><Link href="#">Internship & Practical Training</Link></li>
+                    <li><Link href="#">Career Mentorship</Link></li>
+                    <li><Link href="#">Research Guidance</Link></li>
+                    <li><Link href="#">Workshops & Webinars</Link></li>
+                    <li><Link href="#">Networking Opportunities</Link></li>
+                    <li><Link href="#">Case Study Discussions</Link></li>
+                    <li><Link href="#">Resume & Portfolio Support</Link></li>
+                    <li><Link href="#">Clinical Skills Development</Link></li>
+                    <li><Link href="#">Ethical Practice & Guidelines</Link></li>
                   </ul>
                 </div>
               </div>
@@ -109,15 +109,15 @@ export default function Footer() {
                 <div className="footer-widget">
                   <h5 className="ft-title">For Therapists</h5>
                   <ul className="ft-link">
-                    <li><Link to="/login">Login</Link></li>
-                    <li><Link to="/therapist-registration">Sign Up</Link></li>
+                    <li><Link href="/login">Login</Link></li>
+                    <li><Link href="/therapist-registration">Sign Up</Link></li>
                   </ul>
                   <h5 className="ft-title mt-3">Professional Types</h5>
                   <ul className="ft-link">
-                    <li><Link to="#">Counselling Psychologist</Link></li>
-                    <li><Link to="#">Clinical Psychologist</Link></li>
-                    <li><Link to="#">Psychiatrist</Link></li>
-                    <li><Link to="#">Special Educator</Link></li>
+                    <li><Link href="#">Counselling Psychologist</Link></li>
+                    <li><Link href="#">Clinical Psychologist</Link></li>
+                    <li><Link href="#">Psychiatrist</Link></li>
+                    <li><Link href="#">Special Educator</Link></li>
                   </ul>
                 </div>
               </div>
@@ -194,9 +194,9 @@ export default function Footer() {
             </div>
             <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
               <ul className="copyright-link rbt-link-hover justify-content-center justify-content-lg-end mt_sm--10 mt_md--10">
-                <li><Link to="/terms-conditions">Terms of Service</Link></li>
-                <li><Link to="/cancellation-policy">Cancellation Policy</Link></li>
-                <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+                <li><Link href="/terms-conditions">Terms of Service</Link></li>
+                <li><Link href="/cancellation-policy">Cancellation Policy</Link></li>
+                <li><Link href="/privacy-policy">Privacy Policy</Link></li>
               </ul>
             </div>
           </div>

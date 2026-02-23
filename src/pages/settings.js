@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageTag from "../utils/image-tag";
 import { defaultProfile, imagePath } from "../utils/url";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function ProfileSettings() {
   const { therapistInfo, fetchTherapistInfo, profileSet, paymentStore } = useTherapistStore();
@@ -217,7 +217,7 @@ export default function ProfileSettings() {
                     : "Session Formats Not Set"}
                 </span>
               </div>
-              <Link className="rbt-btn btn-gradient w-100 text-center" to="#" onClick={(e) => e.preventDefault()}>
+              <Link className="rbt-btn btn-gradient w-100 text-center" href="#" onClick={(e) => e.preventDefault()}>
                 Book Appointment
               </Link>
             </div>

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import WatchLaterIcon from "@mui/icons-material/WatchLater";
 import { successColor } from "../../utils/colors";
 import { getValidServices } from "../../utils/helpers";
@@ -98,7 +98,7 @@ export default function ProfileInfoTab({ pageData }) {
                     id="home-tab-4"
                     aria-selected={tab === 1 ? "true" : "false"}
                     onClick={() => handleClick(1)}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Overview
@@ -111,7 +111,7 @@ export default function ProfileInfoTab({ pageData }) {
                     id="contact-tab-4"
                     aria-selected={tab === 3 ? "true" : "false"}
                     onClick={() => handleClick(3)}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Fees
@@ -124,7 +124,7 @@ export default function ProfileInfoTab({ pageData }) {
                     id="business-tab-4"
                     aria-selected={tab === 4 ? "true" : "false"}
                     onClick={() => handleClick(4)}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Availability

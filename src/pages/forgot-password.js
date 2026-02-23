@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
@@ -45,7 +46,7 @@ export default function Forgotpassword() {
   const [otpSuccess, setotpSuccess] = useState("");
   const [successView, setSuccessView] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -113,12 +114,12 @@ export default function Forgotpassword() {
     const data = getDecodedToken();
     if (data) {
       if (data.role === 1) {
-        navigate("/therapist-dashboard");
+        router.push("/therapist-dashboard");
       } else {
-        navigate(`/my-dashboard`);
+        router.push(`/my-dashboard`);
       }
     }
-  }, [navigate]);
+  }, [router]);
 
   return (
     <div>
@@ -131,7 +132,7 @@ export default function Forgotpassword() {
                 <h2 className="title">Forgot Password</h2>
                 <ul className="page-list">
                   <li className="rbt-breadcrumb-item">
-                    <Link to="/">Home</Link>
+                    <Link href="/">Home</Link>
                   </li>
                   <li>
                     <div className="icon-right">
@@ -168,7 +169,7 @@ export default function Forgotpassword() {
                     <div className="rbt-like-total">
                       <div className="profile-share">
                         <Link
-                          to="#"
+                          href="#"
                           className="avatar"
                           data-tooltip="Counselling Psychologist"
                           tabIndex="0"
@@ -181,7 +182,7 @@ export default function Forgotpassword() {
                           />
                         </Link>
                         <Link
-                          to="#"
+                          href="#"
                           className="avatar"
                           data-tooltip="Psychologist"
                           tabIndex="0"
@@ -194,7 +195,7 @@ export default function Forgotpassword() {
                           />
                         </Link>
                         <Link
-                          to="#"
+                          href="#"
                           className="avatar"
                           data-tooltip="Counselling Psychologist"
                           tabIndex="0"
@@ -324,7 +325,7 @@ export default function Forgotpassword() {
                     <div id="contact-form">
                       <div className="form-submit-group mt--20">
                         <Link
-                          to={"/login"}
+                          href={"/login"}
                           className="rbt-btn btn-md btn-gradient hover-icon-reverse radius-round w-100"
                         >
                           <span className="icon-reverse-wrapper">
@@ -360,7 +361,7 @@ export default function Forgotpassword() {
             Password has been changed You may login now.
           </p>
           <Link
-            to={"/login"}
+            href={"/login"}
             className="rbt-btn btn-md btn-gradient hover-icon-reverse radius-round w-100"
           >
             <span className="icon-reverse-wrapper">

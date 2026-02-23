@@ -1,4 +1,4 @@
-import "./appointment-tab-head.css";
+
 
 export default function AppointmentTabHead({ setActiveTab }) {
   return (

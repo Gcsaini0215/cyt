@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import Head from "next/head";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
@@ -23,7 +24,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -89,9 +90,9 @@ export default function Login() {
         setOtp("");
         setToken(response.token);
         if (response.data.role === 1) {
-          navigate("/therapist-dashboard");
+          router.push("/therapist-dashboard");
         } else {
-          navigate("/my-dashboard");
+          router.push("/my-dashboard");
         }
       } else {
         setError(response.message);
@@ -110,16 +111,16 @@ export default function Login() {
     const data = getDecodedToken();
     if (data) {
       if (data.role === 1) {
-        navigate("/therapist-dashboard");
+        router.push("/therapist-dashboard");
       } else {
-        navigate(`/my-dashboard`);
+        router.push(`/my-dashboard`);
       }
     }
-  }, [navigate]);
+  }, [router]);
 
   return (
     <>
-      <Helmet>
+      <Head>
         <title>Login | Access Your Therapy Dashboard | Choose Your Therapist</title>
         <meta name="description" content="Securely log in to your Choose Your Therapist account. Manage your sessions, connect with your psychologist, and track your mental health progress." />
         <meta name="keywords" content="Therapist Login, Client Login, Mental Health Dashboard, Secure Therapy Login" />
@@ -135,7 +136,7 @@ export default function Login() {
         <meta name="twitter:title" content="Login | Access Your Therapy Dashboard | Choose Your Therapist" />
         <meta name="twitter:description" content="Log in to your secure dashboard to manage your therapy sessions." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <style>{`
         input:focus {
           outline: none !important;
@@ -275,7 +276,7 @@ export default function Login() {
                 )}
 
                 <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
-                  <Link to="/register" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
+                  <Link href="/register" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
                     Don't have an account? <span style={{ color: '#22bb33' }}>Register here</span>
                   </Link>
                 </div>

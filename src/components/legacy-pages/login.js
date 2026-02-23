@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import Footer from "../footer";
 import NewsLetter from "../home/newsletter";
 import MyNavbar from "../navbar";
@@ -23,7 +24,7 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,9 +77,9 @@ export default function Login() {
         setOtp("");
         setToken(response.token);
         if (response.data.role === 1) {
-          navigate("/therapist-dashboard");
+          router.push("/therapist-dashboard");
         } else {
-          navigate("/my-dashboard");
+          router.push("/my-dashboard");
         }
       } else {
         setError(response.message);
@@ -97,12 +98,12 @@ export default function Login() {
     const data = getDecodedToken();
     if (data) {
       if (data.role === 1) {
-        navigate("/therapist-dashboard");
+        router.push("/therapist-dashboard");
       } else {
-        navigate(`/my-dashboard`);
+        router.push(`/my-dashboard`);
       }
     }
-  }, [navigate]);
+  }, [router]);
 
   return (
     <div>
@@ -131,7 +132,7 @@ export default function Login() {
                     <div className="rbt-like-total">
                       <div className="profile-share">
                         <Link
-                          to="#"
+                          href="#"
                           className="avatar"
                           data-tooltip="Counselling Psychologist"
                           tabIndex="0"
@@ -144,7 +145,7 @@ export default function Login() {
                           />
                         </Link>
                         <Link
-                          to="#"
+                          href="#"
                           className="avatar"
                           data-tooltip="Psychologist"
                           tabIndex="0"
@@ -157,7 +158,7 @@ export default function Login() {
                           />
                         </Link>
                         <Link
-                          to="#"
+                          href="#"
                           className="avatar"
                           data-tooltip="Counselling Psychologist"
                           tabIndex="0"
@@ -259,7 +260,7 @@ export default function Login() {
                         className="rbt-lost-password text-end"
                         style={{ marginBottom: 15 }}
                       >
-                        <Link className="rbt-btn-link" to="/register">
+                        <Link className="rbt-btn-link" href="/register">
                           Create Account?
                         </Link>
                       </div>

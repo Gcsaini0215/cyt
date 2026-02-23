@@ -259,7 +259,7 @@ const AddressSelection = () => {
       // Form is valid, proceed with therapist search/navigation
       console.log('Visit Therapist clicked with address:', addressData);
       // You can add navigation logic here, e.g.:
-      // navigate('/view-all-therapist', { state: { addressData } });
+      // router.push('/view-all-therapist', { state: { addressData } });
       setError('');
     } else {
       setError('Please fill in all required fields correctly.');

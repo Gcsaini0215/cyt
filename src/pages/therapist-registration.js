@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import RegistrationHeader from "../components/therapist/registration-header";
 import NewsLetter from "../components/home/newsletter";
@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { therapistRegistrationUrl, verifyOtpUrl } from "../utils/url";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { postData, postFormData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
 import FormProgressBar from "../components/global/form-progressbar";
@@ -169,7 +169,7 @@ export default function TherapistRegistration()
 
   return (
     <>
-      <Helmet>
+      <Head>
         <title>Therapist Registration | Join Our Network of Mental Health Experts | Choose Your Therapist</title>
         <meta name="description" content="Are you a qualified psychologist or psychiatrist? Register with Choose Your Therapist to connect with clients across India and grow your professional practice on our secure platform." />
         <meta name="keywords" content="Therapist Registration, Join Mental Health Network, Psychologist Jobs India, Online Therapy Practice" />
@@ -185,7 +185,7 @@ export default function TherapistRegistration()
         <meta name="twitter:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
         <meta name="twitter:description" content="Register as a verified therapist and grow your practice with Choose Your Therapist." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
 
       <style>{`
         input:focus, select:focus, textarea:focus, button:focus {
@@ -456,7 +456,7 @@ export default function TherapistRegistration()
                 </div>
 
                 <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
-                  <Link to="/login" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
+                  <Link href="/login" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
                     Already have an account? <span style={{ color: '#22bb33' }}>Login here</span>
                   </Link>
                 </div>

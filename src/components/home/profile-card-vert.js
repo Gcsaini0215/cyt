@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ImageTag from "../../utils/image-tag";
 import { getMinMaxPrice } from "../../utils/helpers";
@@ -71,7 +71,7 @@ export default function ProfileCardVert(props) {
         }}
       >
         <div className="card-image-wrap" style={{ position: "relative", overflow: "hidden" }}>
-          <Link to={`/view-profile/${data._id}`} style={{ display: "block" }}>
+          <Link href={`/view-profile/${data._id}`} style={{ display: "block" }}>
             <ImageTag
               alt={data.user?.name}
               className="therapist-img"
@@ -120,7 +120,7 @@ export default function ProfileCardVert(props) {
           <div className="card-top-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div className="name-type-wrap">
               <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0 0 4px 0", color: "inherit" }}>
-                <Link to={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                <Link href={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   {data.user?.name || "Therapist"}
                 </Link>
               </h4>
@@ -167,7 +167,7 @@ export default function ProfileCardVert(props) {
 
           <div className="card-action-btns" style={{ display: "flex", gap: "10px", marginTop: "auto", paddingTop: "10px" }}>
             <Link
-              to={`/view-profile/${data._id}`}
+              href={`/view-profile/${data._id}`}
               className="btn-outline-premium"
               style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", border: "1.5px solid #e2e8f0", color: "#475569", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s" }}
             >
@@ -175,7 +175,7 @@ export default function ProfileCardVert(props) {
             </Link>
 
             <Link
-              to={`/therapist-checkout/${data._id}`}
+              href={`/therapist-checkout/${data._id}`}
               className="btn-fill-premium"
               style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", background: "#228756", color: "#fff", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 12px rgba(34, 135, 86, 0.2)" }}
             >

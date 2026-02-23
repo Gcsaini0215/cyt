@@ -1,6 +1,6 @@
 import MainLayout from "../components/therapists/main-layout";
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import { deleteWorkshopUrl, getWorkshopsUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
@@ -62,7 +62,7 @@ export default function Workshops() {
                 </div>
                 <div class="col-lg-4">
                   <div class="call-to-btn text-start text-lg-end position-relative">
-                    <Link class="rbt-btn btn-sm" to="/create-workshop">
+                    <Link class="rbt-btn btn-sm" href="/create-workshop">
                       <span data-text="Create Workshop">Create Event</span>
                     </Link>
                   </div>

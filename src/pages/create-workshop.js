@@ -1,5 +1,10 @@
 import MainLayout from "../components/therapists/main-layout";
-import CreateWorkshop from "../components/therapists/workshops/create-workshop";
+import dynamic from "next/dynamic";
+
+const CreateWorkshop = dynamic(
+  () => import("../components/therapists/workshops/create-workshop"),
+  { ssr: false }
+);
 
 export default function CreateWorkshopPage() {
   return (

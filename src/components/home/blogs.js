@@ -4,7 +4,7 @@ import BlogCardImg2 from "../../assets/img/blog2.png";
 import BlogCardImg3 from "../../assets/img/blog3.png";
 import BlogCardImg4 from "../../assets/img/blog5.png";
 import ImageTag from "../../utils/image-tag";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function Blogs() {
@@ -75,7 +75,7 @@ export default function Blogs() {
             <div className="read-more-btn">
               <Link
                 className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
-                to="/blogs"
+                href="/blogs"
               >
                 <span className="icon-reverse-wrapper">
                   <span className="btn-text">See All Articles</span>
@@ -106,7 +106,7 @@ export default function Blogs() {
               }}
             >
               <div className="rbt-card-img" style={{ height: '100%', width: '100%' }}>
-                <Link to="/blog-details/1" style={{ height: '100%', width: '100%', display: 'block' }}>
+                <Link href="/blog-details/1" style={{ height: '100%', width: '100%', display: 'block' }}>
                   <ImageTag
                     alt="Featured Blog"
                     src={BlogCardImg}
@@ -146,14 +146,14 @@ export default function Blogs() {
                   Must Read • Editor's Choice
                 </span>
                 <h2 className="rbt-card-title" style={{ color: '#fff', fontSize: isMobile ? '24px' : '42px', lineHeight: 1.2, fontWeight: 800, marginBottom: '15px' }}>
-                  <Link to="/blog-details/1" style={{ color: '#fff' }}>
+                  <Link href="/blog-details/1" style={{ color: '#fff' }}>
                     The Art of Setting Boundaries without Feeling Guilty
                   </Link>
                 </h2>
                 <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '16px', maxWidth: '700px', marginBottom: '25px', display: isMobile ? 'none' : 'block' }}>
                   Have you ever found yourself saying “yes” when deep down you wanted to scream “no”? Learn how to protect your peace of mind.
                 </p>
-                <Link className="rbt-btn btn-white btn-sm" to="/blog-details/1">
+                <Link className="rbt-btn btn-white btn-sm" href="/blog-details/1">
                   <span className="btn-text">Read Full Story</span>
                 </Link>
               </div>
@@ -164,15 +164,15 @@ export default function Blogs() {
           <div className="col-lg-4 col-md-6 col-12 mt--30">
             <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
               <div className="rbt-card-img">
-                <Link to="/blog-details/2">
+                <Link href="/blog-details/2">
                   <ImageTag alt="Card" src={BlogCardImg2} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
                 </Link>
               </div>
               <div className="rbt-card-body" style={{ padding: '20px' }}>
                 <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                  <Link to="/blog-details/2">Is Your Relationship Missing the Intimacy?</Link>
+                  <Link href="/blog-details/2">Is Your Relationship Missing the Intimacy?</Link>
                 </h5>
-                <Link className="transparent-button" to="/blog-details/2" style={{ fontSize: '14px', fontWeight: 600 }}>
+                <Link className="transparent-button" href="/blog-details/2" style={{ fontSize: '14px', fontWeight: 600 }}>
                   Read Article <i className="feather-arrow-right"></i>
                 </Link>
               </div>
@@ -182,15 +182,15 @@ export default function Blogs() {
           <div className="col-lg-4 col-md-6 col-12 mt--30">
             <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
               <div className="rbt-card-img">
-                <Link to="/blog-details/3">
+                <Link href="/blog-details/3">
                   <ImageTag alt="Card" src={BlogCardImg3} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
                 </Link>
               </div>
               <div className="rbt-card-body" style={{ padding: '20px' }}>
                 <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                  <Link to="/blog-details/3">How to Help a Friend during a Panic Attack?</Link>
+                  <Link href="/blog-details/3">How to Help a Friend during a Panic Attack?</Link>
                 </h5>
-                <Link className="transparent-button" to="/blog-details/3" style={{ fontSize: '14px', fontWeight: 600 }}>
+                <Link className="transparent-button" href="/blog-details/3" style={{ fontSize: '14px', fontWeight: 600 }}>
                   Read Article <i className="feather-arrow-right"></i>
                 </Link>
               </div>
@@ -200,15 +200,15 @@ export default function Blogs() {
           <div className="col-lg-4 col-md-6 col-12 mt--30">
             <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
               <div className="rbt-card-img">
-                <Link to="/blog-details/4">
+                <Link href="/blog-details/4">
                   <ImageTag alt="Card" src={BlogCardImg4} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
                 </Link>
               </div>
               <div className="rbt-card-body" style={{ padding: '20px' }}>
                 <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                  <Link to="/blog-details/4">Effective Communication Strategies for Couples</Link>
+                  <Link href="/blog-details/4">Effective Communication Strategies for Couples</Link>
                 </h5>
-                <Link className="transparent-button" to="/blog-details/4" style={{ fontSize: '14px', fontWeight: 600 }}>
+                <Link className="transparent-button" href="/blog-details/4" style={{ fontSize: '14px', fontWeight: 600 }}>
                   Read Article <i className="feather-arrow-right"></i>
                 </Link>
               </div>

@@ -1,14 +1,20 @@
 import React from "react";
 import MainLayout from "../../components/therapists/main-layout";
-import UpdateWorkshop from "../../components/therapists/workshops/update-workshop";
+import dynamic from "next/dynamic";
 import { fetchById } from "../../utils/actions";
 import { getWorkshopByIdUrl } from "../../utils/url";
-import { useParams } from "react-router-dom";
 import ErrorPage from "../error-page";
+import { useRouter } from "next/router";
 import FormProgressBar from "../../components/global/form-progressbar";
 
+const UpdateWorkshop = dynamic(
+  () => import("../../components/therapists/workshops/update-workshop"),
+  { ssr: false }
+);
+
 export default function UpdateWorkshopPage() {
-  const { id } = useParams();
+  const router = useRouter();
+  const { id  } = router.query;
   const [data, setData] = React.useState({});
 
   React.useEffect(() => {

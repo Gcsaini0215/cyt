@@ -1,6 +1,6 @@
 import MyNavbar from "../components/navbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 export default function CancellationPolicy() {
@@ -14,7 +14,7 @@ export default function CancellationPolicy() {
   };
   return (
     <>
-      <Helmet>
+      <Head>
         <title>Cancellation Policy | Refund & Rescheduling | Choose Your Therapist</title>
         <meta name="description" content="Review our cancellation and refund policy. Understand the terms for rescheduling or canceling your therapy sessions with independent therapists." />
         <meta name="keywords" content="Cancellation Policy, Refund Policy, Reschedule Therapy Session, Choose Your Therapist" />
@@ -30,7 +30,7 @@ export default function CancellationPolicy() {
         <meta name="twitter:title" content="Cancellation Policy | Refund & Rescheduling | Choose Your Therapist" />
         <meta name="twitter:description" content="Review our cancellation and refund terms." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <br />
       <div style={styles.container}>

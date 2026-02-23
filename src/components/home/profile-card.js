@@ -4,7 +4,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
   GetFavriouteTherapistListUrl,
@@ -180,7 +180,7 @@ export default function ProfileCard() {
                           }
                           aria-selected={tab === "" ? "true" : "false"}
                           onClick={() => handleClick("")}
-                          to="#"
+                          href="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             See all
@@ -203,7 +203,7 @@ export default function ProfileCard() {
                           onClick={() =>
                             handleClick("Counselling Psychologist")
                           }
-                          to="#"
+                          href="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Counselling Psychologist
@@ -222,7 +222,7 @@ export default function ProfileCard() {
                             tab === "Clinical Psychologist" ? "true" : "false"
                           }
                           onClick={() => handleClick("Clinical Psychologist")}
-                          to="#"
+                          href="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Clinical Psychologist
@@ -241,7 +241,7 @@ export default function ProfileCard() {
                             tab === "Psychiatrist" ? "true" : "false"
                           }
                           onClick={() => handleClick("Psychiatrist")}
-                          to="#"
+                          href="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Psychiatrist
@@ -260,7 +260,7 @@ export default function ProfileCard() {
                             tab === "Special Educator" ? "true" : "false"
                           }
                           onClick={() => handleClick("Special Educator")}
-                          to="#"
+                          href="#"
                         >
                           <span className="title" style={{ cursor: "pointer" }}>
                             Special Educator
@@ -319,7 +319,7 @@ export default function ProfileCard() {
             <div className="load-more-btn mt--60 text-center">
               <Link
                 className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
-                to={"/view-all-therapist"}
+                href={"/view-all-therapist"}
               >
                 <span className="icon-reverse-wrapper">
                   <span className="btn-text">Find More</span>

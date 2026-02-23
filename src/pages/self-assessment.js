@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import Head from "next/head";
 import SelfAssessmentBanner from "../components/self-assessment/banner";
 import AssessmentCards from "../components/self-assessment/assessment-cards";
 import AssessmentForm from "../components/self-assessment/assessment-form";
@@ -21,7 +21,7 @@ export default function SelfAssessment() {
 
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Mental Health Self Assessment | Choose Your Therapist</title>
         <meta name="description" content="Take our comprehensive mental health self-assessment test. Get personalized insights and recommendations from our expert psychologists." />
         <meta name="keywords" content="Self Assessment, Mental Health Test, Therapy Assessment, Psychological Evaluation, Mental Wellness Check" />
@@ -38,7 +38,7 @@ export default function SelfAssessment() {
         <meta name="twitter:title" content="Mental Health Self Assessment | Choose Your Therapist" />
         <meta name="twitter:description" content="Take our comprehensive self-assessment test to understand your mental health better." />
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <SelfAssessmentBanner />
       

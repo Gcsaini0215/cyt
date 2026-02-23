@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { postFormData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";
 import { createBlogUrl } from "../../../utils/url";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import "../workshops/editor.css";
+
 
 export default function CreateBlog() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const fileInputRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -86,7 +86,7 @@ export default function CreateBlog() {
         if (response.status) {
           setSuccess(response.message || "Blog created successfully!");
           setTimeout(() => {
-            navigate("/therapist-dashboard");
+            router.push("/therapist-dashboard");
           }, 2000);
         } else {
           setError(response.message || "Something went wrong");

@@ -5,10 +5,11 @@ import bgImg1 from "../../assets/img/kindergarten-01-back618d.jpg";
 import bgImg2 from "../../assets/img/kindergarten-03-back6149.jpg";
 import bgImg3 from "../../assets/img/kindergarten-04-backab08.jpg";
 import LazyImage from "../../utils/lazy-image";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function ServiceBenefits() {
-  const navigate = useNavigate();
+  const router = useRouter();
   return (
     <div className="rbt-article-content-wrapper">
       <div className="row row--15 mt_dec--30">
@@ -21,7 +22,7 @@ export default function ServiceBenefits() {
                 </div>
                 <div className="content">
                   <h5 className="title">
-                    <Link to="#">Appointment Scheduling</Link>
+                    <Link href="#">Appointment Scheduling</Link>
                   </h5>
                   <ul className="rbt-list-style-3">
                     <li>
@@ -44,7 +45,7 @@ export default function ServiceBenefits() {
                   <Link
                     style={{ cursor: "pointer" }}
                     className="rbt-btn-link stretched-link"
-                    to="/therapist-registration"
+                    href="/therapist-registration"
                   >
                     Learn More<i className="feather-arrow-right"></i>
                   </Link>
@@ -63,7 +64,7 @@ export default function ServiceBenefits() {
                 <Link
                   className="rbt-btn rbt-switch-btn btn-white btn-sm"
                   style={{ cursor: "pointer" }}
-                  to="/therapist-registration"
+                  href="/therapist-registration"
                 >
                   <span data-text="Learn More">Learn More</span>
                 </Link>
@@ -80,7 +81,7 @@ export default function ServiceBenefits() {
                 </div>
                 <div className="content">
                   <h5 className="title">
-                    <Link to="#">Toddler/Twos</Link>
+                    <Link href="#">Toddler/Twos</Link>
                   </h5>
                   <ul className="rbt-list-style-3">
                     <li>
@@ -102,7 +103,7 @@ export default function ServiceBenefits() {
                   </ul>
                   <Link
                     className="rbt-btn-link stretched-link"
-                    to="/therapist-registration"
+                    href="/therapist-registration"
                     style={{ cursor: "pointer" }}
                   >
                     Learn More<i className="feather-arrow-right"></i>
@@ -122,7 +123,7 @@ export default function ServiceBenefits() {
                 <Link
                   className="rbt-btn rbt-switch-btn btn-white btn-sm"
                   style={{ cursor: "pointer" }}
-                  to="/therapist-registration"
+                  href="/therapist-registration"
                 >
                   <span data-text="Learn More">Learn More</span>
                 </Link>
@@ -139,7 +140,7 @@ export default function ServiceBenefits() {
                 </div>
                 <div className="content">
                   <h5 className="title">
-                    <Link to="#">Time-Saving Features</Link>
+                    <Link href="#">Time-Saving Features</Link>
                   </h5>
                   <ul className="rbt-list-style-3">
                     <li>

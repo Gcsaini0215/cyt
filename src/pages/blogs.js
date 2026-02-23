@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import BlogHeader from "../components/blogs/header";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
@@ -8,7 +8,7 @@ import NewsLetter from "../components/home/newsletter";
 export default function AllBlogs() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Mental Health Blog | Articles & Resources | Choose Your Therapist</title>
         <meta name="description" content="Read our latest articles on mental health, therapy, emotional well-being, and expert advice from verified psychologists in India. Stay informed and empowered." />
         <meta name="keywords" content="Mental Health Blog, Psychology Articles India, Therapy Resources, Well-being Tips, Choose Your Therapist Blog" />
@@ -24,7 +24,7 @@ export default function AllBlogs() {
         <meta name="twitter:title" content="Mental Health Blog | Articles & Resources | Choose Your Therapist" />
         <meta name="twitter:description" content="Explore our mental health resources and expert articles." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <BlogHeader />
       <Blogs />

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import ImageTag from "../../../utils/image-tag";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { truncateString } from "../../../utils/helpers";
@@ -31,7 +31,7 @@ export default function WorkshopCard({ data, onDelete }) {
     <div className="col-lg-4 col-md-6 col-12">
       <div className="rbt-card variation-01 rbt-hover">
         <div className="rbt-card-img">
-          <Link to="">
+          <Link href="">
             <ImageTag
               alt={truncateString(data.title, 20)}
               loading="lazy"
@@ -80,7 +80,7 @@ export default function WorkshopCard({ data, onDelete }) {
           <ul className="rbt-meta">
             <li>
               <i className="feather-book"></i>
-              <Link to={`${imagePath}/${data.content_pdf}`} target="_blank">
+              <Link href={`${imagePath}/${data.content_pdf}`} target="_blank">
                 Content PDF
               </Link>
             </li>
@@ -100,7 +100,7 @@ export default function WorkshopCard({ data, onDelete }) {
             </div>
             <Link
               className="rbt-btn-link left-icon"
-              to={`/update-workshop/${data._id}`}
+              href={`/update-workshop/${data._id}`}
             >
               <i className="feather-edit"></i> Edit
             </Link>

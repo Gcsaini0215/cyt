@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 const demoPhoto = "/assets/img/2.png";
 export default function AllWorkshops() {
   return (
@@ -12,7 +12,7 @@ export default function AllWorkshops() {
                 <div className="col-lg-12">
                   <ul className="page-list">
                     <li className="rbt-breadcrumb-item">
-                      <Link to="/">Home</Link>
+                      <Link href="/">Home</Link>
                     </li>
                     <li>
                       <div className="icon-right">
@@ -23,7 +23,7 @@ export default function AllWorkshops() {
                   </ul>
                   <div className=" title-wrapper">
                     <h1 className="title mb--0">All Event</h1>
-                    <Link className="rbt-badge-2" to="#">
+                    <Link className="rbt-badge-2" href="#">
                       <div className="image">🎉</div> 9 Events
                     </Link>
                   </div>
@@ -42,7 +42,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <Link to={"/new-workshop"}>
+                  <Link href={"/new-workshop"}>
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -69,14 +69,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <Link to="/new-workshop">
+                    <Link href="/new-workshop">
                       International Education Fair 2024
                     </Link>
                   </h4>
                   <div className="read-more-btn">
                     <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      to="#"
+                      href="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -95,7 +95,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <Link to="#">
+                  <Link href="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -122,14 +122,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <Link to="#">
+                    <Link href="#">
                       Painting Art Contest 2020
                     </Link>
                   </h4>
                   <div className="read-more-btn">
                     <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      to="#"
+                      href="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -148,7 +148,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <Link to="#">
+                  <Link href="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -175,14 +175,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <Link to="#">
+                    <Link href="#">
                       Histudy Education Fair 2024
                     </Link>
                   </h4>
                   <div className="read-more-btn">
                     <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      to="#"
+                      href="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -201,7 +201,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <Link to="#">
+                  <Link href="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -228,14 +228,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <Link to="#">
+                    <Link href="#">
                       Elegant Light Box Paper Cut Dioramas
                     </Link>
                   </h4>
                   <div className="read-more-btn">
                     <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      to="#"
+                      href="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -254,7 +254,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <Link to="#">
+                  <Link href="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -281,14 +281,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <Link to="#">
+                    <Link href="#">
                       Most Effective Ways Education's Problem.
                     </Link>
                   </h4>
                   <div className="read-more-btn">
                     <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      to="#"
+                      href="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -307,7 +307,7 @@ export default function AllWorkshops() {
             <div className="col-lg-6 col-md-6 col-12">
               <div className="rbt-card card-list-2 event-list-card variation-01 rbt-hover">
                 <div className="rbt-card-img">
-                  <Link to="#">
+                  <Link href="#">
                     <img
                       alt="Card image"
                       fetchpriority="high"
@@ -334,14 +334,14 @@ export default function AllWorkshops() {
                     </li>
                   </ul>
                   <h4 className="rbt-card-title">
-                    <Link to="#">
+                    <Link href="#">
                       Top 7 Common About Education.
                     </Link>
                   </h4>
                   <div className="read-more-btn">
                     <Link
                       className="rbt-btn btn-border hover-icon-reverse btn-sm radius-round"
-                      to="#"
+                      href="#"
                     >
                       <span className="icon-reverse-wrapper">
                         <span className="btn-text">Get Ticket</span>
@@ -364,18 +364,18 @@ export default function AllWorkshops() {
                 <div className="nav-links">
                   <ul className="rbt-pagination">
                     <li className="disabled">
-                      <Link aria-label="Previous" to="/pages/event-list#">
+                      <Link aria-label="Previous" href="/pages/event-list#">
                         <i className="feather-chevron-left"></i>
                       </Link>
                     </li>
                     <li className="active">
-                      <Link to="/pages/event-list#">1</Link>
+                      <Link href="/pages/event-list#">1</Link>
                     </li>
                     <li className="">
-                      <Link to="/pages/event-list#">2</Link>
+                      <Link href="/pages/event-list#">2</Link>
                     </li>
                     <li className="">
-                      <Link aria-label="Next" to="/pages/event-list#">
+                      <Link aria-label="Next" href="/pages/event-list#">
                         <i className="feather-chevron-right"></i>
                       </Link>
                     </li>

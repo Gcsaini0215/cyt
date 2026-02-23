@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
@@ -139,7 +139,7 @@ export default function CookieConsent() {
             </div>
             <p className="cookie-text">
               We use cookies to enhance your experience, analyze site traffic, and provide secure therapy services. 
-              By continuing to browse, you agree to our <Link to="/privacy-policy">Privacy Policy</Link> and <Link to="/terms-conditions">Terms of Service</Link>.
+              By continuing to browse, you agree to our <Link href="/privacy-policy">Privacy Policy</Link> and <Link href="/terms-conditions">Terms of Service</Link>.
             </p>
           </div>
           <div className="cookie-actions">

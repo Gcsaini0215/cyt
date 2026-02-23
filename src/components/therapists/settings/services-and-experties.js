@@ -6,7 +6,7 @@ import {
   diagnoseslist,
   relationshipIssuesList,
 } from "../../../utils/static-lists";
-import "./social-share.css";
+
 import { updateServiceExpertiesUrl } from "../../../utils/url";
 import { postData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";

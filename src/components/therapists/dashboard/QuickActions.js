@@ -4,7 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import ScheduleIcon from "@mui/icons-material/Schedule";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function QuickActions() {
   const actions = [
@@ -38,7 +38,7 @@ export default function QuickActions() {
       <Grid container spacing={3}>
         {actions.map((action, index) => (
           <Grid item xs={6} key={index}>
-            <Link to={action.to} style={{ textDecoration: 'none' }}>
+            <Link href={action.to} style={{ textDecoration: 'none' }}>
               <Button
                 variant="outlined"
                 fullWidth

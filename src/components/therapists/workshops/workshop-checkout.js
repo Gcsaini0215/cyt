@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import "react-datepicker/dist/react-datepicker.css";
-import "./checkout-styles.css";
-import { useNavigate } from "react-router-dom";
+
+
+import { useRouter } from "next/router";
 import {
     Dialog,
     DialogContent,
@@ -19,7 +19,7 @@ import { getToken } from "../../../utils/jwt";
 
 export default function WorkshopCheckout({ data }) {
     const { userInfo } = useUserStore();
-    const navigate = useNavigate();
+    const router = useRouter();
     const [error, setError] = React.useState("");
     const [couponError, setCouponError] = React.useState("");
     const [otpError, setOtpError] = React.useState("");
@@ -149,7 +149,7 @@ export default function WorkshopCheckout({ data }) {
             if (response.status) {
                 setOtpError("");
                 setOtp("");
-                navigate(`/workshop-pending/${bookingId}`);
+                router.push(`/workshop-pending/${bookingId}`);
             } else {
                 setOtpError(response.message);
             }

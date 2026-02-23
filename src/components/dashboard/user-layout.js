@@ -1,4 +1,5 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter  } from "next/router";
 import  { useState } from "react";
 import useUserStore from "../../store/userStore";
 import { removeToken } from "../../utils/jwt";
@@ -17,9 +18,8 @@ import FormProgressBar from "../global/form-progressbar";
 export default function UserLayout(props) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const { userInfo } = useUserStore();
-  const location = useLocation();
-  const pathname = location.pathname;
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = router.pathname;
   const [otpView, setOtpView] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -27,7 +27,7 @@ export default function UserLayout(props) {
 
   const handleLogout = () => {
     removeToken();
-    navigate("/login");
+    router.push("/login");
   };
 
   const handleSubmit = async () => {
@@ -129,7 +129,7 @@ export default function UserLayout(props) {
                               <ul className="dashboard-mainmenu rbt-default-sidebar-list nav-tabs">
                                 <li className="nav-item">
                                   <Link
-                                    to={"/my-dashboard"}
+                                    href={"/my-dashboard"}
                                     className={
                                       pathname === "/my-dashboard"
                                         ? "active"
@@ -145,7 +145,7 @@ export default function UserLayout(props) {
                                     pathname === "/my-bookings"
                                       ? "active"
                                       : ""
-                                  } to="/my-bookings">
+                                  } href="/my-bookings">
                                     <i className="fa-regular fa-calendar-check"></i>
                                     <span>My Bookings</span>
                                   </Link>
@@ -157,7 +157,7 @@ export default function UserLayout(props) {
                                         ? "active"
                                         : ""
                                     }
-                                    to="/my-therapists"
+                                    href="/my-therapists"
                                   >
                                     <i className="fa-regular fa-calendar-check"></i>
                                     <span>My Care</span>
@@ -169,7 +169,7 @@ export default function UserLayout(props) {
                                       pathname === "/my-workshop-bookings"
                                         ? "active"
                                         : ""
-                                    } to="/my-workshop-bookings">
+                                    } href="/my-workshop-bookings">
                                     <i className="feather-star"></i>
                                     <span>Events & Vibes</span>
                                   </Link>
@@ -190,7 +190,7 @@ export default function UserLayout(props) {
                                         ? "active"
                                         : ""
                                     }
-                                    to="/my-settings"
+                                    href="/my-settings"
                                   >
                                     <i className="feather-settings"></i>
                                     <span>My Edit</span>
@@ -203,7 +203,7 @@ export default function UserLayout(props) {
                                         ? "active"
                                         : ""
                                     }
-                                    to="/my-change-password"
+                                    href="/my-change-password"
                                   >
                                     <i className="feather-lock"></i>
                                     <span>Change Password</span>

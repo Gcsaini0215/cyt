@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import CallToAction from "../components/home/call-to-action";
@@ -10,7 +10,7 @@ import PlansCards from "../components/plans/plan-cards";
 export default function Plans() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Therapy Plans & Pricing | Affordable Counseling in India | Choose Your Therapist</title>
         <meta name="description" content="Explore affordable therapy plans and pricing at Choose Your Therapist. We offer flexible options for individual counseling, couples therapy, and specialized mental health support starting from ₹500." />
         <meta name="keywords" content="Therapy Plans, Counseling Pricing India, Affordable Therapy, Mental Health Packages, Choose Your Therapist Plans" />
@@ -26,7 +26,7 @@ export default function Plans() {
         <meta name="twitter:title" content="Therapy Plans & Pricing | Affordable Counseling in India" />
         <meta name="twitter:description" content="Explore affordable therapy plans and pricing at Choose Your Therapist." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <PlansHeader />
       

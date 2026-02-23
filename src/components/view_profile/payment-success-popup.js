@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import ModalComponent from "../therapists/Modal/Modal-component";
 const {
   DialogTitle,
@@ -12,9 +12,9 @@ export default function PaymentSuccessModal({ open, onClose, navigateTo = "/" })
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [timeLeft, setTimeLeft] = useState(15);
-  const navigate = useNavigate();
+  const router = useRouter();
   const handleNavigate = () => {
-    navigate(navigateTo);
+    router.push(navigateTo);
   };
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function PaymentSuccessModal({ open, onClose, navigateTo = "/" })
       }, 1000);
 
       redirectTimer = setTimeout(() => {
-        navigate("/");
+        router.push("/");
       }, 15000);
     }
 
@@ -38,7 +38,7 @@ export default function PaymentSuccessModal({ open, onClose, navigateTo = "/" })
       clearInterval(countdown);
       clearTimeout(redirectTimer);
     };
-  }, [open, navigate]);
+  }, [open, router]);
 
   return (
     <ModalComponent open={open} onClose={(event, reason) => {

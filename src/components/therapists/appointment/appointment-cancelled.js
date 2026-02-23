@@ -1,5 +1,5 @@
 import React from "react";
-import "./appointment-tab-content.css";
+
 
 const appointments = [
   {

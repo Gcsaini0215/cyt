@@ -5,7 +5,7 @@ import { GetMyWorkshopBooking } from "../../utils/url";
 import PageWrapper from "../../components/global/page-wrapper";
 import CreateTable from "../../components/global/create-table";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 const columns = [
   "Posted By",
   "Title",
@@ -48,12 +48,12 @@ export default function MyWorkshopBookingsPage() {
                 return (
                   <tr key={item._id}>
                     <td>
-                      <Link to={`/view-profile/${item.workshop.post_by._id}`} target="_blank"><span style={{ fontSize: "14px", color: "#2e70afff", cursor: "pointer" }}>{item.workshop.post_by.profile_code}</span></Link>
+                      <Link href={`/view-profile/${item.workshop.post_by._id}`} target="_blank"><span style={{ fontSize: "14px", color: "#2e70afff", cursor: "pointer" }}>{item.workshop.post_by.profile_code}</span></Link>
                       <br /> <span style={{ fontSize: "15px", lineHeight: 1.3, display: "inline-block" }}>{item.workshop.post_by.user.name}</span>
                     </td>
                     
                     <td title={item.workshop?.title}>
-                      <Link to={`/workshop-detail/${item.workshop._id}`} target="_blank"><span style={{ fontSize: "14px", lineHeight: 1.3, display: "inline-block",color: "#2e70afff", cursor: "pointer" }}>
+                      <Link href={`/workshop-detail/${item.workshop._id}`} target="_blank"><span style={{ fontSize: "14px", lineHeight: 1.3, display: "inline-block",color: "#2e70afff", cursor: "pointer" }}>
                         {item.workshop?.title?.slice(0, 15)}
                         {item.workshop?.title?.length > 15 && "..."}
                       </span>

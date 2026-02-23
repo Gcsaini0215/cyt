@@ -1,14 +1,14 @@
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function HowItWorks() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>How It Works | Find Your Perfect Therapist | Choose Your Therapist</title>
         <meta name="description" content="Discover how Choose Your Therapist simplifies finding and booking sessions with verified psychologists in India. Three simple steps to start your mental health journey." />
         <meta name="keywords" content="How to Book Therapist, Therapy Process, Verified Psychologists India, Mental Health Journey" />
@@ -24,7 +24,7 @@ export default function HowItWorks() {
         <meta name="twitter:title" content="How It Works | Find Your Perfect Therapist | Choose Your Therapist" />
         <meta name="twitter:description" content="Learn how easy it is to start your therapy journey with us." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <PageBreadCrumb title="How It Works" linkTitle="Find Your Perfect Therapist" />
 
@@ -174,7 +174,7 @@ export default function HowItWorks() {
                   Take the first step towards better mental health. Browse our therapist directory and book your consultation today.
                 </p>
                 <div className="call-to-action-btn mt--30">
-                  <Link className="rbt-btn btn-gradient hover-icon-reverse" to="/view-all-therapist">
+                  <Link className="rbt-btn btn-gradient hover-icon-reverse" href="/view-all-therapist">
                     <div className="icon-reverse-wrapper">
                       <span className="btn-text">Find Your Therapist</span>
                       <span className="btn-icon">

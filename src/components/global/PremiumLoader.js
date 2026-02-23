@@ -1,5 +1,4 @@
 import React from "react";
-import favicon from "../../assets/img/favicon.png";
 
 const PremiumLoader = () => {
   return (
@@ -7,7 +6,7 @@ const PremiumLoader = () => {
       <div className="loader-content">
         <div className="logo-wrapper">
           <img 
-            src={favicon} 
+            src="/favicon.png" 
             alt="Logo" 
             className="loader-logo"
             width="60"

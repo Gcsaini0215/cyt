@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function BookBtn() {
   return (
     <Link
       className="rbt-btn btn-gradient book-btn"
-      to="#"
+      href="#"
       style={{ display: "flex", justifyContent: "center" }}
     >
       <span>Book Now</span>

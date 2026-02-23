@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Grid, Paper, Typography, Button, Card, CardContent, CardActions, Chip, Rating } from "@mui/material";
+import { Box, Grid, Paper, Typography, Button, Card, CardContent, CardActions, Chip } from "@mui/material";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PsychologyIcon from "@mui/icons-material/Psychology";
 import SelfImprovementIcon from "@mui/icons-material/SelfImprovement";
@@ -150,7 +150,7 @@ export default function AssessmentCards({ onSelectAssessment }) {
 
                 <Box sx={{ display: 'flex', gap: 0.75, mb: 1.5, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <Chip
-                    label={`${assessment.questions} Q`}
+                    label={`${assessment.questions} Questions`}
                     size="small"
                     sx={{
                       bgcolor: `${assessment.color}15`,
@@ -191,13 +191,6 @@ export default function AssessmentCards({ onSelectAssessment }) {
                   <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 500, fontSize: { xs: '9px', sm: '11px' }, display: 'block', mt: 0.3, fontStyle: 'italic' }}>
                     {assessment.reference}
                   </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: { xs: '10px', sm: '12px' } }}>
-                    ⭐ {assessment.accuracy}
-                  </Typography>
-                  <Rating value={assessment.accuracy} readOnly size="small" />
                 </Box>
               </CardContent>
 

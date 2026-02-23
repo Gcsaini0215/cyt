@@ -5,7 +5,7 @@ import { Autoplay } from "swiper/modules";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import WellNessCard from "./wellness-card";
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { fetchData } from "../../utils/actions";
 import { getWorkshopsWebUrl } from "../../utils/url";
 export default function HomeWorkshop({ isWhite = false }) {
@@ -159,7 +159,7 @@ export default function HomeWorkshop({ isWhite = false }) {
                     id="home-tab-4"
                     aria-selected={tab === "See All" ? "true" : "false"}
                     onClick={() => handleClick("See All")}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       See All
@@ -176,7 +176,7 @@ export default function HomeWorkshop({ isWhite = false }) {
                     id="profile-tab-4"
                     aria-selected={tab === "Support Groups" ? "true" : "false"}
                     onClick={() => handleClick("Support Groups")}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Support Groups
@@ -196,7 +196,7 @@ export default function HomeWorkshop({ isWhite = false }) {
                       tab === "Capacity Building" ? "true" : "false"
                     }
                     onClick={() => handleClick("Capacity Building")}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Capacity Building
@@ -215,7 +215,7 @@ export default function HomeWorkshop({ isWhite = false }) {
                       tab === "Ongoing Series" ? "true" : "false"
                     }
                     onClick={() => handleClick("Ongoing Series")}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                       Ongoing Series
@@ -234,7 +234,7 @@ export default function HomeWorkshop({ isWhite = false }) {
                       tab === "Mentorship" ? "true" : "false"
                     }
                     onClick={() => handleClick("Mentorship")}
-                    to="#"
+                    href="#"
                   >
                     <span className="title" style={{ cursor: "pointer" }}>
                      Mentorship
@@ -298,7 +298,7 @@ export default function HomeWorkshop({ isWhite = false }) {
               <div className="load-more-btn mt--60 text-center">
                 <Link
                   className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
-                  to={"/all-workshop"}
+                  href={"/all-workshop"}
                 >
                   <span className="icon-reverse-wrapper">
                     <span className="btn-text">Find All Workshop</span>

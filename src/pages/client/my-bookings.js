@@ -6,7 +6,7 @@ import PageWrapper from "../../components/global/page-wrapper";
 import CreateTable from "../../components/global/create-table";
 import { toast } from "react-toastify";
 import { formatDateTime } from "../../utils/time";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 const columns = [
   "Therapist",
   "Service",
@@ -50,7 +50,7 @@ export default function MyBookingsPage() {
                 return (
                   <tr key={item._id}>
                     <td>
-                       <Link to={`/view-profile/${item.therapist._id}`} target="_blank"><span style={{fontSize:"14px",color:"#2e70afff",cursor:"pointer"}}>{item.therapist.profile_code}</span></Link>
+                       <Link href={`/view-profile/${item.therapist._id}`} target="_blank"><span style={{fontSize:"14px",color:"#2e70afff",cursor:"pointer"}}>{item.therapist.profile_code}</span></Link>
                      <br/> <span style={{fontSize:"15px",lineHeight:1.3,display:"inline-block"}}>{item.therapist.user.name}</span>
                       </td>
                     <td><p>

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function PageBreadCrumb({ title = "", linkTitle = "" }) {
     return <div className="rbt-breadcrumb-default ptb--100 ptb_md--50 ptb_sm--30 bg-gradient-1">
@@ -9,7 +9,7 @@ export default function PageBreadCrumb({ title = "", linkTitle = "" }) {
                         <h2 className="title">{title}</h2>
                         <ul className="page-list mb--20">
                             <li className="rbt-breadcrumb-item">
-                                <Link to="/">Home</Link>
+                                <Link href="/">Home</Link>
                             </li>
                             <li>
                                 <div className="icon-right">

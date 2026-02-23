@@ -17,7 +17,7 @@ export default function CreateTable(props) {
           </table>
         </div>
         {/* <div className="load-more-btn text-center">
-          <Link className="rbt-btn-link" to="#">
+          <Link className="rbt-btn-link" href="#">
             Browse All Course
             <i className="feather-arrow-right"></i>
           </Link>

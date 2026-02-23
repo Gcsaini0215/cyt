@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function ComingSoon() {
   return (
@@ -10,7 +10,7 @@ export default function ComingSoon() {
               <h1 className="title">Coming Soon</h1>
               <h3 className="sub-title">We’re working on something amazing 🚀</h3>
               <p>Our website/page is under construction. Stay tuned for updates!</p>
-              <Link className="rbt-btn btn-gradient icon-hover" to="/">
+              <Link className="rbt-btn btn-gradient icon-hover" href="/">
                 <span className="btn-text">Back To Home</span>
                 <span className="btn-icon">
                   <i className="feather-arrow-right"></i>

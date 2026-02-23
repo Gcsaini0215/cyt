@@ -2,13 +2,13 @@ import React, { useState, useRef } from "react";
 import { postFormData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";
 import { createBlogUrl } from "../../../utils/url";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import "../workshops/editor.css";
+
 
 export default function AIBlog() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const fileInputRef = useRef(null);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -136,7 +136,7 @@ Format it nicely.
       const response = await postFormData(createBlogUrl, formData);
       if (response.status) {
         setSuccess("Blog published successfully!");
-        setTimeout(() => navigate("/therapist-dashboard"), 2000);
+        setTimeout(() => router.push("/therapist-dashboard"), 2000);
       } else {
         setError(response.message || "Something went wrong");
       }

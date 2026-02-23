@@ -1,5 +1,5 @@
 import React from "react";
-import "./appointment.css";
+
 import { defaultProfile } from "../../../utils/url";
 import { Box, Typography, Button, Avatar, Chip, IconButton, Tooltip, Paper } from "@mui/material";
 import VideoCallIcon from "@mui/icons-material/VideoCall";

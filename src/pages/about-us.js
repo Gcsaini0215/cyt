@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet-async";
+import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
 import ServiceQuality from "../components/about/service-quality";
 import AboutCyt from "../components/about/about-cyt";
@@ -14,7 +14,7 @@ import NewsLetter from "../components/home/newsletter";
 export default function AboutUs() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>About | Our Story & Mission | Choose Your Therapist</title>
         <meta name="description" content="Learn about Choose Your Therapist, our mission to make mental health support accessible across India, and our commitment to connecting you with verified professionals." />
         <meta name="keywords" content="About Choose Your Therapist, Mental Health Mission, Therapy India Story, Verified Psychologists Mission" />
@@ -31,7 +31,7 @@ export default function AboutUs() {
         <meta name="twitter:title" content="About Us | Our Story & Mission | Choose Your Therapist" />
         <meta name="twitter:description" content="Learn about Choose Your Therapist and our mission for mental health accessibility in India." />
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <AboutUsBanner />
       <AboutCyt />

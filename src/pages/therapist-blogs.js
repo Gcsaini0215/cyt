@@ -1,6 +1,11 @@
 import React from "react";
 import MainLayout from "../components/therapists/main-layout";
-import CreateBlog from "../components/therapists/blogs/create-blog";
+import dynamic from "next/dynamic";
+
+const CreateBlog = dynamic(
+  () => import("../components/therapists/blogs/create-blog"),
+  { ssr: false }
+);
 
 export default function TherapistBlogsPage() {
   return (

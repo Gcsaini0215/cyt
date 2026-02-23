@@ -1,13 +1,14 @@
 import React from "react";
 const logo1 = "/logo.png";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import ImageTag from "../../utils/image-tag";
 import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath } from "../../utils/url";
 export default function DashboardTopNav() {
   const { therapistInfo } = useTherapistStore();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [show, setShow] = React.useState(false);
   const [isSticky, setIsSticky] = React.useState(false);
 
@@ -25,7 +26,7 @@ export default function DashboardTopNav() {
 
   const handleLogout = () => {
     removeToken();
-    navigate("/login");
+    router.push("/login");
   };
 
   return (
@@ -35,7 +36,7 @@ export default function DashboardTopNav() {
           <div className="inner-top">
             <div className="content">
               <div className="logo">
-                <Link to="/therapist-dashboard" style={{ cursor: "pointer" }}>
+                <Link href="/therapist-dashboard" style={{ cursor: "pointer" }}>
                   <ImageTag
                     alt="Education Logo Images"
                     width="137"
@@ -57,29 +58,29 @@ export default function DashboardTopNav() {
           <nav className="mainmenu-nav">
             <ul className="mainmenu">
               <li className="position-static">
-                <Link to="/therapist-dashboard" style={{ cursor: "pointer" }}>
+                <Link href="/therapist-dashboard" style={{ cursor: "pointer" }}>
                   Home<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
-                <Link to="/appointments" style={{ cursor: "pointer" }}>
+                <Link href="/appointments" style={{ cursor: "pointer" }}>
                   Session Booking<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
-                <Link to="/therapists/invoices" style={{ cursor: "pointer" }}>
+                <Link href="/therapists/invoices" style={{ cursor: "pointer" }}>
                   Invoices<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
-                <Link to="/coupons" style={{ cursor: "pointer" }}>
+                <Link href="/coupons" style={{ cursor: "pointer" }}>
                   Create Coupons<i className="feather-chevron-down"></i>
                 </Link>
               </li>
              {/* 
 <li className="position-static">
   <Link 
-    to="/invoices" 
+    href="/invoices" 
     style={{ cursor: "pointer" }}
   >
     Invoices <i className="feather-chevron-down"></i>
@@ -89,14 +90,14 @@ export default function DashboardTopNav() {
               
               <li className="position-static">
                 <Link 
-                to="/reviews" 
+                href="/reviews" 
                 style={{ cursor: "pointer" }}>
                   Rewiews<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
                 <Link 
-                to="/case-history" 
+                href="/case-history" 
                 style={{ cursor: "pointer" }}>
                   Case History<i className="feather-chevron-down"></i>
                 </Link>
@@ -104,17 +105,17 @@ export default function DashboardTopNav() {
             
               
               <li className="position-static">
-                <Link to="/blogs" style={{ cursor: "pointer" }}>
+                <Link href="/blogs" style={{ cursor: "pointer" }}>
                   Blog<i className="feather-chevron-down"></i>
                 </Link>
               </li>*/}
                 <li className="position-static">
-                <Link to="/workshops" style={{ cursor: "pointer" }}>
+                <Link href="/workshops" style={{ cursor: "pointer" }}>
                   Create Events<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
-                <Link to="/settings" style={{ cursor: "pointer" }}>
+                <Link href="/settings" style={{ cursor: "pointer" }}>
                   Edit Profile<i className="feather-chevron-down"></i>
                 </Link>
               </li>
@@ -135,7 +136,7 @@ export default function DashboardTopNav() {
                 <div className="header-info">
                   <div className="logo">
                     <Link
-                      to="/therapist-dashboard"
+                      href="/therapist-dashboard"
                       style={{ cursor: "pointer" }}
                     >
                       <ImageTag
@@ -159,12 +160,12 @@ export default function DashboardTopNav() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <i className="fa-solid fa-globe"></i>
+                      <i className="feather-globe"></i>
                     </a>
                   </li>
                   <li>
-                    <Link className="service-menu-parent" to={"/notifications"}>
-                      <i className="fa-solid fa-bell"></i> &nbsp;
+                    <Link className="service-menu-parent" href={"/notifications"}>
+                      <i className="feather-bell"></i> &nbsp;
                     </Link>
                   </li>
                   <li className="account-access rbt-user-wrapper d-none d-xl-block">
@@ -191,21 +192,21 @@ export default function DashboardTopNav() {
                       <div className="inner">
                         <ul className="user-list-wrapper">
                           <li>
-                            <Link to="/therapist-dashboard">
+                            <Link href="/therapist-dashboard">
                               <i className="feather-home"></i>
                               <span>Home</span>
                             </Link>
                           </li>
 
                           <li>
-                            <Link to="/settings">
+                            <Link href="/settings">
                               <i className="feather-shopping-bag"></i>
                               <span>Edit Profile</span>
                             </Link>
                           </li>
                          
                           <li>
-                            <Link to="/appointments">
+                            <Link href="/appointments">
                               <i className="feather-clock"></i>
                               <span>Session Booking</span>
                             </Link>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import { 
@@ -156,7 +156,7 @@ export default function MentalHealthData() {
                 <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '20px' }}>
                   Untreated mental health issues cost the global economy nearly $1 Trillion annually in lost productivity.
                 </p>
-                <Link to="/view-all-therapist" className="rbt-btn btn-gradient btn-sm">
+                <Link href="/view-all-therapist" className="rbt-btn btn-gradient btn-sm">
                   <span className="btn-text">Invest in Your Mindset</span>
                 </Link>
               </div>

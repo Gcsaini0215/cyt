@@ -1,6 +1,6 @@
 import LazyImage from "../../utils/lazy-image";
 import BlogImg from "../../assets/img/blog-card-048b22.jpg";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 export default function AllBlogs() {
   return (
     <div className="rbt-blog-area rbt-section-overlayping-top rbt-section-gapBottom">
@@ -9,19 +9,19 @@ export default function AllBlogs() {
           <div className="col-lg-4 col-md-6 col-sm-12 col-12">
             <div className="rbt-card variation-02 rbt-hover">
               <div className="rbt-card-img">
-                <Link to="/blog-details/25">
+                <Link href="/blog-details/25">
                   <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
                 </Link>
               </div>
               <div className="rbt-card-body">
                 <h5 className="rbt-card-title">
-                  <Link to="/blog-details/25">React</Link>
+                  <Link href="/blog-details/25">React</Link>
                 </h5>
                 <p className="rbt-card-text">
                   It is a long established fact that a reader.
                 </p>
                 <div className="rbt-card-bottom">
-                  <Link className="transparent-button" to="/blog-details/25">
+                  <Link className="transparent-button" href="/blog-details/25">
                     Learn More
                     <i>
                       <svg
@@ -46,17 +46,17 @@ export default function AllBlogs() {
           <div className="col-lg-4 col-md-6 col-sm-12 col-12">
             <div className="rbt-card variation-02 rbt-hover">
               <div className="rbt-card-img">
-                <Link to="/blog-details/26">
+                <Link href="/blog-details/26">
                   <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
                 </Link>
               </div>
               <div className="rbt-card-body">
                 <h5 className="rbt-card-title">
-                  <Link to="/blog-details/26">Why Is Education So Famous?</Link>
+                  <Link href="/blog-details/26">Why Is Education So Famous?</Link>
                 </h5>
                 <p className="rbt-card-text"></p>
                 <div className="rbt-card-bottom">
-                  <Link className="transparent-button" to="/blog-details/26">
+                  <Link className="transparent-button" href="/blog-details/26">
                     Learn More
                     <i>
                       <svg
@@ -81,19 +81,19 @@ export default function AllBlogs() {
           <div className="col-lg-4 col-md-6 col-sm-12 col-12">
             <div className="rbt-card variation-02 rbt-hover">
               <div className="rbt-card-img">
-                <Link to="/blog-details/27">
+                <Link href="/blog-details/27">
                   <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
                 </Link>
               </div>
               <div className="rbt-card-body">
                 <h5 className="rbt-card-title">
-                  <Link to="/blog-details/27">
+                  <Link href="/blog-details/27">
                     Difficult Things About Education.
                   </Link>
                 </h5>
                 <p className="rbt-card-text"></p>
                 <div className="rbt-card-bottom">
-                  <Link className="transparent-button" to="/blog-details/27">
+                  <Link className="transparent-button" href="/blog-details/27">
                     Learn More
                     <i>
                       <svg
@@ -118,19 +118,19 @@ export default function AllBlogs() {
           <div className="col-lg-4 col-md-6 col-sm-12 col-12">
             <div className="rbt-card variation-02 rbt-hover">
               <div className="rbt-card-img">
-                <Link to="/blog-details/28">
+                <Link href="/blog-details/28">
                   <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
                 </Link>
               </div>
               <div className="rbt-card-body">
                 <h5 className="rbt-card-title">
-                  <Link to="/blog-details/28">
+                  <Link href="/blog-details/28">
                     Education Is So Famous, But Why?
                   </Link>
                 </h5>
                 <p className="rbt-card-text"></p>
                 <div className="rbt-card-bottom">
-                  <Link className="transparent-button" to="/blog-details/28">
+                  <Link className="transparent-button" href="/blog-details/28">
                     Learn More
                     <i>
                       <svg
@@ -155,19 +155,19 @@ export default function AllBlogs() {
           <div className="col-lg-4 col-md-6 col-sm-12 col-12">
             <div className="rbt-card variation-02 rbt-hover">
               <div className="rbt-card-img">
-                <Link to="/blog-details/29">
+                <Link href="/blog-details/29">
                   <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
                 </Link>
               </div>
               <div className="rbt-card-body">
                 <h5 className="rbt-card-title">
-                  <Link to="/blog-details/29">The Latest Trend In Education.</Link>
+                  <Link href="/blog-details/29">The Latest Trend In Education.</Link>
                 </h5>
                 <p className="rbt-card-text">
                   It is a long established fact that a reader.
                 </p>
                 <div className="rbt-card-bottom">
-                  <Link className="transparent-button" to="/blog-details/29">
+                  <Link className="transparent-button" href="/blog-details/29">
                     Learn More
                     <i>
                       <svg
@@ -192,19 +192,19 @@ export default function AllBlogs() {
           <div className="col-lg-4 col-md-6 col-sm-12 col-12">
             <div className="rbt-card variation-02 rbt-hover">
               <div className="rbt-card-img">
-                <Link to="/blog-details/30">
+                <Link href="/blog-details/30">
                   <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
                 </Link>
               </div>
               <div className="rbt-card-body">
                 <h5 className="rbt-card-title">
-                  <Link to="/blog-details/30">The Modern Rules Of Education.</Link>
+                  <Link href="/blog-details/30">The Modern Rules Of Education.</Link>
                 </h5>
                 <p className="rbt-card-text">
                   It is a long established fact that a reader.
                 </p>
                 <div className="rbt-card-bottom">
-                  <Link className="transparent-button" to="/blog-details/30">
+                  <Link className="transparent-button" href="/blog-details/30">
                     Learn More
                     <i>
                       <svg
@@ -233,18 +233,18 @@ export default function AllBlogs() {
               <div className="nav-links">
                 <ul className="rbt-pagination">
                   <li className="">
-                    <Link aria-label="Previous" to="/blog-grid#">
+                    <Link aria-label="Previous" href="/blog-grid#">
                       <i className="feather-chevron-left"></i>
                     </Link>
                   </li>
                   <li className="">
-                    <Link to="/blog-grid#">1</Link>
+                    <Link href="/blog-grid#">1</Link>
                   </li>
                   <li className="active">
-                    <Link to="/blog-grid#">2</Link>
+                    <Link href="/blog-grid#">2</Link>
                   </li>
                   <li className="disabled">
-                    <Link aria-label="Next" to="/blog-grid#">
+                    <Link aria-label="Next" href="/blog-grid#">
                       <i className="feather-chevron-right"></i>
                     </Link>
                   </li>

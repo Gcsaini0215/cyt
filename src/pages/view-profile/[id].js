@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+import { useParams } from "next/router";
+import Head from "next/head";
 import ProfileHeader from "../../components/view_profile/header";
 import ProfileInfoTab from "../../components/view_profile/profile-info-tab";
 import Footer from "../../components/footer";
@@ -17,10 +17,12 @@ import ErrorPage from "../error-page";
 import PageProgressBar from "../../components/global/page-progress";
 import ProfileWorkshop from "../../components/view_profile/profile-workshop";
 import ProfileReview from "../../components/view_profile/profile-review";
+import { useRouter } from "next/router";
 import { getDecodedToken } from "../../utils/jwt";
 
 export default function ViewProfile() {
-  const { id } = useParams();
+  const router = useRouter();
+  const { id  } = router.query;
   const [profile, setProfile] = useState();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -75,7 +77,7 @@ export default function ViewProfile() {
     <PageProgressBar />
   ) : (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
         
@@ -96,7 +98,7 @@ export default function ViewProfile() {
 
         {/* Canonical */}
         <link rel="canonical" href={currentUrl} />
-      </Helmet>
+      </Head>
       <MyNavbar />
       {profile && (
         <>

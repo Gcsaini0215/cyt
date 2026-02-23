@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import ImageTag from "../../utils/image-tag";
 import { truncateString } from "../../utils/helpers";
 import { imagePath } from "../../utils/url";
@@ -55,7 +55,7 @@ export default function WellnessCard({ data }) {
 
         {/* Image Section - Horizontal Fit */}
         <Link 
-          to={`/workshop-detail/${data._id}`} 
+          href={`/workshop-detail/${data._id}`} 
           style={{ 
             display: "block", 
             position: "relative",
@@ -105,7 +105,7 @@ export default function WellnessCard({ data }) {
             }}
           >
             <Link
-              to={`/workshop-detail/${data._id}`}
+              href={`/workshop-detail/${data._id}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               {truncateString(data.title, 55)}
@@ -149,7 +149,7 @@ export default function WellnessCard({ data }) {
             </div>
 
             <Link
-              to={`/workshop-detail/${data._id}`}
+              href={`/workshop-detail/${data._id}`}
               style={{
                 padding: "12px 28px",
                 background: "#228756",

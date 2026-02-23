@@ -2,13 +2,13 @@ import { Card, CardContent } from "@mui/material";
 import { Button, Avatar } from "@mui/material";
 import { Star, LocationOn, Verified } from "@mui/icons-material";
 import { imagePath } from "../../utils/url";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 const TherapistCard = (props) => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const therapist = props.therapist;
 
-    const handleClick = () => navigate(`/therapist-checkout/${therapist._id}`);
+    const handleClick = () => router.push(`/therapist-checkout/${therapist._id}`);
 
 
     return (

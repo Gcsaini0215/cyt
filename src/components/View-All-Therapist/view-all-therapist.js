@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   GetFavriouteTherapistListUrl,
   getTherapistProfiles,
@@ -8,7 +8,6 @@ import { fetchById, fetchData } from "../../utils/actions";
 import ProfileCardVert from "../home/profile-card-vert.js";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
-import bannerImg from "../../assets/img/choosetherapist.jpg";
 
 export default function ViewAllTherapist() {
   const [data, setData] = React.useState([]);
@@ -250,15 +249,39 @@ export default function ViewAllTherapist() {
 
       <style>{`
         .dark-premium-banner {
-          background: linear-gradient(135deg, rgba(13, 43, 28, 0.85) 0%, rgba(26, 77, 50, 0.85) 100%), url('${bannerImg}');
+          position: relative;
+          background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
           background-size: cover;
           background-position: center;
-          position: relative;
-          padding-bottom: 30px;
+          background-attachment: scroll;
+          padding: 80px 0 60px 0;
+          overflow: hidden;
+          margin-top: 0px;
+        }
+        
+        .dark-premium-banner::before {
+          content: ' ';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 1;
         }
         .text-white-opacity {
           color: rgba(255, 255, 255, 0.8);
         }
+        .banner-content-inner {
+          position: relative;
+          z-index: 2;
+        }
+        
+        .section-title {
+          position: relative;
+          z-index: 2;
+        }
+        
         .banner-integrated-search {
           background: white;
           padding: 24px;
@@ -266,6 +289,8 @@ export default function ViewAllTherapist() {
           box-shadow: 0 10px 30px rgba(0,0,0,0.2);
           max-width: 1000px;
           margin: 0 auto;
+          position: relative;
+          z-index: 2;
         }
         .search-box-wrap {
           position: relative;
@@ -390,6 +415,11 @@ export default function ViewAllTherapist() {
           transition: all 0.3s ease;
         }
 
+        .results-jump-container {
+          position: relative;
+          z-index: 2;
+        }
+        
         .results-jump-btn {
           background: rgba(255, 255, 255, 0.1);
           border: 1px solid rgba(255, 255, 255, 0.2);
@@ -403,6 +433,8 @@ export default function ViewAllTherapist() {
           transition: all 0.3s ease;
           cursor: pointer;
           backdrop-filter: blur(10px);
+          position: relative;
+          z-index: 2;
         }
         .results-jump-btn:hover {
           background: white;

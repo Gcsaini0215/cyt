@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
-import { Link, useNavigate } from "react-router-dom";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { isValidMail } from "../utils/validators";
 import { registerUrl, verifyOtpUrl } from "../utils/url";
 import Footer from "../components/footer";
@@ -24,7 +25,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [otpView, setOtpView] = useState(false);
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async () => {
     setError("");
@@ -85,7 +86,7 @@ export default function Register() {
         setError("");
         setOtp("");
         setToken(response.token);
-        navigate("/my-dashboard");
+        router.push("/my-dashboard");
       } else {
         setError("Something went wrong");
       }
@@ -102,16 +103,16 @@ export default function Register() {
     const data = getDecodedToken();
     if (data) {
       if (data.role === 1) {
-        navigate("/therapist-dashboard");
+        router.push("/therapist-dashboard");
       } else {
-        navigate(`/my-dashboard`);
+        router.push(`/my-dashboard`);
       }
     }
-  }, [navigate]);
+  }, [router]);
 
   return (
     <div>
-      <Helmet>
+      <Head>
         <title>Client Registration | Start Your Healing Journey | Choose Your Therapist</title>
         <meta name="description" content="Join Choose Your Therapist today. Register as a client to find verified psychologists, book sessions, and manage your mental health journey in a secure and confidential environment." />
         <meta name="keywords" content="Client Registration, Book Therapist India, Start Counseling, Mental Health Support Signup" />
@@ -127,7 +128,7 @@ export default function Register() {
         <meta name="twitter:title" content="Client Registration | Start Your Healing Journey | Choose Your Therapist" />
         <meta name="twitter:description" content="Register today and take the first step towards better mental health." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <PageBreadCrumb title="The Right Therapist, Just for You" linkTitle="Register"/>
       <div className="rbt-banner-area rbt-banner-3 header-transperent-spacer">
@@ -152,7 +153,7 @@ export default function Register() {
                                        <div className="rbt-like-total">
                                          <div className="profile-share">
                                            <Link
-                                             to="#"
+                                             href="#"
                                              className="avatar"
                                              data-tooltip="Counselling Psychologist"
                                              tabIndex="0"
@@ -165,7 +166,7 @@ export default function Register() {
                                              />
                                            </Link>
                                            <Link
-                                             to="#"
+                                             href="#"
                                              className="avatar"
                                              data-tooltip="Psychologist"
                                              tabIndex="0"
@@ -178,7 +179,7 @@ export default function Register() {
                                              />
                                            </Link>
                                            <Link
-                                             to="#"
+                                             href="#"
                                              className="avatar"
                                              data-tooltip="Counselling Psychologist"
                                              tabIndex="0"
@@ -277,7 +278,7 @@ export default function Register() {
                         className="rbt-lost-password text-end"
                         style={{ marginBottom: 15 }}
                       >
-                        <Link className="rbt-btn-link" to="/login">
+                        <Link className="rbt-btn-link" href="/login">
                           Already have an account ?
                         </Link>
                       </div>
@@ -308,7 +309,7 @@ export default function Register() {
                       >
                         <Link
                           className="rbt-btn-link"
-                          to="/therapist-registration"
+                          href="/therapist-registration"
                         >
                           Are you a therapist?
                         </Link>

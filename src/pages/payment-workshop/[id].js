@@ -1,5 +1,5 @@
 import  { useEffect, useState } from "react";
-import {  useParams } from "react-router-dom";
+import { useParams } from "next/router";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
 import NewsLetter from "../../components/home/newsletter";
@@ -9,10 +9,12 @@ import PageProgressBar from "../../components/global/page-progress";
 import { useCallback } from "react";
 import { toast } from "react-toastify";
 import WorkshopPaymentPending from "../../components/therapists/workshops/workshop-pending-payment";
+import { useRouter } from "next/router";
 import PageBreadCrumb from "../../components/global/page-breadcrumb";
 
 export default function PaymentWorkshopPage() {
-  const { id } = useParams();
+  const router = useRouter();
+  const { id  } = router.query;
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

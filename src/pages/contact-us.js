@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet-async";
+import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import ContactForm from "../components/contact/form";
@@ -9,7 +9,7 @@ import NewsLetter from "../components/home/newsletter";
 export default function ContactUs() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Contact Us | Get in Touch with Choose Your Therapist</title>
         <meta name="description" content="Have questions? Contact Choose Your Therapist for support, inquiries, or assistance with finding the right psychologist in India. We're here to help." />
         <meta name="keywords" content="Contact Choose Your Therapist, Therapy Support India, Mental Health Inquiries" />
@@ -26,7 +26,7 @@ export default function ContactUs() {
         <meta name="twitter:title" content="Contact Us | Get in Touch with Choose Your Therapist" />
         <meta name="twitter:description" content="Contact Choose Your Therapist for support or inquiries." />
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-      </Helmet>
+      </Head>
       <MyNavbar />
       <Header />
       <ContactForm />

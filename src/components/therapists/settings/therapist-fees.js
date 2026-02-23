@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaInfoCircle, FaMicrophone, FaVideo, FaUser } from "react-icons/fa";
-import "./fees.css";
+
 import useTherapistStore from "../../../store/therapistStore";
 import { updateFeeDetailsUrl } from "../../../utils/url";
 import { postData } from "../../../utils/actions";

@@ -7,7 +7,7 @@ const AssessmentImg = "/assets/img/assessmentss.png";
 const ProjectsImg = "/assets/img/projectscyt.png";
 const specialoffer = "/assets/img/special.png";
 import LazyImage from "../../utils/lazy-image";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function Services() {
   return (
@@ -50,7 +50,7 @@ export default function Services() {
               { img: specialoffer, title: "Offers", btn: "Grab Deal", link: "#", special: true },
             ].map((card, index) => (
               <div className="col-lg-3 col-md-6 col-sm-6 col-6" key={index}>
-                <Link to={card.link} className={`service-card ${card.special ? "special-offer" : ""}`}>
+                <Link href={card.link} className={`service-card ${card.special ? "special-offer" : ""}`}>
                   <div className="inner">
                     <div className="icons">
                       <LazyImage alt={card.title} dim={"80"} src={card.img} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./availability.css";
+
 import { allTimes } from "../../../utils/static-lists";
 import useTherapistStore from "../../../store/therapistStore";
 import FormProgressBar from "../../global/form-progressbar";

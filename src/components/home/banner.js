@@ -31,7 +31,7 @@ import {
   Zoom,
 } from "@mui/material";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import useMediaQuery from "@mui/material/useMediaQuery";
 
@@ -43,37 +43,6 @@ import { getTherapistProfiles, imagePath } from "../../utils/url";
 const ClientImg = "/assets/img/avatar-027dc8.png";
 const Fabiha = "/assets/img/psychologist.png";
 const counselling1 = "/assets/img/counselling.png";
-
-const bannerStyles = `
-.home-banner-with-img {
-  position: relative;
-  overflow: hidden;
-  background-image: url('/assets/img/bg-image-10e53d.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-@keyframes flipWord {
-  0% { transform: translateY(100%); opacity: 0; }
-  10% { transform: translateY(0); opacity: 1; }
-  90% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-100%); opacity: 0; }
-}
-
-.flipping-word {
-  display: inline-block;
-  animation: flipWord 3s infinite;
-  font-weight: 900;
-}
-
-@media (max-width: 768px) {
-  .home-banner-with-img {
-    background-attachment: scroll;
-  }
-}
-`;
-
 
 export default function Banner({ topTherapists = [] }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -225,7 +194,6 @@ export default function Banner({ topTherapists = [] }) {
 
   return (
     <>
-      <style>{bannerStyles}</style>
       <section
         className="rbt-banner-area rbt-banner-1 home-banner-with-img"
         style={{
@@ -408,7 +376,7 @@ export default function Banner({ topTherapists = [] }) {
                   }}>
                     <Link
                       className="rbt-btn btn-gradient btn-sm"
-                      to="/view-all-therapist"
+                      href="/view-all-therapist"
                       style={{ 
                         width: isMobile ? "100%" : "280px", 
                         textAlign: "center", 
@@ -423,7 +391,7 @@ export default function Banner({ topTherapists = [] }) {
                     </Link>
                     <Link
                       className="rbt-btn btn-white btn-sm"
-                      to="/self-assessment"
+                      href="/self-assessment"
                       style={{ 
                         width: isMobile ? "100%" : "280px", 
                         textAlign: "center",
@@ -470,11 +438,7 @@ export default function Banner({ topTherapists = [] }) {
           {[...topTherapists, ...topTherapists, ...topTherapists].map((therapist, i) => (
             <Box 
               key={i} 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleOpenProfileModal(therapist);
-              }}
+              onClick={() => handleOpenProfileModal(therapist)}
               sx={{ 
                 display: "flex", 
                 flexDirection: "column",
@@ -684,7 +648,7 @@ export default function Banner({ topTherapists = [] }) {
           
           <Button 
             component={Link}
-            to={`/therapist-checkout/${selectedTherapist?.id}`}
+            href={`/therapist-checkout/${selectedTherapist?.id}`}
             variant="contained"
             fullWidth
             sx={{ 
@@ -703,74 +667,6 @@ export default function Banner({ topTherapists = [] }) {
           </Button>
         </Box>
       </Dialog>
-
-      <style>{`
-        @keyframes orbitRotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes counterRotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(-360deg); }
-        }
-        @keyframes pulseCenter {
-          0% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-          50% { transform: scale(1.05); box-shadow: 0 15px 45px rgba(39, 174, 96, 0.15); }
-          100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-        }
-        @keyframes revealText {
-          from { transform: translateY(110%); }
-          to { transform: translateY(0); }
-        }
-        @keyframes gradientSwipe {
-          0% { background-position: 0% 100%; }
-          100% { background-position: 0% -100%; }
-        }
-        @keyframes soothingFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
-        @keyframes fadeInLeft {
-          from { opacity: 0; transform: translateX(-40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scrollRightToLeft {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @keyframes drawLine {
-          from { stroke-dashoffset: 100; }
-          to { stroke-dashoffset: 0; }
-        }
-        @keyframes doodleScroll {
-          0% { background-position: 0% 0%; }
-          100% { background-position: 100% 100%; }
-        }
-        @keyframes growthBloom {
-          0% { background-size: 100% 100%; background-position: center; }
-          50% { background-size: 150% 150%; background-position: center; }
-          100% { background-size: 100% 100%; background-position: center; }
-        }
-        @keyframes handDrawnWobble {
-          0% { transform: rotate(-0.5deg) skewX(-0.5deg); }
-          25% { transform: rotate(0.5deg) skewX(0.5deg); }
-          50% { transform: rotate(-0.3deg) skewX(-0.3deg); }
-          75% { transform: rotate(0.3deg) skewX(0.3deg); }
-          100% { transform: rotate(-0.5deg) skewX(-0.5deg); }
-        }
-      `}</style>
     </section>
     </>
   );

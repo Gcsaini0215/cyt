@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 import ErrorPage from "../../pages/error-page";
@@ -127,7 +127,7 @@ const HorTherapistCards = () => {
             {!isMobile && (
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Link
-                  to="/view-all-therapist"
+                  href="/view-all-therapist"
                   style={{
                     background: 'linear-gradient(135deg, #228756 0%, #1a6b45 100%)',
                     color: '#fff',

@@ -1,5 +1,5 @@
 import React from "react";
-import "./appointmentheader.css";
+
 
 export default function AppointmentHeader() {
   return (

@@ -1,6 +1,6 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ImageTag from "../../utils/image-tag";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
@@ -90,7 +90,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
       >
         {/* Image + Badge */}
         <div className="rbt-card-img" style={{ position: "relative", overflow: "hidden" }}>
-          <Link to={`/view-profile/${pageData._id}`}>
+          <Link href={`/view-profile/${pageData._id}`}>
             <ImageTag
               alt="profile image"
               src={`${imagePath}/${pageData.user?.profile}`}
@@ -160,7 +160,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                 letterSpacing: "-0.5px",
                 color: "#1e293b"
               }}>
-                <Link to={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
+                <Link href={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
                   {pageData.user?.name || "Therapist"}
                 </Link>
               </h4>
@@ -272,7 +272,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             >
               <Link
                 className="rbt-btn btn-gradient book-btn"
-                to={`/therapist-checkout/${pageData._id}`}
+                href={`/therapist-checkout/${pageData._id}`}
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -293,7 +293,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             >
               <Link
                 className="view-btn view-btn-border"
-                to={`/view-profile/${pageData._id}`}
+                href={`/view-profile/${pageData._id}`}
                 style={{
                   padding: isMobile || isTablet ? "0 26px" : "0 10px",
                 }}
@@ -302,7 +302,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               </Link>
               <Link
                 className="rbt-btn btn-gradient book-btn"
-                to={`/therapist-checkout/${pageData._id}`}
+                href={`/therapist-checkout/${pageData._id}`}
                 style={{
                   display: "flex",
                   justifyContent: "center",

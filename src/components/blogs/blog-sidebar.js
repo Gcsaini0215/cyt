@@ -1,6 +1,6 @@
 import React from 'react';
 import { blogsData } from '../../data/blogs-data';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 
 export default function BlogSidebar() {
     const categories = [...new Set(blogsData.map(blog => blog.category))];
@@ -28,13 +28,13 @@ export default function BlogSidebar() {
                         {recentPosts.map((post) => (
                             <li key={post.id}>
                                 <div className="thumbnail">
-                                    <Link to={post.link}>
+                                    <Link href={post.link}>
                                         <img src={post.image} alt={post.title} style={{ borderRadius: '8px', width: '80px', height: '60px', objectFit: 'cover' }} />
                                     </Link>
                                 </div>
                                 <div className="content">
                                     <h6 className="title">
-                                        <Link to={post.link}>{post.title}</Link>
+                                        <Link href={post.link}>{post.title}</Link>
                                     </h6>
                                     <ul className="rbt-meta">
                                         <li>
@@ -56,7 +56,7 @@ export default function BlogSidebar() {
                     <ul className="rbt-sidebar-list-wrapper">
                         {categories.map((category, index) => (
                             <li key={index}>
-                                <Link to="/blogs">
+                                <Link href="/blogs">
                                     <span className="left-content">{category}</span>
                                     <span className="right-content">
                                         ({blogsData.filter(blog => blog.category === category).length})
@@ -73,11 +73,11 @@ export default function BlogSidebar() {
                 <div className="inner">
                     <h4 className="rbt-widget-title">Popular Tags</h4>
                     <div className="rbt-tag-list">
-                        <Link to="/blogs">Therapy</Link>
-                        <Link to="/blogs">Mental Health</Link>
-                        <Link to="/blogs">Well-being</Link>
-                        <Link to="/blogs">Counselling</Link>
-                        <Link to="/blogs">Self-care</Link>
+                        <Link href="/blogs">Therapy</Link>
+                        <Link href="/blogs">Mental Health</Link>
+                        <Link href="/blogs">Well-being</Link>
+                        <Link href="/blogs">Counselling</Link>
+                        <Link href="/blogs">Self-care</Link>
                     </div>
                 </div>
             </div>

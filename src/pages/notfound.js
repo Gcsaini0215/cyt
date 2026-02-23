@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 export default function NotFoundPage() {
   return (
     <div className="rbt-error-area bg-gradient-11 rbt-section-gap">
@@ -12,7 +12,7 @@ export default function NotFoundPage() {
               <p>The page you were looking for could not be found.</p>
               <Link
                 className="rbt-btn btn-gradient icon-hover"
-                to="/"
+                href="/"
                 style={{ cursor: "pointer" }}
               >
                 <span className="btn-text">Back To Home</span>

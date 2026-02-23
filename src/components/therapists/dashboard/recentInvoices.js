@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function RecentInvoices({ data }) {
   const invoices = data || [];
@@ -29,7 +29,7 @@ export default function RecentInvoices({ data }) {
         </Typography>
         <Button 
           component={Link} 
-          to="/therapists/invoices" 
+          href="/therapists/invoices" 
           endIcon={<ArrowForwardIcon />}
           sx={{ color: '#228756', fontWeight: 700, textTransform: 'none' }}
         >

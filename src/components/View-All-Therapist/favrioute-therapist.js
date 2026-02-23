@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { GetFavriouteTherapistUrl } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import ErrorPage from "../../pages/error-page";
@@ -65,7 +65,7 @@ export default function FavriouteTherapist() {
     for (let i = 1; i <= totalPages; i++) {
       pageNumbers.push(
         <li key={i} className={currentPage === i ? "active" : ""}>
-          <Link to="#" onClick={() => handlePageChange(i)}>
+          <Link href="#" onClick={() => handlePageChange(i)}>
             {i}
           </Link>
         </li>
@@ -103,7 +103,7 @@ export default function FavriouteTherapist() {
                 <div className="col-lg-12">
                   <ul className="page-list">
                     <li className="rbt-breadcrumb-item">
-                      <Link to="/">Home</Link>
+                      <Link href="/">Home</Link>
                     </li>
                     <li>
                       <div className="icon-right">
@@ -303,7 +303,7 @@ export default function FavriouteTherapist() {
                     <li className={currentPage === 1 ? "disabled" : ""}>
                       <Link
                         aria-label="Previous"
-                        to="#"
+                        href="#"
                         onClick={() => handlePageChange(currentPage - 1)}
                       >
                         <i className="feather-chevron-left"></i>
@@ -315,7 +315,7 @@ export default function FavriouteTherapist() {
                     >
                       <Link
                         aria-label="Next"
-                        to="#"
+                        href="#"
                         onClick={() => handlePageChange(currentPage + 1)}
                       >
                         <i className="feather-chevron-right"></i>

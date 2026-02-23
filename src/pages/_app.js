@@ -2,26 +2,41 @@ import "@/App.css";
 import "@/index.css";
 import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
-import { Helmet } from "react-helmet-async";
+import PremiumLoader from "@/components/global/PremiumLoader";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
 function MyApp({ Component, pageProps }) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const handleStart = () => setIsLoading(true);
+    const handleComplete = () => setIsLoading(false);
+
+    router.events?.on("routeChangeStart", handleStart);
+    router.events?.on("routeChangeComplete", handleComplete);
+    router.events?.on("routeChangeError", handleComplete);
+
+    return () => {
+      router.events?.off("routeChangeStart", handleStart);
+      router.events?.off("routeChangeComplete", handleComplete);
+      router.events?.off("routeChangeError", handleComplete);
+    };
+  }, [router]);
+
   return (
-    <>
-      <Helmet>
-        <title>India's Growing Network of Verified Therapists | Choose Your Therapist</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, user-scalable=yes, viewport-fit=cover" />
-        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossOrigin="anonymous" />
-      </Helmet>
-      <Providers>
-        <div className="offcanvas-overlay"></div>
-        <div className="wrapper">
-          <div className="main-wrapper">
-            <Component {...pageProps} />
-          </div>
+    <Providers>
+      {isLoading && <PremiumLoader />}
+      <div className="offcanvas-overlay" suppressHydrationWarning></div>
+      <div className="wrapper" suppressHydrationWarning>
+        <div className="main-wrapper" suppressHydrationWarning>
+          <Component {...pageProps} />
         </div>
-      </Providers>
-    </>
+      </div>
+    </Providers>
   );
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import ViewAllTherapist from "../components/View-All-Therapist/view-all-therapist";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
@@ -8,7 +8,7 @@ import MyNavbar from "../components/navbar";
 export default function ViewAllTherapistPage() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Therapist Directory | Find Verified Psychologists in India | Choose Your Therapist</title>
         <meta name="description" content="Browse our directory of verified psychologists and therapists in India. Filter by expertise, state, and profile type to find the right mental health professional for your needs." />
         <meta name="keywords" content="Therapist Directory, Find Psychologist India, Verified Therapists, Mental Health Professionals, Counseling India" />
@@ -25,7 +25,7 @@ export default function ViewAllTherapistPage() {
         <meta name="twitter:title" content="Therapist Directory | Find Verified Psychologists in India" />
         <meta name="twitter:description" content="Browse our directory of verified psychologists and therapists in India." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <main className="">
         <MyNavbar />
         <main className="rbt-main-wrapper">

@@ -1,7 +1,7 @@
 import ImageTag from "../../utils/image-tag";
 const TeamImg = "/assets/img/neha.png";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 export default function Collaborator() {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   return (
@@ -16,7 +16,7 @@ export default function Collaborator() {
               <div className="col-lg-3 col-xl-3 offset-xl-2">
                 <div className="thumbnail">
                   <Link
-                    to="#"
+                    href="#"
                     style={{
                       display: isMobile ? "flex" : "",
                       justifyContent: isMobile ? "center" : "normal",

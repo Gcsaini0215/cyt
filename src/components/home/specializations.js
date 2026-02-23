@@ -9,7 +9,7 @@ import {
   Stethoscope, 
   Activity 
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from "next/link";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
 const specializations = [
@@ -56,7 +56,7 @@ const Specializations = () => {
         <div className="row g-4">
           {specializations.map((item) => (
             <div className="col-lg-3 col-md-4 col-sm-6 col-6" key={item.id}>
-              <Link to={item.link} className="spec-card">
+              <Link href={item.link} className="spec-card">
                 <div className="spec-inner" style={{ backgroundColor: item.color }}>
                   <div className="spec-icon" style={{ color: item.iconColor }}>
                     {item.icon}

@@ -1,5 +1,5 @@
 import React from "react";
-import "./appointment-tab-content.css";
+
 
 // Define an array of appointment data
 const appointments = [

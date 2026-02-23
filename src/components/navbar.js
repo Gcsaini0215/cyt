@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import ImageTag from "../utils/image-tag";
 import { getDecodedToken, getToken } from "../utils/jwt";
 import BottomNavigation from "./bottom-navigation";
@@ -89,7 +89,7 @@ export default function App() {
               <div className="header-left rbt-header-content">
                 <div className="header-info">
                   <div className="logo d-flex align-items-center">
-                    <Link to="/" style={{ cursor: "pointer" }}>
+                    <Link href="/" style={{ cursor: "pointer" }}>
                       <ImageTag alt="Education Logo Images" height={"55"} width={"165"} src="/assets/img/logo.png" />
                     </Link>
                   </div>
@@ -100,18 +100,18 @@ export default function App() {
               <div className="rbt-main-navigation d-none d-xl-block">
                 <nav className="mainmenu-nav">
                   <ul className="mainmenu">
-                    <li><Link to="/">Home</Link></li>
-                    <li><Link to="/view-all-therapist">Therapist Directory</Link></li>
+                    <li><Link href="/">Home</Link></li>
+                    <li><Link href="/view-all-therapist">Therapist Directory</Link></li>
                     <li className="has-dropdown">
-                      <Link to="#">Services <i className="feather-chevron-down"></i></Link>
+                      <Link href="#">Services <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
-                        <li><Link to="/therapy-booking">Therapy Booking</Link></li>
-                        <li><Link to="/self-assessment">Self Assessment</Link></li>
-                        <li><Link to="/plans">Therapy Plan</Link></li>
+                        <li><Link href="/therapy-booking">Therapy Booking</Link></li>
+                        <li><Link href="/self-assessment">Self Assessment</Link></li>
+                        <li><Link href="/plans">Therapy Plan</Link></li>
                       </ul>
                     </li>
-                    <li><Link to="/about-us">Our Story</Link></li>
-                    <li><Link to="/contact-us">Contact us</Link></li>
+                    <li><Link href="/about-us">Our Story</Link></li>
+                    <li><Link href="/contact-us">Contact us</Link></li>
                   </ul>
                 </nav>
               </div>
@@ -122,7 +122,7 @@ export default function App() {
                   <li className="account-access rbt-user-wrapper d-none d-xl-block">
                     {userType === 1 || userType === 2 ? (
                       <Link
-                        to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"}
+                        href={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"}
                         className="service-menu-parent d-flex align-items-center gap-2"
                       >
                         {userType === 2 && (
@@ -148,7 +148,7 @@ export default function App() {
                         </span>
                       </Link>
                     ) : (
-                      <Link to="/login" className="service-menu-parent">
+                      <Link href="/login" className="service-menu-parent">
                         <i className="feather-user"></i> Sign In/Sign Up
                       </Link>
                     )}
@@ -157,7 +157,7 @@ export default function App() {
                 <div className="rbt-btn-wrapper d-none d-xl-block">
                   <Link
                     className="rbt-btn rbt-marquee-btn marquee-auto btn-border-gradient radius-round btn-sm hover-transform-none"
-                    to="/therapist-registration"
+                    href="/therapist-registration"
                   >
                     <span data-text="Are You a Therapist?">Are You a Therapist?</span>
                   </Link>
@@ -179,130 +179,11 @@ export default function App() {
 
       {/* Mobile Menu */}
       <div className={show ? "popup-mobile-menu active" : "popup-mobile-menu"}>
-        <style>{`
-          .popup-mobile-menu .inner-wrapper {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
-            width: 280px !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            display: flex;
-            flex-direction: column;
-            height: 100% !important;
-            box-shadow: 0 0 30px rgba(0,0,0,0.1) !important;
-            overflow: -moz-scrollbars-none !important;
-          }
-          .popup-mobile-menu .inner-wrapper::-webkit-scrollbar {
-            width: 0 !important;
-            display: none !important;
-            background: transparent !important;
-          }
-          .mobile-menu-header {
-            padding: 20px !important;
-            border-bottom: 1px solid #f1f5f9;
-          }
-          .popup-mobile-menu .mobile-menu {
-            padding: 10px 15px !important;
-            flex: 1;
-            display: block !important;
-          }
-          .popup-mobile-menu .mobile-menu li {
-            margin: 0 !important;
-          }
-          .popup-mobile-menu .mobile-menu li a {
-            font-size: 15px !important;
-            font-weight: 500 !important;
-            color: #334155 !important;
-            padding: 12px 10px !important;
-            border-bottom: 1px solid #f8fafc !important;
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            justify-content: flex-start !important;
-            gap: 12px !important;
-            background: transparent !important;
-            transition: all 0.2s ease !important;
-            text-align: left !important;
-            border-radius: 0 !important;
-            border-left: 3px solid transparent !important;
-          }
-          .popup-mobile-menu .mobile-menu li a:hover {
-            color: #2ecc71 !important;
-            background: #f8fafc !important;
-            border-left-color: #2ecc71 !important;
-          }
-          .popup-mobile-menu .mobile-menu li a i {
-            font-size: 18px !important;
-            color: #94a3b8;
-            margin-bottom: 0 !important;
-          }
-          .popup-mobile-menu .mobile-menu li a:hover i {
-            color: #2ecc71;
-          }
-          .popup-mobile-menu .mobile-menu li.has-dropdown > a {
-            justify-content: space-between !important;
-          }
-          .popup-mobile-menu .mobile-menu .submenu {
-            background: #f8fafc !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding: 0 15px 10px 45px !important;
-            display: block !important;
-          }
-          .popup-mobile-menu .mobile-menu .submenu li a {
-            padding: 8px 0 !important;
-            font-size: 14px !important;
-            border: none !important;
-          }
-          .mobile-footer-section {
-            padding: 15px !important;
-            background: #f8fafc;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            border-top: 1px solid #f1f5f9;
-          }
-          .profile-section-mobile {
-            margin-bottom: 10px !important;
-          }
-          .social-links-mobile a {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-size: 14px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-          }
-          .social-links-mobile a:hover {
-            color: #228756;
-            transform: translateY(-2px);
-          }
-          .contact-pill-mobile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            font-size: 12px;
-            color: #475569;
-            border: 1px solid #f1f5f9;
-          }
-          .contact-pill-mobile i {
-            color: #228756;
-          }
-        `}</style>
         <div className="inner-wrapper">
           <div className="mobile-menu-header">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
               <div className="logo">
-                <Link to="/" onClick={() => setShow(false)}>
+                <Link href="/" onClick={() => setShow(false)}>
                   <ImageTag alt="Logo" height={"45"} width={"135"} src="/assets/img/logo.png" />
                 </Link>
               </div>
@@ -324,7 +205,7 @@ export default function App() {
                   }}
                 >
                   <Link 
-                    to={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} 
+                    href={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"} 
                     onClick={() => setShow(false)}
                     className="d-flex align-items-center gap-3"
                     style={{ border: 'none !important', padding: '0 !important', background: 'transparent !important', flexDirection: 'row !important' }}
@@ -352,19 +233,19 @@ export default function App() {
                   </Link>
                 </div>
               ) : (
-                <Link to="/login" onClick={() => setShow(false)}>
+                <Link href="/login" onClick={() => setShow(false)}>
                   <i className="feather-user"></i> Sign In / Sign Up
                 </Link>
               )}
             </li>
 
-            <li><Link to="/" onClick={() => setShow(false)}><i className="feather-home"></i> Home</Link></li>
-            <li><Link to="/view-all-therapist" onClick={() => setShow(false)}><i className="feather-users"></i> Directory</Link></li>
-            <li><Link to="/about-us" onClick={() => setShow(false)}><i className="feather-heart"></i> Our Story</Link></li>
-            <li><Link to="/contact-us" onClick={() => setShow(false)}><i className="feather-mail"></i> Contact</Link></li>
+            <li><Link href="/" onClick={() => setShow(false)}><i className="feather-home"></i> Home</Link></li>
+            <li><Link href="/view-all-therapist" onClick={() => setShow(false)}><i className="feather-users"></i> Directory</Link></li>
+            <li><Link href="/about-us" onClick={() => setShow(false)}><i className="feather-heart"></i> Our Story</Link></li>
+            <li><Link href="/contact-us" onClick={() => setShow(false)}><i className="feather-mail"></i> Contact</Link></li>
             
             <li className={`has-dropdown ${activeDropdown === "services" ? "open" : ""}`}>
-              <Link to="#" onClick={(e) => { e.preventDefault(); toggleDropdown("services"); }}>
+              <Link href="#" onClick={(e) => { e.preventDefault(); toggleDropdown("services"); }}>
                 <div className="d-flex align-items-center gap-2">
                   <i className="feather-grid" style={{ marginBottom: '0 !important' }}></i>
                   <span>Our Services</span>
@@ -372,9 +253,9 @@ export default function App() {
                 <i className={`feather-chevron-${activeDropdown === "services" ? "up" : "down"}`} style={{ color: '#94a3b8' }}></i>
               </Link>
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
-                <li><Link to="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
-                <li><Link to="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
-                <li><Link to="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
+                <li><Link href="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
+                <li><Link href="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
+                <li><Link href="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
               </ul>
             </li>
           </ul>

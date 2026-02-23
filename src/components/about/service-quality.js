@@ -1,7 +1,7 @@
 import React from "react";
 import LazyImage from "../../utils/lazy-image";
 import { Box, Typography, Container, Grid } from "@mui/material";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const BulbImg = "/assets/img/001-bulbf434.png";
 const HatImg = "/assets/img/002-hat387c.png";
@@ -176,7 +176,7 @@ export default function ServiceQuality() {
               </Typography>
             </Box>
             <Box>
-              <Link to="/therapist-registration" className="join-btn-new">
+              <Link href="/therapist-registration" className="join-btn-new">
                 <span>Join Our Community</span>
                 <div className="arrow-icon">
                   <i className="feather-arrow-right"></i>

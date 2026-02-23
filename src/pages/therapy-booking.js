@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 import { Box, Typography, Container, useMediaQuery } from "@mui/material";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
@@ -9,6 +9,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import ShieldIcon from "@mui/icons-material/Shield";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const bookingStyles = `
 .booking-banner {
@@ -23,7 +24,7 @@ const bookingStyles = `
 }
 
 .booking-banner::before {
-  content: '';
+  content: ' ';
   position: absolute;
   top: 0;
   left: 0;
@@ -104,21 +105,69 @@ const bookingStyles = `
 }
 
 .trust-icon-box {
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
+  width: 70px;
+  height: 70px;
+  border-radius: 14px;
   background: #f0fdf4;
   color: #228756;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .trust-text {
   font-size: 14px;
   font-weight: 700;
   color: #475569;
+}
+
+.who-section {
+  background: linear-gradient(135deg, #f0fdf4 0%, #f7fbf9 100%);
+  border-radius: 24px;
+  padding: 60px 40px;
+  border: 2px solid #dcfce7;
+  position: relative;
+  overflow: hidden;
+}
+
+.who-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(34, 135, 86, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .who-section {
+    padding: 40px 24px;
+  }
+}
+
+.who-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.who-icon {
+  color: #228756;
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.who-text {
+  color: #475569;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 `;
 
@@ -127,10 +176,34 @@ export default function TherapyBooking() {
   
   return (
     <>
-      <Helmet>
+      <Head>
         <title>Book Your Free 15-Minute Consultation | Choose Your Therapist</title>
         <meta name="description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health with verified therapists at Choose Your Therapist." />
-      </Helmet>
+        <meta name="keywords" content="therapy booking, free consultation, psychologist, mental health counseling, therapy appointment, verified therapists, confidential therapy" />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Choose Your Therapist" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="language" content="English" />
+        <link rel="canonical" href="https://chooseyourtherapist.in/therapy-booking" />
+        
+        <meta property="og:title" content="Book Your Free 15-Minute Consultation | Choose Your Therapist" />
+        <meta property="og:description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health with verified therapists at Choose Your Therapist." />
+        <meta property="og:image" content="https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content="https://chooseyourtherapist.in/therapy-booking" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Book Your Free 15-Minute Consultation | Choose Your Therapist" />
+        <meta name="twitter:description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health." />
+        <meta name="twitter:image" content="https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg" />
+        
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+      </Head>
       
       <style>{bookingStyles}</style>
 
@@ -147,13 +220,13 @@ export default function TherapyBooking() {
               </div>
               
               <h1 className="booking-title">
-                Book Your Free 15-Minute <br />
-                <span style={{ color: "#4ade80" }}>Consultation Today</span>
+                Not Sure If You Need <br />
+                <span style={{ color: "#4ade80" }}>Therapy? Let's Find Out</span>
               </h1>
               
               <p className="booking-subtitle">
-                Take the first step towards a healthier mind. Connect with our expert <br className="d-none d-md-block" />
-                psychologists for a confidential and professional initial assessment.
+                A 15-minute confidential call to understand your concerns and guide you <br className="d-none d-md-block" />
+                toward the right therapy support.
               </p>
             </Box>
           </Container>
@@ -166,10 +239,10 @@ export default function TherapyBooking() {
               <div className="row g-4">
                 <div className="col-lg-5 col-md-12">
                   <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 2, letterSpacing: "-1px" }}>
+                    <Typography variant="h3" sx={{ fontWeight: 800, color: "#1e293b", mb: 3, letterSpacing: "-1px", fontSize: isMobile ? "28px" : "42px" }}>
                       Tell us how we <br /> can help you
                     </Typography>
-                    <Typography sx={{ color: "#64748b", mb: 4, lineHeight: 1.6 }}>
+                    <Typography sx={{ color: "#64748b", mb: 4, lineHeight: 1.6, fontSize: isMobile ? "17px" : "18px", fontWeight: 500 }}>
                       Our team is here to listen and guide you to the right professional for your specific needs.
                     </Typography>
 
@@ -178,7 +251,7 @@ export default function TherapyBooking() {
                       <div className="col-4">
                         <div className="trust-item">
                           <div className="trust-icon-box">
-                            <VerifiedIcon />
+                            <VerifiedIcon sx={{ fontSize: 40 }} />
                           </div>
                           <span className="trust-text">Verified</span>
                         </div>
@@ -186,7 +259,7 @@ export default function TherapyBooking() {
                       <div className="col-4">
                         <div className="trust-item">
                           <div className="trust-icon-box">
-                            <ShieldIcon />
+                            <ShieldIcon sx={{ fontSize: 40 }} />
                           </div>
                           <span className="trust-text">Secure</span>
                         </div>
@@ -194,7 +267,7 @@ export default function TherapyBooking() {
                       <div className="col-4">
                         <div className="trust-item">
                           <div className="trust-icon-box">
-                            <SupportAgentIcon />
+                            <SupportAgentIcon sx={{ fontSize: 40 }} />
                           </div>
                           <span className="trust-text">Expert</span>
                         </div>
@@ -215,6 +288,50 @@ export default function TherapyBooking() {
                 </div>
               </div>
             </div>
+          </Container>
+        </div>
+
+        {/* Who Is This For Section */}
+        <div style={{ paddingTop: "80px", paddingBottom: "80px", backgroundColor: "#ffffff" }}>
+          <Container maxWidth="lg">
+            <Box sx={{ mb: 8 }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, color: "#1e293b", mb: 2, textAlign: "center", fontSize: isMobile ? "28px" : "42px", letterSpacing: "-1px" }}>
+                ✔ This Consultation Is For You If:
+              </Typography>
+              <Typography sx={{ color: "#64748b", mb: 6, textAlign: "center", fontSize: "16px", maxWidth: "700px", mx: "auto" }}>
+                Recognize yourself? You're not alone. Thousands have taken this step. Let's talk.
+              </Typography>
+            </Box>
+
+            <Box className="who-section">
+              <div className="row">
+                <div className="col-lg-6 col-md-12">
+                  <div className="who-item">
+                    <CheckCircleIcon className="who-icon" />
+                    <div className="who-text">You feel anxious or overthink constantly</div>
+                  </div>
+                  <div className="who-item">
+                    <CheckCircleIcon className="who-icon" />
+                    <div className="who-text">You're struggling in relationships</div>
+                  </div>
+                </div>
+                <div className="col-lg-6 col-md-12">
+                  <div className="who-item">
+                    <CheckCircleIcon className="who-icon" />
+                    <div className="who-text">You feel low, unmotivated, or emotionally exhausted</div>
+                  </div>
+                  <div className="who-item">
+                    <CheckCircleIcon className="who-icon" />
+                    <div className="who-text">You want professional guidance but don't know where to start</div>
+                  </div>
+                </div>
+              </div>
+              <Box sx={{ mt: 4, pt: 4, borderTop: "2px solid #dcfce7", textAlign: "center" }}>
+                <Typography sx={{ color: "#228756", fontWeight: 700, fontSize: "16px" }}>
+                  You're unsure if therapy is right for you
+                </Typography>
+              </Box>
+            </Box>
           </Container>
         </div>
 

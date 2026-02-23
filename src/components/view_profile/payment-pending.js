@@ -1,6 +1,6 @@
 import React from "react";
-import "react-datepicker/dist/react-datepicker.css";
-import "./checkout-styles.css";
+
+
 import FormMessage from "../global/form-message";
 import { postData } from "../../utils/actions";
 import { savePaymentUrl} from "../../utils/url";

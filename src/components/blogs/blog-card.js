@@ -1,12 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function BlogCard() {
   return (
     <div className="col-lg-4 col-md-6 col-sm-12 col-12">
       <div className="rbt-card variation-02 rbt-hover">
         <div className="rbt-card-img">
-          <Link to="/blog-details/30">
+          <Link href="/blog-details/30">
             <img
               alt=""
               width="450"
@@ -17,13 +17,13 @@ export default function BlogCard() {
         </div>
         <div className="rbt-card-body">
           <h5 className="rbt-card-title">
-            <Link to="/blog-details/30">The Modern Rules Of Education.</Link>
+            <Link href="/blog-details/30">The Modern Rules Of Education.</Link>
           </h5>
           <p className="rbt-card-text">
             It is a long established fact that a reader.
           </p>
           <div className="rbt-card-bottom">
-            <Link className="transparent-button" to="/blog-details/30">
+            <Link className="transparent-button" href="/blog-details/30">
               Learn More
               <i>
                 <svg width="17" height="12" xmlns="http://www.w3.org/2000/svg">

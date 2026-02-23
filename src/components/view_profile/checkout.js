@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import ProfileCheckoutCard from "./profile-checkout-card";
 import { getFormatsByServiceId, getServices } from "../../utils/helpers";
-import "react-datepicker/dist/react-datepicker.css";
-import "./checkout-styles.css";
+
+
 import FormMessage from "../global/form-message";
 import { postData } from "../../utils/actions";
 import { ApplyCouponUrl, BookTherapistUrl, verifyOtpUrl } from "../../utils/url";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import FormProgressBar from "../global/form-progressbar";
 import useUserStore from "../../store/userStore";
 import {
@@ -37,7 +37,7 @@ const styles = {
 };
 export default function TherapistCheckout({ profile }) {
   const { userInfo } = useUserStore();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [error, setError] = React.useState("");
   const [couponError, setCouponError] = React.useState("");
   const [otpError, setOtpError] = React.useState("");
@@ -267,7 +267,7 @@ export default function TherapistCheckout({ profile }) {
       if (response.status) {
         setOtpError("");
         setOtp("");
-        navigate(`/payment-pending/${bookingId}`);
+        router.push(`/payment-pending/${bookingId}`);
       } else {
         setOtpError(response.message);
       }

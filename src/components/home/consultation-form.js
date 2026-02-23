@@ -85,7 +85,7 @@ export default function ConsultationForm({ showHeading = true }) {
     name: "",
     phone: "",
     email: "",
-    message: ""
+    concern: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -134,12 +134,12 @@ export default function ConsultationForm({ showHeading = true }) {
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         subject: "Free Consultation Request",
-        message: formData.message.trim()
+        concern: formData.concern.trim()
       };
       const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {
         setShowSuccessPopup(true);
-        setFormData({ name: "", phone: "", email: "", message: "" });
+        setFormData({ name: "", phone: "", email: "", concern: "" });
       } else {
         setMessage(response.message || "Failed to submit. Please try again.");
         setMessageType("error");
@@ -242,9 +242,9 @@ export default function ConsultationForm({ showHeading = true }) {
               <div style={{ position: "relative" }}>
                 <MessageIcon style={{ position: "absolute", left: 14, top: 12, color: "#94a3b8", fontSize: 18 }} />
                 <textarea
-                  name="message"
+                  name="concern"
                   placeholder="How can we help you?"
-                  value={formData.message}
+                  value={formData.concern}
                   onChange={handleChange}
                   rows={isMobile ? 2 : 3}
                   className="consultation-form-input"

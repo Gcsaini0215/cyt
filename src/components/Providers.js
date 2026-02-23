@@ -2,7 +2,6 @@
 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 import useTherapistStore from "@/store/therapistStore";
 import useUserStore from "@/store/userStore";

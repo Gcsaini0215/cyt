@@ -1,4 +1,5 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
 import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
@@ -11,15 +12,14 @@ import CircleIcon from "@mui/icons-material/Circle";
 export default function MainLayout(props) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const { profileSet, setProfileSet, therapistInfo } = useTherapistStore();
-  const location = useLocation();
-  const pathname = location.pathname;
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = router.pathname;
   const [blogDropdownOpen, setBlogDropdownOpen] = React.useState(false);
   const [eventDropdownOpen, setEventDropdownOpen] = React.useState(false);
 
   const handleLogout = () => {
     removeToken();
-    navigate("/login");
+    router.push("/login");
   };
 
   React.useEffect(() => {
@@ -70,11 +70,11 @@ export default function MainLayout(props) {
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "2px", alignItems: "center" }}>
                   {[
                     { to: "/therapist-dashboard", icon: "feather-home", title: "Home" },
-                    { to: "/appointments", icon: "fa-regular fa-calendar-check", title: "Sessions" },
+                    { to: "/appointments", icon: "feather-calendar", title: "Sessions" },
                     { to: "/clinic-patients", icon: "feather-users", title: "Clinic Client" },
                     { 
                       id: 'event-menu',
-                      icon: "fa-solid fa-file-medical", 
+                      icon: "feather-briefcase", 
                       title: "Events",
                       isDropdown: true,
                       isOpen: eventDropdownOpen,
@@ -144,7 +144,7 @@ export default function MainLayout(props) {
                                 {item.subItems.map((sub) => (
                                   <Link
                                     key={sub.to}
-                                    to={sub.to}
+                                    href={sub.to}
                                     style={{
                                       display: 'flex',
                                       alignItems: 'center',
@@ -169,7 +169,7 @@ export default function MainLayout(props) {
                         </div>
                       ) : (
                         <Link
-                          to={item.to}
+                          href={item.to}
                           title={item.title}
                           style={{
                             display: "flex",
@@ -197,7 +197,7 @@ export default function MainLayout(props) {
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "2px", alignItems: "center" }}>
                   <li>
                     <Link
-                      to="/settings"
+                      href="/settings"
                       title="Edit Profile"
                       style={{
                         display: "flex",
@@ -251,7 +251,7 @@ export default function MainLayout(props) {
 
               {/* Minimal Profile Shortcut at Bottom */}
               <div style={{ marginTop: "auto", marginBottom: "15px" }}>
-                <Link to="/settings" title="Profile Settings">
+                <Link href="/settings" title="Profile Settings">
                   <div style={{ 
                     width: "48px", 
                     height: "48px", 
@@ -297,7 +297,7 @@ export default function MainLayout(props) {
             ].map((item) => (
               <Link
                 key={item.to}
-                to={item.to}
+                href={item.to}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',

@@ -1,9 +1,9 @@
 import React from "react";
-import { Helmet } from "react-helmet-async"; // SEO
+import Head from "next/head"; // SEO
 
 import LazyImage from "../../utils/lazy-image";
 import BgImage from "../../assets/img/bg-image-10.png";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import ImageTag from "../../utils/image-tag";
 import { truncateString } from "../../utils/helpers";
 import { getDateDifference } from "../../utils/time";
@@ -24,7 +24,7 @@ export default function WorkshopDetail(props) {
   return (
     <>
       {/* SEO Meta Tags */}
-      <Helmet>
+      <Head>
         <title>{data.title} | Mind Matters Programs</title>
         <meta name="description" content={metaDescription} />
         <meta name="keywords" content={`Mindfulness, Therapy, Mental Health, ${data.title}`} />
@@ -37,7 +37,7 @@ export default function WorkshopDetail(props) {
         <meta name="twitter:title" content={data.title} />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={`${imagePath}/${data.workshop_image}`} />
-      </Helmet>
+      </Head>
 
       {/* Breadcrumb & Header */}
       <div
@@ -53,7 +53,7 @@ export default function WorkshopDetail(props) {
               <div className="content text-start">
                 <ul className="page-list">
                   <li className="rbt-breadcrumb-item">
-                    <Link to="/">Home</Link>
+                    <Link href="/">Home</Link>
                   </li>
                   <li>
                     <div className="icon-right">
@@ -70,7 +70,7 @@ export default function WorkshopDetail(props) {
                 </p>
                 <div className="rbt-author-meta mb--20">
                   <div className="rbt-avater">
-                    <Link to={`/view-profile/${data.post_by._id}`}>
+                    <Link href={`/view-profile/${data.post_by._id}`}>
                       <ImageTag
                         alt={data.post_by.name}
                         src={`${imagePath}/${data.post_by.user.profile}`}
@@ -79,7 +79,7 @@ export default function WorkshopDetail(props) {
                   </div>
                   <div className="rbt-author-info">
                     By &nbsp;
-                    <Link to={`/view-profile/${data.post_by._id}`}>
+                    <Link href={`/view-profile/${data.post_by._id}`}>
                       {data.post_by.user.name}
                     </Link>
                     &nbsp;|&nbsp;
@@ -167,7 +167,7 @@ export default function WorkshopDetail(props) {
                           <h5 className="title" style={{ lineHeight: 0.24 }}>
                             <Link
                               className="hover-flip-item-wrapper"
-                              to={`/view-profile/${data.post_by._id}`}
+                              href={`/view-profile/${data.post_by._id}`}
                             >
                               {data.post_by.user.name}
                             </Link>
@@ -245,7 +245,7 @@ export default function WorkshopDetail(props) {
                     <div className="add-to-card-button mb--15">
                       <Link
                         className="rbt-btn btn-gradient icon-hover w-100 d-block text-center"
-                        to={`/workshop-booking/${data._id}`}
+                        href={`/workshop-booking/${data._id}`}
                       >
                         <span className="btn-text">Register Now</span>
                         <span className="btn-icon">
@@ -350,7 +350,7 @@ export default function WorkshopDetail(props) {
                 <div className="rbt-single-list action-btn">
                   <Link
                     className="rbt-btn btn-gradient hover-icon-reverse btn-md"
-                    to={`/workshop-booking/${data._id}`}
+                    href={`/workshop-booking/${data._id}`}
                   >
                     <span className="icon-reverse-wrapper">
                       <span className="btn-text">Register Now</span>

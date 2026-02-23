@@ -136,31 +136,31 @@ const assessmentQuestions = {
       openness: { 
         label: "Openness", 
         color: "#3b82f6", 
-        items: [0, 5, 10, 15, 20],
+        items: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45],
         definition: "Curiosity about ideas, creativity, and willingness to try new experiences. Higher scores indicate imaginative and open-minded tendencies."
       },
       conscientiousness: { 
         label: "Conscientiousness", 
         color: "#f59e0b", 
-        items: [1, 6, 11, 16, 21],
+        items: [1, 6, 11, 16, 21, 26, 31, 36, 41, 46],
         definition: "Tendency to be organized, disciplined, and responsible. Higher scores reflect careful planning and goal-directed behavior."
       },
       extraversion: { 
         label: "Extraversion", 
         color: "#ec4899", 
-        items: [2, 7, 12, 17, 22],
+        items: [2, 7, 12, 17, 22, 27, 32, 37, 42, 47],
         definition: "Sociability, assertiveness, and tendency to seek stimulation. Higher scores indicate outgoing and energetic nature."
       },
       agreeableness: { 
         label: "Agreeableness", 
         color: "#10b981", 
-        items: [3, 8, 13, 18, 23],
+        items: [3, 8, 13, 18, 23, 28, 33, 38, 43, 48],
         definition: "Compassion, cooperativeness, and concern for others. Higher scores suggest empathy and collaborative approach."
       },
       neuroticism: { 
         label: "Neuroticism", 
         color: "#ef4444", 
-        items: [4, 9, 14, 19, 24],
+        items: [4, 9, 14, 19, 24, 29, 34, 39, 44, 49],
         definition: "Emotional stability and tendency to experience negative emotions. Higher scores indicate sensitivity to stress and anxiety."
       }
     },
@@ -190,6 +190,31 @@ const assessmentQuestions = {
       "I am quiet", // Extraversion (22) - reverse scored
       "I hold grudges", // Agreeableness (23) - reverse scored
       "I am anxious about things", // Neuroticism (24)
+      "I like to use new technologies and apps", // Openness (25)
+      "I follow a schedule", // Conscientiousness (26)
+      "I initiate conversations", // Extraversion (27)
+      "I often help others without expecting anything in return", // Agreeableness (28)
+      "I feel overwhelmed by emotions", // Neuroticism (29)
+      "I enjoy exploring different philosophical concepts", // Openness (30)
+      "I complete tasks with accuracy", // Conscientiousness (31)
+      "I enjoy being the center of attention", // Extraversion (32)
+      "I prefer cooperation over competition", // Agreeableness (33)
+      "I become frustrated easily", // Neuroticism (34)
+      "I enjoy artistic or creative activities", // Openness (35)
+      "I keep my workspace organized and clean", // Conscientiousness (36)
+      "I feel energized by social interactions", // Extraversion (37)
+      "I find it easy to understand others' perspectives", // Agreeableness (38)
+      "I often feel self-doubt", // Neuroticism (39)
+      "I would describe myself as unconventional", // Openness (40)
+      "I plan ahead and set goals", // Conscientiousness (41)
+      "I prefer meeting new people", // Extraversion (42)
+      "I am generous with my time and resources", // Agreeableness (43)
+      "I experience mood swings", // Neuroticism (44)
+      "I explore different cultures and ideas", // Openness (45)
+      "I am detail-oriented in my work", // Conscientiousness (46)
+      "I seek out social events and gatherings", // Extraversion (47)
+      "I take others' feelings into consideration", // Agreeableness (48)
+      "I feel nervous in uncertain situations", // Neuroticism (49)
     ],
     options: [
       { label: "Strongly Disagree", value: 1 },

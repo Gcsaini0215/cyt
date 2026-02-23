@@ -1,12 +1,12 @@
 import Footer from "../components/footer";
 import AllWorkshops from "../components/home/all-workshop";
 import MyNavbar from "../components/navbar";
-import { Helmet } from "react-helmet";
+import Head from "next/head";
 
 export default function AllWorkshop() {
   return (
     <div id="__next">
-      <Helmet>
+      <Head>
         <title>Workshops & Events | Mental Health Training | Choose Your Therapist</title>
         <meta name="description" content="Explore and join our upcoming mental health workshops, training sessions, and internships. Led by expert psychologists to enhance your well-being and professional skills." />
         <meta name="keywords" content="Mental Health Workshops, Psychology Training India, Wellness Events, Internship for Psychology Students" />
@@ -22,7 +22,7 @@ export default function AllWorkshop() {
         <meta name="twitter:title" content="Workshops & Events | Mental Health Training | Choose Your Therapist" />
         <meta name="twitter:description" content="Explore upcoming events and training opportunities." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-      </Helmet>
+      </Head>
       <main className="">
         <MyNavbar />
         <main className="rbt-main-wrapper">

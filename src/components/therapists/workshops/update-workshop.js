@@ -9,12 +9,12 @@ import { postFormData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";
 import FormProgressBar from "../../global/form-progressbar";
 import { UpdateWorkshopUrl } from "../../../utils/url";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import "./editor.css";
+
 export default function UpdateWorkshop({ data }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const fileInputRef = useRef(null);
   const filePdfRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -165,7 +165,7 @@ export default function UpdateWorkshop({ data }) {
         if (response.status) {
           setSuccess(response.message);
           setError("");
-          navigate("/workshops");
+          router.push("/workshops");
         } else {
           setError("Something went wrong");
         }

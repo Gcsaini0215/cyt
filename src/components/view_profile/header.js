@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
@@ -13,7 +13,7 @@ import { postData } from "../../utils/actions";
 import bannerImg from "../../assets/img/choosetherapist.jpg";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [bookmark, setBookmark] = React.useState(false);
   const [showBookmark, setShowBookmark] = React.useState(false);
@@ -31,7 +31,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
     }
   }, [pageData, favrioutes]);
 
-  const handleClick = () => navigate(`/therapist-checkout/${pageData._id}`);
+  const handleClick = () => router.push(`/therapist-checkout/${pageData._id}`);
 
   const addFavrioute = async (id) => {
     try {

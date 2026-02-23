@@ -1,6 +1,11 @@
 import React from "react";
 import MainLayout from "../components/therapists/main-layout";
-import AIBlog from "../components/therapists/blogs/ai-blog";
+import dynamic from "next/dynamic";
+
+const AIBlog = dynamic(
+  () => import("../components/therapists/blogs/ai-blog"),
+  { ssr: false }
+);
 
 export default function TherapistAIBlogPage() {
   return (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Link from "next/link";
+import { useRouter } from "next/router";
+import Head from "next/head";
 import {
   Box,
   Container,
@@ -191,8 +192,8 @@ const ShareButton = styled(IconButton)(({ theme }) => ({
 }));
 
 export default function BlogDetailsNew() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const { id  } = router.query;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const blog = blogsData.find(b => b.id === parseInt(id));
@@ -228,7 +229,7 @@ export default function BlogDetailsNew() {
             <Button
               variant="contained"
               size="large"
-              onClick={() => navigate('/blogs')}
+              onClick={() => router.push('/blogs')}
               sx={{
                 backgroundColor: theme.palette.primary.main,
                 '&:hover': {
@@ -266,11 +267,11 @@ export default function BlogDetailsNew() {
     <CacheProvider value={emotionCache}>
       <ThemeProvider theme={blogTheme}>
         <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
-          <Helmet>
+          <Head>
             <title>{blog.title} | Choose Your Therapist</title>
             <meta name="description" content={blog.description} />
             <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
-          </Helmet>
+          </Head>
 
           <ProgressBar variant="determinate" value={readingProgress} />
           <MyNavbar />
@@ -281,10 +282,10 @@ export default function BlogDetailsNew() {
               <Stack spacing={3} alignItems="center">
                 {/* Breadcrumbs */}
                 <Breadcrumbs sx={{ color: 'text.secondary' }}>
-                  <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>
                     Home
                   </Link>
-                  <Link to="/blogs" style={{ color: 'inherit', textDecoration: 'none' }}>
+                  <Link href="/blogs" style={{ color: 'inherit', textDecoration: 'none' }}>
                     Blogs
                   </Link>
                   <Typography color="text.primary">{blog.title.slice(0, 30)}...</Typography>
@@ -570,7 +571,7 @@ export default function BlogDetailsNew() {
                     </Typography>
                     <Stack spacing={2}>
                       {recentPosts.map((post) => (
-                        <RelatedPostCard key={post.id} onClick={() => navigate(post.link)}>
+                        <RelatedPostCard key={post.id} onClick={() => router.push(post.link)}>
                           <Box
                             component="img"
                             src={post.image}
@@ -620,7 +621,7 @@ export default function BlogDetailsNew() {
                               backgroundColor: 'grey.50',
                             },
                           }}
-                          onClick={() => navigate('/blogs')}
+                          onClick={() => router.push('/blogs')}
                         >
                           <Stack direction="row" spacing={1} alignItems="center">
                             <Tag size={16} color={theme.palette.primary.main} />
@@ -648,7 +649,7 @@ export default function BlogDetailsNew() {
                             key={tag}
                             label={tag}
                             size="small"
-                            onClick={() => navigate('/blogs')}
+                            onClick={() => router.push('/blogs')}
                             sx={{
                               cursor: 'pointer',
                               '&:hover': {

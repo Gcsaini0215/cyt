@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 export default function NotAuthorizedPage() {
   return (
     <div className="rbt-error-area bg-gradient-11 rbt-section-gap">
@@ -11,7 +11,7 @@ export default function NotAuthorizedPage() {
               <p>Please login First.</p>
               <Link
                 className="rbt-btn btn-gradient icon-hover"
-                to="/login"
+                href="/login"
                 style={{ cursor: "pointer" }}
               >
                 <span className="btn-text">Login Now</span>

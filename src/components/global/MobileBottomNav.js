@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import Link from "next/link";
+;
 import { getToken } from "../../utils/jwt";
 
 export default function MobileBottomNav() {
-  const location = useLocation();
+  ;
   const isLoggedIn = !!getToken();
   const [isMobile, setIsMobile] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -73,32 +74,32 @@ export default function MobileBottomNav() {
       transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
       transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
-      <li className={location.pathname === "/" ? "active" : ""}>
-        <Link to="/">
+      <li className={router.pathname === "/" ? "active" : ""}>
+        <Link href="/">
           <i className="feather-home"></i>
           <span>Home</span>
         </Link>
       </li>
-      <li className={location.pathname === "/view-all-therapist" ? "active" : ""}>
-        <Link to="/view-all-therapist">
+      <li className={router.pathname === "/view-all-therapist" ? "active" : ""}>
+        <Link href="/view-all-therapist">
           <i className="feather-users"></i>
           <span>Therapists</span>
         </Link>
       </li>
-      <li className={location.pathname === "/mind-matters" ? "active" : ""}>
-        <Link to="/mind-matters">
+      <li className={router.pathname === "/mind-matters" ? "active" : ""}>
+        <Link href="/mind-matters">
           <i className="feather-heart"></i>
           <span>Mind Matters</span>
         </Link>
       </li>
-      <li className={location.pathname === "/plans" ? "active" : ""}>
-        <Link to="/plans">
+      <li className={router.pathname === "/plans" ? "active" : ""}>
+        <Link href="/plans">
           <i className="feather-gift"></i>
           <span>Offers</span>
         </Link>
       </li>
-      <li className={isLoggedIn ? (location.pathname.includes("/dashboard") || location.pathname.includes("/my-") ? "active" : "") : (location.pathname === "/login" ? "active" : "")}>
-        <Link to={isLoggedIn ? "/my-dashboard" : "/login"}>
+      <li className={isLoggedIn ? (router.pathname.includes("/dashboard") || router.pathname.includes("/my-") ? "active" : "") : (router.pathname === "/login" ? "active" : "")}>
+        <Link href={isLoggedIn ? "/my-dashboard" : "/login"}>
           <i className="feather-user"></i>
           <span>{isLoggedIn ? "Profile" : "Login"}</span>
         </Link>

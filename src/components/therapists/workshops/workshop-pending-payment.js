@@ -1,6 +1,6 @@
 import React from "react";
-import "react-datepicker/dist/react-datepicker.css";
-import "./checkout-styles.css";
+
+
 import { postData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";
 import QrcodeCard from "../../global/qrcode-card";

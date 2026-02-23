@@ -1,13 +1,15 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "next/router";
 import MainLayout from "../../../components/therapists/main-layout";
 import { GetCoupansUrl } from "../../../utils/url";
 import { fetchById } from "../../../utils/actions";
 import ErrorPage from "../../error-page";
 import React,{ useState } from "react";
+import { useRouter } from "next/router";
 import UpdateCoupan from "../../../components/therapists/coupans/update";
 
 export default function UpdateCoupanPage() {
-      const { id } = useParams();
+      const router = useRouter();
+  const { id  } = router.query;
        const [data, setData] = useState({});
 
         React.useEffect(() => {

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 const DeepakImg = "/assets/img/dpk.jpeg";
 import ImageTag from "../utils/image-tag";
 
@@ -10,7 +10,7 @@ export default function TherapistCard() {
     <div className="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active">
       <div className="rbt-card variation-01">
         <div className="rbt-card-img">
-          <Link to="#">
+          <Link href="#">
             <ImageTag alt="Card" height={"488"} width={"710"} src={DeepakImg} />
           </Link>
         </div>
@@ -34,7 +34,7 @@ export default function TherapistCard() {
             <span className="rating-count">(15 Reviews)</span>
           </div>
           <h4 className="rbt-card-title">
-            <Link to="#">Deepak Kumar</Link>
+            <Link href="#">Deepak Kumar</Link>
           </h4>
           <div style={{ marginTop: 7, display: "flex" }}>
             <span>
@@ -64,14 +64,14 @@ export default function TherapistCard() {
           >
             <Link
               className="view-btn view-btn-border"
-              to="#"
+              href="#"
               style={{ padding: isMobile ? "0 30px" : "0 22px" }}
             >
               View Profile
             </Link>
             <Link
               className="rbt-btn btn-gradient book-btn"
-              to="#"
+              href="#"
               style={{
                 display: "flex",
                 justifyContent: "center",

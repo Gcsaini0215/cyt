@@ -6,7 +6,7 @@ import CreateTable from "../components/global/create-table";
 import { toast } from "react-toastify";
 import MainLayout from "../components/therapists/main-layout";
 import { formatDate } from "../utils/time";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import CouponSwitch from "../components/therapists/coupans/coupan-switch";
 import { EditDeleteButton } from "../components/therapists/coupans/edit-delete-button";
 
@@ -23,7 +23,7 @@ const columns = [
 ];
 
 export default function CoupansPage() {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [data, setData] = React.useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -42,7 +42,7 @@ export default function CoupansPage() {
     };
 
     const handleButtonClick = () => {
-        navigate("/coupon/create")
+        router.push("/coupon/create")
     }
 
     const handleDelete = async (id) => {
@@ -60,7 +60,7 @@ export default function CoupansPage() {
     };
 
     const handleNavigate = (id) => {
-        navigate(`/coupon/update/${id}`)
+        router.push(`/coupon/update/${id}`)
     }
 
     React.useEffect(() => {

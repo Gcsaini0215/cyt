@@ -1,13 +1,14 @@
 import React from "react";
 const logo1 = "/logo.png";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import ImageTag from "../../utils/image-tag";
 import useUserStore from "../../store/userStore";
 import { removeToken } from "../../utils/jwt";
 import { frontendUrl, imagePath } from "../../utils/url";
 export default function UserDashboardTopNav() {
   const { userInfo } = useUserStore();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [show, setShow] = React.useState(false);
   const [isSticky, setIsSticky] = React.useState(false);
 
@@ -25,7 +26,7 @@ export default function UserDashboardTopNav() {
 
   const handleLogout = () => {
     removeToken();
-    navigate("/login");
+    router.push("/login");
   };
   return (
     <>
@@ -34,7 +35,7 @@ export default function UserDashboardTopNav() {
           <div className="inner-top">
             <div className="content">
               <div className="logo">
-                <Link to="/my-dashboard" style={{ cursor: "pointer" }}>
+                <Link href="/my-dashboard" style={{ cursor: "pointer" }}>
                   <ImageTag
                     alt="Education Logo Images"
                     width="137"
@@ -56,38 +57,38 @@ export default function UserDashboardTopNav() {
           <nav className="mainmenu-nav">
             <ul className="mainmenu">
               <li className="position-static">
-                <Link to="/my-dashboard" style={{ cursor: "pointer" }}>
+                <Link href="/my-dashboard" style={{ cursor: "pointer" }}>
                   Home Base<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               {/* <li className="position-static">
-                <Link to="/my-invoices" style={{ cursor: "pointer" }}>
+                <Link href="/my-invoices" style={{ cursor: "pointer" }}>
                   Invoices<i className="feather-chevron-down"></i>
                 </Link>
               </li> */}
               <li className="position-static">
-                <Link to="/my-bookings" style={{ cursor: "pointer" }}>
+                <Link href="/my-bookings" style={{ cursor: "pointer" }}>
                   My Bookings<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
-                <Link to="/my-therapists" style={{ cursor: "pointer" }}>
+                <Link href="/my-therapists" style={{ cursor: "pointer" }}>
                   My Care<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               {/* <li className="position-static">
-                <Link to="/my-reviews" style={{ cursor: "pointer" }}>
+                <Link href="/my-reviews" style={{ cursor: "pointer" }}>
                   Rewiews<i className="feather-chevron-down"></i>
                 </Link>
               </li> */}
 
               <li className="position-static">
-                <Link to="/my-workshop-bookings" style={{ cursor: "pointer" }}>
+                <Link href="/my-workshop-bookings" style={{ cursor: "pointer" }}>
                   Events & Vibes<i className="feather-chevron-down"></i>
                 </Link>
               </li>
               <li className="position-static">
-                <Link to="/my-settings" style={{ cursor: "pointer" }}>
+                <Link href="/my-settings" style={{ cursor: "pointer" }}>
                   My Edit<i className="feather-chevron-down"></i>
                 </Link>
               </li>
@@ -113,7 +114,7 @@ export default function UserDashboardTopNav() {
               <div className="header-left rbt-header-content">
                 <div className="header-info">
                   <div className="logo">
-                    <Link to="/my-dashboard" style={{ cursor: "pointer" }}>
+                    <Link href="/my-dashboard" style={{ cursor: "pointer" }}>
                       <ImageTag
                         alt="Education Logo Images"
                         height={"55"}
@@ -139,7 +140,7 @@ export default function UserDashboardTopNav() {
                     </a>
                   </li>
                   <li>
-                    <Link className="service-menu-parent" to={"/notifications"}>
+                    <Link className="service-menu-parent" href={"/notifications"}>
                       <i className="fa-solid fa-bell"></i> &nbsp;
                     </Link>
                   </li>
@@ -167,32 +168,32 @@ export default function UserDashboardTopNav() {
                       <div className="inner">
                         <ul className="user-list-wrapper">
                           <li>
-                            <Link to="/my-dashboard">
+                            <Link href="/my-dashboard">
                               <i className="feather-home"></i>
                               <span>My Dashboard</span>
                             </Link>
                           </li>
                           <li>
-                            <Link to="/my-therapists">
+                            <Link href="/my-therapists">
                               <i className="feather-shopping-bag"></i>
                               <span>My Care</span>
                             </Link>
                           </li>
                           <li>
-                            <Link to="/my-bookings">
+                            <Link href="/my-bookings">
                               <i className="feather-shopping-bag"></i>
                               <span>My Bookings</span>
                             </Link>
                           </li>
 
                           <li>
-                            <Link to="/my-workshop-bookings">
+                            <Link href="/my-workshop-bookings">
                               <i className="feather-shopping-bag"></i>
                               <span>Events & Vibes</span>
                             </Link>
                           </li>
                           <li>
-                            <Link to="/my-settings">
+                            <Link href="/my-settings">
                               <i className="feather-shopping-bag"></i>
                               <span>Edit Profile</span>
                             </Link>
