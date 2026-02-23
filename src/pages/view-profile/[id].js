@@ -69,9 +69,10 @@ export default function ViewProfile() {
   const profileName = profile?.user?.name || "Therapist";
   const profileType = profile?.profile_type || "Professional";
   const profileImage = profile?.user?.profile ? `${imagePath}/${profile.user.profile}` : "https://i.postimg.cc/gj1yngrd/choose.png";
+  const profileBio = profile?.user?.bio ? profile.user.bio.replace(/<[^>]*>/g, '').substring(0, 150) : "Professional therapist providing mental health support";
   const currentUrl = `${frontendUrl}/view-profile/${id}`;
-  const seoTitle = `${profileName} | ${profileType} | Choose Your Therapist`;
-  const seoDescription = `Book a session with ${profileName}, a verified ${profileType} specializing in mental health support. Connect with trusted therapists across India on Choose Your Therapist.`;
+  const seoTitle = `${profileName} | ${profileType} | Choose Your Therapist - Online & In-Person Therapy`;
+  const seoDescription = `${profileBio} Book a session with ${profileName} on Choose Your Therapist. Verified professional therapist offering confidential mental health counseling.`;
 
   return loading ? (
     <PageProgressBar />
@@ -80,6 +81,12 @@ export default function ViewProfile() {
       <Head>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
+        <meta name="keywords" content={`${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, in-person therapy, verified therapist`} />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Choose Your Therapist" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="language" content="English" />
+        <meta name="revisit-after" content="7 days" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="profile" />
@@ -87,7 +94,10 @@ export default function ViewProfile() {
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={profileImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -95,9 +105,17 @@ export default function ViewProfile() {
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={profileImage} />
+        <meta name="twitter:site" content="@chooseyourtherapist" />
+
+        {/* Additional SEO */}
+        <meta name="theme-color" content="#228756" />
+        <meta name="application-name" content="Choose Your Therapist" />
 
         {/* Canonical */}
         <link rel="canonical" href={currentUrl} />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
       <MyNavbar />
       {profile && (
