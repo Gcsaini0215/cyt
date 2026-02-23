@@ -1,8 +1,16 @@
-import useMediaQuery from "@mui/material/useMediaQuery";
+import { useState, useEffect } from "react";
 import ImageTag from "../../../utils/image-tag";
 import { imagePath } from "../../../utils/url";
 export default function WorkshopCheckoutCard({ pageData }) {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
   return (
     <div className="col-12 sal-animate">
       <div className="rbt-card variation-01 rbt-hover card-list-2">

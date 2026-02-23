@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid, TextField, MenuItem, Button, Typography } from "@mui/material";
 import { motion } from "framer-motion";
-import useMediaQuery from "@mui/material/useMediaQuery";
 
 export default function ConsultationFormSection() {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   const [form, setForm] = useState({
     name: "",

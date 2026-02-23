@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import { 
   FiBarChart2, 
@@ -36,7 +35,15 @@ const AnimatedNumber = ({ value, suffix = "", duration = 2000 }) => {
 };
 
 export default function MentalHealthData() {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   const dataPoints = [
     {

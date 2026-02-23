@@ -3,6 +3,5 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/view-all-therapist": "pages/view-all-therapist.js",
-  "/therapy-booking": "pages/therapy-booking.js",
-  "/view-profile/[id]": "pages/view-profile/[id].js"
+  "/": "pages/index.js"
 }

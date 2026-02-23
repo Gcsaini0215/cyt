@@ -1,0 +1,107 @@
+============================================
+DATA FETCH DEBUGGING - STEP BY STEP COMMANDS
+============================================
+
+STEP 1: Check API Server is Reachable
+--------------------------------------
+Open PowerShell/CMD and run:
+
+ping api.chooseyourtherapist.in
+
+Expected: Should show response times, not "Destination host unreachable"
+
+
+STEP 2: Test API Endpoint Directly
+-----------------------------------
+powershell -Command "Invoke-WebRequest -Uri 'https://api.chooseyourtherapist.in/api/get-therapists-profile?page=1&pageSize=5' -Headers @{'Accept'='application/json'}"
+
+Expected: Should show JSON response with therapist data
+
+
+STEP 3: Check Your Local Environment Variables
+-----------------------------------------------
+cd d:\cyt
+type .env
+
+Check if NEXT_PUBLIC_API_URL and NEXT_PUBLIC_BASE_API are set correctly
+
+
+STEP 4: Install Dependencies
+-----------------------------
+npm install
+
+
+STEP 5: Build the Project
+---------------------------
+npm run build
+
+If successful: You'll see ".next" folder created
+
+
+STEP 6: Test Locally
+--------------------
+npm run dev
+
+Then open: http://localhost:3000 in browser
+Press F12 → Console tab
+Look for any error messages
+
+
+STEP 7: Test API Call from Terminal
+-----------------------------------
+node test-api.js
+
+(test-api.js already created - checks if API is reachable)
+
+
+STEP 8: Advanced - Test with Auth Token (if needed)
+--------------------------------------------------
+PowerShell:
+$token = "YOUR_JWT_TOKEN_HERE"
+$headers = @{"Authorization" = "Bearer $token"}
+Invoke-WebRequest -Uri "https://api.chooseyourtherapist.in/api/get-favrioute-therapists-list" -Headers $headers
+
+
+STEP 9: Check Network Requests in Browser
+------------------------------------------
+1. Open http://localhost:3000
+2. Press F12
+3. Go to Network tab
+4. Refresh page (F5)
+5. Look for requests to api.chooseyourtherapist.in
+6. Click each request to see:
+   - Status code (200 = success, 404 = not found, 500 = server error)
+   - Response (actual data or error message)
+
+
+STEP 10: Production Deployment
+------------------------------
+npm run build
+npm start
+
+(This runs your app in production mode locally)
+Then test http://localhost:3000
+
+
+TROUBLESHOOTING:
+================
+
+If API returns 404:
+- API endpoint doesn't exist
+- Wrong API URL in .env
+
+If API returns 500:
+- Backend server error
+- Check backend logs
+
+If "Network timeout":
+- API server is down
+- Check if backend is running
+
+If "CORS error":
+- Backend needs CORS headers
+- Ask backend team to enable CORS
+
+If "No data shows":
+- Database is empty
+- Or backend is returning empty array

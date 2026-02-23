@@ -45,6 +45,10 @@ console.log("API Configuration:", {
   envBaseApi
 });
 
+if (typeof window !== 'undefined') {
+  window.API_CONFIG = { apiUrl, baseApi, currentDomain };
+}
+
 export const defaultProfile =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
 

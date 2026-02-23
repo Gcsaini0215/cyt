@@ -1,10 +1,9 @@
 import Link from "next/link";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import ImageTag from "../../utils/image-tag";
 import { getMinMaxPrice } from "../../utils/helpers";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { postData } from "../../utils/actions";
 import {
   imagePath,
@@ -17,10 +16,18 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 
 export default function ProfileCardVert(props) {
   const { data, favrioutes } = props;
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const [bookmark, setBookmark] = React.useState(favrioutes?.includes(data._id) || false);
-  const [showBookmark, setShowBookmark] = React.useState(true);
-  const [fees, setFees] = React.useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [bookmark, setBookmark] = useState(favrioutes?.includes(data._id) || false);
+  const [showBookmark, setShowBookmark] = useState(true);
+  const [fees, setFees] = useState([]);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   const handleBookmark = (id, value) => {
     setBookmark((prev) => !prev);
@@ -46,7 +53,7 @@ export default function ProfileCardVert(props) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const token = getDecodedToken();
     if (token && token.role === 1) setShowBookmark(false);
     setBookmark(favrioutes?.includes(data._id) || false);

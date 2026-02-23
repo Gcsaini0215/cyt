@@ -45,8 +45,9 @@ const Fabiha = "/assets/img/psychologist.png";
 const counselling1 = "/assets/img/counselling.png";
 
 export default function Banner({ topTherapists = [] }) {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   // State
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -55,6 +56,26 @@ export default function Banner({ topTherapists = [] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
+
+  useEffect(() => {
+    setIsClient(true);
+    const mobileQuery = window.matchMedia("(max-width: 600px)");
+    const tabletQuery = window.matchMedia("(max-width: 960px)");
+    
+    setIsMobile(mobileQuery.matches);
+    setIsTablet(tabletQuery.matches);
+
+    const handleMobileChange = (e) => setIsMobile(e.matches);
+    const handleTabletChange = (e) => setIsTablet(e.matches);
+
+    mobileQuery.addListener(handleMobileChange);
+    tabletQuery.addListener(handleTabletChange);
+
+    return () => {
+      mobileQuery.removeListener(handleMobileChange);
+      tabletQuery.removeListener(handleTabletChange);
+    };
+  }, []);
 
   const rotatingWords = [
     { text: "Mental Wellness", gradient: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)" }, // Violet to Purple for calm/peace

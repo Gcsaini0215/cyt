@@ -9,21 +9,32 @@ export const truncateString = (str, maxLength = 50) => {
 };
 
 export const getMinMaxPrice = (fees) => {
-  const feesArray = JSON.parse(JSON.stringify(fees));
-
-  const allFees = feesArray
-    .map(f => f.formats.map(fmt => fmt.fee))
-    .reduce((acc, val) => acc.concat(val), [])
-    .filter(f => f !== null);
-
-  if (allFees.length > 0) {
-    const minFee = Math.min(...allFees);
-    const maxFee = Math.max(...allFees);
-
-    return `₹${minFee} - ₹${maxFee}`;
+  if (!fees || !Array.isArray(fees) || fees.length === 0) {
+    return "--";
   }
-  else {
-    return "--"
+
+  try {
+    const feesArray = JSON.parse(JSON.stringify(fees));
+
+    const allFees = feesArray
+      .filter(f => f && f.formats && Array.isArray(f.formats))
+      .map(f => f.formats
+        .filter(fmt => fmt && typeof fmt.fee === 'number' && fmt.fee !== null)
+        .map(fmt => fmt.fee)
+      )
+      .reduce((acc, val) => acc.concat(val), []);
+
+    if (allFees.length > 0) {
+      const minFee = Math.min(...allFees);
+      const maxFee = Math.max(...allFees);
+      return `₹${minFee} - ₹${maxFee}`;
+    }
+    else {
+      return "--";
+    }
+  } catch (error) {
+    console.error("Error in getMinMaxPrice:", error);
+    return "--";
   }
 };
 

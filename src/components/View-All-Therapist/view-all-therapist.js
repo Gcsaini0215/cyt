@@ -5,6 +5,7 @@ import {
   getTherapistProfiles,
 } from "../../utils/url";
 import { fetchById, fetchData } from "../../utils/actions";
+import { fetchMockData } from "../../utils/mock-api";
 import ProfileCardVert from "../home/profile-card-vert.js";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
@@ -57,7 +58,14 @@ export default function ViewAllTherapist() {
     const getData = async () => {
       try {
         setLoading(true);
-        const res = await fetchData(getTherapistProfiles, filter);
+        let res;
+        try {
+          res = await fetchData(getTherapistProfiles, filter);
+        } catch (apiErr) {
+          console.warn("Real API failed, using mock data:", apiErr.message);
+          res = await fetchMockData(filter);
+        }
+        
         if (res && res.data) {
           setAllData(res.data || []);
           setCount(res.totalCount || res.data?.length || 0);
@@ -77,7 +85,7 @@ export default function ViewAllTherapist() {
           setFavrioutes(res.data.therapists || []);
         }
       } catch (err) {
-        console.log(err);
+        console.log("Favorites fetch error (using frontend only):", err);
       }
     };
 

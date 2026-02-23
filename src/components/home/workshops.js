@@ -2,16 +2,25 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import WellNessCard from "./wellness-card";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { fetchData } from "../../utils/actions";
 import { getWorkshopsWebUrl } from "../../utils/url";
 export default function HomeWorkshop({ isWhite = false }) {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const [data, setData] = React.useState([]);
-  const [tab, setTab] = React.useState("See All");
+  const [isMobile, setIsMobile] = useState(false);
+  const [data, setData] = useState([]);
+  const [tab, setTab] = useState("See All");
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 600px)");
+    setIsMobile(mobileQuery.matches);
+    
+    const handleChange = (e) => setIsMobile(e.matches);
+    mobileQuery.addListener(handleChange);
+    
+    return () => mobileQuery.removeListener(handleChange);
+  }, []);
   const handleClick = (id) => {
     setTab(id);
     getData(id);
