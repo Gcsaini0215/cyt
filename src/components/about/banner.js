@@ -118,7 +118,7 @@ export default function AboutUsBanner() {
                   sequence={[
                     "Transforming Lives",
                     2000,
-                    "Breaking ",
+                    "Bre",
                     2000,
                     "Healing Together",
                     2000,
