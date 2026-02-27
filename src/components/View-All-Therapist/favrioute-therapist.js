@@ -284,6 +284,7 @@ export default function FavriouteTherapist() {
               data.map((item) => {
                 return (
                   <div
+                    key={item._id}
                     className="col-lg-4 col-md-6 col-sm-6 col-12 sal-animate"
                     style={{ wordWrap: "break-word" }}
                     data-sal-delay="150"
