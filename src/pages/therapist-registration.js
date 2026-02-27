@@ -171,6 +171,7 @@ export default function TherapistRegistration()
     <>
       <Head>
         <title>Therapist Registration | Join Our Network of Mental Health Experts | Choose Your Therapist</title>
+        <meta name="robots" content="index, follow" />
         <meta name="description" content="Are you a qualified psychologist or psychiatrist? Register with Choose Your Therapist to connect with clients across India and grow your professional practice on our secure platform." />
         <meta name="keywords" content="Therapist Registration, Join Mental Health Network, Psychologist Jobs India, Online Therapy Practice" />
         <link rel="canonical" href="https://chooseyourtherapist.in/therapist-registration" />

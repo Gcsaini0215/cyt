@@ -96,7 +96,7 @@ export default function Blogs() {
             <div 
               className="rbt-card variation-02 rbt-hover" 
               style={{ 
-                height: isMobile ? '400px' : '500px',
+                height: 'auto',
                 position: 'relative',
                 overflow: 'hidden',
                 borderRadius: '24px',
@@ -105,12 +105,12 @@ export default function Blogs() {
                 padding: '0'
               }}
             >
-              <div className="rbt-card-img" style={{ height: '100%', width: '100%' }}>
-                <Link href="/blog-details/1" style={{ height: '100%', width: '100%', display: 'block' }}>
+              <div className="rbt-card-img" style={{ position: 'relative' }}>
+                <Link href="/blog-details/1" style={{ width: '100%', display: 'block' }}>
                   <ImageTag
                     alt="Featured Blog"
                     src={BlogCardImg}
-                    style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+                    style={{ height: 'auto', width: '100%', display: 'block' }}
                   />
                   <div style={{
                     position: 'absolute',

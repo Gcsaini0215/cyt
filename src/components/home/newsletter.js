@@ -165,7 +165,7 @@ export default function NewsLetter() {
       className="rbt-newsletter-area newsletter-style-2 rbt-section-gap"
       ref={ref}
       style={{
-        background: 'linear-gradient(135deg, #228756 0%, #1a6b45 50%, #007f99 100%)',
+        background: 'linear-gradient(135deg, #228756 0%, #1a6b45 100%)',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -336,7 +336,6 @@ export default function NewsLetter() {
             position: "absolute",
             right: 8,
             top: 8,
-
             color: (theme) => theme.palette.grey[500],
           }}
         >

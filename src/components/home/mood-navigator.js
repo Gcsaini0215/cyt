@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   CloudLightning, 
   Wind, 
@@ -13,14 +13,19 @@ import {
   Typography, 
   Container, 
   Grid, 
-  Paper,
-  useTheme, 
-  useMediaQuery 
+  Paper
 } from "@mui/material";
 
 const MoodNavigator = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   const moods = [
     {

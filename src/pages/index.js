@@ -4,12 +4,14 @@ import Footer from "../components/footer";
 import Banner from "../components/home/banner";
 import Specializations from "../components/home/specializations";
 import Blogs from "../components/home/blogs";
+import Faqs from "../components/home/faqs";
 import CallToAction from "../components/home/call-to-action";
 import Counter from "../components/home/counter";
 import NewsLetter from "../components/home/newsletter";
 import ProfileCard from "../components/home/profile-card";
 import HomeWorkshop from "../components/home/workshops";
 import FreeResources from "../components/home/free-resources";
+import ProcessSteps from "../components/home/process-steps";
 import MyNavbar from "../components/navbar";
 import BottomNavigation from "../components/bottom-navigation";
 
@@ -135,14 +137,9 @@ export default function HomePage() {
           <ProfileCard />
           <FreeResources />
           <HomeWorkshop isWhite={false} />
-          <Counter />
+          <ProcessSteps />
           <Blogs />
-
-          
-         
-          
-          
-          <CallToAction />
+          <Faqs />
           <NewsLetter />
 
           {/* Payment Success Modal (Optional) */}

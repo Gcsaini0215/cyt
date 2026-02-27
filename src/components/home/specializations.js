@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Brain, 
   CloudRain, 
@@ -10,7 +10,6 @@ import {
   Activity 
 } from 'lucide-react';
 import Link from "next/link";
-import useMediaQuery from "@mui/material/useMediaQuery";
 
 const specializations = [
   { id: 1, title: "Anxiety", icon: <Brain size={32} />, color: "#E3F2FD", iconColor: "#1976D2", link: "/view-all-therapist?specialization=Anxiety" },
@@ -24,7 +23,15 @@ const specializations = [
 ];
 
 const Specializations = () => {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   return (
     <section className="specializations-area pt--60 pb--60 bg-color-white">

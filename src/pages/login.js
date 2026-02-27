@@ -122,6 +122,7 @@ export default function Login() {
     <>
       <Head>
         <title>Login | Access Your Therapy Dashboard | Choose Your Therapist</title>
+        <meta name="robots" content="index, follow" />
         <meta name="description" content="Securely log in to your Choose Your Therapist account. Manage your sessions, connect with your psychologist, and track your mental health progress." />
         <meta name="keywords" content="Therapist Login, Client Login, Mental Health Dashboard, Secure Therapy Login" />
         <link rel="canonical" href="https://chooseyourtherapist.in/login" />

@@ -11,6 +11,7 @@ export default function ContactUs() {
     <div id="__next">
       <Head>
         <title>Contact Us | Get in Touch with Choose Your Therapist</title>
+        <meta name="robots" content="index, follow" />
         <meta name="description" content="Have questions? Contact Choose Your Therapist for support, inquiries, or assistance with finding the right psychologist in India. We're here to help." />
         <meta name="keywords" content="Contact Choose Your Therapist, Therapy Support India, Mental Health Inquiries" />
         <link rel="canonical" href="https://chooseyourtherapist.in/contact-us" />

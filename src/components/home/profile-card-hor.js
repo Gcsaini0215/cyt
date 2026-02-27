@@ -1,16 +1,15 @@
-import useMediaQuery from "@mui/material/useMediaQuery";
+import React, { useState, useEffect } from "react";
 import ImageTag from "../../utils/image-tag";
 import Link from "next/link";
 
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
-import VerifiedIcon from "@mui/icons-material/Verified"; // ✅ Badge + Name ke aage
+import VerifiedIcon from "@mui/icons-material/Verified";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import PersonIcon from "@mui/icons-material/Person";
 import LanguageIcon from "@mui/icons-material/Language";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import WorkIcon from "@mui/icons-material/Work";
-import React from "react";
 import { getDecodedToken } from "../../utils/jwt";
 import { postData } from "../../utils/actions";
 import {
@@ -22,11 +21,10 @@ import {
 export default function ProfileCardHor({ pageData, favrioutes, showRecommended = false, showOnlyBookButton = false }) {
   console.log("ProfileCardHor rendering with pageData:", pageData, "showRecommended:", showRecommended, "showOnlyBookButton:", showOnlyBookButton);
 
-  // Determine badge type based on data.priority or fallback to showRecommended prop
   const isRecommended = pageData.priority === 1 || (pageData.priority === undefined && showRecommended);
 
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [bookmark, setBookmark] = React.useState(false);
   const [showBookmark, setShowBookmark] = React.useState(true);
 
@@ -64,6 +62,25 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
       return false;
     }
   };
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia("(max-width: 600px)");
+    const tabletQuery = window.matchMedia("(max-width: 960px)");
+    
+    setIsMobile(mobileQuery.matches);
+    setIsTablet(tabletQuery.matches);
+
+    const handleMobileChange = (e) => setIsMobile(e.matches);
+    const handleTabletChange = (e) => setIsTablet(e.matches);
+
+    mobileQuery.addListener(handleMobileChange);
+    tabletQuery.addListener(handleTabletChange);
+
+    return () => {
+      mobileQuery.removeListener(handleMobileChange);
+      tabletQuery.removeListener(handleTabletChange);
+    };
+  }, []);
 
   React.useEffect(() => {
     const data = getDecodedToken();

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import useMediaQuery from "@mui/material/useMediaQuery";
 import ProfileCardHor from "./profile-card-hor";
 import { Container, Box, CircularProgress } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,7 +14,15 @@ const HorTherapistCards = () => {
   const [therapists, setTherapists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   // Temporary fallback data for testing
   const fallbackData = [

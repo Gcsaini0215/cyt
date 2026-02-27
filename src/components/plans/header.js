@@ -94,12 +94,12 @@ const styles = `
 }
 `;
 
-export default function PlansHeader() {
+export default function PlansHeader({ planType, setPlanType }) {
   const isMobile = useMediaQuery("(max-width:768px)");
 
   return (
     <>
-      <style>{styles}</style>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="plans-banner">
         <AutoAwesomeIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
         <SupportAgentIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
@@ -135,52 +135,6 @@ export default function PlansHeader() {
               Our therapy packages ensure continuity in your healing journey, helping you maintain
               <br /> steady progress toward your emotional well-being goals.
             </p>
-
-            {/* Toggle Switch */}
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
-              <Box
-                sx={{
-                  display: 'inline-flex',
-                  borderRadius: '50px',
-                  backgroundColor: 'white',
-                  padding: '6px',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
-                  border: '1px solid #e2e8f0',
-                }}
-              >
-                <button
-                  style={{
-                    padding: isMobile ? '10px 24px' : '12px 40px',
-                    borderRadius: '50px',
-                    border: 'none',
-                    backgroundColor: '#228756',
-                    color: 'white',
-                    fontWeight: 800,
-                    fontSize: isMobile ? '14px' : '16px',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)',
-                  }}
-                >
-                  Individual
-                </button>
-                <button
-                  disabled
-                  style={{
-                    padding: isMobile ? '10px 24px' : '12px 40px',
-                    borderRadius: '50px',
-                    border: 'none',
-                    backgroundColor: '#f1f5f9',
-                    color: '#94a3b8',
-                    fontWeight: 800,
-                    fontSize: isMobile ? '14px' : '16px',
-                    cursor: 'not-allowed',
-                    marginLeft: '4px',
-                  }}
-                >
-                  Couple (Soon)
-                </button>
-              </Box>
-            </Box>
           </Box>
         </Container>
       </section>

@@ -10,6 +10,7 @@ export default function HowItWorks() {
     <div id="__next">
       <Head>
         <title>How It Works | Find Your Perfect Therapist | Choose Your Therapist</title>
+        <meta name="robots" content="noindex, nofollow" />
         <meta name="description" content="Discover how Choose Your Therapist simplifies finding and booking sessions with verified psychologists in India. Three simple steps to start your mental health journey." />
         <meta name="keywords" content="How to Book Therapist, Therapy Process, Verified Psychologists India, Mental Health Journey" />
         <link rel="canonical" href="https://chooseyourtherapist.in/how-it-works" />

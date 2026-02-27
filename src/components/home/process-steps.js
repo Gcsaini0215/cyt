@@ -1,294 +1,190 @@
-import React from "react";
-import { Search, CalendarDays, HeartHandshake, CheckCircle2 } from "lucide-react";
-import { Box, Typography, Container, Grid, useTheme, useMediaQuery } from "@mui/material";
-const TherapeuticImg = "/assets/img/psychologist.png";
+import React, { useState, useEffect } from "react";
+import { Search, CalendarDays, HeartHandshake, ArrowRight } from "lucide-react";
+import { Box, Typography, Container, Grid } from "@mui/material";
 
 const ProcessSteps = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 960px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
 
   const steps = [
     {
       icon: <Search size={32} />,
-      title: "Discover Your Match",
-      description: "Browse through our list of verified therapists. Use our smart filters to find someone who truly understands your cultural and emotional context.",
+      title: "Find Your Expert",
+      description: "Browse verified therapists and find the perfect match for your needs.",
       color: "#228756",
-      tag: "STEP 01"
+      bg: "rgba(34, 135, 86, 0.1)"
     },
     {
       icon: <CalendarDays size={32} />,
-      title: "Schedule with Ease",
-      description: "Book sessions that fit your life. Whether it's early morning or late evening, our therapists offer flexible slots for online or in-person consultations.",
+      title: "Book a Session",
+      description: "Select a convenient time slot and book your session instantly.",
       color: "#007f99",
-      tag: "STEP 02"
+      bg: "rgba(0, 127, 153, 0.1)"
     },
     {
       icon: <HeartHandshake size={32} />,
-      title: "Begin Your Healing",
-      description: "Start your therapy journey in a safe, confidential, and non-judgmental space. Your mental well-being is our priority, every step of the way.",
+      title: "Start Healing",
+      description: "Begin your journey to emotional well-being in a safe space.",
       color: "#228756",
-      tag: "STEP 03"
+      bg: "rgba(34, 135, 86, 0.1)"
     }
   ];
 
   return (
     <Box sx={{ 
-      position: "relative",
+      py: { xs: 10, md: 15 }, 
       backgroundColor: "#ffffff",
-      overflow: "hidden",
-      // Seamless transition from banner's bottom fade
-      pt: { xs: 8, md: 12 }, 
-      pb: { xs: 10, md: 18 },
-      "&::before": {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "150px",
-        background: "linear-gradient(to bottom, #f0fdf4 0%, rgba(255, 255, 255, 0) 100%)",
-        opacity: 0.6,
-        pointerEvents: "none"
-      }
+      position: "relative",
+      overflow: "hidden"
     }}>
-      {/* Subtle Background Elements */}
+      {/* Decorative Circles */}
       <Box sx={{
         position: "absolute",
-        top: "20%",
+        top: "-10%",
         right: "-5%",
-        width: "400px",
-        height: "400px",
-        background: "radial-gradient(circle, rgba(34, 135, 86, 0.03) 0%, transparent 70%)",
+        width: "500px",
+        height: "500px",
+        background: "radial-gradient(circle, rgba(34, 135, 86, 0.05) 0%, transparent 70%)",
         borderRadius: "50%",
-        zIndex: 0
       }} />
 
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-        <Grid container spacing={10} alignItems="center">
-          {/* Left Side: Visual Element */}
-          <Grid item xs={12} lg={6}>
-            <Box sx={{ position: "relative" }}>
-              <Box 
-                sx={{ 
-                  position: "relative",
-                  borderRadius: "40px",
-                  overflow: "hidden",
-                  boxShadow: "0 40px 80px -20px rgba(22, 101, 52, 0.15)",
-                  transform: { md: "rotate(-2deg)" },
-                  transition: "transform 0.5s ease",
-                  "&:hover": { transform: "rotate(0deg)" }
-                }}
-              >
-                <img 
-                  src={TherapeuticImg} 
-                  alt="Professional Therapy Session" 
-                  style={{ 
-                    width: "100%", 
-                    height: "auto", 
-                    display: "block",
-                    filter: "contrast(1.05)"
-                  }} 
-                />
-                
-                {/* Image Overlay Gradient */}
-                <Box sx={{
-                  position: "absolute",
-                  inset: 0,
-                  background: "linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 40%)"
-                }} />
-              </Box>
+        <Box sx={{ textAlign: "center", mb: { xs: 8, md: 12 } }}>
+          <Typography
+            sx={{ 
+              color: "#228756", 
+              fontWeight: 800, 
+              letterSpacing: 3,
+              fontSize: "0.85rem",
+              textTransform: "uppercase",
+              mb: 2,
+              display: "block"
+            }}
+          >
+            Our Simple Process
+          </Typography>
+          <Typography
+            variant="h2"
+            sx={{
+              fontWeight: 900,
+              color: "#1e293b",
+              fontSize: { xs: "2.8rem", md: "4.2rem" },
+              lineHeight: 1.1,
+              mb: 3
+            }}
+          >
+            How it <span style={{ color: "#228756" }}>Works</span>
+          </Typography>
+          <Typography sx={{ color: "#64748b", fontSize: "1.3rem", maxWidth: "750px", mx: "auto", lineHeight: 1.6 }}>
+            Experience a seamless path to mental wellness with our structured 3-step approach.
+          </Typography>
+        </Box>
 
-              {/* Floating Professional Badge */}
-              <Box sx={{
-                position: "absolute",
-                bottom: { xs: -20, md: 40 },
-                left: { xs: "50%", md: -30 },
-                transform: { xs: "translateX(-50%)", md: "none" },
-                bgcolor: "white",
-                p: { xs: 2, md: 3 },
-                borderRadius: "24px",
-                boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-                border: "1px solid rgba(241, 245, 249, 0.8)",
-                backdropFilter: "blur(10px)",
-                width: "max-content",
-                zIndex: 2
-              }}>
-                <Box sx={{ 
-                  bgcolor: "rgba(34, 135, 86, 0.1)", 
-                  p: 1.5, 
-                  borderRadius: "16px",
-                  display: "flex",
-                  color: "#228756"
-                }}>
-                  <CheckCircle2 size={28} />
-                </Box>
-                <Box>
-                  <Typography sx={{ fontWeight: 900, color: "#1a1a1a", fontSize: "1.2rem", lineHeight: 1 }}>
-                    100% Verified
-                  </Typography>
-                  <Typography sx={{ color: "#64748b", fontWeight: 600, fontSize: "0.85rem", mt: 0.5 }}>
-                    Certified Mental Health Experts
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </Grid>
+        <Box sx={{ position: "relative" }}>
+          {/* Dashed Path (Desktop only) */}
+          {!isMobile && (
+            <Box sx={{
+              position: "absolute",
+              top: "100px",
+              left: "10%",
+              right: "10%",
+              height: "2px",
+              borderTop: "3px dashed #cbd5e1",
+              zIndex: 0
+            }} />
+          )}
 
-          {/* Right Side: Process Content */}
-          <Grid item xs={12} lg={6}>
-            <Box sx={{ mb: 6 }}>
-              <Typography
-                variant="overline"
-                sx={{ 
-                  color: "#228756", 
-                  fontWeight: 800, 
-                  letterSpacing: 4,
-                  display: "inline-block",
-                  mb: 2,
-                  fontSize: "0.85rem",
-                  bgcolor: "rgba(34, 135, 86, 0.08)",
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: "8px"
-                }}
-              >
-                HOW IT WORKS
-              </Typography>
-              <Typography
-                variant="h2"
-                sx={{
-                  fontWeight: 900,
-                  color: "#1a1a1a",
-                  fontSize: { xs: "2.4rem", md: "3.8rem" },
-                  lineHeight: { xs: 1.2, md: 1.1 },
-                  mb: 3,
-                  letterSpacing: "-0.03em"
-                }}
-              >
-                Empowering Your Path to <br />
-                <span style={{ 
-                  color: "#228756",
-                  background: "linear-gradient(120deg, #166534 0%, #228756 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent"
-                }}>
-                  Inner Harmony
-                </span>
-              </Typography>
-              <Typography sx={{ color: "#64748b", fontSize: "1.1rem", fontWeight: 500, maxWidth: "540px", lineHeight: 1.6 }}>
-                Experience a seamless journey towards mental clarity with our structured, 
-                compassionate approach to professional counselling.
-              </Typography>
-            </Box>
-
-            <Box sx={{ position: "relative" }}>
-              {/* Vertical Connector Line (Desktop) */}
-              {!isMobile && (
-                <Box sx={{
-                  position: "absolute",
-                  left: "35px",
-                  top: "40px",
-                  bottom: "40px",
-                  width: "2px",
-                  background: "linear-gradient(to bottom, transparent, #e2e8f0 10%, #e2e8f0 90%, transparent)",
-                  zIndex: 0
-                }} />
-              )}
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {steps.map((item, index) => (
-                  <Box 
-                    key={index} 
-                    sx={{ 
-                      display: "flex", 
-                      gap: 4,
-                      position: "relative",
-                      zIndex: 1,
-                      transition: "all 0.3s ease",
-                      p: 2,
-                      borderRadius: "24px",
-                      "&:hover": {
-                        bgcolor: "rgba(248, 250, 252, 0.8)",
-                        "& .step-icon": {
-                          transform: "scale(1.1)",
-                          boxShadow: `0 10px 20px ${item.color}20`,
-                          bgcolor: item.color,
-                          color: "white"
-                        }
-                      }
-                    }}
-                  >
-                    <Box
-                      className="step-icon"
-                      sx={{
-                        width: 70,
-                        height: 70,
-                        minWidth: 70,
-                        borderRadius: "20px",
-                        bgcolor: "white",
-                        color: item.color,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-                        border: "1px solid rgba(226, 232, 240, 0.8)",
-                        position: "relative"
-                      }}
-                    >
+          <Grid container spacing={4} justifyContent="center">
+            {steps.map((item, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Box 
+                  className="step-card"
+                  sx={{ 
+                    textAlign: "center",
+                    position: "relative",
+                    zIndex: 1,
+                    px: { md: 2 }
+                  }}
+                >
+                  {/* Icon Wrapper */}
+                  <Box sx={{
+                    width: "120px",
+                    height: "120px",
+                    borderRadius: "50%",
+                    bgcolor: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mx: "auto",
+                    mb: 4,
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
+                    border: "2px solid #fff",
+                    position: "relative",
+                    transition: "all 0.4s ease",
+                    "&::after": {
+                      content: `"${index + 1}"`,
+                      position: "absolute",
+                      top: 0,
+                      right: 0,
+                      width: "35px",
+                      height: "35px",
+                      bgcolor: item.color,
+                      color: "#fff",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "14px",
+                      fontWeight: 900,
+                      boxShadow: "0 5px 15px rgba(0,0,0,0.1)"
+                    }
+                  }}>
+                    <Box sx={{ color: item.color }}>
                       {item.icon}
                     </Box>
-                    
-                    <Box>
-                      <Typography sx={{ 
-                        color: item.color, 
-                        fontWeight: 800, 
-                        fontSize: "0.75rem", 
-                        mb: 0.5,
-                        letterSpacing: 1
-                      }}>
-                        {item.tag}
-                      </Typography>
-                      <Typography
-                        variant="h5"
-                        sx={{
-                          fontWeight: 800,
-                          color: "#1a1a1a",
-                          mb: 1,
-                          fontSize: "1.4rem",
-                          letterSpacing: "-0.01em"
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          color: "#64748b",
-                          lineHeight: 1.7,
-                          fontSize: "1.05rem",
-                          fontWeight: 500,
-                          maxWidth: "480px"
-                        }}
-                      >
-                        {item.description}
-                      </Typography>
-                    </Box>
                   </Box>
-                ))}
-              </Box>
-            </Box>
+
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 800,
+                      color: "#1e293b",
+                      mb: 2,
+                      fontSize: "1.8rem",
+                      letterSpacing: "-0.01em"
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+                  <Typography sx={{ color: "#64748b", lineHeight: 1.7, fontSize: "1.2rem", fontWeight: 500 }}>
+                    {item.description}
+                  </Typography>
+
+                  {/* Arrow (Mobile only) */}
+                  {isMobile && index < steps.length - 1 && (
+                    <Box sx={{ my: 4, color: "#cbd5e1" }}>
+                      <ArrowRight style={{ transform: "rotate(90deg)" }} />
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+            ))}
           </Grid>
-        </Grid>
+        </Box>
       </Container>
 
       <style>{`
-        @keyframes subtleReveal {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        .step-card:hover .MuiBox-root:first-of-type {
+          transform: translateY(-10px) scale(1.05);
+          border-color: #22875633;
+          box-shadow: 0 30px 60px rgba(34, 135, 86, 0.12);
         }
       `}</style>
     </Box>

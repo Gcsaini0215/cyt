@@ -55,7 +55,7 @@ export default function Footer() {
                     <h5 className="ft-title">Quick Links</h5>
                     <ul className="ft-link">
                       <li><Link href="/how-it-works">How It Works</Link></li>
-
+                      <li><Link href="/blog-view">Blog</Link></li>
                       <li><Link href="/emergency-support">Emergency Support</Link></li>
                       <li><Link href="/mentorship-for-students">Student Mentorship</Link></li>
                       <li><Link href="/therapist-registration">Therapist Registration</Link></li>

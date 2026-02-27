@@ -2,8 +2,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
@@ -13,7 +12,15 @@ import {
 import ProfileCardHor from "./profile-card-hor";
 import { getDecodedToken } from "../../utils/jwt";
 export default function ProfileCard() {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px)");
+    setIsMobile(query.matches);
+    const handle = (e) => setIsMobile(e.matches);
+    query.addListener(handle);
+    return () => query.removeListener(handle);
+  }, []);
   const [tab, setTab] = React.useState("");
   const [data, setData] = React.useState([]);
   const [favrioutes, setFavrioutes] = React.useState([]);

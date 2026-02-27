@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-;
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { getDecodedToken, getToken } from "../utils/jwt";
 
 export default function BottomNavigation() {
-  ;
   const [isMobile, setIsMobile] = useState(false);
   const [userType, setUserType] = useState(0);
   const [cookiesAccepted, setCookiesAccepted] = useState(true);
