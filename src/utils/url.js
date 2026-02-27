@@ -5,13 +5,17 @@ let baseFrontendUrl;
 const isServer = typeof window === "undefined";
 const currentDomain = isServer ? "" : window.location.hostname;
 
-// Static assignment for environment variables to ensure they are picked up by bundlers (Next.js/CRA)
+// Static assignment for environment variables
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
 const envBaseApi = process.env.NEXT_PUBLIC_BASE_API || process.env.REACT_APP_BASE_API;
 
-// Default working live API (The main domain /api, not the api. subdomain)
-const defaultApiUrl = "https://chooseyourtherapist.in/api";
-const defaultBaseApi = "https://chooseyourtherapist.in";
+// 1. Working Live API (Fallback)
+const LIVE_API_URL = "https://chooseyourtherapist.in/api";
+const LIVE_BASE_API = "https://chooseyourtherapist.in";
+
+// 2. Local API (If you run backend on 4000)
+const LOCAL_API_URL = "http://localhost:4000/api";
+const LOCAL_BASE_API = "http://localhost:4000";
 
 // Helper to remove trailing slash
 const removeTrailingSlash = (str) => {
@@ -19,21 +23,28 @@ const removeTrailingSlash = (str) => {
   return str.endsWith("/") ? str.slice(0, -1) : str;
 };
 
-// Determine the raw URLs from env or default
-let rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : defaultApiUrl;
-let rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : defaultBaseApi;
+// Determine which URL to use
+let rawApiUrl;
+let rawBaseApi;
 
-// Force live API if on local BUT we want to see live data
-// If you want to use local backend, change this to rawApiUrl = "http://localhost:4000/api"
 if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
   baseFrontendUrl = "http://localhost:3000";
   
-  // BY DEFAULT, we'll use the live API even on local so you can see data!
-  // If you have a local backend on 4000, uncomment the lines below:
-  // rawApiUrl = "http://localhost:4000/api";
-  // rawBaseApi = "http://localhost:4000";
+  // CHANGE THIS TO "LOCAL" IF YOU WANT TO USE YOUR LOCAL BACKEND
+  // Defaulting to LIVE so you can see data immediately
+  const MODE = "LIVE"; 
+
+  if (MODE === "LOCAL") {
+    rawApiUrl = LOCAL_API_URL;
+    rawBaseApi = LOCAL_BASE_API;
+  } else {
+    rawApiUrl = LIVE_API_URL;
+    rawBaseApi = LIVE_BASE_API;
+  }
 } else {
   baseFrontendUrl = "https://chooseyourtherapist.in";
+  rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : LIVE_API_URL;
+  rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : LIVE_BASE_API;
 }
 
 apiUrl = removeTrailingSlash(rawApiUrl);

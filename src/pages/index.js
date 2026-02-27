@@ -26,20 +26,28 @@ export default function HomePage() {
   const getTopTherapists = useCallback(async () => {
     try {
       const res = await fetchData(getTherapistProfiles);
-      if (res && res.status && res.data) {
-        const allTherapists = res.data || [];
-        const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1);
+      console.log("HomePage: fetchData response:", res);
+      
+      // Check both res.data and res directly depending on API structure
+      const dataToProcess = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+      
+      if (dataToProcess && dataToProcess.length > 0) {
+        const allTherapists = dataToProcess;
+        const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1 || therapist.priority === "1");
         let recommendedTherapists = [...priorityTherapists];
 
         if (recommendedTherapists.length < 10) {
           const remainingNeeded = 10 - recommendedTherapists.length;
-          const otherTherapists = allTherapists.filter(therapist => therapist.priority !== 1).slice(0, remainingNeeded);
+          const otherTherapists = allTherapists.filter(therapist => therapist.priority !== 1 && therapist.priority !== "1").slice(0, remainingNeeded);
           recommendedTherapists = [...recommendedTherapists, ...otherTherapists];
         }
+        console.log("HomePage: Setting topTherapists:", recommendedTherapists.length);
         setTopTherapists(recommendedTherapists.slice(0, 10));
+      } else {
+        console.warn("HomePage: No therapists found in response");
       }
     } catch (error) {
-      console.log("Error fetching top therapists:", error);
+      console.error("Error fetching top therapists:", error);
     }
   }, []);
 
