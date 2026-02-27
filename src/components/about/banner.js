@@ -108,7 +108,7 @@ export default function AboutUsBanner() {
           <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             <div className="about-badge">
               <FavoriteIcon sx={{ fontSize: 18 }} />
-              <span>Our Story & Mission</span>
+              <span>Our Story & </span>
             </div>
             
             <h1 className="about-title">
