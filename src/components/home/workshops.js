@@ -81,9 +81,9 @@ export default function HomeWorkshop({ isWhite = false }) {
       }}></div>
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="row" style={{ marginBottom: '40px' }}>
+        <div className="row" style={{ marginBottom: '20px' }}>
           <div className="col-lg-12">
-            <div className="section-title text-center" style={{ marginBottom: '50px' }}>
+            <div className="section-title text-center" style={{ marginBottom: '30px' }}>
               <span className="subtitle" style={{ 
                 background: '#228756', 
                 color: '#ffffff', 
@@ -131,7 +131,7 @@ export default function HomeWorkshop({ isWhite = false }) {
           <div className="col-lg-12">
             <div className="advance-tab-button">
               <ul className="nav nav-tabs tab-button-style-2" id="myTab-4" style={{
-                        background: 'rgba(255, 255, 255, 0.7)',
+                        background: '#ffffff',
                         backdropFilter: 'blur(15px)',
                         padding: '10px',
                         borderRadius: isMobile ? '15px' : '100px',

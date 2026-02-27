@@ -9,15 +9,15 @@ const currentDomain = isServer ? "" : window.location.hostname;
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
 const envBaseApi = process.env.NEXT_PUBLIC_BASE_API || process.env.REACT_APP_BASE_API;
 
-console.log("Environment Variables detected:", {
+console.log("DEBUG: Env variables from process.env:", {
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   REACT_APP_API_URL: process.env.REACT_APP_API_URL,
   NEXT_PUBLIC_BASE_API: process.env.NEXT_PUBLIC_BASE_API,
   REACT_APP_BASE_API: process.env.REACT_APP_BASE_API
 });
 
-const defaultApiUrl = "https://api.chooseyourtherapist.in/api";
-const defaultBaseApi = "https://api.chooseyourtherapist.in";
+const defaultApiUrl = "https://chooseyourtherapist.in/api";
+const defaultBaseApi = "https://chooseyourtherapist.in";
 
 // Helper to remove trailing slash
 const removeTrailingSlash = (str) => {
@@ -25,24 +25,36 @@ const removeTrailingSlash = (str) => {
   return str.endsWith("/") ? str.slice(0, -1) : str;
 };
 
-const rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : defaultApiUrl;
-const rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : defaultBaseApi;
+// Determine the raw URLs
+let rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : defaultApiUrl;
+let rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : defaultBaseApi;
 
-apiUrl = removeTrailingSlash(rawApiUrl);
-baseApi = removeTrailingSlash(rawBaseApi);
-
+// Force live API if env is not set correctly or if we want to ensure it works on local
 if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
   baseFrontendUrl = "http://localhost:3000";
+  
+  // Try to use a relative URL or direct localhost if backend is also on 3000
+  // If you are running the backend separately on 4000:
+  rawApiUrl = "http://localhost:4000/api";
+  rawBaseApi = "http://localhost:4000";
+  
+  // BUT if you want to use the LIVE API from local, we must use the correct reachable domain
+  // Since api.chooseyourtherapist.in is failing, try main domain with /api
+  // Note: This only works if the backend is configured to respond on the same domain
+  // rawApiUrl = "https://chooseyourtherapist.in/api";
+  // rawBaseApi = "https://chooseyourtherapist.in";
 } else {
   baseFrontendUrl = "https://chooseyourtherapist.in";
 }
 
-console.log("API Configuration:", { 
+apiUrl = removeTrailingSlash(rawApiUrl);
+baseApi = removeTrailingSlash(rawBaseApi);
+
+console.log("DEBUG: Final API Configuration:", { 
   apiUrl, 
   baseApi, 
   currentDomain,
-  envApiUrl,
-  envBaseApi
+  isServer
 });
 
 if (typeof window !== 'undefined') {

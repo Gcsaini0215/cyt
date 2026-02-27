@@ -21,7 +21,10 @@ import {
   FiCloudRain,
   FiZap,
   FiSun,
-  FiVolume2
+  FiVolume2,
+  FiUsers,
+  FiMessageSquare,
+  FiCheckCircle
 } from "react-icons/fi";
 import { Dialog, DialogContent, Box, Typography, Stack, IconButton, Button, Grid, TextField } from "@mui/material";
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -48,6 +51,8 @@ export default function FreeResources() {
   const [newGratitude, setNewGratitude] = useState("");
   const [activeSound, setActiveSound] = useState(null);
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
+  const [coupleIStatement, setCoupleIStatement] = useState({ emotion: "", event: "", need: "" });
+  const [activeScenarioIndex, setActiveScenarioIndex] = useState(0);
 
   const journalPrompts = [
     "What are three things you are grateful for today?",
@@ -58,6 +63,14 @@ export default function FreeResources() {
     "Who is someone who made you smile today and why?",
     "What's one thing you're looking forward to tomorrow?",
     "If you could give your younger self advice, what would it be?"
+  ];
+
+  const conflictScenarios = [
+    "One partner feels overwhelmed with household chores.",
+    "A disagreement about spending time with family.",
+    "Feeling disconnected due to heavy work schedules.",
+    "Differences in how to handle finances.",
+    "Misunderstanding during a text conversation."
   ];
 
   useEffect(() => {
@@ -169,6 +182,13 @@ export default function FreeResources() {
       icon: <FiMusic />,
       color: "#6366f1",
       tag: "Audio"
+    },
+    {
+      title: "Couple Harmony",
+      desc: "A healthy argument guide for resolving conflicts with love.",
+      icon: <FiUsers />,
+      color: "#8b5cf6",
+      tag: "Couple"
     }
   ];
 
@@ -912,6 +932,80 @@ export default function FreeResources() {
                     )}
                   </Box>
                 )}
+              </Box>
+            )}
+
+            {selectedTool?.title === "Couple Harmony" && (
+              <Box>
+                <Box sx={{ mb: 2, p: 2, bgcolor: '#f5f3ff', borderRadius: '16px', border: '1px solid #ddd6fe', position: 'relative' }}>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 800, color: '#8b5cf6', mb: 1, textTransform: 'uppercase' }}>Practice Scenario:</Typography>
+                  <Typography sx={{ fontSize: '14px', color: '#5b21b6', pr: 5 }}>
+                    {conflictScenarios[activeScenarioIndex]}
+                  </Typography>
+                  <IconButton 
+                    onClick={() => setActiveScenarioIndex((prev) => (prev + 1) % conflictScenarios.length)}
+                    sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: '#8b5cf6' }}
+                  >
+                    <FiPlayCircle style={{ transform: 'rotate(90deg)' }} />
+                  </IconButton>
+                </Box>
+
+                <Grid container spacing={1.5}>
+                  {[
+                    { t: "Set the Scene", d: "Choose a calm time.", i: <FiCheckCircle /> },
+                    { t: "Active Listening", d: "Hear to understand.", i: <FiUsers /> }
+                  ].map((step, i) => (
+                    <Grid item xs={6} key={i}>
+                      <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                          <Box sx={{ color: '#8b5cf6', fontSize: '16px' }}>{step.i}</Box>
+                          <Typography sx={{ fontSize: '12px', fontWeight: 800, color: '#1e293b' }}>{step.t}</Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: '10px', color: '#64748b' }}>{step.d}</Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Box sx={{ mt: 3, p: 2, bgcolor: '#faf5ff', borderRadius: '20px', border: '2px dashed #ddd6fe' }}>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 800, color: '#8b5cf6', mb: 2, textTransform: 'uppercase', textAlign: 'center' }}>Dynamic I-Statement Builder</Typography>
+                  <Stack spacing={1.5}>
+                    <TextField 
+                      size="small"
+                      placeholder="I feel... (e.g. hurt, lonely)"
+                      value={coupleIStatement.emotion}
+                      onChange={(e) => setCoupleIStatement({ ...coupleIStatement, emotion: e.target.value })}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', bgcolor: 'white', fontSize: '13px' } }}
+                    />
+                    <TextField 
+                      size="small"
+                      placeholder="When... (the specific event)"
+                      value={coupleIStatement.event}
+                      onChange={(e) => setCoupleIStatement({ ...coupleIStatement, event: e.target.value })}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', bgcolor: 'white', fontSize: '13px' } }}
+                    />
+                    <TextField 
+                      size="small"
+                      placeholder="And I need... (specific support)"
+                      value={coupleIStatement.need}
+                      onChange={(e) => setCoupleIStatement({ ...coupleIStatement, need: e.target.value })}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', bgcolor: 'white', fontSize: '13px' } }}
+                    />
+                  </Stack>
+                  <Button 
+                    fullWidth 
+                    variant="contained" 
+                    disabled={!coupleIStatement.emotion || !coupleIStatement.event || !coupleIStatement.need}
+                    onClick={() => {
+                      const text = `I feel ${coupleIStatement.emotion} when ${coupleIStatement.event} and I need ${coupleIStatement.need}.`;
+                      navigator.clipboard.writeText(text);
+                      alert("I-Statement copied to clipboard! Share it with your partner.");
+                    }}
+                    sx={{ mt: 2, bgcolor: '#8b5cf6', color: 'white', borderRadius: '10px', fontWeight: 800, py: 1, boxShadow: 'none', '&:hover': { bgcolor: '#7c3aed', boxShadow: 'none' } }}
+                  >
+                    Copy & Share Statement
+                  </Button>
+                </Box>
               </Box>
             )}
           </Box>
