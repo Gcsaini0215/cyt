@@ -118,7 +118,7 @@ export default function AboutUsBanner() {
                   sequence={[
                     "Transforming Lives",
                     2000,
-                    "Breaking Stigma",
+                    "Breaking ",
                     2000,
                     "Healing Together",
                     2000,
@@ -131,7 +131,7 @@ export default function AboutUsBanner() {
             </h1>
             
             <p className="about-subtitle">
-              At CYT, we believe that mental health is a fundamental human right. 
+            we believe that mental health is a fundamental human right. 
               Our mission is to provide a safe, accessible, and professional platform 
               where everyone can find their perfect therapist match and begin their 
               journey toward emotional well-being.
