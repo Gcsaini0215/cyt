@@ -226,15 +226,15 @@ export default function UserLayout(props) {
                 <div className="col-lg-10">
                   <NotifyBar title={props.title || ""} />
                   {props.children}
-                  <div class="section-title text-center mt--100 mb--100">
-                    <h2 class="title">Get discounts, programs & updates. <br />directly in mail. </h2>
-                    <div class="newsletter-form-1 mt--50 radius-round">
-                      <input class="rbt-border" type="email" placeholder="Enter Your E-Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                      {loading ? <CircularProgress /> : <button onClick={handleSubmit} class="rbt-btn btn-md btn-gradient hover-icon-reverse radius-round">
-                        <span class="icon-reverse-wrapper">
-                          <span class="btn-text">Subscribe</span>
-                          <span class="btn-icon"><i class="feather-arrow-right"></i></span>
-                          <span class="btn-icon"><i class="feather-arrow-right"></i></span>
+                  <div className="section-title text-center mt--100 mb--100">
+                    <h2 className="title">Get discounts, programs & updates. <br />directly in mail. </h2>
+                    <div className="newsletter-form-1 mt--50 radius-round">
+                      <input className="rbt-border" type="email" placeholder="Enter Your E-Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                      {loading ? <CircularProgress /> : <button onClick={handleSubmit} className="rbt-btn btn-md btn-gradient hover-icon-reverse radius-round">
+                        <span className="icon-reverse-wrapper">
+                          <span className="btn-text">Subscribe</span>
+                          <span className="btn-icon"><i className="feather-arrow-right"></i></span>
+                          <span className="btn-icon"><i className="feather-arrow-right"></i></span>
                         </span>
                       </button>}
                     </div>

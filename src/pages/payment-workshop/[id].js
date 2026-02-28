@@ -1,5 +1,4 @@
 import  { useEffect, useState } from "react";
-import { useParams } from "next/router";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
 import NewsLetter from "../../components/home/newsletter";
@@ -14,7 +13,7 @@ import PageBreadCrumb from "../../components/global/page-breadcrumb";
 
 export default function PaymentWorkshopPage() {
   const router = useRouter();
-  const { id  } = router.query;
+  const { id } = router.query;
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -32,17 +31,15 @@ export default function PaymentWorkshopPage() {
       setLoading(false);
     } catch (err) {
       console.log("err",err);
-      setError(err?.response.data.message);
+      setError(err?.response?.data?.message || "Something went wrong");
       setLoading(false);
-      toast.error(true);
+      toast.error(err?.response?.data?.message || "Something went wrong");
     }
   }, [id]);
 
   useEffect(() => {
     getData();
   }, [getData]);
-
-  console.log("error",error);
 
   return loading ? (
     <PageProgressBar />

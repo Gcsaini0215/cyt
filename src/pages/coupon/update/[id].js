@@ -1,4 +1,3 @@
-import { useParams } from "next/router";
 import MainLayout from "../../../components/therapists/main-layout";
 import { GetCoupansUrl } from "../../../utils/url";
 import { fetchById } from "../../../utils/actions";
@@ -9,7 +8,7 @@ import UpdateCoupan from "../../../components/therapists/coupans/update";
 
 export default function UpdateCoupanPage() {
       const router = useRouter();
-  const { id  } = router.query;
+      const { id  } = router.query;
        const [data, setData] = useState({});
 
         React.useEffect(() => {
@@ -28,7 +27,6 @@ export default function UpdateCoupanPage() {
           }
         }, [id]);
 
-    console.log("dataaaaa",data);
   return (
     <MainLayout>
       <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mb--60">

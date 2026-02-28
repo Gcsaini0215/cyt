@@ -49,20 +49,20 @@ export default function Workshops() {
           <div className="section-title">
             <h4 className="rbt-title-style-3">Create Event</h4>
           </div>
-          <div class="rbt-callto-action rbt-cta-default style-2">
-            <div class="content-wrapper overflow-hidden pt--30 pb--30 bg-color-primary-opacity">
-              <div class="row gy-5 align-items-end">
-                <div class="col-lg-8">
-                  <div class="inner">
-                    <div class="content text-left">
-                      <h5 class="mb--5">Notify your all clients & students.</h5>
-                      <p class="b3">Events/Wrokshops/Internships/Trainings</p>
+          <div className="rbt-callto-action rbt-cta-default style-2">
+            <div className="content-wrapper overflow-hidden pt--30 pb--30 bg-color-primary-opacity">
+              <div className="row gy-5 align-items-end">
+                <div className="col-lg-8">
+                  <div className="inner">
+                    <div className="content text-left">
+                      <h5 className="mb--5">Notify your all clients & students.</h5>
+                      <p className="b3">Events/Wrokshops/Internships/Trainings</p>
                     </div>
                   </div>
                 </div>
-                <div class="col-lg-4">
-                  <div class="call-to-btn text-start text-lg-end position-relative">
-                    <Link class="rbt-btn btn-sm" href="/create-workshop">
+                <div className="col-lg-4">
+                  <div className="call-to-btn text-start text-lg-end position-relative">
+                    <Link className="rbt-btn btn-sm" href="/create-workshop">
                       <span data-text="Create Workshop">Create Event</span>
                     </Link>
                   </div>

@@ -38,7 +38,7 @@ export default function UpdateCoupan({ pageData }) {
       newValue = value.slice(0, 15);
     }
 
-    if (name === "valid_from" || name === "valid_to") {
+    if (name === "valid_from" || name === "valid_until") {
       newValue = new Date(value).toISOString();
     }
 
@@ -172,7 +172,7 @@ export default function UpdateCoupan({ pageData }) {
               type="date"
               name="valid_until"
               value={info.valid_until ? info.valid_until.split("T")[0] : ""}
-              min={minDate + 1}
+              min={minDate}
               onChange={handleChange}
             />
           </div>

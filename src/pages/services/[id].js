@@ -5,7 +5,6 @@ import TherapistProfile from "../../components/services/thrapist-profile";
 import NewsLetter from "../../components/home/newsletter";
 import ServiceDetails from "../../components/services/service-details";
 import React from "react";
-import { useParams } from "next/router";
 import { useRouter } from "next/router";
 import NotFoundPage from "../notfound";
 
@@ -63,7 +62,7 @@ const serviceContent = [
 export default function Services() {
   const [data, setData] = React.useState();
   const router = useRouter();
-  const { id  } = router.query;
+  const { id } = router.query;
 
   React.useEffect(() => {
     if (id) {

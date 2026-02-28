@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/router";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
 import NewsLetter from "../../components/home/newsletter";
@@ -14,7 +13,7 @@ import PageBreadCrumb from "../../components/global/page-breadcrumb";
 
 export default function PaymentPendingPage() {
   const router = useRouter();
-  const { id  } = router.query;
+  const { id } = router.query;
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +30,7 @@ export default function PaymentPendingPage() {
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      toast.error(true);
+      toast.error(err?.response?.data?.message || "Something went wrong");
     }
   }, [id]);
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/router";
 import Head from "next/head";
 import ProfileHeader from "../../components/view_profile/header";
 import ProfileInfoTab from "../../components/view_profile/profile-info-tab";
@@ -22,7 +21,7 @@ import { getDecodedToken } from "../../utils/jwt";
 
 export default function ViewProfile() {
   const router = useRouter();
-  const { id  } = router.query;
+  const { id } = router.query;
   const [profile, setProfile] = useState();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);

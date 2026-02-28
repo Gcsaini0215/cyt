@@ -20,7 +20,7 @@ export default function UserDashboard() {
         toast.error(res.message);
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err?.response?.data?.message || err.message || "Something went wrong");
     }
     setLoading(false);
   };
@@ -28,9 +28,6 @@ export default function UserDashboard() {
   React.useEffect(() => {
     getData();
   }, []);
-
-  console.log('dataaa', data);
-
 
   return (
     <div id="__next">

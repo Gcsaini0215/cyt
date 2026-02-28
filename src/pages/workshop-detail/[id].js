@@ -4,14 +4,13 @@ import WorkshopDetail from "../../components/home/workshop-detail";
 import MyNavbar from "../../components/navbar";
 import { fetchData } from "../../utils/actions";
 import { getWorkshopWebUrl } from "../../utils/url";
-import { useParams } from "next/router";
 import ErrorPage from "../error-page";
 import { useRouter } from "next/router";
 import PageLoading from "../../components/page-loading";
 
 export default function WrokshopDetailPage() {
   const router = useRouter();
-  const { id  } = router.query;
+  const { id } = router.query;
   const [data, setData] = React.useState(null);
   const [workshopByThisUser, setWorkshopByThisUser] = React.useState([]);
   const [moreWorkshop, setMoreWorkshop] = React.useState([]);
