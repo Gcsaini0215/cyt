@@ -205,7 +205,7 @@ export default function TherapyBooking() {
         <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
       
-      <style>{bookingStyles}</style>
+      <style dangerouslySetInnerHTML={{ __html: bookingStyles }} />
 
       <div>
         <MyNavbar />

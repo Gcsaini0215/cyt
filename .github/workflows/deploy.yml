@@ -30,7 +30,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "."
+          # Sirf zaroori files copy karein, node_modules ko skip karein taaki deployment fast ho
+          source: ".next,public,package.json,package-lock.json,next.config.js,.env"
           target: "/root/cyt"
           strip_components: 0
 
@@ -42,7 +43,9 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
-            # Port 3000 release karne ke liye
-            fuser -k 3000/tcp || true
-            pm2 restart cyt_frontend || pm2 start npm --name "cyt_frontend" -- start
+            # Production dependencies install karein VPS par
+            npm install --production
+            # PM2 ko force restart karein
+            pm2 delete cyt_frontend || true
+            pm2 start npm --name "cyt_frontend" -- start
             pm2 save
