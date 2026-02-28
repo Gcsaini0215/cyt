@@ -10,8 +10,8 @@ const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_U
 const envBaseApi = process.env.NEXT_PUBLIC_BASE_API || process.env.REACT_APP_BASE_API;
 
 // 1. Working Live API (Fallback)
-const LIVE_API_URL = "https://chooseyourtherapist.in";
-const LIVE_BASE_API = "https://chooseyourtherapist.in";
+const LIVE_API_URL = "https://api.chooseyourtherapist.in/api";
+const LIVE_BASE_API = "https://api.chooseyourtherapist.in";
 
 // 2. Local API (If you run backend on 4000)
 const LOCAL_API_URL = "http://localhost:4000/api";
@@ -27,26 +27,30 @@ const removeTrailingSlash = (str) => {
 let rawApiUrl;
 let rawBaseApi;
 
+// Force LIVE mode if you want to use production data on localhost
+// Set this to "LOCAL" only if you have a local backend running on port 4000
+const PREFERRED_MODE = "LIVE"; 
+
 if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
   baseFrontendUrl = "http://localhost:3000";
   
-  // CHANGE THIS TO "LOCAL" IF YOU WANT TO USE YOUR LOCAL BACKEND
-  // Defaulting to LIVE so you can see data immediately
-  const MODE = "LOCAL"; 
-
-  if (MODE === "LOCAL") {
+  if (PREFERRED_MODE === "LOCAL") {
     rawApiUrl = LOCAL_API_URL;
     rawBaseApi = LOCAL_BASE_API;
   } else {
+    // Data requests will use proxy if needed, but for now let's try direct 
+    // because we have the correct api subdomain now.
     rawApiUrl = LIVE_API_URL;
     rawBaseApi = LIVE_BASE_API;
   }
 } else {
   baseFrontendUrl = "https://chooseyourtherapist.in";
+  // In production, use environment variables or fallback to LIVE
   rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : LIVE_API_URL;
   rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : LIVE_BASE_API;
 }
 
+// Ensure no double slash if it's already a relative path
 apiUrl = removeTrailingSlash(rawApiUrl);
 baseApi = removeTrailingSlash(rawBaseApi);
 
