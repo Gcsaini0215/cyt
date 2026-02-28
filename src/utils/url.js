@@ -10,7 +10,7 @@ const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_U
 const envBaseApi = process.env.NEXT_PUBLIC_BASE_API || process.env.REACT_APP_BASE_API;
 
 // 1. Working Live API (Fallback)
-const LIVE_API_URL = "https://chooseyourtherapist.in/api";
+const LIVE_API_URL = "https://chooseyourtherapist.in";
 const LIVE_BASE_API = "https://chooseyourtherapist.in";
 
 // 2. Local API (If you run backend on 4000)
@@ -32,7 +32,7 @@ if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
   
   // CHANGE THIS TO "LOCAL" IF YOU WANT TO USE YOUR LOCAL BACKEND
   // Defaulting to LIVE so you can see data immediately
-  const MODE = "LIVE"; 
+  const MODE = "LOCAL"; 
 
   if (MODE === "LOCAL") {
     rawApiUrl = LOCAL_API_URL;

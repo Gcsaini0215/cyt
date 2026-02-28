@@ -32,7 +32,7 @@ export default function Footer() {
                     </Link>
                   </div>
                   <p className="description mt--20">
-                    Because healing starts with your choice.
+                    Be healing starts with your choice.
                   </p>
                   <div className="contact-btn mt--30">
                     <Link
