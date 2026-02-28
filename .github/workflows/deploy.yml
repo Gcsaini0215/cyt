@@ -30,8 +30,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          # Explicitly include .next folder
-          source: ".next/,public/,package.json,package-lock.json,next.config.js,.env"
+          # Source directory content complete copy
+          source: ".next/*,public/*,package.json,package-lock.json,next.config.js,.env"
           target: "/root/cyt"
           strip_components: 0
           overwrite: true
@@ -44,17 +44,16 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
-            # Dependencies install karein
+            # Build aur Production clean up
             npm install --production
-            # Port 3000 ko release karein
+            # Port release
             fuser -k 3000/tcp || true
-            # PM2 restart
+            # PM2 complete reset and start
             pm2 delete cyt_frontend || true
             pm2 start npm --name "cyt_frontend" -- start
             pm2 save
-            # Wait 5 seconds and check logs to verify success
+            # Check status
             sleep 5
-            pm2 status cyt_frontend
-            pm2 logs cyt_frontend --lines 20 --no-daemon & 
-            sleep 5
-            kill $! || true
+            pm2 status
+            # Log output (simple, no dangerous flags)
+            pm2 logs cyt_frontend --lines 20 --nostream
