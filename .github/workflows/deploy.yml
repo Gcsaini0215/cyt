@@ -24,13 +24,19 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Build project
+        run: npm run build
+
+      - name: Clean up for upload
+        run: rm -rf node_modules
+
       - name: Copy code to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json,next.config.js,.env"
+          source: "./*"
           target: "/root/cyt"
           strip_components: 0
           overwrite: true
@@ -45,9 +51,11 @@ jobs:
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
             # Production dependencies install karein
             npm install --production
-            # PM2 ko force clean start karein taaki naya build pick ho
+            # Port 3000 ko free karein agar koi rogue process ho
+            fuser -k 3000/tcp || true
+            # PM2 ko force clean start karein
             pm2 delete cyt_frontend || true
-            pm2 start npm --name "cyt_frontend" -- start
+            pm2 start npm --name "cyt_frontend" -- start -- -p 3000
             pm2 save
-            # Check karne ke liye ki PM2 kahan se chal raha hai
-            pm2 show cyt_frontend | grep "cwd"
+            # Logs check karein taaki pata chale naya build chal gaya hai
+            pm2 logs cyt_frontend --lines 20 --flush --no-daemon
