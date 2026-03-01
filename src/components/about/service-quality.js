@@ -18,7 +18,7 @@ const qualityStyles = `
   color: #228756;
   font-weight: 800;
   letter-spacing: 1.5px;
-  font-size: 12px;
+  font-size: 14px;
   text-transform: uppercase;
   margin-bottom: 12px;
   display: block;
@@ -171,7 +171,7 @@ export default function ServiceQuality() {
           <Box sx={{ mb: 6, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 3 }}>
             <Box sx={{ textAlign: "left", width: "100%", maxWidth: { md: "800px" } }}>
               <span className="section-tag">Our Commitment</span>
-              <Typography variant="h3" sx={{ fontWeight: 800, color: "#1a202c", mb: 0, fontSize: { xs: "1.75rem", md: "2.5rem" }, width: "100%" }}>
+              <Typography variant="h3" sx={{ fontWeight: 800, color: "#1a202c", mb: 0, fontSize: { xs: "2rem", md: "3rem" }, width: "100%" }}>
                 Making Your Mental Health Our <span style={{ color: "#228756" }}>Top Priority</span>
               </Typography>
             </Box>

@@ -20,12 +20,20 @@ const formStyles = `
   transition: all 0.3s ease !important;
   background-color: #ffffff !important;
   color: #1e293b !important;
+  height: 50px !important;
+  line-height: 1.2 !important;
+}
+
+select.consultation-form-input {
+  cursor: pointer;
+  padding-right: 40px !important;
 }
 
 @media (max-width: 768px) {
   .consultation-form-input {
     padding: 10px 12px 10px 40px !important;
     font-size: 14px !important;
+    height: 46px !important;
   }
 }
 
@@ -85,7 +93,8 @@ export default function ConsultationForm({ showHeading = true }) {
     name: "",
     phone: "",
     email: "",
-    concern: ""
+    concern: "",
+    source: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -134,12 +143,13 @@ export default function ConsultationForm({ showHeading = true }) {
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         subject: "Free Consultation Request",
-        concern: formData.concern.trim()
+        concern: formData.concern.trim(),
+        source: formData.source.trim()
       };
       const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {
         setShowSuccessPopup(true);
-        setFormData({ name: "", phone: "", email: "", concern: "" });
+        setFormData({ name: "", phone: "", email: "", concern: "", source: "" });
       } else {
         setMessage(response.message || "Failed to submit. Please try again.");
         setMessageType("error");
@@ -237,6 +247,32 @@ export default function ConsultationForm({ showHeading = true }) {
               </div>
             </div>
 
+            <div style={{ marginBottom: isMobile ? "12px" : "15px" }}>
+              <label className="consultation-form-label">How did you hear about us?</label>
+              <div style={{ position: "relative" }}>
+                <CheckCircleIcon style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18 }} />
+                <select
+                  name="source"
+                  value={formData.source}
+                  onChange={handleChange}
+                  required
+                  className="consultation-form-input"
+                  style={{ appearance: "none" }}
+                >
+                  <option value="" disabled>Select an option</option>
+                  <option value="Google Search">Google Search</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Friend/Family">Friend/Family</option>
+                  <option value="Other">Other</option>
+                </select>
+                <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#94a3b8" }}>
+                   ▼
+                </div>
+              </div>
+            </div>
+
             <div style={{ marginBottom: isMobile ? "15px" : "20px" }}>
               <label className="consultation-form-label">Tell us your concern</label>
               <div style={{ position: "relative" }}>
@@ -248,7 +284,7 @@ export default function ConsultationForm({ showHeading = true }) {
                   onChange={handleChange}
                   rows={isMobile ? 2 : 3}
                   className="consultation-form-input"
-                  style={{ minHeight: isMobile ? "70px" : "90px", paddingTop: "10px", resize: "none" }}
+                  style={{ minHeight: isMobile ? "70px" : "90px", height: "auto !important", paddingTop: "10px", resize: "none" }}
                 />
               </div>
             </div>
