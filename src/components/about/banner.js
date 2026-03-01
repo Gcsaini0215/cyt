@@ -108,17 +108,17 @@ export default function AboutUsBanner() {
           <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             <div className="about-badge">
               <FavoriteIcon sx={{ fontSize: 18 }} />
-              <span>Our Story & </span>
+              <span>Our Story &  Vision </span>
             </div>
             
             <h1 className="about-title">
-              Empowering Minds, <br />
+              Empowering Minds, <br /> 
               <span className="about-animated-text">
                 <TypeAnimation
                   sequence={[
                     "Transforming Lives",
                     2000,
-                    "Bre",
+                    "Breaking Stigma",
                     2000,
                     "Healing Together",
                     2000,
@@ -131,7 +131,7 @@ export default function AboutUsBanner() {
             </h1>
             
             <p className="about-subtitle">
-            we believe that mental health is a fundamental human right. 
+           At CYT, we believe that mental health is a fundamental human right. 
               Our mission is to provide a safe, accessible, and professional platform 
               where everyone can find their perfect therapist match and begin their 
               journey toward emotional well-being.

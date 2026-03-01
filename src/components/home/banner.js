@@ -263,7 +263,7 @@ export default function Banner({ topTherapists = [] }) {
                     }}
                   >
                     <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
-                      Explore <span style={{ 
+                      Choose <span style={{ 
                         color: "#228756", 
                         display: "inline-block",
                         margin: "0 10px",
@@ -326,7 +326,7 @@ export default function Banner({ topTherapists = [] }) {
                     fontFamily: "'Inter', 'Poppins', sans-serif",
                     letterSpacing: "-0.01em"
                   }}>
-                    Find a qualified psychologist anywhere in India for online or in-person therapy. 
+                    Find a qualified psychologist anywhere in India for online or in-person therapy (Noida). 
                     Explore verified professionals, compare specializations, and book confidential sessions for anxiety, stress, relationships, and emotional well-being.
                   </Typography>
 

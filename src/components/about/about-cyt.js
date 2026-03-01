@@ -228,13 +228,13 @@ export default function AboutCyt() {
                   <div className="journey-line">
                     <div className="location-step past">
                       <div className="step-dot"><i className="feather-check"></i></div>
-                      <span className="location-name">a</span>
+                      <span className="location-name">Haridwar</span>
                       <span className="impact-text">Foundation</span>
                     </div>
                     
                     <div className="location-step past">
                       <div className="step-dot"><i className="feather-check"></i></div>
-                      <span className="location-name">Dehradn</span>
+                      <span className="location-name">Dehradun</span>
                       <span className="impact-text">Expansion</span>
                     </div>
                     
