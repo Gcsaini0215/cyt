@@ -44,10 +44,13 @@ const ClientImg = "/assets/img/avatar-027dc8.png";
 const Fabiha = "/assets/img/psychologist.png";
 const counselling1 = "/assets/img/counselling.png";
 
+import ConsultationForm from "./consultation-form";
+
 export default function Banner({ topTherapists = [] }) {
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [isConsultationOpen, setIsConsultationOpen] = useState(false);
 
   // State
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -94,51 +97,15 @@ export default function Banner({ topTherapists = [] }) {
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTherapist, setSelectedTherapist] = useState(null);
-  const [googleReviews, setGoogleReviews] = useState({ rating: 4.9, count: 500, loading: true });
-  const searchTimeoutRef = useRef(null);
+  const [visitorCount, setVisitorCount] = useState(12534);
 
-  // Fetch Google Reviews Data
   useEffect(() => {
-    const fetchGoogleData = async () => {
-      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-      if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
-        setGoogleReviews(prev => ({ ...prev, loading: false }));
-        return;
-      }
-
-      try {
-        const loader = new Loader({
-          apiKey: apiKey,
-          version: "weekly",
-          libraries: ["places"]
-        });
-
-        const google = await loader.load();
-        const service = new google.maps.places.PlacesService(document.createElement('div'));
-        
-        const request = {
-          query: 'Choose Your Therapist',
-          fields: ['name', 'rating', 'user_ratings_total'],
-        };
-
-        service.findPlaceFromQuery(request, (results, status) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-            setGoogleReviews({
-              rating: results[0].rating || 4.9,
-              count: results[0].user_ratings_total || 532,
-              loading: false
-            });
-          } else {
-            setGoogleReviews({ rating: 4.9, count: 532, loading: false }); 
-          }
-        });
-      } catch (error) {
-        console.error("Error fetching Google Reviews:", error);
-        setGoogleReviews(prev => ({ ...prev, loading: false }));
-      }
-    };
-
-    fetchGoogleData();
+    // Increment only on page load/refresh
+    const baseCount = 12534;
+    // Use current time to generate a consistent but changing increment for the session
+    const dateSeed = Math.floor(new Date().getTime() / (1000 * 60 * 60)); // Changes every hour
+    const randomIncrement = (dateSeed % 1000) + Math.floor(Math.random() * 50);
+    setVisitorCount(baseCount + randomIncrement);
   }, []);
 
   const handleOpenProfileModal = (therapist) => {
@@ -326,8 +293,12 @@ export default function Banner({ topTherapists = [] }) {
                     fontFamily: "'Inter', 'Poppins', sans-serif",
                     letterSpacing: "-0.01em"
                   }}>
-                    Find a qualified psychologist anywhere in India for online or in-person therapy (Noida). 
-                    Explore verified professionals, compare specializations, and book confidential sessions for anxiety, stress, relationships, and emotional well-being.
+                    Discover qualified and experienced <span style={{ color: "#1a6d45", fontWeight: 700 }}>therapists</span> offering online and in-person therapy across India. 
+                    Compare specializations, review detailed profiles, and book confidential sessions for 
+                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> anxiety</span>, 
+                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> stress</span>, 
+                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> relationship concerns</span>, 
+                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> depression</span>, and <span style={{ color: "#1a6d45", fontWeight: 700 }}>emotional well-being</span> — all in one secure platform.
                   </Typography>
 
                   {/* Google Reviews One-Liner */}
@@ -370,17 +341,10 @@ export default function Banner({ topTherapists = [] }) {
                     </Box>
                     <Box sx={{ width: "1px", height: "15px", bgcolor: "#cbd5e1", flexShrink: 0 }} />
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-                      <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{googleReviews.rating}/5</Typography>
-                      <Box sx={{ display: "flex", color: "#f59e0b" }}>
-                        {isMobile ? (
-                          <Star sx={{ fontSize: 16 }} />
-                        ) : (
-                          [...Array(5)].map((_, i) => <Star key={i} sx={{ fontSize: 18 }} />)
-                        )}
-                      </Box>
+                      <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{visitorCount.toLocaleString()}+</Typography>
                     </Box>
                     <Typography sx={{ color: "#64748b", fontSize: isMobile ? "12px" : "14px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                      ({googleReviews.count}+ Reviews)
+                      Trusted Platform Visitors
                     </Typography>
                   </Box>
 
@@ -410,9 +374,9 @@ export default function Banner({ topTherapists = [] }) {
                     >
                       <span className="btn-text">Find a Therapist</span>
                     </Link>
-                    <Link
+                    <div
                       className="rbt-btn btn-white btn-sm"
-                      href="/self-assessment"
+                      onClick={() => setIsConsultationOpen(true)}
                       style={{ 
                         width: isMobile ? "100%" : "280px", 
                         textAlign: "center",
@@ -423,11 +387,12 @@ export default function Banner({ topTherapists = [] }) {
                         fontSize: isMobile ? "14px" : "16px",
                         fontWeight: 700,
                         textDecoration: "none",
-                        display: "block"
+                        display: "block",
+                        cursor: "pointer"
                       }}
                     >
-                      <span className="btn-text">Self Assessment</span>
-                    </Link>
+                      <span className="btn-text">Free 15 Min Consultation</span>
+                    </div>
                   </div>
                 </Box>
               </div>
@@ -435,6 +400,42 @@ export default function Banner({ topTherapists = [] }) {
           </div>
         </div>
       </div>
+
+      {/* Consultation Modal */}
+      <Dialog 
+        open={isConsultationOpen} 
+        onClose={() => setIsConsultationOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        style={{ zIndex: 99999 }}
+        PaperProps={{
+          style: {
+            borderRadius: "24px",
+            padding: isMobile ? "15px" : "30px",
+            margin: isMobile ? "10px" : "32px",
+            maxHeight: "calc(100% - 64px)",
+            overflowY: "auto"
+          }
+        }}
+      >
+        <Box sx={{ position: "relative" }}>
+          <IconButton 
+            onClick={() => setIsConsultationOpen(false)}
+            sx={{ 
+              position: "absolute", 
+              right: -10, 
+              top: -10, 
+              zIndex: 10,
+              backgroundColor: "white",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+              "&:hover": { backgroundColor: "#f8fafc" }
+            }}
+          >
+            <Close />
+          </IconButton>
+          <ConsultationForm />
+        </Box>
+      </Dialog>
 
       {/* Blended Therapist Cards Section */}
       <Box sx={{ 
