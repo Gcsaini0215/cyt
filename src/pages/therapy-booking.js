@@ -177,27 +177,30 @@ export default function TherapyBooking() {
   return (
     <>
       <Head>
-        <title>Book Your Free 15-Minute Consultation | Choose Your Therapist</title>
-        <meta name="description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health with verified therapists at Choose Your Therapist." />
-        <meta name="keywords" content="therapy booking, free consultation, psychologist, mental health counseling, therapy appointment, verified therapists, confidential therapy" />
+        <title>Free 15 Minute Consultation with Psychologist | Choose Your Therapist</title>
+        <meta name="description" content="A 15-minute confidential call to understand your concerns and guide you toward the right therapy support. Take the first step towards better mental health." />
+        <meta name="keywords" content="free psychologist consultation, 15 minute therapy call, mental health support, psychologist consultation india, therapy booking, verified therapists" />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="language" content="English" />
         <link rel="canonical" href="https://chooseyourtherapist.in/therapy-booking" />
         
-        <meta property="og:title" content="Book Your Free 15-Minute Consultation | Choose Your Therapist" />
-        <meta property="og:description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health with verified therapists at Choose Your Therapist." />
+        <meta property="og:title" content="Free 15 Minute Consultation with Psychologist" />
+        <meta property="og:description" content="A 15-minute confidential call to understand your concerns and guide you toward the right therapy support." />
         <meta property="og:image" content="https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg" />
+        <meta property="og:image:secure_url" content="https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Not Sure If You Need Therapy? Let's Find Out" />
         <meta property="og:url" content="https://chooseyourtherapist.in/therapy-booking" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Book Your Free 15-Minute Consultation | Choose Your Therapist" />
-        <meta name="twitter:description" content="Get your free 15-minute consultation with a professional psychologist. Take the first step towards better mental health." />
+        <meta name="twitter:title" content="Free 15 Minute Consultation with Psychologist" />
+        <meta name="twitter:description" content="A 15-minute confidential call to understand your concerns and guide you toward the right therapy support." />
         <meta name="twitter:image" content="https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg" />
         
         <link rel="icon" type="image/png" href="/favicon.png" />
