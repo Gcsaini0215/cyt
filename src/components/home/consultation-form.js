@@ -32,7 +32,7 @@ select.consultation-form-input {
 @media (max-width: 768px) {
   .consultation-form-input {
     padding: 10px 12px 10px 40px !important;
-    font-size: 14px !important;
+    font-size: 16px !important;
     height: 46px !important;
   }
 }
@@ -344,7 +344,7 @@ export default function ConsultationForm({ showHeading = true }) {
             </div>
             <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#1e293b", marginBottom: "12px" }}>Success!</h2>
             <p style={{ color: "#64748b", lineHeight: "1.6", marginBottom: "30px" }}>
-              Your consultation request has been received. Our team will contact you shortly.
+              Your consultation request has been received. Our team will drop a message on your WhatsApp number within 24 hours.
             </p>
             <button
               onClick={() => setShowSuccessPopup(false)}

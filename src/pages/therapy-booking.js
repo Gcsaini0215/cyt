@@ -246,7 +246,7 @@ export default function TherapyBooking() {
                       Tell us how we <br /> can help you
                     </Typography>
                     <Typography sx={{ color: "#64748b", mb: 4, lineHeight: 1.6, fontSize: isMobile ? "17px" : "18px", fontWeight: 500 }}>
-                      Our team is here to listen and guide you to the right professional for your specific needs.
+                      Our psychologist team is here to listen and guide you to the right professional for your specific needs.
                     </Typography>
 
                     {/* Trust Indicators */}
