@@ -105,7 +105,7 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
   const profileBio = rawBio.length > 160 ? rawBio.substring(0, 157) + "..." : rawBio || `Book a session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`;
 
   const currentUrl = `${frontendUrl}/view-profile/${id}`;
-  const seoTitle = `${profileName} | ${profileType} ${profileLocation} | Choose Your Therapist`;
+  const seoTitle = `View Profile: ${profileName} | ${profileType} ${profileLocation} | with ChooseYourTherapist`;
   const seoDescription = profileBio;
 
   return loading ? (
