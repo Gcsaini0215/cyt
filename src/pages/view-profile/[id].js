@@ -19,15 +19,40 @@ import ProfileReview from "../../components/view_profile/profile-review";
 import { useRouter } from "next/router";
 import { getDecodedToken } from "../../utils/jwt";
 
-export default function ViewProfile() {
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+  try {
+    const res = await fetchData(getTherapistProfile + id);
+    if (res && res.data && Object.keys(res.data).length > 0) {
+      return {
+        props: {
+          initialProfile: res.data,
+          id: id
+        }
+      };
+    }
+  } catch (err) {
+    console.error("Error in getServerSideProps:", err);
+  }
+
+  return {
+    props: {
+      initialProfile: null,
+      id: id,
+      error: true
+    }
+  };
+}
+
+export default function ViewProfile({ initialProfile, id, error: serverError }) {
   const router = useRouter();
-  const { id } = router.query;
-  const [profile, setProfile] = useState();
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(initialProfile);
+  const [error, setError] = useState(serverError || false);
+  const [loading, setLoading] = useState(!initialProfile && !serverError);
   const [favrioutes, setFavrioutes] = useState([]);
 
   useEffect(() => {
+    if (initialProfile) return;
     if (!router.isReady || !id) return;
 
     const getData = async () => {
@@ -45,6 +70,10 @@ export default function ViewProfile() {
       }
     };
 
+    getData();
+  }, [router.isReady, id, initialProfile]);
+
+  useEffect(() => {
     const getFavrioutes = async () => {
       try {
         const res = await fetchById(GetFavriouteTherapistListUrl);
@@ -56,12 +85,11 @@ export default function ViewProfile() {
       }
     };
 
-    getData();
     const data = getDecodedToken();
     if (data && data.role !== 1) {
       getFavrioutes();
     }
-  }, [router.isReady, id]);
+  }, []);
 
   if (error) {
     return <ErrorPage />;

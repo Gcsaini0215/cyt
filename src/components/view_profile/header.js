@@ -18,9 +18,10 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const [bookmark, setBookmark] = React.useState(false);
   const [showBookmark, setShowBookmark] = React.useState(false);
 
-  const profileUrl = `${window.location.origin}/view-profile/${pageData._id}`;
+  const [profileUrl, setProfileUrl] = React.useState("");
 
   React.useEffect(() => {
+    setProfileUrl(`${window.location.origin}/view-profile/${pageData._id}`);
     const data = getDecodedToken();
     if (!data) return;
     if (data.role === 1) {
@@ -82,24 +83,57 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   return (
     <>
+      <style>{`
+        @keyframes pulse-green {
+          0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+          70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .book-btn-shimmer {
+          background: linear-gradient(90deg, #2ecc71, #27ae60, #2ecc71);
+          background-size: 200% 100%;
+          animation: shimmer 3s infinite linear;
+        }
+        .glass-header {
+          background: rgba(19, 61, 47, 0.85) !important;
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        }
+      `}</style>
       {/* Banner wrapper */}
       <div
         className="rbt-page-banner-wrapper"
         style={{
           position: "relative",
           zIndex: 1,
-          height: isMobile ? 280 : 350,
-          background: `linear-gradient(135deg, #0a2417 0%, #0d2b1c 100%)`,
+          height: isMobile ? 300 : 380,
+          background: `linear-gradient(180deg, #0a2417 0%, #138556 100%)`,
           overflow: 'hidden'
         }}
       >
+        {/* Abstract Background Decor */}
+        <div style={{
+          position: 'absolute',
+          top: '-10%',
+          right: '-5%',
+          width: '300px',
+          height: '300px',
+          background: 'rgba(255,255,255,0.03)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
       </div>
 
       {/* Floating header */}
       <div
         style={{
           position: "relative",
-          marginTop: -(isMobile ? 180 : 200),
+          marginTop: -(isMobile ? 200 : 220),
           zIndex: 10,
           display: "flex",
           justifyContent: "center",
@@ -107,19 +141,18 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         }}
       >
         <div
+          className="glass-header"
           style={{
-            background: "linear-gradient(135deg, #138556, #0f3d2f)",
             borderRadius: 30,
-            padding: isMobile ? "80px 20px 25px" : "25px 40px",
+            padding: isMobile ? "80px 20px 30px" : "35px 45px",
             maxWidth: 1200,
             width: "100%",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.4)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
             color: "#fff",
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
             alignItems: "center",
-            gap: isMobile ? 20 : 40,
+            gap: isMobile ? 20 : 45,
             position: "relative",
           }}
         >
@@ -144,8 +177,8 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               position: "relative",
               padding: 5,
               background: "linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1))",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-              marginTop: isMobile ? -70 : 0,
+              boxShadow: "0 15px 35px rgba(0,0,0,0.3), 0 0 20px rgba(46, 204, 113, 0.2)",
+              marginTop: isMobile ? -80 : 0,
             }}
           >
             <ImageTag
@@ -154,30 +187,31 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               style={{
                 objectFit: "cover",
                 borderRadius: "50%",
-                width: isMobile ? 130 : 160,
-                height: isMobile ? 130 : 160,
+                width: isMobile ? 140 : 180,
+                height: isMobile ? 140 : 180,
                 background: "#fff",
-                border: "3px solid rgba(255,255,255,0.8)"
+                border: "4px solid rgba(255,255,255,0.9)"
               }}
             />
             {/* Verified Badge */}
             <div
               style={{
                 position: "absolute",
-                bottom: 10,
-                right: 10,
+                bottom: 12,
+                right: 12,
                 background: "#2ecc71",
                 borderRadius: "50%",
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-                border: "2px solid #fff"
+                boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+                border: "3px solid #fff",
+                animation: "pulse-green 2s infinite"
               }}
             >
-              <i className="feather-check" style={{ color: "#fff", fontSize: 14 }}></i>
+              <i className="feather-check" style={{ color: "#fff", fontSize: 16, fontWeight: 900 }}></i>
             </div>
           </div>
 
@@ -188,27 +222,29 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               textAlign: isMobile ? "center" : "left",
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: isMobile ? 'center' : 'flex-start', marginBottom: 8 }}>
-               <span style={{ 
-                 background: "rgba(46, 204, 113, 0.2)", 
-                 color: "#2ecc71", 
-                 padding: "3px 10px", 
-                 borderRadius: 100, 
-                 fontSize: 11, 
-                 fontWeight: 700,
-                 textTransform: 'uppercase',
-                 letterSpacing: 1
-               }}>
-                 {pageData.profile_type}
-               </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: isMobile ? 'center' : 'flex-start', marginBottom: 12 }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "rgba(46, 204, 113, 0.2)", padding: "4px 12px", borderRadius: 100 }}>
+                 <div style={{ width: 8, height: 8, background: "#2ecc71", borderRadius: "50%" }}></div>
+                 <span style={{ 
+                   color: "#2ecc71", 
+                   fontSize: 11, 
+                   fontWeight: 800,
+                   textTransform: 'uppercase',
+                   letterSpacing: 1
+                 }}>
+                   Available Now
+                 </span>
+               </div>
+               
                {pageData.year_of_exp && (
                  <span style={{ 
-                   background: "rgba(255, 255, 255, 0.15)", 
+                   background: "linear-gradient(135deg, #f39c12, #d35400)", 
                    color: "#fff", 
-                   padding: "3px 10px", 
+                   padding: "4px 12px", 
                    borderRadius: 100, 
                    fontSize: 11, 
-                   fontWeight: 600 
+                   fontWeight: 700,
+                   boxShadow: "0 4px 10px rgba(243, 156, 18, 0.2)"
                  }}>
                    {pageData.year_of_exp}+ Years Exp
                  </span>
@@ -218,10 +254,11 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             <h1
               style={{
                 color: "#fff",
-                fontSize: isMobile ? 26 : 32,
-                marginBottom: 4,
-                fontWeight: 800,
-                letterSpacing: '-0.5px'
+                fontSize: isMobile ? 28 : 40,
+                marginBottom: 6,
+                fontWeight: 900,
+                letterSpacing: '-1px',
+                textShadow: "0 2px 10px rgba(0,0,0,0.2)"
               }}
             >
               {pageData.user.name}
@@ -229,11 +266,12 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             
             <p
               style={{
-                color: "rgba(255,255,255,0.9)",
-                fontSize: isMobile ? 14 : 16,
-                fontWeight: 500,
-                marginBottom: 15,
-                lineHeight: 1.2
+                color: "rgba(255,255,255,0.95)",
+                fontSize: isMobile ? 15 : 18,
+                fontWeight: 600,
+                marginBottom: 18,
+                lineHeight: 1.2,
+                fontFamily: "'Inter', sans-serif"
               }}
             >
               {pageData.qualification}
@@ -243,22 +281,18 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               style={{
                 display: "flex",
                 flexWrap: "wrap",
-                gap: 15,
+                gap: 20,
                 justifyContent: isMobile ? "center" : "flex-start",
-                marginBottom: 0,
+                marginBottom: isMobile ? 15 : 0,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 6, opacity: 0.9 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", padding: "5px 12px", borderRadius: 8 }}>
                 <i className="feather-globe" style={{ color: "#2ecc71", fontSize: 14 }}></i>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>{pageData.language_spoken}</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{pageData.language_spoken}</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, opacity: 0.9 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", padding: "5px 12px", borderRadius: 8 }}>
                 <i className="feather-map-pin" style={{ color: "#2ecc71", fontSize: 14 }}></i>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>{pageData.state}</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, opacity: 0.9 }}>
-                <i className="feather-user" style={{ color: "#2ecc71", fontSize: 14 }}></i>
-                <span style={{ fontSize: 13, fontWeight: 500 }}>{pageData.user?.gender || "N/A"}</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{pageData.state}</span>
               </div>
             </div>
           </div>
@@ -266,26 +300,27 @@ export default function ProfileHeader({ pageData, favrioutes }) {
           {/* Action Buttons */}
           <div style={{ 
             display: 'flex', 
-            gap: 12, 
-            flexDirection: isMobile ? 'column' : 'row',
-            width: isMobile ? '100%' : 'auto'
+            gap: 15, 
+            flexDirection: 'column',
+            width: isMobile ? '100%' : '220px'
           }}>
             <button
               onClick={handleClick}
+              className="book-btn-shimmer"
               style={{
-                padding: "12px 25px",
-                borderRadius: 12,
-                background: "#2ecc71",
+                padding: "16px 25px",
+                borderRadius: 14,
                 color: "#fff",
-                fontWeight: 700,
+                fontWeight: 800,
                 border: "none",
                 cursor: "pointer",
-                boxShadow: "0 8px 15px rgba(46, 204, 113, 0.2)",
+                boxShadow: "0 10px 20px rgba(46, 204, 113, 0.3)",
                 transition: "all 0.3s ease",
-                fontSize: 15,
-                whiteSpace: 'nowrap'
+                fontSize: 16,
+                textTransform: 'uppercase',
+                letterSpacing: 0.5
               }}
-              onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
+              onMouseEnter={(e) => (e.target.style.transform = "translateY(-3px)")}
               onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
             >
               Book Session
@@ -294,11 +329,11 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             <button
               onClick={handleShare}
               style={{
-                padding: "12px 25px",
-                borderRadius: 12,
-                background: "rgba(255, 255, 255, 0.1)",
+                padding: "14px 25px",
+                borderRadius: 14,
+                background: "rgba(255, 255, 255, 0.08)",
                 color: "#fff",
-                fontWeight: 600,
+                fontWeight: 700,
                 border: "1px solid rgba(255, 255, 255, 0.2)",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
@@ -306,14 +341,19 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
-                whiteSpace: 'nowrap'
+                gap: 10
               }}
-              onMouseEnter={(e) => (e.target.style.background = "rgba(255, 255, 255, 0.2)")}
-              onMouseLeave={(e) => (e.target.style.background = "rgba(255, 255, 255, 0.1)")}
+              onMouseEnter={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.15)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "rgba(255, 255, 255, 0.08)";
+                e.target.style.borderColor = "rgba(255, 255, 255, 0.2)";
+              }}
             >
-              <i className="feather-share-2" style={{ fontSize: 14 }}></i>
-              Share
+              <i className="feather-share-2" style={{ fontSize: 16 }}></i>
+              Share Profile
             </button>
           </div>
         </div>
