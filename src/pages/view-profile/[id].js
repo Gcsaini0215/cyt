@@ -67,13 +67,18 @@ export default function ViewProfile() {
     return <ErrorPage />;
   }
 
-  const profileName = profile?.user?.name || "Therapist";
-  const profileType = profile?.profile_type || "Professional";
+  const profileName = profile?.user?.name || "Expert Therapist";
+  const profileType = profile?.profile_type || "Psychologist";
+  const profileLocation = profile?.user?.state ? `in ${profile.user.state}` : "in India";
   const profileImage = profile?.user?.profile ? `${imagePath}/${profile.user.profile}` : "https://i.postimg.cc/gj1yngrd/choose.png";
-  const profileBio = profile?.user?.bio ? profile.user.bio.replace(/<[^>]*>/g, '').substring(0, 150) : "Professional therapist providing mental health support";
+  
+  // Clean and truncate bio for description
+  const rawBio = profile?.user?.bio ? profile.user.bio.replace(/<[^>]*>/g, '').trim() : "";
+  const profileBio = rawBio.length > 160 ? rawBio.substring(0, 157) + "..." : rawBio || `Book a session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`;
+
   const currentUrl = `${frontendUrl}/view-profile/${id}`;
-  const seoTitle = `${profileName} | ${profileType} | Choose Your Therapist - Online & In-Person Therapy`;
-  const seoDescription = `${profileBio} Book a session with ${profileName} on Choose Your Therapist. Verified professional therapist offering confidential mental health counseling.`;
+  const seoTitle = `${profileName} | ${profileType} ${profileLocation} | Choose Your Therapist`;
+  const seoDescription = profileBio;
 
   return loading ? (
     <PageProgressBar />
@@ -82,12 +87,11 @@ export default function ViewProfile() {
       <Head>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
-        <meta name="keywords" content={`${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, in-person therapy, verified therapist`} />
+        <meta name="keywords" content={`${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, in-person therapy, verified therapist, ${profile.user.state || "India"}`} />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="language" content="English" />
-        <meta name="revisit-after" content="7 days" />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="profile" />
@@ -95,8 +99,10 @@ export default function ViewProfile() {
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={profileImage} />
+        <meta property="og:image:secure_url" content={profileImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${profileName} - ${profileType}`} />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
 
