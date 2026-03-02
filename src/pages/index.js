@@ -61,8 +61,8 @@ export default function HomePage() {
       <Head>
         {/* Basic Meta Tags */}
         <title>Best Psychologist in India | Online & In-Person Therapy | Choose Your Therapist</title>
-        <meta name="description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals for anxiety, stress, relationships, and emotional well-being." />
-        <meta name="keywords" content="Best Psychologist India, Online Therapy India, In-Person Therapy, Mental Health Counseling, Verified Therapists, Anxiety Counseling, Stress Management, Relationship Therapy, Choose Your Therapist, Psychologists in Noida" />
+        <meta name="description" content="Connect with the best psychologists and therapists in India and Noida. Book online or in-person sessions with verified professionals for anxiety, stress, relationships, and emotional well-being." />
+        <meta name="keywords" content="Best Psychologist India, Best Psychologist Noida, Online Therapy India, In-Person Therapy, Mental Health Counseling, Verified Therapists, Anxiety Counseling, Stress Management, Relationship Therapy, Choose Your Therapist" />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="language" content="English" />
@@ -70,9 +70,14 @@ export default function HomePage() {
         <link rel="canonical" href="https://chooseyourtherapist.in/" />
 
         {/* Open Graph Meta Tags for Facebook / LinkedIn / WhatsApp */}
-        <meta property="og:title" content="Best Psychologist in India | Online & In-Person Therapy" />
-        <meta property="og:description" content="Connect with the best psychologists and therapists in India. Book online or in-person sessions with verified professionals." />
+        <meta property="og:title" content="Choose Best Therapist Across India & Noida | Online & In-Person Therapy" />
+        <meta property="og:description" content="Find a qualified psychologist anywhere in India and Noida. Explore verified professionals and book confidential sessions for anxiety, stress, relationships, and emotional well-being." />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
+        <meta property="og:image:secure_url" content="https://i.postimg.cc/gj1yngrd/choose.png" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Choose Your Therapist - Best Psychologist in India" />
         <meta property="og:url" content="https://chooseyourtherapist.in/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
@@ -80,8 +85,8 @@ export default function HomePage() {
 
         {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Best Psychologist in India | Online & In-Person Therapy" />
-        <meta name="twitter:description" content="Connect with verified therapists in India for online or in-person support." />
+        <meta name="twitter:title" content="Choose Best Therapist Across India & Noida | Online & In-Person Therapy" />
+        <meta name="twitter:description" content="Connect with verified therapists in India and Noida for online or in-person support. Book confidential sessions today." />
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta name="twitter:site" content="@chooseyourtherapist" />
 
