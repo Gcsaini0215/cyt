@@ -250,14 +250,13 @@ export default function ConsultationForm({ showHeading = true }) {
             <div style={{ marginBottom: isMobile ? "12px" : "15px" }}>
               <label className="consultation-form-label">How did you hear about us?</label>
               <div style={{ position: "relative" }}>
-                <CheckCircleIcon style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18 }} />
                 <select
                   name="source"
                   value={formData.source}
                   onChange={handleChange}
                   required
                   className="consultation-form-input"
-                  style={{ appearance: "none" }}
+                  style={{ paddingLeft: "15px" }}
                 >
                   <option value="" disabled>Select an option</option>
                   <option value="Google Search">Google Search</option>
@@ -267,9 +266,6 @@ export default function ConsultationForm({ showHeading = true }) {
                   <option value="Friend/Family">Friend/Family</option>
                   <option value="Other">Other</option>
                 </select>
-                <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "#94a3b8" }}>
-                   ▼
-                </div>
               </div>
             </div>
 
