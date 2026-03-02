@@ -8,14 +8,14 @@ export default function CallToActionAbout() {
         <style>{`
           .rbt-call-to-action.custom-dark-green-bg {
             background: #1a4d32 !important;
-            border-radius: 0;
-            padding: 50px 0 0 0;
-            margin: 0;
-            width: 100%;
+            border-radius: 24px;
+            padding: 50px 40px 0 40px;
+            margin: 0 20px;
+            width: auto;
             overflow: hidden;
           }
           .elementor-widget-container {
-            padding: 0;
+            padding: 40px 0;
             margin: 0;
           }
           .btn-white-custom {
