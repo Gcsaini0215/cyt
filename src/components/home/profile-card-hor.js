@@ -94,6 +94,11 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
 
   return (
     <div className="col-12 sal-animate">
+      <style>{`
+        .rbt-card:hover .card-profile-img {
+          transform: scale(1.08);
+        }
+      `}</style>
       <div 
         className="rbt-card variation-01 rbt-hover card-list-2" 
         style={{
@@ -119,6 +124,17 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               }}
               className="card-profile-img"
             />
+            {/* Gradient Overlay for better badge visibility */}
+            <div style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "60%",
+              background: "linear-gradient(to top, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%)",
+              zIndex: 1,
+              pointerEvents: "none"
+            }}></div>
             {/* Badge - Verified or Recommended based on prop */}
             <div
               className="rbt-badge-group"
@@ -218,31 +234,31 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           </div>
 
           {/* Meta info with monochrome icons */}
-          <ul className="rbt-meta" style={{ marginTop: "15px", gap: "12px", display: "flex", flexWrap: "wrap" }}>
+          <ul className="rbt-meta" style={{ marginTop: "4px", gap: "8px", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
             <li style={{
               display: "flex",
               alignItems: "center",
-              gap: "6px",
+              gap: "4px",
               color: "#228756",
               fontWeight: "700",
-              fontSize: "14px",
+              fontSize: "13px",
               background: "#e8f5e9",
-              padding: "4px 10px",
-              borderRadius: "8px"
+              padding: "2px 8px",
+              borderRadius: "6px"
             }}>
-              <PersonIcon sx={{ fontSize: 18, color: "#228756" }} /> {pageData.profile_type}
-            </li>
-            <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", color: "#64748b" }}>
-              <LanguageIcon sx={{ fontSize: 18, color: "#94a3b8" }} /> {pageData.language_spoken}
+              <PersonIcon sx={{ fontSize: 16, color: "#228756" }} /> {pageData.profile_type}
             </li>
             {pageData.state && (
-              <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", color: "#64748b" }}>
-                <LocationOnIcon sx={{ fontSize: 18, color: "#94a3b8" }} /> {pageData.state}
+              <li style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px", color: "#64748b", fontWeight: "600" }}>
+                <LocationOnIcon sx={{ fontSize: 16, color: "#228756" }} /> {pageData.state}
               </li>
             )}
+            <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
+              <LanguageIcon sx={{ fontSize: 16, color: "#94a3b8" }} /> {pageData.language_spoken}
+            </li>
             {pageData.year_of_exp && (
-              <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", color: "#64748b" }}>
-                <WorkIcon sx={{ fontSize: 18, color: "#94a3b8" }} /> {pageData.year_of_exp} experience
+              <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
+                <WorkIcon sx={{ fontSize: 16, color: "#94a3b8" }} /> {pageData.year_of_exp} exp.
               </li>
             )}
           </ul>
@@ -284,7 +300,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               style={{
                 display: "flex",
                 justifyContent: "center",
-                marginTop: 5,
+                marginTop: 15,
               }}
             >
               <Link
@@ -293,8 +309,11 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  padding: isMobile || isTablet ? "0 30px" : "0 40px",
+                  padding: isMobile || isTablet ? "0 20px" : "0 40px",
                   width: "100%",
+                  fontSize: isMobile ? "14px" : "15px",
+                  height: isMobile ? "44px" : "50px",
+                  lineHeight: isMobile ? "44px" : "50px",
                 }}
               >
                 <span>Book Now</span>
@@ -305,14 +324,21 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: 5,
+                marginTop: 15,
+                gap: isMobile ? "8px" : "12px"
               }}
             >
               <Link
                 className="view-btn view-btn-border"
                 href={`/view-profile/${pageData._id}`}
                 style={{
-                  padding: isMobile || isTablet ? "0 26px" : "0 10px",
+                  padding: isMobile ? "0 12px" : "0 10px",
+                  fontSize: isMobile ? "13px" : "14px",
+                  height: isMobile ? "44px" : "50px",
+                  lineHeight: isMobile ? "44px" : "50px",
+                  whiteSpace: "nowrap",
+                  flex: 1,
+                  textAlign: "center"
                 }}
               >
                 View Profile
@@ -323,7 +349,12 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  padding: isMobile || isTablet ? "0 20px" : "0 16px",
+                  padding: isMobile ? "0 12px" : "0 16px",
+                  fontSize: isMobile ? "13px" : "14px",
+                  height: isMobile ? "44px" : "50px",
+                  lineHeight: isMobile ? "44px" : "50px",
+                  whiteSpace: "nowrap",
+                  flex: 1
                 }}
               >
                 <span>Book Now</span>

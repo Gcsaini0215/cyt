@@ -1,192 +1,195 @@
-import React, { useState, useEffect } from "react";
-import { Search, CalendarDays, HeartHandshake, ArrowRight } from "lucide-react";
-import { Box, Typography, Container, Grid } from "@mui/material";
+import React from "react";
+import { 
+  ClipboardList, 
+  UserCheck, 
+  MessageCircle, 
+  ShieldCheck, 
+  Sparkles,
+  ArrowRight
+} from "lucide-react";
+import { Box, Typography, Container, Grid, Paper, useMediaQuery } from "@mui/material";
 
 const ProcessSteps = () => {
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 900px)");
 
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 960px)");
-    setIsMobile(query.matches);
-    const handle = (e) => setIsMobile(e.matches);
-    query.addListener(handle);
-    return () => query.removeListener(handle);
-  }, []);
-
-  const steps = [
+  const clientSteps = [
     {
-      icon: <Search size={32} />,
-      title: "Find Your Expert",
-      description: "Browse verified therapists and find the perfect match for your needs.",
-      color: "#228756",
-      bg: "rgba(34, 135, 86, 0.1)"
+      title: "Self-Assessment",
+      desc: "Identify your concerns through our simple discovery tools.",
+      icon: <ClipboardList size={28} />,
+      step: "01"
     },
     {
-      icon: <CalendarDays size={32} />,
-      title: "Book a Session",
-      description: "Select a convenient time slot and book your session instantly.",
-      color: "#007f99",
-      bg: "rgba(0, 127, 153, 0.1)"
+      title: "Explore & Choose",
+      desc: "Browse verified professionals and select the expert who resonates most with you.",
+      icon: <UserCheck size={28} />,
+      step: "02"
     },
     {
-      icon: <HeartHandshake size={32} />,
-      title: "Start Healing",
-      description: "Begin your journey to emotional well-being in a safe space.",
-      color: "#228756",
-      bg: "rgba(34, 135, 86, 0.1)"
+      title: "Guided Healing",
+      desc: "Start consistent sessions in a safe, confidential space.",
+      icon: <Sparkles size={28} />,
+      step: "03"
     }
   ];
 
   return (
-    <Box sx={{ 
-      py: { xs: 10, md: 15 }, 
-      backgroundColor: "#ffffff",
-      position: "relative",
-      overflow: "hidden"
-    }}>
-      {/* Decorative Circles */}
-      <Box sx={{
-        position: "absolute",
-        top: "-10%",
-        right: "-5%",
-        width: "500px",
-        height: "500px",
-        background: "radial-gradient(circle, rgba(34, 135, 86, 0.05) 0%, transparent 70%)",
-        borderRadius: "50%",
-      }} />
-
-      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-        <Box sx={{ textAlign: "center", mb: { xs: 8, md: 12 } }}>
-          <Typography
-            sx={{ 
-              color: "#228756", 
-              fontWeight: 800, 
-              letterSpacing: 3,
+    <Box sx={{ py: { xs: 8, md: 15 }, backgroundColor: "#ffffff" }}>
+      <Container maxWidth="lg">
+        <Paper 
+          elevation={0}
+          sx={{ 
+            p: { xs: 4, md: 8 }, 
+            borderRadius: "40px", 
+            backgroundColor: "#ffffff",
+            border: "1px solid #f1f5f9",
+            boxShadow: "0 30px 60px rgba(0,0,0,0.04)",
+            position: "relative",
+            overflow: "hidden"
+          }}
+        >
+          {/* Header */}
+          <Box sx={{ mb: { xs: 6, md: 10 }, textAlign: "center" }}>
+            <Box sx={{ 
+              display: "inline-block", 
+              px: 2, 
+              py: 0.5, 
+              borderRadius: "50px", 
+              bgcolor: "#f0fdf4", 
+              color: "#228756",
               fontSize: "0.85rem",
-              textTransform: "uppercase",
+              fontWeight: 800,
               mb: 2,
-              display: "block"
-            }}
-          >
-            Our Simple Process
-          </Typography>
-          <Typography
-            variant="h2"
-            sx={{
-              fontWeight: 900,
-              color: "#1e293b",
-              fontSize: { xs: "2.8rem", md: "4.2rem" },
-              lineHeight: 1.1,
-              mb: 3
-            }}
-          >
-            How it <span style={{ color: "#228756" }}>Works</span>
-          </Typography>
-          <Typography sx={{ color: "#64748b", fontSize: "1.3rem", maxWidth: "750px", mx: "auto", lineHeight: 1.6 }}>
-            Experience a seamless path to mental wellness with our structured 3-step approach.
-          </Typography>
-        </Box>
+              letterSpacing: 1
+            }}>
+              THE CYT METHODOLOGY
+            </Box>
+            <Typography variant="h3" sx={{ 
+              fontWeight: 900, 
+              color: "#1e293b", 
+              fontSize: { xs: "2.5rem", md: "4.5rem" },
+              letterSpacing: "-2px",
+              lineHeight: 1.1
+            }}>
+              Your Personalized <span style={{ color: "#228756" }}>Healing Blueprint</span>
+            </Typography>
+          </Box>
 
-        <Box sx={{ position: "relative" }}>
-          {/* Dashed Path (Desktop only) */}
-          {!isMobile && (
-            <Box sx={{
-              position: "absolute",
-              top: "100px",
-              left: "10%",
-              right: "10%",
-              height: "2px",
-              borderTop: "3px dashed #cbd5e1",
-              zIndex: 0
-            }} />
-          )}
+          {/* Steps Grid */}
+          <Grid container spacing={6} sx={{ position: "relative" }}>
+            {/* Desktop Connector Line */}
+            {!isMobile && (
+              <Box sx={{ 
+                position: "absolute", 
+                top: "120px", 
+                left: "10%", 
+                right: "10%", 
+                height: "2px", 
+                background: "dashed 2px #e2e8f0",
+                borderTop: "2px dashed #e2e8f0",
+                zIndex: 0
+              }} />
+            )}
 
-          <Grid container spacing={4} justifyContent="center">
-            {steps.map((item, index) => (
+            {clientSteps.map((item, index) => (
               <Grid item xs={12} md={4} key={index}>
                 <Box 
-                  className="step-card"
                   sx={{ 
-                    textAlign: "center",
-                    position: "relative",
+                    textAlign: "center", 
+                    position: "relative", 
                     zIndex: 1,
-                    px: { md: 2 }
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-5px)"
+                    }
                   }}
                 >
-                  {/* Icon Wrapper */}
-                  <Box sx={{
-                    width: "120px",
-                    height: "120px",
-                    borderRadius: "50%",
-                    bgcolor: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                  <Box sx={{ 
+                    width: "80px", 
+                    height: "80px", 
+                    borderRadius: "24px", 
+                    bgcolor: "#ffffff", 
+                    border: "2px solid #f1f5f9",
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
                     mx: "auto",
-                    mb: 4,
-                    boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
-                    border: "2px solid #fff",
-                    position: "relative",
-                    transition: "all 0.4s ease",
-                    "&::after": {
-                      content: `"${index + 1}"`,
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      width: "35px",
-                      height: "35px",
-                      bgcolor: item.color,
-                      color: "#fff",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "14px",
-                      fontWeight: 900,
-                      boxShadow: "0 5px 15px rgba(0,0,0,0.1)"
-                    }
+                    mb: 3,
+                    color: "#228756",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.03)",
+                    position: "relative"
                   }}>
-                    <Box sx={{ color: item.color }}>
-                      {item.icon}
-                    </Box>
+                    {item.icon}
+                    <Typography sx={{ 
+                      position: "absolute", 
+                      top: -10, 
+                      right: -10, 
+                      width: "30px", 
+                      height: "30px", 
+                      bgcolor: "#228756", 
+                      color: "#fff", 
+                      borderRadius: "50%", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center",
+                      fontSize: "0.75rem",
+                      fontWeight: 900
+                    }}>
+                      {item.step}
+                    </Typography>
                   </Box>
-
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: 800,
-                      color: "#1e293b",
-                      mb: 2,
-                      fontSize: "1.8rem",
-                      letterSpacing: "-0.01em"
-                    }}
-                  >
+                  
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 2, fontSize: "1.8rem" }}>
                     {item.title}
                   </Typography>
-                  <Typography sx={{ color: "#64748b", lineHeight: 1.7, fontSize: "1.2rem", fontWeight: 500 }}>
-                    {item.description}
+                  <Typography sx={{ 
+                    color: "#64748b", 
+                    fontSize: "1.3rem", 
+                    lineHeight: 1.6,
+                    px: { md: 2 },
+                    fontWeight: 500
+                  }}>
+                    {item.desc}
                   </Typography>
-
-                  {/* Arrow (Mobile only) */}
-                  {isMobile && index < steps.length - 1 && (
-                    <Box sx={{ my: 4, color: "#cbd5e1" }}>
-                      <ArrowRight style={{ transform: "rotate(90deg)" }} />
-                    </Box>
-                  )}
                 </Box>
               </Grid>
             ))}
           </Grid>
-        </Box>
-      </Container>
 
-      <style>{`
-        .step-card:hover .MuiBox-root:first-of-type {
-          transform: translateY(-10px) scale(1.05);
-          border-color: #22875633;
-          box-shadow: 0 30px 60px rgba(34, 135, 86, 0.12);
-        }
-      `}</style>
+          {/* Trust Footer */}
+          <Box 
+            sx={{ 
+              mt: 8, 
+              pt: 4, 
+              borderTop: "1px solid #f1f5f9", 
+              display: "flex", 
+              flexDirection: isMobile ? "column" : "row",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: { xs: 2, md: 6 }
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <ShieldCheck size={24} color="#228756" />
+              <Typography sx={{ color: "#1e293b", fontWeight: 700, fontSize: "1.1rem" }}>
+                100% Confidential
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <MessageCircle size={24} color="#228756" />
+              <Typography sx={{ color: "#1e293b", fontWeight: 700, fontSize: "1.1rem" }}>
+                Verified Experts Only
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <UserCheck size={24} color="#228756" />
+              <Typography sx={{ color: "#1e293b", fontWeight: 700, fontSize: "1.1rem" }}>
+                Empowered Expert Selection
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
     </Box>
   );
 };

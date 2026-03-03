@@ -14,6 +14,9 @@ import { getDecodedToken } from "../../utils/jwt";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import VerifiedIcon from "@mui/icons-material/Verified";
 
+import PersonIcon from "@mui/icons-material/Person";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+
 export default function ProfileCardVert(props) {
   const { data, favrioutes } = props;
   const [isMobile, setIsMobile] = useState(false);
@@ -62,6 +65,11 @@ export default function ProfileCardVert(props) {
 
   return (
     <div className="swiper-slide">
+      <style>{`
+        .therapist-premium-card:hover .therapist-img {
+          transform: scale(1.08);
+        }
+      `}</style>
       <div
         className="rbt-card variation-01 therapist-premium-card"
         style={{
@@ -92,6 +100,17 @@ export default function ProfileCardVert(props) {
               }}
               src={`${imagePath}/${data.user?.profile}`}
             />
+            {/* Gradient Overlay for better badge visibility */}
+            <div style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "60%",
+              background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)",
+              zIndex: 1,
+              pointerEvents: "none"
+            }}></div>
 
             <div
               className="badge-container"
@@ -125,15 +144,32 @@ export default function ProfileCardVert(props) {
 
         <div className="card-body-content" style={{ padding: isMobile ? "16px" : "20px", display: "flex", flexDirection: "column", gap: "10px", flexGrow: 1 }}>
           <div className="card-top-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div className="name-type-wrap">
-              <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0 0 4px 0", color: "inherit" }}>
+            <div className="name-type-wrap" style={{ flexGrow: 1 }}>
+              <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0 0 2px 0", color: "inherit" }}>
                 <Link href={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   {data.user?.name || "Therapist"}
                 </Link>
               </h4>
-              <span className="profile-type-text" style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                {data.profile_type}
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                <span className="profile-type-text" style={{ 
+                  fontSize: "11px", 
+                  color: "#228756", 
+                  fontWeight: "700", 
+                  background: "#e8f5e9", 
+                  padding: "2px 6px", 
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px"
+                }}>
+                  <PersonIcon sx={{ fontSize: 13 }} /> {data.profile_type}
+                </span>
+                {data.state && (
+                  <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", display: "flex", alignItems: "center", gap: "2px" }}>
+                    <LocationOnIcon sx={{ fontSize: 14, color: "#228756" }} /> {data.state}
+                  </span>
+                )}
+              </div>
             </div>
 
             {showBookmark && (
@@ -166,9 +202,6 @@ export default function ProfileCardVert(props) {
             </div>
             <div className="meta-pill">
               <i className="feather-globe"></i> {data.language_spoken?.split(',')[0]}
-            </div>
-            <div className="meta-pill">
-              <i className="feather-map-pin"></i> {data.state}
             </div>
           </div>
 

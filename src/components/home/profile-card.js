@@ -287,8 +287,8 @@ export default function ProfileCard() {
               spaceBetween={50}
               breakpoints={{
                 640: {
-                  slidesPerView: isMobile ? 1 : 2,
-                  spaceBetween: 40,
+                  slidesPerView: 1,
+                  spaceBetween: 20,
                 },
                 768: {
                   slidesPerView: 2,
