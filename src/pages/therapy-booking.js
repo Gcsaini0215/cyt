@@ -223,19 +223,18 @@ const bookingStyles = `
   justify-content: center;
   margin-bottom: 24px;
   box-shadow: 0 10px 20px rgba(34, 135, 86, 0.2);
-  transform: rotate(-8deg);
   transition: all 0.4s ease;
 }
 
 .who-card:hover .who-icon-wrapper {
-  transform: rotate(0deg) scale(1.1);
+  transform: scale(1.1);
   background: #4ade80;
 }
 
 .who-text {
   color: #1e293b;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.5;
 }
 
@@ -313,7 +312,7 @@ export default function TherapyBooking() {
             <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
               <div className="booking-badge">
                 <FavoriteIcon sx={{ fontSize: 18 }} />
-                <span>Begin Your Healing Journey With Us</span>
+                <span>{isMobile ? "Begin Your Healing Journey" : "Begin Your Healing Journey With Us"}</span>
               </div>
               
               <h1 className="booking-title" style={{ minHeight: isMobile ? '80px' : '110px' }}>

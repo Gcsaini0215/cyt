@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import PhoneIcon from "@mui/icons-material/Phone";
 import PersonIcon from "@mui/icons-material/Person";
@@ -10,6 +10,17 @@ import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 
 const formStyles = `
+@keyframes fadeInUpPopup {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .consultation-form-input {
   width: 100%;
   padding: 12px 15px 12px 42px !important;
@@ -101,6 +112,17 @@ export default function ConsultationForm({ showHeading = true }) {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (showSuccessPopup) {
+      // Auto close after 30 seconds
+      timer = setTimeout(() => {
+        setShowSuccessPopup(false);
+      }, 30000);
+    }
+    return () => clearTimeout(timer);
+  }, [showSuccessPopup]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -275,12 +297,12 @@ export default function ConsultationForm({ showHeading = true }) {
                 <MessageIcon style={{ position: "absolute", left: 14, top: 12, color: "#94a3b8", fontSize: 18 }} />
                 <textarea
                   name="concern"
-                  placeholder="How can we help you?"
+                  placeholder="Tell us a bit about what you're going through..."
                   value={formData.concern}
                   onChange={handleChange}
-                  rows={isMobile ? 2 : 3}
+                  rows={isMobile ? 4 : 6}
                   className="consultation-form-input"
-                  style={{ minHeight: isMobile ? "70px" : "90px", height: "auto !important", paddingTop: "10px", resize: "none" }}
+                  style={{ minHeight: isMobile ? "120px" : "160px", height: "auto !important", paddingTop: "12px", resize: "none", lineHeight: "1.5" }}
                 />
               </div>
             </div>
@@ -292,7 +314,7 @@ export default function ConsultationForm({ showHeading = true }) {
                 </>
               ) : (
                 <>
-                  Request a Free Call
+                  Schedule My Free Session
                 </>
               )}
             </button>
@@ -307,9 +329,10 @@ export default function ConsultationForm({ showHeading = true }) {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(15, 23, 42, 0.8)",
-          backdropFilter: "blur(8px)",
-          zIndex: 10000,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          zIndex: 99999,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -317,13 +340,14 @@ export default function ConsultationForm({ showHeading = true }) {
         }} onClick={() => setShowSuccessPopup(false)}>
           <div style={{
             background: "white",
-            borderRadius: "24px",
+            borderRadius: "28px",
             padding: "40px 30px",
             width: "100%",
-            maxWidth: "400px",
+            maxWidth: "420px",
             textAlign: "center",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-            position: "relative"
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.3)",
+            position: "relative",
+            animation: "fadeInUpPopup 0.4s ease-out"
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{
               width: "80px",
