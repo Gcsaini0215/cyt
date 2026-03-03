@@ -365,10 +365,10 @@ export default function TherapyBooking() {
                           color: "#1e293b", 
                           mb: 3, 
                           letterSpacing: "-1px", 
-                          fontSize: isMobile ? "28px" : "42px", 
+                          fontSize: isMobile ? "24px" : "42px", 
                           position: 'relative', 
                           zIndex: 1,
-                          whiteSpace: isMobile ? "nowrap" : "normal"
+                          lineHeight: 1.2
                         }}>
                           Tell us how we can support you <span className="pulsing-heart">❤</span>
                         </Typography>
