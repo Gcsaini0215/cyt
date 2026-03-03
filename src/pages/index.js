@@ -88,6 +88,7 @@ export default function HomePage() {
         <meta name="twitter:title" content="Choose Best Therapist Across India & Noida | Online & In-Person Therapy" />
         <meta name="twitter:description" content="Connect with verified therapists in India and Noida for online or in-person support. Book confidential sessions today." />
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
+        <meta name="twitter:image:alt" content="Choose Your Therapist - Best Psychologist in India" />
         <meta name="twitter:site" content="@chooseyourtherapist" />
 
         {/* Additional SEO Meta Tags */}
@@ -139,29 +140,22 @@ export default function HomePage() {
         </script>
       </Head>
 
-      <main className="">
-        {/* Navbar */}
+      <main className="rbt-main-wrapper">
         <MyNavbar />
-
-        <main className="rbt-main-wrapper">
-          {/* Homepage Sections */}
-          <Banner topTherapists={topTherapists} />
-          <Specializations />
-          <ProfileCard />
-          <FreeResources />
-          <HomeWorkshop isWhite={false} />
-          <ProcessSteps />
-          <Blogs />
-          <Faqs />
-          <NewsLetter />
-
-          {/* Payment Success Modal (Optional) */}
-          {/* <PaymentSuccessModal open={showPopup} onClose={() => setShowPopup(false)} /> */}
-        </main>
-
-        {/* Footer */}
-        <Footer />
+        {/* Homepage Sections */}
+        <Banner topTherapists={topTherapists} />
+        <Specializations />
+        <ProfileCard />
+        <FreeResources />
+        <HomeWorkshop isWhite={false} />
+        <ProcessSteps />
+        <Blogs />
+        <Faqs />
+        <NewsLetter />
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

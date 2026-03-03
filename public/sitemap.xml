@@ -26,6 +26,26 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.chooseyourtherapist.in/therapist-registration</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.chooseyourtherapist.in/register</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.chooseyourtherapist.in/login</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.chooseyourtherapist.in/self-assessment</loc>
+    <lastmod>2024-05-20</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.chooseyourtherapist.in/contact-us</loc>
     <lastmod>2024-05-20</lastmod>
     <priority>0.6</priority>

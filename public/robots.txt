@@ -1,7 +1,6 @@
 User-agent: *
 Disallow: /my-dashboard
 Disallow: /therapist-dashboard
-Disallow: /login
-Disallow: /register
+Disallow: /how-it-works
 
 Sitemap: https://www.chooseyourtherapist.in/sitemap.xml

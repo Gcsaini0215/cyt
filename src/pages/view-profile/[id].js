@@ -98,7 +98,11 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
   const profileName = profile?.user?.name || "Expert Therapist";
   const profileType = profile?.profile_type || "Psychologist";
   const profileLocation = profile?.user?.state ? `in ${profile.user.state}` : "in India";
-  const profileImage = profile?.user?.profile ? `${imagePath}/${profile.user.profile}` : "https://i.postimg.cc/gj1yngrd/choose.png";
+  
+  // Ensure absolute image URL for OG tags
+  const profileImage = profile?.user?.profile 
+    ? (profile.user.profile.startsWith('http') ? profile.user.profile : `${imagePath}/${profile.user.profile}`)
+    : "https://i.postimg.cc/gj1yngrd/choose.png";
   
   // Clean and truncate bio for description
   const rawBio = profile?.user?.bio ? profile.user.bio.replace(/<[^>]*>/g, '').trim() : "";
