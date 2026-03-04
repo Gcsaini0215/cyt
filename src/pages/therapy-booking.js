@@ -270,8 +270,8 @@ export default function TherapyBooking() {
   return (
     <>
       <Head>
-        <title>Start Your Therapy Journey Today | Choose Your Therapist</title>
-        <meta name="description" content="Book a free 15-minute discovery call with verified psychologists. Take the first step toward mental well-being with ease and zero pressure." />
+        <title>Start Your Therapy Journey Today. | Free 15-Min Expert Consultation | Choose Your Therapist</title>
+        <meta name="description" content="Taking the first step is the hardest part. Book a free 15-minute discovery call with our verified psychologists to navigate your mental health journey with ease and zero pressure." />
         <meta name="keywords" content="free psychologist consultation, 15 minute therapy call, mental health support, psychologist consultation india, therapy booking, verified therapists" />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
@@ -295,6 +295,10 @@ export default function TherapyBooking() {
         <meta name="twitter:title" content="Start Your Therapy Journey Today | Free 15-Min Expert Consultation" />
         <meta name="twitter:description" content="Book a free 15-minute discovery call with our verified psychologists to navigate your mental health journey with ease." />
         <meta name="twitter:image" content="https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg" />
+        
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
       
       <style dangerouslySetInnerHTML={{ __html: bookingStyles }} />
@@ -365,7 +369,7 @@ export default function TherapyBooking() {
                           zIndex: 1,
                           lineHeight: 1.2
                         }}>
-                          Tell us how we can support you <span className="pulsing-heart">❤</span>
+                          Tell us how we can support you.. <span className="pulsing-heart">❤</span>
                         </Typography>
                         <Typography sx={{ color: "#64748b", mb: 4, lineHeight: 1.6, fontSize: isMobile ? "17px" : "18px", fontWeight: 500 }}>
                           At Choose Your Therapist, our team is dedicated to listening and matching you with the right professional who truly understands your specific needs.
@@ -384,7 +388,7 @@ export default function TherapyBooking() {
                           <div className="col-4">
                             <div className="trust-item">
                               <div className="trust-icon-box">
-                                <ShieldIcon sx={{ fontSize: 40 }} />
+                                <ShieldIcon sx={{ fiontSize: 40 }} />
                               </div>
                               <span className="trust-text">Secure</span>
                             </div>
@@ -444,7 +448,7 @@ export default function TherapyBooking() {
                         borderRadius: '2px'
                       }
                     }}>
-                      This Consultation Is For You If..
+                      This Consultation Is For You If....
                     </Typography>
                   </Box>
 
