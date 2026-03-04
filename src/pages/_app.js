@@ -3,6 +3,7 @@ import "@/index.css";
 import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
+import HoliPopup from "@/components/global/holi-popup";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/router";
@@ -40,6 +41,7 @@ function MyApp({ Component, pageProps }) {
         <meta property="og:locale" content="en_IN" />
       </Head>
       {isLoading && <PremiumLoader />}
+      <HoliPopup />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
         <div className="main-wrapper" suppressHydrationWarning>

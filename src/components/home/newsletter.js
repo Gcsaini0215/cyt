@@ -164,179 +164,178 @@ export default function NewsLetter() {
 
   return (
     <div
-      className="rbt-newsletter-area newsletter-style-2 rbt-section-gap"
+      className="rbt-newsletter-area newsletter-style-2"
       ref={ref}
       style={{
-        background: '#f0fdf4', // Soft green background
+        background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)',
         position: 'relative',
         overflow: 'hidden',
-        padding: '100px 0'
+        padding: isMobile ? '60px 30px' : '80px 60px'
       }}
     >
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div 
-          style={{ 
-            background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)',
-            borderRadius: '40px',
-            padding: isMobile ? '40px 20px' : '60px',
-            boxShadow: '0 20px 40px rgba(34, 135, 86, 0.15)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          {/* Decorative Circles */}
-          <div style={{
-            position: 'absolute',
-            top: '-50px',
-            right: '-50px',
-            width: '200px',
-            height: '200px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '50%',
-            pointerEvents: 'none'
-          }}></div>
+      {/* Decorative Circles */}
+      <div style={{
+        position: 'absolute',
+        top: '-50px',
+        right: '-50px',
+        width: '300px',
+        height: '300px',
+        background: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: '50%',
+        pointerEvents: 'none'
+      }}></div>
+      <div style={{
+        position: 'absolute',
+        bottom: '-100px',
+        left: '-50px',
+        width: '400px',
+        height: '400px',
+        background: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: '50%',
+        pointerEvents: 'none'
+      }}></div>
 
-          <div className="row align-items-center">
-            <div className="col-lg-7">
-              <div className="inner">
-                <div className="section-title text-left">
-                  <span className="subtitle" style={{
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    color: '#fff',
-                    padding: '6px 16px',
-                    borderRadius: '50px',
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    display: 'inline-block',
-                    marginBottom: '15px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px'
-                  }}>
-                    Stay Updated
-                  </span>
-                  <h2 className="title" style={{
-                    color: '#fff',
-                    fontSize: isMobile ? '2.2rem' : '3.5rem',
-                    fontWeight: '900',
-                    marginBottom: '20px',
-                    lineHeight: 1.1
-                  }}>
-                    Join Our Mental <br /> Health Community
-                  </h2>
-                  <p className="description" style={{
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    fontSize: '1.1rem',
-                    lineHeight: 1.6,
-                    marginBottom: '30px',
-                    maxWidth: '500px'
-                  }}>
-                    Get weekly insights, expert tips, and exclusive updates delivered straight to your inbox.
-                  </p>
+      <div className="container" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '0 10px' : '0 15px' }}>
+        <div className="row align-items-center justify-content-center">
+          <div className="col-lg-6">
+            <div className="inner">
+              <div className="section-title text-left">
+                <span className="subtitle" style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: '#fff',
+                  padding: '6px 16px',
+                  borderRadius: '50px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  display: 'inline-block',
+                  marginBottom: '15px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  Stay Updated
+                </span>
+                <h2 className="title" style={{
+                  color: '#fff',
+                  fontSize: isMobile ? '2.2rem' : '3.5rem',
+                  fontWeight: '900',
+                  marginBottom: '20px',
+                  lineHeight: 1.1
+                }}>
+                  Join Our Mental <br /> Health Community
+                </h2>
+                <p className="description" style={{
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontSize: '1.1rem',
+                  lineHeight: 1.6,
+                  marginBottom: '30px',
+                  maxWidth: '500px'
+                }}>
+                  Get weekly insights, expert tips, and exclusive updates delivered straight to your inbox.
+                </p>
 
-                  <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
-                    <div>
-                      <h3 style={{ color: '#fff', fontSize: '2rem', fontWeight: '800', margin: 0 }}>{count}+</h3>
-                      <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', margin: 0 }}>Successful Sessions</p>
-                    </div>
-                    <div>
-                      <h3 style={{ color: '#fff', fontSize: '2rem', fontWeight: '800', margin: 0 }}>{count1}+</h3>
-                      <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', margin: 0 }}>Happy Users</p>
-                    </div>
+                <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+                  <div>
+                    <h3 style={{ color: '#fff', fontSize: '2rem', fontWeight: '800', margin: 0 }}>{count}+</h3>
+                    <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', margin: 0 }}>Successful Sessions</p>
+                  </div>
+                  <div>
+                    <h3 style={{ color: '#fff', fontSize: '2rem', fontWeight: '800', margin: 0 }}>{count1}+</h3>
+                    <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', margin: 0 }}>Happy Users</p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="col-lg-5 mt_md--40 mt_sm--40">
-              <div style={{
-                background: '#ffffff',
-                padding: isMobile ? '30px 20px' : '40px',
-                borderRadius: '30px',
-                boxShadow: '0 15px 35px rgba(0,0,0,0.1)'
-              }}>
-                <h4 style={{ color: '#1e293b', fontWeight: '800', marginBottom: '10px', fontSize: '1.5rem' }}>
-                  Subscribe Now
-                </h4>
-                <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '25px' }}>
-                  No spam, only valuable content.
-                </p>
+          <div className="col-lg-5 mt_md--40 mt_sm--40">
+            <div style={{
+              background: '#ffffff',
+              padding: isMobile ? '30px 20px' : '40px',
+              borderRadius: '24px',
+              boxShadow: '0 15px 35px rgba(0,0,0,0.1)'
+            }}>
+              <h4 style={{ color: '#1e293b', fontWeight: '800', marginBottom: '10px', fontSize: '1.5rem' }}>
+                Subscribe Now
+              </h4>
+              <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '25px' }}>
+                No spam, only valuable content.
+              </p>
 
-                {otpView ? (
-                  <div className="newsletter-form-modern">
-                    <input
-                      type="text"
-                      placeholder="Enter 6-digit OTP"
-                      value={otp}
-                      onChange={handleOtpChange}
-                      style={{
-                        width: '100%',
-                        padding: '15px',
-                        borderRadius: '12px',
-                        border: '2px solid #e2e8f0',
-                        marginBottom: '15px',
-                        fontSize: '16px',
-                        outline: 'none'
-                      }}
-                    />
-                    <button
-                      onClick={handleOtpSubmit}
-                      disabled={loading}
-                      style={{
-                        width: '100%',
-                        padding: '15px',
-                        background: '#228756',
-                        color: '#fff',
-                        borderRadius: '12px',
-                        border: 'none',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s'
-                      }}
-                    >
-                      {loading ? 'Verifying...' : 'Verify & Subscribe'}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="newsletter-form-modern">
-                    <input
-                      type="email"
-                      placeholder="yourname@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '15px',
-                        borderRadius: '12px',
-                        border: '2px solid #e2e8f0',
-                        marginBottom: '15px',
-                        fontSize: '16px',
-                        outline: 'none'
-                      }}
-                    />
-                    <button
-                      onClick={handleSubmit}
-                      disabled={loading}
-                      style={{
-                        width: '100%',
-                        padding: '15px',
-                        background: '#228756',
-                        color: '#fff',
-                        borderRadius: '12px',
-                        border: 'none',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s'
-                      }}
-                    >
-                      {loading ? 'Joining...' : 'Subscribe Now'}
-                    </button>
-                  </div>
-                )}
-                
-                <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '15px' }}>
-                  Join 1000+ members today.
-                </p>
-              </div>
+              {otpView ? (
+                <div className="newsletter-form-modern">
+                  <input
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    value={otp}
+                    onChange={handleOtpChange}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      borderRadius: '12px',
+                      border: '2px solid #e2e8f0',
+                      marginBottom: '15px',
+                      fontSize: '16px',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    onClick={handleOtpSubmit}
+                    disabled={loading}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      background: '#228756',
+                      color: '#fff',
+                      borderRadius: '12px',
+                      border: 'none',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s'
+                    }}
+                  >
+                    {loading ? 'Verifying...' : 'Verify & Subscribe'}
+                  </button>
+                </div>
+              ) : (
+                <div className="newsletter-form-modern">
+                  <input
+                    type="email"
+                    placeholder="yourname@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      borderRadius: '12px',
+                      border: '2px solid #e2e8f0',
+                      marginBottom: '15px',
+                      fontSize: '16px',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      background: '#228756',
+                      color: '#fff',
+                      borderRadius: '12px',
+                      border: 'none',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s'
+                    }}
+                  >
+                    {loading ? 'Joining...' : 'Subscribe Now'}
+                  </button>
+                </div>
+              )}
+              
+              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '15px' }}>
+                Join 1000+ members today.
+              </p>
             </div>
           </div>
         </div>

@@ -104,7 +104,7 @@ export default function ProfileCard() {
           <div className="col-lg-12">
             <div className="section-title text-center" style={{ marginBottom: '30px' }}>
               <span className="subtitle" style={{ 
-                background: '#8b5e3c', 
+                background: '#228756', 
                 color: '#ffffff', 
                 padding: '8px 20px', 
                 borderRadius: '50px',
@@ -112,7 +112,7 @@ export default function ProfileCard() {
                 fontSize: '1rem',
                 textTransform: 'uppercase',
                 letterSpacing: '1.5px',
-                boxShadow: '0 4px 10px rgba(139, 94, 60, 0.2)'
+                boxShadow: '0 4px 10px rgba(34, 135, 86, 0.2)'
               }}>
                 Verified Professionals
               </span>
