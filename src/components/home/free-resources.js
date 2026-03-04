@@ -222,7 +222,7 @@ export default function FreeResources() {
             autoplay={{ delay: 5000, disableOnInteraction: false }}
             breakpoints={{
               640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
+              1024: { slidesPerView: 4 },
               1200: { slidesPerView: 4 }
             }}
             style={{ padding: '20px 10px 60px' }}
@@ -233,56 +233,73 @@ export default function FreeResources() {
                   className="resource-card" 
                   onClick={() => handleOpenModal(tool)}
                   style={{
-                    background: '#ffffff',
-                    padding: isMobile ? '25px' : '40px',
+                    background: '#ffffff', // Solid pure white
+                    padding: isMobile ? '30px 25px' : '30px 25px',
                     borderRadius: isMobile ? '28px' : '32px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: isMobile ? 'center' : 'flex-start',
                     textAlign: isMobile ? 'center' : 'left',
-                    gap: isMobile ? '20px' : '24px',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                    border: '1px solid rgba(255,255,255,0.8)',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    gap: isMobile ? '20px' : '20px',
+                    boxShadow: '0 15px 35px rgba(0,0,0,0.12)',
+                    border: '1px solid #ffffff',
+                    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                     cursor: 'pointer',
                     position: 'relative',
-                    height: '100%'
+                    height: '100%',
+                    zIndex: 1
                   }}
                 >
+                  <style jsx>{`
+                    .resource-card:hover {
+                      transform: translateY(-10px) scale(1.02);
+                      background: #ffffff !important;
+                      box-shadow: 0 30px 60px rgba(0,0,0,0.2) !important;
+                      border-color: ${tool.color} !important;
+                    }
+                    .resource-card:hover .arrow-icon {
+                      background: ${tool.color} !important;
+                      color: white !important;
+                      border-color: ${tool.color} !important;
+                      transform: translateX(5px);
+                    }
+                  `}</style>
                   <div style={{
-                    width: isMobile ? '64px' : '80px',
-                    height: isMobile ? '64px' : '80px',
-                    borderRadius: isMobile ? '18px' : '22px',
+                    width: isMobile ? '70px' : '70px',
+                    height: isMobile ? '70px' : '70px',
+                    borderRadius: isMobile ? '20px' : '20px',
                     background: `${tool.color}18`,
                     color: tool.color,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: isMobile ? '32px' : '38px',
+                    fontSize: isMobile ? '34px' : '34px',
                     flexShrink: 0,
-                    border: `1px solid ${tool.color}30`
+                    border: `1px solid ${tool.color}30`,
+                    transition: 'all 0.3s ease'
                   }}>
                     {tool.icon}
                   </div>
                   <div style={{ flexGrow: 1, width: '100%' }}>
                     {!isMobile && (
                       <span style={{ 
-                        fontSize: '0.8rem', 
-                        fontWeight: '700', 
+                        fontSize: '0.75rem', 
+                        fontWeight: '800', 
                         color: tool.color, 
                         textTransform: 'uppercase',
-                        background: `${tool.color}15`,
-                        padding: '5px 14px',
+                        background: `${tool.color}12`,
+                        padding: '4px 12px',
                         borderRadius: '50px',
-                        marginBottom: '12px',
-                        display: 'inline-block'
+                        marginBottom: '10px',
+                        display: 'inline-block',
+                        letterSpacing: '1px'
                       }}>
                         {tool.tag}
                       </span>
                     )}
                     <h3 style={{ 
-                      fontSize: isMobile ? '1.4rem' : '1.8rem', 
-                      fontWeight: '800', 
+                      fontSize: isMobile ? '1.6rem' : '1.5rem', 
+                      fontWeight: '900', 
                       color: '#1e293b',
                       marginBottom: '8px',
                       lineHeight: '1.2'
@@ -290,28 +307,29 @@ export default function FreeResources() {
                       {tool.title}
                     </h3>
                     <p style={{ 
-                      fontSize: isMobile ? '1rem' : '1.1rem', 
-                      color: '#64748b',
+                      fontSize: isMobile ? '1.05rem' : '1rem', 
+                      color: '#475569',
                       margin: 0,
                       lineHeight: '1.5',
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      fontWeight: 500
                     }}>
                       {tool.desc}
                     </p>
                   </div>
                   {!isMobile && (
                     <div className="arrow-icon" style={{
-                      width: '44px',
-                      height: '44px',
+                      width: '48px',
+                      height: '48px',
                       borderRadius: '50%',
                       border: '2px solid #e2e8f0',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '18px',
+                      fontSize: '20px',
                       color: '#94a3b8',
                       transition: 'all 0.3s ease'
                     }}>
@@ -353,6 +371,7 @@ export default function FreeResources() {
         onClose={handleCloseModal}
         maxWidth="sm"
         fullWidth
+        sx={{ zIndex: 9999 }} // Ensures it stays above navbar
         PaperProps={{
           sx: { borderRadius: '28px', overflow: 'hidden' }
         }}
@@ -523,9 +542,14 @@ export default function FreeResources() {
                     '& .MuiOutlinedInput-root': {
                       borderRadius: '16px',
                       bgcolor: '#f8fafc',
+                      fontSize: '16px', // Prevents iOS/Mobile zoom on focus
                       '& fieldset': { borderColor: '#e2e8f0' },
-                      '&:hover fieldset': { borderColor: '#007f99' },
-                      '&.Mui-focused fieldset': { borderColor: '#007f99' }
+                      '&:hover fieldset': { borderColor: '#228756' },
+                      '&.Mui-focused fieldset': { borderColor: '#228756' }
+                    },
+                    '& .MuiInputBase-input': {
+                      fontSize: '16px', // Extra insurance for mobile
+                      lineHeight: 1.6
                     }
                   }}
                 />
@@ -563,9 +587,9 @@ export default function FreeResources() {
                           </head>
                           <body>
                             <div class="header">
-                              <span class="date">${new Date().toLocaleDateString()}</span>
+                              <span class="date">${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                               <div class="logo">Choose Your Therapist</div>
-                              <div class="subtitle">Mental Wellness & Healing Journey</div>
+                              <div class="subtitle">Because healing starts with your choice</div>
                             </div>
                             <div class="prompt-box">
                               <div class="prompt-title">Reflection Prompt</div>
@@ -584,7 +608,21 @@ export default function FreeResources() {
                       printWindow.print();
                     }}
                     disabled={!journalDraft}
-                    sx={{ py: 1.5, borderRadius: '12px', bgcolor: '#007f99', color: 'white', fontWeight: 800, '&:hover': { bgcolor: '#005f73' } }}
+                    sx={{ 
+                      py: 2, 
+                      borderRadius: '14px', 
+                      background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)', 
+                      color: 'white', 
+                      fontWeight: 900, 
+                      fontSize: '16px',
+                      textTransform: 'none',
+                      boxShadow: '0 10px 20px rgba(34, 135, 86, 0.2)',
+                      '&:hover': { 
+                        background: 'linear-gradient(135deg, #1a6b44 0%, #134e32 100%)',
+                        transform: 'translateY(-2px)'
+                      },
+                      transition: 'all 0.3s'
+                    }}
                   >
                     Save as PDF
                   </Button>

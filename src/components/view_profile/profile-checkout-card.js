@@ -14,7 +14,12 @@ export default function ProfileCheckoutCard({ pageData }) {
       border: '1px solid #e2e8f0',
       boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
     }}>
-      <div className="mini-card-img-wrapper" style={{ position: 'relative' }}>
+      <div className="mini-card-img-wrapper" style={{ 
+        position: 'relative', 
+        flexShrink: 0,
+        width: "90px", 
+        height: "90px" 
+      }}>
         <ImageTag
           alt={pageData.user.name}
           src={`${imagePath}/${pageData.user.profile}`}
@@ -24,7 +29,8 @@ export default function ProfileCheckoutCard({ pageData }) {
             height: "90px", 
             borderRadius: "50%", 
             objectFit: "cover",
-            border: '3px solid #f0fdf4'
+            border: '3px solid #f0fdf4',
+            display: 'block'
           }}
         />
         <div className="verified-badge" style={{

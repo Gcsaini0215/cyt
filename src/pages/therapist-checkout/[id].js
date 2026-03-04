@@ -54,55 +54,59 @@ const CheckoutBanner = () => (
             <div className="trust-badges-row" style={{
               display: 'flex',
               justifyContent: 'center',
-              gap: '24px',
-              flexWrap: 'wrap'
+              gap: '12px',
+              flexWrap: 'wrap',
+              padding: '0 10px'
             }}>
               <div className="trust-badge-item" style={{
                 background: 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(10px)',
-                padding: '12px 28px',
+                padding: '8px 16px',
                 borderRadius: '50px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '6px',
                 color: '#ffffff',
-                fontSize: '16px',
+                fontSize: '13px',
                 fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                flex: '0 1 auto'
               }}>
-                <i className="feather-shield" style={{ fontSize: '18px' }}></i>
+                <i className="feather-shield" style={{ fontSize: '14px' }}></i>
                 <span>100% Confidential</span>
               </div>
               <div className="trust-badge-item" style={{
                 background: 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(10px)',
-                padding: '12px 28px',
+                padding: '8px 16px',
                 borderRadius: '50px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '6px',
                 color: '#ffffff',
-                fontSize: '16px',
+                fontSize: '13px',
                 fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                flex: '0 1 auto'
               }}>
-                <i className="feather-check-circle" style={{ fontSize: '18px' }}></i>
-                <span>Verified Professional</span>
+                <i className="feather-check-circle" style={{ fontSize: '14px' }}></i>
+                <span>Verified Specialist</span>
               </div>
               <div className="trust-badge-item" style={{
                 background: 'rgba(255, 255, 255, 0.15)',
                 backdropFilter: 'blur(10px)',
-                padding: '12px 28px',
+                padding: '8px 16px',
                 borderRadius: '50px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '6px',
                 color: '#ffffff',
-                fontSize: '16px',
+                fontSize: '13px',
                 fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                flex: '0 1 auto'
               }}>
-                <i className="feather-lock" style={{ fontSize: '18px' }}></i>
+                <i className="feather-lock" style={{ fontSize: '14px' }}></i>
                 <span>Secure Payment</span>
               </div>
             </div>
