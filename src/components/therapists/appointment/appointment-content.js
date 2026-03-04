@@ -435,7 +435,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
                 {appt.client?.photo ? (
-                  <img src={appt.client.photo} style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover' }} />
+                  <img src={appt.client.photo} alt={appt.client?.name || "Client"} style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover' }} />
                 ) : (
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
                     <FaUser size={24} />
