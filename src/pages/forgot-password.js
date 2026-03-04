@@ -129,7 +129,7 @@ export default function Forgotpassword() {
           <div className="row">
             <div className="col-lg-12">
               <div className="breadcrumb-inner text-center">
-                <h2 className="title">Forgot Password</h2>
+                <h1 className="title">Forgot Password</h1>
                 <ul className="page-list">
                   <li className="rbt-breadcrumb-item">
                     <Link href="/">Home</Link>
@@ -159,7 +159,7 @@ export default function Forgotpassword() {
                         Discover mental health experts.
                       </span>
                     </div>
-                    <h1 className="title">Login for Mental Health</h1>
+                    <h2 className="title">Login for Mental Health</h2>
                     <p className="description">
                       Log in to access personalized support and manage
                       appointments effortlessly. Track your mental health
@@ -356,7 +356,7 @@ export default function Forgotpassword() {
         }}
       >
         <Box sx={{ ...style, width: 400 }}>
-          <h2 id="parent-modal-title">Success</h2>
+          <h3 id="parent-modal-title">Success</h3>
           <p id="parent-modal-description">
             Password has been changed You may login now.
           </p>

@@ -12,7 +12,6 @@ export default function EmergencySupport() {
         <title>Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist</title>
         <meta name="description" content="In a mental health crisis? Access immediate support with 24/7 emergency helplines across India. Find contacts for Tele Manas, Vandrevala Foundation, and more." />
         <meta name="keywords" content="Emergency Mental Health Support, Suicide Helpline India, Tele Manas, 24/7 Crisis Support" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/emergency-support" />
         
         <meta property="og:title" content="Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist" />
         <meta property="og:description" content="Immediate help and crisis support resources for mental health emergencies." />

@@ -16,7 +16,7 @@ export default function AboutUs() {
     <div id="__next">
       <Head>
         <title>About | Our Story & Mission | Choose Your Therapist</title>
-        <meta name="description" content="Learn about Choose Your Therapist, our mission to make mental health support accessible across India, and our commitment to connecting you with verified professionals." />
+        <meta name="description" content="Learn about Choose Your Therapist and our mission to make mental health support accessible across India through verified professional connections." />
         <meta name="keywords" content="About Choose Your Therapist, Mental Health Mission, Therapy India Story, Verified Psychologists Mission" />
         <link rel="canonical" href="https://chooseyourtherapist.in/about-us" />
         

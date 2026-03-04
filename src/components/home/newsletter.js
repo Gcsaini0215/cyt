@@ -214,7 +214,7 @@ export default function NewsLetter() {
                 }}>
                   Stay Updated
                 </span>
-                <h2 className="title" style={{
+                <h3 className="title" style={{
                   color: '#fff',
                   fontSize: isMobile ? '2.2rem' : '3.5rem',
                   fontWeight: '900',
@@ -222,7 +222,7 @@ export default function NewsLetter() {
                   lineHeight: 1.1
                 }}>
                   Join Our Mental <br /> Health Community
-                </h2>
+                </h3>
                 <p className="description" style={{
                   color: 'rgba(255, 255, 255, 0.9)',
                   fontSize: '1.1rem',

@@ -18,7 +18,6 @@ export default function PrivacyPolicy() {
         <title>Privacy Policy | Your Data Security | Choose Your Therapist</title>
         <meta name="description" content="Read our privacy policy to understand how Choose Your Therapist protects your personal information and maintains confidentiality in your mental health journey." />
         <meta name="keywords" content="Privacy Policy, Data Security, Confidentiality, Therapy Data Protection" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/privacy-policy" />
         
         <meta property="og:title" content="Privacy Policy | Your Data Security | Choose Your Therapist" />
         <meta property="og:description" content="Learn how we protect your personal information and maintain your privacy." />

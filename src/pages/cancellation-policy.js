@@ -18,7 +18,6 @@ export default function CancellationPolicy() {
         <title>Cancellation Policy | Refund & Rescheduling | Choose Your Therapist</title>
         <meta name="description" content="Review our cancellation and refund policy. Understand the terms for rescheduling or canceling your therapy sessions with independent therapists." />
         <meta name="keywords" content="Cancellation Policy, Refund Policy, Reschedule Therapy Session, Choose Your Therapist" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/cancellation-policy" />
         
         <meta property="og:title" content="Cancellation Policy | Refund & Rescheduling | Choose Your Therapist" />
         <meta property="og:description" content="Our terms for canceling or rescheduling therapy sessions." />

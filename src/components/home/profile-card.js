@@ -116,7 +116,7 @@ export default function ProfileCard() {
               }}>
                 Verified Professionals
               </span>
-              <h2 className="title" style={{ 
+              <h3 className="title" style={{ 
                 fontSize: isMobile ? "2.5rem" : "4.5rem", 
                 fontWeight: "900", 
                 color: "#000000",
@@ -131,7 +131,7 @@ export default function ProfileCard() {
                   WebkitTextFillColor: "transparent",
                   color: "transparent"
                 }}>Therapist</span> Match
-              </h2>
+              </h3>
               <p style={{ 
                 fontSize: isMobile ? '1.2rem' : '1.5rem', 
                 color: '#444', 

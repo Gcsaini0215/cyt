@@ -16,6 +16,7 @@ import ErrorPage from "../error-page";
 import PageProgressBar from "../../components/global/page-progress";
 import ProfileWorkshop from "../../components/view_profile/profile-workshop";
 import ProfileReview from "../../components/view_profile/profile-review";
+import SocialShare from "../../components/global/social-share";
 import { useRouter } from "next/router";
 import { getDecodedToken } from "../../utils/jwt";
 
@@ -152,9 +153,6 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
 
         {/* Canonical */}
         <link rel="canonical" href={currentUrl} />
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="shortcut icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
       <MyNavbar />
       {profile && (

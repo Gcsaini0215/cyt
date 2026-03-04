@@ -55,9 +55,9 @@ export default function Faqs() {
               <HelpCircle size={18} />
               FAQ's
             </div>
-            <h2 style={{ fontSize: '42px', fontWeight: 900, color: '#1e293b', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '42px', fontWeight: 900, color: '#1e293b', marginBottom: '20px' }}>
               Common Questions & Answers
-            </h2>
+            </h3>
             <p style={{ color: '#64748b', fontSize: '18px' }}>
               Everything you need to know about our services and the therapy process.
             </p>

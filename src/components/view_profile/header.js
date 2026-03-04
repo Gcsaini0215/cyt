@@ -9,6 +9,7 @@ import {
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
 import { postData } from "../../utils/actions";
+import ShareModal from "../global/share-modal";
 
 import bannerImg from "../../assets/img/choosetherapist.jpg";
 
@@ -17,6 +18,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [bookmark, setBookmark] = React.useState(false);
   const [showBookmark, setShowBookmark] = React.useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
 
   const [profileUrl, setProfileUrl] = React.useState("");
 
@@ -54,31 +56,8 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
 
 
-  const handleShare = async () => {
-    const shareText = `${pageData.user.name}, a ${pageData.profile_type} based in ${pageData.state}. Connect and book a session today!\n\n${profileUrl}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${pageData.user.name} - ${pageData.profile_type}`,
-          text: shareText,
-          url: profileUrl,
-        });
-      } catch (error) {
-        console.log("Sharing failed", error);
-        alert("Sharing failed. You can copy the link manually below.");
-        showCopyPrompt(shareText);
-      }
-    } else {
-      showCopyPrompt(shareText);
-    }
-  };
-
-  const showCopyPrompt = (text) => {
-    const copied = window.prompt("Copy and share this profile:", text);
-    if (copied !== null) {
-      navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
-    }
+  const handleShare = () => {
+    setIsShareModalOpen(true);
   };
 
   return (
@@ -360,6 +339,13 @@ export default function ProfileHeader({ pageData, favrioutes }) {
       </div>
 
       <div style={{ paddingTop: isMobile ? 40 : 60 }}></div>
+      <ShareModal 
+        open={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        url={profileUrl}
+        title={`${pageData.user.name} - ${pageData.profile_type}`}
+        description={`${pageData.user.name}, a ${pageData.profile_type} based in ${pageData.state}. Connect and book a session today!`}
+      />
     </>
   );
 }

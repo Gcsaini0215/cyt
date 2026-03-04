@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
+import SocialShare from '../components/global/social-share';
 import { blogsData } from '../data/blogs-data';
 
 // Modern Hero with Overlay
@@ -311,7 +312,6 @@ export default function BlogDetails() {
         <title>{blog.title} | Choose Your Therapist</title>
         <meta name="description" content={blog.description} />
         <meta name="keywords" content={`${blog.category}, Mental Health Blog, Therapy Insights, ${blog.title}`} />
-        <link rel="canonical" href={`https://chooseyourtherapist.in/blog-details/${id}`} />
         
         <meta property="og:title" content={`${blog.title} | Choose Your Therapist`} />
         <meta property="og:description" content={blog.description} />
@@ -537,25 +537,11 @@ export default function BlogDetails() {
                   <Typography variant="h5" sx={{ fontWeight: 700, fontSize: '1.5rem' }}>
                     Share this article:
                   </Typography>
-                  <Stack direction="row" spacing={2}>
-                    {['facebook', 'twitter', 'linkedin'].map((platform) => (
-                      <IconButton
-                        key={platform}
-                        sx={{
-                          width: 50,
-                          height: 50,
-                          backgroundColor: '#228756',
-                          color: '#fff',
-                          '&:hover': {
-                            backgroundColor: '#1a6842',
-                            transform: 'scale(1.1)',
-                          },
-                        }}
-                      >
-                        <Share2 size={24} />
-                      </IconButton>
-                    ))}
-                  </Stack>
+                  <SocialShare 
+                    url={`https://chooseyourtherapist.in/blog-details/${id}`} 
+                    title={blog.title} 
+                    description={blog.description}
+                  />
                 </Stack>
 
                 {/* Comment Section */}

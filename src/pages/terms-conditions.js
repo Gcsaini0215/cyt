@@ -18,7 +18,6 @@ export default function TermsCondition() {
         <title>Terms and Conditions | Choose Your Therapist</title>
         <meta name="description" content="Review the terms and conditions for using the Choose Your Therapist platform. Understand our service nature, user responsibilities, and booking policies." />
         <meta name="keywords" content="Terms and Conditions, User Agreement, Therapy Service Terms, Choose Your Therapist" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/terms-conditions" />
         
         <meta property="og:title" content="Terms and Conditions | Choose Your Therapist" />
         <meta property="og:description" content="Our platform's terms of service and user agreement." />

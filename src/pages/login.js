@@ -190,9 +190,9 @@ export default function Login() {
                 }}>
                   Empowering Mental Well-being
                 </span>
-                <h2 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
+                <h3 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
                   Your Journey to <span style={{ color: '#22bb33' }}>Better Health</span> Starts Here
-                </h2>
+                </h3>
                 <p className="text-muted" style={{ fontSize: '18px' }}>
                   Log in to access personalized support, manage your appointments, and stay connected with your therapist. Track your progress in a secure and confidential environment.
                 </p>

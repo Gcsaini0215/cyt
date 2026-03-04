@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
+import dynamic from "next/dynamic";
 import Footer from "../components/footer";
 import Banner from "../components/home/banner";
-import Specializations from "../components/home/specializations";
-import Blogs from "../components/home/blogs";
-import Faqs from "../components/home/faqs";
-import CallToAction from "../components/home/call-to-action";
-import Counter from "../components/home/counter";
-import NewsLetter from "../components/home/newsletter";
-import ProfileCard from "../components/home/profile-card";
-import HomeWorkshop from "../components/home/workshops";
-import FreeResources from "../components/home/free-resources";
-import ProcessSteps from "../components/home/process-steps";
 import MyNavbar from "../components/navbar";
-import BottomNavigation from "../components/bottom-navigation";
 
-import Brands from "../components/about/brands";
+const Specializations = dynamic(() => import("../components/home/specializations"), { ssr: true });
+const Blogs = dynamic(() => import("../components/home/blogs"), { ssr: false });
+const Faqs = dynamic(() => import("../components/home/faqs"), { ssr: false });
+const CallToAction = dynamic(() => import("../components/home/call-to-action"), { ssr: false });
+const Counter = dynamic(() => import("../components/home/counter"), { ssr: false });
+const NewsLetter = dynamic(() => import("../components/home/newsletter"), { ssr: false });
+const ProfileCard = dynamic(() => import("../components/home/profile-card"), { ssr: false });
+const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
+const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
+const ProcessSteps = dynamic(() => import("../components/home/process-steps"), { ssr: false });
+const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
+
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
 
@@ -60,8 +61,8 @@ export default function HomePage() {
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Basic Meta Tags */}
-        <title>Best Psychologist in India | Online & In-Person Therapy | Choose Your Therapist</title>
-        <meta name="description" content="Connect with the best psychologists and therapists in India and Noida. Book online or in-person sessions with verified professionals for anxiety, stress, relationships, and emotional well-being." />
+        <title>Best Psychologist in India | Choose Your Therapist</title>
+        <meta name="description" content="Connect with the best psychologists in India. Book online or in-person sessions with verified professionals for anxiety, stress, and emotional well-being." />
         <meta name="keywords" content="Best Psychologist India, Best Psychologist Noida, Online Therapy India, In-Person Therapy, Mental Health Counseling, Verified Therapists, Anxiety Counseling, Stress Management, Relationship Therapy, Choose Your Therapist" />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />

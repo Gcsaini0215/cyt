@@ -13,7 +13,6 @@ export default function MentorshipForStudents() {
         <meta name="robots" content="noindex, nofollow" />
         <meta name="description" content="Empowering the next generation of mental health professionals. Join our mentorship program for internships, practical training, research guidance, and career support in psychology." />
         <meta name="keywords" content="Psychology Mentorship, Internship for Students, Research Guidance Psychology, Career in Mental Health India" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/mentorship-for-students" />
         
         <meta property="og:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
         <meta property="og:description" content="Shape your future in mental health with our comprehensive mentorship program for students." />
@@ -70,7 +69,7 @@ export default function MentorshipForStudents() {
           <div className="row mb--40">
             <div className="col-lg-12">
               <div className="section-title text-center">
-                <h2 className="title">Our Mentorship Programs</h2>
+                <h3 className="title">Our Mentorship Programs</h3>
                 <p className="description mt--20">
                   Comprehensive guidance across different stages of your mental health career journey
                 </p>
@@ -202,7 +201,7 @@ export default function MentorshipForStudents() {
           <div className="row mb--40">
             <div className="col-lg-12">
               <div className="section-title text-center">
-                <h2 className="title">Why Choose Our Mentorship Program?</h2>
+                <h3 className="title">Why Choose Our Mentorship Program?</h3>
               </div>
             </div>
           </div>

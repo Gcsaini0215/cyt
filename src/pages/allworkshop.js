@@ -10,7 +10,6 @@ export default function AllWorkshop() {
         <title>Workshops & Events | Mental Health Training | Choose Your Therapist</title>
         <meta name="description" content="Explore and join our upcoming mental health workshops, training sessions, and internships. Led by expert psychologists to enhance your well-being and professional skills." />
         <meta name="keywords" content="Mental Health Workshops, Psychology Training India, Wellness Events, Internship for Psychology Students" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/allworkshop" />
         
         <meta property="og:title" content="Workshops & Events | Mental Health Training | Choose Your Therapist" />
         <meta property="og:description" content="Join our upcoming workshops and training sessions led by expert psychologists." />

@@ -12,7 +12,6 @@ export default function AllBlogs() {
         <title>Mental Health Blog | Articles & Resources | Choose Your Therapist</title>
         <meta name="description" content="Read our latest articles on mental health, therapy, emotional well-being, and expert advice from verified psychologists in India. Stay informed and empowered." />
         <meta name="keywords" content="Mental Health Blog, Psychology Articles India, Therapy Resources, Well-being Tips, Choose Your Therapist Blog" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/blogs" />
         
         <meta property="og:title" content="Mental Health Blog | Articles & Resources | Choose Your Therapist" />
         <meta property="og:description" content="Read expert articles on mental health and emotional well-being from verified psychologists." />
