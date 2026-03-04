@@ -602,12 +602,13 @@ const setConfig = async (profile) => {
                       }
                     />
                   </div>
-                  <div className="col-md-6 col-12 mb--10">
-                    <label htmlFor="name">Major Concern</label>
+                  <div className="col-12 mb--10">
+                    <label htmlFor="notes">Major Concern*</label>
                     <textarea
-                      placeholder="write your major concern here."
+                      placeholder="Please share what brings you here today. Feel free to express your thoughts in detail."
                       id="notes"
                       name="notes"
+                      style={{ height: '150px', borderRadius: '12px', padding: '15px' }}
                       value={info.notes}
                       onChange={(e) =>
                         handleChange(e.target.name, e.target.value)
