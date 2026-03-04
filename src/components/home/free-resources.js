@@ -33,7 +33,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-export default function FreeResources() {
+export default function FreeResources({ bgColor = "#1a4d32", textColor = "white" }) {
   const [isMobile, setIsMobile] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [selectedTool, setSelectedTool] = useState(null);
@@ -194,18 +194,18 @@ export default function FreeResources() {
 
   return (
     <div className="rbt-free-resources-area rbt-section-gap" style={{
-      background: '#1a4d32',
+      background: bgColor,
       padding: isMobile ? '60px 0' : '80px 0',
       position: 'relative',
       overflow: 'hidden'
     }}>
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         <div className="section-title text-center mb--40">
-          <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '14px', mb: 2 }}>
+          <Typography sx={{ color: textColor === 'white' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '14px', mb: 2 }}>
             Free for everyone
           </Typography>
-          <Typography variant="h2" sx={{ color: 'white', fontWeight: 900, fontSize: { xs: '32px', md: '48px' } }}>
-            Wellness <span style={{ color: '#228756', background: 'white', padding: '0 10px', borderRadius: '8px' }}>Toolkit</span>
+          <Typography variant="h2" sx={{ color: textColor, fontWeight: 900, fontSize: { xs: '32px', md: '48px' } }}>
+            Wellness <span style={{ color: textColor === 'white' ? '#228756' : '#ffffff', background: textColor === 'white' ? 'white' : '#228756', padding: '0 10px', borderRadius: '8px' }}>Toolkit</span>
           </Typography>
         </div>
 

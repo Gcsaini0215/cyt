@@ -108,6 +108,7 @@ export default function App() {
                         <li><Link href="/therapy-booking">Therapy Booking</Link></li>
                         <li><Link href="/self-assessment">Self Assessment</Link></li>
                         <li><Link href="/plans">Therapy Plan</Link></li>
+                        <li><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
                       </ul>
                     </li>
                     <li><Link href="/about-us">Our Story</Link></li>
@@ -256,6 +257,7 @@ export default function App() {
                 <li><Link href="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
                 <li><Link href="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
                 <li><Link href="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
+                <li><Link href="/wellness-toolkit" onClick={() => setShow(false)}>Wellness Toolkit</Link></li>
               </ul>
             </li>
           </ul>
