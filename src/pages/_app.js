@@ -4,6 +4,7 @@ import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
 import HoliPopup from "@/components/global/holi-popup";
+import WhatsAppWidget from "@/components/global/whatsapp-widget";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/router";
@@ -42,6 +43,7 @@ function MyApp({ Component, pageProps }) {
       </Head>
       {isLoading && <PremiumLoader />}
       <HoliPopup />
+      <WhatsAppWidget />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
         <div className="main-wrapper" suppressHydrationWarning>

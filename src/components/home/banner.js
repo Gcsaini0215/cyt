@@ -492,26 +492,41 @@ export default function Banner({ topTherapists = [] }) {
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: isMobile ? 2 : 2.5, mb: isMobile ? 2.5 : 3 }}>
-                <Box sx={{ position: "relative" }}>
+                <Box sx={{ position: "relative", p: 0.5 }}>
+                  <Box sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    borderRadius: "50%",
+                    padding: "2px",
+                    background: "linear-gradient(45deg, #228756, #dcfce7, #228756)",
+                    animation: "rotate-gradient 6s linear infinite",
+                    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    WebkitMaskComposite: "xor",
+                    maskComposite: "exclude",
+                  }} />
                   <Avatar 
                     src={`${imagePath}/${therapist.user?.profile || 'default-profile.png'}`}
                     alt={therapist.user?.name || "Therapist"}
                     sx={{ 
                       width: isMobile ? 70 : 80, 
                       height: isMobile ? 70 : 80, 
-                      border: "3px solid #f0fdf4",
+                      border: "3px solid white",
                       boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
                     }} 
                   />
                   <Box sx={{ 
                     position: "absolute", 
-                    bottom: 2, 
-                    right: 2, 
+                    bottom: 6, 
+                    right: 6, 
                     width: isMobile ? 14 : 16, 
                     height: isMobile ? 14 : 16, 
                     bgcolor: "#22c55e", 
                     borderRadius: "50%", 
-                    border: "2px solid white" 
+                    border: "2px solid white",
+                    zIndex: 2
                   }} />
                 </Box>
                 <Box>
@@ -521,32 +536,100 @@ export default function Banner({ topTherapists = [] }) {
                     </Typography>
                     <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} />
                   </Box>
-                  <Typography sx={{ 
-                    fontSize: isMobile ? "13px" : "14px", 
-                    color: "#228756", 
-                    fontWeight: 700, 
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px"
-                  }}>
-                    {therapist.profile_type || "Verified Specialist"}
-                  </Typography>
+                  {therapist.qualification && (
+                    <Typography sx={{ 
+                      fontSize: isMobile ? "11px" : "12px", 
+                      color: "#64748b", 
+                      fontWeight: 500,
+                      mb: 0.8,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      maxWidth: "200px"
+                    }}>
+                      {therapist.qualification}
+                    </Typography>
+                  )}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography sx={{ 
+                      fontSize: isMobile ? "12px" : "13px", 
+                      color: "#228756", 
+                      fontWeight: 700, 
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px"
+                    }}>
+                      {therapist.profile_type || "Specialist"}
+                    </Typography>
+                    <Box sx={{ 
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.3,
+                      bgcolor: "#f1f5f9",
+                      px: 1,
+                      py: 0.2,
+                      borderRadius: "6px",
+                      border: "1px solid #e2e8f0"
+                    }}>
+                      <LocationOn sx={{ fontSize: 12, color: "#475569" }} />
+                      <Typography sx={{ 
+                        fontSize: isMobile ? "11px" : "12px", 
+                        color: "#0f172a", 
+                        fontWeight: 700,
+                        textTransform: "capitalize"
+                      }}>
+                        {therapist.state || "India"}
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
+
+              {/* Dynamic Languages Spoken */}
+              {therapist.language_spoken && Array.isArray(therapist.language_spoken) && therapist.language_spoken.length > 0 && (
+                <Box sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: 0.5, 
+                  mb: isMobile ? 2 : 2.5,
+                  flexWrap: "wrap"
+                }}>
+                  <Typography sx={{ fontSize: "11px", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                    Speaks:
+                  </Typography>
+                  {therapist.language_spoken.map((lang, idx) => (
+                    <Box 
+                      key={idx}
+                      sx={{ 
+                        bgcolor: "white", 
+                        color: "#475569", 
+                        px: 1, 
+                        py: 0.3, 
+                        borderRadius: "4px", 
+                        fontSize: "11px", 
+                        fontWeight: 700,
+                        border: "1px solid #e2e8f0"
+                      }}
+                    >
+                      {lang.label}
+                    </Box>
+                  ))}
+                </Box>
+              )}
               
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: "auto" }}>
                 <Box sx={{ 
                   display: "flex", 
                   alignItems: "center", 
                   gap: 0.5,
-                  bgcolor: "#f8fafc",
-                  px: 1.2,
-                  py: 0.6,
-                  borderRadius: "12px",
-                  border: "1px solid #e2e8f0"
+                  bgcolor: "rgba(34, 135, 86, 0.08)",
+                  px: 1.5,
+                  py: 0.8,
+                  borderRadius: "50px",
                 }}>
-                  <LocationOn sx={{ fontSize: 14, color: "#228756" }} />
-                  <Typography sx={{ fontSize: isMobile ? "11px" : "12px", color: "#64748b", fontWeight: 700 }}>
-                    {therapist.state || "India"}
+                  <Star sx={{ fontSize: 16, color: "#f59e0b" }} />
+                  <Typography sx={{ fontSize: isMobile ? "12px" : "13px", color: "#1e293b", fontWeight: 800 }}>
+                    5.0
                   </Typography>
                 </Box>
                 <Box
@@ -596,6 +679,12 @@ export default function Banner({ topTherapists = [] }) {
       }}></div>
 
       {/* Therapist Profile Quick View Modal */}
+      <style jsx global>{`
+        @keyframes rotate-gradient {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
       <Dialog 
         open={isProfileModalOpen} 
         onClose={handleCloseProfileModal}
