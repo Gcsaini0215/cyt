@@ -35,13 +35,16 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import EmailIcon from "@mui/icons-material/Email";
+import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import DownloadIcon from "@mui/icons-material/Download";
 import PrintIcon from "@mui/icons-material/Print";
 import FileInvoiceIcon from "@mui/icons-material/Receipt";
 import { FaTimes } from "react-icons/fa";
 import { toast } from "react-toastify";
-import { getClinicLogsUrl, createClinicLogUrl, updateClinicLogUrl, deleteClinicLogUrl } from "../../../utils/url";
+import { getClinicLogsUrl, createClinicLogUrl, updateClinicLogUrl, deleteClinicLogUrl, sendClinicInvoiceEmailUrl } from "../../../utils/url";
 import { fetchById, postData, putData, deleteById } from "../../../utils/actions";
+import axios from "axios";
 
 export default function ClientLogs() {
   const [logs, setLogs] = useState([]);
@@ -51,10 +54,14 @@ export default function ClientLogs() {
   const [selectedLog, setSelectedLog] = useState(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [emailMessage, setEmailMessage] = useState("Hello, please find your invoice attached below.");
+  const [origin, setOrigin] = useState("");
 
   const [formData, setFormData] = useState({
     id: null,
     name: "",
+    email: "",
     phone: "",
     type: "Clinic",
     amount: "",
@@ -63,6 +70,7 @@ export default function ClientLogs() {
   });
 
   useEffect(() => {
+    setOrigin(window.location.origin);
     // Try to load from localStorage first
     const localLogs = localStorage.getItem('clinicLogs');
     if (localLogs) {
@@ -116,6 +124,7 @@ export default function ClientLogs() {
       setSubmitting(true);
       const payload = {
         name: formData.name,
+        email: formData.email,
         phone: formData.phone,
         date: formData.date.format('YYYY-MM-DD'),
         type: formData.type,
@@ -139,6 +148,7 @@ export default function ClientLogs() {
               ? {
                   ...log,
                   name: formData.name,
+                  email: formData.email,
                   phone: formData.phone,
                   date: formData.date.format('DD MMM YYYY'),
                   type: formData.type,
@@ -163,6 +173,7 @@ export default function ClientLogs() {
           const newLog = {
             id: Date.now(),
             name: formData.name,
+            email: formData.email,
             phone: formData.phone,
             date: formData.date.format('DD MMM YYYY'),
             type: formData.type,
@@ -177,7 +188,7 @@ export default function ClientLogs() {
         }
       }
 
-      setFormData({ id: null, name: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", date: dayjs() });
+      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", date: dayjs() });
       
       if (isAPISuccess) {
         await fetchLogs();
@@ -221,10 +232,56 @@ export default function ClientLogs() {
     }
   };
 
+  const handleSendEmail = (log) => {
+    if (!log.email) {
+      toast.error("No email address provided for this client");
+      return;
+    }
+    setSelectedLog(log);
+    setEmailDialogOpen(true);
+  };
+
+  const confirmSendEmail = async () => {
+    if (!selectedLog) return;
+
+    try {
+      setSubmitting(true);
+      
+      const emailTemplate = {
+        to: selectedLog.email,
+        subject: `Invoice from ChooseYourTherapist - #${selectedLog.id?.toString().slice(-8)}`,
+        message: emailMessage,
+        invoiceId: selectedLog.id?.toString().slice(-8),
+        invoiceLink: `${origin}/invoice/view/${selectedLog.id}`, 
+        clientName: selectedLog.name,
+        amount: selectedLog.amount,
+        date: selectedLog.date
+      };
+
+      // Call the Next.js API route
+      await axios.post(sendClinicInvoiceEmailUrl, emailTemplate);
+      
+      const updatedLogs = logs.map(l => 
+        l.id === selectedLog.id ? { ...l, emailSent: true } : l
+      );
+      
+      setLogs(updatedLogs);
+      localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
+      
+      toast.success(`Invoice email sent to ${selectedLog.email}`);
+      setEmailDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to send email");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleEdit = (log) => {
     setFormData({
       id: log.id,
       name: log.name,
+      email: log.email || "",
       phone: log.phone,
       type: log.type,
       amount: log.amount,
@@ -373,7 +430,7 @@ export default function ClientLogs() {
               <Box sx={{ p: 3 }}>
                 <form onSubmit={handleAddClient}>
                   <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
                         size="small"
@@ -384,7 +441,18 @@ export default function ClientLogs() {
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={12} sm={3}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Email ID"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={1.5}>
                       <TextField
                         fullWidth
                         size="small"
@@ -395,7 +463,7 @@ export default function ClientLogs() {
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={1.8}>
+                    <Grid item xs={12} sm={1.5}>
                       <TextField
                         fullWidth
                         size="small"
@@ -410,7 +478,7 @@ export default function ClientLogs() {
                         sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
                         size="small"
@@ -522,6 +590,11 @@ export default function ClientLogs() {
                       <TableCell sx={{ pl: 4, py: 3 }}>
                         <Box>
                           <Typography variant="body1" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.25rem' }}>{log.name}</Typography>
+                          {log.email && (
+                            <Typography variant="body2" sx={{ color: '#228756', fontWeight: 700, fontSize: '1.1rem', display: 'block' }}>
+                              {log.email}
+                            </Typography>
+                          )}
                           {log.phone && <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, fontSize: '1.05rem' }}>{log.phone}</Typography>}
                         </Box>
                       </TableCell>
@@ -567,6 +640,23 @@ export default function ClientLogs() {
                       </TableCell>
                       <TableCell align="right" sx={{ pr: 4 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
+                          <Tooltip title={log.emailSent ? "Email Sent" : "Send Email"}>
+                            <span>
+                              <IconButton 
+                                size="large" 
+                                onClick={() => handleSendEmail(log)} 
+                                disabled={submitting}
+                                sx={{ 
+                                  color: log.emailSent ? '#16a34a' : '#f59e0b', 
+                                  bgcolor: log.emailSent ? 'rgba(22, 163, 74, 0.05)' : 'rgba(245, 158, 11, 0.05)', 
+                                  '&:hover': { bgcolor: log.emailSent ? 'rgba(22, 163, 74, 0.1)' : 'rgba(245, 158, 11, 0.1)' }, 
+                                  '&:disabled': { color: '#cbd5e1' } 
+                                }}
+                              >
+                                {log.emailSent ? <MarkEmailReadIcon fontSize="large" /> : <EmailIcon fontSize="large" />}
+                              </IconButton>
+                            </span>
+                          </Tooltip>
                           <Tooltip title="Invoice">
                             <span>
                               <IconButton 
@@ -868,6 +958,57 @@ export default function ClientLogs() {
                 </Box>
               </Box>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Send Email Template Dialog */}
+        <Dialog open={emailDialogOpen} onClose={() => setEmailDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogContent sx={{ p: 0 }}>
+            <Box sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b' }}>Send Invoice Email</Typography>
+                <IconButton onClick={() => setEmailDialogOpen(false)}>
+                  <FaTimes size={18} />
+                </IconButton>
+              </Box>
+              
+              <Box sx={{ bgcolor: '#f8fafc', p: 3, borderRadius: 3, border: '1px solid #e2e8f0', mb: 3 }}>
+                <Typography sx={{ fontSize: 13, color: '#64748b', fontWeight: 800, textTransform: 'uppercase', mb: 1, letterSpacing: 0.5 }}>Email Preview</Typography>
+                <Box sx={{ bgcolor: '#fff', p: 2, borderRadius: 2, border: '1px solid #f1f5f9' }}>
+                  <Typography sx={{ fontSize: 14, mb: 1 }}><strong>From:</strong> chooseyourtherapist@gmail.com</Typography>
+                  <Typography sx={{ fontSize: 14, mb: 1 }}><strong>To:</strong> {selectedLog?.email}</Typography>
+                  <Typography sx={{ fontSize: 14, mb: 2 }}><strong>Subject:</strong> Invoice from ChooseYourTherapist - #{selectedLog?.id?.toString().slice(-8)}</Typography>
+                  <Divider sx={{ mb: 2 }} />
+                  <Typography sx={{ fontSize: 14, whiteSpace: 'pre-wrap', mb: 2 }}>{emailMessage}</Typography>
+                  <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 1.5, border: '1px dashed #228756', textAlign: 'center' }}>
+                    <Typography sx={{ fontSize: 13, color: '#228756', fontWeight: 700 }}>
+                      🔗 View Invoice: {origin}/invoice/view/{selectedLog?.id}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Typography sx={{ fontSize: 13, color: '#64748b', fontWeight: 800, mb: 1 }}>CUSTOM MESSAGE</Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                value={emailMessage}
+                onChange={(e) => setEmailMessage(e.target.value)}
+                sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+              />
+
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={confirmSendEmail}
+                disabled={submitting}
+                startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <EmailIcon />}
+                sx={{ bgcolor: '#228756', '&:hover': { bgcolor: '#1b6843' }, py: 1.5, borderRadius: '12px', fontWeight: 800, textTransform: 'none', fontSize: '1.1rem' }}
+              >
+                {submitting ? "Sending..." : "Send Email Now"}
+              </Button>
+            </Box>
           </DialogContent>
         </Dialog>
       </Box>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 const logo1 = "/logo.png";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -7,10 +7,14 @@ import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath } from "../../utils/url";
 export default function DashboardTopNav() {
-  const { therapistInfo } = useTherapistStore();
+  const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
   const router = useRouter();
   const [show, setShow] = React.useState(false);
   const [isSticky, setIsSticky] = React.useState(false);
+
+  useEffect(() => {
+    fetchTherapistInfo();
+  }, [fetchTherapistInfo]);
 
   React.useEffect(() => {
     const handleScroll = () => {

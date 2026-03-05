@@ -61,7 +61,7 @@ export default function App() {
       document.head.removeChild(script1);
       document.head.removeChild(script2);
     };
-  }, []);
+  }, [fetchTherapistInfo]);
 
   const GREEN_STRIP_HEIGHT = 35; // desktop
 

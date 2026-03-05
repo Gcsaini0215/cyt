@@ -29,7 +29,7 @@ let rawBaseApi;
 
 // Force LIVE mode if you want to use production data on localhost
 // Set this to "LOCAL" only if you have a local backend running on port 4000
-const PREFERRED_MODE = "LIVE"; 
+const PREFERRED_MODE = "LOCAL"; 
 
 if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
   baseFrontendUrl = "http://localhost:3000";
@@ -69,7 +69,8 @@ export const defaultProfile =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
 
 export const frontendUrl = baseFrontendUrl;
-export const imagePath = `${baseApi}/uploads/images`;
+// Use LIVE_BASE_API for images to ensure they load even when working locally
+export const imagePath = `${LIVE_BASE_API}/uploads/images`;
 export const loginUrl = `${apiUrl}/login`;
 export const therapistRegistrationUrl = `${apiUrl}/therapist-registeration`;
 export const registerUrl = `${apiUrl}/register`;
@@ -138,3 +139,4 @@ export const getClinicLogsUrl = `${apiUrl}/clinic-logs`;
 export const createClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const updateClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const deleteClinicLogUrl = `${apiUrl}/clinic-logs`;
+export const sendClinicInvoiceEmailUrl = `/api/send-invoice-email`;
