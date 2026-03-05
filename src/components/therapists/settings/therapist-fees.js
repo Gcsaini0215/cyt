@@ -49,51 +49,68 @@ export default function Fees({ onSuccess }) {
           </p>
         </div>
 
-        <div className="rbt-table-wrapper">
-          <table className="rbt-table table table-borderless">
+        <div className="rbt-table-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <table className="rbt-table table table-borderless" style={{ minWidth: '600px' }}>
             <thead>
-              <tr>
-                <th>Service Name</th>
-                <th>
-                  <FaMicrophone className="mr--5" /> Audio
+              <tr style={{ background: '#f8fafc' }}>
+                <th style={{ padding: '15px', borderRadius: '8px 0 0 8px' }}>Service Name</th>
+                <th style={{ padding: '15px' }}>
+                  <FaMicrophone className="mr--5" style={{ color: '#0ea5e9' }} /> Audio
                 </th>
-                <th>
-                  <FaVideo className="mr--5" /> Video
+                <th style={{ padding: '15px' }}>
+                  <FaVideo className="mr--5" style={{ color: '#8b5cf6' }} /> Video
                 </th>
-                <th>
-                  <FaUser className="mr--5" /> In-person
+                <th style={{ padding: '15px', borderRadius: '0 8px 8px 0' }}>
+                  <FaUser className="mr--5" style={{ color: '#ec4899' }} /> In-person
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody style={{ borderTop: '10px solid transparent' }}>
               {therapistInfo.fees.map((feeItem, serviceIndex) => (
-                <tr key={serviceIndex}>
-                  <td style={{ verticalAlign: 'middle', fontWeight: 500 }}>
+                <tr key={serviceIndex} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ verticalAlign: 'middle', fontWeight: 600, color: '#1e293b', padding: '20px 15px' }}>
                     {feeItem.name}
                     <FaInfoCircle
                       title={`Short information about ${feeItem.name}`}
-                      style={{ marginLeft: 8, fontSize: 12, color: '#666', cursor: 'help' }}
+                      style={{ marginLeft: 8, fontSize: 12, color: '#94a3b8', cursor: 'help' }}
                     />
                   </td>
                   {feeItem.formats.map((format, formatIndex) => (
-                    <td key={formatIndex}>
+                    <td key={formatIndex} style={{ padding: '15px' }}>
                       <div className="rbt-form-group mb--0">
-                        <input
-                          type="number"
-                          placeholder="Price"
-                          style={{ height: 45, borderRadius: 8 }}
-                          value={format?.fee || ""}
-                          onChange={(e) =>
-                            setFee(serviceIndex, formatIndex, e.target.value)
-                          }
-                          onBlur={(e) => {
-                            let value = parseInt(e.target.value);
-                            if (e.target.value !== "" && (isNaN(value) || value < 500 || value > 2500)) {
-                              setFee(serviceIndex, formatIndex, "");
-                              toast.error("Price must be between 500 and 2500");
+                        <div style={{ position: 'relative' }}>
+                          <span style={{ 
+                            position: 'absolute', 
+                            left: '12px', 
+                            top: '50%', 
+                            transform: 'translateY(-50%)',
+                            color: '#64748b',
+                            fontSize: '14px'
+                          }}>₹</span>
+                          <input
+                            type="number"
+                            placeholder="Price"
+                            style={{ 
+                              height: 45, 
+                              borderRadius: 10, 
+                              paddingLeft: '25px',
+                              border: '1px solid #e2e8f0',
+                              fontSize: '15px',
+                              fontWeight: '500'
+                            }}
+                            value={format?.fee || ""}
+                            onChange={(e) =>
+                              setFee(serviceIndex, formatIndex, e.target.value)
                             }
-                          }}
-                        />
+                            onBlur={(e) => {
+                              let value = parseInt(e.target.value);
+                              if (e.target.value !== "" && (isNaN(value) || value < 500 || value > 2500)) {
+                                setFee(serviceIndex, formatIndex, "");
+                                toast.error("Price must be between 500 and 2500");
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
                     </td>
                   ))}

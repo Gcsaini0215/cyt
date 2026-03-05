@@ -4,12 +4,14 @@ import { getToken } from "./jwt";
 export const fetchById = (url, params = {}) => {
   return new Promise((resolve, reject) => {
     const token = getToken();
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     axios
       .get(url, {
         params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);
@@ -24,12 +26,14 @@ export const fetchById = (url, params = {}) => {
 export const deleteById = (url, params = {}) => {
   return new Promise((resolve, reject) => {
     const token = getToken();
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     axios
       .delete(url, {
         params,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);
@@ -74,12 +78,15 @@ export const fetchData = (url, params = {}) => {
 export const postFormData = (url, formData) => {
   return new Promise((resolve, reject) => {
     const token = getToken();
+    const headers = {
+      "Content-Type": "multipart/form-data",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     axios
       .post(url, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);
@@ -93,17 +100,21 @@ export const postFormData = (url, formData) => {
 export const postData = (url, data) => {
   return new Promise((resolve, reject) => {
     const token = getToken();
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     axios
       .post(url, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);
       })
       .catch((error) => {
-        console.error("API Post Error:", url, error);
+        if (error.response?.status !== 429) {
+          console.error("API Post Error:", url, error);
+        }
         reject(error);
       });
   });
@@ -117,12 +128,16 @@ export const postFormUrlEncoded = (url, data) => {
       formData.append(key, data[key]);
     });
 
+    const headers = {
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     axios
       .post(url, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);
@@ -136,12 +151,15 @@ export const postFormUrlEncoded = (url, data) => {
 export const postJsonData = (url, data) => {
   return new Promise((resolve, reject) => {
     const token = getToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     axios
       .post(url, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);
@@ -172,12 +190,15 @@ export const postJsonDataNoAuth = (url, data) => {
 export const putData = (url, data) => {
   return new Promise((resolve, reject) => {
     const token = getToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     axios
       .put(url, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers,
       })
       .then((response) => {
         resolve(response.data);

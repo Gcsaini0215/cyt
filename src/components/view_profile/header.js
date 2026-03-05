@@ -5,8 +5,8 @@ import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
 import {
   imagePath,
-  InsertFavriouteTherapistUrl,
-  RemoveFavriouteTherapistUrl,
+  InsertFavoriteTherapistUrl,
+  RemoveFavoriteTherapistUrl,
 } from "../../utils/url";
 import { postData } from "../../utils/actions";
 import ShareModal from "../global/share-modal";
@@ -38,7 +38,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   const addFavrioute = async (id) => {
     try {
-      const response = await postData(InsertFavriouteTherapistUrl, { therapistId: id });
+      const response = await postData(InsertFavoriteTherapistUrl, { therapistId: id });
       return !!response.status;
     } catch (error) {
       return false;
@@ -47,7 +47,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   const removeFavrioute = async (id) => {
     try {
-      const response = await postData(RemoveFavriouteTherapistUrl, { therapistId: id });
+      const response = await postData(RemoveFavoriteTherapistUrl, { therapistId: id });
       return !!response.status;
     } catch (error) {
       return false;

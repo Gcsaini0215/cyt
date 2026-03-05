@@ -65,33 +65,43 @@ export default function ProfileSettings() {
     <MainLayout>
       <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mb--100">
         <div className="content">
-          <div className="section-title d-flex justify-content-between align-items-center">
+          <div className="section-title d-flex justify-content-between align-items-center mb--30">
             <h4 className="rbt-title-style-3 mb--0">
               Settings{" "}
               {!profileSet && (
-                <span style={{ fontSize: 13, color: redColor }}>
-                  (Incomplete)
+                <span style={{ 
+                  fontSize: 12, 
+                  color: "#ef4444", 
+                  background: "#fee2e2", 
+                  padding: "2px 8px", 
+                  borderRadius: "4px",
+                  marginLeft: "8px",
+                  fontWeight: "500"
+                }}>
+                  Incomplete
                 </span>
               )}
             </h4>
             <button 
               className="rbt-btn btn-border btn-sm" 
               onClick={() => setPreviewOpen(true)}
+              style={{ height: "40px", padding: "0 20px" }}
             >
               <i className="feather-eye mr--5"></i> Preview Profile
             </button>
           </div>
 
-          <div className="advance-tab-button mb--30">
+          <div className="advance-tab-button mb--40" style={{ borderBottom: "1px solid #f1f5f9" }}>
             <ul
               className="nav nav-tabs tab-button-style-2 justify-content-start"
               id="settinsTab-4"
+              style={{ border: "none", gap: "30px" }}
             >
               <li>
                 <a
                   className={tab === 0 ? "tab-button active" : "tab-button"}
                   onClick={() => setTab(0)}
-                  style={style}
+                  style={{ ...style, padding: "12px 0" }}
                 >
                   <span className="title">Profile</span>
                 </a>
@@ -100,7 +110,7 @@ export default function ProfileSettings() {
                 <a
                   className={tab === 2 ? "tab-button active" : "tab-button"}
                   onClick={() => setTab(2)}
-                  style={style}
+                  style={{ ...style, padding: "12px 0" }}
                 >
                   <span className="title">Offerings</span>
                 </a>
@@ -109,7 +119,7 @@ export default function ProfileSettings() {
                 <a
                   className={tab === 3 ? "tab-button active" : "tab-button"}
                   onClick={() => setTab(3)}
-                  style={style}
+                  style={{ ...style, padding: "12px 0" }}
                 >
                   <span className="title">Availability</span>
                 </a>
@@ -118,7 +128,7 @@ export default function ProfileSettings() {
                 <a
                   className={tab === 4 ? "tab-button active" : "tab-button"}
                   onClick={() => setTab(4)}
-                  style={style}
+                  style={{ ...style, padding: "12px 0" }}
                 >
                   <span className="title">Fees</span>
                 </a>
@@ -127,7 +137,7 @@ export default function ProfileSettings() {
                 <a
                   className={tab === 5 ? "tab-button active" : "tab-button"}
                   onClick={() => setTab(5)}
-                  style={style}
+                  style={{ ...style, padding: "12px 0" }}
                 >
                   <span className="title">Payments</span>
                 </a>
@@ -145,18 +155,39 @@ export default function ProfileSettings() {
       </div>
 
       <div className="settings-sticky-bar-container">
-        <div className="settings-sticky-bar rbt-shadow-box">
-          <div className="d-flex justify-content-between align-items-center">
+        <div className="settings-sticky-bar">
+          <div className="d-flex justify-content-start align-items-center gap-5">
             <div className="d-none d-lg-block">
-              <p className="mb--0" style={{ fontSize: "14px" }}>
-                <i className="feather-info text-primary mr--5"></i>
-                Changes are only saved when you click the update button.
-              </p>
+              <div className="d-flex align-items-center gap-2">
+                <div className="info-icon-wrapper" style={{ 
+                  background: "#e0f2fe", 
+                  color: "#0369a1", 
+                  width: "32px", 
+                  height: "32px", 
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0
+                }}>
+                  <i className="feather-info" style={{ fontSize: "16px" }}></i>
+                </div>
+                <p className="mb--0" style={{ fontSize: "14px", fontWeight: "500", color: "#475569", whiteSpace: "nowrap" }}>
+                  Changes are only saved when you click the update button.
+                </p>
+              </div>
             </div>
             <div className="action-buttons d-flex gap-3">
               <button 
-                className="rbt-btn btn-gradient btn-sm" 
+                className="rbt-btn btn-gradient btn-md w-mobile-100" 
                 onClick={handleGlobalUpdate}
+                style={{ 
+                  height: "50px", 
+                  padding: "0 40px",
+                  boxShadow: "0 10px 20px rgba(46, 204, 113, 0.2)",
+                  fontSize: "16px",
+                  fontWeight: "600"
+                }}
               >
                 Update {tab === 0 ? "Profile" : tab === 2 ? "Offerings" : tab === 3 ? "Availability" : tab === 4 ? "Fees" : "Payments"}
               </button>
@@ -230,32 +261,37 @@ export default function ProfileSettings() {
           position: fixed;
           bottom: 20px;
           right: 0;
-          left: 25%;
+          left: 100px;
           display: flex;
-          justify-content: flex-end;
-          padding: 0 4%;
-          z-index: 99;
+          justify-content: center;
+          padding: 0 40px;
+          z-index: 1100;
           pointer-events: none;
         }
         .settings-sticky-bar {
           pointer-events: auto;
           width: 100%;
-          max-width: 800px;
-          background: white;
-          padding: 12px 25px;
-          border-radius: 12px;
-          border: 1px solid #eee;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.12) !important;
+          max-width: 1500px;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          padding: 15px 30px;
+          border-radius: 16px;
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.15) !important;
+        }
+        .w-mobile-100 {
+          width: auto;
         }
         .tab-button-style-2 {
           border-bottom: 1px solid #e1e1e1;
           gap: 20px;
+          display: flex;
         }
         .tab-button-style-2 li a.tab-button {
           padding: 15px 5px;
           margin-right: 0;
           background: transparent !important;
-          color: #6b7385 !important;
+          color: #64748b !important;
           font-weight: 600;
           font-size: 16px;
           transition: all 0.3s ease;
@@ -282,8 +318,27 @@ export default function ProfileSettings() {
         @media (max-width: 991px) {
           .settings-sticky-bar-container {
             left: 0;
-            padding: 0 20px;
+            padding: 0 15px;
+            bottom: 85px;
             justify-content: center;
+          }
+          .settings-sticky-bar {
+            padding: 12px;
+            border-radius: 12px;
+          }
+          .w-mobile-100 {
+            width: 100% !important;
+          }
+          .advance-tab-button {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px;
+          }
+          .tab-button-style-2 {
+            display: inline-flex;
+            min-width: max-content;
+            border-bottom: none;
           }
         }
       `}</style>

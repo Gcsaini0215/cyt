@@ -61,8 +61,9 @@ export default function Profile() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewImage, setPreviewImage] = useState();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   // Cropping State
   const [imageToCrop, setImageToCrop] = useState(null);
@@ -162,11 +163,18 @@ export default function Profile() {
   const handleSubmit = async () => {
     setError("");
     setSuccess("");
+    setFieldErrors({});
+    
+    const errors = {};
     if (therapistInfo.user.name === "") {
-      setError("Name can not be empty");
-      return;
-    } else if (therapistInfo.user.phone === "") {
-      setError("Phone Number can not be empty");
+      errors.name = "Name can not be empty";
+    }
+    if (therapistInfo.user.phone === "") {
+      errors.phone = "Phone Number can not be empty";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     } else {
       setError("");
@@ -278,98 +286,75 @@ export default function Profile() {
         <div
           className="tutor-bg-photo"
           style={{ 
-            height: isMobile ? 120 : 180, 
-            background: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
-            borderRadius: "15px 15px 0 0",
+            height: isMobile ? "auto" : 200, 
+            minHeight: isMobile ? 180 : 200,
+            background: "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
+            borderRadius: "15px",
             position: "relative",
             display: "flex",
-            alignItems: "flex-end",
-            padding: isMobile ? "0 20px 20px" : "0 30px 30px 180px"
+            alignItems: "center",
+            padding: isMobile ? "30px 20px" : "0 40px",
+            marginBottom: "30px"
           }}
         >
-          {!isMobile && (
-            <div className="banner-text-content">
-              <h4 className="title" style={{ color: "white", marginBottom: "4px", fontWeight: "600" }}>
-                {therapistInfo.user.name}
-                {therapistInfo.profile_code !== "" && (
-                  <span style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", marginLeft: "10px", fontWeight: "400" }}>
-                    ({therapistInfo.profile_code})
-                  </span>
-                )}
-              </h4>
-              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                <span style={{ color: "rgba(255,255,255,0.9)", fontSize: "14px" }}>
-                  <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
-                </span>
-                <span 
-                  className="badge" 
-                  style={{ 
-                    backgroundColor: "rgba(255,255,255,0.2)", 
-                    color: "white",
-                    padding: "2px 12px",
-                    borderRadius: "4px",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    backdropFilter: "blur(4px)"
-                  }}
-                >
-                  {therapistInfo.profile_type}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="rbt-tutor-information" style={{ padding: "0 25px", position: "relative" }}>
-          <div className="rbt-tutor-information-left" style={{ flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "center" : "flex-start", textAlign: isMobile ? "center" : "left" }}>
-            <div className="thumbnail rbt-avatars size-lg position-relative" style={{ marginTop: isMobile ? "-40px" : "-80px" }}>
+          <div style={{ 
+            display: "flex", 
+            flexDirection: "row",
+            alignItems: "center", 
+            textAlign: "left",
+            gap: isMobile ? "20px" : "30px",
+            width: "100%"
+          }}>
+            <div className="thumbnail rbt-avatars size-lg position-relative" style={{ flexShrink: 0 }}>
               {(previewImage || (therapistInfo.user.profile && therapistInfo.user.profile !== "null")) ? (
                 <ImageTag
                   alt={therapistInfo.user.name || "Profile"}
                   style={{
-                    height: isMobile ? 100 : 130,
-                    width: isMobile ? 100 : 130,
-                    borderRadius: "12px",
+                    height: isMobile ? 120 : 130,
+                    width: isMobile ? 120 : 130,
+                    borderRadius: "20px",
                     objectFit: "cover",
                     backgroundColor: "#fff",
-                    border: "4px solid #fff",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
+                    border: "4px solid rgba(255,255,255,0.3)",
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.2)"
                   }}
                   src={previewImage ?? `${imagePath}/${therapistInfo.user.profile}`}
                 />
               ) : (
                 <div 
                   style={{
-                    height: isMobile ? 100 : 130,
-                    width: isMobile ? 100 : 130,
-                    borderRadius: "12px",
-                    backgroundColor: "#f3f4f6",
+                    height: isMobile ? 120 : 130,
+                    width: isMobile ? 120 : 130,
+                    borderRadius: "20px",
+                    backgroundColor: "rgba(255,255,255,0.1)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    border: "4px solid #fff",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-                    color: "#9ca3af"
+                    border: "4px solid rgba(255,255,255,0.3)",
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                    color: "#fff"
                   }}
                 >
-                  <i className="feather-user" style={{ fontSize: isMobile ? "40px" : "50px" }}></i>
+                  <i className="feather-user" style={{ fontSize: isMobile ? "45px" : "50px" }}></i>
                 </div>
               )}
-              <div className="rbt-edit-photo-inner" style={{ bottom: "5px", right: "5px" }}>
+              <div className="rbt-edit-photo-inner" style={{ bottom: "-5px", right: "-5px" }}>
                 <button
                   className="rbt-edit-photo"
                   title="Upload Photo"
                   onClick={handleImageUpload}
                   style={{ 
-                    backgroundColor: "#059669",
-                    width: isMobile ? "30px" : "36px",
-                    height: isMobile ? "30px" : "36px",
-                    lineHeight: isMobile ? "30px" : "36px",
-                    border: "2px solid #fff",
+                    backgroundColor: "#fff",
+                    width: isMobile ? "34px" : "36px",
+                    height: isMobile ? "34px" : "36px",
+                    lineHeight: isMobile ? "34px" : "36px",
+                    border: "none",
                     borderRadius: "50%",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                    color: "#059669"
                   }}
                 >
-                  <i className="feather-camera" style={{ fontSize: isMobile ? "12px" : "16px", color: "#fff" }}></i>
+                  <i className="feather-camera" style={{ fontSize: isMobile ? "14px" : "16px" }}></i>
                 </button>
                 <input
                   type="file"
@@ -380,32 +365,48 @@ export default function Profile() {
                 />
               </div>
             </div>
-            {isMobile && (
-              <div className="tutor-content mt--10">
-                <h5 className="title" style={{ marginBottom: "2px", fontSize: "18px", color: "#1a1a1a" }}>
-                  {therapistInfo.user.name}
-                </h5>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "5px" }}>
-                  <span style={{ color: "#6b7385", fontSize: "13px" }}>
-                    <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
-                  </span>
-                  <span 
-                    className="badge" 
-                    style={{ 
-                      backgroundColor: "#ecfdf5", 
-                      color: "#065f46",
-                      padding: "2px 10px",
-                      borderRadius: "4px",
-                      fontSize: "11px",
-                      fontWeight: "600",
-                      border: "1px solid #a7f3d0"
-                    }}
-                  >
-                    {therapistInfo.profile_type}
-                  </span>
-                </div>
+            <div className="tutor-content">
+              <h5 className="title" style={{ 
+                marginBottom: "5px", 
+                fontSize: isMobile ? "22px" : "28px", 
+                color: "#fff", 
+                fontWeight: "800",
+                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }}>
+                {therapistInfo.user.name}
+              </h5>
+              <div style={{ 
+                display: "flex", 
+                flexDirection: "column", 
+                alignItems: "flex-start", 
+                gap: "8px" 
+              }}>
+                <span style={{ 
+                  color: "rgba(255,255,255,0.9)", 
+                  fontSize: isMobile ? "14px" : "15px", 
+                  fontWeight: "500",
+                  display: "flex",
+                  alignItems: "center"
+                }}>
+                  <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
+                </span>
+                <span 
+                  className="badge" 
+                  style={{ 
+                    backgroundColor: "rgba(255,255,255,0.2)", 
+                    color: "white",
+                    padding: "4px 12px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    backdropFilter: "blur(4px)"
+                  }}
+                >
+                  {therapistInfo.profile_type}
+                </span>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -442,8 +443,12 @@ export default function Profile() {
               id="fullname"
               type="text"
               value={therapistInfo.user.name}
-              onChange={(e) => setInfo("user.name", e.target.value)}
+              onChange={(e) => {
+                setInfo("user.name", e.target.value);
+                if (fieldErrors.name) setFieldErrors(prev => ({ ...prev, name: "" }));
+              }}
             />
+            {fieldErrors.name && <span className="text-danger" style={{ fontSize: "12px", marginTop: "5px", display: "block" }}>{fieldErrors.name}</span>}
           </div>
         </div>
         <div className="col-lg-6 col-md-6 col-sm-6 col-12">
@@ -470,8 +475,12 @@ export default function Profile() {
               id="phonenumber"
               type="tel"
               value={therapistInfo.user.phone}
-              onChange={(e) => setInfo("user.phone", e.target.value)}
+              onChange={(e) => {
+                setInfo("user.phone", e.target.value);
+                if (fieldErrors.phone) setFieldErrors(prev => ({ ...prev, phone: "" }));
+              }}
             />
+            {fieldErrors.phone && <span className="text-danger" style={{ fontSize: "12px", marginTop: "5px", display: "block" }}>{fieldErrors.phone}</span>}
           </div>
         </div>
         <div className="col-lg-6 col-md-6 col-sm-6 col-12">

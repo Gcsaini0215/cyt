@@ -109,26 +109,26 @@ const Availability = ({ onSuccess }) => {
 
   return (
     <div className="rbt-dashboard-content-wrapper">
-      <div className="rbt-table-wrapper">
-        <table className="rbt-table table table-borderless">
+      <div className="rbt-table-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <table className="rbt-table table table-borderless" style={{ minWidth: '700px' }}>
           <thead>
-            <tr>
-              <th>Days</th>
-              <th>Opens at</th>
-              <th>Closes at</th>
-              <th>Action</th>
+            <tr style={{ background: '#f8fafc' }}>
+              <th style={{ padding: '15px', borderRadius: '8px 0 0 8px' }}>Days</th>
+              <th style={{ padding: '15px' }}>Opens at</th>
+              <th style={{ padding: '15px' }}>Closes at</th>
+              <th style={{ padding: '15px', borderRadius: '0 8px 8px 0' }}>Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ borderTop: '10px solid transparent' }}>
             {Object.keys(times).map((day) => (
               <React.Fragment key={day}>
                 {times[day].map((time, index) => (
-                  <tr key={`${day}-${index}`}>
-                    <th style={{ verticalAlign: 'middle' }}>{index === 0 ? day : ""}</th>
-                    <td>
+                  <tr key={`${day}-${index}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <th style={{ verticalAlign: 'middle', padding: '15px', color: '#1e293b', fontWeight: 600 }}>{index === 0 ? day : ""}</th>
+                    <td style={{ padding: '12px 15px' }}>
                       <div className="rbt-form-group mb--0">
                         <select
-                          style={selectStyle}
+                          style={{ ...selectStyle, border: '1px solid #e2e8f0', background: '#fff' }}
                           value={time.open}
                           onChange={(e) =>
                             handleTimeChange(day, index, "open", e.target.value)
@@ -143,10 +143,10 @@ const Availability = ({ onSuccess }) => {
                         </select>
                       </div>
                     </td>
-                    <td>
+                    <td style={{ padding: '12px 15px' }}>
                       <div className="rbt-form-group mb--0">
                         <select
-                          style={selectStyle}
+                          style={{ ...selectStyle, border: '1px solid #e2e8f0', background: '#fff' }}
                           value={time.close}
                           onChange={(e) =>
                             handleTimeChange(day, index, "close", e.target.value)
@@ -161,22 +161,44 @@ const Availability = ({ onSuccess }) => {
                         </select>
                       </div>
                     </td>
-                    <td style={{ verticalAlign: 'middle' }}>
+                    <td style={{ verticalAlign: 'middle', padding: '12px 15px' }}>
                       {index === 0 ? (
                         <button
                           className="rbt-btn btn-gradient btn-sm"
-                          style={{ height: 35, width: 35, padding: 0, minWidth: 35 }}
+                          style={{ 
+                            height: 38, 
+                            width: 38, 
+                            padding: 0, 
+                            minWidth: 38,
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 12px rgba(46, 204, 113, 0.2)'
+                          }}
                           onClick={() => addOvertime(day)}
                         >
-                          <i className="feather-plus"></i>
+                          <i className="feather-plus" style={{ fontSize: '18px' }}></i>
                         </button>
                       ) : (
                         <button
                           className="rbt-btn btn-pink btn-sm"
-                          style={{ height: 35, width: 35, padding: 0, minWidth: 35 }}
+                          style={{ 
+                            height: 38, 
+                            width: 38, 
+                            padding: 0, 
+                            minWidth: 38,
+                            borderRadius: '10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#fff1f2',
+                            color: '#e11d48',
+                            border: '1px solid #fecdd3'
+                          }}
                           onClick={() => deleteOvertime(day, index)}
                         >
-                          <i className="feather-trash-2"></i>
+                          <i className="feather-trash-2" style={{ fontSize: '16px' }}></i>
                         </button>
                       )}
                     </td>

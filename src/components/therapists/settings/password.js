@@ -16,8 +16,10 @@ export default function Password() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (field, value) => {
+    if (fieldErrors[field]) setFieldErrors(prev => ({ ...prev, [field]: "" }));
     setData((prevData) => ({
       ...prevData,
       [field]: value,
@@ -27,13 +29,25 @@ export default function Password() {
   const handleSubmit = async () => {
     setError("");
     setSuccess("");
+    setFieldErrors({});
 
+    const errors = {};
     if (data.password.length < 6) {
-      setError("Please enter valid current password");
-    } else if (data.npassword.length < 6 || data.cpassword.length < 6) {
-      setError("Please enter valid password");
-    } else if (data.npassword !== data.cpassword) {
-      setError("Confirm password is not same as password");
+      errors.password = "Please enter valid current password (min 6 chars)";
+    }
+    if (data.npassword.length < 6) {
+      errors.npassword = "New password must be at least 6 characters";
+    }
+    if (data.cpassword.length < 6) {
+      errors.cpassword = "Confirm password must be at least 6 characters";
+    }
+    if (data.npassword !== data.cpassword && data.npassword.length >= 6) {
+      errors.cpassword = "Confirm password is not same as password";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
     } else {
       setError("");
       setLoading(true);
@@ -74,6 +88,7 @@ export default function Password() {
               value={data.password}
               onChange={(e) => handleChange("password", e.target.value)}
             />
+            {fieldErrors.password && <span className="text-danger" style={{ fontSize: "12px", marginTop: "5px", display: "block" }}>{fieldErrors.password}</span>}
           </div>
         </div>
         <div className="col-12">
@@ -86,6 +101,7 @@ export default function Password() {
               value={data.npassword}
               onChange={(e) => handleChange("npassword", e.target.value)}
             />
+            {fieldErrors.npassword && <span className="text-danger" style={{ fontSize: "12px", marginTop: "5px", display: "block" }}>{fieldErrors.npassword}</span>}
           </div>
         </div>
         <div className="col-12">
@@ -98,6 +114,7 @@ export default function Password() {
               value={data.cpassword}
               onChange={(e) => handleChange("cpassword", e.target.value)}
             />
+            {fieldErrors.cpassword && <span className="text-danger" style={{ fontSize: "12px", marginTop: "5px", display: "block" }}>{fieldErrors.cpassword}</span>}
           </div>
         </div>
         <FormMessage error={error} success={success} />

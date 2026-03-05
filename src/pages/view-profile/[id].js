@@ -7,7 +7,7 @@ import MyNavbar from "../../components/navbar";
 import NewsLetter from "../../components/home/newsletter";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
-  GetFavriouteTherapistListUrl,
+  GetFavoriteTherapistListUrl,
   getTherapistProfile,
   imagePath,
   frontendUrl
@@ -77,7 +77,7 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
   useEffect(() => {
     const getFavrioutes = async () => {
       try {
-        const res = await fetchById(GetFavriouteTherapistListUrl);
+        const res = await fetchById(GetFavoriteTherapistListUrl);
         if (res && res.data) {
           setFavrioutes(res.data.therapists || []);
         }

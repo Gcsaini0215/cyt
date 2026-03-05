@@ -11,7 +11,7 @@ import ImageTag from "../utils/image-tag";
 import { isValidMail } from "../utils/validators";
 import {
   sendForgotPasswordOtpUrl,
-  verifyOtpAndResetPasswordpUrl,
+  verifyOtpAndResetPasswordUrl,
 } from "../utils/url";
 import { getDecodedToken } from "../utils/jwt";
 import { postData } from "../utils/actions";
@@ -89,7 +89,7 @@ export default function Forgotpassword() {
         setError("");
         setSuccess("");
         setLoading(true);
-        const response = await postData(verifyOtpAndResetPasswordpUrl, {
+        const response = await postData(verifyOtpAndResetPasswordUrl, {
           email,
           otp,
           password,

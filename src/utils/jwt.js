@@ -21,9 +21,14 @@ export const removeToken = () => {
 };
 
 export const getDecodedToken = () => {
-  const token = getToken();
-  if (!token) return null;
-  return jwtDecode(token);
+  try {
+    const token = getToken();
+    if (!token) return null;
+    return jwtDecode(token);
+  } catch (error) {
+    console.error("Token decoding failed:", error);
+    return null;
+  }
 };
 
 export const isAuthenticated = () => {

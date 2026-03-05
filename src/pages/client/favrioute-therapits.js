@@ -3,8 +3,8 @@ import UserLayout from "../../components/dashboard/user-layout";
 import FavTherapistCard from "../../components/dashboard/fav-therapist-card";
 import { fetchById, postData } from "../../utils/actions";
 import {
-  GetFavriouteTherapistUrl,
-  RemoveFavriouteTherapistUrl,
+  GetFavoriteTherapistUrl,
+  RemoveFavoriteTherapistUrl,
 } from "../../utils/url";
 import PageWrapper from "../../components/global/page-wrapper";
 import { toast } from "react-toastify";
@@ -15,7 +15,7 @@ export default function FavriouteTherapistPage() {
 
   const getData = async () => {
     try {
-      const res = await fetchById(GetFavriouteTherapistUrl);
+      const res = await fetchById(GetFavoriteTherapistUrl);
       if (res && res.data) {
         setData(res.data);
       } else if (res && res.message) {
@@ -31,7 +31,7 @@ export default function FavriouteTherapistPage() {
     const filter = data.filter((item) => item.therapist._id !== id);
     setData(filter);
     try {
-      const response = await postData(RemoveFavriouteTherapistUrl, {
+      const response = await postData(RemoveFavoriteTherapistUrl, {
         therapistId: id,
       });
       if (!response.status) {

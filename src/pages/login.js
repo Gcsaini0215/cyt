@@ -23,8 +23,19 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    let timer;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -41,6 +52,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading || cooldown > 0) return;
     setError("");
     if (email.length < 7 || !isValidMail(email)) {
       setError("Please enter valid email address");
@@ -58,19 +70,24 @@ export default function Login() {
         setSuccess(response.message);
         setError("");
         setOtpView(true);
+        setCooldown(60); // Standard cooldown after success
       } else {
         setError(response.message);
       }
     } catch (error) {
-      console.error("Login Error:", error);
-      setError(error.response?.data?.message || error.message || "Something went wrong");
+      if (error.response?.status === 429) {
+        setError(error.response?.data?.message || "Too many requests. Please wait before trying again.");
+        setCooldown(60); // 60 seconds cooldown for 429
+      } else {
+        setError(error.response?.data?.message || error.message || "Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
-
   };
 
   const handleOtp = async () => {
+    if (loading) return;
     setError("");
 
     if (otp.length !== 6) {
@@ -99,12 +116,10 @@ export default function Login() {
       }
     } catch (error) {
       setSuccess("");
-      setError(error.response?.data?.message || "Something went wrong");
+      setError(error.response?.data?.message || error.message || "Something went wrong");
     } finally {
-
       setLoading(false);
     }
-
   };
 
   useEffect(() => {
@@ -266,10 +281,15 @@ export default function Login() {
                       ) : (
                         <button
                           onClick={handleSubmit}
+                          disabled={cooldown > 0}
                           className="rbt-btn btn-gradient radius-round w-100"
-                          style={{ minHeight: '50px' }}
+                          style={{ 
+                            minHeight: '50px',
+                            opacity: cooldown > 0 ? 0.6 : 1,
+                            cursor: cooldown > 0 ? 'not-allowed' : 'pointer'
+                          }}
                         >
-                          Send OTP
+                          {cooldown > 0 ? `Wait ${cooldown}s` : "Send OTP"}
                         </button>
                       )}
                     </div>

@@ -88,15 +88,16 @@ export default function PaymentDetails({ onSuccess }) {
         </div>
 
         <div className="col-lg-12">
-          <div className="rbt-shadow-box p--20 mb--30 border">
-            <h6 className="rbt-title-style-2 mb--20">Option 1: Bank Account</h6>
-            <div className="row g-3">
+          <div className="rbt-shadow-box p--30 mb--30 border-0" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderRadius: '16px', background: '#fff' }}>
+            <h6 className="rbt-title-style-2 mb--20" style={{ color: '#1e293b', fontWeight: 700 }}>Option 1: Bank Account</h6>
+            <div className="row g-4">
               <div className="col-12">
                 <div className="rbt-form-group">
-                  <label htmlFor="accountName">Bank Account Name</label>
+                  <label htmlFor="accountName" style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Bank Account Name</label>
                   <input
                     id="accountName"
                     type="text"
+                    style={{ borderRadius: '10px', height: '50px', border: '1px solid #e2e8f0' }}
                     value={paymentStore.ac_name}
                     onChange={(e) => setPaymentStore("ac_name", e.target.value)}
                     placeholder="Enter Account Holder Name"
@@ -105,10 +106,11 @@ export default function PaymentDetails({ onSuccess }) {
               </div>
               <div className="col-md-6">
                 <div className="rbt-form-group">
-                  <label htmlFor="accountNumber">Account Number</label>
+                  <label htmlFor="accountNumber" style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Account Number</label>
                   <input
                     id="accountNumber"
                     type="text"
+                    style={{ borderRadius: '10px', height: '50px', border: '1px solid #e2e8f0' }}
                     value={paymentStore.ac_number}
                     onChange={(e) => setPaymentStore("ac_number", e.target.value)}
                     placeholder="Enter Account Number"
@@ -117,10 +119,11 @@ export default function PaymentDetails({ onSuccess }) {
               </div>
               <div className="col-md-6">
                 <div className="rbt-form-group">
-                  <label htmlFor="ifsc">IFSC Code</label>
+                  <label htmlFor="ifsc" style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>IFSC Code</label>
                   <input
                     id="ifsc"
                     type="text"
+                    style={{ borderRadius: '10px', height: '50px', border: '1px solid #e2e8f0' }}
                     value={paymentStore.ifsc}
                     onChange={(e) => setPaymentStore("ifsc", e.target.value)}
                     placeholder="Enter IFSC Code"
@@ -133,19 +136,20 @@ export default function PaymentDetails({ onSuccess }) {
 
         <div className="col-12 text-center mb--30">
           <div className="section-title">
-            <span className="subtitle bg-secondary-opacity text-secondary px-3 py-1 rounded-pill">OR</span>
+            <span className="subtitle bg-secondary-opacity text-secondary px-4 py-2 rounded-pill" style={{ fontWeight: 700, fontSize: '12px', letterSpacing: '1px' }}>OR</span>
           </div>
         </div>
 
         <div className="col-lg-12">
-          <div className="rbt-shadow-box p--20 mb--30 border">
-            <h6 className="rbt-title-style-2 mb--20">Option 2: UPI Transfer</h6>
+          <div className="rbt-shadow-box p--30 mb--30 border-0" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderRadius: '16px', background: '#fff' }}>
+            <h6 className="rbt-title-style-2 mb--20" style={{ color: '#1e293b', fontWeight: 700 }}>Option 2: UPI Transfer</h6>
             <div className="rbt-form-group">
-              <label htmlFor="upiId">UPI ID</label>
+              <label htmlFor="upiId" style={{ fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>UPI ID</label>
               <input
                 id="upiId"
                 type="text"
                 name="upi"
+                style={{ borderRadius: '10px', height: '50px', border: '1px solid #e2e8f0' }}
                 value={paymentStore.upi}
                 onChange={(e) => setPaymentStore("upi", e.target.value)}
                 placeholder="example@upi"
