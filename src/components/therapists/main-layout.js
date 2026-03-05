@@ -291,7 +291,7 @@ export default function MainLayout(props) {
           >
             {[
               { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
-              { to: "/appointments", icon: "fa-regular fa-calendar-check", label: "Sessions" },
+              { to: "/appointments", icon: "feather-calendar", label: "Sessions" },
               { to: "/clinic-patients", icon: "feather-users", label: "Clinic" },
               { to: "/settings", icon: "feather-user", label: "Profile" }
             ].map((item) => (

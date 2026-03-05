@@ -29,10 +29,12 @@ let rawBaseApi;
 
 // Force LIVE mode if you want to use production data on localhost
 // Set this to "LOCAL" only if you have a local backend running on port 4000
-const PREFERRED_MODE = "LOCAL"; 
+const PREFERRED_MODE = "LIVE"; 
 
-if (currentDomain === "localhost" || currentDomain === "127.0.0.1") {
-  baseFrontendUrl = "http://localhost:3000";
+const isLocal = currentDomain === "localhost" || currentDomain === "127.0.0.1" || currentDomain.startsWith("192.168.") || currentDomain.startsWith("10.");
+
+if (isLocal) {
+  baseFrontendUrl = `http://${currentDomain}:3000`;
   
   if (PREFERRED_MODE === "LOCAL") {
     rawApiUrl = LOCAL_API_URL;
