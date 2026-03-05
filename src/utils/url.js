@@ -4,6 +4,7 @@ let baseFrontendUrl;
 
 const isServer = typeof window === "undefined";
 const currentDomain = isServer ? "" : window.location.hostname;
+const currentProtocol = isServer ? "https:" : window.location.protocol;
 
 // Static assignment for environment variables
 const envApiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL;
@@ -24,14 +25,14 @@ const removeTrailingSlash = (str) => {
 };
 
 // Determine which URL to use
-let rawApiUrl;
-let rawBaseApi;
+let rawApiUrl = LIVE_API_URL;
+let rawBaseApi = LIVE_BASE_API;
 
 // Force LIVE mode if you want to use production data on localhost
 // Set this to "LOCAL" only if you have a local backend running on port 4000
 const PREFERRED_MODE = "LIVE"; 
 
-const isLocal = currentDomain === "localhost" || currentDomain === "127.0.0.1" || currentDomain.startsWith("192.168.") || currentDomain.startsWith("10.");
+const isLocal = !isServer && (currentDomain === "localhost" || currentDomain === "127.0.0.1" || currentDomain.startsWith("192.168.") || currentDomain.startsWith("10."));
 
 if (isLocal) {
   baseFrontendUrl = `http://${currentDomain}:3000`;
@@ -39,17 +40,18 @@ if (isLocal) {
   if (PREFERRED_MODE === "LOCAL") {
     rawApiUrl = LOCAL_API_URL;
     rawBaseApi = LOCAL_BASE_API;
-  } else {
-    // Data requests will use proxy if needed, but for now let's try direct 
-    // because we have the correct api subdomain now.
-    rawApiUrl = LIVE_API_URL;
-    rawBaseApi = LIVE_BASE_API;
   }
 } else {
   baseFrontendUrl = "https://chooseyourtherapist.in";
   // In production, use environment variables or fallback to LIVE
   rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : LIVE_API_URL;
   rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : LIVE_BASE_API;
+}
+
+// Final fallback to ensure consistent protocol in production
+if (!isLocal && rawApiUrl.includes('api.chooseyourtherapist.in')) {
+  rawApiUrl = rawApiUrl.replace('http:', currentProtocol).replace('https:', currentProtocol);
+  rawBaseApi = rawBaseApi.replace('http:', currentProtocol).replace('https:', currentProtocol);
 }
 
 // Ensure no double slash if it's already a relative path
