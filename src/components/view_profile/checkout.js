@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import ProfileCheckoutCard from "./profile-checkout-card";
 import { getFormatsByServiceId, getServices } from "../../utils/helpers";
-
+import { useMediaQueryClient } from "../../hooks/useMediaQueryClient";
 
 import FormMessage from "../global/form-message";
 import { postData } from "../../utils/actions";
@@ -36,6 +36,7 @@ const styles = {
   selectStyle: { lineHeight: "20px", height: "50px" },
 };
 export default function TherapistCheckout({ profile }) {
+  const isMobile = useMediaQueryClient("sm");
   const { userInfo } = useUserStore();
   const router = useRouter();
   const [error, setError] = React.useState("");
@@ -421,14 +422,22 @@ const setConfig = async (profile) => {
 
 
   return (
-    <div className="checkout_area bg-color-white ">
+    <div className="checkout_area bg-color-white" style={{ padding: isMobile ? "20px 0 100px 0" : "60px 0" }}>
       <div className="container">
-        <div className="row g-5 checkout-form">
+        <div className={`row g-5 ${isMobile ? 'flex-column-reverse' : ''}`}>
           <div className="col-lg-7">
-            <ProfileCheckoutCard pageData={profile} />
-            <div className="checkout-content-wrapper mt--20">
+            <div style={{ marginBottom: isMobile ? '30px' : '0' }}>
+              <ProfileCheckoutCard pageData={profile} />
+            </div>
+            <div className="checkout-content-wrapper mt--20" style={{ 
+              background: '#fff',
+              padding: isMobile ? '20px' : '30px',
+              borderRadius: '24px',
+              border: '1px solid #f1f5f9',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+            }}>
               <div id="billing-form">
-                <h4 className="checkout-title">Booking Details</h4>
+                <h4 className="checkout-title" style={{ fontSize: isMobile ? '20px' : '24px', fontWeight: 800 }}>Booking Details</h4>
                 <FormMessage success={success} error={error} />
                 <div className="row mt--15">
 
@@ -622,30 +631,52 @@ const setConfig = async (profile) => {
 
           <div className="col-lg-5">
             <div className="col-12 mb--30">
-              <div className="checkout-cart-total">
-                <h4>
-                  Service <span>Total</span>
+              <div className="checkout-cart-total" style={{ 
+                border: 'none', 
+                borderRadius: '24px', 
+                background: '#f8fafc', 
+                padding: isMobile ? '25px' : '35px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+                position: isMobile ? 'relative' : 'sticky',
+                top: isMobile ? '0' : '100px'
+              }}>
+                <h4 style={{ fontSize: '20px', fontWeight: 800, borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                  Booking Summary
                 </h4>
-                <ul>
-                  <li>
-                    {info.service}&nbsp;({info.format})
-                    <span>₹{amountInfo.amount}</span>
+                <ul style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '15px', marginTop: '15px' }}>
+                  <li style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '15px', fontWeight: 500 }}>
+                    <div>
+                      {info.service}<br/>
+                      <small style={{ color: '#64748b' }}>({info.format})</small>
+                    </div>
+                    <span style={{ fontWeight: 700, color: '#1e293b' }}>₹{amountInfo.amount}</span>
                   </li>
                 </ul>
 
-                <p>
-                  Sub Total<span>₹{amountInfo.amount}</span>
-                </p>
-                {
-                  amountInfo.discount != 0 && <p>
-                    Coupon Discount<span>₹{amountInfo.discount}</span>
+                <div style={{ padding: '20px 0', borderBottom: '1px solid #e2e8f0' }}>
+                  <p style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', margin: '0 0 10px 0', fontWeight: 600 }}>
+                    Sub Total<span>₹{amountInfo.amount}</span>
                   </p>
-                }
-                <div className="mt--10" style={{ display: "flex", justifyContent: "space-between", gap: "20px" }}>
-                  <div >
+                  {amountInfo.discount != 0 && (
+                    <p style={{ display: 'flex', justifyContent: 'space-between', color: '#228756', margin: 0, fontWeight: 700 }}>
+                      Coupon Discount<span>- ₹{amountInfo.discount}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt--20" style={{ 
+                  display: "flex", 
+                  flexDirection: "column",
+                  gap: "10px",
+                  background: "#fff",
+                  padding: "15px",
+                  borderRadius: "16px",
+                  border: "1px dashed #cbd5e1"
+                }}>
+                  <div style={{ display: "flex", gap: "10px" }}>
                     <input
                       type="text"
-                      placeholder="Use Coupon"
+                      placeholder="Coupon Code"
                       id="coupon"
                       name="coupon"
                       value={amountInfo.coupon}
@@ -655,44 +686,104 @@ const setConfig = async (profile) => {
                           coupon: e.target.value
                         }))
                       }
-                      style={{ marginBottom: 0 }}
+                      style={{ 
+                        marginBottom: 0, 
+                        height: '45px', 
+                        fontSize: '14px', 
+                        borderRadius: '10px',
+                        background: '#f1f5f9',
+                        border: '1px solid #e2e8f0'
+                      }}
                     />
-                    {couponError && <span style={{ color: "red", fontSize: "12px", }}>{couponError}</span>}
+                    <button 
+                      className="rbt-btn btn-sm" 
+                      onClick={handleCouponApply}
+                      style={{ height: '45px', minWidth: '80px', borderRadius: '10px' }}
+                    >
+                      Apply
+                    </button>
                   </div>
-                  <div >
-                    <a className="rbt-btn btn-sm" onClick={handleCouponApply}>Apply</a>
-                  </div>
+                  {couponError && (
+                    <span style={{ 
+                      color: couponError.includes('success') ? '#228756' : '#ef4444', 
+                      fontSize: "12px", 
+                      fontWeight: 600,
+                      padding: '0 5px'
+                    }}>
+                      {couponError}
+                    </span>
+                  )}
                 </div>
 
-                <h4 className="mt--30">
-                  Grand Total <span style={{ fontSize: "26px", }}>₹{amountInfo.afterdiscount}</span>
-                </h4>
-                <div className="plceholder-button mt--10">
+                <div style={{ 
+                  marginTop: '25px', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  background: '#1e293b',
+                  padding: '20px',
+                  borderRadius: '16px',
+                  color: '#fff'
+                }}>
+                  <span style={{ fontSize: '15px', fontWeight: 500, opacity: 0.9 }}>Total Amount</span>
+                  <span style={{ fontSize: '24px', fontWeight: 800 }}>₹{amountInfo.afterdiscount}</span>
+                </div>
+
+                <div className="plceholder-button mt--20">
                   {loading ? (
                     <FormProgressBar />
                   ) : (
                     <button
-                      className="rbt-btn btn-gradient hover-icon-reverse"
+                      className="rbt-btn btn-gradient w-100"
                       onClick={handleSubmit}
+                      style={{ height: '55px', borderRadius: '14px', fontSize: '16px', fontWeight: 700 }}
                     >
-                      <span className="icon-reverse-wrapper">
-                        <span className="btn-text">Continue</span>
-                        <span className="btn-icon">
-                          <i className="feather-arrow-right"></i>
-                        </span>
-                        <span className="btn-icon">
-                          <i className="feather-arrow-right"></i>
-                        </span>
-                      </span>
+                      Confirm and Book
                     </button>
                   )}
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
+      
+      {/* Mobile Sticky Footer */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: '#ffffff',
+          boxShadow: '0 -10px 25px rgba(0,0,0,0.1)',
+          padding: '15px 20px',
+          zIndex: 1000,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          borderTop: '1px solid #f1f5f9'
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Grand Total</p>
+            <h4 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#1e293b' }}>₹{amountInfo.afterdiscount}</h4>
+          </div>
+          <button
+            className="rbt-btn btn-gradient"
+            onClick={handleSubmit}
+            style={{ 
+              height: '50px', 
+              padding: '0 30px', 
+              borderRadius: '12px', 
+              fontSize: '15px', 
+              fontWeight: 700,
+              boxShadow: '0 4px 15px rgba(34, 135, 86, 0.2)'
+            }}
+          >
+            {loading ? '...' : 'Continue'}
+          </button>
+        </div>
+      )}
       <Dialog open={open} onClose={(event, reason) => {
         if (reason === "backdropClick" || reason === "escapeKeyDown") {
           return;

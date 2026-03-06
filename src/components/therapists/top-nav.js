@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 const logo1 = "/logo.png";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -6,15 +6,64 @@ import ImageTag from "../../utils/image-tag";
 import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath } from "../../utils/url";
+import { fetchById } from "../../utils/actions";
+import { getBookings } from "../../utils/url";
+import { toast } from "react-toastify";
+
 export default function DashboardTopNav() {
-  const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
+  const { therapistInfo, fetchTherapistInfo, notificationCount, setNotificationCount, incrementNotificationCount } = useTherapistStore();
   const router = useRouter();
   const [show, setShow] = React.useState(false);
   const [isSticky, setIsSticky] = React.useState(false);
+  const prevBookingsCount = useRef(null);
 
   useEffect(() => {
     fetchTherapistInfo();
   }, [fetchTherapistInfo]);
+
+  // Polling for new bookings
+  useEffect(() => {
+    const checkNewBookings = async () => {
+      try {
+        const res = await fetchById(getBookings);
+        if (res.status && res.data) {
+          const currentCount = res.data.length;
+          
+          if (prevBookingsCount.current !== null && currentCount > prevBookingsCount.current) {
+            // New booking found
+            const newOnes = currentCount - prevBookingsCount.current;
+            setNotificationCount(notificationCount + newOnes);
+            
+            // Show toast notification
+            toast.info(`🔔 You have ${newOnes} new session booking${newOnes > 1 ? 's' : ''}!`, {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
+
+            // Optional: Play a subtle notification sound if you have one
+            // new Audio('/notification-sound.mp3').play().catch(() => {});
+          }
+          
+          prevBookingsCount.current = currentCount;
+        }
+      } catch (err) {
+        console.error("Error checking notifications:", err);
+      }
+    };
+
+    // Initial check
+    checkNewBookings();
+
+    // Poll every 30 seconds
+    const interval = setInterval(checkNewBookings, 30000);
+    return () => clearInterval(interval);
+  }, [notificationCount, setNotificationCount]);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -36,96 +85,111 @@ export default function DashboardTopNav() {
   return (
     <>
       <div className={show ? "popup-mobile-menu active" : "popup-mobile-menu"}>
-        <div className="inner-wrapper">
-          <div className="inner-top">
-            <div className="content">
-              <div className="logo">
-                <Link href="/therapist-dashboard" style={{ cursor: "pointer" }}>
+        <div className="inner-wrapper" style={{ padding: "0", background: "#fff", maxWidth: "300px" }}>
+          <div className="inner-top" style={{ 
+            padding: "30px 25px", 
+            background: "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
+            borderBottom: "none",
+            marginBottom: "10px"
+          }}>
+            <div className="content" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
+              <div className="user-info-mobile" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div className="thumbnail" style={{ position: "relative" }}>
                   <ImageTag
-                    alt="Education Logo Images"
-                    width="137"
-                    height="45"
-                    src={logo1}
+                    alt={therapistInfo.user.name}
+                    width="65"
+                    height="65"
+                    style={{ borderRadius: "18px", border: "3px solid rgba(255,255,255,0.2)", objectFit: "cover" }}
+                    src={`${imagePath}/${therapistInfo.user.profile}` || defaultProfile}
                   />
-                </Link>
+                </div>
+                <div className="details">
+                  <h5 style={{ color: "#fff", marginBottom: "2px", fontSize: "18px", fontWeight: "800" }}>{therapistInfo.user.name}</h5>
+                  <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>Therapist Dashboard</span>
+                </div>
               </div>
               <div className="rbt-btn-close">
                 <button
                   className="close-button rbt-round-btn"
                   onClick={() => setShow(false)}
+                  style={{ background: "rgba(255,255,255,0.1)", border: "none", color: "#fff", width: "36px", height: "36px" }}
                 >
                   <i className="feather-x"></i>
                 </button>
               </div>
             </div>
           </div>
-          <nav className="mainmenu-nav">
-            <ul className="mainmenu">
-              <li className="position-static">
-                <Link href="/therapist-dashboard" style={{ cursor: "pointer" }}>
-                  Home<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-              <li className="position-static">
-                <Link href="/appointments" style={{ cursor: "pointer" }}>
-                  Session Booking<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-              <li className="position-static">
-                <Link href="/therapists/invoices" style={{ cursor: "pointer" }}>
-                  Invoices<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-              <li className="position-static">
-                <Link href="/coupons" style={{ cursor: "pointer" }}>
-                  Create Coupons<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-             {/* 
-<li className="position-static">
-  <Link 
-    href="/invoices" 
-    style={{ cursor: "pointer" }}
-  >
-    Invoices <i className="feather-chevron-down"></i>
-  </Link>
-</li>
-
+          
+          <nav className="mainmenu-nav" style={{ padding: "10px 15px" }}>
+            <ul className="mainmenu" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+              {[
+                { to: "/therapist-dashboard", icon: "feather-home", label: "Dashboard" },
+                { to: "/appointments", icon: "feather-calendar", label: "Sessions", hasBadge: true },
+                { to: "/clinic-patients", icon: "feather-users", label: "Clinic Clients" },
+                { to: "/workshops", icon: "feather-award", label: "Manage Events" },
+                { to: "/coupons", icon: "feather-tag", label: "Coupons" },
+                { to: "/therapist-blogs", icon: "feather-edit-3", label: "Write Blog" },
+                { to: "/therapist-ai-blog", icon: "feather-zap", label: "Write with AI" },
+                { to: "/therapists/invoices", icon: "feather-file-text", label: "Invoices" },
+                { to: "/settings", icon: "feather-settings", label: "Settings" },
+              ].map((item) => (
+                <li key={item.to} className="position-static" style={{ width: "100%" }}>
+                  <Link 
+                    href={item.to} 
+                    onClick={() => { setShow(false); if(item.hasBadge) setNotificationCount(0); }}
+                    style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "space-between",
+                      gap: "12px", 
+                      padding: "12px 15px", 
+                      borderRadius: "12px",
+                      color: router.pathname === item.to ? "#059669" : "#475569",
+                      background: router.pathname === item.to ? "#f0fdf4" : "transparent",
+                      fontSize: "15px",
+                      fontWeight: router.pathname === item.to ? "700" : "500",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <i className={item.icon} style={{ fontSize: "20px" }}></i>
+                      {item.label}
+                    </div>
+                    {item.hasBadge && notificationCount > 0 && (
+                      <span style={{
+                        background: '#ef4444',
+                        color: 'white',
+                        borderRadius: '10px',
+                        padding: '2px 8px',
+                        fontSize: '11px',
+                        fontWeight: 'bold'
+                      }}>
+                        {notificationCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
               
-              <li className="position-static">
-                <Link 
-                href="/reviews" 
-                style={{ cursor: "pointer" }}>
-                  Rewiews<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-              <li className="position-static">
-                <Link 
-                href="/case-history" 
-                style={{ cursor: "pointer" }}>
-                  Case History<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-            
+              <li style={{ height: "1px", background: "#f1f5f9", margin: "10px 15px" }}></li>
               
-              <li className="position-static">
-                <Link href="/blogs" style={{ cursor: "pointer" }}>
-                  Blog<i className="feather-chevron-down"></i>
-                </Link>
-              </li>*/}
-                <li className="position-static">
-                <Link href="/workshops" style={{ cursor: "pointer" }}>
-                  Create Events<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-              <li className="position-static">
-                <Link href="/settings" style={{ cursor: "pointer" }}>
-                  Edit Profile<i className="feather-chevron-down"></i>
-                </Link>
-              </li>
-              <li className="position-static">
-                <a onClick={handleLogout} style={{ cursor: "pointer" }}>
-                  Logout<i className="feather-chevron-down"></i>
+              <li className="position-static" style={{ width: "100%" }}>
+                <a 
+                  onClick={() => { handleLogout(); setShow(false); }} 
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "12px", 
+                    padding: "12px 15px", 
+                    borderRadius: "12px",
+                    color: "#ef4444",
+                    fontSize: "15px",
+                    fontWeight: "600",
+                    cursor: "pointer"
+                  }}
+                >
+                  <i className="feather-log-out" style={{ fontSize: "20px" }}></i>
+                  Logout
                 </a>
               </li>
             </ul>
@@ -167,9 +231,34 @@ export default function DashboardTopNav() {
                       <i className="feather-globe"></i>
                     </a>
                   </li>
-                  <li>
-                    <Link className="service-menu-parent" href={"/notifications"}>
-                      <i className="feather-bell"></i> &nbsp;
+                  <li style={{ position: 'relative' }}>
+                    <Link 
+                      className="service-menu-parent" 
+                      href={"/appointments"}
+                      onClick={() => setNotificationCount(0)}
+                      style={{ position: 'relative', display: 'flex', alignItems: 'center' }}
+                    >
+                      <i className="feather-bell" style={{ fontSize: '20px' }}></i>
+                      {notificationCount > 0 && (
+                        <span style={{
+                          position: 'absolute',
+                          top: '-8px',
+                          right: '-8px',
+                          background: '#ef4444',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: '18px',
+                          height: '18px',
+                          fontSize: '11px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 'bold',
+                          border: '2px solid white'
+                        }}>
+                          {notificationCount}
+                        </span>
+                      )}
                     </Link>
                   </li>
                   <li className="account-access rbt-user-wrapper d-none d-xl-block">
@@ -204,7 +293,7 @@ export default function DashboardTopNav() {
 
                           <li>
                             <Link href="/settings">
-                              <i className="feather-shopping-bag"></i>
+                              <i className="feather-settings"></i>
                               <span>Edit Profile</span>
                             </Link>
                           </li>
@@ -249,7 +338,6 @@ export default function DashboardTopNav() {
           </div>
         </div>
       </header>
-
     </>
   );
 }

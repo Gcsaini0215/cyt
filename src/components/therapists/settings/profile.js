@@ -8,15 +8,19 @@ import {
 import React, { useState, useRef, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../../../utils/cropImage";
-import { Dialog, DialogContent, DialogTitle, Button, Slider, Typography } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, Button, Slider, Typography, Box, Grid, Paper } from "@mui/material";
 import { defaultProfile, imagePath, updateTherapistProfileUrl } from "../../../utils/url";
 import ImageTag from "../../../utils/image-tag";
 import { postFormData } from "../../../utils/actions";
 import FormMessage from "../../global/form-message";
 import FormProgressBar from "../../global/form-progressbar";
 import useTherapistStore from "../../../store/therapistStore";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import { useMediaQueryClient } from "../../../hooks/useMediaQueryClient";
 import Select from "react-select";
+import MicIcon from '@mui/icons-material/Mic';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import PersonIcon from '@mui/icons-material/Person';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const SkeletonLoader = () => (
   <div className="skeleton-wrapper w-100">
@@ -55,7 +59,7 @@ const SkeletonLoader = () => (
 );
 
 export default function Profile() {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const isMobile = useMediaQueryClient("sm");
   const { therapistInfo, setInfo, setSessionFormats } = useTherapistStore();
   const fileInputRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -299,9 +303,9 @@ export default function Profile() {
         >
           <div style={{ 
             display: "flex", 
-            flexDirection: "row",
+            flexDirection: isMobile ? "column" : "row",
             alignItems: "center", 
-            textAlign: "left",
+            textAlign: isMobile ? "center" : "left",
             gap: isMobile ? "20px" : "30px",
             width: "100%"
           }}>
@@ -365,7 +369,7 @@ export default function Profile() {
                 />
               </div>
             </div>
-            <div className="tutor-content">
+            <div className="tutor-content" style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "center" : "flex-start" }}>
               <h5 className="title" style={{ 
                 marginBottom: "5px", 
                 fontSize: isMobile ? "22px" : "28px", 
@@ -378,7 +382,7 @@ export default function Profile() {
               <div style={{ 
                 display: "flex", 
                 flexDirection: "column", 
-                alignItems: "flex-start", 
+                alignItems: isMobile ? "center" : "flex-start", 
                 gap: "8px" 
               }}>
                 <span style={{ 
@@ -564,25 +568,98 @@ export default function Profile() {
           </div>
         )}
 
-        <div className="col-lg-12 col-md-12 col-sm-12 col-12 mt--6 mb--15">
+        <div className="col-lg-12 col-md-12 col-sm-12 col-12 mt--6 mb--30">
           <div className="rbt-form-group">
-            <label>Session Formats</label>
-            <div className="row">
-              {sessionFormatsList.map((item) => (
-                <div className="col-lg-3 col-md-3 col-sm-6 col-12" key={item}>
-                  <p className="rbt-checkbox-wrapper mb--5">
-                    <input
-                      id={`session-checkbox-${item}`}
-                      type="checkbox"
-                      value={item}
-                      checked={therapistInfo.session_formats.includes(item)}
-                      onChange={handleSessionFormats}
-                    />
-                    <label htmlFor={`session-checkbox-${item}`}>{item}</label>
-                  </p>
-                </div>
-              ))}
-            </div>
+            <label style={{ marginBottom: '15px', fontWeight: 800, fontSize: '16px', color: '#1e293b' }}>Session Formats</label>
+            <Grid container spacing={2}>
+              {sessionFormatsList.map((item) => {
+                const isSelected = therapistInfo.session_formats.includes(item);
+                const getIcon = () => {
+                  const n = item.toLowerCase();
+                  if (n.includes('audio')) return <MicIcon sx={{ fontSize: 28, color: isSelected ? '#fff' : '#0ea5e9' }} />;
+                  if (n.includes('video')) return <VideocamIcon sx={{ fontSize: 28, color: isSelected ? '#fff' : '#8b5cf6' }} />;
+                  if (n.includes('person') || n.includes('offline')) return <PersonIcon sx={{ fontSize: 28, color: isSelected ? '#fff' : '#ec4899' }} />;
+                  return null;
+                };
+
+                const getThemeColor = () => {
+                  const n = item.toLowerCase();
+                  if (n.includes('audio')) return { main: '#0ea5e9', light: '#f0f9ff' };
+                  if (n.includes('video')) return { main: '#8b5cf6', light: '#f5f3ff' };
+                  if (n.includes('person') || n.includes('offline')) return { main: '#ec4899', light: '#fdf2f8' };
+                  return { main: '#2ecc71', light: '#f0fdf4' };
+                };
+
+                const theme = getThemeColor();
+
+                return (
+                  <Grid item xs={6} md={4} key={item}>
+                    <Paper
+                      onClick={() => {
+                        const event = { target: { value: item, checked: !isSelected } };
+                        handleSessionFormats(event);
+                      }}
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        borderRadius: '16px',
+                        border: '2px solid',
+                        borderColor: isSelected ? theme.main : '#f1f5f9',
+                        background: isSelected ? theme.light : '#fff',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        position: 'relative',
+                        minHeight: '100px',
+                        '&:hover': {
+                          borderColor: theme.main,
+                          background: theme.light,
+                          transform: 'translateY(-2px)',
+                        }
+                      }}
+                    >
+                      {isSelected && (
+                        <CheckCircleIcon 
+                          sx={{ 
+                            position: 'absolute', 
+                            top: 8, 
+                            right: 8, 
+                            fontSize: 18, 
+                            color: theme.main 
+                          }} 
+                        />
+                      )}
+                      <Box sx={{ 
+                        mb: 1, 
+                        width: 40, 
+                        height: 40, 
+                        borderRadius: '10px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        background: isSelected ? '#fff' : theme.light,
+                        boxShadow: isSelected ? '0 2px 6px rgba(0,0,0,0.05)' : 'none'
+                      }}>
+                        {React.cloneElement(getIcon(), { 
+                          sx: { ...getIcon().props.sx, fontSize: 24, color: theme.main } 
+                        })}
+                      </Box>
+                      <Typography sx={{ 
+                        fontWeight: 700, 
+                        fontSize: '14px', 
+                        color: isSelected ? theme.main : '#475569',
+                        textAlign: 'center'
+                      }}>
+                        {item}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                );
+              })}
+            </Grid>
           </div>
         </div>
         <div className="col-12">

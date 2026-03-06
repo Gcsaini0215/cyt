@@ -6,7 +6,7 @@ import UpcomingAppointment from "../components/therapists/dashboard/upcommingapp
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import QuickActions from "../components/therapists/dashboard/QuickActions";
-import { GetDashboardDataUrl, getBookings } from "../utils/url";
+import { GetDashboardDataUrl, getBookings, GetMyWorkshopBooking } from "../utils/url";
 import { LinearProgress, Grid, Box, Paper, Avatar, Typography } from "@mui/material";
 import { fetchById } from "../utils/actions";
 
@@ -17,31 +17,43 @@ export default function TherapistDashboard() {
 
   const getDashboardData = async () => {
     try {
-      // Parallel fetch for dashboard data and bookings
-      const [dashRes, bookingsRes] = await Promise.all([
+      // Parallel fetch for dashboard data, bookings and workshop bookings
+      const [dashRes, bookingsRes, workshopRes] = await Promise.all([
         fetchById(GetDashboardDataUrl),
-        fetchById(getBookings)
+        fetchById(getBookings),
+        fetchById(GetMyWorkshopBooking)
       ]);
 
       let dashboardData = dashRes.status ? dashRes.data : {};
+      let totalEarnings = 0;
+      let upcomingSessionsCount = 0;
+      let dynamicInvoices = [];
       let filteredUpcoming = [];
-      
+
+      // 1. Process regular session bookings
       if (bookingsRes.status) {
         const bookings = bookingsRes.data || [];
-        // Calculate total earnings from successful transactions
-        const totalEarnings = bookings.reduce((sum, booking) => {
-          const status = (booking.transaction?.status?.name || "").toLowerCase();
-          if (status === "success" || status === "completed") {
-            const amount = parseFloat(booking.transaction?.amount || 0);
-            return sum + amount;
+        
+        // Calculate earnings from regular session bookings
+        const sessionEarnings = bookings.reduce((sum, booking) => {
+          // Robust status check (Case-insensitive)
+          const bStatus = (booking.status || "").toLowerCase();
+          const pStatus = (booking.transaction?.status?.name || "").toLowerCase();
+          
+          if (bStatus === "completed" || pStatus === "success" || pStatus === "completed") {
+            // Check multiple potential amount fields
+            const amount = parseFloat(booking.transaction?.amount || booking.amount || booking.fee || 0);
+            return sum + (isNaN(amount) ? 0 : amount);
           }
           return sum;
         }, 0);
+        
+        totalEarnings += sessionEarnings;
 
-        // Calculate upcoming sessions (those not completed or canceled)
         const upcomingSessions = bookings.filter(booking => 
           booking.status !== "Completed" && booking.status !== "Cancelled"
         );
+        upcomingSessionsCount = upcomingSessions.length;
         
         filteredUpcoming = upcomingSessions.map(b => ({
           id: b._id || b.id,
@@ -51,8 +63,7 @@ export default function TherapistDashboard() {
           imgSrc: b.client?.photo
         }));
 
-        // Format recent invoices from bookings with transactions
-        const recentInvoices = bookings
+        dynamicInvoices = bookings
           .filter(b => b.transaction?.amount)
           .slice(0, 5)
           .map(b => ({
@@ -62,21 +73,34 @@ export default function TherapistDashboard() {
             booking_date: new Date(b.booking_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
             amount: b.transaction?.amount,
             status: b.transaction?.status?.name || "Success",
-            full_data: b // Store full booking for modal/download
+            full_data: b
           }));
-
-        dashboardData = {
-          ...dashboardData,
-          total_earnings: totalEarnings,
-          upcoming_sessions_count: upcomingSessions.length,
-          dynamic_invoices: recentInvoices
-        };
       }
+
+      // 2. Process workshop bookings for earnings
+      if (workshopRes.status) {
+        const workshopBookings = workshopRes.data || [];
+        const workshopEarnings = workshopBookings.reduce((sum, booking) => {
+          const status = (booking.payment_status || "").toLowerCase();
+          if (status === "success" || status === "completed") {
+            return sum + parseFloat(booking.amount || 0);
+          }
+          return sum;
+        }, 0);
+        totalEarnings += workshopEarnings;
+      }
+
+      dashboardData = {
+        ...dashboardData,
+        total_earnings: Math.round(totalEarnings),
+        upcoming_sessions_count: upcomingSessionsCount,
+        dynamic_invoices: dynamicInvoices
+      };
 
       setPageData(dashboardData);
       setUpcomingList(filteredUpcoming);
     } catch (err) {
-      console.log(err);
+      console.error("Dashboard Data Fetch Error:", err);
     }
     setLoading(false);
   };

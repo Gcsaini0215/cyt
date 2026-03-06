@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import useTherapistStore from "../../../store/therapistStore";
-import { Grid, Paper, Box, Typography } from "@mui/material";
+import { Grid, Paper, Box, Typography, useMediaQuery } from "@mui/material";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import DescriptionIcon from "@mui/icons-material/Description";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 export default function DashboardSections({ pageData }) {
+  const isMobile = useMediaQuery("(max-width: 600px)");
   const { therapistInfo } = useTherapistStore();
 
   useEffect(() => {
@@ -94,13 +95,14 @@ export default function DashboardSections({ pageData }) {
         <Box sx={{ position: "relative", zIndex: 2 }}>
           <Box>
             <Typography component="span" sx={{ 
-              fontSize: { xs: "0.8rem", md: "1rem" }, 
+              fontSize: { xs: "0.85rem", md: "1.05rem" }, 
               textTransform: "uppercase", 
-              letterSpacing: "2px", 
-              fontWeight: "700", 
-              color: "#59c82f",
+              letterSpacing: "3px", 
+              fontWeight: "900", 
+              color: "#66ff00", // Brighter neon green for better visibility
               display: "block",
-              marginBottom: "12px"
+              marginBottom: "14px",
+              textShadow: "0 2px 10px rgba(102, 255, 0, 0.2)"
             }}>
               Therapist Workspace
             </Typography>
@@ -111,7 +113,7 @@ export default function DashboardSections({ pageData }) {
               color: "#ffffff", 
               lineHeight: "1.1" 
             }}>
-              Welcome back, {therapistInfo?.user?.name || "Therapist"}
+              Hello, {therapistInfo?.user?.name?.split(" ")[0] || "Therapist"}! Ready for today's sessions?
             </Typography>
             <Typography sx={{ 
               marginTop: "8px", 
@@ -140,81 +142,82 @@ export default function DashboardSections({ pageData }) {
       </Box>
 
       {/* Summary Cards */}
-      <Box 
-        sx={{ 
-          display: 'flex', 
-          overflowX: { xs: 'auto', md: 'visible' }, 
-          gap: 3, 
-          pb: { xs: 2, md: 0 },
-          px: { xs: 1, md: 0 },
-          "&::-webkit-scrollbar": { display: "none" },
-          msOverflowStyle: "none",
-          scrollbarWidth: "none",
-          position: "relative",
-          zIndex: 1
-        }}
-      >
+      <Grid container spacing={isMobile ? 2 : 3} sx={{ position: "relative", zIndex: 1 }}>
         {stats.map((stat, index) => (
-          <Box 
-            key={index} 
-            sx={{ 
-              minWidth: { xs: '300px', sm: '260px', md: 'auto' },
-              flex: { md: 1 }
-            }}
-          >
+          <Grid item xs={6} md={3} key={index}>
             <Paper
               elevation={0}
               sx={{
-                p: 4,
-                borderRadius: "24px",
+                p: { xs: 2.5, md: 4 },
+                borderRadius: { xs: "20px", md: "24px" },
                 background: "#ffffff",
                 position: 'relative',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
                 overflow: 'hidden',
                 boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+                border: '1px solid #f1f5f9',
                 transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 "&:hover": {
-                  transform: "translateY(-8px)",
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
+                  transform: "translateY(-5px)",
+                  boxShadow: "0 15px 35px rgba(0,0,0,0.08)",
+                  borderColor: stat.borderColor,
                 },
                 "&::before": {
                   content: '""',
                   position: 'absolute',
                   top: 0,
                   right: 0,
-                  width: '120px',
-                  height: '120px',
+                  width: '100px',
+                  height: '100px',
                   background: `radial-gradient(circle at top right, ${stat.bgColor}, transparent 70%)`,
                   zIndex: 0
                 }
               }}
             >
-              <Box sx={{ position: 'relative', zIndex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+              <Box sx={{ position: 'relative', zIndex: 1, display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 } }}>
                 <Box
                   sx={{
-                    width: 70,
-                    height: 70,
-                    borderRadius: "20px",
+                    width: { xs: 45, md: 60 },
+                    height: { xs: 45, md: 60 },
+                    borderRadius: "14px",
                     background: stat.bgColor,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center"
                   }}
                 >
-                  {stat.icon}
+                  {React.cloneElement(stat.icon, { 
+                    sx: { fontSize: { xs: 24, md: 32 }, color: stat.icon.props.sx.color } 
+                  })}
                 </Box>
                 <Box>
-                  <Typography variant="h6" sx={{ color: "#64748b", fontWeight: 700, mb: 0.5, letterSpacing: '0.5px', fontSize: '1.15rem' }}>
+                  <Typography sx={{ 
+                    color: "#64748b", 
+                    fontWeight: 700, 
+                    mb: 0.5, 
+                    fontSize: { xs: '0.85rem', md: '1.05rem' },
+                    lineHeight: 1.2
+                  }}>
                     {stat.label}
                   </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: 900, color: "#1e293b", letterSpacing: '-1px', fontSize: { xs: '2rem', md: '2.5rem' } }}>
+                  <Typography sx={{ 
+                    fontWeight: 900, 
+                    color: "#1e293b", 
+                    letterSpacing: '-0.5px', 
+                    fontSize: { xs: '1.4rem', md: '2.2rem' },
+                    lineHeight: 1
+                  }}>
                     {stat.value}
                   </Typography>
                 </Box>
               </Box>
             </Paper>
-          </Box>
+          </Grid>
         ))}
-      </Box>
+      </Grid>
 
       <style>{`
         .floating-shape {

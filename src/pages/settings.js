@@ -6,6 +6,7 @@ import React, { useMemo, useState } from "react";
 import TherapistFees from "../components/therapists/settings/therapist-fees";
 import ServicesAndExperties from "../components/therapists/settings/services-and-experties";
 import useTherapistStore from "../store/therapistStore";
+import { useMediaQueryClient } from "../hooks/useMediaQueryClient";
 import { redColor } from "../utils/colors";
 import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -14,6 +15,7 @@ import { defaultProfile, imagePath } from "../utils/url";
 import Link from "next/link";
 
 export default function ProfileSettings() {
+  const isMobile = useMediaQueryClient("sm");
   const { therapistInfo, fetchTherapistInfo, profileSet, paymentStore } = useTherapistStore();
   const [tab, setTab] = React.useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -82,13 +84,28 @@ export default function ProfileSettings() {
                 </span>
               )}
             </h4>
-            <button 
-              className="rbt-btn btn-border btn-sm" 
-              onClick={() => setPreviewOpen(true)}
-              style={{ height: "40px", padding: "0 20px" }}
-            >
-              <i className="feather-eye mr--5"></i> Preview Profile
-            </button>
+            {isMobile ? (
+              <IconButton 
+                onClick={() => setPreviewOpen(true)}
+                sx={{ 
+                  color: "#2ecc71", 
+                  padding: "8px",
+                  background: "rgba(46, 204, 113, 0.1)",
+                  "&:hover": { background: "rgba(46, 204, 113, 0.2)" }
+                }}
+                title="Preview Profile"
+              >
+                <i className="feather-eye" style={{ fontSize: "22px" }}></i>
+              </IconButton>
+            ) : (
+              <button 
+                className="rbt-btn btn-border btn-sm" 
+                onClick={() => setPreviewOpen(true)}
+                style={{ height: "40px", padding: "0 20px" }}
+              >
+                <i className="feather-eye mr--5"></i> Preview Profile
+              </button>
+            )}
           </div>
 
           <div className="advance-tab-button mb--40" style={{ borderBottom: "1px solid #f1f5f9" }}>
@@ -177,16 +194,18 @@ export default function ProfileSettings() {
                 </p>
               </div>
             </div>
-            <div className="action-buttons d-flex gap-3">
+            <div className={`action-buttons d-flex gap-3 ${isMobile ? "justify-content-center w-100" : ""}`}>
               <button 
-                className="rbt-btn btn-gradient btn-md w-mobile-100" 
+                className="rbt-btn btn-gradient btn-md" 
                 onClick={handleGlobalUpdate}
                 style={{ 
                   height: "50px", 
                   padding: "0 40px",
                   boxShadow: "0 10px 20px rgba(46, 204, 113, 0.2)",
                   fontSize: "16px",
-                  fontWeight: "600"
+                  fontWeight: "600",
+                  width: isMobile ? "100%" : "auto",
+                  maxWidth: isMobile ? "300px" : "none"
                 }}
               >
                 Update {tab === 0 ? "Profile" : tab === 2 ? "Offerings" : tab === 3 ? "Availability" : tab === 4 ? "Fees" : "Payments"}
@@ -272,12 +291,12 @@ export default function ProfileSettings() {
           pointer-events: auto;
           width: 100%;
           max-width: 1500px;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(15px);
           padding: 15px 30px;
-          border-radius: 16px;
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 20px 50px rgba(0,0,0,0.15) !important;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.4);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.12) !important;
         }
         .w-mobile-100 {
           width: auto;
@@ -318,16 +337,18 @@ export default function ProfileSettings() {
         @media (max-width: 991px) {
           .settings-sticky-bar-container {
             left: 0;
-            padding: 0 15px;
-            bottom: 85px;
+            padding: 0 20px;
+            bottom: 90px;
             justify-content: center;
           }
           .settings-sticky-bar {
-            padding: 12px;
-            border-radius: 12px;
-          }
-          .w-mobile-100 {
-            width: 100% !important;
+            padding: 10px;
+            border-radius: 24px;
+            max-width: 340px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
           }
           .advance-tab-button {
             overflow-x: auto;

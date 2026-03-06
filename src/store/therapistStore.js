@@ -55,6 +55,10 @@ const useTherapistStore = create((set) => ({
   },
   times: initialTimes,
   profileSet: false,
+  notificationCount: 0,
+  setNotificationCount: (count) => set({ notificationCount: count }),
+  incrementNotificationCount: () => set((state) => ({ notificationCount: state.notificationCount + 1 }),),
+  resetNotificationCount: () => set({ notificationCount: 0 }),
   setProfileSet: (newProfileSet) => set({ profileSet: newProfileSet }),
   setTimes: (day, index, type, value) =>
     set((state) => {

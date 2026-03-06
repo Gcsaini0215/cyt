@@ -3,7 +3,6 @@ import "@/index.css";
 import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
-import HoliPopup from "@/components/global/holi-popup";
 import WhatsAppWidget from "@/components/global/whatsapp-widget";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -45,7 +44,6 @@ function MyApp({ Component, pageProps }) {
         <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
       {isLoading && <PremiumLoader />}
-      <HoliPopup />
       <WhatsAppWidget />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
