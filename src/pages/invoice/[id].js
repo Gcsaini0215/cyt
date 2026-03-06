@@ -119,9 +119,9 @@ export default function InvoiceViewPage() {
   }
 
   return (
-    <Box sx={{ bgcolor: '#f1f5f9', minHeight: '100vh', py: { xs: 4, md: 8 }, px: 2 }}>
+    <Box sx={{ bgcolor: '#f1f5f9', minHeight: '100vh', py: { xs: 2, md: 8 }, px: { xs: 1, sm: 2 } }}>
       <Head>
-        <title>Invoice - {log.name} | ChooseYourTherapist</title>
+        <title>Invoice - {log.name} | Choose Your Therapist</title>
         <style>
           {`
             @media print {
@@ -134,32 +134,41 @@ export default function InvoiceViewPage() {
         </style>
       </Head>
 
-      <Container maxWidth="md">
+      <Container maxWidth="md" sx={{ px: { xs: 1, sm: 2 } }}>
         {/* Actions Bar */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }} className="no-print">
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between', 
+          alignItems: { xs: 'stretch', sm: 'center' }, 
+          mb: 4,
+          gap: 2 
+        }} className="no-print">
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Box sx={{ width: 48, height: 48, borderRadius: '14px', background: '#228756', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
               <ReceiptLongIcon />
             </Box>
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: 900, color: '#1e293b' }}>Official Invoice</Typography>
-              <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>#{log.id?.toString().slice(-8)}</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 900, color: '#1e293b', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>Official Invoice</Typography>
+              <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>#{log._id?.toString().slice(-8) || log.id?.toString().slice(-8)}</Typography>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Button 
+              fullWidth
               variant="outlined" 
               startIcon={<DownloadIcon />}
               onClick={handleDownload}
-              sx={{ borderColor: '#e2e8f0', color: '#475569', borderRadius: '12px', fontWeight: 700, textTransform: 'none', '&:hover': { borderColor: '#cbd5e1', bgcolor: '#fff' } }}
+              sx={{ borderColor: '#e2e8f0', color: '#475569', borderRadius: '12px', fontWeight: 700, textTransform: 'none', '&:hover': { borderColor: '#cbd5e1', bgcolor: '#fff' }, py: 1 }}
             >
-              Download
+              Save
             </Button>
             <Button 
+              fullWidth
               variant="contained" 
               startIcon={<PrintIcon />}
               onClick={handlePrint}
-              sx={{ bgcolor: '#228756', '&:hover': { bgcolor: '#1b6843' }, borderRadius: '12px', fontWeight: 700, textTransform: 'none' }}
+              sx={{ bgcolor: '#228756', '&:hover': { bgcolor: '#1b6843' }, borderRadius: '12px', fontWeight: 700, textTransform: 'none', py: 1 }}
             >
               Print
             </Button>
@@ -171,7 +180,7 @@ export default function InvoiceViewPage() {
           id="printable-invoice"
           elevation={0} 
           sx={{ 
-            borderRadius: '24px', 
+            borderRadius: { xs: '16px', sm: '24px' }, 
             overflow: 'hidden', 
             border: '1px solid #e2e8f0',
             boxShadow: '0 20px 50px rgba(0,0,0,0.04)'
@@ -180,87 +189,92 @@ export default function InvoiceViewPage() {
           {/* Header Banner */}
           <Box sx={{ bgcolor: '#228756', height: '12px', width: '100%' }} />
           
-          <Box sx={{ p: { xs: 4, md: 6 } }}>
+          <Box sx={{ p: { xs: 2.5, sm: 6 } }}>
             {/* Logo and Status */}
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 3, mb: 6 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box component="img" src="/favicon.png" sx={{ width: 60, height: 60, borderRadius: '12px' }} />
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'row',
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              gap: 2, 
+              mb: { xs: 4, sm: 6 } 
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+                <Box component="img" src="/favicon.png" sx={{ width: { xs: 45, sm: 60 }, height: { xs: 45, sm: 60 }, borderRadius: '10px' }} />
                 <Box>
-                  <Typography variant="h3" sx={{ fontWeight: 900, color: '#228756', letterSpacing: '-1px', mb: 0.2 }}>Choose Your Therapist</Typography>
-                  <Typography variant="body1" sx={{ color: '#000000', fontWeight: 600, display: 'block' }}>Because healing starts with your choice.</Typography>
+                  <Typography sx={{ fontWeight: 900, color: '#228756', letterSpacing: '-0.5px', lineHeight: 1.2, fontSize: { xs: '1.2rem', sm: '2.2rem' } }}>Choose Your Therapist</Typography>
+                  <Typography variant="body2" sx={{ color: '#000000', fontWeight: 600, display: 'block', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Because healing starts with your choice.</Typography>
                 </Box>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#f0fdf4', color: '#16a34a', px: 3, py: 1.5, borderRadius: '14px', border: '1px solid rgba(22, 163, 74, 0.15)' }}>
-                <CheckCircleIcon sx={{ fontSize: 24 }} />
-                <Typography sx={{ fontWeight: 900, fontSize: '18px', letterSpacing: '0.5px' }}>PAID</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: '#f0fdf4', color: '#16a34a', px: { xs: 1.5, sm: 3 }, py: { xs: 0.8, sm: 1.5 }, borderRadius: '12px', border: '1px solid rgba(22, 163, 74, 0.15)' }}>
+                <CheckCircleIcon sx={{ fontSize: { xs: 18, sm: 24 } }} />
+                <Typography sx={{ fontWeight: 900, fontSize: { xs: '12px', sm: '18px' }, letterSpacing: '0.5px' }}>PAID</Typography>
               </Box>
             </Box>
 
-            <Divider sx={{ mb: 6, borderStyle: 'dashed' }} />
+            <Divider sx={{ mb: { xs: 4, sm: 6 }, borderStyle: 'dashed' }} />
 
             {/* Billing Info Grid */}
-            <Grid container spacing={4} sx={{ mb: 6 }}>
-              <Grid item xs={12} sm={6}>
-                <Typography sx={{ fontSize: '14px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 1.5, letterSpacing: '1px' }}>BILLED TO</Typography>
-                <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>{log.name}</Typography>
-                <Typography sx={{ color: '#475569', fontWeight: 600, fontSize: '18px' }}>+91-{log.phone}</Typography>
-                {log.email && <Typography sx={{ color: '#475569', fontWeight: 600, fontSize: '18px' }}>{log.email}</Typography>}
+            <Grid container spacing={3} sx={{ mb: { xs: 4, sm: 6 } }}>
+              <Grid item xs={6}>
+                <Typography sx={{ fontSize: { xs: '10px', sm: '14px' }, color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 1.5, letterSpacing: '1px' }}>BILLED TO</Typography>
+                <Typography sx={{ fontWeight: 800, color: '#1e293b', mb: 0.5, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>{log.name}</Typography>
+                <Typography sx={{ color: '#475569', fontWeight: 600, fontSize: { xs: '13px', sm: '18px' } }}>+91-{log.phone}</Typography>
               </Grid>
-              <Grid item xs={12} sm={6} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
-                <Typography sx={{ fontSize: '14px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 1.5, letterSpacing: '1px' }}>INVOICE DETAILS</Typography>
-                <Typography sx={{ color: '#1e293b', fontWeight: 800, mb: 1, fontSize: '18px' }}>Invoice Date: <Box component="span" sx={{ color: '#64748b', ml: 1 }}>{log.date}</Box></Typography>
-                <Typography sx={{ color: '#1e293b', fontWeight: 800, fontSize: '18px' }}>Visit Type: <Box component="span" sx={{ color: '#228756', ml: 1, bgcolor: '#f0fdf4', px: 1.5, py: 0.5, borderRadius: '6px' }}>{log.type === 'Clinic' ? 'In-Person' : log.type}</Box></Typography>
+              <Grid item xs={6} sx={{ textAlign: 'right' }}>
+                <Typography sx={{ fontSize: { xs: '10px', sm: '14px' }, color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 1.5, letterSpacing: '1px' }}>INVOICE DETAILS</Typography>
+                <Typography sx={{ color: '#1e293b', fontWeight: 800, mb: 1, fontSize: { xs: '13px', sm: '18px' } }}>Date: <Box component="span" sx={{ color: '#64748b' }}>{log.date}</Box></Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Typography component="span" sx={{ color: '#228756', bgcolor: '#f0fdf4', px: 1.5, py: 0.5, borderRadius: '6px', fontSize: { xs: '11px', sm: '14px' }, fontWeight: 800 }}>{log.type === 'Clinic' ? 'IN-PERSON' : log.type?.toUpperCase()}</Typography>
+                </Box>
               </Grid>
             </Grid>
 
             {/* Table-like Detail Area */}
-            <Box sx={{ border: '1px solid #f1f5f9', borderRadius: '16px', overflow: 'hidden', mb: 6 }}>
-              <Box sx={{ bgcolor: '#f8fafc', p: 3, borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
-                <Typography sx={{ fontWeight: 800, color: '#64748b', fontSize: '16px' }}>DESCRIPTION</Typography>
-                <Typography sx={{ fontWeight: 800, color: '#64748b', fontSize: '16px' }}>AMOUNT</Typography>
+            <Box sx={{ border: '1px solid #f1f5f9', borderRadius: '16px', overflow: 'hidden', mb: { xs: 4, sm: 6 } }}>
+              <Box sx={{ bgcolor: '#f8fafc', p: { xs: 1.5, sm: 3 }, borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontWeight: 800, color: '#64748b', fontSize: { xs: '11px', sm: '16px' } }}>DESCRIPTION</Typography>
+                <Typography sx={{ fontWeight: 800, color: '#64748b', fontSize: { xs: '11px', sm: '16px' } }}>AMOUNT</Typography>
               </Box>
-              <Box sx={{ p: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ p: { xs: 2, sm: 4 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box>
-                  <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: '20px', mb: 0.5 }}>Therapy Consultation Fee</Typography>
-                  <Typography variant="body1" sx={{ color: '#94a3b8', fontWeight: 600 }}>Mode: {log.type === 'Clinic' ? 'In-Person' : log.type}</Typography>
+                  <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: { xs: '15px', sm: '20px' }, mb: 0.5 }}>Therapy Consultation</Typography>
+                  <Typography sx={{ color: '#94a3b8', fontWeight: 600, fontSize: { xs: '12px', sm: '16px' } }}>Mode: {log.type === 'Clinic' ? 'In-Person' : log.type}</Typography>
                 </Box>
-                <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: '24px' }}>₹{log.amount}</Typography>
+                <Typography sx={{ fontWeight: 800, color: '#1e293b', fontSize: { xs: '18px', sm: '24px' } }}>₹{log.amount}</Typography>
               </Box>
             </Box>
 
             {/* Total Section */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Box sx={{ width: { xs: '100%', sm: '350px' }, bgcolor: '#f8fafc', p: 4, borderRadius: '20px', border: '1px solid #f1f5f9' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2.5 }}>
-                  <Typography sx={{ color: '#64748b', fontWeight: 700, fontSize: '18px' }}>Subtotal</Typography>
-                  <Typography sx={{ color: '#1e293b', fontWeight: 700, fontSize: '18px' }}>₹{log.amount}</Typography>
+              <Box sx={{ width: { xs: '100%', sm: '350px' }, bgcolor: '#f8fafc', p: { xs: 2.5, sm: 4 }, borderRadius: '20px', border: '1px solid #f1f5f9' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography sx={{ color: '#64748b', fontWeight: 700, fontSize: { xs: '14px', sm: '18px' } }}>Subtotal</Typography>
+                  <Typography sx={{ color: '#1e293b', fontWeight: 700, fontSize: { xs: '14px', sm: '18px' } }}>₹{log.amount}</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2.5 }}>
-                  <Typography sx={{ color: '#64748b', fontWeight: 700, fontSize: '18px' }}>Tax</Typography>
-                  <Typography sx={{ color: '#1e293b', fontWeight: 700, fontSize: '18px' }}>₹0</Typography>
-                </Box>
-                <Divider sx={{ my: 2.5 }} />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ color: '#1e293b', fontWeight: 900, fontSize: '1.5rem' }}>Total</Typography>
-                  <Typography sx={{ color: '#228756', fontWeight: 900, fontSize: '2rem' }}>₹{log.amount}</Typography>
+                <Divider sx={{ my: 2 }} />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography sx={{ color: '#1e293b', fontWeight: 900, fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>Total</Typography>
+                  <Typography sx={{ color: '#228756', fontWeight: 900, fontSize: { xs: '1.6rem', sm: '2rem' } }}>₹{log.amount}</Typography>
                 </Box>
               </Box>
             </Box>
 
             {/* Footer */}
-            <Box sx={{ mt: 10, textAlign: 'center' }}>
-              <Typography variant="h5" sx={{ color: '#1e293b', fontWeight: 800, mb: 2 }}>Thank you for choosing Choose Your Therapist</Typography>
-              <Typography variant="body1" sx={{ color: '#cbd5e1', fontWeight: 500, display: 'block', mt: 2 }}>This is a computer generated invoice and does not require a signature.</Typography>
+            <Box sx={{ mt: { xs: 6, sm: 10 }, textAlign: 'center' }}>
+              <Typography sx={{ color: '#1e293b', fontWeight: 800, mb: 2, fontSize: { xs: '1.1rem', sm: '1.5rem' } }}>Thank you for choosing Choose Your Therapist</Typography>
+              <Typography sx={{ color: '#cbd5e1', fontWeight: 600, display: 'block', fontSize: { xs: '11px', sm: '14px' } }}>This is a computer generated invoice and does not require a signature.</Typography>
             </Box>
           </Box>
         </Paper>
 
         <Box sx={{ mt: 4, textAlign: 'center' }} className="no-print">
-          <Typography sx={{ color: '#64748b', fontSize: '14px', fontWeight: 600 }}>
-            Need help? Contact us at <Box component="span" sx={{ color: '#228756' }}>chooseyourtherapist@gmail.com</Box> or call <Box component="span" sx={{ color: '#228756' }}>+91-8077757951</Box>
+          <Typography sx={{ color: '#64748b', fontSize: { xs: '12px', sm: '14px' }, fontWeight: 600 }}>
+            Need help? <Box component="span" sx={{ display: { xs: 'block', sm: 'inline' }, mt: { xs: 1, sm: 0 } }}>Contact us at <Box component="span" sx={{ color: '#228756' }}>chooseyourtherapist@gmail.com</Box></Box>
           </Typography>
         </Box>
       </Container>
     </Box>
+  );
   );
 }

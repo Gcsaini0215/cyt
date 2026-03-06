@@ -259,12 +259,15 @@ export default function ClientLogs() {
       setSubmitting(true);
       
       const liveOrigin = "https://chooseyourtherapist.in";
+      // Ensure we use the correct ID for the link
+      const invoiceIdValue = selectedLog._id || selectedLog.id;
+      
       const emailTemplate = {
         to: selectedLog.email,
-        subject: `Invoice from ChooseYourTherapist - #${selectedLog.id?.toString().slice(-8)}`,
+        subject: `Invoice from Choose Your Therapist - #${invoiceIdValue?.toString().slice(-8)}`,
         message: emailMessage,
-        invoiceId: selectedLog.id?.toString().slice(-8),
-        invoiceLink: `${liveOrigin}/invoice/${selectedLog.id}`, 
+        invoiceId: invoiceIdValue?.toString().slice(-8),
+        invoiceLink: `${liveOrigin}/invoice/${invoiceIdValue}`, 
         clientName: selectedLog.name,
         amount: selectedLog.amount,
         date: selectedLog.date,
