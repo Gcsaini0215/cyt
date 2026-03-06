@@ -22,11 +22,10 @@ export default async function handler(req, res) {
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <div style="background: linear-gradient(135deg, #228756 0%, #1b6843 100%); padding: 30px 20px; text-align: center; color: white;">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 5px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
           <img src="https://www.chooseyourtherapist.in/favicon.png" alt="Logo" style="width: 40px; height: 40px; border-radius: 8px; background: white; padding: 2px;" />
           <h2 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Choose Your Therapist</h2>
         </div>
-        <p style="margin: 0; font-size: 13px; color: #000000; font-weight: 600;">Because healing starts with your choice.</p>
       </div>
       
       <div style="padding: 35px; line-height: 1.6;">

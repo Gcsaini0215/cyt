@@ -26,37 +26,49 @@ export default function InvoiceViewPage() {
   const fetchInvoice = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log("Fetching invoice for ID:", id);
-      const res = await fetchById(`${getClinicLogsUrl}/${id}`);
+      const url = `${getClinicLogsUrl}/${id}`;
+      console.log("Full URL:", url);
+      
+      const res = await fetchById(url);
+      console.log("API Response:", res);
       
       if (res.status && res.data) {
         setLog(res.data);
       } else {
+        console.warn("API failed or returned no data, checking localStorage...");
         // Fallback to localStorage if API fails (common for local testing)
         const localLogs = localStorage.getItem('clinicLogs');
         if (localLogs) {
           const logs = JSON.parse(localLogs);
           const found = logs.find(l => l.id.toString() === id.toString());
           if (found) {
+            console.log("Found in localStorage:", found);
             setLog(found);
             return;
           }
         }
-        setError(res.message || "Invoice not found");
+        setError(res.message || "Invoice not found in system");
       }
     } catch (err) {
       console.error("Invoice fetch error:", err);
       // Try localStorage even on catch
       const localLogs = localStorage.getItem('clinicLogs');
       if (localLogs) {
-        const logs = JSON.parse(localLogs);
-        const found = logs.find(l => l.id.toString() === id.toString());
-        if (found) {
-          setLog(found);
-          return;
+        try {
+          const logs = JSON.parse(localLogs);
+          const found = logs.find(l => l.id.toString() === id.toString());
+          if (found) {
+            console.log("Found in localStorage (after error):", found);
+            setLog(found);
+            return;
+          }
+        } catch (e) {
+          console.error("Error parsing localStorage logs:", e);
         }
       }
-      setError("Failed to load invoice");
+      setError("Failed to load invoice from server");
     } finally {
       setLoading(false);
     }
