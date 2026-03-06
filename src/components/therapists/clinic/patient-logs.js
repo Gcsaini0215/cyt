@@ -45,8 +45,12 @@ import { toast } from "react-toastify";
 import { getClinicLogsUrl, createClinicLogUrl, updateClinicLogUrl, deleteClinicLogUrl, sendClinicInvoiceEmailUrl } from "../../../utils/url";
 import { fetchById, postData, putData, deleteById } from "../../../utils/actions";
 import axios from "axios";
+import { useMediaQueryClient } from "../../../hooks/useMediaQueryClient";
+import useTherapistStore from "../../../store/therapistStore";
 
 export default function ClientLogs() {
+  const isMobile = useMediaQueryClient("sm");
+  const { therapistInfo } = useTherapistStore();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -55,7 +59,7 @@ export default function ClientLogs() {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [emailMessage, setEmailMessage] = useState("Hello, please find your invoice attached below.");
+  const [emailMessage, setEmailMessage] = useState("We hope you're doing well. Thank you for choosing ChooseYourTherapist for your clinic visit. Please find your invoice details below. You can view or download the full invoice using the link provided.");
   const [origin, setOrigin] = useState("");
 
   const [formData, setFormData] = useState({
@@ -238,6 +242,13 @@ export default function ClientLogs() {
       return;
     }
     setSelectedLog(log);
+    
+    // Dynamic message based on visit type
+    let typeText = "in-person visit";
+    if (log.type === 'Online') typeText = "online session";
+    if (log.type === 'Home Visit') typeText = "home visit";
+    
+    setEmailMessage(`We hope you're doing well. Thank you for choosing Choose Your Therapist for your ${typeText}. Please find your invoice details below. You can view or download the full invoice using the link provided.`);
     setEmailDialogOpen(true);
   };
 
@@ -247,15 +258,18 @@ export default function ClientLogs() {
     try {
       setSubmitting(true);
       
+      const liveOrigin = "https://chooseyourtherapist.in";
       const emailTemplate = {
         to: selectedLog.email,
         subject: `Invoice from ChooseYourTherapist - #${selectedLog.id?.toString().slice(-8)}`,
         message: emailMessage,
         invoiceId: selectedLog.id?.toString().slice(-8),
-        invoiceLink: `${origin}/invoice/view/${selectedLog.id}`, 
+        invoiceLink: `${liveOrigin}/invoice/${selectedLog.id}`, 
         clientName: selectedLog.name,
         amount: selectedLog.amount,
-        date: selectedLog.date
+        date: selectedLog.date,
+        phone: selectedLog.phone,
+        therapistName: therapistInfo?.user?.name || "Your Therapist"
       };
 
       // Call the Next.js API route
@@ -292,8 +306,7 @@ export default function ClientLogs() {
   };
 
   const handleInvoice = (log) => {
-    setSelectedLog(log);
-    setInvoiceOpen(true);
+    window.open(`/invoice/${log.id}`, '_blank');
   };
 
   const handleCloseInvoice = () => {
@@ -420,16 +433,16 @@ export default function ClientLogs() {
                       }
                     }}
                   >
-                    <MenuItem value="Clinic">Clinic</MenuItem>
+                    <MenuItem value="Clinic">In-Person</MenuItem>
                     <MenuItem value="Home Visit">Home Visit</MenuItem>
                     <MenuItem value="Online">Online</MenuItem>
                   </TextField>
                 </Box>
               </Box>
               
-              <Box sx={{ p: 3 }}>
+              <Box sx={{ p: isMobile ? 2.5 : 3 }}>
                 <form onSubmit={handleAddClient}>
-                  <Grid container spacing={2} alignItems="center">
+                  <Grid container spacing={isMobile ? 1.5 : 2} alignItems="center">
                     <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
@@ -438,18 +451,24 @@ export default function ClientLogs() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                          '& .MuiOutlinedInput-input': { fontWeight: 600 }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={3}>
                       <TextField
                         fullWidth
                         size="small"
-                        placeholder="Email ID"
+                        placeholder="Email ID (Optional)"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                          '& .MuiOutlinedInput-input': { fontWeight: 600 }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
@@ -460,7 +479,10 @@ export default function ClientLogs() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                          '& .MuiOutlinedInput-input': { fontWeight: 600 }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={1.5}>
@@ -475,22 +497,28 @@ export default function ClientLogs() {
                         InputProps={{
                           startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon sx={{ fontSize: 16, color: '#228756' }} /></InputAdornment>,
                         }}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                          '& .MuiOutlinedInput-input': { fontWeight: 700 }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
                         size="small"
-                        placeholder="Remaining Amount"
+                        placeholder="Remaining"
                         name="remainingAmount"
                         type="number"
                         value={formData.remainingAmount}
                         onChange={handleChange}
                         InputProps={{
-                          startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon sx={{ fontSize: 16, color: '#d32f2f' }} /></InputAdornment>,
+                          startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon sx={{ fontSize: 16, color: '#ef4444' }} /></InputAdornment>,
                         }}
-                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                          '& .MuiOutlinedInput-input': { fontWeight: 700 }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={2}>
@@ -500,15 +528,16 @@ export default function ClientLogs() {
                         variant="contained"
                         disabled={submitting}
                         sx={{ 
-                          bgcolor: formData.id ? '#1976d2' : '#228756', 
-                          '&:hover': { bgcolor: formData.id ? '#115293' : '#1b6843' },
+                          bgcolor: formData.id ? '#1e40af' : '#228756', 
+                          '&:hover': { bgcolor: formData.id ? '#1e3a8a' : '#1b6843' },
                           '&:disabled': { bgcolor: '#cbd5e1', color: '#94a3b8' },
-                          borderRadius: '8px',
-                          py: 1.4,
-                          fontWeight: 900,
-                          fontSize: '1.35rem',
+                          borderRadius: '12px',
+                          py: isMobile ? 1.5 : 1.2,
+                          fontWeight: 800,
+                          fontSize: isMobile ? '1rem' : '0.95rem',
                           textTransform: 'none',
-                          boxShadow: 'none'
+                          boxShadow: '0 4px 12px rgba(34, 135, 86, 0.15)',
+                          transition: 'all 0.2s'
                         }}
                       >
                         {submitting ? "Saving..." : (formData.id ? "Update Entry" : "Save Entry")}
@@ -556,157 +585,248 @@ export default function ClientLogs() {
             })()}
 
             {/* Client Records Table */}
-            <TableContainer 
-              component={Paper} 
-              elevation={0} 
-              sx={{ 
-                borderRadius: '0px', 
-                border: '1px solid #e2e8f0', 
-                overflow: 'auto',
-                boxShadow: '0 4px 25px rgba(0,0,0,0.02)',
-                background: '#ffffff',
-                maxHeight: 'calc(100vh - 400px)',
-                minHeight: '500px'
-              }}
-            >
-              <Table>
-                <TableHead sx={{ position: 'sticky', top: 0, zIndex: 10 }}>
-                  <TableRow sx={{ bgcolor: '#87CEEB', borderBottom: '2px solid #4A90E2' }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#000000', py: 1.2, pl: 4, fontSize: '1.15rem' }}>CLIENT DETAILS</TableCell>
-                    <TableCell sx={{ fontWeight: 900, color: '#000000', py: 1.2, fontSize: '1.15rem' }}>VISIT DATE</TableCell>
-                    <TableCell sx={{ fontWeight: 900, color: '#000000', py: 1.2, fontSize: '1.15rem' }}>TYPE</TableCell>
-                    <TableCell sx={{ fontWeight: 900, color: '#000000', py: 1.2, fontSize: '1.15rem' }}>FEES</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 900, color: '#000000', py: 1.2, fontSize: '1.15rem' }}>STATUS</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 900, color: '#000000', pr: 4, py: 1.2, fontSize: '1.15rem' }}>ACTIONS</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {[...logs].sort((a, b) => {
-                    const dateA = dayjs(a.date, 'DD MMM YYYY');
-                    const dateB = dayjs(b.date, 'DD MMM YYYY');
-                    return dateB - dateA;
-                  }).map((log) => (
-                    <TableRow key={log.id} sx={{ '&:hover': { bgcolor: '#fbfcfd' }, transition: 'background 0.2s' }}>
-                      <TableCell sx={{ pl: 4, py: 3 }}>
-                        <Box>
-                          <Typography variant="body1" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.25rem' }}>{log.name}</Typography>
-                          {log.email && (
-                            <Typography variant="body2" sx={{ color: '#228756', fontWeight: 700, fontSize: '1.1rem', display: 'block' }}>
-                              {log.email}
+            {!isMobile ? (
+              <TableContainer 
+                component={Paper} 
+                elevation={0} 
+                sx={{ 
+                  borderRadius: '16px', 
+                  border: '1px solid #e2e8f0', 
+                  overflow: 'auto',
+                  boxShadow: '0 4px 25px rgba(0,0,0,0.02)',
+                  background: '#ffffff',
+                  maxHeight: 'calc(100vh - 400px)',
+                  minHeight: '500px'
+                }}
+              >
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, pl: 4, fontSize: '1.1rem' }}>CLIENT DETAILS</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>VISIT DATE</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>TYPE</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>FEES</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>STATUS</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', pr: 4, py: 2, fontSize: '1.1rem' }}>ACTIONS</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {[...logs].sort((a, b) => {
+                      const dateA = dayjs(a.date, 'DD MMM YYYY');
+                      const dateB = dayjs(b.date, 'DD MMM YYYY');
+                      return dateB - dateA;
+                    }).map((log) => (
+                      <TableRow key={log.id} sx={{ '&:hover': { bgcolor: '#fbfcfd' }, transition: 'background 0.2s' }}>
+                        <TableCell sx={{ pl: 4, py: 2.5 }}>
+                          <Box>
+                            <Typography variant="body1" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.15rem' }}>{log.name}</Typography>
+                            {log.email && (
+                              <Typography variant="body2" sx={{ color: '#228756', fontWeight: 700, fontSize: '1rem', display: 'block' }}>
+                                {log.email}
+                              </Typography>
+                            )}
+                            {log.phone && <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, fontSize: '1rem' }}>{log.phone}</Typography>}
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ color: '#475569', fontSize: '1.1rem', fontWeight: 800 }}>{log.date}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={log.type === 'Clinic' ? 'In-Person' : log.type} 
+                            size="small" 
+                            sx={{ 
+                              bgcolor: log.type === 'Clinic' ? '#f0fdf4' : '#eff6ff', 
+                              color: log.type === 'Clinic' ? '#166534' : '#1e40af', 
+                              fontWeight: 900, 
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              textTransform: 'uppercase',
+                              px: 1
+                            }} 
+                          />
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.2rem' }}>
+                          ₹{log.amount}
+                          {log.remainingAmount && (
+                            <Typography component="span" sx={{ ml: 1, color: '#d32f2f', fontWeight: 900, fontSize: '1.1rem' }}>
+                              (+ ₹{log.remainingAmount})
                             </Typography>
                           )}
-                          {log.phone && <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, fontSize: '1.05rem' }}>{log.phone}</Typography>}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: 1, 
+                            bgcolor: '#f0fdf4', 
+                            color: '#16a34a', 
+                            px: 2, 
+                            py: 0.6, 
+                            borderRadius: '8px',
+                            border: '1px solid rgba(22, 163, 74, 0.15)'
+                          }}>
+                            <Typography sx={{ fontSize: '13px', fontWeight: 900 }}>{log.status.toUpperCase()}</Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right" sx={{ pr: 4 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <Tooltip title={log.emailSent ? "Email Sent" : "Send Email"}>
+                              <span>
+                                <IconButton 
+                                  size="medium" 
+                                  onClick={() => handleSendEmail(log)} 
+                                  disabled={submitting}
+                                  sx={{ 
+                                    color: log.emailSent ? '#16a34a' : '#f59e0b', 
+                                    bgcolor: log.emailSent ? 'rgba(22, 163, 74, 0.05)' : 'rgba(245, 158, 11, 0.05)', 
+                                    '&:hover': { bgcolor: log.emailSent ? 'rgba(22, 163, 74, 0.1)' : 'rgba(245, 158, 11, 0.1)' }, 
+                                  }}
+                                >
+                                  {log.emailSent ? <MarkEmailReadIcon fontSize="medium" /> : <EmailIcon fontSize="medium" />}
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title="Invoice">
+                              <span>
+                                <IconButton 
+                                  size="medium" 
+                                  onClick={() => handleInvoice(log)} 
+                                  disabled={submitting}
+                                  sx={{ color: '#228756', bgcolor: 'rgba(34, 135, 86, 0.05)', '&:hover': { bgcolor: 'rgba(34, 135, 86, 0.1)' } }}
+                                >
+                                  <ReceiptLongIcon fontSize="medium" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title="Edit">
+                              <span>
+                                <IconButton 
+                                  size="medium" 
+                                  onClick={() => handleEdit(log)} 
+                                  disabled={submitting}
+                                  sx={{ color: '#1976d2', bgcolor: 'rgba(25, 118, 210, 0.05)', '&:hover': { bgcolor: 'rgba(25, 118, 210, 0.1)' } }}
+                                >
+                                  <EditIcon fontSize="medium" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            <Tooltip title="Delete">
+                              <span>
+                                <IconButton 
+                                  size="medium" 
+                                  onClick={() => handleDelete(log.id)} 
+                                  disabled={submitting}
+                                  sx={{ color: '#d32f2f', bgcolor: 'rgba(211, 47, 47, 0.05)', '&:hover': { bgcolor: 'rgba(211, 47, 47, 0.1)' } }}
+                                >
+                                  <DeleteOutlineIcon fontSize="medium" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {logs.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
+                          <Typography sx={{ color: '#94a3b8', fontWeight: 600 }}>No client records found</Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              /* Mobile Card View */
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {[...logs].sort((a, b) => {
+                  const dateA = dayjs(a.date, 'DD MMM YYYY');
+                  const dateB = dayjs(b.date, 'DD MMM YYYY');
+                  return dateB - dateA;
+                }).map((log) => (
+                  <Paper 
+                    key={log.id} 
+                    elevation={0} 
+                    sx={{ 
+                      p: 2.5, 
+                      borderRadius: '20px', 
+                      border: '1px solid #f1f5f9',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.02)',
+                      background: '#fff'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                      <Box>
+                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.25rem' }}>{log.name}</Typography>
+                        <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 700 }}>{log.date} • {log.type}</Typography>
+                      </Box>
+                      <Box sx={{ 
+                        bgcolor: '#f0fdf4', 
+                        color: '#16a34a', 
+                        px: 1.5, 
+                        py: 0.5, 
+                        borderRadius: '8px',
+                        border: '1px solid rgba(22, 163, 74, 0.15)'
+                      }}>
+                        <Typography sx={{ fontSize: '11px', fontWeight: 900 }}>{log.status.toUpperCase()}</Typography>
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, p: 2, bgcolor: '#f8fafc', borderRadius: '14px' }}>
+                      <Box>
+                        <Typography sx={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fees Amount</Typography>
+                        <Typography sx={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>₹{log.amount}</Typography>
+                      </Box>
+                      {log.remainingAmount && (
+                        <Box sx={{ textAlign: 'right' }}>
+                          <Typography sx={{ fontSize: '11px', color: '#f87171', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Remaining</Typography>
+                          <Typography sx={{ fontSize: '1.4rem', fontWeight: 900, color: '#d32f2f' }}>₹{log.remainingAmount}</Typography>
                         </Box>
-                      </TableCell>
-                      <TableCell sx={{ color: '#475569', fontSize: '1.2rem', fontWeight: 800 }}>{log.date}</TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={log.type} 
-                          size="medium" 
-                          sx={{ 
-                            bgcolor: log.type === 'Clinic' ? '#f0fdf4' : '#eff6ff', 
-                            color: log.type === 'Clinic' ? '#166534' : '#1e40af', 
-                            fontWeight: 900, 
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.8px',
-                            px: 1.5
-                          }} 
-                        />
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.4rem' }}>
-                        ₹{log.amount}
-                        {log.remainingAmount && (
-                          <Typography component="span" sx={{ ml: 1, color: '#d32f2f', fontWeight: 900, fontSize: '1.2rem' }}>
-                            (+ ₹{log.remainingAmount})
-                          </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box sx={{ 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: 1.2, 
-                          bgcolor: '#f0fdf4', 
-                          color: '#16a34a', 
-                          px: 2.5, 
-                          py: 0.8, 
-                          borderRadius: '8px',
-                          border: '1px solid rgba(22, 163, 74, 0.15)'
-                        }}>
-                          <Typography sx={{ fontSize: '14px', fontWeight: 900, letterSpacing: '0.5px' }}>{log.status.toUpperCase()}</Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell align="right" sx={{ pr: 4 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
-                          <Tooltip title={log.emailSent ? "Email Sent" : "Send Email"}>
-                            <span>
-                              <IconButton 
-                                size="large" 
-                                onClick={() => handleSendEmail(log)} 
-                                disabled={submitting}
-                                sx={{ 
-                                  color: log.emailSent ? '#16a34a' : '#f59e0b', 
-                                  bgcolor: log.emailSent ? 'rgba(22, 163, 74, 0.05)' : 'rgba(245, 158, 11, 0.05)', 
-                                  '&:hover': { bgcolor: log.emailSent ? 'rgba(22, 163, 74, 0.1)' : 'rgba(245, 158, 11, 0.1)' }, 
-                                  '&:disabled': { color: '#cbd5e1' } 
-                                }}
-                              >
-                                {log.emailSent ? <MarkEmailReadIcon fontSize="large" /> : <EmailIcon fontSize="large" />}
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title="Invoice">
-                            <span>
-                              <IconButton 
-                                size="large" 
-                                onClick={() => handleInvoice(log)} 
-                                disabled={submitting}
-                                sx={{ color: '#228756', bgcolor: 'rgba(34, 135, 86, 0.05)', '&:hover': { bgcolor: 'rgba(34, 135, 86, 0.1)' }, '&:disabled': { color: '#cbd5e1' } }}
-                              >
-                                <ReceiptLongIcon fontSize="large" />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title="Edit">
-                            <span>
-                              <IconButton 
-                                size="large" 
-                                onClick={() => handleEdit(log)} 
-                                disabled={submitting}
-                                sx={{ color: '#1976d2', bgcolor: 'rgba(25, 118, 210, 0.05)', '&:hover': { bgcolor: 'rgba(25, 118, 210, 0.1)' }, '&:disabled': { color: '#cbd5e1' } }}
-                              >
-                                <EditIcon fontSize="large" />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                          <Tooltip title="Delete">
-                            <span>
-                              <IconButton 
-                                size="large" 
-                                onClick={() => handleDelete(log.id)} 
-                                disabled={submitting}
-                                sx={{ color: '#d32f2f', bgcolor: 'rgba(211, 47, 47, 0.05)', '&:hover': { bgcolor: 'rgba(211, 47, 47, 0.1)' }, '&:disabled': { color: '#cbd5e1' } }}
-                              >
-                                <DeleteOutlineIcon fontSize="large" />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {logs.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
-                        <Typography sx={{ color: '#94a3b8', fontWeight: 600 }}>No client records found</Typography>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                      )}
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button
+                        fullWidth
+                        variant="soft"
+                        size="small"
+                        onClick={() => handleInvoice(log)}
+                        startIcon={<ReceiptLongIcon />}
+                        sx={{ bgcolor: '#f0fdf4', color: '#166534', fontWeight: 800, borderRadius: '10px', py: 1 }}
+                      >
+                        Invoice
+                      </Button>
+                      <Button
+                        fullWidth
+                        variant="soft"
+                        size="small"
+                        onClick={() => handleSendEmail(log)}
+                        startIcon={<EmailIcon />}
+                        sx={{ bgcolor: 'rgba(245, 158, 11, 0.08)', color: '#b45309', fontWeight: 800, borderRadius: '10px', py: 1 }}
+                      >
+                        Email
+                      </Button>
+                      <IconButton 
+                        onClick={() => handleEdit(log)}
+                        sx={{ bgcolor: 'rgba(25, 118, 210, 0.08)', color: '#1976d2', borderRadius: '10px' }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton 
+                        onClick={() => handleDelete(log.id)}
+                        sx={{ bgcolor: 'rgba(211, 47, 47, 0.08)', color: '#d32f2f', borderRadius: '10px' }}
+                      >
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </Box>
+                  </Paper>
+                ))}
+                {logs.length === 0 && (
+                  <Box sx={{ py: 8, textAlign: 'center' }}>
+                    <Typography sx={{ color: '#94a3b8', fontWeight: 600 }}>No client records found</Typography>
+                  </Box>
+                )}
+              </Box>
+            )}
           </>
         )}
 
@@ -962,40 +1082,61 @@ export default function ClientLogs() {
         </Dialog>
 
         {/* Send Email Template Dialog */}
-        <Dialog open={emailDialogOpen} onClose={() => setEmailDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogContent sx={{ p: 0 }}>
-            <Box sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b' }}>Send Invoice Email</Typography>
-                <IconButton onClick={() => setEmailDialogOpen(false)}>
+        <Dialog 
+          open={emailDialogOpen} 
+          onClose={() => setEmailDialogOpen(false)} 
+          maxWidth="sm" 
+          fullWidth
+          fullScreen={isMobile}
+          PaperProps={{
+            sx: {
+              borderRadius: isMobile ? 0 : '20px',
+              m: isMobile ? 0 : 2
+            }
+          }}
+        >
+          <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ p: { xs: 2.5, sm: 4 }, flexGrow: 1 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#1e293b', fontSize: { xs: '1.3rem', sm: '1.5rem' } }}>Send Invoice Email</Typography>
+                <IconButton onClick={() => setEmailDialogOpen(false)} sx={{ bgcolor: '#f1f5f9' }}>
                   <FaTimes size={18} />
                 </IconButton>
               </Box>
               
-              <Box sx={{ bgcolor: '#f8fafc', p: 3, borderRadius: 3, border: '1px solid #e2e8f0', mb: 3 }}>
-                <Typography sx={{ fontSize: 13, color: '#64748b', fontWeight: 800, textTransform: 'uppercase', mb: 1, letterSpacing: 0.5 }}>Email Preview</Typography>
-                <Box sx={{ bgcolor: '#fff', p: 2, borderRadius: 2, border: '1px solid #f1f5f9' }}>
-                  <Typography sx={{ fontSize: 14, mb: 1 }}><strong>From:</strong> chooseyourtherapist@gmail.com</Typography>
-                  <Typography sx={{ fontSize: 14, mb: 1 }}><strong>To:</strong> {selectedLog?.email}</Typography>
-                  <Typography sx={{ fontSize: 14, mb: 2 }}><strong>Subject:</strong> Invoice from ChooseYourTherapist - #{selectedLog?.id?.toString().slice(-8)}</Typography>
+              <Box sx={{ bgcolor: '#f8fafc', p: { xs: 2, sm: 3 }, borderRadius: 4, border: '1px solid #e2e8f0', mb: 4 }}>
+                <Typography sx={{ fontSize: 13, color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 1.5, letterSpacing: 1 }}>Email Preview</Typography>
+                <Box sx={{ bgcolor: '#fff', p: { xs: 1.5, sm: 2.5 }, borderRadius: 3, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                  <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 1, color: '#475569' }}><strong>From:</strong> appointment.cyt@gmail.com</Typography>
+                  <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 1, color: '#475569' }}><strong>To:</strong> {selectedLog?.email}</Typography>
+                  <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 2, color: '#1e293b', fontWeight: 700 }}><strong>Subject:</strong> Invoice from Choose Your Therapist - #{selectedLog?.id?.toString().slice(-8)}</Typography>
                   <Divider sx={{ mb: 2 }} />
-                  <Typography sx={{ fontSize: 14, whiteSpace: 'pre-wrap', mb: 2 }}>{emailMessage}</Typography>
-                  <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 1.5, border: '1px dashed #228756', textAlign: 'center' }}>
-                    <Typography sx={{ fontSize: 13, color: '#228756', fontWeight: 700 }}>
-                      🔗 View Invoice: {origin}/invoice/view/{selectedLog?.id}
+                  <Typography sx={{ fontSize: { xs: 14, sm: 15 }, whiteSpace: 'pre-wrap', mb: 3, color: '#334155', lineHeight: 1.6 }}>{emailMessage}</Typography>
+                  <Box sx={{ p: 2, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px dashed #228756', textAlign: 'center' }}>
+                    <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: '#228756', fontWeight: 700, wordBreak: 'break-all' }}>
+                      🔗 View Invoice: https://chooseyourtherapist.in/invoice/{selectedLog?.id}
                     </Typography>
                   </Box>
                 </Box>
               </Box>
 
-              <Typography sx={{ fontSize: 13, color: '#64748b', fontWeight: 800, mb: 1 }}>CUSTOM MESSAGE</Typography>
+              <Typography sx={{ fontSize: 13, color: '#94a3b8', fontWeight: 800, mb: 1.5, letterSpacing: 1 }}>CUSTOM MESSAGE</Typography>
               <TextField
                 fullWidth
                 multiline
-                rows={3}
+                rows={isMobile ? 4 : 3}
                 value={emailMessage}
                 onChange={(e) => setEmailMessage(e.target.value)}
-                sx={{ mb: 3, '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                placeholder="Write a custom message to your client..."
+                sx={{ 
+                  mb: 4, 
+                  '& .MuiOutlinedInput-root': { 
+                    borderRadius: '16px',
+                    bgcolor: '#fff',
+                    '&:hover fieldset': { borderColor: '#228756' },
+                    '&.Mui-focused fieldset': { borderColor: '#228756' }
+                  } 
+                }}
               />
 
               <Button
@@ -1004,7 +1145,17 @@ export default function ClientLogs() {
                 onClick={confirmSendEmail}
                 disabled={submitting}
                 startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <EmailIcon />}
-                sx={{ bgcolor: '#228756', '&:hover': { bgcolor: '#1b6843' }, py: 1.5, borderRadius: '12px', fontWeight: 800, textTransform: 'none', fontSize: '1.1rem' }}
+                sx={{ 
+                  bgcolor: '#228756', 
+                  '&:hover': { bgcolor: '#1b6843' }, 
+                  py: 2, 
+                  borderRadius: '16px', 
+                  fontWeight: 900, 
+                  textTransform: 'none', 
+                  fontSize: '1.1rem',
+                  boxShadow: '0 8px 20px rgba(34, 135, 86, 0.2)',
+                  transition: 'all 0.2s'
+                }}
               >
                 {submitting ? "Sending..." : "Send Email Now"}
               </Button>
