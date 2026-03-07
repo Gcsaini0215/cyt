@@ -13,6 +13,7 @@ import { fetchById } from '../../utils/actions';
 import { getClinicLogsUrl } from '../../utils/url';
 import Head from 'next/head';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import useTherapistStore from '../../store/therapistStore';
 
 export default function InvoiceViewPage() {
@@ -104,18 +105,40 @@ export default function InvoiceViewPage() {
   };
 
   const handleDownload = async () => {
-    const element = document.getElementById('printable-invoice');
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
-    const data = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = data;
-    link.download = `Invoice-${formattedInvoiceId}.png`;
-    link.click();
+    try {
+      const element = document.getElementById('printable-invoice');
+      
+      // Use higher scale for better quality
+      const canvas = await html2canvas(element, {
+        scale: 3, 
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 1000 // Ensure consistent layout
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      
+      // Calculate dimensions (A4 is roughly 210mm x 297mm)
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      // If the content is taller than A4, we can let it be or split it. 
+      // For invoices, usually one page is enough.
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Invoice-${formattedInvoiceId}.pdf`);
+    } catch (err) {
+      console.error("PDF Generation Error:", err);
+      // Fallback to simple PNG if PDF fails
+      const element = document.getElementById('printable-invoice');
+      const canvas = await html2canvas(element, { scale: 2 });
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `Invoice-${formattedInvoiceId}.png`;
+      link.click();
+    }
   };
 
   if (loading) {
@@ -228,7 +251,7 @@ export default function InvoiceViewPage() {
                 px: 3
               }}
             >
-              Download
+              Download PDF
             </Button>
             <Button 
               fullWidth

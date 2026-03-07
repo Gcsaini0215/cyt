@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { 
   Box, 
   Typography, 
@@ -77,43 +77,56 @@ export default function ClientLogs() {
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    // Try to load from localStorage first
+    
+    // Load from localStorage first for instant display
     const localLogs = localStorage.getItem('clinicLogs');
     if (localLogs) {
       try {
         setLogs(JSON.parse(localLogs));
       } catch (e) {
-        console.error("Error parsing localStorage", e);
+        console.error("Error parsing localLogs", e);
       }
     }
-    // Then fetch from API (will update if available)
+    
+    // Then fetch from API
     fetchLogs();
-  }, []);
+  }, [fetchLogs]);
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetchById(getClinicLogsUrl);
       if (response.status) {
         const logsData = response.data || [];
-        setLogs(Array.isArray(logsData) ? logsData : []);
-        localStorage.setItem('clinicLogs', JSON.stringify(logsData));
+        // Map _id from MongoDB to id for frontend consistency
+        const mappedLogs = (Array.isArray(logsData) ? logsData : []).map(log => ({
+          ...log,
+          id: log._id || log.id
+        }));
+        setLogs(mappedLogs);
+        // Sync with localStorage
+        localStorage.setItem('clinicLogs', JSON.stringify(mappedLogs));
         setIsOffline(false);
       } else {
+        console.error("Server returned false status:", response);
         setIsOffline(true);
       }
     } catch (error) {
-      console.error("Error fetching logs from API, using local storage:", error);
+      console.error("ERROR FETCHING FROM SERVER:", {
+        message: error.message,
+        status: error.response?.status,
+        url: getClinicLogsUrl,
+        data: error.response?.data
+      });
       setIsOffline(true);
-      // Fallback to localStorage
-      const localLogs = localStorage.getItem('clinicLogs');
-      if (localLogs) {
-        setLogs(JSON.parse(localLogs));
+      
+      if (error.response?.status === 404) {
+        toast.error("API Error: '/clinic-logs' endpoint not found on server.");
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -148,29 +161,34 @@ export default function ClientLogs() {
       if (formData.id) {
         // Edit mode
         await putData(`${updateClinicLogUrl}/${formData.id}`, payload);
-        toast.success("Entry updated on server!");
+        toast.success("Entry updated on server & device!");
       } else {
         // Add mode
         await postData(createClinicLogUrl, payload);
-        toast.success("Client entry saved to server!");
+        toast.success("Client entry saved to server & device!");
       }
 
       setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", date: dayjs() });
-      await fetchLogs(); // Refresh all data from server
+      await fetchLogs(); // Refresh both sources
       
     } catch (error) {
-      console.error("API Error, saving locally:", error);
+      console.error("CRITICAL API ERROR:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: formData.id ? `${updateClinicLogUrl}/${formData.id}` : createClinicLogUrl
+      });
       
-      // FALLBACK: Only if server fails, save to local storage
+      // Fallback: Save locally if API fails
       const fallbackId = formData.id || Date.now();
       const localEntry = {
         ...formData,
         id: fallbackId,
         _id: fallbackId,
-        date: formData.date.format('DD MMM YYYY'),
+        date: formData.date.format('YYYY-MM-DD'),
         therapist_name: therapistInfo?.user?.name,
         therapist_type: therapistInfo?.profile_type,
-        isLocalOnly: true // Mark for future sync
+        isLocalOnly: true 
       };
 
       const updatedLogs = formData.id 
@@ -179,7 +197,7 @@ export default function ClientLogs() {
 
       setLogs(updatedLogs);
       localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
-      toast.warning("Saved to device only (Server offline)");
+      toast.warning("Saved locally (Server offline)");
       
       setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", date: dayjs() });
     } finally {
@@ -191,24 +209,21 @@ export default function ClientLogs() {
     if (window.confirm("Are you sure you want to delete this entry?")) {
       try {
         setSubmitting(true);
-        let isAPISuccess = false;
-
+        // Try deleting from API first
         try {
           await deleteById(`${deleteClinicLogUrl}/${id}`);
-          isAPISuccess = true;
-          toast.success("Entry deleted successfully");
+          toast.success("Entry deleted from server!");
         } catch (apiError) {
-          console.error("API delete failed, using local storage");
-          // Fallback: Delete from local state and localStorage
-          const updatedLogs = logs.filter(log => log.id !== id);
-          setLogs(updatedLogs);
-          localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
-          toast.success("Entry deleted (local)!");
+          console.error("API Delete failed:", apiError);
+          toast.warning("Deleted from device (Server sync failed)");
         }
-
-        if (isAPISuccess) {
-          await fetchLogs();
-        }
+        
+        // Always remove from local state/cache
+        const updatedLogs = logs.filter(log => (log._id || log.id) !== id);
+        setLogs(updatedLogs);
+        localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
+        
+        await fetchLogs(); // Refresh to ensure sync
       } catch (error) {
         console.error("Error deleting entry:", error);
         toast.error("Failed to delete entry");
@@ -262,15 +277,16 @@ export default function ClientLogs() {
       // Call the Next.js API route
       await axios.post(sendClinicInvoiceEmailUrl, emailTemplate);
       
+      // Update local state to show email sent
       const updatedLogs = logs.map(l => 
-        l.id === selectedLog.id ? { ...l, emailSent: true } : l
+        (l._id || l.id) === selectedLog.id ? { ...l, emailSent: true } : l
       );
-      
       setLogs(updatedLogs);
       localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
-      
+
       toast.success(`Invoice email sent to ${selectedLog.email}`);
       setEmailDialogOpen(false);
+      await fetchLogs(); // Final sync with server
     } catch (error) {
       toast.error("Failed to send email");
     } finally {
@@ -511,7 +527,7 @@ export default function ClientLogs() {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={1.5}>
+                    <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
                         size="small"
@@ -529,24 +545,7 @@ export default function ClientLogs() {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={1.5}>
-                      <TextField
-                        select
-                        fullWidth
-                        size="small"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        sx={{ 
-                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
-                          '& .MuiOutlinedInput-input': { fontWeight: 700 }
-                        }}
-                      >
-                        <MenuItem value="Paid">Paid</MenuItem>
-                        <MenuItem value="Pending">Pending</MenuItem>
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={12} sm={1.5}>
+                    <Grid item xs={12} sm={2}>
                       <Button
                         fullWidth
                         type="submit"

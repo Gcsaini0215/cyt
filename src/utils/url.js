@@ -40,6 +40,10 @@ if (isLocal) {
   if (PREFERRED_MODE === "LOCAL") {
     rawApiUrl = LOCAL_API_URL;
     rawBaseApi = LOCAL_BASE_API;
+  } else {
+    // Even on local, if not in LOCAL mode, try to use .env or fallback to LIVE
+    rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : LIVE_API_URL;
+    rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : LIVE_BASE_API;
   }
 } else {
   baseFrontendUrl = "https://chooseyourtherapist.in";
