@@ -61,6 +61,7 @@ export default function ClientLogs() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [emailMessage, setEmailMessage] = useState("We hope you're doing well. Thank you for choosing ChooseYourTherapist for your clinic visit. Please find your invoice details below. You can view or download the full invoice using the link provided.");
   const [origin, setOrigin] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
 
   const [formData, setFormData] = useState({
     id: null,
@@ -96,9 +97,13 @@ export default function ClientLogs() {
         const logsData = response.data || [];
         setLogs(Array.isArray(logsData) ? logsData : []);
         localStorage.setItem('clinicLogs', JSON.stringify(logsData));
+        setIsOffline(false);
+      } else {
+        setIsOffline(true);
       }
     } catch (error) {
       console.error("Error fetching logs from API, using local storage:", error);
+      setIsOffline(true);
       // Fallback to localStorage
       const localLogs = localStorage.getItem('clinicLogs');
       if (localLogs) {
@@ -363,6 +368,21 @@ export default function ClientLogs() {
                   {formData.id ? "EDIT INVOICE ENTRY" : "GENERATE NEW INVOICE"}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.2 }, position: 'relative', width: { xs: 'auto', sm: 'auto' } }}>
+                  {isOffline && (
+                    <Chip 
+                      label="Offline Mode" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(239, 68, 68, 0.2)', 
+                        color: '#ffffff', 
+                        fontWeight: 900, 
+                        fontSize: '0.65rem',
+                        height: '24px',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                  )}
                   <IconButton
                     onClick={(e) => setAnchorEl(e.currentTarget)}
                     sx={{ 

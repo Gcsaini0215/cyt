@@ -286,7 +286,7 @@ export default function MainLayout(props) {
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation - Placed outside to avoid parent style interference */}
+      {/* Mobile Bottom Navigation - Enhanced for maximum stickiness */}
       {isMobile && (
         <nav 
           style={{ 
@@ -294,16 +294,19 @@ export default function MainLayout(props) {
             bottom: 0, 
             left: 0, 
             right: 0, 
-            width: '100%',
+            width: '100vw',
             background: '#ffffff', 
             borderTop: '1px solid #f1f5f9',
             display: 'flex',
             justifyContent: 'space-around',
             padding: '12px 0',
             paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
-            zIndex: 9999,
-            boxShadow: '0 -8px 25px rgba(0,0,0,0.08)',
-            transform: 'translateZ(0)'
+            zIndex: 10000, // Increased z-index
+            boxShadow: '0 -10px 30px rgba(0,0,0,0.1)',
+            transform: 'translateZ(0)', // Force GPU acceleration for stickiness
+            WebkitTransform: 'translateZ(0)',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
           }}
         >
           {[
