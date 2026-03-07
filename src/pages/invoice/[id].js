@@ -42,54 +42,57 @@ export default function InvoiceViewPage() {
     try {
       setLoading(true);
       setError(null);
+      
+      // Ensure we have a valid ID before fetching
+      if (!id || id === 'undefined') {
+        throw new Error("Invalid Invoice ID");
+      }
+
       console.log("Fetching invoice for ID:", id);
       const url = `${getClinicLogsUrl}/${id}`;
-      console.log("Full URL:", url);
       
       const res = await fetchById(url);
-      console.log("API Response:", res);
       
       if (res.status && res.data) {
         setLog(res.data);
+        // Silently update local cache
+        const localLogs = localStorage.getItem('clinicLogs');
+        let logs = [];
+        if (localLogs) {
+          try {
+            logs = JSON.parse(localLogs);
+          } catch (e) { logs = []; }
+        }
+        const updatedLogs = [res.data, ...logs.filter(l => (l._id || l.id) !== (res.data._id || res.data.id))];
+        localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs.slice(0, 50)));
       } else {
-        console.warn("API failed or returned no data, checking localStorage...");
-        // Fallback to localStorage if API fails (common for local testing)
+        // Only if API returns 404/failure, try local fallback as last resort
         const localLogs = localStorage.getItem('clinicLogs');
         if (localLogs) {
           const logs = JSON.parse(localLogs);
-          const found = logs.find(l => {
-            const entryId = l._id || l.id;
-            return entryId && entryId.toString() === id.toString();
-          });
+          const found = logs.find(l => (l._id || l.id)?.toString() === id.toString());
           if (found) {
-            console.log("Found in localStorage:", found);
             setLog(found);
             return;
           }
         }
-        setError(res.message || "Invoice not found in system");
+        setError(res.message || "Invoice not found on server");
       }
     } catch (err) {
       console.error("Invoice fetch error:", err);
-      // Try localStorage even on catch
+      // Try localStorage fallback
       const localLogs = localStorage.getItem('clinicLogs');
       if (localLogs) {
         try {
           const logs = JSON.parse(localLogs);
-          const found = logs.find(l => {
-            const entryId = l._id || l.id;
-            return entryId && entryId.toString() === id.toString();
-          });
+          const found = logs.find(l => (l._id || l.id)?.toString() === id.toString());
           if (found) {
-            console.log("Found in localStorage (after error):", found);
             setLog(found);
             return;
           }
-        } catch (e) {
-          console.error("Error parsing localStorage logs:", e);
-        }
+        } catch (e) {}
       }
-      setError("Failed to load invoice from server");
+      setError("Unable to connect to server. Please check your internet.");
     } finally {
       setLoading(false);
     }

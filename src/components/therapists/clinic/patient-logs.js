@@ -143,74 +143,43 @@ export default function ClientLogs() {
         therapist_type: therapistInfo?.profile_type
       };
 
-      let isAPISuccess = false;
-
       if (formData.id) {
         // Edit mode
-        try {
-          await putData(`${updateClinicLogUrl}/${formData.id}`, payload);
-          isAPISuccess = true;
-          toast.success("Entry updated successfully!");
-        } catch (apiError) {
-          console.error("API update failed, using local storage");
-          // Fallback: Update in local state and localStorage
-          const updatedLogs = logs.map(log => 
-            log.id === formData.id 
-              ? {
-                  ...log,
-                  name: formData.name,
-                  email: formData.email,
-                  phone: formData.phone,
-                  date: formData.date.format('DD MMM YYYY'),
-                  type: formData.type,
-                  amount: formData.amount,
-                  remainingAmount: formData.remainingAmount,
-                  therapist_name: therapistInfo?.user?.name,
-                  therapist_type: therapistInfo?.profile_type
-                }
-              : log
-          );
-          setLogs(updatedLogs);
-          localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
-          toast.success("Entry updated (local)!");
-        }
+        await putData(`${updateClinicLogUrl}/${formData.id}`, payload);
+        toast.success("Entry updated on server!");
       } else {
         // Add mode
-        try {
-          await postData(createClinicLogUrl, payload);
-          isAPISuccess = true;
-          toast.success("Client entry added successfully!");
-        } catch (apiError) {
-          console.error("API create failed, using local storage");
-          // Fallback: Add to local state and localStorage
-          const newLog = {
-            id: Date.now(),
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            date: formData.date.format('DD MMM YYYY'),
-            type: formData.type,
-            amount: formData.amount,
-            remainingAmount: formData.remainingAmount,
-            therapist_name: therapistInfo?.user?.name,
-            therapist_type: therapistInfo?.profile_type,
-            status: "Paid"
-          };
-          const updatedLogs = [newLog, ...logs];
-          setLogs(updatedLogs);
-          localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
-          toast.success("Client entry added (local)!");
-        }
+        await postData(createClinicLogUrl, payload);
+        toast.success("Client entry saved to server!");
       }
 
       setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", date: dayjs() });
+      await fetchLogs(); // Refresh all data from server
       
-      if (isAPISuccess) {
-        await fetchLogs();
-      }
     } catch (error) {
-      console.error("Error saving client:", error);
-      toast.error("Failed to save client entry");
+      console.error("API Error, saving locally:", error);
+      
+      // FALLBACK: Only if server fails, save to local storage
+      const fallbackId = formData.id || Date.now();
+      const localEntry = {
+        ...formData,
+        id: fallbackId,
+        _id: fallbackId,
+        date: formData.date.format('DD MMM YYYY'),
+        therapist_name: therapistInfo?.user?.name,
+        therapist_type: therapistInfo?.profile_type,
+        isLocalOnly: true // Mark for future sync
+      };
+
+      const updatedLogs = formData.id 
+        ? logs.map(l => (l._id || l.id) === formData.id ? localEntry : l)
+        : [localEntry, ...logs];
+
+      setLogs(updatedLogs);
+      localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
+      toast.warning("Saved to device only (Server offline)");
+      
+      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", date: dayjs() });
     } finally {
       setSubmitting(false);
     }
