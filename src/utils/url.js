@@ -123,6 +123,12 @@ export const InsertFavoriteTherapistUrl = `${apiUrl}/insert-favorite-therapist`;
 export const RemoveFavoriteTherapistUrl = `${apiUrl}/remove-favorite-therapist`;
 export const GetFavoriteTherapistUrl = `${apiUrl}/get-favorite-therapists`;
 export const GetFavoriteTherapistListUrl = `${apiUrl}/get-favorite-therapists-list`;
+
+// Aliases for compatibility with old spelling
+export const InsertFavriouteTherapistUrl = InsertFavoriteTherapistUrl;
+export const RemoveFavriouteTherapistUrl = RemoveFavoriteTherapistUrl;
+export const GetFavriouteTherapistUrl = GetFavoriteTherapistUrl;
+export const GetFavriouteTherapistListUrl = GetFavoriteTherapistListUrl;
 export const BookTherapistUrl = `${apiUrl}/book-therapist`;
 export const BookTherapistUrlAnonymously = `${apiUrl}/book-therapist-anonymously`;
 export const pendingPaymentUrl = `${apiUrl}/get-payment`;
@@ -138,6 +144,13 @@ export const CreateCouponsUrl = `${apiUrl}/coupon/create`;
 export const UpdateCouponsUrl = `${apiUrl}/coupon/update`;
 export const DeleteCouponsUrl = `${apiUrl}/coupon/delete`;
 export const ToggleCouponStatusUrl = `${apiUrl}/coupon/status`;
+
+// Aliases for compatibility with old spelling
+export const GetCoupansUrl = GetCouponsUrl;
+export const CreateCoupansUrl = CreateCouponsUrl;
+export const UpdateCoupansUrl = UpdateCouponsUrl;
+export const DeleteCoupansUrl = DeleteCouponsUrl;
+export const ToggleCoupanStatusUrl = ToggleCouponStatusUrl;
 export const ApplyCouponUrl = `${apiUrl}/coupon/apply`;
 export const UpdatePaymentStatusUrl = `${apiUrl}/update-payment-status`;
 export const StartSessionUrl = `${apiUrl}/start-session`;
