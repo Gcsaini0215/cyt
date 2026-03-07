@@ -125,12 +125,12 @@ export default function DashboardTopNav() {
               {[
                 { to: "/therapist-dashboard", icon: "feather-home", label: "Dashboard" },
                 { to: "/appointments", icon: "feather-calendar", label: "Sessions", hasBadge: true },
-                { to: "/clinic-patients", icon: "feather-users", label: "Clinic Clients" },
+                { to: "/clinic-patients", icon: "feather-file-text", label: "Invoices" },
                 { to: "/workshops", icon: "feather-award", label: "Manage Events" },
                 { to: "/coupons", icon: "feather-tag", label: "Coupons" },
                 { to: "/therapist-blogs", icon: "feather-edit-3", label: "Write Blog" },
                 { to: "/therapist-ai-blog", icon: "feather-zap", label: "Write with AI" },
-                { to: "/therapists/invoices", icon: "feather-file-text", label: "Invoices" },
+                { to: "/therapists/invoices", icon: "feather-file-text", label: "Online Invoices" },
                 { to: "/settings", icon: "feather-settings", label: "Settings" },
               ].map((item) => (
                 <li key={item.to} className="position-static" style={{ width: "100%" }}>

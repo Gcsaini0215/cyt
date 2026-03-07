@@ -71,7 +71,7 @@ export default function MainLayout(props) {
                   {[
                     { to: "/therapist-dashboard", icon: "feather-home", title: "Home" },
                     { to: "/appointments", icon: "feather-calendar", title: "Sessions" },
-                    { to: "/clinic-patients", icon: "feather-users", title: "Clinic Client" },
+                    { to: "/clinic-patients", icon: "feather-file-text", title: "Invoices" },
                     { 
                       id: 'event-menu',
                       icon: "feather-briefcase", 
@@ -272,55 +272,11 @@ export default function MainLayout(props) {
           </aside>
         )}
 
-        {/* Mobile Bottom Navigation */}
-        {isMobile && (
-          <nav 
-            style={{ 
-              position: 'fixed', 
-              bottom: 0, 
-              left: 0, 
-              right: 0, 
-              background: '#fff', 
-              borderTop: '1px solid #f1f5f9',
-              display: 'flex',
-              justifyContent: 'space-around',
-              padding: '12px 0',
-              zIndex: 1000,
-              boxShadow: '0 -4px 20px rgba(0,0,0,0.05)'
-            }}
-          >
-            {[
-              { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
-              { to: "/appointments", icon: "feather-calendar", label: "Sessions" },
-              { to: "/clinic-patients", icon: "feather-users", label: "Clinic" },
-              { to: "/settings", icon: "feather-user", label: "Profile" }
-            ].map((item) => (
-              <Link
-                key={item.to}
-                href={item.to}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '4px',
-                  color: pathname === item.to ? '#228756' : '#94a3b8',
-                  textDecoration: 'none',
-                  fontSize: '11px',
-                  fontWeight: pathname === item.to ? '700' : '500'
-                }}
-              >
-                <i className={item.icon} style={{ fontSize: '22px' }}></i>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-
         {/* Main Content Area */}
         <main 
           style={{ 
             marginLeft: isMobile ? 0 : sidebarWidth,
-            padding: isMobile ? "20px 20px 80px 20px" : "30px 40px"
+            padding: isMobile ? "20px 20px 100px 20px" : "30px 40px"
           }}
         >
           <div className="container-fluid" style={{ maxWidth: "1500px", margin: "0 auto", marginTop: "10px" }}>
@@ -329,6 +285,53 @@ export default function MainLayout(props) {
           </div>
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation - Placed outside to avoid parent style interference */}
+      {isMobile && (
+        <nav 
+          style={{ 
+            position: 'fixed', 
+            bottom: 0, 
+            left: 0, 
+            right: 0, 
+            width: '100%',
+            background: '#ffffff', 
+            borderTop: '1px solid #f1f5f9',
+            display: 'flex',
+            justifyContent: 'space-around',
+            padding: '12px 0',
+            paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+            zIndex: 9999,
+            boxShadow: '0 -8px 25px rgba(0,0,0,0.08)',
+            transform: 'translateZ(0)'
+          }}
+        >
+          {[
+            { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
+            { to: "/appointments", icon: "feather-calendar", label: "Sessions" },
+            { to: "/clinic-patients", icon: "feather-file-text", label: "Invoices" },
+            { to: "/settings", icon: "feather-user", label: "Profile" }
+          ].map((item) => (
+            <Link
+              key={item.to}
+              href={item.to}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                color: pathname === item.to ? '#228756' : '#94a3b8',
+                textDecoration: 'none',
+                fontSize: '11px',
+                fontWeight: pathname === item.to ? '700' : '500'
+              }}
+            >
+              <i className={item.icon} style={{ fontSize: '22px' }}></i>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      )}
     </>
   );
 }

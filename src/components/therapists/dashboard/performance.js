@@ -95,14 +95,15 @@ export default function DashboardSections({ pageData }) {
         <Box sx={{ position: "relative", zIndex: 2 }}>
           <Box>
             <Typography component="span" sx={{ 
-              fontSize: { xs: "0.85rem", md: "1.05rem" }, 
+              fontSize: { xs: "0.9rem", md: "1.15rem" }, 
               textTransform: "uppercase", 
-              letterSpacing: "3px", 
+              letterSpacing: "5px", 
               fontWeight: "900", 
-              color: "#66ff00", // Brighter neon green for better visibility
+              color: "#66ff00", 
               display: "block",
-              marginBottom: "14px",
-              textShadow: "0 2px 10px rgba(102, 255, 0, 0.2)"
+              marginBottom: "16px",
+              textShadow: "0 0 20px rgba(102, 255, 0, 0.4)",
+              opacity: 0.95
             }}>
               Therapist Workspace
             </Typography>
@@ -180,17 +181,19 @@ export default function DashboardSections({ pageData }) {
               <Box sx={{ position: 'relative', zIndex: 1, display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 } }}>
                 <Box
                   sx={{
-                    width: { xs: 45, md: 60 },
-                    height: { xs: 45, md: 60 },
-                    borderRadius: "14px",
+                    width: { xs: 50, md: 65 },
+                    height: { xs: 50, md: 65 },
+                    borderRadius: "16px",
                     background: stat.bgColor,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    boxShadow: `0 4px 12px ${stat.bgColor}`,
+                    transition: "all 0.3s ease"
                   }}
                 >
                   {React.cloneElement(stat.icon, { 
-                    sx: { fontSize: { xs: 24, md: 32 }, color: stat.icon.props.sx.color } 
+                    sx: { fontSize: { xs: 26, md: 34 }, color: stat.icon.props.sx.color } 
                   })}
                 </Box>
                 <Box>
@@ -206,8 +209,8 @@ export default function DashboardSections({ pageData }) {
                   <Typography sx={{ 
                     fontWeight: 900, 
                     color: "#1e293b", 
-                    letterSpacing: '-0.5px', 
-                    fontSize: { xs: '1.4rem', md: '2.2rem' },
+                    letterSpacing: '-1px', 
+                    fontSize: { xs: '1.6rem', md: '2.4rem' },
                     lineHeight: 1
                   }}>
                     {stat.value}

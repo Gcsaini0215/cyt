@@ -133,7 +133,9 @@ export default function ClientLogs() {
         date: formData.date.format('YYYY-MM-DD'),
         type: formData.type,
         amount: formData.amount,
-        remainingAmount: formData.remainingAmount
+        remainingAmount: formData.remainingAmount,
+        therapist_name: therapistInfo?.user?.name,
+        therapist_type: therapistInfo?.profile_type
       };
 
       let isAPISuccess = false;
@@ -157,7 +159,9 @@ export default function ClientLogs() {
                   date: formData.date.format('DD MMM YYYY'),
                   type: formData.type,
                   amount: formData.amount,
-                  remainingAmount: formData.remainingAmount
+                  remainingAmount: formData.remainingAmount,
+                  therapist_name: therapistInfo?.user?.name,
+                  therapist_type: therapistInfo?.profile_type
                 }
               : log
           );
@@ -183,6 +187,8 @@ export default function ClientLogs() {
             type: formData.type,
             amount: formData.amount,
             remainingAmount: formData.remainingAmount,
+            therapist_name: therapistInfo?.user?.name,
+            therapist_type: therapistInfo?.profile_type,
             status: "Paid"
           };
           const updatedLogs = [newLog, ...logs];
@@ -272,7 +278,8 @@ export default function ClientLogs() {
         amount: selectedLog.amount,
         date: selectedLog.date,
         phone: selectedLog.phone,
-        therapistName: therapistInfo?.user?.name || "Your Therapist"
+        therapistName: therapistInfo?.user?.name || "Your Therapist",
+        therapistType: therapistInfo?.profile_type
       };
 
       // Call the Next.js API route
@@ -353,7 +360,7 @@ export default function ClientLogs() {
                 gap: 1.2
               }}>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff', letterSpacing: '1px', fontSize: { xs: '1.3rem', sm: '1.5rem' }, flex: 1 }}>
-                  {formData.id ? "EDIT CLIENT ENTRY" : "ADD NEW CLIENT"}
+                  {formData.id ? "EDIT INVOICE ENTRY" : "GENERATE NEW INVOICE"}
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.2 }, position: 'relative', width: { xs: 'auto', sm: 'auto' } }}>
                   <IconButton
@@ -450,7 +457,7 @@ export default function ClientLogs() {
                       <TextField
                         fullWidth
                         size="small"
-                        placeholder="Client Name"
+                        placeholder="Client Name / Invoice For"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
@@ -543,7 +550,7 @@ export default function ClientLogs() {
                           transition: 'all 0.2s'
                         }}
                       >
-                        {submitting ? "Saving..." : (formData.id ? "Update Entry" : "Save Entry")}
+                        {submitting ? "Saving..." : (formData.id ? "Update Invoice" : "Generate Invoice")}
                       </Button>
                     </Grid>
                   </Grid>
@@ -605,7 +612,7 @@ export default function ClientLogs() {
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, pl: 4, fontSize: '1.1rem' }}>CLIENT DETAILS</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, pl: 4, fontSize: '1.1rem' }}>INVOICE DETAILS</TableCell>
                       <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>VISIT DATE</TableCell>
                       <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>TYPE</TableCell>
                       <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>FEES</TableCell>
