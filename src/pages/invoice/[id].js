@@ -8,6 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import LanguageIcon from '@mui/icons-material/Language';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { fetchById } from '../../utils/actions';
 import { getClinicLogsUrl } from '../../utils/url';
 import Head from 'next/head';
@@ -113,8 +114,7 @@ export default function InvoiceViewPage() {
     const data = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = data;
-    const formattedId = `CYT-INV-${(log._id || log.id)?.toString().slice(-6).toUpperCase()}`;
-    link.download = `Invoice-${formattedId}.png`;
+    link.download = `Invoice-${formattedInvoiceId}.png`;
     link.click();
   };
 
@@ -134,16 +134,18 @@ export default function InvoiceViewPage() {
         <Typography sx={{ color: '#64748b', mb: 4 }}>{error || "We couldn't find the invoice you're looking for."}</Typography>
         <Button 
           variant="contained" 
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/therapist-dashboard')}
           sx={{ bgcolor: '#228756', '&:hover': { bgcolor: '#1b6843' }, borderRadius: '12px', px: 4, py: 1.5, textTransform: 'none', fontWeight: 700 }}
         >
-          Go to Home
+          Back to Dashboard
         </Button>
       </Box>
     );
   }
 
-  const formattedInvoiceId = `CYT-INV-${(log._id || log.id)?.toString().slice(-6).toUpperCase()}`;
+  const logId = log._id || log.id;
+  const formattedInvoiceId = logId ? `CYT-INV-${logId.toString().slice(-6).toUpperCase()}` : 'CYT-INV-UNKNOWN';
+  const displayDate = log.date || 'N/A';
 
   return (
     <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', py: { xs: 3, md: 8 }, px: { xs: 1.5, sm: 2 } }}>
@@ -286,7 +288,7 @@ export default function InvoiceViewPage() {
               <Box sx={{ textAlign: { xs: 'left', sm: 'right' }, alignSelf: { xs: 'flex-start', sm: 'center' } }}>
                 <Box>
                   <Typography sx={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 0.5, letterSpacing: '1px' }}>Invoice Date</Typography>
-                  <Typography sx={{ color: '#1e293b', fontWeight: 900, fontSize: '1.25rem' }}>{log.date}</Typography>
+                  <Typography sx={{ color: '#1e293b', fontWeight: 900, fontSize: '1.25rem' }}>{displayDate}</Typography>
                 </Box>
               </Box>
             </Box>

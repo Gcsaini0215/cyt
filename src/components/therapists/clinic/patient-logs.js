@@ -240,14 +240,15 @@ export default function ClientLogs() {
       
       const liveOrigin = "https://chooseyourtherapist.in";
       // Ensure we use the correct ID for the link
-      const invoiceIdValue = selectedLog._id || selectedLog.id;
+      const logId = selectedLog._id || selectedLog.id;
+      const invoiceIdValue = logId ? logId.toString().slice(-8) : "UNKNOWN";
       
       const emailTemplate = {
         to: selectedLog.email,
-        subject: `Invoice from Choose Your Therapist - #${invoiceIdValue?.toString().slice(-8)}`,
+        subject: `Invoice from Choose Your Therapist - #${invoiceIdValue}`,
         message: emailMessage,
-        invoiceId: invoiceIdValue?.toString().slice(-8),
-        invoiceLink: `${liveOrigin}/invoice/${invoiceIdValue}`, 
+        invoiceId: invoiceIdValue,
+        invoiceLink: `${liveOrigin}/invoice/${logId}`, 
         clientName: selectedLog.name,
         amount: selectedLog.amount,
         date: selectedLog.date,
@@ -290,7 +291,12 @@ export default function ClientLogs() {
   };
 
   const handleInvoice = (log) => {
-    window.open(`/invoice/${log.id}`, '_blank');
+    const invoiceId = log._id || log.id;
+    if (invoiceId) {
+      window.open(`/invoice/${invoiceId}`, '_blank');
+    } else {
+      toast.error("Invalid Invoice ID");
+    }
   };
 
   const handleCloseInvoice = () => {
@@ -663,7 +669,7 @@ export default function ClientLogs() {
                             borderRadius: '8px',
                             border: '1px solid rgba(22, 163, 74, 0.15)'
                           }}>
-                            <Typography sx={{ fontSize: '13px', fontWeight: 900 }}>{log.status.toUpperCase()}</Typography>
+                            <Typography sx={{ fontSize: '13px', fontWeight: 900 }}>{log.status?.toUpperCase()}</Typography>
                           </Box>
                         </TableCell>
                         <TableCell align="right" sx={{ pr: 4 }}>
@@ -766,7 +772,7 @@ export default function ClientLogs() {
                         borderRadius: '8px',
                         border: '1px solid rgba(22, 163, 74, 0.15)'
                       }}>
-                        <Typography sx={{ fontSize: '11px', fontWeight: 900 }}>{log.status.toUpperCase()}</Typography>
+                        <Typography sx={{ fontSize: '11px', fontWeight: 900 }}>{log.status?.toUpperCase()}</Typography>
                       </Box>
                     </Box>
 
