@@ -71,6 +71,7 @@ export default function ClientLogs() {
     type: "Clinic",
     amount: "",
     remainingAmount: "",
+    status: "Paid",
     date: dayjs()
   });
 
@@ -139,6 +140,7 @@ export default function ClientLogs() {
         type: formData.type,
         amount: formData.amount,
         remainingAmount: formData.remainingAmount,
+        status: formData.status,
         therapist_name: therapistInfo?.user?.name,
         therapist_type: therapistInfo?.profile_type
       };
@@ -153,7 +155,7 @@ export default function ClientLogs() {
         toast.success("Client entry saved to server!");
       }
 
-      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", date: dayjs() });
+      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", date: dayjs() });
       await fetchLogs(); // Refresh all data from server
       
     } catch (error) {
@@ -179,7 +181,7 @@ export default function ClientLogs() {
       localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
       toast.warning("Saved to device only (Server offline)");
       
-      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", date: dayjs() });
+      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", date: dayjs() });
     } finally {
       setSubmitting(false);
     }
@@ -285,6 +287,7 @@ export default function ClientLogs() {
       type: log.type,
       amount: log.amount,
       remainingAmount: log.remainingAmount || '',
+      status: log.status || "Paid",
       date: dayjs(log.date)
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -448,7 +451,7 @@ export default function ClientLogs() {
               <Box sx={{ p: isMobile ? 2.5 : 3 }}>
                 <form onSubmit={handleAddClient}>
                   <Grid container spacing={isMobile ? 1.5 : 2} alignItems="center">
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={12} sm={2.5}>
                       <TextField
                         fullWidth
                         size="small"
@@ -462,7 +465,7 @@ export default function ClientLogs() {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={3}>
+                    <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
                         size="small"
@@ -508,7 +511,7 @@ export default function ClientLogs() {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={12} sm={1.5}>
                       <TextField
                         fullWidth
                         size="small"
@@ -526,7 +529,24 @@ export default function ClientLogs() {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={12} sm={1.5}>
+                      <TextField
+                        select
+                        fullWidth
+                        size="small"
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        sx={{ 
+                          '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                          '& .MuiOutlinedInput-input': { fontWeight: 700 }
+                        }}
+                      >
+                        <MenuItem value="Paid">Paid</MenuItem>
+                        <MenuItem value="Pending">Pending</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={1.5}>
                       <Button
                         fullWidth
                         type="submit"
@@ -545,7 +565,7 @@ export default function ClientLogs() {
                           transition: 'all 0.2s'
                         }}
                       >
-                        {submitting ? "Saving..." : (formData.id ? "Update Invoice" : "Generate Invoice")}
+                        {submitting ? "Saving..." : (formData.id ? "Update" : "Save")}
                       </Button>
                     </Grid>
                   </Grid>
@@ -662,14 +682,14 @@ export default function ClientLogs() {
                             display: 'inline-flex', 
                             alignItems: 'center', 
                             gap: 1, 
-                            bgcolor: '#f0fdf4', 
-                            color: '#16a34a', 
+                            bgcolor: log.status === 'Pending' ? '#fffbeb' : '#f0fdf4', 
+                            color: log.status === 'Pending' ? '#b45309' : '#16a34a', 
                             px: 2, 
                             py: 0.6, 
                             borderRadius: '8px',
-                            border: '1px solid rgba(22, 163, 74, 0.15)'
+                            border: `1px solid ${log.status === 'Pending' ? 'rgba(180, 83, 9, 0.15)' : 'rgba(22, 163, 74, 0.15)'}`
                           }}>
-                            <Typography sx={{ fontSize: '13px', fontWeight: 900 }}>{log.status?.toUpperCase()}</Typography>
+                            <Typography sx={{ fontSize: '13px', fontWeight: 900 }}>{log.status?.toUpperCase() || 'PAID'}</Typography>
                           </Box>
                         </TableCell>
                         <TableCell align="right" sx={{ pr: 4 }}>
@@ -765,14 +785,14 @@ export default function ClientLogs() {
                         <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 700 }}>{log.date} • {log.type}</Typography>
                       </Box>
                       <Box sx={{ 
-                        bgcolor: '#f0fdf4', 
-                        color: '#16a34a', 
+                        bgcolor: log.status === 'Pending' ? '#fffbeb' : '#f0fdf4', 
+                        color: log.status === 'Pending' ? '#b45309' : '#16a34a', 
                         px: 1.5, 
                         py: 0.5, 
                         borderRadius: '8px',
-                        border: '1px solid rgba(22, 163, 74, 0.15)'
+                        border: `1px solid ${log.status === 'Pending' ? 'rgba(180, 83, 9, 0.15)' : 'rgba(22, 163, 74, 0.15)'}`
                       }}>
-                        <Typography sx={{ fontSize: '11px', fontWeight: 900 }}>{log.status?.toUpperCase()}</Typography>
+                        <Typography sx={{ fontSize: '11px', fontWeight: 900 }}>{log.status?.toUpperCase() || 'PAID'}</Typography>
                       </Box>
                     </Box>
 
