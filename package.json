@@ -19,6 +19,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.2",
     "dayjs": "^1.11.12",
+    "dompurify": "^3.3.2",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.0",
     "jwt-decode": "^4.0.0",
