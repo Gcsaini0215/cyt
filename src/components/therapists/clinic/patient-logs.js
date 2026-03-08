@@ -75,23 +75,6 @@ export default function ClientLogs() {
     date: dayjs()
   });
 
-  useEffect(() => {
-    setOrigin(window.location.origin);
-    
-    // Load from localStorage first for instant display
-    const localLogs = localStorage.getItem('clinicLogs');
-    if (localLogs) {
-      try {
-        setLogs(JSON.parse(localLogs));
-      } catch (e) {
-        console.error("Error parsing localLogs", e);
-      }
-    }
-    
-    // Then fetch from API
-    fetchLogs();
-  }, [fetchLogs]);
-
   const fetchLogs = useCallback(async () => {
     try {
       setLoading(true);
@@ -127,6 +110,23 @@ export default function ClientLogs() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+    
+    // Load from localStorage first for instant display
+    const localLogs = localStorage.getItem('clinicLogs');
+    if (localLogs) {
+      try {
+        setLogs(JSON.parse(localLogs));
+      } catch (e) {
+        console.error("Error parsing localLogs", e);
+      }
+    }
+    
+    // Then fetch from API
+    fetchLogs();
+  }, [fetchLogs]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -630,7 +630,6 @@ export default function ClientLogs() {
                       <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>VISIT DATE</TableCell>
                       <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>TYPE</TableCell>
                       <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>FEES</TableCell>
-                      <TableCell align="center" sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>STATUS</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', pr: 4, py: 2, fontSize: '1.1rem' }}>ACTIONS</TableCell>
                     </TableRow>
                   </TableHead>
@@ -675,21 +674,6 @@ export default function ClientLogs() {
                               (+ ₹{log.remainingAmount})
                             </Typography>
                           )}
-                        </TableCell>
-                        <TableCell align="center">
-                          <Box sx={{ 
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            gap: 1, 
-                            bgcolor: log.status === 'Pending' ? '#fffbeb' : '#f0fdf4', 
-                            color: log.status === 'Pending' ? '#b45309' : '#16a34a', 
-                            px: 2, 
-                            py: 0.6, 
-                            borderRadius: '8px',
-                            border: `1px solid ${log.status === 'Pending' ? 'rgba(180, 83, 9, 0.15)' : 'rgba(22, 163, 74, 0.15)'}`
-                          }}>
-                            <Typography sx={{ fontSize: '13px', fontWeight: 900 }}>{log.status?.toUpperCase() || 'PAID'}</Typography>
-                          </Box>
                         </TableCell>
                         <TableCell align="right" sx={{ pr: 4 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
@@ -737,7 +721,7 @@ export default function ClientLogs() {
                               <span>
                                 <IconButton 
                                   size="medium" 
-                                  onClick={() => handleDelete(log.id)} 
+                                  onClick={() => handleDelete(log._id || log.id)} 
                                   disabled={submitting}
                                   sx={{ color: '#d32f2f', bgcolor: 'rgba(211, 47, 47, 0.05)', '&:hover': { bgcolor: 'rgba(211, 47, 47, 0.1)' } }}
                                 >
@@ -783,16 +767,6 @@ export default function ClientLogs() {
                         <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.25rem' }}>{log.name}</Typography>
                         <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 700 }}>{log.date} • {log.type}</Typography>
                       </Box>
-                      <Box sx={{ 
-                        bgcolor: log.status === 'Pending' ? '#fffbeb' : '#f0fdf4', 
-                        color: log.status === 'Pending' ? '#b45309' : '#16a34a', 
-                        px: 1.5, 
-                        py: 0.5, 
-                        borderRadius: '8px',
-                        border: `1px solid ${log.status === 'Pending' ? 'rgba(180, 83, 9, 0.15)' : 'rgba(22, 163, 74, 0.15)'}`
-                      }}>
-                        <Typography sx={{ fontSize: '11px', fontWeight: 900 }}>{log.status?.toUpperCase() || 'PAID'}</Typography>
-                      </Box>
                     </Box>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, p: 2, bgcolor: '#f8fafc', borderRadius: '14px' }}>
@@ -836,7 +810,7 @@ export default function ClientLogs() {
                         <EditIcon />
                       </IconButton>
                       <IconButton 
-                        onClick={() => handleDelete(log.id)}
+                        onClick={() => handleDelete(log._id || log.id)}
                         sx={{ bgcolor: 'rgba(211, 47, 47, 0.08)', color: '#d32f2f', borderRadius: '10px' }}
                       >
                         <DeleteOutlineIcon />
@@ -939,64 +913,156 @@ export default function ClientLogs() {
                             <head>
                               <title>Invoice - ${selectedLog.name}</title>
                               <style>
-                                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-                                body { font-family: "Inter", sans-serif; margin: 0; padding: 0; color: #1e293b; }
-                                .top-banner { background: #228756; height: 12px; width: 100%; }
+                                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+                                body { font-family: "Inter", sans-serif; margin: 0; padding: 40px 20px; color: #1e293b; background: #f1f5f9; }
+                                .invoice-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 20px 50px rgba(0,0,0,0.08); max-width: 850px; margin: 0 auto; position: relative; }
+                                .top-banner { background: linear-gradient(90deg, #228756 0%, #1b6843 100%); height: 8px; width: 100%; }
                                 .content { padding: 40px; }
-                                .no-print { display: none !important; }
-                                .invoice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-                                .brand-name { color: #228756; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
-                                .brand-llp { font-size: 14px; color: #64748b; font-weight: 700; }
-                                .divider { border-top: 1px dashed #e2e8f0; margin: 25px 0; }
-                                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-                                .label { font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-                                .value { font-weight: 800; color: #1e293b; font-size: 16px; margin: 0; }
-                                .sub-value { color: #64748b; font-size: 13px; margin: 2px 0 0 0; font-weight: 500; }
-                                .amount-box { background: #f8fafc; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; }
-                                .amount-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: #64748b; font-weight: 600; }
-                                .total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 15px; border-top: 2px solid #e2e8f0; font-weight: 900; font-size: 20px; color: #1e293b; }
-                                .footer { margin-top: 50px; text-align: center; color: #94a3b8; font-size: 12px; font-weight: 500; }
+                                .header { display: flex; justify-content: space-between; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 2px solid #f1f5f9; }
+                                .brand-info h1 { color: #228756; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
+                                .brand-info p { color: #64748b; font-size: 13px; margin: 5px 0 0 0; font-weight: 600; }
+                                .invoice-meta { text-align: right; }
+                                .invoice-meta h2 { font-size: 28px; font-weight: 900; color: #cbd5e1; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+                                .invoice-meta p { font-weight: 800; color: #1e293b; margin: 8px 0 0 0; font-size: 15px; }
+                                
+                                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; background: #f8fafc; padding: 25px; border-radius: 15px; border: 1px solid #f1f5f9; position: relative; }
+                                .info-block h3 { font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 1.2px; }
+                                .info-block p { font-weight: 700; color: #1e293b; font-size: 15px; margin: 0; }
+                                .info-block span { color: #64748b; font-size: 12px; display: block; margin-top: 3px; font-weight: 500; }
+                                
+                                .qr-code { position: absolute; right: 25px; top: 25px; text-align: center; }
+                                .qr-code img { width: 65px; height: 65px; border: 1px solid #e2e8f0; padding: 4px; border-radius: 8px; background: white; }
+                                .qr-code p { font-size: 8px; color: #94a3b8; margin-top: 4px; font-weight: 700; text-transform: uppercase; }
+
+                                .items-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; border: 1px solid #f1f5f9; border-radius: 12px; overflow: hidden; }
+                                .items-table th { text-align: left; padding: 12px 15px; background: #f8fafc; color: #64748b; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f1f5f9; }
+                                .items-table td { padding: 20px 15px; border-bottom: 1px solid #f1f5f9; color: #1e293b; font-weight: 600; font-size: 14px; }
+                                .items-table tr:last-child td { border-bottom: none; }
+                                .items-table td:last-child { text-align: right; font-weight: 800; font-size: 16px; }
+                                .item-desc { color: #64748b; font-size: 12px; font-weight: 500; margin-top: 3px; line-height: 1.4; }
+                                
+                                .totals-section { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; }
+                                .terms-section { max-width: 450px; }
+                                .terms-section h4 { font-size: 10px; color: #1e293b; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+                                .terms-section p { font-size: 10px; color: #94a3b8; line-height: 1.6; margin: 0; }
+                                .totals-table { width: 250px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #f1f5f9; }
+                                .total-row { display: flex; justify-content: space-between; padding: 6px 0; }
+                                .total-row.grand-total { border-top: 2px solid #e2e8f0; margin-top: 10px; padding-top: 12px; }
+                                .total-row span:first-child { color: #64748b; font-weight: 700; font-size: 13px; }
+                                .total-row span:last-child { color: #1e293b; font-weight: 800; font-size: 14px; }
+                                .grand-total span:first-child { color: #1e293b; font-weight: 900; font-size: 14px; }
+                                .grand-total span:last-child { color: #228756; font-weight: 900; font-size: 20px; }
+                                
+                                .signature-area { display: flex; justify-content: flex-end; margin-top: 50px; text-align: center; }
+                                .sig-box { width: 180px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                                .sig-box p { font-size: 11px; font-weight: 700; color: #64748b; margin: 0; text-transform: uppercase; }
+                                .sig-box span { font-size: 9px; color: #94a3b8; font-style: italic; }
+
+                                .paid-stamp { position: absolute; top: 180px; left: 50%; transform: translateX(-50%) rotate(-15deg); border: 4px solid #228756; color: #228756; padding: 8px 25px; border-radius: 12px; font-size: 36px; font-weight: 900; text-transform: uppercase; opacity: 0.1; pointer-events: none; }
+                                
+                                .footer { margin-top: 60px; padding-top: 25px; border-top: 1px solid #f1f5f9; text-align: center; }
+                                .footer p { color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0; font-weight: 500; }
+                                .footer .brand { color: #228756; font-weight: 800; margin-top: 8px; display: block; font-size: 13px; }
+                                
+                                @media print {
+                                  body { background: white; padding: 0; margin: 0; }
+                                  .invoice-card { border: none; box-shadow: none; border-radius: 0; max-width: 100%; width: 100%; margin: 0; }
+                                  .paid-stamp { opacity: 0.15; }
+                                }
                               </style>
                             </head>
                             <body>
-                              <div class="top-banner"></div>
-                              <div class="content">
-                                <div class="invoice-header">
-                                  <div>
-                                    <h1 class="brand-name">Choose Your Therapist <span class="brand-llp">LLP</span></h1>
-                                    <p class="sub-value">Official Clinic Services</p>
+                              <div class="invoice-card">
+                                <div class="paid-stamp">Paid</div>
+                                <div class="top-banner"></div>
+                                <div class="content">
+                                  <div class="header">
+                                    <div class="brand-info">
+                                      <h1>Choose Your Therapist <span style="font-size: 12px; color: #94a3b8; font-weight: 700;">LLP</span></h1>
+                                      <p>Official Health & Wellness Clinic Receipt</p>
+                                      <p style="font-size: 11px; margin-top: 4px; color: #94a3b8;">Email: support@chooseyourtherapist.in | Web: www.chooseyourtherapist.in</p>
+                                    </div>
+                                    <div class="invoice-meta">
+                                      <h2>RECEIPT</h2>
+                                      <p>#CYT-${selectedLog.id?.toString().slice(-8).toUpperCase() || 'NEW'}</p>
+                                    </div>
                                   </div>
-                                  <div style="text-align: right;">
-                                    <p class="label">Invoice Number</p>
-                                    <p class="value">#${selectedLog.id?.toString().slice(-8)}</p>
+                                  
+                                  <div class="info-grid">
+                                    <div class="info-block">
+                                      <h3>BILL TO CLIENT</h3>
+                                      <p>${selectedLog.name}</p>
+                                      <span>Phone: +91-${selectedLog.phone}</span>
+                                      ${selectedLog.email ? `<span>Email: ${selectedLog.email}</span>` : ''}
+                                    </div>
+                                    <div class="info-block" style="text-align: right; padding-right: 90px;">
+                                      <h3>SESSION DETAILS</h3>
+                                      <p>${selectedLog.date}</p>
+                                      <span>Type: ${selectedLog.type} Consultation</span>
+                                      <span>Status: Payment Received</span>
+                                    </div>
+                                    <div class="qr-code">
+                                      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chooseyourtherapist.in/verify/${selectedLog.id}" alt="QR Code" />
+                                      <p>Verify</p>
+                                    </div>
                                   </div>
-                                </div>
-                                <div class="divider"></div>
-                                <div class="grid">
-                                  <div>
-                                    <p class="label">Customer Details</p>
-                                    <p class="value">${selectedLog.name}</p>
-                                    <p class="sub-value">Phone: ${selectedLog.phone}</p>
+                                  
+                                  <table class="items-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Service Description</th>
+                                        <th style="width: 120px; text-align: right;">Amount</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          Therapy Consultation - ${selectedLog.type}
+                                          <div class="item-desc">Professional mental health consultation session with ${therapistInfo?.user?.name || 'Certified Practitioner'}. This session was conducted as part of clinical services.</div>
+                                        </td>
+                                        <td>₹${selectedLog.amount}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  
+                                  <div class="totals-section">
+                                    <div class="terms-section">
+                                      <h4>Important Notes & Terms</h4>
+                                      <p>
+                                        • This receipt confirms the professional services provided by ${therapistInfo?.user?.name || 'the practitioner'}.<br/>
+                                        • Rescheduling or cancellations must be notified at least 24 hours prior to the session.<br/>
+                                        • This is a computer-generated document and does not require a physical signature.<br/>
+                                        • For billing inquiries or support, please contact us at support@chooseyourtherapist.in
+                                      </p>
+                                    </div>
+                                    <div class="totals-table">
+                                      <div class="total-row">
+                                        <span>Subtotal</span>
+                                        <span>₹${selectedLog.amount}</span>
+                                      </div>
+                                      ${selectedLog.remainingAmount && selectedLog.remainingAmount > 0 ? `
+                                      <div class="total-row">
+                                        <span>Balance Due</span>
+                                        <span style="color: #ef4444;">₹${selectedLog.remainingAmount}</span>
+                                      </div>` : ''}
+                                      <div class="total-row grand-total">
+                                        <span>Total Paid</span>
+                                        <span>₹${selectedLog.amount}</span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div style="text-align: right;">
-                                    <p class="label">Billing Date</p>
-                                    <p class="value">${selectedLog.date}</p>
-                                    <p class="label" style="margin-top: 18px;">Type</p>
-                                    <p class="value" style="color: #166534; background: #f0fdf4; display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 13px;">${selectedLog.type}</p>
+
+                                  <div class="signature-area">
+                                    <div class="sig-box">
+                                      <p>${therapistInfo?.user?.name || 'Authorised Signatory'}</p>
+                                      <span>Clinical Practitioner</span>
+                                    </div>
                                   </div>
-                                </div>
-                                <div class="amount-box">
-                                  <div class="amount-row">
-                                    <span>${selectedLog.type} Consultation Fee</span>
-                                    <span style="color: #1e293b;">₹${selectedLog.amount}</span>
+                                  
+                                  <div class="footer">
+                                    <p>Thank you for choosing Choose Your Therapist for your wellness journey.<br/>Our mission is to make quality mental health support accessible to everyone.</p>
+                                    <span class="brand">www.chooseyourtherapist.in</span>
                                   </div>
-                                  <div class="total-row">
-                                    <span>Total Payable</span>
-                                    <span style="color: #228756;">₹${selectedLog.amount}</span>
-                                  </div>
-                                </div>
-                                <div class="footer">
-                                  <p>Thank you for choosing Choose Your Therapist LLP.<br/>This is a computer-generated invoice and does not require a signature.</p>
                                 </div>
                               </div>
                             </body>
@@ -1026,64 +1092,156 @@ export default function ClientLogs() {
                             <head>
                               <title>Invoice - ${selectedLog.name}</title>
                               <style>
-                                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-                                body { font-family: "Inter", sans-serif; margin: 0; padding: 0; color: #1e293b; }
-                                .top-banner { background: #228756; height: 12px; width: 100%; }
+                                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+                                body { font-family: "Inter", sans-serif; margin: 0; padding: 40px 20px; color: #1e293b; background: #f1f5f9; }
+                                .invoice-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 20px 50px rgba(0,0,0,0.08); max-width: 850px; margin: 0 auto; position: relative; }
+                                .top-banner { background: linear-gradient(90deg, #228756 0%, #1b6843 100%); height: 8px; width: 100%; }
                                 .content { padding: 40px; }
-                                .no-print { display: none !important; }
-                                .invoice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-                                .brand-name { color: #228756; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
-                                .brand-llp { font-size: 14px; color: #64748b; font-weight: 700; }
-                                .divider { border-top: 1px dashed #e2e8f0; margin: 25px 0; }
-                                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-                                .label { font-size: 11px; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-                                .value { font-weight: 800; color: #1e293b; font-size: 16px; margin: 0; }
-                                .sub-value { color: #64748b; font-size: 13px; margin: 2px 0 0 0; font-weight: 500; }
-                                .amount-box { background: #f8fafc; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; }
-                                .amount-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: #64748b; font-weight: 600; }
-                                .total-row { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 15px; border-top: 2px solid #e2e8f0; font-weight: 900; font-size: 20px; color: #1e293b; }
-                                .footer { margin-top: 50px; text-align: center; color: #94a3b8; font-size: 12px; font-weight: 500; }
+                                .header { display: flex; justify-content: space-between; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 2px solid #f1f5f9; }
+                                .brand-info h1 { color: #228756; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
+                                .brand-info p { color: #64748b; font-size: 13px; margin: 5px 0 0 0; font-weight: 600; }
+                                .invoice-meta { text-align: right; }
+                                .invoice-meta h2 { font-size: 28px; font-weight: 900; color: #cbd5e1; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+                                .invoice-meta p { font-weight: 800; color: #1e293b; margin: 8px 0 0 0; font-size: 15px; }
+                                
+                                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; background: #f8fafc; padding: 25px; border-radius: 15px; border: 1px solid #f1f5f9; position: relative; }
+                                .info-block h3 { font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin: 0 0 10px 0; letter-spacing: 1.2px; }
+                                .info-block p { font-weight: 700; color: #1e293b; font-size: 15px; margin: 0; }
+                                .info-block span { color: #64748b; font-size: 12px; display: block; margin-top: 3px; font-weight: 500; }
+                                
+                                .qr-code { position: absolute; right: 25px; top: 25px; text-align: center; }
+                                .qr-code img { width: 65px; height: 65px; border: 1px solid #e2e8f0; padding: 4px; border-radius: 8px; background: white; }
+                                .qr-code p { font-size: 8px; color: #94a3b8; margin-top: 4px; font-weight: 700; text-transform: uppercase; }
+
+                                .items-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; border: 1px solid #f1f5f9; border-radius: 12px; overflow: hidden; }
+                                .items-table th { text-align: left; padding: 12px 15px; background: #f8fafc; color: #64748b; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #f1f5f9; }
+                                .items-table td { padding: 20px 15px; border-bottom: 1px solid #f1f5f9; color: #1e293b; font-weight: 600; font-size: 14px; }
+                                .items-table tr:last-child td { border-bottom: none; }
+                                .items-table td:last-child { text-align: right; font-weight: 800; font-size: 16px; }
+                                .item-desc { color: #64748b; font-size: 12px; font-weight: 500; margin-top: 3px; line-height: 1.4; }
+                                
+                                .totals-section { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 20px; }
+                                .terms-section { max-width: 450px; }
+                                .terms-section h4 { font-size: 10px; color: #1e293b; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+                                .terms-section p { font-size: 10px; color: #94a3b8; line-height: 1.6; margin: 0; }
+                                .totals-table { width: 250px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #f1f5f9; }
+                                .total-row { display: flex; justify-content: space-between; padding: 6px 0; }
+                                .total-row.grand-total { border-top: 2px solid #e2e8f0; margin-top: 10px; padding-top: 12px; }
+                                .total-row span:first-child { color: #64748b; font-weight: 700; font-size: 13px; }
+                                .total-row span:last-child { color: #1e293b; font-weight: 800; font-size: 14px; }
+                                .grand-total span:first-child { color: #1e293b; font-weight: 900; font-size: 14px; }
+                                .grand-total span:last-child { color: #228756; font-weight: 900; font-size: 20px; }
+                                
+                                .signature-area { display: flex; justify-content: flex-end; margin-top: 50px; text-align: center; }
+                                .sig-box { width: 180px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                                .sig-box p { font-size: 11px; font-weight: 700; color: #64748b; margin: 0; text-transform: uppercase; }
+                                .sig-box span { font-size: 9px; color: #94a3b8; font-style: italic; }
+
+                                .paid-stamp { position: absolute; top: 180px; left: 50%; transform: translateX(-50%) rotate(-15deg); border: 4px solid #228756; color: #228756; padding: 8px 25px; border-radius: 12px; font-size: 36px; font-weight: 900; text-transform: uppercase; opacity: 0.1; pointer-events: none; }
+                                
+                                .footer { margin-top: 60px; padding-top: 25px; border-top: 1px solid #f1f5f9; text-align: center; }
+                                .footer p { color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0; font-weight: 500; }
+                                .footer .brand { color: #228756; font-weight: 800; margin-top: 8px; display: block; font-size: 13px; }
+                                
+                                @media print {
+                                  body { background: white; padding: 0; margin: 0; }
+                                  .invoice-card { border: none; box-shadow: none; border-radius: 0; max-width: 100%; width: 100%; margin: 0; }
+                                  .paid-stamp { opacity: 0.15; }
+                                }
                               </style>
                             </head>
                             <body>
-                              <div class="top-banner"></div>
-                              <div class="content">
-                                <div class="invoice-header">
-                                  <div>
-                                    <h1 class="brand-name">Choose Your Therapist <span class="brand-llp">LLP</span></h1>
-                                    <p class="sub-value">Official Clinic Services</p>
+                              <div class="invoice-card">
+                                <div class="paid-stamp">Paid</div>
+                                <div class="top-banner"></div>
+                                <div class="content">
+                                  <div class="header">
+                                    <div class="brand-info">
+                                      <h1>Choose Your Therapist <span style="font-size: 12px; color: #94a3b8; font-weight: 700;">LLP</span></h1>
+                                      <p>Official Health & Wellness Clinic Receipt</p>
+                                      <p style="font-size: 11px; margin-top: 4px; color: #94a3b8;">Email: support@chooseyourtherapist.in | Web: www.chooseyourtherapist.in</p>
+                                    </div>
+                                    <div class="invoice-meta">
+                                      <h2>RECEIPT</h2>
+                                      <p>#CYT-${selectedLog.id?.toString().slice(-8).toUpperCase() || 'NEW'}</p>
+                                    </div>
                                   </div>
-                                  <div style="text-align: right;">
-                                    <p class="label">Invoice Number</p>
-                                    <p class="value">#${selectedLog.id?.toString().slice(-8)}</p>
+                                  
+                                  <div class="info-grid">
+                                    <div class="info-block">
+                                      <h3>BILL TO CLIENT</h3>
+                                      <p>${selectedLog.name}</p>
+                                      <span>Phone: +91-${selectedLog.phone}</span>
+                                      ${selectedLog.email ? `<span>Email: ${selectedLog.email}</span>` : ''}
+                                    </div>
+                                    <div class="info-block" style="text-align: right; padding-right: 90px;">
+                                      <h3>SESSION DETAILS</h3>
+                                      <p>${selectedLog.date}</p>
+                                      <span>Type: ${selectedLog.type} Consultation</span>
+                                      <span>Status: Payment Received</span>
+                                    </div>
+                                    <div class="qr-code">
+                                      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chooseyourtherapist.in/verify/${selectedLog.id}" alt="QR Code" />
+                                      <p>Verify</p>
+                                    </div>
                                   </div>
-                                </div>
-                                <div class="divider"></div>
-                                <div class="grid">
-                                  <div>
-                                    <p class="label">Customer Details</p>
-                                    <p class="value">${selectedLog.name}</p>
-                                    <p class="sub-value">Phone: ${selectedLog.phone}</p>
+                                  
+                                  <table class="items-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Service Description</th>
+                                        <th style="width: 120px; text-align: right;">Amount</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td>
+                                          Therapy Consultation - ${selectedLog.type}
+                                          <div class="item-desc">Professional mental health consultation session with ${therapistInfo?.user?.name || 'Certified Practitioner'}. This session was conducted as part of clinical services.</div>
+                                        </td>
+                                        <td>₹${selectedLog.amount}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                  
+                                  <div class="totals-section">
+                                    <div class="terms-section">
+                                      <h4>Important Notes & Terms</h4>
+                                      <p>
+                                        • This receipt confirms the professional services provided by ${therapistInfo?.user?.name || 'the practitioner'}.<br/>
+                                        • Rescheduling or cancellations must be notified at least 24 hours prior to the session.<br/>
+                                        • This is a computer-generated document and does not require a physical signature.<br/>
+                                        • For billing inquiries or support, please contact us at support@chooseyourtherapist.in
+                                      </p>
+                                    </div>
+                                    <div class="totals-table">
+                                      <div class="total-row">
+                                        <span>Subtotal</span>
+                                        <span>₹${selectedLog.amount}</span>
+                                      </div>
+                                      ${selectedLog.remainingAmount && selectedLog.remainingAmount > 0 ? `
+                                      <div class="total-row">
+                                        <span>Balance Due</span>
+                                        <span style="color: #ef4444;">₹${selectedLog.remainingAmount}</span>
+                                      </div>` : ''}
+                                      <div class="total-row grand-total">
+                                        <span>Total Paid</span>
+                                        <span>₹${selectedLog.amount}</span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div style="text-align: right;">
-                                    <p class="label">Billing Date</p>
-                                    <p class="value">${selectedLog.date}</p>
-                                    <p class="label" style="margin-top: 18px;">Type</p>
-                                    <p class="value" style="color: #166534; background: #f0fdf4; display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 13px;">${selectedLog.type}</p>
+
+                                  <div class="signature-area">
+                                    <div class="sig-box">
+                                      <p>${therapistInfo?.user?.name || 'Authorised Signatory'}</p>
+                                      <span>Clinical Practitioner</span>
+                                    </div>
                                   </div>
-                                </div>
-                                <div class="amount-box">
-                                  <div class="amount-row">
-                                    <span>${selectedLog.type} Consultation Fee</span>
-                                    <span style="color: #1e293b;">₹${selectedLog.amount}</span>
+                                  
+                                  <div class="footer">
+                                    <p>Thank you for choosing Choose Your Therapist for your wellness journey.<br/>Our mission is to make quality mental health support accessible to everyone.</p>
+                                    <span class="brand">www.chooseyourtherapist.in</span>
                                   </div>
-                                  <div class="total-row">
-                                    <span>Total Payable</span>
-                                    <span style="color: #228756;">₹${selectedLog.amount}</span>
-                                  </div>
-                                </div>
-                                <div class="footer">
-                                  <p>Thank you for choosing Choose Your Therapist LLP.<br/>This is a computer-generated invoice and does not require a signature.</p>
                                 </div>
                               </div>
                             </body>
