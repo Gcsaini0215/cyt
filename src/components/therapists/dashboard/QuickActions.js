@@ -4,14 +4,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import ScheduleIcon from "@mui/icons-material/Schedule";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import Link from "next/link";
 
 export default function QuickActions() {
   const actions = [
-    { title: "Write Blog", icon: <EditIcon />, to: "/therapist-blogs", color: "#228756" },
     { title: "Create Event", icon: <AddBoxIcon />, to: "/workshops", color: "#1976d2" },
-    { title: "New Coupon", icon: <ConfirmationNumberIcon />, to: "/coupons", color: "#ed6c02" },
+    { title: "Create Report", icon: <AssessmentIcon />, to: "/create-report", color: "#ed6c02" },
     { title: "Update Slots", icon: <ScheduleIcon />, to: "/settings", color: "#9c27b0" },
+    { title: "Invoices", icon: <ConfirmationNumberIcon />, to: "/clinic-patients", color: "#228756" },
   ];
 
   return (

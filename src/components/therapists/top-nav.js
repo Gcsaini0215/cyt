@@ -128,8 +128,6 @@ export default function DashboardTopNav() {
                 { to: "/clinic-patients", icon: "feather-file-text", label: "Invoices" },
                 { to: "/workshops", icon: "feather-award", label: "Manage Events" },
                 { to: "/coupons", icon: "feather-tag", label: "Coupons" },
-                { to: "/therapist-blogs", icon: "feather-edit-3", label: "Write Blog" },
-                { to: "/therapist-ai-blog", icon: "feather-zap", label: "Write with AI" },
                 { to: "/therapists/invoices", icon: "feather-file-text", label: "Online Invoices" },
                 { to: "/settings", icon: "feather-settings", label: "Settings" },
               ].map((item) => (

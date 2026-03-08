@@ -14,7 +14,6 @@ export default function MainLayout(props) {
   const { profileSet, setProfileSet, therapistInfo } = useTherapistStore();
   const router = useRouter();
   const pathname = router.pathname;
-  const [blogDropdownOpen, setBlogDropdownOpen] = React.useState(false);
   const [eventDropdownOpen, setEventDropdownOpen] = React.useState(false);
 
   const handleLogout = () => {
@@ -72,6 +71,7 @@ export default function MainLayout(props) {
                     { to: "/therapist-dashboard", icon: "feather-home", title: "Home" },
                     { to: "/appointments", icon: "feather-calendar", title: "Sessions" },
                     { to: "/clinic-patients", icon: "feather-file-text", title: "Invoices" },
+                    { to: "/create-report", icon: "feather-clipboard", title: "Reports" },
                     { 
                       id: 'event-menu',
                       icon: "feather-briefcase", 
@@ -83,19 +83,6 @@ export default function MainLayout(props) {
                       subItems: [
                         { to: "/workshops", title: "Manage Events", icon: "feather-calendar" },
                         { to: "/coupons", title: "Coupons", icon: "feather-star" }
-                      ]
-                    },
-                    { 
-                      id: 'blog-menu',
-                      icon: "feather-edit", 
-                      title: "Blog",
-                      isDropdown: true,
-                      isOpen: blogDropdownOpen,
-                      setOpen: setBlogDropdownOpen,
-                      activePaths: ["/therapist-blogs", "/therapist-ai-blog"],
-                      subItems: [
-                        { to: "/therapist-blogs", title: "Write Blog", icon: "feather-edit-2" },
-                        { to: "/therapist-ai-blog", title: "Write with AI", icon: "feather-zap" }
                       ]
                     },
                   ].map((item) => (
