@@ -93,23 +93,13 @@ export default function InvoiceViewPage() {
   const handleDownload = async () => {
     try {
       const invoicePage = document.getElementById('printable-invoice');
-      const adPage = document.getElementById('invoice-ad-page');
-      
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       
-      // Capture Page 1 (Invoice)
       const canvas1 = await html2canvas(invoicePage, { scale: 4, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1000 });
       const imgData1 = canvas1.toDataURL('image/jpeg', 1.0);
       const imgHeight1 = (canvas1.height * pdfWidth) / canvas1.width;
       pdf.addImage(imgData1, 'JPEG', 0, 0, pdfWidth, imgHeight1);
-      
-      // Capture Page 2 (Ad)
-      pdf.addPage();
-      const canvas2 = await html2canvas(adPage, { scale: 4, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1000 });
-      const imgData2 = canvas2.toDataURL('image/jpeg', 1.0);
-      const imgHeight2 = (canvas2.height * pdfWidth) / canvas2.width;
-      pdf.addImage(imgData2, 'JPEG', 0, 0, pdfWidth, imgHeight2);
       
       pdf.save(`Invoice-${formattedInvoiceId}.pdf`);
     } catch (err) {
@@ -141,6 +131,21 @@ export default function InvoiceViewPage() {
   const displayDate = log.date ? dayjs(log.date).format('DD MMM YYYY') : (log.updatedAt ? dayjs(log.updatedAt).format('DD MMM YYYY') : dayjs().format('DD MMM YYYY'));
   const displayTime = log.updatedAt ? dayjs(log.updatedAt).format('hh:mm A') : (log.createdAt ? dayjs(log.createdAt).format('hh:mm A') : dayjs().format('hh:mm A'));
 
+  const numberToWords = (num) => {
+    const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+    const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    if ((num = num.toString()).length > 9) return 'overflow';
+    let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return;
+    let str = '';
+    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Only' : '';
+    return str;
+  };
+
   return (
     <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', py: { xs: 3, md: 5 }, px: { xs: 1.5, sm: 2 } }}>
       <Head>
@@ -151,10 +156,9 @@ export default function InvoiceViewPage() {
               @page { size: A4; margin: 0; }
               body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
               .no-print { display: none !important; }
-              #printable-invoice, #invoice-ad-page { 
+              #printable-invoice { 
                 width: 100% !important; margin: 0 !important; padding: 40px 60px !important; 
                 box-shadow: none !important; border: none !important; height: auto !important; 
-                page-break-after: always !important; 
               }
             }
           `}
@@ -168,154 +172,132 @@ export default function InvoiceViewPage() {
         </Box>
 
         {/* PAGE 1: INVOICE */}
-        <Paper id="printable-invoice" elevation={0} sx={{ p: { xs: 4, sm: 8 }, pt: { xs: 6, sm: 10 }, borderRadius: '0px', border: '1px solid #e2e8f0', background: '#ffffff', mb: 4 }}>
-          <Grid container spacing={2} sx={{ mb: 6, alignItems: 'center' }}>
+        <Paper id="printable-invoice" elevation={0} sx={{ p: { xs: 4, sm: 8 }, pt: { xs: 6, sm: 10 }, borderRadius: '0px', border: '1px solid #e2e8f0', background: '#ffffff', mb: 4, position: 'relative' }}>
+          {/* LOGO WATERMARK */}
+          <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.04, pointerEvents: 'none', zIndex: 0 }}>
+            <Box component="img" src="/favicon.png" sx={{ width: 350, height: 350 }} />
+          </Box>
+
+          <Grid container spacing={2} sx={{ mb: 6, alignItems: 'center', position: 'relative', zIndex: 1 }}>
             <Grid item xs={12} sm={8}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box component="img" src="/favicon.png" sx={{ width: 80, height: 80, borderRadius: '12px' }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                <Box component="img" src="/favicon.png" sx={{ width: 90, height: 90, borderRadius: '15px' }} />
                 <Box>
-                  <Typography sx={{ fontWeight: 800, fontSize: '1.8rem', color: '#228756', lineHeight: 1.2 }}>{log.therapist_name || "Therapist"}</Typography>
-                  <Typography sx={{ fontSize: '1.25rem', fontWeight: 700, color: '#475569', mt: 0.3 }}>{therapistInfo?.qualification || "Psychologist"}</Typography>
-                  <Typography sx={{ fontSize: '1.15rem', fontWeight: 600, color: '#64748b', mt: 0.2 }}>{log.therapist_type || "Professional Services"}</Typography>
-                  {(therapistInfo?.license_number || log.license_number) && <Typography sx={{ fontSize: '1rem', color: '#94a3b8', mt: 0.5 }}>Reg.No. {therapistInfo?.license_number || log.license_number}</Typography>}
+                  <Typography sx={{ fontWeight: 800, fontSize: '2.2rem', color: '#228756', lineHeight: 1.1 }}>
+                    {log.therapist_name || "Therapist"} {therapistInfo?.state && `(${therapistInfo.state})`}
+                  </Typography>
+                  <Typography sx={{ fontSize: '1.35rem', fontWeight: 600, color: '#64748b', mt: 0.3 }}>{log.therapist_type || "Professional Services"}</Typography>
+                  <Typography sx={{ fontSize: '1.5rem', fontWeight: 700, color: '#475569', mt: 0.1 }}>{therapistInfo?.qualification || "Psychologist"}</Typography>
+                  {(therapistInfo?.license_number || log.license_number) && <Typography sx={{ fontSize: '1.15rem', color: '#94a3b8', mt: 0.8 }}>Reg.No. {therapistInfo?.license_number || log.license_number}</Typography>}
                 </Box>
               </Box>
             </Grid>
             <Grid item xs={12} sm={4} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
-              <Typography sx={{ fontSize: '0.95rem', color: '#64748b', fontWeight: 500 }}>Choose Your Therapist, D-137, Sector 51</Typography>
-              <Typography sx={{ fontSize: '0.95rem', color: '#64748b', fontWeight: 500 }}>Noida, Uttar Pradesh, 201301</Typography>
-              <Typography sx={{ fontSize: '0.95rem', color: '#64748b' }}>+91-8077757951</Typography>
-              <Typography sx={{ fontSize: '0.95rem', color: '#64748b' }}>appointment.cyt@gmail.com</Typography>
+              <Typography sx={{ fontSize: '1.15rem', color: '#64748b', fontWeight: 600 }}>Choose Your Therapist, D-137, Sector 51</Typography>
+              <Typography sx={{ fontSize: '1.15rem', color: '#64748b', fontWeight: 600 }}>Noida, Uttar Pradesh, 201301</Typography>
+              <Typography sx={{ fontSize: '1.15rem', color: '#64748b' }}>+91-8077757951</Typography>
+              <Typography sx={{ fontSize: '1.15rem', color: '#64748b' }}>appointment.cyt@gmail.com</Typography>
             </Grid>
           </Grid>
 
           <Divider sx={{ mb: 4, borderColor: '#f1f5f9' }} />
 
-          <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 5 }}>
             <Grid item xs={7}>
-              <Typography sx={{ fontWeight: 800, fontSize: '1.25rem', color: '#228756', mb: 1 }}>Client Details</Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: '1.2rem' }}>{log.name}</Typography>
-              <Typography sx={{ fontSize: '1.1rem', color: '#475569' }}>Mobile: +91-{log.phone}</Typography>
-              {log.email && <Typography sx={{ fontSize: '1.1rem', color: '#475569' }}>Email: {log.email}</Typography>}
-              <Typography sx={{ fontSize: '1.1rem', color: '#475569' }}>UHID: {log.uhid || 'CYT.' + (logId.toString().slice(-8).toUpperCase())}</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: '#228756', mb: 1.5 }}>Client Details</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: '1.45rem', mb: 0.5 }}>{log.name}</Typography>
+              <Typography sx={{ fontSize: '1.25rem', color: '#475569', mb: 0.3 }}>Mobile: +91-{log.phone}</Typography>
+              {log.email && <Typography sx={{ fontSize: '1.25rem', color: '#475569', mb: 0.3 }}>Email: {log.email}</Typography>}
+              <Typography sx={{ fontSize: '1.25rem', color: '#475569' }}>UHID: {log.uhid || 'CYT.' + (logId.toString().slice(-8).toUpperCase())}</Typography>
             </Grid>
-            <Grid item xs={5} sx={{ textAlign: 'right' }}>
-              <Typography sx={{ fontSize: '1.1rem', color: '#475569', mb: 0.5 }}><strong>Date:</strong> {displayDate}</Typography>
-              <Typography sx={{ fontSize: '1.1rem', color: '#475569', mb: 0.5 }}><strong>Time:</strong> {displayTime}</Typography>
-              <Typography sx={{ fontSize: '1.1rem', color: '#475569', mb: 0.5 }}><strong>Consult Type:</strong> {log.type === 'Clinic' ? 'In-Person' : (log.type || 'In-Person')}</Typography>
-              <Typography sx={{ fontSize: '1.1rem', color: '#475569' }}><strong>Invoice ID:</strong> {formattedInvoiceId}</Typography>
+            <Grid item xs={5} sx={{ textAlign: 'right', mt: 4.5 }}>
+              <Typography sx={{ fontSize: '1.25rem', color: '#475569', mb: 0.5 }}><strong>Date:</strong> {displayDate}</Typography>
+              <Typography sx={{ fontSize: '1.25rem', color: '#475569', mb: 0.5 }}><strong>Consult Type:</strong> {log.type === 'Clinic' ? 'In-Person' : (log.type || 'In-Person')}</Typography>
+              <Typography sx={{ fontSize: '1.25rem', color: '#475569' }}><strong>Invoice ID:</strong> {formattedInvoiceId}</Typography>
             </Grid>
           </Grid>
 
-          <Box sx={{ mb: 4 }}>
-            <Typography sx={{ fontWeight: 800, fontSize: '1.25rem', color: '#228756', mb: 1.5 }}>Booking Summary</Typography>
-            <TableContainer component={Box} sx={{ borderRadius: '8px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-              <Table size="small">
+          <Box sx={{ mb: 5 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: '#228756', mb: 2 }}>Booking Summary</Typography>
+            <TableContainer component={Box} sx={{ borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <Table size="medium">
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#228756' }}>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Service</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Duration</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Session Details</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800 }}>Amount</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem', py: 2 }}>Service</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem', py: 2 }}>Duration</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem', py: 2 }}>Session Details</TableCell>
+                    <TableCell sx={{ color: '#fff', fontWeight: 800, fontSize: '1.2rem', py: 2 }}>Amount</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>{log.packageName || log.medicineName || 'Individual Session'}</TableCell>
-                    <TableCell>{log.duration || '1 Session'} (60m)</TableCell>
-                    <TableCell>Paid Via {log.paidVia || log.medication || 'Online'}</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#228756' }}>₹{log.amount}</TableCell>
+                    <TableCell sx={{ fontWeight: 800, fontSize: '1.25rem', py: 2.5 }}>{log.packageName || log.medicineName || 'Individual Session'}</TableCell>
+                    <TableCell sx={{ fontSize: '1.2rem' }}>{log.duration || '1 Session'} (60m)</TableCell>
+                    <TableCell sx={{ fontSize: '1.2rem' }}>Paid Via {log.paidVia || log.medication || 'Online'}</TableCell>
+                    <TableCell sx={{ fontWeight: 900, color: '#228756', fontSize: '1.4rem' }}>₹{log.amount}</TableCell>
+                  </TableRow>
+                  {/* Total Row */}
+                  <TableRow sx={{ bgcolor: '#fbfcfd' }}>
+                    <TableCell colSpan={3} sx={{ textAlign: 'right', py: 2, borderBottom: 'none' }}>
+                      <Typography sx={{ fontWeight: 800, fontSize: '1.3rem', color: '#1e293b' }}>Total Amount</Typography>
+                    </TableCell>
+                    <TableCell sx={{ py: 2, borderBottom: 'none' }}>
+                      <Typography sx={{ fontWeight: 900, color: '#228756', fontSize: '1.5rem' }}>₹{log.amount}</Typography>
+                    </TableCell>
+                  </TableRow>
+                  {/* Amount in Words Row */}
+                  <TableRow sx={{ bgcolor: '#ffffff' }}>
+                    <TableCell colSpan={4} sx={{ py: 1.5, borderTop: '1px solid #e2e8f0' }}>
+                      <Typography sx={{ fontSize: '1.15rem', color: '#64748b', fontStyle: 'italic' }}>
+                        <strong style={{ color: '#1e293b' }}>Amount in Words:</strong> {numberToWords(log.amount)} Only
+                      </Typography>
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1.5, mb: 4 }}>
-            <Box sx={{ p: 1.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 1 }}><Typography sx={{ fontSize: '0.9rem' }}><strong>CONFIDENTIALITY:</strong> Strictly private.</Typography></Box>
-            <Box sx={{ p: 1.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 1 }}><Typography sx={{ fontSize: '0.9rem' }}><strong>RESCHEDULING:</strong> 24h notice required.</Typography></Box>
+
+
+          <Box sx={{ mb: 10 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.5rem', color: '#228756', mb: 1.5 }}>Notes & Guidelines</Typography>
+            <Typography sx={{ fontSize: '1.2rem', mb: 1.5 }}>• <strong>Therapist Note:</strong> {log.advice || 'Follow the discussed therapeutic plan.'}</Typography>
+            <Typography sx={{ fontSize: '1.2rem', mb: 1.5 }}>• Consistency in sessions is vital for achieving your goals.</Typography>
+            <Typography sx={{ fontSize: '1.2rem' }}>• Maintain a personal journal to track your progress between sessions.</Typography>
           </Box>
 
-          <Box sx={{ mb: 6 }}>
-            <Typography sx={{ fontWeight: 800, fontSize: '1.25rem', color: '#228756', mb: 1 }}>Notes & Guidelines</Typography>
-            <Typography sx={{ fontSize: '1rem', mb: 1 }}>• <strong>Therapist Note:</strong> {log.advice || 'Follow the discussed plan.'}</Typography>
-            <Typography sx={{ fontSize: '1rem', mb: 1 }}>• Consistency is vital for achieving your goals.</Typography>
-            <Typography sx={{ fontSize: '1rem' }}>• Maintain a journal to track your progress.</Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <Box>{qrUrl && <Box component="img" src={qrUrl} sx={{ width: 100 }} />}</Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 4 }}>
+            <Box>
+              <Typography sx={{ fontSize: '0.9rem', color: '#94a3b8', mb: 0.5, fontWeight: 700 }}>SCAN TO VERIFY INVOICE</Typography>
+              {qrUrl && <Box component="img" src={qrUrl} sx={{ width: 120 }} />}
+            </Box>
             <Box sx={{ textAlign: 'right' }}>
-              <Typography sx={{ fontWeight: 800, fontSize: '1.2rem' }}>{log.therapist_name}</Typography>
-              <Divider sx={{ my: 0.5 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase' }}>Authorized Signature</Typography>
+              <Typography sx={{ fontWeight: 900, fontSize: '1.45rem', mb: 0.5 }}>{log.therapist_name}</Typography>
+              <Divider sx={{ my: 1, borderColor: '#1e293b', borderWidth: 1 }} />
+              <Typography sx={{ fontWeight: 800, fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: 1 }}>Authorized Signature</Typography>
             </Box>
           </Box>
-        </Paper>
 
-        {/* PAGE 2: ADVERTISEMENT */}
-        <Paper 
-          id="invoice-ad-page" 
-          elevation={0} 
-          sx={{ 
-            p: 8, 
-            borderRadius: '0px', 
-            border: '1px solid #e2e8f0', 
-            background: 'linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%)', 
-            minHeight: '1120px', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        >
-          {/* Decorative Background Elements */}
-          <Box sx={{ position: 'absolute', top: -100, right: -100, width: 400, height: 400, borderRadius: '50%', background: 'rgba(34, 135, 86, 0.03)' }} />
-          <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 300, height: 300, borderRadius: '50%', background: 'rgba(34, 135, 86, 0.05)' }} />
-
-          <Box component="img" src="/favicon.png" sx={{ width: 120, mb: 4, filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.1))' }} />
+          <Divider sx={{ mb: 3, borderStyle: 'dashed' }} />
           
-          <Typography variant="h2" sx={{ fontWeight: 900, color: '#228756', mb: 2, letterSpacing: '-1px' }}>
-            Elevate Your Mental Wellbeing
-          </Typography>
-          
-          <Typography variant="h5" sx={{ color: '#475569', mb: 8, maxWidth: 700, fontWeight: 500, lineHeight: 1.6 }}>
-            "Healing takes courage, and we all have courage, even if we have to dig a little deeper to find it."
-          </Typography>
-
-          <Grid container spacing={4} sx={{ mb: 10, px: 4 }}>
-            {[
-              { title: 'Individual Therapy', desc: 'One-on-one sessions tailored to your unique journey.' },
-              { title: 'Couple Counseling', desc: 'Strengthen bonds and resolve conflicts with expert guidance.' },
-              { title: 'Stress & Anxiety', desc: 'Proven techniques to regain control and find inner peace.' },
-              { title: 'Corporate Wellness', desc: 'Mental health support for high-performing teams.' }
-            ].map((s) => (
-              <Grid item xs={12} sm={6} key={s.title}>
-                <Box sx={{ p: 4, bgcolor: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: '0 10px 30px rgba(34, 135, 86, 0.05)' }}>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', mb: 1 }}>{s.title}</Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500 }}>{s.desc}</Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-
-          <Box sx={{ bgcolor: '#228756', p: 6, borderRadius: '32px', color: '#fff', width: '100%', maxWidth: '800px', boxShadow: '0 20px 40px rgba(34, 135, 86, 0.2)', position: 'relative', overflow: 'hidden' }}>
-            <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0.1, background: 'radial-gradient(circle at top right, #fff, transparent)' }} />
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1.5 }}>Transform Your Life Today</Typography>
-            <Typography sx={{ mb: 4, fontSize: '1.2rem', opacity: 0.9 }}>Visit our website to discover more resources and book sessions.</Typography>
-            <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '1px' }}>www.chooseyourtherapist.in</Typography>
+          <Box sx={{ mb: 3, px: 2 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.1rem', color: '#228756', mb: 1, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 }}>About Choose Your Therapist LLP</Typography>
+            <Typography sx={{ fontSize: '1rem', color: '#64748b', textAlign: 'center', lineHeight: 1.5, fontStyle: 'italic' }}>
+              ChooseYourTherapist LLP is a mental healthcare platform connecting individuals with qualified therapists and 
+              psychologists across India through online and in-person therapy services in Noida. We offer personalised 
+              therapy sessions, couple counselling, workplace mental health support, and programs for schools, colleges, 
+              and community initiatives, ensuring flexible and tailored mental health support for all.
+            </Typography>
           </Box>
-          
-          <Typography sx={{ mt: 8, color: '#94a3b8', fontWeight: 600, fontSize: '1rem' }}>
-            © {new Date().getFullYear()} Choose Your Therapist LLP. All Rights Reserved.
+
+          <Typography sx={{ fontSize: '0.95rem', color: '#94a3b8', textAlign: 'center', fontWeight: 600 }}>
+            * This is a computer-generated invoice and does not require a physical signature.
           </Typography>
         </Paper>
 
         <Box sx={{ mt: 4, textAlign: 'center' }} className="no-print">
-          <Typography sx={{ color: '#64748b', fontWeight: 600 }}>Powered by Choose Your Therapist LLP</Typography>
+          <Typography sx={{ color: '#64748b', fontWeight: 800, fontSize: '1.2rem' }}>Powered by Choose Your Therapist LLP</Typography>
         </Box>
       </Container>
     </Box>

@@ -45,38 +45,76 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const [pin, setPin] = useState("");
   const [bookingId, setBookingId] = useState("");
   const [visibleCount, setVisibleCount] = useState(6);
+  const [isRinging, setIsRinging] = useState(false);
+  const [newBookingCount, setNewBookingCount] = useState(0);
   const isMobile = useMediaQuery("(max-width:768px)");
 
   const audioRef = useRef(null); // Notification sound
 
   // Load notification sound
   useEffect(() => {
-    audioRef.current = new Audio("/notification.mp3"); // Put your file in public folder
+    audioRef.current = new Audio("/notification.mp3"); // Ensure this file exists in public folder
+    audioRef.current.loop = true;
   }, []);
+
+  const stopRinging = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsRinging(false);
+    setNewBookingCount(0);
+  };
 
   // Live update using polling
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const response = await fetchData(getBookings); // Use correct URL
+        const response = await fetchData(getBookings);
         if (response?.status && Array.isArray(response.data)) {
-          // Check for new bookings
+          // Check for new bookings by comparing IDs
+          const existingIds = appointments.map(a => a._id);
           const newAppointments = response.data.filter(
-            (appt) => !appointments.some((a) => a._id === appt._id)
+            (appt) => !existingIds.includes(appt._id)
           );
+
           if (newAppointments.length > 0) {
-            toast.info(`${newAppointments.length} new booking(s) received!`);
-            audioRef.current && audioRef.current.play();
+            setNewBookingCount(prev => prev + newAppointments.length);
+            setIsRinging(true);
+            
+            // Play sound (handle browser autoplay restrictions)
+            if (audioRef.current) {
+              audioRef.current.play().catch(err => console.log("Autoplay blocked:", err));
+            }
+
+            // Update local state with new appointments at the top
             setAppointments((prev) => [...newAppointments, ...prev]);
+            
+            // Show toast
+            toast.success(`🔔 ${newAppointments.length} New Booking Received!`, {
+              position: "top-right",
+              autoClose: 10000,
+            });
           }
         }
       } catch (err) {
         console.error("Error fetching appointments:", err);
       }
-    }, 5000);
+    }, 10000); // Poll every 10 seconds
 
     return () => clearInterval(interval);
   }, [appointments]);
+
+  // Auto-stop ringing after 60 seconds to prevent annoyance
+  useEffect(() => {
+    let timer;
+    if (isRinging) {
+      timer = setTimeout(() => {
+        stopRinging();
+      }, 60000);
+    }
+    return () => clearTimeout(timer);
+  }, [isRinging]);
 
   const handleClose = () => setOpen(false);
   const handleOtpViewClose = () => setOtpView(false);
@@ -604,6 +642,53 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
             Load More Sessions
           </button>
         </div>
+      )}
+
+      {isRinging && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: { xs: 80, sm: 20 }, // Adjust for mobile bottom nav
+            right: 20,
+            zIndex: 9999,
+            bgcolor: "#fff",
+            p: 3,
+            borderRadius: 4,
+            boxShadow: "0px 10px 40px rgba(0,0,0,0.2)",
+            border: "2px solid #228756",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            animation: "pulse 1.5s infinite",
+            "@keyframes pulse": {
+              "0%": { transform: "scale(1)" },
+              "50%": { transform: "scale(1.05)" },
+              "100%": { transform: "scale(1)" },
+            },
+          }}
+        >
+          <Box sx={{ color: "#228756", fontSize: "2.5rem" }}>🔔</Box>
+          <h3 style={{ margin: 0, color: "#1e293b", fontWeight: 800, textAlign: "center" }}>New Booking Received!</h3>
+          <p style={{ margin: 0, color: "#64748b", fontWeight: 500, textAlign: "center" }}>
+            You have {newBookingCount} new appointment request(s).
+          </p>
+          <Button
+            variant="contained"
+            onClick={stopRinging}
+            sx={{
+              bgcolor: "#228756",
+              "&:hover": { bgcolor: "#1b6843" },
+              borderRadius: 2,
+              px: 4,
+              py: 1.5,
+              fontWeight: 800,
+              width: "100%"
+            }}
+          >
+            Accept / Stop Ringing
+          </Button>
+        </Box>
       )}
 
       <ModalComponent open={open} handleClose={handleClose} content={modalContent} />
