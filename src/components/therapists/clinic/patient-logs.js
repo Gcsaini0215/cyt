@@ -72,6 +72,8 @@ export default function ClientLogs() {
     amount: "",
     remainingAmount: "",
     status: "Paid",
+    packageName: "Individual Session",
+    paidVia: "Online",
     date: dayjs()
   });
 
@@ -84,7 +86,9 @@ export default function ClientLogs() {
         // Map _id from MongoDB to id for frontend consistency
         const mappedLogs = (Array.isArray(logsData) ? logsData : []).map(log => ({
           ...log,
-          id: log._id || log.id
+          id: log._id || log.id,
+          packageName: log.packageName || log.medicineName || "Individual Session",
+          paidVia: log.paidVia || log.medication || "Online"
         }));
         setLogs(mappedLogs);
         // Sync with localStorage
@@ -154,6 +158,10 @@ export default function ClientLogs() {
         amount: formData.amount,
         remainingAmount: formData.remainingAmount,
         status: formData.status,
+        packageName: formData.packageName,
+        medicineName: formData.packageName, // Mapping for backend
+        paidVia: formData.paidVia,
+        medication: formData.paidVia, // Mapping for backend
         therapist_name: therapistInfo?.user?.name,
         therapist_type: therapistInfo?.profile_type
       };
@@ -168,7 +176,7 @@ export default function ClientLogs() {
         toast.success("Client entry saved to server & device!");
       }
 
-      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", date: dayjs() });
+      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", packageName: "Individual Session", paidVia: "Online", date: dayjs() });
       await fetchLogs(); // Refresh both sources
       
     } catch (error) {
@@ -199,7 +207,7 @@ export default function ClientLogs() {
       localStorage.setItem('clinicLogs', JSON.stringify(updatedLogs));
       toast.warning("Saved locally (Server offline)");
       
-      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", date: dayjs() });
+      setFormData({ id: null, name: "", email: "", phone: "", type: "Clinic", amount: "", remainingAmount: "", status: "Paid", packageName: "Individual Session", paidVia: "Online", date: dayjs() });
     } finally {
       setSubmitting(false);
     }
@@ -304,6 +312,8 @@ export default function ClientLogs() {
       amount: log.amount,
       remainingAmount: log.remainingAmount || '',
       status: log.status || "Paid",
+      packageName: log.packageName || log.medicineName || "Individual Session",
+      paidVia: log.paidVia || log.medication || "Online",
       date: dayjs(log.date)
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -509,7 +519,7 @@ export default function ClientLogs() {
                         }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={1.5}>
+                    <Grid item xs={12} sm={2}>
                       <TextField
                         fullWidth
                         size="small"
@@ -642,38 +652,51 @@ export default function ClientLogs() {
                       <TableRow key={log.id} sx={{ '&:hover': { bgcolor: '#fbfcfd' }, transition: 'background 0.2s' }}>
                         <TableCell sx={{ pl: 4, py: 2.5 }}>
                           <Box>
-                            <Typography variant="body1" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.15rem' }}>{log.name}</Typography>
+                            <Typography variant="body1" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.3rem' }}>{log.name}</Typography>
                             {log.email && (
-                              <Typography variant="body2" sx={{ color: '#228756', fontWeight: 700, fontSize: '1rem', display: 'block' }}>
+                              <Typography variant="body2" sx={{ color: '#228756', fontWeight: 700, fontSize: '1.15rem', display: 'block' }}>
                                 {log.email}
                               </Typography>
                             )}
-                            {log.phone && <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, fontSize: '1rem' }}>{log.phone}</Typography>}
+                            {log.phone && <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, fontSize: '1.15rem' }}>{log.phone}</Typography>}
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ color: '#475569', fontSize: '1.1rem', fontWeight: 800 }}>{log.date}</TableCell>
+                        <TableCell sx={{ color: '#475569', fontSize: '1.25rem', fontWeight: 800 }}>{log.date}</TableCell>
                         <TableCell>
-                          <Chip 
-                            label={log.type === 'Clinic' ? 'In-Person' : log.type} 
-                            size="small" 
-                            sx={{ 
-                              bgcolor: log.type === 'Clinic' ? '#f0fdf4' : '#eff6ff', 
-                              color: log.type === 'Clinic' ? '#166534' : '#1e40af', 
-                              fontWeight: 900, 
-                              borderRadius: '6px',
-                              fontSize: '12px',
-                              textTransform: 'uppercase',
-                              px: 1
-                            }} 
-                          />
-                        </TableCell>
-                        <TableCell sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.2rem' }}>
-                          ₹{log.amount}
-                          {log.remainingAmount && (
-                            <Typography component="span" sx={{ ml: 1, color: '#d32f2f', fontWeight: 900, fontSize: '1.1rem' }}>
-                              (+ ₹{log.remainingAmount})
+                          <Box>
+                            <Chip 
+                              label={log.type === 'Clinic' ? 'In-Person' : log.type} 
+                              size="small" 
+                              sx={{ 
+                                bgcolor: log.type === 'Clinic' ? '#f0fdf4' : '#eff6ff', 
+                                color: log.type === 'Clinic' ? '#166534' : '#1e40af', 
+                                fontWeight: 900, 
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                textTransform: 'uppercase',
+                                px: 1,
+                                mb: 0.5
+                              }} 
+                            />
+                            <Typography sx={{ fontSize: '1.1rem', color: '#64748b', fontWeight: 700 }}>
+                              {log.packageName || log.medicineName || 'Individual Session'}
                             </Typography>
-                          )}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Box>
+                            <Typography sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.4rem' }}>
+                              ₹{log.amount}
+                            </Typography>
+                            <Typography sx={{ fontSize: '1.1rem', color: '#228756', fontWeight: 700 }}>
+                              {log.paidVia || log.medication || 'Online'}
+                            </Typography>
+                            {log.remainingAmount && (
+                              <Typography component="span" sx={{ color: '#d32f2f', fontWeight: 900, fontSize: '1.15rem' }}>
+                                (Due: ₹{log.remainingAmount})
+                              </Typography>
+                            )}
+                          </Box>
                         </TableCell>
                         <TableCell align="right" sx={{ pr: 4 }}>
                           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
@@ -765,13 +788,14 @@ export default function ClientLogs() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                       <Box>
                         <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.25rem' }}>{log.name}</Typography>
-                        <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 700 }}>{log.date} • {log.type}</Typography>
+                        <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 700 }}>{log.date} • {log.type === 'Clinic' ? 'In-Person' : log.type}</Typography>
+                        <Typography sx={{ fontSize: '0.85rem', color: '#228756', fontWeight: 800, mt: 0.5 }}>{log.packageName || log.medicineName || 'Individual Session'}</Typography>
                       </Box>
                     </Box>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, p: 2, bgcolor: '#f8fafc', borderRadius: '14px' }}>
                       <Box>
-                        <Typography sx={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fees Amount</Typography>
+                        <Typography sx={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fees ({log.paidVia || log.medication || 'Online'})</Typography>
                         <Typography sx={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e293b' }}>₹{log.amount}</Typography>
                       </Box>
                       {log.remainingAmount && (
@@ -1273,12 +1297,13 @@ export default function ClientLogs() {
           PaperProps={{
             sx: {
               borderRadius: isMobile ? 0 : '20px',
-              m: isMobile ? 0 : 2
+              m: isMobile ? 0 : 2,
+              maxHeight: isMobile ? '100%' : '90vh'
             }
           }}
         >
-          <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ p: { xs: 2.5, sm: 4 }, flexGrow: 1 }}>
+          <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Box sx={{ p: { xs: 2.5, sm: 4 }, flexGrow: 1, overflowY: 'auto', pb: { xs: 12, sm: 4 } }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#1e293b', fontSize: { xs: '1.3rem', sm: '1.5rem' } }}>Send Invoice Email</Typography>
                 <IconButton onClick={() => setEmailDialogOpen(false)} sx={{ bgcolor: '#f1f5f9' }}>
@@ -1311,7 +1336,7 @@ export default function ClientLogs() {
                 onChange={(e) => setEmailMessage(e.target.value)}
                 placeholder="Write a custom message to your client..."
                 sx={{ 
-                  mb: 4, 
+                  mb: 2, 
                   '& .MuiOutlinedInput-root': { 
                     borderRadius: '16px',
                     bgcolor: '#fff',
@@ -1320,7 +1345,19 @@ export default function ClientLogs() {
                   } 
                 }}
               />
+            </Box>
 
+            <Box sx={{ 
+              p: 2.5, 
+              borderTop: '1px solid #e2e8f0', 
+              bgcolor: '#fff',
+              position: isMobile ? 'fixed' : 'relative',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 10,
+              pb: isMobile ? '80px' : 2.5 // Extra padding for mobile bottom nav
+            }}>
               <Button
                 fullWidth
                 variant="contained"
