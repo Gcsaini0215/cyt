@@ -344,7 +344,7 @@ export default function Banner({ topTherapists = [] }) {
                       <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{visitorCount.toLocaleString()}+</Typography>
                     </Box>
                     <Typography sx={{ color: "#64748b", fontSize: isMobile ? "12px" : "14px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                      Trusted Platform Visitors
+                      Trusted Platform Visitor
                     </Typography>
                   </Box>
 
