@@ -46,10 +46,16 @@ export const deleteById = (url, params = {}) => {
 
 export const fetchData = (url, params = {}) => {
   return new Promise((resolve, reject) => {
+    const token = getToken();
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
     console.log("Fetching data from:", url, "with params:", params);
     axios
       .get(url, { 
         params,
+        headers,
         timeout: 10000 // 10 seconds timeout
       })
       .then((response) => {

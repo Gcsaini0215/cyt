@@ -11,7 +11,7 @@ import {
 } from "../../utils/url";
 import ProfileCardHor from "./profile-card-hor";
 import { getDecodedToken } from "../../utils/jwt";
-export default function ProfileCard() {
+export default function ProfileCard({ profiles }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -24,7 +24,16 @@ export default function ProfileCard() {
   const [tab, setTab] = React.useState("");
   const [data, setData] = React.useState([]);
   const [favrioutes, setFavrioutes] = React.useState([]);
+
+  // Use profiles prop if provided, otherwise fetch
+  useEffect(() => {
+    if (profiles && profiles.length > 0) {
+      setData(profiles);
+    }
+  }, [profiles]);
+
   const getData = async (profileType = tab) => {
+    if (profiles) return; // Don't fetch if we have explicit profiles prop
     console.log("getData called with profileType:", profileType);
     try {
       const res = await fetchData(getTherapistProfiles, {
@@ -102,182 +111,59 @@ export default function ProfileCard() {
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
           <div className="col-lg-12">
-            <div className="section-title text-center" style={{ marginBottom: '30px' }}>
-              <span className="subtitle" style={{ 
-                background: '#228756', 
-                color: '#ffffff', 
-                padding: '8px 20px', 
-                borderRadius: '50px',
-                fontWeight: '700',
-                fontSize: '1rem',
-                textTransform: 'uppercase',
-                letterSpacing: '1.5px',
-                boxShadow: '0 4px 10px rgba(34, 135, 86, 0.2)'
-              }}>
-                Verified Professionals
-              </span>
-              <h3 className="title" style={{ 
-                fontSize: isMobile ? "2.5rem" : "4.5rem", 
-                fontWeight: "900", 
-                color: "#000000",
-                marginTop: '25px',
-                lineHeight: isMobile ? '3rem' : '1.1',
-                whiteSpace: "normal"
-              }}>
-                Find Your Perfect <span style={{ 
-                  backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
-                  WebkitBackgroundClip: "text", 
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  color: "transparent"
-                }}>Therapist</span> Match
-              </h3>
-              <p style={{ 
-                fontSize: isMobile ? '1.2rem' : '1.5rem', 
-                color: '#444', 
-                maxWidth: '850px', 
-                margin: '20px auto 0',
-                lineHeight: '1.6',
-                fontWeight: '500',
-                padding: isMobile ? '0 10px' : '0'
-              }}>
-                Therapy works when you feel safe, heard, and understood. Discover professionals who match your needs and values.
-              </p>
-              <div className="row mt--30">
-                <div className="col-lg-12">
-                  <div className="advance-tab-button">
-                    <ul
-                      className="nav nav-tabs tab-button-style-2"
-                      id="myTab-4"
-                      style={{
-                        background: '#ffffff',
-                        backdropFilter: 'blur(15px)',
-                        padding: '10px',
-                        borderRadius: isMobile ? '15px' : '100px',
-                        display: 'flex',
-                        flexDirection: 'row',
-                        flexWrap: isMobile ? 'nowrap' : 'wrap',
-                        overflowX: isMobile ? 'auto' : 'visible',
-                        WebkitOverflowScrolling: 'touch',
-                        border: '1px solid rgba(139, 94, 60, 0.2)',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                        justifyContent: isMobile ? 'flex-start' : 'center',
-                        width: isMobile ? '100%' : 'auto',
-                        msOverflowStyle: 'none',
-                        scrollbarWidth: 'none',
-                        gap: '5px'
-                      }}
-                    >
-                      <style>{`
-                        ul#myTab-4::-webkit-scrollbar {
-                          display: none;
-                        }
-                        @media (max-width: 768px) {
-                          .advance-tab-button ul.nav-tabs li a.tab-button {
-                            padding: 8px 16px !important;
-                            font-size: 14px !important;
-                            white-space: nowrap !important;
-                          }
-                        }
-                      `}</style>
-                      <li>
-                        <Link
-                          className={
-                            tab === "" ? "tab-button active" : "tab-button"
-                          }
-                          aria-selected={tab === "" ? "true" : "false"}
-                          onClick={() => handleClick("")}
-                          href="#"
-                        >
-                          <span className="title" style={{ cursor: "pointer" }}>
-                            See all
-                          </span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className={
-                            tab === "Counselling Psychologist"
-                              ? "tab-button active"
-                              : "tab-button"
-                          }
-                          id="profile-tab-4"
-                          aria-selected={
-                            tab === "Counselling Psychologist"
-                              ? "true"
-                              : "false"
-                          }
-                          onClick={() =>
-                            handleClick("Counselling Psychologist")
-                          }
-                          href="#"
-                        >
-                          <span className="title" style={{ cursor: "pointer" }}>
-                            Counselling Psychologist
-                          </span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className={
-                            tab === "Clinical Psychologist"
-                              ? "tab-button active"
-                              : "tab-button"
-                          }
-                          id="contact-tab-4"
-                          aria-selected={
-                            tab === "Clinical Psychologist" ? "true" : "false"
-                          }
-                          onClick={() => handleClick("Clinical Psychologist")}
-                          href="#"
-                        >
-                          <span className="title" style={{ cursor: "pointer" }}>
-                            Clinical Psychologist
-                          </span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className={
-                            tab === "Psychiatrist"
-                              ? "tab-button active"
-                              : "tab-button"
-                          }
-                          id="business-tab-4"
-                          aria-selected={
-                            tab === "Psychiatrist" ? "true" : "false"
-                          }
-                          onClick={() => handleClick("Psychiatrist")}
-                          href="#"
-                        >
-                          <span className="title" style={{ cursor: "pointer" }}>
-                            Psychiatrist
-                          </span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className={
-                            tab === "Special Educator"
-                              ? "tab-button active"
-                              : "tab-button"
-                          }
-                          id="business-tab-4"
-                          aria-selected={
-                            tab === "Special Educator" ? "true" : "false"
-                          }
-                          onClick={() => handleClick("Special Educator")}
-                          href="#"
-                        >
-                          <span className="title" style={{ cursor: "pointer" }}>
-                            Special Educator
-                          </span>
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
+            <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+              <div style={{ flex: '1', minWidth: '300px' }}>
+                <h3 className="title" style={{ 
+                  fontSize: isMobile ? "2.5rem" : "4.5rem", 
+                  fontWeight: "900", 
+                  color: "#000000",
+                  marginTop: '0px',
+                  lineHeight: isMobile ? '3rem' : '1.1',
+                  whiteSpace: "normal",
+                  textAlign: 'left',
+                  marginBottom: '15px'
+                }}>
+                  Best <span style={{ 
+                    backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
+                    WebkitBackgroundClip: "text", 
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    color: "transparent"
+                  }}>Online Psychologists</span> across India
+                </h3>
+                <p style={{ 
+                  fontSize: isMobile ? '1.2rem' : '1.5rem', 
+                  color: '#444', 
+                  maxWidth: '850px', 
+                  margin: '0',
+                  lineHeight: '1.6',
+                  fontWeight: '500',
+                  padding: isMobile ? '0 10px' : '0',
+                  textAlign: 'left'
+                }}>
+                  Connect with the top-rated therapists and mental health experts near you. Start your journey towards healing with professional counseling tailored to your needs.
+                </p>
               </div>
+              
+              {!isMobile && (
+                <div className="view-all-btn-wrapper" style={{ marginBottom: '10px' }}>
+                  <Link
+                    className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
+                    href={"/view-all-therapist"}
+                    style={{ padding: '12px 30px', height: 'auto', lineHeight: '1' }}
+                  >
+                    <span className="icon-reverse-wrapper">
+                      <span className="btn-text">View All</span>
+                      <span className="btn-icon">
+                        <i className="feather-arrow-right"></i>
+                      </span>
+                      <span className="btn-icon">
+                        <i className="feather-arrow-right"></i>
+                      </span>
+                    </span>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -321,27 +207,14 @@ export default function ProfileCard() {
             </div>
           )}
         </div>
-        <div className="row">
-          <div className="col-lg-12">
-            <div className="load-more-btn mt--60 text-center">
-              <Link
-                className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
-                href={"/view-all-therapist"}
-              >
-                <span className="icon-reverse-wrapper">
-                  <span className="btn-text">Find More</span>
-
-                  <span className="btn-icon">
-                    <i className="feather-arrow-right"></i>
-                  </span>
-                  <span className="btn-icon">
-                    <i className="feather-arrow-right"></i>
-                  </span>
-                </span>
-              </Link>
+        {/* Remove bottom load-more-btn if profiles prop exists or as requested since it's now at top */}
+        {!profiles && (
+          <div className="row">
+            <div className="col-lg-12">
+              
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

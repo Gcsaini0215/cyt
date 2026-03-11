@@ -105,7 +105,8 @@ export default function ConsultationForm({ showHeading = true }) {
     phone: "",
     email: "",
     concern: "",
-    source: ""
+    source: "",
+    location: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -165,13 +166,13 @@ export default function ConsultationForm({ showHeading = true }) {
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         subject: "Free Consultation Request",
-        concern: formData.concern.trim(),
+        concern: `Location: ${formData.location}\nConcern: ${formData.concern.trim()}`,
         source: formData.source.trim()
       };
       const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {
         setShowSuccessPopup(true);
-        setFormData({ name: "", phone: "", email: "", concern: "", source: "" });
+        setFormData({ name: "", phone: "", email: "", concern: "", source: "", location: "" });
       } else {
         setMessage(response.message || "Failed to submit. Please try again.");
         setMessageType("error");
@@ -269,25 +270,46 @@ export default function ConsultationForm({ showHeading = true }) {
               </div>
             </div>
 
-            <div style={{ marginBottom: isMobile ? "12px" : "15px" }}>
-              <label className="consultation-form-label">How did you hear about us?</label>
-              <div style={{ position: "relative" }}>
-                <select
-                  name="source"
-                  value={formData.source}
-                  onChange={handleChange}
-                  required
-                  className="consultation-form-input"
-                  style={{ paddingLeft: "15px" }}
-                >
-                  <option value="" disabled>Select an option</option>
-                  <option value="Google Search">Google Search</option>
-                  <option value="Instagram">Instagram</option>
-                  <option value="LinkedIn">LinkedIn</option>
-                  <option value="Facebook">Facebook</option>
-                  <option value="Friend/Family">Friend/Family</option>
-                  <option value="Other">Other</option>
-                </select>
+            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "0" : "15px", marginBottom: isMobile ? "12px" : "15px" }}>
+              <div style={{ flex: 1, marginBottom: isMobile ? "12px" : "0" }}>
+                <label className="consultation-form-label">Preferred Location</label>
+                <div style={{ position: "relative" }}>
+                  <select
+                    name="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                    required
+                    className="consultation-form-input"
+                    style={{ paddingLeft: "15px" }}
+                  >
+                    <option value="" disabled>Select Location</option>
+                    <option value="Noida Center">Noida Center (In-Person)</option>
+                    <option value="Delhi Center">Delhi Center (In-Person)</option>
+                    <option value="Online">Online / Video Call</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ flex: 1 }}>
+                <label className="consultation-form-label">How did you hear about us?</label>
+                <div style={{ position: "relative" }}>
+                  <select
+                    name="source"
+                    value={formData.source}
+                    onChange={handleChange}
+                    required
+                    className="consultation-form-input"
+                    style={{ paddingLeft: "15px" }}
+                  >
+                    <option value="" disabled>Select Source</option>
+                    <option value="Google Search">Google Search</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Friend/Family">Friend/Family</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -314,7 +336,7 @@ export default function ConsultationForm({ showHeading = true }) {
                 </>
               ) : (
                 <>
-                  Schedule My Free Session
+                  Book Free Consultation
                 </>
               )}
             </button>

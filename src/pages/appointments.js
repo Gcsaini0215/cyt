@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import AppointmentPageSidebar from "../components/therapists/appointment/appointmentheader";
 import MainLayout from "../components/therapists/main-layout";
@@ -13,9 +13,9 @@ export default function AppointmentsPage() {
   const [statusList, setDataList] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const getData = async () => {
+  const getData = useCallback(async () => {
     try {
-      setLoading(true);
+      // Don't set loading to true for background updates
       const res = await fetchById(getBookings);
       if (res.status) {
         setData(res.data);
@@ -26,16 +26,16 @@ export default function AppointmentsPage() {
     } catch (err) {
       toast.error(err.message);
     }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    getData();
   }, []);
+
+  // Initial load
+  useEffect(() => {
+    setLoading(true);
+    getData().finally(() => setLoading(false));
+  }, [getData]);
 
   return (
     <MainLayout>
-      <AppointmentPageSidebar />
       {loading ? <PageProgressBar /> : data && data.length === 0 ? <div
         className="flex flex-col items-center justify-center p-12 bg-white rounded-[24px] border border-[#f1f5f9] text-center"
         style={{ marginLeft: 10, paddingBottom: 40, paddingTop: 40 }}

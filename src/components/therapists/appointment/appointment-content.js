@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, CircularProgress, useMediaQuery, Modal } from "@mui/material";
-import { FaPlay, FaStop, FaUser, FaNotesMedical, FaClock, FaTimes, FaPhone, FaCheck, FaFileInvoice } from "react-icons/fa";
+import { Box, CircularProgress, useMediaQuery, Modal, TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel, Typography, Grid, Card } from "@mui/material";
+import { FaPlay, FaStop, FaUser, FaNotesMedical, FaClock, FaTimes, FaPhone, FaCheck, FaFileInvoice, FaSearch, FaFilter, FaCalendarDay, FaHistory } from "react-icons/fa";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import DownloadIcon from "@mui/icons-material/Download";
 import PrintIcon from "@mui/icons-material/Print";
+import SearchIcon from "@mui/icons-material/Search";
 import { Divider, Button, Chip } from "@mui/material";
 import { toast } from "react-toastify";
 import { postData, fetchData } from "../../../utils/actions";
@@ -47,14 +48,45 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const [visibleCount, setVisibleCount] = useState(6);
   const [isRinging, setIsRinging] = useState(false);
   const [newBookingCount, setNewBookingCount] = useState(0);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const isMobile = useMediaQuery("(max-width:768px)");
 
   const audioRef = useRef(null); // Notification sound
+  const appointmentsRef = useRef(appointments);
 
-  // Load notification sound
+  // Sync ref with state
   useEffect(() => {
-    audioRef.current = new Audio("/notification.mp3"); // Ensure this file exists in public folder
-    audioRef.current.loop = true;
+    appointmentsRef.current = appointments;
+  }, [appointments]);
+
+  // Load notification sound and handle user interaction
+  useEffect(() => {
+    const audio = new Audio("/notification.mp3");
+    audio.loop = true;
+    audio.preload = "auto";
+    audioRef.current = audio;
+
+    const handleInteraction = () => {
+      setUserInteracted(true);
+      // Try to play and immediately pause to "unlock" audio on mobile/modern browsers
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }).catch(() => {});
+      
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
+
+    window.addEventListener("click", handleInteraction);
+    window.addEventListener("touchstart", handleInteraction);
+
+    return () => {
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
   }, []);
 
   const stopRinging = () => {
@@ -66,44 +98,116 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     setNewBookingCount(0);
   };
 
+  const playRinging = () => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(err => {
+        console.error("Autoplay blocked or audio error:", err);
+        // Show a message to user if audio is still blocked
+        toast.info("Please click anywhere on the page to enable booking alerts.");
+      });
+    }
+  };
+
   // Live update using polling
   useEffect(() => {
+    console.log("Starting appointment polling...");
     const interval = setInterval(async () => {
       try {
         const response = await fetchData(getBookings);
+        console.log("Polling response:", response?.status, response?.data?.length);
+        
         if (response?.status && Array.isArray(response.data)) {
-          // Check for new bookings by comparing IDs
-          const existingIds = appointments.map(a => a._id);
+          const currentAppointments = appointmentsRef.current;
+          const existingIds = new Set(currentAppointments.map(a => a._id));
+          
           const newAppointments = response.data.filter(
-            (appt) => !existingIds.includes(appt._id)
+            (appt) => !existingIds.has(appt._id)
           );
 
           if (newAppointments.length > 0) {
+            console.log("New bookings found:", newAppointments.length);
             setNewBookingCount(prev => prev + newAppointments.length);
             setIsRinging(true);
             
-            // Play sound (handle browser autoplay restrictions)
+            // Try to play sound
             if (audioRef.current) {
-              audioRef.current.play().catch(err => console.log("Autoplay blocked:", err));
+              audioRef.current.play().catch(err => {
+                console.warn("Autoplay blocked:", err);
+                setUserInteracted(false); // Trigger "Unlock Audio" UI
+              });
             }
 
-            // Update local state with new appointments at the top
-            setAppointments((prev) => [...newAppointments, ...prev]);
+            // Update local state with new items at the top
+            setAppointments((prev) => {
+              const updated = [...newAppointments, ...prev];
+              // Keep it unique just in case
+              return Array.from(new Map(updated.map(item => [item._id, item])).values());
+            });
             
-            // Show toast
             toast.success(`🔔 ${newAppointments.length} New Booking Received!`, {
               position: "top-right",
               autoClose: 10000,
             });
+
+            if (onRefresh) onRefresh();
           }
         }
       } catch (err) {
-        console.error("Error fetching appointments:", err);
+        console.error("Error polling appointments:", err);
       }
-    }, 10000); // Poll every 10 seconds
+    }, 10000);
 
-    return () => clearInterval(interval);
-  }, [appointments]);
+    return () => {
+      console.log("Stopping appointment polling...");
+      clearInterval(interval);
+    };
+  }, [onRefresh]);
+
+  // Stats calculation
+  const stats = {
+    today: appointments.filter(a => new Date(a.booking_date).toDateString() === new Date().toDateString()).length,
+    pending: appointments.filter(a => a.status === SESSION_STATUS.PENDING).length,
+    completed: appointments.filter(a => a.status === SESSION_STATUS.COMPLETED).length,
+    total: appointments.length
+  };
+
+  const StatsCard = ({ title, value, icon, color }) => (
+    <Card sx={{ 
+      p: 2.5, 
+      borderRadius: 4, 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 2, 
+      boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+      border: '1px solid #f1f5f9',
+      height: '100%'
+    }}>
+      <Box sx={{ 
+        width: 48, 
+        height: 48, 
+        borderRadius: 3, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        bgcolor: `${color}15`, 
+        color: color 
+      }}>
+        {icon}
+      </Box>
+      <Box>
+        <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{title}</Typography>
+        <Typography variant="h5" sx={{ color: '#1e293b', fontWeight: 900 }}>{value}</Typography>
+      </Box>
+    </Card>
+  );
+
+  // Filtered appointments
+  const filteredAppointments = appointments.filter(appt => {
+    const matchesSearch = appt.client?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          appt._id?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "all" || appt.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   // Auto-stop ringing after 60 seconds to prevent annoyance
   useEffect(() => {
@@ -430,220 +534,398 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   };
 
   const handleLoadMore = () => setVisibleCount(prev => prev + 6);
-  const visibleAppointments = appointments.slice(0, visibleCount);
+  const visibleAppointments = filteredAppointments.slice(0, visibleCount);
 
   return (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(380px, 1fr))", gap: 24, padding: '10px' }}>
-        {visibleAppointments.map((appt) => {
-          const sessionNumber = appointments.filter(a => a.client?._id === appt.client?._id && new Date(a.booking_date) <= new Date(appt.booking_date)).length;
-          return (
-            <div key={appt._id} style={{ 
-              display: "flex", 
-              flexDirection: "column", 
-              padding: 24, 
-              borderRadius: 24, 
-              background: "#fff", 
-              boxShadow: "0 4px 20px rgba(0,0,0,0.04)", 
-              border: "1px solid #f1f5f9",
-              transition: 'all 0.3s ease',
-              cursor: 'default',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              {/* Modern Badge Header */}
-              <div style={{ display: "flex", justifyContent: 'space-between', alignItems: "center", marginBottom: 20 }}>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <span style={{ padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 800, color: "#228756", background: "#e8f5e9", textTransform: 'uppercase', letterSpacing: '0.5px' }}>Session {sessionNumber}</span>
-                  <span style={{ 
-                    padding: "4px 10px", 
-                    borderRadius: 8, 
-                    fontSize: 11, 
-                    fontWeight: 800, 
-                    color: "#fff", 
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    background: appt.status === SESSION_STATUS.STARTED ? "linear-gradient(135deg,#228756,#1b6843)" : appt.status === SESSION_STATUS.COMPLETED ? "#64748b" : "#ed6c02" 
-                  }}>
-                    {appt.status}
-                  </span>
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8' }}>#{appt._id?.slice(-6)}</span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                {appt.client?.photo ? (
-                  <img src={appt.client.photo} alt={appt.client?.name || "Client"} style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
-                    <FaUser size={24} />
-                  </div>
-                )}
-                <div>
-                  <h6 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1e293b' }}>{appt.client?.name}</h6>
-                  <p style={{ margin: "2px 0 0 0", fontSize: 14, color: '#64748b', fontWeight: 500 }}>{appt.service} • {appt.format}</p>
-                </div>
-              </div>
-
-              <div style={{ 
-                background: '#f8fafc', 
-                padding: 16, 
-                borderRadius: 16, 
-                marginBottom: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 8
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#1e293b', fontWeight: 600 }}>
-                  <FaClock color="#228756" /> {formatDateTime(appt.booking_date)}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#1e293b', fontWeight: 600 }}>
-                  <FaCheck color="#228756" /> Payment: <span style={{ color: getPaymentStatusColor(appt.transaction?.status?.name), fontWeight: 800 }}>{appt.transaction?.status?.name || "-"}</span>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: "flex", gap: 12 }}>
-                  <button 
-                    onClick={() => handleView(appt)} 
-                    style={{ 
-                      flex: 1,
-                      padding: "10px", 
-                      borderRadius: 12, 
-                      background: "#fff", 
-                      border: "1.5px solid #f1f5f9", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: 'center',
-                      gap: 8,
-                      fontWeight: 700,
-                      color: '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
-                    onMouseOut={(e) => e.currentTarget.style.background = '#fff'}
-                  >
-                    <FaUser size={14} /> Details
-                  </button>
-                  <button 
-                    onClick={() => handleInvoice(appt)} 
-                    style={{ 
-                      flex: 1,
-                      padding: "10px", 
-                      borderRadius: 12, 
-                      background: "#fff", 
-                      border: "1.5px solid #f1f5f9", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: 'center',
-                      gap: 8,
-                      fontWeight: 700,
-                      color: '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
-                    onMouseOut={(e) => e.currentTarget.style.background = '#fff'}
-                  >
-                    <FaFileInvoice size={14} /> Invoice
-                  </button>
-                </div>
-
-                {appt.status !== SESSION_STATUS.COMPLETED && appt.status !== SESSION_STATUS.CANCELED ? (
-                  appt.status === SESSION_STATUS.STARTED ? (
-                    sessionEnding ? <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}><CircularProgress size={26} /></Box> :
-                    <button 
-                      onClick={() => endSession(appt)} 
-                      style={{ 
-                        width: '100%',
-                        padding: "12px", 
-                        borderRadius: 12, 
-                        background: "linear-gradient(135deg,#ef4444,#dc2626)", 
-                        color: "#fff", 
-                        border: "none", 
-                        display: "flex", 
-                        alignItems: "center", 
-                        justifyContent: 'center',
-                        gap: 8,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
-                      }}
-                    >
-                      <FaStop size={14} /> End Session
-                    </button>
-                  ) :
-                  <button 
-                    onClick={() => handlePin(appt)} 
-                    style={{ 
-                      width: '100%',
-                      padding: "12px", 
-                      borderRadius: 12, 
-                      background: "linear-gradient(135deg, #228756 0%, #1b6843 100%)", 
-                      color: "#fff", 
-                      border: "none", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: 'center',
-                      gap: 8,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)'
-                    }}
-                  >
-                    <FaPlay size={14} /> Start Session
-                  </button>
-                ) : (
-                  <button 
-                    disabled 
-                    style={{ 
-                      width: '100%',
-                      padding: "12px", 
-                      borderRadius: 12, 
-                      background: "#f1f5f9", 
-                      color: "#94a3b8", 
-                      border: "none", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: 'center',
-                      gap: 8,
-                      fontWeight: 700
-                    }}
-                  >
-                    <FaCheck size={14} /> Session Completed
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {visibleCount < appointments.length && (
-        <div style={{ textAlign: "center", marginTop: 40, marginBottom: 40 }}>
-          <button 
-            onClick={handleLoadMore} 
-            style={{ 
-              padding: "14px 32px", 
-              borderRadius: 14, 
-              background: "linear-gradient(135deg, #228756 0%, #1b6843 100%)", 
-              color: "#fff", 
-              fontWeight: 800, 
-              border: "none", 
-              cursor: "pointer", 
-              fontSize: 16,
-              boxShadow: '0 8px 20px rgba(34, 135, 86, 0.2)',
-              transition: 'all 0.2s'
+      {/* Ringing Overlay */}
+      {isRinging && (
+        <Box sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          bgcolor: 'rgba(34, 135, 86, 0.95)',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#fff',
+          textAlign: 'center',
+          p: 3,
+          animation: 'pulse 2s infinite'
+        }}>
+          <Box sx={{ 
+            width: 120, 
+            height: 120, 
+            borderRadius: '50%', 
+            bgcolor: '#fff', 
+            color: '#228756',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 4,
+            boxShadow: '0 0 50px rgba(255,255,255,0.5)',
+          }}>
+            <FaClock size={60} className="animate-bounce" />
+          </Box>
+          <Typography variant="h2" sx={{ fontWeight: 900, mb: 1 }}>NEW BOOKING!</Typography>
+          <Typography variant="h5" sx={{ mb: 4, opacity: 0.9 }}>You have {newBookingCount} new appointment request(s)</Typography>
+          
+          <Button 
+            variant="contained" 
+            size="large"
+            onClick={stopRinging}
+            sx={{ 
+              bgcolor: '#fff', 
+              color: '#228756', 
+              fontWeight: 900,
+              px: 6,
+              py: 2,
+              borderRadius: 4,
+              fontSize: '1.2rem',
+              '&:hover': { bgcolor: '#f8fafc' }
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            Load More Sessions
-          </button>
-        </div>
+            I'M CHECKING NOW
+          </Button>
+
+          <style jsx global>{`
+            @keyframes pulse {
+              0% { background-color: rgba(34, 135, 86, 0.95); }
+              50% { background-color: rgba(27, 104, 67, 0.98); }
+              100% { background-color: rgba(34, 135, 86, 0.95); }
+            }
+            .animate-bounce {
+              animation: bounce 1s infinite;
+            }
+            @keyframes bounce {
+              0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+              50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+            }
+          `}</style>
+        </Box>
       )}
 
+      {/* Audio Unlock Helper */}
+      {!userInteracted && (
+        <Box sx={{
+          position: 'fixed',
+          bottom: 20,
+          right: 20,
+          bgcolor: '#1e293b',
+          color: '#fff',
+          p: 2,
+          borderRadius: 3,
+          zIndex: 1000,
+          boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>Enable sound alerts</Typography>
+          <Button 
+            size="small" 
+            variant="contained" 
+            sx={{ bgcolor: '#228756', fontWeight: 800 }}
+            onClick={() => setUserInteracted(true)}
+          >
+            Click to Activate
+          </Button>
+        </Box>
+      )}
+
+      {/* Search and Filter Section */}
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' }, 
+        gap: 2, 
+        mb: 4, 
+        px: '10px',
+        alignItems: 'center'
+      }}>
+        <TextField
+          fullWidth
+          placeholder="Search client name or ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: '#94a3b8' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ 
+            '& .MuiOutlinedInput-root': { 
+              borderRadius: 3,
+              bgcolor: '#fff',
+              '& fieldset': { borderColor: '#f1f5f9' },
+            }
+          }}
+        />
+        <FormControl sx={{ minWidth: { xs: '100%', sm: 200 } }}>
+          <Select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            displayEmpty
+            sx={{ 
+              borderRadius: 3, 
+              bgcolor: '#fff',
+              '& .MuiOutlinedInput-notchedOutline': { borderColor: '#f1f5f9' }
+            }}
+          >
+            <MenuItem value="all">All Statuses</MenuItem>
+            <MenuItem value={SESSION_STATUS.PENDING}>Pending</MenuItem>
+            <MenuItem value={SESSION_STATUS.STARTED}>Active</MenuItem>
+            <MenuItem value={SESSION_STATUS.COMPLETED}>Completed</MenuItem>
+            <MenuItem value={SESSION_STATUS.CANCELED}>Canceled</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      <h4 style={{ marginBottom: 20, fontWeight: 900, color: "#1e293b", fontSize: "1.2rem", padding: '0 10px' }}>
+        {searchTerm || filterStatus !== 'all' ? `Filtered Results (${filteredAppointments.length})` : `Recent Sessions (${appointments.length})`}
+      </h4>
+
+      {filteredAppointments.length > 0 ? (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(380px, 1fr))", gap: 24, padding: '10px' }}>
+            {visibleAppointments.map((appt) => {
+              const sessionNumber = appointments.filter(a => a.client?._id === appt.client?._id && new Date(a.booking_date) <= new Date(appt.booking_date)).length;
+              return (
+                <div key={appt._id} style={{ 
+                  display: "flex", 
+                  flexDirection: "column", 
+                  padding: 24, 
+                  borderRadius: 24, 
+                  background: "#fff", 
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.04)", 
+                  border: "1px solid #f1f5f9",
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {/* Modern Badge Header */}
+                  <div style={{ display: "flex", justifyContent: 'space-between', alignItems: "center", marginBottom: 20 }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <span style={{ padding: "4px 10px", borderRadius: 8, fontSize: 11, fontWeight: 800, color: "#228756", background: "#e8f5e9", textTransform: 'uppercase', letterSpacing: '0.5px' }}>Session {sessionNumber}</span>
+                      <span style={{ 
+                        padding: "4px 10px", 
+                        borderRadius: 8, 
+                        fontSize: 11, 
+                        fontWeight: 800, 
+                        color: "#fff", 
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        background: appt.status === SESSION_STATUS.STARTED ? "linear-gradient(135deg,#228756,#1b6843)" : appt.status === SESSION_STATUS.COMPLETED ? "#64748b" : "#ed6c02" 
+                      }}>
+                        {appt.status}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8' }}>#{appt._id?.slice(-6)}</span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+                    {appt.client?.photo ? (
+                      <img src={appt.client.photo} alt={appt.client?.name || "Client"} style={{ width: 56, height: 56, borderRadius: 16, objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: 56, height: 56, borderRadius: 16, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                        <FaUser size={24} />
+                      </div>
+                    )}
+                    <div>
+                      <h6 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1e293b' }}>{appt.client?.name}</h6>
+                      <p style={{ margin: "2px 0 0 0", fontSize: 14, color: '#64748b', fontWeight: 500 }}>{appt.service} • {appt.format}</p>
+                    </div>
+                  </div>
+
+                  <div style={{ 
+                    background: '#f8fafc', 
+                    padding: 16, 
+                    borderRadius: 16, 
+                    marginBottom: 20,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#1e293b', fontWeight: 600 }}>
+                      <FaClock color="#228756" /> {formatDateTime(appt.booking_date)}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#1e293b', fontWeight: 600 }}>
+                      <FaCheck color="#228756" /> Payment: <span style={{ color: getPaymentStatusColor(appt.transaction?.status?.name), fontWeight: 800 }}>{appt.transaction?.status?.name || "-"}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      <button 
+                        onClick={() => handleView(appt)} 
+                        style={{ 
+                          flex: 1,
+                          padding: "10px", 
+                          borderRadius: 12, 
+                          background: "#fff", 
+                          border: "1.5px solid #f1f5f9", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: 'center',
+                          gap: 8,
+                          fontWeight: 700,
+                          color: '#475569',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseOut={(e) => e.currentTarget.style.background = '#fff'}
+                      >
+                        <FaUser size={14} /> Details
+                      </button>
+                      <button 
+                        onClick={() => handleInvoice(appt)} 
+                        style={{ 
+                          flex: 1,
+                          padding: "10px", 
+                          borderRadius: 12, 
+                          background: "#fff", 
+                          border: "1.5px solid #f1f5f9", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: 'center',
+                          gap: 8,
+                          fontWeight: 700,
+                          color: '#475569',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
+                        onMouseOut={(e) => e.currentTarget.style.background = '#fff'}
+                      >
+                        <FaFileInvoice size={14} /> Invoice
+                      </button>
+                    </div>
+
+                    {appt.status !== SESSION_STATUS.COMPLETED && appt.status !== SESSION_STATUS.CANCELED ? (
+                      appt.status === SESSION_STATUS.STARTED ? (
+                        sessionEnding ? <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}><CircularProgress size={26} /></Box> :
+                        <button 
+                          onClick={() => endSession(appt)} 
+                          style={{ 
+                            width: '100%',
+                            padding: "12px", 
+                            borderRadius: 12, 
+                            background: "linear-gradient(135deg,#ef4444,#dc2626)", 
+                            color: "#fff", 
+                            border: "none", 
+                            display: "flex", 
+                            alignItems: "center", 
+                            justifyContent: 'center',
+                            gap: 8,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
+                          }}
+                        >
+                          <FaStop size={14} /> End Session
+                        </button>
+                      ) :
+                      <button 
+                        onClick={() => handlePin(appt)} 
+                        style={{ 
+                          width: '100%',
+                          padding: "12px", 
+                          borderRadius: 12, 
+                          background: "linear-gradient(135deg, #228756 0%, #1b6843 100%)", 
+                          color: "#fff", 
+                          border: "none", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: 'center',
+                          gap: 8,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)'
+                        }}
+                      >
+                        <FaPlay size={14} /> Start Session
+                      </button>
+                    ) : (
+                      <button 
+                        disabled 
+                        style={{ 
+                          width: '100%',
+                          padding: "12px", 
+                          borderRadius: 12, 
+                          background: "#f1f5f9", 
+                          color: "#94a3b8", 
+                          border: "none", 
+                          display: "flex", 
+                          alignItems: "center", 
+                          justifyContent: 'center',
+                          gap: 8,
+                          fontWeight: 700
+                        }}
+                      >
+                        <FaCheck size={14} /> Session Completed
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {visibleCount < filteredAppointments.length && (
+            <div style={{ textAlign: "center", marginTop: 40, marginBottom: 40 }}>
+              <button 
+                onClick={handleLoadMore} 
+                style={{ 
+                  padding: "14px 32px", 
+                  borderRadius: 14, 
+                  background: "linear-gradient(135deg, #228756 0%, #1b6843 100%)", 
+                  color: "#fff", 
+                  fontWeight: 800, 
+                  border: "none", 
+                  cursor: "pointer", 
+                  fontSize: 16,
+                  boxShadow: '0 8px 20px rgba(34, 135, 86, 0.2)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                Load More Sessions
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <Box sx={{ 
+          textAlign: 'center', 
+          py: 10, 
+          bgcolor: '#fff', 
+          borderRadius: 6, 
+          border: '1px dashed #e2e8f0',
+          mx: '10px'
+        }}>
+          <Box sx={{ fontSize: '4rem', mb: 2 }}>📂</Box>
+          <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b', mb: 1 }}>No Appointments Found</Typography>
+          <Typography sx={{ color: '#64748b', mb: 3 }}>Try adjusting your search or filters to find what you're looking for.</Typography>
+          {(searchTerm || filterStatus !== 'all') && (
+            <Button 
+              variant="outlined" 
+              onClick={() => { setSearchTerm(""); setFilterStatus("all"); }}
+              sx={{ borderRadius: 3, textTransform: 'none', fontWeight: 700, borderColor: '#e2e8f0', color: '#475569' }}
+            >
+              Clear All Filters
+            </Button>
+          )}
+        </Box>
+      )}
       {isRinging && (
         <Box
           sx={{
