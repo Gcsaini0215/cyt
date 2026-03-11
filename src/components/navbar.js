@@ -109,6 +109,7 @@ export default function App() {
                         <li><Link href="/self-assessment">Self Assessment</Link></li>
                         <li><Link href="/plans">Therapy Plan</Link></li>
                         <li><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
+                      <li><Link href="/psychologist-in-noida-delhi">Noida Therapist</Link></li>
                       </ul>
                     </li>
                     <li><Link href="/about-us">Our Story</Link></li>
