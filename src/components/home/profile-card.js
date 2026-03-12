@@ -11,8 +11,26 @@ import {
 } from "../../utils/url";
 import ProfileCardHor from "./profile-card-hor";
 import { getDecodedToken } from "../../utils/jwt";
-export default function ProfileCard({ profiles }) {
+export default function ProfileCard({ profiles, detectedState }) {
   const [isMobile, setIsMobile] = useState(false);
+  const [userDetectedState, setUserDetectedState] = useState(detectedState || "");
+  const [activeState, setActiveState] = useState(detectedState || "");
+
+  useEffect(() => {
+    if (detectedState) {
+      setUserDetectedState(detectedState);
+      setActiveState(detectedState);
+    }
+  }, [detectedState]);
+
+  const onSlideChange = (swiper) => {
+    if (data && data[swiper.realIndex]) {
+      const state = data[swiper.realIndex].state || "";
+      if (state) {
+        setActiveState(state);
+      }
+    }
+  };
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 600px)");
@@ -111,59 +129,67 @@ export default function ProfileCard({ profiles }) {
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
           <div className="col-lg-12">
-            <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
-              <div style={{ flex: '1', minWidth: '300px' }}>
+            <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
                 <h3 className="title" style={{ 
-                  fontSize: isMobile ? "2.5rem" : "4.5rem", 
+                  fontSize: isMobile ? "2.4rem" : "4.5rem", 
                   fontWeight: "900", 
                   color: "#000000",
                   marginTop: '0px',
-                  lineHeight: isMobile ? '3rem' : '1.1',
-                  whiteSpace: "normal",
+                  lineHeight: isMobile ? '2.8rem' : '1.1',
+                  whiteSpace: isMobile ? "normal" : "nowrap",
                   textAlign: 'left',
-                  marginBottom: '15px'
+                  marginBottom: '15px',
+                  padding: 0,
+                  flex: '1'
                 }}>
-                  Best <span style={{ 
+                  Best Online Psychologists {isMobile && <br />} From <span style={{ 
                     backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
                     WebkitBackgroundClip: "text", 
                     backgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     color: "transparent"
-                  }}>Online Psychologists</span> across India
+                  }}>{activeState || "Across India"}</span>
                 </h3>
-                <p style={{ 
-                  fontSize: isMobile ? '1.2rem' : '1.5rem', 
-                  color: '#444', 
-                  maxWidth: '850px', 
-                  margin: '0',
-                  lineHeight: '1.6',
-                  fontWeight: '500',
-                  padding: isMobile ? '0 10px' : '0',
-                  textAlign: 'left'
-                }}>
-                  Connect with the top-rated therapists and mental health experts near you. Start your journey towards healing with professional counseling tailored to your needs.
-                </p>
-              </div>
-              
-              {!isMobile && (
-                <div className="view-all-btn-wrapper" style={{ marginBottom: '10px' }}>
+                <div className="view-all-btn-wrapper" style={{ marginTop: isMobile ? '10px' : '0', flexShrink: 0 }}>
                   <Link
-                    className="rbt-btn btn-gradient btn-sm hover-icon-reverse"
+                    className="rbt-btn btn-gradient btn-sm"
                     href={"/view-all-therapist"}
-                    style={{ padding: '12px 30px', height: 'auto', lineHeight: '1' }}
+                    style={{ 
+                      padding: isMobile ? '10px 18px' : '12px 30px', 
+                      height: 'auto', 
+                      lineHeight: '1.2',
+                      fontSize: isMobile ? '13px' : '14px',
+                      fontWeight: '800',
+                      minWidth: 'max-content',
+                      borderRadius: '50px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center'
+                    }}
                   >
-                    <span className="icon-reverse-wrapper">
-                      <span className="btn-text">View All</span>
-                      <span className="btn-icon">
+                    <span className="btn-text">{isMobile ? "View All" : "View All Experts"}</span>
+                    {!isMobile && (
+                      <span className="btn-icon" style={{ marginLeft: '10px' }}>
                         <i className="feather-arrow-right"></i>
                       </span>
-                      <span className="btn-icon">
-                        <i className="feather-arrow-right"></i>
-                      </span>
-                    </span>
+                    )}
                   </Link>
                 </div>
-              )}
+              </div>
+              <p style={{ 
+                fontSize: isMobile ? '1.2rem' : '1.5rem', 
+                color: '#444', 
+                maxWidth: '850px', 
+                margin: '0',
+                lineHeight: '1.6',
+                fontWeight: '500',
+                padding: 0,
+                textAlign: 'left'
+              }}>
+                Connect with the top-rated therapists and mental health experts near you. Start your journey towards healing with professional counseling tailored to your needs.
+              </p>
             </div>
           </div>
         </div>
@@ -171,6 +197,7 @@ export default function ProfileCard({ profiles }) {
           {data && data.length > 0 ? (
             <Swiper
               spaceBetween={50}
+              onSlideChange={onSlideChange}
               breakpoints={{
                 640: {
                   slidesPerView: 1,

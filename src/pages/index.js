@@ -16,6 +16,7 @@ const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr
 const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
 const ProcessSteps = dynamic(() => import("../components/home/process-steps"), { ssr: false });
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
+const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
 
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
@@ -23,34 +24,68 @@ import { getTherapistProfiles } from "../utils/url";
 
 export default function HomePage() {
   const [topTherapists, setTopTherapists] = useState([]);
+  const [bannerTherapists, setBannerTherapists] = useState([]);
+  const [userState, setUserState] = useState(null);
+
+  // Fetch user location based on IP
+  useEffect(() => {
+    const fetchUserLocation = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        if (data && data.region) {
+          console.log("User detected state:", data.region);
+          setUserState(data.region);
+        }
+      } catch (error) {
+        console.error("Error fetching user location:", error);
+      }
+    };
+    fetchUserLocation();
+  }, []);
 
   const getTopTherapists = useCallback(async () => {
     try {
       const res = await fetchData(getTherapistProfiles);
       console.log("HomePage: fetchData response:", res);
       
-      // Check both res.data and res directly depending on API structure
       const dataToProcess = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
       
       if (dataToProcess && dataToProcess.length > 0) {
         const allTherapists = dataToProcess;
+        
+        // Priority 1 therapists for Banner (Fixed)
         const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1 || therapist.priority === "1");
-        let recommendedTherapists = [...priorityTherapists];
+        setBannerTherapists(priorityTherapists.slice(0, 10));
 
-        if (recommendedTherapists.length < 10) {
-          const remainingNeeded = 10 - recommendedTherapists.length;
-          const otherTherapists = allTherapists.filter(therapist => therapist.priority !== 1 && therapist.priority !== "1").slice(0, remainingNeeded);
-          recommendedTherapists = [...recommendedTherapists, ...otherTherapists];
+        // Final Sorted List for ProfileCard (Location Based)
+        const nonPriorityTherapists = allTherapists.filter(therapist => therapist.priority !== 1 && therapist.priority !== "1");
+
+        let sortedNonPriority = [...nonPriorityTherapists];
+        if (userState) {
+          const userStateLower = userState.toLowerCase();
+          const stateAliases = { "up": "uttar pradesh", "uttar pradesh": "up", "delhi": "ncr", "ncr": "delhi" };
+          
+          sortedNonPriority.sort((a, b) => {
+            const aState = (a.state || "").toLowerCase();
+            const bState = (b.state || "").toLowerCase();
+            const isALocal = aState.includes(userStateLower) || (stateAliases[userStateLower] && aState.includes(stateAliases[userStateLower]));
+            const isBLocal = bState.includes(userStateLower) || (stateAliases[userStateLower] && bState.includes(stateAliases[userStateLower]));
+            if (isALocal && !isBLocal) return -1;
+            if (!isALocal && isBLocal) return 1;
+            return 0;
+          });
         }
-        console.log("HomePage: Setting topTherapists:", recommendedTherapists.length);
-        setTopTherapists(recommendedTherapists.slice(0, 10));
+        
+        const combinedTherapists = [...priorityTherapists, ...sortedNonPriority];
+        setTopTherapists(combinedTherapists.slice(0, 20));
       } else {
         console.warn("HomePage: No therapists found in response");
       }
     } catch (error) {
       console.error("Error fetching top therapists:", error);
     }
-  }, []);
+  }, [userState]);
 
   useEffect(() => {
     getTopTherapists();
@@ -61,82 +96,49 @@ export default function HomePage() {
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Basic Meta Tags */}
-        <title>Best Psychologist in India | Choose Your Therapist</title>
-        <meta name="description" content="Connect with the best psychologists in India. Book online or in-person sessions with verified professionals for anxiety, stress, and emotional well-being." />
-        <meta name="keywords" content="Best Psychologist India, Best Psychologist Noida, Online Therapy India, In-Person Therapy, Mental Health Counseling, Verified Therapists, Anxiety Counseling, Stress Management, Relationship Therapy, Choose Your Therapist" />
+        <title>{userState ? `Best Psychologist in ${userState} | Top Rated Mental Health Studio` : "Best Psychologist in India | Choose Your Therapist"}</title>
+        <meta name="description" content={userState ? `Connect with the best psychologists in ${userState}. Book online or in-person sessions with verified professionals for anxiety, stress, and emotional well-being.` : "Connect with the best psychologists in India. Book online or in-person sessions with verified professionals for anxiety, stress, and emotional well-being."} />
+        <meta name="keywords" content={`Best Psychologist ${userState || "India"}, Mental Health Studio ${userState || ""}, Online Therapy India, In-Person Therapy, Verified Therapists, Anxiety Counseling, Choose Your Therapist`} />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="language" content="English" />
         <meta name="revisit-after" content="7 days" />
         <link rel="canonical" href="https://chooseyourtherapist.in/" />
 
-        {/* Open Graph Meta Tags for Facebook / LinkedIn / WhatsApp */}
-        <meta property="og:title" content="Choose Best Therapist Across India & Noida | Online & In-Person Therapy" />
-        <meta property="og:description" content="Find a qualified psychologist anywhere in India and Noida. Explore verified professionals and book confidential sessions for anxiety, stress, relationships, and emotional well-being." />
+        {/* Open Graph Meta Tags */}
+        <meta property="og:title" content={userState ? `Best Psychologist in ${userState} | Online & In-Person Therapy` : "Choose Best Therapist Across India | Online & In-Person Therapy"} />
+        <meta property="og:description" content={userState ? `Find qualified psychologists in ${userState}. Explore verified professionals and book confidential sessions today.` : "Find a qualified psychologist anywhere in India. Explore verified professionals and book confidential sessions today."} />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-        <meta property="og:image:secure_url" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-        <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Choose Your Therapist - Best Psychologist in India" />
         <meta property="og:url" content="https://chooseyourtherapist.in/" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
 
-        {/* Twitter Card Meta Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Choose Best Therapist Across India & Noida | Online & In-Person Therapy" />
-        <meta name="twitter:description" content="Connect with verified therapists in India and Noida for online or in-person support. Book confidential sessions today." />
-        <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-        <meta name="twitter:image:alt" content="Choose Your Therapist - Best Psychologist in India" />
-        <meta name="twitter:site" content="@chooseyourtherapist" />
+        {/* Local SEO for detected region */}
+        {userState && (
+          <>
+            <meta name="geo.region" content="IN" />
+            <meta name="geo.placename" content={userState} />
+          </>
+        )}
 
-        {/* Additional SEO Meta Tags */}
-        <meta name="theme-color" content="#228756" />
-        <meta name="application-name" content="Choose Your Therapist" />
-
-        {/* Local SEO */}
-        <meta name="geo.region" content="IN-UP" />
-        <meta name="geo.placename" content="Noida, Uttar Pradesh, India" />
-        <meta name="geo.position" content="28.5355;77.3910" />
-        <meta name="ICBM" content="28.5355, 77.3910" />
-
-        {/* Enhanced LocalBusiness Schema */}
+        {/* Enhanced Schema.org Data */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "LocalBusiness",
-            "@id": "https://chooseyourtherapist.in/#organization",
-            "name": "Choose Your Therapist",
-            "alternateName": "CYT - Best Psychologist in India",
-            "url": "https://chooseyourtherapist.in",
-            "logo": "https://i.postimg.cc/gj1yngrd/choose.png",
-            "description": "Find a qualified psychologist anywhere in India. Book online or in-person therapy with verified professionals for anxiety, stress, relationships, and more.",
-            "image": "https://i.postimg.cc/gj1yngrd/choose.png",
-            "telephone": "+918077757951",
-            "email": "support@chooseyourtherapist.in",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "Sector 51",
-              "addressLocality": "Noida",
-              "addressRegion": "UP",
-              "postalCode": "201301",
-              "addressCountry": "IN"
-            },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": "28.5355",
-              "longitude": "77.3910"
-            },
-            "areaServed": [
-              {
-                "@type": "Place",
-                "name": "India"
-              }
-            ],
-            "serviceType": ["Mental Health Counseling", "Online Therapy", "In-Person Therapy", "Psychological Support"],
-            "priceRange": "₹500-₹2000"
+            "@type": "MedicalWebPage",
+            "name": userState ? `Psychologist Services in ${userState}` : "Psychologist Services in India",
+            "description": userState ? `Top-rated psychologists and mental health experts available in ${userState}.` : "Top-rated psychologists and mental health experts available across India.",
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://chooseyourtherapist.in"
+                }
+              ]
+            }
           })}
         </script>
       </Head>
@@ -144,9 +146,9 @@ export default function HomePage() {
       <main className="rbt-main-wrapper">
         <MyNavbar />
         {/* Homepage Sections */}
-        <Banner topTherapists={topTherapists} />
+        <Banner topTherapists={bannerTherapists} />
         <Specializations />
-        <ProfileCard />
+        <ProfileCard profiles={topTherapists} detectedState={userState} />
         <FreeResources />
         <HomeWorkshop isWhite={false} />
         <ProcessSteps />
@@ -157,6 +159,10 @@ export default function HomePage() {
       
       {/* Footer */}
       <Footer />
+      <LocationConsent onAccept={() => {
+        // Refresh location-based sorting if user accepts
+        getTopTherapists();
+      }} />
     </div>
   );
 }

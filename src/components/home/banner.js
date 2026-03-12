@@ -210,6 +210,7 @@ export default function Banner({ topTherapists = [] }) {
                   py: isMobile ? 1 : 4,
                   px: 2,
                   width: "100%",
+                  maxWidth: isMobile ? "100%" : "1200px",
                   mx: "auto",
                   mt: 0
                 }}>
@@ -218,12 +219,14 @@ export default function Banner({ topTherapists = [] }) {
                     className="title"
                     style={{
                       fontSize: isMobile ? "3.2rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "3.8rem" : isTablet ? "3.8rem" : "5.5rem",
+                      lineHeight: isMobile ? "3.4rem" : isTablet ? "3.4rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
                       fontWeight: 900,
                       textAlign: "center",
                       width: "100%",
+                      maxWidth: isMobile ? "100%" : "1200px",
+                      margin: "0 auto",
                       display: "block",
                       padding: isMobile ? "0 5px" : "0",
                       color: "#0f172a"
@@ -281,14 +284,14 @@ export default function Banner({ topTherapists = [] }) {
                   {/* Description */}
                   <Typography variant="h6" sx={{ 
                     color: "#333333", 
-                    maxWidth: isMobile ? "320px" : "800px", 
+                    maxWidth: isMobile ? "100%" : "1000px", 
                     margin: "0 auto", 
                     lineHeight: isMobile ? 1.5 : 1.6,
                     fontSize: isMobile ? "13px" : "18px",
                     mb: isMobile ? 2 : 3,
-                    px: isMobile ? 1 : 0,
+                    px: isMobile ? 2 : 2,
                     fontWeight: 500,
-                    textAlign: "center",
+                    textAlign: isMobile ? "justify" : "center",
                     display: "block",
                     fontFamily: "'Inter', 'Poppins', sans-serif",
                     letterSpacing: "-0.01em"
@@ -351,13 +354,14 @@ export default function Banner({ topTherapists = [] }) {
                   {/* Banner Buttons */}
                   <div className="rbt-button-group justify-content-center" style={{ 
                     display: "flex", 
-                    gap: isMobile ? "6px" : "20px", 
+                    gap: isMobile ? "10px" : "20px", 
                     flexDirection: isMobile ? "column" : "row",
-                    width: isMobile ? "100%" : "auto",
-                    maxWidth: isMobile ? "300px" : "none",
+                    width: "100%",
+                    maxWidth: isMobile ? "320px" : "none",
                     justifyContent: "center",
                     alignItems: "center",
-                    marginBottom: isMobile ? "20px" : "30px"
+                    marginBottom: isMobile ? "20px" : "30px",
+                    flexWrap: "wrap"
                   }}>
                     <Link
                       className="rbt-btn btn-gradient btn-sm"
@@ -373,6 +377,28 @@ export default function Banner({ topTherapists = [] }) {
                       }}
                     >
                       <span className="btn-text">Find a Therapist</span>
+                    </Link>
+                    <Link
+                      className="rbt-btn btn-white btn-sm"
+                      href="/psychologist-in-noida-delhi"
+                      style={{ 
+                        width: isMobile ? "100%" : "280px", 
+                        textAlign: "center",
+                        border: "none",
+                        padding: isMobile ? "0 10px" : "0 30px",
+                        height: isMobile ? "45px" : "55px",
+                        lineHeight: isMobile ? "45px" : "55px",
+                        fontSize: isMobile ? "14px" : "16px",
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        display: "block",
+                        cursor: "pointer",
+                        backgroundImage: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)",
+                        color: "#ffffff",
+                        boxShadow: "0 4px 12px rgba(14, 165, 233, 0.2)"
+                      }}
+                    >
+                      <span className="btn-text">For Delhi & Noida</span>
                     </Link>
                     <div
                       className="rbt-btn btn-white btn-sm"
