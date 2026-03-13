@@ -6,6 +6,8 @@ import PremiumLoader from "@/components/global/PremiumLoader";
 import WhatsAppWidget from "@/components/global/whatsapp-widget";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
+import { postData } from "../utils/actions";
+import { subscribeToNotifications } from "../utils/push-notifications";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import Head from "next/head";
@@ -15,6 +17,20 @@ function MyApp({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Register service worker and subscribe to notifications
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          console.log("Service Worker registered with scope:", registration.scope);
+          // Auto-subscribe after registration
+          subscribeToNotifications();
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
+    }
+
     const handleStart = () => setIsLoading(true);
     const handleComplete = () => setIsLoading(false);
 

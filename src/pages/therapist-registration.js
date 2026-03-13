@@ -14,7 +14,7 @@ import Link from "next/link";
 import { postData, postFormData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
 import FormProgressBar from "../components/global/form-progressbar";
-import { FaPhoneAlt, FaLaptop, FaMapMarkerAlt, FaGlobe } from "react-icons/fa";
+import { FaPhoneAlt, FaLaptop, FaMapMarkerAlt, FaGlobe, FaChartLine, FaCalendarCheck, FaDatabase, FaFileInvoice, FaClipboardList, FaTags, FaSearch } from "react-icons/fa";
 
 export default function TherapistRegistration() 
 {
@@ -32,6 +32,7 @@ export default function TherapistRegistration()
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [planOpen, setPlanOpen] = useState(false);
   const [otpError, setOtpError] = useState("");
   const [otp, setOtp] = useState("");
   const [registeredEmail, setRegisteredEmail] = useState("");
@@ -266,7 +267,7 @@ export default function TherapistRegistration()
                   Empowering Mental Health Professionals
                 </span>
                 <h2 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
-                 Become a Preferred Therapist with CYT
+                 Get Started with Your Therapist Dashboard Subscription
                 </h2>
                 <p className="text-muted" style={{ fontSize: '18px' }}>
                   Register as a verified psychologist or therapist and create a trusted profile to connect with clients across Worldwide. Offer online or in-person sessions, track booking easily, and grow your practice on a secure, well-being centered platform.
@@ -282,9 +283,59 @@ export default function TherapistRegistration()
                   </div>
                 ))}
               </div>
-            </div>
 
-            {/* Right Section - Form */}
+              {/* Why Choose Us Section */}
+              <div className="mt-5 pt-4">
+                <h4 style={{ fontWeight: 800, marginBottom: '25px' }}>Why Choose CYT?</h4>
+                <div className="row g-4">
+                  {[
+                    { icon: <FaChartLine />, title: "Comprehensive Therapist Dashboard", desc: "Manage your entire practice from a single, intuitive interface." },
+                    { icon: <FaCalendarCheck />, title: "Track Client Bookings", desc: "Keep track of all your upcoming and past appointments effortlessly." },
+                    { icon: <FaDatabase />, title: "Start with Unlimited Storage", desc: "Securely store client records and session notes to get your practice running." },
+                    { icon: <FaFileInvoice />, title: "Professional Invoicing", desc: "Generate invoices for both online and in-person consultations instantly." },
+                    { icon: <FaClipboardList />, title: "Task & Prescription Reports", desc: "Create detailed task lists and medical reports for your clients." },
+                    { icon: <FaTags />, title: "Custom Coupons & Offers", desc: "Boost your practice by offering personalized discounts on services." },
+                    { icon: <FaSearch />, title: "SEO Profile Management", desc: "Enhance your online visibility with our built-in SEO tools." }
+                  ].map((item, i) => (
+                    <div key={i} className="col-md-6">
+                      <div className="d-flex gap-3 align-items-start">
+                        <div style={{ 
+                          minWidth: '40px', 
+                          height: '40px', 
+                          background: 'rgba(34, 187, 51, 0.1)', 
+                          color: '#22bb33', 
+                          borderRadius: '8px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          fontSize: '18px'
+                        }}>
+                          {item.icon}
+                        </div>
+                        <div>
+                          <h6 style={{ fontWeight: 700, margin: 0, fontSize: '15px' }}>{item.title}</h6>
+                          <p className="text-muted small mb-0">{item.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Package Note */}
+              <div className="mt-4 p-3 rounded" style={{ background: '#f8fafc', border: '1px dashed #e2e8f0' }}>
+                <p className="mb-0 small" style={{ color: '#475569', fontWeight: 600 }}>
+                  <span className="me-2">💡</span>
+                  Choose from our flexible monthly or yearly subscription packages once your profile is verified. 
+                  <span 
+                    onClick={() => setPlanOpen(true)}
+                    style={{ color: '#22bb33', textDecoration: 'underline', marginLeft: '5px', cursor: 'pointer' }}
+                  >
+                    View basic plan overview
+                  </span>
+                </p>
+              </div>
+            </div>
             <div className="col-lg-5">
               <div className="rbt-contact-form p-5 rounded shadow bg-white">
                 <div className="mb-4">
@@ -467,10 +518,22 @@ export default function TherapistRegistration()
         </div>
       </div>
 
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogContent className="p-5 text-center">
-          <h3 style={{ fontWeight: 800, color: "#22bb33" }}>Verify Your Email</h3>
-          <p className="mb-4">We've sent a 6-digit OTP to your email address. Please enter it below to complete your registration.</p>
+      <Dialog 
+        open={open} 
+        onClose={onClose} 
+        fullWidth 
+        maxWidth="sm"
+        PaperProps={{
+          style: {
+            borderRadius: '16px',
+            margin: isMobile ? '20px' : '32px',
+            marginTop: isMobile ? '100px' : '0px', // Clear navbar on mobile
+          }
+        }}
+      >
+        <DialogContent className="p-4 p-md-5 text-center">
+          <h3 style={{ fontWeight: 800, color: "#22bb33", fontSize: isMobile ? '24px' : '30px' }}>Verify Your Email</h3>
+          <p className="mb-4 small">We've sent a 6-digit OTP to your email address. Please enter it below to complete your registration.</p>
           
           <div className="form-group mb-4">
             <input
@@ -479,17 +542,80 @@ export default function TherapistRegistration()
               value={otp}
               onChange={(e) => handleOtpChange(e.target.value)}
               className="form-control text-center"
-              style={{ fontSize: 24, letterSpacing: 8, fontWeight: 700 }}
+              style={{ fontSize: isMobile ? 20 : 24, letterSpacing: isMobile ? 4 : 8, fontWeight: 700, height: '60px' }}
             />
-            <p className="text-danger mt-2">{otpError}</p>
+            <p className="text-danger mt-2 small">{otpError}</p>
           </div>
 
           <button
             disabled={loading}
             onClick={verifyOtp}
             className="rbt-btn btn-gradient radius-round w-100"
+            style={{ minHeight: '50px' }}
           >
             {loading ? <CircularProgress size={20} /> : "Verify & Submit"}
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog 
+        open={planOpen} 
+        onClose={() => setPlanOpen(false)} 
+        fullWidth 
+        maxWidth="sm"
+        PaperProps={{
+          style: {
+            borderRadius: '16px',
+            margin: isMobile ? '20px' : '32px',
+            marginTop: isMobile ? '100px' : '0px', // Clear navbar on mobile
+          }
+        }}
+      >
+        <DialogContent className="p-4 p-md-5 text-center" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <div style={{ 
+            width: '50px', 
+            height: '50px', 
+            background: 'rgba(34, 187, 51, 0.1)', 
+            color: '#22bb33', 
+            borderRadius: '50%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            fontSize: '24px',
+            margin: '0 auto 15px'
+          }}>
+            <FaTags />
+          </div>
+          <h3 style={{ fontWeight: 800, marginBottom: '10px', fontSize: isMobile ? '22px' : '28px' }}>Subscription Plans</h3>
+          <p className="text-muted mb-4 small">
+            We offer flexible monthly and yearly subscription plans designed to help you grow your practice with all our premium features.
+          </p>
+          
+          <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', textAlign: 'left', marginBottom: '20px' }}>
+            <h6 style={{ fontWeight: 700, fontSize: '13px', marginBottom: '8px', color: '#166534' }}>Plan Details:</h6>
+            <p style={{ fontSize: '14px', fontWeight: 700, color: '#22bb33', marginBottom: '8px' }}>Start Basic Plan for 3 Months</p>
+            <ul style={{ paddingLeft: '15px', fontSize: '12px', color: '#475569', marginBottom: 0 }}>
+              <li>Full Access to Therapist Dashboard</li>
+              <li>Unlimited Client Booking Management</li>
+              <li>Professional Invoicing & Reports</li>
+              <li>SEO Profile Management</li>
+            </ul>
+          </div>
+
+          <p style={{ fontWeight: 600, color: '#64748b', fontSize: '13px', lineHeight: '1.6' }}>
+            For more information and detailed pricing:
+            <br />
+            <a href="mailto:chooseyourtherapist@gmail.com" style={{ color: '#22bb33', fontSize: '14px', textDecoration: 'none', wordBreak: 'break-all' }}>
+              chooseyourtherapist@gmail.com
+            </a>
+          </p>
+
+          <button
+            onClick={() => setPlanOpen(false)}
+            className="rbt-btn btn-border radius-round w-100 mt-4"
+            style={{ minHeight: '45px' }}
+          >
+            Close
           </button>
         </DialogContent>
       </Dialog>
