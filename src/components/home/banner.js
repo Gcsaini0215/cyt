@@ -487,10 +487,10 @@ export default function Banner({ topTherapists = [] }) {
           spaceBetween={isMobile ? 15 : 30}
           loop={topTherapists.length > 3}
           autoplay={{
-            delay: 5000,
+            delay: 3000,
             disableOnInteraction: false,
           }}
-          speed={1500}
+          speed={800}
           modules={[Autoplay]}
           style={{ 
             width: "100%", 
@@ -507,12 +507,12 @@ export default function Banner({ topTherapists = [] }) {
                   display: "flex", 
                   flexDirection: "column",
                   bgcolor: "white",
-                  p: isMobile ? 2.5 : 3,
+                  p: isMobile ? 2 : 3,
                   mx: isMobile ? 1 : 1.5,
                   borderRadius: "24px",
                   boxShadow: "0 10px 30px rgba(0,0,0,0.04)",
                   border: "1px solid #f1f5f9",
-                  minWidth: isMobile ? "220px" : "280px",
+                  minWidth: isMobile ? "200px" : "280px",
                   cursor: "pointer",
                   userSelect: "none",
                   WebkitTapHighlightColor: "transparent",
@@ -593,8 +593,7 @@ export default function Banner({ topTherapists = [] }) {
                         {therapist.qualification}
                       </Typography>
                     )}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography sx={{ 
+                    <Typography sx={{ 
                         fontSize: isMobile ? "12px" : "13px", 
                         color: "#228756", 
                         fontWeight: 700, 
@@ -603,29 +602,8 @@ export default function Banner({ topTherapists = [] }) {
                       }}>
                         {therapist.profile_type || "Specialist"}
                       </Typography>
-                      <Box sx={{ 
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 0.3,
-                        bgcolor: "#f1f5f9",
-                        px: 1,
-                        py: 0.2,
-                        borderRadius: "6px",
-                        border: "1px solid #e2e8f0"
-                      }}>
-                        <LocationOn sx={{ fontSize: 12, color: "#475569" }} />
-                        <Typography sx={{ 
-                          fontSize: isMobile ? "11px" : "12px", 
-                          color: "#0f172a", 
-                          fontWeight: 700,
-                          textTransform: "capitalize"
-                        }}>
-                          {therapist.state || "India"}
-                        </Typography>
-                      </Box>
                     </Box>
                   </Box>
-                </Box>
 
                 {/* Dynamic Languages Spoken */}
                 {therapist.language_spoken && Array.isArray(therapist.language_spoken) && therapist.language_spoken.length > 0 && (
@@ -664,14 +642,20 @@ export default function Banner({ topTherapists = [] }) {
                     display: "flex", 
                     alignItems: "center", 
                     gap: 0.5,
-                    bgcolor: "rgba(34, 135, 86, 0.08)",
+                    bgcolor: "#f1f5f9",
                     px: 1.5,
-                    py: 0.8,
+                    py: 0.6,
                     borderRadius: "50px",
+                    border: "1px solid #e2e8f0"
                   }}>
-                    <Star sx={{ fontSize: 16, color: "#f59e0b" }} />
-                    <Typography sx={{ fontSize: isMobile ? "12px" : "13px", color: "#1e293b", fontWeight: 800 }}>
-                      5.0
+                    <LocationOn sx={{ fontSize: 14, color: "#475569" }} />
+                    <Typography sx={{ 
+                      fontSize: isMobile ? "11px" : "12px", 
+                      color: "#0f172a", 
+                      fontWeight: 700,
+                      textTransform: "capitalize"
+                    }}>
+                      {therapist.state || "India"}
                     </Typography>
                   </Box>
                   <Box
@@ -802,7 +786,7 @@ export default function Banner({ topTherapists = [] }) {
           
           <Button 
             component={Link}
-            href={`/therapist-checkout/${selectedTherapist?.id}`}
+            href={`/therapist-checkout/${selectedTherapist?._id}`}
             variant="contained"
             fullWidth
             sx={{ 

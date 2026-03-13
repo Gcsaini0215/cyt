@@ -299,84 +299,44 @@ export default function TherapistCheckout({ profile }) {
 const setConfig = async (profile) => {
   const validServices = await getServices(profile.fees);
   setServices(validServices);
-
-  let updates = { therapist: profile._id };
-
-  if (validServices.length > 0) {
-    const firstService = validServices[0];
-    setSelectedService(firstService);
-    updates.service = firstService.name;
-
-    const formats = await getFormatsByServiceId(profile.fees, firstService._id);
-    setSessionFormats(formats);
-
-    if (formats.length > 0) {
-      const firstFormat = formats[0];
-      setSelectedFormat(firstFormat);
-
-      updates.format = firstFormat.type;
-      updates.amount = firstFormat.fee;
-
-      setAmountInfo((prev) => ({
-        ...prev,
-        amount: firstFormat.fee,
-        afterdiscount: firstFormat.fee,
-      }));
-    }
-  }
-
+  setSelectedService(validServices[0]);
+  const formats = getFormatsByServiceId(profile.fees, validServices[0]._id);
+  setSessionFormats(formats);
+  setSelectedFormat(formats[0] || {});
   setInfo((prev) => ({
     ...prev,
-    ...updates,
+    service: validServices[0].name,
+    format: formats[0].type,
+    amount: formats[0].fee,
+    therapist: profile._id,
+    is_logged_in: userInfo?.name ? true : false,
+    user_id: userInfo?._id ? userInfo._id : "",
+    name: userInfo?.name ? userInfo.name : "",
+    phone: userInfo?.phone ? userInfo.phone : "",
+    email: userInfo?.email ? userInfo.email : "",
   }));
+
+  setAmountInfo((prev) => ({
+    ...prev,
+    amount: formats[0].fee,
+    afterdiscount: formats[0].fee
+  }))
 };
 
-
-  useEffect(() => {
-    if (userInfo?._id) {
-      const token = getToken();
-      setInfo((prev) => ({
-        ...prev,
-        user_id: userInfo._id,
-        email: userInfo.email || "",
-        is_logged_in: !!token,
-      }));
-    }
-  }, [userInfo]);
-
-
-  useEffect(() => {
-    if (profile) {
-      setConfig(profile);
-    }
-  }, [profile]);
-
-
-  useEffect(() => {
-    const formats = getFormatsByServiceId(profile.fees, selectedService._id);
-    setSessionFormats(formats);
-    if (formats.length > 0) {
-      const firstFormat = formats[0];
-      setSelectedFormat(firstFormat);
-      setAmountInfo((prev) => ({
-        ...prev,
-        amount: firstFormat.fee,
-        afterdiscount: firstFormat.fee,
-      }));
-    }
-  }, [selectedService, profile.fees])
+useEffect(() => {
+  if (profile && Object.keys(profile).length > 0) {
+    setConfig(profile);
+  }
+}, [profile, userInfo]);
 
   const handleCouponApply = async () => {
     setCouponError("");
+    if (!amountInfo.coupon) {
+      setCouponError("Please enter coupon code");
+      return;
+    }
+
     try {
-      if (amountInfo.coupon === "") {
-        setCouponError("Please Enter Coupon Code");
-        return false;
-      }
-      if (amountInfo.coupon.length > 20) {
-        setCouponError("Coupon is Invalid");
-        return false;
-      }
       const reqData = {
         therapist_id: profile._id,
         code: amountInfo.coupon,
@@ -424,12 +384,10 @@ const setConfig = async (profile) => {
   return (
     <div className="checkout_area bg-color-white" style={{ padding: isMobile ? "20px 0 100px 0" : "60px 0" }}>
       <div className="container">
-        <div className={`row g-5 ${isMobile ? 'flex-column-reverse' : ''}`}>
+        <div className="row g-5">
           <div className="col-lg-7">
-            <div style={{ marginBottom: isMobile ? '30px' : '0' }}>
-              <ProfileCheckoutCard pageData={profile} />
-            </div>
-            <div className="checkout-content-wrapper mt--20" style={{ 
+            {/* 1. Booking Details Form (Top on Mobile) */}
+            <div className="checkout-content-wrapper" style={{ 
               background: '#fff',
               padding: isMobile ? '20px' : '30px',
               borderRadius: '24px',
@@ -442,7 +400,6 @@ const setConfig = async (profile) => {
                 <div className="row mt--15">
 
                   {!info.is_logged_in &&
-
                     <>
                       <div className="col-md-6 col-12 mb--10">
                         <label htmlFor="name">Full Name*</label>
@@ -474,7 +431,7 @@ const setConfig = async (profile) => {
                         />
                       </div>
                       <div className="col-md-6 col-12 mb--10">
-                        <label htmlFor="phone">Email*</label>
+                        <label htmlFor="email">Email*</label>
                         <input
                           type="text"
                           placeholder="Email"
@@ -599,7 +556,7 @@ const setConfig = async (profile) => {
                     </>
                   )}
                   <div className="col-md-6 col-12 mb--10">
-                    <label htmlFor="dob">Age</label>
+                    <label htmlFor="age">Age</label>
                     <input
                       type="text"
                       placeholder="Age"
@@ -627,9 +584,15 @@ const setConfig = async (profile) => {
                 </div>
               </div>
             </div>
+
+            {/* 2. Therapist Profile Card (Bottom on Mobile) */}
+            <div style={{ marginTop: '30px' }}>
+              <ProfileCheckoutCard pageData={profile} />
+            </div>
           </div>
 
           <div className="col-lg-5">
+            {/* 3. Booking Summary (Below Form on Mobile) */}
             <div className="col-12 mb--30">
               <div className="checkout-cart-total" style={{ 
                 border: 'none', 

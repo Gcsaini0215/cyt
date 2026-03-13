@@ -30,7 +30,7 @@ let rawBaseApi = LIVE_BASE_API;
 
 // Force LIVE mode if you want to use production data on localhost
 // Set this to "LOCAL" only if you have a local backend running on port 4000
-const PREFERRED_MODE = "LIVE"; 
+const PREFERRED_MODE = "LOCAL"; 
 
 const isLocal = !isServer && (currentDomain === "localhost" || currentDomain === "127.0.0.1" || currentDomain.startsWith("192.168.") || currentDomain.startsWith("10."));
 
@@ -62,6 +62,8 @@ if (!isLocal && rawApiUrl.includes('api.chooseyourtherapist.in')) {
 apiUrl = removeTrailingSlash(rawApiUrl);
 baseApi = removeTrailingSlash(rawBaseApi);
 
+export { apiUrl, baseApi };
+
 console.log("DEBUG: Final API Configuration:", { 
   apiUrl, 
   baseApi, 
@@ -79,6 +81,19 @@ export const defaultProfile =
 export const frontendUrl = baseFrontendUrl;
 // Use LIVE_BASE_API for images to ensure they load even when working locally
 export const imagePath = `${LIVE_BASE_API}/uploads/images`;
+export const blogImagePath = `${baseApi}/uploads/images`;
+
+export const getFullBlogImagePath = (imageName) => {
+  if (!imageName) return null;
+  const trimmed = imageName.toString().trim();
+  if (trimmed.startsWith('data:') || trimmed.startsWith('http')) return trimmed;
+  // If we are on local, try to use the live API for images as a fallback
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return `${LIVE_BASE_API}/uploads/images/${trimmed}`;
+  }
+  return `${baseApi}/uploads/images/${trimmed}`;
+};
+
 export const loginUrl = `${apiUrl}/login`;
 export const therapistRegistrationUrl = `${apiUrl}/therapist-registeration`;
 export const registerUrl = `${apiUrl}/register`;
@@ -119,6 +134,8 @@ export const deleteWorkshopUrl = `${apiUrl}/delete-workshop`;
 export const UpdateWorkshopUrl = `${apiUrl}/update-workshop`;
 export const GetDashboardDataUrl = `${apiUrl}/get-dashboard-data`;
 export const createBlogUrl = `${apiUrl}/create-blog`;
+export const getBlogsUrl = `${apiUrl}/get-blogs`;
+export const getBlogUrl = `${apiUrl}/get-blog`;
 export const InsertFavoriteTherapistUrl = `${apiUrl}/insert-favorite-therapist`;
 export const RemoveFavoriteTherapistUrl = `${apiUrl}/remove-favorite-therapist`;
 export const GetFavoriteTherapistUrl = `${apiUrl}/get-favorite-therapists`;

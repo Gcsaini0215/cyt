@@ -12,736 +12,306 @@ import {
   Divider,
   IconButton,
   Button,
-  TextField,
   Paper,
-  Card,
-  CardMedia,
-  CardContent,
+  Grid,
   useMediaQuery,
   useTheme,
   Fade,
-  Zoom,
+  CircularProgress,
+  LinearProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
   Clock, 
   Calendar, 
+  ArrowLeft,
   Share2, 
-  BookOpen, 
-  Brain,
-  User,
-  Tag,
-  Search,
-  ArrowUp,
-  Heart,
+  Bookmark,
   MessageCircle,
   TrendingUp,
-  Sparkles,
+  UserCheck,
+  ChevronRight
 } from 'lucide-react';
 import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
 import SocialShare from '../components/global/social-share';
-import { blogsData } from '../data/blogs-data';
+import { getBlogUrl, baseApi } from '../utils/url';
+import { fetchData } from '../utils/actions';
+import dompurify from "dompurify";
 
-// Modern Hero with Overlay
+// --- Styled Components for Premium Look ---
+
+const ProgressWrapper = styled(Box)({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 2000,
+});
+
 const ModernHero = styled(Box)(({ theme, image }) => ({
   position: 'relative',
-  minHeight: '70vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+  padding: '120px 0 180px',
+  background: '#0f172a',
+  color: '#fff',
   overflow: 'hidden',
-  background: `linear-gradient(135deg, ${theme.palette.primary?.main || '#228756'} 0%, ${theme.palette.secondary?.main || '#1a5f42'} 100%)`,
   '&::before': {
     content: '""',
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     backgroundImage: `url(${image})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    opacity: 0.15,
+    opacity: 0.4,
     zIndex: 0,
   },
   '&::after': {
     content: '""',
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)',
+    bottom: 0, left: 0, right: 0,
+    height: '200px',
+    background: 'linear-gradient(to top, #f8fafc 0%, transparent 100%)',
     zIndex: 1,
-  },
-  [theme.breakpoints.down('md')]: {
-    minHeight: '50vh',
-  },
+  }
 }));
 
-const FloatingCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(5),
-  borderRadius: '24px',
-  background: 'rgba(255, 255, 255, 0.98)',
-  backdropFilter: 'blur(20px)',
-  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-  border: '1px solid rgba(255, 255, 255, 0.3)',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 30px 80px rgba(0, 0, 0, 0.4)',
-  },
+const StyledArticle = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(6),
+  borderRadius: '32px',
+  marginTop: '-100px',
+  position: 'relative',
+  zIndex: 5,
+  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.08)',
+  border: '1px solid rgba(226, 232, 240, 0.8)',
   [theme.breakpoints.down('md')]: {
     padding: theme.spacing(3),
-    borderRadius: '16px',
+    borderRadius: '24px',
+    marginTop: '-60px',
   },
 }));
 
-const BigTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '4rem',
-  fontWeight: 800,
-  lineHeight: 1.2,
-  color: '#fff',
-  textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
-  marginBottom: theme.spacing(3),
-  [theme.breakpoints.down('md')]: {
-    fontSize: '2.5rem',
-  },
-  [theme.breakpoints.down('sm')]: {
-    fontSize: '2rem',
-  },
-}));
-
-const ContentSection = styled(Box)(({ theme }) => ({
-  maxWidth: '820px',
-  margin: '0 auto',
+const ContentWrapper = styled(Box)(({ theme }) => ({
   '& p': {
     fontSize: '1.25rem',
-    lineHeight: 2,
-    color: '#2C3E50',
-    marginBottom: theme.spacing(3),
-  },
-  '& h2, & h3, & h4': {
-    fontWeight: 700,
-    color: '#1a1a1a',
-    marginTop: theme.spacing(6),
-    marginBottom: theme.spacing(3),
+    lineHeight: 1.9,
+    color: '#334155',
+    marginBottom: '1.8rem',
+    fontFamily: '"Inter", sans-serif',
   },
   '& h2': {
-    fontSize: '2.5rem',
+    fontSize: '2.2rem',
+    fontWeight: 800,
+    color: '#0f172a',
+    marginTop: '3rem',
+    marginBottom: '1.2rem',
+    letterSpacing: '-0.02em',
   },
-  '& h3': {
-    fontSize: '2rem',
-  },
-  '& h4': {
-    fontSize: '1.75rem',
-  },
-  [theme.breakpoints.down('md')]: {
+  '& blockquote': {
+    borderLeft: '5px solid #228756',
+    paddingLeft: '2rem',
+    margin: '3rem 0',
+    fontStyle: 'italic',
     '& p': {
-      fontSize: '1.125rem',
-      lineHeight: 1.9,
-    },
-    '& h2': {
-      fontSize: '2rem',
-    },
-    '& h3': {
-      fontSize: '1.75rem',
-    },
-    '& h4': {
-      fontSize: '1.5rem',
-    },
+      fontSize: '1.6rem',
+      color: '#1e293b',
+      lineHeight: 1.5,
+    }
   },
+  '& img': {
+    maxWidth: '100%',
+    borderRadius: '20px',
+    margin: '2.5rem 0',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+  }
 }));
 
-const InsightBox = styled(Paper)(({ theme }) => ({
+const SidebarCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
-  marginBottom: theme.spacing(5),
-  background: 'linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%)',
-  borderRadius: '20px',
-  border: '2px solid #4CAF50',
-  position: 'relative',
-  overflow: 'hidden',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: -50,
-    right: -50,
-    width: 200,
-    height: 200,
-    background: 'radial-gradient(circle, rgba(76, 175, 80, 0.2) 0%, transparent 70%)',
-    borderRadius: '50%',
-  },
-}));
-
-const QuoteCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(5),
-  margin: theme.spacing(6, 0),
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  borderRadius: '20px',
-  color: '#fff',
-  position: 'relative',
-  overflow: 'hidden',
-  boxShadow: '0 20px 60px rgba(102, 126, 234, 0.4)',
-  '&::before': {
-    content: '"\\201C"',
-    position: 'absolute',
-    top: -20,
-    left: 20,
-    fontSize: '10rem',
-    opacity: 0.2,
-    fontFamily: 'Georgia, serif',
-  },
-}));
-
-const SideCard = styled(Card)(({ theme }) => ({
-  borderRadius: '16px',
-  overflow: 'hidden',
-  transition: 'all 0.3s ease',
-  cursor: 'pointer',
-  '&:hover': {
-    transform: 'translateY(-8px)',
-    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
-  },
-}));
-
-const ScrollToTop = styled(IconButton)(({ theme }) => ({
-  position: 'fixed',
-  bottom: 30,
-  right: 30,
-  backgroundColor: '#228756',
-  color: '#fff',
-  width: 56,
-  height: 56,
-  boxShadow: '0 8px 24px rgba(34, 135, 86, 0.4)',
-  '&:hover': {
-    backgroundColor: '#1a6842',
-    transform: 'translateY(-4px)',
-    boxShadow: '0 12px 32px rgba(34, 135, 86, 0.5)',
-  },
-  transition: 'all 0.3s ease',
-  zIndex: 1000,
-}));
-
-const CategoryTag = styled(Chip)(({ theme }) => ({
-  backgroundColor: '#228756',
-  color: '#fff',
-  fontWeight: 700,
-  fontSize: '1rem',
-  padding: '8px 16px',
-  height: 'auto',
-  borderRadius: '12px',
-  '& .MuiChip-label': {
-    padding: '8px 12px',
-  },
-}));
-
-const MetaItem = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px',
-  color: '#fff',
-  fontSize: '1.1rem',
-  fontWeight: 500,
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  padding: '8px 16px',
-  borderRadius: '12px',
-  backdropFilter: 'blur(10px)',
+  borderRadius: '24px',
+  background: '#ffffff',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+  position: 'sticky',
+  top: '100px',
 }));
 
 export default function BlogDetails() {
   const router = useRouter();
-  const { id  } = router.query;
+  const { id } = router.query;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const blog = blogsData.find(b => b.id === parseInt(id));
   
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [comment, setComment] = useState({ name: '', email: '', message: '' });
+  const [blog, setBlog] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      const totalScroll = document.documentElement.scrollTop;
+      const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scroll = `${(totalScroll / windowHeight) * 100}`;
+      setScrollProgress(scroll);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (!blog) {
-    return (
-      <>
-        <MyNavbar />
-        <Container maxWidth="md" sx={{ py: 15, textAlign: 'center' }}>
-          <Brain size={100} color="#228756" style={{ marginBottom: 24 }} />
-          <Typography variant="h2" gutterBottom sx={{ fontSize: '3rem', fontWeight: 800 }}>
-            Blog Not Found
-          </Typography>
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 5, fontSize: '1.25rem' }}>
-            The article you're looking for doesn't exist or has been moved.
-          </Typography>
-          <Button
-            variant="contained"
-            size="large"
-            onClick={() => router.push('/blogs')}
-            sx={{
-              px: 5,
-              py: 2,
-              fontSize: '1.1rem',
-              borderRadius: '50px',
-              backgroundColor: '#228756',
-              '&:hover': { backgroundColor: '#1a6842' },
-            }}
-          >
-            Explore All Blogs
-          </Button>
-        </Container>
-        <Footer />
-      </>
-    );
-  }
+  useEffect(() => {
+    if (id) {
+      const getBlog = async () => {
+        try {
+          const res = await fetchData(getBlogUrl, { id });
+          if (res && res.status) setBlog(res.data);
+        } catch (error) {
+          console.error("Fetch Error:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      getBlog();
+    }
+  }, [id]);
 
-  const recentPosts = blogsData.filter(b => b.id !== blog.id).slice(0, 4);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const getFullImagePath = (img) => {
+    if (!img) return "";
+    if (img.startsWith('data:') || img.startsWith('http')) return img;
+    return `${baseApi}/uploads/images/${img}`;
   };
 
+  if (loading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f8fafc' }}>
+      <CircularProgress thickness={5} size={60} sx={{ color: '#228756' }} />
+    </Box>
+  );
+
+  if (!blog) return <Typography>Blog not found</Typography>;
+
+  const sanitizedContent = typeof window !== 'undefined' ? dompurify.sanitize(blog.content) : blog.content;
+
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
+    <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh' }}>
       <Head>
         <title>{blog.title} | Choose Your Therapist</title>
-        <meta name="description" content={blog.description} />
-        <meta name="keywords" content={`${blog.category}, Mental Health Blog, Therapy Insights, ${blog.title}`} />
-        
-        <meta property="og:title" content={`${blog.title} | Choose Your Therapist`} />
-        <meta property="og:description" content={blog.description} />
-        <meta property="og:url" content={`https://chooseyourtherapist.in/blog-details/${id}`} />
-        <meta property="og:type" content="article" />
-        <meta property="og:image" content={blog.image || "https://chooseyourtherapist.in/assets/img/og-image.jpg"} />
-        <meta property="article:published_time" content={blog.date} />
-        <meta property="article:author" content={blog.author} />
-        <meta property="article:section" content={blog.category} />
-        
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${blog.title} | Choose Your Therapist`} />
-        <meta name="twitter:description" content={blog.description} />
-        <meta name="twitter:image" content={blog.image || "https://chooseyourtherapist.in/assets/img/og-image.jpg"} />
-        
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <meta name="description" content={blog.short_desc} />
       </Head>
+
+      <ProgressWrapper>
+        <LinearProgress variant="determinate" value={scrollProgress} sx={{ height: 4, bgcolor: 'transparent', '& .MuiLinearProgress-bar': { bgcolor: '#228756' } }} />
+      </ProgressWrapper>
 
       <MyNavbar />
 
-      {/* Modern Hero Section */}
-      <ModernHero image={blog.image}>
-        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, py: 8 }}>
-          <Fade in timeout={800}>
-            <Stack spacing={4} alignItems="center">
-              {/* Meta Info */}
-              <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center">
-                <CategoryTag label={blog.category} icon={<Sparkles size={18} />} />
-                <MetaItem>
-                  <Clock size={20} />
-                  <span>{blog.readingTime}</span>
-                </MetaItem>
-                <MetaItem>
-                  <Calendar size={20} />
-                  <span>{blog.date}</span>
-                </MetaItem>
-              </Stack>
-
-              {/* Big Title */}
-              <BigTitle variant="h1" align="center">
+      <ModernHero image={getFullImagePath(blog.image)}>
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
+          <Stack spacing={4} alignItems={isMobile ? 'center' : 'flex-start'} sx={{ textAlign: isMobile ? 'center' : 'left' }}>
+            <Button 
+              startIcon={<ArrowLeft size={18} />} 
+              onClick={() => router.back()}
+              sx={{ color: 'rgba(255,255,255,0.8)', textTransform: 'none', fontSize: '1rem' }}
+            >
+              Back to Articles
+            </Button>
+            
+            <Box>
+              <Chip 
+                label={blog.category} 
+                sx={{ bgcolor: '#228756', color: '#fff', fontWeight: 800, mb: 3, px: 1 }} 
+              />
+              <Typography variant="h1" sx={{ fontSize: isMobile ? '2.5rem' : '4rem', fontWeight: 900, lineHeight: 1.1, maxWidth: '900px' }}>
                 {blog.title}
-              </BigTitle>
+              </Typography>
+            </Box>
 
-              {/* Author */}
-              <Stack direction="row" spacing={2} alignItems="center" sx={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(20px)',
-                px: 3,
-                py: 2,
-                borderRadius: '50px',
-              }}>
-                <Avatar
-                  src={`https://ui-avatars.com/api/?name=${blog.author}&background=228756&color=fff`}
-                  sx={{ width: 56, height: 56, border: '3px solid #fff' }}
-                />
+            <Stack direction="row" spacing={3} alignItems="center">
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Avatar sx={{ bgcolor: '#228756', width: 48, height: 48 }}>{blog.author_name?.[0] || 'A'}</Avatar>
                 <Box>
-                  <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, fontSize: '1.25rem' }}>
-                    {blog.author}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', fontSize: '1rem' }}>
-                    Mental Health Expert
-                  </Typography>
+                  <Typography sx={{ fontWeight: 700, color: '#fff' }}>{blog.author_name || 'Admin'}</Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Author & Expert</Typography>
                 </Box>
               </Stack>
+              <Divider orientation="vertical" flexItem sx={{ bgcolor: 'rgba(255,255,255,0.2)' }} />
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                <Clock size={18} />
+                <Typography variant="body2">5 min read</Typography>
+              </Stack>
             </Stack>
-          </Fade>
+          </Stack>
         </Container>
       </ModernHero>
 
-      {/* Main Content */}
-      <Container maxWidth="xl" sx={{ mt: -15, position: 'relative', zIndex: 3, pb: 10 }}>
-        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={6}>
-          {/* Article Content */}
-          <Box sx={{ flex: 1 }}>
-            <FloatingCard elevation={0}>
-              <ContentSection sx={{ py: 4 }}>
-                {/* Key Insights */}
-                {blog.keyInsights && blog.keyInsights.length > 0 && (
-                  <Zoom in timeout={600}>
-                    <InsightBox elevation={0}>
-                      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 4 }}>
-                        <Brain size={32} color="#4CAF50" />
-                        <Typography variant="h3" sx={{ fontSize: '2rem', fontWeight: 800, color: '#2E7D32' }}>
-                          Key Takeaways
-                        </Typography>
-                      </Stack>
-                      <Stack spacing={3}>
-                        {blog.keyInsights.map((insight, index) => (
-                          <Stack key={index} direction="row" spacing={2} alignItems="flex-start">
-                            <Box
-                              sx={{
-                                minWidth: 32,
-                                height: 32,
-                                borderRadius: '50%',
-                                backgroundColor: '#4CAF50',
-                                color: '#fff',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 700,
-                                fontSize: '1rem',
-                              }}
-                            >
-                              {index + 1}
-                            </Box>
-                            <Typography variant="body1" sx={{ fontSize: '1.2rem', fontWeight: 500, flex: 1, pt: 0.5 }}>
-                              {insight}
-                            </Typography>
-                          </Stack>
-                        ))}
-                      </Stack>
-                    </InsightBox>
-                  </Zoom>
-                )}
-
-                {/* Content */}
-                <Typography variant="body1" paragraph sx={{ fontSize: '1.3rem', fontWeight: 500, color: '#1a1a1a', lineHeight: 1.9 }}>
-                  {blog.description}
-                </Typography>
-
-                <Typography variant="body1" paragraph>
-                  Mental health is an essential part of our overall well-being. At Choose Your Therapist, 
-                  we believe that everyone deserves access to quality mental health support and resources. 
-                  This article explores key aspects of {blog.category.toLowerCase()} and provides actionable 
-                  insights for your journey toward better mental wellness.
-                </Typography>
-
-                {/* Quote */}
-                <QuoteCard elevation={0}>
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontStyle: 'italic',
-                      fontWeight: 600,
-                      lineHeight: 1.6,
-                      fontSize: '1.75rem',
-                      position: 'relative',
-                      zIndex: 1,
-                    }}
-                  >
-                    "Your mental health is a priority. Your happiness is essential. Your self-care is a necessity."
+      <Container maxWidth="lg" sx={{ pb: 10 }}>
+        <Grid container spacing={5}>
+          <Grid item xs={12} lg={8}>
+            <StyledArticle elevation={0}>
+              <ContentWrapper 
+                className="blog-content-rich-text"
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
+              />
+              
+              <Box sx={{ mt: 8, p: 4, bgcolor: '#f1f5f9', borderRadius: '24px', display: 'flex', gap: 3, alignItems: 'center' }}>
+                <Avatar sx={{ width: 80, height: 80, bgcolor: '#228756', fontSize: '2rem' }}>{blog.author_name?.[0] || 'A'}</Avatar>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 800 }}>Written by {blog.author_name || 'Admin'}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Mental Health contributor at Choose Your Therapist. Committed to providing expert insights and practical advice for emotional well-being.
                   </Typography>
-                  <Typography variant="h6" sx={{ mt: 3, textAlign: 'right', opacity: 0.9, fontSize: '1.1rem' }}>
-                    — Choose Your Therapist
-                  </Typography>
-                </QuoteCard>
-
-                {/* Section 1 */}
-                <Typography variant="h2" gutterBottom>
-                  Understanding the Journey
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  Taking the first step toward mental wellness can feel overwhelming, but you don't have to 
-                  navigate this journey alone. Our team of experienced therapists understands that each person's 
-                  path is unique, and we're here to support you with compassionate, personalized care.
-                </Typography>
-
-                <Typography variant="body1" paragraph>
-                  Whether you're dealing with stress, anxiety, relationship challenges, or simply seeking personal 
-                  growth, therapy provides a safe space for exploration and healing. The therapeutic relationship 
-                  is built on trust, understanding, and non-judgment—creating an environment where you can express 
-                  yourself freely and work toward meaningful change.
-                </Typography>
-
-                {/* Featured Image */}
-                <Box sx={{ my: 6, borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
-                  <img 
-                    src={blog.image} 
-                    alt={blog.title}
-                    style={{ width: '100%', height: 'auto', display: 'block' }}
-                  />
                 </Box>
+              </Box>
 
-                {/* Section 2 */}
-                <Typography variant="h3" gutterBottom>
-                  Practical Steps You Can Take Today
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  While professional support is invaluable, there are also daily practices that can enhance your 
-                  mental well-being:
-                </Typography>
-
-                <Stack spacing={3} sx={{ my: 5 }}>
-                  {[
-                    'Practice mindfulness and meditation for even just 5-10 minutes daily',
-                    'Maintain a consistent sleep schedule to support emotional regulation',
-                    'Engage in regular physical activity that you enjoy',
-                    'Connect with supportive friends and family members',
-                    'Set healthy boundaries in your relationships and commitments',
-                    'Journal your thoughts and feelings to process emotions',
-                  ].map((item, index) => (
-                    <Paper
-                      key={index}
-                      sx={{
-                        p: 3,
-                        backgroundColor: '#F5F5F5',
-                        borderLeft: '5px solid #228756',
-                        borderRadius: '12px',
-                      }}
-                    >
-                      <Stack direction="row" spacing={2} alignItems="flex-start">
-                        <Typography variant="h4" sx={{ color: '#228756', minWidth: 40, fontSize: '1.75rem' }}>
-                          {index + 1}.
-                        </Typography>
-                        <Typography variant="body1" sx={{ fontSize: '1.2rem', pt: 0.5 }}>
-                          {item}
-                        </Typography>
-                      </Stack>
-                    </Paper>
-                  ))}
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 6 }}>
+                <Stack direction="row" spacing={1}>
+                  <IconButton sx={{ border: '1px solid #e2e8f0' }}><Share2 size={20} /></IconButton>
+                  <IconButton sx={{ border: '1px solid #e2e8f0' }}><Bookmark size={20} /></IconButton>
                 </Stack>
+                <SocialShare url={typeof window !== 'undefined' ? window.location.href : ''} title={blog.title} />
+              </Stack>
+            </StyledArticle>
+          </Grid>
 
-                <Typography variant="body1" paragraph>
-                  Remember that seeking help is a sign of strength, not weakness. Our platform makes it easy to 
-                  find the right therapist for your specific needs—whether you prefer online sessions or in-person 
-                  meetings, we have qualified professionals ready to support your journey.
+          <Grid item xs={12} lg={4}>
+            <Stack spacing={4} sx={{ mt: isMobile ? 4 : 0 }}>
+              <SidebarCard elevation={0} sx={{ bgcolor: '#0f172a', color: '#fff', border: 'none' }}>
+                <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>Ready to talk?</Typography>
+                <Typography sx={{ mb: 4, opacity: 0.8, fontSize: '1.1rem' }}>
+                  Connect with a verified therapist who understands your journey.
                 </Typography>
-
-                <Divider sx={{ my: 8 }} />
-
-                {/* Share & Actions */}
-                <Stack direction="row" spacing={3} alignItems="center" flexWrap="wrap" sx={{ my: 5 }}>
-                  <Typography variant="h5" sx={{ fontWeight: 700, fontSize: '1.5rem' }}>
-                    Share this article:
-                  </Typography>
-                  <SocialShare 
-                    url={`https://chooseyourtherapist.in/blog-details/${id}`} 
-                    title={blog.title} 
-                    description={blog.description}
-                  />
-                </Stack>
-
-                {/* Comment Section */}
-                <Box sx={{ mt: 10 }}>
-                  <Typography variant="h3" gutterBottom sx={{ mb: 4 }}>
-                    Leave a Comment
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontSize: '1.1rem' }}>
-                    Your email address will not be published. Share your thoughts with us.
-                  </Typography>
-                  <Stack spacing={3}>
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
-                      <TextField
-                        fullWidth
-                        label="Your Name"
-                        variant="outlined"
-                        size="large"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            fontSize: '1.1rem',
-                            borderRadius: '12px',
-                          },
-                        }}
-                      />
-                      <TextField
-                        fullWidth
-                        label="Your Email"
-                        type="email"
-                        variant="outlined"
-                        size="large"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            fontSize: '1.1rem',
-                            borderRadius: '12px',
-                          },
-                        }}
-                      />
-                    </Stack>
-                    <TextField
-                      fullWidth
-                      label="Your Comment"
-                      multiline
-                      rows={6}
-                      variant="outlined"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          fontSize: '1.1rem',
-                          borderRadius: '12px',
-                        },
-                      }}
-                    />
-                    <Button
-                      variant="contained"
-                      size="large"
-                      sx={{
-                        alignSelf: 'flex-start',
-                        px: 6,
-                        py: 2,
-                        fontSize: '1.2rem',
-                        fontWeight: 700,
-                        borderRadius: '50px',
-                        backgroundColor: '#228756',
-                        '&:hover': {
-                          backgroundColor: '#1a6842',
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 12px 24px rgba(34, 135, 86, 0.4)',
-                        },
-                      }}
-                    >
-                      Post Comment
-                    </Button>
-                  </Stack>
-                </Box>
-              </ContentSection>
-            </FloatingCard>
-          </Box>
-
-          {/* Sidebar */}
-          {!isMobile && (
-            <Box sx={{ width: 400 }}>
-              <Stack spacing={4} sx={{ position: 'sticky', top: 100 }}>
-                {/* Search */}
-                <SideCard>
-                  <CardContent sx={{ p: 3 }}>
-                    <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, fontSize: '1.5rem', mb: 3 }}>
-                      Search Articles
-                    </Typography>
-                    <TextField
-                      fullWidth
-                      placeholder="Search blogs..."
-                      variant="outlined"
-                      InputProps={{
-                        startAdornment: <Search size={24} style={{ marginRight: 12 }} />,
-                      }}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '12px',
-                          fontSize: '1.1rem',
-                        },
-                      }}
-                    />
-                  </CardContent>
-                </SideCard>
-
-                {/* Recent Posts */}
-                <SideCard>
-                  <CardContent sx={{ p: 3 }}>
-                    <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, fontSize: '1.5rem', mb: 3 }}>
-                      Recent Articles
-                    </Typography>
-                    <Stack spacing={3}>
-                      {recentPosts.map((post) => (
-                        <Box
-                          key={post.id}
-                          onClick={() => router.push(post.link)}
-                          sx={{
-                            display: 'flex',
-                            gap: 2,
-                            cursor: 'pointer',
-                            p: 2,
-                            borderRadius: '12px',
-                            transition: 'background-color 0.3s',
-                            '&:hover': { backgroundColor: '#F5F5F5' },
-                          }}
-                        >
-                          <Box
-                            component="img"
-                            src={post.image}
-                            sx={{
-                              width: 100,
-                              height: 100,
-                              borderRadius: '12px',
-                              objectFit: 'cover',
-                            }}
-                          />
-                          <Box>
-                            <Typography variant="h6" sx={{ fontSize: '1.1rem', fontWeight: 600, mb: 1, lineHeight: 1.4 }}>
-                              {post.title.slice(0, 50)}...
-                            </Typography>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Clock size={14} />
-                              <Typography variant="caption" sx={{ fontSize: '0.9rem' }}>
-                                {post.date}
-                              </Typography>
-                            </Stack>
-                          </Box>
-                        </Box>
-                      ))}
-                    </Stack>
-                  </CardContent>
-                </SideCard>
-
-                {/* CTA Card */}
-                <Paper
-                  sx={{
-                    p: 4,
-                    background: 'linear-gradient(135deg, #228756 0%, #1a6842 100%)',
-                    color: '#fff',
-                    borderRadius: '20px',
-                    textAlign: 'center',
+                <Button 
+                  variant="contained" 
+                  fullWidth 
+                  size="large"
+                  onClick={() => router.push('/view-all-therapist')}
+                  sx={{ 
+                    bgcolor: '#228756', 
+                    py: 2, 
+                    borderRadius: '16px', 
+                    fontWeight: 800,
+                    '&:hover': { bgcolor: '#1a6842' }
                   }}
                 >
-                  <Heart size={48} style={{ marginBottom: 16 }} />
-                  <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, fontSize: '1.5rem' }}>
-                    Need Support?
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 3, fontSize: '1.1rem', opacity: 0.95 }}>
-                    Connect with a qualified therapist today
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    onClick={() => router.push('/view-all-therapist')}
-                    sx={{
-                      py: 2,
-                      fontSize: '1.1rem',
-                      fontWeight: 700,
-                      borderRadius: '50px',
-                      backgroundColor: '#fff',
-                      color: '#228756',
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
-                    }}
-                  >
-                    Find Your Therapist
-                  </Button>
-                </Paper>
-              </Stack>
-            </Box>
-          )}
-        </Stack>
-      </Container>
+                  Book a Consultation
+                </Button>
+              </SidebarCard>
 
-      {/* Scroll to Top Button */}
-      <Fade in={showScrollTop}>
-        <ScrollToTop onClick={scrollToTop}>
-          <ArrowUp size={28} />
-        </ScrollToTop>
-      </Fade>
+              <SidebarCard elevation={0}>
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <TrendingUp size={22} color="#228756" /> Trending Articles
+                </Typography>
+                <Stack spacing={3}>
+                  {[1, 2, 3].map((i) => (
+                    <Box key={i} sx={{ cursor: 'pointer', '&:hover h6': { color: '#228756' } }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>{blog.category}</Typography>
+                      <Typography variant="h6" sx={{ fontSize: '1.1rem', fontWeight: 700, mt: 0.5, transition: '0.2s' }}>
+                        Understanding Emotional Resilience in 2024
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              </SidebarCard>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Container>
 
       <Footer />
     </Box>

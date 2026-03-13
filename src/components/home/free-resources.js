@@ -233,16 +233,17 @@ export default function FreeResources({ bgColor = "#1a4d32", textColor = "white"
                   className="resource-card" 
                   onClick={() => handleOpenModal(tool)}
                   style={{
-                    background: '#ffffff', // Solid pure white
-                    padding: isMobile ? '30px 25px' : '30px 25px',
+                    background: '#ffffff', 
+                    padding: isMobile ? '30px 25px' : '35px 25px',
                     borderRadius: isMobile ? '28px' : '32px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: isMobile ? 'center' : 'flex-start',
                     textAlign: isMobile ? 'center' : 'left',
-                    gap: isMobile ? '20px' : '20px',
-                    boxShadow: '0 15px 35px rgba(0,0,0,0.12)',
-                    border: '1px solid #ffffff',
+                    gap: '20px',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+                    border: `1px solid rgba(255,255,255,0.1)`,
+                    borderTop: `4px solid ${tool.color}`, // Themed accent at the top
                     transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
                     cursor: 'pointer',
                     position: 'relative',
@@ -252,10 +253,9 @@ export default function FreeResources({ bgColor = "#1a4d32", textColor = "white"
                 >
                   <style jsx>{`
                     .resource-card:hover {
-                      transform: translateY(-10px) scale(1.02);
+                      transform: translateY(-15px);
                       background: #ffffff !important;
-                      box-shadow: 0 30px 60px rgba(0,0,0,0.2) !important;
-                      border-color: ${tool.color} !important;
+                      box-shadow: 0 40px 80px -15px ${tool.color}40 !important; /* Colored shadow on hover */
                     }
                     .resource-card:hover .arrow-icon {
                       background: ${tool.color} !important;
