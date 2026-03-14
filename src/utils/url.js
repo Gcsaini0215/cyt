@@ -79,9 +79,9 @@ export const defaultProfile =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
 
 export const frontendUrl = baseFrontendUrl;
-// Use LIVE_BASE_API for images to ensure they load even when working locally
-export const imagePath = `${LIVE_BASE_API}/uploads/images`;
-export const blogImagePath = `${baseApi}/uploads/images`;
+// Use baseApi for images to ensure they load from the correct source (local or live)
+export const imagePath = `${baseApi}/uploads`;
+export const blogImagePath = `${baseApi}/uploads`;
 
 export const getFullBlogImagePath = (imageName) => {
   if (!imageName) return null;
@@ -89,9 +89,9 @@ export const getFullBlogImagePath = (imageName) => {
   if (trimmed.startsWith('data:') || trimmed.startsWith('http')) return trimmed;
   // If we are on local, try to use the live API for images as a fallback
   if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    return `${LIVE_BASE_API}/uploads/images/${trimmed}`;
+    return `${baseApi}/uploads/${trimmed}`;
   }
-  return `${baseApi}/uploads/images/${trimmed}`;
+  return `${baseApi}/uploads/${trimmed}`;
 };
 
 export const loginUrl = `${apiUrl}/login`;
