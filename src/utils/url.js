@@ -80,8 +80,8 @@ export const defaultProfile =
 
 export const frontendUrl = baseFrontendUrl;
 // Use baseApi for images to ensure they load from the correct source (local or live)
-export const imagePath = `${baseApi}/uploads`;
-export const blogImagePath = `${baseApi}/uploads`;
+export const imagePath = `${baseApi}/uploads/images`;
+export const blogImagePath = `${baseApi}/uploads/images`;
 
 export const getFullBlogImagePath = (imageName) => {
   if (!imageName) return null;
