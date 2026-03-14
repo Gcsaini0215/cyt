@@ -32,10 +32,18 @@ let rawBaseApi = LIVE_BASE_API;
 // Set this to "LOCAL" only if you have a local backend running on port 4000
 const PREFERRED_MODE = "LOCAL"; 
 
-const isLocal = !isServer && (currentDomain === "localhost" || currentDomain === "127.0.0.1" || currentDomain.startsWith("192.168.") || currentDomain.startsWith("10."));
+const isDev = process.env.NODE_ENV === 'development';
+const isLocal = isDev || (!isServer && (
+  currentDomain === "localhost" || 
+  currentDomain === "127.0.0.1" || 
+  currentDomain.startsWith("192.168.") || 
+  currentDomain.startsWith("10.") ||
+  window.location.port !== ""
+));
 
 if (isLocal) {
-  baseFrontendUrl = `http://${currentDomain}:3000`;
+  const port = isServer ? "3000" : window.location.port;
+  baseFrontendUrl = `${currentProtocol}//${currentDomain}${port ? ':' + port : ''}`;
   
   if (PREFERRED_MODE === "LOCAL") {
     rawApiUrl = LOCAL_API_URL;
@@ -68,11 +76,13 @@ console.log("DEBUG: Final API Configuration:", {
   apiUrl, 
   baseApi, 
   currentDomain,
-  isServer
+  isServer,
+  isLocal,
+  PREFERRED_MODE
 });
 
 if (typeof window !== 'undefined') {
-  window.API_CONFIG = { apiUrl, baseApi, currentDomain };
+  window.API_CONFIG = { apiUrl, baseApi, currentDomain, isLocal };
 }
 
 export const defaultProfile =
@@ -80,18 +90,20 @@ export const defaultProfile =
 
 export const frontendUrl = baseFrontendUrl;
 // Use baseApi for images to ensure they load from the correct source (local or live)
-export const imagePath = `${baseApi}/uploads/images`;
-export const blogImagePath = `${baseApi}/uploads/images`;
+// Special case: if we are on local but want to see images from live server
+export const imagePath = isLocal ? `${LIVE_BASE_API}/uploads/images` : `${baseApi}/uploads/images`;
+export const blogImagePath = isLocal ? `${LIVE_BASE_API}/uploads/images` : `${baseApi}/uploads/images`;
 
 export const getFullBlogImagePath = (imageName) => {
   if (!imageName) return null;
   const trimmed = imageName.toString().trim();
   if (trimmed.startsWith('data:') || trimmed.startsWith('http')) return trimmed;
-  // If we are on local, try to use the live API for images as a fallback
-  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-    return `${baseApi}/uploads/${trimmed}`;
+  
+  // If we are on local, use the live API for images as we likely don't have them locally
+  if (isLocal) {
+    return `${LIVE_BASE_API}/uploads/images/${trimmed}`;
   }
-  return `${baseApi}/uploads/${trimmed}`;
+  return `${baseApi}/uploads/images/${trimmed}`;
 };
 
 export const loginUrl = `${apiUrl}/login`;
@@ -177,4 +189,4 @@ export const getClinicLogsUrl = `${apiUrl}/clinic-logs`;
 export const createClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const updateClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const deleteClinicLogUrl = `${apiUrl}/clinic-logs`;
-export const sendClinicInvoiceEmailUrl = `/api/send-invoice-email`;
+export const sendClinicInvoiceEmailUrl = `${apiUrl}/send-invoice-email`;
