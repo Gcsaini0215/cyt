@@ -14,6 +14,7 @@ const NewsLetter = dynamic(() => import("../components/home/newsletter"), { ssr:
 const ProfileCard = dynamic(() => import("../components/home/profile-card"), { ssr: false });
 const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
 const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
+const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
 const ProcessSteps = dynamic(() => import("../components/home/process-steps"), { ssr: false });
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
@@ -152,6 +153,7 @@ export default function HomePage() {
         <FreeResources />
         <HomeWorkshop isWhite={false} />
         <ProcessSteps />
+        <Feedback />
         <Blogs />
         <Faqs />
         <NewsLetter />

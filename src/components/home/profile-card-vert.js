@@ -211,7 +211,7 @@ export default function ProfileCardVert(props) {
               className="btn-outline-premium"
               style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", border: "1.5px solid #e2e8f0", color: "#475569", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s" }}
             >
-              Profile
+              View Profile
             </Link>
 
             <Link

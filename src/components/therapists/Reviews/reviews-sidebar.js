@@ -1,116 +1,123 @@
+import React, { useEffect, useState } from "react";
+import { fetchData, postData } from "../../../utils/actions";
+import { GetReviewsUrl, UpdateReviewStatusUrl } from "../../../utils/url";
+
 export default function ReviewsSidebar() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const getReviews = async () => {
+    try {
+      const res = await fetchData(GetReviewsUrl);
+      if (res && res.data) {
+        setReviews(res.data);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getReviews();
+  }, []);
+
+  const handleStatusUpdate = async (id, status) => {
+    try {
+      const res = await postData(UpdateReviewStatusUrl, { id, status });
+      if (res && (res.status === "success" || res.success)) {
+        alert(`Review ${status} successfully`);
+        getReviews(); // Refresh list
+      } else {
+        alert(res?.message || "Failed to update status");
+      }
+    } catch (err) {
+      console.error("Error updating review status:", err);
+      alert("Something went wrong");
+    }
+  };
+
   return (
     <>
-      <div class="rbt-dashboard-content bg-color-white rbt-shadow-box">
-        <div class="content">
-          <div class="section-title">
-            <h4 class="rbt-title-style-3">All Reviews</h4>
+      <div className="rbt-dashboard-content bg-color-white rbt-shadow-box">
+        <div className="content">
+          <div className="section-title">
+            <h4 className="rbt-title-style-3">All Reviews</h4>
           </div>
-          <div class="advance-tab-button mb--30">
-            <ul
-              class="nav nav-tabs tab-button-style-2 justify-content-start"
-              id="reviewTab-4"
-              role="tablist"
-            >
-              <li role="presentation">
-                <a
-                  class="tab-button active"
-                  id="received-tab"
-                  data-bs-toggle="tab"
-                  data-bs-target="#received"
-                  role="tab"
-                  aria-controls="received"
-                  aria-selected="true"
-                  href="/instructor/instructor-reviews#"
-                >
-                  <span class="title">Received</span>
-                </a>
-              </li>
-              <li role="presentation">
-                <a
-                  class="tab-button"
-                  id="given-tab"
-                  data-bs-toggle="tab"
-                  data-bs-target="#given"
-                  role="tab"
-                  aria-controls="given"
-                  aria-selected="false"
-                  href="/instructor/instructor-reviews#"
-                >
-                  <span class="title">Given</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div class="tab-content">
-            <div
-              class="tab-pane fade active show"
-              id="received"
-              role="tabpanel"
-              aria-labelledby="received-tab"
-            >
-              <div class="rbt-dashboard-table table-responsive mobile-table-750">
-                <table class="rbt-table table table-borderless">
-                  <thead>
-                    <tr>
-                      <th>Client ID</th>
-                      <th>Date</th>
-                      <th>Feedback</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <th>CYT12456</th>
-                      <td>January 30, 2021</td>
+          
+          <div className="rbt-dashboard-table table-responsive mobile-table-750">
+            <table className="rbt-table table table-borderless">
+              <thead>
+                <tr>
+                  <th>Client Name</th>
+                  <th>Therapist</th>
+                  <th>Rating</th>
+                  <th>Feedback</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center">Loading reviews...</td>
+                  </tr>
+                ) : reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <tr key={review._id}>
+                      <td>{review.name}</td>
+                      <td>{review.therapistId?.user?.name || "N/A"}</td>
                       <td>
-                        <span class="b3">
-                          Session:{" "}
-                          <a href="/instructor/instructor-reviews#">
-                           Individual Counselling 
-                          </a>
-                        </span>
-                        <div class="rbt-review">
-                          <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                        <div className="rbt-review">
+                          <div className="rating">
+                            {[...Array(5)].map((_, i) => (
+                              <i key={i} className={`fa${i < review.rating ? "s" : "r"} fa-star`} style={{ color: i < review.rating ? "#ffb400" : "#cbd5e0" }}></i>
+                            ))}
                           </div>
-                          <span class="rating-count"> (9 Reviews)</span>
                         </div>
-                        <p class="b2">Good</p>
+                      </td>
+                      <td>
+                        <p className="b3" style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={review.review}>
+                          {review.review}
+                        </p>
+                      </td>
+                      <td>
+                        <span className={`badge ${review.status === 'approved' ? 'bg-success' : review.status === 'rejected' ? 'bg-danger' : 'bg-warning'}`}>
+                          {review.status || 'pending'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="rbt-button-group">
+                          {review.status !== 'approved' && (
+                            <button 
+                              className="rbt-btn btn-gradient btn-sm me-2" 
+                              style={{ height: '30px', lineHeight: '28px', padding: '0 15px', fontSize: '12px' }}
+                              onClick={() => handleStatusUpdate(review._id, 'approved')}
+                            >
+                              Approve
+                            </button>
+                          )}
+                          {review.status !== 'rejected' && (
+                            <button 
+                              className="rbt-btn btn-border btn-sm"
+                              style={{ height: '30px', lineHeight: '28px', padding: '0 15px', fontSize: '12px' }}
+                              onClick={() => handleStatusUpdate(review._id, 'rejected')}
+                            >
+                              Reject
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
-                    <tr>
-                      <th>CYT12456</th>
-                      <td>June 30, 2022</td>
-                      <td>
-                        <span class="b3">
-                          Session:{" "}
-                          <a href="/instructor/instructor-reviews#">
-                            Couple Counselling
-                          </a>
-                        </span>
-                        <div class="rbt-review">
-                          <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                          </div>
-                          <span class="rating-count"> (5 Reviews)</span>
-                        </div>
-                        <p class="b3">Awesome</p>
-                      </td>
-                    </tr>
-                   
-                   
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="text-center">No reviews found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

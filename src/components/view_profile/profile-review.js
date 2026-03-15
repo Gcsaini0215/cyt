@@ -1,13 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import { postData, fetchData } from "../../utils/actions";
+import { SubmitReviewUrl, getTherapistProfile } from "../../utils/url";
 
-export default function ProfileReview({ profile }) {
+export default function ProfileReview({ profile: initialProfile }) {
+  const [profile, setProfile] = useState(initialProfile);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setProfile(initialProfile);
+  }, [initialProfile]);
 
   const glassCard = {
     backdropFilter: "blur(10px)",
@@ -42,26 +50,50 @@ export default function ProfileReview({ profile }) {
     marginTop: "10px"
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0) {
       alert("Please select a rating");
       return;
     }
+    
+    setSubmitting(true);
     // Prepare data for backend
     const reviewData = {
       therapistId: profile?._id,
       name,
       email,
       rating,
-      review: reviewText
+      description: reviewText
     };
-    console.log("Review data to send:", reviewData);
-    alert("Thank you for your review! It will be visible after approval.");
-    setRating(0);
-    setReviewText("");
-    setName("");
-    setEmail("");
+
+    try {
+      const res = await postData(SubmitReviewUrl, reviewData);
+      if (res && (res.status === true || res.status === "success" || res.status === 200 || res.success)) {
+        alert("Thank you for your review! It will be visible after approval.");
+        setRating(0);
+        setReviewText("");
+        setName("");
+        setEmail("");
+
+        // Refresh profile data to show the new review (if backend returns it)
+        try {
+          const resUpdated = await fetchData(getTherapistProfile + profile?._id);
+          if (resUpdated && resUpdated.data) {
+            setProfile(resUpdated.data);
+          }
+        } catch (err) {
+          console.error("Error refreshing profile after review:", err);
+        }
+      } else {
+        alert(res?.message || "Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      alert("Failed to submit review. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -154,13 +186,66 @@ export default function ProfileReview({ profile }) {
                 ></textarea>
               </div>
 
-              <button type="submit" style={btnStyle}>
-                Submit Review
+              <button 
+                type="submit" 
+                style={{
+                  ...btnStyle,
+                  opacity: submitting ? 0.7 : 1,
+                  cursor: submitting ? "not-allowed" : "pointer"
+                }}
+                disabled={submitting}
+              >
+                {submitting ? "Submitting..." : "Submit Review"}
               </button>
             </form>
           </div>
 
-
+          {/* Display existing reviews if any */}
+          {profile?.reviews && profile.reviews.length > 0 && (
+            <div className="mt--40">
+              <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#1a202c' }}>
+                Client Feedback ({profile.reviews.length})
+              </h4>
+              <div className="row g-4">
+                {profile.reviews.map((rev, index) => (
+                  <div key={index} className="col-12">
+                    <div style={{
+                      ...glassCard,
+                      padding: '25px',
+                      marginBottom: '15px'
+                    }}>
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                          <h5 className="mb-1" style={{ fontSize: '16px', fontWeight: 700 }}>{rev.name}</h5>
+                          <div className="rating">
+                            {[...Array(5)].map((_, i) => (
+                              <StarIcon key={i} style={{ 
+                                color: i < rev.rating ? "#ffb400" : "#cbd5e0", 
+                                fontSize: 18 
+                              }} />
+                            ))}
+                          </div>
+                        </div>
+                        {rev.createdAt && (
+                          <span style={{ fontSize: '13px', color: '#718096' }}>
+                            {new Date(rev.createdAt).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                      <p style={{ 
+                        fontSize: '15px', 
+                        lineHeight: '1.6', 
+                        color: '#4a5568',
+                        margin: 0
+                      }}>
+                        {rev.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

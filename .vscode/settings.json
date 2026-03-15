@@ -1,5 +1,6 @@
 {
     "workbench.settings.openDefaultKeybindings": true,
     "workbench.settings.openDefaultSettings": true,
-    "debug.hideLauncherWhileDebugging": false
+    "debug.hideLauncherWhileDebugging": false,
+    "allowChangingFilesOutsideProject": true
 }
