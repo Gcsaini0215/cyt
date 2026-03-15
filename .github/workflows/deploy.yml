@@ -24,17 +24,21 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Remove build cache (optional)
+        run: rm -rf .next/cache
+
       - name: Copy code to VPS
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           # Source directory content complete copy
-          source: ".next/*,public/*,package.json,package-lock.json,next.config.js,.env"
+          source: ".next,public,package.json,package-lock.json,next.config.js,.env"
           target: "/root/cyt"
           strip_components: 0
           overwrite: true
+          debug: true
 
       - name: Restart frontend on VPS
         uses: appleboy/ssh-action@v1.2.0
@@ -43,9 +47,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            mkdir -p /root/cyt
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
-            # Build aur Production clean up
-            npm install --production
+            # Build and Production clean up
+            npm ci --production
             # Port release
             fuser -k 3000/tcp || true
             # PM2 complete reset and start

@@ -30,7 +30,7 @@ let rawBaseApi = LIVE_BASE_API;
 
 // Force LIVE mode if you want to use production data on localhost
 // Set this to "LOCAL" only if you have a local backend running on port 4000
-const PREFERRED_MODE = "LOCAL"; 
+const PREFERRED_MODE = "LIVE"; 
 
 const isDev = process.env.NODE_ENV === 'development';
 const isLocal = isDev || (!isServer && (
