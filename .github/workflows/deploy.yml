@@ -28,7 +28,7 @@ jobs:
         run: rm -rf .next/cache
 
       - name: Copy code to VPS
-        uses: appleboy/scp-action@v0.1.10
+        uses: appleboy/scp-action@v0.1.7 
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
