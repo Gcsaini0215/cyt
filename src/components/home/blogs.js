@@ -143,7 +143,7 @@ export default function Blogs() {
                     <ImageTag
                       alt={featuredBlog.title}
                       src={getFullImagePath(featuredBlog.image)}
-                      style={{ height: 'auto', width: '100%', display: 'block' }}
+                      style={{ height: isMobile ? '450px' : '600px', width: '100%', display: 'block', objectFit: 'cover' }}
                     />
                     <div style={{
                       position: 'absolute',
@@ -151,7 +151,8 @@ export default function Blogs() {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
+                      background: 'rgba(0,0,0,0.4)', // Base dark overlay
+                      backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%)',
                       zIndex: 1
                     }}></div>
                   </Link>
@@ -211,7 +212,7 @@ export default function Blogs() {
                     <ImageTag
                       alt="Featured Blog"
                       src={BlogCardImg}
-                      style={{ height: 'auto', width: '100%', display: 'block' }}
+                      style={{ height: isMobile ? '450px' : '600px', width: '100%', display: 'block', objectFit: 'cover' }}
                     />
                     <div style={{
                       position: 'absolute',
@@ -219,7 +220,8 @@ export default function Blogs() {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)',
+                      background: 'rgba(0,0,0,0.4)', // Base dark overlay
+                      backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%)',
                       zIndex: 1
                     }}></div>
                   </Link>

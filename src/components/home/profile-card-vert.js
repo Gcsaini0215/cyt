@@ -13,6 +13,7 @@ import {
 import { getDecodedToken } from "../../utils/jwt";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import StarIcon from "@mui/icons-material/Star";
 
 import PersonIcon from "@mui/icons-material/Person";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -23,6 +24,13 @@ export default function ProfileCardVert(props) {
   const [bookmark, setBookmark] = useState(favrioutes?.includes(data._id) || false);
   const [showBookmark, setShowBookmark] = useState(true);
   const [fees, setFees] = useState([]);
+
+  // Calculate rating
+  const reviews = data.reviews || [];
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount > 0 
+    ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviewCount).toFixed(1)
+    : 0;
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 600px)");
@@ -145,12 +153,21 @@ export default function ProfileCardVert(props) {
         <div className="card-body-content" style={{ padding: isMobile ? "16px" : "20px", display: "flex", flexDirection: "column", gap: "10px", flexGrow: 1 }}>
           <div className="card-top-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div className="name-type-wrap" style={{ flexGrow: 1 }}>
-              <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0 0 2px 0", color: "inherit" }}>
-                <Link href={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                  {data.user?.name || "Therapist"}
-                </Link>
-              </h4>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0", color: "inherit" }}>
+                  <Link href={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    {data.user?.name || "Therapist"}
+                  </Link>
+                </h4>
+                {reviewCount > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "2px", background: "#fff9e6", padding: "2px 8px", borderRadius: "20px", border: "1px solid #ffe4b3" }}>
+                    <StarIcon sx={{ color: "#ffb400", fontSize: 16 }} />
+                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#856404" }}>{averageRating}</span>
+                    <span style={{ fontSize: "12px", color: "#997b24", fontWeight: "600" }}>({reviewCount})</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }}>
                 <span className="profile-type-text" style={{ 
                   fontSize: "11px", 
                   color: "#228756", 

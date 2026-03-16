@@ -16,9 +16,9 @@ import {
   Grid,
   useMediaQuery,
   useTheme,
-  Fade,
   CircularProgress,
   LinearProgress,
+  Breadcrumbs,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
@@ -27,15 +27,20 @@ import {
   ArrowLeft,
   Share2, 
   Bookmark,
-  MessageCircle,
   TrendingUp,
-  UserCheck,
-  ChevronRight
+  Tag as TagIcon,
+  ChevronRight,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Eye,
+  Users,
 } from 'lucide-react';
 import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
+import NewsLetter from '../components/home/newsletter';
 import SocialShare from '../components/global/social-share';
-import { getBlogUrl, baseApi } from '../utils/url';
+import { getBlogUrl, baseApi, getBlogsUrl } from '../utils/url';
 import { fetchData } from '../utils/actions';
 import dompurify from "dompurify";
 
@@ -49,79 +54,131 @@ const ProgressWrapper = styled(Box)({
   zIndex: 2000,
 });
 
-const ModernHero = styled(Box)(({ theme, image }) => ({
+const BlogHero = styled(Box)(({ theme }) => ({
+  paddingTop: theme.spacing(8),
+  paddingBottom: theme.spacing(20), // Extra padding for the overlap
+  background: '#064e3b', // Deep Forest Green
+  textAlign: 'center',
   position: 'relative',
-  padding: '120px 0 180px',
-  background: '#0f172a',
-  color: '#fff',
-  overflow: 'hidden',
-  '&::before': {
-    content: '""',
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundImage: `url(${image})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    opacity: 0.4,
-    zIndex: 0,
+  [theme.breakpoints.down('md')]: {
+    paddingTop: theme.spacing(4), // Even less top padding on mobile
+    paddingBottom: theme.spacing(15),
   },
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    height: '200px',
-    background: 'linear-gradient(to top, #f8fafc 0%, transparent 100%)',
-    zIndex: 1,
-  }
 }));
 
-const StyledArticle = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(6),
-  borderRadius: '32px',
-  marginTop: '-100px',
-  position: 'relative',
-  zIndex: 5,
-  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.08)',
-  border: '1px solid rgba(226, 232, 240, 0.8)',
-  [theme.breakpoints.down('md')]: {
-    padding: theme.spacing(3),
-    borderRadius: '24px',
-    marginTop: '-60px',
+const EditorialTitle = styled(Typography)(({ theme }) => ({
+  fontFamily: '"Lora", serif',
+  fontWeight: 800,
+  color: '#ffffff', // White text for dark background
+  lineHeight: 1.1,
+  letterSpacing: '-0.03em',
+  marginBottom: theme.spacing(4),
+  fontSize: '4.5rem',
+  [theme.breakpoints.down('lg')]: {
+    fontSize: '3.5rem',
   },
+  [theme.breakpoints.down('md')]: {
+    fontSize: '2.5rem',
+    marginBottom: theme.spacing(1.5), // Reduced from 3 to 1.5
+    marginTop: theme.spacing(1), // Minimal top margin
+  },
+}));
+
+const FeaturedImageContainer = styled(Box)(({ theme }) => ({
+  width: '100%',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  boxShadow: '0 40px 80px -15px rgba(0, 0, 0, 0.3)',
+  position: 'relative',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  '& img': {
+    width: '100%',
+    height: 'auto',
+    maxHeight: '480px', // Slightly increased for better clarity
+    objectFit: 'cover',
+    display: 'block',
+    imageRendering: 'auto', // Ensures high quality rendering
+    transition: '0.3s ease-in-out',
+  },
+  [theme.breakpoints.down('md')]: {
+    '& img': {
+      maxHeight: '260px', // Increased from 220px
+    },
+  },
+}));
+
+const MetaItem = styled(Stack)(({ theme }) => ({
+  color: '#a7f3d0', // Light green for readability
+  textTransform: 'uppercase',
+  letterSpacing: '0.1em',
+  fontSize: '0.75rem',
+  fontWeight: 700,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: '8px',
 }));
 
 const ContentWrapper = styled(Box)(({ theme }) => ({
   '& p': {
-    fontSize: '1.25rem',
-    lineHeight: 1.9,
-    color: '#334155',
-    marginBottom: '1.8rem',
-    fontFamily: '"Inter", sans-serif',
+    fontSize: '1.35rem', // Increased from 1.25rem
+    lineHeight: 1.85,
+    color: '#1e293b', // Slightly darker for better contrast
+    marginBottom: '2.5rem',
+    fontFamily: '"Lora", serif',
   },
   '& h2': {
-    fontSize: '2.2rem',
+    fontSize: '2.5rem', // Increased from 2.25rem
     fontWeight: 800,
     color: '#0f172a',
-    marginTop: '3rem',
+    marginTop: '3.5rem',
+    marginBottom: '1.5rem',
+    fontFamily: '"Lora", serif',
+    lineHeight: 1.1,
+  },
+  '& h3': {
+    fontSize: '1.85rem', // Increased from 1.75rem
+    fontWeight: 700,
+    color: '#0f172a',
+    marginTop: '2.5rem',
     marginBottom: '1.2rem',
-    letterSpacing: '-0.02em',
+    fontFamily: '"Lora", serif',
   },
   '& blockquote': {
     borderLeft: '5px solid #228756',
-    paddingLeft: '2rem',
-    margin: '3rem 0',
-    fontStyle: 'italic',
+    background: '#f8fafc',
+    padding: '3rem',
+    margin: '3.5rem 0',
+    borderRadius: '4px',
     '& p': {
-      fontSize: '1.6rem',
-      color: '#1e293b',
-      lineHeight: 1.5,
+      fontSize: '1.65rem',
+      color: '#0f172a',
+      fontWeight: 500,
+      fontStyle: 'italic',
+      margin: 0,
+      fontFamily: '"Lora", serif',
+    }
+  },
+  '& ul, & ol': {
+    marginBottom: '2rem',
+    paddingLeft: '2rem',
+    '& li': {
+      fontSize: '1.2rem',
+      lineHeight: 1.8,
+      color: '#334155',
+      marginBottom: '1rem',
+      fontFamily: '"Lora", serif',
     }
   },
   '& img': {
     maxWidth: '100%',
-    borderRadius: '20px',
-    margin: '2.5rem 0',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+    borderRadius: '4px',
+    margin: '3rem 0',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+  },
+  '& a': {
+    color: '#228756',
+    textDecoration: 'underline',
+    fontWeight: 600,
   }
 }));
 
@@ -131,8 +188,6 @@ const SidebarCard = styled(Paper)(({ theme }) => ({
   background: '#ffffff',
   border: '1px solid #e2e8f0',
   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-  position: 'sticky',
-  top: '100px',
 }));
 
 export default function BlogDetails() {
@@ -142,6 +197,7 @@ export default function BlogDetails() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const [blog, setBlog] = useState(null);
+  const [trendingBlogs, setTrendingBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -160,8 +216,15 @@ export default function BlogDetails() {
     if (id) {
       const getBlog = async () => {
         try {
-          const res = await fetchData(getBlogUrl, { id });
+          // Use path parameter for ID as per backend route /get-blog-by-id/:id
+          const res = await fetchData(`${getBlogUrl}/${id}`);
           if (res && res.status) setBlog(res.data);
+          
+          // Fetch trending blogs
+          const trendingRes = await fetchData(getBlogsUrl);
+          if (trendingRes && trendingRes.status) {
+            setTrendingBlogs(trendingRes.data.filter(b => b._id !== id).slice(0, 4));
+          }
         } catch (error) {
           console.error("Fetch Error:", error);
         } finally {
@@ -172,8 +235,17 @@ export default function BlogDetails() {
     }
   }, [id]);
 
+  const calculateReadingTime = (content) => {
+    if (!content) return "1 min read";
+    const wordsPerMinute = 200;
+    const text = content.replace(/<[^>]*>/g, ''); // strip html
+    const noOfWords = text.split(/\s+/g).length;
+    const minutes = Math.ceil(noOfWords / wordsPerMinute);
+    return `${minutes} min read`;
+  };
+
   const getFullImagePath = (img) => {
-    if (!img) return "";
+    if (!img) return "https://images.unsplash.com/photo-1544027993-37dbfe43562a?auto=format&fit=crop&q=100&w=2400"; // Upgraded to HD/4K placeholder
     if (img.startsWith('data:') || img.startsWith('http')) return img;
     return `${baseApi}/uploads/images/${img}`;
   };
@@ -187,12 +259,32 @@ export default function BlogDetails() {
   if (!blog) return <Typography>Blog not found</Typography>;
 
   const sanitizedContent = typeof window !== 'undefined' ? dompurify.sanitize(blog.content) : blog.content;
+  const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
 
   return (
-    <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh' }}>
       <Head>
         <title>{blog.title} | Choose Your Therapist</title>
-        <meta name="description" content={blog.short_desc} />
+        <meta name="description" content={blog.metaDesc || blog.title} />
+        <meta name="keywords" content={blog.tags || blog.category} />
+        <link rel="canonical" href={`https://chooseyourtherapist.in/blog-details?id=${blog._id}`} />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://chooseyourtherapist.in/blog-details?id=${blog._id}`} />
+        <meta property="og:title" content={`${blog.title} | Choose Your Therapist`} />
+        <meta property="og:description" content={blog.metaDesc || blog.title} />
+        <meta property="og:image" content={getFullImagePath(blog.image)} />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={`https://chooseyourtherapist.in/blog-details?id=${blog._id}`} />
+        <meta name="twitter:title" content={`${blog.title} | Choose Your Therapist`} />
+        <meta name="twitter:description" content={blog.metaDesc || blog.title} />
+        <meta name="twitter:image" content={getFullImagePath(blog.image)} />
+
+        <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </Head>
 
       <ProgressWrapper>
@@ -201,80 +293,169 @@ export default function BlogDetails() {
 
       <MyNavbar />
 
-      <ModernHero image={getFullImagePath(blog.image)}>
-        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-          <Stack spacing={4} alignItems={isMobile ? 'center' : 'flex-start'} sx={{ textAlign: isMobile ? 'center' : 'left' }}>
-            <Button 
-              startIcon={<ArrowLeft size={18} />} 
-              onClick={() => router.back()}
-              sx={{ color: 'rgba(255,255,255,0.8)', textTransform: 'none', fontSize: '1rem' }}
+      <BlogHero>
+        <Container maxWidth="lg">
+          <Stack spacing={2} alignItems="center">
+            <Typography 
+              variant="overline" 
+              sx={{ 
+                color: '#34d399', 
+                fontWeight: 800, 
+                letterSpacing: '0.2em',
+                fontSize: '0.875rem'
+              }}
             >
-              Back to Articles
-            </Button>
+              {blog.category}
+            </Typography>
             
-            <Box>
-              <Chip 
-                label={blog.category} 
-                sx={{ bgcolor: '#228756', color: '#fff', fontWeight: 800, mb: 3, px: 1 }} 
-              />
-              <Typography variant="h1" sx={{ fontSize: isMobile ? '2.5rem' : '4rem', fontWeight: 900, lineHeight: 1.1, maxWidth: '900px' }}>
-                {blog.title}
-              </Typography>
-            </Box>
+            <EditorialTitle variant="h1" sx={{ maxWidth: '1000px', mx: 'auto' }}>
+              {blog.title}
+            </EditorialTitle>
 
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Stack direction="row" spacing={1.5} alignItems="center">
-                <Avatar sx={{ bgcolor: '#228756', width: 48, height: 48 }}>{blog.author_name?.[0] || 'A'}</Avatar>
-                <Box>
-                  <Typography sx={{ fontWeight: 700, color: '#fff' }}>{blog.author_name || 'Admin'}</Typography>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>Author & Expert</Typography>
-                </Box>
-              </Stack>
-              <Divider orientation="vertical" flexItem sx={{ bgcolor: 'rgba(255,255,255,0.2)' }} />
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-                <Clock size={18} />
-                <Typography variant="body2">5 min read</Typography>
-              </Stack>
+            <Stack 
+              direction="row" 
+              spacing={{ xs: 2, md: 4 }} 
+              alignItems="center" 
+              justifyContent="center"
+              flexWrap="wrap"
+              divider={<Divider orientation="vertical" flexItem sx={{ height: 15, alignSelf: 'center', borderColor: 'rgba(255, 255, 255, 0.2)', display: { xs: 'none', sm: 'block' } }} />}
+              sx={{ color: '#a7f3d0', mt: 1 }}
+            >
+              <MetaItem>
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>BY {blog.author || 'ADMIN'}</Typography>
+              </MetaItem>
+              <MetaItem>
+                <Calendar size={14} />
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>
+                  {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </Typography>
+              </MetaItem>
+              <MetaItem>
+                <Clock size={14} />
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>{calculateReadingTime(blog.content)}</Typography>
+              </MetaItem>
+              <MetaItem>
+                <Eye size={14} />
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>{blog.views || '1.2k'} Views</Typography>
+              </MetaItem>
+              <MetaItem>
+                <Users size={14} />
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>{blog.readers || '850'} Readers</Typography>
+              </MetaItem>
             </Stack>
           </Stack>
         </Container>
-      </ModernHero>
+      </BlogHero>
 
-      <Container maxWidth="lg" sx={{ pb: 10 }}>
-        <Grid container spacing={5}>
+      <Container maxWidth="lg" sx={{ mt: { xs: '-80px', md: '-120px' }, position: 'relative', zIndex: 10 }}>
+        <FeaturedImageContainer>
+          <img src={getFullImagePath(blog.image)} alt={blog.title} />
+        </FeaturedImageContainer>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            display: 'block', 
+            mt: 2, 
+            color: '#64748b', 
+            fontStyle: 'italic',
+            textAlign: 'center',
+            fontWeight: 500
+          }}
+        >
+          Image Source: {blog.category || 'Mental Wellness'} | Choose Your Therapist
+        </Typography>
+      </Container>
+
+      <Container maxWidth="lg" sx={{ pb: 12, pt: { xs: 3, md: 5 } }}>
+        <Grid container spacing={8}>
           <Grid item xs={12} lg={8}>
-            <StyledArticle elevation={0}>
+            <Box component="article">
               <ContentWrapper 
                 className="blog-content-rich-text"
                 dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
               />
               
-              <Box sx={{ mt: 8, p: 4, bgcolor: '#f1f5f9', borderRadius: '24px', display: 'flex', gap: 3, alignItems: 'center' }}>
-                <Avatar sx={{ width: 80, height: 80, bgcolor: '#228756', fontSize: '2rem' }}>{blog.author_name?.[0] || 'A'}</Avatar>
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 800 }}>Written by {blog.author_name || 'Admin'}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Mental Health contributor at Choose Your Therapist. Committed to providing expert insights and practical advice for emotional well-being.
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 6 }}>
-                <Stack direction="row" spacing={1}>
-                  <IconButton sx={{ border: '1px solid #e2e8f0' }}><Share2 size={20} /></IconButton>
-                  <IconButton sx={{ border: '1px solid #e2e8f0' }}><Bookmark size={20} /></IconButton>
+              {tagsList.length > 0 && (
+                <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mt: 6, gap: 1.5 }}>
+                  <Typography sx={{ width: '100%', fontWeight: 700, color: '#0f172a', mb: 1 }}>Explore Tags:</Typography>
+                  {tagsList.map((tag, idx) => (
+                    <Chip 
+                      key={idx}
+                      icon={<TagIcon size={14} />}
+                      label={tag} 
+                      onClick={() => {}}
+                      sx={{ 
+                        borderRadius: '12px', 
+                        bgcolor: '#f1f5f9', 
+                        fontWeight: 600, 
+                        '&:hover': { bgcolor: '#e2e8f0' }
+                      }} 
+                    />
+                  ))}
                 </Stack>
-                <SocialShare url={typeof window !== 'undefined' ? window.location.href : ''} title={blog.title} />
-              </Stack>
-            </StyledArticle>
+              )}
+
+              <Box sx={{ 
+                mt: 10, 
+                p: { xs: 4, md: 6 }, 
+                background: 'linear-gradient(145deg, #064e3b 0%, #065f46 100%)', 
+                borderRadius: '24px', 
+                color: '#fff',
+                position: 'relative',
+                overflow: 'hidden',
+                textAlign: { xs: 'center', md: 'left' },
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -50,
+                  right: -50,
+                  width: 150,
+                  height: 150,
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: '50%',
+                }
+              }}>
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} alignItems={{ xs: 'center', md: 'flex-start' }}>
+                  <Box>
+                    <Typography 
+                      variant="overline" 
+                      sx={{ color: '#34d399', fontWeight: 800, letterSpacing: '0.15em', fontSize: '0.9rem' }}
+                    >
+                      Article Author
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 800, mb: 2, mt: 0.5, fontSize: { xs: '2rem', md: '2.125rem' } }}>
+                      {blog.author || 'Admin'} | Choose Your Therapist
+                    </Typography>
+                    <Typography sx={{ 
+                      color: 'rgba(255,255,255,0.9)', 
+                      lineHeight: 1.8, 
+                      fontSize: { xs: '1.15rem', md: '1.1rem' }, 
+                      fontFamily: '"Lora", serif',
+                      mb: 3
+                    }}>
+                      A dedicated mental health advocate and contributor to Choose Your Therapist. Sharing expert insights to help you navigate your emotional journey with clarity and compassion.
+                    </Typography>
+                    <Stack 
+                      direction="row" 
+                      spacing={2} 
+                      justifyContent={{ xs: 'center', md: 'flex-start' }}
+                    >
+                      <IconButton size="medium" sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: '#1877f2' } }}><Facebook size={20} /></IconButton>
+                      <IconButton size="medium" sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: '#1da1f2' } }}><Twitter size={20} /></IconButton>
+                      <IconButton size="medium" sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: '#0a66c2' } }}><Linkedin size={20} /></IconButton>
+                    </Stack>
+                  </Box>
+                </Stack>
+              </Box>
+            </Box>
           </Grid>
 
           <Grid item xs={12} lg={4}>
-            <Stack spacing={4} sx={{ mt: isMobile ? 4 : 0 }}>
+            <Stack spacing={5} sx={{ position: 'sticky', top: '100px' }}>
               <SidebarCard elevation={0} sx={{ bgcolor: '#0f172a', color: '#fff', border: 'none' }}>
-                <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>Ready to talk?</Typography>
-                <Typography sx={{ mb: 4, opacity: 0.8, fontSize: '1.1rem' }}>
-                  Connect with a verified therapist who understands your journey.
+                <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>Need Support?</Typography>
+                <Typography sx={{ mb: 4, opacity: 0.8, fontSize: '1.1rem', lineHeight: 1.5 }}>
+                  Take the first step towards emotional wellness. Connect with our verified expert therapists today.
                 </Typography>
                 <Button 
                   variant="contained" 
@@ -286,6 +467,8 @@ export default function BlogDetails() {
                     py: 2, 
                     borderRadius: '16px', 
                     fontWeight: 800,
+                    textTransform: 'none',
+                    fontSize: '1.1rem',
                     '&:hover': { bgcolor: '#1a6842' }
                   }}
                 >
@@ -293,26 +476,66 @@ export default function BlogDetails() {
                 </Button>
               </SidebarCard>
 
-              <SidebarCard elevation={0}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
                   <TrendingUp size={22} color="#228756" /> Trending Articles
                 </Typography>
-                <Stack spacing={3}>
-                  {[1, 2, 3].map((i) => (
-                    <Box key={i} sx={{ cursor: 'pointer', '&:hover h6': { color: '#228756' } }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>{blog.category}</Typography>
-                      <Typography variant="h6" sx={{ fontSize: '1.1rem', fontWeight: 700, mt: 0.5, transition: '0.2s' }}>
-                        Understanding Emotional Resilience in 2024
-                      </Typography>
+                <Stack spacing={4}>
+                  {trendingBlogs.length > 0 ? trendingBlogs.map((tBlog) => (
+                    <Box 
+                      key={tBlog._id} 
+                      onClick={() => router.push(`/blog-details?id=${tBlog._id}`)}
+                      sx={{ 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        gap: 2,
+                        alignItems: 'center',
+                        '&:hover h6': { color: '#228756' } 
+                      }}
+                    >
+                      <Box sx={{ 
+                        width: 80, 
+                        height: 80, 
+                        borderRadius: '12px', 
+                        overflow: 'hidden', 
+                        flexShrink: 0,
+                        bgcolor: '#f1f5f9'
+                      }}>
+                        <img 
+                          src={getFullImagePath(tBlog.image)} 
+                          alt={tBlog.title} 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          {tBlog.category}
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, transition: '0.2s', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {tBlog.title}
+                        </Typography>
+                      </Box>
                     </Box>
-                  ))}
+                  )) : (
+                    <Typography color="text.secondary">Loading latest articles...</Typography>
+                  )}
                 </Stack>
+              </Box>
+              
+              <SidebarCard elevation={0} sx={{ textAlign: 'center', py: 5, borderStyle: 'dashed', borderWidth: '2px', borderColor: '#cbd5e1' }}>
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Share this Insight</Typography>
+                <Typography sx={{ color: '#64748b', mb: 3 }}>Help someone else by sharing this article with your network.</Typography>
+                <SocialShare 
+                  url={typeof window !== 'undefined' ? window.location.href : ''} 
+                  title={blog.title} 
+                />
               </SidebarCard>
             </Stack>
           </Grid>
         </Grid>
       </Container>
 
+      <NewsLetter />
       <Footer />
     </Box>
   );

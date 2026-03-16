@@ -1,6 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogTitle, 
+  Button, 
+  Typography, 
+  Box,
+  IconButton
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { postData, fetchData } from "../../utils/actions";
 import { SubmitReviewUrl, getTherapistProfile } from "../../utils/url";
 
@@ -12,6 +23,9 @@ export default function ProfileReview({ profile: initialProfile }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+  
+  const formRef = useRef(null);
 
   useEffect(() => {
     setProfile(initialProfile);
@@ -57,6 +71,11 @@ export default function ProfileReview({ profile: initialProfile }) {
       return;
     }
     
+    // Blur all active inputs to fix mobile zoom/keyboard issues
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
     setSubmitting(true);
     // Prepare data for backend
     const reviewData = {
@@ -70,7 +89,7 @@ export default function ProfileReview({ profile: initialProfile }) {
     try {
       const res = await postData(SubmitReviewUrl, reviewData);
       if (res && (res.status === true || res.status === "success" || res.status === 200 || res.success)) {
-        alert("Thank you for your review! It will be visible after approval.");
+        setOpenSuccess(true);
         setRating(0);
         setReviewText("");
         setName("");
@@ -96,15 +115,60 @@ export default function ProfileReview({ profile: initialProfile }) {
     }
   };
 
+  const handleCloseSuccess = () => {
+    setOpenSuccess(false);
+  };
+
   return (
     <div className="container pb--60">
       <div className="row">
         <div className="col-lg-10 offset-lg-1">
+          <Dialog
+            open={openSuccess}
+            onClose={handleCloseSuccess}
+            maxWidth="xs"
+            fullWidth
+            PaperProps={{
+              style: {
+                borderRadius: "20px",
+                padding: "20px",
+                textAlign: "center"
+              }
+            }}
+          >
+            <DialogContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
+                <CheckCircleIcon sx={{ fontSize: 80, color: '#2ecc71', mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: '#1a202c' }}>
+                  Thank You!
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#4a5568', mb: 3 }}>
+                  Your review has been submitted successfully and will be visible after approval.
+                </Typography>
+                <Button 
+                  onClick={handleCloseSuccess}
+                  variant="contained"
+                  sx={{ 
+                    backgroundColor: '#2ecc71', 
+                    '&:hover': { backgroundColor: '#27ae60' },
+                    borderRadius: '12px',
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 700,
+                    textTransform: 'none',
+                    fontSize: '16px'
+                  }}
+                >
+                  Close
+                </Button>
+              </Box>
+            </DialogContent>
+          </Dialog>
           <div style={glassCard}>
             <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#1a202c' }}>
               Leave a Review for {profile?.user?.name || "Therapist"}
             </h4>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} ref={formRef}>
               <div className="row">
                 <div className="col-md-6">
                   <div className="mb-3">
