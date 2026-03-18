@@ -39,7 +39,7 @@ const WhatsAppWidget = () => {
   ];
 
   return (
-    <Box className="no-print" sx={{ position: 'fixed', bottom: { xs: '65px', md: '40px' }, right: { xs: '15px', md: '40px' }, zIndex: 9999 }}>
+    <Box className="no-print" sx={{ position: 'fixed', bottom: { xs: '100px', md: '40px' }, right: { xs: '15px', md: '40px' }, zIndex: 9999 }}>
       {/* Quick-Action Menu */}
       <Fade in={isOpen}>
         <Paper
@@ -114,6 +114,7 @@ const WhatsAppWidget = () => {
               boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
               border: '1px solid #f1f5f9',
               whiteSpace: 'nowrap',
+              display: { xs: 'none', md: 'block' }, // Hide on mobile
               '&::after': {
                 content: '""',
                 position: 'absolute',

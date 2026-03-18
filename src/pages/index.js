@@ -18,6 +18,7 @@ const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: fal
 const ProcessSteps = dynamic(() => import("../components/home/process-steps"), { ssr: false });
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
+const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
@@ -165,6 +166,7 @@ export default function HomePage() {
         // Refresh location-based sorting if user accepts
         getTopTherapists();
       }} />
+      <BookingPopup delay={15000} />
     </div>
   );
 }

@@ -4,6 +4,8 @@ import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
 import WhatsAppWidget from "@/components/global/whatsapp-widget";
+import TawkToWidget from "@/components/global/tawk-widget";
+import CookieConsent from "@/components/global/cookie-consent";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { postData } from "../utils/actions";
@@ -61,6 +63,8 @@ function MyApp({ Component, pageProps }) {
       </Head>
       {isLoading && <PremiumLoader />}
       <WhatsAppWidget />
+      <TawkToWidget />
+      <CookieConsent />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
         <div className="main-wrapper" suppressHydrationWarning>
