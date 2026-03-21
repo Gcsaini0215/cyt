@@ -39,20 +39,27 @@ const WhatsAppWidget = () => {
   ];
 
   return (
-    <Box className="no-print" sx={{ position: 'fixed', bottom: { xs: '100px', md: '40px' }, right: { xs: '15px', md: '40px' }, zIndex: 9999 }}>
+    <Box className="no-print" sx={{ 
+      position: 'fixed', 
+      bottom: '50%', 
+      left: 0,
+      transform: 'translateY(50%)',
+      zIndex: 9999 
+    }}>
       {/* Quick-Action Menu */}
       <Fade in={isOpen}>
         <Paper
           elevation={10}
           sx={{
             position: 'absolute',
-            bottom: '80px',
-            right: 0,
+            top: 0,
+            left: '50px',
             width: '300px',
             borderRadius: '24px',
             overflow: 'hidden',
             background: '#ffffff',
             border: '1px solid #f1f5f9',
+            transform: 'translateY(-50%)'
           }}
         >
           <Box sx={{ p: 2.5, background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)', color: 'white', position: 'relative' }}>
@@ -100,42 +107,6 @@ const WhatsAppWidget = () => {
         </Paper>
       </Fade>
 
-      {/* Welcome Tooltip */}
-      {!isOpen && (
-        <Fade in={showTooltip}>
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '75px',
-              right: '10px',
-              bgcolor: 'white',
-              p: '8px 16px',
-              borderRadius: '15px',
-              boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
-              border: '1px solid #f1f5f9',
-              whiteSpace: 'nowrap',
-              display: { xs: 'none', md: 'block' }, // Hide on mobile
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                bottom: '-6px',
-                right: '20px',
-                width: '12px',
-                height: '12px',
-                bgcolor: 'white',
-                transform: 'rotate(45deg)',
-                borderRight: '1px solid #f1f5f9',
-                borderBottom: '1px solid #f1f5f9',
-              }
-            }}
-          >
-            <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>
-              Hi! Need help? 👋
-            </Typography>
-          </Box>
-        </Fade>
-      )}
-
       {/* Main WhatsApp Toggle Button */}
       <Zoom in={true} style={{ transitionDelay: '2000ms' }}>
         <Box
@@ -143,17 +114,20 @@ const WhatsAppWidget = () => {
           sx={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: 1.5,
             background: '#228756',
             color: 'white',
-            padding: '12px 24px',
-            borderRadius: '50px',
+            padding: '15px 10px',
+            borderRadius: '0 10px 10px 0',
             boxShadow: '0 10px 25px rgba(34, 135, 86, 0.3)',
             cursor: 'pointer',
             transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
             position: 'relative',
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed',
             '&:hover': {
-              transform: 'scale(1.05) translateY(-5px)',
+              transform: 'translateX(5px)',
               background: '#1a6b44',
             },
             '&::after': {
@@ -163,20 +137,20 @@ const WhatsAppWidget = () => {
               left: 0,
               right: 0,
               bottom: 0,
-              borderRadius: '50px',
+              borderRadius: '0 10px 10px 0',
               border: '2px solid #228756',
               animation: 'whatsapp-pulse 2s infinite',
               pointerEvents: 'none'
             }
           }}
         >
-          <WhatsAppIcon sx={{ fontSize: '28px' }} />
+          <WhatsAppIcon sx={{ fontSize: '28px', transform: 'rotate(90deg)' }} />
           <Typography
             sx={{
               fontWeight: 700,
               fontSize: '15px',
-              display: { xs: 'none', sm: 'block' },
-              letterSpacing: '0.3px'
+              letterSpacing: '0.3px',
+              whiteSpace: 'nowrap'
             }}
           >
             {isOpen ? 'Close' : 'Chat with us'}

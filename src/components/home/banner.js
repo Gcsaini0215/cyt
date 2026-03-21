@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -63,6 +63,7 @@ export default function Banner({ topTherapists = [] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
+  const searchTimeoutRef = useRef(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -239,9 +240,12 @@ export default function Banner({ topTherapists = [] }) {
                     <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
                       Choose <span style={{ 
                         color: "#228756", 
+                        fontFamily: "'Caveat', 'Dancing Script', cursive",
+                        fontSize: isMobile ? "1.1em" : "1.2em",
                         display: "inline-block",
                         margin: "0 10px",
-                        fontWeight: 900
+                        fontWeight: 400,
+                        transform: "rotate(-2deg)"
                       }}>Best Therapist</span>
                       Across <span style={{
                         backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
@@ -309,121 +313,133 @@ export default function Banner({ topTherapists = [] }) {
                   </Typography>
 
                   {/* Google Reviews One-Liner */}
-                  <Box 
-                    component="a" 
-                    href="https://share.google/oHqh7oihfysiPmGd1" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    sx={{ 
-                      display: "flex", 
-                      alignItems: "center", 
-                      gap: isMobile ? 1 : 1.5, 
-                      mb: 2, 
-                      textDecoration: "none",
-                      background: "#ffffff",
-                      padding: isMobile ? "6px 12px" : "8px 20px",
-                      borderRadius: "50px",
-                      border: "1px solid #e2e8f0",
-                      transition: "all 0.3s ease",
-                      maxWidth: "100%",
-                      width: "fit-content",
-                      flexWrap: "nowrap",
-                      overflow: "hidden",
-                      "&:hover": {
-                        transform: "translateY(-2px)",
-                        boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
-                        borderColor: "#228756"
-                      }
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-                      <Box sx={{ 
-                        width: isMobile ? 6 : 8, 
-                        height: isMobile ? 6 : 8, 
-                        bgcolor: "#228756", 
-                        borderRadius: "50%", 
-                        animation: "pulse 2s infinite" 
-                      }} />
-                      {!isMobile && <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: 1 }}>Live</Typography>}
+                  {!isMobile && (
+                    <Box 
+                      component="a" 
+                      href="https://share.google/oHqh7oihfysiPmGd1" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      sx={{ 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: isMobile ? 1 : 1.5, 
+                        mb: 2, 
+                        textDecoration: "none",
+                        background: "#ffffff",
+                        padding: isMobile ? "6px 12px" : "8px 20px",
+                        borderRadius: "50px",
+                        border: "1px solid #e2e8f0",
+                        transition: "all 0.3s ease",
+                        maxWidth: "100%",
+                        width: "fit-content",
+                        flexWrap: "nowrap",
+                        overflow: "hidden",
+                        "&:hover": {
+                          transform: "translateY(-2px)",
+                          boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
+                          borderColor: "#228756"
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+                        <Box sx={{ 
+                          width: isMobile ? 6 : 8, 
+                          height: isMobile ? 6 : 8, 
+                          bgcolor: "#228756", 
+                          borderRadius: "50%", 
+                          animation: "pulse 2s infinite" 
+                        }} />
+                        {!isMobile && <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: 1 }}>Live</Typography>}
+                      </Box>
+                      <Box sx={{ width: "1px", height: "15px", bgcolor: "#cbd5e1", flexShrink: 0 }} />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
+                        <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{visitorCount.toLocaleString()}+</Typography>
+                      </Box>
+                      <Typography sx={{ color: "#64748b", fontSize: isMobile ? "12px" : "14px", fontWeight: 500, whiteSpace: "nowrap" }}>
+                        Trusted Platform Visitor
+                      </Typography>
                     </Box>
-                    <Box sx={{ width: "1px", height: "15px", bgcolor: "#cbd5e1", flexShrink: 0 }} />
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-                      <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{visitorCount.toLocaleString()}+</Typography>
-                    </Box>
-                    <Typography sx={{ color: "#64748b", fontSize: isMobile ? "12px" : "14px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                      Trusted Platform Visitor
-                    </Typography>
-                  </Box>
+                  )}
 
-                  {/* Banner Buttons */}
-                  <div className="rbt-button-group justify-content-center" style={{ 
-                    display: "flex", 
-                    gap: isMobile ? "10px" : "20px", 
-                    flexDirection: isMobile ? "column" : "row",
-                    width: "100%",
-                    maxWidth: isMobile ? "320px" : "none",
+                  {/* Interactive Action Cards */}
+                  <Box sx={{
+                    display: "flex",
                     justifyContent: "center",
-                    alignItems: "center",
-                    marginBottom: isMobile ? "20px" : "30px",
-                    flexWrap: "wrap"
+                    gap: isMobile ? 1.5 : 3,
+                    mt: isMobile ? 2 : 4,
+                    mb: 4,
+                    flexWrap: "wrap",
+                    width: "100%",
+                    px: isMobile ? 1 : 0
                   }}>
-                    <Link
-                      className="rbt-btn btn-gradient btn-sm"
-                      href="/view-all-therapist"
-                      style={{ 
-                        width: isMobile ? "100%" : "280px", 
-                        textAlign: "center", 
-                        padding: isMobile ? "0 10px" : "0 30px",
-                        height: isMobile ? "45px" : "55px",
-                        lineHeight: isMobile ? "45px" : "55px",
-                        fontSize: isMobile ? "14px" : "16px",
-                        fontWeight: 700
-                      }}
-                    >
-                      <span className="btn-text">Find a Therapist</span>
-                    </Link>
-                    <Link
-                      className="rbt-btn btn-white btn-sm"
-                      href="/psychologist-in-noida-delhi"
-                      style={{ 
-                        width: isMobile ? "100%" : "280px", 
-                        textAlign: "center",
-                        border: "none",
-                        padding: isMobile ? "0 10px" : "0 30px",
-                        height: isMobile ? "45px" : "55px",
-                        lineHeight: isMobile ? "45px" : "55px",
-                        fontSize: isMobile ? "14px" : "16px",
-                        fontWeight: 700,
-                        textDecoration: "none",
-                        display: "block",
-                        cursor: "pointer",
-                        backgroundImage: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)",
-                        color: "#ffffff",
-                        boxShadow: "0 4px 12px rgba(14, 165, 233, 0.2)"
-                      }}
-                    >
-                      <span className="btn-text">For Delhi & Noida</span>
-                    </Link>
-                    <div
-                      className="rbt-btn btn-white btn-sm"
-                      onClick={() => setIsConsultationOpen(true)}
-                      style={{ 
-                        width: isMobile ? "100%" : "280px", 
-                        textAlign: "center",
-                        border: "2px solid #27ae60",
-                        padding: isMobile ? "0 10px" : "0 30px",
-                        height: isMobile ? "45px" : "55px",
-                        lineHeight: isMobile ? "45px" : "55px",
-                        fontSize: isMobile ? "14px" : "16px",
-                        fontWeight: 700,
-                        textDecoration: "none",
-                        display: "block",
-                        cursor: "pointer"
-                      }}
-                    >
-                      <span className="btn-text">Free 15 Min Consultation</span>
-                    </div>
-                  </div>
+                    {[
+                      { 
+                        id: "find", 
+                        label: "Find Therapist", 
+                        icon: <PersonSearchIcon />, 
+                        href: "/view-all-therapist",
+                        color: "#228756", // Darker Green
+                        bg: "#228756" 
+                      },
+                      { 
+                        id: "local", 
+                        label: "Noida & Delhi", 
+                        icon: <LocationOn />, 
+                        href: "/psychologist-in-noida-delhi",
+                        color: "#0ea5e9", // Bright Blue
+                        bg: "#0ea5e9"
+                      },
+                    ].map((card) => (
+                      <Button
+                        key={card.id}
+                        component={card.href ? Link : "button"}
+                        href={card.href}
+                        onClick={card.onClick}
+                        variant="contained"
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 1.5,
+                          px: 4,
+                          py: 1.5,
+                          borderRadius: "14px",
+                          backgroundColor: card.bg,
+                          textTransform: "none",
+                          color: "#ffffff",
+                          width: isMobile ? "100%" : "340px",
+                          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                          fontWeight: 500,
+                          fontSize: isMobile ? "14px" : "16px",
+                          fontFamily: "'Inter', sans-serif",
+                          boxShadow: `0 10px 20px -5px ${card.color}40`,
+                          "& .icon-container": {
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.3s ease",
+                            color: "#ffffff"
+                          },
+                          "& svg": {
+                            fontSize: 22
+                          },
+                          "&:hover": {
+                            backgroundColor: card.bg,
+                            transform: "translateY(-5px) scale(1.02)",
+                            boxShadow: `0 20px 30px -10px ${card.color}60`,
+                            "& .icon-container": {
+                              transform: "scale(1.1)"
+                            }
+                          }
+                        }}
+                      >
+                        <Box className="icon-container">
+                          {card.icon}
+                        </Box>
+                        {card.label}
+                      </Button>
+                    ))}
+                  </Box>
                 </Box>
               </div>
             </div>
