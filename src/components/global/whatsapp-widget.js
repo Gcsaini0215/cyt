@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Link, Zoom, Fade, IconButton, Paper } from '@mui/material';
+import { Box, Typography, Link, Zoom, Fade, IconButton, Paper, useMediaQuery, useTheme } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const WhatsAppWidget = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   
@@ -118,7 +120,7 @@ const WhatsAppWidget = () => {
             gap: 1.5,
             background: '#228756',
             color: 'white',
-            padding: '15px 10px',
+            padding: isMobile ? '10px 5px' : '15px 10px',
             borderRadius: '0 10px 10px 0',
             boxShadow: '0 10px 25px rgba(34, 135, 86, 0.3)',
             cursor: 'pointer',
@@ -129,26 +131,14 @@ const WhatsAppWidget = () => {
             '&:hover': {
               transform: 'translateX(5px)',
               background: '#1a6b44',
-            },
-            '&::after': {
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              borderRadius: '0 10px 10px 0',
-              border: '2px solid #228756',
-              animation: 'whatsapp-pulse 2s infinite',
-              pointerEvents: 'none'
             }
           }}
         >
-          <WhatsAppIcon sx={{ fontSize: '28px', transform: 'rotate(90deg)' }} />
+          <WhatsAppIcon sx={{ fontSize: isMobile ? '20px' : '28px', transform: 'rotate(90deg)' }} />
           <Typography
             sx={{
               fontWeight: 700,
-              fontSize: '15px',
+              fontSize: isMobile ? '13px' : '15px',
               letterSpacing: '0.3px',
               whiteSpace: 'nowrap'
             }}
@@ -156,12 +146,7 @@ const WhatsAppWidget = () => {
             {isOpen ? 'Close' : 'Chat with us'}
           </Typography>
 
-          <style jsx global>{`
-            @keyframes whatsapp-pulse {
-              0% { transform: scale(1); opacity: 0.8; }
-              100% { transform: scale(1.3); opacity: 0; }
-            }
-          `}</style>
+          {/* Animation removed */}
         </Box>
       </Zoom>
     </Box>

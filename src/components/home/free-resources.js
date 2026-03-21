@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { 
   FiPlayCircle, 
   FiBookOpen, 
@@ -34,6 +35,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
 export default function FreeResources({ bgColor = "#1a4d32", textColor = "white" }) {
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [selectedTool, setSelectedTool] = useState(null);
@@ -101,6 +103,10 @@ export default function FreeResources({ bgColor = "#1a4d32", textColor = "white"
   }, [selectedTool, openModal]);
 
   const handleOpenModal = (tool) => {
+    if (tool.title === "Daily Journal") {
+      router.push("/daily-journal");
+      return;
+    }
     setSelectedTool(tool);
     setOpenModal(true);
   };

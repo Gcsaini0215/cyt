@@ -102,16 +102,6 @@ export default function Banner({ topTherapists = [] }) {
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [selectedTherapist, setSelectedTherapist] = useState(null);
-  const [visitorCount, setVisitorCount] = useState(12534);
-
-  useEffect(() => {
-    // Increment only on page load/refresh
-    const baseCount = 12534;
-    // Use current time to generate a consistent but changing increment for the session
-    const dateSeed = Math.floor(new Date().getTime() / (1000 * 60 * 60)); // Changes every hour
-    const randomIncrement = (dateSeed % 1000) + Math.floor(Math.random() * 50);
-    setVisitorCount(baseCount + randomIncrement);
-  }, []);
 
   const handleOpenProfileModal = (therapist) => {
     setSelectedTherapist(therapist);
@@ -240,12 +230,10 @@ export default function Banner({ topTherapists = [] }) {
                     <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
                       Choose <span style={{ 
                         color: "#228756", 
-                        fontFamily: "'Caveat', 'Dancing Script', cursive",
-                        fontSize: isMobile ? "1.1em" : "1.2em",
                         display: "inline-block",
                         margin: "0 10px",
-                        fontWeight: 400,
-                        transform: "rotate(-2deg)"
+                        fontWeight: isMobile ? 950 : 900,
+                        lineHeight: 1.2
                       }}>Best Therapist</span>
                       Across <span style={{
                         backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
@@ -312,54 +300,7 @@ export default function Banner({ topTherapists = [] }) {
                     <span style={{ color: "#1a6d45", fontWeight: 700 }}> depression</span>, and <span style={{ color: "#1a6d45", fontWeight: 700 }}>emotional well-being</span> — all in one secure platform.
                   </Typography>
 
-                  {/* Google Reviews One-Liner */}
-                  {!isMobile && (
-                    <Box 
-                      component="a" 
-                      href="https://share.google/oHqh7oihfysiPmGd1" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      sx={{ 
-                        display: "flex", 
-                        alignItems: "center", 
-                        gap: isMobile ? 1 : 1.5, 
-                        mb: 2, 
-                        textDecoration: "none",
-                        background: "#ffffff",
-                        padding: isMobile ? "6px 12px" : "8px 20px",
-                        borderRadius: "50px",
-                        border: "1px solid #e2e8f0",
-                        transition: "all 0.3s ease",
-                        maxWidth: "100%",
-                        width: "fit-content",
-                        flexWrap: "nowrap",
-                        overflow: "hidden",
-                        "&:hover": {
-                          transform: "translateY(-2px)",
-                          boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
-                          borderColor: "#228756"
-                        }
-                      }}
-                    >
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-                        <Box sx={{ 
-                          width: isMobile ? 6 : 8, 
-                          height: isMobile ? 6 : 8, 
-                          bgcolor: "#228756", 
-                          borderRadius: "50%", 
-                          animation: "pulse 2s infinite" 
-                        }} />
-                        {!isMobile && <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: 1 }}>Live</Typography>}
-                      </Box>
-                      <Box sx={{ width: "1px", height: "15px", bgcolor: "#cbd5e1", flexShrink: 0 }} />
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexShrink: 0 }}>
-                        <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: isMobile ? "14px" : "16px" }}>{visitorCount.toLocaleString()}+</Typography>
-                      </Box>
-                      <Typography sx={{ color: "#64748b", fontSize: isMobile ? "12px" : "14px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                        Trusted Platform Visitor
-                      </Typography>
-                    </Box>
-                  )}
+                  {/* Google Reviews One-Liner Removed */}
 
                   {/* Interactive Action Cards */}
                   <Box sx={{

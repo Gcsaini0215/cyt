@@ -22,7 +22,7 @@ export default function App() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 150) {
+      if (window.scrollY > 10) {
         setIsSticky(true);
       } else {
         setIsSticky(false);
@@ -109,6 +109,7 @@ export default function App() {
                         <li><Link href="/self-assessment">Self Assessment</Link></li>
                         <li><Link href="/plans">Therapy Plan</Link></li>
                         <li><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
+                        <li><Link href="/daily-journal">Daily Journal</Link></li>
                       <li><Link href="/psychologist-in-noida-delhi">Noida Therapist</Link></li>
                       </ul>
                     </li>
@@ -259,6 +260,7 @@ export default function App() {
                 <li><Link href="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
                 <li><Link href="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
                 <li><Link href="/wellness-toolkit" onClick={() => setShow(false)}>Wellness Toolkit</Link></li>
+                <li><Link href="/daily-journal" onClick={() => setShow(false)}>Daily Journal</Link></li>
               </ul>
             </li>
           </ul>
