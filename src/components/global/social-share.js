@@ -63,49 +63,55 @@ const SocialShare = ({ url, title, description }) => {
   };
 
   return (
-    <Box>
-      <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+    <Box sx={{ mt: 1, mb: 1 }}>
+      <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap">
         {shareLinks.map((link) => (
-          <Tooltip key={link.name} title={`Share on ${link.name}`}>
+          <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
             <IconButton
               component="a"
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
               sx={{
-                width: 40,
-                height: 40,
-                backgroundColor: "rgba(34, 135, 86, 0.1)",
-                color: "#228756",
-                transition: "all 0.3s ease",
+                width: 36,
+                height: 36,
+                backgroundColor: link.color,
+                color: "#fff",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                boxShadow: `0 4px 10px ${link.color}33`,
+                "& .lucide": { strokeWidth: 2.5 },
                 "&:hover": {
                   backgroundColor: link.color,
-                  color: "#fff",
-                  transform: "translateY(-3px)"
+                  transform: "translateY(-4px) scale(1.1)",
+                  boxShadow: `0 8px 16px ${link.color}55`,
+                  opacity: 0.95
                 }
               }}
             >
-              {link.icon}
+              {React.cloneElement(link.icon, { size: 18 })}
             </IconButton>
           </Tooltip>
         ))}
-        <Tooltip title="Copy Link">
+        
+        <Tooltip title="Copy Link" arrow>
           <IconButton
             onClick={copyToClipboard}
             sx={{
-              width: 40,
-              height: 40,
-              backgroundColor: "rgba(34, 135, 86, 0.1)",
-              color: "#228756",
-              transition: "all 0.3s ease",
+              width: 36,
+              height: 36,
+              backgroundColor: "#475569",
+              color: "#fff",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              boxShadow: '0 4px 10px rgba(71, 85, 105, 0.2)',
               "&:hover": {
-                backgroundColor: "#228756",
-                color: "#fff",
-                transform: "translateY(-3px)"
+                backgroundColor: "#334155",
+                transform: "translateY(-4px) scale(1.1)",
+                boxShadow: '0 8px 16px rgba(71, 85, 105, 0.3)',
+                opacity: 0.95
               }
             }}
           >
-            <LinkIcon size={20} />
+            <LinkIcon size={18} />
           </IconButton>
         </Tooltip>
       </Stack>

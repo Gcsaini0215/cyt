@@ -40,6 +40,7 @@ import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
 import NewsLetter from '../components/home/newsletter';
 import SocialShare from '../components/global/social-share';
+import BookingPopup from '../components/global/booking-popup';
 import { getBlogUrl, baseApi, getBlogsUrl, frontendUrl, getFullBlogImagePath } from '../utils/url';
 import { fetchData } from '../utils/actions';
 import dompurify from "dompurify";
@@ -286,10 +287,14 @@ export default function BlogDetails({ initialBlog }) {
   }, []);
 
   useEffect(() => {
+    if (initialBlog) setBlog(initialBlog);
+  }, [initialBlog]);
+
+  useEffect(() => {
     if (id) {
       const getBlogData = async () => {
         try {
-          if (!blog) {
+          if (!blog || blog._id !== id) {
             const res = await fetchData(`${getBlogUrl}/${id}`);
             if (res && res.status) setBlog(res.data);
           }
@@ -369,7 +374,8 @@ export default function BlogDetails({ initialBlog }) {
 
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
   const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
-  const imageUrl = getFullBlogImagePath(blog.image) || "https://chooseyourtherapist.in/assets/img/og-image.jpg";
+  const rawImageUrl = getFullBlogImagePath(blog.image);
+  const imageUrl = rawImageUrl && rawImageUrl.startsWith('http') ? rawImageUrl : "https://chooseyourtherapist.in/assets/img/og-image.jpg";
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
 
   return (
@@ -387,9 +393,14 @@ export default function BlogDetails({ initialBlog }) {
         <meta property="og:description" content={cleanDesc} />
         <meta property="og:image" content={imageUrl} />
         <meta property="og:image:secure_url" content={imageUrl} />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={blog.title} />
         <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="article:published_time" content={blog.createdAt} />
+        <meta property="article:author" content={blog.author || 'Admin'} />
+        <meta property="article:section" content={blog.category} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -397,6 +408,7 @@ export default function BlogDetails({ initialBlog }) {
         <meta name="twitter:title" content={`${blog.title} | Choose Your Therapist`} />
         <meta name="twitter:description" content={cleanDesc} />
         <meta name="twitter:image" content={imageUrl} />
+        <meta name="twitter:image:alt" content={blog.title} />
 
         <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </Head>
@@ -534,7 +546,7 @@ export default function BlogDetails({ initialBlog }) {
             <Stack spacing={4} sx={{ position: 'sticky', top: '100px' }}>
               {/* Trending Articles Section */}
               <SidebarCard elevation={0}>
-                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.15rem' }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.3rem' }}>
                   <TrendingUp size={22} color="#228756" strokeWidth={3} /> Trending Now
                 </Typography>
                 <Stack spacing={1}>
@@ -560,10 +572,10 @@ export default function BlogDetails({ initialBlog }) {
                           />
                         </Box>
                         <Box>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.8rem' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem' }}>
                             {tBlog.category}
                           </Typography>
-                          <Typography variant="subtitle2" sx={{ fontSize: '1.05rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <Typography variant="subtitle2" sx={{ fontSize: '1.2rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {tBlog.title}
                           </Typography>
                         </Box>
@@ -578,7 +590,7 @@ export default function BlogDetails({ initialBlog }) {
 
               {/* Categories Section */}
               <SidebarCard elevation={0}>
-                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.15rem' }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.3rem' }}>
                   <TagIcon size={22} color="#228756" strokeWidth={3} /> Categories
                 </Typography>
                 <Stack spacing={1.5}>
@@ -606,7 +618,7 @@ export default function BlogDetails({ initialBlog }) {
                       }}
                       onClick={() => router.push(`/blogs?category=${cat.name}`)}
                     >
-                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '1.1rem', color: '#1e293b', transition: '0.2s' }}>
+                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e293b', transition: '0.2s' }}>
                         {cat.name}
                       </Typography>
                       <Box sx={{ 
@@ -632,7 +644,7 @@ export default function BlogDetails({ initialBlog }) {
 
               {/* Popular Tags Section */}
               <SidebarCard elevation={0} sx={{ background: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)' }}>
-                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.15rem' }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.3rem' }}>
                   <TrendingUp size={22} color="#228756" strokeWidth={3} /> Popular Tags
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.2 }}>
@@ -643,7 +655,7 @@ export default function BlogDetails({ initialBlog }) {
                       onClick={() => router.push(`/blogs?tag=${tag.name}`)}
                       sx={{ 
                         fontWeight: 700, 
-                        fontSize: '0.9rem', 
+                        fontSize: '1.05rem', 
                         bgcolor: '#ffffff', 
                         color: '#475569',
                         border: '1px solid #e2e8f0',
@@ -673,6 +685,7 @@ export default function BlogDetails({ initialBlog }) {
 
       <NewsLetter />
       <Footer />
+      <BookingPopup delay={5000} />
     </Box>
   );
 }

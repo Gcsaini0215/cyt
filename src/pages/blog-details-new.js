@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
+import BookingPopup from '../components/global/booking-popup';
 import { blogsData } from '../data/blogs-data';
 import { ThemeProvider } from '@mui/material/styles';
 import createCache from "@emotion/cache";
@@ -550,7 +551,7 @@ export default function BlogDetailsNew() {
                 <Stack spacing={3} sx={{ position: 'sticky', top: 100 }}>
                   {/* Search Widget */}
                   <SidebarWidget>
-                    <Typography variant="h6" gutterBottom fontWeight={700}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, fontSize: '1.4rem' }}>
                       Search Articles
                     </Typography>
                     <TextField
@@ -566,7 +567,7 @@ export default function BlogDetailsNew() {
 
                   {/* Recent Posts */}
                   <SidebarWidget>
-                    <Typography variant="h6" gutterBottom fontWeight={700} sx={{ mb: 3 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3, fontSize: '1.4rem' }}>
                       Recent Posts
                     </Typography>
                     <Stack spacing={2}>
@@ -585,7 +586,7 @@ export default function BlogDetailsNew() {
                             }}
                           />
                           <Box>
-                            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 0.5, lineHeight: 1.4 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5, lineHeight: 1.4, fontSize: '1.1rem' }}>
                               {post.title}
                             </Typography>
                             <Stack direction="row" spacing={0.5} alignItems="center">
@@ -602,7 +603,7 @@ export default function BlogDetailsNew() {
 
                   {/* Categories */}
                   <SidebarWidget>
-                    <Typography variant="h6" gutterBottom fontWeight={700} sx={{ mb: 3 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3, fontSize: '1.4rem' }}>
                       Categories
                     </Typography>
                     <Stack spacing={1.5}>
@@ -625,12 +626,12 @@ export default function BlogDetailsNew() {
                         >
                           <Stack direction="row" spacing={1} alignItems="center">
                             <Tag size={16} color={theme.palette.primary.main} />
-                            <Typography variant="body2">{category}</Typography>
+                            <Typography variant="body2" sx={{ fontSize: '1.1rem' }}>{category}</Typography>
                           </Stack>
                           <Chip
                             label={blogsData.filter(b => b.category === category).length}
-                            size="small"
-                            sx={{ minWidth: 32, height: 24 }}
+                            size="medium"
+                            sx={{ minWidth: 32, height: 28, fontWeight: 700 }}
                           />
                         </Stack>
                       ))}
@@ -639,7 +640,7 @@ export default function BlogDetailsNew() {
 
                   {/* Popular Tags */}
                   <SidebarWidget>
-                    <Typography variant="h6" gutterBottom fontWeight={700} sx={{ mb: 3 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, mb: 3, fontSize: '1.4rem' }}>
                       Popular Tags
                     </Typography>
                     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -648,10 +649,12 @@ export default function BlogDetailsNew() {
                           <Chip
                             key={tag}
                             label={tag}
-                            size="small"
+                            size="medium"
                             onClick={() => router.push('/blogs')}
                             sx={{
                               cursor: 'pointer',
+                              fontWeight: 600,
+                              fontSize: '0.95rem',
                               '&:hover': {
                                 backgroundColor: 'primary.light',
                                 color: 'white',
@@ -668,6 +671,7 @@ export default function BlogDetailsNew() {
           </Container>
 
           <Footer />
+          <BookingPopup delay={5000} />
         </Box>
       </ThemeProvider>
     </CacheProvider>
