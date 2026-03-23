@@ -391,7 +391,7 @@ export default function BlogDetailsNew() {
                   )}
 
                   {/* Introduction */}
-                  <Typography variant="body1" paragraph sx={{ fontSize: '1.125rem', mb: 4 }}>
+                  <Typography variant="body1" paragraph sx={{ mb: 4 }}>
                     {blog.description}
                   </Typography>
 

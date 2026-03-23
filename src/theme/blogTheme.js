@@ -78,13 +78,13 @@ const blogTheme = createTheme({
     },
     body1: {
       fontFamily: '"Lora", serif',
-      fontSize: '1.125rem',
+      fontSize: '1.375rem',
       fontWeight: 400,
       lineHeight: 1.8,
     },
     body2: {
       fontFamily: '"Lora", serif',
-      fontSize: '1rem',
+      fontSize: '1.125rem',
       fontWeight: 400,
       lineHeight: 1.7,
     },

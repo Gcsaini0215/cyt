@@ -71,6 +71,7 @@ export default function MainLayout(props) {
                     { to: "/therapist-dashboard", icon: "feather-home", title: "Home" },
                     { to: "/appointments", icon: "feather-calendar", title: "Sessions" },
                     { to: "/clinic-patients", icon: "feather-file-text", title: "Invoices" },
+                    { to: "/case-history", icon: "feather-edit", title: "Case History" },
                     { to: "/create-report", icon: "feather-clipboard", title: "Reports" },
                     { 
                       id: 'event-menu',
@@ -299,7 +300,7 @@ export default function MainLayout(props) {
           {[
             { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
             { to: "/appointments", icon: "feather-calendar", label: "Sessions" },
-            { to: "/clinic-patients", icon: "feather-file-text", label: "Invoices" },
+            { to: "/case-history", icon: "feather-edit", label: "Case" },
             { to: "/settings", icon: "feather-user", label: "Profile" }
           ].map((item) => (
             <Link

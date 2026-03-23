@@ -359,16 +359,16 @@ export default function BlogView() {
               </Box>
 
               <Box sx={{ 
-                '& p': { fontSize: '18px', lineHeight: 1.8, color: '#334155', mb: 4 },
-                '& h2': { fontSize: '28px', fontWeight: 800, color: '#1e293b', mt: 6, mb: 3 },
+                '& p': { fontSize: '22px', lineHeight: 1.8, color: '#334155', mb: 4 },
+                '& h2': { fontSize: '32px', fontWeight: 800, color: '#1e293b', mt: 6, mb: 3 },
                 '& ul': { mb: 4, pl: 3 },
-                '& li': { fontSize: '18px', mb: 2, color: '#334155' },
+                '& li': { fontSize: '22px', mb: 2, color: '#334155' },
                 '& blockquote': { 
                   borderLeft: '5px solid #228756', 
                   pl: 4, 
                   py: 1, 
                   my: 6, 
-                  fontSize: '24px', 
+                  fontSize: '28px', 
                   fontWeight: 700, 
                   fontStyle: 'italic',
                   color: '#1e293b',

@@ -47,6 +47,26 @@ function MyApp({ Component, pageProps }) {
     };
   }, [router]);
 
+  const hideWidgetsOn = [
+    "/therapist-dashboard",
+    "/appointments",
+    "/clinic-patients",
+    "/case-history",
+    "/create-report",
+    "/workshops",
+    "/coupons",
+    "/settings",
+    "/create-workshop",
+    "/add-offline-client",
+    "/therapist-blogs",
+    "/therapist-ai-blog",
+    "/therapists/",
+    "/coupon/",
+    "/update-workshop/"
+  ];
+
+  const shouldHideWidgets = hideWidgetsOn.some(route => router.pathname.startsWith(route));
+
   return (
     <Providers>
       <Head>
@@ -62,8 +82,12 @@ function MyApp({ Component, pageProps }) {
         <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
       {isLoading && <PremiumLoader />}
-      <WhatsAppWidget />
-      <TawkToWidget />
+      {!shouldHideWidgets && (
+        <>
+          <WhatsAppWidget />
+          <TawkToWidget />
+        </>
+      )}
       <CookieConsent />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>

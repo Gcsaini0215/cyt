@@ -40,7 +40,7 @@ import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
 import NewsLetter from '../components/home/newsletter';
 import SocialShare from '../components/global/social-share';
-import { getBlogUrl, baseApi, getBlogsUrl, frontendUrl } from '../utils/url';
+import { getBlogUrl, baseApi, getBlogsUrl, frontendUrl, getFullBlogImagePath } from '../utils/url';
 import { fetchData } from '../utils/actions';
 import dompurify from "dompurify";
 
@@ -56,31 +56,31 @@ const ProgressWrapper = styled(Box)({
 
 const BlogHero = styled(Box)(({ theme }) => ({
   paddingTop: theme.spacing(8),
-  paddingBottom: theme.spacing(20), // Extra padding for the overlap
+  paddingBottom: theme.spacing(8), // Reduced padding
   background: '#064e3b', // Deep Forest Green
   textAlign: 'center',
   position: 'relative',
   [theme.breakpoints.down('md')]: {
     paddingTop: theme.spacing(4), // Even less top padding on mobile
-    paddingBottom: theme.spacing(15),
+    paddingBottom: theme.spacing(8),
   },
 }));
 
 const EditorialTitle = styled(Typography)(({ theme }) => ({
   fontFamily: '"Lora", serif',
   fontWeight: 800,
-  color: '#ffffff', // White text for dark background
+  color: '#0f172a', // Changed to dark for white background
   lineHeight: 1.1,
   letterSpacing: '-0.03em',
-  marginBottom: theme.spacing(4),
-  fontSize: '4.5rem',
+  marginBottom: theme.spacing(3),
+  fontSize: '3.5rem', // Slightly smaller for content area
   [theme.breakpoints.down('lg')]: {
-    fontSize: '3.5rem',
+    fontSize: '3rem',
   },
   [theme.breakpoints.down('md')]: {
-    fontSize: '2.5rem',
-    marginBottom: theme.spacing(1.5), // Reduced from 3 to 1.5
-    marginTop: theme.spacing(1), // Minimal top margin
+    fontSize: '2.2rem',
+    marginBottom: theme.spacing(1.5),
+    marginTop: theme.spacing(1),
   },
 }));
 
@@ -108,7 +108,7 @@ const FeaturedImageContainer = styled(Box)(({ theme }) => ({
 }));
 
 const MetaItem = styled(Stack)(({ theme }) => ({
-  color: '#a7f3d0', // Light green for readability
+  color: '#64748b', // Darker gray for readability on white
   textTransform: 'uppercase',
   letterSpacing: '0.1em',
   fontSize: '0.75rem',
@@ -120,10 +120,19 @@ const MetaItem = styled(Stack)(({ theme }) => ({
 
 const ContentWrapper = styled(Box)(({ theme }) => ({
   '& p': {
-    fontSize: '1.4rem',
+    fontSize: '1.6rem',
     lineHeight: 1.85,
     color: '#334155',
     marginBottom: '2.5rem',
+    fontFamily: '"Lora", serif',
+  },
+  '& p:first-of-type::first-letter': {
+    float: 'left',
+    fontSize: '5rem',
+    lineHeight: '1',
+    fontWeight: 900,
+    paddingRight: '12px',
+    color: '#0f172a',
     fontFamily: '"Lora", serif',
   },
   '& h2': {
@@ -172,7 +181,7 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
       fontFamily: 'serif',
     },
     '& p': {
-      fontSize: '1.65rem',
+      fontSize: '1.85rem',
       color: '#064e3b',
       fontWeight: 600,
       fontStyle: 'italic',
@@ -186,7 +195,7 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     marginBottom: '3rem',
     paddingLeft: '1.8rem',
     '& li': {
-      fontSize: '1.35rem',
+      fontSize: '1.55rem',
       lineHeight: 1.8,
       color: '#475569',
       marginBottom: '1.2rem',
@@ -253,6 +262,8 @@ export default function BlogDetails({ initialBlog }) {
   
   const [blog, setBlog] = useState(initialBlog);
   const [trendingBlogs, setTrendingBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [popularTags, setPopularTags] = useState([]);
   const [loading, setLoading] = useState(!initialBlog);
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -269,17 +280,52 @@ export default function BlogDetails({ initialBlog }) {
 
   useEffect(() => {
     if (id) {
-      const getBlog = async () => {
+      const getBlogData = async () => {
         try {
           if (!blog) {
             const res = await fetchData(`${getBlogUrl}/${id}`);
             if (res && res.status) setBlog(res.data);
           }
           
-          // Fetch trending blogs
-          const trendingRes = await fetchData(getBlogsUrl);
-          if (trendingRes && trendingRes.status) {
-            setTrendingBlogs(trendingRes.data.filter(b => b._id !== id).slice(0, 4));
+          // Fetch all blogs to calculate categories, tags, and trending
+          const allBlogsRes = await fetchData(getBlogsUrl);
+          if (allBlogsRes && allBlogsRes.status) {
+            const allBlogs = allBlogsRes.data;
+            
+            // Set trending blogs (excluding current)
+            setTrendingBlogs(allBlogs.filter(b => b._id !== id).slice(0, 4));
+
+            // Calculate category counts
+            const catMap = {};
+            const tagMap = {};
+
+            allBlogs.forEach(b => {
+              // Categories
+              if (b.category) {
+                catMap[b.category] = (catMap[b.category] || 0) + 1;
+              }
+              // Tags
+              if (b.tags) {
+                b.tags.split(',').forEach(tag => {
+                  const t = tag.trim();
+                  if (t) tagMap[t] = (tagMap[t] || 0) + 1;
+                });
+              }
+            });
+            
+            const sortedCategories = Object.keys(catMap).map(name => ({
+              name,
+              count: catMap[name]
+            })).sort((a, b) => b.count - a.count);
+            
+            setCategories(sortedCategories);
+
+            const sortedTags = Object.keys(tagMap).map(name => ({
+              name,
+              count: tagMap[name]
+            })).sort((a, b) => b.count - a.count).slice(0, 10);
+
+            setPopularTags(sortedTags);
           }
         } catch (error) {
           console.error("Fetch Error:", error);
@@ -287,7 +333,7 @@ export default function BlogDetails({ initialBlog }) {
           setLoading(false);
         }
       };
-      getBlog();
+      getBlogData();
     }
   }, [id]);
 
@@ -317,7 +363,7 @@ export default function BlogDetails({ initialBlog }) {
   const sanitizedContent = typeof window !== 'undefined' ? dompurify.sanitize(blog.content) : blog.content;
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
   const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
-  const imageUrl = getFullImagePath(blog.image);
+  const imageUrl = getFullBlogImagePath(blog.image) || "https://chooseyourtherapist.in/assets/img/og-image.jpg";
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
 
   return (
@@ -354,222 +400,151 @@ export default function BlogDetails({ initialBlog }) {
       </ProgressWrapper>
 
       <MyNavbar />
-
-      <BlogHero>
+      
+      {/* Secondary Header / Breadcrumb Bar - Dark Mode Version */}
+      <Box sx={{ bgcolor: '#0f172a', borderBottom: '1px solid rgba(255,255,255,0.05)', py: 2 }}>
         <Container maxWidth="lg">
-          <Stack spacing={2} alignItems="center">
-            <Typography 
-              variant="overline" 
-              sx={{ 
-                color: '#34d399', 
-                fontWeight: 800, 
-                letterSpacing: '0.2em',
-                fontSize: '0.875rem'
-              }}
-            >
-              {blog.category}
+          <Breadcrumbs 
+            separator={<ChevronRight size={14} color="#ffffff" />} 
+            aria-label="breadcrumb"
+            sx={{ fontSize: '0.85rem', fontWeight: 600 }}
+          >
+            <Link href="/" style={{ color: '#ffffff', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              Home
+            </Link>
+            <Link href="/blogs" style={{ color: '#ffffff', textDecoration: 'none' }}>
+              Blogs
+            </Link>
+            <Typography color="#ffffff" sx={{ fontSize: '0.85rem', fontWeight: 800 }}>
+              ARTICLE INSIGHTS
             </Typography>
-            
-            <EditorialTitle variant="h1" sx={{ maxWidth: '1000px', mx: 'auto' }}>
-              {blog.title}
-            </EditorialTitle>
-
-            <Stack 
-              direction="row" 
-              spacing={{ xs: 2, md: 4 }} 
-              alignItems="center" 
-              justifyContent="center"
-              flexWrap="wrap"
-              divider={<Divider orientation="vertical" flexItem sx={{ height: 15, alignSelf: 'center', borderColor: 'rgba(255, 255, 255, 0.2)', display: { xs: 'none', sm: 'block' } }} />}
-              sx={{ color: '#a7f3d0', mt: 1 }}
-            >
-              <MetaItem>
-                <Typography variant="caption" sx={{ fontWeight: 800 }}>BY {blog.author || 'ADMIN'}</Typography>
-              </MetaItem>
-              <MetaItem>
-                <Calendar size={14} />
-                <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                  {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </Typography>
-              </MetaItem>
-              <MetaItem>
-                <Clock size={14} />
-                <Typography variant="caption" sx={{ fontWeight: 800 }}>{calculateReadingTime(blog.content)}</Typography>
-              </MetaItem>
-              <MetaItem>
-                <Eye size={14} />
-                <Typography variant="caption" sx={{ fontWeight: 800 }}>{blog.views || '1.2k'} Views</Typography>
-              </MetaItem>
-              <MetaItem>
-                <Users size={14} />
-                <Typography variant="caption" sx={{ fontWeight: 800 }}>{blog.readers || '850'} Readers</Typography>
-              </MetaItem>
-            </Stack>
-          </Stack>
+          </Breadcrumbs>
         </Container>
-      </BlogHero>
+      </Box>
 
-      <Container maxWidth="lg" sx={{ mt: { xs: '-80px', md: '-120px' }, position: 'relative', zIndex: 10 }}>
-        <FeaturedImageContainer>
-          <img src={getFullImagePath(blog.image)} alt={blog.title} />
-        </FeaturedImageContainer>
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            display: 'block', 
-            mt: 2, 
-            color: '#64748b', 
-            fontStyle: 'italic',
-            textAlign: 'center',
-            fontWeight: 500
-          }}
-        >
-          Image Source: {blog.category || 'Mental Wellness'} | Choose Your Therapist
-        </Typography>
-      </Container>
-
-      <Container maxWidth="lg" sx={{ pb: 12, pt: { xs: 3, md: 5 } }}>
+      <Container maxWidth="lg" sx={{ pb: 12, pt: { xs: 1, md: 2 } }}>
         <Grid container spacing={8}>
           <Grid item xs={12} lg={8}>
             <Box component="article">
+              {/* Journal-style Header Section */}
+              <Box sx={{ mb: 3, textAlign: 'left' }}>
+                <Box sx={{ mb: 2 }}>
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      backgroundColor: '#228756',
+                      color: '#ffffff',
+                      fontWeight: 900, 
+                      letterSpacing: '0.1em',
+                      fontSize: '0.75rem',
+                      px: 2,
+                      py: 0.8,
+                      borderRadius: '4px',
+                      display: 'inline-block',
+                      textTransform: 'uppercase',
+                      boxShadow: '0 2px 8px rgba(34, 135, 86, 0.2)'
+                    }}
+                  >
+                    {blog.category} • ARTICLE
+                  </Typography>
+                </Box>
+                
+                <EditorialTitle variant="h1" sx={{ textAlign: 'left', mb: 1.5, fontSize: { xs: '2.5rem', md: '3.8rem' } }}>
+                  {blog.title}
+                </EditorialTitle>
+
+                <Stack 
+                  direction="row" 
+                  spacing={{ xs: 2, md: 4 }} 
+                  alignItems="center" 
+                  justifyContent="flex-start"
+                  flexWrap="wrap"
+                  divider={<Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center', borderColor: '#cbd5e1' }} />}
+                  sx={{ mb: 3, color: '#475569' }}
+                >
+                  <MetaItem sx={{ gap: '12px' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>WRITTEN BY {blog.author || 'ADMIN'}</Typography>
+                  </MetaItem>
+                  <MetaItem sx={{ gap: '12px' }}>
+                    <Calendar size={18} />
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.95rem' }}>
+                      {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </Typography>
+                  </MetaItem>
+                  <MetaItem sx={{ gap: '12px' }}>
+                    <Clock size={18} />
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.95rem' }}>{calculateReadingTime(blog.content)}</Typography>
+                  </MetaItem>
+                </Stack>
+
+                {/* Social Share below title/metadata */}
+                <Box sx={{ mb: 3 }}>
+                  <SocialShare 
+                    url={pageUrl} 
+                    title={blog.title} 
+                  />
+                </Box>
+
+                <Divider sx={{ mb: 3, borderColor: '#f1f5f9' }} />
+              </Box>
+
+              <FeaturedImageContainer sx={{ mt: 0, mb: 1, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', borderRadius: '4px' }}>
+                <img src={getFullImagePath(blog.image)} alt={blog.title} />
+              </FeaturedImageContainer>
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  display: 'block', 
+                  mb: 3,
+                  color: '#94a3b8', 
+                  fontStyle: 'italic',
+                  textAlign: 'left',
+                  fontWeight: 500,
+                  fontSize: '0.85rem'
+                }}
+              >
+                Source: Choose Your Therapist Editorial
+              </Typography>
               <ContentWrapper 
                 className="blog-content-rich-text"
                 dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
               />
               
               {tagsList.length > 0 && (
-                <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mt: 6, gap: 1.5 }}>
-                  <Typography sx={{ width: '100%', fontWeight: 700, color: '#0f172a', mb: 1 }}>Explore Tags:</Typography>
-                  {tagsList.map((tag, idx) => (
+                <Box sx={{ mt: 6, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {tagsList.map((tag, index) => (
                     <Chip 
-                      key={idx}
-                      icon={<TagIcon size={14} />}
-                      label={tag} 
-                      onClick={() => {}}
+                      key={index} 
+                      label={`#${tag}`} 
                       sx={{ 
-                        borderRadius: '12px', 
+                        fontWeight: 700, 
+                        fontSize: '0.75rem', 
                         bgcolor: '#f1f5f9', 
-                        fontWeight: 600, 
+                        color: '#475569',
                         '&:hover': { bgcolor: '#e2e8f0' }
                       }} 
                     />
                   ))}
-                </Stack>
+                </Box>
               )}
-
-              <Box sx={{ 
-                mt: 10, 
-                p: { xs: 4, md: 6 }, 
-                background: 'linear-gradient(145deg, #064e3b 0%, #065f46 100%)', 
-                borderRadius: '24px', 
-                color: '#fff',
-                position: 'relative',
-                overflow: 'hidden',
-                textAlign: { xs: 'center', md: 'left' },
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: -50,
-                  right: -50,
-                  width: 150,
-                  height: 150,
-                  background: 'rgba(255,255,255,0.05)',
-                  borderRadius: '50%',
-                }
-              }}>
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={4} alignItems={{ xs: 'center', md: 'flex-start' }}>
-                  <Box>
-                    <Typography 
-                      variant="overline" 
-                      sx={{ color: '#34d399', fontWeight: 800, letterSpacing: '0.15em', fontSize: '0.9rem' }}
-                    >
-                      Article Author
-                    </Typography>
-                    <Typography variant="h4" sx={{ fontWeight: 800, mb: 2, mt: 0.5, fontSize: { xs: '2rem', md: '2.125rem' } }}>
-                      {blog.author || 'Admin'} | Choose Your Therapist
-                    </Typography>
-                    <Typography sx={{ 
-                      color: 'rgba(255,255,255,0.9)', 
-                      lineHeight: 1.8, 
-                      fontSize: { xs: '1.15rem', md: '1.1rem' }, 
-                      fontFamily: '"Lora", serif',
-                      mb: 3
-                    }}>
-                      A dedicated mental health advocate and contributor to Choose Your Therapist. Sharing expert insights to help you navigate your emotional journey with clarity and compassion.
-                    </Typography>
-                    <Stack 
-                      direction="row" 
-                      spacing={2} 
-                      justifyContent={{ xs: 'center', md: 'flex-start' }}
-                    >
-                      <IconButton size="medium" sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: '#1877f2' } }}><Facebook size={20} /></IconButton>
-                      <IconButton size="medium" sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: '#1da1f2' } }}><Twitter size={20} /></IconButton>
-                      <IconButton size="medium" sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: '#0a66c2' } }}><Linkedin size={20} /></IconButton>
-                    </Stack>
-                  </Box>
-                </Stack>
-              </Box>
             </Box>
           </Grid>
 
           <Grid item xs={12} lg={4}>
             <Stack spacing={4} sx={{ position: 'sticky', top: '100px' }}>
-              <SidebarCard elevation={0} sx={{ 
-                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
-                color: '#fff', 
-                border: 'none',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                <Box sx={{ position: 'relative', zIndex: 1 }}>
-                  <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>Need Support?</Typography>
-                  <Typography sx={{ mb: 4, opacity: 0.8, fontSize: '1.05rem', lineHeight: 1.6 }}>
-                    Take the first step towards emotional wellness. Connect with our verified expert therapists today.
-                  </Typography>
-                  <Button 
-                    variant="contained" 
-                    fullWidth 
-                    size="large"
-                    onClick={() => router.push('/view-all-therapist')}
-                    sx={{ 
-                      bgcolor: '#228756', 
-                      py: 2, 
-                      borderRadius: '16px', 
-                      fontWeight: 800,
-                      textTransform: 'none',
-                      fontSize: '1.1rem',
-                      boxShadow: '0 10px 20px -5px rgba(34, 135, 86, 0.4)',
-                      '&:hover': { bgcolor: '#1a6842', transform: 'translateY(-2px)' },
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    Book a Consultation
-                  </Button>
-                </Box>
-                <Box sx={{ 
-                  position: 'absolute', 
-                  bottom: -20, 
-                  right: -20, 
-                  width: 100, 
-                  height: 100, 
-                  background: 'rgba(34, 135, 86, 0.1)', 
-                  borderRadius: '50%' 
-                }} />
-              </SidebarCard>
-
               <Box sx={{ px: 1 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
-                  <TrendingUp size={22} color="#228756" /> Trending Articles
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
+                  <TrendingUp size={24} color="#228756" /> Trending Articles
                 </Typography>
-                <Stack spacing={2}>
+                <Stack spacing={2.5}>
                   {trendingBlogs.length > 0 ? trendingBlogs.map((tBlog) => (
                     <TrendingItem 
                       key={tBlog._id} 
                       onClick={() => router.push(`/blog-details?id=${tBlog._id}`)}
                     >
                       <Box className="img-box" sx={{ 
-                        width: 70, 
-                        height: 70, 
+                        width: 90, 
+                        height: 90, 
                         borderRadius: '12px', 
                         overflow: 'hidden', 
                         flexShrink: 0,
@@ -582,10 +557,10 @@ export default function BlogDetails({ initialBlog }) {
                         />
                       </Box>
                       <Box>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.7rem' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.8rem' }}>
                           {tBlog.category}
                         </Typography>
-                        <Typography variant="h6" sx={{ fontSize: '0.95rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        <Typography variant="h6" sx={{ fontSize: '1.15rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                           {tBlog.title}
                         </Typography>
                       </Box>
@@ -595,23 +570,90 @@ export default function BlogDetails({ initialBlog }) {
                   )}
                 </Stack>
               </Box>
-              
-              <SidebarCard elevation={0} sx={{ 
-                textAlign: 'center', 
-                py: 4, 
-                px: 3,
-                bgcolor: '#f8fafc', 
-                border: '1px dashed #cbd5e1' 
-              }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 1.5 }}>Share this Insight</Typography>
-                <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
-                  Help someone else by sharing this article with your network.
+
+              {/* Categories Section */}
+              <Box sx={{ px: 1, pt: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
+                  <TagIcon size={24} color="#228756" /> Categories
                 </Typography>
-                <SocialShare 
-                  url={typeof window !== 'undefined' ? window.location.href : ''} 
-                  title={blog.title} 
-                />
-              </SidebarCard>
+                <Stack spacing={1.5}>
+                  {categories.length > 0 ? categories.map((cat, index) => (
+                    <Box 
+                      key={index}
+                      sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        py: 2,
+                        px: 2.5,
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        border: '1px solid #f1f5f9',
+                        '&:hover': {
+                          bgcolor: '#f8fafc',
+                          borderColor: '#228756',
+                          '& .cat-name': { color: '#228756' }
+                        }
+                      }}
+                      onClick={() => router.push(`/blogs?category=${cat.name}`)}
+                    >
+                      <Typography className="cat-name" sx={{ fontWeight: 800, fontSize: '1.15rem', color: '#1e293b' }}>
+                        {cat.name}
+                      </Typography>
+                      <Box sx={{ 
+                        bgcolor: '#f1f5f9', 
+                        color: '#475569', 
+                        px: 1.8, 
+                        py: 0.6, 
+                        borderRadius: '20px', 
+                        fontSize: '0.9rem',
+                        fontWeight: 900
+                      }}>
+                        {cat.count}
+                      </Box>
+                    </Box>
+                  )) : (
+                    <Typography color="text.secondary">No categories found.</Typography>
+                  )}
+                </Stack>
+              </Box>
+
+              {/* Popular Tags Section */}
+              <Box sx={{ px: 1, pt: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
+                  <TrendingUp size={24} color="#228756" /> Popular Tags
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.2 }}>
+                  {popularTags.length > 0 ? popularTags.map((tag, index) => (
+                    <Chip 
+                      key={index} 
+                      label={tag.name} 
+                      onClick={() => router.push(`/blogs?tag=${tag.name}`)}
+                      sx={{ 
+                        fontWeight: 700, 
+                        fontSize: '0.85rem', 
+                        px: 1,
+                        py: 2.5,
+                        bgcolor: '#ffffff', 
+                        color: '#475569',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                        '&:hover': { 
+                          bgcolor: '#f8fafc', 
+                          borderColor: '#228756',
+                          color: '#228756',
+                          transform: 'translateY(-2px)'
+                        }
+                      }} 
+                    />
+                  )) : (
+                    <Typography color="text.secondary">No tags found.</Typography>
+                  )}
+                </Box>
+              </Box>
             </Stack>
           </Grid>
         </Grid>

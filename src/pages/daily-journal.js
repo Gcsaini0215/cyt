@@ -278,8 +278,6 @@ export default function DailyJournalPage() {
     toast.info("PDF Downloaded!");
   };
 
-  if (!isClient) return null;
-
   return (
     <Box sx={{ bgcolor: "#f1f5f9", minHeight: "100vh" }}>
       <Head>
@@ -293,21 +291,25 @@ export default function DailyJournalPage() {
         <meta property="og:title" content="Daily Journaling | Your Private Digital Diary" />
         <meta property="og:description" content="A safe, private space to express your thoughts and track your emotional journey." />
         <meta property="og:image" content="https://i.postimg.cc/XY3MvFhM/digitaljournal.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
 
         {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://www.chooseyourtherapist.in/daily-journal" />
-        <meta property="twitter:title" content="Daily Journaling | Your Private Digital Diary" />
-        <meta property="twitter:description" content="A safe, private space to express your thoughts and track your emotional journey." />
-        <meta property="twitter:image" content="https://i.postimg.cc/XY3MvFhM/digitaljournal.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.chooseyourtherapist.in/daily-journal" />
+        <meta name="twitter:title" content="Daily Journaling | Your Private Digital Diary" />
+        <meta name="twitter:description" content="A safe, private space to express your thoughts and track your emotional journey." />
+        <meta name="twitter:image" content="https://i.postimg.cc/XY3MvFhM/digitaljournal.jpg" />
 
         {/* Canonical Link */}
         <link rel="canonical" href="https://www.chooseyourtherapist.in/daily-journal" />
         <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Indie+Flower&family=Patrick+Hand&family=Architects+Daughter&display=swap" rel="stylesheet" />
       </Head>
-      
-      <MyNavbar />
-      <ToastContainer position="bottom-right" theme="colored" />
+
+      {isClient && (
+        <>
+          <MyNavbar />
+          <ToastContainer position="bottom-right" theme="colored" />
 
       {/* Hero Section Simplified */}
       <Box sx={{ 
@@ -695,6 +697,8 @@ export default function DailyJournalPage() {
 
       <NewsLetter />
       <Footer />
+    </>
+    )}
     </Box>
   );
 }
