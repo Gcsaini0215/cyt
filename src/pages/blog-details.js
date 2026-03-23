@@ -261,11 +261,18 @@ export default function BlogDetails({ initialBlog }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const [blog, setBlog] = useState(initialBlog);
+  const [sanitizedContent, setSanitizedContent] = useState(initialBlog ? initialBlog.content : "");
   const [trendingBlogs, setTrendingBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [popularTags, setPopularTags] = useState([]);
   const [loading, setLoading] = useState(!initialBlog);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    if (blog && blog.content) {
+      setSanitizedContent(dompurify.sanitize(blog.content));
+    }
+  }, [blog]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -293,7 +300,7 @@ export default function BlogDetails({ initialBlog }) {
             const allBlogs = allBlogsRes.data;
             
             // Set trending blogs (excluding current)
-            setTrendingBlogs(allBlogs.filter(b => b._id !== id).slice(0, 4));
+            setTrendingBlogs(allBlogs.filter(b => b._id !== id).slice(0, 5));
 
             // Calculate category counts
             const catMap = {};
@@ -360,7 +367,6 @@ export default function BlogDetails({ initialBlog }) {
 
   if (!blog) return <Typography>Blog not found</Typography>;
 
-  const sanitizedContent = typeof window !== 'undefined' ? dompurify.sanitize(blog.content) : blog.content;
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
   const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
   const imageUrl = getFullBlogImagePath(blog.image) || "https://chooseyourtherapist.in/assets/img/og-image.jpg";
@@ -405,9 +411,9 @@ export default function BlogDetails({ initialBlog }) {
       <Box sx={{ bgcolor: '#0f172a', borderBottom: '1px solid rgba(255,255,255,0.05)', py: 2 }}>
         <Container maxWidth="lg">
           <Breadcrumbs 
-            separator={<ChevronRight size={14} color="#ffffff" />} 
+            separator={<ChevronRight size={16} color="#ffffff" />} 
             aria-label="breadcrumb"
-            sx={{ fontSize: '0.85rem', fontWeight: 600 }}
+            sx={{ fontSize: { xs: '0.95rem', md: '1.05rem' }, fontWeight: 600 }}
           >
             <Link href="/" style={{ color: '#ffffff', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
               Home
@@ -415,7 +421,7 @@ export default function BlogDetails({ initialBlog }) {
             <Link href="/blogs" style={{ color: '#ffffff', textDecoration: 'none' }}>
               Blogs
             </Link>
-            <Typography color="#ffffff" sx={{ fontSize: '0.85rem', fontWeight: 800 }}>
+            <Typography color="#ffffff" sx={{ fontSize: { xs: '0.95rem', md: '1.05rem' }, fontWeight: 800 }}>
               ARTICLE INSIGHTS
             </Typography>
           </Breadcrumbs>
@@ -428,26 +434,6 @@ export default function BlogDetails({ initialBlog }) {
             <Box component="article">
               {/* Journal-style Header Section */}
               <Box sx={{ mb: 3, textAlign: 'left' }}>
-                <Box sx={{ mb: 2 }}>
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      backgroundColor: '#228756',
-                      color: '#ffffff',
-                      fontWeight: 900, 
-                      letterSpacing: '0.1em',
-                      fontSize: '0.75rem',
-                      px: 2,
-                      py: 0.8,
-                      borderRadius: '4px',
-                      display: 'inline-block',
-                      textTransform: 'uppercase',
-                      boxShadow: '0 2px 8px rgba(34, 135, 86, 0.2)'
-                    }}
-                  >
-                    {blog.category} • ARTICLE
-                  </Typography>
-                </Box>
                 
                 <EditorialTitle variant="h1" sx={{ textAlign: 'left', mb: 1.5, fontSize: { xs: '2.5rem', md: '3.8rem' } }}>
                   {blog.title}
@@ -455,25 +441,25 @@ export default function BlogDetails({ initialBlog }) {
 
                 <Stack 
                   direction="row" 
-                  spacing={{ xs: 2, md: 4 }} 
+                  spacing={{ xs: 1, md: 4 }} 
                   alignItems="center" 
                   justifyContent="flex-start"
                   flexWrap="wrap"
-                  divider={<Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center', borderColor: '#cbd5e1' }} />}
+                  divider={<Divider orientation="vertical" flexItem sx={{ height: 24, alignSelf: 'center', borderColor: '#cbd5e1', display: { xs: 'none', md: 'block' } }} />}
                   sx={{ mb: 3, color: '#475569' }}
                 >
-                  <MetaItem sx={{ gap: '12px' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>WRITTEN BY {blog.author || 'ADMIN'}</Typography>
+                  <MetaItem sx={{ gap: { xs: '4px', md: '12px' } }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '0.75rem', md: '0.95rem' } }}>WRITTEN BY {blog.author || 'ADMIN'}</Typography>
                   </MetaItem>
-                  <MetaItem sx={{ gap: '12px' }}>
-                    <Calendar size={18} />
-                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.95rem' }}>
-                      {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  <MetaItem sx={{ gap: { xs: '4px', md: '12px' } }}>
+                    <Calendar size={isMobile ? 14 : 18} />
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.95rem' } }}>
+                      {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </Typography>
                   </MetaItem>
-                  <MetaItem sx={{ gap: '12px' }}>
-                    <Clock size={18} />
-                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.95rem' }}>{calculateReadingTime(blog.content)}</Typography>
+                  <MetaItem sx={{ gap: { xs: '4px', md: '12px' } }}>
+                    <Clock size={isMobile ? 14 : 18} />
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', md: '0.95rem' } }}>{calculateReadingTime(blog.content)}</Typography>
                   </MetaItem>
                 </Stack>
 
@@ -488,8 +474,40 @@ export default function BlogDetails({ initialBlog }) {
                 <Divider sx={{ mb: 3, borderColor: '#f1f5f9' }} />
               </Box>
 
-              <FeaturedImageContainer sx={{ mt: 0, mb: 1, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', borderRadius: '4px' }}>
+              <FeaturedImageContainer sx={{ mt: 0, mb: 1, boxShadow: '0 4px 20px rgba(0,0,0,0.08)', borderRadius: '4px', position: 'relative' }}>
                 <img src={getFullImagePath(blog.image)} alt={blog.title} />
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '20px',
+                    backgroundColor: '#228756',
+                    color: '#ffffff',
+                    fontWeight: 900, 
+                    letterSpacing: '0.12em',
+                    fontSize: { xs: '0.75rem', md: '0.85rem' },
+                    px: 2,
+                    py: 0.8,
+                    borderRadius: '4px',
+                    textTransform: 'uppercase',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+                    zIndex: 2,
+                    border: '1px solid rgba(255,255,255,0.2)'
+                  }}
+                >
+                  {blog.category} • ARTICLE
+                </Typography>
+                {/* Gradient overlay for better text readability */}
+                <Box sx={{ 
+                  position: 'absolute', 
+                  bottom: 0, 
+                  left: 0, 
+                  right: 0, 
+                  height: '40%', 
+                  background: 'linear-gradient(transparent, rgba(0,0,0,0.5))',
+                  zIndex: 1
+                }} />
               </FeaturedImageContainer>
               <Typography 
                 variant="caption" 
@@ -509,72 +527,59 @@ export default function BlogDetails({ initialBlog }) {
                 className="blog-content-rich-text"
                 dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
               />
-              
-              {tagsList.length > 0 && (
-                <Box sx={{ mt: 6, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {tagsList.map((tag, index) => (
-                    <Chip 
-                      key={index} 
-                      label={`#${tag}`} 
-                      sx={{ 
-                        fontWeight: 700, 
-                        fontSize: '0.75rem', 
-                        bgcolor: '#f1f5f9', 
-                        color: '#475569',
-                        '&:hover': { bgcolor: '#e2e8f0' }
-                      }} 
-                    />
-                  ))}
-                </Box>
-              )}
             </Box>
           </Grid>
 
           <Grid item xs={12} lg={4}>
             <Stack spacing={4} sx={{ position: 'sticky', top: '100px' }}>
-              <Box sx={{ px: 1 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
-                  <TrendingUp size={24} color="#228756" /> Trending Articles
+              {/* Trending Articles Section */}
+              <SidebarCard elevation={0}>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.15rem' }}>
+                  <TrendingUp size={22} color="#228756" strokeWidth={3} /> Trending Now
                 </Typography>
-                <Stack spacing={2.5}>
-                  {trendingBlogs.length > 0 ? trendingBlogs.map((tBlog) => (
-                    <TrendingItem 
-                      key={tBlog._id} 
-                      onClick={() => router.push(`/blog-details?id=${tBlog._id}`)}
-                    >
-                      <Box className="img-box" sx={{ 
-                        width: 90, 
-                        height: 90, 
-                        borderRadius: '12px', 
-                        overflow: 'hidden', 
-                        flexShrink: 0,
-                        transition: 'transform 0.3s ease'
-                      }}>
-                        <img 
-                          src={getFullImagePath(tBlog.image)} 
-                          alt={tBlog.title} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                        />
-                      </Box>
-                      <Box>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.8rem' }}>
-                          {tBlog.category}
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontSize: '1.15rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                          {tBlog.title}
-                        </Typography>
-                      </Box>
-                    </TrendingItem>
+                <Stack spacing={1}>
+                  {trendingBlogs.length > 0 ? trendingBlogs.map((tBlog, index) => (
+                    <React.Fragment key={tBlog._id}>
+                      <TrendingItem 
+                        onClick={() => router.push(`/blog-details?id=${tBlog._id}`)}
+                        sx={{ px: 0, py: 1.5 }}
+                      >
+                        <Box className="img-box" sx={{ 
+                          width: 80, 
+                          height: 80, 
+                          borderRadius: '12px', 
+                          overflow: 'hidden', 
+                          flexShrink: 0,
+                          transition: 'transform 0.3s ease',
+                          border: '1px solid #f1f5f9'
+                        }}>
+                          <img 
+                            src={getFullImagePath(tBlog.image)} 
+                            alt={tBlog.title} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          />
+                        </Box>
+                        <Box>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.8rem' }}>
+                            {tBlog.category}
+                          </Typography>
+                          <Typography variant="subtitle2" sx={{ fontSize: '1.05rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            {tBlog.title}
+                          </Typography>
+                        </Box>
+                      </TrendingItem>
+                      {index < trendingBlogs.length - 1 && <Divider sx={{ opacity: 0.5, borderStyle: 'dashed' }} />}
+                    </React.Fragment>
                   )) : (
                     <Typography color="text.secondary">Loading latest articles...</Typography>
                   )}
                 </Stack>
-              </Box>
+              </SidebarCard>
 
               {/* Categories Section */}
-              <Box sx={{ px: 1, pt: 2 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
-                  <TagIcon size={24} color="#228756" /> Categories
+              <SidebarCard elevation={0}>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.15rem' }}>
+                  <TagIcon size={22} color="#228756" strokeWidth={3} /> Categories
                 </Typography>
                 <Stack spacing={1.5}>
                   {categories.length > 0 ? categories.map((cat, index) => (
@@ -584,30 +589,36 @@ export default function BlogDetails({ initialBlog }) {
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
-                        py: 2,
-                        px: 2.5,
+                        py: 1.5,
+                        px: 2,
                         borderRadius: '12px',
                         cursor: 'pointer',
                         transition: '0.2s',
-                        border: '1px solid #f1f5f9',
+                        background: '#f8fafc',
+                        border: '1px solid transparent',
                         '&:hover': {
-                          bgcolor: '#f8fafc',
+                          bgcolor: '#ffffff',
                           borderColor: '#228756',
+                          transform: 'translateX(5px)',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                           '& .cat-name': { color: '#228756' }
                         }
                       }}
                       onClick={() => router.push(`/blogs?category=${cat.name}`)}
                     >
-                      <Typography className="cat-name" sx={{ fontWeight: 800, fontSize: '1.15rem', color: '#1e293b' }}>
+                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '1.1rem', color: '#1e293b', transition: '0.2s' }}>
                         {cat.name}
                       </Typography>
                       <Box sx={{ 
-                        bgcolor: '#f1f5f9', 
-                        color: '#475569', 
-                        px: 1.8, 
-                        py: 0.6, 
-                        borderRadius: '20px', 
-                        fontSize: '0.9rem',
+                        bgcolor: '#228756', 
+                        color: '#ffffff', 
+                        minWidth: '28px',
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '8px', 
+                        fontSize: '0.85rem',
                         fontWeight: 900
                       }}>
                         {cat.count}
@@ -617,12 +628,12 @@ export default function BlogDetails({ initialBlog }) {
                     <Typography color="text.secondary">No categories found.</Typography>
                   )}
                 </Stack>
-              </Box>
+              </SidebarCard>
 
               {/* Popular Tags Section */}
-              <Box sx={{ px: 1, pt: 3 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a' }}>
-                  <TrendingUp size={24} color="#228756" /> Popular Tags
+              <SidebarCard elevation={0} sx={{ background: 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)' }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.15rem' }}>
+                  <TrendingUp size={22} color="#228756" strokeWidth={3} /> Popular Tags
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.2 }}>
                   {popularTags.length > 0 ? popularTags.map((tag, index) => (
@@ -632,20 +643,21 @@ export default function BlogDetails({ initialBlog }) {
                       onClick={() => router.push(`/blogs?tag=${tag.name}`)}
                       sx={{ 
                         fontWeight: 700, 
-                        fontSize: '0.85rem', 
-                        px: 1,
-                        py: 2.5,
+                        fontSize: '0.9rem', 
                         bgcolor: '#ffffff', 
                         color: '#475569',
                         border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
+                        borderRadius: '10px',
                         cursor: 'pointer',
-                        transition: '0.2s',
+                        transition: '0.3s',
+                        px: 0.5,
+                        py: 2.5,
                         '&:hover': { 
-                          bgcolor: '#f8fafc', 
+                          bgcolor: '#228756', 
+                          color: '#ffffff',
                           borderColor: '#228756',
-                          color: '#228756',
-                          transform: 'translateY(-2px)'
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)'
                         }
                       }} 
                     />
@@ -653,7 +665,7 @@ export default function BlogDetails({ initialBlog }) {
                     <Typography color="text.secondary">No tags found.</Typography>
                   )}
                 </Box>
-              </Box>
+              </SidebarCard>
             </Stack>
           </Grid>
         </Grid>
