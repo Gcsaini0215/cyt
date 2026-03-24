@@ -3,18 +3,14 @@ import ConsultationForm from "../home/consultation-form";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Box } from "@mui/material";
 
-const BookingPopup = ({ delay = 10000 }) => {
+const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, showSource = true }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const hasSeenPopup = sessionStorage.getItem("has_seen_booking_popup");
-    if (!hasSeenPopup) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-        sessionStorage.setItem("has_seen_booking_popup", "true");
-      }, delay);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, delay);
+    return () => clearTimeout(timer);
   }, [delay]);
 
   if (!isOpen) return null;
@@ -65,7 +61,11 @@ const BookingPopup = ({ delay = 10000 }) => {
         </IconButton>
 
         <Box sx={{ p: { xs: 3, md: 5 } }}>
-          <ConsultationForm showHeading={true} />
+          <ConsultationForm 
+            showHeading={showHeading} 
+            showLocation={showLocation} 
+            showSource={showSource} 
+          />
         </Box>
       </div>
     </div>

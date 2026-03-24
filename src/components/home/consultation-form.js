@@ -97,7 +97,7 @@ select.consultation-form-input {
 }
 `;
 
-export default function ConsultationForm({ showHeading = true }) {
+export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   const [formData, setFormData] = useState({
@@ -270,48 +270,54 @@ export default function ConsultationForm({ showHeading = true }) {
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "0" : "15px", marginBottom: isMobile ? "12px" : "15px" }}>
-              <div style={{ flex: 1, marginBottom: isMobile ? "12px" : "0" }}>
-                <label className="consultation-form-label">Preferred Location</label>
-                <div style={{ position: "relative" }}>
-                  <select
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    required
-                    className="consultation-form-input"
-                    style={{ paddingLeft: "15px" }}
-                  >
-                    <option value="" disabled>Select Location</option>
-                    <option value="Noida Center">Noida Center (In-Person)</option>
-                    <option value="Delhi Center">Delhi Center (In-Person)</option>
-                    <option value="Online">Online / Video Call</option>
-                  </select>
-                </div>
-              </div>
+            {(showLocation || showSource) && (
+              <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: isMobile ? "0" : "15px", marginBottom: isMobile ? "12px" : "15px" }}>
+                {showLocation && (
+                  <div style={{ flex: 1, marginBottom: isMobile ? "12px" : "0" }}>
+                    <label className="consultation-form-label">Preferred Location</label>
+                    <div style={{ position: "relative" }}>
+                      <select
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        required={showLocation}
+                        className="consultation-form-input"
+                        style={{ paddingLeft: "15px" }}
+                      >
+                        <option value="" disabled>Select Location</option>
+                        <option value="Noida Center">Noida Center (In-Person)</option>
+                        <option value="Delhi Center">Delhi Center (In-Person)</option>
+                        <option value="Online">Online / Video Call</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
 
-              <div style={{ flex: 1 }}>
-                <label className="consultation-form-label">How did you hear about us?</label>
-                <div style={{ position: "relative" }}>
-                  <select
-                    name="source"
-                    value={formData.source}
-                    onChange={handleChange}
-                    required
-                    className="consultation-form-input"
-                    style={{ paddingLeft: "15px" }}
-                  >
-                    <option value="" disabled>Select Source</option>
-                    <option value="Google Search">Google Search</option>
-                    <option value="Instagram">Instagram</option>
-                    <option value="LinkedIn">LinkedIn</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="Friend/Family">Friend/Family</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
+                {showSource && (
+                  <div style={{ flex: 1 }}>
+                    <label className="consultation-form-label">How did you hear about us?</label>
+                    <div style={{ position: "relative" }}>
+                      <select
+                        name="source"
+                        value={formData.source}
+                        onChange={handleChange}
+                        required={showSource}
+                        className="consultation-form-input"
+                        style={{ paddingLeft: "15px" }}
+                      >
+                        <option value="" disabled>Select Source</option>
+                        <option value="Google Search">Google Search</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Friend/Family">Friend/Family</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             <div style={{ marginBottom: isMobile ? "15px" : "20px" }}>
               <label className="consultation-form-label">Tell us your concern</label>
@@ -336,7 +342,8 @@ export default function ConsultationForm({ showHeading = true }) {
                 </>
               ) : (
                 <>
-                  Book Free Consultation
+                  Talk to Therapist
+              
                 </>
               )}
             </button>

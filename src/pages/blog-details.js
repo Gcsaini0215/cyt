@@ -685,7 +685,7 @@ export default function BlogDetails({ initialBlog }) {
 
       <NewsLetter />
       <Footer />
-      <BookingPopup delay={5000} />
+      <BookingPopup delay={5000} showHeading={false} showLocation={false} showSource={false} />
     </Box>
   );
 }
