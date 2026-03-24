@@ -1,33 +1,26 @@
+import Link from "next/link";
+
 export default function BlogHeader() {
   return (
-    <div className="rbt-page-banner-wrapper mt--60">
-      <div className="rbt-banner-image"></div>
-      <div className="rbt-banner-content">
-        <div className="rbt-banner-content-top">
-          <div className="container">
-            <div className="row">
-              <div className="col-lg-12">
-                <ul className="page-list">
-                  <li className="rbt-breadcrumb-item">
-                    <a href="/">Home</a>
-                  </li>
-                  <li>
-                    <div className="icon-right">
-                      <i className="feather-chevron-right"></i>
-                    </div>
-                  </li>
-                  <li className="rbt-breadcrumb-item active">All Blog</li>
-                </ul>
-                <div className=" title-wrapper">
-                  <h1 className="title mb--0">All Blog</h1>
-                  <a className="rbt-badge-2" href="/blog-grid#">
-                    <div className="image">🎉</div> 20 Articles
-                  </a>
-                </div>
-                <p className="description">
-                  Blog that help beginner designers become true unicorns.{" "}
-                </p>
-              </div>
+    <div className="rbt-breadcrumb-default ptb--15 bg-gradient-1 border-bottom">
+      <div className="container">
+        <div className="row align-items-center">
+          <div className="col-lg-6 col-md-6 col-12">
+            <h6 className="title mb--0 color-black" style={{ fontSize: '1.4rem' }}>Expert Therapist Insights</h6>
+          </div>
+          <div className="col-lg-6 col-md-6 col-12">
+            <div className="breadcrumb-inner text-start text-md-end">
+              <ul className="page-list justify-content-start justify-content-md-end color-black">
+                <li className="rbt-breadcrumb-item">
+                  <Link href="/" className="color-black">Home</Link>
+                </li>
+                <li>
+                  <div className="icon-right color-black">
+                    <i className="feather-chevron-right"></i>
+                  </div>
+                </li>
+                <li className="rbt-breadcrumb-item active color-black">Articles</li>
+              </ul>
             </div>
           </div>
         </div>

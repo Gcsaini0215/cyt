@@ -1,257 +1,99 @@
+import React, { useState, useEffect } from "react";
 import LazyImage from "../../utils/lazy-image";
 import BlogImg from "../../assets/img/blog-card-048b22.jpg";
 import Link from "next/link";
+import { fetchData } from "../../utils/actions";
+import { getBlogsUrl, baseApi } from "../../utils/url";
+
 export default function AllBlogs() {
+  const [blogs, setBlogs] = useState([]);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await fetchData(getBlogsUrl);
+        if (res) {
+          if (res.status && Array.isArray(res.data)) {
+            setBlogs(res.data);
+          } else if (Array.isArray(res)) {
+            setBlogs(res);
+          } else if (res.blogs && Array.isArray(res.blogs)) {
+            setBlogs(res.blogs);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
+  const getFullImagePath = (imageName) => {
+    if (!imageName) return BlogImg;
+    if (imageName.toString().startsWith("data:")) return imageName;
+    if (imageName.toString().startsWith("http")) return imageName;
+    return `${baseApi}/uploads/images/${imageName}`;
+  };
+
   return (
-    <div className="rbt-blog-area rbt-section-overlayping-top rbt-section-gapBottom">
+    <div className="rbt-blog-area pt--50 rbt-section-gapBottom">
       <div className="container">
         <div className="row g-5 mt--15">
-          <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-            <div className="rbt-card variation-02 rbt-hover">
-              <div className="rbt-card-img">
-                <Link href="/blog-details/25">
-                  <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
-                </Link>
-              </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <Link href="/blog-details/25">React</Link>
-                </h5>
-                <p className="rbt-card-text">
-                  It is a long established fact that a reader.
-                </p>
-                <div className="rbt-card-bottom">
-                  <Link className="transparent-button" href="/blog-details/25">
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLlinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-            <div className="rbt-card variation-02 rbt-hover">
-              <div className="rbt-card-img">
-                <Link href="/blog-details/26">
-                  <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
-                </Link>
-              </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <Link href="/blog-details/26">Why Is Education So Famous?</Link>
-                </h5>
-                <p className="rbt-card-text"></p>
-                <div className="rbt-card-bottom">
-                  <Link className="transparent-button" href="/blog-details/26">
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLlinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-            <div className="rbt-card variation-02 rbt-hover">
-              <div className="rbt-card-img">
-                <Link href="/blog-details/27">
-                  <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
-                </Link>
-              </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <Link href="/blog-details/27">
-                    Difficult Things About Education.
-                  </Link>
-                </h5>
-                <p className="rbt-card-text"></p>
-                <div className="rbt-card-bottom">
-                  <Link className="transparent-button" href="/blog-details/27">
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLlinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-            <div className="rbt-card variation-02 rbt-hover">
-              <div className="rbt-card-img">
-                <Link href="/blog-details/28">
-                  <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
-                </Link>
-              </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <Link href="/blog-details/28">
-                    Education Is So Famous, But Why?
-                  </Link>
-                </h5>
-                <p className="rbt-card-text"></p>
-                <div className="rbt-card-bottom">
-                  <Link className="transparent-button" href="/blog-details/28">
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLlinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-            <div className="rbt-card variation-02 rbt-hover">
-              <div className="rbt-card-img">
-                <Link href="/blog-details/29">
-                  <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
-                </Link>
-              </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <Link href="/blog-details/29">The Latest Trend In Education.</Link>
-                </h5>
-                <p className="rbt-card-text">
-                  It is a long established fact that a reader.
-                </p>
-                <div className="rbt-card-bottom">
-                  <Link className="transparent-button" href="/blog-details/29">
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLlinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-            <div className="rbt-card variation-02 rbt-hover">
-              <div className="rbt-card-img">
-                <Link href="/blog-details/30">
-                  <LazyImage alt="Card" dim={"267-450"} src={BlogImg} />
-                </Link>
-              </div>
-              <div className="rbt-card-body">
-                <h5 className="rbt-card-title">
-                  <Link href="/blog-details/30">The Modern Rules Of Education.</Link>
-                </h5>
-                <p className="rbt-card-text">
-                  It is a long established fact that a reader.
-                </p>
-                <div className="rbt-card-bottom">
-                  <Link className="transparent-button" href="/blog-details/30">
-                    Learn More
-                    <i>
-                      <svg
-                        width="17"
-                        height="12"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g stroke="#27374D" fill="none" fillRule="evenodd">
-                          <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                          <path
-                            strokeLlinecap="square"
-                            d="M.663 5.572h14.594"
-                          ></path>
-                        </g>
-                      </svg>
-                    </i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-lg-12 mt--60">
-            <nav>
-              <div className="nav-links">
-                <ul className="rbt-pagination">
-                  <li className="">
-                    <Link aria-label="Previous" href="/blog-grid#">
-                      <i className="feather-chevron-left"></i>
+          {blogs.length > 0 ? (
+            blogs.map((blog) => (
+              <div
+                className="col-lg-4 col-md-6 col-sm-12 col-12"
+                key={blog._id || blog.id}
+              >
+                <div className="rbt-card variation-02 rbt-hover">
+                  <div className="rbt-card-img">
+                    <Link href={`/blog-details?id=${blog._id || blog.id}`}>
+                      <LazyImage
+                        alt={blog.title}
+                        dim={"267-450"}
+                        src={getFullImagePath(blog.image)}
+                      />
                     </Link>
-                  </li>
-                  <li className="">
-                    <Link href="/blog-grid#">1</Link>
-                  </li>
-                  <li className="active">
-                    <Link href="/blog-grid#">2</Link>
-                  </li>
-                  <li className="disabled">
-                    <Link aria-label="Next" href="/blog-grid#">
-                      <i className="feather-chevron-right"></i>
-                    </Link>
-                  </li>
-                </ul>
+                  </div>
+                  <div className="rbt-card-body">
+                    <h5 className="rbt-card-title">
+                      <Link href={`/blog-details?id=${blog._id || blog.id}`}>
+                        {blog.title}
+                      </Link>
+                    </h5>
+                    <p className="rbt-card-text">{blog.short_desc}</p>
+                    <div className="rbt-card-bottom">
+                      <Link
+                        className="transparent-button"
+                        href={`/blog-details?id=${blog._id || blog.id}`}
+                      >
+                        Learn More
+                        <i>
+                          <svg
+                            width="17"
+                            height="12"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g stroke="#27374D" fill="none" fillRule="evenodd">
+                              <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
+                              <path
+                                strokeLinecap="square"
+                                d="M.663 5.572h14.594"
+                              ></path>
+                            </g>
+                          </svg>
+                        </i>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </nav>
-          </div>
+            ))
+          ) : (
+            <div className="col-lg-12">
+              <p className="text-center">No blogs found.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
