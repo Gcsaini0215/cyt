@@ -166,7 +166,7 @@ export default function HomePage() {
         // Refresh location-based sorting if user accepts
         getTopTherapists();
       }} />
-      <BookingPopup delay={15000} />
+      <BookingPopup delay={5000} showHeading={false} showLocation={false} showSource={false} />
     </div>
   );
 }

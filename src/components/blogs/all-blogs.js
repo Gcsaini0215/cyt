@@ -37,56 +37,95 @@ export default function AllBlogs() {
 
   return (
     <div className="rbt-blog-area pt--50 rbt-section-gapBottom">
+      <style jsx>{`
+        .blog-card-custom {
+          position: relative;
+          overflow: hidden;
+          border-radius: 12px;
+          aspect-ratio: 1 / 1;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          transition: transform 0.3s ease;
+        }
+        .blog-card-custom:hover {
+          transform: translateY(-5px);
+        }
+        .blog-card-img-wrapper {
+          width: 100%;
+          height: 100%;
+        }
+        .blog-card-img-wrapper :global(img) {
+          width: 100%;
+          height: 100% !important;
+          object-fit: cover !important;
+        }
+        .blog-card-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 15px;
+          background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+          color: white;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          transition: background 0.3s ease;
+        }
+        .blog-card-title-custom {
+          font-size: 20px;
+          font-weight: 800;
+          line-height: 1.2;
+          margin: 0;
+          color: white !important;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        @media (max-width: 575px) {
+          .mobile-grid-container {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+          }
+          .mobile-grid-item {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            margin-top: 10px !important;
+          }
+          .blog-card-title-custom {
+            font-size: 15px;
+          }
+          .blog-card-overlay {
+            padding: 10px;
+          }
+        }
+      `}</style>
       <div className="container">
-        <div className="row g-5 mt--15">
+        <div className="row mt--15 mobile-grid-container d-flex flex-wrap">
           {blogs.length > 0 ? (
             blogs.map((blog) => (
               <div
-                className="col-lg-4 col-md-6 col-sm-12 col-12"
+                className="col-lg-4 col-md-6 col-sm-6 col-6 mobile-grid-item"
+                style={{ width: '50%' }}
                 key={blog._id || blog.id}
               >
-                <div className="rbt-card variation-02 rbt-hover">
-                  <div className="rbt-card-img">
-                    <Link href={`/blog-details?id=${blog._id || blog.id}`}>
+                <Link href={`/blog-details?id=${blog._id || blog.id}`}>
+                  <div className="blog-card-custom">
+                    <div className="blog-card-img-wrapper">
                       <LazyImage
                         alt={blog.title}
-                        dim={"267-450"}
                         src={getFullImagePath(blog.image)}
                       />
-                    </Link>
-                  </div>
-                  <div className="rbt-card-body">
-                    <h5 className="rbt-card-title">
-                      <Link href={`/blog-details?id=${blog._id || blog.id}`}>
+                    </div>
+                    <div className="blog-card-overlay">
+                      <h5 className="blog-card-title-custom">
                         {blog.title}
-                      </Link>
-                    </h5>
-                    <p className="rbt-card-text">{blog.short_desc}</p>
-                    <div className="rbt-card-bottom">
-                      <Link
-                        className="transparent-button"
-                        href={`/blog-details?id=${blog._id || blog.id}`}
-                      >
-                        Learn More
-                        <i>
-                          <svg
-                            width="17"
-                            height="12"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g stroke="#27374D" fill="none" fillRule="evenodd">
-                              <path d="M10.614 0l5.629 5.629-5.63 5.629"></path>
-                              <path
-                                strokeLinecap="square"
-                                d="M.663 5.572h14.594"
-                              ></path>
-                            </g>
-                          </svg>
-                        </i>
-                      </Link>
+                      </h5>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             ))
           ) : (
