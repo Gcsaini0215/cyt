@@ -11,17 +11,19 @@ import {
 } from "../../utils/url";
 import ProfileCardHor from "./profile-card-hor";
 import { getDecodedToken } from "../../utils/jwt";
-export default function ProfileCard({ profiles, detectedState }) {
+export default function ProfileCard({ profiles, detectedState, detectedCity }) {
   const [isMobile, setIsMobile] = useState(false);
   const [userDetectedState, setUserDetectedState] = useState(detectedState || "");
-  const [activeState, setActiveState] = useState(detectedState || "");
+  const [userDetectedCity, setUserDetectedCity] = useState(detectedCity || "");
+  const [activeState, setActiveState] = useState(detectedCity || detectedState || "");
 
   useEffect(() => {
-    if (detectedState) {
-      setUserDetectedState(detectedState);
-      setActiveState(detectedState);
+    if (detectedState || detectedCity) {
+      setUserDetectedState(detectedState || "");
+      setUserDetectedCity(detectedCity || "");
+      setActiveState(detectedCity || detectedState || "");
     }
-  }, [detectedState]);
+  }, [detectedState, detectedCity]);
 
   const onSlideChange = (swiper) => {
     if (data && data[swiper.realIndex]) {

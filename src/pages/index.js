@@ -28,16 +28,29 @@ export default function HomePage() {
   const [topTherapists, setTopTherapists] = useState([]);
   const [bannerTherapists, setBannerTherapists] = useState([]);
   const [userState, setUserState] = useState(null);
+  const [userCity, setUserCity] = useState(null);
+  const [canonicalUrl, setCanonicalUrl] = useState("https://chooseyourtherapist.in/");
 
   // Fetch user location based on IP
   useEffect(() => {
+    // Set canonical URL dynamically
+    if (typeof window !== "undefined") {
+      setCanonicalUrl(window.location.origin + window.location.pathname);
+    }
+
     const fetchUserLocation = async () => {
       try {
         const response = await fetch("https://ipapi.co/json/");
         const data = await response.json();
-        if (data && data.region) {
-          console.log("User detected state:", data.region);
-          setUserState(data.region);
+        if (data) {
+          if (data.region) {
+            console.log("User detected state:", data.region);
+            setUserState(data.region);
+          }
+          if (data.city) {
+            console.log("User detected city:", data.city);
+            setUserCity(data.city);
+          }
         }
       } catch (error) {
         console.error("Error fetching user location:", error);
@@ -98,28 +111,28 @@ export default function HomePage() {
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Basic Meta Tags */}
-        <title>{userState ? `Best Psychologist in ${userState} | Top Rated Mental Health Studio` : "Best Psychologist in India | Choose Your Therapist"}</title>
-        <meta name="description" content={userState ? `Connect with the best psychologists in ${userState}. Book online or in-person sessions with verified professionals for anxiety, stress, and emotional well-being.` : "Connect with the best psychologists in India. Book online or in-person sessions with verified professionals for anxiety, stress, and emotional well-being."} />
-        <meta name="keywords" content={`Best Psychologist ${userState || "India"}, Mental Health Studio ${userState || ""}, Online Therapy India, In-Person Therapy, Verified Therapists, Anxiety Counseling, Choose Your Therapist`} />
+        <title>{userCity ? `Best Psychologist in ${userCity}, ${userState || ""} | Choose Your Therapist` : userState ? `Best Psychologist in ${userState} | Choose Your Therapist` : "Best Psychologist in India | Choose Your Therapist"}</title>
+        <meta name="description" content={userCity ? `Choose Your Therapist connects you with trusted psychologists in ${userCity}, ${userState || ""} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : userState ? `Choose Your Therapist connects you with trusted psychologists in ${userState} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : "Choose Your Therapist connects you with trusted psychologists in India for anxiety, OCD, depression, and relationship therapy. Easy booking."} />
+        <meta name="keywords" content={`psychologist in ${userCity || "India"}, therapist in ${userCity || "India"}, best psychologist in ${userCity || "India"}, counseling psychologist in ${userCity || "India"}, mental health therapist ${userCity || "India"}, psychologist near me, therapist near me, online therapy India, online psychologist India`} />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="language" content="English" />
         <meta name="revisit-after" content="7 days" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/" />
+        <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph Meta Tags */}
-        <meta property="og:title" content={userState ? `Best Psychologist in ${userState} | Online & In-Person Therapy` : "Choose Best Therapist Across India | Online & In-Person Therapy"} />
-        <meta property="og:description" content={userState ? `Find qualified psychologists in ${userState}. Explore verified professionals and book confidential sessions today.` : "Find a qualified psychologist anywhere in India. Explore verified professionals and book confidential sessions today."} />
+        <meta property="og:title" content={userCity ? `Best Psychologist in ${userCity} | Online & In-Person Therapy` : userState ? `Best Psychologist in ${userState} | Online & In-Person Therapy` : "Choose Best Therapist Across India | Online & In-Person Therapy"} />
+        <meta property="og:description" content={userCity ? `Find qualified psychologists in ${userCity}, ${userState || ""}. Explore verified professionals and book confidential sessions today.` : userState ? `Find qualified psychologists in ${userState}. Explore verified professionals and book confidential sessions today.` : "Find a qualified psychologist anywhere in India. Explore verified professionals and book confidential sessions today."} />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-        <meta property="og:url" content="https://chooseyourtherapist.in/" />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
 
         {/* Local SEO for detected region */}
-        {userState && (
+        {(userCity || userState) && (
           <>
             <meta name="geo.region" content="IN" />
-            <meta name="geo.placename" content={userState} />
+            <meta name="geo.placename" content={userCity || userState} />
           </>
         )}
 
@@ -128,8 +141,8 @@ export default function HomePage() {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "MedicalWebPage",
-            "name": userState ? `Psychologist Services in ${userState}` : "Psychologist Services in India",
-            "description": userState ? `Top-rated psychologists and mental health experts available in ${userState}.` : "Top-rated psychologists and mental health experts available across India.",
+            "name": userCity ? `Psychologist Services in ${userCity}` : userState ? `Psychologist Services in ${userState}` : "Psychologist Services in India",
+            "description": userCity ? `Top-rated psychologists and mental health experts available in ${userCity}.` : userState ? `Top-rated psychologists and mental health experts available in ${userState}.` : "Top-rated psychologists and mental health experts available across India.",
             "breadcrumb": {
               "@type": "BreadcrumbList",
               "itemListElement": [
@@ -150,7 +163,7 @@ export default function HomePage() {
         {/* Homepage Sections */}
         <Banner topTherapists={bannerTherapists} />
         <Specializations />
-        <ProfileCard profiles={topTherapists} detectedState={userState} />
+        <ProfileCard profiles={topTherapists} detectedState={userState} detectedCity={userCity} />
         <FreeResources />
         <HomeWorkshop isWhite={false} />
         <ProcessSteps />
