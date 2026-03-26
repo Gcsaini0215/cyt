@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ImageTag from "../../utils/image-tag";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
@@ -338,7 +339,12 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                   lineHeight: isMobile ? "44px" : "50px",
                   whiteSpace: "nowrap",
                   flex: 1,
-                  textAlign: "center"
+                  textAlign: "center",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textDecoration: "none"
                 }}
               >
                 View Profile

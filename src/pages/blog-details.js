@@ -127,7 +127,7 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     marginBottom: '2.5rem',
     fontFamily: '"Lora", serif',
   },
-  '& p:first-of-type::first-letter': {
+  '& > p:first-of-type::first-letter': {
     float: 'left',
     fontSize: '5rem',
     lineHeight: '1',
@@ -575,7 +575,7 @@ export default function BlogDetails({ initialBlog }) {
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem' }}>
                             {tBlog.category}
                           </Typography>
-                          <Typography variant="subtitle2" sx={{ fontSize: '1.2rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <Typography variant="subtitle2" sx={{ fontSize: '1.4rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {tBlog.title}
                           </Typography>
                         </Box>
@@ -618,7 +618,7 @@ export default function BlogDetails({ initialBlog }) {
                       }}
                       onClick={() => router.push(`/blogs?category=${cat.name}`)}
                     >
-                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e293b', transition: '0.2s' }}>
+                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '1.45rem', color: '#1e293b', transition: '0.2s' }}>
                         {cat.name}
                       </Typography>
                       <Box sx={{ 

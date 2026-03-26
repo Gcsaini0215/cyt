@@ -3,7 +3,7 @@ import ConsultationForm from "../home/consultation-form";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Box } from "@mui/material";
 
-const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, showSource = true }) => {
+const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, showSource = true, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -12,6 +12,11 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
     }, delay);
     return () => clearTimeout(timer);
   }, [delay]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    if (onClose) onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -31,7 +36,7 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
         justifyContent: "center",
         padding: "20px",
       }}
-      onClick={() => setIsOpen(false)}
+      onClick={handleClose}
     >
       <div
         style={{
@@ -47,7 +52,7 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
         onClick={(e) => e.stopPropagation()}
       >
         <IconButton
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
           sx={{
             position: "absolute",
             top: 15,

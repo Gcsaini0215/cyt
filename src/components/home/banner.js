@@ -49,12 +49,16 @@ const Fabiha = "/assets/img/psychologist.png";
 const counselling1 = "/assets/img/counselling.png";
 
 import ConsultationForm from "./consultation-form";
+import { useRouter } from "next/router";
 
 export default function Banner({ topTherapists = [] }) {
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
+  const [selectedTherapist, setSelectedTherapist] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // State
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -99,15 +103,6 @@ export default function Banner({ topTherapists = [] }) {
     }, 3000);
     return () => clearInterval(wordInterval);
   }, []);
-
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [selectedTherapist, setSelectedTherapist] = useState(null);
-
-  const handleOpenProfileModal = (therapist) => {
-    setSelectedTherapist(therapist);
-    setIsProfileModalOpen(true);
-  };
-  const handleCloseProfileModal = () => setIsProfileModalOpen(false);
 
   // Animated placeholder texts
   const placeholderTexts = [
@@ -424,6 +419,128 @@ export default function Banner({ topTherapists = [] }) {
         </Box>
       </Dialog>
 
+      {/* Therapist Profile Quick View Modal */}
+      <Dialog
+        open={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        TransitionComponent={Zoom}
+        PaperProps={{
+          sx: {
+            borderRadius: "24px",
+            overflow: "visible",
+            m: isMobile ? 2 : 3,
+            maxHeight: "90vh"
+          }
+        }}
+      >
+        <Box sx={{ position: "relative", p: isMobile ? 3 : 4 }}>
+          <IconButton 
+            onClick={() => setIsProfileOpen(false)}
+            sx={{ 
+              position: "absolute", 
+              right: 8, 
+              top: 8, 
+              zIndex: 10,
+              backgroundColor: "white",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+              "&:hover": { backgroundColor: "#f8fafc" }
+            }}
+          >
+            <Close />
+          </IconButton>
+
+          {selectedTherapist && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              {/* Header: Avatar and Basic Info */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 3, flexWrap: isMobile ? "wrap" : "nowrap" }}>
+                <Avatar 
+                  src={`${imagePath}/${selectedTherapist.user?.profile || 'default-profile.png'}`}
+                  alt={selectedTherapist.user?.name || "Therapist"}
+                  sx={{ 
+                    width: 100, 
+                    height: 100, 
+                    border: "4px solid #f0fdf4",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.05)"
+                  }} 
+                />
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 0.5, fontSize: isMobile ? "24px" : "32px" }}>
+                    {selectedTherapist.user?.name}
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ color: "#228756", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
+                    {selectedTherapist.profile_type || "Specialist"}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500, mt: 0.5 }}>
+                    {selectedTherapist.qualification}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* About Me Section */}
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: "#1e293b", mb: 1 }}>
+                  About Me
+                </Typography>
+                <Typography variant="body1" sx={{ 
+                  color: "#475569", 
+                  lineHeight: 1.6,
+                  textAlign: "justify",
+                  fontSize: isMobile ? "14px" : "16px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}>
+                  {selectedTherapist.user?.bio || selectedTherapist.about_me || "No description available."}
+                </Typography>
+              </Box>
+
+              {/* Languages and State */}
+              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, bgcolor: "#f1f5f9", px: 2, py: 1, borderRadius: "50px" }}>
+                  <LocationOn sx={{ fontSize: 18, color: "#475569" }} />
+                  <Typography sx={{ fontSize: "14px", fontWeight: 600 }}>{selectedTherapist.state || "India"}</Typography>
+                </Box>
+                {selectedTherapist.language_spoken && Array.isArray(selectedTherapist.language_spoken) && selectedTherapist.language_spoken.map((lang, idx) => (
+                  <Box key={idx} sx={{ bgcolor: "#f1f5f9", px: 2, py: 1, borderRadius: "50px", fontSize: "14px", fontWeight: 600 }}>
+                    {lang.label}
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Book Appointment Button */}
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  router.push(`/therapy-booking?therapist_id=${selectedTherapist.id}`);
+                }}
+                sx={{
+                  mt: 2,
+                  py: 2,
+                  borderRadius: "16px",
+                  backgroundColor: "#228756",
+                  textTransform: "none",
+                  fontSize: "18px",
+                  fontWeight: 700,
+                  boxShadow: "0 10px 20px rgba(34, 135, 86, 0.2)",
+                  "&:hover": {
+                    backgroundColor: "#1a6b44",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 15px 30px rgba(34, 135, 86, 0.3)",
+                  }
+                }}
+              >
+                Book Appointment
+              </Button>
+            </Box>
+          )}
+        </Box>
+      </Dialog>
+
       {/* Blended Therapist Cards Section */}
       <Box sx={{ 
         width: "100vw", 
@@ -459,7 +576,10 @@ export default function Banner({ topTherapists = [] }) {
           {topTherapists.map((therapist, i) => (
             <SwiperSlide key={i} style={{ width: "auto" }}>
               <Box 
-                onClick={() => handleOpenProfileModal(therapist)}
+                onClick={() => {
+                  setSelectedTherapist(therapist);
+                  setIsProfileOpen(true);
+                }}
                 sx={{ 
                   display: "flex", 
                   flexDirection: "column",
@@ -669,99 +789,6 @@ export default function Banner({ topTherapists = [] }) {
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      <Dialog 
-        open={isProfileModalOpen} 
-        onClose={handleCloseProfileModal}
-        TransitionComponent={Zoom}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: "28px",
-            p: 0,
-            overflow: "hidden"
-          }
-        }}
-      >
-        <Box sx={{ position: "relative", pt: 6, pb: 4, px: 3, textAlign: "center", bgcolor: "#f8fafc" }}>
-          <IconButton 
-            onClick={handleCloseProfileModal} 
-            sx={{ position: "absolute", top: 12, right: 12, color: "#94a3b8", bgcolor: "white", "&:hover": { bgcolor: "#f1f5f9" } }}
-          >
-            <Close />
-          </IconButton>
-          
-          <Avatar 
-            src={`${imagePath}/${selectedTherapist?.user?.profile || 'default-profile.png'}`}
-            alt={selectedTherapist?.user?.name || "Therapist"}
-            sx={{ 
-              width: 120, 
-              height: 120, 
-              mx: "auto", 
-              mb: 2, 
-              border: "4px solid white",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.1)"
-            }} 
-          />
-          
-          <Typography variant="h5" sx={{ fontWeight: 900, color: "#1e293b", mb: 0.5 }}>
-            {selectedTherapist?.user?.name}
-          </Typography>
-          <Typography sx={{ color: "#228756", fontWeight: 700, mb: 2, textTransform: "uppercase", fontSize: "14px", letterSpacing: 1 }}>
-            {selectedTherapist?.profile_type}
-          </Typography>
-          
-          <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 3 }}>
-            <Box sx={{ bgcolor: "white", px: 2, py: 0.5, borderRadius: "50px", border: "1px solid #e2e8f0" }}>
-              <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#64748b" }}>
-                {selectedTherapist?.state || "India"}
-              </Typography>
-            </Box>
-            <Box sx={{ bgcolor: "#f0fdf4", px: 2, py: 0.5, borderRadius: "50px", border: "1px solid #dcfce7" }}>
-              <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#228756" }}>
-                Verified
-              </Typography>
-            </Box>
-          </Box>
-          
-          {selectedTherapist?.user?.bio && (
-            <Box sx={{ mb: 3, px: 1 }}>
-              <Typography sx={{ 
-                fontSize: "14px", 
-                color: "#64748b", 
-                lineHeight: 1.6,
-                display: "-webkit-box",
-                WebkitLineClamp: 4,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                textAlign: "center"
-              }}>
-                {selectedTherapist.user.bio.replace(/<[^>]*>/g, '')}
-              </Typography>
-            </Box>
-          )}
-          
-          <Button 
-            component={Link}
-            href={`/therapist-checkout/${selectedTherapist?._id}`}
-            variant="contained"
-            fullWidth
-            sx={{ 
-              bgcolor: "#228756", 
-              color: "white", 
-              py: 1.5, 
-              borderRadius: "14px",
-              fontWeight: 800,
-              fontSize: "16px",
-              textTransform: "none",
-              boxShadow: "0 10px 20px rgba(34, 135, 86, 0.2)",
-              "&:hover": { bgcolor: "#1a6b44", transform: "translateY(-2px)" }
-            }}
-          >
-            Book Appointment
-          </Button>
-        </Box>
-      </Dialog>
     </section>
     </>
   );

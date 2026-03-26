@@ -1,8 +1,12 @@
 import React from "react";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
+
+const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
+
 import {
   imagePath,
   InsertFavoriteTherapistUrl,

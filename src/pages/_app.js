@@ -19,6 +19,21 @@ function MyApp({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Global error handler to suppress external widget errors (like Tawk.to)
+    const handleError = (event) => {
+      if (event.filename && (event.filename.includes('tawk.to') || event.filename.includes('twk-chunk'))) {
+        event.preventDefault();
+        return true;
+      }
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', (event) => {
+      if (event.reason && event.reason.stack && event.reason.stack.includes('tawk.to')) {
+        event.preventDefault();
+      }
+    });
+
     // Register service worker and subscribe to notifications
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
