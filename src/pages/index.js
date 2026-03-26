@@ -111,7 +111,17 @@ export default function HomePage() {
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Basic Meta Tags */}
-        <title>{userCity ? `Best Psychologist in ${userCity}, ${userState || ""} | Choose Your Therapist` : userState ? `Best Psychologist in ${userState} | Choose Your Therapist` : "Best Psychologist in India | Choose Your Therapist"}</title>
+        <title>
+          {userCity 
+            ? (`Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`.length > 60 
+                ? `Best Psychologist in ${userCity} | CYT` 
+                : `Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`)
+            : userState 
+              ? (`Best Psychologist in ${userState} | Choose Your Therapist`.length > 60 
+                  ? `Best Psychologist in ${userState} | CYT` 
+                  : `Best Psychologist in ${userState} | Choose Your Therapist`)
+              : "Best Psychologist in India | Choose Your Therapist"}
+        </title>
         <meta name="description" content={userCity ? `Choose Your Therapist connects you with trusted psychologists in ${userCity}, ${userState || ""} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : userState ? `Choose Your Therapist connects you with trusted psychologists in ${userState} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : "Choose Your Therapist connects you with trusted psychologists in India for anxiety, OCD, depression, and relationship therapy. Easy booking."} />
         <meta name="keywords" content={`psychologist in ${userCity || "India"}, therapist in ${userCity || "India"}, best psychologist in ${userCity || "India"}, counseling psychologist in ${userCity || "India"}, mental health therapist ${userCity || "India"}, psychologist near me, therapist near me, online therapy India, online psychologist India`} />
         <meta name="robots" content="index, follow" />
@@ -121,8 +131,16 @@ export default function HomePage() {
         <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph Meta Tags */}
-        <meta property="og:title" content={userCity ? `Best Psychologist in ${userCity} | Online & In-Person Therapy` : userState ? `Best Psychologist in ${userState} | Online & In-Person Therapy` : "Choose Best Therapist Across India | Online & In-Person Therapy"} />
-        <meta property="og:description" content={userCity ? `Find qualified psychologists in ${userCity}, ${userState || ""}. Explore verified professionals and book confidential sessions today.` : userState ? `Find qualified psychologists in ${userState}. Explore verified professionals and book confidential sessions today.` : "Find a qualified psychologist anywhere in India. Explore verified professionals and book confidential sessions today."} />
+        <meta property="og:title" content={userCity 
+            ? (`Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`.length > 60 
+                ? `Best Psychologist in ${userCity} | CYT` 
+                : `Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`)
+            : userState 
+              ? (`Best Psychologist in ${userState} | Choose Your Therapist`.length > 60 
+                  ? `Best Psychologist in ${userState} | CYT` 
+                  : `Best Psychologist in ${userState} | Choose Your Therapist`)
+              : "Best Psychologist in India | Choose Your Therapist"} />
+        <meta property="og:description" content={userCity ? `Choose Your Therapist connects you with trusted psychologists in ${userCity}, ${userState || ""} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : userState ? `Choose Your Therapist connects you with trusted psychologists in ${userState} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : "Choose Your Therapist connects you with trusted psychologists in India for anxiety, OCD, depression, and relationship therapy. Easy booking."} />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
@@ -150,7 +168,7 @@ export default function HomePage() {
                   "@type": "ListItem",
                   "position": 1,
                   "name": "Home",
-                  "item": "https://chooseyourtherapist.in"
+                  "item": canonicalUrl
                 }
               ]
             }
