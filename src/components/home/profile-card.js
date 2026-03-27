@@ -134,11 +134,11 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
             <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
                 <h3 className="title" style={{ 
-                  fontSize: isMobile ? "2.4rem" : "4.5rem", 
+                  fontSize: isMobile ? "2.8rem" : "4.5rem", 
                   fontWeight: "900", 
                   color: "#000000",
                   marginTop: '0px',
-                  lineHeight: isMobile ? '2.8rem' : '1.1',
+                  lineHeight: isMobile ? '3.2rem' : '1.1',
                   whiteSpace: isMobile ? "normal" : "nowrap",
                   textAlign: 'left',
                   marginBottom: '15px',
@@ -181,7 +181,7 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
                 </div>
               </div>
               <p style={{ 
-                fontSize: isMobile ? '1.2rem' : '1.5rem', 
+                fontSize: isMobile ? '1.4rem' : '1.5rem', 
                 color: '#444', 
                 maxWidth: '850px', 
                 margin: '0',

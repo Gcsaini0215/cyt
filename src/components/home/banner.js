@@ -223,13 +223,13 @@ export default function Banner({ topTherapists = [] }) {
                     }}
                   >
                     <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
-                      Choose <span style={{ 
+                      Choose the <span style={{ 
                         color: "#228756", 
                         display: "inline-block",
                         margin: "0 10px",
                         fontWeight: isMobile ? 950 : 900,
                         lineHeight: 1.2
-                      }}>Best Therapist</span>
+                      }}>Best Therapists</span>
                       Across <span style={{
                         backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
                         WebkitBackgroundClip: "text", 
@@ -311,7 +311,7 @@ export default function Banner({ topTherapists = [] }) {
                     {[
                       { 
                         id: "find", 
-                        label: "Find Therapist", 
+                        label: "Find a Therapist", 
                         icon: <PersonSearchIcon />, 
                         href: "/view-all-therapist",
                         color: "#228756", // Darker Green
