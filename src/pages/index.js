@@ -106,45 +106,55 @@ export default function HomePage() {
     getTopTherapists();
   }, [getTopTherapists]);
 
+  const pageTitle = userCity 
+    ? `Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Online Therapy | CYT`
+    : userState 
+      ? `Best Psychologist in ${userState} | Online Therapy | CYT`
+      : "Best Psychologist in India | Online Therapy | CYT";
+
+  const pageDescription = userCity 
+    ? `Book online or in-person sessions with top-rated psychologists in ${userCity}, ${userState || ""}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
+    : userState 
+      ? `Book online or in-person sessions with top-rated psychologists in ${userState}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
+      : "Book online or in-person sessions with top-rated psychologists in India. Expert therapy for anxiety, depression, OCD, and relationship counseling.";
+
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       {/* Comprehensive SEO Meta Tags */}
       <Head>
+        {/* Favicon */}
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="shortcut icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+
         {/* Basic Meta Tags */}
-        <title>
-          {userCity 
-            ? (`Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`.length > 60 
-                ? `Best Psychologist in ${userCity} | CYT` 
-                : `Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`)
-            : userState 
-              ? (`Best Psychologist in ${userState} | Choose Your Therapist`.length > 60 
-                  ? `Best Psychologist in ${userState} | CYT` 
-                  : `Best Psychologist in ${userState} | Choose Your Therapist`)
-              : "Best Psychologist in India | Choose Your Therapist"}
-        </title>
-        <meta name="description" content={userCity ? `Choose Your Therapist connects you with trusted psychologists in ${userCity}, ${userState || ""} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : userState ? `Choose Your Therapist connects you with trusted psychologists in ${userState} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : "Choose Your Therapist connects you with trusted psychologists in India for anxiety, OCD, depression, and relationship therapy. Easy booking."} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
         <meta name="keywords" content={`psychologist in ${userCity || "India"}, therapist in ${userCity || "India"}, best psychologist in ${userCity || "India"}, counseling psychologist in ${userCity || "India"}, mental health therapist ${userCity || "India"}, psychologist near me, therapist near me, online therapy India, online psychologist India`} />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
-        <meta name="language" content="English" />
+        <meta name="copyright" content="Choose Your Therapist" />
+        <meta name="language" content="en" />
+        <meta httpEquiv="content-language" content="en" />
         <meta name="revisit-after" content="7 days" />
+        <meta name="format-detection" content="telephone=no" />
         <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph Meta Tags */}
-        <meta property="og:title" content={userCity 
-            ? (`Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`.length > 60 
-                ? `Best Psychologist in ${userCity} | CYT` 
-                : `Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Choose Your Therapist`)
-            : userState 
-              ? (`Best Psychologist in ${userState} | Choose Your Therapist`.length > 60 
-                  ? `Best Psychologist in ${userState} | CYT` 
-                  : `Best Psychologist in ${userState} | Choose Your Therapist`)
-              : "Best Psychologist in India | Choose Your Therapist"} />
-        <meta property="og:description" content={userCity ? `Choose Your Therapist connects you with trusted psychologists in ${userCity}, ${userState || ""} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : userState ? `Choose Your Therapist connects you with trusted psychologists in ${userState} for anxiety, OCD, depression, and relationship therapy. Easy booking.` : "Choose Your Therapist connects you with trusted psychologists in India for anxiety, OCD, depression, and relationship therapy. Easy booking."} />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
+
+        {/* Twitter Card Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
+        <meta name="twitter:site" content="@CYT_India" />
 
         {/* Local SEO for detected region */}
         {(userCity || userState) && (
