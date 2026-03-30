@@ -4,32 +4,32 @@ import { HelpCircle } from "lucide-react";
 export default function Faqs() {
   const faqData = [
     {
-      q: "What services does Choose Your Therapist offer?",
-      a: "We offer a range of mental health services including online counseling, relaxation sessions, peer support groups, school-based programs, corporate programs, and assessment tools."
+      q: "What mental health services does Choose Your Therapist offer in India?",
+      a: "Choose Your Therapist (CYT) provides a comprehensive range of mental health services across India, including online counseling, specialized therapy for anxiety and depression, corporate wellness programs, school mental health initiatives, and peer support groups."
     },
     {
-      q: "What should I expect during my first therapy session?",
-      a: "During your first session, your therapist will get to know you, discuss your concerns, and develop a plan tailored to your needs. It’s a safe space to share whatever you’re comfortable with."
+      q: "What should I expect during my first online therapy session with a psychologist?",
+      a: "In your first online therapy session, our expert psychologists will focus on understanding your specific concerns, building a comfortable therapeutic relationship, and developing a personalized mental health treatment plan tailored to your unique needs."
     },
     {
-      q: "Are the sessions confidential?",
-      a: "Yes, all sessions are confidential. Your privacy is of utmost importance to us, and we adhere to strict confidentiality and data protection policies."
+      q: "Are the therapy sessions for anxiety and depression confidential?",
+      a: "Yes, all our counseling sessions, whether for anxiety, depression, or stress management, are 100% confidential. We follow strict international data protection standards to ensure your privacy and safety throughout your mental health journey."
     },
     {
-      q: "Can I change my therapist if I’m not comfortable?",
-      a: "Absolutely. If you feel that your therapist is not the right fit for you, you can request to change therapists at any time."
+      q: "Can I choose or change my therapist if I’m not comfortable with the current one?",
+      a: "Absolutely. Finding the right fit is crucial for successful therapy. At CYT, you have the flexibility to choose from a diverse pool of certified clinical psychologists and can request to change your therapist at any time to ensure the best support for your mental well-being."
     },
     {
-      q: "Do you offer services for specific issues like anxiety or depression?",
-      a: "Yes, our therapists are trained to handle a wide range of issues including anxiety, depression, stress, relationship problems, trauma, and more."
+      q: "Do you provide specialized treatment for specific issues like OCD, trauma, and relationship problems?",
+      a: "Yes, our highly qualified therapists specialize in evidence-based treatments for OCD (using ERP), trauma-informed therapy, PTSD counseling, and expert relationship or marriage counseling to help you overcome life's complex challenges."
     },
     {
-      q: "Are there any free resources available?",
-      a: "We offer various free resources such as articles, self-help tools, and webinars to support your mental health journey."
+      q: "How many therapy sessions will I need for effective stress management?",
+      a: "The number of therapy sessions varies based on individual goals and the complexity of the issues. Many clients begin to see positive changes in stress management and emotional resilience within 6-10 sessions, but your psychologist will work with you to determine the ideal frequency."
     },
     {
-        q: "How often should I attend therapy sessions?",
-        a: "The frequency of therapy sessions depends on your individual needs and goals. Your therapist will work with you to determine the best schedule."
+      q: "How can I book the best psychologist near me through Choose Your Therapist?",
+      a: "You can easily book a session with the best psychologists in India through our platform. Simply browse our verified therapist profiles, check their specializations, and schedule an online or in-person appointment that fits your convenience."
     }
   ];
 

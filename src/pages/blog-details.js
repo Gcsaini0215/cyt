@@ -120,6 +120,8 @@ const MetaItem = styled(Stack)(({ theme }) => ({
 }));
 
 const ContentWrapper = styled(Box)(({ theme }) => ({
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
   '& p': {
     fontSize: '1.6rem',
     lineHeight: 1.85,
@@ -296,13 +298,15 @@ export default function BlogDetails({ initialBlog }) {
         try {
           if (!blog || blog._id !== id) {
             const res = await fetchData(`${getBlogUrl}/${id}`);
-            if (res && res.status) setBlog(res.data);
+            if (res && (res.status === 200 || res.status === true || res.data)) {
+              setBlog(res.data || res);
+            }
           }
           
           // Fetch all blogs to calculate categories, tags, and trending
           const allBlogsRes = await fetchData(getBlogsUrl);
-          if (allBlogsRes && allBlogsRes.status) {
-            const allBlogs = allBlogsRes.data;
+          if (allBlogsRes && (allBlogsRes.status || allBlogsRes.data || Array.isArray(allBlogsRes))) {
+            const allBlogs = allBlogsRes.data || allBlogsRes;
             
             // Set trending blogs (excluding current)
             setTrendingBlogs(allBlogs.filter(b => b._id !== id).slice(0, 5));
@@ -378,13 +382,75 @@ export default function BlogDetails({ initialBlog }) {
   const imageUrl = rawImageUrl && rawImageUrl.startsWith('http') ? rawImageUrl : "https://chooseyourtherapist.in/assets/img/og-image.jpg";
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": blog.title,
+    "description": cleanDesc,
+    "image": imageUrl,
+    "author": {
+      "@type": "Person",
+      "name": blog.author || 'Admin'
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Choose Your Therapist",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://chooseyourtherapist.in/cytlogo.png"
+      }
+    },
+    "datePublished": blog.createdAt,
+    "dateModified": blog.updatedAt || blog.createdAt,
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": pageUrl
+    }
+  };
+
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": frontendUrl
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blogs",
+        "item": `${frontendUrl}/blogs`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": blog.title,
+        "item": pageUrl
+      }
+    ]
+  };
+
   return (
-    <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh' }}>
+    <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh', overflowX: 'hidden', maxWidth: '100%' }}>
       <Head>
         <title>{blog.title} | Choose Your Therapist</title>
         <meta name="description" content={cleanDesc} />
         <meta name="keywords" content={blog.tags || blog.category} />
+        <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
+        
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }}
+        />
         
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="article" />
@@ -694,10 +760,10 @@ export async function getServerSideProps(context) {
   const { id } = context.query;
   try {
     const res = await fetchData(`${getBlogUrl}/${id}`);
-    if (res && res.status) {
+    if (res && (res.status === 200 || res.status === true || res.data)) {
       return {
         props: {
-          initialBlog: res.data,
+          initialBlog: res.data || res,
         },
       };
     }

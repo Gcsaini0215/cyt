@@ -22,6 +22,7 @@ const specializations = [
     color: "#E3F2FD", 
     iconColor: "#1976D2", 
     link: "/view-all-therapist?specialization=Anxiety",
+    shortDescription: "Manage stress, worry, and panic attacks with expert help.",
     description: "Get professional help for anxiety in India. Our expert psychologists specialize in treating generalized anxiety disorder (GAD), social anxiety, and panic attacks. Discover evidence-based therapy and proven coping strategies to manage stress, reduce persistent worry, and regain emotional control with the best anxiety therapists near you."
   },
   { 
@@ -31,6 +32,7 @@ const specializations = [
     color: "#F3E5F5", 
     iconColor: "#7B1FA2", 
     link: "/view-all-therapist?specialization=Depression",
+    shortDescription: "Overcome low mood and find hope with professional support.",
     description: "Connect with top depression counselors and clinical psychologists. We offer specialized treatment for clinical depression, persistent low mood, and emotional exhaustion. Access confidential online therapy sessions designed to help you overcome sadness, build resilience, and find renewed hope with expert mental health support in India."
   },
   { 
@@ -40,6 +42,7 @@ const specializations = [
     color: "#FFEBEE", 
     iconColor: "#D32F2F", 
     link: "/view-all-therapist?specialization=Relationship",
+    shortDescription: "Build healthier connections and resolve conflicts.",
     description: "Improve your bond with expert relationship counseling and couples therapy. Our specialized therapists help resolve communication gaps, trust issues, and marital conflicts. Whether seeking pre-marital counseling or individual relationship support, find the best relationship experts in India to build healthier, lasting connections."
   },
   { 
@@ -49,6 +52,7 @@ const specializations = [
     color: "#E8F5E9", 
     iconColor: "#388E3C", 
     link: "/view-all-therapist?specialization=Stress",
+    shortDescription: "Tackle burnout and find balance in daily life.",
     description: "Professional stress management therapy to tackle workplace burnout and daily life pressures. Our mindfulness-based cognitive therapy helps you manage chronic stress, improve work-life balance, and enhance mental well-being. Book sessions with certified stress management experts for a calmer, more balanced lifestyle."
   },
   { 
@@ -58,7 +62,8 @@ const specializations = [
     color: "#FFF3E0", 
     iconColor: "#F57C00", 
     link: "/view-all-therapist?specialization=OCD",
-    description: "Specialized OCD therapy using Exposure and Response Prevention (ERP) and CBT. Find experienced psychologists in India for managing obsessive thoughts and compulsive behaviors. Our evidence-based approach helps individuals break the cycle of OCD and lead a more fulfilling, unrestrained life with professional psychiatric support."
+    shortDescription: "Break the cycle of obsessive thoughts and compulsions.",
+    description: "Specialized OCD therapy using Exposure and Response Prevention (ERP) and CBT. Find experienced psychologists in India for managing obsessive thoughts and compulsions. Our evidence-based approach helps individuals break the cycle of OCD and lead a more fulfilling, unrestrained life with professional psychiatric support."
   },
   { 
     id: 6, 
@@ -67,6 +72,7 @@ const specializations = [
     color: "#E0F2F1", 
     iconColor: "#00796B", 
     link: "/view-all-therapist?specialization=Trauma",
+    shortDescription: "Heal from PTSD, emotional abuse, and past trauma.",
     description: "Heal with trauma-informed therapy and PTSD counseling. Our specialists provide a safe space to process past trauma, emotional abuse, and childhood experiences. Using advanced therapeutic techniques like EMDR and somatic experiencing, we help you overcome emotional scars and build a path toward long-term recovery and mental peace."
   },
   { 
@@ -76,6 +82,7 @@ const specializations = [
     color: "#EFEBE9", 
     iconColor: "#5D4037", 
     link: "/view-all-therapist?specialization=Parenting",
+    shortDescription: "Expert guidance on child behavior and family dynamics.",
     description: "Expert parenting consultation and child psychology support. Navigate the challenges of modern parenting with guidance on child behavior, adolescent mental health, and family dynamics. Connect with top parenting experts in India to foster a nurturing environment and improve your parent-child relationship with practical, expert advice."
   },
   { 
@@ -85,6 +92,7 @@ const specializations = [
     color: "#ECEFF1", 
     iconColor: "#455A64", 
     link: "/view-all-therapist?specialization=Career",
+    shortDescription: "Support for career transitions and workplace mental health.",
     description: "Professional career counseling and workplace mental health support. Address career transitions, professional burnout, and workplace anxiety with certified career coaches and psychologists. Gain clarity in your professional life, improve productivity, and achieve long-term career satisfaction with expert guidance tailored to your goals."
   },
 ];
@@ -147,6 +155,7 @@ const Specializations = () => {
                     {item.icon}
                   </div>
                   <h3 className="spec-title">{item.title}</h3>
+                  <p className="spec-short-desc">{item.shortDescription}</p>
                 </div>
               </div>
             </div>
@@ -279,6 +288,17 @@ const Specializations = () => {
           color: #333;
           margin: 0;
         }
+        .spec-short-desc {
+          font-size: 0.9rem;
+          color: #666;
+          margin: 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-align: center;
+        }
         @media (max-width: 768px) {
           .spec-inner {
             padding: 20px 10px;
@@ -289,6 +309,10 @@ const Specializations = () => {
           }
           .spec-title {
             font-size: 1.1rem;
+          }
+          .spec-short-desc {
+            font-size: 0.75rem;
+            -webkit-line-clamp: 2;
           }
         }
       `}</style>
