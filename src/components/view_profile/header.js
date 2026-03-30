@@ -5,6 +5,10 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Tooltip from "@mui/material/Tooltip";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
 import { 
@@ -15,6 +19,8 @@ import {
   MessageCircle,
   Share2
 } from "lucide-react";
+
+import ConsultationForm from "../home/consultation-form";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
@@ -35,6 +41,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const [showBookmark, setShowBookmark] = React.useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [isConsultationModalOpen, setIsConsultationModalOpen] = React.useState(false);
 
   const [profileUrl, setProfileUrl] = React.useState("");
 
@@ -258,10 +265,10 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               }}
             >
               <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, justifyContent: 'flex-start', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "rgba(46, 204, 113, 0.2)", padding: "4px 12px", borderRadius: 100 }}>
-                  <div style={{ width: 8, height: 8, background: "#2ecc71", borderRadius: "50%" }}></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "#2ecc71", padding: "5px 14px", borderRadius: 100, boxShadow: "0 4px 10px rgba(46, 204, 113, 0.3)" }}>
+                  <div style={{ width: 8, height: 8, background: "#fff", borderRadius: "50%" }}></div>
                   <span style={{ 
-                    color: "#2ecc71", 
+                    color: "#fff", 
                     fontSize: 11, 
                     fontWeight: 800,
                     textTransform: 'uppercase',
@@ -273,13 +280,13 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                 
                 {pageData.year_of_exp && (
                   <span style={{ 
-                    background: "linear-gradient(135deg, #f39c12, #d35400)", 
+                    background: "#3498db", 
                     color: "#fff", 
-                    padding: "4px 12px", 
+                    padding: "5px 14px", 
                     borderRadius: 100, 
                     fontSize: 11, 
-                    fontWeight: 700,
-                    boxShadow: "0 4px 10px rgba(243, 156, 18, 0.2)"
+                    fontWeight: 800,
+                    boxShadow: "0 4px 10px rgba(52, 152, 219, 0.3)"
                   }}>
                     {pageData.year_of_exp}+ Years Exp
                   </span>
@@ -333,13 +340,13 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                   justifyContent: "flex-start",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", padding: "5px 12px", borderRadius: 8 }}>
-                  <i className="feather-globe" style={{ color: "#2ecc71", fontSize: 14 }}></i>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{pageData.language_spoken}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#9b59b6", padding: "5px 14px", borderRadius: 8, boxShadow: "0 4px 10px rgba(155, 89, 182, 0.3)" }}>
+                  <i className="feather-globe" style={{ color: "#fff", fontSize: 14 }}></i>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{pageData.language_spoken}</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.1)", padding: "5px 12px", borderRadius: 8 }}>
-                  <i className="feather-map-pin" style={{ color: "#2ecc71", fontSize: 14 }}></i>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{pageData.state}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#e74c3c", padding: "5px 14px", borderRadius: 8, boxShadow: "0 4px 10px rgba(231, 76, 60, 0.3)" }}>
+                  <i className="feather-map-pin" style={{ color: "#fff", fontSize: 14 }}></i>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{pageData.state}</span>
                 </div>
               </div>
             </div>
@@ -349,22 +356,22 @@ export default function ProfileHeader({ pageData, favrioutes }) {
           {isMobile && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "rgba(46, 204, 113, 0.2)", padding: "4px 10px", borderRadius: 100 }}>
-                  <div style={{ width: 6, height: 6, background: "#2ecc71", borderRadius: "50%" }}></div>
-                  <span style={{ color: "#2ecc71", fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>Available</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "#2ecc71", padding: "4px 12px", borderRadius: 100, boxShadow: "0 4px 10px rgba(46, 204, 113, 0.3)" }}>
+                  <div style={{ width: 6, height: 6, background: "#fff", borderRadius: "50%" }}></div>
+                  <span style={{ color: "#fff", fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>Available</span>
                 </div>
                 {pageData.year_of_exp && (
-                  <span style={{ background: "rgba(243, 156, 18, 0.2)", color: "#f39c12", padding: "4px 10px", borderRadius: 100, fontSize: 10, fontWeight: 800 }}>
+                  <span style={{ background: "#3498db", color: "#fff", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 800, boxShadow: "0 4px 10px rgba(52, 152, 219, 0.3)" }}>
                     {pageData.year_of_exp}+ Yrs Exp
                   </span>
                 )}
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", padding: "4px 10px", borderRadius: 8 }}>
-                  <i className="feather-globe" style={{ color: "#2ecc71", fontSize: 12 }}></i>
-                  <span style={{ fontSize: 11, fontWeight: 600 }}>{pageData.language_spoken}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#9b59b6", padding: "4px 12px", borderRadius: 8, boxShadow: "0 4px 10px rgba(155, 89, 182, 0.3)" }}>
+                  <i className="feather-globe" style={{ color: "#fff", fontSize: 12 }}></i>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{pageData.language_spoken}</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.1)", padding: "4px 10px", borderRadius: 8 }}>
-                  <i className="feather-map-pin" style={{ color: "#2ecc71", fontSize: 12 }}></i>
-                  <span style={{ fontSize: 11, fontWeight: 600 }}>{pageData.state}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#e74c3c", padding: "4px 12px", borderRadius: 8, boxShadow: "0 4px 10px rgba(231, 76, 60, 0.3)" }}>
+                  <i className="feather-map-pin" style={{ color: "#fff", fontSize: 12 }}></i>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{pageData.state}</span>
                 </div>
                </div>
             </div>
@@ -373,15 +380,17 @@ export default function ProfileHeader({ pageData, favrioutes }) {
           {/* Action Buttons */}
           <div style={{ 
             display: 'flex', 
-            gap: 15, 
-            flexDirection: 'column',
-            width: isMobile ? '100%' : '220px'
+            gap: 12, 
+            flexDirection: isMobile ? 'row' : 'column',
+            width: isMobile ? '100%' : '220px',
+            alignItems: 'stretch'
           }}>
             <button
               onClick={handleClick}
               className="book-btn-shimmer"
               style={{
-                padding: "16px 25px",
+                flex: isMobile ? 1 : 'none',
+                padding: isMobile ? "14px 20px" : "16px 25px",
                 borderRadius: 14,
                 color: "#fff",
                 fontWeight: 800,
@@ -389,7 +398,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                 cursor: "pointer",
                 boxShadow: "0 10px 20px rgba(46, 204, 113, 0.3)",
                 transition: "all 0.3s ease",
-                fontSize: 16,
+                fontSize: isMobile ? 14 : 16,
                 textTransform: 'uppercase',
                 letterSpacing: 0.5
               }}
@@ -399,13 +408,123 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               Book Session
             </button>
 
-            {/* Social Share Icons Row */}
+            {/* Chat with Admin - Mobile Only Button next to Book Button */}
+            {isMobile && (
+              <button 
+                onClick={() => setIsConsultationModalOpen(true)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: "14px 15px",
+                  borderRadius: 14,
+                  background: '#fff',
+                  color: '#133d2f',
+                  fontWeight: 800,
+                  fontSize: 13,
+                  textTransform: 'uppercase',
+                  border: 'none',
+                  boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
+                  cursor: 'pointer'
+                }}
+              >
+                <MessageCircle size={18} style={{ color: '#228756' }} />
+                <span>Admin</span>
+              </button>
+            )}
+
+            {/* Desktop Share Text (Only visible if not mobile icons) */}
+            {!isMobile && (
+              <div style={{ 
+                display: 'flex', 
+                gap: 12, 
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                padding: '5px 0'
+              }}>
+                {shareLinks.map((link) => (
+                  <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
+                    <a 
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        ...iconButtonStyle,
+                        background: link.color,
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        boxShadow: `0 4px 10px ${link.color}44`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
+                        e.currentTarget.style.boxShadow = `0 8px 16px ${link.color}66`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0) scale(1)";
+                        e.currentTarget.style.boxShadow = `0 4px 10px ${link.color}44`;
+                      }}
+                    >
+                      {link.icon}
+                    </a>
+                  </Tooltip>
+                ))}
+
+                <Tooltip title="Copy Link" arrow>
+                  <div 
+                    onClick={copyToClipboard}
+                    style={{
+                      ...iconButtonStyle,
+                      background: "#475569",
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      boxShadow: '0 4px 10px rgba(71, 85, 105, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#334155";
+                      e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "#475569";
+                      e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    }}
+                  >
+                    <LinkIcon size={18} />
+                  </div>
+                </Tooltip>
+
+                <Tooltip title="More Options" arrow>
+                  <div 
+                    onClick={handleShare}
+                    style={{
+                      ...iconButtonStyle,
+                      background: "#228756",
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      boxShadow: '0 4px 10px rgba(34, 135, 86, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#1a6b44";
+                      e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "#228756";
+                      e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    }}
+                  >
+                    <Share2 size={18} />
+                  </div>
+                </Tooltip>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Social Share Row (moved below buttons for better spacing) */}
+          {isMobile && (
             <div style={{ 
               display: 'flex', 
               gap: 12, 
-              justifyContent: isMobile ? 'center' : 'flex-start',
+              justifyContent: 'center',
               alignItems: 'center',
-              padding: '5px 0'
+              marginTop: 10
             }}>
               {shareLinks.map((link) => (
                 <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
@@ -419,65 +538,25 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                       borderColor: 'rgba(255, 255, 255, 0.2)',
                       boxShadow: `0 4px 10px ${link.color}44`,
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
-                      e.currentTarget.style.boxShadow = `0 8px 16px ${link.color}66`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0) scale(1)";
-                      e.currentTarget.style.boxShadow = `0 4px 10px ${link.color}44`;
-                    }}
                   >
                     {link.icon}
                   </a>
                 </Tooltip>
               ))}
-
+              
               <Tooltip title="Copy Link" arrow>
-                <div 
-                  onClick={copyToClipboard}
-                  style={{
-                    ...iconButtonStyle,
-                    background: "#475569",
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
-                    boxShadow: '0 4px 10px rgba(71, 85, 105, 0.3)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#334155";
-                    e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#475569";
-                    e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  }}
-                >
+                <div onClick={copyToClipboard} style={{ ...iconButtonStyle, background: "#475569" }}>
                   <LinkIcon size={18} />
                 </div>
               </Tooltip>
 
-              <Tooltip title="More Options" arrow>
-                <div 
-                  onClick={handleShare}
-                  style={{
-                    ...iconButtonStyle,
-                    background: "#228756",
-                    borderColor: 'rgba(255, 255, 255, 0.2)',
-                    boxShadow: '0 4px 10px rgba(34, 135, 86, 0.3)',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#1a6b44";
-                    e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#228756";
-                    e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  }}
-                >
+              <Tooltip title="More" arrow>
+                <div onClick={handleShare} style={{ ...iconButtonStyle, background: "#228756" }}>
                   <Share2 size={18} />
                 </div>
               </Tooltip>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -500,6 +579,41 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         title={`${pageData.user.name} - ${pageData.profile_type}`}
         description={`${pageData.user.name}, a ${pageData.profile_type} based in ${pageData.state}. Connect and book a session today!`}
       />
+
+      {/* Consultation Form Modal */}
+      <Dialog 
+        open={isConsultationModalOpen} 
+        onClose={() => setIsConsultationModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          style: {
+            borderRadius: 24,
+            padding: 0
+          }
+        }}
+      >
+        <IconButton
+          aria-label="close"
+          onClick={() => setIsConsultationModalOpen(false)}
+          sx={{
+            position: 'absolute',
+            right: 12,
+            top: 12,
+            color: '#1e293b',
+            zIndex: 10,
+            background: 'rgba(255, 255, 255, 0.8)',
+            '&:hover': {
+              background: '#fff',
+            }
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent sx={{ p: isMobile ? 2 : 4, pt: isMobile ? 5 : 4 }}>
+          <ConsultationForm showHeading={false} showLocation={false} showSource={false} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
