@@ -64,7 +64,7 @@ export default function AllBlogs() {
           bottom: 0;
           left: 0;
           right: 0;
-          padding: 15px;
+          padding: 15px 15px 35px 15px;
           background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
           color: white;
           height: 100%;
@@ -72,6 +72,20 @@ export default function AllBlogs() {
           flex-direction: column;
           justify-content: flex-end;
           transition: background 0.3s ease;
+        }
+        .blog-card-footer-patti {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background-color: #228756;
+          color: white;
+          text-align: center;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 4px 0;
+          z-index: 5;
+          letter-spacing: 0.5px;
         }
         .blog-card-title-custom {
           font-size: 20px;
@@ -110,7 +124,7 @@ export default function AllBlogs() {
           {blogs.length > 0 ? (
             blogs.map((blog) => (
               <div
-                className="col-lg-3 col-md-4 col-sm-6 col-6 mobile-grid-item"
+                className="col-lg-2 col-md-4 col-sm-6 col-6 mobile-grid-item"
                 key={blog._id || blog.id}
               >
                 <Link href={`/blog-details?id=${blog._id || blog.id}`}>
@@ -125,6 +139,9 @@ export default function AllBlogs() {
                       <h5 className="blog-card-title-custom">
                         {blog.title}
                       </h5>
+                    </div>
+                    <div className="blog-card-footer-patti">
+                      www.chooseyourtherapist.in
                     </div>
                   </div>
                 </Link>
