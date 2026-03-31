@@ -85,6 +85,9 @@ export default function AllBlogs() {
           overflow: hidden;
         }
         @media (max-width: 575px) {
+          .mobile-grid-item {
+            width: 50% !important;
+          }
           .mobile-grid-container {
             padding-left: 10px !important;
             padding-right: 10px !important;
@@ -107,8 +110,7 @@ export default function AllBlogs() {
           {blogs.length > 0 ? (
             blogs.map((blog) => (
               <div
-                className="col-lg-4 col-md-6 col-sm-6 col-6 mobile-grid-item"
-                style={{ width: '50%' }}
+                className="col-lg-3 col-md-4 col-sm-6 col-6 mobile-grid-item"
                 key={blog._id || blog.id}
               >
                 <Link href={`/blog-details?id=${blog._id || blog.id}`}>
