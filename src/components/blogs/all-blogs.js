@@ -64,7 +64,7 @@ export default function AllBlogs() {
           bottom: 0;
           left: 0;
           right: 0;
-          padding: 15px 15px 35px 15px;
+          padding: 15px;
           background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
           color: white;
           height: 100%;
@@ -75,17 +75,28 @@ export default function AllBlogs() {
         }
         .blog-card-footer-patti {
           position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          top: 15px;
+          right: -30px;
           background-color: #228756;
           color: white;
-          text-align: center;
-          font-size: 10px;
+          font-size: 7px;
           font-weight: 700;
-          padding: 4px 0;
+          padding: 3px 0;
           z-index: 5;
-          letter-spacing: 0.5px;
+          width: 120px;
+          transform: rotate(45deg);
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          text-transform: uppercase;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+        .scrolling-text {
+          display: inline-block;
+          animation: marquee 10s linear infinite;
+        }
+        @keyframes marquee {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
         }
         .blog-card-title-custom {
           font-size: 20px;
@@ -141,7 +152,9 @@ export default function AllBlogs() {
                       </h5>
                     </div>
                     <div className="blog-card-footer-patti">
-                      www.chooseyourtherapist.in
+                      <span className="scrolling-text">
+                        www.chooseyourtherapist.in | www.chooseyourtherapist.in
+                      </span>
                     </div>
                   </div>
                 </Link>
