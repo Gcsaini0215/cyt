@@ -42,7 +42,8 @@ export default function HomePage() {
       try {
         const response = await fetch("https://ipapi.co/json/");
         const data = await response.json();
-        if (data) {
+        // Only set location if it's within India to avoid US-based Googlebot/VPN detection issues
+        if (data && data.country === "IN") {
           if (data.region) {
             console.log("User detected state:", data.region);
             setUserState(data.region);
@@ -51,6 +52,8 @@ export default function HomePage() {
             console.log("User detected city:", data.city);
             setUserCity(data.city);
           }
+        } else {
+          console.log("International location detected or detection failed, defaulting to Noida, India for SEO.");
         }
       } catch (error) {
         console.error("Error fetching user location:", error);
@@ -156,13 +159,11 @@ export default function HomePage() {
         <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta name="twitter:site" content="@CYT_India" />
 
-        {/* Local SEO for detected region */}
-        {(userCity || userState) && (
-          <>
-            <meta name="geo.region" content="IN" />
-            <meta name="geo.placename" content={userCity || userState} />
-          </>
-        )}
+        {/* Local SEO Meta Tags - Fixed defaulting to Noida, India for Google sync */}
+        <meta name="geo.region" content="IN-UP" />
+        <meta name="geo.placename" content={userCity && userState ? `${userCity}, ${userState}, India` : "Sector 51, Noida, Uttar Pradesh, India"} />
+        <meta name="geo.position" content="28.5672;77.3650" />
+        <meta name="ICBM" content="28.5672, 77.3650" />
 
         {/* Enhanced Schema.org Data */}
         <script type="application/ld+json">

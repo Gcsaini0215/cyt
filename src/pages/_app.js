@@ -92,6 +92,11 @@ function MyApp({ Component, pageProps }) {
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
+        {/* Global Geo Tags - Defaulting to Noida, India to prevent US-based Googlebot/VPN detection sync issues */}
+        <meta name="geo.region" content="IN-UP" />
+        <meta name="geo.placename" content="Sector 51, Noida, Uttar Pradesh, India" />
+        <meta name="geo.position" content="28.5672;77.3650" />
+        <meta name="ICBM" content="28.5672, 77.3650" />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="shortcut icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/favicon.png" />
