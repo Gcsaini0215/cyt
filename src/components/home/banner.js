@@ -319,7 +319,7 @@ export default function Banner({ topTherapists = [] }) {
                       },
                       { 
                         id: "local", 
-                        label: "Noida & Delhi", 
+                        label: "Psychologist in Noida", 
                         icon: <LocationOn />, 
                         href: "/psychologist-in-noida-delhi",
                         color: "#0ea5e9", // Bright Blue

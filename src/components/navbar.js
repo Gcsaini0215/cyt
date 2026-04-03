@@ -110,7 +110,7 @@ export default function App() {
                         <li><Link href="/plans">Therapy Plan</Link></li>
                         <li><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
                         <li><Link href="/daily-journal">Daily Journal</Link></li>
-                      <li><Link href="/psychologist-in-noida-delhi">Noida Therapist</Link></li>
+                      <li><Link href="/psychologist-in-noida-delhi">Psychologist in Noida</Link></li>
                       </ul>
                     </li>
                     <li><Link href="/about-us">Our Story</Link></li>

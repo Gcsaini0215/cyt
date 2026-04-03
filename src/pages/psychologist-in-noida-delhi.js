@@ -60,9 +60,9 @@ export default function LocalLandingPage() {
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       <Head>
-        <title>Best Psychologist in Noida & Delhi | Top Rated Mental Health Studio</title>
+        <title>Best Psychologist in Noida & Delhi | Top Rated Therapists Near Me</title>
         <meta name="description" content="Connect with the best psychologists in Noida and Delhi at Choose Your Therapist. Verified mental health experts for anxiety, depression, and relationship therapy. Visit our Noida Studio or book online." />
-        <meta name="keywords" content="Best Psychologist in Noida, Top Psychologist in Delhi, Mental Health Studio Noida, Anxiety Specialist Delhi NCR, Relationship Counseling Noida Sector 51, Therapist near me Noida, Best Psychologist in Uttar Pradesh" />
+        <meta name="keywords" content="Best Psychologist in Noida, Top Psychologist in Delhi, Mental Health Studio Noida, Anxiety Specialist Delhi NCR, Relationship Counseling Noida Sector 51, Psychologist near me Noida, Best Psychologist in Uttar Pradesh, clinical psychologist in Noida, therapist near me Delhi NCR, psychologist near Sector 50 Noida, therapy center near LPS Global School, counselor in Noida Sector 34" />
         
         {/* Local SEO Meta Tags */}
         <meta name="geo.region" content="IN-UP" />
@@ -146,6 +146,44 @@ export default function LocalLandingPage() {
                   "item": "https://chooseyourtherapist.in/psychologist-in-noida-delhi"
                 }
               ]
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
+                {
+                  "@type": "Question",
+                  "name": "Who is the best psychologist in Noida for anxiety and stress?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Choose Your Therapist connects you with top-rated psychologists in Noida specializing in anxiety and stress management. Our experts at the Noida Studio provide personalized evidence-based therapy."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Do you offer in-person therapy sessions in Noida Sector 51?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, we offer professional in-person counseling at our Noida Studio located in Sector 51, near LPS Global School. Our center is easily accessible for residents of Noida Sector 50, Sector 34, Sector 72, and nearby locations."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "How can I find a verified clinical psychologist in Delhi NCR?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Our platform features a curated list of verified clinical psychologists across Delhi, Noida, and Gurgaon. You can review their profiles, specializations, and book sessions directly."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What is the cost of a therapy session in Noida & Delhi?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Therapy costs vary based on the psychologist's experience and specialization. We offer transparent pricing with options for individual sessions, couple counseling, and student-friendly rates."
+                  }
+                }
+              ]
             }
           ])}
         </script>
@@ -223,7 +261,7 @@ export default function LocalLandingPage() {
                       <SwiperSlide key={idx}>
                         <img 
                           src={img} 
-                          alt={`Noida Center View ${idx + 1}`} 
+                          alt={`Best Psychologist Noida Center - Office View ${idx + 1}`} 
                           style={{ width: '100%', height: isMobile ? '350px' : '500px', objectFit: 'cover' }}
                         />
                       </SwiperSlide>
@@ -260,7 +298,7 @@ export default function LocalLandingPage() {
                                 objectFit: 'cover',
                                 filter: [1, 3, 5].includes(idx) ? 'grayscale(100%)' : 'none'
                               }} 
-                              alt={`Collage ${idx}`} 
+                              alt={`Mental Health Studio Noida - Therapy Room Collage ${idx}`} 
                             />
                           </div>
                         ))}
@@ -273,7 +311,7 @@ export default function LocalLandingPage() {
                 <div className="inner pl--50 pl_sm--0">
                   <div className="section-title text-start">
                     <span className="subtitle bg-primary-opacity">In-Person Therapy</span>
-                    <h2 className="title" style={{ fontSize: '3rem', fontWeight: 800 }}>Visit Our <span className="theme-gradient">Noida Studio</span></h2>
+                    <h2 className="title" style={{ fontSize: '3rem', fontWeight: 800 }}>Visit Our <span className="theme-gradient">Noida Therapy Studio</span></h2>
                     <p className="description mt--20" style={{ fontSize: '1.2rem', lineHeight: 1.7, textAlign: 'left' }}>
                       Experience professional mental health support in a safe, confidential, and serene environment. Our Noida studio is designed to provide you with the comfort needed for deep healing and personal growth.
                     </p>
@@ -283,7 +321,7 @@ export default function LocalLandingPage() {
                         <i className="feather-map-pin mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px' }}></i>
                         <div>
                           <h5 style={{ marginBottom: '5px', fontWeight: 700 }}>Address</h5>
-                          <p style={{ margin: 0 }}>D-137, Sector 51, Noida, Uttar Pradesh 201301</p>
+                          <p style={{ margin: 0 }}>D-137, Sector 51 (Near LPS Global School), Noida, Uttar Pradesh 201301. Serving Sector 50, 34, and nearby areas.</p>
                         </div>
                       </div>
                       <div className="d-flex align-items-start">
