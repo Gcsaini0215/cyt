@@ -104,6 +104,7 @@ export default function LocalLandingPage() {
               "@context": "https://schema.org",
               "@type": "HealthAndBeautyBusiness",
               "name": "Choose Your Therapist - Noida Studio",
+              "description": "Premium mental health studio in Noida Sector 51, near LPS Global School. Expert psychologists serving Sector 50, 34, 72, and 52 residents.",
               "image": "https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg",
               "@id": "https://chooseyourtherapist.in/psychologist-in-noida-delhi",
               "url": "https://chooseyourtherapist.in/psychologist-in-noida-delhi",
@@ -197,7 +198,6 @@ export default function LocalLandingPage() {
           backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.55)), url("https://i.postimg.cc/dVCjtJTQ/home_slider_01.jpg")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
           padding: '40px 0',
           position: 'relative',
           overflow: 'hidden',
@@ -312,23 +312,23 @@ export default function LocalLandingPage() {
                   <div className="section-title text-start">
                     <span className="subtitle bg-primary-opacity">In-Person Therapy</span>
                     <h2 className="title" style={{ fontSize: '3rem', fontWeight: 800 }}>Visit Our <span className="theme-gradient">Noida Therapy Studio</span></h2>
-                    <p className="description mt--20" style={{ fontSize: '1.2rem', lineHeight: 1.7, textAlign: 'left' }}>
-                      Experience professional mental health support in a safe, confidential, and serene environment. Our Noida studio is designed to provide you with the comfort needed for deep healing and personal growth.
+                    <p className="description mt--20" style={{ fontSize: '1.4rem', lineHeight: 1.7, textAlign: 'left' }}>
+                      Experience professional mental health support in a safe, confidential, and serene environment. Located in Sector 51, our Noida studio is easily accessible from Sector 50, 34, 72, and 52, making it the ideal choice for local residents.
                     </p>
                     
-                    <div className="clinic-details mt--30" style={{ background: '#f8fafc', padding: '25px', borderRadius: '15px', borderLeft: '5px solid #228756' }}>
-                      <div className="d-flex align-items-start mb--15">
-                        <i className="feather-map-pin mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px' }}></i>
+                    <div className="clinic-details mt--30" style={{ background: '#f8fafc', padding: '25px', borderRadius: '15px', borderLeft: '5px solid #228756', textAlign: 'left' }}>
+                      <div className="d-flex align-items-start mb--15" style={{ textAlign: 'left' }}>
+                        <i className="feather-map-pin mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px', flexShrink: 0 }}></i>
                         <div>
-                          <h5 style={{ marginBottom: '5px', fontWeight: 700 }}>Address</h5>
-                          <p style={{ margin: 0 }}>D-137, Sector 51 (Near LPS Global School), Noida, Uttar Pradesh 201301. Serving Sector 50, 34, and nearby areas.</p>
+                          <h5 style={{ marginBottom: '5px', fontWeight: 700, textAlign: 'left' }}>Address</h5>
+                          <p style={{ margin: 0, textAlign: 'left' }}>D-137, Sector 51 (Near LPS Global School), Noida, Uttar Pradesh 201301. Serving Sector 50, 34, and nearby areas.</p>
                         </div>
                       </div>
-                      <div className="d-flex align-items-start">
-                        <i className="feather-clock mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px' }}></i>
+                      <div className="d-flex align-items-start" style={{ textAlign: 'left' }}>
+                        <i className="feather-clock mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px', flexShrink: 0 }}></i>
                         <div>
-                          <h5 style={{ marginBottom: '5px', fontWeight: 700 }}>Working Hours</h5>
-                          <p style={{ margin: 0 }}>Open 24/7 for Scheduled Appointments</p>
+                          <h5 style={{ marginBottom: '5px', fontWeight: 700, textAlign: 'left' }}>Working Hours</h5>
+                          <p style={{ margin: 0, textAlign: 'left' }}>Open 24/7 for Scheduled Appointments</p>
                         </div>
                       </div>
                     </div>
@@ -352,8 +352,8 @@ export default function LocalLandingPage() {
             <div className="row mb--60">
               <div className="col-lg-12">
                 <div className="section-title text-center">
-                  <h2 className="title" style={{ fontSize: '3rem', fontWeight: 800 }}>Top Mental Health Services in <span className="theme-gradient">Noida & Delhi</span></h2>
-                  <p className="description mt--20" style={{ fontSize: '1.2rem' }}>Comprehensive psychological support tailored for the Delhi-NCR community.</p>
+                  <h2 className="title" style={{ fontSize: isMobile ? '3.2rem' : '3.5rem', fontWeight: 800 }}>Top Mental Health Services in <span className="theme-gradient">Noida & Delhi</span></h2>
+                  <p className="description mt--20" style={{ fontSize: isMobile ? '1.5rem' : '1.6rem' }}>Comprehensive psychological support tailored for the Delhi-NCR community.</p>
                 </div>
               </div>
             </div>
@@ -407,8 +407,8 @@ export default function LocalLandingPage() {
                       <i className={service.icon}></i>
                     </div>
                     <div className="content">
-                      <h4 className="title" style={{ fontSize: isMobile ? '1.8rem' : '1.4rem', fontWeight: 700, marginBottom: '15px' }}>{service.title}</h4>
-                      <p className="description" style={{ fontSize: isMobile ? '1.3rem' : '1rem', lineHeight: 1.6 }}>{service.desc}</p>
+                      <h4 className="title" style={{ fontSize: isMobile ? '2.2rem' : '1.8rem', fontWeight: 700, marginBottom: '15px' }}>{service.title}</h4>
+                      <p className="description" style={{ fontSize: isMobile ? '1.5rem' : '1.3rem', lineHeight: 1.6 }}>{service.desc}</p>
                     </div>
                   </div>
                 </div>
@@ -427,7 +427,7 @@ export default function LocalLandingPage() {
         @media (max-width: 768px) {
           h1 { font-size: 3.2rem !important; text-align: center; line-height: 1.1 !important; }
           p { text-align: center; margin: 0 auto 30px !important; font-size: 1.5rem !important; }
-          .local-hero-bg { padding: 30px 0 !important; }
+          .local-hero-bg { padding: 30px 0 !important; background-size: cover !important; background-position: center !important; }
           .hero-btns-container { display: none !important; }
           .rbt-btn { width: 100%; justify-content: center; }
         }

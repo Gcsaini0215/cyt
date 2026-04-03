@@ -30,7 +30,7 @@ export default function LocalFaqs() {
   ];
 
   return (
-    <div className="rbt-accordion-area bg-color-white rbt-section-gap" style={{ backgroundColor: '#f8fafc', padding: '100px 0' }}>
+    <div className="rbt-accordion-area bg-color-white rbt-section-gap" style={{ backgroundColor: '#f8fafc', padding: '60px 0 100px' }}>
       <div className="container">
         <div className="row justify-content-center mb--60">
           <div className="col-lg-8 text-center">
@@ -49,7 +49,7 @@ export default function LocalFaqs() {
               }}
             >
               <HelpCircle size={18} />
-              Local FAQ's
+              Common Questions
             </div>
             <h3 style={{ fontSize: '42px', fontWeight: 900, color: '#1e293b', marginBottom: '20px' }}>
               Mental Health FAQs for Noida & Delhi
