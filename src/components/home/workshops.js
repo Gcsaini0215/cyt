@@ -43,6 +43,10 @@ export default function HomeWorkshop({ isWhite = false }) {
     getData();
   }, []);
 
+  if (!data || data.length === 0) {
+    return null;
+  }
+
   return (
     <div className={`rbt-course-area rbt-section-gap`} style={{
       background: '#f0fdf4',

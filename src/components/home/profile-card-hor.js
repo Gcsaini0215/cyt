@@ -118,7 +118,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               alt={`${pageData.user?.name || "Therapist"} - ${pageData.profile_type || "Best Psychologist in India"}`}
               src={`${imagePath}/${pageData.user?.profile}`}
               style={{
-                height: isMobile ? 255 : 235,
+                height: isMobile ? 210 : 235,
                 width: "100%",
                 objectFit: "cover",
                 transition: "transform 0.5s ease"

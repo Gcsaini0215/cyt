@@ -32,7 +32,7 @@ export default function ProfileInfoTab({ pageData }) {
     background: "rgba(255, 255, 255, 0.8)",
     borderRadius: "20px",
     padding: "30px",
-    marginBottom: "20px",
+    marginBottom: "25px",
     boxShadow: "0 10px 40px 0 rgba(0, 0, 0, 0.05)",
     border: "1px solid rgba(0, 0, 0, 0.05)",
     transition: "all 0.3s ease",
@@ -49,18 +49,33 @@ export default function ProfileInfoTab({ pageData }) {
     wordSpacing: "1px"
   };
 
-  const chipStyle = {
-    display: "inline-block",
-    padding: "8px 16px",
-    borderRadius: "12px",
+  const chipStyleBase = {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "10px 22px",
+    borderRadius: "50px",
     margin: "6px",
-    background: "rgba(46, 204, 113, 0.08)",
-    color: "#000",
-    fontWeight: 600,
-    fontSize: 14,
+    fontWeight: 700,
+    fontSize: "14px",
     cursor: "default",
     fontFamily: "'Inter', sans-serif",
-    border: "1px solid rgba(46, 204, 113, 0.1)"
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    whiteSpace: "nowrap"
+  };
+
+  const serviceChipStyle = {
+    ...chipStyleBase,
+    background: "#f0fdf4",
+    color: "#166534",
+    border: "1.5px solid #dcfce7",
+  };
+
+  const expertiseChipStyle = {
+    ...chipStyleBase,
+    background: "#eff6ff",
+    color: "#1e40af",
+    border: "1.5px solid #dbeafe",
   };
 
   return (
@@ -78,6 +93,20 @@ export default function ProfileInfoTab({ pageData }) {
             word-spacing: 2px;
             letter-spacing: 0.1px;
           }
+          .section-title-accent {
+            border-left: 5px solid #228756;
+            padding-left: 15px;
+          }
+          .service-chip:hover {
+            transform: translateY(-2px) scale(1.03);
+            background: #dcfce7 !important;
+            border-color: #228756 !important;
+          }
+          .expertise-chip:hover {
+            transform: translateY(-2px) scale(1.03);
+            background: #dbeafe !important;
+            border-color: #3b82f6 !important;
+          }
           @media (max-width: 768px) {
             .profile-bio-text {
               text-align: left !important;
@@ -85,13 +114,29 @@ export default function ProfileInfoTab({ pageData }) {
               font-size: 15px !important;
               line-height: 1.7 !important;
             }
+            .rbt-advance-tab-area {
+              padding-top: 20px !important;
+            }
+            .glass-card-mobile {
+              padding: 20px !important;
+              margin-bottom: 20px !important;
+              border-radius: 16px !important;
+            }
+            .service-chip, .expertise-chip {
+              padding: 8px 16px !important;
+              font-size: 13px !important;
+              margin: 4px !important;
+            }
+            .rbt-title-style-3 {
+              font-size: 18px !important;
+            }
           }
         `}</style>
         <div className="row g-5">
           <div className="col-lg-10 offset-lg-1">
             {/* Tabs */}
             <div className="advance-tab-button mb-4">
-              <ul className="nav nav-tabs tab-button-style-2" id="myTab-4">
+              <ul className="nav nav-tabs tab-button-style-2" id="myTab-4" style={{ justifyContent: 'center' }}>
                 <li>
                   <Link
                     className={tab === 1 ? "tab-button active" : "tab-button"}
@@ -145,29 +190,29 @@ export default function ProfileInfoTab({ pageData }) {
                 aria-labelledby="home-tab-4"
               >
                 {/* About Me */}
-                <div style={glassCard}>
-                  <h4 className="rbt-title-style-3 mb-3" style={{ fontWeight: 800, color: '#1a202c' }}>About Me</h4>
+                <div style={glassCard} className="glass-card-mobile">
+                  <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c' }}>About Me</h4>
                   <p className="profile-bio-text" style={bioTextStyle}>
                     {pageData.user.bio}
                   </p>
                 </div>
 
                 {/* Services */}
-                <div style={glassCard}>
-                  <h4 className="rbt-title-style-3 mb-3" style={{ fontWeight: 800, color: '#1a202c' }}>Services</h4>
-                  <div>
+                <div style={glassCard} className="glass-card-mobile">
+                  <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c' }}>Services</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                     {pageData.services.split(",").map((item) => (
-                      <span key={item} style={chipStyle}>{item}</span>
+                      <span key={item} className="service-chip" style={serviceChipStyle}>{item.trim()}</span>
                     ))}
                   </div>
                 </div>
 
                 {/* Expertise */}
-                <div style={glassCard}>
-                  <h4 className="rbt-title-style-3 mb-3" style={{ fontWeight: 800, color: '#1a202c' }}>Expertise</h4>
-                  <div>
+                <div style={glassCard} className="glass-card-mobile">
+                  <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c', borderLeftColor: '#3b82f6' }}>Expertise</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                     {pageData.experties.split(",").map((item) => (
-                      <span key={item} style={chipStyle}>{item}</span>
+                      <span key={item} className="expertise-chip" style={expertiseChipStyle}>{item.trim()}</span>
                     ))}
                   </div>
                 </div>
