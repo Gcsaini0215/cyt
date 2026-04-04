@@ -9,6 +9,9 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
+import StarIcon from "@mui/icons-material/Star";
+import StarHalfIcon from "@mui/icons-material/StarHalf";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
 import { 
@@ -113,6 +116,30 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   const handleShare = () => {
     setIsShareModalOpen(true);
+  };
+
+  // Calculate Rating
+  const reviews = pageData?.reviews || [];
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount > 0 
+    ? reviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / reviewCount 
+    : 0;
+
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 1; i <= 5; i++) {
+      if (i <= fullStars) {
+        stars.push(<StarIcon key={i} style={{ color: "#ffb400", fontSize: isMobile ? 14 : 18 }} />);
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        stars.push(<StarHalfIcon key={i} style={{ color: "#ffb400", fontSize: isMobile ? 14 : 18 }} />);
+      } else {
+        stars.push(<StarBorderIcon key={i} style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 14 : 18 }} />);
+      }
+    }
+    return stars;
   };
 
   const iconButtonStyle = {
@@ -293,18 +320,40 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                 )}
               </div>
 
-              <h1
-                style={{
-                  color: "#fff",
-                  fontSize: isMobile ? 20 : 40,
-                  marginBottom: 2,
-                  fontWeight: 900,
-                  letterSpacing: isMobile ? '0px' : '-1px',
-                  textShadow: "0 2px 10px rgba(0,0,0,0.2)"
-                }}
-              >
-                {pageData.user.name}
-              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: isMobile ? 8 : 15, marginBottom: 2 }}>
+                <h1
+                  style={{
+                    color: "#fff",
+                    fontSize: isMobile ? 20 : 40,
+                    margin: 0,
+                    fontWeight: 900,
+                    letterSpacing: isMobile ? '0px' : '-1px',
+                    textShadow: "0 2px 10px rgba(0,0,0,0.2)"
+                  }}
+                >
+                  {pageData.user.name}
+                </h1>
+
+                {/* Dynamic Review Section - Next to Name, No Pill */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 6,
+                  marginTop: isMobile ? 0 : 8
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {renderStars(averageRating)}
+                  </div>
+                  <span style={{ 
+                    color: '#fff', 
+                    fontSize: isMobile ? 12 : 15, 
+                    fontWeight: 800,
+                    opacity: 0.9
+                  }}>
+                    {averageRating > 0 ? averageRating.toFixed(1) : "0.0"} ({reviewCount})
+                  </span>
+                </div>
+              </div>
 
               <div
                 style={{

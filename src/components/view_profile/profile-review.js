@@ -18,6 +18,7 @@ import { SubmitReviewUrl, getTherapistProfile } from "../../utils/url";
 export default function ProfileReview({ profile: initialProfile }) {
   const [profile, setProfile] = useState(initialProfile);
   const [rating, setRating] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(2);
   const [hover, setHover] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [name, setName] = useState("");
@@ -271,43 +272,73 @@ export default function ProfileReview({ profile: initialProfile }) {
                 Client Feedback ({profile.reviews.length})
               </h4>
               <div className="row g-4">
-                {profile.reviews.map((rev, index) => (
-                  <div key={index} className="col-12">
-                    <div style={{
-                      ...glassCard,
-                      padding: '25px',
-                      marginBottom: '15px'
-                    }}>
-                      <div className="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                          <h5 className="mb-1" style={{ fontSize: '16px', fontWeight: 700 }}>{rev.name}</h5>
-                          <div className="rating">
-                            {[...Array(5)].map((_, i) => (
-                              <StarIcon key={i} style={{ 
-                                color: i < rev.rating ? "#ffb400" : "#cbd5e0", 
-                                fontSize: 18 
-                              }} />
-                            ))}
-                          </div>
-                        </div>
-                        {rev.createdAt && (
-                          <span style={{ fontSize: '13px', color: '#718096' }}>
-                            {new Date(rev.createdAt).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                      <p style={{ 
-                        fontSize: '15px', 
-                        lineHeight: '1.6', 
-                        color: '#4a5568',
-                        margin: 0
+                {[...profile.reviews]
+                  .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+                  .slice(0, visibleCount)
+                  .map((rev, index) => (
+                    <div key={index} className="col-12">
+                      <div style={{
+                        ...glassCard,
+                        padding: '25px',
+                        marginBottom: '15px'
                       }}>
-                        {rev.description}
-                      </p>
+                        <div className="d-flex justify-content-between align-items-start mb-3">
+                          <div>
+                            <h5 className="mb-1" style={{ fontSize: '16px', fontWeight: 700 }}>{rev.name}</h5>
+                            <div className="rating">
+                              {[...Array(5)].map((_, i) => (
+                                <StarIcon key={i} style={{ 
+                                  color: i < rev.rating ? "#ffb400" : "#cbd5e0", 
+                                  fontSize: 18 
+                                }} />
+                              ))}
+                            </div>
+                          </div>
+                          {rev.createdAt && (
+                            <span style={{ fontSize: '13px', color: '#718096' }}>
+                              {new Date(rev.createdAt).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                        <p style={{ 
+                          fontSize: '15px', 
+                          lineHeight: '1.6', 
+                          color: '#4a5568',
+                          margin: 0
+                        }}>
+                          {rev.description}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
+
+              {/* Load More Button */}
+              {visibleCount < profile.reviews.length && (
+                <div className="text-center mt--30">
+                  <button 
+                    onClick={() => setVisibleCount(prev => prev + 2)}
+                    style={{
+                      ...btnStyle,
+                      background: 'transparent',
+                      color: '#2ecc71',
+                      border: '2px solid #2ecc71',
+                      boxShadow: 'none',
+                      padding: '10px 25px'
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.background = '#2ecc71';
+                      e.target.style.color = '#fff';
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.background = 'transparent';
+                      e.target.style.color = '#2ecc71';
+                    }}
+                  >
+                    Load More Reviews
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

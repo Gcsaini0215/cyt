@@ -44,7 +44,7 @@ const WhatsAppWidget = () => {
     <Box className="no-print" sx={{ 
       position: 'fixed', 
       bottom: '50%', 
-      left: 0,
+      right: 0,
       transform: 'translateY(50%)',
       zIndex: 9999 
     }}>
@@ -55,7 +55,7 @@ const WhatsAppWidget = () => {
           sx={{
             position: 'absolute',
             top: 0,
-            left: '50px',
+            right: '50px',
             width: '300px',
             borderRadius: '24px',
             overflow: 'hidden',
@@ -121,7 +121,7 @@ const WhatsAppWidget = () => {
             background: '#228756',
             color: 'white',
             padding: isMobile ? '10px 5px' : '15px 10px',
-            borderRadius: '0 10px 10px 0',
+            borderRadius: '10px 0 0 10px',
             boxShadow: '0 10px 25px rgba(34, 135, 86, 0.3)',
             cursor: 'pointer',
             transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
@@ -129,7 +129,7 @@ const WhatsAppWidget = () => {
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
             '&:hover': {
-              transform: 'translateX(5px)',
+              transform: 'translateX(-5px)',
               background: '#1a6b44',
             }
           }}
