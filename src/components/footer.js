@@ -75,13 +75,13 @@ export default function Footer() {
                   </ul>
                   <h5 className="ft-title mt-3">Services for Daily Life Issues</h5>
                   <ul className="ft-link">
-                    <li><Link href="#">Stress & Anxiety Management</Link></li>
-                    <li><Link href="#">Depression Support</Link></li>
-                    <li><Link href="#">Relationship & Marriage Counseling</Link></li>
-                    <li><Link href="#">Teen & Adolescent Guidance</Link></li>
-                    <li><Link href="#">Workplace Stress & Burnout</Link></li>
-                    <li><Link href="#">Self-Esteem & Confidence Building</Link></li>
-                    <li><Link href="#">Mindfulness & Meditation</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Stress">Stress & Anxiety Management</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Depression">Depression Support</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Relationship">Relationship & Marriage Counseling</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Parenting">Teen & Adolescent Guidance</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Stress">Workplace Stress & Burnout</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Self-Esteem">Self-Esteem & Confidence Building</Link></li>
+                    <li><Link href="/view-all-therapist?specialization=Mindfulness">Mindfulness & Meditation</Link></li>
                   </ul>
                 </div>
               </div>

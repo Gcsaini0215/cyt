@@ -115,7 +115,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         <div className="rbt-card-img" style={{ position: "relative", overflow: "hidden" }}>
           <Link href={`/view-profile/${pageData._id}`}>
             <ImageTag
-              alt="profile image"
+              alt={`${pageData.user?.name || "Therapist"} - ${pageData.profile_type || "Best Psychologist in India"}`}
               src={`${imagePath}/${pageData.user?.profile}`}
               style={{
                 height: isMobile ? 255 : 235,

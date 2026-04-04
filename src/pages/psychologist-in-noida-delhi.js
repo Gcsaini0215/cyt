@@ -72,7 +72,7 @@ export default function LocalLandingPage() {
         
         {/* OpenGraph / Social Media Tags */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://chooseyourtherapist.in/psychologist-in-noida-delhi" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
         <meta property="og:title" content="Best Psychologist in Noida & Delhi | Verified Experts" />
         <meta property="og:description" content="Professional therapy at our Noida Studio or online. Connect with top-rated psychologists in Delhi NCR." />
         <meta property="og:image" content="https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg" />
@@ -84,7 +84,7 @@ export default function LocalLandingPage() {
         <meta name="twitter:description" content="Professional mental health support in Noida & Delhi. Book your session today." />
         <meta name="twitter:image" content="https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg" />
 
-        <link rel="canonical" href="https://chooseyourtherapist.in/psychologist-in-noida-delhi" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
 
         {/* Local Business & Medical WebPage Schema */}
         <script type="application/ld+json">
@@ -106,8 +106,8 @@ export default function LocalLandingPage() {
               "name": "Choose Your Therapist - Noida Studio",
               "description": "Premium mental health studio in Noida Sector 51, near LPS Global School. Expert psychologists serving Sector 50, 34, 72, and 52 residents.",
               "image": "https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg",
-              "@id": "https://chooseyourtherapist.in/psychologist-in-noida-delhi",
-              "url": "https://chooseyourtherapist.in/psychologist-in-noida-delhi",
+              "@id": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
+              "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
               "telephone": "+918077757951",
               "address": {
                 "@type": "PostalAddress",
@@ -138,13 +138,13 @@ export default function LocalLandingPage() {
                   "@type": "ListItem",
                   "position": 1,
                   "name": "Home",
-                  "item": "https://chooseyourtherapist.in"
+                  "item": "https://www.chooseyourtherapist.in"
                 },
                 {
                   "@type": "ListItem",
                   "position": 2,
                   "name": "Psychologist in Noida & Delhi",
-                  "item": "https://chooseyourtherapist.in/psychologist-in-noida-delhi"
+                  "item": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi"
                 }
               ]
             },

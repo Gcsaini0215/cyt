@@ -29,13 +29,13 @@ export default function HomePage() {
   const [bannerTherapists, setBannerTherapists] = useState([]);
   const [userState, setUserState] = useState(null);
   const [userCity, setUserCity] = useState(null);
-  const [canonicalUrl, setCanonicalUrl] = useState("https://chooseyourtherapist.in/");
+  const [canonicalUrl, setCanonicalUrl] = useState("https://www.chooseyourtherapist.in/");
 
   // Fetch user location based on IP
   useEffect(() => {
     // Set canonical URL dynamically
     if (typeof window !== "undefined") {
-      setCanonicalUrl(window.location.origin + window.location.pathname);
+      setCanonicalUrl("https://www.chooseyourtherapist.in" + window.location.pathname);
     }
 
     const fetchUserLocation = async () => {
@@ -167,23 +167,101 @@ export default function HomePage() {
 
         {/* Enhanced Schema.org Data */}
         <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "MedicalWebPage",
-            "name": userCity ? `Psychologist Services in ${userCity}` : userState ? `Psychologist Services in ${userState}` : "Psychologist Services in India",
-            "description": userCity ? `Top-rated psychologists and mental health experts available in ${userCity}.` : userState ? `Top-rated psychologists and mental health experts available in ${userState}.` : "Top-rated psychologists and mental health experts available across India.",
-            "breadcrumb": {
-              "@type": "BreadcrumbList",
-              "itemListElement": [
+          {JSON.stringify([
+            {
+              "@context": "https://schema.org",
+              "@type": "MedicalWebPage",
+              "name": userCity ? `Psychologist Services in ${userCity}` : userState ? `Psychologist Services in ${userState}` : "Psychologist Services in India",
+              "description": userCity ? `Top-rated psychologists and mental health experts available in ${userCity}.` : userState ? `Top-rated psychologists and mental health experts available in ${userState}.` : "Top-rated psychologists and mental health experts available across India.",
+              "breadcrumb": {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": canonicalUrl
+                  }
+                ]
+              }
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Choose Your Therapist",
+              "url": "https://www.chooseyourtherapist.in",
+              "logo": "https://www.chooseyourtherapist.in/logo.png",
+              "sameAs": [
+                "https://twitter.com/CYT_India"
+              ]
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "MedicalBusiness",
+              "name": "Choose Your Therapist",
+              "image": "https://www.chooseyourtherapist.in/logo.png",
+              "@id": "https://www.chooseyourtherapist.in",
+              "url": "https://www.chooseyourtherapist.in",
+              "telephone": "+91-8077757951",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Gate No-3, D-137, near LPS GLOBAL SCHOOL, Block D, Sector 51",
+                "addressLocality": "Noida",
+                "addressRegion": "UP",
+                "postalCode": "201301",
+                "addressCountry": "IN"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 28.5672,
+                "longitude": 77.365
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday"
+                ],
+                "opens": "00:00",
+                "closes": "23:59"
+              }
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [
                 {
-                  "@type": "ListItem",
-                  "position": 1,
-                  "name": "Home",
-                  "item": canonicalUrl
+                  "@type": "Question",
+                  "name": "What mental health services does Choose Your Therapist offer in India?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Choose Your Therapist (CYT) provides a comprehensive range of mental health services across India, including online counseling, specialized therapy for anxiety and depression, corporate wellness programs, school mental health initiatives, and peer support groups."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What should I expect during my first online therapy session with a psychologist?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "In your first online therapy session, our expert psychologists will focus on understanding your specific concerns, building a comfortable therapeutic relationship, and developing a personalized mental health treatment plan tailored to your unique needs."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are the therapy sessions for anxiety and depression confidential?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, all our counseling sessions, whether for anxiety, depression, or stress management, are 100% confidential. We follow strict international data protection standards to ensure your privacy and safety throughout your mental health journey."
+                  }
                 }
               ]
             }
-          })}
+          ])}
         </script>
       </Head>
 
