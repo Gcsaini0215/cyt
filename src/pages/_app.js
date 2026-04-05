@@ -3,7 +3,6 @@ import "@/index.css";
 import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
-import WhatsAppWidget from "@/components/global/whatsapp-widget";
 import TawkToWidget from "@/components/global/tawk-widget";
 import CookieConsent from "@/components/global/cookie-consent";
 import "react-datepicker/dist/react-datepicker.css";
@@ -104,7 +103,6 @@ function MyApp({ Component, pageProps }) {
       {isLoading && <PremiumLoader />}
       {!shouldHideWidgets && (
         <>
-          <WhatsAppWidget />
           <TawkToWidget />
         </>
       )}

@@ -42,11 +42,11 @@ const TawkToWidget = () => {
 
       <Box className="no-print" sx={{ 
         position: 'fixed', 
-        bottom: '50%', 
+        bottom: isMobile ? '50%' : '260px', 
         right: 0,
-        transform: 'translateY(-100%)', // Position it above the middle point
-        zIndex: 9999,
-        mb: 2 // Some margin from the WhatsApp widget which starts at 50%
+        transform: isMobile ? 'translateY(-100%)' : 'none', // Position it above the middle point on mobile
+        zIndex: 10010,
+        mb: 2 // Some margin from the WhatsApp widget
       }}>
         <Zoom in={true} style={{ transitionDelay: '2500ms' }}>
           <Box

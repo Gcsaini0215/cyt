@@ -43,10 +43,10 @@ const WhatsAppWidget = () => {
   return (
     <Box className="no-print" sx={{ 
       position: 'fixed', 
-      bottom: '50%', 
+      bottom: isMobile ? '50%' : '100px', 
       right: 0,
-      transform: 'translateY(50%)',
-      zIndex: 9999 
+      transform: isMobile ? 'translateY(50%)' : 'none',
+      zIndex: 10010 
     }}>
       {/* Quick-Action Menu */}
       <Fade in={isOpen}>
