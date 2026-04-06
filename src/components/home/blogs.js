@@ -177,7 +177,7 @@ export default function Blogs() {
                     marginBottom: '15px',
                     display: 'inline-block'
                   }}>
-                    {featuredBlog.category || "Must Read"} • {featuredBlog.author_name || "Admin"}
+                    {featuredBlog.category || "Must Read"} • {featuredBlog.author || featuredBlog.author_name || "Admin"}
                   </span>
                   <h2 className="rbt-card-title" style={{ color: '#fff', fontSize: isMobile ? '24px' : '42px', lineHeight: 1.2, fontWeight: 800, marginBottom: '15px' }}>
                     <Link href={`/blog-details?id=${featuredBlog._id}`} style={{ color: '#fff' }}>
@@ -288,7 +288,7 @@ export default function Blogs() {
                       <Link href={`/blog-details?id=${blog._id}`}>{blog.title}</Link>
                     </h5>
                     <div style={{ marginBottom: '15px', fontSize: '13px', color: '#666' }}>
-                      By {blog.author_name || "Admin"}
+                      By {blog.author || blog.author_name || "Admin"}
                     </div>
                     <Link className="transparent-button" href={`/blog-details?id=${blog._id}`} style={{ fontSize: '14px', fontWeight: 600 }}>
                       Read Article <i className="feather-arrow-right"></i>
