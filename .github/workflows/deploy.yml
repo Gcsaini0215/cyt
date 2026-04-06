@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
@@ -19,7 +22,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build project
         run: npm run build
@@ -35,8 +38,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
           timeout: 60s
-          # Source directory content complete copy
-          source: ".next,public,package.json,package-lock.json,next.config.js,.env"
+          # Source directory content complete copy with correct globs
+          source: ".next/**,public/**,package.json,package-lock.json,next.config.js,.env"
           target: "/root/cyt"
           strip_components: 0
           overwrite: true
