@@ -1,3 +1,4 @@
+import { TypeAnimation } from 'react-type-animation';
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
@@ -66,7 +67,6 @@ export default function Banner({ topTherapists = [] }) {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
-  const [wordIndex, setWordIndex] = useState(0);
   const searchTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -87,21 +87,6 @@ export default function Banner({ topTherapists = [] }) {
       mobileQuery.removeListener(handleMobileChange);
       tabletQuery.removeListener(handleTabletChange);
     };
-  }, []);
-
-  const rotatingWords = [
-    { text: "Mental Wellness", gradient: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)" }, // Violet to Purple for calm/peace
-    { text: "Expert Guidance", gradient: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }, // Deep Blue to Royal Blue
-    { text: "Personal Growth", gradient: "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)" }, // Amber to Deep Orange for growth/energy
-    { text: "Anxiety Support", gradient: "linear-gradient(135deg, #4338ca 0%, #6366f1 100%)" }, // Indigo to Slate Blue
-    { text: "Emotional Health", gradient: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)" }   // Deep Sky Blue to Cyan
-  ];
-
-  useEffect(() => {
-    const wordInterval = setInterval(() => {
-      setWordIndex((prev) => (prev + 1) % rotatingWords.length);
-    }, 3000);
-    return () => clearInterval(wordInterval);
   }, []);
 
   // Animated placeholder texts
@@ -209,8 +194,8 @@ export default function Banner({ topTherapists = [] }) {
                     className="title"
                     style={{
                       fontFamily: "'Poppins', sans-serif",
-                      fontSize: isMobile ? "3.2rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "3.4rem" : isTablet ? "3.4rem" : "5.5rem",
+                      fontSize: isMobile ? "2.6rem" : isTablet ? "3.2rem" : "4.8rem",
+                      lineHeight: isMobile ? "2.8rem" : isTablet ? "3.4rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
                       fontWeight: 500,
@@ -219,59 +204,66 @@ export default function Banner({ topTherapists = [] }) {
                       maxWidth: isMobile ? "100%" : "1200px",
                       margin: "0 auto",
                       display: "block",
-                      padding: isMobile ? "0 5px" : "0",
+                      padding: isMobile ? "0 10px" : "0",
                       color: "#0f172a"
                     }}
                   >
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
+                    <Box component="span" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
                       <span style={{ 
-                        display: "inline-block",
-                        margin: isMobile ? "0 5px" : "0 10px",
+                        display: "block",
+                        margin: "0 auto",
                         fontWeight: 500,
                         lineHeight: 1.2
                       }}>
-                        <span style={{ color: "#000000" }}>Choose the Best Online</span>
+                        <span style={{ color: "#000000" }}>Best Online</span>
                         <span style={{ color: "#228756" }}> Psychologists & Therapists</span>
+                        <span style={{ margin: isMobile ? "0 5px" : "0 10px" }}>in</span>
+                        <span style={{
+                          backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
+                          WebkitBackgroundClip: "text", 
+                          backgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          color: "transparent",
+                          display: "inline-block",
+                          fontWeight: 500
+                        }}>India</span> for
                       </span>
-                      Across <span style={{
-                        backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
-                        WebkitBackgroundClip: "text", 
-                        backgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        color: "transparent",
-                        display: "inline-block",
-                        margin: isMobile ? "0 5px" : "0 10px",
-                        fontWeight: 500
-                      }}>India</span> for
                       <Box component="span" sx={{ 
-                        display: "inline-block", 
+                        display: "block", 
                         position: "relative",
                         verticalAlign: "bottom",
                         height: isMobile ? "3.2rem" : "6.5rem",
                         overflow: "hidden",
                         width: "auto", 
-                        textAlign: "left",
-                        ml: 0.5
+                        textAlign: "center",
+                        margin: "0 auto",
+                        "& .typewriter-text": {
+                          backgroundImage: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                          WebkitBackgroundClip: "text",
+                          backgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          color: "transparent",
+                          fontSize: isMobile ? "0.9em" : "1em",
+                          fontWeight: 500,
+                          lineHeight: isMobile ? "3.2rem" : "6.5rem",
+                          whiteSpace: "nowrap",
+                          display: "inline-block"
+                        }
                       }}>
-                        <span 
-                          key={wordIndex}
-                          className="flipping-word"
-                          style={{ 
-                            backgroundImage: rotatingWords[wordIndex].gradient, 
-                            WebkitBackgroundClip: "text", 
-                            backgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                            color: "transparent",
-                            fontSize: isMobile ? "0.9em" : "1em",
-                            fontWeight: 500,
-                            lineHeight: isMobile ? "3.2rem" : "6.5rem",
-                            whiteSpace: "nowrap",
-                            width: "100%",
-                            display: "block"
-                          }}
-                        >
-                          {rotatingWords[wordIndex].text}
-                        </span>
+                        <TypeAnimation
+                          sequence={[
+                            'Mental Wellness', 2000,
+                            'Expert Guidance', 2000,
+                            'Personal Growth', 2000,
+                            'Anxiety Support', 2000,
+                            'Emotional Health', 2000,
+                          ]}
+                          wrapper="span"
+                          speed={50}
+                          className="typewriter-text"
+                          repeat={Infinity}
+                          cursor={true}
+                        />
                       </Box>
                     </Box>
                   </h1>
@@ -330,18 +322,18 @@ export default function Banner({ topTherapists = [] }) {
                         content: '""',
                         position: "absolute",
                         top: 0,
-                        width: "30px",
+                        width: isMobile ? "40px" : "80px",
                         height: "100%",
                         zIndex: 2,
                         pointerEvents: "none"
                       },
                       "&::before": {
-                        left: 0,
-                        background: "linear-gradient(to right, #ffffff, transparent)"
+                        left: -2,
+                        background: "linear-gradient(to right, #ffffff 10%, rgba(255, 255, 255, 0))"
                       },
                       "&::after": {
-                        right: 0,
-                        background: "linear-gradient(to left, #ffffff, transparent)"
+                        right: -2,
+                        background: "linear-gradient(to left, #ffffff 10%, rgba(255, 255, 255, 0))"
                       }
                     }}>
                       <Box sx={{
