@@ -122,12 +122,20 @@ const MetaItem = styled(Stack)(({ theme }) => ({
 const ContentWrapper = styled(Box)(({ theme }) => ({
   wordBreak: 'break-word',
   overflowWrap: 'break-word',
-  '& p': {
+  fontWeight: 400,
+  '& p, & div, & span, & li': {
     fontSize: '1.6rem',
     lineHeight: 1.85,
     color: '#334155',
     marginBottom: '2.5rem',
     fontFamily: '"Lora", serif',
+    fontWeight: 400,
+    [theme.breakpoints.down('md')]: {
+      fontSize: '1.35rem',
+      lineHeight: 2,
+      marginBottom: '1.8rem',
+      textAlign: 'left',
+    },
   },
   '& > p:first-of-type::first-letter': {
     float: 'left',
@@ -137,6 +145,10 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     paddingRight: '12px',
     color: '#0f172a',
     fontFamily: '"Lora", serif',
+    textTransform: 'uppercase',
+    [theme.breakpoints.down('md')]: {
+      fontSize: '4rem',
+    },
   },
   '& h2': {
     fontSize: '2.5rem',
@@ -147,16 +159,11 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     fontFamily: '"Lora", serif',
     lineHeight: 1.2,
     position: 'relative',
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      bottom: '-8px',
-      left: 0,
-      width: '60px',
-      height: '4px',
-      backgroundColor: '#228756',
-      borderRadius: '2px',
-    }
+    [theme.breakpoints.down('md')]: {
+      fontSize: '2rem',
+      marginTop: '3rem',
+      marginBottom: '1.5rem',
+    },
   },
   '& h3': {
     fontSize: '2rem',
@@ -165,6 +172,11 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     marginTop: '3rem',
     marginBottom: '1.5rem',
     fontFamily: '"Lora", serif',
+    [theme.breakpoints.down('md')]: {
+      fontSize: '1.7rem',
+      marginTop: '2.5rem',
+      marginBottom: '1.2rem',
+    },
   },
   '& blockquote': {
     borderLeft: 'none',
@@ -173,6 +185,11 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     margin: '4rem 0',
     borderRadius: '24px',
     position: 'relative',
+    [theme.breakpoints.down('md')]: {
+      padding: '2rem',
+      margin: '2.5rem 0',
+      borderRadius: '16px',
+    },
     '&::before': {
       content: '"\\201C"',
       position: 'absolute',
@@ -186,17 +203,26 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
     '& p': {
       fontSize: '1.85rem',
       color: '#064e3b',
-      fontWeight: 600,
+      fontWeight: 400,
       fontStyle: 'italic',
       margin: 0,
       lineHeight: 1.6,
       position: 'relative',
       zIndex: 1,
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.4rem',
+        lineHeight: 1.7,
+      },
     }
   },
   '& ul, & ol': {
     marginBottom: '3rem',
     paddingLeft: '1.8rem',
+    fontWeight: 400,
+    [theme.breakpoints.down('md')]: {
+      marginBottom: '2rem',
+      paddingLeft: '1.5rem',
+    },
     '& li': {
       fontSize: '1.55rem',
       lineHeight: 1.8,
@@ -204,6 +230,12 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
       marginBottom: '1.2rem',
       fontFamily: '"Lora", serif',
       position: 'relative',
+      fontWeight: 400,
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.3rem',
+        lineHeight: 1.9,
+        marginBottom: '1rem',
+      },
       '&::marker': {
         color: '#228756',
         fontWeight: 'bold',
