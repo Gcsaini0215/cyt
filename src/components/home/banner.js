@@ -94,7 +94,7 @@ export default function Banner({ topTherapists = [] }) {
     { text: "Expert Guidance", gradient: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }, // Deep Blue to Royal Blue
     { text: "Personal Growth", gradient: "linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)" }, // Amber to Deep Orange for growth/energy
     { text: "Anxiety Support", gradient: "linear-gradient(135deg, #4338ca 0%, #6366f1 100%)" }, // Indigo to Slate Blue
-    { text: "Better Living", gradient: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)" }   // Deep Sky Blue to Cyan
+    { text: "Emotional Health", gradient: "linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%)" }   // Deep Sky Blue to Cyan
   ];
 
   useEffect(() => {
@@ -208,11 +208,12 @@ export default function Banner({ topTherapists = [] }) {
                     <h1
                     className="title"
                     style={{
+                      fontFamily: "'Poppins', sans-serif",
                       fontSize: isMobile ? "3.2rem" : isTablet ? "3.2rem" : "4.8rem",
                       lineHeight: isMobile ? "3.4rem" : isTablet ? "3.4rem" : "5.5rem",
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
-                      fontWeight: 900,
+                      fontWeight: 500,
                       textAlign: "center",
                       width: "100%",
                       maxWidth: isMobile ? "100%" : "1200px",
@@ -223,13 +224,15 @@ export default function Banner({ topTherapists = [] }) {
                     }}
                   >
                     <Box component="span" sx={{ display: "inline-flex", alignItems: "baseline", flexWrap: "wrap", justifyContent: "center" }}>
-                      Choose the <span style={{ 
-                        color: "#228756", 
+                      <span style={{ 
                         display: "inline-block",
-                        margin: "0 10px",
-                        fontWeight: isMobile ? 950 : 900,
+                        margin: isMobile ? "0 5px" : "0 10px",
+                        fontWeight: 500,
                         lineHeight: 1.2
-                      }}>Best Therapists</span>
+                      }}>
+                        <span style={{ color: "#000000" }}>Choose the Best Online</span>
+                        <span style={{ color: "#228756" }}> Psychologists & Therapists</span>
+                      </span>
                       Across <span style={{
                         backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
                         WebkitBackgroundClip: "text", 
@@ -237,8 +240,8 @@ export default function Banner({ topTherapists = [] }) {
                         WebkitTextFillColor: "transparent",
                         color: "transparent",
                         display: "inline-block",
-                        margin: "0 10px",
-                        fontWeight: 800
+                        margin: isMobile ? "0 5px" : "0 10px",
+                        fontWeight: 500
                       }}>India</span> for
                       <Box component="span" sx={{ 
                         display: "inline-block", 
@@ -246,9 +249,9 @@ export default function Banner({ topTherapists = [] }) {
                         verticalAlign: "bottom",
                         height: isMobile ? "3.2rem" : "6.5rem",
                         overflow: "hidden",
-                        width: isMobile ? "240px" : "480px", 
-                        textAlign: "center",
-                        ml: isMobile ? 0 : 1
+                        width: "auto", 
+                        textAlign: "left",
+                        ml: 0.5
                       }}>
                         <span 
                           key={wordIndex}
@@ -260,6 +263,7 @@ export default function Banner({ topTherapists = [] }) {
                             WebkitTextFillColor: "transparent",
                             color: "transparent",
                             fontSize: isMobile ? "0.9em" : "1em",
+                            fontWeight: 500,
                             lineHeight: isMobile ? "3.2rem" : "6.5rem",
                             whiteSpace: "nowrap",
                             width: "100%",
@@ -295,7 +299,93 @@ export default function Banner({ topTherapists = [] }) {
                     <span style={{ color: "#1a6d45", fontWeight: 700 }}> depression</span>, and <span style={{ color: "#1a6d45", fontWeight: 700 }}>emotional well-being</span> — all in one secure platform.
                   </Typography>
 
-                  {/* Google Reviews One-Liner Removed */}
+                  {/* City Hubs */}
+                  <Box sx={{
+                    mt: isMobile ? 1 : 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: isMobile ? 1 : 2,
+                    width: "100%",
+                    maxWidth: "1000px",
+                    px: 2,
+                    mx: "auto"
+                  }}>
+                    <Typography sx={{ 
+                      fontWeight: 700, 
+                      color: "#475569", 
+                      fontSize: isMobile ? "12px" : "14px",
+                      whiteSpace: "nowrap",
+                      mr: 1
+                    }}>
+                      Top Cities:
+                    </Typography>
+                    <Box sx={{
+                      display: "flex",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      flex: 1,
+                      py: 1,
+                      position: "relative",
+                      "&::before, &::after": {
+                        content: '""',
+                        position: "absolute",
+                        top: 0,
+                        width: "30px",
+                        height: "100%",
+                        zIndex: 2,
+                        pointerEvents: "none"
+                      },
+                      "&::before": {
+                        left: 0,
+                        background: "linear-gradient(to right, #ffffff, transparent)"
+                      },
+                      "&::after": {
+                        right: 0,
+                        background: "linear-gradient(to left, #ffffff, transparent)"
+                      }
+                    }}>
+                      <Box sx={{
+                        display: "flex",
+                        gap: 1.5,
+                        animation: "scroll 40s linear infinite",
+                        "@keyframes scroll": {
+                          "0%": { transform: "translateX(0)" },
+                          "100%": { transform: "translateX(-50%)" }
+                        },
+                        "&:hover": {
+                          animationPlayState: "paused"
+                        }
+                      }}>
+                        {[...Array(2)].map((_, i) => (
+                          <Box key={i} sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+                            {["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Noida", "Gurgaon", "Ghaziabad", "Faridabad", "Pune", "Ahmedabad", "Jaipur", "Chandigarh"].map((city) => (
+                              <Box key={city} sx={{ 
+                                display: "inline-flex", 
+                                alignItems: "center",
+                                px: 2,
+                                py: 0.5,
+                                borderRadius: "20px",
+                                backgroundColor: "#f8fafc",
+                                border: "1px solid #e2e8f0",
+                                color: "#475569",
+                                fontSize: isMobile ? "11px" : "13px",
+                                fontWeight: 500,
+                                fontFamily: "'Inter', sans-serif",
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  backgroundColor: "#f1f5f9",
+                                  borderColor: "#cbd5e1",
+                                  color: "#1e293b"
+                                }
+                              }}>
+                                {city}
+                              </Box>
+                            ))}
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  </Box>
 
                   {/* Interactive Action Cards */}
                   <Box sx={{
