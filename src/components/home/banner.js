@@ -61,6 +61,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
   const [selectedTherapist, setSelectedTherapist] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  // Typewriter color state
+  const [typewriterGradient, setTypewriterGradient] = useState("linear-gradient(135deg, #6d28d9 0%, #a855f7 100%)");
+
   // State
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [dynamicFeelingCards, setDynamicFeelingCards] = useState([]);
@@ -193,7 +196,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     <h1
                     className="title"
                     style={{
-                      fontFamily: "'Poppins', sans-serif",
+                      fontFamily: "'Inter', 'Poppins', sans-serif",
                       fontSize: isMobile ? "2.6rem" : isTablet ? "3.2rem" : "4.8rem",
                       lineHeight: isMobile ? "2.8rem" : isTablet ? "3.4rem" : "5.5rem",
                       marginTop: 0,
@@ -205,7 +208,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                       margin: "0 auto",
                       display: "block",
                       padding: isMobile ? "0 10px" : "0",
-                      color: "#0f172a"
+                      color: "#0f172a",
+                      letterSpacing: "-0.01em",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.02)"
                     }}
                   >
                     <Box component="span" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -215,11 +220,16 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                         fontWeight: 500,
                         lineHeight: 1.2
                       }}>
-                        <span style={{ color: "#000000" }}>Best Online</span>
-                        <span style={{ color: "#228756" }}> Psychologists & Therapists</span>
-                        <span style={{ margin: isMobile ? "0 5px" : "0 10px" }}>in</span>
+                        <span style={{ color: "#1e293b" }}>Best Online</span>
+                        <span style={{ 
+                          backgroundImage: "linear-gradient(135deg, #166534 0%, #22c55e 100%)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                          fontWeight: 500 
+                        }}> Psychologists & Therapists</span>
+                        <span style={{ margin: isMobile ? "0 5px" : "0 10px", color: "#475569" }}>in</span>
                         <span style={{
-                          backgroundImage: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", 
+                          backgroundImage: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", 
                           WebkitBackgroundClip: "text", 
                           backgroundClip: "text",
                           WebkitTextFillColor: "transparent",
@@ -238,7 +248,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                         textAlign: "center",
                         margin: "0 auto",
                         "& .typewriter-text": {
-                          backgroundImage: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+                          backgroundImage: typewriterGradient,
                           WebkitBackgroundClip: "text",
                           backgroundClip: "text",
                           WebkitTextFillColor: "transparent",
@@ -247,16 +257,27 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                           fontWeight: 500,
                           lineHeight: isMobile ? "3.2rem" : "6.5rem",
                           whiteSpace: "nowrap",
-                          display: "inline-block"
+                          display: "inline-block",
+                          transition: "background-image 0.5s ease"
                         }
                       }}>
                         <TypeAnimation
                           sequence={[
-                            'Mental Wellness', 2000,
-                            'Expert Guidance', 2000,
-                            'Personal Growth', 2000,
-                            'Anxiety Support', 2000,
-                            'Emotional Health', 2000,
+                            'Mental Wellness', 
+                            () => setTypewriterGradient("linear-gradient(135deg, #6d28d9 0%, #a855f7 100%)"),
+                            2000,
+                            'Expert Guidance', 
+                            () => setTypewriterGradient("linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)"),
+                            2000,
+                            'Personal Growth', 
+                            () => setTypewriterGradient("linear-gradient(135deg, #ea580c 0%, #f43f5e 100%)"),
+                            2000,
+                            'Anxiety Support', 
+                            () => setTypewriterGradient("linear-gradient(135deg, #0d9488 0%, #10b981 100%)"),
+                            2000,
+                            'Emotional Health', 
+                            () => setTypewriterGradient("linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)"),
+                            2000,
                           ]}
                           wrapper="span"
                           speed={50}
@@ -270,25 +291,26 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
                   {/* Description */}
                   <Typography variant="h6" sx={{ 
-                    color: "#333333", 
-                    maxWidth: isMobile ? "100%" : "1000px", 
+                    color: "#475569", 
+                    maxWidth: isMobile ? "100%" : "850px", 
                     margin: "0 auto", 
-                    lineHeight: isMobile ? 1.5 : 1.6,
-                    fontSize: isMobile ? "13px" : "18px",
-                    mb: isMobile ? 2 : 3,
-                    px: isMobile ? 2 : 2,
-                    fontWeight: 500,
-                    textAlign: isMobile ? "justify" : "center",
+                    lineHeight: isMobile ? 1.6 : 1.8,
+                    fontSize: isMobile ? "14px" : "19px",
+                    mb: isMobile ? 3 : 5,
+                    px: isMobile ? 2 : 0,
+                    fontWeight: 400,
+                    textAlign: isMobile ? "center" : "center",
                     display: "block",
-                    fontFamily: "'Inter', 'Poppins', sans-serif",
-                    letterSpacing: "-0.01em"
+                    fontFamily: "'Inter', sans-serif",
+                    letterSpacing: "0.01em",
+                    opacity: 0.9
                   }}>
-                    Discover qualified and experienced <span style={{ color: "#1a6d45", fontWeight: 700 }}>therapists</span> offering online and in-person therapy across India. 
+                    Discover qualified and experienced <span style={{ color: "#166534", fontWeight: 600 }}>therapists</span> offering online and in-person therapy across India. 
                     Compare specializations, review detailed profiles, and book confidential sessions for 
-                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> anxiety</span>, 
-                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> stress</span>, 
-                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> relationship concerns</span>, 
-                    <span style={{ color: "#1a6d45", fontWeight: 700 }}> depression</span>, and <span style={{ color: "#1a6d45", fontWeight: 700 }}>emotional well-being</span> — all in one secure platform.
+                    <span style={{ color: "#166534", fontWeight: 600 }}> anxiety</span>, 
+                    <span style={{ color: "#166534", fontWeight: 600 }}> stress</span>, 
+                    <span style={{ color: "#166534", fontWeight: 600 }}> relationship concerns</span>, 
+                    <span style={{ color: "#166534", fontWeight: 600 }}> depression</span>, and <span style={{ color: "#166534", fontWeight: 600 }}>emotional well-being</span>.
                   </Typography>
 
                   {/* Description */}
@@ -307,11 +329,11 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     {[
                       { 
                         id: "local", 
-                        label: "Find Noida Experts", 
+                        label: "Explore Noida Experts", 
                         icon: <LocationOn />, 
                         href: "/psychologist-in-noida-delhi",
-                        color: "#052e16", // Deep Forest Green
-                        bg: "linear-gradient(135deg, #0f172a 0%, #052e16 100%)" // Obsidian to Deep Forest
+                        color: "#0f172a",
+                        bg: "linear-gradient(135deg, #0f172a 0%, #064e3b 100%)"
                       },
                     ].map((card) => (
                       <Button
@@ -325,38 +347,39 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                           alignItems: "center",
                           justifyContent: "center",
                           gap: 1.5,
-                          px: 5,
-                          py: 2,
-                          borderRadius: "16px",
+                          px: isMobile ? 4 : 6,
+                          py: isMobile ? 1.8 : 2.2,
+                          borderRadius: "14px",
                           background: card.bg,
                           textTransform: "none",
                           color: "#ffffff",
-                          width: isMobile ? "90%" : "380px",
-                          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                          width: isMobile ? "95%" : "auto",
+                          minWidth: isMobile ? "auto" : "320px",
+                          transition: "all 0.5s cubic-bezier(0.23, 1, 0.32, 1)",
                           fontWeight: 600,
                           fontSize: isMobile ? "15px" : "17px",
                           fontFamily: "'Inter', sans-serif",
-                          letterSpacing: "0.02em",
-                          boxShadow: "0 10px 30px -10px rgba(5, 46, 22, 0.5)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
+                          letterSpacing: "0.03em",
+                          boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.2)",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
                           "& .icon-container": {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            transition: "all 0.3s ease",
-                            color: "#22c55e" // Theme Green Icon
+                            transition: "all 0.4s ease",
+                            color: "#4ade80"
                           },
                           "& svg": {
-                            fontSize: 24
+                            fontSize: 22
                           },
                           "&:hover": {
-                            background: "linear-gradient(135deg, #052e16 0%, #064e3b 100%)", // Glows Green on hover
-                            transform: "translateY(-5px) scale(1.02)",
-                            boxShadow: "0 20px 40px -15px rgba(34, 135, 86, 0.4)",
-                            borderColor: "rgba(34, 197, 94, 0.4)",
+                            background: "linear-gradient(135deg, #064e3b 0%, #052e16 100%)",
+                            transform: "translateY(-4px)",
+                            boxShadow: "0 20px 35px -10px rgba(15, 23, 42, 0.3)",
+                            borderColor: "rgba(74, 222, 128, 0.2)",
                             "& .icon-container": {
-                              transform: "rotate(-10deg) scale(1.1)",
-                              color: "#4ade80"
+                              transform: "translateX(-3px) scale(1.1)",
+                              color: "#22c55e"
                             }
                           }
                         }}
