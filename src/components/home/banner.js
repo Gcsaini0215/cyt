@@ -307,7 +307,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     {[
                       { 
                         id: "local", 
-                        label: "Best Psychologist in Noida", 
+                        label: "Find Noida Experts", 
                         icon: <LocationOn />, 
                         href: "/psychologist-in-noida-delhi",
                         color: "#052e16", // Deep Forest Green
