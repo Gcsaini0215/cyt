@@ -52,7 +52,7 @@ const counselling1 = "/assets/img/counselling.png";
 import ConsultationForm from "./consultation-form";
 import { useRouter } from "next/router";
 
-export default function Banner({ topTherapists = [] }) {
+export default function Banner({ topTherapists = [], userCity = null }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
@@ -291,100 +291,14 @@ export default function Banner({ topTherapists = [] }) {
                     <span style={{ color: "#1a6d45", fontWeight: 700 }}> depression</span>, and <span style={{ color: "#1a6d45", fontWeight: 700 }}>emotional well-being</span> — all in one secure platform.
                   </Typography>
 
-                  {/* City Hubs */}
-                  <Box sx={{
-                    mt: isMobile ? 1 : 2,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: isMobile ? 1 : 2,
-                    width: "100%",
-                    maxWidth: "1000px",
-                    px: 2,
-                    mx: "auto"
-                  }}>
-                    <Typography sx={{ 
-                      fontWeight: 700, 
-                      color: "#475569", 
-                      fontSize: isMobile ? "12px" : "14px",
-                      whiteSpace: "nowrap",
-                      mr: 1
-                    }}>
-                      Top Cities:
-                    </Typography>
-                    <Box sx={{
-                      display: "flex",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      flex: 1,
-                      py: 1,
-                      position: "relative",
-                      "&::before, &::after": {
-                        content: '""',
-                        position: "absolute",
-                        top: 0,
-                        width: isMobile ? "40px" : "80px",
-                        height: "100%",
-                        zIndex: 2,
-                        pointerEvents: "none"
-                      },
-                      "&::before": {
-                        left: -2,
-                        background: "linear-gradient(to right, #ffffff 10%, rgba(255, 255, 255, 0))"
-                      },
-                      "&::after": {
-                        right: -2,
-                        background: "linear-gradient(to left, #ffffff 10%, rgba(255, 255, 255, 0))"
-                      }
-                    }}>
-                      <Box sx={{
-                        display: "flex",
-                        gap: 1.5,
-                        animation: "scroll 40s linear infinite",
-                        "@keyframes scroll": {
-                          "0%": { transform: "translateX(0)" },
-                          "100%": { transform: "translateX(-50%)" }
-                        },
-                        "&:hover": {
-                          animationPlayState: "paused"
-                        }
-                      }}>
-                        {[...Array(2)].map((_, i) => (
-                          <Box key={i} sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
-                            {["Delhi", "Mumbai", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Noida", "Gurgaon", "Ghaziabad", "Faridabad", "Pune", "Ahmedabad", "Jaipur", "Chandigarh"].map((city) => (
-                              <Box key={city} sx={{ 
-                                display: "inline-flex", 
-                                alignItems: "center",
-                                px: 2,
-                                py: 0.5,
-                                borderRadius: "20px",
-                                backgroundColor: "#f8fafc",
-                                border: "1px solid #e2e8f0",
-                                color: "#475569",
-                                fontSize: isMobile ? "11px" : "13px",
-                                fontWeight: 500,
-                                fontFamily: "'Inter', sans-serif",
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                  backgroundColor: "#f1f5f9",
-                                  borderColor: "#cbd5e1",
-                                  color: "#1e293b"
-                                }
-                              }}>
-                                {city}
-                              </Box>
-                            ))}
-                          </Box>
-                        ))}
-                      </Box>
-                    </Box>
-                  </Box>
+                  {/* Description */}
 
                   {/* Interactive Action Cards */}
                   <Box sx={{
                     display: "flex",
                     justifyContent: "center",
                     gap: isMobile ? 1.5 : 3,
-                    mt: isMobile ? 2 : 4,
+                    mt: isMobile ? 1 : 2,
                     mb: 4,
                     flexWrap: "wrap",
                     width: "100%",
@@ -392,20 +306,12 @@ export default function Banner({ topTherapists = [] }) {
                   }}>
                     {[
                       { 
-                        id: "find", 
-                        label: "Find a Therapist", 
-                        icon: <PersonSearchIcon />, 
-                        href: "/view-all-therapist",
-                        color: "#228756", // Darker Green
-                        bg: "#228756" 
-                      },
-                      { 
                         id: "local", 
-                        label: "Psychologist in Noida", 
+                        label: "Best Psychologist in Noida", 
                         icon: <LocationOn />, 
                         href: "/psychologist-in-noida-delhi",
-                        color: "#0ea5e9", // Bright Blue
-                        bg: "#0ea5e9"
+                        color: "#052e16", // Deep Forest Green
+                        bg: "linear-gradient(135deg, #0f172a 0%, #052e16 100%)" // Obsidian to Deep Forest
                       },
                     ].map((card) => (
                       <Button
@@ -419,34 +325,38 @@ export default function Banner({ topTherapists = [] }) {
                           alignItems: "center",
                           justifyContent: "center",
                           gap: 1.5,
-                          px: 4,
-                          py: 1.5,
-                          borderRadius: "14px",
-                          backgroundColor: card.bg,
+                          px: 5,
+                          py: 2,
+                          borderRadius: "16px",
+                          background: card.bg,
                           textTransform: "none",
                           color: "#ffffff",
-                          width: isMobile ? "100%" : "340px",
+                          width: isMobile ? "90%" : "380px",
                           transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                          fontWeight: 500,
-                          fontSize: isMobile ? "14px" : "16px",
+                          fontWeight: 600,
+                          fontSize: isMobile ? "15px" : "17px",
                           fontFamily: "'Inter', sans-serif",
-                          boxShadow: `0 10px 20px -5px ${card.color}40`,
+                          letterSpacing: "0.02em",
+                          boxShadow: "0 10px 30px -10px rgba(5, 46, 22, 0.5)",
+                          border: "1px solid rgba(255, 255, 255, 0.08)",
                           "& .icon-container": {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             transition: "all 0.3s ease",
-                            color: "#ffffff"
+                            color: "#22c55e" // Theme Green Icon
                           },
                           "& svg": {
-                            fontSize: 22
+                            fontSize: 24
                           },
                           "&:hover": {
-                            backgroundColor: card.bg,
+                            background: "linear-gradient(135deg, #052e16 0%, #064e3b 100%)", // Glows Green on hover
                             transform: "translateY(-5px) scale(1.02)",
-                            boxShadow: `0 20px 30px -10px ${card.color}60`,
+                            boxShadow: "0 20px 40px -15px rgba(34, 135, 86, 0.4)",
+                            borderColor: "rgba(34, 197, 94, 0.4)",
                             "& .icon-container": {
-                              transform: "scale(1.1)"
+                              transform: "rotate(-10deg) scale(1.1)",
+                              color: "#4ade80"
                             }
                           }
                         }}

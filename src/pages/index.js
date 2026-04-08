@@ -268,7 +268,7 @@ export default function HomePage() {
       <main className="rbt-main-wrapper">
         <MyNavbar />
         {/* Homepage Sections */}
-        <Banner topTherapists={bannerTherapists} />
+        <Banner topTherapists={bannerTherapists} userCity={userCity} />
         <Specializations />
         <ProfileCard profiles={topTherapists} detectedState={userState} detectedCity={userCity} />
         <FreeResources />
