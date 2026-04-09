@@ -151,11 +151,6 @@ export default function AllBlogs() {
                         {blog.title}
                       </h5>
                     </div>
-                    <div className="blog-card-footer-patti">
-                      <span className="scrolling-text">
-                        www.chooseyourtherapist.in | www.chooseyourtherapist.in
-                      </span>
-                    </div>
                   </div>
                 </Link>
               </div>

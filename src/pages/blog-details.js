@@ -411,7 +411,7 @@ export default function BlogDetails({ initialBlog }) {
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
   const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
   const rawImageUrl = getFullBlogImagePath(blog.image);
-  const imageUrl = rawImageUrl && rawImageUrl.startsWith('http') ? rawImageUrl : "https://chooseyourtherapist.in/assets/img/og-image.jpg";
+  const imageUrl = rawImageUrl && rawImageUrl.startsWith('http') ? rawImageUrl : "https://i.postimg.cc/gj1yngrd/choose.png";
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
 
   const structuredData = {
@@ -491,7 +491,6 @@ export default function BlogDetails({ initialBlog }) {
         <meta property="og:description" content={cleanDesc} />
         <meta property="og:image" content={imageUrl} />
         <meta property="og:image:secure_url" content={imageUrl} />
-        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={blog.title} />

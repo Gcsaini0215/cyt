@@ -21,12 +21,12 @@ export default function AllBlogs() {
         <meta property="og:description" content="Read expert articles on mental health and emotional well-being from verified psychologists." />
         <meta property="og:url" content="https://chooseyourtherapist.in/blogs" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Mental Health Blog | Articles & Resources | Choose Your Therapist" />
         <meta name="twitter:description" content="Explore our mental health resources and expert articles." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
       </Head>
       <MyNavbar />
       
