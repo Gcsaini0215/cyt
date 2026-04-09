@@ -2,11 +2,24 @@ import React, { useState, useEffect } from "react";
 import LazyImage from "../../utils/lazy-image";
 import BlogImg from "../../assets/img/blog-card-048b22.jpg";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { fetchData } from "../../utils/actions";
 import { getBlogsUrl, baseApi } from "../../utils/url";
 
 export default function AllBlogs() {
   const [blogs, setBlogs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const categories = [
+    "All",
+    "Mental Health",
+    "Relationships",
+    "Self Care",
+    "Therapy",
+    "Anxiety",
+    "Depression",
+  ];
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -35,9 +48,100 @@ export default function AllBlogs() {
     return `${baseApi}/uploads/images/${imageName}`;
   };
 
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch = blog.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || blog.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="rbt-blog-area pt--50 rbt-section-gapBottom">
       <style jsx>{`
+        .search-container {
+          margin-bottom: 25px;
+          display: flex;
+          justify-content: center;
+          padding: 0 15px;
+        }
+        .category-filters {
+          display: flex;
+          justify-content: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-bottom: 40px;
+          padding: 0 15px;
+        }
+        .filter-btn {
+          padding: 8px 20px;
+          border-radius: 25px;
+          border: 1px solid #f0f0f0;
+          background: #fff;
+          color: #666;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+        }
+        .filter-btn:hover {
+          background: #f8f8f8;
+          border-color: #228756;
+          color: #228756;
+        }
+        .filter-btn.active {
+          background: #228756;
+          border-color: #228756;
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(34, 135, 86, 0.2);
+        }
+        @media (max-width: 768px) {
+          .category-filters {
+            justify-content: flex-start;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 10px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .category-filters::-webkit-scrollbar {
+            display: none;
+          }
+        }
+        .search-input-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 600px;
+          display: flex;
+          align-items: center;
+        }
+        .search-input {
+          width: 100%;
+          padding: 15px 25px 15px 50px;
+          border-radius: 50px;
+          border: 2px solid #f0f0f0;
+          font-size: 16px;
+          outline: none;
+          transition: all 0.3s ease;
+          background: #fff;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .search-input:focus {
+          border-color: #228756;
+          box-shadow: 0 4px 20px rgba(34, 135, 86, 0.15);
+        }
+        .search-icon-container {
+          position: absolute;
+          left: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #888;
+          pointer-events: none;
+          z-index: 10;
+        }
         .blog-card-custom {
           position: relative;
           overflow: hidden;
@@ -131,9 +235,34 @@ export default function AllBlogs() {
         }
       `}</style>
       <div className="container">
+        <div className="search-container">
+          <div className="search-input-wrapper">
+            <div className="search-icon-container">
+              <Search size={20} />
+            </div>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search blogs by title..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="category-filters">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              className={`filter-btn ${selectedCategory === cat ? "active" : ""}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
         <div className="row mt--15 mobile-grid-container d-flex flex-wrap">
-          {blogs.length > 0 ? (
-            blogs.map((blog) => (
+          {filteredBlogs.length > 0 ? (
+            filteredBlogs.map((blog) => (
               <div
                 className="col-lg-2 col-md-4 col-sm-6 col-6 mobile-grid-item"
                 key={blog._id || blog.id}
@@ -157,7 +286,15 @@ export default function AllBlogs() {
             ))
           ) : (
             <div className="col-lg-12">
-              <p className="text-center">No blogs found.</p>
+              <p className="text-center">
+                {searchTerm || selectedCategory !== "All"
+                  ? `No blogs found ${searchTerm ? `matching "${searchTerm}"` : ""} ${
+                      selectedCategory !== "All"
+                        ? `in category "${selectedCategory}"`
+                        : ""
+                    }`
+                  : "No blogs found."}
+              </p>
             </div>
           )}
         </div>
