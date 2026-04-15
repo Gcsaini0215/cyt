@@ -11,6 +11,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import LanguageIcon from "@mui/icons-material/Language";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import WorkIcon from "@mui/icons-material/Work";
+import StarIcon from "@mui/icons-material/Star";
 import { getDecodedToken } from "../../utils/jwt";
 import { postData } from "../../utils/actions";
 import {
@@ -185,31 +186,53 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
 
         {/* Card Body */}
         <div className="rbt-card-body" style={{ padding: "24px" }}>
-          <div className="rbt-card-top" style={{ alignItems: "center" }}>
-            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <h4 className="rbt-card-title" style={{ 
-                margin: 0, 
-                fontSize: "22px", 
-                fontWeight: "800",
-                letterSpacing: "-0.5px",
-                color: "#1e293b"
-              }}>
-                <Link href={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
-                  {pageData.user?.name || "Therapist"}
-                </Link>
-              </h4>
-              {/* Icon next to name - Verified or Recommended */}
-              {isRecommended ? (
-                <ThumbUpIcon sx={{ fontSize: 20, color: "#228756" }} />
-              ) : (
-                <VerifiedIcon sx={{ fontSize: 20, color: "#1976d2" }} />
+            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "10px", width: '100%', justifyContent: 'space-between' }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <h4 className="rbt-card-title" style={{ 
+                  margin: 0, 
+                  fontSize: "22px", 
+                  fontWeight: "800",
+                  letterSpacing: "-0.5px",
+                  color: "#1e293b"
+                }}>
+                  <Link href={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
+                    {pageData.user?.name || "Therapist"}
+                  </Link>
+                </h4>
+                {/* Icon next to name - Verified or Recommended */}
+                {isRecommended ? (
+                  <ThumbUpIcon sx={{ fontSize: 20, color: "#228756" }} />
+                ) : (
+                  <VerifiedIcon sx={{ fontSize: 20, color: "#1976d2" }} />
+                )}
+              </div>
+              
+              {/* Review Badge */}
+              {pageData.reviews && pageData.reviews.length > 0 && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '4px',
+                  background: '#fff9c4',
+                  padding: '2px 8px',
+                  borderRadius: '8px',
+                  border: '1px solid #fff176'
+                }}>
+                  <StarIcon sx={{ fontSize: 16, color: '#fbc02d' }} />
+                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#f57f17' }}>
+                    {(pageData.reviews.reduce((acc, rev) => acc + (rev.rating || 5), 0) / pageData.reviews.length).toFixed(1)}
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#666', fontWeight: '600' }}>
+                    ({pageData.reviews.length})
+                  </span>
+                </div>
               )}
             </div>
             {showBookmark && (
               <div className="rbt-bookmark-btn">
                 <button
-                  style={{ 
-                    cursor: "pointer", 
+                  style={{
+                    cursor: "pointer",
                     background: "#f8fafc",
                     border: "1px solid #f1f5f9",
                     width: "40px",
@@ -232,7 +255,6 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                 </button>
               </div>
             )}
-          </div>
 
           {/* Meta info with monochrome icons */}
           <ul className="rbt-meta" style={{ marginTop: "4px", gap: "8px", display: "flex", flexWrap: "wrap", alignItems: "center" }}>

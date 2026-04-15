@@ -4,204 +4,137 @@ import ImageTag from "../utils/image-tag";
 import Link from "next/link";
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <div style={{ position: "relative" }}>
-      {/* Separator */}
-      <div className="rbt-separator-mid">
+    <footer className="rbt-footer footer-style-1 bg-color-white">
+      {/* Main Footer Content */}
+      <div className="footer-top pt--100 pb--60">
         <div className="container">
-          <hr className="rbt-separator m-0" />
-        </div>
-      </div>
+          <div className="row g-5">
+            {/* Column 1: Brand & Identity */}
+            <div className="col-lg-4 col-md-6 col-sm-12">
+              <div className="footer-widget">
+                <div className="logo">
+                  <Link href="/">
+                    <ImageTag
+                      alt="Choose Your Therapist"
+                      height={"60"}
+                      width={"180"}
+                      src={logo1}
+                    />
+                  </Link>
+                </div>
+                <p className="description mt--25 color-black" style={{ lineHeight: '1.8', opacity: '0.8' }}>
+                  Professional mental health support at your fingertips. We connect you with verified therapists to begin your journey toward emotional well-being.
+                </p>
+                <ul className="social-icon social-default justify-content-start mt--30 gap-3">
+                  <li><a href="#" style={{ color: '#1877F2' }} aria-label="Facebook"><i className="feather-facebook"></i></a></li>
+                  <li><a href="#" style={{ color: '#E4405F' }} aria-label="Instagram"><i className="feather-instagram"></i></a></li>
+                  <li><a href="#" style={{ color: '#0A66C2' }} aria-label="LinkedIn"><i className="feather-linkedin"></i></a></li>
+                  <li><a href="https://wa.me/918077757951" style={{ color: '#25D366' }} aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i className="feather-message-circle"></i></a></li>
+                </ul>
+              </div>
+            </div>
 
-      {/* Footer Content */}
-      <footer className="rbt-footer footer-style-1">
-        <div className="footer-top">
-          <div className="container">
-            <div className="row row--15 mt_dec--30">
-              {/* Logo & Tagline */}
-              <div className="col-lg-4 col-md-6 col-sm-6 col-12 mt--30">
-                <div className="footer-widget">
-                  <div className="logo">
-                    <Link href="/">
-                      <ImageTag
-                        alt="Choose Your Therapist"
-                        height={"55"}
-                        width={"167"}
-                        src={logo1}
-                      />
-                    </Link>
+            {/* Column 2: Quick Navigation */}
+            <div className="col-lg-2 col-md-6 col-sm-6">
+              <div className="footer-widget">
+                <h5 className="ft-title color-black fw-bold">Quick Access</h5>
+                <ul className="ft-link liststyle-none mt--20">
+                  <li className="mb--12"><Link href="/view-all-therapist" className="color-black hover-primary">Find a Therapist</Link></li>
+                  <li className="mb--12"><Link href="/mentorship-for-students" className="color-black hover-primary">Student Mentorship</Link></li>
+                  <li className="mb--12"><Link href="/how-it-works" className="color-black hover-primary">How It Works</Link></li>
+                  <li className="mb--12"><Link href="/blog-view" className="color-black hover-primary">Mental Health Blog</Link></li>
+                  <li><Link href="/emergency-support" className="color-black hover-primary">Emergency Help</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Column 3: Portals */}
+            <div className="col-lg-2 col-md-6 col-sm-6">
+              <div className="footer-widget">
+                <h5 className="ft-title color-black fw-bold">Member Portals</h5>
+                <ul className="ft-link liststyle-none mt--20">
+                  <li className="mb--12"><Link href="/login" className="color-black hover-primary">Client Login</Link></li>
+                  <li className="mb--12"><Link href="/register" className="color-black hover-primary">Client Sign Up</Link></li>
+                  <li className="mb--12"><Link href="/therapist-registration" className="color-black hover-primary">Therapist Join Us</Link></li>
+                  <li><Link href="/contact-us" className="color-black hover-primary">Contact Support</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Column 4: Contact & Office */}
+            <div className="col-lg-4 col-md-6 col-sm-12">
+              <div className="footer-widget">
+                <h5 className="ft-title color-black fw-bold">Connect With Us</h5>
+                <div className="contact-info mt--20">
+                  <div className="single-info d-flex align-items-center mb--20">
+                    <div className="icon bg-primary-opacity rounded-circle p-3 mr--15" style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}>
+                      <i className="feather-phone color-primary"></i>
+                    </div>
+                    <div className="text">
+                      <span className="d-block color-black fs-14" style={{ opacity: '0.6' }}>Support Hotline</span>
+                      <a href="tel:+918077757951" className="color-black fw-bold">+91 80777 57951</a>
+                    </div>
                   </div>
-                  <p className="description mt--20">
-                    Because healing starts with your choice.
-                  </p>
-                  <div className="contact-btn mt--30">
-                    <Link
-                      className="rbt-btn hover-icon-reverse btn-border-gradient radius-round"
-                      href="/contact-us"
-                    >
-                      <div className="icon-reverse-wrapper">
-                        <span className="btn-text">Connect With Us</span>
-                        <span className="btn-icon">
-                          <i className="feather-arrow-right"></i>
-                        </span>
-                        <span className="btn-icon">
-                          <i className="feather-arrow-right"></i>
-                        </span>
-                      </div>
-                    </Link>
+                  <div className="single-info d-flex align-items-center mb--20">
+                    <div className="icon bg-primary-opacity rounded-circle p-3 mr--15" style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}>
+                      <i className="feather-mail color-primary"></i>
+                    </div>
+                    <div className="text">
+                      <span className="d-block color-black fs-14" style={{ opacity: '0.6' }}>Email Address</span>
+                      <a href="mailto:Chooseyourtherapist@gmail.com" className="color-black fw-bold">Chooseyourtherapist@gmail.com</a>
+                    </div>
                   </div>
-
-                  <div className="mt-4">
-                    <h5 className="ft-title">Quick Links</h5>
-                    <ul className="ft-link">
-                      <li><Link href="/how-it-works">How It Works</Link></li>
-                      <li><Link href="/blog-view">Blog</Link></li>
-                      <li><Link href="/emergency-support">Emergency Support</Link></li>
-                      <li><Link href="/mentorship-for-students">Student Mentorship</Link></li>
-                      <li><Link href="/therapist-registration">Therapist Registration</Link></li>
-                    </ul>
+                  <div className="single-info d-flex align-items-start">
+                    <div className="icon bg-primary-opacity rounded-circle p-3 mr--15" style={{ backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)' }}>
+                      <i className="feather-map-pin color-primary"></i>
+                    </div>
+                    <div className="text">
+                      <span className="d-block color-black fs-14" style={{ opacity: '0.6' }}>Head Office</span>
+                      <span className="color-black">Sector 51, Noida, Uttar Pradesh, India</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              {/* For Clients */}
-              <div className="col-lg-2 col-md-6 col-sm-6 col-12 mt--30">
-                <div className="footer-widget">
-                  <h5 className="ft-title">For Clients</h5>
-                  <ul className="ft-link">
-                    <li><Link href="/login">Login</Link></li>
-                    <li><Link href="/register">Sign Up</Link></li>
-                    <li><Link href="/view-all-therapist">Therapist Directory</Link></li>
-                  </ul>
-                  <h5 className="ft-title mt-3">Services for Daily Life Issues</h5>
-                  <ul className="ft-link">
-                    <li><Link href="/view-all-therapist?specialization=Stress">Stress & Anxiety Management</Link></li>
-                    <li><Link href="/view-all-therapist?specialization=Depression">Depression Support</Link></li>
-                    <li><Link href="/view-all-therapist?specialization=Relationship">Relationship & Marriage Counseling</Link></li>
-                    <li><Link href="/view-all-therapist?specialization=Parenting">Teen & Adolescent Guidance</Link></li>
-                    <li><Link href="/view-all-therapist?specialization=Stress">Workplace Stress & Burnout</Link></li>
-                    <li><Link href="/view-all-therapist?specialization=Self-Esteem">Self-Esteem & Confidence Building</Link></li>
-                    <li><Link href="/view-all-therapist?specialization=Mindfulness">Mindfulness & Meditation</Link></li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* For Students */}
-              <div className="col-lg-2 col-md-6 col-sm-6 col-12 mt--30">
-                <div className="footer-widget">
-                  <h5 className="ft-title">Mentorship for Students</h5>
-                  <ul className="ft-link">
-                    <li><Link href="#">Internship & Practical Training</Link></li>
-                    <li><Link href="#">Career Mentorship</Link></li>
-                    <li><Link href="#">Research Guidance</Link></li>
-                    <li><Link href="#">Workshops & Webinars</Link></li>
-                    <li><Link href="#">Networking Opportunities</Link></li>
-                    <li><Link href="#">Case Study Discussions</Link></li>
-                    <li><Link href="#">Resume & Portfolio Support</Link></li>
-                    <li><Link href="#">Clinical Skills Development</Link></li>
-                    <li><Link href="#">Ethical Practice & Guidelines</Link></li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* For Therapists */}
-              <div className="col-lg-2 col-md-6 col-sm-6 col-12 mt--30">
-                <div className="footer-widget">
-                  <h5 className="ft-title">For Therapists</h5>
-                  <ul className="ft-link">
-                    <li><Link href="/login">Login</Link></li>
-                    <li><Link href="/therapist-registration">Sign Up</Link></li>
-                  </ul>
-                  <h5 className="ft-title mt-3">Professional Types</h5>
-                  <ul className="ft-link">
-                    <li><Link href="#">Counselling Psychologist</Link></li>
-                    <li><Link href="#">Clinical Psychologist</Link></li>
-                    <li><Link href="#">Psychiatrist</Link></li>
-                    <li><Link href="#">Special Educator</Link></li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Contact Info */}
-              <div className="col-lg-2 col-md-6 col-sm-6 col-12 mt--30">
-                <div className="footer-widget">
-                  <h5 className="ft-title">Get Contact</h5>
-                  <ul className="ft-link">
-                    <li>
-                      <span>Phone: </span>
-                      <a href="tel:+918077757951">+91 80777 57951</a>
-                    </li>
-                    <li>
-                      <span>E-mail: </span>
-                      <a href="mailto:Chooseyourtherapist@gmail.com">Chooseyourtherapist@gmail.com</a>
-                    </li>
-                    <li>
-                      <span>Official Address: </span>
-                      Gate No-3, D-137, near LPS GLOBAL SCHOOL, Block D, Sector 51, Noida, Uttar Pradesh 201301, India
-                    </li>
-                  </ul>
-                  <ul className="social-icon social-default icon-naked justify-content-start mt--20">
-                    <li><a href="#"><i className="feather-facebook"></i></a></li>
-                    <li><a href="#"><i className="feather-twitter"></i></a></li>
-                    <li><a href="#"><i className="feather-instagram"></i></a></li>
-                    <li><a href="#"><i className="feather-linkedin"></i></a></li>
-                  </ul>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </footer>
-
-      {/* Disclaimer Section */}
-      <div className="container mt-4 mb-4">
-        <div
-          style={{
-            background: "#f5f5f5",
-            padding: "15px 20px",
-            borderRadius: 8,
-            fontSize: 14,
-            lineHeight: 1.5,
-          }}
-        >
-          <strong>Disclaimer:</strong> This platform is a{" "}
-          <u>network of independent therapists</u>. All therapists work independently, and the
-          platform only connects you to a therapist. If you face any difficulty connecting to a
-          therapist, you can contact <strong>+91 80777 57951</strong>. For{" "}
-          <u>emergency situations</u>, please contact the free helpline{" "}
-          <strong>Tele Manas Toll-Free: 1800 89 14416</strong>.
-        </div>
       </div>
 
-      {/* Bottom Section */}
-      <div className="rbt-separator-mid">
+      {/* Clean Disclaimer Bar */}
+      <div className="disclaimer-bar py-4" style={{ backgroundColor: '#f8f9fa', borderTop: '1px solid #eee' }}>
         <div className="container">
-          <hr className="rbt-separator m-0" />
+          <p className="text-center mb-0 color-black" style={{ fontSize: '12px', opacity: '0.7', letterSpacing: '0.5px' }}>
+            <span className="fw-bold mr--10">DISCLAIMER:</span> 
+            Choose Your Therapist connects you with independent licensed professionals. We do not provide medical advice or emergency services directly. 
+            For crisis support, contact <span className="fw-bold">Tele Manas: 1800-89-14416</span>.
+          </p>
         </div>
       </div>
 
-      <div className="copyright-area copyright-style-1 ptb--20">
+      {/* Copyright Strip */}
+      <div className="copyright-area py-4" style={{ borderTop: '1px solid #eee' }}>
         <div className="container">
           <div className="row align-items-center">
-            <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
-              <p className="rbt-link-hover text-center text-lg-start">
-                © 2024{" "}
-                <a href="https://chooseyourtherapist.in">
-                  Choose Your Therapist LLP.
-                </a>{" "}
-                All Rights Reserved
+            <div className="col-lg-6 col-md-12">
+              <p className="text-center text-lg-start mb-0 color-black fs-14">
+                © {currentYear} <Link href="/" className="color-black hover-primary fw-bold">Choose Your Therapist LLP</Link>. All Rights Reserved.
               </p>
             </div>
-            <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12">
-              <ul className="copyright-link rbt-link-hover justify-content-center justify-content-lg-end mt_sm--10 mt_md--10">
-                <li><Link href="/terms-conditions">Terms of Service</Link></li>
-                <li><Link href="/cancellation-policy">Cancellation Policy</Link></li>
-                <li><Link href="/privacy-policy">Privacy Policy</Link></li>
-              </ul>
+            <div className="col-lg-6 col-md-12 mt_sm--10 mt_md--10">
+              <div className="copyright-link rbt-link-hover justify-content-center justify-content-lg-end d-flex gap-3 flex-wrap mb-0 fs-14 color-black">
+                <Link href="/terms-conditions" className="hover-primary">Terms of Service</Link>
+                <span className="separator" style={{ opacity: 0.3 }}>|</span>
+                <Link href="/privacy-policy" className="hover-primary">Privacy Policy</Link>
+                <span className="separator" style={{ opacity: 0.3 }}>|</span>
+                <Link href="/cancellation-policy" className="hover-primary">Cancellation Policy</Link>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   );
 }

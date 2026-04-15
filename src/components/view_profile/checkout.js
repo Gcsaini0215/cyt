@@ -1,5 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
+import Script from "next/script";
 import ProfileCheckoutCard from "./profile-checkout-card";
+import Head from "next/head";
 import { getFormatsByServiceId, getServices } from "../../utils/helpers";
 import { useMediaQueryClient } from "../../hooks/useMediaQueryClient";
 
@@ -166,6 +168,36 @@ export default function TherapistCheckout({ profile }) {
     }
   };
 
+  const handlePayment = (bookingId, amount) => {
+    const options = {
+      key: "rzp_live_Sbu0qew5jYTvBY",
+      amount: amount * 100, // Amount in paise
+      currency: "INR",
+      name: "CYT",
+      description: "Therapist Booking",
+      handler: function (response) {
+        // Payment successful - you'll need an API to verify this on the backend later
+        router.push(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
+      },
+      prefill: {
+        name: info.name || userInfo?.name,
+        email: info.email || userInfo?.email,
+        contact: info.phone || userInfo?.phone,
+      },
+      theme: {
+        color: "#2d54e6",
+      },
+      modal: {
+        ondismiss: function() {
+          router.push(`/payment-pending/${bookingId}`);
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+
   const handleSubmit = async () => {
     setSuccess("");
     if (!info.is_logged_in && !/^\d{10}$/.test(info.phone)) {
@@ -226,10 +258,13 @@ export default function TherapistCheckout({ profile }) {
       const response = await postData(BookTherapistUrl, info);
       if (response.status) {
         setBookingId(response.data.id);
-        setOpen(true);
+        if (!info.is_logged_in) {
+          setOpen(true);
+        } else {
+          handlePayment(response.data.id, amountInfo.afterdiscount);
+        }
       } else {
         setError(response.message);
-
       }
     } catch (error) {
       setError(error?.response?.data?.message);
@@ -268,7 +303,8 @@ export default function TherapistCheckout({ profile }) {
       if (response.status) {
         setOtpError("");
         setOtp("");
-        router.push(`/payment-pending/${bookingId}`);
+        setOpen(false);
+        handlePayment(bookingId, amountInfo.afterdiscount);
       } else {
         setOtpError(response.message);
       }
@@ -296,7 +332,7 @@ export default function TherapistCheckout({ profile }) {
     }))
   };
 
-const setConfig = async (profile) => {
+const setConfig = useCallback(async (profile) => {
   const validServices = await getServices(profile.fees);
   setServices(validServices);
   setSelectedService(validServices[0]);
@@ -321,13 +357,34 @@ const setConfig = async (profile) => {
     amount: formats[0].fee,
     afterdiscount: formats[0].fee
   }))
-};
+}, [userInfo]);
 
-useEffect(() => {
-  if (profile && Object.keys(profile).length > 0) {
-    setConfig(profile);
-  }
-}, [profile, userInfo]);
+  useEffect(() => {
+    if (selectedService && Object.keys(selectedService).length > 0) {
+      const formats = getFormatsByServiceId(profile.fees, selectedService._id);
+      setSessionFormats(formats);
+      if (formats && formats.length > 0) {
+        setSelectedFormat(formats[0]);
+        setInfo((prev) => ({
+          ...prev,
+          service: selectedService.name,
+          format: formats[0].type,
+          amount: formats[0].fee,
+        }));
+        setAmountInfo((prev) => ({
+          ...prev,
+          amount: formats[0].fee,
+          afterdiscount: formats[0].fee
+        }));
+      }
+    }
+  }, [selectedService, profile.fees]);
+
+  useEffect(() => {
+    if (profile && Object.keys(profile).length > 0) {
+      setConfig(profile);
+    }
+  }, [profile, userInfo, setConfig]);
 
   const handleCouponApply = async () => {
     setCouponError("");
@@ -383,6 +440,9 @@ useEffect(() => {
 
   return (
     <div className="checkout_area bg-color-white" style={{ padding: isMobile ? "20px 0 100px 0" : "60px 0" }}>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+      <Head>
+      </Head>
       <div className="container">
         <div className="row g-5">
           <div className="col-lg-7">
@@ -711,6 +771,62 @@ useEffect(() => {
         </div>
       </div>
       
+      {/* OTP Verification Dialog */}
+      <Dialog 
+        open={open} 
+        onClose={(event, reason) => {
+          if (reason === "backdropClick" || reason === "escapeKeyDown") return;
+          onClose();
+        }} 
+        maxWidth="xs" 
+        fullWidth
+        PaperProps={{
+          style: {
+            borderRadius: '20px',
+            padding: '10px'
+          }
+        }}
+      >
+        <div style={{ padding: "20px" }}>
+          <h4 style={{ fontWeight: 800, marginBottom: '10px' }}>Verify Your Mobile</h4>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '20px' }}>
+            We've sent a 6-digit verification code to your email/whatsapp.
+          </p>
+          <FormMessage success={success} error={otpError} />
+          <DialogContent style={{ padding: '0 0 20px 0' }}>
+            <div className="mb--10">
+              <label htmlFor="otp" style={{ fontSize: '14px', fontWeight: 600, color: '#1e293b' }}>Enter 6-digit OTP*</label>
+              <input
+                type="text"
+                placeholder="0 0 0 0 0 0"
+                id="otp"
+                name="otp"
+                value={otp}
+                style={{ 
+                  textAlign: 'center', 
+                  fontSize: '24px', 
+                  letterSpacing: '8px', 
+                  fontWeight: 700,
+                  height: '60px',
+                  borderRadius: '12px',
+                  border: '2px solid #e2e8f0'
+                }}
+                onChange={(e) => handleChange(e.target.name, e.target.value)}
+              />
+            </div>
+          </DialogContent>
+          <DialogActions style={{ padding: 0 }}>
+            <button
+              className="rbt-btn btn-gradient w-100"
+              onClick={verifyOtp}
+              style={{ height: '50px', borderRadius: '12px' }}
+            >
+              {loading ? 'Verifying...' : 'Verify and Pay'}
+            </button>
+          </DialogActions>
+        </div>
+      </Dialog>
+
       {/* Mobile Sticky Footer */}
       {isMobile && (
         <div style={{
@@ -747,54 +863,6 @@ useEffect(() => {
           </button>
         </div>
       )}
-      <Dialog open={open} onClose={(event, reason) => {
-        if (reason === "backdropClick" || reason === "escapeKeyDown") {
-          return;
-        }
-        onClose(event, reason);
-      }} maxWidth="sm" fullWidth >
-        <div style={{ padding: "8px" }}>
-          <h5>Enter OTP</h5>
-          <FormMessage success={success} error={otpError} />
-          <DialogContent dividers>
-            <div className="col-md-6 col-12 mb--10">
-              <label htmlFor="phone">OTP*</label>
-              <input
-                type="text"
-                placeholder="OTP"
-                id="otp"
-                value={otp}
-                name="otp"
-                onChange={(e) =>
-                  handleChange(e.target.name, e.target.value)
-                }
-              />
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <div className="plceholder-button mt--10">
-              {loading ? (
-                <FormProgressBar />
-              ) : (
-                <button
-                  className="rbt-btn btn-gradient hover-icon-reverse"
-                  onClick={verifyOtp}
-                >
-                  <span className="icon-reverse-wrapper">
-                    <span className="btn-text">Submit</span>
-                    <span className="btn-icon">
-                      <i className="feather-arrow-right"></i>
-                    </span>
-                    <span className="btn-icon">
-                      <i className="feather-arrow-right"></i>
-                    </span>
-                  </span>
-                </button>
-              )}
-            </div>
-          </DialogActions>
-        </div>
-      </Dialog>
     </div>
   );
 }

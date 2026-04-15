@@ -76,24 +76,30 @@ export default function HomePage() {
         const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1 || therapist.priority === "1");
         setBannerTherapists(priorityTherapists.slice(0, 10));
 
-        // Final Sorted List for ProfileCard (Location Based)
+        // Final Sorted List for ProfileCard (Review & Location Based)
         const nonPriorityTherapists = allTherapists.filter(therapist => therapist.priority !== 1 && therapist.priority !== "1");
 
         let sortedNonPriority = [...nonPriorityTherapists];
-        if (userState) {
-          const userStateLower = userState.toLowerCase();
-          const stateAliases = { "up": "uttar pradesh", "uttar pradesh": "up", "delhi": "ncr", "ncr": "delhi" };
+
+        // Primary Sort: Most Reviews First
+        sortedNonPriority.sort((a, b) => {
+          const aReviews = (a.reviews || []).length;
+          const bReviews = (b.reviews || []).length;
+          if (aReviews !== bReviews) return bReviews - aReviews;
           
-          sortedNonPriority.sort((a, b) => {
+          // Secondary Sort: Location (if reviews are equal)
+          if (userState) {
+            const userStateLower = userState.toLowerCase();
+            const stateAliases = { "up": "uttar pradesh", "uttar pradesh": "up", "delhi": "ncr", "ncr": "delhi" };
             const aState = (a.state || "").toLowerCase();
             const bState = (b.state || "").toLowerCase();
             const isALocal = aState.includes(userStateLower) || (stateAliases[userStateLower] && aState.includes(stateAliases[userStateLower]));
             const isBLocal = bState.includes(userStateLower) || (stateAliases[userStateLower] && bState.includes(stateAliases[userStateLower]));
             if (isALocal && !isBLocal) return -1;
             if (!isALocal && isBLocal) return 1;
-            return 0;
-          });
-        }
+          }
+          return 0;
+        });
         
         const combinedTherapists = [...priorityTherapists, ...sortedNonPriority];
         setTopTherapists(combinedTherapists.slice(0, 20));

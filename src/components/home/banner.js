@@ -167,12 +167,18 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           marginTop: "0px",
           paddingBottom: isMobile ? "20px" : "30px",
           marginBottom: isMobile ? "0px" : "20px",
-          backgroundColor: "inherit",
+          background: "linear-gradient(145deg, #edfdf5 0%, #f8fffc 25%, #ffffff 55%, #f3f0ff 80%, #eef6ff 100%)",
           overflowX: "hidden",
-          backgroundSize: "cover",
-          backgroundPosition: "center"
+          position: "relative",
         }}
       >
+      {/* Aurora mesh background */}
+      <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", overflow: "hidden", zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: "-30%", left: "-15%",  width: "70%", height: "80%", background: "radial-gradient(ellipse, rgba(34,197,94,0.32) 0%, transparent 60%)", filter: "blur(60px)", borderRadius: "50%" }} />
+        <div style={{ position: "absolute", top: "-20%", right: "-15%", width: "60%", height: "80%", background: "radial-gradient(ellipse, rgba(99,102,241,0.22) 0%, transparent 60%)", filter: "blur(60px)", borderRadius: "50%" }} />
+        <div style={{ position: "absolute", bottom: "-20%", left: "20%", width: "60%", height: "70%", background: "radial-gradient(ellipse, rgba(56,189,248,0.20) 0%, transparent 60%)", filter: "blur(60px)", borderRadius: "50%" }} />
+        <div style={{ position: "absolute", top: "30%", left: "35%", width: "40%", height: "50%", background: "radial-gradient(ellipse, rgba(134,239,172,0.22) 0%, transparent 60%)", filter: "blur(50px)", borderRadius: "50%" }} />
+      </div>
       <div className="container mt--20" style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
         <div className="row justify-content-center text-center" style={{ width: '100%' }}>
           <div className="col-lg-12 col-md-12 col-sm-12 col-12">
@@ -197,103 +203,184 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     className="title"
                     style={{
                       fontFamily: "'Inter', 'Poppins', sans-serif",
-                      fontSize: isMobile ? "2.6rem" : isTablet ? "3.2rem" : "4.8rem",
-                      lineHeight: isMobile ? "2.8rem" : isTablet ? "3.4rem" : "5.5rem",
+                      fontSize: isMobile ? "2.2rem" : isTablet ? "2.8rem" : "4.8rem",
+                      lineHeight: 1.2,
                       marginTop: 0,
                       marginBottom: isMobile ? "12px" : "24px",
-                      fontWeight: 500,
+                      fontWeight: 800,
                       textAlign: "center",
                       width: "100%",
                       maxWidth: isMobile ? "100%" : "1200px",
                       margin: "0 auto",
                       display: "block",
-                      padding: isMobile ? "0 10px" : "0",
+                      padding: "0",
                       color: "#0f172a",
-                      letterSpacing: "-0.01em",
+                      letterSpacing: isMobile ? "-0.03em" : "-0.02em",
                       textShadow: "0 2px 4px rgba(0,0,0,0.02)"
                     }}
                   >
-                    <Box component="span" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ 
+                    <Box component="span" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: isMobile ? "4px" : "8px" }}>
+                      {/* Line 1 — static */}
+                      <span style={{
                         display: "block",
-                        margin: "0 auto",
-                        fontWeight: 500,
+                        whiteSpace: "nowrap",
+                        fontWeight: 800,
                         lineHeight: 1.2
                       }}>
-                        <span style={{ color: "#1e293b" }}>Best Online</span>
-                        <span style={{ 
+                        <span style={{ color: "#1e293b" }}>Find the Best </span>
+                        <span style={{
                           backgroundImage: "linear-gradient(135deg, #166534 0%, #22c55e 100%)",
                           WebkitBackgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          fontWeight: 500 
-                        }}> Psychologists & Therapists</span>
-                        <span style={{ margin: isMobile ? "0 5px" : "0 10px", color: "#475569" }}>in</span>
-                        <span style={{
-                          backgroundImage: "linear-gradient(135deg, #0f172a 0%, #334155 100%)", 
-                          WebkitBackgroundClip: "text", 
                           backgroundClip: "text",
                           WebkitTextFillColor: "transparent",
-                          color: "transparent",
-                          display: "inline-block",
-                          fontWeight: 500
-                        }}>India</span> for
+                          fontWeight: 800
+                        }}>Therapists</span>
                       </span>
-                      <Box component="span" sx={{ 
-                        display: "block", 
-                        position: "relative",
-                        verticalAlign: "bottom",
-                        height: isMobile ? "3.2rem" : "6.5rem",
-                        overflow: "hidden",
-                        width: "auto", 
-                        textAlign: "center",
-                        margin: "0 auto",
-                        "& .typewriter-text": {
-                          backgroundImage: typewriterGradient,
-                          WebkitBackgroundClip: "text",
-                          backgroundClip: "text",
-                          WebkitTextFillColor: "transparent",
-                          color: "transparent",
-                          fontSize: isMobile ? "0.9em" : "1em",
-                          fontWeight: 500,
-                          lineHeight: isMobile ? "3.2rem" : "6.5rem",
-                          whiteSpace: "nowrap",
-                          display: "inline-block",
-                          transition: "background-image 0.5s ease"
-                        }
-                      }}>
-                        <TypeAnimation
-                          sequence={[
-                            'Mental Wellness', 
-                            () => setTypewriterGradient("linear-gradient(135deg, #6d28d9 0%, #a855f7 100%)"),
-                            2000,
-                            'Expert Guidance', 
-                            () => setTypewriterGradient("linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)"),
-                            2000,
-                            'Personal Growth', 
-                            () => setTypewriterGradient("linear-gradient(135deg, #ea580c 0%, #f43f5e 100%)"),
-                            2000,
-                            'Anxiety Support', 
-                            () => setTypewriterGradient("linear-gradient(135deg, #0d9488 0%, #10b981 100%)"),
-                            2000,
-                            'Emotional Health', 
-                            () => setTypewriterGradient("linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)"),
-                            2000,
-                          ]}
-                          wrapper="span"
-                          speed={50}
-                          className="typewriter-text"
-                          repeat={Infinity}
-                          cursor={true}
-                        />
-                      </Box>
+
+                      {/* Line 2 — mobile: typewriter only | desktop: "across India" + typewriter */}
+                      {isMobile ? (
+                        <Box component="span" sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "2px",
+                          lineHeight: 1.3,
+                          "& .typewriter-text": {
+                            backgroundImage: typewriterGradient,
+                            WebkitBackgroundClip: "text",
+                            backgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            color: "transparent",
+                            fontWeight: 800,
+                            display: "inline",
+                            transition: "background-image 0.5s ease"
+                          }
+                        }}>
+                          <span style={{ color: "#1e293b", fontWeight: 800, display: "block", whiteSpace: "nowrap" }}>across India for</span>
+                          <TypeAnimation
+                            sequence={[
+                              'Mental Wellness',
+                              () => setTypewriterGradient("linear-gradient(135deg, #6d28d9 0%, #a855f7 100%)"),
+                              2000,
+                              'Expert Guidance',
+                              () => setTypewriterGradient("linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)"),
+                              2000,
+                              'Personal Growth',
+                              () => setTypewriterGradient("linear-gradient(135deg, #ea580c 0%, #f43f5e 100%)"),
+                              2000,
+                              'Anxiety Support',
+                              () => setTypewriterGradient("linear-gradient(135deg, #0d9488 0%, #10b981 100%)"),
+                              2000,
+                              'Emotional Health',
+                              () => setTypewriterGradient("linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)"),
+                              2000,
+                            ]}
+                            wrapper="span"
+                            speed={50}
+                            className="typewriter-text"
+                            repeat={Infinity}
+                            cursor={true}
+                          />
+                        </Box>
+                      ) : (
+                        <Box component="span" sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "0.3em",
+                          lineHeight: 1.3,
+                          "& .typewriter-text": {
+                            backgroundImage: typewriterGradient,
+                            WebkitBackgroundClip: "text",
+                            backgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            color: "transparent",
+                            fontWeight: 800,
+                            display: "inline",
+                            transition: "background-image 0.5s ease"
+                          }
+                        }}>
+                          <span style={{ color: "#475569", fontWeight: 800, whiteSpace: "nowrap" }}>across</span>
+                          <span style={{
+                            backgroundImage: "linear-gradient(135deg, #0f172a 0%, #334155 100%)",
+                            WebkitBackgroundClip: "text",
+                            backgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            fontWeight: 800,
+                            whiteSpace: "nowrap"
+                          }}>India</span>
+                          <span style={{ color: "#475569", fontWeight: 800, whiteSpace: "nowrap" }}>for</span>
+                          <Box component="span" sx={{
+                            display: "inline-block",
+                            minWidth: "8em",
+                            textAlign: "left",
+                          }}>
+                            <TypeAnimation
+                              sequence={[
+                                'Mental Wellness',
+                                () => setTypewriterGradient("linear-gradient(135deg, #6d28d9 0%, #a855f7 100%)"),
+                                2000,
+                                'Expert Guidance',
+                                () => setTypewriterGradient("linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)"),
+                                2000,
+                                'Personal Growth',
+                                () => setTypewriterGradient("linear-gradient(135deg, #ea580c 0%, #f43f5e 100%)"),
+                                2000,
+                                'Anxiety Support',
+                                () => setTypewriterGradient("linear-gradient(135deg, #0d9488 0%, #10b981 100%)"),
+                                2000,
+                                'Emotional Health',
+                                () => setTypewriterGradient("linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%)"),
+                                2000,
+                              ]}
+                              wrapper="span"
+                              speed={50}
+                              className="typewriter-text"
+                              repeat={Infinity}
+                              cursor={true}
+                            />
+                          </Box>
+                        </Box>
+                      )}
                     </Box>
                   </h1>
 
+                  {/* Trust Stats Bar */}
+                  <Box sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: isMobile ? 2 : 5,
+                    flexWrap: "wrap",
+                    mb: isMobile ? 3 : 4,
+                    mt: isMobile ? 2 : 3,
+                    px: isMobile ? 1 : 0,
+                  }}>
+                    {[
+                      { value: "500+", label: "Verified Therapists", icon: <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },
+                      { value: "10,000+", label: "Sessions Completed", icon: <CalendarMonth sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },
+                      { value: "4.9★", label: "Average Rating", icon: <Star sx={{ fontSize: isMobile ? 18 : 20, color: "#f59e0b" }} /> },
+                      { value: "100%", label: "Confidential", icon: <Spa sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },
+                    ].map((stat, i) => (
+                      <Box key={i} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.3 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          {stat.icon}
+                          <Typography sx={{ fontWeight: 800, fontSize: isMobile ? "17px" : "22px", color: "#0f172a", letterSpacing: "-0.5px", lineHeight: 1 }}>
+                            {stat.value}
+                          </Typography>
+                        </Box>
+                        <Typography sx={{ fontSize: isMobile ? "10px" : "12px", color: "#64748b", fontWeight: 500 }}>
+                          {stat.label}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+
                   {/* Description */}
-                  <Typography variant="h6" sx={{ 
-                    color: "#475569", 
-                    maxWidth: isMobile ? "100%" : "850px", 
-                    margin: "0 auto", 
+                  <Typography variant="h6" sx={{
+                    color: "#475569",
+                    maxWidth: isMobile ? "100%" : "850px",
+                    margin: "0 auto",
                     lineHeight: isMobile ? 1.6 : 1.8,
                     fontSize: isMobile ? "14px" : "19px",
                     mb: isMobile ? 3 : 5,
@@ -305,92 +392,171 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     letterSpacing: "0.01em",
                     opacity: 0.9
                   }}>
-                    Discover qualified and experienced <span style={{ color: "#166534", fontWeight: 600 }}>therapists</span> offering online and in-person therapy across India. 
-                    Compare specializations, review detailed profiles, and book confidential sessions for 
-                    <span style={{ color: "#166534", fontWeight: 600 }}> anxiety</span>, 
-                    <span style={{ color: "#166534", fontWeight: 600 }}> stress</span>, 
-                    <span style={{ color: "#166534", fontWeight: 600 }}> relationship concerns</span>, 
-                    <span style={{ color: "#166534", fontWeight: 600 }}> depression</span>, and <span style={{ color: "#166534", fontWeight: 600 }}>emotional well-being</span>.
+                    Find qualified <span style={{ color: "#166534", fontWeight: 600 }}>therapists</span> for <span style={{ color: "#166534", fontWeight: 600 }}>anxiety</span>, <span style={{ color: "#166534", fontWeight: 600 }}>stress</span>, <span style={{ color: "#166534", fontWeight: 600 }}>depression</span>, and <span style={{ color: "#166534", fontWeight: 600 }}>relationship concerns</span>. Compare profiles and book confidential sessions <span style={{ color: "#166534", fontWeight: 600 }}>online or in-person</span> across India.
                   </Typography>
 
-                  {/* Description */}
+                  {/* Search Bar */}
+                  <Box
+                    component="form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (inputValue.trim()) {
+                        router.push(`/view-all-therapist?search=${encodeURIComponent(inputValue.trim())}`);
+                      }
+                    }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      width: "100%",
+                      maxWidth: isMobile ? "100%" : "700px",
+                      mx: "auto",
+                      mb: isMobile ? 3 : 4,
+                      mt: isMobile ? 1 : 2,
+                      bgcolor: "white",
+                      borderRadius: "50px",
+                      boxShadow: "0 8px 30px rgba(0,0,0,0.10)",
+                      border: "1.5px solid #e2e8f0",
+                      overflow: "hidden",
+                      transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+                      "&:focus-within": {
+                        boxShadow: "0 8px 30px rgba(34,135,86,0.18)",
+                        borderColor: "#228756"
+                      }
+                    }}
+                  >
+                    <Search sx={{ fontSize: 22, color: "#94a3b8", ml: 2.5, flexShrink: 0 }} />
+                    <input
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => {
+                        setInputValue(e.target.value);
+                        debouncedSetSearchQuery(e.target.value);
+                      }}
+                      placeholder={placeholderTexts[placeholderIndex]}
+                      style={{
+                        flex: 1,
+                        border: "none",
+                        outline: "none",
+                        background: "transparent",
+                        fontSize: isMobile ? "14px" : "16px",
+                        color: "#1e293b",
+                        padding: isMobile ? "14px 12px" : "18px 16px",
+                        fontFamily: "'Inter', sans-serif",
+                        fontWeight: 500,
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      style={{
+                        background: "linear-gradient(135deg, #166534 0%, #22c55e 100%)",
+                        border: "none",
+                        borderRadius: "50px",
+                        margin: "6px",
+                        padding: isMobile ? "10px 18px" : "12px 28px",
+                        color: "white",
+                        fontWeight: 700,
+                        fontSize: isMobile ? "13px" : "15px",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontFamily: "'Inter', sans-serif",
+                        whiteSpace: "nowrap",
+                        transition: "opacity 0.2s ease",
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = "0.88"}
+                      onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+                    >
+                      {isMobile
+                        ? <Search sx={{ fontSize: 18 }} />
+                        : <><span>Search</span><ArrowForward sx={{ fontSize: 16 }} /></>
+                      }
+                    </button>
+                  </Box>
 
-                  {/* Interactive Action Cards */}
+                  {/* CTA Buttons */}
                   <Box sx={{
                     display: "flex",
                     justifyContent: "center",
-                    gap: isMobile ? 1.5 : 3,
+                    gap: isMobile ? 2 : 3,
                     mt: isMobile ? 1 : 2,
                     mb: 4,
                     flexWrap: "wrap",
                     width: "100%",
                     px: isMobile ? 1 : 0
                   }}>
-                    {[
-                      { 
-                        id: "local", 
-                        label: "Explore Noida Experts", 
-                        icon: <LocationOn />, 
-                        href: "/psychologist-in-noida-delhi",
-                        color: "#0f172a",
-                        bg: "linear-gradient(135deg, #0f172a 0%, #064e3b 100%)"
-                      },
-                    ].map((card) => (
-                      <Button
-                        key={card.id}
-                        component={card.href ? Link : "button"}
-                        href={card.href}
-                        onClick={card.onClick}
-                        variant="contained"
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 1.5,
-                          px: isMobile ? 4 : 6,
-                          py: isMobile ? 1.8 : 2.2,
-                          borderRadius: "14px",
-                          background: card.bg,
-                          textTransform: "none",
-                          color: "#ffffff",
-                          width: isMobile ? "95%" : "auto",
-                          minWidth: isMobile ? "auto" : "320px",
-                          transition: "all 0.5s cubic-bezier(0.23, 1, 0.32, 1)",
-                          fontWeight: 600,
-                          fontSize: isMobile ? "15px" : "17px",
-                          fontFamily: "'Inter', sans-serif",
-                          letterSpacing: "0.03em",
-                          boxShadow: "0 10px 25px -5px rgba(15, 23, 42, 0.2)",
-                          border: "1px solid rgba(255, 255, 255, 0.1)",
-                          "& .icon-container": {
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            transition: "all 0.4s ease",
-                            color: "#4ade80"
-                          },
-                          "& svg": {
-                            fontSize: 22
-                          },
-                          "&:hover": {
-                            background: "linear-gradient(135deg, #064e3b 0%, #052e16 100%)",
-                            transform: "translateY(-4px)",
-                            boxShadow: "0 20px 35px -10px rgba(15, 23, 42, 0.3)",
-                            borderColor: "rgba(74, 222, 128, 0.2)",
-                            "& .icon-container": {
-                              transform: "translateX(-3px) scale(1.1)",
-                              color: "#22c55e"
-                            }
-                          }
-                        }}
-                      >
-                        <Box className="icon-container">
-                          {card.icon}
-                        </Box>
-                        {card.label}
-                      </Button>
-                    ))}
+                    {/* Primary Button */}
+                    <Button
+                      component={Link}
+                      href="/view-all-therapist"
+                      variant="contained"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        px: isMobile ? 4 : 6,
+                        py: isMobile ? 1.8 : 2.2,
+                        borderRadius: "14px",
+                        background: "linear-gradient(135deg, #166534 0%, #22c55e 100%)",
+                        textTransform: "none",
+                        color: "#ffffff",
+                        width: isMobile ? "100%" : "auto",
+                        minWidth: isMobile ? "auto" : "240px",
+                        fontWeight: 700,
+                        fontSize: isMobile ? "15px" : "17px",
+                        fontFamily: "'Inter', sans-serif",
+                        letterSpacing: "0.02em",
+                        boxShadow: "0 10px 25px -5px rgba(22, 101, 52, 0.35)",
+                        border: "none",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          background: "linear-gradient(135deg, #14532d 0%, #16a34a 100%)",
+                          transform: "translateY(-3px)",
+                          boxShadow: "0 18px 35px -8px rgba(22, 101, 52, 0.45)",
+                        }
+                      }}
+                    >
+                      Find a Therapist
+                      <ArrowForward sx={{ fontSize: 20 }} />
+                    </Button>
+
+                    {/* Secondary Button */}
+                    <Button
+                      variant="outlined"
+                      onClick={() => setIsConsultationOpen(true)}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        px: isMobile ? 4 : 6,
+                        py: isMobile ? 1.8 : 2.2,
+                        borderRadius: "14px",
+                        background: "white",
+                        textTransform: "none",
+                        color: "#166534",
+                        width: isMobile ? "100%" : "auto",
+                        minWidth: isMobile ? "auto" : "240px",
+                        fontWeight: 700,
+                        fontSize: isMobile ? "15px" : "17px",
+                        fontFamily: "'Inter', sans-serif",
+                        letterSpacing: "0.02em",
+                        border: "2px solid #166534",
+                        boxShadow: "0 4px 15px rgba(22, 101, 52, 0.1)",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          background: "#f0fdf4",
+                          borderColor: "#15803d",
+                          transform: "translateY(-3px)",
+                          boxShadow: "0 10px 25px rgba(22, 101, 52, 0.15)",
+                        }
+                      }}
+                    >
+                      <QuestionAnswer sx={{ fontSize: 20 }} />
+                      Get Free Consultation
+                    </Button>
                   </Box>
+
                 </Box>
               </div>
             </div>
@@ -399,38 +565,61 @@ export default function Banner({ topTherapists = [], userCity = null }) {
       </div>
 
       {/* Consultation Modal */}
-      <Dialog 
-        open={isConsultationOpen} 
+      <Dialog
+        open={isConsultationOpen}
         onClose={() => setIsConsultationOpen(false)}
-        maxWidth="sm"
+        maxWidth="xs"
         fullWidth
         style={{ zIndex: 99999 }}
         PaperProps={{
           style: {
             borderRadius: "24px",
-            padding: isMobile ? "15px" : "30px",
-            margin: isMobile ? "10px" : "32px",
-            maxHeight: "calc(100% - 64px)",
-            overflowY: "auto"
+            padding: 0,
+            margin: isMobile ? "12px" : "32px",
+            maxHeight: "calc(100% - 48px)",
+            overflow: "hidden",
+            boxShadow: "0 32px 64px rgba(0,0,0,0.18)"
           }
         }}
       >
-        <Box sx={{ position: "relative" }}>
-          <IconButton 
+        {/* Premium gradient header */}
+        <Box sx={{
+          background: "linear-gradient(135deg, #166534 0%, #16a34a 60%, #22c55e 100%)",
+          px: 3, pt: 3.5, pb: 4,
+          position: "relative",
+          textAlign: "center"
+        }}>
+          <IconButton
             onClick={() => setIsConsultationOpen(false)}
-            sx={{ 
-              position: "absolute", 
-              right: -10, 
-              top: -10, 
-              zIndex: 10,
-              backgroundColor: "white",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-              "&:hover": { backgroundColor: "#f8fafc" }
+            size="small"
+            sx={{
+              position: "absolute", top: 12, right: 12,
+              color: "rgba(255,255,255,0.8)",
+              "&:hover": { color: "#fff", background: "rgba(255,255,255,0.1)" }
             }}
           >
-            <Close />
+            <Close fontSize="small" />
           </IconButton>
-          <ConsultationForm />
+          <Box sx={{
+            width: 52, height: 52, borderRadius: "14px",
+            background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 14px",
+            backdropFilter: "blur(4px)"
+          }}>
+            <QuestionAnswer sx={{ fontSize: 26, color: "#fff" }} />
+          </Box>
+          <Typography sx={{ color: "#fff", fontWeight: 800, fontSize: "20px", lineHeight: 1.2, mb: 0.5 }}>
+            Free Consultation
+          </Typography>
+          <Typography sx={{ color: "rgba(255,255,255,0.80)", fontSize: "13px", fontWeight: 400 }}>
+            Talk to a therapist — no commitment needed
+          </Typography>
+        </Box>
+
+        {/* Form body */}
+        <Box sx={{ px: isMobile ? 2.5 : 3, py: 3, overflowY: "auto", maxHeight: isMobile ? "60vh" : "70vh" }}>
+          <ConsultationForm showHeading={false} showLocation={false} showSource={false} />
         </Box>
       </Dialog>
 
@@ -671,11 +860,11 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                       <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} />
                     </Box>
                     {therapist.qualification && (
-                      <Typography sx={{ 
-                        fontSize: isMobile ? "11px" : "12px", 
-                        color: "#64748b", 
+                      <Typography sx={{
+                        fontSize: isMobile ? "11px" : "12px",
+                        color: "#64748b",
                         fontWeight: 500,
-                        mb: 0.8,
+                        mb: 0.5,
                         display: "-webkit-box",
                         WebkitLineClamp: 1,
                         WebkitBoxOrient: "vertical",
@@ -685,15 +874,35 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                         {therapist.qualification}
                       </Typography>
                     )}
-                    <Typography sx={{ 
-                        fontSize: isMobile ? "12px" : "13px", 
-                        color: "#228756", 
-                        fontWeight: 700, 
+                    <Typography sx={{
+                        fontSize: isMobile ? "12px" : "13px",
+                        color: "#228756",
+                        fontWeight: 700,
                         textTransform: "uppercase",
-                        letterSpacing: "0.5px"
+                        letterSpacing: "0.5px",
+                        mb: 0.5
                       }}>
                         {therapist.profile_type || "Specialist"}
                       </Typography>
+                    {/* Rating + Reviews + Exp */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                      {therapist.reviews && therapist.reviews.length > 0 && (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, bgcolor: "#fffbeb", px: 1, py: 0.3, borderRadius: "6px", border: "1px solid #fef08a" }}>
+                          <Star sx={{ fontSize: 13, color: "#f59e0b" }} />
+                          <Typography sx={{ fontSize: "11px", fontWeight: 800, color: "#d97706", lineHeight: 1 }}>
+                            {(therapist.reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / therapist.reviews.length).toFixed(1)}
+                          </Typography>
+                          <Typography sx={{ fontSize: "10px", color: "#94a3b8", fontWeight: 500, lineHeight: 1 }}>
+                            ({therapist.reviews.length})
+                          </Typography>
+                        </Box>
+                      )}
+                      {therapist.year_of_exp && (
+                        <Typography sx={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>
+                          {therapist.year_of_exp} exp
+                        </Typography>
+                      )}
+                    </Box>
                     </Box>
                   </Box>
 
