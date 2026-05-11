@@ -137,22 +137,24 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
               {/* Main Heading */}
               <h1 style={{
-                fontSize: isMobile ? "2.6rem" : isTablet ? "3rem" : "3.8rem",
+                fontSize: isMobile ? "2.8rem" : isTablet ? "3.4rem" : "4.6rem",
                 fontWeight: 900,
-                lineHeight: 1.12,
-                letterSpacing: "-0.03em",
+                lineHeight: 1.08,
+                letterSpacing: "-0.04em",
                 color: "#1a2e1a",
                 margin: 0,
-                marginBottom: "12px",
+                marginBottom: "18px",
                 fontFamily: "'Inter', sans-serif",
               }}>
-                Find the Right<br />Therapist for<br />
+                Find the<br />Right Therapist<br />for{" "}
                 <span style={{
                   fontFamily: "'Playfair Display', Georgia, serif",
                   fontStyle: "italic",
                   fontWeight: 700,
                   color: "#228756",
-                  fontSize: isMobile ? "2.8rem" : "inherit",
+                  display: "block",
+                  fontSize: isMobile ? "3rem" : "inherit",
+                  letterSpacing: "-0.02em",
                 }}>
                   Your Journey
                 </span>
@@ -165,7 +167,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                 lineHeight: 1.7,
                 margin: 0,
                 marginBottom: "28px",
-                maxWidth: "340px",
+                maxWidth: "440px",
               }}>
                 Every person&apos;s journey is unique.<br />
                 Choose a therapist who understands you<br />
@@ -230,24 +232,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
             {/* ── RIGHT ── */}
             <div style={{ flex: 1, minWidth: 0 }}>
-
-              {/* Choose Your Therapist heading */}
-              <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <h2 style={{
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontSize: isMobile ? "1.6rem" : "2rem",
-                  fontWeight: 700,
-                  color: "#1a2e1a",
-                  margin: 0, marginBottom: "6px",
-                }}>
-                  Choose Your Therapist
-                </h2>
-                {/* Lotus divider */}
-                <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                  <path d="M20,22 Q14,14 8,10 Q14,8 20,12 Q26,8 32,10 Q26,14 20,22Z" fill="rgba(34,135,86,0.5)" />
-                  <path d="M20,18 Q18,10 20,4 Q22,10 20,18Z" fill="rgba(34,135,86,0.4)" />
-                </svg>
-              </div>
 
               {/* Therapist Cards — Swiper 2 at a time */}
               <div style={{ paddingBottom: "64px" }}>
