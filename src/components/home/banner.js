@@ -5,6 +5,10 @@ import Link from "next/link";
 import { imagePath } from "../../utils/url";
 import ConsultationForm from "./consultation-form";
 import { useRouter } from "next/router";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 export default function Banner({ topTherapists = [], userCity = null }) {
   const router = useRouter();
@@ -37,7 +41,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
     { icon: <HeadsetMic sx={{ fontSize: 28, color: "#228756" }} />, title: "We're Here to Help", sub: "Every step of the way" },
   ];
 
-  const displayTherapists = topTherapists.slice(0, 3);
+  const displayTherapists = topTherapists.slice(0, 10);
 
   return (
     <>
@@ -101,7 +105,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         {!isMobile && (
           <div style={{
             position: "absolute", top: 0, right: 0,
-            width: "62%", height: "100%",
+            width: "50%", height: "100%",
             background: "rgba(255,255,255,0.45)",
             borderRadius: "60% 0 0 60% / 50% 0 0 50%",
             zIndex: 0, pointerEvents: "none",
@@ -117,7 +121,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           }}>
 
             {/* ── LEFT ── */}
-            <div className="banner-left-anim" style={{ flex: "0 0 auto", width: isMobile ? "100%" : "38%", paddingTop: isMobile ? 0 : "20px", paddingBottom: isMobile ? 0 : "80px" }}>
+            <div className="banner-left-anim" style={{ flex: "0 0 auto", width: isMobile ? "100%" : "50%", paddingTop: isMobile ? 0 : "20px", paddingBottom: isMobile ? 0 : "80px", paddingRight: isMobile ? 0 : "40px" }}>
 
               {/* Main Heading */}
               <h1 style={{
@@ -233,127 +237,126 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                 </svg>
               </div>
 
-              {/* Therapist Cards */}
+              {/* Therapist Cards — Swiper 2 at a time */}
+              <style jsx global>{`
+                .banner-swiper .swiper-button-next,
+                .banner-swiper .swiper-button-prev {
+                  width: 34px; height: 34px;
+                  background: #228756; border-radius: 50%;
+                  color: white !important;
+                  box-shadow: 0 4px 14px rgba(34,135,86,0.35);
+                  top: auto; bottom: -44px;
+                }
+                .banner-swiper .swiper-button-prev { left: calc(50% - 44px); }
+                .banner-swiper .swiper-button-next { right: calc(50% - 44px); }
+                .banner-swiper .swiper-button-next::after,
+                .banner-swiper .swiper-button-prev::after { font-size: 13px !important; font-weight: 900 !important; }
+              `}</style>
+              <div style={{ paddingBottom: "64px" }}>
               {displayTherapists.length > 0 ? (
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: isMobile ? "1fr" : `repeat(${Math.min(displayTherapists.length, 3)}, 1fr)`,
-                  gap: isMobile ? "16px" : "16px",
-                  marginBottom: "20px",
-                }}>
+                <Swiper
+                  className="banner-swiper"
+                  modules={[Autoplay, Navigation]}
+                  slidesPerView={isMobile ? 1 : 2}
+                  spaceBetween={16}
+                  loop={displayTherapists.length > 2}
+                  autoplay={{ delay: 3000, disableOnInteraction: false }}
+                  navigation={true}
+                  style={{ paddingBottom: "8px" }}
+                >
                   {displayTherapists.map((t, i) => {
-                    const avgRating = t.reviews?.length > 0
-                      ? (t.reviews.reduce((a, r) => a + (r.rating || 5), 0) / t.reviews.length).toFixed(1)
-                      : null;
                     const specialties = t.experties
                       ? t.experties.split(",").map(s => s.trim()).filter(Boolean).slice(0, 3)
-                      : [];
+                      : t.services?.split(",").map(s => s.trim()).filter(Boolean).slice(0, 3) || [];
 
                     return (
-                      <div
-                        key={i}
-                        className="therapist-banner-card"
-                        style={{
-                          background: "#ffffff",
-                          borderRadius: "20px",
-                          overflow: "hidden",
-                          border: "1px solid #ede9e3",
-                          boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-                          animationDelay: `${0.3 + i * 0.15}s`,
-                          cursor: "pointer",
-                        }}
-                        onClick={() => { setSelectedTherapist(t); setIsProfileOpen(true); }}
-                      >
-                        {/* Photo */}
-                        <div style={{ position: "relative", height: isMobile ? "200px" : "220px", overflow: "hidden", background: "#f0ede7" }}>
-                          <Avatar
-                            src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined}
-                            alt={t.user?.name || "Therapist"}
-                            sx={{
-                              width: "100%", height: "100%",
-                              borderRadius: 0,
-                              "& img": { objectFit: "cover", objectPosition: "top center" }
-                            }}
-                            variant="square"
-                          />
-                          {/* Exp badge */}
-                          {t.year_of_exp && (
-                            <div style={{
-                              position: "absolute", bottom: "10px", right: "10px",
-                              background: "rgba(34,135,86,0.92)",
-                              color: "white", fontSize: "11px", fontWeight: 700,
-                              padding: "5px 10px", borderRadius: "8px",
-                              textAlign: "center", lineHeight: 1.3,
-                              backdropFilter: "blur(4px)",
-                            }}>
-                              {t.year_of_exp}<br />Exp.
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Card Body */}
-                        <div style={{ padding: "16px" }}>
-                          <h3 style={{ fontSize: "17px", fontWeight: 800, color: "#1a2e1a", margin: 0, marginBottom: "2px" }}>
-                            {t.user?.name || "Therapist"}
-                          </h3>
-                          <p style={{ fontSize: "12px", color: "#6b7280", margin: 0, marginBottom: "4px", fontWeight: 500 }}>
-                            {t.profile_type || "Mental Health Professional"}
-                          </p>
-
-                          {/* Divider */}
-                          <div style={{ width: "32px", height: "2px", background: "#228756", borderRadius: "2px", marginBottom: "10px" }} />
-
-                          {/* Specialties */}
-                          <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginBottom: "14px" }}>
-                            {specialties.length > 0 ? specialties.map((spec, si) => (
-                              <div key={si} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-                                <span style={{ fontSize: "13px", color: "#228756" }}>✦</span>
-                                <span style={{ fontSize: "12px", color: "#4b5563", fontWeight: 500 }}>{spec}</span>
+                      <SwiperSlide key={i}>
+                        <div
+                          className="therapist-banner-card"
+                          style={{
+                            background: "#ffffff",
+                            borderRadius: "20px",
+                            overflow: "hidden",
+                            border: "1px solid #ede9e3",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                            animationDelay: `${0.3 + i * 0.15}s`,
+                            cursor: "pointer",
+                          }}
+                          onClick={() => { setSelectedTherapist(t); setIsProfileOpen(true); }}
+                        >
+                          {/* Photo */}
+                          <div style={{ position: "relative", height: isMobile ? "200px" : "220px", overflow: "hidden", background: "#f0ede7" }}>
+                            <Avatar
+                              src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined}
+                              alt={t.user?.name || "Therapist"}
+                              sx={{
+                                width: "100%", height: "100%",
+                                borderRadius: 0,
+                                "& img": { objectFit: "cover", objectPosition: "top center" }
+                              }}
+                              variant="square"
+                            />
+                            {t.year_of_exp && (
+                              <div style={{
+                                position: "absolute", bottom: "10px", right: "10px",
+                                background: "rgba(34,135,86,0.92)",
+                                color: "white", fontSize: "11px", fontWeight: 700,
+                                padding: "5px 10px", borderRadius: "8px",
+                                textAlign: "center", lineHeight: 1.3,
+                                backdropFilter: "blur(4px)",
+                              }}>
+                                {t.year_of_exp}<br />Exp.
                               </div>
-                            )) : (
-                              <>
-                                {t.services?.split(",").slice(0, 3).map((s, si) => (
-                                  <div key={si} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-                                    <span style={{ fontSize: "13px", color: "#228756" }}>✦</span>
-                                    <span style={{ fontSize: "12px", color: "#4b5563", fontWeight: 500 }}>{s.trim()}</span>
-                                  </div>
-                                ))}
-                              </>
                             )}
                           </div>
 
-                          {/* View Profile Button */}
-                          <Link
-                            href={`/view-profile/${t._id}`}
-                            onClick={e => e.stopPropagation()}
-                            style={{
-                              display: "block", textAlign: "center",
-                              background: "#228756",
-                              color: "white", fontWeight: 700,
-                              fontSize: "12px", letterSpacing: "0.8px",
-                              textTransform: "uppercase",
-                              padding: "11px", borderRadius: "50px",
-                              textDecoration: "none",
-                              transition: "all 0.3s ease",
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.background = "#1a6b44"; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = "#228756"; }}
-                          >
-                            View Profile
-                          </Link>
+                          {/* Card Body */}
+                          <div style={{ padding: "16px" }}>
+                            <h3 style={{ fontSize: "17px", fontWeight: 800, color: "#1a2e1a", margin: 0, marginBottom: "2px" }}>
+                              {t.user?.name || "Therapist"}
+                            </h3>
+                            <p style={{ fontSize: "12px", color: "#6b7280", margin: 0, marginBottom: "4px", fontWeight: 500 }}>
+                              {t.profile_type || "Mental Health Professional"}
+                            </p>
+                            <div style={{ width: "32px", height: "2px", background: "#228756", borderRadius: "2px", marginBottom: "10px" }} />
+                            <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginBottom: "14px" }}>
+                              {specialties.map((spec, si) => (
+                                <div key={si} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                                  <span style={{ fontSize: "13px", color: "#228756" }}>✦</span>
+                                  <span style={{ fontSize: "12px", color: "#4b5563", fontWeight: 500 }}>{spec}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <Link
+                              href={`/view-profile/${t._id}`}
+                              onClick={e => e.stopPropagation()}
+                              style={{
+                                display: "block", textAlign: "center",
+                                background: "#228756", color: "white", fontWeight: 700,
+                                fontSize: "12px", letterSpacing: "0.8px",
+                                textTransform: "uppercase",
+                                padding: "11px", borderRadius: "50px",
+                                textDecoration: "none", transition: "all 0.3s ease",
+                              }}
+                              onMouseEnter={e => { e.currentTarget.style.background = "#1a6b44"; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = "#228756"; }}
+                            >
+                              View Profile
+                            </Link>
+                          </div>
                         </div>
-                      </div>
+                      </SwiperSlide>
                     );
                   })}
-                </div>
+                </Swiper>
               ) : (
-                /* Placeholder cards when loading */
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(3,1fr)", gap: "16px", marginBottom: "20px" }}>
-                  {[0,1,2].map(i => (
+                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(2,1fr)", gap: "16px" }}>
+                  {[0,1].map(i => (
                     <div key={i} style={{ background: "rgba(255,255,255,0.6)", borderRadius: "20px", height: "340px", border: "1px solid #ede9e3", animation: "fadeUp 0.6s ease both", animationDelay: `${0.3+i*0.1}s` }} />
                   ))}
                 </div>
               )}
+              </div>
 
               {/* Bottom Stats Bar */}
               <div style={{
