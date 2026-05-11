@@ -54,7 +54,7 @@ jobs:
           command_timeout: 30m
           script: |
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
-            npm ci --production
+            npm ci
             pm2 reload cyt-frontend --update-env
             pm2 save
             sleep 3
