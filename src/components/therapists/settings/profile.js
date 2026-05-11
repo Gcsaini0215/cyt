@@ -668,23 +668,32 @@ export default function Profile() {
             <textarea
               id="bio"
               cols="20"
-              rows="5"
+              rows={isMobile ? 5 : 9}
               value={therapistInfo.user.bio}
               onChange={(e) => setInfo("user.bio", e.target.value)}
+              style={{ resize: "vertical", overflowY: "auto" }}
             ></textarea>
           </div>
         </div>
       </div>
 
       <FormMessage error={error} success={success} />
-      
-      <div className="col-12 mt--20">
-        <div className="rbt-form-group d-none">
-          <button className="rbt-btn btn-gradient submit-btn" onClick={handleSubmit}>
-            Update Profile
-          </button>
-        </div>
+
+      <div className="col-12 mt--20 mb--20">
         {loading && <FormProgressBar />}
+        <button
+          className="rbt-btn btn-gradient submit-btn"
+          onClick={handleSubmit}
+          style={{
+            width: isMobile ? "100%" : "auto",
+            padding: "0 40px",
+            height: "50px",
+            fontSize: "16px",
+            fontWeight: "600"
+          }}
+        >
+          Update Profile
+        </button>
       </div>
 
       <Dialog 

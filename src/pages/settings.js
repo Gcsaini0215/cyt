@@ -65,7 +65,7 @@ export default function ProfileSettings() {
 
   return (
     <MainLayout>
-      <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mb--100">
+      <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mb--100" style={{ padding: isMobile ? "20px 14px" : undefined }}>
         <div className="content">
           <div className="section-title d-flex justify-content-between align-items-center mb--30">
             <h4 className="rbt-title-style-3 mb--0">
@@ -171,49 +171,6 @@ export default function ProfileSettings() {
         </div>
       </div>
 
-      <div className="settings-sticky-bar-container">
-        <div className="settings-sticky-bar">
-          <div className="d-flex justify-content-start align-items-center gap-5">
-            <div className="d-none d-lg-block">
-              <div className="d-flex align-items-center gap-2">
-                <div className="info-icon-wrapper" style={{ 
-                  background: "#e0f2fe", 
-                  color: "#0369a1", 
-                  width: "32px", 
-                  height: "32px", 
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0
-                }}>
-                  <i className="feather-info" style={{ fontSize: "16px" }}></i>
-                </div>
-                <p className="mb--0" style={{ fontSize: "14px", fontWeight: "500", color: "#475569", whiteSpace: "nowrap" }}>
-                  Changes are only saved when you click the update button.
-                </p>
-              </div>
-            </div>
-            <div className={`action-buttons d-flex gap-3 ${isMobile ? "justify-content-center w-100" : ""}`}>
-              <button 
-                className="rbt-btn btn-gradient btn-md" 
-                onClick={handleGlobalUpdate}
-                style={{ 
-                  height: "50px", 
-                  padding: "0 40px",
-                  boxShadow: "0 10px 20px rgba(46, 204, 113, 0.2)",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  width: isMobile ? "100%" : "auto",
-                  maxWidth: isMobile ? "300px" : "none"
-                }}
-              >
-                Update {tab === 0 ? "Profile" : tab === 2 ? "Offerings" : tab === 3 ? "Availability" : tab === 4 ? "Fees" : "Payments"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <Dialog 
         open={previewOpen} 
@@ -275,7 +232,7 @@ export default function ProfileSettings() {
         </DialogContent>
       </Dialog>
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         .settings-sticky-bar-container {
           position: fixed;
           bottom: 20px;

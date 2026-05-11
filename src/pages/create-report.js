@@ -52,7 +52,7 @@ export default function CreateReport() {
     primaryComplaint: "",
     clinicalSummary: "",
     mentalStateExamination: "",
-    prognosis: "Favorable",
+    prognosis: "",
     
     // Prescription & Tasks
     tasksAssigned: "",
@@ -64,55 +64,99 @@ export default function CreateReport() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const doc = new jsPDF();
-    const primaryColor = [34, 135, 86]; // #228756
-    const secondaryColor = [30, 41, 59]; // #1e293b
-    const lightBg = [248, 250, 252]; // #f8fafc
+    const primaryColor = [34, 135, 86];
+    const primaryDark = [21, 84, 54];
+    const secondaryColor = [30, 41, 59];
+    const lightBg = [248, 250, 252];
+    const refId = `CYT-REP-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
-    // 1. Header Banner
-    doc.setFillColor(...primaryColor);
-    doc.rect(0, 0, 210, 22, 'F'); // Taller banner for website URL
+    // --- Load logo as base64 ---
+    const getBase64Image = (url) => new Promise((resolve) => {
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext("2d").drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+    const logoBase64 = await getBase64Image("/favicon.png");
+
+    // 1. Header — dark green bar
+    doc.setFillColor(...primaryDark);
+    doc.rect(0, 0, 210, 34, 'F');
+
+    // Logo — white circle background (perfectly centered around logo)
+    const logoSize = 20;
+    const logoX = 8;
+    const logoY = 7;
+    const cx = logoX + logoSize / 2;
+    const cy = logoY + logoSize / 2;
+    const radius = logoSize / 2 + 2;
+    doc.setFillColor(255, 255, 255);
+    doc.circle(cx, cy, radius, 'F');
+    if (logoBase64) {
+      doc.addImage(logoBase64, "PNG", logoX, logoY, logoSize, logoSize);
+    }
+
+    // Brand name
+    const textX = logoX + logoSize + 6;
     doc.setTextColor(255, 255, 255);
-    
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("CHOOSE YOUR THERAPIST", 105, 9, { align: "center" });
-    
+    doc.text("CHOOSE YOUR THERAPIST LLP", textX, 14);
+
+    // Website — tight gap below name, no line
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text("www.chooseyourtherapist.in", 105, 15, { align: "center" });
-    
-    // 2. Main Title
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(...secondaryColor);
-    doc.text("Psychological Consultation Summary", 10, 32);
-    
-    // 3. Practitioner Info (Moved to Left)
-    doc.setFontSize(10);
-    doc.setTextColor(80);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Practitioner: ${therapistInfo?.user?.name || "Certified Therapist"}`, 10, 40);
-    doc.setFont("helvetica", "normal");
-    doc.text([
-      `Designation: ${therapistInfo?.profile_type || "Mental Health Professional"}`,
-      `Report Date: ${formData.reportDate.format('DD MMMM YYYY')}`,
-      `Ref ID: CYT-REP-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
-    ], 10, 45);
+    doc.setTextColor(167, 243, 208);
+    doc.text("WWW.CHOOSEYOURTHERAPIST.IN", textX, 20);
 
-    // Removed website from right side header as requested
+    // Ref ID top right
+    doc.setFontSize(7.5);
+    doc.setTextColor(200, 240, 220);
+    doc.text(refId, 202, 8, { align: "right" });
+
+    // 2. Report Title — simple, white bg, centered
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 34, 210, 18, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.setTextColor(...secondaryColor);
+    doc.text("SESSION SUMMARY", 105, 42, { align: "center" });
+
+    // Thin line below SESSION SUMMARY heading
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.4);
+    doc.line(60, 45, 150, 45);
+
+    // Caption line below heading
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    const captionText = `Prepared by: ${therapistInfo?.user?.name || "Certified Therapist"}  ·  ${therapistInfo?.profile_type || "Mental Health Professional"}  ·  Session Date: ${formData.reportDate.format('DD MMMM YYYY')}`;
+    doc.text(captionText, 105, 51, { align: "center" });
 
     // 4. Demographic Section
     doc.setFillColor(...lightBg);
-    doc.rect(10, 58, 190, 35, 'F'); 
+    doc.rect(10, 60, 190, 38, 'F');
     doc.setDrawColor(226, 232, 240);
-    doc.rect(10, 58, 190, 35, 'S');
+    doc.rect(10, 60, 190, 38, 'S');
 
-    doc.setFontSize(11);
+    // Green left accent bar
+    doc.setFillColor(...primaryColor);
+    doc.rect(10, 60, 3, 38, 'F');
+
+    doc.setFontSize(9);
     doc.setTextColor(...primaryColor);
     doc.setFont("helvetica", "bold");
-    doc.text("CLIENT & SESSION INFORMATION", 15, 64);
+    doc.text("CLIENT & SESSION INFORMATION", 17, 67);
     
     doc.setTextColor(50);
     doc.setFontSize(10);
@@ -126,102 +170,113 @@ export default function CreateReport() {
     };
 
     // Row 1
-    drawField("Name", formData.clientName, 15, 72);
-    drawField("Age", formData.age, 85, 72);
-    drawField("Gender", formData.gender, 145, 72);
-    
+    drawField("Name", formData.clientName, 17, 75);
+    drawField("Age", formData.age, 87, 75);
+    drawField("Gender", formData.gender, 147, 75);
+
     // Row 2
-    drawField("Occupation", formData.occupation, 15, 79);
-    drawField("Marital Status", formData.maritalStatus, 85, 79);
-    drawField("Report Date", formData.reportDate.format('DD/MM/YYYY'), 145, 79);
+    drawField("Occupation", formData.occupation, 17, 83);
+    drawField("Marital Status", formData.maritalStatus, 87, 83);
+    drawField("Session Date", formData.reportDate.format('DD/MM/YYYY'), 147, 83);
 
     // Row 3
-    drawField("Session Type", formData.sessionType, 15, 86);
-    drawField("Prognosis", formData.prognosis, 85, 86);
+    drawField("Session Type", formData.sessionType, 17, 91);
+    if (formData.prognosis) {
+      drawField("Prognosis", formData.prognosis, 107, 91);
+    }
 
-    // 5. Assessment Details (Tables)
-    let currentY = 100; // Reduced from 100
+    // 5. Assessment Sections
+    let currentY = 105;
+
+    const FOOTER_TOP = 275; // footer starts here, content must stay above
+    const PAGE_BREAK_AT = FOOTER_TOP - 20; // safe threshold before footer
+
     const drawSection = (title, content) => {
       if (!content) return;
-      
-      if (currentY > 260) {
-        doc.addPage();
-        currentY = 25;
-      }
-      
+      const lines = doc.splitTextToSize(content, 190);
+      const neededH = (lines.length * 5) + 16;
+      if (currentY + neededH > PAGE_BREAK_AT) { doc.addPage(); currentY = 25; }
+
+      // Caption label — green
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
+      doc.setFontSize(7.5);
       doc.setTextColor(...primaryColor);
       doc.text(title.toUpperCase(), 10, currentY);
-      
+
+
+      // Content
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
-      doc.setTextColor(30);
-      
-      // Use left alignment with full width to avoid awkward word gaps
-      doc.text(content, 10, currentY + 7, { 
-        maxWidth: 190, 
-        align: 'left' 
-      });
-      
-      // Calculate height for next section
+      doc.setTextColor(30, 41, 59);
+      doc.text(content, 10, currentY + 8, { maxWidth: 190, align: 'left' });
+
       const splitText = doc.splitTextToSize(content, 190);
-      currentY += (splitText.length * 5) + 12; // Reduced gap from 15 to 12
+      currentY += (splitText.length * 5) + 14;
     };
 
     drawSection("Primary Complaint", formData.primaryComplaint);
     drawSection("Mental State Examination (MSE)", formData.mentalStateExamination);
-    drawSection("Clinical Observations", formData.clinicalSummary);
+    drawSection("Observation", formData.clinicalSummary);
 
-    // 6. Tasks & Recommendations (Dynamic Box)
+    // 6. Therapeutic Tasks Card — premium styled
     if (formData.tasksAssigned || formData.prescription) {
-      const tasksLines = formData.tasksAssigned ? doc.splitTextToSize(formData.tasksAssigned, 180) : [];
-      const rxLines = formData.prescription ? doc.splitTextToSize(formData.prescription, 180) : [];
-      
-      // Calculate dynamic height
-      const tasksHeight = tasksLines.length > 0 ? (tasksLines.length * 5) + 12 : 0;
-      const rxHeight = rxLines.length > 0 ? (rxLines.length * 5) + 12 : 0;
-      const boxHeight = 15 + tasksHeight + rxHeight;
-
-      if (currentY + boxHeight > 260) {
-        doc.addPage();
-        currentY = 25;
-      }
-      
-      doc.setFillColor(255, 252, 245);
-      doc.rect(10, currentY, 190, boxHeight, 'F');
-      doc.setDrawColor(254, 243, 199);
-      doc.rect(10, currentY, 190, boxHeight, 'S');
-      
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(194, 120, 3); // Orange-ish
-      doc.text("THERAPEUTIC TASKS & REMEDIES", 15, currentY + 8);
-      
-      let textY = currentY + 16;
-      if (formData.tasksAssigned) {
-        doc.setTextColor(30);
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "bold");
-        doc.text("Assigned Homework:", 15, textY);
-        doc.setFont("helvetica", "normal");
-        doc.text(formData.tasksAssigned, 15, textY + 5, { 
-          maxWidth: 180, 
-          align: 'left' 
+      // Count bullet lines for height calculation
+      const countBulletH = (text) => {
+        if (!text) return 0;
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        let h = 0;
+        lines.forEach(line => {
+          const wrapped = doc.splitTextToSize(line, 165);
+          h += (wrapped.length * 5) + 2;
         });
-        textY += (tasksLines.length * 5) + 10;
+        return h;
+      };
+      const tasksBlockH = formData.tasksAssigned ? countBulletH(formData.tasksAssigned) + 14 : 0;
+      const rxBlockH = formData.prescription ? countBulletH(formData.prescription) + 14 : 0;
+      const cardH = 14 + tasksBlockH + rxBlockH + 6;
+
+      if (currentY + cardH > PAGE_BREAK_AT) { doc.addPage(); currentY = 25; }
+
+      // Helper — draw bullet points from line-by-line text
+      const drawBullets = (text, startX, startY) => {
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        let y = startY;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(30, 41, 59);
+        lines.forEach(line => {
+          const wrapped = doc.splitTextToSize(line, 175);
+          doc.setTextColor(...primaryColor);
+          doc.text("•", startX, y);
+          doc.setTextColor(30, 41, 59);
+          doc.text(wrapped, startX + 5, y, { maxWidth: 175 });
+          y += (wrapped.length * 5) + 0.5;
+        });
+        return y;
+      };
+
+      let textY = currentY + 4;
+
+      if (formData.tasksAssigned) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7.5);
+        doc.setTextColor(...primaryColor);
+        doc.text("HOMEWORK ASSIGNED", 10, textY);
+        textY += 6;
+        textY = drawBullets(formData.tasksAssigned, 10, textY);
+        textY += 6;
       }
 
       if (formData.prescription) {
-        doc.setTextColor(30);
-        doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
-        doc.text("Clinical Remedies / Rx:", 15, textY);
-        doc.setFont("helvetica", "normal");
-        doc.text(formData.prescription, 15, textY + 5, { 
-          maxWidth: 180, 
-          align: 'left' 
-        });
+        doc.setFontSize(7.5);
+        doc.setTextColor(...primaryColor);
+        doc.text("THERAPEUTIC SOLUTION", 10, textY);
+        textY += 6;
+        drawBullets(formData.prescription, 10, textY);
       }
+
+      currentY += cardH + 8;
     }
 
     // 7. Watermark & Brand Footer for all pages
@@ -231,38 +286,37 @@ export default function CreateReport() {
     for(let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       
-      // Watermark Text
-      doc.saveGraphicsState();
-      doc.setGState(new doc.GState({ opacity: 0.05 }));
-      doc.setFontSize(60);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(150);
-      doc.text("CYT", 105, 150, { align: "center", angle: 45 });
-      doc.restoreGraphicsState();
+      // Watermark — favicon logo centered
+      if (logoBase64) {
+        doc.saveGraphicsState();
+        doc.setGState(new doc.GState({ opacity: 0.06 }));
+        doc.addImage(logoBase64, "PNG", 75, 110, 60, 60);
+        doc.restoreGraphicsState();
+      }
 
-      // Disclaimer
-      doc.setFontSize(7.5);
-      doc.setTextColor(130);
-      const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
-      doc.text(splitDisclaimer, 105, 275, { align: "center" });
-      
-      // Brand Footer
-      doc.setFontSize(8);
-      doc.setTextColor(150);
-      doc.text("This is an electronically generated clinical report from Choose Your Therapist (CYT).", 105, 285, { align: "center" });
-      doc.text(`Page ${i} of ${pageCount}`, 200, 285, { align: "right" });
+      // Green footer bar with disclaimer + page number
+      doc.setFillColor(...primaryColor);
+      doc.rect(0, 278, 210, 19, 'F');
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.8);
+      doc.setTextColor(255, 255, 255);
+      doc.text("This document is a digital summary intended for follow-up reference only. It has been generated based on information provided during", 105, 284, { align: "center" });
+      doc.text("consultations with your chosen practitioner on the Choose Your Therapist platform.", 105, 290, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.text(`Page ${i} of ${pageCount}`, 200, 295, { align: "right" });
     }
 
-    // Signature on last page
-    const finalY = 260;
+    // Signature — placed after content, before footer
+    const sigY = Math.min(currentY + 6, PAGE_BREAK_AT - 18);
     doc.setDrawColor(200);
-    doc.line(140, finalY, 200, finalY);
+    doc.line(140, sigY, 200, sigY);
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(30);
-    doc.text(therapistInfo?.user?.name || "Authorised Signature", 170, finalY + 5, { align: "center" });
+    doc.text(therapistInfo?.user?.name || "Authorised Signature", 170, sigY + 5, { align: "center" });
     doc.setFont("helvetica", "normal");
-    doc.text(therapistInfo?.profile_type || "Mental Health Professional", 170, finalY + 10, { align: "center" });
+    doc.text(therapistInfo?.profile_type || "Mental Health Professional", 170, sigY + 10, { align: "center" });
 
     // Open in New Tab
     const pdfUrl = doc.output('bloburl');
@@ -278,9 +332,9 @@ export default function CreateReport() {
     setLoading(true);
     
     // Simulate API call
-    setTimeout(() => {
+    setTimeout(async () => {
       toast.success("Clinical Report Saved Successfully!");
-      generatePDF(); // Generate and open PDF
+      await generatePDF();
       setLoading(false);
     }, 1500);
   };
@@ -390,7 +444,9 @@ export default function CreateReport() {
                       <Typography sx={labelStyle}>Marital Status</Typography>
                       <TextField select fullWidth name="maritalStatus" value={formData.maritalStatus} onChange={handleChange} sx={inputStyle}>
                         <MenuItem value="Single">Single</MenuItem>
+                        <MenuItem value="In a Relationship">In a Relationship</MenuItem>
                         <MenuItem value="Married">Married</MenuItem>
+                        <MenuItem value="Separated">Separated</MenuItem>
                         <MenuItem value="Divorced">Divorced</MenuItem>
                         <MenuItem value="Widowed">Widowed</MenuItem>
                       </TextField>
@@ -465,16 +521,16 @@ export default function CreateReport() {
                   
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     <Box>
-                      <Typography sx={labelStyle}>Report Date</Typography>
+                      <Typography sx={labelStyle}>Session Date</Typography>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           value={formData.reportDate}
                           onChange={(newDate) => setFormData({ ...formData, reportDate: newDate })}
-                          slotProps={{ 
-                            textField: { 
-                              fullWidth: true, 
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
                               sx: inputStyle
-                            } 
+                            }
                           }}
                         />
                       </LocalizationProvider>
@@ -483,6 +539,9 @@ export default function CreateReport() {
                     <Box>
                       <Typography sx={labelStyle}>Session Type</Typography>
                       <TextField select fullWidth name="sessionType" value={formData.sessionType} onChange={handleChange} sx={inputStyle}>
+                        <MenuItem value="Online">Online</MenuItem>
+                        <MenuItem value="In-Person">In-Person</MenuItem>
+                        <MenuItem value="Home Visit">Home Visit</MenuItem>
                         <MenuItem value="Therapy Session">Therapy Session</MenuItem>
                         <MenuItem value="Initial Consultation">Initial Consultation</MenuItem>
                         <MenuItem value="Diagnostic Interview">Diagnostic Interview</MenuItem>
@@ -491,8 +550,9 @@ export default function CreateReport() {
                     </Box>
 
                     <Box>
-                      <Typography sx={labelStyle}>Prognosis</Typography>
+                      <Typography sx={labelStyle}>Prognosis <span style={{ color: '#cbd5e1', fontWeight: 500, textTransform: 'none' }}>(optional)</span></Typography>
                       <TextField select fullWidth name="prognosis" value={formData.prognosis} onChange={handleChange} sx={inputStyle}>
+                        <MenuItem value="">— Not Specified —</MenuItem>
                         <MenuItem value="Excellent">Excellent</MenuItem>
                         <MenuItem value="Favorable">Favorable</MenuItem>
                         <MenuItem value="Guarded">Guarded</MenuItem>

@@ -247,12 +247,16 @@ export default function PaymentDetails({ onSuccess }) {
 
       <Box sx={{ mt: 4 }}>
         <FormMessage error={error} success={success} />
-        <div className="rbt-form-group d-none">
-          <button className="rbt-btn btn-gradient submit-btn" onClick={handleSubmit}>
-            Update
+        {loading && <FormProgressBar />}
+        <div className="rbt-form-group">
+          <button
+            className="rbt-btn btn-gradient submit-btn"
+            onClick={handleSubmit}
+            style={{ padding: "0 40px", height: "52px", borderRadius: "12px", fontWeight: "600" }}
+          >
+            Save Payment Details
           </button>
         </div>
-        {loading && <FormProgressBar />}
       </Box>
     </div>
   );

@@ -201,7 +201,7 @@ export default function ProfileInfoTab({ pageData }) {
                 <div style={glassCard} className="glass-card-mobile">
                   <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c' }}>Services</h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {pageData.services.split(",").map((item) => (
+                    {(pageData.services || "").split(",").map((item) => (
                       <span key={item} className="service-chip" style={serviceChipStyle}>{item.trim()}</span>
                     ))}
                   </div>
@@ -211,7 +211,7 @@ export default function ProfileInfoTab({ pageData }) {
                 <div style={glassCard} className="glass-card-mobile">
                   <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c', borderLeftColor: '#3b82f6' }}>Expertise</h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {pageData.experties.split(",").map((item) => (
+                    {(pageData.experties || "").split(",").map((item) => (
                       <span key={item} className="expertise-chip" style={expertiseChipStyle}>{item.trim()}</span>
                     ))}
                   </div>

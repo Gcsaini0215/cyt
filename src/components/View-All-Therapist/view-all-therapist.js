@@ -247,7 +247,7 @@ export default function ViewAllTherapist() {
         </div>
       </div>
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         .dark-premium-banner {
           position: relative;
           background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');

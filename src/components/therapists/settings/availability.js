@@ -179,23 +179,27 @@ const Availability = ({ onSuccess }) => {
     cursor: 'pointer'
   };
 
+  const slotSelect = {
+    height: '36px', borderRadius: '8px', border: '1px solid #e2e8f0',
+    padding: '0 8px', fontSize: '13px', fontWeight: '600',
+    color: '#1e293b', width: '130px', cursor: 'pointer', background: '#fff',
+  };
+
   return (
     <div className="rbt-dashboard-content-wrapper">
-      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+      {/* Header */}
+      <Box sx={{ mb: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b' }}>Weekly Schedule</Typography>
-          <Typography variant="body2" sx={{ color: '#64748b' }}>Set your available time slots for each day</Typography>
+          <Typography variant="body2" sx={{ color: '#94a3b8', mt: 0.3 }}>Set your available hours for each day</Typography>
         </Box>
-        <Button 
-          variant="outlined" 
-          startIcon={<ContentCopyIcon />}
+        <Button
+          variant="outlined" size="small"
+          startIcon={<ContentCopyIcon sx={{ fontSize: 15 }} />}
           onClick={copyMondayToAll}
-          sx={{ 
-            borderRadius: '12px', 
-            textTransform: 'none', 
-            fontWeight: 700,
-            borderColor: '#e2e8f0',
-            color: '#1e293b',
+          sx={{
+            borderRadius: '8px', textTransform: 'none', fontWeight: 700,
+            fontSize: '13px', borderColor: '#e2e8f0', color: '#475569',
             '&:hover': { borderColor: '#2ecc71', color: '#2ecc71', background: '#f0fdf4' }
           }}
         >
@@ -203,125 +207,97 @@ const Availability = ({ onSuccess }) => {
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {Object.keys(times).map((day) => (
-          <Paper 
-            key={day} 
-            elevation={0}
-            sx={{ 
-              p: 3, 
-              borderRadius: '20px', 
-              border: '1px solid',
-              borderColor: activeDays[day] ? '#2ecc71' : '#f1f5f9',
-              background: activeDays[day] ? '#fff' : '#f8fafc',
-              transition: 'all 0.2s ease'
+      {/* Table-style layout */}
+      <Paper elevation={0} sx={{ borderRadius: '16px', border: '1.5px solid #f1f5f9', overflow: 'hidden' }}>
+        {Object.keys(times).map((day, dayIdx) => (
+          <Box
+            key={day}
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              borderBottom: dayIdx < 6 ? '1px solid #f1f5f9' : 'none',
+              background: activeDays[day] ? '#fff' : '#fafafa',
+              transition: 'background 0.2s',
+              flexWrap: { xs: 'wrap', md: 'nowrap' },
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: activeDays[day] ? 3 : 0 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ 
-                  width: 40, 
-                  height: 40, 
-                  borderRadius: '10px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
+            {/* Left: Day info + toggle */}
+            <Box sx={{
+              width: { xs: '100%', md: '180px' },
+              minWidth: { md: '180px' },
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              px: 2.5, py: 1.8,
+              borderRight: { md: '1px solid #f1f5f9' },
+              borderBottom: { xs: '1px solid #f1f5f9', md: 'none' },
+              background: activeDays[day] ? '#f0fdf4' : '#f8fafc',
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                <Box sx={{
+                  width: 30, height: 30, borderRadius: '7px',
                   background: activeDays[day] ? '#2ecc71' : '#e2e8f0',
-                  color: '#fff'
+                  color: '#fff', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', flexShrink: 0,
+                  transition: 'background 0.2s'
                 }}>
-                  <Typography sx={{ fontWeight: 800, fontSize: '14px' }}>{day.charAt(0)}</Typography>
+                  <Typography sx={{ fontWeight: 800, fontSize: '12px' }}>{day.slice(0, 2)}</Typography>
                 </Box>
-                <Typography sx={{ fontWeight: 700, fontSize: '18px', color: activeDays[day] ? '#1e293b' : '#94a3b8' }}>
+                <Typography sx={{ fontWeight: 700, fontSize: '14px', color: activeDays[day] ? '#1e293b' : '#94a3b8' }}>
                   {day}
                 </Typography>
               </Box>
-              <FormControlLabel
-                control={
-                  <Switch 
-                    checked={activeDays[day]} 
-                    onChange={() => handleDayToggle(day)}
-                    color="success"
-                  />
-                }
-                label={activeDays[day] ? "Available" : "Unavailable"}
-                sx={{ 
-                  m: 0, 
-                  '& .MuiTypography-root': { 
-                    fontSize: '14px', 
-                    fontWeight: 700,
-                    color: activeDays[day] ? '#2ecc71' : '#94a3b8'
-                  } 
-                }}
-              />
+              <Switch checked={activeDays[day]} onChange={() => handleDayToggle(day)} color="success" size="small" />
             </Box>
 
-            {activeDays[day] && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {times[day].map((time, index) => (
-                  <Box key={`${day}-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                    <Box sx={{ flex: 1, minWidth: '140px' }}>
-                      <Typography sx={{ fontWeight: 800, color: '#475569', mb: 1, display: 'block', fontSize: '16px' }}>Starts at</Typography>
-                      <select
-                        style={selectStyle}
-                        value={time.open}
-                        onChange={(e) => handleTimeChange(day, index, "open", e.target.value)}
-                      >
-                        <option value="">Select Time</option>
-                        {allTimes.map((timeOption) => (
-                          <option key={timeOption} value={timeOption}>{timeOption}</option>
-                        ))}
-                      </select>
-                    </Box>
-                    <Box sx={{ flex: 1, minWidth: '140px' }}>
-                      <Typography sx={{ fontWeight: 800, color: '#475569', mb: 1, display: 'block', fontSize: '16px' }}>Ends at</Typography>
-                      <select
-                        style={selectStyle}
-                        value={time.close}
-                        onChange={(e) => handleTimeChange(day, index, "close", e.target.value)}
-                      >
-                        <option value="">Select Time</option>
-                        {allTimes.map((timeOption) => (
-                          <option key={timeOption} value={timeOption}>{timeOption}</option>
-                        ))}
-                      </select>
-                    </Box>
-                    <Box sx={{ pt: 3 }}>
-                      {index === 0 ? (
-                        <Tooltip title="Add Slot">
-                          <IconButton 
-                            onClick={() => addOvertime(day)}
-                            sx={{ color: '#2ecc71', background: '#f0fdf4', '&:hover': { background: '#dcfce7' } }}
-                          >
-                            <AddCircleOutlineIcon />
-                          </IconButton>
-                        </Tooltip>
-                      ) : (
-                        <Tooltip title="Remove Slot">
-                          <IconButton 
-                            onClick={() => deleteOvertime(day, index)}
-                            sx={{ color: '#ef4444', background: '#fef2f2', '&:hover': { background: '#fee2e2' } }}
-                          >
-                            <DeleteOutlineIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
+            {/* Right: Time slots */}
+            <Box sx={{ flex: 1, px: 2.5, py: 1.5, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+              {activeDays[day] ? (
+                times[day].map((time, index) => (
+                  <Box key={`${day}-${index}`} sx={{ display: 'flex', alignItems: 'center', gap: 1.2, flexWrap: 'wrap' }}>
+                    <AccessTimeIcon sx={{ fontSize: 15, color: '#94a3b8', flexShrink: 0 }} />
+                    <select style={slotSelect} value={time.open} onChange={(e) => handleTimeChange(day, index, "open", e.target.value)}>
+                      <option value="">Start time</option>
+                      {allTimes.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <Typography sx={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700 }}>—</Typography>
+                    <select style={slotSelect} value={time.close} onChange={(e) => handleTimeChange(day, index, "close", e.target.value)}>
+                      <option value="">End time</option>
+                      {allTimes.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    {index === 0 ? (
+                      <Tooltip title="Add slot">
+                        <IconButton size="small" onClick={() => addOvertime(day)} sx={{ color: '#2ecc71', background: '#f0fdf4', width: 28, height: 28, '&:hover': { background: '#dcfce7' } }}>
+                          <AddCircleOutlineIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip title="Remove">
+                        <IconButton size="small" onClick={() => deleteOvertime(day, index)} sx={{ color: '#ef4444', background: '#fef2f2', width: 28, height: 28, '&:hover': { background: '#fee2e2' } }}>
+                          <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
-                ))}
-              </Box>
-            )}
-          </Paper>
+                ))
+              ) : (
+                <Typography sx={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 600, py: 0.8 }}>Unavailable</Typography>
+              )}
+            </Box>
+          </Box>
         ))}
-      </Box>
+      </Paper>
 
-      <Box sx={{ mt: 4 }}>
+      <Box sx={{ mt: 3 }}>
         <FormMessage error={error} success={success} />
-        <div className="rbt-form-group d-none">
-          <button className="rbt-btn btn-gradient submit-btn" onClick={handleSubmit}>
-            Update
+        {loading && <FormProgressBar />}
+        <div className="rbt-form-group">
+          <button
+            className="rbt-btn btn-gradient submit-btn"
+            onClick={handleSubmit}
+            style={{ padding: "0 40px", height: "52px", borderRadius: "12px", fontWeight: "600" }}
+          >
+            Save Schedule
           </button>
         </div>
-        {loading && <FormProgressBar />}
       </Box>
     </div>
   );

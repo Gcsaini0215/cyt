@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import PersonIcon from "@mui/icons-material/Person";
 import LanguageIcon from "@mui/icons-material/Language";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -100,6 +100,16 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         .rbt-card:hover .card-profile-img {
           transform: scale(1.08);
         }
+        @keyframes fillStar {
+          0% { color: #e2e8f0; }
+          100% { color: #fbc02d; }
+        }
+        .star-filled {
+          animation: fillStar 0.4s ease forwards;
+        }
+        .star-empty {
+          color: #e2e8f0;
+        }
       `}</style>
       <div 
         className="rbt-card variation-01 rbt-hover card-list-2" 
@@ -148,35 +158,34 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               }}
             >
               <span
-                className="rbt-badge-6"
                 style={{
                   background: isRecommended
-                    ? "linear-gradient(135deg, #36b477ff 0%, #35c06fff 50%, #2c7754ff 100%)"
-                    : "linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%)",
+                    ? "linear-gradient(135deg, #1a7a4a 0%, #2ecc71 50%, #27ae60 100%)"
+                    : "linear-gradient(135deg, #1976d2 0%, #42a5f5 50%, #0d47a1 100%)",
                   color: "#fff",
-                  padding: "10px 18px 10px 24px",
-                  fontSize: "13px",
+                  padding: "7px 16px 7px 20px",
+                  fontSize: "12px",
                   fontWeight: "800",
                   display: "flex",
                   alignItems: "center",
-                  gap: "6px",
-                  position: "relative",
-                  borderRadius: "0 25px 25px 0",
-                  boxShadow: "0 6px 20px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)",
-                  transform: "translateX(-12px) translateY(2px)",
-                  clipPath: "polygon(12px 0%, 100% 0%, 88% 100%, 0% 100%)",
-                  textShadow: "0 1px 2px rgba(0,0,0,0.3)",
-                  border: "2px solid rgba(255,255,255,0.2)",
-                  backdropFilter: "blur(10px)",
+                  gap: "5px",
+                  borderRadius: "0 4px 4px 0",
+                  boxShadow: isRecommended
+                    ? "0 4px 15px rgba(46,204,113,0.5)"
+                    : "0 4px 15px rgba(25,118,210,0.4)",
+                  clipPath: "polygon(10px 0%, 100% 0%, 100% 100%, 0% 100%)",
+                  textShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                  letterSpacing: "0.5px",
+                  textTransform: "uppercase",
                 }}
               >
                 {isRecommended ? (
                   <>
-                    <ThumbUpIcon sx={{ fontSize: 16 }} /> Recommended
+                    <WorkspacePremiumIcon sx={{ fontSize: 15 }} /> Recommended
                   </>
                 ) : (
                   <>
-                    <VerifiedIcon sx={{ fontSize: 16 }} /> Verified
+                    <VerifiedIcon sx={{ fontSize: 15 }} /> Verified
                   </>
                 )}
               </span>
@@ -185,137 +194,117 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         </div>
 
         {/* Card Body */}
-        <div className="rbt-card-body" style={{ padding: "24px" }}>
-            <div className="rbt-review" style={{ display: "flex", alignItems: "center", gap: "10px", width: '100%', justifyContent: 'space-between' }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <h4 className="rbt-card-title" style={{ 
-                  margin: 0, 
-                  fontSize: "22px", 
-                  fontWeight: "800",
-                  letterSpacing: "-0.5px",
-                  color: "#1e293b"
-                }}>
-                  <Link href={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
-                    {pageData.user?.name || "Therapist"}
-                  </Link>
-                </h4>
-                {/* Icon next to name - Verified or Recommended */}
-                {isRecommended ? (
-                  <ThumbUpIcon sx={{ fontSize: 20, color: "#228756" }} />
-                ) : (
-                  <VerifiedIcon sx={{ fontSize: 20, color: "#1976d2" }} />
-                )}
-              </div>
-              
-              {/* Review Badge */}
-              {pageData.reviews && pageData.reviews.length > 0 && (
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '4px',
-                  background: '#fff9c4',
-                  padding: '2px 8px',
-                  borderRadius: '8px',
-                  border: '1px solid #fff176'
-                }}>
-                  <StarIcon sx={{ fontSize: 16, color: '#fbc02d' }} />
-                  <span style={{ fontSize: '13px', fontWeight: '800', color: '#f57f17' }}>
-                    {(pageData.reviews.reduce((acc, rev) => acc + (rev.rating || 5), 0) / pageData.reviews.length).toFixed(1)}
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#666', fontWeight: '600' }}>
-                    ({pageData.reviews.length})
+        <div className="rbt-card-body" style={{ padding: "20px" }}>
+            {/* Header row: name + icon + bookmark */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "8px" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <h4 className="rbt-card-title" style={{
+                    margin: 0,
+                    fontSize: "22px",
+                    fontWeight: "800",
+                    letterSpacing: "-0.3px",
+                    color: "#1e293b",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "100%"
+                  }}>
+                    <Link href={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
+                      {pageData.user?.name || "Therapist"}
+                    </Link>
+                  </h4>
+                  {isRecommended ? (
+                    <WorkspacePremiumIcon sx={{ fontSize: 18, color: "#27ae60", flexShrink: 0 }} />
+                  ) : (
+                    <VerifiedIcon sx={{ fontSize: 18, color: "#1976d2", flexShrink: 0 }} />
+                  )}
+                </div>
+                <div style={{ marginTop: "3px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: "600", color: "#64748b" }}>
+                    {pageData.profile_type}
                   </span>
                 </div>
-              )}
-            </div>
-            {showBookmark && (
-              <div className="rbt-bookmark-btn">
+                {/* Stars row below profile type */}
+                {(() => {
+                  const hasReviews = pageData.reviews && pageData.reviews.length > 0;
+                  const avgRating = hasReviews
+                    ? pageData.reviews.reduce((acc, rev) => acc + (rev.rating || 5), 0) / pageData.reviews.length
+                    : 0;
+                  const filledStars = hasReviews ? Math.round(avgRating) : 0;
+                  return (
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "5px" }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <StarIcon
+                          key={star}
+                          className={hasReviews && star <= filledStars ? "star-filled" : "star-empty"}
+                          sx={{
+                            fontSize: 18,
+                            animationDelay: hasReviews ? `${(star - 1) * 0.1}s` : "0s",
+                          }}
+                        />
+                      ))}
+                      {hasReviews && (
+                        <span style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", marginLeft: "4px" }}>
+                          {avgRating.toFixed(1)} ({pageData.reviews.length})
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+
+              </div>
+
+              {/* Bookmark button top-right */}
+              {showBookmark && (
                 <button
                   style={{
                     cursor: "pointer",
                     background: "#f8fafc",
                     border: "1px solid #f1f5f9",
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "12px",
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "10px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     color: bookmark ? "#228756" : "#94a3b8",
-                    transition: "all 0.3s ease"
+                    transition: "all 0.3s ease",
+                    flexShrink: 0
                   }}
                   title="Bookmark"
                   onClick={() => handleBookmark(pageData._id, bookmark)}
                 >
                   {bookmark ? (
-                    <BookmarkAddedIcon sx={{ fontSize: 24 }} />
+                    <BookmarkAddedIcon sx={{ fontSize: 20 }} />
                   ) : (
-                    <BookmarkBorderIcon sx={{ fontSize: 24 }} />
+                    <BookmarkBorderIcon sx={{ fontSize: 20 }} />
                   )}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
 
-          {/* Meta info with monochrome icons */}
-          <ul className="rbt-meta" style={{ marginTop: "4px", gap: "8px", display: "flex", flexWrap: "wrap", alignItems: "center" }}>
-            <li style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-              color: "#228756",
-              fontWeight: "700",
-              fontSize: "13px",
-              background: "#e8f5e9",
-              padding: "2px 8px",
-              borderRadius: "6px"
-            }}>
-              <PersonIcon sx={{ fontSize: 16, color: "#228756" }} /> {pageData.profile_type}
-            </li>
+          {/* Meta info */}
+          <ul className="rbt-meta" style={{ marginTop: "6px", gap: "6px", display: "flex", flexWrap: "wrap", alignItems: "center", padding: 0, listStyle: "none" }}>
             {pageData.state && (
-              <li style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px", color: "#64748b", fontWeight: "600" }}>
-                <LocationOnIcon sx={{ fontSize: 16, color: "#228756" }} /> {pageData.state}
+              <li style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#64748b", fontWeight: "600" }}>
+                <LocationOnIcon sx={{ fontSize: 14, color: "#228756" }} /> {pageData.state}
               </li>
             )}
-            <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
-              <LanguageIcon sx={{ fontSize: 16, color: "#94a3b8" }} /> {pageData.language_spoken}
-            </li>
+            {pageData.language_spoken && (
+              <li style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#64748b" }}>
+                <LanguageIcon sx={{ fontSize: 14, color: "#94a3b8" }} /> {pageData.language_spoken}
+              </li>
+            )}
             {pageData.year_of_exp && (
-              <li style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
-                <WorkIcon sx={{ fontSize: 16, color: "#94a3b8" }} /> {pageData.year_of_exp} exp.
+              <li style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#64748b" }}>
+                <WorkIcon sx={{ fontSize: 14, color: "#94a3b8" }} /> {pageData.year_of_exp}
               </li>
             )}
           </ul>
 
-          {/* Services - Show up to 3 services as tags */}
-          {pageData.services_offered && (
-            <div style={{ marginTop: '8px' }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: '600',
-                color: '#333',
-                marginBottom: '4px'
-              }}>
-                Services
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {pageData.services_offered.split(',').slice(0, 3).map((service, index) => (
-                  <span key={index} style={{
-                    display: 'inline-block',
-                    backgroundColor: '#e8f5e9',
-                    color: '#228756',
-                    padding: '4px 8px',
-                    borderRadius: '12px',
-                    fontSize: '11px',
-                    fontWeight: '500',
-                    whiteSpace: 'nowrap',
-                    border: '1px solid #c8e6c9'
-                  }}>
-                    {service.trim()}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
+
+
 
           {/* Buttons */}
           {showOnlyBookButton ? (
