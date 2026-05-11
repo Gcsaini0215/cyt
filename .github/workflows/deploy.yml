@@ -55,18 +55,9 @@ jobs:
           timeout: 60s
           command_timeout: 30m
           script: |
-            mkdir -p /root/cyt
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
-            # Build and Production clean up
             npm ci --production
-            # Port release
-            fuser -k 3000/tcp || true
-            # PM2 complete reset and start
-            pm2 delete cyt_frontend || true
-            pm2 start npm --name "cyt_frontend" -- start
+            pm2 reload cyt-frontend --update-env
             pm2 save
-            # Check status
-            sleep 5
+            sleep 3
             pm2 status
-            # Log output (simple, no dangerous flags)
-            pm2 logs cyt_frontend --lines 20 --nostream
