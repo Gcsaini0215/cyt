@@ -13,7 +13,7 @@ export default function Plans() {
   return (
     <div id="__next">
       <Head>
-        <title>Therapy Plans & Pricing | Affordable Counseling in India | Choose Your Therapist</title>
+        <title>Therapy Plan & Pricing | Affordable Counseling in India | Choose Your Therapist</title>
         <meta name="robots" content="index, follow" />
         <meta name="description" content="Explore affordable therapy plans and pricing at Choose Your Therapist. We offer flexible options for individual counseling, couples therapy, and specialized mental health support starting from ₹500." />
         <meta name="keywords" content="Therapy Plans, Counseling Pricing India, Affordable Therapy, Mental Health Packages, Choose Your Therapist Plans" />
