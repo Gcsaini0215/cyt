@@ -51,31 +51,16 @@ export const fetchData = (url, params = {}) => {
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
-    console.log("Fetching data from:", url, "with params:", params);
     axios
-      .get(url, { 
+      .get(url, {
         params,
         headers,
-        timeout: 10000 // 10 seconds timeout
+        timeout: 10000,
       })
       .then((response) => {
-        console.log(`Response received from ${url}:`, {
-          status: response.status,
-          dataType: typeof response.data,
-          dataLength: Array.isArray(response.data) ? response.data.length : (response.data?.data ? response.data.data.length : 'N/A')
-        });
         resolve(response.data);
       })
       .catch((error) => {
-        console.error("API Fetch Error:", url);
-        if (error.response) {
-          console.error("- Status:", error.response.status);
-          console.error("- Data:", error.response.data);
-        } else if (error.request) {
-          console.error("- No response received. Possible CORS issue or Network error.");
-        } else {
-          console.error("- Message:", error.message);
-        }
         reject(error);
       });
   });
@@ -113,6 +98,7 @@ export const postData = (url, data) => {
     axios
       .post(url, data, {
         headers,
+        timeout: 15000,
       })
       .then((response) => {
         resolve(response.data);

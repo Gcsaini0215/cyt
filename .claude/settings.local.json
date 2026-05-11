@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir d:\\\\cyt\\\\src\\\\pages\\\\login*)",
+      "WebFetch(domain:api.chooseyourtherapist.in)"
+    ]
+  }
+}
