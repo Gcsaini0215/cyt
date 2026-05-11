@@ -72,6 +72,18 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         .therapist-banner-card { animation: cardIn 0.7s cubic-bezier(0.22,1,0.36,1) both; transition: transform 0.3s ease, box-shadow 0.3s ease !important; }
         .therapist-banner-card:hover { transform: translateY(-8px) !important; box-shadow: 0 20px 48px rgba(34,135,86,0.14) !important; }
         .browse-btn:hover { background: #1a6b44 !important; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(34,135,86,0.35) !important; }
+        .banner-swiper .swiper-button-next,
+        .banner-swiper .swiper-button-prev {
+          width: 34px; height: 34px;
+          background: #228756; border-radius: 50%;
+          color: white !important;
+          box-shadow: 0 4px 14px rgba(34,135,86,0.35);
+          top: auto; bottom: -44px;
+        }
+        .banner-swiper .swiper-button-prev { left: calc(50% - 44px); }
+        .banner-swiper .swiper-button-next { right: calc(50% - 44px); }
+        .banner-swiper .swiper-button-next::after,
+        .banner-swiper .swiper-button-prev::after { font-size: 13px !important; font-weight: 900 !important; }
       `}</style>
 
       <section style={{
@@ -238,20 +250,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
               </div>
 
               {/* Therapist Cards — Swiper 2 at a time */}
-              <style jsx global>{`
-                .banner-swiper .swiper-button-next,
-                .banner-swiper .swiper-button-prev {
-                  width: 34px; height: 34px;
-                  background: #228756; border-radius: 50%;
-                  color: white !important;
-                  box-shadow: 0 4px 14px rgba(34,135,86,0.35);
-                  top: auto; bottom: -44px;
-                }
-                .banner-swiper .swiper-button-prev { left: calc(50% - 44px); }
-                .banner-swiper .swiper-button-next { right: calc(50% - 44px); }
-                .banner-swiper .swiper-button-next::after,
-                .banner-swiper .swiper-button-prev::after { font-size: 13px !important; font-weight: 900 !important; }
-              `}</style>
               <div style={{ paddingBottom: "64px" }}>
               {displayTherapists.length > 0 ? (
                 <Swiper
