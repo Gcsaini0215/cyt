@@ -54,16 +54,12 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
 
   const getData = async (profileType = tab) => {
     if (profiles) return; // Don't fetch if we have explicit profiles prop
-    console.log("getData called with profileType:", profileType);
     try {
       const res = await fetchData(getTherapistProfiles, {
         profile_type: profileType,
       });
-      console.log("getData response:", res);
       if (res && res.data) {
         setData(res.data);
-      } else {
-        console.log("getData: No data found in response");
       }
     } catch (err) {
       console.error("getData error:", err);
@@ -82,7 +78,7 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
         setFavrioutes(res.data.therapists || []);
       }
     } catch (err) {
-      console.log(err);
+      console.error("getFavrioutes error:", err);
     }
   };
   React.useEffect(() => {
@@ -198,7 +194,8 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
         <div className="row row--15" style={{ margin: isMobile ? 5 : 0 }}>
           {data && data.length > 0 ? (
             <Swiper
-              spaceBetween={50}
+              slidesPerView={1}
+              spaceBetween={16}
               onSlideChange={onSlideChange}
               breakpoints={{
                 640: {

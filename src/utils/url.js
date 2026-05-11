@@ -72,19 +72,6 @@ baseApi = removeTrailingSlash(rawBaseApi);
 
 export { apiUrl, baseApi };
 
-console.log("DEBUG: Final API Configuration:", { 
-  apiUrl, 
-  baseApi, 
-  currentDomain,
-  isServer,
-  isLocal,
-  PREFERRED_MODE
-});
-
-if (typeof window !== 'undefined') {
-  window.API_CONFIG = { apiUrl, baseApi, currentDomain, isLocal };
-}
-
 export const defaultProfile =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
 

@@ -357,7 +357,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     px: isMobile ? 1 : 0,
                   }}>
                     {[
-                      { value: "500+", label: "Verified Therapists", icon: <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },
+                      { value: "500+", label: "Verified Therapist", icon: <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },
                       { value: "10,000+", label: "Sessions Completed", icon: <CalendarMonth sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },
                       { value: "4.9★", label: "Average Rating", icon: <Star sx={{ fontSize: isMobile ? 18 : 20, color: "#f59e0b" }} /> },
                       { value: "100%", label: "Confidential", icon: <Spa sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} /> },

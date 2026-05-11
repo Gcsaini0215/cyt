@@ -45,15 +45,12 @@ export default function HomePage() {
         // Only set location if it's within India to avoid US-based Googlebot/VPN detection issues
         if (data && data.country === "IN") {
           if (data.region) {
-            console.log("User detected state:", data.region);
             setUserState(data.region);
           }
           if (data.city) {
-            console.log("User detected city:", data.city);
             setUserCity(data.city);
           }
         } else {
-          console.log("International location detected or detection failed, defaulting to Noida, India for SEO.");
         }
       } catch (error) {
         console.error("Error fetching user location:", error);
@@ -65,8 +62,6 @@ export default function HomePage() {
   const getTopTherapists = useCallback(async () => {
     try {
       const res = await fetchData(getTherapistProfiles);
-      console.log("HomePage: fetchData response:", res);
-      
       const dataToProcess = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
       
       if (dataToProcess && dataToProcess.length > 0) {

@@ -16,12 +16,12 @@ import { getDecodedToken } from "../../utils/jwt";
 import { postData } from "../../utils/actions";
 import {
   imagePath,
+  defaultProfile,
   InsertFavriouteTherapistUrl,
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
 
 export default function ProfileCardHor({ pageData, favrioutes, showRecommended = false, showOnlyBookButton = false }) {
-  console.log("ProfileCardHor rendering with pageData:", pageData, "showRecommended:", showRecommended, "showOnlyBookButton:", showOnlyBookButton);
 
   const isRecommended = pageData.priority === 1 || (pageData.priority === undefined && showRecommended);
 
@@ -127,7 +127,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           <Link href={`/view-profile/${pageData._id}`}>
             <ImageTag
               alt={`${pageData.user?.name || "Therapist"} - ${pageData.profile_type || "Best Psychologist in India"}`}
-              src={`${imagePath}/${pageData.user?.profile}`}
+              src={pageData.user?.profile ? `${imagePath}/${pageData.user.profile}` : defaultProfile}
               style={{
                 height: isMobile ? 210 : 235,
                 width: "100%",
