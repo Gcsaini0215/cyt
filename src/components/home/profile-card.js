@@ -193,40 +193,36 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
         </div>
         <div className="row row--15" style={{ margin: isMobile ? 5 : 0 }}>
           {data && data.length > 0 ? (
-            <Swiper
-              slidesPerView={1}
-              spaceBetween={16}
-              onSlideChange={onSlideChange}
-              breakpoints={{
-                640: {
-                  slidesPerView: 1,
-                  spaceBetween: 20,
-                },
-                768: {
-                  slidesPerView: 2,
-                  spaceBetween: 30,
-                },
-                1024: {
-                  slidesPerView: 2,
-                  spaceBetween: 40,
-                },
-              }}
-              loop={data.length > 2}
-              autoplay={{
-                delay: 2500,
-                disableOnInteraction: false,
-              }}
-              modules={[Autoplay]}
-              className="mySwiper"
-            >
-              {data.map((item) => {
-                return (
+            isMobile ? (
+              <div style={{ display: 'flex', overflowX: 'auto', gap: '16px', paddingBottom: '12px', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}>
+                {data.slice(0, 10).map((item) => (
+                  <div key={item._id} style={{ minWidth: '85vw', scrollSnapAlign: 'start', flexShrink: 0 }}>
+                    <ProfileCardHor pageData={item} favrioutes={favrioutes} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Swiper
+                slidesPerView={1}
+                spaceBetween={16}
+                onSlideChange={onSlideChange}
+                breakpoints={{
+                  640: { slidesPerView: 1, spaceBetween: 20 },
+                  768: { slidesPerView: 2, spaceBetween: 30 },
+                  1024: { slidesPerView: 2, spaceBetween: 40 },
+                }}
+                loop={data.length > 2}
+                autoplay={{ delay: 2500, disableOnInteraction: false }}
+                modules={[Autoplay]}
+                className="mySwiper"
+              >
+                {data.map((item) => (
                   <SwiperSlide key={item._id}>
                     <ProfileCardHor pageData={item} favrioutes={favrioutes} />
                   </SwiperSlide>
-                );
-              })}
-            </Swiper>
+                ))}
+              </Swiper>
+            )
           ) : (
             <div className="col-lg-12 text-center" style={{ padding: '40px', background: 'rgba(255,255,255,0.5)', borderRadius: '15px' }}>
               <p style={{ fontSize: '1.2rem', color: '#666' }}>No therapists found for this category.</p>
