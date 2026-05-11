@@ -27,7 +27,8 @@ jobs:
           script: |
             cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             git remote set-url origin https://github.com/Gcsaini0215/cyt.git
             npm ci
             npm run build
