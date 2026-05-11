@@ -53,7 +53,7 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
   }, [profiles]);
 
   const getData = async (profileType = tab) => {
-    if (profiles) return; // Don't fetch if we have explicit profiles prop
+    if (profiles && profiles.length > 0) return; // Don't fetch if we have explicit profiles prop
     try {
       const res = await fetchData(getTherapistProfiles, {
         profile_type: profileType,

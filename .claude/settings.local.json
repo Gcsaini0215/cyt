@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(dir d:\\\\cyt\\\\src\\\\pages\\\\login*)",
-      "WebFetch(domain:api.chooseyourtherapist.in)"
+      "WebFetch(domain:api.chooseyourtherapist.in)",
+      "Bash(curl -sI https://chooseyourtherapist.in)",
+      "Bash(curl -sI https://api.chooseyourtherapist.in/uploads/images/f05ad2ec-925a-4b7e-8599-dbb6b26faadf_profile-picture.jpg)"
     ]
   }
 }

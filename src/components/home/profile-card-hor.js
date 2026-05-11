@@ -128,6 +128,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             <ImageTag
               alt={`${pageData.user?.name || "Therapist"} - ${pageData.profile_type || "Best Psychologist in India"}`}
               src={pageData.user?.profile ? `${imagePath}/${pageData.user.profile}` : defaultProfile}
+              loading="eager"
               style={{
                 height: isMobile ? 210 : 235,
                 width: "100%",
