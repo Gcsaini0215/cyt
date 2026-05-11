@@ -25,11 +25,11 @@ jobs:
           timeout: 60s
           command_timeout: 30m
           script: |
-            cd /root/cyt || { echo "❌ Folder not found"; exit 1; }
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git
-            git fetch origin main
-            git reset --hard origin/main
-            git remote set-url origin https://github.com/Gcsaini0215/cyt.git
+            cp /root/cyt/.env /tmp/cyt_env_backup 2>/dev/null || true
+            rm -rf /root/cyt
+            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git /root/cyt
+            cp /tmp/cyt_env_backup /root/cyt/.env 2>/dev/null || true
+            cd /root/cyt
             npm ci
             npm run build
             rm -rf .next/cache
