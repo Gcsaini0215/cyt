@@ -84,6 +84,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         .banner-swiper .swiper-button-next { right: calc(50% - 44px); }
         .banner-swiper .swiper-button-next::after,
         .banner-swiper .swiper-button-prev::after { font-size: 13px !important; font-weight: 900 !important; }
+        .banner-swiper .swiper-wrapper { transition-duration: 0ms !important; }
       `}</style>
 
       <section style={{
@@ -146,13 +147,12 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                 marginBottom: "18px",
                 fontFamily: "'Inter', sans-serif",
               }}>
-                Find the<br />Right Therapist<br />for{" "}
+                Find the Right Therapist for{" "}
                 <span style={{
                   fontFamily: "'Playfair Display', Georgia, serif",
                   fontStyle: "italic",
                   fontWeight: 700,
                   color: "#228756",
-                  display: "block",
                   fontSize: isMobile ? "3rem" : "inherit",
                   letterSpacing: "-0.02em",
                 }}>
@@ -162,33 +162,37 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
               {/* Subtext */}
               <p style={{
-                fontSize: isMobile ? "14px" : "15px",
+                fontSize: isMobile ? "14px" : "16px",
                 color: "#6b7280",
                 lineHeight: 1.7,
                 margin: 0,
                 marginBottom: "28px",
-                maxWidth: "440px",
               }}>
-                Every person&apos;s journey is unique.<br />
-                Choose a therapist who understands you<br />
-                and supports you every step of the way.
+                Every person&apos;s journey is unique. Choose a therapist who understands you and supports you every step of the way.
               </p>
 
-              {/* Trust items */}
-              <div style={{ display: "flex", gap: isMobile ? "16px" : "20px", marginBottom: "32px", flexWrap: "wrap" }}>
-                {trustItems.map((item, i) => (
-                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
-                    <div style={{
-                      width: 44, height: 44, borderRadius: "12px",
-                      background: "rgba(34,135,86,0.08)",
-                      border: "1px solid rgba(34,135,86,0.15)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      {item.icon}
-                    </div>
+              {/* Stats Bar */}
+              <div style={{
+                display: "flex",
+                background: "rgba(255,255,255,0.75)",
+                backdropFilter: "blur(10px)",
+                borderRadius: "14px",
+                border: "1px solid #ede9e3",
+                overflow: "hidden",
+                boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
+                marginBottom: "28px",
+              }}>
+                {bottomStats.map((s, i) => (
+                  <div key={i} style={{
+                    flex: 1,
+                    display: "flex", alignItems: "center", gap: "10px",
+                    padding: "14px 12px",
+                    borderRight: i < 2 ? "1px solid #ede9e3" : "none",
+                  }}>
+                    <div style={{ flexShrink: 0 }}>{s.icon}</div>
                     <div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "#374151", lineHeight: 1.3 }}>{item.title}</div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "#374151", lineHeight: 1.3 }}>{item.sub}</div>
+                      <div style={{ fontSize: "12px", fontWeight: 700, color: "#1a2e1a", lineHeight: 1.3 }}>{s.title}</div>
+                      <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: 400, marginTop: "2px" }}>{s.sub}</div>
                     </div>
                   </div>
                 ))}
@@ -211,23 +215,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                 Browse Therapists <ArrowForward sx={{ fontSize: 18 }} />
               </Link>
 
-              {/* Cursive quote — desktop only */}
-              {!isMobile && (
-                <div style={{ marginTop: "48px" }}>
-                  <p style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
-                    fontStyle: "italic",
-                    fontSize: "18px",
-                    color: "#4b7a5a",
-                    lineHeight: 1.8,
-                    margin: 0,
-                  }}>
-                    You deserve support.<br />
-                    You deserve to feel better.
-                  </p>
-                  <span style={{ fontSize: "20px", color: "#228756", marginTop: "4px", display: "block" }}>♡</span>
-                </div>
-              )}
             </div>
 
             {/* ── RIGHT ── */}
@@ -242,7 +229,8 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                   slidesPerView={isMobile ? 1 : 2}
                   spaceBetween={16}
                   loop={displayTherapists.length > 2}
-                  autoplay={{ delay: 3000, disableOnInteraction: false }}
+                  speed={0}
+                  autoplay={{ delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true }}
                   navigation={true}
                   style={{ paddingBottom: "8px" }}
                 >
@@ -340,32 +328,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
               )}
               </div>
 
-              {/* Bottom Stats Bar */}
-              <div style={{
-                display: "flex",
-                background: "rgba(255,255,255,0.75)",
-                backdropFilter: "blur(10px)",
-                borderRadius: "16px",
-                border: "1px solid #ede9e3",
-                overflow: "hidden",
-                boxShadow: "0 2px 16px rgba(0,0,0,0.05)",
-                marginBottom: isMobile ? 0 : "20px",
-              }}>
-                {bottomStats.map((s, i) => (
-                  <div key={i} style={{
-                    flex: 1,
-                    display: "flex", alignItems: "center", gap: "12px",
-                    padding: isMobile ? "14px 10px" : "16px 18px",
-                    borderRight: i < 2 ? "1px solid #ede9e3" : "none",
-                  }}>
-                    <div style={{ flexShrink: 0 }}>{s.icon}</div>
-                    <div>
-                      <div style={{ fontSize: isMobile ? "11px" : "13px", fontWeight: 700, color: "#1a2e1a", lineHeight: 1.3 }}>{s.title}</div>
-                      {!isMobile && <div style={{ fontSize: "11px", color: "#9ca3af", fontWeight: 400, marginTop: "2px" }}>{s.sub}</div>}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
