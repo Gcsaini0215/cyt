@@ -18,7 +18,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
   return (
     <div className="rbt-banner-area rbt-banner-1 variation-2 height-750" style={{ paddingBottom: isMobile ? "20px" : "40px" }}>
-      <div className="container mt--60">
+      <div className="container" style={{ marginTop: isMobile ? "0px" : "-60px" }}>
         <div className="row justify-content-between align-items-center">
 
           {/* LEFT */}
