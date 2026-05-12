@@ -35,20 +35,20 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                 )}
                 <style jsx global>{`
                   @keyframes wordCycle {
-                    0%   { opacity: 1; transform: translateY(0); }
-                    40%  { opacity: 1; transform: translateY(0); }
-                    50%  { opacity: 0; transform: translateY(-6px); }
-                    90%  { opacity: 0; transform: translateY(6px); }
-                    100% { opacity: 1; transform: translateY(0); }
+                    0%   { opacity: 0; }
+                    5%   { opacity: 1; }
+                    45%  { opacity: 1; }
+                    50%  { opacity: 0; }
+                    100% { opacity: 0; }
                   }
                   .banner-word-1 {
                     position: absolute; left: 0; top: 0;
-                    animation: wordCycle 4s ease-in-out infinite;
+                    animation: wordCycle 6s ease-in-out infinite;
                   }
                   .banner-word-2 {
                     position: absolute; left: 0; top: 0;
-                    animation: wordCycle 4s ease-in-out infinite;
-                    animation-delay: 2s;
+                    animation: wordCycle 6s ease-in-out infinite;
+                    animation-delay: 3s;
                     opacity: 0;
                   }
                 `}</style>
