@@ -13,19 +13,11 @@ import { imagePath, defaultProfile } from "../../utils/url";
 export default function Banner({ topTherapists = [], userCity = null }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [hideShow, setHideShow] = React.useState(false);
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setHideShow((prev) => !prev);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
 
   const displayList = topTherapists.slice(0, 8);
 
   return (
-    <div className="rbt-banner-area rbt-banner-1 variation-2 height-750">
+    <div className="rbt-banner-area rbt-banner-1 variation-2 height-750" style={{ paddingBottom: isMobile ? "20px" : "40px" }}>
       <div className="container mt--60">
         <div className="row justify-content-between align-items-center">
 
@@ -33,22 +25,40 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           <div className="col-lg-8 col-md-12 col-sm-12 col-12" style={{ display: "flex", justifyContent: "center" }}>
             <div className="content">
               <div className="inner">
-                <div className="rbt-new-badge rbt-new-badge-one">
-                  <span className="rbt-new-badge-icon">
-                    <PersonSearchIcon sx={{ color: "#228756", fontSize: 30 }} />
-                  </span>{" "}
-                  Discover mental wellness solutions.
-                </div>
+                {!isMobile && (
+                  <div className="rbt-new-badge rbt-new-badge-one">
+                    <span className="rbt-new-badge-icon">
+                      <PersonSearchIcon sx={{ color: "#228756", fontSize: 30 }} />
+                    </span>{" "}
+                    Discover mental wellness solutions.
+                  </div>
+                )}
+                <style jsx global>{`
+                  @keyframes wordCycle {
+                    0%   { opacity: 1; transform: translateY(0); }
+                    40%  { opacity: 1; transform: translateY(0); }
+                    50%  { opacity: 0; transform: translateY(-6px); }
+                    90%  { opacity: 0; transform: translateY(6px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                  }
+                  .banner-word-1 {
+                    position: absolute; left: 0; top: 0;
+                    animation: wordCycle 4s ease-in-out infinite;
+                  }
+                  .banner-word-2 {
+                    position: absolute; left: 0; top: 0;
+                    animation: wordCycle 4s ease-in-out infinite;
+                    animation-delay: 2s;
+                    opacity: 0;
+                  }
+                `}</style>
                 <h4 className="title">
                   Find your therapist <br />
                   and start&nbsp;
-                  <span className="header-caption ms-2">
-                    <span className="cd-headline rotate-1">
-                      <span className="cd-words-wrapper">
-                        <b className={hideShow ? "is-visible theme-gradient" : "is-hidden theme-gradient"}>Personalized</b>
-                        <b className={hideShow ? "is-hidden theme-gradient" : "is-visible theme-gradient"}>Affordable</b>
-                      </span>
-                    </span>
+                  <span style={{ display: "inline-block", position: "relative", minWidth: "175px", verticalAlign: "bottom" }}>
+                    <span className="banner-word-1 theme-gradient">Personalized</span>
+                    <span className="banner-word-2 theme-gradient">Affordable</span>
+                    <span style={{ visibility: "hidden" }}>Personalized</span>
                   </span>
                   <br />
                   journey to mental wellness.
@@ -72,9 +82,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           {/* RIGHT — real therapist cards */}
           <div className="col-lg-4 col-md-12 col-sm-12 col-12" style={{ marginTop: isMobile ? 10 : 60 }}>
             <div className="content">
-              <div className="pb--60">
+              <div>
                 <Swiper
-                  style={{ width: "100%", paddingBottom: "36px" }}
+                  style={{ width: "100%", paddingBottom: "28px" }}
                   slidesPerView={1}
                   autoplay={{ delay: 3000, disableOnInteraction: false }}
                   pagination={{ clickable: true }}
