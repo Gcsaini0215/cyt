@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
-import { Star, CheckCircle, CalendarMonth, LocationOn, Work, Language, ArrowForward, Close, QuestionAnswer } from "@mui/icons-material";
+import { Star, LocationOn, ArrowForward, Close, QuestionAnswer, Search } from "@mui/icons-material";
 import { Avatar, Box, Typography, IconButton, Dialog } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { getTherapistProfiles, imagePath, defaultProfile } from "../../utils/url";
+import { getTherapistProfiles, imagePath } from "../../utils/url";
 import ConsultationForm from "./consultation-form";
+
+const TABS = ["City / State", "Name", "Specialization"];
 
 export default function Banner({ topTherapists = [], userCity = null }) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [searchVal, setSearchVal] = useState("");
   const [therapistCount, setTherapistCount] = useState(null);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [selectedTherapist, setSelectedTherapist] = useState(null);
@@ -32,206 +36,177 @@ export default function Banner({ topTherapists = [], userCity = null }) {
       .catch(() => {});
   }, []);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!searchVal.trim()) return;
+    const paramMap = ["city", "search", "specialization"];
+    router.push(`/view-all-therapist?${paramMap[activeTab]}=${encodeURIComponent(searchVal.trim())}`);
+  };
+
+  const placeholders = ["Search by city or state...", "Search by therapist name...", "Search by specialization..."];
+
   const stats = [
-    { value: therapistCount ? `${therapistCount}+` : "500+", label: "Verified Experts" },
-    { value: "10,000+", label: "Sessions Done" },
-    { value: "4.9★", label: "Avg Rating" },
-    { value: "100%", label: "Confidential" },
+    { value: therapistCount ? `${therapistCount}+` : "500+", label: "Verified Therapists" },
+    { value: "10,000+", label: "Sessions" },
+    { value: "4.9★", label: "Rating" },
   ];
 
   return (
     <>
       <style jsx global>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes floatCard {
-          0%,100% { transform: translateY(0px); }
-          50%      { transform: translateY(-6px); }
-        }
-        .hero-card { animation: floatCard 4s ease-in-out infinite; background: rgba(255,255,255,0.12); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 14px; color: #fff; min-width: 160px; }
-        .hero-card:nth-child(2) { animation-delay: 1.3s; }
-        .hero-card:nth-child(3) { animation-delay: 2.6s; }
-        .t-strip-card { background: #fff; border-radius: 14px; overflow: hidden; min-width: 170px; max-width: 170px; flex-shrink: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.12); transition: transform 0.25s ease, box-shadow 0.25s ease; cursor: pointer; }
-        .t-strip-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,0.18); }
-        .strip-book-btn { display: block; text-align: center; background: #228756; color: #fff; font-size: 11px; font-weight: 700; padding: 9px; text-decoration: none; letter-spacing: 0.5px; text-transform: uppercase; }
-        .strip-book-btn:hover { background: #1a6b44; }
-        .hero-browse-btn { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #166534; font-weight: 800; font-size: 15px; padding: 14px 32px; border-radius: 50px; text-decoration: none; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all 0.25s ease; }
-        .hero-browse-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.2); }
-        .hero-consult-btn { display: inline-flex; align-items: center; gap: 8px; background: transparent; color: #fff; font-weight: 700; font-size: 15px; padding: 13px 28px; border-radius: 50px; text-decoration: none; border: 2px solid rgba(255,255,255,0.6); transition: all 0.25s ease; cursor: pointer; font-family: inherit; }
-        .hero-consult-btn:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
+        .banner-tab { background: none; border: none; cursor: pointer; padding: 10px 20px; font-size: 14px; font-weight: 600; color: #64748b; border-bottom: 2px solid transparent; transition: all 0.2s; font-family: inherit; }
+        .banner-tab.active { color: #228756; border-bottom-color: #228756; }
+        .banner-tab:hover { color: #228756; }
+        .banner-search-input { flex: 1; border: none; outline: none; background: transparent; font-size: 15px; color: #1e293b; padding: 0 12px; font-family: inherit; }
+        .banner-search-btn { background: #228756; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: background 0.2s; white-space: nowrap; }
+        .banner-search-btn:hover { background: #1a6b44; }
+        .banner-consult-link { display: inline-flex; align-items: center; gap: 6px; color: #228756; font-size: 14px; font-weight: 700; text-decoration: none; border: none; background: none; cursor: pointer; font-family: inherit; padding: 0; }
+        .banner-consult-link:hover { text-decoration: underline; }
+        .strip-card { background: #fff; border-radius: 12px; overflow: hidden; min-width: 160px; max-width: 160px; flex-shrink: 0; box-shadow: 0 2px 12px rgba(0,0,0,0.08); border: 1px solid #e8f5e9; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .strip-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(34,135,86,0.14); }
+        .strip-view-btn { display: block; text-align: center; background: #228756; color: #fff; font-size: 11px; font-weight: 700; padding: 8px; text-decoration: none; letter-spacing: 0.4px; }
+        .strip-view-btn:hover { background: #1a6b44; }
       `}</style>
 
-      {/* ── HERO SECTION ── */}
-      <section style={{
-        background: "linear-gradient(135deg, #0d3320 0%, #166534 40%, #1a7a4a 70%, #228756 100%)",
-        position: "relative",
-        overflow: "hidden",
-        paddingTop: isMobile ? "48px" : "70px",
-        paddingBottom: isMobile ? "120px" : "140px",
-      }}>
-        {/* Background pattern */}
-        <div style={{ position: "absolute", inset: 0, opacity: 0.06, backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "28px 28px", pointerEvents: "none" }} />
+      {/* ── HERO ── */}
+      <section style={{ background: "#fff", borderBottom: "1px solid #f1f5f9", paddingTop: isMobile ? "28px" : "56px", paddingBottom: isMobile ? "28px" : "56px" }}>
+        <div className="container">
+          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 0 : "48px", flexDirection: isMobile ? "column" : "row" }}>
 
-        {/* Glow blobs */}
-        <div style={{ position: "absolute", top: "-80px", right: "-80px", width: "400px", height: "400px", background: "radial-gradient(ellipse, rgba(34,135,86,0.5) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "-60px", left: "-60px", width: "300px", height: "300px", background: "radial-gradient(ellipse, rgba(255,255,255,0.06) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
+            {/* LEFT */}
+            <div style={{ flex: "0 0 auto", width: isMobile ? "100%" : "52%" }}>
 
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "40px", flexDirection: isMobile ? "column" : "row" }}>
-
-            {/* LEFT — Text */}
-            <div style={{ flex: 1, animation: "fadeUp 0.7s ease both" }}>
-              {/* Pill badge */}
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: "50px", padding: "6px 16px", marginBottom: "20px" }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80", display: "inline-block", boxShadow: "0 0 6px #4ade80" }}></span>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.9)", letterSpacing: "0.5px" }}>
-                  {userCity ? `Therapists in ${userCity}` : "India's Most Trusted Therapy Platform"}
+              {/* Badge */}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "50px", padding: "5px 14px", marginBottom: "16px" }}>
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#228756", display: "inline-block" }} />
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "#228756" }}>
+                  {userCity ? `Therapists in ${userCity}` : "India's Trusted Therapy Platform"}
                 </span>
               </div>
 
               {/* Heading */}
-              <h1 style={{
-                fontSize: isMobile ? "2.4rem" : "3.8rem",
-                fontWeight: 900,
-                color: "#ffffff",
-                margin: 0,
-                marginBottom: "16px",
-                lineHeight: 1.1,
-                letterSpacing: "-0.04em",
-                fontFamily: "'Inter', sans-serif",
-              }}>
-                Your Mental Health<br />
-                <span style={{
-                  background: "linear-gradient(90deg, #86efac, #4ade80)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}>Matters.</span>
+              <h1 style={{ fontSize: isMobile ? "2.2rem" : "3.2rem", fontWeight: 900, color: "#0f172a", margin: 0, marginBottom: "14px", lineHeight: 1.12, letterSpacing: "-0.03em", fontFamily: "'Inter', sans-serif" }}>
+                Find a Therapist<br />
+                <span style={{ color: "#228756" }}>That&apos;s Right for You</span>
               </h1>
 
-              <p style={{ fontSize: isMobile ? "14px" : "17px", color: "rgba(255,255,255,0.75)", lineHeight: 1.7, margin: 0, marginBottom: "32px", maxWidth: "460px", fontWeight: 400 }}>
-                Connect with verified therapists across India. Book online or in-person sessions for anxiety, depression, stress & more.
+              <p style={{ fontSize: isMobile ? "14px" : "15px", color: "#64748b", lineHeight: 1.7, margin: 0, marginBottom: "28px", maxWidth: "480px" }}>
+                Whether you need temporary support or long-term care, our verified therapists are here to help. Start your journey today.
               </p>
 
-              {/* CTAs */}
-              <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
-                <Link href="/view-all-therapist" className="hero-browse-btn">
-                  Find a Therapist <ArrowForward sx={{ fontSize: 18 }} />
-                </Link>
-                <button className="hero-consult-btn" onClick={() => setIsConsultationOpen(true)}>
-                  Free Consult
-                </button>
+              {/* Search Box */}
+              <div style={{ background: "#fff", borderRadius: "12px", border: "1.5px solid #e2e8f0", boxShadow: "0 4px 20px rgba(0,0,0,0.07)", overflow: "hidden", marginBottom: "20px" }}>
+                {/* Tabs */}
+                <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9", paddingLeft: "4px" }}>
+                  {TABS.map((t, i) => (
+                    <button key={i} className={`banner-tab${activeTab === i ? " active" : ""}`} onClick={() => { setActiveTab(i); setSearchVal(""); }}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                {/* Input row */}
+                <form onSubmit={handleSearch} style={{ display: "flex", alignItems: "center", padding: "10px 12px", gap: "8px" }}>
+                  <Search sx={{ fontSize: 20, color: "#94a3b8", flexShrink: 0 }} />
+                  <input
+                    className="banner-search-input"
+                    type="text"
+                    value={searchVal}
+                    onChange={e => setSearchVal(e.target.value)}
+                    placeholder={placeholders[activeTab]}
+                  />
+                  <button type="submit" className="banner-search-btn">
+                    Search <ArrowForward sx={{ fontSize: 16 }} />
+                  </button>
+                </form>
               </div>
 
-              {/* Stats */}
-              <div style={{ display: "flex", gap: isMobile ? "20px" : "32px", flexWrap: "wrap", marginTop: "36px" }}>
+              {/* Bottom row */}
+              <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
+                <button className="banner-consult-link" onClick={() => setIsConsultationOpen(true)}>
+                  <QuestionAnswer sx={{ fontSize: 16 }} /> Free Consultation
+                </button>
+                <span style={{ color: "#e2e8f0" }}>|</span>
                 {stats.map((s, i) => (
-                  <div key={i}>
-                    <div style={{ fontSize: isMobile ? "18px" : "22px", fontWeight: 900, color: "#fff", lineHeight: 1 }}>{s.value}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", fontWeight: 500, marginTop: "3px" }}>{s.label}</div>
+                  <div key={i} style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ fontWeight: 800, fontSize: "15px", color: "#0f172a", lineHeight: 1 }}>{s.value}</span>
+                    <span style={{ fontSize: "10px", color: "#94a3b8", fontWeight: 500, marginTop: "2px" }}>{s.label}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* RIGHT — Floating therapist cards (desktop only) */}
-            {!isMobile && topTherapists.length > 0 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "14px", animation: "fadeUp 0.9s ease both", flexShrink: 0 }}>
-                {topTherapists.slice(0, 3).map((t, i) => {
-                  const avgRating = t.reviews?.length > 0
-                    ? (t.reviews.reduce((a, r) => a + (r.rating || 5), 0) / t.reviews.length).toFixed(1)
-                    : null;
-                  return (
-                    <div key={i} className="hero-card" style={{ animationDelay: `${i * 1.3}s`, cursor: "pointer" }} onClick={() => { setSelectedTherapist(t); setIsProfileOpen(true); }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <Avatar src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined} alt={t.user?.name} sx={{ width: 46, height: 46, border: "2px solid rgba(255,255,255,0.4)" }} />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontWeight: 800, fontSize: "13px", color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "130px" }}>{t.user?.name || "Therapist"}</div>
-                          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)", marginTop: "1px" }}>{t.profile_type || "Therapist"}</div>
-                          {avgRating && (
-                            <div style={{ display: "flex", alignItems: "center", gap: "3px", marginTop: "3px" }}>
-                              <Star sx={{ fontSize: 11, color: "#fbbf24" }} />
-                              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)", fontWeight: 700 }}>{avgRating}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+            {/* RIGHT — Image */}
+            {!isMobile && (
+              <div style={{ flex: 1, minWidth: 0, position: "relative" }}>
+                <div style={{ borderRadius: "24px", overflow: "hidden", background: "#f0fdf4", position: "relative" }}>
+                  <img
+                    src="/assets/img/therapysessioncyt.png"
+                    alt="Therapy session"
+                    style={{ width: "100%", height: "420px", objectFit: "cover", objectPosition: "top center", display: "block" }}
+                    onError={e => { e.target.src = "/assets/img/bannerimage.jpeg"; }}
+                  />
+                  {/* Overlay badge */}
+                  <div style={{ position: "absolute", bottom: "20px", left: "20px", background: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)", borderRadius: "12px", padding: "12px 16px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
+                    <div style={{ fontSize: "13px", fontWeight: 800, color: "#0f172a" }}>✓ 100% Confidential</div>
+                    <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>Your privacy is our priority</div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* ── THERAPIST STRIP (overlapping hero) ── */}
-      <div style={{ background: "#f8fafc", paddingTop: "0", paddingBottom: "32px" }}>
+      {/* ── THERAPIST STRIP ── */}
+      <section style={{ background: "#f8fafc", paddingTop: "24px", paddingBottom: "28px", borderBottom: "1px solid #f1f5f9" }}>
         <div className="container">
-          <div style={{
-            marginTop: isMobile ? "-80px" : "-90px",
-            background: "#fff",
-            borderRadius: "20px",
-            padding: isMobile ? "16px" : "20px 24px",
-            boxShadow: "0 12px 48px rgba(0,0,0,0.10)",
-            border: "1px solid #f1f5f9",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-              <span style={{ fontWeight: 800, fontSize: "15px", color: "#0f172a" }}>Top Therapists</span>
-              <Link href="/view-all-therapist" style={{ fontSize: "13px", fontWeight: 700, color: "#228756", textDecoration: "none" }}>View All →</Link>
-            </div>
-            <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingBottom: "6px", scrollbarWidth: "none" }}>
-              {topTherapists.length > 0 ? topTherapists.slice(0, 10).map((t, i) => {
-                const avgRating = t.reviews?.length > 0
-                  ? (t.reviews.reduce((a, r) => a + (r.rating || 5), 0) / t.reviews.length).toFixed(1)
-                  : null;
-                return (
-                  <div key={i} className="t-strip-card" onClick={() => { setSelectedTherapist(t); setIsProfileOpen(true); }}>
-                    <div style={{ height: "150px", background: "#f8fafc", overflow: "hidden" }}>
-                      <Avatar
-                        src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined}
-                        alt={t.user?.name}
-                        variant="square"
-                        sx={{ width: "100%", height: "100%", borderRadius: 0, "& img": { objectFit: "cover", objectPosition: "top center" } }}
-                      />
-                    </div>
-                    <div style={{ padding: "10px 10px 8px" }}>
-                      <div style={{ fontWeight: 800, fontSize: "13px", color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.user?.name || "Therapist"}</div>
-                      <div style={{ fontSize: "10px", color: "#228756", fontWeight: 600, marginBottom: "4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.profile_type}</div>
-                      {avgRating && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                          <Star sx={{ fontSize: 11, color: "#f59e0b" }} />
-                          <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>{avgRating}</span>
-                        </div>
-                      )}
-                      {t.state && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "3px", marginTop: "3px" }}>
-                          <LocationOn sx={{ fontSize: 11, color: "#94a3b8" }} />
-                          <span style={{ fontSize: "10px", color: "#94a3b8" }}>{t.state}</span>
-                        </div>
-                      )}
-                    </div>
-                    <Link href={`/view-profile/${t._id}`} className="strip-book-btn" onClick={e => e.stopPropagation()}>
-                      View Profile
-                    </Link>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+            <span style={{ fontWeight: 800, fontSize: "15px", color: "#0f172a" }}>Top Therapists</span>
+            <Link href="/view-all-therapist" style={{ fontSize: "13px", fontWeight: 700, color: "#228756", textDecoration: "none" }}>View All →</Link>
+          </div>
+          <div style={{ display: "flex", gap: "14px", overflowX: "auto", paddingBottom: "4px", scrollbarWidth: "none" }}>
+            {topTherapists.length > 0 ? topTherapists.slice(0, 12).map((t, i) => {
+              const avgRating = t.reviews?.length > 0
+                ? (t.reviews.reduce((a, r) => a + (r.rating || 5), 0) / t.reviews.length).toFixed(1)
+                : null;
+              return (
+                <div key={i} className="strip-card" onClick={() => { setSelectedTherapist(t); setIsProfileOpen(true); }}>
+                  <div style={{ height: "140px", background: "#f0fdf4", overflow: "hidden" }}>
+                    <Avatar variant="square" src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined} alt={t.user?.name}
+                      sx={{ width: "100%", height: "100%", borderRadius: 0, "& img": { objectFit: "cover", objectPosition: "top center" } }} />
                   </div>
-                );
-              }) : (
-                [0,1,2,3,4].map(i => (
-                  <div key={i} style={{ minWidth: 170, height: 260, background: "#f1f5f9", borderRadius: 14, flexShrink: 0 }} />
-                ))
-              )}
-            </div>
+                  <div style={{ padding: "9px 10px 6px" }}>
+                    <div style={{ fontWeight: 800, fontSize: "12px", color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.user?.name || "Therapist"}</div>
+                    <div style={{ fontSize: "10px", color: "#228756", fontWeight: 600, marginBottom: "3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.profile_type}</div>
+                    {avgRating && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+                        <Star sx={{ fontSize: 10, color: "#f59e0b" }} />
+                        <span style={{ fontSize: "10px", color: "#64748b", fontWeight: 600 }}>{avgRating}</span>
+                      </div>
+                    )}
+                    {t.state && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "3px", marginTop: "2px" }}>
+                        <LocationOn sx={{ fontSize: 10, color: "#94a3b8" }} />
+                        <span style={{ fontSize: "10px", color: "#94a3b8" }}>{t.state}</span>
+                      </div>
+                    )}
+                  </div>
+                  <Link href={`/view-profile/${t._id}`} className="strip-view-btn" onClick={e => e.stopPropagation()}>
+                    View Profile
+                  </Link>
+                </div>
+              );
+            }) : [0,1,2,3,4,5].map(i => (
+              <div key={i} style={{ minWidth: 160, height: 240, background: "#f1f5f9", borderRadius: 12, flexShrink: 0 }} />
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Consultation Modal */}
       <Dialog open={isConsultationOpen} onClose={() => setIsConsultationOpen(false)} maxWidth="xs" fullWidth
         PaperProps={{ style: { borderRadius: "20px", margin: isMobile ? "12px" : "32px" } }}>
-        <Box sx={{ background: "linear-gradient(135deg, #0d3320 0%, #228756 100%)", px: 3, pt: 3, pb: 3.5, position: "relative", textAlign: "center" }}>
+        <Box sx={{ background: "linear-gradient(135deg, #166534 0%, #228756 100%)", px: 3, pt: 3, pb: 3.5, position: "relative", textAlign: "center" }}>
           <IconButton onClick={() => setIsConsultationOpen(false)} size="small" sx={{ position: "absolute", top: 10, right: 10, color: "rgba(255,255,255,0.8)" }}>
             <Close fontSize="small" />
           </IconButton>
@@ -248,9 +223,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
       <Dialog open={isProfileOpen} onClose={() => setIsProfileOpen(false)} maxWidth="xs" fullWidth
         PaperProps={{ sx: { borderRadius: "20px", m: isMobile ? 2 : 3 } }}>
         <Box sx={{ p: 3, position: "relative" }}>
-          <IconButton onClick={() => setIsProfileOpen(false)} sx={{ position: "absolute", right: 8, top: 8 }}>
-            <Close />
-          </IconButton>
+          <IconButton onClick={() => setIsProfileOpen(false)} sx={{ position: "absolute", right: 8, top: 8 }}><Close /></IconButton>
           {selectedTherapist && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
