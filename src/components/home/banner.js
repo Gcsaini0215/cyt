@@ -98,17 +98,27 @@ export default function Banner({ topTherapists = [], userCity = null }) {
               </span>
             </div>
             <h1 style={{
-              fontSize: isMobile ? "2rem" : "3rem",
+              fontSize: isMobile ? "2.2rem" : "3.4rem",
               fontWeight: 900,
               color: "#0f172a",
               margin: 0,
               marginBottom: "12px",
               lineHeight: 1.15,
-              letterSpacing: "-0.03em",
+              letterSpacing: "-0.04em",
               fontFamily: "'Inter', sans-serif",
             }}>
-              Find the Right Therapist<br />
-              <span style={{ color: "#228756" }}>for You</span>
+              Find Verified{" "}
+              <span style={{
+                position: "relative",
+                display: "inline-block",
+                color: "#228756",
+              }}>
+                Therapists
+                <svg viewBox="0 0 220 12" style={{ position: "absolute", bottom: "-4px", left: 0, width: "100%", height: "10px" }} preserveAspectRatio="none">
+                  <path d="M2,8 Q55,2 110,8 Q165,14 218,6" stroke="#228756" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.6"/>
+                </svg>
+              </span>
+              <br />Near You
             </h1>
             <p style={{ fontSize: isMobile ? "14px" : "16px", color: "#64748b", margin: "0 auto", maxWidth: "520px", lineHeight: 1.6, fontWeight: 400 }}>
               Book online or in-person sessions with verified mental health experts across India.
