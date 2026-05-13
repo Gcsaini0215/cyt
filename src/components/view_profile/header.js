@@ -237,9 +237,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                   <button onClick={handleClick} className="book-btn" style={{ flex: 1, padding: "13px 16px", borderRadius: 12, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 14, boxShadow: "0 6px 18px rgba(34,135,86,0.28)" }}>
                     Book Session
                   </button>
-                  <button onClick={() => setIsConsultationModalOpen(true)} style={{ flex: 1, padding: "13px 12px", borderRadius: 12, color: "#228756", fontWeight: 700, border: "1.5px solid #228756", cursor: "pointer", fontSize: 13, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-                    <MessageCircle size={14} /> Ask Admin
-                  </button>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center" }}>{shareRow}</div>
               </div>
@@ -251,9 +248,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             <div style={{ flexShrink: 0, width: 210, display: "flex", flexDirection: "column", gap: 10, alignSelf: "center" }}>
               <button onClick={handleClick} className="book-btn" style={{ width: "100%", padding: "15px 20px", borderRadius: 14, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 15, boxShadow: "0 6px 20px rgba(34,135,86,0.28)" }}>
                 Book Session
-              </button>
-              <button onClick={() => setIsConsultationModalOpen(true)} style={{ width: "100%", padding: "14px 20px", borderRadius: 14, color: "#228756", fontWeight: 700, border: "1.5px solid #228756", cursor: "pointer", fontSize: 14, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                <MessageCircle size={16} /> Ask Admin
               </button>
               <div style={{ paddingTop: 4 }}>{shareRow}</div>
             </div>
