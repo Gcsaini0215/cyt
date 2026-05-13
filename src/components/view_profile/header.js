@@ -164,15 +164,16 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
           {/* ── PHOTO ── */}
           <div style={{ flexShrink: 0, position: "relative" }}>
-            <div style={{ borderRadius: "50%", padding: 4, background: "linear-gradient(135deg,#228756,#86efac)", boxShadow: "0 6px 20px rgba(34,135,86,0.22)" }}>
+            <div style={{ borderRadius: "50%", padding: 4, background: "linear-gradient(135deg,#228756,#86efac)", boxShadow: "0 6px 20px rgba(34,135,86,0.22)", position: "relative" }}>
               <ImageTag
                 alt={pageData.user.name}
                 src={`${imagePath}/${pageData.user.profile}`}
                 style={{ objectFit: "cover", borderRadius: "50%", width: isMobile ? 96 : 158, height: isMobile ? 96 : 158, border: "3px solid #fff", display: "block" }}
               />
-            </div>
-            <div style={{ position: "absolute", bottom: isMobile ? 5 : 10, right: isMobile ? 5 : 10, background: "#228756", borderRadius: "50%", width: isMobile ? 22 : 30, height: isMobile ? 22 : 30, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", boxShadow: "0 2px 8px rgba(34,135,86,0.4)" }}>
-              <i className="feather-check" style={{ color: "#fff", fontSize: isMobile ? 10 : 14 }} />
+              {/* CYT watermark */}
+              <div style={{ position: "absolute", bottom: isMobile ? 6 : 10, left: "50%", transform: "translateX(-50%)", background: "rgba(10,46,28,0.72)", backdropFilter: "blur(4px)", borderRadius: 20, padding: isMobile ? "2px 8px" : "3px 10px", pointerEvents: "none" }}>
+                <span style={{ color: "#fff", fontSize: isMobile ? 9 : 11, fontWeight: 800, letterSpacing: "1px" }}>CYT</span>
+              </div>
             </div>
           </div>
 
@@ -210,9 +211,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
             {/* Chips */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: isMobile ? "center" : "flex-start", marginBottom: isMobile ? 18 : 0 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 5, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#166534", fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 100 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} /> Available Now
-              </span>
               {pageData.year_of_exp && (
                 <span style={{ display: "flex", alignItems: "center", gap: 5, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1e40af", fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 100 }}>
                   <i className="feather-briefcase" style={{ fontSize: 11 }} /> {pageData.year_of_exp}+ Yrs Exp
