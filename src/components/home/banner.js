@@ -1,8 +1,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import "swiper/css";
-import "swiper/css/pagination";
 import React from "react";
 import Link from "next/link";
 import { Star, LocationOn, Language } from "@mui/icons-material";
@@ -53,7 +52,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                   }
                   @media (max-width: 600px) {
                     .rbt-banner-1 { padding-top: 20px !important; }
-                    .mySwiper .swiper-pagination { display: none !important; }
                   }
                 `}</style>
                 <h4 className="title">
@@ -91,9 +89,8 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                   style={{ width: "100%", paddingBottom: "28px" }}
                   slidesPerView={1}
                   autoplay={{ delay: 3000, disableOnInteraction: false }}
-                  pagination={{ clickable: true }}
                   loop={displayList.length > 1}
-                  modules={[Autoplay, Pagination]}
+                  modules={[Autoplay]}
                   className="mySwiper"
                 >
                   {displayList.length > 0 ? displayList.map((t, i) => {
@@ -104,63 +101,74 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                       <SwiperSlide key={i}>
                         <div style={{ borderRadius: "16px", overflow: "hidden", border: "1px solid #e8f5e9", boxShadow: "0 8px 28px rgba(0,0,0,0.08)", background: "#fff", display: "flex", flexDirection: "column" }}>
                           {/* Photo */}
-                          <div style={{ position: "relative", overflow: "hidden", height: "280px", flexShrink: 0 }}>
-                            <Avatar
-                              src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined}
-                              alt={t.user?.name || "Therapist"}
-                              variant="square"
-                              sx={{ width: "100%", height: "100%", borderRadius: 0, "& img": { objectFit: "cover", objectPosition: "center 10%" } }}
-                            />
-                            {t.priority === 1 && (
-                              <div style={{ position: "absolute", top: 10, left: 10, background: "#228756", color: "#fff", fontSize: "11px", fontWeight: 700, padding: "4px 10px", borderRadius: "20px" }}>
-                                ⭐ Recommended
+                          <div style={{ position: "relative", width: "100%", paddingBottom: "100%", flexShrink: 0, overflow: "hidden" }}>
+                            <div style={{ position: "absolute", inset: 0 }}>
+                              <Avatar
+                                src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined}
+                                alt={t.user?.name || "Therapist"}
+                                variant="square"
+                                sx={{ width: "100%", height: "100%", borderRadius: 0, "& img": { objectFit: "cover", objectPosition: "top center", imageRendering: "auto" } }}
+                              />
+                            </div>
+                            {/* CYT watermark — top left */}
+                            <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(10,46,28,0.72)", backdropFilter: "blur(4px)", borderRadius: "20px", padding: "4px 10px", zIndex: 2 }}>
+                              <span style={{ color: "#fff", fontSize: "11px", fontWeight: 800, letterSpacing: "1.5px" }}>CYT</span>
+                            </div>
+                            {/* Dark gradient overlay at bottom */}
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "58%", background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
+                            {/* Stars + name + profile type — bottom left; View Profile — bottom right */}
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 12px 10px", zIndex: 2, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                {avgRating && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "4px" }}>
+                                    {[1,2,3,4,5].map(s => (
+                                      <Star key={s} sx={{ fontSize: 13, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
+                                    ))}
+                                    <span style={{ fontSize: "11px", color: "#fff", fontWeight: 700, marginLeft: "3px" }}>{avgRating}</span>
+                                  </div>
+                                )}
+                                <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "2px" }}>
+                                  <span style={{ color: "#fff", fontSize: "20px", fontWeight: 800, lineHeight: 1.2, textShadow: "0 1px 6px rgba(0,0,0,0.6)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {t.user?.name || "Therapist"}
+                                  </span>
+                                  <span title="Verified" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "16px", height: "16px", borderRadius: "50%", background: "#1d9bf0", flexShrink: 0 }}>
+                                    <svg viewBox="0 0 24 24" width="10" height="10" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                  </span>
+                                </div>
+                                <p style={{ margin: 0, fontSize: "13px", color: "rgba(255,255,255,0.9)", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.profile_type || "Mental Health Professional"}</p>
+                                {/* Language + Location on image */}
+                                {(t.language_spoken || t.state) && (
+                                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "5px", flexWrap: "nowrap", overflow: "hidden" }}>
+                                    {t.language_spoken && (
+                                      <span style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "11px", color: "rgba(255,255,255,0.8)" }}>
+                                        <Language sx={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }} />{t.language_spoken}
+                                      </span>
+                                    )}
+                                    {t.state && (
+                                      <span style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "11px", color: "rgba(255,255,255,0.8)" }}>
+                                        <LocationOn sx={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }} />{t.state}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                            {avgRating && (
-                              <div style={{ position: "absolute", bottom: 10, right: 10, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", borderRadius: "20px", padding: "4px 10px", display: "flex", alignItems: "center", gap: "4px" }}>
-                                {[1,2,3,4,5].map(s => (
-                                  <Star key={s} sx={{ fontSize: 12, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
-                                ))}
-                                <span style={{ fontSize: "12px", color: "#fff", fontWeight: 700, marginLeft: "2px" }}>{avgRating}</span>
-                              </div>
-                            )}
+                              {/* View Profile — bottom right corner */}
+                              <Link href={`/view-profile/${t._id}`} style={{ flexShrink: 0, marginLeft: "8px", fontSize: "12px", fontWeight: 700, color: "#4ade80", textDecoration: "none", display: "flex", alignItems: "center", gap: "3px", whiteSpace: "nowrap" }}>
+                                View <i className="feather-arrow-right" style={{ fontSize: "12px" }} />
+                              </Link>
+                            </div>
                           </div>
 
-                          {/* Body */}
-                          <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <div>
-                              <h5 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: "6px" }}>
-                                <Link href={`/view-profile/${t._id}`} style={{ color: "inherit", textDecoration: "none" }}>
-                                  {t.user?.name || "Therapist"}
-                                </Link>
-                                <span title="Verified" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "18px", height: "18px", borderRadius: "50%", background: "#1d9bf0", flexShrink: 0 }}>
-                                  <svg viewBox="0 0 24 24" width="11" height="11" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                                </span>
-                              </h5>
-                              <p style={{ margin: 0, marginTop: "2px", fontSize: "13px", color: "#228756", fontWeight: 600 }}>{t.profile_type || "Mental Health Professional"}</p>
-                            </div>
-
-                            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                              {t.language_spoken && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
-                                  <Language sx={{ fontSize: 14, color: "#94a3b8" }} /> {t.language_spoken}
-                                </div>
-                              )}
-                              {t.state && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
-                                  <LocationOn sx={{ fontSize: 14, color: "#94a3b8" }} /> {t.state}
-                                </div>
-                              )}
-                            </div>
-
-                            <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
-                              <Link className="view-btn view-btn-border" href={`/view-profile/${t._id}`} style={{ flex: 1, textAlign: "center", padding: "0 10px", fontSize: "13px", height: "44px", lineHeight: "44px" }}>
-                                View Profile
-                              </Link>
-                              <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "44px" }}>
-                                <span>Book Now</span>
-                              </Link>
-                            </div>
+                          {/* Body — About + Book Now */}
+                          <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                            {t.user?.bio && (
+                              <p style={{ margin: 0, fontSize: "12px", color: "#475569", lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                                {t.user.bio}
+                              </p>
+                            )}
+                            <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "42px", borderRadius: "8px" }}>
+                              <span>Book Now</span>
+                            </Link>
                           </div>
                         </div>
                       </SwiperSlide>
