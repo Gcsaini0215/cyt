@@ -2,6 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 import Tooltip from "@mui/material/Tooltip";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
@@ -25,7 +26,8 @@ import ShareModal from "../global/share-modal";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
   const router = useRouter();
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"), { noSsr: true });
   const [bookmark, setBookmark] = React.useState(false);
   const [showBookmark, setShowBookmark] = React.useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
