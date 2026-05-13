@@ -116,6 +116,14 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                                 ⭐ Recommended
                               </div>
                             )}
+                            {avgRating && (
+                              <div style={{ position: "absolute", bottom: 10, right: 10, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)", borderRadius: "20px", padding: "4px 10px", display: "flex", alignItems: "center", gap: "4px" }}>
+                                {[1,2,3,4,5].map(s => (
+                                  <Star key={s} sx={{ fontSize: 12, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
+                                ))}
+                                <span style={{ fontSize: "12px", color: "#fff", fontWeight: 700, marginLeft: "2px" }}>{avgRating}</span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Body */}
@@ -144,15 +152,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                                 </div>
                               )}
                             </div>
-
-                            {avgRating && (
-                              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                                {[1,2,3,4,5].map(s => (
-                                  <Star key={s} sx={{ fontSize: 14, color: s <= Math.round(avgRating) ? "#fbc02d" : "#e2e8f0" }} />
-                                ))}
-                                <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 600, marginLeft: "2px" }}>{avgRating} ({t.reviews.length})</span>
-                              </div>
-                            )}
 
                             <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
                               <Link className="view-btn view-btn-border" href={`/view-profile/${t._id}`} style={{ flex: 1, textAlign: "center", padding: "0 10px", fontSize: "13px", height: "44px", lineHeight: "44px" }}>
