@@ -138,8 +138,66 @@ export default function ViewAllTherapist() {
   const renderOption = (item) =>
     typeof item === "string" ? item : item.label || item.value;
 
+  const filterSelects = (
+    <>
+      <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
+        <option value="">Profile Type</option>
+        {profileTypeOptions.map((item, index) => <option key={index} value={item.value}>{renderOption(item)}</option>)}
+      </select>
+      <select name="services" value={filter.services} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
+        <option value="">Services</option>
+        {services.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
+      </select>
+      <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
+        <option value="">Experience</option>
+        {ExpList.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
+      </select>
+      <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
+        <option value="">Language</option>
+        {languageSpoken.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
+      </select>
+      <select name="state" value={filter.state} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
+        <option value="">State</option>
+        {stateList.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
+      </select>
+    </>
+  );
+
   return (
     <>
+      <style>{`
+        @media (max-width: 600px) {
+          .vat-banner-filters { display: none; }
+          .vat-sticky-filters {
+            display: flex !important;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: #0a2e1c;
+            padding: 10px 14px;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+          }
+          .vat-sticky-filters select {
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 13px !important;
+            outline: none;
+            min-width: 120px;
+          }
+          .vat-sticky-filters select option { background: #0a2e1c; color: #fff; }
+        }
+        @media (min-width: 601px) {
+          .vat-sticky-filters { display: none !important; }
+        }
+      `}</style>
+
       <div className="rbt-page-banner-wrapper dark-premium-banner">
         <div className="container">
           <div className="row align-items-center">
@@ -149,52 +207,53 @@ export default function ViewAllTherapist() {
                   <h1 className="title text-white mb--10">Find Your Therapist</h1>
                   <p className="description text-white-opacity mb--25">Expert mental health support, tailored to your needs.</p>
                 </div>
-                
+
                 <div className="search-filter-card banner-integrated-search">
                   <div className="row g-3 align-items-center">
                     <div className="col-lg-12">
                       <div className="search-box-wrap">
-                        <input 
-                          type="text" 
-                          placeholder="Search by name, concern, or language..." 
-                          value={search} 
-                          onChange={handleSearchChange} 
+                        <input
+                          type="text"
+                          placeholder="Search by name, concern, or language..."
+                          value={search}
+                          onChange={handleSearchChange}
                           className="main-search-input"
+                          style={{ fontSize: 16 }}
                         />
                         <button className="search-icon-btn">
                           <i className="feather-search"></i>
                         </button>
                       </div>
                     </div>
-                    
-                    <div className="col-lg-12">
+                    {/* Desktop filters — hidden on mobile via CSS */}
+                    <div className="col-lg-12 vat-banner-filters">
                       <div className="filter-grid">
                         <div className="filter-item">
-                          <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="premium-select">
+                          <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
                             <option value="">Profile Type</option>
                             {profileTypeOptions.map((item, index) => <option key={index} value={item.value}>{renderOption(item)}</option>)}
                           </select>
                         </div>
                         <div className="filter-item">
-                          <select name="services" value={filter.services} onChange={handleChange} className="premium-select">
+                          <select name="services" value={filter.services} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
                             <option value="">Services</option>
                             {services.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
                           </select>
                         </div>
                         <div className="filter-item">
-                          <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className="premium-select">
+                          <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
                             <option value="">Experience</option>
                             {ExpList.map((item, index) => <option key={index} value={item}>{renderOption(item)}</option>)}
                           </select>
                         </div>
                         <div className="filter-item">
-                          <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className="premium-select">
+                          <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
                             <option value="">Language</option>
                             {languageSpoken.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
                           </select>
                         </div>
                         <div className="filter-item">
-                          <select name="state" value={filter.state} onChange={handleChange} className="premium-select">
+                          <select name="state" value={filter.state} onChange={handleChange} className="premium-select" style={{ fontSize: 16 }}>
                             <option value="">State</option>
                             {stateList.map((item, index) => <option key={index} value={typeof item === "string" ? item : item.value}>{renderOption(item)}</option>)}
                           </select>
@@ -217,6 +276,11 @@ export default function ViewAllTherapist() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile sticky filter bar — sticks below navbar while scrolling */}
+      <div className="vat-sticky-filters" style={{ display: "none" }}>
+        {filterSelects}
       </div>
 
       <div ref={resultsRef} className="rbt-section-gapTop rbt-section-gapBottom">
