@@ -26,14 +26,18 @@ jobs:
           command_timeout: 30m
           script: |
             cp /root/cyt/.env /tmp/cyt_env_backup 2>/dev/null || true
-            rm -rf /root/cyt
-            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git /root/cyt
-            cp /tmp/cyt_env_backup /root/cyt/.env 2>/dev/null || true
-            cd /root/cyt
+            rm -rf /root/cyt-new
+            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git /root/cyt-new
+            cp /tmp/cyt_env_backup /root/cyt-new/.env 2>/dev/null || true
+            cd /root/cyt-new
             npm ci
             npm run build
             rm -rf .next/cache
+            rm -rf /root/cyt-old
+            mv /root/cyt /root/cyt-old 2>/dev/null || true
+            mv /root/cyt-new /root/cyt
             pm2 reload cyt-frontend --update-env
             pm2 save
             sleep 3
             pm2 status
+            rm -rf /root/cyt-old
