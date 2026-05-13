@@ -13,7 +13,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
-  const displayList = topTherapists.slice(0, 8);
+  const displayList = [...topTherapists]
+    .sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0))
+    .slice(0, 10);
 
   return (
     <div className="rbt-banner-area rbt-banner-1 variation-2 height-750" style={{ paddingBottom: isMobile ? "20px" : "40px" }}>
@@ -116,8 +118,8 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                             </div>
                             {/* Dark gradient overlay at bottom */}
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "58%", background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
-                            {/* Stars + name + profile type — bottom left; View Profile — bottom right */}
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 12px 10px", zIndex: 2, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                            {/* Stars + name + profile type — bottom overlay */}
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 12px 10px", zIndex: 2 }}>
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 {avgRating && (
                                   <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "4px" }}>
@@ -152,23 +154,24 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                                   </div>
                                 )}
                               </div>
-                              {/* View Profile — bottom right corner */}
-                              <Link href={`/view-profile/${t._id}`} style={{ flexShrink: 0, marginLeft: "8px", fontSize: "12px", fontWeight: 700, color: "#4ade80", textDecoration: "none", display: "flex", alignItems: "center", gap: "3px", whiteSpace: "nowrap" }}>
-                                View <i className="feather-arrow-right" style={{ fontSize: "12px" }} />
-                              </Link>
                             </div>
                           </div>
 
-                          {/* Body — About + Book Now */}
+                          {/* Body — About + Buttons */}
                           <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "10px" }}>
                             {t.user?.bio && (
                               <p style={{ margin: 0, fontSize: "12px", color: "#475569", lineHeight: 1.6, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                                 {t.user.bio}
                               </p>
                             )}
-                            <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "42px", borderRadius: "8px" }}>
-                              <span>Book Now</span>
-                            </Link>
+                            <div style={{ display: "flex", gap: "8px" }}>
+                              <Link className="view-btn view-btn-border" href={`/view-profile/${t._id}`} style={{ flex: 1, textAlign: "center", padding: "0 10px", fontSize: "13px", height: "42px", lineHeight: "42px" }}>
+                                View Profile
+                              </Link>
+                              <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "42px" }}>
+                                <span>Book Now</span>
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       </SwiperSlide>
