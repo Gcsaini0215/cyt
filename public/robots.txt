@@ -1,6 +1,14 @@
 User-agent: *
 Disallow: /my-dashboard
 Disallow: /therapist-dashboard
-Disallow: /how-it-works
+Disallow: /protectedroute
+Disallow: /add-offline-client
+Disallow: /case-history
+Disallow: /clinic-patients
+Disallow: /create-report
+Disallow: /create-workshop
+Disallow: /settings
+Disallow: /not-authorized
+Disallow: /address-selection
 
 Sitemap: https://www.chooseyourtherapist.in/sitemap.xml

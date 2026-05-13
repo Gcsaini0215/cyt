@@ -171,9 +171,28 @@ export default function HomePage() {
           {JSON.stringify([
             {
               "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Choose Your Therapist",
+              "url": "https://www.chooseyourtherapist.in",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://www.chooseyourtherapist.in/view-all-therapist?search={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              }
+            },
+            {
+              "@context": "https://schema.org",
               "@type": "MedicalWebPage",
               "name": userCity ? `Psychologist Services in ${userCity}` : userState ? `Psychologist Services in ${userState}` : "Psychologist Services in India",
               "description": userCity ? `Top-rated psychologists and mental health experts available in ${userCity}.` : userState ? `Top-rated psychologists and mental health experts available in ${userState}.` : "Top-rated psychologists and mental health experts available across India.",
+              "specialty": "Mental Health",
+              "about": {
+                "@type": "MedicalCondition",
+                "name": "Mental Health Disorders"
+              },
               "breadcrumb": {
                 "@type": "BreadcrumbList",
                 "itemListElement": [
@@ -181,7 +200,7 @@ export default function HomePage() {
                     "@type": "ListItem",
                     "position": 1,
                     "name": "Home",
-                    "item": canonicalUrl
+                    "item": "https://www.chooseyourtherapist.in/"
                   }
                 ]
               }
@@ -191,7 +210,17 @@ export default function HomePage() {
               "@type": "Organization",
               "name": "Choose Your Therapist",
               "url": "https://www.chooseyourtherapist.in",
-              "logo": "https://www.chooseyourtherapist.in/logo.png",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.chooseyourtherapist.in/logo.png"
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+91-8077757951",
+                "contactType": "customer service",
+                "areaServed": "IN",
+                "availableLanguage": ["English", "Hindi"]
+              },
               "sameAs": [
                 "https://twitter.com/CYT_India"
               ]
@@ -204,6 +233,7 @@ export default function HomePage() {
               "@id": "https://www.chooseyourtherapist.in",
               "url": "https://www.chooseyourtherapist.in",
               "telephone": "+91-8077757951",
+              "priceRange": "₹₹",
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "Gate No-3, D-137, near LPS GLOBAL SCHOOL, Block D, Sector 51",
@@ -219,17 +249,16 @@ export default function HomePage() {
               },
               "openingHoursSpecification": {
                 "@type": "OpeningHoursSpecification",
-                "dayOfWeek": [
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                  "Sunday"
-                ],
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
                 "opens": "00:00",
                 "closes": "23:59"
+              },
+              "hasMap": "https://maps.google.com/?q=28.5672,77.3650",
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "reviewCount": "500",
+                "bestRating": "5"
               }
             },
             {
@@ -241,23 +270,63 @@ export default function HomePage() {
                   "name": "What mental health services does Choose Your Therapist offer in India?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Choose Your Therapist (CYT) provides a comprehensive range of mental health services across India, including online counseling, specialized therapy for anxiety and depression, corporate wellness programs, school mental health initiatives, and peer support groups."
+                    "text": "Choose Your Therapist (CYT) provides a comprehensive range of mental health services across India, including online counseling, therapy for anxiety and depression, OCD, relationship counseling, corporate wellness programs, school mental health initiatives, and peer support groups."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "What should I expect during my first online therapy session with a psychologist?",
+                  "name": "How much does an online therapy session cost on Choose Your Therapist?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "In your first online therapy session, our expert psychologists will focus on understanding your specific concerns, building a comfortable therapeutic relationship, and developing a personalized mental health treatment plan tailored to your unique needs."
+                    "text": "Session fees on Choose Your Therapist vary by therapist experience and specialization. Sessions typically start from ₹500 and go up to ₹3000 per session. We also offer affordable subscription plans for regular therapy. Visit our Plans page for detailed pricing."
                   }
                 },
                 {
                   "@type": "Question",
-                  "name": "Are the therapy sessions for anxiety and depression confidential?",
+                  "name": "How do I choose the right therapist for my needs?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes, all our counseling sessions, whether for anxiety, depression, or stress management, are 100% confidential. We follow strict international data protection standards to ensure your privacy and safety throughout your mental health journey."
+                    "text": "You can filter therapists by specialization (anxiety, depression, OCD, relationship issues), language, location, and availability. Each therapist profile includes their qualifications, experience, approach, and patient reviews to help you make the right choice."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What should I expect during my first online therapy session?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "In your first session, the therapist will understand your concerns, background, and goals. They will help build a comfortable therapeutic relationship and create a personalized treatment plan. Sessions are typically 45-60 minutes long."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are therapy sessions on Choose Your Therapist confidential?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, all counseling sessions are 100% confidential. We follow strict data protection standards to ensure your privacy and safety throughout your mental health journey."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Can I book an in-person therapy session as well?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, Choose Your Therapist offers both online and in-person therapy options. Many therapists are available for in-person sessions in cities like Noida, Delhi, Mumbai, Bangalore, and other major Indian cities."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What is the cancellation policy for therapy sessions?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Sessions can be cancelled or rescheduled up to 24 hours before the appointment without any charge. Cancellations within 24 hours may incur a partial fee. Please refer to our cancellation policy page for complete details."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "Are the therapists on Choose Your Therapist verified?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, all therapists on Choose Your Therapist are verified mental health professionals with valid licenses and qualifications. We verify their degrees, certifications, and registration with recognized psychological associations before onboarding."
                   }
                 }
               ]
