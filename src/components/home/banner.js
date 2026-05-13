@@ -51,6 +51,10 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     animation-delay: 3s;
                     opacity: 0;
                   }
+                  @media (max-width: 600px) {
+                    .rbt-banner-1 { padding-top: 20px !important; }
+                    .mySwiper .swiper-pagination { display: none !important; }
+                  }
                 `}</style>
                 <h4 className="title">
                   Find your therapist <br />
