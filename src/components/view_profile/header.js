@@ -14,28 +14,14 @@ import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
-import { 
-  Facebook, 
-  Twitter, 
-  Linkedin, 
-  Link as LinkIcon, 
-  MessageCircle,
-  Share2
-} from "lucide-react";
-
+import { Facebook, Twitter, Linkedin, Link as LinkIcon, MessageCircle, Share2 } from "lucide-react";
 import ConsultationForm from "../home/consultation-form";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
-import {
-  imagePath,
-  InsertFavoriteTherapistUrl,
-  RemoveFavoriteTherapistUrl,
-} from "../../utils/url";
+import { imagePath, InsertFavoriteTherapistUrl, RemoveFavoriteTherapistUrl } from "../../utils/url";
 import { postData } from "../../utils/actions";
 import ShareModal from "../global/share-modal";
-
-import bannerImg from "../../assets/img/choosetherapist.jpg";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
   const router = useRouter();
@@ -45,7 +31,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [isConsultationModalOpen, setIsConsultationModalOpen] = React.useState(false);
-
   const [profileUrl, setProfileUrl] = React.useState("");
 
   React.useEffect(() => {
@@ -68,18 +53,14 @@ export default function ProfileHeader({ pageData, favrioutes }) {
     try {
       const response = await postData(InsertFavoriteTherapistUrl, { therapistId: id });
       return !!response.status;
-    } catch (error) {
-      return false;
-    }
+    } catch (error) { return false; }
   };
 
   const removeFavrioute = async (id) => {
     try {
       const response = await postData(RemoveFavoriteTherapistUrl, { therapistId: id });
       return !!response.status;
-    } catch (error) {
-      return false;
-    }
+    } catch (error) { return false; }
   };
 
   const copyToClipboard = () => {
@@ -88,575 +69,204 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   };
 
   const shareLinks = [
-    {
-      name: "WhatsApp",
-      icon: <MessageCircle size={18} />,
-      url: `https://api.whatsapp.com/send?text=${encodeURIComponent(pageData.user.name)}%20${encodeURIComponent(profileUrl)}`,
-      color: "#25D366"
-    },
-    {
-      name: "LinkedIn",
-      icon: <Linkedin size={18} />,
-      url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`,
-      color: "#0A66C2"
-    },
-    {
-      name: "Facebook",
-      icon: <Facebook size={18} />,
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`,
-      color: "#1877F2"
-    },
-    {
-      name: "Twitter",
-      icon: <Twitter size={18} />,
-      url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(profileUrl)}&text=${encodeURIComponent(pageData.user.name)}`,
-      color: "#1DA1F2"
-    }
+    { name: "WhatsApp", icon: <MessageCircle size={15} />, url: `https://api.whatsapp.com/send?text=${encodeURIComponent(pageData.user.name)}%20${encodeURIComponent(profileUrl)}`, color: "#25D366" },
+    { name: "LinkedIn", icon: <Linkedin size={15} />, url: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`, color: "#0A66C2" },
+    { name: "Facebook", icon: <Facebook size={15} />, url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`, color: "#1877F2" },
+    { name: "Twitter", icon: <Twitter size={15} />, url: `https://twitter.com/intent/tweet?url=${encodeURIComponent(profileUrl)}&text=${encodeURIComponent(pageData.user.name)}`, color: "#1DA1F2" },
   ];
 
-  const handleShare = () => {
-    setIsShareModalOpen(true);
-  };
-
-  // Calculate Rating
   const reviews = pageData?.reviews || [];
   const reviewCount = reviews.length;
-  const averageRating = reviewCount > 0 
-    ? reviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / reviewCount 
+  const averageRating = reviewCount > 0
+    ? reviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / reviewCount
     : 0;
 
   const renderStars = (rating) => {
-    const stars = [];
     const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<StarIcon key={i} style={{ color: "#ffb400", fontSize: isMobile ? 14 : 18 }} />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<StarHalfIcon key={i} style={{ color: "#ffb400", fontSize: isMobile ? 14 : 18 }} />);
-      } else {
-        stars.push(<StarBorderIcon key={i} style={{ color: "rgba(255,255,255,0.4)", fontSize: isMobile ? 14 : 18 }} />);
-      }
-    }
-    return stars;
+    const hasHalf = rating % 1 >= 0.5;
+    return [1, 2, 3, 4, 5].map((i) => {
+      if (i <= fullStars) return <StarIcon key={i} style={{ color: "#f59e0b", fontSize: isMobile ? 15 : 18 }} />;
+      if (i === fullStars + 1 && hasHalf) return <StarHalfIcon key={i} style={{ color: "#f59e0b", fontSize: isMobile ? 15 : 18 }} />;
+      return <StarBorderIcon key={i} style={{ color: "#d1d5db", fontSize: isMobile ? 15 : 18 }} />;
+    });
   };
 
-  const iconButtonStyle = {
-    width: 38,
-    height: 38,
-    borderRadius: "12px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    background: "rgba(255, 255, 255, 0.08)",
-    border: "1px solid rgba(255, 255, 255, 0.15)",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  };
+  const shareRow = (
+    <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: isMobile ? "center" : "flex-start" }}>
+      {shareLinks.map((link) => (
+        <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
+          <a href={link.url} target="_blank" rel="noopener noreferrer"
+            style={{ width: 32, height: 32, borderRadius: 9, background: link.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: `0 3px 8px ${link.color}55`, transition: "transform 0.2s", flexShrink: 0 }}
+            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+            onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
+          >{link.icon}</a>
+        </Tooltip>
+      ))}
+      <Tooltip title="Copy Link" arrow>
+        <div onClick={copyToClipboard} style={{ width: 32, height: 32, borderRadius: 9, background: "#64748b", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", flexShrink: 0 }}>
+          <LinkIcon size={15} />
+        </div>
+      </Tooltip>
+      <Tooltip title="More" arrow>
+        <div onClick={() => setIsShareModalOpen(true)} style={{ width: 32, height: 32, borderRadius: 9, background: "#228756", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", cursor: "pointer", flexShrink: 0 }}>
+          <Share2 size={15} />
+        </div>
+      </Tooltip>
+    </div>
+  );
 
   return (
     <>
       <style>{`
-        @keyframes pulse-green {
-          0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
-          70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .book-btn-shimmer {
-          background: linear-gradient(90deg, #2ecc71, #27ae60, #2ecc71);
-          background-size: 200% 100%;
-          animation: shimmer 3s infinite linear;
-        }
-        .glass-header {
-          background: rgba(19, 61, 47, 0.85) !important;
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .ph-card { animation: fadeUp 0.45s ease forwards; }
+        .book-btn { background: linear-gradient(135deg,#228756,#16a34a); transition: transform 0.2s, box-shadow 0.2s; }
+        .book-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(34,135,86,0.38) !important; }
       `}</style>
-      {/* Banner wrapper */}
-      <div
-        className="rbt-page-banner-wrapper"
-        style={{
-          position: "relative",
-          zIndex: 1,
-          height: isMobile ? 260 : 380,
-          background: `linear-gradient(180deg, #0a2417 0%, #138556 100%)`,
-          overflow: 'hidden'
-        }}
-      >
-        {/* Abstract Background Decor */}
-        <div style={{
-          position: 'absolute',
-          top: '-10%',
-          right: '-5%',
-          width: '300px',
-          height: '300px',
-          background: 'rgba(255,255,255,0.03)',
-          borderRadius: '50%',
-          zIndex: 0
-        }}></div>
+
+      {/* ── BANNER ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #0a2e1c 0%, #0f4c2f 55%, #1a5c3b 100%)",
+        paddingTop: isMobile ? 28 : 52,
+        paddingBottom: isMobile ? 130 : 110,
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        <div style={{ position: "absolute", top: -60, right: -40, width: 280, height: 280, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: -40, left: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "35%", left: "28%", width: 160, height: 160, borderRadius: "50%", background: "rgba(46,204,113,0.05)", pointerEvents: "none" }} />
       </div>
 
-      {/* Floating header */}
-      <div
-        style={{
-          position: "relative",
-          marginTop: -(isMobile ? 180 : 220),
-          zIndex: 10,
+      {/* ── FLOATING CARD ── */}
+      <div style={{
+        maxWidth: 1280,
+        margin: "0 auto",
+        padding: isMobile ? "0 14px" : "0 40px",
+        marginTop: isMobile ? -118 : -82,
+        position: "relative",
+        zIndex: 10,
+        paddingBottom: isMobile ? 16 : 32,
+      }}>
+        <div className="ph-card" style={{
+          background: "#fff",
+          borderRadius: isMobile ? 18 : 26,
+          boxShadow: "0 6px 40px rgba(0,0,0,0.13)",
+          border: "1px solid #e2e8f0",
+          borderTop: "4px solid #228756",
+          padding: isMobile ? "22px 16px 24px" : "40px 48px",
           display: "flex",
-          justifyContent: "center",
-          padding: isMobile ? "0 15px" : "0 20px",
-        }}
-      >
-        <div
-          className="glass-header"
-          style={{
-            borderRadius: 30,
-            padding: isMobile ? "25px 20px" : "35px 45px",
-            maxWidth: 1200,
-            width: "100%",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-            color: "#fff",
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: isMobile ? "stretch" : "center",
-            gap: isMobile ? 25 : 45,
-            position: "relative",
-          }}
-        >
-          {/* Main Info Wrapper (Pic + Text) */}
-          <div style={{ 
-            display: 'flex', 
-            flex: 1, 
-            gap: isMobile ? 15 : 45, 
-            alignItems: isMobile ? 'center' : 'flex-start',
-            flexDirection: 'row' 
-          }}>
-            {/* Profile Picture Section */}
-            <div
-              style={{
-                flexShrink: 0,
-                borderRadius: "50%",
-                position: "relative",
-                padding: 5,
-                background: "linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1))",
-                boxShadow: "0 15px 35px rgba(0,0,0,0.3), 0 0 20px rgba(46, 204, 113, 0.2)",
-              }}
-            >
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "center" : "flex-start",
+          gap: isMobile ? 16 : 36,
+        }}>
+
+          {/* ── PHOTO ── */}
+          <div style={{ flexShrink: 0, position: "relative" }}>
+            <div style={{ borderRadius: "50%", padding: 4, background: "linear-gradient(135deg,#228756,#86efac)", boxShadow: "0 6px 20px rgba(34,135,86,0.22)" }}>
               <ImageTag
-                alt={`${pageData.user.name}`}
+                alt={pageData.user.name}
                 src={`${imagePath}/${pageData.user.profile}`}
-                style={{
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  width: isMobile ? 100 : 180,
-                  height: isMobile ? 100 : 180,
-                  background: "#fff",
-                  border: isMobile ? "2px solid rgba(255,255,255,0.9)" : "4px solid rgba(255,255,255,0.9)"
-                }}
+                style={{ objectFit: "cover", borderRadius: "50%", width: isMobile ? 96 : 158, height: isMobile ? 96 : 158, border: "3px solid #fff", display: "block" }}
               />
-              {/* Verified Badge */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: isMobile ? 4 : 12,
-                  right: isMobile ? 4 : 12,
-                  background: "#2ecc71",
-                  borderRadius: "50%",
-                  width: isMobile ? 24 : 36,
-                  height: isMobile ? 24 : 36,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-                  border: "2px solid #fff",
-                  animation: "pulse-green 2s infinite"
-                }}
-              >
-                <i className="feather-check" style={{ color: "#fff", fontSize: isMobile ? 10 : 16, fontWeight: 900 }}></i>
-              </div>
+            </div>
+            <div style={{ position: "absolute", bottom: isMobile ? 5 : 10, right: isMobile ? 5 : 10, background: "#228756", borderRadius: "50%", width: isMobile ? 22 : 30, height: isMobile ? 22 : 30, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fff", boxShadow: "0 2px 8px rgba(34,135,86,0.4)" }}>
+              <i className="feather-check" style={{ color: "#fff", fontSize: isMobile ? 10 : 14 }} />
+            </div>
+          </div>
+
+          {/* ── INFO ── */}
+          <div style={{ flex: 1, textAlign: isMobile ? "center" : "left", minWidth: 0 }}>
+
+            {/* Name */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: isMobile ? "center" : "flex-start", flexWrap: "wrap", marginBottom: 2 }}>
+              <h1 style={{ margin: 0, fontSize: isMobile ? 21 : 31, fontWeight: 900, color: "#0f172a", letterSpacing: "-0.5px" }}>
+                {pageData.user.name}
+              </h1>
+              <span title="Verified" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 21, height: 21, borderRadius: "50%", background: "#1d9bf0", flexShrink: 0 }}>
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+              </span>
             </div>
 
-            {/* Info Section */}
-            <div
-              style={{
-                flex: 1,
-                textAlign: "left",
-              }}
-            >
-              <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, justifyContent: 'flex-start', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "#2ecc71", padding: "5px 14px", borderRadius: 100, boxShadow: "0 4px 10px rgba(46, 204, 113, 0.3)" }}>
-                  <div style={{ width: 8, height: 8, background: "#fff", borderRadius: "50%" }}></div>
-                  <span style={{ 
-                    color: "#fff", 
-                    fontSize: 11, 
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    letterSpacing: 1
-                  }}>
-                    Available Now
-                  </span>
-                </div>
-                
-                {pageData.year_of_exp && (
-                  <span style={{ 
-                    background: "#3498db", 
-                    color: "#fff", 
-                    padding: "5px 14px", 
-                    borderRadius: 100, 
-                    fontSize: 11, 
-                    fontWeight: 800,
-                    boxShadow: "0 4px 10px rgba(52, 152, 219, 0.3)"
-                  }}>
-                    {pageData.year_of_exp}+ Years Exp
-                  </span>
-                )}
-              </div>
+            {/* Specialty */}
+            <p style={{ margin: "0 0 4px", fontSize: isMobile ? 12 : 15, color: "#228756", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px" }}>
+              {pageData.profile_type || "Therapist"}
+            </p>
 
-              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: isMobile ? 8 : 15, marginBottom: 2 }}>
-                <h1
-                  style={{
-                    color: "#fff",
-                    fontSize: isMobile ? 20 : 40,
-                    margin: 0,
-                    fontWeight: 900,
-                    letterSpacing: isMobile ? '0px' : '-1px',
-                    textShadow: "0 2px 10px rgba(0,0,0,0.2)"
-                  }}
-                >
-                  {pageData.user.name}
-                </h1>
-
-                {/* Dynamic Review Section - Next to Name, No Pill */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 6,
-                  marginTop: isMobile ? 0 : 8
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {renderStars(averageRating)}
-                  </div>
-                  <span style={{ 
-                    color: '#fff', 
-                    fontSize: isMobile ? 12 : 15, 
-                    fontWeight: 800,
-                    opacity: 0.9
-                  }}>
-                    {averageRating > 0 ? averageRating.toFixed(1) : "0.0"} ({reviewCount})
-                  </span>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  color: "#2ecc71",
-                  fontSize: isMobile ? 12 : 16,
-                  fontWeight: 800,
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  marginBottom: 6,
-                }}
-              >
-                {pageData.profile_type || "Therapist"}
-              </div>
-              
-              <p
-                style={{
-                  color: "rgba(255,255,255,0.95)",
-                  fontSize: isMobile ? 13 : 18,
-                  fontWeight: 600,
-                  marginBottom: isMobile ? 8 : 18,
-                  lineHeight: 1.2,
-                  fontFamily: "'Inter', sans-serif"
-                }}
-              >
+            {/* Qualification */}
+            {pageData.qualification && (
+              <p style={{ margin: "0 0 10px", fontSize: isMobile ? 12 : 14, color: "#64748b", fontWeight: 500, lineHeight: 1.4 }}>
                 {pageData.qualification}
               </p>
+            )}
 
-              <div
-                style={{
-                  display: isMobile ? "none" : "flex",
-                  flexWrap: "wrap",
-                  gap: 20,
-                  justifyContent: "flex-start",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#9b59b6", padding: "5px 14px", borderRadius: 8, boxShadow: "0 4px 10px rgba(155, 89, 182, 0.3)" }}>
-                  <i className="feather-globe" style={{ color: "#fff", fontSize: 14 }}></i>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{pageData.language_spoken}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#e74c3c", padding: "5px 14px", borderRadius: 8, boxShadow: "0 4px 10px rgba(231, 76, 60, 0.3)" }}>
-                  <i className="feather-map-pin" style={{ color: "#fff", fontSize: 14 }}></i>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{pageData.state}</span>
-                </div>
-              </div>
+            {/* Stars */}
+            <div style={{ display: "flex", alignItems: "center", gap: 5, justifyContent: isMobile ? "center" : "flex-start", marginBottom: 12 }}>
+              <div style={{ display: "flex" }}>{renderStars(averageRating)}</div>
+              <span style={{ fontSize: 13, color: "#374151", fontWeight: 700 }}>{averageRating > 0 ? averageRating.toFixed(1) : "0.0"}</span>
+              <span style={{ fontSize: 12, color: "#9ca3af" }}>({reviewCount} reviews)</span>
             </div>
-          </div>
 
-          {/* Mobile Info Chips (Visible only on mobile, below the main row) */}
-          {isMobile && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
-               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: "#2ecc71", padding: "4px 12px", borderRadius: 100, boxShadow: "0 4px 10px rgba(46, 204, 113, 0.3)" }}>
-                  <div style={{ width: 6, height: 6, background: "#fff", borderRadius: "50%" }}></div>
-                  <span style={{ color: "#fff", fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>Available</span>
-                </div>
-                {pageData.year_of_exp && (
-                  <span style={{ background: "#3498db", color: "#fff", padding: "4px 12px", borderRadius: 100, fontSize: 10, fontWeight: 800, boxShadow: "0 4px 10px rgba(52, 152, 219, 0.3)" }}>
-                    {pageData.year_of_exp}+ Yrs Exp
-                  </span>
-                )}
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#9b59b6", padding: "4px 12px", borderRadius: 8, boxShadow: "0 4px 10px rgba(155, 89, 182, 0.3)" }}>
-                  <i className="feather-globe" style={{ color: "#fff", fontSize: 12 }}></i>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{pageData.language_spoken}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#e74c3c", padding: "4px 12px", borderRadius: 8, boxShadow: "0 4px 10px rgba(231, 76, 60, 0.3)" }}>
-                  <i className="feather-map-pin" style={{ color: "#fff", fontSize: 12 }}></i>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}>{pageData.state}</span>
-                </div>
-               </div>
+            {/* Chips */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: isMobile ? "center" : "flex-start", marginBottom: isMobile ? 18 : 0 }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5, background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#166534", fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 100 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} /> Available Now
+              </span>
+              {pageData.year_of_exp && (
+                <span style={{ display: "flex", alignItems: "center", gap: 5, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1e40af", fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 100 }}>
+                  <i className="feather-briefcase" style={{ fontSize: 11 }} /> {pageData.year_of_exp}+ Yrs Exp
+                </span>
+              )}
+              {pageData.language_spoken && (
+                <span style={{ display: "flex", alignItems: "center", gap: 5, background: "#faf5ff", border: "1px solid #e9d5ff", color: "#6b21a8", fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 100 }}>
+                  <i className="feather-globe" style={{ fontSize: 11 }} /> {pageData.language_spoken}
+                </span>
+              )}
+              {pageData.state && (
+                <span style={{ display: "flex", alignItems: "center", gap: 5, background: "#fff7ed", border: "1px solid #fed7aa", color: "#9a3412", fontSize: 12, fontWeight: 600, padding: "5px 11px", borderRadius: 100 }}>
+                  <i className="feather-map-pin" style={{ fontSize: 11 }} /> {pageData.state}
+                </span>
+              )}
             </div>
-          )}
 
-          {/* Action Buttons */}
-          <div style={{ 
-            display: 'flex', 
-            gap: 12, 
-            flexDirection: isMobile ? 'row' : 'column',
-            width: isMobile ? '100%' : '220px',
-            alignItems: 'stretch'
-          }}>
-            <button
-              onClick={handleClick}
-              className="book-btn-shimmer"
-              style={{
-                flex: isMobile ? 1 : 'none',
-                padding: isMobile ? "14px 20px" : "16px 25px",
-                borderRadius: 14,
-                color: "#fff",
-                fontWeight: 800,
-                border: "none",
-                cursor: "pointer",
-                boxShadow: "0 10px 20px rgba(46, 204, 113, 0.3)",
-                transition: "all 0.3s ease",
-                fontSize: isMobile ? 14 : 16,
-                textTransform: 'uppercase',
-                letterSpacing: 0.5
-              }}
-              onMouseEnter={(e) => (e.target.style.transform = "translateY(-3px)")}
-              onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
-            >
-              Book Session
-            </button>
-
-            {/* Chat with Admin - Mobile Only Button next to Book Button */}
+            {/* Mobile buttons */}
             {isMobile && (
-              <button 
-                onClick={() => setIsConsultationModalOpen(true)}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: "14px 15px",
-                  borderRadius: 14,
-                  background: '#fff',
-                  color: '#133d2f',
-                  fontWeight: 800,
-                  fontSize: 13,
-                  textTransform: 'uppercase',
-                  border: 'none',
-                  boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
-                  cursor: 'pointer'
-                }}
-              >
-                <MessageCircle size={18} style={{ color: '#228756' }} />
-                <span>Admin</span>
-              </button>
-            )}
-
-            {/* Desktop Share Text (Only visible if not mobile icons) */}
-            {!isMobile && (
-              <div style={{ 
-                display: 'flex', 
-                gap: 12, 
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                padding: '5px 0'
-              }}>
-                {shareLinks.map((link) => (
-                  <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
-                    <a 
-                      href={link.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{
-                        ...iconButtonStyle,
-                        background: link.color,
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                        boxShadow: `0 4px 10px ${link.color}44`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
-                        e.currentTarget.style.boxShadow = `0 8px 16px ${link.color}66`;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0) scale(1)";
-                        e.currentTarget.style.boxShadow = `0 4px 10px ${link.color}44`;
-                      }}
-                    >
-                      {link.icon}
-                    </a>
-                  </Tooltip>
-                ))}
-
-                <Tooltip title="Copy Link" arrow>
-                  <div 
-                    onClick={copyToClipboard}
-                    style={{
-                      ...iconButtonStyle,
-                      background: "#475569",
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      boxShadow: '0 4px 10px rgba(71, 85, 105, 0.3)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#334155";
-                      e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "#475569";
-                      e.currentTarget.style.transform = "translateY(0) scale(1)";
-                    }}
-                  >
-                    <LinkIcon size={18} />
-                  </div>
-                </Tooltip>
-
-                <Tooltip title="More Options" arrow>
-                  <div 
-                    onClick={handleShare}
-                    style={{
-                      ...iconButtonStyle,
-                      background: "#228756",
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      boxShadow: '0 4px 10px rgba(34, 135, 86, 0.3)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#1a6b44";
-                      e.currentTarget.style.transform = "translateY(-4px) scale(1.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "#228756";
-                      e.currentTarget.style.transform = "translateY(0) scale(1)";
-                    }}
-                  >
-                    <Share2 size={18} />
-                  </div>
-                </Tooltip>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={handleClick} className="book-btn" style={{ flex: 1, padding: "13px 16px", borderRadius: 12, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 14, boxShadow: "0 6px 18px rgba(34,135,86,0.28)" }}>
+                    Book Session
+                  </button>
+                  <button onClick={() => setIsConsultationModalOpen(true)} style={{ flex: 1, padding: "13px 12px", borderRadius: 12, color: "#228756", fontWeight: 700, border: "1.5px solid #228756", cursor: "pointer", fontSize: 13, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+                    <MessageCircle size={14} /> Ask Admin
+                  </button>
+                </div>
+                <div style={{ display: "flex", justifyContent: "center" }}>{shareRow}</div>
               </div>
             )}
           </div>
 
-          {/* Mobile Social Share Row (moved below buttons for better spacing) */}
-          {isMobile && (
-            <div style={{ 
-              display: 'flex', 
-              gap: 12, 
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 10
-            }}>
-              {shareLinks.map((link) => (
-                <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
-                  <a 
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{
-                      ...iconButtonStyle,
-                      background: link.color,
-                      borderColor: 'rgba(255, 255, 255, 0.2)',
-                      boxShadow: `0 4px 10px ${link.color}44`,
-                    }}
-                  >
-                    {link.icon}
-                  </a>
-                </Tooltip>
-              ))}
-              
-              <Tooltip title="Copy Link" arrow>
-                <div onClick={copyToClipboard} style={{ ...iconButtonStyle, background: "#475569" }}>
-                  <LinkIcon size={18} />
-                </div>
-              </Tooltip>
-
-              <Tooltip title="More" arrow>
-                <div onClick={handleShare} style={{ ...iconButtonStyle, background: "#228756" }}>
-                  <Share2 size={18} />
-                </div>
-              </Tooltip>
+          {/* ── DESKTOP ACTION COLUMN ── */}
+          {!isMobile && (
+            <div style={{ flexShrink: 0, width: 210, display: "flex", flexDirection: "column", gap: 10, alignSelf: "center" }}>
+              <button onClick={handleClick} className="book-btn" style={{ width: "100%", padding: "15px 20px", borderRadius: 14, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 15, boxShadow: "0 6px 20px rgba(34,135,86,0.28)" }}>
+                Book Session
+              </button>
+              <button onClick={() => setIsConsultationModalOpen(true)} style={{ width: "100%", padding: "14px 20px", borderRadius: 14, color: "#228756", fontWeight: 700, border: "1.5px solid #228756", cursor: "pointer", fontSize: 14, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                <MessageCircle size={16} /> Ask Admin
+              </button>
+              <div style={{ paddingTop: 4 }}>{shareRow}</div>
             </div>
           )}
         </div>
       </div>
 
-      <Snackbar 
-        open={snackbarOpen} 
-        autoHideDuration={3000} 
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: '100%' }}>
-          Profile link copied to clipboard!
-        </Alert>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: "100%" }}>Profile link copied!</Alert>
       </Snackbar>
 
-      <div style={{ paddingTop: isMobile ? 40 : 60 }}></div>
-      <ShareModal 
-        open={isShareModalOpen} 
-        onClose={() => setIsShareModalOpen(false)} 
-        url={profileUrl}
-        title={`${pageData.user.name} - ${pageData.profile_type}`}
-        description={`${pageData.user.name}, a ${pageData.profile_type} based in ${pageData.state}. Connect and book a session today!`}
-      />
+      <ShareModal open={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} url={profileUrl} title={`${pageData.user.name} - ${pageData.profile_type}`} description={`${pageData.user.name}, a ${pageData.profile_type} based in ${pageData.state}. Book a session today!`} />
 
-      {/* Consultation Form Modal */}
-      <Dialog 
-        open={isConsultationModalOpen} 
-        onClose={() => setIsConsultationModalOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          style: {
-            borderRadius: 24,
-            padding: 0
-          }
-        }}
-      >
-        <IconButton
-          aria-label="close"
-          onClick={() => setIsConsultationModalOpen(false)}
-          sx={{
-            position: 'absolute',
-            right: 12,
-            top: 12,
-            color: '#1e293b',
-            zIndex: 10,
-            background: 'rgba(255, 255, 255, 0.8)',
-            '&:hover': {
-              background: '#fff',
-            }
-          }}
-        >
+      <Dialog open={isConsultationModalOpen} onClose={() => setIsConsultationModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ style: { borderRadius: 24, padding: 0 } }}>
+        <IconButton aria-label="close" onClick={() => setIsConsultationModalOpen(false)} sx={{ position: "absolute", right: 12, top: 12, color: "#1e293b", zIndex: 10, background: "rgba(255,255,255,0.8)", "&:hover": { background: "#fff" } }}>
           <CloseIcon />
         </IconButton>
         <DialogContent sx={{ p: isMobile ? 2 : 4, pt: isMobile ? 5 : 4 }}>
