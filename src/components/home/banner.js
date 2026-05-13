@@ -5,7 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import React from "react";
 import Link from "next/link";
-import { Star, LocationOn, Language, Work } from "@mui/icons-material";
+import { Star, LocationOn, Language } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { imagePath, defaultProfile } from "../../utils/url";
@@ -121,10 +121,13 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                           {/* Body */}
                           <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
                             <div>
-                              <h5 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#1e293b" }}>
+                              <h5 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: "#1e293b", display: "flex", alignItems: "center", gap: "6px" }}>
                                 <Link href={`/view-profile/${t._id}`} style={{ color: "inherit", textDecoration: "none" }}>
                                   {t.user?.name || "Therapist"}
                                 </Link>
+                                <span title="Verified" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "18px", height: "18px", borderRadius: "50%", background: "#1d9bf0", flexShrink: 0 }}>
+                                  <svg viewBox="0 0 24 24" width="11" height="11" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                </span>
                               </h5>
                               <p style={{ margin: 0, marginTop: "2px", fontSize: "13px", color: "#228756", fontWeight: 600 }}>{t.profile_type || "Mental Health Professional"}</p>
                             </div>
@@ -133,11 +136,6 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                               {t.language_spoken && (
                                 <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
                                   <Language sx={{ fontSize: 14, color: "#94a3b8" }} /> {t.language_spoken}
-                                </div>
-                              )}
-                              {t.year_of_exp && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b" }}>
-                                  <Work sx={{ fontSize: 14, color: "#94a3b8" }} /> {t.year_of_exp} Experience
                                 </div>
                               )}
                               {t.state && (
