@@ -25,19 +25,40 @@ jobs:
           timeout: 60s
           command_timeout: 30m
           script: |
+            set -e
+
+            # Backup .env
             cp /root/cyt/.env /tmp/cyt_env_backup 2>/dev/null || true
+
+            # Clone fresh into cyt-new
             rm -rf /root/cyt-new
             git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git /root/cyt-new
             cp /tmp/cyt_env_backup /root/cyt-new/.env 2>/dev/null || true
+
+            # Build in cyt-new (extra memory for Next.js)
             cd /root/cyt-new
             npm ci
-            npm run build
+            NODE_OPTIONS="--max-old-space-size=1024" npm run build
             rm -rf .next/cache
+
+            # Only swap if build succeeded (BUILD_ID must exist)
+            if [ ! -f "/root/cyt-new/.next/BUILD_ID" ]; then
+              echo "Build failed — keeping old version running"
+              rm -rf /root/cyt-new
+              exit 1
+            fi
+
+            # Atomic swap — old site stays live until this moment
             rm -rf /root/cyt-old
             mv /root/cyt /root/cyt-old 2>/dev/null || true
             mv /root/cyt-new /root/cyt
+
+            # Restart and verify
             pm2 reload cyt-frontend --update-env
             pm2 save
-            sleep 3
+            sleep 5
             pm2 status
+
+            # Clean up old build
             rm -rf /root/cyt-old
+            echo "Deploy successful"
