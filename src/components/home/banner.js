@@ -65,7 +65,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     <span style={{ visibility: "hidden" }}>Personalized</span>
                   </span>
                   <br />
-                  journey to mental wellness.
+                  path to wellness.
                 </h4>
                 <p className="description">
                   We provide verified mental health experts every step of the way to your <strong>well-being.</strong>
