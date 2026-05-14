@@ -67,9 +67,13 @@ export default function HomePage() {
       if (dataToProcess && dataToProcess.length > 0) {
         const allTherapists = dataToProcess;
         
-        // Priority 1 therapists for Banner (Fixed)
+        // Priority 1 therapists for Banner — fill remaining slots with high-review therapists
         const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1 || therapist.priority === "1");
-        setBannerTherapists(priorityTherapists.slice(0, 10));
+        const withReviews = allTherapists
+          .filter(t => (t.reviews?.length || 0) > 0 && t.priority !== 1 && t.priority !== "1")
+          .sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+        const bannerList = [...priorityTherapists, ...withReviews].slice(0, 10);
+        setBannerTherapists(bannerList);
 
         // Final Sorted List for ProfileCard (Review & Location Based)
         const nonPriorityTherapists = allTherapists.filter(therapist => therapist.priority !== 1 && therapist.priority !== "1");
