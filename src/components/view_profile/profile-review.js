@@ -13,7 +13,8 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { postData, fetchData } from "../../utils/actions";
-import { SubmitReviewUrl, getTherapistProfile } from "../../utils/url";
+import { SubmitReviewUrl, getTherapistProfile, registerUrl, sendOtpUrl, verifyOtpUrl } from "../../utils/url";
+import { setToken } from "../../utils/jwt";
 
 export default function ProfileReview({ profile: initialProfile }) {
   const [profile, setProfile] = useState(initialProfile);
@@ -25,7 +26,10 @@ export default function ProfileReview({ profile: initialProfile }) {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
-  
+  const [otpStep, setOtpStep] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -65,55 +69,71 @@ export default function ProfileReview({ profile: initialProfile }) {
     marginTop: "10px"
   };
 
-  const handleSubmit = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
-    if (rating === 0) {
-      alert("Please select a rating");
+    if (rating === 0) { alert("Please select a rating"); return; }
+    if (!name.trim() || !email.trim() || !reviewText.trim()) { alert("Please fill all fields"); return; }
+
+    // Duplicate review check
+    const alreadyReviewed = profile?.reviews?.some(r => r.email?.toLowerCase() === email.toLowerCase());
+    if (alreadyReviewed) {
+      alert("You have already submitted a review for this therapist.");
       return;
     }
-    
-    // Blur all active inputs to fix mobile zoom/keyboard issues
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    setSubmitting(true);
-    // Prepare data for backend
-    const reviewData = {
-      therapistId: profile?._id,
-      name,
-      email,
-      rating,
-      description: reviewText
-    };
 
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+
+    setSubmitting(true);
+    setOtpError("");
     try {
+      // Try registering (new user) — sends OTP on success
+      const res = await postData(registerUrl, { name, email, phone: "0000000000" });
+      if (res?.status) {
+        setOtpStep(true);
+      } else {
+        // Email exists — send login OTP
+        const otpRes = await postData(sendOtpUrl, { email });
+        if (otpRes?.status) {
+          setOtpStep(true);
+        } else {
+          setOtpError(otpRes?.message || "Failed to send OTP. Please try again.");
+        }
+      }
+    } catch (err) {
+      setOtpError("Something went wrong. Please try again.");
+    }
+    setSubmitting(false);
+  };
+
+  const handleVerifyAndSubmit = async () => {
+    if (otp.length !== 6) { setOtpError("Please enter a valid 6-digit OTP"); return; }
+    setSubmitting(true);
+    setOtpError("");
+    try {
+      const verifyRes = await postData(verifyOtpUrl, { email, otp });
+      if (!verifyRes?.status) {
+        setOtpError(verifyRes?.message || "Invalid OTP. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+      if (verifyRes.token) setToken(verifyRes.token);
+
+      const reviewData = { therapistId: profile?._id, name, email, rating, description: reviewText };
       const res = await postData(SubmitReviewUrl, reviewData);
       if (res && (res.status === true || res.status === "success" || res.status === 200 || res.success)) {
         setOpenSuccess(true);
-        setRating(0);
-        setReviewText("");
-        setName("");
-        setEmail("");
-
-        // Refresh profile data to show the new review (if backend returns it)
+        setRating(0); setReviewText(""); setName(""); setEmail(""); setOtp(""); setOtpStep(false);
         try {
           const resUpdated = await fetchData(getTherapistProfile + profile?._id);
-          if (resUpdated && resUpdated.data) {
-            setProfile(resUpdated.data);
-          }
-        } catch (err) {
-          console.error("Error refreshing profile after review:", err);
-        }
+          if (resUpdated?.data) setProfile(resUpdated.data);
+        } catch (err) {}
       } else {
-        alert(res?.message || "Something went wrong. Please try again.");
+        setOtpError(res?.message || "Failed to submit review. Please try again.");
       }
     } catch (err) {
-      console.error("Error submitting review:", err);
-      alert("Failed to submit review. Please check your connection and try again.");
-    } finally {
-      setSubmitting(false);
+      setOtpError("Something went wrong. Please try again.");
     }
+    setSubmitting(false);
   };
 
   const handleCloseSuccess = () => {
@@ -169,100 +189,78 @@ export default function ProfileReview({ profile: initialProfile }) {
             <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#1a202c' }}>
               Leave a Review for {profile?.user?.name || "Therapist"}
             </h4>
-            <form onSubmit={handleSubmit} ref={formRef}>
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Full Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      style={inputStyle}
-                      placeholder="Enter your name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                    />
+
+            {!otpStep ? (
+              <form onSubmit={handleSendOtp} ref={formRef}>
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Full Name</label>
+                      <input type="text" className="form-control" style={inputStyle} placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} required />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Email Address</label>
+                      <input type="email" className="form-control" style={inputStyle} placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    </div>
                   </div>
                 </div>
-                <div className="col-md-6">
-                  <div className="mb-3">
-                    <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Email Address</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      style={inputStyle}
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+
+                <div className="mb-3">
+                  <label className="form-label d-block" style={{ fontWeight: 600, color: '#4a5568' }}>Rating</label>
+                  <div className="star-rating">
+                    {[...Array(5)].map((star, index) => {
+                      index += 1;
+                      return (
+                        <button type="button" key={index} style={{ background: "none", border: "none", cursor: "pointer", padding: "0 2px", outline: "none" }}
+                          onClick={() => setRating(index)} onMouseEnter={() => setHover(index)} onMouseLeave={() => setHover(rating)}>
+                          {index <= (hover || rating) ? <StarIcon style={{ color: "#ffb400", fontSize: 30 }} /> : <StarBorderIcon style={{ color: "#cbd5e0", fontSize: 30 }} />}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
-              </div>
 
-              <div className="mb-3">
-                <label className="form-label d-block" style={{ fontWeight: 600, color: '#4a5568' }}>Rating</label>
-                <div className="star-rating">
-                  {[...Array(5)].map((star, index) => {
-                    index += 1;
-                    return (
-                      <button
-                        type="button"
-                        key={index}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                          padding: "0 2px",
-                          outline: "none"
-                        }}
-                        onClick={() => setRating(index)}
-                        onMouseEnter={() => setHover(index)}
-                        onMouseLeave={() => setHover(rating)}
-                      >
-                        {index <= (hover || rating) ? (
-                          <StarIcon style={{ color: "#ffb400", fontSize: 30 }} />
-                        ) : (
-                          <StarBorderIcon style={{ color: "#cbd5e0", fontSize: 30 }} />
-                        )}
-                      </button>
-                    );
-                  })}
+                <div className="mb-3">
+                  <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Review Description</label>
+                  <textarea className="form-control" rows="4" placeholder="Share your experience with this therapist..." value={reviewText} onChange={(e) => setReviewText(e.target.value)}
+                    style={{ borderRadius: "12px", border: "1px solid #e2e8f0", padding: "15px", fontSize: "15px", resize: "none" }} required />
+                </div>
+
+                {otpError && <p style={{ color: "#e53e3e", fontSize: "14px", marginBottom: "10px" }}>{otpError}</p>}
+
+                <button type="submit" style={{ ...btnStyle, opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }} disabled={submitting}>
+                  {submitting ? "Sending OTP..." : "Send OTP to Verify"}
+                </button>
+              </form>
+            ) : (
+              <div>
+                <p style={{ color: "#4a5568", marginBottom: "6px", fontSize: "15px" }}>
+                  A 6-digit OTP has been sent to <strong>{email}</strong>
+                </p>
+                <p style={{ color: "#718096", fontSize: "13px", marginBottom: "20px" }}>
+                  Verifying your email will also create your CYT account automatically.
+                </p>
+                <div className="mb-3">
+                  <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Enter OTP</label>
+                  <input type="text" className="form-control" style={{ ...inputStyle, letterSpacing: "6px", fontSize: "20px", fontWeight: 700, textAlign: "center" }}
+                    placeholder="------" maxLength={6} value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))} />
+                </div>
+
+                {otpError && <p style={{ color: "#e53e3e", fontSize: "14px", marginBottom: "10px" }}>{otpError}</p>}
+
+                <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+                  <button onClick={handleVerifyAndSubmit} style={{ ...btnStyle, opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer", marginTop: 0 }} disabled={submitting}>
+                    {submitting ? "Verifying..." : "Verify & Submit Review"}
+                  </button>
+                  <button type="button" onClick={() => { setOtpStep(false); setOtp(""); setOtpError(""); }}
+                    style={{ background: "none", border: "none", color: "#718096", fontSize: "14px", cursor: "pointer", textDecoration: "underline" }}>
+                    Go Back
+                  </button>
                 </div>
               </div>
-
-              <div className="mb-3">
-                <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Review Description</label>
-                <textarea
-                  className="form-control"
-                  rows="4"
-                  placeholder="Share your experience with this therapist..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  style={{
-                    borderRadius: "12px",
-                    border: "1px solid #e2e8f0",
-                    padding: "15px",
-                    fontSize: "15px",
-                    resize: "none"
-                  }}
-                  required
-                ></textarea>
-              </div>
-
-              <button 
-                type="submit" 
-                style={{
-                  ...btnStyle,
-                  opacity: submitting ? 0.7 : 1,
-                  cursor: submitting ? "not-allowed" : "pointer"
-                }}
-                disabled={submitting}
-              >
-                {submitting ? "Submitting..." : "Submit Review"}
-              </button>
-            </form>
+            )}
           </div>
 
           {/* Display existing reviews if any */}
