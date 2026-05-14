@@ -19,7 +19,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
   return (
     <div className="rbt-banner-area rbt-banner-1 variation-2 height-750" style={{ paddingBottom: isMobile ? "20px" : "40px" }}>
-      <div className="container" style={{ marginTop: isMobile ? "0px" : "-60px" }}>
+      <div className="container" style={{ marginTop: isMobile ? "-20px" : "-60px" }}>
         <div className="row justify-content-between align-items-center">
 
           {/* LEFT */}
@@ -53,7 +53,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     opacity: 0;
                   }
                   @media (max-width: 600px) {
-                    .rbt-banner-1 { padding-top: 20px !important; }
+                    .rbt-banner-1 { padding-top: 10px !important; }
                   }
                 `}</style>
                 <h4 className="title">
