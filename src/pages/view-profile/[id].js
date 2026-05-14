@@ -99,19 +99,77 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
   const profileName = profile?.user?.name || "Expert Therapist";
   const profileType = profile?.profile_type || "Psychologist";
   const profileLocation = profile?.user?.state ? `in ${profile.user.state}` : "in India";
-  
+
   // Ensure absolute image URL for OG tags
-  const profileImage = profile?.user?.profile 
+  const profileImage = profile?.user?.profile
     ? (profile.user.profile.startsWith('http') ? profile.user.profile : `${imagePath}/${profile.user.profile}`)
     : "https://i.postimg.cc/gj1yngrd/choose.png";
-  
-  // Clean and truncate bio for description
+
+  // Review stats
+  const reviews = profile?.reviews || [];
+  const reviewCount = reviews.length;
+  const avgRating = reviewCount > 0
+    ? (reviews.reduce((sum, r) => sum + (r.rating || 5), 0) / reviewCount).toFixed(1)
+    : null;
+
+  // Extract top keywords from review text
+  const stopwords = new Set(["this","that","with","have","from","they","will","been","were","their","what","when","which","there","about","would","could","very","just","also","more","some","than","then","into","your","like","time","only","over","such","after","most","well","much","good","great","really","helped","highly","thank","very","session","sessions","sessions"]);
+  const reviewKeywords = reviews
+    .flatMap(r => (r.description || "").toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/))
+    .filter(w => w.length > 4 && !stopwords.has(w))
+    .reduce((acc, w) => { acc[w] = (acc[w] || 0) + 1; return acc; }, {});
+  const topReviewKeywords = Object.entries(reviewKeywords)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .map(([w]) => w)
+    .join(", ");
+
+  // Clean bio
   const rawBio = profile?.user?.bio ? profile.user.bio.replace(/<[^>]*>/g, '').trim() : "";
-  const profileBio = rawBio.length > 160 ? rawBio.substring(0, 157) + "..." : rawBio || `Book a session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`;
+  const profileBio = rawBio || `Book a session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`;
+
+  // SEO description — include rating for click-through boost
+  const ratingSnippet = avgRating ? `⭐ ${avgRating}/5 · ${reviewCount} review${reviewCount > 1 ? "s" : ""} — ` : "";
+  const seoDescriptionRaw = ratingSnippet + profileBio;
+  const seoDescription = seoDescriptionRaw.length > 160 ? seoDescriptionRaw.substring(0, 157) + "..." : seoDescriptionRaw;
+
+  // Keywords — base + review-extracted
+  const baseKeywords = `${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, verified therapist, ${profile?.state || profile?.user?.state || "India"}`;
+  const seoKeywords = topReviewKeywords ? `${baseKeywords}, ${topReviewKeywords}` : baseKeywords;
 
   const currentUrl = `${frontendUrl}/view-profile/${id}`;
-  const seoTitle = `${profileName} | ${profileType} | ${profileLocation.replace('in ', '')} | View Profile with ChooseYourTherapist`;
-  const seoDescription = profileBio;
+  const seoTitle = `${profileName} | ${profileType} | ${profileLocation.replace('in ', '')} | Choose Your Therapist`;
+
+  // Schema.org structured data
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": profileName,
+    "jobTitle": profileType,
+    "description": profileBio.substring(0, 300),
+    "image": profileImage,
+    "url": currentUrl,
+    "worksFor": { "@type": "Organization", "name": "Choose Your Therapist", "url": "https://www.chooseyourtherapist.in" },
+    ...(profile?.state && { "address": { "@type": "PostalAddress", "addressRegion": profile.state, "addressCountry": "IN" } }),
+    ...(avgRating && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": avgRating,
+        "reviewCount": reviewCount,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }),
+    ...(reviewCount > 0 && {
+      "review": reviews.slice(0, 5).map(r => ({
+        "@type": "Review",
+        "author": { "@type": "Person", "name": r.name || "Verified User" },
+        "reviewRating": { "@type": "Rating", "ratingValue": r.rating || 5, "bestRating": "5" },
+        "reviewBody": (r.description || "").substring(0, 300),
+        ...(r.createdAt && { "datePublished": new Date(r.createdAt).toISOString().split("T")[0] })
+      }))
+    })
+  };
 
   return loading ? (
     <PageProgressBar />
@@ -120,13 +178,13 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
       <Head>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
-        <meta name="keywords" content={`${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, in-person therapy, verified therapist, ${profile.user.state || "India"}`} />
+        <meta name="keywords" content={seoKeywords} />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="Choose Your Therapist" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="language" content="English" />
-        
-        {/* Open Graph / Facebook */}
+
+        {/* Open Graph */}
         <meta property="og:type" content="profile" />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={seoTitle} />
@@ -147,12 +205,16 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
         <meta name="twitter:image" content={profileImage} />
         <meta name="twitter:site" content="@chooseyourtherapist" />
 
-        {/* Additional SEO */}
+        {/* Additional */}
         <meta name="theme-color" content="#228756" />
         <meta name="application-name" content="Choose Your Therapist" />
-
-        {/* Canonical */}
         <link rel="canonical" href={currentUrl} />
+
+        {/* Schema.org — AggregateRating + Reviews for Google rich snippets */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        />
       </Head>
       <MyNavbar />
       {profile && (
