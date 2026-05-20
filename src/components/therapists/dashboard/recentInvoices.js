@@ -1,122 +1,102 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  Button,
-  Avatar,
-} from "@mui/material";
+import { Box, Typography, Paper, Chip, Avatar, Button } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import Link from "next/link";
+
+function statusStyle(status) {
+  const s = (status || "").toLowerCase();
+  if (s === "success" || s === "completed" || s === "paid")
+    return { bg: "#f0fdf4", color: "#16a34a", label: "Paid" };
+  if (s === "pending" || s === "awaiting")
+    return { bg: "#fffbeb", color: "#d97706", label: "Pending" };
+  if (s === "failed" || s === "cancelled")
+    return { bg: "#fef2f2", color: "#dc2626", label: "Failed" };
+  return { bg: "#f0fdf4", color: "#16a34a", label: status || "Paid" };
+}
+
+function avatarColor(name) {
+  const colors = ["#0ea5e9","#8b5cf6","#f59e0b","#228756","#f43f5e","#14b8a6"];
+  const idx = (name?.charCodeAt(0) || 0) % colors.length;
+  return colors[idx];
+}
 
 export default function RecentInvoices({ data }) {
   const invoices = data || [];
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
-        <Typography sx={{ fontWeight: 800, fontSize: "15px", color: "#1e293b" }}>
-          Recent Invoices
-        </Typography>
-        <Button
-          component={Link}
-          href="/clinic-patients"
-          endIcon={<ArrowForwardIcon sx={{ fontSize: 14 }} />}
-          sx={{ color: "#228756", fontWeight: 700, textTransform: "none", fontSize: "12px", px: 0 }}
-        >
+    <Paper elevation={0} sx={{ borderRadius: "18px", border: "1.5px solid #f1f5f9", background: "#fff", overflow: "hidden" }}>
+      {/* header */}
+      <Box sx={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        px: { xs: "16px", md: "22px" }, py: { xs: "14px", md: "18px" },
+        borderBottom: "1px solid #f8fafc",
+      }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#1e293b" }}>Recent Invoices</Typography>
+          <Chip label={invoices.length} size="small" sx={{ height: 18, fontSize: "10px", fontWeight: 700, background: "#f0fdf4", color: "#228756", borderRadius: "5px" }} />
+        </Box>
+        <Button component={Link} href="/clinic-patients"
+          endIcon={<ArrowForwardIcon sx={{ fontSize: 13 }} />}
+          sx={{ color: "#228756", fontWeight: 700, textTransform: "none", fontSize: "11px", px: 0, minWidth: 0 }}>
           View All
         </Button>
       </Box>
 
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        sx={{
-          borderRadius: "16px",
-          border: "1.5px solid #f1f5f9",
-          overflow: "auto",
-        }}
-      >
-        <Table sx={{ minWidth: 460 }}>
-          <TableHead>
-            <TableRow sx={{ background: "#f8fafc" }}>
-              <TableCell sx={{ fontWeight: 700, color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>ID</TableCell>
-              <TableCell sx={{ fontWeight: 700, color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>Client</TableCell>
-              <TableCell sx={{ fontWeight: 700, color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>Date</TableCell>
-              <TableCell sx={{ fontWeight: 700, color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>Amount</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700, color: "#94a3b8", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", py: 1.5, borderBottom: "1px solid #f1f5f9" }}>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {invoices.length > 0 ? (
-              invoices.map((invoice) => (
-                <TableRow
-                  key={invoice.id}
-                  sx={{ "&:hover": { bgcolor: "#fafafa" }, "&:last-child td": { border: 0 } }}
-                >
-                  <TableCell sx={{ fontWeight: 600, fontSize: "12px", color: "#64748b", py: 1.8 }}>
-                    #{invoice.invoice_id || invoice.id}
-                  </TableCell>
-                  <TableCell sx={{ py: 1.8 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                      <Avatar
-                        sx={{
-                          width: 28,
-                          height: 28,
-                          fontSize: 11,
-                          fontWeight: 700,
-                          bgcolor: "#f0fdf4",
-                          color: "#228756",
-                        }}
-                      >
-                        {invoice.client_name?.charAt(0)}
-                      </Avatar>
-                      <Typography sx={{ fontWeight: 600, fontSize: "13px", color: "#1e293b" }}>
-                        {invoice.client_name}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell sx={{ color: "#64748b", fontSize: "12px", fontWeight: 500, py: 1.8 }}>
-                    {invoice.booking_date}
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, color: "#1e293b", fontSize: "13px", py: 1.8 }}>
-                    ₹{invoice.amount}
-                  </TableCell>
-                  <TableCell align="right" sx={{ py: 1.8 }}>
-                    <Chip
-                      label={invoice.status || "Success"}
-                      size="small"
-                      sx={{
-                        height: 20,
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        borderRadius: "5px",
-                        background: "#f0fdf4",
-                        color: "#2ecc71",
-                      }}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                  <Typography sx={{ color: "#94a3b8", fontSize: "13px" }}>
-                    No recent invoices
+      {invoices.length > 0 ? (
+        invoices.map((inv, i) => {
+          const { bg, color, label } = statusStyle(inv.status);
+          const ac = avatarColor(inv.client_name);
+          return (
+            <Box key={inv.id} sx={{
+              display: "flex", alignItems: "center",
+              px: { xs: "16px", md: "22px" }, py: { xs: "12px", md: "14px" },
+              gap: { xs: 1.4, md: 2 },
+              borderBottom: i < invoices.length - 1 ? "1px solid #f8fafc" : "none",
+              "&:hover": { background: "#fafafa" },
+              transition: "background 0.15s",
+            }}>
+              <Avatar sx={{
+                width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 },
+                borderRadius: "10px", background: ac + "20",
+                color: ac, fontSize: "13px", fontWeight: 800, flexShrink: 0,
+              }}>
+                {inv.client_name?.charAt(0)?.toUpperCase()}
+              </Avatar>
+
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{ fontWeight: 700, fontSize: { xs: "12px", md: "13px" }, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {inv.client_name}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.2 }}>
+                  <Typography sx={{ fontSize: "10px", color: "#94a3b8", fontWeight: 600 }}>
+                    #{inv.invoice_id}
                   </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+                  <Box sx={{ width: 2, height: 2, borderRadius: "50%", background: "#e2e8f0" }} />
+                  <Typography sx={{ fontSize: "10px", color: "#94a3b8", fontWeight: 500 }}>
+                    {inv.booking_date}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                <Typography sx={{ fontWeight: 800, fontSize: { xs: "13px", md: "14px" }, color: "#1e293b", letterSpacing: "-0.3px" }}>
+                  ₹{Number(inv.amount || 0).toLocaleString("en-IN")}
+                </Typography>
+                <Chip label={label} size="small" sx={{
+                  mt: 0.4, height: 17, fontSize: "9px", fontWeight: 700,
+                  borderRadius: "5px", background: bg, color,
+                }} />
+              </Box>
+            </Box>
+          );
+        })
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 5, gap: 1 }}>
+          <ReceiptLongIcon sx={{ fontSize: 36, color: "#e2e8f0" }} />
+          <Typography sx={{ color: "#94a3b8", fontSize: "12px", fontWeight: 500 }}>No invoices yet</Typography>
+        </Box>
+      )}
+    </Paper>
   );
 }
