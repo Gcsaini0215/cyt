@@ -1,81 +1,225 @@
 import React from "react";
 import MainLayout from "../components/therapists/main-layout";
-import PerformanceComponent from "../components/therapists/dashboard/performance";
-import TodayAppointment from "../components/therapists/dashboard/todayappointment";
-import UpcomingAppointment from "../components/therapists/dashboard/upcommingappointment";
-import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
+import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
 import QuickActions from "../components/therapists/dashboard/QuickActions";
-import { GetDashboardDataUrl, getBookings, GetMyWorkshopBooking } from "../utils/url";
-import { LinearProgress, Grid, Box, Typography, Paper, useMediaQuery } from "@mui/material";
+import { GetDashboardDataUrl, getBookings, GetMyWorkshopBooking, defaultProfile } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
+import {
+  Box, Typography, Paper, Avatar, Chip, Button, Grid,
+  LinearProgress, useMediaQuery, Skeleton,
+} from "@mui/material";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import PeopleIcon from "@mui/icons-material/People";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import VideoCallIcon from "@mui/icons-material/VideoCall";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import EventBusyIcon from "@mui/icons-material/EventBusy";
 
-function MobileQuickActions() {
-  const actions = [
-    { title: "Create Event", icon: <AddBoxIcon />, to: "/workshops", color: "#0ea5e9" },
-    { title: "Report", icon: <AssessmentIcon />, to: "/create-report", color: "#f59e0b" },
-    { title: "Availability", icon: <ScheduleIcon />, to: "/settings", color: "#8b5cf6" },
-    { title: "Invoices", icon: <ConfirmationNumberIcon />, to: "/clinic-patients", color: "#2ecc71" },
-  ];
+/* ── helpers ─────────────────────────────────────────── */
+function getNum(v) {
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : n;
+}
+
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function fmtTime(d) {
+  return new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+}
+
+function timeUntil(d) {
+  const diff = new Date(d) - new Date();
+  if (diff <= 0) return "Starting now";
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (h > 24) return `in ${Math.floor(h / 24)}d ${h % 24}h`;
+  if (h > 0) return `in ${h}h ${m}m`;
+  return `in ${m}m`;
+}
+
+/* ── Stat card ───────────────────────────────────────── */
+function StatCard({ icon, label, value, color, bg, trend, loading }) {
   return (
-    <Box sx={{ display: "flex", gap: 1.5, overflowX: "auto", pb: 0.5, scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
-      {actions.map((a, i) => (
-        <Link key={i} href={a.to} style={{ textDecoration: "none", flexShrink: 0 }}>
-          <Box sx={{
-            display: "flex", flexDirection: "column", alignItems: "center", gap: 0.8,
-            px: 2, py: 1.5, borderRadius: "14px",
-            border: "1.5px solid #f1f5f9", background: "#fff",
-            minWidth: 72, transition: "all 0.15s",
-            "&:active": { background: "#f8fafc" }
-          }}>
-            <Box sx={{ width: 36, height: 36, borderRadius: "10px", background: a.color + "15", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {React.cloneElement(a.icon, { sx: { fontSize: 18, color: a.color } })}
-            </Box>
-            <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#475569", textAlign: "center", lineHeight: 1.2 }}>
-              {a.title}
+    <Paper elevation={0} sx={{
+      p: { xs: "14px", md: "18px 20px" },
+      borderRadius: "16px",
+      border: "1.5px solid #f1f5f9",
+      background: "#fff",
+      display: "flex", alignItems: "center",
+      gap: { xs: 1.2, md: 1.8 },
+      transition: "all 0.2s",
+      "&:hover": { borderColor: color + "55", boxShadow: `0 6px 20px ${color}14`, transform: "translateY(-2px)" },
+    }}>
+      <Box sx={{ width: { xs: 36, md: 44 }, height: { xs: 36, md: 44 }, borderRadius: "11px", background: bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        {React.cloneElement(icon, { sx: { fontSize: { xs: 17, md: 21 }, color } })}
+      </Box>
+      <Box sx={{ minWidth: 0, flex: 1 }}>
+        <Typography sx={{ color: "#94a3b8", fontSize: { xs: "9px", md: "10px" }, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", mb: 0.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {label}
+        </Typography>
+        {loading
+          ? <Skeleton width={60} height={24} />
+          : <Typography sx={{ fontWeight: 800, color: "#1e293b", fontSize: { xs: "16px", md: "22px" }, lineHeight: 1, letterSpacing: "-0.5px" }}>
+              {value}
+            </Typography>
+        }
+        {trend && !loading && (
+          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 0.3, mt: 0.4 }}>
+            <TrendingUpIcon sx={{ fontSize: 10, color: "#2ecc71" }} />
+            <Typography sx={{ fontSize: "10px", color: "#2ecc71", fontWeight: 700 }}>{trend}</Typography>
+          </Box>
+        )}
+      </Box>
+    </Paper>
+  );
+}
+
+/* ── Next session card ───────────────────────────────── */
+function NextSessionCard({ session }) {
+  if (!session) return (
+    <Paper elevation={0} sx={{ borderRadius: "18px", border: "1.5px solid #f1f5f9", p: "20px 22px", background: "#fff" }}>
+      <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#1e293b", mb: 1 }}>Next Session</Typography>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 2, gap: 1 }}>
+        <EventBusyIcon sx={{ fontSize: 32, color: "#e2e8f0" }} />
+        <Typography sx={{ color: "#94a3b8", fontSize: "12px", fontWeight: 500 }}>No upcoming sessions</Typography>
+      </Box>
+    </Paper>
+  );
+
+  return (
+    <Paper elevation={0} sx={{
+      borderRadius: "18px",
+      border: "1.5px solid #dcfce7",
+      background: "linear-gradient(135deg, #f0fdf4 0%, #fff 100%)",
+      overflow: "hidden",
+    }}>
+      <Box sx={{ background: "linear-gradient(135deg, #1b5e20, #228756)", px: "20px", py: "12px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Typography sx={{ fontWeight: 800, fontSize: "12px", color: "#fff", letterSpacing: "0.3px" }}>Next Session</Typography>
+        <Chip label={timeUntil(session.date)} size="small" sx={{ height: 20, fontSize: "10px", fontWeight: 700, background: "rgba(255,255,255,0.2)", color: "#fff", borderRadius: "6px" }} />
+      </Box>
+      <Box sx={{ p: "16px 20px", display: "flex", alignItems: "center", gap: 1.8 }}>
+        <Avatar src={session.imgSrc || defaultProfile} alt={session.name}
+          sx={{ width: 46, height: 46, borderRadius: "12px", border: "2px solid #dcfce7", flexShrink: 0 }} />
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {session.name}
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, mt: 0.4 }}>
+            <CalendarTodayIcon sx={{ fontSize: 11, color: "#94a3b8" }} />
+            <Typography sx={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>
+              {fmtDate(session.date)} · {fmtTime(session.date)}
             </Typography>
           </Box>
-        </Link>
-      ))}
+          <Chip label={session.badge || "Online"} size="small"
+            sx={{ mt: 0.6, height: 18, fontSize: "9px", fontWeight: 700, borderRadius: "5px", background: "#f0fdf4", color: "#228756" }} />
+        </Box>
+        {session.badge !== "Offline" && (
+          <Button variant="contained" size="small" startIcon={<VideoCallIcon sx={{ fontSize: 14 }} />}
+            sx={{ background: "linear-gradient(135deg,#228756,#1b6843)", borderRadius: "9px", textTransform: "none", fontSize: "11px", fontWeight: 700, px: 1.5, py: 0.7, flexShrink: 0, boxShadow: "none", "&:hover": { boxShadow: "0 4px 12px rgba(34,135,86,0.35)" } }}>
+            Join
+          </Button>
+        )}
+      </Box>
+    </Paper>
+  );
+}
+
+/* ── Sessions list ───────────────────────────────────── */
+function SessionsList({ title, sessions, showAll = false, allHref }) {
+  const visible = showAll ? sessions : sessions.slice(0, 4);
+  return (
+    <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+        <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#1e293b" }}>{title}</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Chip label={`${sessions.length}`} size="small"
+            sx={{ height: 18, fontSize: "10px", fontWeight: 700, background: "#f0fdf4", color: "#228756", borderRadius: "5px" }} />
+          {allHref && sessions.length > 4 && (
+            <Button component={Link} href={allHref} size="small" endIcon={<ChevronRightIcon sx={{ fontSize: 13 }} />}
+              sx={{ color: "#228756", fontWeight: 700, textTransform: "none", fontSize: "11px", px: 0, minWidth: 0 }}>
+              See all
+            </Button>
+          )}
+        </Box>
+      </Box>
+      <Paper elevation={0} sx={{ borderRadius: "16px", border: "1.5px solid #f1f5f9", overflow: "hidden", background: "#fff" }}>
+        {visible.length > 0 ? visible.map((s, i) => (
+          <Box key={s.id} sx={{
+            display: "flex", alignItems: "center", px: { xs: 2, md: 2.5 }, py: 1.6, gap: { xs: 1.4, md: 2 },
+            borderBottom: i < visible.length - 1 ? "1px solid #f8fafc" : "none",
+            "&:hover": { background: "#fafafa" },
+          }}>
+            <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#2ecc71", flexShrink: 0, boxShadow: "0 0 0 3px #f0fdf4" }} />
+            <Avatar src={s.imgSrc || defaultProfile} alt={s.name}
+              sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, borderRadius: "9px", flexShrink: 0 }} />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: { xs: "12px", md: "13px" }, color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {s.name}
+              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.2 }}>
+                <AccessTimeIcon sx={{ fontSize: 9, color: "#94a3b8" }} />
+                <Typography sx={{ fontSize: "10px", color: "#64748b", fontWeight: 600 }}>
+                  {fmtDate(s.date)} · {fmtTime(s.date)}
+                </Typography>
+              </Box>
+            </Box>
+            <Chip label={s.badge || "Online"} size="small"
+              sx={{ height: 18, fontSize: "9px", fontWeight: 700, borderRadius: "5px", flexShrink: 0,
+                background: s.badge === "Offline" ? "#f1f5f9" : "#f0fdf4",
+                color: s.badge === "Offline" ? "#64748b" : "#228756",
+                display: { xs: "none", sm: "flex" } }} />
+            <Button variant="contained" size="small"
+              sx={{ background: "linear-gradient(135deg,#228756,#1b6843)", borderRadius: "8px", textTransform: "none",
+                fontSize: "10px", fontWeight: 700, px: { xs: 1, sm: 1.4 }, py: 0.5, flexShrink: 0,
+                boxShadow: "none", minWidth: 0, "&:hover": { boxShadow: "0 4px 10px rgba(34,135,86,0.3)" } }}>
+              <VideoCallIcon sx={{ fontSize: 14 }} />
+            </Button>
+          </Box>
+        )) : (
+          <Box sx={{ p: 3, textAlign: "center" }}>
+            <Typography sx={{ color: "#94a3b8", fontSize: "12px", fontWeight: 500 }}>No sessions found</Typography>
+          </Box>
+        )}
+      </Paper>
     </Box>
   );
 }
 
-function ProfileCompletionCard({ checks, pct }) {
+/* ── Profile completion ──────────────────────────────── */
+function ProfileCard({ checks, pct }) {
   return (
-    <Paper elevation={0} sx={{ borderRadius: "20px", border: "1.5px solid #f1f5f9", background: "#fff", overflow: "hidden" }}>
-      <Box sx={{ px: 3, pt: 2.5, pb: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
-          <Typography sx={{ fontWeight: 800, fontSize: "15px", color: "#1e293b" }}>Profile Setup</Typography>
-          <Typography sx={{ fontWeight: 800, fontSize: "13px", color: pct === 100 ? "#2ecc71" : "#228756" }}>
-            {pct}%
-          </Typography>
+    <Paper elevation={0} sx={{ borderRadius: "18px", border: "1.5px solid #f1f5f9", background: "#fff", overflow: "hidden" }}>
+      <Box sx={{ px: "20px", pt: "18px", pb: "16px" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.4 }}>
+          <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#1e293b" }}>Profile Setup</Typography>
+          <Typography sx={{ fontWeight: 800, fontSize: "13px", color: pct === 100 ? "#2ecc71" : "#228756" }}>{pct}%</Typography>
         </Box>
-        <Typography sx={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500, mb: 2 }}>
+        <Typography sx={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500, mb: 1.5 }}>
           Complete to attract more clients
         </Typography>
-        <Box sx={{ height: 6, borderRadius: 3, background: "#f1f5f9", overflow: "hidden", mb: 2.5 }}>
-          <Box sx={{
-            height: "100%", width: `${pct}%`, borderRadius: 3,
-            background: "linear-gradient(90deg, #228756, #2ecc71)",
-            transition: "width 0.4s ease",
-          }} />
+        <Box sx={{ height: 5, borderRadius: 3, background: "#f1f5f9", overflow: "hidden", mb: 2 }}>
+          <Box sx={{ height: "100%", width: `${pct}%`, borderRadius: 3, background: "linear-gradient(90deg,#228756,#2ecc71)", transition: "width 0.5s ease" }} />
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           {checks.map((c, i) => (
-            <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+            <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {c.done
-                ? <CheckCircleIcon sx={{ fontSize: 15, color: "#2ecc71", flexShrink: 0 }} />
-                : <RadioButtonUncheckedIcon sx={{ fontSize: 15, color: "#cbd5e1", flexShrink: 0 }} />
-              }
+                ? <CheckCircleIcon sx={{ fontSize: 14, color: "#2ecc71", flexShrink: 0 }} />
+                : <RadioButtonUncheckedIcon sx={{ fontSize: 14, color: "#cbd5e1", flexShrink: 0 }} />}
               <Typography sx={{ fontSize: "12px", fontWeight: 600, color: c.done ? "#94a3b8" : "#1e293b", textDecoration: c.done ? "line-through" : "none" }}>
                 {c.label}
               </Typography>
@@ -85,13 +229,8 @@ function ProfileCompletionCard({ checks, pct }) {
       </Box>
       {pct < 100 && (
         <Link href="/settings" style={{ textDecoration: "none" }}>
-          <Box sx={{
-            mx: 3, mb: 2.5, py: 1.2, borderRadius: "10px",
-            background: "linear-gradient(135deg, #228756, #2ecc71)",
-            textAlign: "center", cursor: "pointer",
-            "&:hover": { opacity: 0.9 }, transition: "opacity 0.2s",
-          }}>
-            <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "12px" }}>Complete Profile</Typography>
+          <Box sx={{ mx: "16px", mb: "16px", py: "10px", borderRadius: "10px", background: "linear-gradient(135deg,#228756,#2ecc71)", textAlign: "center", cursor: "pointer", "&:hover": { opacity: 0.9 }, transition: "opacity 0.2s" }}>
+            <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "12px" }}>Complete Profile →</Typography>
           </Box>
         </Link>
       )}
@@ -99,156 +238,269 @@ function ProfileCompletionCard({ checks, pct }) {
   );
 }
 
+/* ── Mobile quick actions ────────────────────────────── */
+function MobileQuickActions() {
+  const actions = [
+    { title: "Workshop",  icon: <AddBoxIcon />,             to: "/workshops",       color: "#0ea5e9" },
+    { title: "Report",    icon: <AssessmentIcon />,         to: "/create-report",   color: "#f59e0b" },
+    { title: "Slots",     icon: <ScheduleIcon />,           to: "/settings",        color: "#8b5cf6" },
+    { title: "Invoices",  icon: <ConfirmationNumberIcon />, to: "/clinic-patients", color: "#2ecc71" },
+  ];
+  return (
+    <Box sx={{ display: "flex", gap: 1.5, overflowX: "auto", pb: 0.5, scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
+      {actions.map((a, i) => (
+        <Link key={i} href={a.to} style={{ textDecoration: "none", flexShrink: 0 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.7, px: 2, py: 1.5, borderRadius: "14px", border: "1.5px solid #f1f5f9", background: "#fff", minWidth: 68, "&:active": { background: "#f8fafc" } }}>
+            <Box sx={{ width: 36, height: 36, borderRadius: "10px", background: a.color + "15", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {React.cloneElement(a.icon, { sx: { fontSize: 17, color: a.color } })}
+            </Box>
+            <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#475569", textAlign: "center", lineHeight: 1.2 }}>{a.title}</Typography>
+          </Box>
+        </Link>
+      ))}
+    </Box>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   MAIN PAGE
+════════════════════════════════════════════════════════ */
 export default function TherapistDashboard() {
-  const isMobile = useMediaQuery("(max-width: 1200px)");
-  const [pageData, setPageData] = React.useState({});
-  const [upcomingList, setUpcomingList] = React.useState([]);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const [loading, setLoading] = React.useState(true);
+  const [stats, setStats] = React.useState({ totalEarnings: 0, monthEarnings: 0, upcoming: 0, totalClients: 0 });
+  const [weeklyData, setWeeklyData] = React.useState([]);
+  const [todaySessions, setTodaySessions] = React.useState([]);
+  const [upcomingSessions, setUpcomingSessions] = React.useState([]);
+  const [nextSession, setNextSession] = React.useState(null);
+  const [invoices, setInvoices] = React.useState([]);
   const { therapistInfo, fetchTherapistInfo, paymentStore } = useTherapistStore();
 
-  const getDashboardData = async () => {
-    try {
-      const [dashRes, bookingsRes, workshopRes] = await Promise.all([
-        fetchById(GetDashboardDataUrl),
-        fetchById(getBookings),
-        fetchById(GetMyWorkshopBooking),
-      ]);
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!therapistInfo?.user?.email) fetchTherapistInfo();
 
-      let dashboardData = dashRes.status ? dashRes.data : {};
-      let totalEarnings = 0;
-      let upcomingSessionsCount = 0;
-      let dynamicInvoices = [];
-      let filteredUpcoming = [];
+        const [bookingsRes, workshopRes] = await Promise.all([
+          fetchById(getBookings),
+          fetchById(GetMyWorkshopBooking),
+        ]);
 
-      if (bookingsRes.status) {
-        const bookings = bookingsRes.data || [];
-        totalEarnings += bookings.reduce((sum, b) => {
-          const bS = (b.status || "").toLowerCase();
-          const pS = (b.transaction?.status?.name || "").toLowerCase();
-          if (bS === "completed" || pS === "success" || pS === "completed") {
-            const amt = parseFloat(b.transaction?.amount || b.amount || b.fee || 0);
-            return sum + (isNaN(amt) ? 0 : amt);
+        const bookings = bookingsRes?.status ? bookingsRes.data || [] : [];
+        const workshops = workshopRes?.status ? workshopRes.data || [] : [];
+
+        const now = new Date();
+        const todayStr = now.toDateString();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        /* earnings */
+        let totalEarnings = 0, monthEarnings = 0;
+        bookings.forEach(b => {
+          const st = (b.status || "").toLowerCase();
+          const ps = (b.transaction?.status?.name || "").toLowerCase();
+          const paid = st === "completed" || ps === "success" || ps === "completed";
+          const amt = getNum(b.transaction?.amount || b.amount || b.fee);
+          if (paid) {
+            totalEarnings += amt;
+            if (new Date(b.booking_date) >= monthStart) monthEarnings += amt;
           }
-          return sum;
-        }, 0);
+        });
+        workshops.forEach(w => {
+          const s = (w.payment_status || "").toLowerCase();
+          const amt = getNum(w.amount);
+          if (s === "success" || s === "completed") {
+            totalEarnings += amt;
+            if (new Date(w.created_at || w.date) >= monthStart) monthEarnings += amt;
+          }
+        });
 
-        const upcoming = bookings.filter((b) => b.status !== "Completed" && b.status !== "Cancelled");
-        upcomingSessionsCount = upcoming.length;
-        filteredUpcoming = upcoming.map((b) => ({
-          id: b._id || b.id,
-          name: b.client?.name || "Unknown Client",
+        /* unique clients */
+        const clientSet = new Set(bookings.map(b => b.client?._id || b.client_id).filter(Boolean));
+
+        /* today & upcoming */
+        const toMap = b => ({
+          id: b._id,
+          name: b.client?.name || "Unknown",
           date: b.booking_date,
           badge: b.format || "Online",
-          imgSrc: b.client?.photo,
-        }));
+          imgSrc: b.client?.photo || b.client?.profile,
+        });
 
-        dynamicInvoices = bookings
-          .filter((b) => b.transaction?.amount)
+        const todayList = bookings
+          .filter(b => new Date(b.booking_date).toDateString() === todayStr && b.status !== "Cancelled")
+          .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
+          .map(toMap);
+
+        const upcomingList = bookings
+          .filter(b => b.status !== "Completed" && b.status !== "Cancelled" && new Date(b.booking_date) > now)
+          .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
+          .map(toMap);
+
+        /* weekly chart — last 7 days */
+        const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const weekMap = {};
+        DAY_NAMES.forEach(d => weekMap[d] = { name: d, sessions: 0, revenue: 0 });
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - 6);
+        weekStart.setHours(0, 0, 0, 0);
+        bookings.forEach(b => {
+          const d = new Date(b.booking_date);
+          if (d >= weekStart) {
+            const key = DAY_NAMES[d.getDay()];
+            weekMap[key].sessions++;
+            const amt = getNum(b.transaction?.amount || b.amount);
+            weekMap[key].revenue += amt;
+          }
+        });
+        // ordered Mon-Sun starting from today-6
+        const orderedDays = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(now);
+          d.setDate(now.getDate() - (6 - i));
+          return DAY_NAMES[d.getDay()];
+        });
+        const weeklyChart = orderedDays.map(d => weekMap[d]);
+
+        /* invoices */
+        const inv = bookings
+          .filter(b => b.transaction?.amount)
+          .sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date))
           .slice(0, 5)
-          .map((b) => ({
+          .map(b => ({
             id: b._id,
             invoice_id: b.transaction?.transaction_id?.slice(-8) || b._id?.slice(-8),
-            client_name: b.client?.name || "Unknown Client",
-            booking_date: new Date(b.booking_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
+            client_name: b.client?.name || "Unknown",
+            booking_date: fmtDate(b.booking_date),
             amount: b.transaction?.amount,
             status: b.transaction?.status?.name || "Success",
           }));
+
+        setStats({ totalEarnings: Math.round(totalEarnings), monthEarnings: Math.round(monthEarnings), upcoming: upcomingList.length, totalClients: clientSet.size });
+        setTodaySessions(todayList);
+        setUpcomingSessions(upcomingList);
+        setNextSession(upcomingList[0] || null);
+        setWeeklyData(weeklyChart);
+        setInvoices(inv);
+      } catch (e) {
+        console.error("Dashboard error:", e);
+      } finally {
+        setLoading(false);
       }
-
-      if (workshopRes.status) {
-        totalEarnings += (workshopRes.data || []).reduce((sum, b) => {
-          const s = (b.payment_status || "").toLowerCase();
-          return s === "success" || s === "completed" ? sum + parseFloat(b.amount || 0) : sum;
-        }, 0);
-      }
-
-      setPageData({ ...dashboardData, total_earnings: Math.round(totalEarnings), upcoming_sessions_count: upcomingSessionsCount, dynamic_invoices: dynamicInvoices });
-      setUpcomingList(filteredUpcoming);
-    } catch (err) {
-      console.error("Dashboard fetch error:", err);
-    }
-    setLoading(false);
-  };
-
-  React.useEffect(() => {
-    getDashboardData();
-    if (!therapistInfo?.user?.email) fetchTherapistInfo();
+    })();
   }, []);
 
   const profileChecks = React.useMemo(() => {
     const t = therapistInfo;
     return [
-      { label: "Basic info", done: !!(t?.user?.name && t?.user?.phone) },
-      { label: "Profile photo", done: !!t?.user?.profile },
-      { label: "Availability set", done: t?.availabilities?.length > 0 },
-      { label: "Fee configured", done: t?.fees?.some((f) => f.formats?.some((fmt) => fmt.fee)) },
-      { label: "Payment details", done: !!(paymentStore?.ac_number || paymentStore?.upi) },
+      { label: "Basic info",       done: !!(t?.user?.name && t?.user?.phone) },
+      { label: "Profile photo",    done: !!t?.user?.profile },
+      { label: "Availability set", done: (t?.availabilities?.length || 0) > 0 },
+      { label: "Fee configured",   done: t?.fees?.some(f => f.formats?.some(fmt => fmt.fee)) },
+      { label: "Payment details",  done: !!(paymentStore?.ac_number || paymentStore?.upi) },
     ];
   }, [therapistInfo, paymentStore]);
+  const completionPct = Math.round((profileChecks.filter(c => c.done).length / profileChecks.length) * 100);
 
-  const completionPct = Math.round((profileChecks.filter((c) => c.done).length / profileChecks.length) * 100);
+  const name = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
+  const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
+
+  const statCards = [
+    { icon: <AccountBalanceWalletIcon />, label: "Total Earnings",  value: `₹${stats.totalEarnings.toLocaleString("en-IN")}`, color: "#2ecc71", bg: "#f0fdf4", trend: "+this month" },
+    { icon: <TrendingUpIcon />,           label: "This Month",      value: `₹${stats.monthEarnings.toLocaleString("en-IN")}`, color: "#0ea5e9", bg: "#f0f9ff" },
+    { icon: <CalendarMonthIcon />,        label: "Upcoming",        value: stats.upcoming,                                    color: "#8b5cf6", bg: "#f5f3ff" },
+    { icon: <PeopleIcon />,              label: "Total Clients",   value: stats.totalClients,                                color: "#f59e0b", bg: "#fffbeb" },
+  ];
 
   return (
     <MainLayout>
-      {loading ? (
-        <Box sx={{ width: "100%", mt: 2 }}>
-          <LinearProgress color="success" />
-        </Box>
-      ) : (
-        <Box sx={{ pt: 0.5, pb: 4 }}>
-          <PerformanceComponent pageData={pageData} />
+      <Box sx={{ pt: 0.5, pb: 5 }}>
 
-          {/* Mobile layout */}
-          {isMobile ? (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-              {/* Quick actions horizontal scroll */}
-              <MobileQuickActions />
-
-              {/* Today sessions */}
-              <TodayAppointment data={pageData?.today_appointments} />
-
-              {/* Upcoming sessions */}
+        {/* ── GREETING BANNER ────────────────────────────── */}
+        <Box sx={{
+          background: "linear-gradient(135deg, #1b5e20 0%, #228756 55%, #2ecc71 100%)",
+          borderRadius: "20px", mb: 2.5,
+          p: { xs: "20px 18px", md: "24px 32px" },
+          position: "relative", overflow: "hidden",
+        }}>
+          <Box sx={{ position: "absolute", top: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+          <Box sx={{ position: "absolute", bottom: -50, right: 120, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2, position: "relative", zIndex: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, md: 2 } }}>
+              <Avatar src={therapistInfo?.user?.profile || defaultProfile} alt={name}
+                sx={{ width: { xs: 44, md: 54 }, height: { xs: 44, md: 54 }, border: "2px solid rgba(255,255,255,0.3)", borderRadius: "14px", flexShrink: 0 }} />
               <Box>
-                <Typography sx={{ fontWeight: 800, fontSize: "15px", color: "#1e293b", mb: 1.5 }}>
-                  Upcoming Sessions
+                <Typography sx={{ color: "rgba(255,255,255,0.65)", fontSize: "10px", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", mb: 0.5 }}>
+                  Therapist Workspace
                 </Typography>
-                <UpcomingAppointment data={upcomingList} />
+                <Typography sx={{ color: "#fff", fontSize: { xs: "18px", md: "24px" }, fontWeight: 800, lineHeight: 1.2 }}>
+                  Hello, {name}!
+                </Typography>
+                <Typography sx={{ color: "rgba(255,255,255,0.6)", fontSize: "12px", mt: 0.3, fontWeight: 500 }}>
+                  {todaySessions.length > 0 ? `${todaySessions.length} session${todaySessions.length > 1 ? "s" : ""} today` : "No sessions today"}
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: { xs: "none", sm: "block" }, background: "rgba(255,255,255,0.12)", backdropFilter: "blur(10px)", borderRadius: "12px", px: 2.5, py: 1.5, border: "1px solid rgba(255,255,255,0.15)", textAlign: "right" }}>
+              <Typography sx={{ color: "rgba(255,255,255,0.55)", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>Today</Typography>
+              <Typography sx={{ color: "#fff", fontSize: "12px", fontWeight: 700, mt: 0.2 }}>{today}</Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* ── STAT CARDS ─────────────────────────────────── */}
+        <Grid container spacing={{ xs: 1.2, md: 2 }} sx={{ mb: 2.5 }}>
+          {statCards.map((s, i) => (
+            <Grid item xs={6} md={3} key={i}>
+              <StatCard {...s} loading={loading} />
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* ── MAIN CONTENT ───────────────────────────────── */}
+        {isMobile ? (
+          /* ─── MOBILE ─── */
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <MobileQuickActions />
+            <NextSessionCard session={nextSession} />
+            {todaySessions.length > 0 && (
+              <SessionsList title="Today's Sessions" sessions={todaySessions} allHref="/clinic-patients" />
+            )}
+            <PerformanceChart data={weeklyData} />
+            {upcomingSessions.length > 0 && (
+              <SessionsList title="Upcoming Sessions" sessions={upcomingSessions} allHref="/clinic-patients" />
+            )}
+            <RecentInvoices data={invoices} />
+            <ProfileCard checks={profileChecks} pct={completionPct} />
+          </Box>
+        ) : (
+          /* ─── DESKTOP ─── */
+          <Grid container spacing={3}>
+            <Grid item xs={12} lg={8}>
+              <PerformanceChart data={weeklyData} />
+
+              <Box sx={{ mt: 3 }}>
+                <SessionsList title="Today's Sessions" sessions={todaySessions} showAll allHref="/clinic-patients" />
               </Box>
 
-              {/* Chart */}
-              <PerformanceChart data={pageData?.weekly_performance} />
+              <Box sx={{ mt: 3 }}>
+                <SessionsList title="Upcoming Sessions" sessions={upcomingSessions} allHref="/clinic-patients" />
+              </Box>
 
-              {/* Invoices */}
-              <RecentInvoices data={pageData?.dynamic_invoices} />
-
-              {/* Profile completion */}
-              <ProfileCompletionCard checks={profileChecks} pct={completionPct} />
-            </Box>
-          ) : (
-            /* Desktop layout */
-            <Grid container spacing={3}>
-              <Grid item xs={12} lg={8}>
-                <PerformanceChart data={pageData?.weekly_performance} />
-                <Box sx={{ mt: 3 }}>
-                  <Typography sx={{ fontWeight: 800, fontSize: "15px", color: "#1e293b", mb: 1.5 }}>
-                    Upcoming Sessions
-                  </Typography>
-                  <UpcomingAppointment data={upcomingList} />
-                </Box>
-                <TodayAppointment data={pageData?.today_appointments} />
-                <RecentInvoices data={pageData?.dynamic_invoices} />
-              </Grid>
-
-              <Grid item xs={12} lg={4}>
-                <Box sx={{ position: "sticky", top: "90px", display: "flex", flexDirection: "column", gap: 2.5 }}>
-                  <ProfileCompletionCard checks={profileChecks} pct={completionPct} />
-                  <QuickActions />
-                </Box>
-              </Grid>
+              <Box sx={{ mt: 3 }}>
+                <RecentInvoices data={invoices} />
+              </Box>
             </Grid>
-          )}
-        </Box>
-      )}
+
+            <Grid item xs={12} lg={4}>
+              <Box sx={{ position: "sticky", top: "84px", display: "flex", flexDirection: "column", gap: 2.5 }}>
+                <NextSessionCard session={nextSession} />
+                <ProfileCard checks={profileChecks} pct={completionPct} />
+                <QuickActions />
+              </Box>
+            </Grid>
+          </Grid>
+        )}
+
+      </Box>
     </MainLayout>
   );
 }
