@@ -581,13 +581,34 @@ export default function InternshipRegistration() {
     setError("");
     setLoading(true);
     try {
-      await postData(SubmitConsultationUrl, {
-        name:    form.name,
-        email:   form.email,
-        phone:   form.phone,
-        message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
-        type: "internship",
-      }).catch(() => {});
+      await Promise.allSettled([
+        postData(SubmitConsultationUrl, {
+          name:    form.name,
+          email:   form.email,
+          phone:   form.phone,
+          message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
+          type: "internship",
+        }),
+        fetch("/api/send-internship-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name:           form.name,
+            email:          form.email,
+            phone:          form.phone,
+            city:           form.city,
+            college:        form.college,
+            degree:         form.degree,
+            specialization: form.specialization,
+            internType:     form.internType,
+            mode:           form.mode,
+            duration:       form.duration,
+            hours:          form.hours,
+            availableFrom:  form.availableFrom,
+            motivation:     form.motivation,
+          }),
+        }),
+      ]);
     } finally {
       setLoading(false);
       setSubmitted(true);
