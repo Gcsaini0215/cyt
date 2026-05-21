@@ -15,29 +15,21 @@ const GENERAL_TYPES = [
   "Administrative / Operations", "Social Media & Outreach",
 ];
 const UG_DEGREES = new Set([
-  "B.A. Psychology", "B.Sc. Psychology",
-  "B.A. Applied Psychology", "B.Sc. Applied Psychology",
-  "B.A. (Hons.) Psychology", "B.Sc. (Hons.) Psychology",
-  "Integrated B.A./B.Sc. + M.A./M.Sc. Psychology (5-year)",
+  "B.A.", "B.Sc.", "B.A. (Hons.)", "B.Sc. (Hons.)",
+  "Integrated B.A./B.Sc. + M.A./M.Sc. (5-year)",
 ]);
 
 const DEGREES = [
   { header: "Undergraduate" },
-  "B.A. Psychology", "B.Sc. Psychology",
-  "B.A. Applied Psychology", "B.Sc. Applied Psychology",
-  "B.A. (Hons.) Psychology", "B.Sc. (Hons.) Psychology",
-  "Integrated B.A./B.Sc. + M.A./M.Sc. Psychology (5-year)",
+  "B.A.", "B.Sc.",
+  "B.A. (Hons.)", "B.Sc. (Hons.)",
+  "Integrated B.A./B.Sc. + M.A./M.Sc. (5-year)",
   { header: "Postgraduate" },
-  "M.A. Psychology", "M.Sc. Psychology",
-  "M.A. Applied Psychology", "M.Sc. Applied Psychology",
-  "M.Phil. Psychology",
+  "M.A.", "M.Sc.", "M.Phil.",
   { header: "Diploma & Certificate" },
-  "Diploma in Guidance & Counselling", "Diploma in Rehabilitation Psychology", "Diploma in School Psychology",
-  "PG Diploma in Clinical Psychology", "PG Diploma in Counselling Psychology",
-  "Certificate in Child Psychology", "Certificate in Mental Health Counselling",
+  "Diploma", "PG Diploma", "Certificate",
   { header: "Doctoral" },
-  "Ph.D. in Psychology",
-  "Psy.D. (Doctor of Psychology)",
+  "Ph.D.", "Psy.D.",
   { header: "Other" },
   "Other",
 ];
