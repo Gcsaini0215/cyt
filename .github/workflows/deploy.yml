@@ -38,7 +38,7 @@ jobs:
             # Build in cyt-new (extra memory for Next.js)
             cd /root/cyt-new
             npm ci
-            NODE_OPTIONS="--max-old-space-size=1024" npm run build
+            NODE_OPTIONS="--max-old-space-size=1536" npm run build
             rm -rf .next/cache
 
             # Only swap if build succeeded (BUILD_ID must exist)
