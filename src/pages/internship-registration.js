@@ -818,7 +818,7 @@ export default function InternshipRegistration() {
                 {/* Motivation */}
                 <div className="section-card" style={{ marginBottom: 24 }}>
                   <p style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Motivation</p>
-                  <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.8, margin: 0 }}>{form.motivation}</p>
+                  <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.8, margin: 0, wordBreak: "break-word", whiteSpace: "pre-wrap", overflowWrap: "break-word" }}>{form.motivation}</p>
                 </div>
 
                 {/* Actions */}
