@@ -769,7 +769,7 @@ export default function InternshipRegistration() {
                       {section.rows.map(([label, val, bold], ri) => (
                         <div key={ri}>
                           <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</span>
-                          <p style={{ fontSize: 13, fontWeight: bold ? 600 : 400, color: bold ? "#1e293b" : "#475569", margin: "3px 0 0", wordBreak: "break-word", lineHeight: 1.5 }}>{val || "—"}</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", margin: "3px 0 0", wordBreak: "break-word", lineHeight: 1.5 }}>{val || "—"}</p>
                         </div>
                       ))}
                     </div>
