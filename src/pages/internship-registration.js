@@ -590,7 +590,7 @@ export default function InternshipRegistration() {
         <link rel="canonical" href="https://chooseyourtherapist.in/internship-registration" />
       </Head>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         input:focus, select:focus, textarea:focus { border-color: #228756 !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
         .intern-input:focus { border-color: #228756 !important; }
         input[type="date"] { -webkit-appearance: none; appearance: none; }
@@ -601,7 +601,7 @@ export default function InternshipRegistration() {
         .submit-btn { background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; border: none; borderRadius: 12px; padding: 14px 40px; fontSize: 15px; fontWeight: 800; cursor: pointer; width: 100%; letterSpacing: 0.3px; transition: opacity 0.2s; }
         .submit-btn:hover { opacity: 0.9; }
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-      `}</style>
+      ` }} />
 
       <MyNavbar />
 
@@ -1139,7 +1139,7 @@ export default function InternshipRegistration() {
                     </>
                   )}
                 </button>
-                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { to { transform: rotate(360deg); } }` }} />
               </form>
             )}
           </div>
