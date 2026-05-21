@@ -187,82 +187,111 @@ function validate(f, emailVerified) {
 }
 
 function WelcomeModal({ onClose }) {
+  const [mob, setMob] = React.useState(false);
+
   React.useEffect(() => {
+    const check = () => setMob(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
     const handler = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+    return () => {
+      window.removeEventListener("resize", check);
+      document.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
   }, [onClose]);
 
   const points = [
-    { icon: "feather-users", title: "Learn From Professionals", desc: "You won't be working alone. A qualified supervisor guides every step — reviewing your cases, reports, and skill development." },
-    { icon: "feather-trending-up", title: "Accelerated Growth", desc: "Supervised interns grow 3x faster than self-learners. Real feedback on real work builds confidence and clinical judgment." },
-    { icon: "feather-file-text", title: "Documented & Verifiable", desc: "Every session, task, and milestone is documented. Your internship certificate and LOR are backed by supervised proof of work." },
+    { icon: "feather-users", title: "Learn From Professionals", desc: "A qualified supervisor guides every step — reviewing your cases, reports, and skill development." },
+    { icon: "feather-trending-up", title: "Accelerated Growth", desc: "Real feedback on real work builds confidence and clinical judgment 3x faster." },
+    { icon: "feather-file-text", title: "Documented & Verifiable", desc: "Certificate and LOR backed by supervised proof of work — not just attendance." },
   ];
 
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(5,10,20,0.75)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", backdropFilter: "blur(6px)" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#0f172a", borderRadius: 22, width: "100%", maxWidth: 820, maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 32px 80px rgba(0,0,0,0.5)", position: "relative" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(5,10,20,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: mob ? "12px" : "20px", backdropFilter: "blur(6px)" }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: "#0f172a", borderRadius: mob ? 16 : 22,
+        width: "100%", maxWidth: mob ? "100%" : 820,
+        maxHeight: mob ? "92vh" : "88vh",
+        display: "flex", flexDirection: "column",
+        overflow: "hidden", boxShadow: "0 32px 80px rgba(0,0,0,0.5)", position: "relative",
+      }}>
 
         {/* Close */}
-        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, zIndex: 10, background: "rgba(255,255,255,0.1)", border: "none", width: 34, height: 34, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <i className="feather-x" style={{ fontSize: 16, color: "#fff" }}></i>
+        <button onClick={onClose} style={{ position: "absolute", top: 12, right: 12, zIndex: 10, background: "rgba(255,255,255,0.1)", border: "none", width: 32, height: 32, borderRadius: 9, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <i className="feather-x" style={{ fontSize: 15, color: "#fff" }}></i>
         </button>
 
-        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-          {/* Left — Image Panel */}
-          <div style={{ width: "38%", flexShrink: 0, position: "relative", display: "flex" }}>
-            <img
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80"
-              alt="Supervised internship"
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-            />
-            {/* dark overlay */}
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(15,23,42,0.55) 0%, rgba(15,23,42,0.8) 100%)" }} />
-            {/* quote */}
-            <div style={{ position: "absolute", bottom: 28, left: 20, right: 20 }}>
-              <i className="feather-message-square" style={{ fontSize: 20, color: "#4ade80", display: "block", marginBottom: 10 }}></i>
-              <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
-                "Supervision is the compass that turns learning into mastery."
-              </p>
-            </div>
-          </div>
+        <div style={{ display: "flex", flex: 1, overflow: "hidden", flexDirection: mob ? "column" : "row" }}>
 
-          {/* Right — Content */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "32px 28px 28px", WebkitOverflowScrolling: "touch" }}>
-            {/* Badge */}
-            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase", color: "#4ade80", background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", padding: "4px 12px", borderRadius: 20, display: "inline-block", marginBottom: 14 }}>
+          {/* Image Panel — full width banner on mobile, side panel on desktop */}
+          {mob ? (
+            <div style={{ position: "relative", height: 130, flexShrink: 0 }}>
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80"
+                alt="Supervised internship"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(15,23,42,0.5) 0%, rgba(15,23,42,0.85) 100%)" }} />
+              <div style={{ position: "absolute", bottom: 14, left: 16, right: 48 }}>
+                <p style={{ color: "#fff", fontSize: 12, fontWeight: 600, lineHeight: 1.5, margin: 0, fontStyle: "italic", opacity: 0.9 }}>
+                  "Supervision is the compass that turns learning into mastery."
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div style={{ width: "38%", flexShrink: 0, position: "relative", display: "flex" }}>
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80"
+                alt="Supervised internship"
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(15,23,42,0.55) 0%, rgba(15,23,42,0.8) 100%)" }} />
+              <div style={{ position: "absolute", bottom: 28, left: 20, right: 20 }}>
+                <i className="feather-message-square" style={{ fontSize: 20, color: "#4ade80", display: "block", marginBottom: 10 }}></i>
+                <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
+                  "Supervision is the compass that turns learning into mastery."
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Content */}
+          <div style={{ flex: 1, overflowY: "auto", padding: mob ? "18px 16px 16px" : "32px 28px 28px", WebkitOverflowScrolling: "touch" }}>
+            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase", color: "#4ade80", background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", padding: "3px 10px", borderRadius: 20, display: "inline-block", marginBottom: 10 }}>
               Before You Apply — Read This
             </span>
 
-            <h2 style={{ color: "#fff", fontSize: 20, fontWeight: 900, lineHeight: 1.3, marginBottom: 8 }}>
-              What is a<br />Supervised Internship?
+            <h2 style={{ color: "#fff", fontSize: mob ? 17 : 20, fontWeight: 900, lineHeight: 1.3, marginBottom: 6 }}>
+              What is a Supervised Internship?
             </h2>
-            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, lineHeight: 1.7, marginBottom: 24 }}>
-              A supervised internship is not just a certificate program — it's a structured, mentor-led journey where every task you do is guided, reviewed, and validated by a licensed professional.
-            </p>
+            {!mob && (
+              <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, lineHeight: 1.7, marginBottom: 20 }}>
+                A supervised internship is not just a certificate program — it's a structured, mentor-led journey where every task you do is guided, reviewed, and validated by a professional.
+              </p>
+            )}
 
-            {/* Points */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 26 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: mob ? 10 : 16, marginBottom: mob ? 16 : 26, marginTop: mob ? 10 : 0 }}>
               {points.map((p, i) => (
-                <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <i className={p.icon} style={{ fontSize: 15, color: "#4ade80" }}></i>
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <div style={{ width: mob ? 30 : 36, height: mob ? 30 : 36, borderRadius: 9, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <i className={p.icon} style={{ fontSize: mob ? 13 : 15, color: "#4ade80" }}></i>
                   </div>
                   <div>
-                    <p style={{ color: "#fff", fontSize: 13, fontWeight: 700, margin: "0 0 3px" }}>{p.title}</p>
-                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, lineHeight: 1.6, margin: 0 }}>{p.desc}</p>
+                    <p style={{ color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, margin: "0 0 2px" }}>{p.title}</p>
+                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: mob ? 11 : 12, lineHeight: 1.5, margin: 0 }}>{p.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* CTA */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button onClick={onClose} style={{ flex: 1, minWidth: 120, padding: "12px", borderRadius: 10, background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", border: "none", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={onClose} style={{ flex: 1, padding: mob ? "11px" : "12px", borderRadius: 10, background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", border: "none", fontSize: mob ? 13 : 13, fontWeight: 800, cursor: "pointer" }}>
                 Apply Now <i className="feather-arrow-right" style={{ marginLeft: 4 }}></i>
               </button>
-              <button onClick={onClose} style={{ padding: "12px 18px", borderRadius: 10, background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.12)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              <button onClick={onClose} style={{ padding: mob ? "11px 14px" : "12px 18px", borderRadius: 10, background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.12)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
                 Got it
               </button>
             </div>
