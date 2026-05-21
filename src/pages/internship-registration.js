@@ -445,6 +445,25 @@ function SuccessScreen({ name, internType }) {
   );
 }
 
+const DRAFT_KEY = "cyt_internship_draft";
+
+function saveDraft(f) {
+  try {
+    const serializable = { ...f };
+    delete serializable.resumeFile;
+    delete serializable.collegeId;
+    delete serializable.passportPhoto;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(serializable));
+  } catch (_) {}
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) { return null; }
+}
+
 export default function InternshipRegistration() {
   const [form, setForm] = useState(EMPTY);
   const [error, setError]       = useState("");
@@ -454,8 +473,11 @@ export default function InternshipRegistration() {
   const [isMobile, setIsMobile] = useState(false);
   const [modalDomain, setModalDomain] = useState(null);
   const [welcomeModal, setWelcomeModal] = useState(false);
+  const [draftSaved, setDraftSaved] = useState(false);
 
   useEffect(() => {
+    const draft = loadDraft();
+    if (draft) setForm(p => ({ ...p, ...draft }));
     const t = setTimeout(() => setWelcomeModal(true), 2500);
     return () => clearTimeout(t);
   }, []);
@@ -520,6 +542,8 @@ export default function InternshipRegistration() {
     setError("");
     const err = validate(form, emailVerified);
     if (err) { setError(err); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    saveDraft(form);
+    setDraftSaved(true);
     setReviewing(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -538,6 +562,7 @@ export default function InternshipRegistration() {
     } finally {
       setLoading(false);
       setSubmitted(true);
+      try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     }
   };
 
@@ -712,7 +737,14 @@ export default function InternshipRegistration() {
                   </div>
                 )}
 
-                <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", marginBottom: 4 }}>Review Your Application</h2>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
+                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: 0 }}>Review Your Application</h2>
+                  {draftSaved && (
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <i className="feather-save" style={{ fontSize: 11 }}></i> Draft Saved
+                    </span>
+                  )}
+                </div>
                 <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Please review all details before submitting.</p>
 
                 {error && (
@@ -1143,7 +1175,7 @@ export default function InternshipRegistration() {
                     </>
                   ) : (
                     <>
-                      <i className="feather-eye"></i> Review Application
+                      <i className="feather-save"></i> Save & Next
                     </>
                   )}
                 </button>
