@@ -116,8 +116,7 @@ export default function InternLogin() {
         <div style={{
           flex: 1, display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          marginTop: 80,
-          minHeight: "calc(100vh - 80px)",
+          minHeight: "100vh",
         }}>
 
           {/* ── Left panel ── */}
@@ -127,7 +126,7 @@ export default function InternLogin() {
             padding: isMobile ? "36px 24px" : "0 52px",
             display: "flex", flexDirection: "column", justifyContent: "center",
             position: isMobile ? "static" : "sticky",
-            top: 80, height: isMobile ? "auto" : "calc(100vh - 80px)",
+            top: 0, height: isMobile ? "auto" : "100vh",
             overflow: "hidden",
           }}>
             {/* decorative orbs */}
