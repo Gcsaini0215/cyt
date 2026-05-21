@@ -110,82 +110,46 @@ export default function InternLogin() {
 
       <MyNavbar />
 
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f8fafc" }}>
+      <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
 
-        {/* ── Body ── */}
+        {/* ── Banner ── */}
         <div style={{
-          flex: 1, display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          minHeight: "100vh",
+          background: "linear-gradient(150deg,#071a0e 0%,#1b5e20 50%,#228756 100%)",
+          padding: isMobile ? "40px 20px 60px" : "52px 24px 72px",
+          textAlign: "center", position: "relative", overflow: "hidden",
         }}>
+          <div style={{ position: "absolute", top: -60, left: -60, width: 220, height: 220, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: -40, right: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: "30%", left: "50%", width: 300, height: 300, borderRadius: "50%", background: "rgba(46,204,113,0.05)", pointerEvents: "none", transform: "translate(-50%,-50%)" }} />
 
-          {/* ── Left panel ── */}
-          <div style={{
-            width: isMobile ? "100%" : "44%",
-            background: "linear-gradient(150deg,#071a0e 0%,#1b5e20 45%,#228756 100%)",
-            padding: isMobile ? "36px 24px" : "0 52px",
-            display: "flex", flexDirection: "column", justifyContent: "center",
-            position: isMobile ? "static" : "sticky",
-            top: 0, height: isMobile ? "auto" : "100vh",
-            overflow: "hidden",
-          }}>
-            {/* decorative orbs */}
-            <div style={{ position: "absolute", top: -80, right: -80, width: 260, height: 260, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-            <div style={{ position: "absolute", bottom: -40, left: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.03)", pointerEvents: "none" }} />
-            <div style={{ position: "absolute", top: "40%", left: "60%", width: 120, height: 120, borderRadius: "50%", background: "rgba(46,204,113,0.07)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, padding: "5px 14px", marginBottom: 20 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }}></span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "1px", textTransform: "uppercase" }}>Trainee Portal</span>
+            </div>
 
-            <div style={{ position: "relative", zIndex: 1 }}>
-              {/* Badge */}
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 20, padding: "5px 14px", marginBottom: 24 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", display: "inline-block" }}></span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)", letterSpacing: "1px", textTransform: "uppercase" }}>Trainee Portal</span>
-              </div>
+            <h1 style={{ color: "#fff", fontSize: isMobile ? 26 : 36, fontWeight: 900, lineHeight: 1.2, margin: "0 0 12px" }}>
+              Welcome Back, <span style={{ color: "#4ade80" }}>Trainee</span>
+            </h1>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: isMobile ? 13 : 15, lineHeight: 1.7, margin: "0 auto 32px", maxWidth: 480 }}>
+              Log in to your internship portal to manage tasks, track progress, and connect with your mentor.
+            </p>
 
-              <h1 style={{ color: "#fff", fontSize: isMobile ? 26 : 34, fontWeight: 900, lineHeight: 1.2, margin: "0 0 12px" }}>
-                Welcome Back,<br />
-                <span style={{ color: "#4ade80" }}>Trainee</span>
-              </h1>
-              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, lineHeight: 1.7, margin: "0 0 36px", maxWidth: 320 }}>
-                Log in to your internship portal to manage tasks, track progress, and connect with your mentor.
-              </p>
-
-              {/* Perks */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 36 }}>
-                {PERKS.map((p, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <i className={p.icon} style={{ fontSize: 15, color: "#4ade80" }}></i>
-                    </div>
-                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{p.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Divider */}
-              <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 24 }}>
-                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, margin: "0 0 12px" }}>
-                  Not applied yet?
-                </p>
-                <Link href="/internship-registration" style={{
-                  display: "inline-flex", alignItems: "center", gap: 8,
-                  background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.2)",
-                  color: "#fff", textDecoration: "none", borderRadius: 10,
-                  padding: "10px 20px", fontSize: 13, fontWeight: 700,
-                }}>
-                  <i className="feather-edit-3" style={{ fontSize: 13 }}></i>
-                  Apply for Internship
-                </Link>
-              </div>
+            {/* Perks row */}
+            <div style={{ display: "flex", justifyContent: "center", gap: isMobile ? 12 : 28, flexWrap: "wrap" }}>
+              {PERKS.map((p, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <i className={p.icon} style={{ fontSize: 14, color: "#4ade80" }}></i>
+                  <span style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", fontWeight: 600 }}>{p.text}</span>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* ── Right panel (form) ── */}
-          <div style={{
-            flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-            padding: isMobile ? "36px 20px" : "48px 40px",
-            background: "#f8fafc",
-          }}>
-            <div style={{ width: "100%", maxWidth: 420, animation: "fadeUp 0.3s ease" }}>
+        {/* ── Centered form card ── */}
+        <div style={{ display: "flex", justifyContent: "center", padding: isMobile ? "0 16px 48px" : "0 24px 60px", marginTop: -32 }}>
+          <div style={{ width: "100%", maxWidth: 440, background: "#fff", borderRadius: 20, boxShadow: "0 8px 40px rgba(0,0,0,0.1)", padding: isMobile ? "28px 22px" : "36px 36px", animation: "fadeUp 0.35s ease" }}>
 
               {/* Header */}
               <div style={{ marginBottom: 30 }}>
@@ -313,7 +277,6 @@ export default function InternLogin() {
                   <i className="feather-home" style={{ fontSize: 12 }}></i> Back to Home
                 </Link>
               </div>
-            </div>
           </div>
         </div>
       </div>
