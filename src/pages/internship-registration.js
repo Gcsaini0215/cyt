@@ -4,7 +4,7 @@ import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
-import { SubmitConsultationUrl, loginUrl, verifyOtpUrl } from "../utils/url";
+import { SubmitConsultationUrl } from "../utils/url";
 import { postData } from "../utils/actions";
 
 const PSYCH_TYPES = [
@@ -165,10 +165,9 @@ const EMPTY = {
   motivation: "", resumeFile: null, collegeId: null, passportPhoto: null, agreeTerms: false,
 };
 
-function validate(f, emailVerified) {
+function validate(f) {
   if (!f.name.trim() || f.name.trim().length < 3)         return "Enter your full name (min 3 chars)";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))       return "Enter a valid email address";
-  if (!emailVerified)                                      return "Please verify your email address with OTP";
   if (!/^\d{10}$/.test(f.phone))                           return "Enter a valid 10-digit phone number";
   if (!f.city.trim())                                      return "Enter your city";
   if (!f.college.trim())                                   return "Enter your college / university name";
@@ -511,14 +510,6 @@ export default function InternshipRegistration() {
     return () => clearTimeout(t);
   }, []);
 
-  const [otpSent, setOtpSent]         = useState(false);
-  const [otp, setOtp]                 = useState("");
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [otpLoading, setOtpLoading]   = useState(false);
-  const [otpError, setOtpError]       = useState("");
-  const [otpSuccess, setOtpSuccess]   = useState("");
-  const [cooldown, setCooldown]       = useState(0);
-
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 992);
     check();
@@ -526,50 +517,12 @@ export default function InternshipRegistration() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  useEffect(() => {
-    let t;
-    if (cooldown > 0) t = setInterval(() => setCooldown(p => p - 1), 1000);
-    return () => clearInterval(t);
-  }, [cooldown]);
-
-  const set = (k, v) => {
-    if (k === "email") { setEmailVerified(false); setOtpSent(false); setOtp(""); setOtpError(""); setOtpSuccess(""); }
-    setForm(p => ({ ...p, [k]: v }));
-  };
-
-  const handleSendOtp = async () => {
-    if (otpLoading || cooldown > 0) return;
-    setOtpError(""); setOtpSuccess("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setOtpError("Enter a valid email first"); return; }
-    setOtpLoading(true);
-    try {
-      const res = await postData(loginUrl, { email: form.email });
-      if (res.status) { setOtpSent(true); setOtpSuccess("OTP sent to your email"); setCooldown(60); }
-      else setOtpError(res.message || "Could not send OTP");
-    } catch (err) {
-      if (err.response?.status === 429) { setOtpError("Too many requests. Wait a moment."); setCooldown(60); }
-      else setOtpError(err.response?.data?.message || "Something went wrong");
-    } finally { setOtpLoading(false); }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otpLoading) return;
-    setOtpError(""); setOtpSuccess("");
-    if (otp.length !== 6) { setOtpError("Enter the 6-digit OTP"); return; }
-    setOtpLoading(true);
-    try {
-      const res = await postData(verifyOtpUrl, { email: form.email, otp });
-      if (res.status) { setEmailVerified(true); setOtpSuccess("Email verified!"); setOtpSent(false); setOtp(""); }
-      else setOtpError(res.message || "Invalid OTP");
-    } catch (err) {
-      setOtpError(err.response?.data?.message || "Verification failed");
-    } finally { setOtpLoading(false); }
-  };
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const handleReview = (e) => {
     e.preventDefault();
     setError("");
-    const err = validate(form, emailVerified);
+    const err = validate(form);
     if (err) { setError(err); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
     saveDraft(form);
     setDraftSaved(true);
@@ -891,54 +844,9 @@ export default function InternshipRegistration() {
                       <input className="intern-input" style={inputStyle} type="text" placeholder="e.g. Priya Sharma" value={form.name} onChange={e => set("name", e.target.value)} />
                     </div>
                     <div style={fieldWrap}>
-                      <label style={labelStyle}>
-                        Email Address <span className="req">*</span>
-                        {emailVerified && (
-                          <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 20, padding: "2px 8px" }}>
-                            <i className="feather-check-circle" style={{ marginRight: 3 }}></i>Verified
-                          </span>
-                        )}
-                      </label>
-
-                      {/* Email input + Send OTP button */}
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <input className="intern-input" style={{ ...inputStyle, flex: 1, borderColor: emailVerified ? "#86efac" : undefined, background: emailVerified ? "#f0fdf4" : "#fff" }}
-                          type="email" placeholder="you@example.com"
-                          value={form.email} onChange={e => set("email", e.target.value)}
-                          readOnly={emailVerified} />
-                        {!emailVerified && (
-                          <button type="button" onClick={handleSendOtp} disabled={otpLoading || cooldown > 0}
-                            style={{
-                              flexShrink: 0, padding: "0 14px", borderRadius: 10, fontSize: 12, fontWeight: 700,
-                              border: "1.5px solid #228756", background: otpSent ? "#f0fdf4" : "#228756",
-                              color: otpSent ? "#228756" : "#fff", cursor: (otpLoading || cooldown > 0) ? "not-allowed" : "pointer",
-                              opacity: (otpLoading || cooldown > 0) ? 0.6 : 1, whiteSpace: "nowrap",
-                            }}>
-                            {otpLoading ? "Sending..." : cooldown > 0 ? `${cooldown}s` : otpSent ? "Resend OTP" : "Send OTP"}
-                          </button>
-                        )}
-                      </div>
-
-                      {/* OTP input row */}
-                      {otpSent && !emailVerified && (
-                        <div style={{ marginTop: 10, display: "flex", gap: 8, alignItems: "center" }}>
-                          <input className="intern-input" type="text" inputMode="numeric" placeholder="Enter 6-digit OTP"
-                            maxLength={6} value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ""))}
-                            style={{ ...inputStyle, flex: 1, fontSize: 18, fontWeight: 800, letterSpacing: "6px", textAlign: "center" }} />
-                          <button type="button" onClick={handleVerifyOtp} disabled={otpLoading}
-                            style={{
-                              flexShrink: 0, padding: "11px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700,
-                              border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff",
-                              cursor: otpLoading ? "not-allowed" : "pointer", opacity: otpLoading ? 0.7 : 1,
-                            }}>
-                            {otpLoading ? "..." : "Verify"}
-                          </button>
-                        </div>
-                      )}
-
-                      {/* OTP feedback */}
-                      {otpError && <p style={{ margin: "6px 0 0", fontSize: 11, color: "#dc2626", fontWeight: 600 }}><i className="feather-alert-circle" style={{ marginRight: 4 }}></i>{otpError}</p>}
-                      {otpSuccess && !emailVerified && <p style={{ margin: "6px 0 0", fontSize: 11, color: "#228756", fontWeight: 600 }}><i className="feather-check-circle" style={{ marginRight: 4 }}></i>{otpSuccess}</p>}
+                      <label style={labelStyle}>Email Address <span className="req">*</span></label>
+                      <input className="intern-input" style={inputStyle} type="email" placeholder="you@example.com"
+                        value={form.email} onChange={e => set("email", e.target.value)} />
                     </div>
                   </div>
 
