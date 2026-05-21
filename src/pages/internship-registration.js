@@ -14,6 +14,13 @@ const GENERAL_TYPES = [
   "Research & Data", "Content / Social Media",
   "Administrative / Operations", "Social Media & Outreach",
 ];
+const UG_DEGREES = new Set([
+  "B.A. Psychology", "B.Sc. Psychology",
+  "B.A. Applied Psychology", "B.Sc. Applied Psychology",
+  "B.A. (Hons.) Psychology", "B.Sc. (Hons.) Psychology",
+  "Integrated B.A./B.Sc. + M.A./M.Sc. Psychology (5-year)",
+]);
+
 const DEGREES = [
   { header: "Undergraduate" },
   "B.A. Psychology", "B.Sc. Psychology",
@@ -23,17 +30,13 @@ const DEGREES = [
   { header: "Postgraduate" },
   "M.A. Psychology", "M.Sc. Psychology",
   "M.A. Applied Psychology", "M.Sc. Applied Psychology",
-  "M.A. Clinical Psychology", "M.Phil. Clinical Psychology",
-  "M.A. Counselling Psychology", "M.Sc. Counselling Psychology",
-  "M.A. Industrial & Organizational Psychology", "M.A. Educational Psychology",
-  "M.A. Child Psychology", "M.A. Rehabilitation Psychology", "M.A. Sports Psychology",
-  "M.A. Forensic Psychology", "M.A. Health Psychology", "M.A. Neuropsychology", "M.A. Social Psychology",
+  "M.Phil. Psychology",
   { header: "Diploma & Certificate" },
   "Diploma in Guidance & Counselling", "Diploma in Rehabilitation Psychology", "Diploma in School Psychology",
   "PG Diploma in Clinical Psychology", "PG Diploma in Counselling Psychology",
   "Certificate in Child Psychology", "Certificate in Mental Health Counselling",
   { header: "Doctoral" },
-  "Ph.D. in Psychology", "Ph.D. in Clinical Psychology", "Ph.D. in Applied Psychology",
+  "Ph.D. in Psychology",
   "Psy.D. (Doctor of Psychology)",
   { header: "Other" },
   "Other",
@@ -172,7 +175,7 @@ function validate(f) {
   if (!f.city.trim())                                      return "Enter your city";
   if (!f.college.trim())                                   return "Enter your college / university name";
   if (!f.degree)                                           return "Select your degree";
-  if (!f.specialization.trim())                            return "Enter your specialization / major";
+  if (!UG_DEGREES.has(f.degree) && !f.specialization)     return "Select your specialization";
   if (!f.year)                                             return "Select your current year";
   if (!f.internType || f.internType.length === 0)          return "Select at least one internship type";
   if (!f.mode)                                             return "Select preferred mode";
@@ -889,7 +892,12 @@ export default function InternshipRegistration() {
                       <CustomSelect value={form.degree} onChange={v => set("degree", v)} placeholder="Select degree" options={DEGREES} />
                     </div>
                     <div style={fieldWrap}>
-                      <label style={labelStyle}>Specialization <span className="req">*</span></label>
+                      <label style={labelStyle}>
+                        Specialization{" "}
+                        {UG_DEGREES.has(form.degree)
+                          ? <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>(optional)</span>
+                          : <span className="req">*</span>}
+                      </label>
                       <CustomSelect value={form.specialization} onChange={v => set("specialization", v)} placeholder="Select specialization" options={SPECIALIZATIONS} />
                     </div>
                     <div style={fieldWrap}>
