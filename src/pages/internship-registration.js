@@ -640,6 +640,8 @@ export default function InternshipRegistration() {
       <style>{`
         input:focus, select:focus, textarea:focus { border-color: #228756 !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
         .intern-input:focus { border-color: #228756 !important; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; }
+        @media (max-width: 640px) { input[type="date"] { font-size: 13px !important; padding: 10px 10px !important; min-height: unset !important; } }
         .req { color: #ef4444; }
         .section-card { background: #fff; border: 1.5px solid #f1f5f9; border-radius: 18px; padding: 24px 26px; margin-bottom: 22px; }
         @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
