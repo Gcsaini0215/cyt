@@ -669,6 +669,9 @@ export default function InternshipRegistration() {
 
       {/* ── MAIN CONTENT ── */}
       <div id="apply-form" className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
+        {submitted ? (
+          <SuccessScreen name={form.name} internType={form.internType} />
+        ) : (
         <div style={{ display: "flex", gap: 36, alignItems: "flex-start" }}>
 
           {/* LEFT SIDEBAR — hidden on mobile */}
@@ -720,9 +723,7 @@ export default function InternshipRegistration() {
 
           {/* RIGHT FORM */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            {submitted ? (
-              <SuccessScreen name={form.name} internType={form.internType} />
-            ) : reviewing ? (
+            {reviewing ? (
               /* ── REVIEW SCREEN ── */
               <div>
                 <div style={{ marginBottom: 4 }}>
@@ -1168,6 +1169,7 @@ export default function InternshipRegistration() {
             )}
           </div>
         </div>
+        )}
       </div>
 
       <Newsletter />
