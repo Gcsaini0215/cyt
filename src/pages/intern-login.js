@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import MyNavbar from "../components/navbar";
 import { loginUrl, verifyOtpUrl } from "../utils/url";
 import { postData } from "../utils/actions";
 import { getDecodedToken, setToken } from "../utils/jwt";
@@ -107,42 +108,16 @@ export default function InternLogin() {
         @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
       `}} />
 
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f8fafc" }}>
+      <MyNavbar />
 
-        {/* ── Top bar ── */}
-        <header style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-          height: 56, background: "#fff",
-          borderBottom: "1px solid #f1f5f9",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 24px",
-          boxShadow: "0 1px 8px rgba(0,0,0,0.05)",
-        }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <div style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,#1b5e20,#2ecc71)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <i className="feather-user-check" style={{ fontSize: 15, color: "#fff" }}></i>
-            </div>
-            <span style={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>
-              CYT <span style={{ color: "#228756" }}>Intern Portal</span>
-            </span>
-          </Link>
-          <Link href="/internship-registration" style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            fontSize: 12, fontWeight: 700, color: "#228756",
-            textDecoration: "none", padding: "6px 14px",
-            border: "1.5px solid #228756", borderRadius: 8,
-          }}>
-            <i className="feather-user-plus" style={{ fontSize: 13 }}></i>
-            Apply Now
-          </Link>
-        </header>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", background: "#f8fafc" }}>
 
         {/* ── Body ── */}
         <div style={{
           flex: 1, display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          marginTop: 56,
-          minHeight: "calc(100vh - 56px)",
+          marginTop: 80,
+          minHeight: "calc(100vh - 80px)",
         }}>
 
           {/* ── Left panel ── */}
@@ -152,7 +127,7 @@ export default function InternLogin() {
             padding: isMobile ? "36px 24px" : "0 52px",
             display: "flex", flexDirection: "column", justifyContent: "center",
             position: isMobile ? "static" : "sticky",
-            top: 56, height: isMobile ? "auto" : "calc(100vh - 56px)",
+            top: 80, height: isMobile ? "auto" : "calc(100vh - 80px)",
             overflow: "hidden",
           }}>
             {/* decorative orbs */}
