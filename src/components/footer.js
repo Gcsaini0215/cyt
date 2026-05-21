@@ -59,7 +59,8 @@ export default function Footer() {
                   <li className="mb--12"><Link href="/login" className="color-black hover-primary">Client Login</Link></li>
                   <li className="mb--12"><Link href="/register" className="color-black hover-primary">Client Sign Up</Link></li>
                   <li className="mb--12"><Link href="/therapist-registration" className="color-black hover-primary">Therapist Join Us</Link></li>
-                  <li><Link href="/contact-us" className="color-black hover-primary">Contact Support</Link></li>
+                  <li className="mb--12"><Link href="/internship-registration" className="color-black hover-primary">Apply for Internship</Link></li>
+                  <li><Link href="/intern-login" className="color-black hover-primary">Intern Login</Link></li>
                 </ul>
               </div>
             </div>
