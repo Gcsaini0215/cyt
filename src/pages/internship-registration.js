@@ -442,20 +442,6 @@ function SuccessScreen({ name, internType }) {
           Our team will review it and reach out within{" "}
           <strong>3–5 business days</strong> on your registered email and phone.
         </p>
-        <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 16, padding: "20px 24px", marginBottom: 28, textAlign: "left" }}>
-          <p style={{ fontWeight: 700, fontSize: 13, color: "#166534", marginBottom: 12 }}>Next Steps</p>
-          {[
-            "Check your email for a confirmation message",
-            "Keep your resume / CV updated and ready",
-            "Prepare a brief introduction about yourself",
-            "We may schedule a short screening call",
-          ].map((s, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "flex-start" }}>
-              <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#228756", color: "#fff", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
-              <span style={{ fontSize: 13, color: "#166534", lineHeight: 1.6 }}>{s}</span>
-            </div>
-          ))}
-        </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/" style={{
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
