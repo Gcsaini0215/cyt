@@ -430,6 +430,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
 }
 
 function SuccessScreen({ name, internType }) {
+  const types = Array.isArray(internType) ? internType.join(", ") : internType;
   return (
     <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
       <div style={{ maxWidth: 520, width: "100%", textAlign: "center" }}>
@@ -437,34 +438,43 @@ function SuccessScreen({ name, internType }) {
           <i className="feather-check" style={{ fontSize: 36, color: "#fff" }}></i>
         </div>
         <h2 style={{ fontSize: 26, fontWeight: 800, color: "#1e293b", marginBottom: 12 }}>
-          Application Submitted!
+          Application Submitted
         </h2>
-        <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.7, marginBottom: 28 }}>
-          Thank you, <strong>{name}</strong>! Your application for <strong>{internType}</strong> internship has been received.
-          Our team will review it and reach out within <strong>3–5 business days</strong> on your registered email and phone.
+        <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.8, marginBottom: 28, wordSpacing: "0.5px" }}>
+          Thank you, <strong>{name}</strong>. Your application for{" "}
+          <strong>{types}</strong> internship has been received.{" "}
+          Our team will review it and reach out within{" "}
+          <strong>3–5 business days</strong> on your registered email and phone.
         </p>
         <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 16, padding: "20px 24px", marginBottom: 28, textAlign: "left" }}>
-          <p style={{ fontWeight: 700, fontSize: 13, color: "#166534", marginBottom: 10 }}>📋 Next Steps:</p>
+          <p style={{ fontWeight: 700, fontSize: 13, color: "#166534", marginBottom: 12 }}>Next Steps</p>
           {[
             "Check your email for a confirmation message",
-            "Keep your resume/CV updated and ready",
+            "Keep your resume / CV updated and ready",
             "Prepare a brief introduction about yourself",
             "We may schedule a short screening call",
           ].map((s, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, marginBottom: 6 }}>
-              <span style={{ color: "#22c55e", fontWeight: 700, fontSize: 13 }}>{i + 1}.</span>
-              <span style={{ fontSize: 13, color: "#166534" }}>{s}</span>
+            <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "flex-start" }}>
+              <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#228756", color: "#fff", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+              <span style={{ fontSize: 13, color: "#166534", lineHeight: 1.6 }}>{s}</span>
             </div>
           ))}
         </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/" className="rbt-btn btn-gradient hover-icon-reverse" style={{ textDecoration: "none" }}>
-            <div className="icon-reverse-wrapper">
-              <span className="btn-text">Go to Home</span>
-              <span className="btn-icon"><i className="feather-home"></i></span>
-            </div>
+          <Link href="/" style={{
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "13px 28px", borderRadius: 12,
+            background: "linear-gradient(135deg,#1b5e20,#228756)",
+            color: "#fff", fontWeight: 700, fontSize: 14,
+            boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
+          }}>
+            <i className="feather-home"></i> Go to Home
           </Link>
-          <Link href="/intern-login" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 10, border: "1.5px solid #228756", color: "#228756", fontWeight: 700, fontSize: 14 }}>
+          <Link href="/intern-login" style={{
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "13px 24px", borderRadius: 12,
+            border: "1.5px solid #228756", color: "#228756", fontWeight: 700, fontSize: 14,
+          }}>
             <i className="feather-log-in"></i> Intern Login
           </Link>
         </div>
@@ -719,38 +729,24 @@ export default function InternshipRegistration() {
             ) : reviewing ? (
               /* ── REVIEW SCREEN ── */
               <div style={{ position: "relative" }}>
-                {/* Uploaded image previews — top right corner */}
-                {(form.passportPhoto || form.collegeId) && (
-                  <div style={{ position: "absolute", top: 0, right: 0, display: "flex", flexDirection: "column", gap: 8, zIndex: 10 }}>
-                    {form.passportPhoto && (
-                      <div style={{ textAlign: "center" }}>
-                        <img src={URL.createObjectURL(form.passportPhoto)} alt="Passport"
-                          style={{ width: 72, height: 72, borderRadius: 12, objectFit: "cover", border: "2.5px solid #228756", boxShadow: "0 4px 14px rgba(0,0,0,0.12)" }} />
-                        <p style={{ fontSize: 9, color: "#94a3b8", fontWeight: 700, margin: "3px 0 0", textTransform: "uppercase" }}>Photo</p>
-                      </div>
-                    )}
-                    {form.collegeId && (
-                      <div style={{ textAlign: "center" }}>
-                        <div style={{ width: 72, height: 50, borderRadius: 10, border: "2px solid #0ea5e9", background: "#f0f9ff", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                          {form.collegeId.type?.startsWith("image/")
-                            ? <img src={URL.createObjectURL(form.collegeId)} alt="ID" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            : <i className="feather-credit-card" style={{ fontSize: 22, color: "#0ea5e9" }}></i>}
-                        </div>
-                        <p style={{ fontSize: 9, color: "#94a3b8", fontWeight: 700, margin: "3px 0 0", textTransform: "uppercase" }}>College ID</p>
-                      </div>
-                    )}
+                {/* Passport photo — top right, circular */}
+                {form.passportPhoto && (
+                  <div style={{ position: "absolute", top: 0, right: 0, zIndex: 10, textAlign: "center" }}>
+                    <img src={URL.createObjectURL(form.passportPhoto)} alt="Passport"
+                      style={{ width: 68, height: 68, borderRadius: "50%", objectFit: "cover", border: "2.5px solid #228756", boxShadow: "0 4px 14px rgba(0,0,0,0.12)", display: "block" }} />
+                    <p style={{ fontSize: 9, color: "#94a3b8", fontWeight: 700, margin: "3px 0 0", textTransform: "uppercase" }}>Photo</p>
                   </div>
                 )}
 
-                <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
-                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: 0 }}>Review Your Application</h2>
+                <div style={{ marginBottom: 4, paddingRight: form.passportPhoto ? 84 : 0 }}>
+                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Review Your Application</h2>
                   {draftSaved && (
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
                       <i className="feather-save" style={{ fontSize: 11 }}></i> Draft Saved
                     </span>
                   )}
                 </div>
-                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Please review all details before submitting.</p>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24, paddingRight: form.passportPhoto ? 84 : 0 }}>Please review all details before submitting.</p>
 
                 {error && (
                   <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
@@ -864,7 +860,7 @@ export default function InternshipRegistration() {
                   <div style={gridTwo}>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Gender</label>
-                      <CustomSelect value={form.gender} onChange={v => set("gender", v)} placeholder="Select gender" options={["Male", "Female", "Non-binary", "Prefer not to say"]} />
+                      <CustomSelect value={form.gender} onChange={v => set("gender", v)} placeholder="Select gender" options={["Male", "Female", "Non-binary", "Other"]} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Date of Birth</label>

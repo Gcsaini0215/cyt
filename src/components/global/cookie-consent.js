@@ -2,153 +2,141 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function CookieConsent() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [visible, setVisible]       = useState(false);
+  const [customize, setCustomize]   = useState(false);
+  const [prefs, setPrefs]           = useState({ analytics: true, marketing: false });
 
   useEffect(() => {
-    // Check if user has already accepted cookies
-    const hasAccepted = localStorage.getItem("cookie_consent_accepted");
-    if (!hasAccepted) {
-      // Small delay for better UX
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (!localStorage.getItem("cookie_consent_v2")) {
+      const t = setTimeout(() => setVisible(true), 2000);
+      return () => clearTimeout(t);
     }
   }, []);
 
-  const handleAccept = () => {
-    localStorage.setItem("cookie_consent_accepted", "true");
-    setIsVisible(false);
+  const accept = () => {
+    localStorage.setItem("cookie_consent_v2", JSON.stringify({ analytics: true, marketing: true }));
+    setVisible(false);
   };
 
-  if (!isVisible) return null;
+  const savePrefs = () => {
+    localStorage.setItem("cookie_consent_v2", JSON.stringify(prefs));
+    setVisible(false);
+  };
+
+  const dismiss = () => {
+    localStorage.setItem("cookie_consent_v2", JSON.stringify({ analytics: false, marketing: false }));
+    setVisible(false);
+  };
+
+  if (!visible) return null;
 
   return (
-    <>
-      <style>{`
-        .cookie-consent-wrapper {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          background: #1a202c;
-          color: #ffffff;
-          padding: 15px 0;
-          z-index: 9999;
-          box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
-          animation: slideUp 0.5s ease;
-        }
+    <div style={{
+      position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 99998,
+      background: "#1a202c", color: "#fff",
+      boxShadow: "0 -4px 24px rgba(0,0,0,0.22)",
+      animation: "cookieSlideUp 0.4s ease",
+    }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes cookieSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      ` }} />
 
-        @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
-
-        .cookie-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 30px;
-          gap: 40px;
-        }
-
-        .cookie-content {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-        }
-
-        .cookie-icon {
-          font-size: 24px;
-          color: #228756;
-        }
-
-        .cookie-text {
-          font-size: 14px;
-          line-height: 1.5;
-          margin: 0;
-          color: #cbd5e0;
-          font-weight: 400;
-        }
-
-        .cookie-text a {
-          color: #228756;
-          text-decoration: underline;
-          font-weight: 600;
-        }
-
-        .cookie-actions {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-shrink: 0;
-        }
-
-        .btn-accept {
-          background: #228756;
-          color: white;
-          border: none;
-          padding: 8px 24px;
-          border-radius: 6px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          white-space: nowrap;
-        }
-
-        .btn-accept:hover {
-          background: #1a6d45;
-          transform: translateY(-2px);
-        }
-
-        @media (max-width: 991px) {
-          .cookie-container {
-            flex-direction: column;
-            gap: 15px;
-            text-align: center;
-            padding: 0 20px;
-          }
-          
-          .cookie-content {
-            flex-direction: column;
-          }
-          
-          .cookie-text {
-            font-size: 13px;
-          }
-
-          .cookie-actions {
-            width: 100%;
-            justify-content: center;
-          }
-
-          .btn-accept {
-            width: 100%;
-            padding: 12px;
-          }
-        }
-      `}</style>
-      <div className="cookie-consent-wrapper">
-        <div className="cookie-container">
-          <div className="cookie-content">
-            <div className="cookie-icon">
-              <i className="feather-shield"></i>
-            </div>
-            <p className="cookie-text">
-              We use cookies to enhance your experience, analyze site traffic, and provide secure therapy services. 
-              By continuing to browse, you agree to our <Link href="/privacy-policy">Privacy Policy</Link> and <Link href="/terms-conditions">Terms of Service</Link>.
+      {!customize ? (
+        /* ── Main banner ── */
+        <div style={{
+          maxWidth: 1200, margin: "0 auto",
+          padding: "14px 20px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 16, flexWrap: "wrap",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+            <i className="feather-shield" style={{ fontSize: 20, color: "#228756", flexShrink: 0 }}></i>
+            <p style={{ margin: 0, fontSize: 13, color: "#cbd5e0", lineHeight: 1.6 }}>
+              We use cookies to enhance your experience and analyze traffic.{" "}
+              <Link href="/privacy-policy" style={{ color: "#4ade80", textDecoration: "underline", fontWeight: 600 }}>Privacy Policy</Link>
+              {" & "}
+              <Link href="/terms-conditions" style={{ color: "#4ade80", textDecoration: "underline", fontWeight: 600 }}>Terms</Link>.
             </p>
           </div>
-          <div className="cookie-actions">
-            <button className="btn-accept" onClick={handleAccept}>
-              Accept Cookies
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
+            <button onClick={() => setCustomize(true)} style={{
+              background: "transparent", border: "1px solid rgba(255,255,255,0.25)",
+              color: "#cbd5e0", padding: "8px 16px", borderRadius: 8,
+              fontSize: 13, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap",
+            }}>
+              Customize
+            </button>
+            <button onClick={accept} style={{
+              background: "#228756", border: "none", color: "#fff",
+              padding: "8px 20px", borderRadius: 8,
+              fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+            }}>
+              Accept All
+            </button>
+            <button onClick={dismiss} style={{
+              background: "transparent", border: "none", color: "rgba(255,255,255,0.4)",
+              padding: "8px", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center",
+            }} title="Dismiss">
+              <i className="feather-x" style={{ fontSize: 16 }}></i>
             </button>
           </div>
         </div>
-      </div>
-    </>
+      ) : (
+        /* ── Customize panel ── */
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "18px 20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#fff" }}>Cookie Preferences</p>
+            <button onClick={() => setCustomize(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}>
+              <i className="feather-arrow-left" style={{ fontSize: 16 }}></i> Back
+            </button>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+            {/* Essential — always on */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 14px" }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff" }}>Essential Cookies</p>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>Required for the site to function. Cannot be disabled.</p>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#4ade80", background: "rgba(74,222,128,0.12)", padding: "3px 10px", borderRadius: 20 }}>Always On</span>
+            </div>
+
+            {/* Analytics */}
+            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 14px", cursor: "pointer" }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff" }}>Analytics Cookies</p>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>Help us understand how visitors use our site.</p>
+              </div>
+              <div onClick={() => setPrefs(p => ({ ...p, analytics: !p.analytics }))}
+                style={{ width: 40, height: 22, borderRadius: 11, background: prefs.analytics ? "#228756" : "#4a5568", position: "relative", cursor: "pointer", flexShrink: 0, transition: "background 0.2s" }}>
+                <div style={{ position: "absolute", top: 3, left: prefs.analytics ? 21 : 3, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
+              </div>
+            </label>
+
+            {/* Marketing */}
+            <label style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 14px", cursor: "pointer" }}>
+              <div>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff" }}>Marketing Cookies</p>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>Used to deliver relevant ads and campaigns.</p>
+              </div>
+              <div onClick={() => setPrefs(p => ({ ...p, marketing: !p.marketing }))}
+                style={{ width: 40, height: 22, borderRadius: 11, background: prefs.marketing ? "#228756" : "#4a5568", position: "relative", cursor: "pointer", flexShrink: 0, transition: "background 0.2s" }}>
+                <div style={{ position: "absolute", top: 3, left: prefs.marketing ? 21 : 3, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
+              </div>
+            </label>
+          </div>
+
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", flexWrap: "wrap" }}>
+            <button onClick={dismiss} style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "#cbd5e0", padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              Reject All
+            </button>
+            <button onClick={savePrefs} style={{ background: "#228756", border: "none", color: "#fff", padding: "8px 20px", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              Save Preferences
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
