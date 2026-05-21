@@ -37,7 +37,7 @@ export default function InternLogin() {
 
   useEffect(() => {
     const decoded = getDecodedToken();
-    if (decoded) router.push("/my-dashboard");
+    if (decoded) router.push("/trainee-psychologist");
   }, [router]);
 
   const handleSendOtp = async (e) => {
@@ -77,7 +77,7 @@ export default function InternLogin() {
       if (res.status) {
         setToken(res.token);
         setSuccess("Login successful! Redirecting...");
-        setTimeout(() => router.push("/my-dashboard"), 800);
+        setTimeout(() => router.push("/trainee-psychologist"), 800);
       } else {
         setError(res.message || "Invalid OTP");
       }
