@@ -17,6 +17,7 @@ const GENERAL_TYPES = [
 const DEGREES = [
   { header: "Undergraduate" },
   "B.A. Psychology", "B.Sc. Psychology",
+  "B.A. Applied Psychology", "B.Sc. Applied Psychology",
   "B.A. (Hons.) Psychology", "B.Sc. (Hons.) Psychology",
   "Bachelor in Applied Psychology", "Bachelor in Clinical Psychology", "Bachelor in Counselling Psychology",
   "Integrated B.A./B.Sc. + M.A./M.Sc. Psychology (5-year)",
@@ -1027,7 +1028,7 @@ export default function InternshipRegistration() {
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Start From <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="date" value={form.availableFrom} min={new Date().toISOString().split("T")[0]} onChange={e => set("availableFrom", e.target.value)} />
+                      <input className="intern-input" style={inputStyle} type="date" value={form.availableFrom} onChange={e => set("availableFrom", e.target.value)} />
                     </div>
                   </div>
                 </div>
