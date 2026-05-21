@@ -724,17 +724,8 @@ export default function InternshipRegistration() {
               <SuccessScreen name={form.name} internType={form.internType} />
             ) : reviewing ? (
               /* ── REVIEW SCREEN ── */
-              <div style={{ position: "relative" }}>
-                {/* Passport photo — top right, circular */}
-                {form.passportPhoto && (
-                  <div style={{ position: "absolute", top: 0, right: 0, zIndex: 10, textAlign: "center" }}>
-                    <img src={URL.createObjectURL(form.passportPhoto)} alt="Passport"
-                      style={{ width: 68, height: 68, borderRadius: "50%", objectFit: "cover", border: "2.5px solid #228756", boxShadow: "0 4px 14px rgba(0,0,0,0.12)", display: "block" }} />
-                    <p style={{ fontSize: 9, color: "#94a3b8", fontWeight: 700, margin: "3px 0 0", textTransform: "uppercase" }}>Photo</p>
-                  </div>
-                )}
-
-                <div style={{ marginBottom: 4, paddingRight: form.passportPhoto ? 84 : 0 }}>
+              <div>
+                <div style={{ marginBottom: 4 }}>
                   <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Review Your Application</h2>
                   {draftSaved && (
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
@@ -742,7 +733,7 @@ export default function InternshipRegistration() {
                     </span>
                   )}
                 </div>
-                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24, paddingRight: form.passportPhoto ? 84 : 0 }}>Please review all details before submitting.</p>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Please review all details before submitting.</p>
 
                 {error && (
                   <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
@@ -750,24 +741,21 @@ export default function InternshipRegistration() {
                   </div>
                 )}
 
+                {/* Personal */}
                 {[
                   { title: "Personal Information", icon: "feather-user", color: "#228756", rows: [
-                    ["Full Name", form.name], ["Email", form.email], ["Phone", form.phone],
-                    ["City", form.city], ["Gender", form.gender || "—"], ["Date of Birth", form.dob || "—"],
+                    ["Full Name", form.name, true], ["Email", form.email, true],
+                    ["Phone", form.phone, true], ["City", form.city, false],
+                    ["Gender", form.gender || "—", false], ["Date of Birth", form.dob || "—", false],
                   ]},
                   { title: "Academic Information", icon: "feather-book", color: "#0ea5e9", rows: [
-                    ["College / Institute", form.college], ["Degree", form.degree],
-                    ["Specialization", form.specialization], ["Current Semester", form.year],
+                    ["College / Institute", form.college, true], ["Degree", form.degree, false],
+                    ["Specialization", form.specialization || "—", false], ["Current Semester", form.year, false],
                   ]},
                   { title: "Internship Preferences", icon: "feather-settings", color: "#8b5cf6", rows: [
-                    ["Internship Types", form.internType.join(", ")],
-                    ["Mode", form.mode], ["Duration", form.duration],
-                    ["Required Hours", form.hours], ["Start From", form.availableFrom],
-                  ]},
-                  { title: "Uploads", icon: "feather-upload-cloud", color: "#f59e0b", rows: [
-                    ["CV / Resume", form.resumeFile ? form.resumeFile.name : "Not uploaded"],
-                    ["College ID", form.collegeId ? form.collegeId.name : "Not uploaded"],
-                    ["Passport Photo", form.passportPhoto ? form.passportPhoto.name : "Not uploaded"],
+                    ["Internship Types", form.internType.join(", "), true],
+                    ["Mode", form.mode, false], ["Duration", form.duration, false],
+                    ["Required Hours", form.hours, false], ["Start From", form.availableFrom, false],
                   ]},
                 ].map((section, si) => (
                   <div key={si} className="section-card" style={{ marginBottom: 16 }}>
@@ -775,23 +763,62 @@ export default function InternshipRegistration() {
                       <div style={{ width: 26, height: 26, borderRadius: 7, background: section.color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <i className={section.icon} style={{ fontSize: 13, color: section.color }}></i>
                       </div>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>{section.title}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{section.title}</span>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "8px 24px" }}>
-                      {section.rows.map(([label, val], ri) => (
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "10px 24px" }}>
+                      {section.rows.map(([label, val, bold], ri) => (
                         <div key={ri}>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</span>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", margin: "2px 0 0", wordBreak: "break-word" }}>{val || "—"}</p>
+                          <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</span>
+                          <p style={{ fontSize: 13, fontWeight: bold ? 600 : 400, color: bold ? "#1e293b" : "#475569", margin: "3px 0 0", wordBreak: "break-word", lineHeight: 1.5 }}>{val || "—"}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))}
 
+                {/* Uploads */}
+                <div className="section-card" style={{ marginBottom: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 10, borderBottom: "1.5px solid #f1f5f9" }}>
+                    <div style={{ width: 26, height: 26, borderRadius: 7, background: "#fffbeb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <i className="feather-upload-cloud" style={{ fontSize: 13, color: "#f59e0b" }}></i>
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Uploads</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 16, alignItems: "flex-start" }}>
+                    {/* Passport photo preview */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                      {form.passportPhoto ? (
+                        <img src={URL.createObjectURL(form.passportPhoto)} alt="Passport"
+                          style={{ width: 80, height: 80, borderRadius: 10, objectFit: "cover", border: "1.5px solid #e2e8f0" }} />
+                      ) : (
+                        <div style={{ width: 80, height: 80, borderRadius: 10, background: "#f8fafc", border: "1.5px dashed #e2e8f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <i className="feather-camera" style={{ fontSize: 22, color: "#cbd5e1" }}></i>
+                        </div>
+                      )}
+                      <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Passport Photo</span>
+                    </div>
+                    {/* File names */}
+                    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                      {[
+                        { label: "CV / Resume", file: form.resumeFile, icon: "feather-file-text" },
+                        { label: "College ID", file: form.collegeId, icon: "feather-credit-card" },
+                      ].map(({ label, file, icon }) => (
+                        <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <i className={icon} style={{ fontSize: 14, color: file ? "#228756" : "#cbd5e1", flexShrink: 0 }}></i>
+                          <div>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>{label}</span>
+                            <span style={{ fontSize: 13, color: file ? "#374151" : "#94a3b8" }}>{file ? file.name : "Not uploaded"}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Motivation */}
                 <div className="section-card" style={{ marginBottom: 24 }}>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6 }}>Motivation</p>
-                  <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.7, margin: 0 }}>{form.motivation}</p>
+                  <p style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Motivation</p>
+                  <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.8, margin: 0 }}>{form.motivation}</p>
                 </div>
 
                 {/* Actions */}
