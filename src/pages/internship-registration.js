@@ -35,6 +35,7 @@ const DEGREES = [
 ];
 
 const SPECIALIZATIONS = [
+  "General Psychology", "Applied Psychology",
   "Clinical Psychology", "Counselling Psychology",
   "Industrial / Organizational Psychology", "Educational Psychology",
   "Child Psychology", "Sports Psychology", "Forensic Psychology",
