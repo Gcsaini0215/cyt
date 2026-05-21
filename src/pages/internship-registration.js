@@ -19,7 +19,6 @@ const DEGREES = [
   "B.A. Psychology", "B.Sc. Psychology",
   "B.A. Applied Psychology", "B.Sc. Applied Psychology",
   "B.A. (Hons.) Psychology", "B.Sc. (Hons.) Psychology",
-  "Bachelor in Applied Psychology", "Bachelor in Clinical Psychology", "Bachelor in Counselling Psychology",
   "Integrated B.A./B.Sc. + M.A./M.Sc. Psychology (5-year)",
   { header: "Postgraduate" },
   "M.A. Psychology", "M.Sc. Psychology",
