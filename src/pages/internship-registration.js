@@ -838,7 +838,7 @@ export default function InternshipRegistration() {
                   <div style={gridTwo}>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Full Name <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="text" placeholder="e.g. Priya Sharma" value={form.name} onChange={e => set("name", e.target.value)} />
+                      <input className="intern-input" style={inputStyle} type="text" placeholder="Full name" value={form.name} onChange={e => set("name", e.target.value)} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Email Address <span className="req">*</span></label>
@@ -854,7 +854,7 @@ export default function InternshipRegistration() {
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>City <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="text" placeholder="e.g. Noida, Delhi" value={form.city} onChange={e => set("city", e.target.value)} />
+                      <input className="intern-input" style={inputStyle} type="text" placeholder="City" value={form.city} onChange={e => set("city", e.target.value)} />
                     </div>
                   </div>
 
@@ -881,7 +881,7 @@ export default function InternshipRegistration() {
 
                   <div style={fieldWrap}>
                     <label style={labelStyle}>College / University / Institute <span className="req">*</span></label>
-                    <input className="intern-input" style={inputStyle} type="text" placeholder="e.g. Amity University, Noida" value={form.college} onChange={e => set("college", e.target.value)} />
+                    <input className="intern-input" style={inputStyle} type="text" placeholder="College / University name" value={form.college} onChange={e => set("college", e.target.value)} />
                   </div>
 
                   <div style={gridThree}>
