@@ -76,7 +76,9 @@ function MyApp({ Component, pageProps }) {
     "/therapist-ai-blog",
     "/therapists/",
     "/coupon/",
-    "/update-workshop/"
+    "/update-workshop/",
+    "/intern-login",
+    "/trainee-psychologist",
   ];
 
   const shouldHideWidgets = hideWidgetsOn.some(route => router.pathname.startsWith(route));
