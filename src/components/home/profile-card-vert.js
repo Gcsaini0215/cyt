@@ -14,7 +14,6 @@ import { getDecodedToken } from "../../utils/jwt";
 import StarIcon from "@mui/icons-material/Star";
 
 export default function ProfileCardVert({ data, favrioutes }) {
-  const [isSm, setIsSm] = useState(false);
   const [bookmark, setBookmark] = useState(favrioutes?.includes(data._id) || false);
   const [showBookmark, setShowBookmark] = useState(true);
   const [fees, setFees] = useState([]);
@@ -29,14 +28,6 @@ export default function ProfileCardVert({ data, favrioutes }) {
     ? data.services.split(",").map(s => s.trim()).filter(Boolean).slice(0, 2)
     : [];
   const firstLang = data.language_spoken?.split(",")[0]?.trim() || "";
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 575px)");
-    setIsSm(mq.matches);
-    const h = e => setIsSm(e.matches);
-    mq.addListener(h);
-    return () => mq.removeListener(h);
-  }, []);
 
   useEffect(() => {
     const token = getDecodedToken();
@@ -57,206 +48,229 @@ export default function ProfileCardVert({ data, favrioutes }) {
     <div style={{ height: "100%" }}>
       <style>{`
         .vtc-card {
-          border-radius: 22px;
-          background: #fff;
-          overflow: hidden;
-          border: 1px solid #eef2f7;
-          box-shadow: 0 4px 20px rgba(0,0,0,.06);
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
+          border-radius: 18px;
+          background: #fff;
+          border: 1px solid #eef2f7;
+          box-shadow: 0 3px 16px rgba(0,0,0,.06);
+          overflow: hidden;
           height: 100%;
-          transition: transform .3s ease, box-shadow .3s ease, border-color .3s;
+          transition: transform .25s ease, box-shadow .25s ease, border-color .25s;
         }
         .vtc-card:hover {
-          transform: translateY(-7px);
-          box-shadow: 0 20px 50px rgba(0,0,0,.12);
-          border-color: #c7ecd8;
+          transform: translateY(-4px);
+          box-shadow: 0 12px 34px rgba(0,0,0,.11);
+          border-color: #bbf7d0;
         }
 
-        /* ── Image ────────────────────────────── */
-        .vtc-img-box { position: relative; overflow: hidden; flex-shrink: 0; background: #e8f5e9; }
+        /* ── Left: image ─────────────────────── */
+        .vtc-img-col {
+          width: 150px;
+          flex-shrink: 0;
+          position: relative;
+          overflow: hidden;
+          background: #e8f5e9;
+        }
         .vtc-img {
           display: block;
-          width: 100%;
-          aspect-ratio: 3 / 4;
+          width: 150px;
+          height: 100%;
           object-fit: cover;
           object-position: center top;
-          transition: transform .55s ease;
+          transition: transform .5s ease;
         }
-        .vtc-card:hover .vtc-img { transform: scale(1.06); }
+        .vtc-card:hover .vtc-img { transform: scale(1.07); }
 
-        /* gradient overlay */
-        .vtc-grad {
-          position: absolute; inset: 0;
-          background: linear-gradient(
-            to top,
-            rgba(0,0,0,.75) 0%,
-            rgba(0,0,0,.25) 45%,
-            transparent 72%
-          );
-          pointer-events: none;
-        }
-
-        /* name + type + rating in overlay */
-        .vtc-ov {
+        /* right fade on image */
+        .vtc-img-fade {
           position: absolute;
-          bottom: 0; left: 0; right: 0;
-          padding: 14px 14px 14px;
+          top: 0; right: 0;
+          width: 28px; height: 100%;
+          background: linear-gradient(to right, transparent, #fff);
           pointer-events: none;
-        }
-        .vtc-ov-name {
-          color: #fff;
-          font-size: 18px;
-          font-weight: 900;
-          line-height: 1.2;
-          margin-bottom: 5px;
-          text-shadow: 0 1px 6px rgba(0,0,0,.4);
-        }
-        .vtc-ov-bottom { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-        .vtc-ov-type {
-          display: inline-flex; align-items: center; gap: 4px;
-          background: rgba(34,135,86,.8);
-          color: #fff;
-          font-size: 11px; font-weight: 700;
-          padding: 3px 9px; border-radius: 20px;
-        }
-        .vtc-ov-star {
-          display: flex; align-items: center; gap: 3px;
-          background: rgba(0,0,0,.35);
-          backdrop-filter: blur(6px);
-          border-radius: 20px;
-          padding: 3px 9px;
-        }
-        .vtc-ov-star span { color: #fde68a; font-size: 12px; font-weight: 800; }
-
-        /* price badge — top right */
-        .vtc-price {
-          position: absolute; top: 12px; right: 12px; z-index: 3;
-          background: rgba(255,255,255,.95);
-          color: #1e293b;
-          font-size: 13px; font-weight: 800;
-          padding: 4px 12px; border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0,0,0,.15);
-          backdrop-filter: blur(4px);
+          z-index: 2;
         }
 
-        /* priority badge — top left */
+        /* priority badge */
         .vtc-pri {
-          position: absolute; top: 12px; left: 12px; z-index: 3;
-          font-size: 11px; font-weight: 700;
-          padding: 4px 11px; border-radius: 20px; color: #fff;
+          position: absolute;
+          bottom: 10px; left: 8px; z-index: 3;
+          font-size: 10px; font-weight: 800;
+          padding: 3px 8px; border-radius: 20px; color: #fff;
         }
-        .vtc-pri.rec { background: rgba(34,135,86,.88); }
-        .vtc-pri.ver { background: rgba(37,99,235,.88); }
+        .vtc-pri.rec { background: rgba(34,135,86,.9); }
+        .vtc-pri.ver { background: rgba(37,99,235,.9); }
 
-        /* ── Card body ────────────────────────── */
+        /* ── Right: content ──────────────────── */
         .vtc-body {
-          padding: 14px 16px 16px;
-          display: flex; flex-direction: column; gap: 10px;
           flex: 1;
+          min-width: 0;
+          padding: 14px 15px 14px 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
         }
 
-        /* meta row: location · exp · language */
-        .vtc-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
-        .vtc-meta-it {
-          display: flex; align-items: center; gap: 4px;
-          font-size: 13px; color: #64748b; font-weight: 600;
+        /* name row */
+        .vtc-name-row {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 6px;
         }
-        .vtc-meta-it i { color: #228756; font-size: 12px; }
-        .vtc-sep { color: #cbd5e1; font-size: 11px; margin: 0 2px; }
-
-        /* specialty chips */
-        .vtc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-        .vtc-chip {
-          background: #f0fdf4; color: #166534;
-          font-size: 11.5px; font-weight: 700;
-          padding: 4px 11px; border-radius: 20px;
-          border: 1px solid #bbf7d0;
+        .vtc-name {
+          font-size: 15.5px;
+          font-weight: 800;
+          color: #1e293b;
+          text-decoration: none;
+          line-height: 1.25;
+          flex: 1;
+          min-width: 0;
         }
+        .vtc-name:hover { color: #228756; }
 
-        /* action row */
-        .vtc-act { display: flex; gap: 7px; align-items: center; margin-top: auto; padding-top: 2px; }
+        /* bookmark */
         .vtc-bk {
-          width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-          border: 1.5px solid #e2e8f0; background: #f8fafc;
+          width: 30px; height: 30px; flex-shrink: 0;
+          border-radius: 8px; border: 1.5px solid #e8edf2;
+          background: #f8fafc;
           display: flex; align-items: center; justify-content: center;
-          cursor: pointer; transition: all .2s;
+          cursor: pointer; transition: all .2s; margin-top: 1px;
         }
         .vtc-bk:hover, .vtc-bk.on { border-color: #fde68a; background: #fffbeb; }
+
+        /* type badge */
+        .vtc-type {
+          display: inline-flex; align-items: center; gap: 4px;
+          background: #f0fdf4; color: #166534;
+          font-size: 11px; font-weight: 700;
+          padding: 3px 9px; border-radius: 20px;
+          border: 1px solid #bbf7d0;
+          width: fit-content;
+        }
+
+        /* rating row */
+        .vtc-rating {
+          display: inline-flex; align-items: center; gap: 3px;
+          background: #fffbeb; border: 1px solid #fde68a;
+          border-radius: 20px; padding: 2px 8px;
+          width: fit-content;
+        }
+        .vtc-rating span { font-size: 12px; font-weight: 700; color: #92400e; }
+
+        /* meta row */
+        .vtc-meta {
+          display: flex; align-items: center;
+          flex-wrap: wrap; gap: 3px;
+        }
+        .vtc-meta-it {
+          display: flex; align-items: center; gap: 3px;
+          font-size: 12px; color: #64748b; font-weight: 600;
+        }
+        .vtc-meta-it i { color: #228756; font-size: 11px; }
+        .vtc-sep { color: #e2e8f0; font-size: 11px; margin: 0 2px; }
+
+        /* price */
+        .vtc-price {
+          font-size: 14px; font-weight: 800; color: #228756;
+        }
+
+        /* chips */
+        .vtc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+        .vtc-chip {
+          background: #f8fafc; color: #475569;
+          font-size: 11px; font-weight: 700;
+          padding: 2px 9px; border-radius: 20px;
+          border: 1px solid #e2e8f0;
+        }
+
+        /* action buttons */
+        .vtc-btns { display: flex; gap: 6px; margin-top: auto; }
         .vtc-btn-out {
-          flex: 1; display: block; text-align: center;
-          padding: 10px 0; border-radius: 11px;
+          flex: 1; text-align: center; display: block;
+          padding: 8px 0; border-radius: 9px;
           border: 1.5px solid #e2e8f0; color: #475569;
-          font-weight: 700; font-size: 13px; text-decoration: none;
+          font-weight: 700; font-size: 12px; text-decoration: none;
           transition: all .2s;
         }
-        .vtc-btn-out:hover { border-color: #228756; color: #228756; background: #f0fdf4; }
+        .vtc-btn-out:hover { border-color: #228756; color: #228756; }
         .vtc-btn-fill {
-          flex: 1.4; display: block; text-align: center;
-          padding: 10px 0; border-radius: 11px;
+          flex: 1.3; text-align: center; display: block;
+          padding: 8px 0; border-radius: 9px;
           background: linear-gradient(135deg, #228756, #1a6b44);
-          color: #fff; font-weight: 700; font-size: 13px;
+          color: #fff; font-weight: 700; font-size: 12px;
           text-decoration: none;
-          box-shadow: 0 4px 14px rgba(34,135,86,.25);
+          box-shadow: 0 3px 10px rgba(34,135,86,.22);
           transition: all .2s;
         }
         .vtc-btn-fill:hover {
-          box-shadow: 0 8px 22px rgba(34,135,86,.35);
+          box-shadow: 0 6px 16px rgba(34,135,86,.32);
           transform: translateY(-1px);
         }
 
-        /* ── Mobile tweaks (<576px) ──────────── */
+        /* ── Mobile (<576px) ─────────────────── */
         @media(max-width: 575px) {
-          .vtc-card { border-radius: 18px; }
-          .vtc-ov-name { font-size: 16px; }
-          .vtc-body { padding: 12px 13px 14px; gap: 9px; }
-          .vtc-price { font-size: 12px; padding: 3px 9px; top: 8px; right: 8px; }
-          .vtc-pri { font-size: 10px; padding: 3px 8px; top: 8px; left: 8px; }
-          .vtc-btn-out, .vtc-btn-fill { font-size: 12.5px; padding: 9px 0; }
-          .vtc-bk { width: 36px; height: 36px; }
+          .vtc-img-col { width: 110px; }
+          .vtc-img { width: 110px; }
+          .vtc-body { padding: 11px 12px 12px 10px; gap: 6px; }
+          .vtc-name { font-size: 14px; }
+          .vtc-btn-out, .vtc-btn-fill { font-size: 11.5px; padding: 7px 0; }
+          .vtc-chips { display: none; }
         }
       `}</style>
 
       <div className="vtc-card">
 
-        {/* ── Image section ───────────────────── */}
-        <div className="vtc-img-box">
-          <Link href={`/view-profile/${data._id}`}>
+        {/* ── Image column ──────────────────────── */}
+        <div className="vtc-img-col">
+          <Link href={`/view-profile/${data._id}`} style={{ display: "block", height: "100%" }}>
             <ImageTag
               alt={data.user?.name || "Therapist"}
               className="vtc-img"
               src={`${imagePath}/${data.user?.profile}`}
             />
-            <div className="vtc-grad"></div>
-
-            {/* Name + type + rating overlay */}
-            <div className="vtc-ov">
-              <div className="vtc-ov-name">{data.user?.name || "Therapist"}</div>
-              <div className="vtc-ov-bottom">
-                <span className="vtc-ov-type">
-                  <i className="feather-user" style={{ fontSize: 11 }}></i>
-                  {data.profile_type}
-                </span>
-                {avgRating && (
-                  <div className="vtc-ov-star">
-                    <StarIcon sx={{ color: "#fbbf24", fontSize: 13 }} />
-                    <span>{avgRating} ({reviewCount})</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Price — top right */}
-            <div className="vtc-price">{price}</div>
-
-            {/* Priority badge — top left */}
-            {data.priority === 1 && <span className="vtc-pri rec">★ Recommended</span>}
-            {data.priority === 2 && <span className="vtc-pri ver">✓ Verified</span>}
           </Link>
+          {/* right-edge fade to blend into white card */}
+          <div className="vtc-img-fade"></div>
+
+          {data.priority === 1 && <span className="vtc-pri rec">★ Top Pick</span>}
+          {data.priority === 2 && <span className="vtc-pri ver">✓ Verified</span>}
         </div>
 
-        {/* ── Card body ───────────────────────── */}
+        {/* ── Content column ────────────────────── */}
         <div className="vtc-body">
+
+          {/* Name + bookmark */}
+          <div className="vtc-name-row">
+            <Link href={`/view-profile/${data._id}`} className="vtc-name">
+              {data.user?.name || "Therapist"}
+            </Link>
+            {showBookmark && (
+              <button
+                className={`vtc-bk${bookmark ? " on" : ""}`}
+                onClick={() => handleBookmark(data._id, bookmark)}
+              >
+                {bookmark
+                  ? <BookmarkAddedIcon sx={{ fontSize: 16, color: "#f59e0b" }} />
+                  : <BookmarkBorderIcon sx={{ fontSize: 16, color: "#94a3b8" }} />}
+              </button>
+            )}
+          </div>
+
+          {/* Profile type */}
+          <span className="vtc-type">
+            <i className="feather-user" style={{ fontSize: 10 }}></i>
+            {data.profile_type}
+          </span>
+
+          {/* Rating */}
+          {avgRating && (
+            <div className="vtc-rating">
+              <StarIcon sx={{ color: "#f59e0b", fontSize: 13 }} />
+              <span>{avgRating} ({reviewCount} reviews)</span>
+            </div>
+          )}
 
           {/* Location · Exp · Language */}
           <div className="vtc-meta">
@@ -283,6 +297,9 @@ export default function ProfileCardVert({ data, favrioutes }) {
             )}
           </div>
 
+          {/* Price */}
+          <div className="vtc-price">{price}</div>
+
           {/* Specialty chips */}
           {serviceChips.length > 0 && (
             <div className="vtc-chips">
@@ -290,18 +307,8 @@ export default function ProfileCardVert({ data, favrioutes }) {
             </div>
           )}
 
-          {/* Bookmark + buttons */}
-          <div className="vtc-act">
-            {showBookmark && (
-              <button
-                className={`vtc-bk${bookmark ? " on" : ""}`}
-                onClick={() => handleBookmark(data._id, bookmark)}
-              >
-                {bookmark
-                  ? <BookmarkAddedIcon sx={{ fontSize: 19, color: "#f59e0b" }} />
-                  : <BookmarkBorderIcon sx={{ fontSize: 19, color: "#94a3b8" }} />}
-              </button>
-            )}
+          {/* Buttons */}
+          <div className="vtc-btns">
             <Link href={`/view-profile/${data._id}`} className="vtc-btn-out">
               View Profile
             </Link>
@@ -309,6 +316,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
               Book Now
             </Link>
           </div>
+
         </div>
       </div>
     </div>
