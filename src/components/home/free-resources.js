@@ -133,7 +133,7 @@ export default function FreeResources() {
   ];
 
   return (
-    <section style={{ background: "#f0fdf4", padding: "72px 0 80px", position: "relative", overflow: "hidden" }}>
+    <section style={{ background: "#fff", padding: "72px 0 80px", position: "relative", overflow: "hidden" }}>
       <style>{`
         /* subtle bg pattern */
         .fr-blob { position:absolute; border-radius:50%; pointer-events:none; z-index:0; }
@@ -164,8 +164,8 @@ export default function FreeResources() {
 
         /* card */
         .fr-card {
-          background:#fff;
-          border:1.5px solid #e8f5e9;
+          background:#f8fafc;
+          border:1.5px solid #e2e8f0;
           border-radius:20px;
           padding:22px 18px 18px;
           display:flex; flex-direction:column; gap:11px;
@@ -225,8 +225,8 @@ export default function FreeResources() {
       `}</style>
 
       {/* Soft blobs */}
-      <div className="fr-blob" style={{ width:400, height:400, background:"rgba(34,135,86,.06)", filter:"blur(100px)", top:"-60px", right:"0%" }}></div>
-      <div className="fr-blob" style={{ width:300, height:300, background:"rgba(74,222,128,.05)", filter:"blur(80px)", bottom:"0px", left:"0%" }}></div>
+      <div className="fr-blob" style={{ width:400, height:400, background:"rgba(34,135,86,.04)", filter:"blur(100px)", top:"-60px", right:"0%" }}></div>
+      <div className="fr-blob" style={{ width:300, height:300, background:"rgba(74,222,128,.03)", filter:"blur(80px)", bottom:"0px", left:"0%" }}></div>
 
       <div className="container" style={{ position:"relative", zIndex:1 }}>
 
