@@ -131,14 +131,14 @@ export default function ViewAllTherapist() {
   return (
     <>
       <style suppressHydrationWarning>{`
-        /* ── Banner (title only) ─────────────────────── */
+        /* ── Banner ──────────────────────────────────── */
         .vat-banner {
           position: relative;
           background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
           background-size: cover;
           background-position: center;
-          overflow: hidden;
-          padding: 60px 0 48px;
+          overflow: visible;
+          padding: 56px 0 76px;
         }
         .vat-banner::before {
           content:''; position:absolute; inset:0;
@@ -150,15 +150,19 @@ export default function ViewAllTherapist() {
         .vat-ban-title span { color:#86efac; }
         .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.85rem,2vw,1.05rem); margin:0 auto 0; max-width:520px; line-height:1.65; font-weight:500; padding:0 12px; }
 
-        /* ── Sticky filter bar ───────────────────────── */
+        /* ── Sticky filter bar (overlaps banner bottom) ─ */
         .vat-sticky-bar {
           position: sticky;
           top: 0;
           z-index: 200;
+          margin-top: -52px;
+          padding: 0 0 16px;
+        }
+        .vat-filter-card {
           background: #fff;
-          box-shadow: 0 2px 16px rgba(0,0,0,.10);
-          padding: 12px 0;
-          border-bottom: 1px solid #f1f5f9;
+          border-radius: 18px;
+          box-shadow: 0 8px 36px rgba(0,0,0,.18);
+          padding: 14px 18px;
         }
         .vat-filter-inner {
           display: flex;
@@ -224,8 +228,9 @@ export default function ViewAllTherapist() {
         .vat-sheet { display:none; }
 
         @media(max-width:767px){
-          .vat-banner { padding:36px 0 28px; }
-          .vat-sticky-bar { padding:10px 0; }
+          .vat-banner { padding:36px 0 66px; }
+          .vat-sticky-bar { margin-top:-44px; padding:0 0 12px; }
+          .vat-filter-card { padding:10px 14px; border-radius:14px; }
           .vat-desk-filters { display:none; }
           .vat-search-input { font-size:14px; }
           .vat-results-wrap { padding:24px 0 100px; }
@@ -297,9 +302,10 @@ export default function ViewAllTherapist() {
         </div>
       </div>
 
-      {/* ── Sticky filter bar ─────────────────────────── */}
+      {/* ── Sticky filter bar (overlaps banner bottom) ── */}
       <div className="vat-sticky-bar">
         <div className="container">
+          <div className="vat-filter-card">
           <div className="vat-filter-inner">
 
             {/* Search */}
@@ -347,6 +353,7 @@ export default function ViewAllTherapist() {
               )}
             </div>
 
+          </div>
           </div>
         </div>
       </div>
