@@ -370,6 +370,14 @@ export default function TherapistCheckout({ profile }) {
         .ck-trust i{color:#94a3b8;font-size:18px}
         .ck-trust span{font-size:11px;color:#94a3b8;font-weight:600}
         .ck-total-box{background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center}
+        @keyframes ckFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+        .ck-live-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f8fafc;animation:ckFadeIn .25s ease}
+        .ck-live-row:last-child{border-bottom:none;padding-bottom:0}
+        .ck-live-icon{width:30px;height:30px;border-radius:9px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .ck-live-icon i{color:#228756;font-size:13px}
+        .ck-live-lbl{font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.4px;line-height:1}
+        .ck-live-val{font-size:13.5px;color:#1e293b;font-weight:700;line-height:1.3;margin-top:2px;word-break:break-all}
+        .ck-live-block{background:#f8fafc;border-radius:14px;padding:4px 12px;margin-bottom:16px}
       `}</style>
 
       <div className="container">
@@ -563,11 +571,58 @@ export default function TherapistCheckout({ profile }) {
 
                 {/* Booking summary card */}
                 <div className="ck-card" style={{ padding: "28px", marginTop: "18px" }}>
-                  <h5 style={{ fontSize: "17px", fontWeight: 800, color: "#1e293b", margin: "0 0 18px", paddingBottom: "14px", borderBottom: "1px solid #f8fafc" }}>
+                  <h5 style={{ fontSize: "17px", fontWeight: 800, color: "#1e293b", margin: "0 0 16px", paddingBottom: "14px", borderBottom: "1px solid #f8fafc" }}>
                     Booking Summary
                   </h5>
 
-                  {/* Selected service */}
+                  {/* ── Live user details ─────────────────── */}
+                  {(info.name || info.phone || info.email || info.age || (info.whom && info.whom !== "Self") || info.notes) && (
+                    <div className="ck-live-block">
+                      {info.name && (
+                        <div className="ck-live-row">
+                          <div className="ck-live-icon"><i className="feather-user"></i></div>
+                          <div><div className="ck-live-lbl">Name</div><div className="ck-live-val">{info.name}</div></div>
+                        </div>
+                      )}
+                      {info.phone && (
+                        <div className="ck-live-row">
+                          <div className="ck-live-icon"><i className="feather-phone"></i></div>
+                          <div><div className="ck-live-lbl">WhatsApp</div><div className="ck-live-val">{info.phone}</div></div>
+                        </div>
+                      )}
+                      {info.email && (
+                        <div className="ck-live-row">
+                          <div className="ck-live-icon"><i className="feather-mail"></i></div>
+                          <div><div className="ck-live-lbl">Email</div><div className="ck-live-val">{info.email}</div></div>
+                        </div>
+                      )}
+                      {info.age && (
+                        <div className="ck-live-row">
+                          <div className="ck-live-icon"><i className="feather-calendar"></i></div>
+                          <div><div className="ck-live-lbl">Age</div><div className="ck-live-val">{info.age} years</div></div>
+                        </div>
+                      )}
+                      {info.whom && info.whom !== "Self" && (
+                        <div className="ck-live-row">
+                          <div className="ck-live-icon"><i className="feather-users"></i></div>
+                          <div><div className="ck-live-lbl">Booking For</div><div className="ck-live-val">{info.cname || info.whom}</div></div>
+                        </div>
+                      )}
+                      {info.notes && (
+                        <div className="ck-live-row">
+                          <div className="ck-live-icon"><i className="feather-file-text"></i></div>
+                          <div style={{ minWidth: 0 }}>
+                            <div className="ck-live-lbl">Concern</div>
+                            <div className="ck-live-val" style={{ fontSize: "12.5px", fontWeight: 600, color: "#475569", whiteSpace: "normal", wordBreak: "break-word" }}>
+                              {info.notes.length > 70 ? info.notes.slice(0, 70) + "…" : info.notes}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ── Selected service ──────────────────── */}
                   <div className="ck-srv-tag" style={{ marginBottom: "16px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
