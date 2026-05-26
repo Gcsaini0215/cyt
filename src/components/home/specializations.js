@@ -6,7 +6,7 @@ const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1499209974431-9dddcece3240?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=480&h=200&fit=crop&q=80",
     accent: "#065f46", tagBg: "#d1fae5", tagColor: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
@@ -20,7 +20,7 @@ const specs = [
   },
   {
     id: 3, title: "Relationships", cat: "Relationships", popular: true,
-    img: "https://images.unsplash.com/photo-1519671282429-b44d05df6ddd?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=480&h=200&fit=crop&q=80",
     accent: "#991b1b", tagBg: "#fee2e2", tagColor: "#991b1b",
     short: "Build healthier connections and resolve conflicts.",
     link: "/view-all-therapist?services=Relationship",
