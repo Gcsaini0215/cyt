@@ -12,105 +12,34 @@ import PageBreadCrumb from "../../components/global/page-breadcrumb";
 const CheckoutBanner = () => (
   <div className="checkout-banner-area" style={{
     background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)',
-    padding: '60px 0',
     position: 'relative',
     overflow: 'hidden'
   }}>
-    {/* Decorative Elements */}
-    <div style={{
-      position: 'absolute',
-      top: '-50px',
-      right: '-50px',
-      width: '200px',
-      height: '200px',
-      background: 'rgba(255, 255, 255, 0.05)',
-      borderRadius: '50%',
-      pointerEvents: 'none'
-    }}></div>
-    
+    <style>{`
+      .ck-ban-wrap { padding: 40px 0 36px; }
+      .ck-ban-title { color:#fff; font-size:2rem; font-weight:900; margin-bottom:10px; }
+      .ck-ban-sub { color:rgba(255,255,255,.9); font-size:1rem; font-weight:600; margin:0 auto 28px; max-width:700px; }
+      .ck-badges { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:0 10px; }
+      .ck-badge { background:rgba(255,255,255,.15); backdrop-filter:blur(10px); padding:7px 14px; border-radius:50px; display:flex; align-items:center; gap:6px; color:#fff; font-size:12px; font-weight:700; border:1px solid rgba(255,255,255,.3); }
+      @media(min-width:768px){
+        .ck-ban-wrap { padding:60px 0 52px; }
+        .ck-ban-title { font-size:2.8rem; margin-bottom:16px; }
+        .ck-ban-sub { font-size:1.15rem; margin-bottom:36px; }
+        .ck-badge { font-size:13px; padding:8px 18px; }
+      }
+    `}</style>
+    <div style={{ position:'absolute', top:'-50px', right:'-50px', width:'200px', height:'200px', background:'rgba(255,255,255,.05)', borderRadius:'50%', pointerEvents:'none' }}></div>
     <div className="container">
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="checkout-banner-inner text-center">
-            <h1 className="checkout-banner-title" style={{ 
-              color: '#ffffff', 
-              fontSize: '3rem', 
-              fontWeight: 900,
-              marginBottom: '20px'
-            }}>
-              Confirm Your Booking
-            </h1>
-            <p className="checkout-banner-subtitle" style={{ 
-              color: 'rgba(255, 255, 255, 0.95)',
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              marginBottom: '40px',
-              maxWidth: '800px',
-              margin: '0 auto 40px'
-            }}>
-              Take the next step in your wellness journey with our expert therapists.
-            </p>
-            
-            <div className="trust-badges-row" style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '12px',
-              flexWrap: 'wrap',
-              padding: '0 10px'
-            }}>
-              <div className="trust-badge-item" style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                padding: '8px 16px',
-                borderRadius: '50px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#ffffff',
-                fontSize: '13px',
-                fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                flex: '0 1 auto'
-              }}>
-                <i className="feather-shield" style={{ fontSize: '14px' }}></i>
-                <span>100% Confidential</span>
-              </div>
-              <div className="trust-badge-item" style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                padding: '8px 16px',
-                borderRadius: '50px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#ffffff',
-                fontSize: '13px',
-                fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                flex: '0 1 auto'
-              }}>
-                <i className="feather-check-circle" style={{ fontSize: '14px' }}></i>
-                <span>Verified Specialist</span>
-              </div>
-              <div className="trust-badge-item" style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                padding: '8px 16px',
-                borderRadius: '50px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                color: '#ffffff',
-                fontSize: '13px',
-                fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                flex: '0 1 auto'
-              }}>
-                <i className="feather-lock" style={{ fontSize: '14px' }}></i>
-                <span>Secure Payment</span>
-              </div>
+      <div className="ck-ban-wrap text-center">
+        <h1 className="ck-ban-title">Confirm Your Booking</h1>
+        <p className="ck-ban-sub">Take the next step in your wellness journey with our expert therapists.</p>
+        <div className="ck-badges">
+          {[['feather-shield','100% Confidential'],['feather-check-circle','Verified Specialist'],['feather-lock','Secure Payment']].map(([icon, label]) => (
+            <div className="ck-badge" key={label}>
+              <i className={icon} style={{ fontSize:'14px' }}></i>
+              <span>{label}</span>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -160,7 +89,7 @@ export default function TherapistCheckoutPage() {
     <div id="__next">
       <MyNavbar />
       <CheckoutBanner />
-      <div className="ptb--100 ptb_md--50 ptb_sm--40">
+      <div className="ptb--60 ptb_sm--20">
         {Object.keys(profile).length > 0 && <TherapistCheckout profile={profile} />}
       </div>
       <NewsLetter />
