@@ -6,14 +6,14 @@ const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=480&h=200&fit=crop&q=80",
     accent: "#065f46", tagBg: "#d1fae5", tagColor: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
   },
   {
     id: 2, title: "Depression", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=480&h=200&fit=crop&q=80",
     accent: "#1e40af", tagBg: "#dbeafe", tagColor: "#1e40af",
     short: "Overcome low mood and find hope with professional support.",
     link: "/view-all-therapist?services=Depression",
