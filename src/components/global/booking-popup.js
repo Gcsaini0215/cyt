@@ -106,22 +106,6 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
         }
         .bp-sheet-body { padding: 16px 20px 24px; }
 
-        /* ── Consent line ──────────────────────────── */
-        .bp-consent {
-          display: flex; gap: 9px; align-items: flex-start;
-          margin-top: 14px; padding: 10px 12px;
-          background: #f0fdf4; border-radius: 10px;
-          border: 1px solid #bbf7d0;
-        }
-        .bp-consent input[type="checkbox"] {
-          margin-top: 2px; flex-shrink: 0;
-          accent-color: #228756; width: 15px; height: 15px; cursor: pointer;
-        }
-        .bp-consent-text {
-          font-size: 12px; color: #475569; line-height: 1.55; margin: 0;
-        }
-        .bp-consent-text a { color: #228756; font-weight: 600; text-decoration: none; }
-        .bp-consent-text a:hover { text-decoration: underline; }
       `}</style>
 
       {isMobile ? (
@@ -158,23 +142,12 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
 };
 
 function ConsentLine() {
-  const [checked, setChecked] = useState(false);
   return (
-    <div className="bp-consent">
-      <input
-        type="checkbox"
-        id="bp-consent-check"
-        checked={checked}
-        onChange={e => setChecked(e.target.checked)}
-      />
-      <p className="bp-consent-text">
-        <label htmlFor="bp-consent-check" style={{ cursor: "pointer" }}>
-          I consent to being contacted by the Choose Your Therapist team for consultation purposes.
-          My information will be kept strictly confidential as per our{" "}
-          <Link href="/privacy-policy">Privacy Policy</Link>.
-        </label>
-      </p>
-    </div>
+    <p style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#64748b", margin:"12px 0 0", lineHeight:1.5 }}>
+      <span style={{ color:"#228756", fontWeight:800, fontSize:14, flexShrink:0 }}>✓</span>
+      By submitting, you consent to be contacted by our team. Data kept confidential per our{" "}
+      <Link href="/privacy-policy" style={{ color:"#228756", fontWeight:600, textDecoration:"none" }}>Privacy Policy</Link>.
+    </p>
   );
 }
 
