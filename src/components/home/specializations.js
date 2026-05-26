@@ -1,323 +1,260 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Brain, 
-  CloudRain, 
-  Heart, 
-  Zap, 
-  Users, 
-  Briefcase, 
-  Stethoscope, 
-  Activity,
-  X,
-  ArrowRight
-} from 'lucide-react';
+import React, { useState } from 'react';
 import Link from "next/link";
-import { Dialog, Zoom, Box, Typography, Button, IconButton } from '@mui/material';
+import { Brain, CloudRain, Heart, Activity, Zap, Stethoscope, Users, Briefcase } from 'lucide-react';
 
-const specializations = [
-  { 
-    id: 1, 
-    title: "Anxiety", 
-    icon: <Brain size={32} />, 
-    color: "#E3F2FD", 
-    iconColor: "#1976D2", 
-    link: "/view-all-therapist?specialization=Anxiety",
-    shortDescription: "Manage stress, worry, and panic attacks with expert help.",
-    description: "Get professional help for anxiety in India. Our expert psychologists specialize in treating generalized anxiety disorder (GAD), social anxiety, and panic attacks. Discover evidence-based therapy and proven coping strategies to manage stress, reduce persistent worry, and regain emotional control with the best anxiety therapists near you."
+const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
+
+const specs = [
+  {
+    id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
+    Icon: Brain, color: "#dbeafe", accent: "#1d4ed8",
+    short: "Manage stress, worry, and panic attacks with expert help.",
+    link: "/view-all-therapist?services=Anxiety",
   },
-  { 
-    id: 2, 
-    title: "Depression", 
-    icon: <CloudRain size={32} />, 
-    color: "#F3E5F5", 
-    iconColor: "#7B1FA2", 
-    link: "/view-all-therapist?specialization=Depression",
-    shortDescription: "Overcome low mood and find hope with professional support.",
-    description: "Connect with top depression counselors and clinical psychologists. We offer specialized treatment for clinical depression, persistent low mood, and emotional exhaustion. Access confidential online therapy sessions designed to help you overcome sadness, build resilience, and find renewed hope with expert mental health support in India."
+  {
+    id: 2, title: "Depression", cat: "Mental Health", popular: true,
+    Icon: CloudRain, color: "#ede9fe", accent: "#6d28d9",
+    short: "Overcome low mood and find hope with professional support.",
+    link: "/view-all-therapist?services=Depression",
   },
-  { 
-    id: 3, 
-    title: "Relationships", 
-    icon: <Heart size={32} />, 
-    color: "#FFEBEE", 
-    iconColor: "#D32F2F", 
-    link: "/view-all-therapist?specialization=Relationship",
-    shortDescription: "Build healthier connections and resolve conflicts.",
-    description: "Improve your bond with expert relationship counseling and couples therapy. Our specialized therapists help resolve communication gaps, trust issues, and marital conflicts. Whether seeking pre-marital counseling or individual relationship support, find the best relationship experts in India to build healthier, lasting connections."
+  {
+    id: 3, title: "Relationships", cat: "Relationships", popular: true,
+    Icon: Heart, color: "#fee2e2", accent: "#dc2626",
+    short: "Build healthier connections and resolve conflicts.",
+    link: "/view-all-therapist?services=Relationship",
   },
-  { 
-    id: 4, 
-    title: "Stress", 
-    icon: <Activity size={32} />, 
-    color: "#E8F5E9", 
-    iconColor: "#388E3C", 
-    link: "/view-all-therapist?specialization=Stress",
-    shortDescription: "Tackle burnout and find balance in daily life.",
-    description: "Professional stress management therapy to tackle workplace burnout and daily life pressures. Our mindfulness-based cognitive therapy helps you manage chronic stress, improve work-life balance, and enhance mental well-being. Book sessions with certified stress management experts for a calmer, more balanced lifestyle."
+  {
+    id: 4, title: "Stress", cat: "Mental Health", popular: false,
+    Icon: Activity, color: "#dcfce7", accent: "#16a34a",
+    short: "Tackle burnout and find balance in daily life.",
+    link: "/view-all-therapist?services=Stress",
   },
-  { 
-    id: 5, 
-    title: "OCD", 
-    icon: <Zap size={32} />, 
-    color: "#FFF3E0", 
-    iconColor: "#F57C00", 
-    link: "/view-all-therapist?specialization=OCD",
-    shortDescription: "Break the cycle of obsessive thoughts and compulsions.",
-    description: "Specialized OCD therapy using Exposure and Response Prevention (ERP) and CBT. Find experienced psychologists in India for managing obsessive thoughts and compulsions. Our evidence-based approach helps individuals break the cycle of OCD and lead a more fulfilling, unrestrained life with professional psychiatric support."
+  {
+    id: 5, title: "OCD", cat: "Mental Health", popular: false,
+    Icon: Zap, color: "#fef9c3", accent: "#ca8a04",
+    short: "Break the cycle of obsessive thoughts and compulsions.",
+    link: "/view-all-therapist?services=OCD",
   },
-  { 
-    id: 6, 
-    title: "Trauma", 
-    icon: <Stethoscope size={32} />, 
-    color: "#E0F2F1", 
-    iconColor: "#00796B", 
-    link: "/view-all-therapist?specialization=Trauma",
-    shortDescription: "Heal from PTSD, emotional abuse, and past trauma.",
-    description: "Heal with trauma-informed therapy and PTSD counseling. Our specialists provide a safe space to process past trauma, emotional abuse, and childhood experiences. Using advanced therapeutic techniques like EMDR and somatic experiencing, we help you overcome emotional scars and build a path toward long-term recovery and mental peace."
+  {
+    id: 6, title: "Trauma & PTSD", cat: "Mental Health", popular: false,
+    Icon: Stethoscope, color: "#ccfbf1", accent: "#0d9488",
+    short: "Heal from past trauma and emotional abuse safely.",
+    link: "/view-all-therapist?services=Trauma",
   },
-  { 
-    id: 7, 
-    title: "Parenting", 
-    icon: <Users size={32} />, 
-    color: "#EFEBE9", 
-    iconColor: "#5D4037", 
-    link: "/view-all-therapist?specialization=Parenting",
-    shortDescription: "Expert guidance on child behavior and family dynamics.",
-    description: "Expert parenting consultation and child psychology support. Navigate the challenges of modern parenting with guidance on child behavior, adolescent mental health, and family dynamics. Connect with top parenting experts in India to foster a nurturing environment and improve your parent-child relationship with practical, expert advice."
+  {
+    id: 7, title: "Parenting", cat: "Family", popular: false,
+    Icon: Users, color: "#fef3c7", accent: "#d97706",
+    short: "Expert guidance on child behavior and family dynamics.",
+    link: "/view-all-therapist?services=Parenting",
   },
-  { 
-    id: 8, 
-    title: "Career", 
-    icon: <Briefcase size={32} />, 
-    color: "#ECEFF1", 
-    iconColor: "#455A64", 
-    link: "/view-all-therapist?specialization=Career",
-    shortDescription: "Support for career transitions and workplace mental health.",
-    description: "Professional career counseling and workplace mental health support. Address career transitions, professional burnout, and workplace anxiety with certified career coaches and psychologists. Gain clarity in your professional life, improve productivity, and achieve long-term career satisfaction with expert guidance tailored to your goals."
+  {
+    id: 8, title: "Career", cat: "Work", popular: false,
+    Icon: Briefcase, color: "#f1f5f9", accent: "#475569",
+    short: "Support for career transitions and workplace wellbeing.",
+    link: "/view-all-therapist?services=Career",
   },
 ];
 
-const Specializations = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [selectedSpec, setSelectedSpec] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function Specializations() {
+  const [activeCat, setActiveCat] = useState("All");
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 600px)");
-    setIsMobile(query.matches);
-    const handle = (e) => setIsMobile(e.matches);
-    query.addListener(handle);
-    return () => query.removeListener(handle);
-  }, []);
-
-  const handleOpenModal = (spec) => {
-    setSelectedSpec(spec);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const filtered = specs.filter(s => {
+    const matchCat = activeCat === "All" || s.cat === activeCat;
+    const matchSearch =
+      s.title.toLowerCase().includes(search.toLowerCase()) ||
+      s.short.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
 
   return (
-    <section className="specializations-area pt--60 pb--60 bg-color-white">
+    <section style={{ background: "#f8fafc", padding: "64px 0 68px" }}>
+      <style>{`
+        /* ── Header ───────────────────────────────────── */
+        .sp-header {
+          display:flex; align-items:flex-start;
+          justify-content:space-between; gap:16px;
+          margin-bottom:24px; flex-wrap:wrap;
+        }
+        .sp-accent-bar { width:42px; height:4px; background:#228756; border-radius:2px; margin-bottom:12px; }
+        .sp-title { font-size:clamp(1.6rem,3.5vw,2.3rem); font-weight:900; color:#1e293b; margin:0 0 6px; line-height:1.2; }
+        .sp-sub { color:#64748b; font-size:15px; margin:0; }
+
+        /* search */
+        .sp-search-wrap { position:relative; }
+        .sp-search-ic { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:14px; pointer-events:none; }
+        .sp-search {
+          padding:10px 16px 10px 38px; border-radius:12px;
+          border:1.5px solid #e2e8f0; background:#fff;
+          font-size:14px; color:#1e293b; outline:none;
+          width:220px; transition:border-color .2s; box-sizing:border-box;
+        }
+        .sp-search:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
+
+        /* ── Category pills ───────────────────────────── */
+        .sp-pills {
+          display:flex; gap:8px; overflow-x:auto;
+          padding-bottom:4px; scrollbar-width:none;
+          margin-bottom:32px;
+        }
+        .sp-pills::-webkit-scrollbar { display:none; }
+        .sp-pill {
+          flex-shrink:0; padding:7px 18px; border-radius:50px;
+          font-size:13px; font-weight:700;
+          border:1.5px solid #e2e8f0; background:#fff;
+          color:#64748b; cursor:pointer; transition:all .2s;
+          white-space:nowrap; line-height:1;
+        }
+        .sp-pill.active { background:#228756; border-color:#228756; color:#fff; box-shadow:0 4px 12px rgba(34,135,86,.25); }
+        .sp-pill:hover:not(.active) { border-color:#228756; color:#228756; }
+
+        /* ── Cards ────────────────────────────────────── */
+        .sp-card {
+          display:flex; flex-direction:column;
+          background:#fff; border-radius:20px;
+          border:1px solid #f1f5f9;
+          box-shadow:0 2px 12px rgba(0,0,0,.06);
+          overflow:hidden; height:100%;
+          text-decoration:none; position:relative;
+          transition:transform .25s ease, box-shadow .25s ease;
+        }
+        .sp-card:hover {
+          transform:translateY(-6px);
+          box-shadow:0 16px 40px rgba(0,0,0,.13);
+          border-color:transparent;
+        }
+
+        /* colored top strip */
+        .sp-card-top {
+          height:78px; flex-shrink:0;
+          position:relative;
+        }
+        .sp-popular-badge {
+          position:absolute; top:12px; right:12px;
+          background:rgba(255,255,255,.9); color:#228756;
+          font-size:10px; font-weight:800;
+          padding:3px 9px; border-radius:20px;
+          border:1px solid rgba(34,135,86,.2);
+          letter-spacing:.4px;
+        }
+        /* icon badge overlapping the strip */
+        .sp-icon-wrap {
+          position:absolute; bottom:-22px; left:18px;
+          width:52px; height:52px; border-radius:15px;
+          background:#fff;
+          display:flex; align-items:center; justify-content:center;
+          box-shadow:0 6px 20px rgba(0,0,0,.13);
+          z-index:2;
+        }
+
+        /* card body */
+        .sp-card-body {
+          padding:30px 18px 18px;
+          flex:1; display:flex; flex-direction:column; gap:7px;
+        }
+        .sp-card-title { font-size:15.5px; font-weight:800; color:#1e293b; margin:0; }
+        .sp-card-desc { font-size:13px; color:#64748b; line-height:1.55; margin:0; flex:1; }
+        .sp-card-cta {
+          display:inline-flex; align-items:center; gap:5px;
+          font-size:12.5px; font-weight:700; color:#228756;
+          margin-top:6px;
+        }
+        .sp-card-cta i { font-size:12px; transition:transform .2s; }
+        .sp-card:hover .sp-card-cta i { transform:translateX(4px); }
+
+        /* empty state */
+        .sp-empty { text-align:center; padding:52px 0; color:#94a3b8; }
+        .sp-empty i { font-size:44px; display:block; margin-bottom:12px; }
+
+        /* ── Mobile ───────────────────────────────────── */
+        @media(max-width:767px){
+          .sp-header { flex-direction:column; gap:14px; }
+          .sp-search { width:100%; }
+          .sp-search-wrap { width:100%; }
+          .sp-card-top { height:64px; }
+          .sp-icon-wrap { width:44px; height:44px; border-radius:12px; bottom:-18px; }
+          .sp-card-body { padding:26px 14px 14px; gap:6px; }
+          .sp-card-title { font-size:14px; }
+          .sp-card-desc { font-size:12px; }
+        }
+      `}</style>
+
       <div className="container">
-        <div className="row mb--40">
-          <div className="col-lg-12">
-            <div className="section-title text-center">
-              <h2 className="title" style={{ 
-                fontSize: isMobile ? "2rem" : "3.5rem", 
-                fontWeight: "800", 
-                color: "#000000",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: isMobile ? "10px" : "20px",
-                whiteSpace: isMobile ? "nowrap" : "normal"
-              }}>
-                <span style={{ height: "3px", width: isMobile ? "30px" : "60px", backgroundColor: "#228756", borderRadius: "10px", display: "inline-block" }}></span>
-                Explore Specializations
-                <span style={{ height: "3px", width: isMobile ? "30px" : "60px", backgroundColor: "#228756", borderRadius: "10px", display: "inline-block" }}></span>
-              </h2>
-              <p className="description mt--10" style={{ fontSize: isMobile ? "1.1rem" : "1.4rem", color: "#666", padding: isMobile ? "0 10px" : "0" }}>
-                Find the right support for your specific needs
-              </p>
-            </div>
+
+        {/* ── Header ──────────────────────────────────── */}
+        <div className="sp-header">
+          <div>
+            <div className="sp-accent-bar"></div>
+            <h2 className="sp-title">Explore Specializations</h2>
+            <p className="sp-sub">Find the right expert for your specific concern</p>
+          </div>
+          <div className="sp-search-wrap">
+            <i className="feather-search sp-search-ic"></i>
+            <input
+              type="text"
+              className="sp-search"
+              placeholder="Search concerns..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
         </div>
 
-        <div className="row g-4">
-          {specializations.map((item) => (
-            <div className="col-lg-3 col-md-4 col-sm-6 col-6" key={item.id}>
-              <div onClick={() => handleOpenModal(item)} className="spec-card" style={{ cursor: 'pointer' }}>
-                <div className="spec-inner" style={{ backgroundColor: item.color }}>
-                  <div className="spec-icon" style={{ color: item.iconColor }}>
-                    {item.icon}
-                  </div>
-                  <h3 className="spec-title">{item.title}</h3>
-                  <p className="spec-short-desc">{item.shortDescription}</p>
-                </div>
-              </div>
-            </div>
+        {/* ── Category pills ──────────────────────────── */}
+        <div className="sp-pills">
+          {CATS.map(cat => (
+            <button
+              key={cat}
+              className={`sp-pill${activeCat === cat ? " active" : ""}`}
+              onClick={() => setActiveCat(cat)}
+            >
+              {cat}
+            </button>
           ))}
         </div>
+
+        {/* ── Grid ────────────────────────────────────── */}
+        {filtered.length === 0 ? (
+          <div className="sp-empty">
+            <i className="feather-search"></i>
+            <p style={{ fontWeight: 700, margin: 0 }}>No specializations found</p>
+            <p style={{ fontSize: 13, marginTop: 4 }}>Try a different search or category</p>
+          </div>
+        ) : (
+          <div className="row g-4">
+            {filtered.map(s => {
+              const IconComp = s.Icon;
+              return (
+                <div key={s.id} className="col-lg-3 col-md-4 col-sm-6 col-6">
+                  <Link href={s.link} className="sp-card">
+
+                    {/* Colored top strip */}
+                    <div className="sp-card-top" style={{ background: s.color }}>
+                      {s.popular && (
+                        <span className="sp-popular-badge">🔥 Popular</span>
+                      )}
+                      <div className="sp-icon-wrap">
+                        <IconComp size={24} color={s.accent} strokeWidth={2} />
+                      </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="sp-card-body">
+                      <h3 className="sp-card-title">{s.title}</h3>
+                      <p className="sp-card-desc">{s.short}</p>
+                      <span className="sp-card-cta">
+                        Find Therapists <i className="feather-arrow-right"></i>
+                      </span>
+                    </div>
+
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
       </div>
-
-      <Dialog 
-        open={isModalOpen} 
-        onClose={handleCloseModal}
-        TransitionComponent={Zoom}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          style: {
-            borderRadius: "28px",
-            padding: "0px",
-            overflow: "hidden"
-          }
-        }}
-      >
-        <Box sx={{ position: 'relative' }}>
-          {/* Header Color Strip */}
-          <Box sx={{ height: '80px', backgroundColor: selectedSpec?.color }} />
-          
-          {/* Close Button */}
-          <IconButton 
-            onClick={handleCloseModal}
-            sx={{ 
-              position: 'absolute', 
-              top: 10, 
-              right: 10, 
-              bgcolor: 'rgba(255,255,255,0.8)',
-              '&:hover': { bgcolor: 'white' }
-            }}
-          >
-            <X size={20} />
-          </IconButton>
-
-          {/* Icon Badge */}
-          <Box sx={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '24px',
-            backgroundColor: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'absolute',
-            top: '40px',
-            left: '30px',
-            boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
-            color: selectedSpec?.iconColor
-          }}>
-            {selectedSpec?.icon}
-          </Box>
-
-          <Box sx={{ p: '80px 30px 40px' }}>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: '#1e293b', mb: 2 }}>
-              {selectedSpec?.title}
-            </Typography>
-            
-            <Typography sx={{ color: '#64748b', lineHeight: 1.7, fontSize: '15px', mb: 4 }}>
-              {selectedSpec?.description}
-            </Typography>
-
-            <Button 
-              component={Link}
-              href={selectedSpec?.link || "#"}
-              variant="contained"
-              fullWidth
-              endIcon={<ArrowRight size={20} />}
-              sx={{
-                bgcolor: '#228756',
-                color: 'white',
-                borderRadius: '16px',
-                py: 2,
-                fontSize: '16px',
-                fontWeight: 700,
-                textTransform: 'none',
-                boxShadow: '0 10px 20px rgba(34, 135, 86, 0.2)',
-                '&:hover': {
-                  bgcolor: '#1a6b44',
-                  transform: 'translateY(-2px)'
-                },
-                transition: 'all 0.3s'
-              }}
-            >
-              View Specialized Therapists
-            </Button>
-          </Box>
-        </Box>
-      </Dialog>
-
-      <style>{`
-        .spec-card {
-          display: block;
-          text-decoration: none;
-          transition: transform 0.3s ease;
-        }
-        .spec-card:hover {
-          transform: translateY(-10px);
-        }
-        .spec-inner {
-          padding: 30px 20px;
-          border-radius: 20px;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 15px;
-          transition: box-shadow 0.3s ease;
-        }
-        .spec-card:hover .spec-inner {
-          box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .spec-icon {
-          background: #ffffff;
-          width: 70px;
-          height: 70px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .spec-title {
-          font-size: 1.4rem;
-          font-weight: 700;
-          color: #333;
-          margin: 0;
-        }
-        .spec-short-desc {
-          font-size: 0.9rem;
-          color: #666;
-          margin: 0;
-          line-height: 1.4;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          text-align: center;
-        }
-        @media (max-width: 768px) {
-          .spec-inner {
-            padding: 20px 10px;
-          }
-          .spec-icon {
-            width: 50px;
-            height: 50px;
-          }
-          .spec-title {
-            font-size: 1.1rem;
-          }
-          .spec-short-desc {
-            font-size: 0.75rem;
-            -webkit-line-clamp: 2;
-          }
-        }
-      `}</style>
     </section>
   );
-};
-
-export default Specializations;
+}
