@@ -323,7 +323,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
               style={{ marginTop:2, flexShrink:0, accentColor:"#228756", width:15, height:15, cursor:"pointer" }}
             />
             <label htmlFor="cf-consent" style={{ fontSize:12, color:"#475569", lineHeight:1.55, cursor:"pointer" }}>
-              I consent to be contacted by the Choose Your Therapist team. My data will be kept confidential per the <a href="/privacy-policy" style={{ color:"#228756", fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
+              I consent to be contacted by Choose Your Therapist. My data is collected only for booking purposes and will not be shared. See our <a href="/privacy-policy" style={{ color:"#228756", fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
             </label>
           </div>
 
