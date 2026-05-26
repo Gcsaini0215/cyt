@@ -374,7 +374,7 @@ export default function ViewAllTherapist() {
           ) : (
             <div className="row g-4">
               {data.map(item => (
-                <div key={item._id} className="col-lg-4 col-md-6 col-12">
+                <div key={item._id} className="col-lg-4 col-md-6 col-sm-6 col-12">
                   <ProfileCardVert data={item} favrioutes={favrioutes} />
                 </div>
               ))}
