@@ -201,6 +201,7 @@ export default function ViewAllTherapist() {
         /* ── Mobile: Filter FAB + Bottom Sheet ─────── */
         .vat-filter-fab { display:none; }
         .vat-sheet-overlay { display:none; }
+        .vat-sheet { display:none; }
 
         @media(max-width:767px){
           .vat-banner { padding:36px 0 30px; }
@@ -264,6 +265,7 @@ export default function ViewAllTherapist() {
 
           /* Bottom sheet panel */
           .vat-sheet {
+            display:block;
             position:fixed;
             bottom:0;
             left:0;
