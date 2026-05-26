@@ -6,21 +6,21 @@ const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1545389336-cf090694435e?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1499209974431-9dddcece3240?w=480&h=200&fit=crop&q=80",
     accent: "#065f46", tagBg: "#d1fae5", tagColor: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
   },
   {
     id: 2, title: "Depression", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1517685352821-92cf88aee5a5?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1500099817043-86d46000d58f?w=480&h=200&fit=crop&q=80",
     accent: "#1e40af", tagBg: "#dbeafe", tagColor: "#1e40af",
     short: "Overcome low mood and find hope with professional support.",
     link: "/view-all-therapist?services=Depression",
   },
   {
     id: 3, title: "Relationships", cat: "Relationships", popular: true,
-    img: "https://images.unsplash.com/photo-1583001931096-959e9a1a6223?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1519671282429-b44d05df6ddd?w=480&h=200&fit=crop&q=80",
     accent: "#991b1b", tagBg: "#fee2e2", tagColor: "#991b1b",
     short: "Build healthier connections and resolve conflicts.",
     link: "/view-all-therapist?services=Relationship",
