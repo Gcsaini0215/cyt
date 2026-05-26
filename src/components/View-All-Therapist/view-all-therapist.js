@@ -18,10 +18,9 @@ export default function ViewAllTherapist() {
   const timeoutRef = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
   const [visibleCount, setVisibleCount] = React.useState(9);
+  const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [tempFilter, setTempFilter] = React.useState({});
   const resultsRef = React.useRef(null);
-
-  const scrollToResults = () =>
-    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const [filter, setFilter] = React.useState({
     profile_type: "", services: "", year_of_exp: "",
@@ -42,12 +41,38 @@ export default function ViewAllTherapist() {
     setFilter(f => ({ ...f, [name]: value }));
   };
 
+  const handleTempChange = (e) => {
+    const { name, value } = e.target;
+    setTempFilter(f => ({ ...f, [name]: value }));
+  };
+
+  const openSheet = () => {
+    setTempFilter({
+      profile_type: filter.profile_type,
+      services: filter.services,
+      year_of_exp: filter.year_of_exp,
+      language_spoken: filter.language_spoken,
+      state: filter.state,
+    });
+    setSheetOpen(true);
+  };
+
+  const applySheet = () => {
+    setFilter(f => ({ ...f, ...tempFilter }));
+    setSheetOpen(false);
+  };
+
+  const clearSheet = () => {
+    setTempFilter({ profile_type: "", services: "", year_of_exp: "", language_spoken: "", state: "" });
+  };
+
   const resetFilters = () => {
     setSearch("");
     setFilter({ profile_type: "", services: "", year_of_exp: "", language_spoken: "", state: "", search: "", page: 1, pageSize: 1000 });
   };
 
   const hasFilter = filter.profile_type || filter.services || filter.year_of_exp || filter.language_spoken || filter.state || filter.search;
+  const activeFilterCount = [filter.profile_type, filter.services, filter.year_of_exp, filter.language_spoken, filter.state].filter(Boolean).length;
 
   React.useEffect(() => {
     const getData = async () => {
@@ -128,20 +153,21 @@ export default function ViewAllTherapist() {
         }
         .vat-ban-inner { position:relative; z-index:2; text-align:center; }
         .vat-ban-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:50px; padding:5px 16px; font-size:12px; font-weight:700; color:#fff; letter-spacing:.8px; text-transform:uppercase; margin-bottom:16px; }
-        .vat-ban-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; }
-        .vat-ban-title { color:#fff; font-size:clamp(1.8rem,5vw,3rem); font-weight:900; margin:0 0 10px; line-height:1.15; }
+        .vat-ban-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; animation:vat-pulse 1.8s ease-in-out infinite; }
+        @keyframes vat-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        .vat-ban-title { color:#fff; font-size:clamp(1.7rem,5vw,3rem); font-weight:900; margin:0 0 10px; line-height:1.15; }
         .vat-ban-title span { color:#86efac; }
-        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.9rem,2vw,1.05rem); margin:0 auto 28px; max-width:540px; line-height:1.65; font-weight:500; }
+        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.85rem,2vw,1.05rem); margin:0 auto 28px; max-width:540px; line-height:1.65; font-weight:500; padding:0 12px; }
 
         /* search card */
         .vat-search-card { background:#fff; border-radius:20px; padding:22px 24px 18px; max-width:920px; margin:0 auto; box-shadow:0 16px 48px rgba(0,0,0,.25); }
         .vat-search-wrap { position:relative; margin-bottom:16px; }
-        .vat-search-input { width:100%; padding:13px 52px 13px 18px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; background:#f8fafc; outline:none; color:#1e293b; transition:border-color .2s; }
+        .vat-search-input { width:100%; padding:13px 50px 13px 18px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; background:#f8fafc; outline:none; color:#1e293b; transition:border-color .2s; box-sizing:border-box; }
         .vat-search-input:focus { border-color:#228756; background:#fff; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
-        .vat-search-btn { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:#228756; color:#fff; border:none; width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
-        .vat-search-btn i { font-size:15px; }
+        .vat-search-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:#228756; color:#fff; border:none; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+        .vat-search-btn i { font-size:14px; }
 
-        /* filter grid */
+        /* filter grid — desktop/tablet only */
         .vat-filter-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px; }
         .vat-fsel { width:100%; height:40px; border-radius:10px; border:1.5px solid #e8edf2; background:#f8fafc; font-size:13.5px; padding:0 10px; color:#475569; font-weight:600; outline:none; cursor:pointer; transition:border-color .2s; }
         .vat-fsel:focus { border-color:#228756; }
@@ -151,11 +177,6 @@ export default function ViewAllTherapist() {
         .vat-stat-item { display:flex; align-items:center; gap:5px; font-size:12.5px; color:#64748b; font-weight:600; padding:0 14px; }
         .vat-stat-item:not(:last-child) { border-right:1px solid #e2e8f0; }
         .vat-stat-item i { color:#228756; font-size:13px; }
-
-        /* jump button */
-        .vat-jump { display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); padding:9px 22px; border-radius:50px; color:#fff; font-weight:600; font-size:14px; cursor:pointer; transition:all .2s; backdrop-filter:blur(8px); margin-top:22px; position:relative; z-index:2; }
-        .vat-jump:hover { background:rgba(255,255,255,.22); }
-        .vat-jump-count { background:#228756; color:#fff; font-size:13px; font-weight:800; padding:1px 10px; border-radius:20px; }
 
         /* reset pill */
         .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:20px; cursor:pointer; margin-left:8px; }
@@ -177,44 +198,131 @@ export default function ViewAllTherapist() {
         .vat-load-more { background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; border:none; padding:13px 44px; font-size:15px; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 6px 18px rgba(34,135,86,.25); transition:all .2s; }
         .vat-load-more:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(34,135,86,.3); }
 
-        /* ── Mobile sticky filters ───────────────────── */
-        .vat-sticky-mob { display:none; }
+        /* ── Mobile: Filter FAB + Bottom Sheet ─────── */
+        .vat-filter-fab { display:none; }
+        .vat-sheet-overlay { display:none; }
+
         @media(max-width:767px){
-          .vat-banner { padding:40px 0 36px; }
+          .vat-banner { padding:36px 0 30px; }
           .vat-filter-grid { display:none; }
-          .vat-search-card { padding:16px; }
-          .vat-search-input { font-size:14px; padding:11px 48px 11px 14px; }
           .vat-stats-strip { display:none; }
-          .vat-sticky-mob {
+          .vat-search-card { padding:14px 14px 12px; border-radius:16px; }
+          .vat-search-input { font-size:14px; padding:11px 46px 11px 14px; }
+          .vat-search-btn { width:32px; height:32px; right:7px; }
+          .vat-results-wrap { padding:24px 0 100px; }
+          .vat-results-header { margin-bottom:14px; }
+
+          /* FAB filter button */
+          .vat-filter-fab {
             display:flex;
-            position:sticky;
-            top:0;
-            z-index:200;
-            background:#0a2e1c;
-            padding:10px 12px;
+            align-items:center;
             gap:8px;
-            overflow-x:auto;
-            -webkit-overflow-scrolling:touch;
-            box-shadow:0 3px 14px rgba(0,0,0,.3);
-            scrollbar-width:none;
-          }
-          .vat-sticky-mob::-webkit-scrollbar { display:none; }
-          .vat-sticky-mob select {
-            flex-shrink:0;
-            background:rgba(255,255,255,.14);
+            position:fixed;
+            bottom:20px;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:300;
+            background:linear-gradient(135deg,#228756,#1a6b44);
             color:#fff;
-            border:1px solid rgba(255,255,255,.22);
-            border-radius:9px;
-            padding:7px 10px;
-            font-size:13px;
-            outline:none;
-            min-width:120px;
+            border:none;
+            padding:12px 24px;
+            border-radius:50px;
+            font-size:14px;
+            font-weight:700;
+            box-shadow:0 6px 20px rgba(34,135,86,.4);
+            cursor:pointer;
+            white-space:nowrap;
+            transition:transform .2s, box-shadow .2s;
+          }
+          .vat-filter-fab:active { transform:translateX(-50%) scale(.96); }
+          .vat-fab-badge {
+            background:#fff;
+            color:#228756;
+            font-size:11px;
+            font-weight:800;
+            width:18px;
+            height:18px;
+            border-radius:50%;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+          }
+
+          /* Bottom sheet overlay */
+          .vat-sheet-overlay {
+            display:block;
+            position:fixed;
+            inset:0;
+            z-index:400;
+            background:rgba(0,0,0,.5);
+            backdrop-filter:blur(2px);
+            opacity:0;
+            pointer-events:none;
+            transition:opacity .25s;
+          }
+          .vat-sheet-overlay.open { opacity:1; pointer-events:all; }
+
+          /* Bottom sheet panel */
+          .vat-sheet {
+            position:fixed;
+            bottom:0;
+            left:0;
+            right:0;
+            z-index:500;
+            background:#fff;
+            border-radius:22px 22px 0 0;
+            padding:0 0 env(safe-area-inset-bottom,0);
+            transform:translateY(100%);
+            transition:transform .3s cubic-bezier(.4,0,.2,1);
+            max-height:85vh;
+            overflow-y:auto;
+          }
+          .vat-sheet.open { transform:translateY(0); }
+
+          .vat-sheet-handle {
+            width:40px; height:4px; border-radius:2px;
+            background:#e2e8f0; margin:12px auto 0; display:block;
+          }
+          .vat-sheet-head {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:16px 20px 12px;
+            border-bottom:1px solid #f1f5f9;
+          }
+          .vat-sheet-head h5 { margin:0; font-size:16px; font-weight:800; color:#1e293b; }
+          .vat-sheet-close {
+            width:30px; height:30px; border-radius:50%; border:none;
+            background:#f1f5f9; color:#64748b;
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; font-size:16px;
+          }
+          .vat-sheet-body { padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
+          .vat-sheet-label { font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
+          .vat-sheet-sel {
+            width:100%; height:46px; border-radius:12px;
+            border:1.5px solid #e8edf2; background:#f8fafc;
+            font-size:14px; padding:0 14px; color:#1e293b;
+            font-weight:600; outline:none; cursor:pointer;
+          }
+          .vat-sheet-sel:focus { border-color:#228756; }
+          .vat-sheet-sel.active { border-color:#228756; background:#f0fdf4; color:#228756; }
+          .vat-sheet-footer {
+            display:flex; gap:10px; padding:14px 20px 20px;
+            border-top:1px solid #f1f5f9;
+          }
+          .vat-sheet-clear {
+            flex:1; height:46px; border-radius:12px;
+            border:1.5px solid #e2e8f0; background:#fff;
+            color:#64748b; font-size:14px; font-weight:700;
             cursor:pointer;
           }
-          .vat-sticky-mob select option { background:#0a2e1c; color:#fff; }
-          .vat-results-wrap { padding:30px 0 80px; }
-          .vat-results-header { margin-bottom:18px; }
+          .vat-sheet-apply {
+            flex:2; height:46px; border-radius:12px; border:none;
+            background:linear-gradient(135deg,#228756,#1a6b44);
+            color:#fff; font-size:14px; font-weight:800;
+            cursor:pointer; box-shadow:0 4px 12px rgba(34,135,86,.3);
+          }
         }
+
         @media(min-width:768px) and (max-width:991px){
           .vat-filter-grid { grid-template-columns:repeat(3,1fr); }
         }
@@ -233,7 +341,7 @@ export default function ViewAllTherapist() {
               Find Your <span>Perfect</span> Therapist
             </h1>
             <p className="vat-ban-sub">
-              Browse verified mental health professionals across India. Filter by expertise, language, or location to find the right match.
+              Browse verified mental health professionals across India. Filter by expertise, language, or location.
             </p>
 
             {/* Search + filter card */}
@@ -246,12 +354,12 @@ export default function ViewAllTherapist() {
                   value={search}
                   onChange={handleSearchChange}
                 />
-                <button className="vat-search-btn">
+                <button className="vat-search-btn" type="button">
                   <i className="feather-search"></i>
                 </button>
               </div>
 
-              {/* Filter selects — hidden on mobile */}
+              {/* Filter selects — desktop/tablet only */}
               <div className="vat-filter-grid">
                 <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="vat-fsel">
                   <option value="">Profile Type</option>
@@ -290,41 +398,53 @@ export default function ViewAllTherapist() {
                 ))}
               </div>
             </div>
-
-            {/* Scroll to results button */}
-            {allData.length > 0 && (
-              <button className="vat-jump" onClick={scrollToResults}>
-                <span className="vat-jump-count">{allData.length}</span>
-                Therapists Available
-                <i className="feather-arrow-down"></i>
-              </button>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Mobile sticky filter bar */}
-      <div className="vat-sticky-mob">
-        <select name="profile_type" value={filter.profile_type} onChange={handleChange}>
-          <option value="">Profile Type</option>
-          {profileTypeOptions.map((item, i) => <option key={i} value={item.value}>{ro(item)}</option>)}
-        </select>
-        <select name="services" value={filter.services} onChange={handleChange}>
-          <option value="">Specialty</option>
-          {services.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
-        </select>
-        <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange}>
-          <option value="">Experience</option>
-          {ExpList.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
-        </select>
-        <select name="language_spoken" value={filter.language_spoken} onChange={handleChange}>
-          <option value="">Language</option>
-          {languageSpoken.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
-        </select>
-        <select name="state" value={filter.state} onChange={handleChange}>
-          <option value="">State</option>
-          {stateList.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
-        </select>
+      {/* ── Mobile: Bottom Sheet Overlay ─────────────── */}
+      <div className={`vat-sheet-overlay${sheetOpen ? " open" : ""}`} onClick={() => setSheetOpen(false)} />
+
+      {/* ── Mobile: Bottom Sheet Panel ───────────────── */}
+      <div className={`vat-sheet${sheetOpen ? " open" : ""}`}>
+        <span className="vat-sheet-handle"></span>
+        <div className="vat-sheet-head">
+          <h5>Filter Therapists</h5>
+          <button className="vat-sheet-close" onClick={() => setSheetOpen(false)}>
+            <i className="feather-x"></i>
+          </button>
+        </div>
+        <div className="vat-sheet-body">
+          {[
+            { label: "Profile Type", name: "profile_type", options: profileTypeOptions, isObj: true },
+            { label: "Specialty / Concern", name: "services", options: services, isObj: false },
+            { label: "Experience", name: "year_of_exp", options: ExpList, isObj: false },
+            { label: "Language", name: "language_spoken", options: languageSpoken, isObj: true },
+            { label: "State", name: "state", options: stateList, isObj: true },
+          ].map(({ label, name, options, isObj }) => (
+            <div key={name}>
+              <div className="vat-sheet-label">{label}</div>
+              <select
+                name={name}
+                value={tempFilter[name] || ""}
+                onChange={handleTempChange}
+                className={`vat-sheet-sel${tempFilter[name] ? " active" : ""}`}
+              >
+                <option value="">All {label}s</option>
+                {options.map((item, i) => {
+                  const val = isObj && typeof item === "object" ? item.value : item;
+                  return <option key={i} value={val}>{ro(item)}</option>;
+                })}
+              </select>
+            </div>
+          ))}
+        </div>
+        <div className="vat-sheet-footer">
+          <button className="vat-sheet-clear" onClick={clearSheet}>Clear All</button>
+          <button className="vat-sheet-apply" onClick={applySheet}>
+            Show Results
+          </button>
+        </div>
       </div>
 
       {/* ── Results ───────────────────────────────────── */}
@@ -341,7 +461,7 @@ export default function ViewAllTherapist() {
             </div>
             {hasFilter && (
               <button className="vat-reset" onClick={resetFilters}>
-                <i className="feather-x" style={{ fontSize:12 }}></i>
+                <i className="feather-x" style={{ fontSize: 12 }}></i>
                 Clear Filters
               </button>
             )}
@@ -354,20 +474,20 @@ export default function ViewAllTherapist() {
                   <div className="vat-skeleton">
                     <div className="vat-skel-img"></div>
                     <div className="vat-skel-body">
-                      <div className="vat-skel-line" style={{ width:"70%" }}></div>
-                      <div className="vat-skel-line" style={{ width:"50%" }}></div>
-                      <div className="vat-skel-line" style={{ width:"90%", marginTop:16 }}></div>
+                      <div className="vat-skel-line" style={{ width: "70%" }}></div>
+                      <div className="vat-skel-line" style={{ width: "50%" }}></div>
+                      <div className="vat-skel-line" style={{ width: "90%", marginTop: 16 }}></div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           ) : data.length === 0 ? (
-            <div style={{ textAlign:"center", padding:"60px 0" }}>
-              <i className="feather-search" style={{ fontSize:48, color:"#cbd5e1" }}></i>
-              <h4 style={{ color:"#94a3b8", marginTop:16, fontWeight:700 }}>No therapists found</h4>
-              <p style={{ color:"#cbd5e1", fontSize:14 }}>Try adjusting your filters</p>
-              <button className="vat-reset" style={{ margin:"12px auto 0", padding:"8px 20px" }} onClick={resetFilters}>
+            <div style={{ textAlign: "center", padding: "60px 0" }}>
+              <i className="feather-search" style={{ fontSize: 48, color: "#cbd5e1" }}></i>
+              <h4 style={{ color: "#94a3b8", marginTop: 16, fontWeight: 700 }}>No therapists found</h4>
+              <p style={{ color: "#cbd5e1", fontSize: 14 }}>Try adjusting your filters</p>
+              <button className="vat-reset" style={{ margin: "12px auto 0", padding: "8px 20px" }} onClick={resetFilters}>
                 Clear Filters
               </button>
             </div>
@@ -382,7 +502,7 @@ export default function ViewAllTherapist() {
           )}
 
           {!loading && visibleCount < allData.length && (
-            <div style={{ textAlign:"center", marginTop:44 }}>
+            <div style={{ textAlign: "center", marginTop: 44 }}>
               <button className="vat-load-more" onClick={handleLoadMore}>
                 Load More Therapists
               </button>
@@ -390,6 +510,15 @@ export default function ViewAllTherapist() {
           )}
         </div>
       </div>
+
+      {/* ── Mobile Filter FAB ─────────────────────────── */}
+      <button className="vat-filter-fab" onClick={openSheet}>
+        <i className="feather-sliders"></i>
+        Filters
+        {activeFilterCount > 0 && (
+          <span className="vat-fab-badge">{activeFilterCount}</span>
+        )}
+      </button>
     </>
   );
 }
