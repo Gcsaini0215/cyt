@@ -1,55 +1,54 @@
 import React, { useState } from 'react';
 import Link from "next/link";
-import { Brain, CloudRain, Heart, Activity, Zap, Stethoscope, Users, Briefcase } from 'lucide-react';
 
 const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    Icon: Brain, color: "#a7f3d0", accent: "#065f46",
+    emoji: "😰", color: "#a7f3d0", accent: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
   },
   {
     id: 2, title: "Depression", cat: "Mental Health", popular: true,
-    Icon: CloudRain, color: "#bbf7d0", accent: "#166534",
+    emoji: "🌧️", color: "#dbeafe", accent: "#1e40af",
     short: "Overcome low mood and find hope with professional support.",
     link: "/view-all-therapist?services=Depression",
   },
   {
     id: 3, title: "Relationships", cat: "Relationships", popular: true,
-    Icon: Heart, color: "#fecaca", accent: "#991b1b",
+    emoji: "💑", color: "#fecaca", accent: "#991b1b",
     short: "Build healthier connections and resolve conflicts.",
     link: "/view-all-therapist?services=Relationship",
   },
   {
     id: 4, title: "Stress", cat: "Mental Health", popular: false,
-    Icon: Activity, color: "#bbf7d0", accent: "#1a6b44",
+    emoji: "😫", color: "#bbf7d0", accent: "#1a6b44",
     short: "Tackle burnout and find balance in daily life.",
     link: "/view-all-therapist?services=Stress",
   },
   {
     id: 5, title: "OCD", cat: "Mental Health", popular: false,
-    Icon: Zap, color: "#fde68a", accent: "#92400e",
+    emoji: "🔄", color: "#fde68a", accent: "#92400e",
     short: "Break the cycle of obsessive thoughts and compulsions.",
     link: "/view-all-therapist?services=OCD",
   },
   {
     id: 6, title: "Trauma & PTSD", cat: "Mental Health", popular: false,
-    Icon: Stethoscope, color: "#99f6e4", accent: "#0f766e",
+    emoji: "🩹", color: "#99f6e4", accent: "#0f766e",
     short: "Heal from past trauma and emotional abuse safely.",
     link: "/view-all-therapist?services=Trauma",
   },
   {
     id: 7, title: "Parenting", cat: "Family", popular: false,
-    Icon: Users, color: "#fed7aa", accent: "#9a3412",
+    emoji: "👨‍👧", color: "#fed7aa", accent: "#9a3412",
     short: "Expert guidance on child behavior and family dynamics.",
     link: "/view-all-therapist?services=Parenting",
   },
   {
     id: 8, title: "Career", cat: "Work", popular: false,
-    Icon: Briefcase, color: "#d9f99d", accent: "#3f6212",
+    emoji: "💼", color: "#d9f99d", accent: "#3f6212",
     short: "Support for career transitions and workplace wellbeing.",
     link: "/view-all-therapist?services=Career",
   },
@@ -146,14 +145,15 @@ export default function Specializations() {
           border:1px solid rgba(34,135,86,.2);
           letter-spacing:.4px;
         }
-        /* icon badge overlapping the strip */
+        /* emoji badge overlapping the strip */
         .sp-icon-wrap {
           position:absolute; bottom:-22px; left:18px;
           width:52px; height:52px; border-radius:15px;
           background:#fff;
           display:flex; align-items:center; justify-content:center;
           box-shadow:0 6px 20px rgba(0,0,0,.13);
-          z-index:2;
+          z-index:2; font-size:28px; line-height:1;
+          user-select:none;
         }
 
         /* card body */
@@ -232,9 +232,7 @@ export default function Specializations() {
           </div>
         ) : (
           <div className="row g-4">
-            {filtered.map(s => {
-              const IconComp = s.Icon;
-              return (
+            {filtered.map(s => (
                 <div key={s.id} className="col-lg-3 col-md-4 col-sm-6 col-6">
                   <Link href={s.link} className="sp-card">
 
@@ -244,7 +242,7 @@ export default function Specializations() {
                         <span className="sp-popular-badge">🔥 Popular</span>
                       )}
                       <div className="sp-icon-wrap">
-                        <IconComp size={24} color={s.accent} strokeWidth={2} />
+                        {s.emoji}
                       </div>
                     </div>
 
@@ -259,8 +257,7 @@ export default function Specializations() {
 
                   </Link>
                 </div>
-              );
-            })}
+            ))}
           </div>
         )}
 
