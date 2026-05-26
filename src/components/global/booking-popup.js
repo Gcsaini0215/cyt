@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import ConsultationForm from "../home/consultation-form";
-import Link from "next/link";
 
 const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, showSource = true, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -120,7 +119,6 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
             </div>
             <div className="bp-sheet-body">
               <ConsultationForm showHeading={false} showLocation={showLocation} showSource={showSource} />
-              <ConsentLine />
             </div>
           </div>
         </div>
@@ -132,7 +130,6 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
             <button className="bp-close" onClick={handleClose}>✕</button>
             <div className="bp-modal-inner">
               <ConsultationForm showHeading={showHeading} showLocation={showLocation} showSource={showSource} />
-              <ConsentLine />
             </div>
           </div>
         </div>
@@ -140,15 +137,5 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
     </>
   );
 };
-
-function ConsentLine() {
-  return (
-    <p style={{ display:"flex", alignItems:"center", gap:6, fontSize:12, color:"#64748b", margin:"12px 0 0", lineHeight:1.5 }}>
-      <span style={{ color:"#228756", fontWeight:800, fontSize:14, flexShrink:0 }}>✓</span>
-      By submitting, you consent to be contacted by our team. Data kept confidential per our{" "}
-      <Link href="/privacy-policy" style={{ color:"#228756", fontWeight:600, textDecoration:"none" }}>Privacy Policy</Link>.
-    </p>
-  );
-}
 
 export default BookingPopup;

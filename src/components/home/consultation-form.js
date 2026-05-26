@@ -132,6 +132,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     let timer;
@@ -312,7 +313,21 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
             </div>
           </div>
 
-          <button type="submit" disabled={loading} className="cf-submit">
+          {/* Consent checkbox */}
+          <div style={{ display:"flex", alignItems:"flex-start", gap:9, marginBottom:16, padding:"10px 12px", background:"#f0fdf4", borderRadius:10, border:"1px solid #bbf7d0" }}>
+            <input
+              type="checkbox"
+              id="cf-consent"
+              checked={consent}
+              onChange={e => setConsent(e.target.checked)}
+              style={{ marginTop:2, flexShrink:0, accentColor:"#228756", width:15, height:15, cursor:"pointer" }}
+            />
+            <label htmlFor="cf-consent" style={{ fontSize:12, color:"#475569", lineHeight:1.55, cursor:"pointer" }}>
+              I consent to be contacted by the Choose Your Therapist team. My data will be kept confidential per the <a href="/privacy-policy" style={{ color:"#228756", fontWeight:600, textDecoration:"none" }}>Privacy Policy</a>.
+            </label>
+          </div>
+
+          <button type="submit" disabled={loading || !consent} className="cf-submit">
             {loading ? "Submitting..." : "Talk to a Therapist →"}
           </button>
 
