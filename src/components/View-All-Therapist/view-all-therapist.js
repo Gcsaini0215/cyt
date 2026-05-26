@@ -334,11 +334,6 @@ export default function ViewAllTherapist() {
       <div className="vat-banner">
         <div className="container">
           <div className="vat-ban-inner">
-            <div className="vat-ban-tag">
-              <div className="vat-ban-dot"></div>
-              Verified Therapists
-            </div>
-
             <h1 className="vat-ban-title">
               Find Your <span>Perfect</span> Therapist
             </h1>
