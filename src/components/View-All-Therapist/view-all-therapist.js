@@ -12,7 +12,6 @@ import { getDecodedToken } from "../../utils/jwt";
 export default function ViewAllTherapist() {
   const [data, setData] = React.useState([]);
   const [allData, setAllData] = React.useState([]);
-  const [count, setCount] = React.useState(0);
   const [search, setSearch] = React.useState("");
   const [favrioutes, setFavrioutes] = React.useState([]);
   const timeoutRef = React.useRef(null);
@@ -81,7 +80,6 @@ export default function ViewAllTherapist() {
         const res = await fetchData(getTherapistProfiles, filter);
         if (res?.data) {
           setAllData(res.data || []);
-          setCount(res.totalCount || res.data?.length || 0);
           setData(res.data?.slice(0, visibleCount) || []);
         }
       } catch (err) {
@@ -124,68 +122,87 @@ export default function ViewAllTherapist() {
     if (filter.year_of_exp) filtered = filtered.filter(i => (i.year_of_exp || "").trim() === filter.year_of_exp);
     if (filter.language_spoken) filtered = filtered.filter(i => i.language_spoken?.includes(filter.language_spoken));
     if (filter.state) filtered = filtered.filter(i => (i.state || "").toLowerCase() === filter.state.toLowerCase());
-
     setData(filtered.slice(0, visibleCount));
   }, [filter, allData, visibleCount]);
 
   const handleLoadMore = () => setVisibleCount(p => p + 6);
-
   const ro = (item) => typeof item === "string" ? item : item.label || item.value;
 
   return (
     <>
       <style suppressHydrationWarning>{`
-        /* ── Banner ─────────────────────────────────── */
+        /* ── Banner (title only) ─────────────────────── */
         .vat-banner {
           position: relative;
           background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
           background-size: cover;
           background-position: center;
           overflow: hidden;
-          padding: 64px 0 52px;
+          padding: 60px 0 48px;
         }
         .vat-banner::before {
-          content:'';
-          position:absolute;
-          inset:0;
+          content:''; position:absolute; inset:0;
           background: linear-gradient(135deg,rgba(10,46,28,.88) 0%,rgba(0,0,0,.65) 100%);
           z-index:1;
         }
         .vat-ban-inner { position:relative; z-index:2; text-align:center; }
-        .vat-ban-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:50px; padding:5px 16px; font-size:12px; font-weight:700; color:#fff; letter-spacing:.8px; text-transform:uppercase; margin-bottom:16px; }
-        .vat-ban-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; animation:vat-pulse 1.8s ease-in-out infinite; }
-        @keyframes vat-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-        .vat-ban-title { color:#fff; font-size:clamp(1.7rem,5vw,3rem); font-weight:900; margin:0 0 10px; line-height:1.15; }
+        .vat-ban-title { color:#fff; font-size:clamp(1.7rem,5vw,3rem); font-weight:900; margin:0 0 12px; line-height:1.15; }
         .vat-ban-title span { color:#86efac; }
-        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.85rem,2vw,1.05rem); margin:0 auto 28px; max-width:540px; line-height:1.65; font-weight:500; padding:0 12px; }
+        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.85rem,2vw,1.05rem); margin:0 auto 0; max-width:520px; line-height:1.65; font-weight:500; padding:0 12px; }
 
-        /* search card */
-        .vat-search-card { background:#fff; border-radius:20px; padding:22px 24px 18px; max-width:920px; margin:0 auto; box-shadow:0 16px 48px rgba(0,0,0,.25); }
-        .vat-search-wrap { position:relative; margin-bottom:16px; }
-        .vat-search-input { width:100%; padding:13px 50px 13px 18px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; background:#f8fafc; outline:none; color:#1e293b; transition:border-color .2s; box-sizing:border-box; }
+        /* ── Sticky filter bar ───────────────────────── */
+        .vat-sticky-bar {
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          background: #fff;
+          box-shadow: 0 2px 16px rgba(0,0,0,.10);
+          padding: 12px 0;
+          border-bottom: 1px solid #f1f5f9;
+        }
+        .vat-filter-inner {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .vat-search-wrap { position:relative; flex:1; min-width:0; }
+        .vat-search-input {
+          width:100%; padding:10px 42px 10px 16px;
+          border-radius:10px; border:1.5px solid #e2e8f0;
+          font-size:14px; background:#f8fafc; outline:none;
+          color:#1e293b; transition:border-color .2s; box-sizing:border-box;
+        }
         .vat-search-input:focus { border-color:#228756; background:#fff; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
-        .vat-search-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:#228756; color:#fff; border:none; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
-        .vat-search-btn i { font-size:14px; }
-
-        /* filter grid — desktop/tablet only */
-        .vat-filter-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px; }
-        .vat-fsel { width:100%; height:40px; border-radius:10px; border:1.5px solid #e8edf2; background:#f8fafc; font-size:13.5px; padding:0 10px; color:#475569; font-weight:600; outline:none; cursor:pointer; transition:border-color .2s; }
+        .vat-search-btn {
+          position:absolute; right:8px; top:50%; transform:translateY(-50%);
+          background:#228756; color:#fff; border:none;
+          width:30px; height:30px; border-radius:8px;
+          display:flex; align-items:center; justify-content:center;
+          cursor:pointer; flex-shrink:0;
+        }
+        .vat-search-btn i { font-size:13px; }
+        .vat-fsel {
+          height:40px; border-radius:10px; border:1.5px solid #e8edf2;
+          background:#f8fafc; font-size:13px; padding:0 10px;
+          color:#475569; font-weight:600; outline:none; cursor:pointer;
+          transition:border-color .2s; white-space:nowrap;
+        }
         .vat-fsel:focus { border-color:#228756; }
-
-        /* stats strip */
-        .vat-stats-strip { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:wrap; padding-top:4px; }
-        .vat-stat-item { display:flex; align-items:center; gap:5px; font-size:12.5px; color:#64748b; font-weight:600; padding:0 14px; }
-        .vat-stat-item:not(:last-child) { border-right:1px solid #e2e8f0; }
-        .vat-stat-item i { color:#228756; font-size:13px; }
-
-        /* reset pill */
-        .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:20px; cursor:pointer; margin-left:8px; }
+        .vat-fsel.active { border-color:#228756; background:#f0fdf4; color:#228756; }
+        .vat-reset-btn {
+          display:inline-flex; align-items:center; gap:4px;
+          font-size:12px; font-weight:700; color:#ef4444;
+          border:1px solid #fecaca; background:#fff5f5;
+          padding:0 12px; height:40px; border-radius:10px;
+          cursor:pointer; white-space:nowrap; flex-shrink:0;
+        }
 
         /* ── Results ─────────────────────────────────── */
-        .vat-results-wrap { padding:52px 0 60px; }
-        .vat-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:10px; }
+        .vat-results-wrap { padding:44px 0 60px; }
+        .vat-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px; }
         .vat-results-title { font-size:18px; font-weight:800; color:#1e293b; }
         .vat-results-count { font-size:14px; color:#64748b; font-weight:600; }
+        .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:20px; cursor:pointer; }
 
         /* loading skeleton */
         .vat-skeleton { border-radius:18px; background:#f8fafc; overflow:hidden; }
@@ -198,139 +215,75 @@ export default function ViewAllTherapist() {
         .vat-load-more { background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; border:none; padding:13px 44px; font-size:15px; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 6px 18px rgba(34,135,86,.25); transition:all .2s; }
         .vat-load-more:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(34,135,86,.3); }
 
-        /* ── Mobile: Filter FAB + Bottom Sheet ─────── */
+        /* ── Desktop filter selects ──────────────────── */
+        .vat-desk-filters { display:flex; align-items:center; gap:8px; }
+
+        /* ── Mobile overrides ────────────────────────── */
         .vat-filter-fab { display:none; }
         .vat-sheet-overlay { display:none; }
         .vat-sheet { display:none; }
 
         @media(max-width:767px){
-          .vat-banner { padding:36px 0 30px; }
-          .vat-filter-grid { display:none; }
-          .vat-stats-strip { display:none; }
-          .vat-search-card { padding:14px 14px 12px; border-radius:16px; }
-          .vat-search-input { font-size:14px; padding:11px 46px 11px 14px; }
-          .vat-search-btn { width:32px; height:32px; right:7px; }
+          .vat-banner { padding:36px 0 28px; }
+          .vat-sticky-bar { padding:10px 0; }
+          .vat-desk-filters { display:none; }
+          .vat-search-input { font-size:14px; }
           .vat-results-wrap { padding:24px 0 100px; }
           .vat-results-header { margin-bottom:14px; }
 
-          /* FAB filter button */
           .vat-filter-fab {
-            display:flex;
-            align-items:center;
-            gap:8px;
-            position:fixed;
-            bottom:20px;
-            left:50%;
-            transform:translateX(-50%);
+            display:flex; align-items:center; gap:8px;
+            position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
             z-index:300;
-            background:linear-gradient(135deg,#228756,#1a6b44);
-            color:#fff;
-            border:none;
-            padding:12px 24px;
-            border-radius:50px;
-            font-size:14px;
-            font-weight:700;
+            background:linear-gradient(135deg,#228756,#1a6b44); color:#fff;
+            border:none; padding:12px 24px; border-radius:50px;
+            font-size:14px; font-weight:700;
             box-shadow:0 6px 20px rgba(34,135,86,.4);
-            cursor:pointer;
-            white-space:nowrap;
-            transition:transform .2s, box-shadow .2s;
+            cursor:pointer; white-space:nowrap;
           }
           .vat-filter-fab:active { transform:translateX(-50%) scale(.96); }
           .vat-fab-badge {
-            background:#fff;
-            color:#228756;
-            font-size:11px;
-            font-weight:800;
-            width:18px;
-            height:18px;
-            border-radius:50%;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
+            background:#fff; color:#228756; font-size:11px; font-weight:800;
+            width:18px; height:18px; border-radius:50%;
+            display:inline-flex; align-items:center; justify-content:center;
           }
 
-          /* Bottom sheet overlay */
           .vat-sheet-overlay {
-            display:block;
-            position:fixed;
-            inset:0;
-            z-index:400;
-            background:rgba(0,0,0,.5);
-            backdrop-filter:blur(2px);
-            opacity:0;
-            pointer-events:none;
-            transition:opacity .25s;
+            display:block; position:fixed; inset:0; z-index:400;
+            background:rgba(0,0,0,.5); backdrop-filter:blur(2px);
+            opacity:0; pointer-events:none; transition:opacity .25s;
           }
           .vat-sheet-overlay.open { opacity:1; pointer-events:all; }
 
-          /* Bottom sheet panel */
           .vat-sheet {
-            display:block;
-            position:fixed;
-            bottom:0;
-            left:0;
-            right:0;
-            z-index:500;
-            background:#fff;
-            border-radius:22px 22px 0 0;
+            display:block; position:fixed; bottom:0; left:0; right:0;
+            z-index:500; background:#fff; border-radius:22px 22px 0 0;
             padding:0 0 env(safe-area-inset-bottom,0);
             transform:translateY(100%);
             transition:transform .3s cubic-bezier(.4,0,.2,1);
-            max-height:85vh;
-            overflow-y:auto;
+            max-height:85vh; overflow-y:auto;
           }
           .vat-sheet.open { transform:translateY(0); }
-
-          .vat-sheet-handle {
-            width:40px; height:4px; border-radius:2px;
-            background:#e2e8f0; margin:12px auto 0; display:block;
-          }
-          .vat-sheet-head {
-            display:flex; align-items:center; justify-content:space-between;
-            padding:16px 20px 12px;
-            border-bottom:1px solid #f1f5f9;
-          }
+          .vat-sheet-handle { width:40px; height:4px; border-radius:2px; background:#e2e8f0; margin:12px auto 0; display:block; }
+          .vat-sheet-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid #f1f5f9; }
           .vat-sheet-head h5 { margin:0; font-size:16px; font-weight:800; color:#1e293b; }
-          .vat-sheet-close {
-            width:30px; height:30px; border-radius:50%; border:none;
-            background:#f1f5f9; color:#64748b;
-            display:flex; align-items:center; justify-content:center;
-            cursor:pointer; font-size:16px;
-          }
+          .vat-sheet-close { width:30px; height:30px; border-radius:50%; border:none; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; cursor:pointer; }
           .vat-sheet-body { padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
           .vat-sheet-label { font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
-          .vat-sheet-sel {
-            width:100%; height:46px; border-radius:12px;
-            border:1.5px solid #e8edf2; background:#f8fafc;
-            font-size:14px; padding:0 14px; color:#1e293b;
-            font-weight:600; outline:none; cursor:pointer;
-          }
+          .vat-sheet-sel { width:100%; height:46px; border-radius:12px; border:1.5px solid #e8edf2; background:#f8fafc; font-size:14px; padding:0 14px; color:#1e293b; font-weight:600; outline:none; cursor:pointer; }
           .vat-sheet-sel:focus { border-color:#228756; }
           .vat-sheet-sel.active { border-color:#228756; background:#f0fdf4; color:#228756; }
-          .vat-sheet-footer {
-            display:flex; gap:10px; padding:14px 20px 20px;
-            border-top:1px solid #f1f5f9;
-          }
-          .vat-sheet-clear {
-            flex:1; height:46px; border-radius:12px;
-            border:1.5px solid #e2e8f0; background:#fff;
-            color:#64748b; font-size:14px; font-weight:700;
-            cursor:pointer;
-          }
-          .vat-sheet-apply {
-            flex:2; height:46px; border-radius:12px; border:none;
-            background:linear-gradient(135deg,#228756,#1a6b44);
-            color:#fff; font-size:14px; font-weight:800;
-            cursor:pointer; box-shadow:0 4px 12px rgba(34,135,86,.3);
-          }
+          .vat-sheet-footer { display:flex; gap:10px; padding:14px 20px 20px; border-top:1px solid #f1f5f9; }
+          .vat-sheet-clear { flex:1; height:46px; border-radius:12px; border:1.5px solid #e2e8f0; background:#fff; color:#64748b; font-size:14px; font-weight:700; cursor:pointer; }
+          .vat-sheet-apply { flex:2; height:46px; border-radius:12px; border:none; background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(34,135,86,.3); }
         }
 
-        @media(min-width:768px) and (max-width:991px){
-          .vat-filter-grid { grid-template-columns:repeat(3,1fr); }
+        @media(min-width:768px) and (max-width:1100px){
+          .vat-fsel { font-size:12px; padding:0 7px; }
         }
       `}</style>
 
-      {/* ── Banner ────────────────────────────────────── */}
+      {/* ── Banner: title + subtitle only ─────────────── */}
       <div className="vat-banner">
         <div className="container">
           <div className="vat-ban-inner">
@@ -340,47 +293,60 @@ export default function ViewAllTherapist() {
             <p className="vat-ban-sub">
               Browse verified mental health professionals across India. Filter by expertise, language, or location.
             </p>
+          </div>
+        </div>
+      </div>
 
-            {/* Search + filter card */}
-            <div className="vat-search-card">
-              <div className="vat-search-wrap">
-                <input
-                  type="text"
-                  className="vat-search-input"
-                  placeholder="Search by name, concern, or language..."
-                  value={search}
-                  onChange={handleSearchChange}
-                />
-                <button className="vat-search-btn" type="button">
-                  <i className="feather-search"></i>
-                </button>
-              </div>
+      {/* ── Sticky filter bar ─────────────────────────── */}
+      <div className="vat-sticky-bar">
+        <div className="container">
+          <div className="vat-filter-inner">
 
-              {/* Filter selects — desktop/tablet only */}
-              <div className="vat-filter-grid">
-                <select name="profile_type" value={filter.profile_type} onChange={handleChange} className="vat-fsel">
-                  <option value="">Profile Type</option>
-                  {profileTypeOptions.map((item, i) => <option key={i} value={item.value}>{ro(item)}</option>)}
-                </select>
-                <select name="services" value={filter.services} onChange={handleChange} className="vat-fsel">
-                  <option value="">Specialty</option>
-                  {services.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
-                </select>
-                <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className="vat-fsel">
-                  <option value="">Experience</option>
-                  {ExpList.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
-                </select>
-                <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className="vat-fsel">
-                  <option value="">Language</option>
-                  {languageSpoken.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
-                </select>
-                <select name="state" value={filter.state} onChange={handleChange} className="vat-fsel">
-                  <option value="">State</option>
-                  {stateList.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
-                </select>
-              </div>
-
+            {/* Search */}
+            <div className="vat-search-wrap">
+              <input
+                type="text"
+                className="vat-search-input"
+                placeholder="Search by name, concern, or language..."
+                value={search}
+                onChange={handleSearchChange}
+              />
+              <button className="vat-search-btn" type="button">
+                <i className="feather-search"></i>
+              </button>
             </div>
+
+            {/* Desktop filter selects */}
+            <div className="vat-desk-filters">
+              <select name="profile_type" value={filter.profile_type} onChange={handleChange} className={`vat-fsel${filter.profile_type ? " active" : ""}`}>
+                <option value="">Type</option>
+                {profileTypeOptions.map((item, i) => <option key={i} value={item.value}>{ro(item)}</option>)}
+              </select>
+              <select name="services" value={filter.services} onChange={handleChange} className={`vat-fsel${filter.services ? " active" : ""}`}>
+                <option value="">Specialty</option>
+                {services.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
+              </select>
+              <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className={`vat-fsel${filter.year_of_exp ? " active" : ""}`}>
+                <option value="">Experience</option>
+                {ExpList.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
+              </select>
+              <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className={`vat-fsel${filter.language_spoken ? " active" : ""}`}>
+                <option value="">Language</option>
+                {languageSpoken.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
+              </select>
+              <select name="state" value={filter.state} onChange={handleChange} className={`vat-fsel${filter.state ? " active" : ""}`}>
+                <option value="">State</option>
+                {stateList.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
+              </select>
+
+              {hasFilter && (
+                <button className="vat-reset-btn" onClick={resetFilters}>
+                  <i className="feather-x" style={{ fontSize: 11 }}></i>
+                  Clear
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
       </div>
@@ -424,9 +390,7 @@ export default function ViewAllTherapist() {
         </div>
         <div className="vat-sheet-footer">
           <button className="vat-sheet-clear" onClick={clearSheet}>Clear All</button>
-          <button className="vat-sheet-apply" onClick={applySheet}>
-            Show Results
-          </button>
+          <button className="vat-sheet-apply" onClick={applySheet}>Show Results</button>
         </div>
       </div>
 
