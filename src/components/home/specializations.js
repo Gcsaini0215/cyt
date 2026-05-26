@@ -81,21 +81,24 @@ export default function Specializations() {
         .sp-sub { color:#64748b; font-size:15px; margin:0; }
 
         /* search */
-        .sp-search-wrap { position:relative; display:flex; align-items:center; }
-        .sp-search-ic {
-          position:absolute; left:14px; top:50%; transform:translateY(-50%);
-          color:#94a3b8; font-size:15px; pointer-events:none; z-index:1;
-          display:flex; align-items:center;
+        .sp-search-wrap { display:flex; align-items:center; }
+        .sp-search-box {
+          display:flex; align-items:center; gap:8px;
+          border:1.5px solid #e2e8f0; border-radius:12px;
+          background:#fff; padding:0 14px;
+          width:240px; transition:border-color .2s, box-shadow .2s;
         }
+        .sp-search-box:focus-within {
+          border-color:#228756;
+          box-shadow:0 0 0 3px rgba(34,135,86,.08);
+        }
+        .sp-search-ic { color:#94a3b8; font-size:15px; flex-shrink:0; line-height:1; }
         .sp-search {
-          padding:11px 16px 11px 42px; border-radius:12px;
-          border:1.5px solid #e2e8f0; background:#fff;
-          font-size:14px; color:#1e293b; outline:none;
-          width:240px; transition:border-color .2s;
-          box-sizing:border-box; line-height:1.4;
+          border:none; background:transparent; outline:none;
+          padding:11px 0; font-size:14px; color:#1e293b;
+          width:100%; line-height:1.4;
         }
         .sp-search::placeholder { color:#b0bec5; }
-        .sp-search:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,.08); background:#fff; }
 
         /* ── Category pills ───────────────────────────── */
         .sp-pills {
@@ -175,7 +178,7 @@ export default function Specializations() {
         /* ── Mobile ───────────────────────────────────── */
         @media(max-width:767px){
           .sp-header { flex-direction:column; gap:14px; }
-          .sp-search { width:100%; box-sizing:border-box; }
+          .sp-search-box { width:100%; }
           .sp-search-wrap { width:100%; }
           .sp-card-top { height:64px; }
           .sp-icon-wrap { width:44px; height:44px; border-radius:12px; bottom:-18px; }
@@ -195,16 +198,16 @@ export default function Specializations() {
             <p className="sp-sub">Find the right expert for your specific concern</p>
           </div>
           <div className="sp-search-wrap">
-            <span className="sp-search-ic">
-              <i className="feather-search"></i>
-            </span>
-            <input
-              type="text"
-              className="sp-search"
-              placeholder="Search concerns..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <div className="sp-search-box">
+              <i className="feather-search sp-search-ic"></i>
+              <input
+                type="text"
+                className="sp-search"
+                placeholder="Search concerns..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
