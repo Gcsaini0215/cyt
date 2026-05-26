@@ -6,7 +6,7 @@ const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=480&h=200&fit=crop&q=80",
+    img: "https://i.pinimg.com/736x/2c/2d/9f/2c2d9fe8045435ef1de64cc83def5cca.jpg",
     accent: "#065f46", tagBg: "#d1fae5", tagColor: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
