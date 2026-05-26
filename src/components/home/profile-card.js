@@ -92,36 +92,23 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
   }, []);
   return (
     <div className="rbt-rbt-card-area rbt-section-gap" style={{
-      background: 'linear-gradient(180deg, #f0fdf4 0%, #e6f4ea 50%, #f0fdf4 100%)',
+      background: '#071a10',
       position: 'relative',
       overflow: 'hidden',
       padding: '80px 0 60px'
     }}>
-      {/* Wave transition at top */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        lineHeight: 0,
-        transform: 'rotate(180deg)'
-      }}>
-        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ width: '100%', height: '60px', fill: '#ffffff' }}>
-          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V120c68.47-14.46,140.24-21.41,210.45-12.09,60.2,8,118,25.43,178.61,23.32,54.12-1.89,103.52-21,154.77-33.87,51.25-12.87,105.15-20.41,158-11.88,52.85,8.53,101.45,34.1,153.6,33.56,52.15-.54,101.52-25.13,153.37-23.07C1100.86,110.15,1151,126.31,1200,120V0H0V120Z" opacity=".1"></path>
-        </svg>
-      </div>
-
       {/* Decorative Blur Blobs */}
       <div style={{
-        position: 'absolute',
-        top: '20%',
-        left: '10%',
-        width: '300px',
-        height: '300px',
-        background: 'rgba(139, 94, 60, 0.12)',
-        filter: 'blur(80px)',
-        borderRadius: '50%',
-        pointerEvents: 'none'
+        position: 'absolute', top: '-60px', right: '5%',
+        width: '360px', height: '360px',
+        background: 'rgba(34,135,86,.08)', filter: 'blur(90px)',
+        borderRadius: '50%', pointerEvents: 'none'
+      }}></div>
+      <div style={{
+        position: 'absolute', bottom: '0', left: '3%',
+        width: '260px', height: '260px',
+        background: 'rgba(74,222,128,.05)', filter: 'blur(70px)',
+        borderRadius: '50%', pointerEvents: 'none'
       }}></div>
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
@@ -129,10 +116,10 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
           <div className="col-lg-12">
             <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
-                <h3 className="title" style={{ 
-                  fontSize: isMobile ? "2.8rem" : "4.5rem", 
-                  fontWeight: "900", 
-                  color: "#000000",
+                <h3 className="title" style={{
+                  fontSize: isMobile ? "2.8rem" : "4.5rem",
+                  fontWeight: "900",
+                  color: "#f1f5f9",
                   marginTop: '0px',
                   lineHeight: isMobile ? '3.2rem' : '1.1',
                   whiteSpace: isMobile ? "normal" : "nowrap",
@@ -141,9 +128,9 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
                   padding: 0,
                   flex: '1'
                 }}>
-                  Best Online Psychologists {isMobile && <br />} From <span style={{ 
-                    backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
-                    WebkitBackgroundClip: "text", 
+                  Best Online Psychologists {isMobile && <br />} From <span style={{
+                    backgroundImage: "linear-gradient(135deg, #4ade80 0%, #34d399 50%, #22d3ee 100%)",
+                    WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     color: "transparent"
@@ -176,10 +163,10 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
                   </Link>
                 </div>
               </div>
-              <p style={{ 
-                fontSize: isMobile ? '1.4rem' : '1.5rem', 
-                color: '#444', 
-                maxWidth: '850px', 
+              <p style={{
+                fontSize: isMobile ? '1.4rem' : '1.5rem',
+                color: '#94a3b8',
+                maxWidth: '850px',
                 margin: '0',
                 lineHeight: '1.6',
                 fontWeight: '500',
