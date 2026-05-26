@@ -383,20 +383,6 @@ export default function ViewAllTherapist() {
                 </select>
               </div>
 
-              {/* Stats strip */}
-              <div className="vat-stats-strip">
-                {[
-                  ["feather-users", `${allData.length || "500"}+ Therapists`],
-                  ["feather-check-circle", "Verified Profiles"],
-                  ["feather-map-pin", "Pan India"],
-                  ["feather-globe", "Multiple Languages"],
-                ].map(([icon, text]) => (
-                  <div className="vat-stat-item" key={text}>
-                    <i className={icon}></i>
-                    <span>{text}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
