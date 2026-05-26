@@ -13,6 +13,26 @@ import {
 import { getDecodedToken } from "../../utils/jwt";
 import StarIcon from "@mui/icons-material/Star";
 
+const typeColors = {
+  psychologist:  { bg: "#dbeafe", color: "#1d4ed8", border: "#bfdbfe" },
+  counsellor:    { bg: "#ede9fe", color: "#6d28d9", border: "#ddd6fe" },
+  counselor:     { bg: "#ede9fe", color: "#6d28d9", border: "#ddd6fe" },
+  therapist:     { bg: "#f0fdf4", color: "#166534", border: "#bbf7d0" },
+  psychiatrist:  { bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" },
+  "life coach":  { bg: "#fef9c3", color: "#92400e", border: "#fde68a" },
+  coach:         { bg: "#fef9c3", color: "#92400e", border: "#fde68a" },
+  default:       { bg: "#f1f5f9", color: "#475569", border: "#e2e8f0" },
+};
+
+function getTypeColor(profileType) {
+  if (!profileType) return typeColors.default;
+  const key = profileType.toLowerCase();
+  for (const k of Object.keys(typeColors)) {
+    if (key.includes(k)) return typeColors[k];
+  }
+  return typeColors.default;
+}
+
 export default function ProfileCardVert({ data, favrioutes }) {
   const [bookmark, setBookmark] = useState(favrioutes?.includes(data._id) || false);
   const [showBookmark, setShowBookmark] = useState(true);
@@ -142,12 +162,13 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
         /* type badge */
         .vtc-type {
-          display: inline-flex; align-items: center; gap: 4px;
-          background: #f0fdf4; color: #166534;
-          font-size: 11px; font-weight: 700;
-          padding: 3px 9px; border-radius: 20px;
-          border: 1px solid #bbf7d0;
-          width: fit-content;
+          display: inline-flex; align-items: center; gap: 5px;
+          font-size: 11.5px; font-weight: 700;
+          padding: 4px 10px; border-radius: 20px;
+          width: fit-content; letter-spacing: .2px;
+        }
+        .vtc-type-dot {
+          width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
         }
 
         /* rating row */
@@ -259,10 +280,15 @@ export default function ProfileCardVert({ data, favrioutes }) {
           </div>
 
           {/* Profile type */}
-          <span className="vtc-type">
-            <i className="feather-user" style={{ fontSize: 10 }}></i>
-            {data.profile_type}
-          </span>
+          {data.profile_type && (() => {
+            const tc = getTypeColor(data.profile_type);
+            return (
+              <span className="vtc-type" style={{ background: tc.bg, color: tc.color, border: `1px solid ${tc.border}` }}>
+                <span className="vtc-type-dot" style={{ background: tc.color }}></span>
+                {data.profile_type}
+              </span>
+            );
+          })()}
 
           {/* Rating */}
           {avgRating && (
