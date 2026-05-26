@@ -6,49 +6,57 @@ const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    emoji: "😰", color: "#a7f3d0", accent: "#065f46",
+    img: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=480&h=200&fit=crop&q=80",
+    accent: "#065f46", tagBg: "#d1fae5", tagColor: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
   },
   {
     id: 2, title: "Depression", cat: "Mental Health", popular: true,
-    emoji: "🌧️", color: "#dbeafe", accent: "#1e40af",
+    img: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=480&h=200&fit=crop&q=80",
+    accent: "#1e40af", tagBg: "#dbeafe", tagColor: "#1e40af",
     short: "Overcome low mood and find hope with professional support.",
     link: "/view-all-therapist?services=Depression",
   },
   {
     id: 3, title: "Relationships", cat: "Relationships", popular: true,
-    emoji: "💑", color: "#fecaca", accent: "#991b1b",
+    img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=480&h=200&fit=crop&q=80",
+    accent: "#991b1b", tagBg: "#fee2e2", tagColor: "#991b1b",
     short: "Build healthier connections and resolve conflicts.",
     link: "/view-all-therapist?services=Relationship",
   },
   {
     id: 4, title: "Stress", cat: "Mental Health", popular: false,
-    emoji: "😫", color: "#bbf7d0", accent: "#1a6b44",
+    img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=480&h=200&fit=crop&q=80",
+    accent: "#1a6b44", tagBg: "#dcfce7", tagColor: "#1a6b44",
     short: "Tackle burnout and find balance in daily life.",
     link: "/view-all-therapist?services=Stress",
   },
   {
     id: 5, title: "OCD", cat: "Mental Health", popular: false,
-    emoji: "🔄", color: "#fde68a", accent: "#92400e",
+    img: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=480&h=200&fit=crop&q=80",
+    accent: "#92400e", tagBg: "#fef3c7", tagColor: "#92400e",
     short: "Break the cycle of obsessive thoughts and compulsions.",
     link: "/view-all-therapist?services=OCD",
   },
   {
     id: 6, title: "Trauma & PTSD", cat: "Mental Health", popular: false,
-    emoji: "🩹", color: "#99f6e4", accent: "#0f766e",
+    img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=480&h=200&fit=crop&q=80",
+    accent: "#0f766e", tagBg: "#ccfbf1", tagColor: "#0f766e",
     short: "Heal from past trauma and emotional abuse safely.",
     link: "/view-all-therapist?services=Trauma",
   },
   {
     id: 7, title: "Parenting", cat: "Family", popular: false,
-    emoji: "👨‍👧", color: "#fed7aa", accent: "#9a3412",
+    img: "https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=480&h=200&fit=crop&q=80",
+    accent: "#9a3412", tagBg: "#ffedd5", tagColor: "#9a3412",
     short: "Expert guidance on child behavior and family dynamics.",
     link: "/view-all-therapist?services=Parenting",
   },
   {
     id: 8, title: "Career", cat: "Work", popular: false,
-    emoji: "💼", color: "#d9f99d", accent: "#3f6212",
+    img: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=480&h=200&fit=crop&q=80",
+    accent: "#3f6212", tagBg: "#ecfccb", tagColor: "#3f6212",
     short: "Support for career transitions and workplace wellbeing.",
     link: "/view-all-therapist?services=Career",
   },
@@ -132,41 +140,48 @@ export default function Specializations() {
           border-color:transparent;
         }
 
-        /* colored top strip */
+        /* image top */
         .sp-card-top {
-          height:78px; flex-shrink:0;
-          position:relative;
+          height:150px; flex-shrink:0;
+          position:relative; overflow:hidden;
+        }
+        .sp-card-img {
+          width:100%; height:100%; object-fit:cover;
+          transition:transform .5s ease;
+          display:block;
+        }
+        .sp-card:hover .sp-card-img { transform:scale(1.07); }
+        .sp-card-overlay {
+          position:absolute; inset:0;
+          background:linear-gradient(to top, rgba(0,0,0,.35) 0%, transparent 60%);
         }
         .sp-popular-badge {
-          position:absolute; top:12px; right:12px;
-          background:rgba(255,255,255,.9); color:#228756;
+          position:absolute; top:10px; right:10px;
+          background:rgba(255,255,255,.92); color:#228756;
           font-size:10px; font-weight:800;
           padding:3px 9px; border-radius:20px;
           border:1px solid rgba(34,135,86,.2);
-          letter-spacing:.4px;
+          letter-spacing:.4px; backdrop-filter:blur(4px);
         }
-        /* emoji badge overlapping the strip */
-        .sp-icon-wrap {
-          position:absolute; bottom:-22px; left:18px;
-          width:52px; height:52px; border-radius:15px;
-          background:#fff;
-          display:flex; align-items:center; justify-content:center;
-          box-shadow:0 6px 20px rgba(0,0,0,.13);
-          z-index:2; font-size:28px; line-height:1;
-          user-select:none;
+        .sp-cat-pill {
+          position:absolute; bottom:10px; left:12px;
+          font-size:10px; font-weight:800;
+          padding:3px 10px; border-radius:20px;
+          letter-spacing:.3px; backdrop-filter:blur(4px);
         }
 
         /* card body */
         .sp-card-body {
-          padding:30px 18px 18px;
-          flex:1; display:flex; flex-direction:column; gap:7px;
+          padding:14px 16px 16px;
+          flex:1; display:flex; flex-direction:column; gap:6px;
         }
-        .sp-card-title { font-size:15.5px; font-weight:800; color:#1e293b; margin:0; }
-        .sp-card-desc { font-size:13px; color:#64748b; line-height:1.55; margin:0; flex:1; }
+        .sp-card-title { font-size:15px; font-weight:800; color:#1e293b; margin:0; }
+        .sp-card:hover .sp-card-title { color:#228756; }
+        .sp-card-desc { font-size:12.5px; color:#64748b; line-height:1.55; margin:0; flex:1; }
         .sp-card-cta {
           display:inline-flex; align-items:center; gap:5px;
-          font-size:12.5px; font-weight:700; color:#228756;
-          margin-top:6px;
+          font-size:12px; font-weight:700; color:#228756;
+          margin-top:4px;
         }
         .sp-card-cta i { font-size:12px; transition:transform .2s; }
         .sp-card:hover .sp-card-cta i { transform:translateX(4px); }
@@ -179,11 +194,10 @@ export default function Specializations() {
         @media(max-width:767px){
           .sp-header { flex-direction:column; gap:14px; }
           .sp-search-wrap { display:none; }
-          .sp-card-top { height:64px; }
-          .sp-icon-wrap { width:44px; height:44px; border-radius:12px; bottom:-18px; }
-          .sp-card-body { padding:26px 14px 14px; gap:6px; }
-          .sp-card-title { font-size:14px; }
-          .sp-card-desc { font-size:12px; }
+          .sp-card-top { height:120px; }
+          .sp-card-body { padding:10px 12px 12px; gap:5px; }
+          .sp-card-title { font-size:13.5px; }
+          .sp-card-desc { font-size:11.5px; }
         }
       `}</style>
 
@@ -236,14 +250,19 @@ export default function Specializations() {
                 <div key={s.id} className="col-lg-3 col-md-4 col-sm-6 col-6">
                   <Link href={s.link} className="sp-card">
 
-                    {/* Colored top strip */}
-                    <div className="sp-card-top" style={{ background: s.color }}>
-                      {s.popular && (
-                        <span className="sp-popular-badge">🔥 Popular</span>
-                      )}
-                      <div className="sp-icon-wrap">
-                        {s.emoji}
-                      </div>
+                    {/* Image top */}
+                    <div className="sp-card-top">
+                      <img
+                        src={s.img}
+                        alt={s.title}
+                        className="sp-card-img"
+                        loading="lazy"
+                      />
+                      <div className="sp-card-overlay"></div>
+                      {s.popular && <span className="sp-popular-badge">🔥 Popular</span>}
+                      <span className="sp-cat-pill" style={{ background: s.tagBg, color: s.tagColor }}>
+                        {s.cat}
+                      </span>
                     </div>
 
                     {/* Body */}
