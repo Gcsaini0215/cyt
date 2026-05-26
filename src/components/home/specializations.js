@@ -178,8 +178,7 @@ export default function Specializations() {
         /* ── Mobile ───────────────────────────────────── */
         @media(max-width:767px){
           .sp-header { flex-direction:column; gap:14px; }
-          .sp-search-box { width:100%; }
-          .sp-search-wrap { width:100%; }
+          .sp-search-wrap { display:none; }
           .sp-card-top { height:64px; }
           .sp-icon-wrap { width:44px; height:44px; border-radius:12px; bottom:-18px; }
           .sp-card-body { padding:26px 14px 14px; gap:6px; }
