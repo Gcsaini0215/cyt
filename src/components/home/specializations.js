@@ -7,49 +7,49 @@ const CATS = ["All", "Mental Health", "Relationships", "Work", "Family"];
 const specs = [
   {
     id: 1, title: "Anxiety", cat: "Mental Health", popular: true,
-    Icon: Brain, color: "#dbeafe", accent: "#1d4ed8",
+    Icon: Brain, color: "#d1fae5", accent: "#065f46",
     short: "Manage stress, worry, and panic attacks with expert help.",
     link: "/view-all-therapist?services=Anxiety",
   },
   {
     id: 2, title: "Depression", cat: "Mental Health", popular: true,
-    Icon: CloudRain, color: "#ede9fe", accent: "#6d28d9",
+    Icon: CloudRain, color: "#c7f0d8", accent: "#166534",
     short: "Overcome low mood and find hope with professional support.",
     link: "/view-all-therapist?services=Depression",
   },
   {
     id: 3, title: "Relationships", cat: "Relationships", popular: true,
-    Icon: Heart, color: "#fee2e2", accent: "#dc2626",
+    Icon: Heart, color: "#fde8d8", accent: "#9a3412",
     short: "Build healthier connections and resolve conflicts.",
     link: "/view-all-therapist?services=Relationship",
   },
   {
     id: 4, title: "Stress", cat: "Mental Health", popular: false,
-    Icon: Activity, color: "#dcfce7", accent: "#16a34a",
+    Icon: Activity, color: "#d4f4e2", accent: "#1a6b44",
     short: "Tackle burnout and find balance in daily life.",
     link: "/view-all-therapist?services=Stress",
   },
   {
     id: 5, title: "OCD", cat: "Mental Health", popular: false,
-    Icon: Zap, color: "#fef9c3", accent: "#ca8a04",
+    Icon: Zap, color: "#fef3c7", accent: "#92400e",
     short: "Break the cycle of obsessive thoughts and compulsions.",
     link: "/view-all-therapist?services=OCD",
   },
   {
     id: 6, title: "Trauma & PTSD", cat: "Mental Health", popular: false,
-    Icon: Stethoscope, color: "#ccfbf1", accent: "#0d9488",
+    Icon: Stethoscope, color: "#ccf7e8", accent: "#065f46",
     short: "Heal from past trauma and emotional abuse safely.",
     link: "/view-all-therapist?services=Trauma",
   },
   {
     id: 7, title: "Parenting", cat: "Family", popular: false,
-    Icon: Users, color: "#fef3c7", accent: "#d97706",
+    Icon: Users, color: "#fde8cd", accent: "#7c2d12",
     short: "Expert guidance on child behavior and family dynamics.",
     link: "/view-all-therapist?services=Parenting",
   },
   {
     id: 8, title: "Career", cat: "Work", popular: false,
-    Icon: Briefcase, color: "#f1f5f9", accent: "#475569",
+    Icon: Briefcase, color: "#d6f5e3", accent: "#14532d",
     short: "Support for career transitions and workplace wellbeing.",
     link: "/view-all-therapist?services=Career",
   },
@@ -68,7 +68,7 @@ export default function Specializations() {
   });
 
   return (
-    <section style={{ background: "#f8fafc", padding: "64px 0 68px" }}>
+    <section style={{ background: "linear-gradient(160deg,#f0fdf4 0%,#fff 50%,#f0fdf4 100%)", padding: "64px 0 68px" }}>
       <style>{`
         /* ── Header ───────────────────────────────────── */
         .sp-header {
