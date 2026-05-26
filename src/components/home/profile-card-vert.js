@@ -11,58 +11,33 @@ import {
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import VerifiedIcon from "@mui/icons-material/Verified";
 import StarIcon from "@mui/icons-material/Star";
 
-import PersonIcon from "@mui/icons-material/Person";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-
-export default function ProfileCardVert(props) {
-  const { data, favrioutes } = props;
+export default function ProfileCardVert({ data, favrioutes }) {
   const [isMobile, setIsMobile] = useState(false);
   const [bookmark, setBookmark] = useState(favrioutes?.includes(data._id) || false);
   const [showBookmark, setShowBookmark] = useState(true);
   const [fees, setFees] = useState([]);
 
-  // Calculate rating
   const reviews = data.reviews || [];
   const reviewCount = reviews.length;
-  const averageRating = reviewCount > 0 
-    ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviewCount).toFixed(1)
-    : 0;
+  const avgRating = reviewCount > 0
+    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviewCount).toFixed(1)
+    : null;
+
+  const serviceChips = data.services
+    ? data.services.split(",").map(s => s.trim()).filter(Boolean).slice(0, 2)
+    : [];
+
+  const firstLang = data.language_spoken?.split(",")[0]?.trim() || "";
 
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 600px)");
-    setIsMobile(query.matches);
-    const handle = (e) => setIsMobile(e.matches);
-    query.addListener(handle);
-    return () => query.removeListener(handle);
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const h = (e) => setIsMobile(e.matches);
+    mq.addListener(h);
+    return () => mq.removeListener(h);
   }, []);
-
-  const handleBookmark = (id, value) => {
-    setBookmark((prev) => !prev);
-    if (!value) addFavrioute(id);
-    else removeFavrioute(id);
-  };
-
-  const addFavrioute = async (id) => {
-    try {
-      const response = await postData(InsertFavriouteTherapistUrl, { therapistId: id });
-      return !!response.status;
-    } catch {
-      return false;
-    }
-  };
-
-  const removeFavrioute = async (id) => {
-    try {
-      const response = await postData(RemoveFavriouteTherapistUrl, { therapistId: id });
-      return !!response.status;
-    } catch {
-      return false;
-    }
-  };
 
   useEffect(() => {
     const token = getDecodedToken();
@@ -71,173 +46,142 @@ export default function ProfileCardVert(props) {
     setFees(data.fees || []);
   }, [data, favrioutes]);
 
+  const handleBookmark = (id, val) => {
+    setBookmark(p => !p);
+    if (!val) postData(InsertFavriouteTherapistUrl, { therapistId: id }).catch(() => {});
+    else postData(RemoveFavriouteTherapistUrl, { therapistId: id }).catch(() => {});
+  };
+
+  const price = getMinMaxPrice(fees);
+
   return (
-    <div className="swiper-slide">
+    <div className="vtc-root">
       <style>{`
-        .therapist-premium-card:hover .therapist-img {
-          transform: scale(1.08);
+        .vtc-root { height: 100%; }
+        .vtc-card { border-radius:18px; background:#fff; border:1px solid #f1f5f9; box-shadow:0 4px 20px rgba(0,0,0,.05); overflow:hidden; display:flex; flex-direction:column; height:100%; transition:transform .25s,box-shadow .25s,border-color .25s; }
+        .vtc-card:hover { transform:translateY(-5px); box-shadow:0 12px 36px rgba(0,0,0,.1); border-color:#c7ecd8; }
+        .vtc-img-box { position:relative; overflow:hidden; flex-shrink:0; }
+        .vtc-img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; object-position:center top; transition:transform .45s ease; }
+        .vtc-card:hover .vtc-img { transform:scale(1.06); }
+        .vtc-grad { position:absolute; bottom:0; left:0; right:0; height:55%; background:linear-gradient(to top,rgba(0,0,0,.5),transparent); pointer-events:none; }
+        .vtc-price { position:absolute; bottom:10px; left:12px; background:#fff; color:#1e293b; font-size:13px; font-weight:800; padding:4px 10px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.15); z-index:2; }
+        .vtc-badge { position:absolute; top:10px; left:10px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; color:#fff; z-index:2; backdrop-filter:blur(6px); }
+        .vtc-badge.rec { background:rgba(34,135,86,.88); }
+        .vtc-badge.ver { background:rgba(37,99,235,.88); }
+        .vtc-body { padding:16px; display:flex; flex-direction:column; gap:10px; flex:1; }
+        .vtc-name { font-size:17px; font-weight:800; color:#1e293b; text-decoration:none; line-height:1.2; }
+        .vtc-name:hover { color:#228756; }
+        .vtc-type { display:inline-flex; align-items:center; gap:4px; background:#f0fdf4; color:#228756; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; }
+        .vtc-loc { font-size:12px; color:#64748b; font-weight:600; display:flex; align-items:center; gap:3px; }
+        .vtc-pill { background:#f8fafc; color:#475569; font-size:12px; font-weight:600; padding:4px 10px; border-radius:8px; display:flex; align-items:center; gap:5px; border:1px solid #f1f5f9; }
+        .vtc-pill i { color:#228756; font-size:12px; }
+        .vtc-chip { background:#f0fdf4; color:#166534; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; }
+        .vtc-bk { border:none; background:#f8fafc; width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background .2s; border:1px solid #f1f5f9; }
+        .vtc-bk:hover { background:#fff7ed; }
+        .vtc-star { display:flex; align-items:center; gap:2px; background:#fffbeb; border:1px solid #fde68a; padding:2px 7px; border-radius:20px; }
+        .vtc-btn-row { display:flex; gap:8px; margin-top:auto; padding-top:4px; }
+        .vtc-btn-out { flex:1; text-align:center; padding:9px 0; border-radius:10px; border:1.5px solid #e2e8f0; color:#475569; font-weight:700; font-size:13px; text-decoration:none; transition:all .2s; }
+        .vtc-btn-out:hover { border-color:#228756; color:#228756; }
+        .vtc-btn-fill { flex:1; text-align:center; padding:9px 0; border-radius:10px; background:#228756; color:#fff; font-weight:700; font-size:13px; text-decoration:none; transition:all .2s; box-shadow:0 4px 12px rgba(34,135,86,.22); }
+        .vtc-btn-fill:hover { background:#1a6b44; transform:translateY(-1px); box-shadow:0 6px 16px rgba(34,135,86,.3); }
+
+        /* ── Mobile: horizontal card ─────────────── */
+        @media(max-width:767px){
+          .vtc-card { flex-direction:row; height:auto; }
+          .vtc-img-box { width:120px; min-height:150px; flex-shrink:0; border-radius:0; }
+          .vtc-img { width:120px; height:100%; aspect-ratio:unset; }
+          .vtc-grad { height:40%; }
+          .vtc-price { font-size:11px; padding:2px 7px; bottom:7px; left:7px; }
+          .vtc-badge { font-size:10px; padding:2px 7px; top:7px; left:7px; }
+          .vtc-body { padding:13px 13px 13px 14px; gap:7px; }
+          .vtc-name { font-size:15px; }
+          .vtc-chips-mob { display:none; }
+          .vtc-pill { font-size:11px; padding:3px 8px; }
+          .vtc-btn-row { gap:6px; }
+          .vtc-btn-out, .vtc-btn-fill { font-size:12px; padding:7px 0; border-radius:8px; }
         }
       `}</style>
-      <div
-        className="rbt-card variation-01 therapist-premium-card"
-        style={{
-          borderRadius: "20px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          backgroundColor: "#fff",
-          display: "flex",
-          flexDirection: "column",
-          border: "1px solid #f1f5f9",
-          overflow: "hidden",
-          height: "100%",
-          color: "#1e293b"
-        }}
-      >
-        <div className="card-image-wrap" style={{ position: "relative", overflow: "hidden" }}>
-          <Link href={`/view-profile/${data._id}`} style={{ display: "block" }}>
+
+      <div className="vtc-card">
+        {/* ── Image ───────────────────────────── */}
+        <div className="vtc-img-box">
+          <Link href={`/view-profile/${data._id}`}>
             <ImageTag
-              alt={data.user?.name}
-              className="therapist-img"
-              style={{
-                display: "block",
-                width: "100%",
-                height: isMobile ? "320px" : "260px",
-                objectFit: "cover",
-                objectPosition: "center",
-                transition: "transform 0.5s ease"
-              }}
+              alt={data.user?.name || "Therapist"}
+              className="vtc-img"
               src={`${imagePath}/${data.user?.profile}`}
             />
-            {/* Gradient Overlay for better badge visibility */}
-            <div style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: "60%",
-              background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)",
-              zIndex: 1,
-              pointerEvents: "none"
-            }}></div>
-
-            <div
-              className="badge-container"
-              style={{
-                position: "absolute",
-                top: "12px",
-                left: "12px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px",
-                zIndex: 2
-              }}
-            >
-              {data.priority === 1 && (
-                <span className="premium-badge recommended">
-                  <ThumbUpIcon sx={{ fontSize: 14 }} /> Recommended
-                </span>
-              )}
-              {data.priority === 2 && (
-                <span className="premium-badge verified">
-                  <VerifiedIcon sx={{ fontSize: 14 }} /> Verified
-                </span>
-              )}
-            </div>
-            
-            <div className="price-overlay-badge">
-              {getMinMaxPrice(fees)}
-            </div>
+            <div className="vtc-grad"></div>
+            <div className="vtc-price">{price}</div>
+            {data.priority === 1 && <span className="vtc-badge rec">★ Recommended</span>}
+            {data.priority === 2 && <span className="vtc-badge ver">✓ Verified</span>}
           </Link>
         </div>
 
-        <div className="card-body-content" style={{ padding: isMobile ? "16px" : "20px", display: "flex", flexDirection: "column", gap: "10px", flexGrow: 1 }}>
-          <div className="card-top-info" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div className="name-type-wrap" style={{ flexGrow: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                <h4 className="therapist-name" style={{ fontWeight: "800", fontSize: isMobile ? "18px" : "20px", margin: "0", color: "inherit" }}>
-                  <Link href={`/view-profile/${data._id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                    {data.user?.name || "Therapist"}
-                  </Link>
-                </h4>
-                {reviewCount > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "2px", background: "#fff9e6", padding: "2px 8px", borderRadius: "20px", border: "1px solid #ffe4b3" }}>
-                    <StarIcon sx={{ color: "#ffb400", fontSize: 16 }} />
-                    <span style={{ fontSize: "13px", fontWeight: "700", color: "#856404" }}>{averageRating}</span>
-                    <span style={{ fontSize: "12px", color: "#997b24", fontWeight: "600" }}>({reviewCount})</span>
-                  </div>
-                )}
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginTop: "4px" }}>
-                <span className="profile-type-text" style={{ 
-                  fontSize: "11px", 
-                  color: "#228756", 
-                  fontWeight: "700", 
-                  background: "#e8f5e9", 
-                  padding: "2px 6px", 
-                  borderRadius: "4px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px"
-                }}>
-                  <PersonIcon sx={{ fontSize: 13 }} /> {data.profile_type}
+        {/* ── Body ────────────────────────────── */}
+        <div className="vtc-body">
+          {/* name row */}
+          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:6 }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <Link href={`/view-profile/${data._id}`} className="vtc-name">
+                {data.user?.name || "Therapist"}
+              </Link>
+              <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap", marginTop:4 }}>
+                <span className="vtc-type">
+                  <i className="feather-user" style={{ fontSize:11 }}></i>
+                  {data.profile_type}
                 </span>
                 {data.state && (
-                  <span style={{ fontSize: "12px", color: "#64748b", fontWeight: "600", display: "flex", alignItems: "center", gap: "2px" }}>
-                    <LocationOnIcon sx={{ fontSize: 14, color: "#228756" }} /> {data.state}
+                  <span className="vtc-loc">
+                    <i className="feather-map-pin" style={{ fontSize:11 }}></i>
+                    {data.state}
                   </span>
                 )}
               </div>
             </div>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5, flexShrink:0 }}>
+              {avgRating && (
+                <div className="vtc-star">
+                  <StarIcon sx={{ color:"#f59e0b", fontSize:14 }} />
+                  <span style={{ fontSize:12, fontWeight:700, color:"#92400e" }}>{avgRating}</span>
+                  <span style={{ fontSize:11, color:"#b45309" }}>({reviewCount})</span>
+                </div>
+              )}
+              {showBookmark && (
+                <button className="vtc-bk" onClick={() => handleBookmark(data._id, bookmark)}>
+                  {bookmark
+                    ? <BookmarkAddedIcon sx={{ fontSize:18, color:"#f59e0b" }} />
+                    : <BookmarkBorderIcon sx={{ fontSize:18, color:"#94a3b8" }} />}
+                </button>
+              )}
+            </div>
+          </div>
 
-            {showBookmark && (
-              <button
-                className={`bookmark-btn ${bookmark ? 'active' : ''}`}
-                onClick={() => handleBookmark(data._id, bookmark)}
-                style={{
-                  border: "none",
-                  background: bookmark ? "#fff7ed" : "#f8fafc",
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  boxShadow: bookmark ? "0 4px 10px rgba(245, 158, 11, 0.1)" : "none",
-                  border: bookmark ? "1px solid #fde68a" : "1px solid #f1f5f9"
-                }}
-              >
-                {bookmark ? <BookmarkAddedIcon sx={{ fontSize: 20, color: "#f59e0b" }} /> : <BookmarkBorderIcon sx={{ fontSize: 20, color: "#94a3b8" }} />}
-              </button>
+          {/* meta pills */}
+          <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+            {data.year_of_exp && (
+              <div className="vtc-pill">
+                <i className="feather-briefcase"></i>{data.year_of_exp}
+              </div>
+            )}
+            {firstLang && (
+              <div className="vtc-pill">
+                <i className="feather-globe"></i>{firstLang}
+              </div>
             )}
           </div>
 
-          <div className="meta-info-grid" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            <div className="meta-pill">
-              <i className="feather-briefcase"></i> {data.year_of_exp} Exp.
+          {/* service chips — hidden on mobile */}
+          {serviceChips.length > 0 && (
+            <div className="vtc-chips-mob" style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+              {serviceChips.map(s => <span key={s} className="vtc-chip">{s}</span>)}
             </div>
-            <div className="meta-pill">
-              <i className="feather-globe"></i> {data.language_spoken?.split(',')[0]}
-            </div>
-          </div>
+          )}
 
-          <div className="card-action-btns" style={{ display: "flex", gap: "10px", marginTop: "auto", paddingTop: "10px" }}>
-            <Link
-              href={`/view-profile/${data._id}`}
-              className="btn-outline-premium"
-              style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", border: "1.5px solid #e2e8f0", color: "#475569", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s" }}
-            >
-              View Profile
-            </Link>
-
-            <Link
-              href={`/therapist-checkout/${data._id}`}
-              className="btn-fill-premium"
-              style={{ flex: 1, textAlign: "center", padding: "10px 0", borderRadius: "10px", background: "#228756", color: "#fff", fontWeight: "700", fontSize: "13px", textDecoration: "none", transition: "all 0.2s", boxShadow: "0 4px 12px rgba(34, 135, 86, 0.2)" }}
-            >
-              Book Now
-            </Link>
+          {/* action buttons */}
+          <div className="vtc-btn-row">
+            <Link href={`/view-profile/${data._id}`} className="vtc-btn-out">View Profile</Link>
+            <Link href={`/therapist-checkout/${data._id}`} className="vtc-btn-fill">Book Now</Link>
           </div>
         </div>
       </div>
