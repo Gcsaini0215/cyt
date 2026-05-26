@@ -13,7 +13,7 @@ const specs = [
   },
   {
     id: 2, title: "Depression", cat: "Mental Health", popular: true,
-    img: "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=480&h=200&fit=crop&q=80",
     accent: "#1e40af", tagBg: "#dbeafe", tagColor: "#1e40af",
     short: "Overcome low mood and find hope with professional support.",
     link: "/view-all-therapist?services=Depression",
@@ -41,7 +41,7 @@ const specs = [
   },
   {
     id: 6, title: "Trauma & PTSD", cat: "Mental Health", popular: false,
-    img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=480&h=200&fit=crop&q=80",
+    img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=480&h=200&fit=crop&q=80",
     accent: "#0f766e", tagBg: "#ccfbf1", tagColor: "#0f766e",
     short: "Heal from past trauma and emotional abuse safely.",
     link: "/view-all-therapist?services=Trauma",
