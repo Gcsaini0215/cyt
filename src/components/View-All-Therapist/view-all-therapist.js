@@ -145,10 +145,10 @@ export default function ViewAllTherapist() {
           background: linear-gradient(135deg,rgba(10,46,28,.88) 0%,rgba(0,0,0,.65) 100%);
           z-index:1;
         }
-        .vat-ban-inner { position:relative; z-index:2; text-align:center; }
+        .vat-ban-inner { position:relative; z-index:2; text-align:left; }
         .vat-ban-title { color:#fff; font-size:clamp(1.7rem,5vw,3rem); font-weight:900; margin:0 0 12px; line-height:1.15; }
         .vat-ban-title span { color:#86efac; }
-        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.85rem,2vw,1.05rem); margin:0 auto 0; max-width:520px; line-height:1.65; font-weight:500; padding:0 12px; }
+        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(.85rem,2vw,1.05rem); margin:0 0 0; max-width:520px; line-height:1.65; font-weight:500; padding:0; }
 
         /* ── Sticky filter bar (overlaps banner bottom) ─ */
         .vat-sticky-bar {
