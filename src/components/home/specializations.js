@@ -81,15 +81,21 @@ export default function Specializations() {
         .sp-sub { color:#64748b; font-size:15px; margin:0; }
 
         /* search */
-        .sp-search-wrap { position:relative; }
-        .sp-search-ic { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:14px; pointer-events:none; }
+        .sp-search-wrap { position:relative; display:flex; align-items:center; }
+        .sp-search-ic {
+          position:absolute; left:14px; top:50%; transform:translateY(-50%);
+          color:#94a3b8; font-size:15px; pointer-events:none; z-index:1;
+          display:flex; align-items:center;
+        }
         .sp-search {
-          padding:10px 16px 10px 38px; border-radius:12px;
+          padding:11px 16px 11px 42px; border-radius:12px;
           border:1.5px solid #e2e8f0; background:#fff;
           font-size:14px; color:#1e293b; outline:none;
-          width:220px; transition:border-color .2s; box-sizing:border-box;
+          width:240px; transition:border-color .2s;
+          box-sizing:border-box; line-height:1.4;
         }
-        .sp-search:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
+        .sp-search::placeholder { color:#b0bec5; }
+        .sp-search:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,.08); background:#fff; }
 
         /* ── Category pills ───────────────────────────── */
         .sp-pills {
@@ -169,7 +175,7 @@ export default function Specializations() {
         /* ── Mobile ───────────────────────────────────── */
         @media(max-width:767px){
           .sp-header { flex-direction:column; gap:14px; }
-          .sp-search { width:100%; }
+          .sp-search { width:100%; box-sizing:border-box; }
           .sp-search-wrap { width:100%; }
           .sp-card-top { height:64px; }
           .sp-icon-wrap { width:44px; height:44px; border-radius:12px; bottom:-18px; }
@@ -189,7 +195,9 @@ export default function Specializations() {
             <p className="sp-sub">Find the right expert for your specific concern</p>
           </div>
           <div className="sp-search-wrap">
-            <i className="feather-search sp-search-ic"></i>
+            <span className="sp-search-ic">
+              <i className="feather-search"></i>
+            </span>
             <input
               type="text"
               className="sp-search"
