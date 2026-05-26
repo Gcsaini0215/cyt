@@ -13,13 +13,10 @@ import Button from "@mui/material/Button";
 import DialogContentText from "@mui/material/DialogContentText";
 import { postData } from "../../utils/actions";
 import { sendOtpTosubscribe, verifyOtpTosubscribe } from "../../utils/url";
+
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  "& .MuiDialogContent-root": {
-    padding: theme.spacing(2),
-  },
-  "& .MuiDialogActions-root": {
-    padding: theme.spacing(1),
-  },
+  "& .MuiDialogContent-root": { padding: theme.spacing(2) },
+  "& .MuiDialogActions-root": { padding: theme.spacing(1) },
 }));
 
 export default function NewsLetter() {
@@ -54,12 +51,9 @@ export default function NewsLetter() {
     } else {
       setError("");
       setOpen(false);
-      const data = {
-        email,
-      };
       try {
         setLoading(true);
-        const response = await postData(sendOtpTosubscribe, data);
+        const response = await postData(sendOtpTosubscribe, { email });
         if (response.status) {
           setSuccess(response.message);
           setError("");
@@ -73,7 +67,6 @@ export default function NewsLetter() {
         setOpen(true);
         setError(error.response.data.message);
       }
-
       setLoading(false);
     }
   };
@@ -90,13 +83,9 @@ export default function NewsLetter() {
       return;
     } else {
       setError("");
-      const data = {
-        email,
-        otp,
-      };
       try {
         setLoading(true);
-        const response = await postData(verifyOtpTosubscribe, data);
+        const response = await postData(verifyOtpTosubscribe, { email, otp });
         if (response.status) {
           setOtp("");
           setError("");
@@ -113,308 +102,168 @@ export default function NewsLetter() {
     }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleCloseOtpView = () => {
-    setOtpView(false);
-  };
+  const handleClose = () => setOpen(false);
+  const handleCloseOtpView = () => setOtpView(false);
 
   const handleOtpChange = (e) => {
     const value = e.target.value;
-    if (/^\d*$/.test(value) && value.length <= 6) {
-      setOtp(value);
-    }
+    if (/^\d*$/.test(value) && value.length <= 6) setOtp(value);
   };
 
   useEffect(() => {
     let startValue = initialValue2;
     const interval = Math.floor(duration / (targetValue - initialValue2));
-
     const counter = setInterval(() => {
       startValue += 1;
       setCount(startValue);
-      if (startValue >= targetValue) {
-        clearInterval(counter);
-      }
+      if (startValue >= targetValue) clearInterval(counter);
     }, interval);
-
-    return () => {
-      clearInterval(counter);
-    };
+    return () => clearInterval(counter);
   }, [targetValue, initialValue, inView]);
 
   useEffect(() => {
     let startValue = initialValue;
     const interval = Math.floor(duration1 / (targetValue1 - initialValue));
-
     const counter = setInterval(() => {
       startValue += 1;
       setCount1(startValue);
-      if (startValue >= targetValue1) {
-        clearInterval(counter);
-      }
+      if (startValue >= targetValue1) clearInterval(counter);
     }, interval);
-
-    return () => {
-      clearInterval(counter);
-    };
+    return () => clearInterval(counter);
   }, [targetValue1, initialValue, inView]);
 
   return (
-    <div
-      className="rbt-newsletter-area newsletter-style-2"
-      ref={ref}
-      style={{
-        background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)',
-        position: 'relative',
-        overflow: 'hidden',
-        padding: isMobile ? '60px 30px' : '80px 60px'
-      }}
-    >
-      {/* Decorative Circles */}
-      <div style={{
-        position: 'absolute',
-        top: '-50px',
-        right: '-50px',
-        width: '300px',
-        height: '300px',
-        background: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: '50%',
-        pointerEvents: 'none'
-      }}></div>
-      <div style={{
-        position: 'absolute',
-        bottom: '-100px',
-        left: '-50px',
-        width: '400px',
-        height: '400px',
-        background: 'rgba(255, 255, 255, 0.03)',
-        borderRadius: '50%',
-        pointerEvents: 'none'
-      }}></div>
+    <div ref={ref} style={{ background: '#0f172a', padding: isMobile ? '52px 0' : '72px 0', position: 'relative', overflow: 'hidden' }}>
+      <style>{`
+        .nl-input { width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; outline:none; transition:border-color .2s; margin-bottom:12px; color:#1e293b; }
+        .nl-input:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
+        .nl-btn { width:100%; padding:14px; background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.3px; }
+        .nl-btn:disabled { opacity:.7; cursor:not-allowed; }
+        .nl-link { color:#64748b; font-size:12px; text-align:center; margin-top:10px; cursor:pointer; display:block; }
+        .nl-link:hover { color:#228756; }
+      `}</style>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '0 10px' : '0 15px' }}>
-        <div className="row align-items-center justify-content-center">
+      {/* subtle decorative bg shapes */}
+      <div style={{ position:'absolute', top:-80, right:-60, width:260, height:260, borderRadius:'50%', background:'rgba(34,135,86,.07)', pointerEvents:'none' }}></div>
+      <div style={{ position:'absolute', bottom:-100, left:-60, width:320, height:320, borderRadius:'50%', background:'rgba(34,135,86,.05)', pointerEvents:'none' }}></div>
+
+      <div className="container" style={{ position:'relative', zIndex:1 }}>
+        <div className="row align-items-center g-5">
+
+          {/* Left: content */}
           <div className="col-lg-6">
-            <div className="inner">
-              <div className="section-title text-left">
-                <span className="subtitle" style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#fff',
-                  padding: '6px 16px',
-                  borderRadius: '50px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  display: 'inline-block',
-                  marginBottom: '15px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px'
-                }}>
-                  Stay Updated
-                </span>
-                <h3 className="title" style={{
-                  color: '#fff',
-                  fontSize: isMobile ? '2.2rem' : '3.5rem',
-                  fontWeight: '900',
-                  marginBottom: '20px',
-                  lineHeight: 1.1
-                }}>
-                  Join Our Mental <br /> Health Community
-                </h3>
-                <p className="description" style={{
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: '1.1rem',
-                  lineHeight: 1.6,
-                  marginBottom: '30px',
-                  maxWidth: '500px'
-                }}>
-                  Get weekly insights, expert tips, and exclusive updates delivered straight to your inbox.
-                </p>
+            <span style={{
+              display:'inline-block', background:'rgba(34,135,86,.2)',
+              color:'#4ade80', padding:'5px 15px', borderRadius:'50px',
+              fontSize:'12px', fontWeight:700, letterSpacing:'1px',
+              textTransform:'uppercase', marginBottom:'16px'
+            }}>
+              Stay Updated
+            </span>
 
-                <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
-                  <div>
-                    <h3 style={{ color: '#fff', fontSize: '2rem', fontWeight: '800', margin: 0 }}>{count}+</h3>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', margin: 0 }}>Successful Sessions</p>
-                  </div>
-                  <div>
-                    <h3 style={{ color: '#fff', fontSize: '2rem', fontWeight: '800', margin: 0 }}>{count1}+</h3>
-                    <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px', margin: 0 }}>Happy Users</p>
-                  </div>
-                </div>
+            <h3 style={{
+              color:'#f1f5f9', fontSize: isMobile ? '1.8rem' : '2.6rem',
+              fontWeight:900, lineHeight:1.18, margin:'0 0 14px'
+            }}>
+              Join Our Mental<br />Health Community
+            </h3>
+
+            <p style={{
+              color:'#64748b', fontSize:'.97rem', lineHeight:1.75,
+              margin:'0 0 30px', maxWidth:400
+            }}>
+              Get weekly insights, expert tips, and exclusive resources on mental wellness — delivered straight to your inbox.
+            </p>
+
+            <div style={{ display:'flex', gap:'28px', flexWrap:'wrap' }}>
+              <div>
+                <div style={{ color:'#f1f5f9', fontSize:'1.9rem', fontWeight:900, lineHeight:1 }}>{count}+</div>
+                <div style={{ color:'#475569', fontSize:'13px', marginTop:'4px', fontWeight:500 }}>Successful Sessions</div>
+              </div>
+              <div style={{ width:1, background:'rgba(255,255,255,.08)', alignSelf:'center', height:36 }}></div>
+              <div>
+                <div style={{ color:'#f1f5f9', fontSize:'1.9rem', fontWeight:900, lineHeight:1 }}>{count1}+</div>
+                <div style={{ color:'#475569', fontSize:'13px', marginTop:'4px', fontWeight:500 }}>Happy Members</div>
               </div>
             </div>
           </div>
 
-          <div className="col-lg-5 mt_md--40 mt_sm--40">
+          {/* Right: subscribe card */}
+          <div className="col-lg-5 offset-lg-1">
             <div style={{
-              background: '#ffffff',
-              padding: isMobile ? '30px 20px' : '40px',
-              borderRadius: '24px',
-              boxShadow: '0 15px 35px rgba(0,0,0,0.1)'
+              background:'#fff',
+              borderRadius:'22px',
+              padding: isMobile ? '28px 22px' : '36px',
+              boxShadow:'0 20px 50px rgba(0,0,0,0.3)'
             }}>
-              <h4 style={{ color: '#1e293b', fontWeight: '800', marginBottom: '10px', fontSize: '1.5rem' }}>
-                Subscribe Now
+              <h4 style={{ fontSize:'1.3rem', fontWeight:800, color:'#1e293b', margin:'0 0 5px' }}>
+                {otpView ? 'Verify Your Email' : 'Subscribe Now'}
               </h4>
-              <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '25px' }}>
-                No spam, only valuable content.
+              <p style={{ color:'#94a3b8', fontSize:'13.5px', margin:'0 0 20px', lineHeight:1.5 }}>
+                {otpView
+                  ? `OTP sent to ${email}`
+                  : 'Join 1,000+ members. No spam, ever.'}
               </p>
 
               {otpView ? (
-                <div className="newsletter-form-modern">
+                <>
                   <input
                     type="text"
-                    placeholder="Enter 6-digit OTP"
+                    className="nl-input"
+                    placeholder="• • • • • •"
                     value={otp}
                     onChange={handleOtpChange}
-                    style={{
-                      width: '100%',
-                      padding: '15px',
-                      borderRadius: '12px',
-                      border: '2px solid #e2e8f0',
-                      marginBottom: '15px',
-                      fontSize: '16px',
-                      outline: 'none'
-                    }}
+                    style={{ textAlign:'center', fontSize:'24px', letterSpacing:'10px', fontWeight:800 }}
                   />
-                  <button
-                    onClick={handleOtpSubmit}
-                    disabled={loading}
-                    style={{
-                      width: '100%',
-                      padding: '15px',
-                      background: '#228756',
-                      color: '#fff',
-                      borderRadius: '12px',
-                      border: 'none',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s'
-                    }}
-                  >
-                    {loading ? 'Verifying...' : 'Verify & Subscribe'}
+                  {error && <p style={{ color:'#ef4444', fontSize:'13px', margin:'-6px 0 10px', fontWeight:600 }}>{error}</p>}
+                  <button className="nl-btn" onClick={handleOtpSubmit} disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify & Subscribe →'}
                   </button>
-                </div>
+                  <span className="nl-link" onClick={handleCloseOtpView}>← Use a different email</span>
+                </>
               ) : (
-                <div className="newsletter-form-modern">
+                <>
                   <input
                     type="email"
+                    className="nl-input"
                     placeholder="yourname@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '15px',
-                      borderRadius: '12px',
-                      border: '2px solid #e2e8f0',
-                      marginBottom: '15px',
-                      fontSize: '16px',
-                      outline: 'none'
-                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
                   />
-                  <button
-                    onClick={handleSubmit}
-                    disabled={loading}
-                    style={{
-                      width: '100%',
-                      padding: '15px',
-                      background: '#228756',
-                      color: '#fff',
-                      borderRadius: '12px',
-                      border: 'none',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s'
-                    }}
-                  >
-                    {loading ? 'Joining...' : 'Subscribe Now'}
+                  {error && <p style={{ color:'#ef4444', fontSize:'13px', margin:'-6px 0 10px', fontWeight:600 }}>{error}</p>}
+                  <button className="nl-btn" onClick={handleSubmit} disabled={loading}>
+                    {loading ? 'Sending OTP...' : 'Subscribe Now →'}
                   </button>
-                </div>
+                </>
               )}
-              
-              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '15px' }}>
-                Join 1000+ members today.
-              </p>
+
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', marginTop:'14px' }}>
+                <i className="feather-shield" style={{ color:'#228756', fontSize:'13px' }}></i>
+                <span style={{ fontSize:'12px', color:'#94a3b8' }}>100% private · Unsubscribe anytime</span>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-        fullWidth={true}
-        maxWidth={"xs"}
-      >
-        <DialogTitle
-          sx={{ m: 0, p: 2, fontSize: 16, fontWeight: "bold" }}
-          id="customized-dialog-title"
-        >
-          {error !== "" ? "Error" : "Success"}
+
+      {/* Success / Error dialog */}
+      <BootstrapDialog onClose={handleClose} aria-labelledby="nl-dialog-title" open={open} fullWidth maxWidth="xs">
+        <DialogTitle sx={{ m:0, p:2, fontSize:16, fontWeight:'bold' }} id="nl-dialog-title">
+          {error !== '' ? 'Error' : 'Success'}
         </DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon sx={{ fontSize: "2.5rem" }} />
+        <IconButton aria-label="close" onClick={handleClose}
+          sx={{ position:'absolute', right:8, top:8, color:(theme) => theme.palette.grey[500] }}>
+          <CloseIcon sx={{ fontSize:'2.5rem' }} />
         </IconButton>
         <DialogContent dividers>
           <FormMessage error={error} success={success} />
         </DialogContent>
         <DialogActions>
-          <Button
-            autoFocus
-            onClick={handleClose}
-            style={{ fontSize: 16, fontWeight: "bold" }}
-          >
-            OK
-          </Button>
+          <Button autoFocus onClick={handleClose} style={{ fontSize:16, fontWeight:'bold' }}>OK</Button>
         </DialogActions>
       </BootstrapDialog>
-
-      <Dialog open={otpView} onClose={handleCloseOtpView}>
-        <DialogTitle style={{ fontSize: 17, fontWeight: "bold" }}>
-          Subscribe
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText style={{ fontSize: 16 }}>
-            To subscribe to this website, please enter otp sent to you email
-            address. We will send updates occasionally.
-          </DialogContentText>
-          <FormMessage error={error} success={success} />
-          <div className="form-group">
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={handleOtpChange}
-              maxLength={6}
-            />
-            <span className="focus-border"></span>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseOtpView}
-            style={{ fontSize: 16, fontWeight: "bold" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleOtpSubmit}
-            style={{ fontSize: 16, fontWeight: "bold" }}
-          >
-            {loading ? "Please wait" : "Subscribe"}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 }
