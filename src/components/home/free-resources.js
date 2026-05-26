@@ -133,23 +133,23 @@ export default function FreeResources() {
   ];
 
   return (
-    <section style={{ background: "#071a10", padding: "72px 0 80px", position: "relative", overflow: "hidden" }}>
+    <section style={{ background: "#f0fdf4", padding: "72px 0 80px", position: "relative", overflow: "hidden" }}>
       <style>{`
-        /* blobs */
+        /* subtle bg pattern */
         .fr-blob { position:absolute; border-radius:50%; pointer-events:none; z-index:0; }
 
         /* header */
         .fr-tag {
           display:inline-flex; align-items:center; gap:7px;
-          background:rgba(34,135,86,.2); border:1px solid rgba(34,135,86,.35);
-          color:#4ade80; font-size:11px; font-weight:700;
+          background:rgba(34,135,86,.1); border:1px solid rgba(34,135,86,.25);
+          color:#228756; font-size:11px; font-weight:700;
           padding:5px 14px; border-radius:50px;
           letter-spacing:.8px; text-transform:uppercase; margin-bottom:14px;
         }
-        .fr-tag-dot { width:6px; height:6px; border-radius:50%; background:#4ade80; animation:fr-pulse 1.8s ease-in-out infinite; }
+        .fr-tag-dot { width:6px; height:6px; border-radius:50%; background:#228756; animation:fr-pulse 1.8s ease-in-out infinite; }
         @keyframes fr-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .fr-title { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; color:#f1f5f9; margin:0 0 8px; line-height:1.15; }
-        .fr-title span { color:#4ade80; }
+        .fr-title { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; color:#1e293b; margin:0 0 8px; line-height:1.15; }
+        .fr-title span { color:#228756; }
         .fr-sub { color:#64748b; font-size:15px; margin:0; line-height:1.6; }
 
         /* grid */
@@ -164,35 +164,34 @@ export default function FreeResources() {
 
         /* card */
         .fr-card {
-          background:rgba(255,255,255,.04);
-          border:1px solid rgba(255,255,255,.08);
+          background:#fff;
+          border:1.5px solid #e8f5e9;
           border-radius:20px;
-          padding:24px 20px 20px;
-          display:flex; flex-direction:column; gap:12px;
+          padding:22px 18px 18px;
+          display:flex; flex-direction:column; gap:11px;
           cursor:pointer;
-          transition:transform .25s ease, background .25s ease, box-shadow .25s ease, border-color .25s ease;
+          transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
           position:relative; overflow:hidden;
         }
-        .fr-card::before {
-          content:''; position:absolute; top:0; left:0; right:0; height:3px;
-          background:var(--accent); border-radius:20px 20px 0 0;
-          opacity:.7; transition:opacity .25s;
+        .fr-card::after {
+          content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
+          background:var(--accent); border-radius:0 0 20px 20px;
+          opacity:0; transition:opacity .25s;
         }
         .fr-card:hover {
-          transform:translateY(-6px);
-          background:rgba(255,255,255,.07);
-          border-color:rgba(255,255,255,.15);
-          box-shadow:0 20px 40px rgba(0,0,0,.3);
+          transform:translateY(-5px);
+          box-shadow:0 16px 40px rgba(34,135,86,.12);
+          border-color:var(--accent);
         }
-        .fr-card:hover::before { opacity:1; }
+        .fr-card:hover::after { opacity:1; }
 
         .fr-icon-wrap {
-          width:52px; height:52px; border-radius:14px;
+          width:48px; height:48px; border-radius:13px;
           display:flex; align-items:center; justify-content:center;
-          font-size:22px; flex-shrink:0;
+          font-size:20px; flex-shrink:0;
           transition:transform .25s;
         }
-        .fr-card:hover .fr-icon-wrap { transform:scale(1.08); }
+        .fr-card:hover .fr-icon-wrap { transform:scale(1.1); }
 
         .fr-tag-pill {
           display:inline-block; font-size:10px; font-weight:800;
@@ -200,34 +199,34 @@ export default function FreeResources() {
           letter-spacing:.5px; text-transform:uppercase;
         }
         .fr-card-title {
-          font-size:15px; font-weight:800; color:#f1f5f9; margin:0; line-height:1.3;
+          font-size:14.5px; font-weight:800; color:#1e293b; margin:0; line-height:1.3;
           transition:color .2s;
         }
-        .fr-card:hover .fr-card-title { color:#4ade80; }
+        .fr-card:hover .fr-card-title { color:var(--accent); }
         .fr-card-desc {
-          font-size:12.5px; color:#64748b; margin:0; line-height:1.5;
+          font-size:12.5px; color:#64748b; margin:0; line-height:1.55;
           display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
         }
         .fr-card-cta {
           display:inline-flex; align-items:center; gap:5px;
-          font-size:12px; font-weight:700; color:#4ade80;
-          margin-top:auto; padding-top:4px;
+          font-size:12px; font-weight:700;
+          color:var(--accent);
+          margin-top:auto; padding-top:2px;
           transition:gap .2s;
         }
         .fr-card:hover .fr-card-cta { gap:8px; }
 
         @media(max-width:480px){
-          .fr-card { padding:16px 14px 14px; gap:8px; border-radius:16px; }
-          .fr-icon-wrap { width:44px; height:44px; font-size:18px; border-radius:12px; }
+          .fr-card { padding:14px 12px 12px; gap:8px; border-radius:16px; }
+          .fr-icon-wrap { width:40px; height:40px; font-size:17px; border-radius:11px; }
           .fr-card-title { font-size:13px; }
-          .fr-card-desc { -webkit-line-clamp:2; font-size:11.5px; }
+          .fr-card-desc { font-size:11.5px; }
         }
       `}</style>
 
-      {/* Blobs */}
-      <div className="fr-blob" style={{ width:360, height:360, background:"rgba(34,135,86,.08)", filter:"blur(90px)", top:"-80px", right:"5%" }}></div>
-      <div className="fr-blob" style={{ width:260, height:260, background:"rgba(74,222,128,.05)", filter:"blur(70px)", bottom:"60px", left:"3%" }}></div>
-      <div className="fr-blob" style={{ width:200, height:200, background:"rgba(16,185,129,.06)", filter:"blur(60px)", top:"40%", left:"50%" }}></div>
+      {/* Soft blobs */}
+      <div className="fr-blob" style={{ width:400, height:400, background:"rgba(34,135,86,.06)", filter:"blur(100px)", top:"-60px", right:"0%" }}></div>
+      <div className="fr-blob" style={{ width:300, height:300, background:"rgba(74,222,128,.05)", filter:"blur(80px)", bottom:"0px", left:"0%" }}></div>
 
       <div className="container" style={{ position:"relative", zIndex:1 }}>
 
