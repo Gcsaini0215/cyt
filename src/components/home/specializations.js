@@ -84,7 +84,7 @@ export default function Specializations() {
           margin-bottom:24px; flex-wrap:wrap;
         }
         .sp-accent-bar { width:42px; height:4px; background:#228756; border-radius:2px; margin-bottom:12px; }
-        .sp-title { font-size:clamp(1.6rem,3.5vw,2.3rem); font-weight:900; color:#1e293b; margin:0 0 6px; line-height:1.2; }
+        .sp-title { font-size:clamp(1.9rem,3.8vw,2.7rem); font-weight:900; color:#1e293b; margin:0 0 6px; line-height:1.2; }
         .sp-sub { color:#64748b; font-size:15px; margin:0; }
 
         /* search */
