@@ -47,7 +47,17 @@ function MyApp({ Component, pageProps }) {
         });
     }
 
-    const handleStart = () => setIsLoading(true);
+    const noLoaderRoutes = [
+      "/therapist-dashboard", "/appointments", "/clinic-patients",
+      "/case-history", "/create-report", "/workshops", "/coupons",
+      "/settings", "/create-workshop", "/add-offline-client",
+      "/therapist-blogs", "/therapist-ai-blog", "/therapists/",
+      "/coupon/", "/update-workshop/",
+    ];
+    const handleStart = (url) => {
+      const skip = noLoaderRoutes.some((r) => url.startsWith(r));
+      if (!skip) setIsLoading(true);
+    };
     const handleComplete = () => setIsLoading(false);
 
     router.events?.on("routeChangeStart", handleStart);
@@ -102,7 +112,7 @@ function MyApp({ Component, pageProps }) {
         <link rel="shortcut icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/favicon.png" />
       </Head>
-      {isLoading && <PremiumLoader />}
+      {isLoading && !shouldHideWidgets && <PremiumLoader />}
       {!shouldHideWidgets && (
         <>
           <TawkToWidget />
