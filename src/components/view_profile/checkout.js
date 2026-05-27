@@ -104,7 +104,7 @@ export default function TherapistCheckout({ profile }) {
 
   const handlePayment = (bookingId, amount) => {
     const options = {
-      key: "rzp_live_Sbu0qew5jYTvBY",
+      key: "rzp_live_SuXa1yR42C4yOa",
       amount: amount * 100,
       currency: "INR",
       name: "CYT",
