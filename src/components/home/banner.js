@@ -56,7 +56,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     .rbt-banner-1 { padding-top: 10px !important; }
                   }
                 `}</style>
-                <h4 className="title" style={{ fontSize: isMobile ? "1.8rem" : "clamp(2.8rem, 5vw, 4.8rem)", lineHeight: 1.15, marginBottom: "12px" }}>
+                <h4 className="title" style={{ fontSize: isMobile ? undefined : "clamp(2.8rem, 5vw, 4.8rem)", lineHeight: 1.15, marginBottom: "12px" }}>
                   Find your&nbsp;
                   <span style={{ display: "inline-block", position: "relative", minWidth: isMobile ? "140px" : "220px", verticalAlign: "bottom" }}>
                     <span className="banner-word-1 theme-gradient">Personalized</span>
