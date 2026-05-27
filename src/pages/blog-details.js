@@ -410,9 +410,9 @@ export default function BlogDetails({ initialBlog }) {
 
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
   const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
-  const rawImageUrl = getFullBlogImagePath(blog.image);
-  const imageUrl = rawImageUrl && rawImageUrl.startsWith('http') ? rawImageUrl : "https://i.postimg.cc/gj1yngrd/choose.png";
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
+  // Use the API route so base64 images work as OG images on WhatsApp/social media
+  const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}`;
 
   const structuredData = {
     "@context": "https://schema.org",
