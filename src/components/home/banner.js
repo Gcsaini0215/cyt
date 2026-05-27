@@ -100,7 +100,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                       : null;
                     return (
                       <SwiperSlide key={i}>
-                        <div style={{ borderRadius: "18px", overflow: "hidden", border: "1px solid #e8f5e9", boxShadow: "0 8px 32px rgba(0,0,0,0.10)", background: "#fff", display: "flex", flexDirection: "column" }}>
+                        <div style={{ borderRadius: "18px", overflow: "hidden", border: "1px solid #e8f5e9", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", background: "#fff", display: "flex", flexDirection: "column" }}>
                           {/* Photo — slightly shorter so body gets more room */}
                           <div style={{ position: "relative", width: "100%", paddingBottom: "88%", flexShrink: 0, overflow: "hidden" }}>
                             <div style={{ position: "absolute", inset: 0 }}>
@@ -112,7 +112,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                               />
                             </div>
                             {/* CYT watermark */}
-                            <span style={{ position: "absolute", top: 12, left: 13, color: "#fff", fontSize: "12px", fontWeight: 900, letterSpacing: "2px", zIndex: 2 }}>CYT</span>
+                            <span style={{ position: "absolute", top: 12, right: 13, color: "#fff", fontSize: "12px", fontWeight: 900, letterSpacing: "2px", zIndex: 2 }}>CYT</span>
                             {/* Gradient overlay */}
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
                             {/* Name + rating overlay */}
