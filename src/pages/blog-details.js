@@ -123,90 +123,119 @@ const ContentWrapper = styled(Box)(({ theme }) => ({
   wordBreak: 'break-word',
   overflowWrap: 'break-word',
   fontWeight: 400,
-  '& p, & div, & span': {
-    fontSize: '1.08rem',
+  '& p, & div, & span, & li': {
+    fontSize: '1.6rem',
     lineHeight: 1.85,
     color: '#334155',
-    marginBottom: '1.4rem',
+    marginBottom: '2.5rem',
     fontFamily: '"Lora", serif',
     fontWeight: 400,
     [theme.breakpoints.down('md')]: {
-      fontSize: '1rem',
-      lineHeight: 1.8,
-      marginBottom: '1.2rem',
+      fontSize: '1.35rem',
+      lineHeight: 2,
+      marginBottom: '1.8rem',
+      textAlign: 'left',
     },
   },
   '& > p:first-of-type::first-letter': {
     float: 'left',
-    fontSize: '4.2rem',
+    fontSize: '5rem',
     lineHeight: '1',
     fontWeight: 900,
-    paddingRight: '10px',
-    paddingTop: '4px',
-    color: '#228756',
+    paddingRight: '12px',
+    color: '#0f172a',
     fontFamily: '"Lora", serif',
     textTransform: 'uppercase',
     [theme.breakpoints.down('md')]: {
-      fontSize: '3.5rem',
+      fontSize: '4rem',
     },
   },
   '& h2': {
-    fontSize: '1.55rem',
+    fontSize: '2.5rem',
     fontWeight: 800,
     color: '#0f172a',
-    marginTop: '2.5rem',
-    marginBottom: '1rem',
+    marginTop: '4rem',
+    marginBottom: '2rem',
     fontFamily: '"Lora", serif',
-    lineHeight: 1.3,
+    lineHeight: 1.2,
+    position: 'relative',
     [theme.breakpoints.down('md')]: {
-      fontSize: '1.3rem',
-      marginTop: '2rem',
-      marginBottom: '0.75rem',
+      fontSize: '2rem',
+      marginTop: '3rem',
+      marginBottom: '1.5rem',
     },
   },
   '& h3': {
-    fontSize: '1.25rem',
+    fontSize: '2rem',
     fontWeight: 700,
     color: '#1e293b',
-    marginTop: '2rem',
-    marginBottom: '0.75rem',
+    marginTop: '3rem',
+    marginBottom: '1.5rem',
     fontFamily: '"Lora", serif',
     [theme.breakpoints.down('md')]: {
-      fontSize: '1.1rem',
-      marginTop: '1.5rem',
+      fontSize: '1.7rem',
+      marginTop: '2.5rem',
+      marginBottom: '1.2rem',
     },
   },
   '& blockquote': {
-    borderLeft: '4px solid #228756',
+    borderLeft: 'none',
     background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-    padding: '1.4rem 1.8rem',
-    margin: '2rem 0',
-    borderRadius: '0 16px 16px 0',
+    padding: '3rem',
+    margin: '4rem 0',
+    borderRadius: '24px',
     position: 'relative',
     [theme.breakpoints.down('md')]: {
-      padding: '1.2rem 1.4rem',
-      margin: '1.5rem 0',
+      padding: '2rem',
+      margin: '2.5rem 0',
+      borderRadius: '16px',
+    },
+    '&::before': {
+      content: '"\\201C"',
+      position: 'absolute',
+      top: '10px',
+      left: '20px',
+      fontSize: '6rem',
+      color: '#228756',
+      opacity: 0.15,
+      fontFamily: 'serif',
     },
     '& p': {
-      fontSize: '1.05rem',
+      fontSize: '1.85rem',
       color: '#064e3b',
       fontWeight: 400,
       fontStyle: 'italic',
       margin: 0,
-      lineHeight: 1.7,
+      lineHeight: 1.6,
+      position: 'relative',
+      zIndex: 1,
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.4rem',
+        lineHeight: 1.7,
+      },
     }
   },
   '& ul, & ol': {
-    marginBottom: '1.4rem',
-    paddingLeft: '1.6rem',
+    marginBottom: '3rem',
+    paddingLeft: '1.8rem',
     fontWeight: 400,
+    [theme.breakpoints.down('md')]: {
+      marginBottom: '2rem',
+      paddingLeft: '1.5rem',
+    },
     '& li': {
-      fontSize: '1.05rem',
+      fontSize: '1.55rem',
       lineHeight: 1.8,
       color: '#475569',
-      marginBottom: '0.5rem',
+      marginBottom: '1.2rem',
       fontFamily: '"Lora", serif',
+      position: 'relative',
       fontWeight: 400,
+      [theme.breakpoints.down('md')]: {
+        fontSize: '1.3rem',
+        lineHeight: 1.9,
+        marginBottom: '1rem',
+      },
       '&::marker': {
         color: '#228756',
         fontWeight: 'bold',
@@ -381,9 +410,9 @@ export default function BlogDetails({ initialBlog }) {
 
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
   const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
+  const rawImageUrl = getFullBlogImagePath(blog.image);
+  const imageUrl = rawImageUrl && rawImageUrl.startsWith('http') ? rawImageUrl : "https://i.postimg.cc/gj1yngrd/choose.png";
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
-  // Use the API route so base64 images work as OG images on WhatsApp/social media
-  const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}`;
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -603,51 +632,15 @@ export default function BlogDetails({ initialBlog }) {
               >
                 Source: Choose Your Therapist Editorial
               </Typography>
-              <ContentWrapper
+              <ContentWrapper 
                 className="blog-content-rich-text"
-                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
               />
-
-              {/* Author card */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5, mt: 4, p: 3, borderRadius: '18px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                {blog.authorImage ? (
-                  <img src={blog.authorImage} alt={blog.author} style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover', border: '2px solid #228756', flexShrink: 0 }} />
-                ) : (
-                  <Box sx={{ width: 60, height: 60, borderRadius: '50%', bgcolor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 22, color: '#94a3b8' }}>
-                    <i className="feather-user" />
-                  </Box>
-                )}
-                <Box>
-                  <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', mb: 0.4 }}>Written by</Typography>
-                  <Typography sx={{ fontSize: '1rem', fontWeight: 800, color: '#1e293b', mb: 0.3 }}>{blog.author || "Admin"}</Typography>
-                  <Typography sx={{ fontSize: '0.82rem', color: '#64748b' }}>Mental Health Writer · Choose Your Therapist</Typography>
-                </Box>
-              </Box>
-
             </Box>
           </Grid>
 
           <Grid item xs={12} lg={4}>
             <Stack spacing={4} sx={{ position: 'sticky', top: '100px' }}>
-
-              {/* CTA Card */}
-              <Box sx={{ background: 'linear-gradient(135deg, #064e3b 0%, #228756 100%)', borderRadius: '20px', p: 3.5, textAlign: 'center', color: '#fff' }}>
-                <Typography sx={{ fontSize: '2.2rem', mb: 1 }}>🧠</Typography>
-                <Typography sx={{ fontWeight: 900, fontSize: '1.1rem', mb: 1, color: '#fff' }}>Need to Talk to Someone?</Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', mb: 2.5, lineHeight: 1.6 }}>
-                  Connect with India's top verified psychologists and therapists.
-                </Typography>
-                <Button
-                  component={Link}
-                  href="/view-all-therapist"
-                  variant="contained"
-                  fullWidth
-                  sx={{ bgcolor: '#fff', color: '#064e3b', fontWeight: 900, borderRadius: '50px', py: 1.2, fontSize: '0.85rem', textTransform: 'none', '&:hover': { bgcolor: '#f0fdf4' } }}
-                >
-                  Find a Therapist →
-                </Button>
-              </Box>
-
               {/* Trending Articles Section */}
               <SidebarCard elevation={0}>
                 <Typography variant="h6" sx={{ fontWeight: 900, mb: 3, display: 'flex', alignItems: 'center', gap: 1.5, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '1.3rem' }}>
@@ -679,7 +672,7 @@ export default function BlogDetails({ initialBlog }) {
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#228756', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem' }}>
                             {tBlog.category}
                           </Typography>
-                          <Typography variant="subtitle2" sx={{ fontSize: '0.85rem', fontWeight: 700, mt: 0.5, lineHeight: 1.35, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <Typography variant="subtitle2" sx={{ fontSize: '1.4rem', fontWeight: 700, mt: 0.5, lineHeight: 1.3, color: '#1e293b', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             {tBlog.title}
                           </Typography>
                         </Box>
@@ -722,7 +715,7 @@ export default function BlogDetails({ initialBlog }) {
                       }}
                       onClick={() => router.push(`/blogs?category=${cat.name}`)}
                     >
-                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#1e293b', transition: '0.2s' }}>
+                      <Typography className="cat-name" sx={{ fontWeight: 700, fontSize: '1.45rem', color: '#1e293b', transition: '0.2s' }}>
                         {cat.name}
                       </Typography>
                       <Box sx={{ 
