@@ -100,9 +100,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                       : null;
                     return (
                       <SwiperSlide key={i}>
-                        <div style={{ borderRadius: "16px", overflow: "hidden", border: "1px solid #e8f5e9", boxShadow: "0 8px 28px rgba(0,0,0,0.08)", background: "#fff", display: "flex", flexDirection: "column" }}>
-                          {/* Photo */}
-                          <div style={{ position: "relative", width: "100%", paddingBottom: "100%", flexShrink: 0, overflow: "hidden" }}>
+                        <div style={{ borderRadius: "18px", overflow: "hidden", border: "1px solid #e8f5e9", boxShadow: "0 8px 32px rgba(0,0,0,0.10)", background: "#fff", display: "flex", flexDirection: "column" }}>
+                          {/* Photo — slightly shorter so body gets more room */}
+                          <div style={{ position: "relative", width: "100%", paddingBottom: "88%", flexShrink: 0, overflow: "hidden" }}>
                             <div style={{ position: "absolute", inset: 0 }}>
                               <Avatar
                                 src={t.user?.profile ? `${imagePath}/${t.user.profile}` : undefined}
@@ -111,58 +111,58 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                                 sx={{ width: "100%", height: "100%", borderRadius: 0, "& img": { objectFit: "cover", objectPosition: "top center", imageRendering: "auto" } }}
                               />
                             </div>
-                            {/* CYT watermark — top left */}
-                            <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(10,46,28,0.72)", backdropFilter: "blur(4px)", borderRadius: "20px", padding: "4px 10px", zIndex: 2 }}>
+                            {/* CYT watermark */}
+                            <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(10,46,28,0.75)", backdropFilter: "blur(4px)", borderRadius: "20px", padding: "4px 11px", zIndex: 2 }}>
                               <span style={{ color: "#fff", fontSize: "11px", fontWeight: 800, letterSpacing: "1.5px" }}>CYT</span>
                             </div>
-                            {/* Dark gradient overlay at bottom */}
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "58%", background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
-                            {/* Rating + Name on image overlay */}
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 8px", zIndex: 2 }}>
+                            {/* Gradient overlay */}
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
+                            {/* Name + rating overlay */}
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 12px", zIndex: 2 }}>
                               {avgRating && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "4px" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "6px" }}>
                                   {[1,2,3,4,5].map(s => (
-                                    <Star key={s} sx={{ fontSize: 12, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
+                                    <Star key={s} sx={{ fontSize: 13, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
                                   ))}
-                                  <span style={{ fontSize: "11px", color: "#fff", fontWeight: 700, marginLeft: "3px" }}>{avgRating}</span>
+                                  <span style={{ fontSize: "12px", color: "#fff", fontWeight: 700, marginLeft: "4px" }}>{avgRating}</span>
                                 </div>
                               )}
-                              <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                                <span style={{ color: "#fff", fontSize: "17px", fontWeight: 800, lineHeight: 1.2, textShadow: "0 1px 6px rgba(0,0,0,0.6)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                <span style={{ color: "#fff", fontSize: "21px", fontWeight: 800, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.7)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {t.user?.name || "Therapist"}
                                 </span>
-                                <span title="Verified" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "15px", height: "15px", borderRadius: "50%", background: "#1d9bf0", flexShrink: 0 }}>
-                                  <svg viewBox="0 0 24 24" width="9" height="9" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                <span title="Verified" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "17px", height: "17px", borderRadius: "50%", background: "#1d9bf0", flexShrink: 0 }}>
+                                  <svg viewBox="0 0 24 24" width="10" height="10" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
                                 </span>
                               </div>
                             </div>
                           </div>
 
-                          {/* Body — profile info + buttons */}
-                          <div style={{ padding: "10px 12px 10px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                          {/* Body */}
+                          <div style={{ padding: "14px 16px 16px", display: "flex", flexDirection: "column", gap: "10px" }}>
                             {/* Profile type */}
-                            <p style={{ margin: 0, fontSize: "12px", color: "#228756", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            <p style={{ margin: 0, fontSize: "13px", color: "#228756", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                               {t.profile_type || "Mental Health Professional"}
                             </p>
                             {/* Language + Location */}
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                               {t.language_spoken && (
-                                <span style={{ display: "flex", alignItems: "center", gap: "2px", fontSize: "11px", color: "#64748b" }}>
-                                  <Language sx={{ fontSize: 11, color: "#94a3b8" }} />{t.language_spoken}
+                                <span style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
+                                  <Language sx={{ fontSize: 13, color: "#94a3b8" }} />{t.language_spoken}
                                 </span>
                               )}
                               {t.state && (
-                                <span style={{ display: "flex", alignItems: "center", gap: "2px", fontSize: "11px", color: "#64748b" }}>
-                                  <LocationOn sx={{ fontSize: 11, color: "#94a3b8" }} />{t.state}
+                                <span style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#64748b", fontWeight: 500 }}>
+                                  <LocationOn sx={{ fontSize: 13, color: "#94a3b8" }} />{t.state}
                                 </span>
                               )}
                             </div>
                             {/* Buttons */}
                             <div style={{ display: "flex", gap: "8px" }}>
-                              <Link className="view-btn view-btn-border" href={`/view-profile/${t._id}`} style={{ flex: 1, textAlign: "center", padding: "0 8px", fontSize: "12px", height: "34px", lineHeight: "34px" }}>
+                              <Link className="view-btn view-btn-border" href={`/view-profile/${t._id}`} style={{ flex: 1, textAlign: "center", padding: "0 8px", fontSize: "13px", height: "38px", lineHeight: "38px" }}>
                                 View Profile
                               </Link>
-                              <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", height: "34px" }}>
+                              <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "38px" }}>
                                 <span>Book Now</span>
                               </Link>
                             </div>
