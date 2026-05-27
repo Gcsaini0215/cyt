@@ -102,30 +102,43 @@ export default function TherapistCheckout({ profile }) {
     }
   };
 
-  const handlePayment = (bookingId, amount) => {
-    const options = {
-      key: "rzp_live_SuXa1yR42C4yOa",
-      amount: amount * 100,
-      currency: "INR",
-      name: "CYT",
-      description: "Therapist Booking",
-      handler: function (response) {
-        router.push(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
-      },
-      prefill: {
-        name: info.name || userInfo?.name,
-        email: info.email || userInfo?.email,
-        contact: info.phone || userInfo?.phone,
-      },
-      theme: { color: "#228756" },
-      modal: {
-        ondismiss: function () {
-          router.push(`/payment-pending/${bookingId}`);
+  const handlePayment = async (bookingId, amount) => {
+    try {
+      const orderRes = await fetch("/api/create-razorpay-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, bookingId }),
+      });
+      const { orderId, error } = await orderRes.json();
+      if (!orderId) { setError(error || "Payment init failed. Try again."); return; }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_SuXa1yR42C4yOa",
+        amount: Math.round(amount * 100),
+        currency: "INR",
+        order_id: orderId,
+        name: "CYT",
+        description: "Therapist Booking",
+        handler: function (response) {
+          router.push(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
+        },
+        prefill: {
+          name: info.name || userInfo?.name,
+          email: info.email || userInfo?.email,
+          contact: info.phone || userInfo?.phone,
+        },
+        theme: { color: "#228756" },
+        modal: {
+          ondismiss: function () {
+            router.push(`/payment-pending/${bookingId}`);
+          }
         }
-      }
-    };
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch {
+      setError("Payment failed to initialize. Please try again.");
+    }
   };
 
   const handleSubmit = async () => {
