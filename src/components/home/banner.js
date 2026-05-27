@@ -112,9 +112,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                               />
                             </div>
                             {/* CYT watermark */}
-                            <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(10,46,28,0.75)", backdropFilter: "blur(4px)", borderRadius: "20px", padding: "4px 11px", zIndex: 2 }}>
-                              <span style={{ color: "#fff", fontSize: "11px", fontWeight: 800, letterSpacing: "1.5px" }}>CYT</span>
-                            </div>
+                            <span style={{ position: "absolute", top: 12, left: 13, color: "#fff", fontSize: "12px", fontWeight: 900, letterSpacing: "2px", zIndex: 2 }}>CYT</span>
                             {/* Gradient overlay */}
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
                             {/* Name + rating overlay */}
