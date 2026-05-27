@@ -16,7 +16,9 @@ export default function ViewAllTherapist() {
   const [favrioutes, setFavrioutes] = React.useState([]);
   const timeoutRef = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
-  const [visibleCount, setVisibleCount] = React.useState(9);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [filteredData, setFilteredData] = React.useState([]);
+  const ITEMS_PER_PAGE = 9;
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [tempFilter, setTempFilter] = React.useState({});
   const resultsRef = React.useRef(null);
@@ -67,6 +69,7 @@ export default function ViewAllTherapist() {
 
   const resetFilters = () => {
     setSearch("");
+    setCurrentPage(1);
     setFilter({ profile_type: "", services: "", year_of_exp: "", language_spoken: "", state: "", search: "", page: 1, pageSize: 1000 });
   };
 
@@ -80,7 +83,6 @@ export default function ViewAllTherapist() {
         const res = await fetchData(getTherapistProfiles, filter);
         if (res?.data) {
           setAllData(res.data || []);
-          setData(res.data?.slice(0, visibleCount) || []);
         }
       } catch (err) {
         console.error("Error fetching therapists:", err);
@@ -122,10 +124,34 @@ export default function ViewAllTherapist() {
     if (filter.year_of_exp) filtered = filtered.filter(i => (i.year_of_exp || "").trim() === filter.year_of_exp);
     if (filter.language_spoken) filtered = filtered.filter(i => i.language_spoken?.includes(filter.language_spoken));
     if (filter.state) filtered = filtered.filter(i => (i.state || "").toLowerCase() === filter.state.toLowerCase());
-    setData(filtered.slice(0, visibleCount));
-  }, [filter, allData, visibleCount]);
+    setFilteredData(filtered);
+    setCurrentPage(1);
+    setData(filtered.slice(0, ITEMS_PER_PAGE));
+  }, [filter, allData]);
 
-  const handleLoadMore = () => setVisibleCount(p => p + 6);
+  React.useEffect(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    setData(filteredData.slice(start, start + ITEMS_PER_PAGE));
+  }, [currentPage, filteredData]);
+
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+
+  const goToPage = (page) => {
+    setCurrentPage(page);
+    if (resultsRef.current) resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const delta = 2;
+    const left = Math.max(1, currentPage - delta);
+    const right = Math.min(totalPages, currentPage + delta);
+    for (let i = left; i <= right; i++) pages.push(i);
+    if (left > 1) { pages.unshift("..."); pages.unshift(1); }
+    if (right < totalPages) { pages.push("..."); pages.push(totalPages); }
+    return pages;
+  };
+
   const ro = (item) => typeof item === "string" ? item : item.label || item.value;
 
   return (
@@ -215,9 +241,19 @@ export default function ViewAllTherapist() {
         .vat-skel-line { height:14px; border-radius:6px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200%; animation:vat-shimmer 1.4s infinite; margin-bottom:10px; }
         @keyframes vat-shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
 
-        /* load more */
-        .vat-load-more { background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; border:none; padding:13px 44px; font-size:15px; font-weight:700; border-radius:50px; cursor:pointer; box-shadow:0 6px 18px rgba(34,135,86,.25); transition:all .2s; }
-        .vat-load-more:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(34,135,86,.3); }
+        /* pagination */
+        .vat-pagination { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:44px; flex-wrap:wrap; }
+        .vat-page-btn {
+          min-width:38px; height:38px; border-radius:10px; border:1.5px solid #e2e8f0;
+          background:#fff; color:#475569; font-size:14px; font-weight:700;
+          cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+          transition:all .18s; padding:0 6px;
+        }
+        .vat-page-btn:hover:not(:disabled):not(.ellipsis) { border-color:#228756; color:#228756; background:#f0fdf4; }
+        .vat-page-btn.active { background:#228756; border-color:#228756; color:#fff; box-shadow:0 4px 12px rgba(34,135,86,.25); }
+        .vat-page-btn:disabled { opacity:.4; cursor:not-allowed; }
+        .vat-page-btn.ellipsis { border:none; background:transparent; cursor:default; }
+        .vat-page-info { font-size:13px; color:#94a3b8; font-weight:600; text-align:center; margin-top:12px; }
 
         /* ── Desktop filter selects ──────────────────── */
         .vat-desk-filters { display:flex; align-items:center; gap:8px; }
@@ -410,7 +446,8 @@ export default function ViewAllTherapist() {
                 {hasFilter ? `${data.length} result${data.length !== 1 ? "s" : ""} found` : "All Therapists"}
               </div>
               <div className="vat-results-count">
-                {hasFilter ? "Showing filtered results" : `${allData.length} verified professionals`}
+                {hasFilter ? `${filteredData.length} filtered result${filteredData.length !== 1 ? "s" : ""}` : `${allData.length} verified professionals`}
+                {totalPages > 1 && ` · Page ${currentPage} of ${totalPages}`}
               </div>
             </div>
             {hasFilter && (
@@ -455,11 +492,39 @@ export default function ViewAllTherapist() {
             </div>
           )}
 
-          {!loading && visibleCount < allData.length && (
-            <div style={{ textAlign: "center", marginTop: 44 }}>
-              <button className="vat-load-more" onClick={handleLoadMore}>
-                Load More Therapists
-              </button>
+          {!loading && totalPages > 1 && (
+            <div>
+              <div className="vat-pagination">
+                <button
+                  className="vat-page-btn"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <i className="feather-chevron-left" style={{ fontSize: 16 }} />
+                </button>
+
+                {getPageNumbers().map((p, i) => (
+                  <button
+                    key={i}
+                    className={`vat-page-btn${p === currentPage ? " active" : ""}${p === "..." ? " ellipsis" : ""}`}
+                    onClick={() => p !== "..." && goToPage(p)}
+                    disabled={p === "..."}
+                  >
+                    {p}
+                  </button>
+                ))}
+
+                <button
+                  className="vat-page-btn"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  <i className="feather-chevron-right" style={{ fontSize: 16 }} />
+                </button>
+              </div>
+              <div className="vat-page-info">
+                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} of {filteredData.length} therapists
+              </div>
             </div>
           )}
         </div>
