@@ -348,7 +348,7 @@ export default function HomePage() {
         <FreeResources />
         <HomeWorkshop isWhite={false} />
         <ProcessSteps />
-        <Feedback />
+        <Feedback therapists={topTherapists} />
         <Blogs />
         <Faqs />
         <NewsLetter />
