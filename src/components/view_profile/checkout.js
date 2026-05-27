@@ -1,5 +1,4 @@
 import React, { useEffect, useCallback } from "react";
-import Script from "next/script";
 import ProfileCheckoutCard from "./profile-checkout-card";
 import Head from "next/head";
 import { getFormatsByServiceId, getServices } from "../../utils/helpers";
@@ -11,11 +10,6 @@ import { ApplyCouponUrl, BookTherapistUrl, verifyOtpUrl, imagePath } from "../..
 import { useRouter } from "next/router";
 import FormProgressBar from "../global/form-progressbar";
 import useUserStore from "../../store/userStore";
-import {
-  Dialog,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
 import { getToken } from "../../utils/jwt";
 
 export default function TherapistCheckout({ profile }) {
@@ -183,12 +177,7 @@ export default function TherapistCheckout({ profile }) {
       info.amount = amountInfo.afterdiscount;
       const response = await postData(BookTherapistUrl, info);
       if (response.status) {
-        setBookingId(response.data.id);
-        if (!info.is_logged_in) {
-          setOpen(true);
-        } else {
-          handlePayment(response.data.id, amountInfo.afterdiscount);
-        }
+        handlePayment(response.data.id, amountInfo.afterdiscount);
       } else {
         setError(response.message);
       }
@@ -356,7 +345,6 @@ export default function TherapistCheckout({ profile }) {
 
   return (
     <div className="checkout_area bg-color-white" style={{ padding: isMobile ? "8px 0 110px" : "0 0 60px" }}>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <style>{`
         .ck-label{display:block;font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
         .ck-input,.ck-select{border-radius:12px!important;height:50px!important;border:1.5px solid #e8edf2!important;background:#f8fafc!important;font-size:14.5px!important;width:100%!important;padding:0 14px!important;transition:border-color .2s,box-shadow .2s;margin-bottom:0!important;color:#1e293b!important}
@@ -721,61 +709,6 @@ export default function TherapistCheckout({ profile }) {
         </div>
       )}
 
-      {/* ── OTP Verification Dialog ──────────────────────── */}
-      <Dialog
-        open={open}
-        onClose={(event, reason) => {
-          if (reason === "backdropClick" || reason === "escapeKeyDown") return;
-          onClose();
-        }}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{ style: { borderRadius: "20px", padding: "10px" } }}
-      >
-        <div style={{ padding: "24px 20px 20px" }}>
-          <div style={{
-            width: "52px", height: "52px", background: "linear-gradient(135deg,#f0fdf4,#dcfce7)",
-            borderRadius: "16px", display: "flex", alignItems: "center", justifyContent: "center",
-            marginBottom: "14px"
-          }}>
-            <i className="feather-shield" style={{ color: "#228756", fontSize: "24px" }}></i>
-          </div>
-          <h4 style={{ fontWeight: 800, marginBottom: "6px", fontSize: "20px", color: "#1e293b" }}>
-            Verify Your Identity
-          </h4>
-          <p style={{ color: "#94a3b8", fontSize: "14px", marginBottom: "20px" }}>
-            We've sent a 6-digit code to your email &amp; WhatsApp.
-          </p>
-          <FormMessage success={success} error={otpError} />
-          <DialogContent style={{ padding: "0 0 20px 0" }}>
-            <div className="ck-field">
-              <label className="ck-label">Enter 6-digit OTP</label>
-              <input
-                type="text"
-                placeholder="• • • • • •"
-                id="otp"
-                name="otp"
-                value={otp}
-                className="ck-input"
-                style={{ textAlign: "center", fontSize: "28px", letterSpacing: "10px", fontWeight: 800, height: "65px" }}
-                onChange={(e) => handleChange(e.target.name, e.target.value)}
-              />
-            </div>
-          </DialogContent>
-          <DialogActions style={{ padding: 0 }}>
-            <button
-              onClick={verifyOtp}
-              style={{
-                width: "100%", height: "52px", borderRadius: "14px", border: "none",
-                background: "linear-gradient(135deg,#228756,#1a6b44)",
-                color: "#fff", fontSize: "15px", fontWeight: 800, cursor: "pointer"
-              }}
-            >
-              {loading ? "Verifying..." : "Verify & Pay →"}
-            </button>
-          </DialogActions>
-        </div>
-      </Dialog>
     </div>
   );
 }
