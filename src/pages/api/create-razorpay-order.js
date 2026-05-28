@@ -4,8 +4,8 @@ export default async function handler(req, res) {
   const { amount, bookingId } = req.body;
   if (!amount || amount <= 0) return res.status(400).json({ error: "Invalid amount" });
 
-  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = process.env.RAZORPAY_KEY_ID || "rzp_live_SuYFLRJRCA5w0x";
+  const keySecret = process.env.RAZORPAY_KEY_SECRET || "s6Bpl5nLIEwSfRHiKUAFc1E5";
 
   try {
     const response = await fetch("https://api.razorpay.com/v1/orders", {

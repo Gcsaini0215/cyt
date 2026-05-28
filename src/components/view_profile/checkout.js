@@ -113,7 +113,7 @@ export default function TherapistCheckout({ profile }) {
       if (!orderId) { setError(error || "Payment init failed. Try again."); return; }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_SuYFLRJRCA5w0x",
+        key: "rzp_live_SuYFLRJRCA5w0x",
         amount: Math.round(amount * 100),
         currency: "INR",
         order_id: orderId,
