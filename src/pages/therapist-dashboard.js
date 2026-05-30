@@ -1,6 +1,5 @@
 import React from "react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
 import MainLayout from "../components/therapists/main-layout";
 
 const PerformanceChart = dynamic(
@@ -32,6 +31,7 @@ import AssessmentIcon from "@mui/icons-material/Assessment";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
 
 const QUICK_ACTIONS = [
   { label: "New Workshop",   icon: <AddBoxIcon />,             to: "/workshops",       color: "#60a5fa" },
@@ -188,52 +188,6 @@ function NextSessionCard({ session }) {
   );
 }
 
-/* ── Profile card ─────────────────────────────────────────── */
-function ProfileCard({ checks, pct }) {
-  const done = checks.filter(c => c.done).length;
-  return (
-    <Paper elevation={0} sx={{ borderRadius: "20px", border: "1.5px solid #f0f4f8", background: "#fff", overflow: "hidden" }}>
-      <Box sx={{ px: "20px", pt: "18px", pb: pct < 100 ? "12px" : "20px" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
-          <Box>
-            <Typography sx={{ fontWeight: 800, fontSize: "13.5px", color: "#1e293b" }}>Profile Setup</Typography>
-            <Typography sx={{ fontSize: "11px", color: "#94a3b8", fontWeight: 500, mt: 0.3 }}>{done} of {checks.length} steps done</Typography>
-          </Box>
-          <Box sx={{ width: 44, height: 44, borderRadius: "50%", border: `3px solid ${pct === 100 ? "#dcfce7" : "#e8f5e9"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <Typography sx={{ fontWeight: 900, fontSize: "12px", color: pct === 100 ? "#2ecc71" : "#228756" }}>{pct}%</Typography>
-          </Box>
-        </Box>
-        <Box sx={{ display: "flex", gap: "3px", mb: 1.8 }}>
-          {checks.map((c, i) => (
-            <Box key={i} sx={{ flex: 1, height: 5, borderRadius: 2, background: c.done ? "#228756" : "#f1f5f9", transition: "background 0.4s" }} />
-          ))}
-        </Box>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.9 }}>
-          {checks.map((c, i) => (
-            <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              {c.done
-                ? <CheckCircleIcon sx={{ fontSize: 14, color: "#2ecc71", flexShrink: 0 }} />
-                : <RadioButtonUncheckedIcon sx={{ fontSize: 14, color: "#cbd5e1", flexShrink: 0 }} />}
-              <Typography sx={{ fontSize: "11.5px", fontWeight: 600, color: c.done ? "#94a3b8" : "#475569", textDecoration: c.done ? "line-through" : "none" }}>
-                {c.label}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      </Box>
-      {pct < 100 && (
-        <Box sx={{ px: "16px", pb: "16px" }}>
-          <Link href="/settings" style={{ textDecoration: "none" }}>
-            <Box sx={{ py: "10px", borderRadius: "12px", background: "linear-gradient(135deg,#1b5e20,#228756)", textAlign: "center", cursor: "pointer", "&:hover": { opacity: 0.9 }, transition: "opacity 0.2s" }}>
-              <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "12px" }}>Complete Profile →</Typography>
-            </Box>
-          </Link>
-        </Box>
-      )}
-    </Paper>
-  );
-}
-
 /* ── Sessions card ────────────────────────────────────────── */
 function SessionsCard({ todaySessions, upcomingSessions }) {
   const [tab, setTab] = React.useState("today");
@@ -328,12 +282,11 @@ const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct"
 const DAY_NAMES   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 export default function TherapistDashboard() {
-  const router = useRouter();
+  const [showWelcome,      setShowWelcome]      = React.useState(() => typeof window !== "undefined" && !localStorage.getItem("cyt_th_welcomed"));
+  const [welcLeaving,      setWelcLeaving]      = React.useState(false);
   const [loading,          setLoading]          = React.useState(true);
   const [refreshing,       setRefreshing]       = React.useState(false);
   const [lastRefreshed,    setLastRefreshed]    = React.useState(null);
-  const [showProfileModal, setShowProfileModal] = React.useState(false);
-
   const [stats,            setStats]            = React.useState({ totalEarnings: 0, monthEarnings: 0, upcoming: 0, totalClients: 0 });
   const [weeklyData,       setWeeklyData]       = React.useState(() => {
     const now = new Date();
@@ -457,6 +410,17 @@ export default function TherapistDashboard() {
   React.useEffect(() => { load(); }, []);
   React.useEffect(() => { const iv = setInterval(() => load(true), 60000); return () => clearInterval(iv); }, [load]);
 
+  const dismissWelcome = React.useCallback(() => {
+    setWelcLeaving(true);
+    setTimeout(() => { localStorage.setItem("cyt_th_welcomed", "1"); setShowWelcome(false); setWelcLeaving(false); }, 500);
+  }, []);
+
+  React.useEffect(() => {
+    if (!showWelcome) return;
+    const t = setTimeout(dismissWelcome, 4000);
+    return () => clearTimeout(t);
+  }, [showWelcome, dismissWelcome]);
+
   const profileChecks = React.useMemo(() => {
     const t = therapistInfo;
     return [
@@ -469,22 +433,16 @@ export default function TherapistDashboard() {
   }, [therapistInfo, paymentStore]);
   const completionPct = Math.round((profileChecks.filter(c => c.done).length / profileChecks.length) * 100);
 
-  React.useEffect(() => {
-    if (!loading && completionPct < 100 && !sessionStorage.getItem("profileModalDone")) {
-      const t = setTimeout(() => setShowProfileModal(true), 600);
-      return () => clearTimeout(t);
-    }
-  }, [loading, completionPct]);
-
-  const closeProfileModal = (go) => {
-    sessionStorage.setItem("profileModalDone", "1");
-    setShowProfileModal(false);
-    if (go) router.push("/settings");
-  };
-
   const name      = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
   const today     = clockTime.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" });
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
+
+  const [showStrip, setShowStrip] = React.useState(true);
+
+  const hasChartData = !loading && (weeklyData.some(d => d.sessions > 0 || d.revenue > 0) || monthlyData.some(d => d.sessions > 0 || d.revenue > 0));
+  const hasSessions  = !loading && (todaySessions.length > 0 || upcomingSessions.length > 0);
+  const hasInvoices  = !loading && invoices.length > 0;
+  const hasNextSess  = !loading && !!nextSession;
 
   const statCards = [
     { icon: <AccountBalanceWalletIcon />, label: "Total Earnings",    numericValue: stats.totalEarnings, isCurrency: true,  color: "#228756", bg: "#f0fdf4", gradient: "linear-gradient(90deg,#228756,#4ade80)", trend: "Lifetime",        trendUp: true },
@@ -498,7 +456,14 @@ export default function TherapistDashboard() {
       <Box sx={{ pt: 0, pb: 6 }}>
 
         {/* ══ THIN PROFILE STRIP ════════════════════════════════ */}
-        <Paper elevation={0} sx={{ borderRadius: "16px", border: "1.5px solid #f0f4f8", background: "#fff", mb: { xs: 1.5, md: 2 }, overflow: "hidden" }}>
+        {!showStrip && (
+          <Box onClick={() => setShowStrip(true)} sx={{ display: "flex", alignItems: "center", gap: 1, mb: { xs: 1.5, md: 2 }, cursor: "pointer", width: "fit-content", background: "#f8fafc", border: "1.5px solid #f0f4f8", borderRadius: "22px", px: 1.5, py: 0.6, transition: "all 0.15s", "&:hover": { background: "#f1f5f9" } }}>
+            <Avatar src={avatarSrc} sx={{ width: 22, height: 22, borderRadius: "6px" }} />
+            <Typography sx={{ fontSize: "11.5px", fontWeight: 700, color: "#64748b" }}>{name}</Typography>
+            <ExpandLessRoundedIcon sx={{ fontSize: 14, color: "#94a3b8", transform: "rotate(180deg)" }} />
+          </Box>
+        )}
+        <Paper elevation={0} sx={{ borderRadius: "16px", border: "1.5px solid #f0f4f8", background: "#fff", mb: { xs: 1.5, md: 2 }, overflow: "hidden", display: showStrip ? "block" : "none" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: { xs: 2, md: 2.5 }, py: { xs: 1.5, md: 1.8 }, gap: 2 }}>
             {/* Avatar + name + status */}
             <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, md: 2 }, minWidth: 0 }}>
@@ -514,8 +479,8 @@ export default function TherapistDashboard() {
                 <Typography sx={{ fontSize: { xs: "11px", md: "11.5px" }, color: "#64748b", fontWeight: 500, mt: 0.25 }}>
                   {loading ? "Loading…"
                     : todaySessions.length > 0
-                      ? `${todaySessions.length} session${todaySessions.length > 1 ? "s" : ""} today · ${upcomingSessions.length} upcoming`
-                      : `No sessions today · ${upcomingSessions.length} upcoming`}
+                      ? `${todaySessions.length} appointment${todaySessions.length > 1 ? "s" : ""} today · ${upcomingSessions.length} upcoming`
+                      : `No appointments today · ${upcomingSessions.length} upcoming`}
                 </Typography>
                 {!loading && completionPct < 100 && (
                   <Link href="/settings" style={{ textDecoration: "none" }}>
@@ -550,6 +515,12 @@ export default function TherapistDashboard() {
                   <RefreshIcon sx={{ fontSize: 16 }} />
                 </IconButton>
               </Tooltip>
+              <Tooltip title="Minimize">
+                <IconButton size="small" onClick={() => setShowStrip(false)}
+                  sx={{ background: "#f8fafc", color: "#94a3b8", borderRadius: "10px", border: "1.5px solid #f0f4f8", p: "6px", "&:hover": { background: "#fef2f2", color: "#f87171", borderColor: "#fecaca" } }}>
+                  <ExpandLessRoundedIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
             </Box>
           </Box>
 
@@ -579,72 +550,97 @@ export default function TherapistDashboard() {
           {/* LEFT */}
           <Grid item xs={12} lg={8}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 2, md: 2.5 } }}>
-              <Box sx={{ display: { xs: "block", lg: "none" } }}>
-                <NextSessionCard session={nextSession} />
-              </Box>
-              <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />
-              <SessionsCard todaySessions={todaySessions} upcomingSessions={upcomingSessions} />
-              <RecentInvoices data={invoices} />
-              <Box sx={{ display: { xs: "block", lg: "none" } }}>
-                <ProfileCard checks={profileChecks} pct={completionPct} />
-              </Box>
+              {hasNextSess && (
+                <Box sx={{ display: { xs: "block", lg: "none" } }}>
+                  <NextSessionCard session={nextSession} />
+                </Box>
+              )}
+              {hasChartData && <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />}
+              {hasSessions  && <SessionsCard todaySessions={todaySessions} upcomingSessions={upcomingSessions} />}
+              {hasInvoices  && <RecentInvoices data={invoices} />}
             </Box>
           </Grid>
 
           {/* RIGHT sticky — desktop */}
-          <Grid item lg={4} sx={{ display: { xs: "none", lg: "block" } }}>
-            <Box sx={{ position: "sticky", top: "72px", display: "flex", flexDirection: "column", gap: 2.5 }}>
-              <NextSessionCard session={nextSession} />
-              <ProfileCard checks={profileChecks} pct={completionPct} />
-            </Box>
-          </Grid>
+          {hasNextSess && (
+            <Grid item lg={4} sx={{ display: { xs: "none", lg: "block" } }}>
+              <Box sx={{ position: "sticky", top: "72px" }}>
+                <NextSessionCard session={nextSession} />
+              </Box>
+            </Grid>
+          )}
 
         </Grid>
       </Box>
 
-      {/* ══ PROFILE MODAL ═════════════════════════════════════ */}
-      {showProfileModal && (
-        <>
-          <style>{`
-            @keyframes pmFade { from{opacity:0} to{opacity:1} }
-            @keyframes pmUp   { from{transform:translateY(30px) scale(.97);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-          `}</style>
-          <div style={{ position:"fixed",inset:0,background:"rgba(15,23,42,.55)",zIndex:3000,display:"flex",alignItems:"center",justifyContent:"center",padding:16,animation:"pmFade .2s ease" }}
-            onClick={() => closeProfileModal(false)}>
-            <div style={{ background:"#fff",borderRadius:24,padding:"28px 24px",width:"100%",maxWidth:400,boxShadow:"0 24px 64px rgba(0,0,0,.28)",animation:"pmUp .3s cubic-bezier(.34,1.56,.64,1)" }}
-              onClick={e => e.stopPropagation()}>
-              <div style={{ textAlign:"center",marginBottom:20 }}>
-                <div style={{ width:64,height:64,borderRadius:"50%",background:"#f0fdf4",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",fontSize:30 }}>👋</div>
-                <div style={{ fontWeight:900,fontSize:20,color:"#1e293b",marginBottom:6 }}>Complete Your Profile</div>
-                <div style={{ fontSize:13,color:"#64748b",fontWeight:500,lineHeight:1.5 }}>
-                  Your profile is <strong style={{ color:"#228756" }}>{completionPct}%</strong> complete. Finish setup to start receiving clients.
-                </div>
-              </div>
-              <div style={{ background:"#f1f5f9",borderRadius:8,height:8,marginBottom:18,overflow:"hidden" }}>
-                <div style={{ height:"100%",width:`${completionPct}%`,background:"linear-gradient(90deg,#228756,#4ade80)",borderRadius:8,transition:"width .6s ease" }} />
-              </div>
-              <div style={{ display:"flex",flexDirection:"column",gap:7,marginBottom:24 }}>
-                {profileChecks.map((c, i) => (
-                  <div key={i} style={{ display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:12,background:c.done?"#f0fdf4":"#f8fafc" }}>
-                    {c.done
-                      ? <CheckCircleIcon sx={{ fontSize:16,color:"#22c55e",flexShrink:0 }} />
-                      : <RadioButtonUncheckedIcon sx={{ fontSize:16,color:"#cbd5e1",flexShrink:0 }} />}
-                    <span style={{ fontSize:13,fontWeight:600,color:c.done?"#94a3b8":"#475569",textDecoration:c.done?"line-through":"none" }}>{c.label}</span>
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => closeProfileModal(true)}
-                style={{ width:"100%",padding:"13px",background:"linear-gradient(135deg,#228756,#1b6843)",color:"#fff",border:"none",borderRadius:14,fontSize:14,fontWeight:800,cursor:"pointer",marginBottom:10,fontFamily:"inherit" }}>
-                Setup Profile Now
-              </button>
-              <button onClick={() => closeProfileModal(false)}
-                style={{ width:"100%",padding:"11px",background:"transparent",color:"#94a3b8",border:"1.5px solid #f1f5f9",borderRadius:14,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit" }}>
-                Remind me later
-              </button>
-            </div>
-          </div>
-        </>
+      {/* ══ FIRST-TIME WELCOME OVERLAY ════════════════════════ */}
+      {showWelcome && (
+        <Box sx={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          animation: `${welcLeaving ? "wOut" : "wIn"} 0.5s ease forwards`,
+          "@keyframes wIn":  { from: { opacity: 0 }, to: { opacity: 1 } },
+          "@keyframes wOut": { from: { opacity: 1 }, to: { opacity: 0 } },
+        }}>
+          {/* Gradient bg */}
+          <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, #041610 0%, #0c3520 30%, #145e2e 65%, #1a7540 100%)" }} />
+          {/* Dot grid */}
+          <Box sx={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+          {/* Glows */}
+          <Box sx={{ position: "absolute", top: "10%", right: "10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(74,222,128,0.13) 0%, transparent 65%)", pointerEvents: "none" }} />
+          <Box sx={{ position: "absolute", bottom: "10%", left: "5%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,135,86,0.18) 0%, transparent 65%)", pointerEvents: "none" }} />
+
+          {/* Content */}
+          <Box sx={{ position: "relative", textAlign: "center", px: { xs: 3, md: 6 }, maxWidth: 560 }}>
+
+            {/* Brand */}
+            <Box sx={{ animation: "wUp 0.5s ease 0.2s both", "@keyframes wUp": { from: { opacity: 0, transform: "translateY(14px)" }, to: { opacity: 1, transform: "none" } } }}>
+              <Typography sx={{ fontSize: { xs: "10px", md: "11px" }, fontWeight: 800, color: "rgba(255,255,255,0.3)", letterSpacing: "3px", textTransform: "uppercase", mb: { xs: 3, md: 4 } }}>
+                Choose Your Therapist
+              </Typography>
+            </Box>
+
+            {/* Welcome */}
+            <Box sx={{ animation: "wUp 0.5s ease 0.5s both" }}>
+              <Typography sx={{ fontSize: { xs: "1rem", md: "1.2rem" }, fontWeight: 400, color: "rgba(255,255,255,0.5)", mb: 0.5 }}>
+                Welcome,
+              </Typography>
+            </Box>
+
+            {/* Name — big */}
+            <Box sx={{ animation: "wScale 0.65s cubic-bezier(.34,1.56,.64,1) 0.75s both", "@keyframes wScale": { from: { opacity: 0, transform: "scale(0.82)" }, to: { opacity: 1, transform: "scale(1)" } }, mb: { xs: 2, md: 2.5 } }}>
+              <Typography sx={{ fontSize: { xs: "3rem", md: "4.5rem" }, fontWeight: 900, color: "#fff", lineHeight: 1, letterSpacing: { xs: "-1.5px", md: "-3px" } }}>
+                {name}
+              </Typography>
+            </Box>
+
+            {/* Online dot + subtitle */}
+            <Box sx={{ animation: "wUp 0.5s ease 1.25s both", display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: { xs: 4, md: 5 } }}>
+              <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 0 4px rgba(74,222,128,0.22)", flexShrink: 0 }} />
+              <Typography sx={{ fontSize: { xs: "13px", md: "14px" }, color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
+                Your dashboard is ready
+              </Typography>
+            </Box>
+
+            {/* CTA */}
+            <Box sx={{ animation: "wUp 0.5s ease 1.55s both" }}>
+              <Box onClick={dismissWelcome} sx={{
+                display: "inline-flex", alignItems: "center", gap: 1.5,
+                background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.22)",
+                borderRadius: "50px", px: { xs: 3.5, md: 5 }, py: { xs: 1.5, md: 1.8 },
+                cursor: "pointer", transition: "all 0.2s",
+                "&:hover": { background: "rgba(255,255,255,0.2)", borderColor: "rgba(255,255,255,0.4)", transform: "scale(1.04)" },
+              }}>
+                <Typography sx={{ fontSize: { xs: "14px", md: "16px" }, fontWeight: 700, color: "#fff", letterSpacing: "0.2px" }}>
+                  Enter Dashboard
+                </Typography>
+                <Typography sx={{ fontSize: { xs: "16px", md: "18px" }, color: "#4ade80" }}>→</Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
       )}
+
     </MainLayout>
   );
 }

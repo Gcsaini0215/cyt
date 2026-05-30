@@ -12,13 +12,13 @@ const logo1 = "/logo.png";
 
 const NAV = [
   { to: "/therapist-dashboard", label: "Dashboard", icon: "feather-home" },
-  { to: "/appointments", label: "Sessions", icon: "feather-calendar", hasBadge: true },
+  { to: "/appointments", label: "Appointments", icon: "feather-calendar", hasBadge: true },
   { to: "/settings", label: "Settings", icon: "feather-settings" },
 ];
 
 const MOB_NAV = [
   { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
-  { to: "/appointments", icon: "feather-calendar", label: "Sessions", badge: true },
+  { to: "/appointments", icon: "feather-calendar", label: "Appointments", badge: true },
   { to: "/settings", icon: "feather-settings", label: "Settings" },
 ];
 
@@ -316,7 +316,7 @@ export default function DashboardTopNav() {
                   <i className="feather-settings"></i> Edit Profile
                 </Link>
                 <Link href="/appointments">
-                  <i className="feather-calendar"></i> Sessions
+                  <i className="feather-calendar"></i> Appointments
                 </Link>
                 <button onClick={handleLogout} className="logout-btn">
                   <i className="feather-log-out"></i> Logout
