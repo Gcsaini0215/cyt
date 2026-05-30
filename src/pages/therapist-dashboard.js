@@ -31,6 +31,7 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 const QUICK_ACTIONS = [
   { label: "New Workshop",   icon: <AddBoxIcon />,             to: "/workshops",       color: "#60a5fa" },
@@ -346,6 +347,9 @@ export default function TherapistDashboard() {
   const [upcomingSessions, setUpcomingSessions] = React.useState([]);
   const [nextSession,      setNextSession]      = React.useState(null);
   const [invoices,         setInvoices]         = React.useState([]);
+  const [clockTime,        setClockTime]        = React.useState(() => new Date());
+
+  React.useEffect(() => { const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
 
   const { therapistInfo, fetchTherapistInfo, paymentStore } = useTherapistStore();
 
@@ -479,7 +483,7 @@ export default function TherapistDashboard() {
   };
 
   const name      = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
-  const today     = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" });
+  const today     = clockTime.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" });
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
 
   const statCards = [
@@ -493,91 +497,72 @@ export default function TherapistDashboard() {
     <MainLayout>
       <Box sx={{ pt: 0, pb: 6 }}>
 
-        {/* ══ PREMIUM HERO ══════════════════════════════════════ */}
-        <Box sx={{ position: "relative", borderRadius: { xs: "20px", md: "28px" }, overflow: "hidden", mb: { xs: 2.5, md: 3 } }}>
-          {/* Background layers */}
-          <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(140deg, #041610 0%, #0c3520 30%, #145e2e 65%, #1a7540 100%)" }} />
-          <Box sx={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
-          <Box sx={{ position: "absolute", top: -100, right: -100, width: 360, height: 360, borderRadius: "50%", background: "radial-gradient(circle, rgba(74,222,128,0.13) 0%, transparent 65%)", pointerEvents: "none" }} />
-          <Box sx={{ position: "absolute", bottom: -60, left: "18%", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,135,86,0.16) 0%, transparent 65%)", pointerEvents: "none" }} />
-          <Box sx={{ position: "absolute", top: "35%", left: -70, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)", pointerEvents: "none" }} />
-
-          <Box sx={{ position: "relative", p: { xs: "26px 20px 24px", md: "40px 44px 34px" } }}>
-
-            {/* Top row: avatar/greeting | time/refresh */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2, mb: { xs: 3, md: 3.5 } }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 2, md: 2.5 }, minWidth: 0, flex: 1 }}>
-                <Box sx={{ position: "relative", flexShrink: 0 }}>
-                  <Avatar src={avatarSrc} alt={name}
-                    sx={{ width: { xs: 54, md: 68 }, height: { xs: 54, md: 68 }, borderRadius: { xs: "16px", md: "20px" }, border: "2.5px solid rgba(255,255,255,0.2)" }} />
-                  <Box sx={{ position: "absolute", bottom: -2, right: -2, width: 13, height: 13, borderRadius: "50%", background: "#4ade80", border: "2.5px solid #0c3520" }} />
-                </Box>
-                <Box sx={{ minWidth: 0 }}>
-                  <Typography sx={{ fontSize: { xs: "9px", md: "10px" }, color: "rgba(255,255,255,0.4)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1.2px", mb: 0.5 }}>
-                    Welcome back
-                  </Typography>
-                  <Typography sx={{ fontWeight: 900, color: "#fff", lineHeight: 1.1, letterSpacing: "-0.8px", fontSize: { xs: "1.55rem", md: "2.15rem" }, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {name}
-                  </Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 0.7, mt: 0.85 }}>
-                    <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#4ade80", flexShrink: 0 }} />
-                    <Typography sx={{ fontSize: { xs: "11px", md: "12px" }, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>
-                      {loading ? "Loading…"
-                        : todaySessions.length > 0
-                          ? `${todaySessions.length} session${todaySessions.length > 1 ? "s" : ""} today · ${upcomingSessions.length} upcoming`
-                          : `No sessions today · ${upcomingSessions.length} upcoming`}
-                    </Typography>
-                  </Box>
-                </Box>
+        {/* ══ THIN PROFILE STRIP ════════════════════════════════ */}
+        <Paper elevation={0} sx={{ borderRadius: "16px", border: "1.5px solid #f0f4f8", background: "#fff", mb: { xs: 1.5, md: 2 }, overflow: "hidden" }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: { xs: 2, md: 2.5 }, py: { xs: 1.5, md: 1.8 }, gap: 2 }}>
+            {/* Avatar + name + status */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, md: 2 }, minWidth: 0 }}>
+              <Box sx={{ position: "relative", flexShrink: 0 }}>
+                <Avatar src={avatarSrc} alt={name}
+                  sx={{ width: { xs: 42, md: 48 }, height: { xs: 42, md: 48 }, borderRadius: "13px" }} />
+                <Box sx={{ position: "absolute", bottom: -1, right: -1, width: 11, height: 11, borderRadius: "50%", background: "#4ade80", border: "2px solid #fff" }} />
               </Box>
-
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1, flexShrink: 0 }}>
-                <Box sx={{ display: { xs: "none", sm: "block" }, textAlign: "right" }}>
-                  <Typography sx={{ fontSize: { md: "20px" }, fontWeight: 900, color: "#fff", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
-                    {new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}
-                  </Typography>
-                  <Typography sx={{ fontSize: "10px", color: "rgba(255,255,255,0.38)", mt: 0.3, fontWeight: 500 }}>{today}</Typography>
-                </Box>
-                <Tooltip title="Refresh dashboard">
-                  <IconButton onClick={() => load(true)} disabled={refreshing} size="small"
-                    sx={{ background: "rgba(255,255,255,0.1)", color: "#fff", borderRadius: "10px", p: "7px", "&:hover": { background: "rgba(255,255,255,0.2)" }, animation: refreshing ? "heroSpin 1s linear infinite" : "none", "@keyframes heroSpin": { to: { transform: "rotate(360deg)" } } }}>
-                    <RefreshIcon sx={{ fontSize: 16 }} />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Box>
-
-            {/* Quick action pills */}
-            <Box sx={{ display: "flex", gap: { xs: 0.8, md: 1 }, flexWrap: "wrap", mb: lastRefreshed ? 2 : 0 }}>
-              {QUICK_ACTIONS.map((a, i) => (
-                <Link key={i} href={a.to} style={{ textDecoration: "none" }}>
-                  <Box sx={{
-                    display: "flex", alignItems: "center", gap: 0.7,
-                    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)",
-                    borderRadius: "22px", px: { xs: 1.6, md: 2 }, py: { xs: 0.85, md: 1.05 },
-                    cursor: "pointer", userSelect: "none", transition: "all 0.15s",
-                    "&:hover": { background: "rgba(255,255,255,0.16)", borderColor: "rgba(255,255,255,0.26)" },
-                  }}>
-                    {React.cloneElement(a.icon, { sx: { fontSize: { xs: 13, md: 14 }, color: a.color } })}
-                    <Typography sx={{ fontSize: { xs: "11.5px", md: "12px" }, fontWeight: 700, color: "rgba(255,255,255,0.82)", whiteSpace: "nowrap" }}>
-                      {a.label}
-                    </Typography>
-                  </Box>
-                </Link>
-              ))}
-            </Box>
-
-            {/* Sync indicator */}
-            {lastRefreshed && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                <Box sx={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", boxShadow: "0 0 0 3px rgba(74,222,128,0.2)" }} />
-                <Typography sx={{ fontSize: "9.5px", color: "rgba(255,255,255,0.28)", fontWeight: 500 }}>
-                  Last updated {lastRefreshed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontWeight: 800, color: "#0f172a", fontSize: { xs: "14px", md: "15.5px" }, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {name}
                 </Typography>
+                <Typography sx={{ fontSize: { xs: "11px", md: "11.5px" }, color: "#64748b", fontWeight: 500, mt: 0.25 }}>
+                  {loading ? "Loading…"
+                    : todaySessions.length > 0
+                      ? `${todaySessions.length} session${todaySessions.length > 1 ? "s" : ""} today · ${upcomingSessions.length} upcoming`
+                      : `No sessions today · ${upcomingSessions.length} upcoming`}
+                </Typography>
+                {!loading && completionPct < 100 && (
+                  <Link href="/settings" style={{ textDecoration: "none" }}>
+                    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 0.6, background: "#fff8ed", border: "1.5px solid #fde68a", borderRadius: "20px", px: 1.2, py: "2px", cursor: "pointer", "&:hover": { background: "#fef3c7" }, transition: "background 0.15s" }}>
+                      <Box sx={{ width: 5, height: 5, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />
+                      <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#d97706", whiteSpace: "nowrap" }}>
+                        Profile {completionPct}% complete
+                      </Typography>
+                    </Box>
+                  </Link>
+                )}
               </Box>
-            )}
+            </Box>
+
+            {/* Time + refresh */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
+              <Box sx={{ textAlign: "right", display: { xs: "none", sm: "block" } }}>
+                <Typography sx={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
+                  {clockTime.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })}
+                </Typography>
+                <Typography sx={{ fontSize: "10px", color: "#94a3b8", fontWeight: 500, mt: 0.1 }}>{today}</Typography>
+              </Box>
+              <Tooltip title="Notifications">
+                <IconButton component={Link} href="/notifications" size="small"
+                  sx={{ background: "#f8fafc", color: "#64748b", borderRadius: "10px", border: "1.5px solid #f0f4f8", p: "6px", "&:hover": { background: "#f0f9ff", color: "#0ea5e9", borderColor: "#bae6fd" } }}>
+                  <NotificationsIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Refresh dashboard">
+                <IconButton onClick={() => load(true)} disabled={refreshing} size="small"
+                  sx={{ background: "#f8fafc", color: "#64748b", borderRadius: "10px", border: "1.5px solid #f0f4f8", p: "6px", "&:hover": { background: "#f0fdf4", color: "#228756", borderColor: "#dcfce7" }, animation: refreshing ? "stripSpin 1s linear infinite" : "none", "@keyframes stripSpin": { to: { transform: "rotate(360deg)" } } }}>
+                  <RefreshIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
-        </Box>
+
+          {lastRefreshed && (
+            <Box sx={{ px: { xs: 2, md: 2.5 }, pb: 1.1, display: "flex", alignItems: "center", gap: 0.6 }}>
+              <Box sx={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", flexShrink: 0 }} />
+              <Typography sx={{ fontSize: "9.5px", color: "#94a3b8", fontWeight: 500 }}>
+                Updated {lastRefreshed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}
+              </Typography>
+            </Box>
+          )}
+        </Paper>
+
 
         {/* ══ STAT CARDS ════════════════════════════════════════ */}
         <Grid container spacing={{ xs: 1.5, md: 2 }} sx={{ mb: { xs: 2, md: 2.5 } }}>
