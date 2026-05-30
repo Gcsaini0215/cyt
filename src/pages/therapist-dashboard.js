@@ -573,6 +573,13 @@ export default function TherapistDashboard() {
         </Grid>
       </Box>
 
+      {/* ── TEST BUTTON ── */}
+      <Box
+        onClick={() => { localStorage.removeItem("cyt_th_welcomed"); setWelcLeaving(false); setShowWelcome(true); }}
+        sx={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, background: "#1a6b3a", color: "#fff", borderRadius: "50px", px: 2.2, py: 1, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,0.22)", display: "flex", alignItems: "center", gap: 0.8, userSelect: "none", transition: "all 0.15s", "&:hover": { background: "#155c30", transform: "scale(1.04)" } }}>
+        <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#fff" }}>👋 Test Welcome</Typography>
+      </Box>
+
       {/* ══ FIRST-TIME WELCOME OVERLAY ════════════════════════ */}
       {showWelcome && (
         <Box sx={{
