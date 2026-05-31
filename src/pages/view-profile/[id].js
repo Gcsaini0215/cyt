@@ -92,6 +92,25 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
     }
   }, []);
 
+  /* ── Profile View Tracking ── */
+  useEffect(() => {
+    if (!id || !profile) return;
+    try {
+      const KEY = "cyt_views";
+      const existing = JSON.parse(localStorage.getItem(KEY) || "{}");
+      const prev = existing[id] || { count: 0 };
+      existing[id] = {
+        count:       prev.count + 1,
+        name:        profile.user?.name        || prev.name        || "",
+        specialty:   profile.profile_type      || prev.specialty   || "",
+        photo:       profile.user?.profile     || prev.photo       || null,
+        lastViewed:  new Date().toISOString(),
+        firstViewed: prev.firstViewed          || new Date().toISOString(),
+      };
+      localStorage.setItem(KEY, JSON.stringify(existing));
+    } catch {}
+  }, [id, profile]);
+
   if (error) {
     return <ErrorPage />;
   }
