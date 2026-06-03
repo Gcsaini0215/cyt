@@ -419,11 +419,11 @@ function ResourceLibrary() {
               </Box>
             </Box>
 
-            {/* PDF iframe */}
+            {/* PDF viewer */}
             <Box sx={{ flex:1, minHeight:0, background:"#f1f5f9" }}>
-              <iframe
-                src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewPdf.url)}&embedded=true`}
-                title={viewPdf.title}
+              <embed
+                src={`${viewPdf.url}#toolbar=1&navpanes=0`}
+                type="application/pdf"
                 style={{ width:"100%", height:"100%", border:"none" }}
               />
             </Box>
