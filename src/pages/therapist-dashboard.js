@@ -32,6 +32,10 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ExpandLessRoundedIcon from "@mui/icons-material/ExpandLessRounded";
+import MessageIcon from "@mui/icons-material/Message";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import LockIcon from "@mui/icons-material/Lock";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 const QUICK_ACTIONS = [
   { label: "New Workshop",   icon: <AddBoxIcon />,             to: "/workshops",       color: "#60a5fa" },
@@ -271,6 +275,296 @@ function SessionsCard({ todaySessions, upcomingSessions }) {
           </Box>
         );
       })}
+    </Paper>
+  );
+}
+
+/* ── Communication Hub constants ──────────────────────────── */
+const MSG_TEMPLATES = [
+  { category: "Reminder",  color: "#2563eb", bg: "#eff6ff",  templates: [
+    { title: "Session Tomorrow",    text: "Hi [Client Name], just a friendly reminder that your therapy session is scheduled for tomorrow at [Time]. Please ensure you're in a quiet, comfortable space. Looking forward to our session!\n\n– [Your Name]" },
+    { title: "Session Today",       text: "Hi [Client Name], this is a reminder that your session is today at [Time]. Please join on time. See you soon!\n\n– [Your Name]" },
+  ]},
+  { category: "Follow-up",  color: "#228756", bg: "#f0fdf4", templates: [
+    { title: "After-Session Check-in", text: "Hi [Client Name], I hope you're feeling well after our session. Remember to practice the techniques we discussed. Please don't hesitate to reach out if you need support between sessions.\n\n– [Your Name]" },
+    { title: "Missed Session",         text: "Hi [Client Name], I noticed you missed our scheduled session today. I hope everything is okay. Please reach out at your convenience to reschedule — I'm here for you.\n\n– [Your Name]" },
+  ]},
+  { category: "Welcome",    color: "#7c3aed", bg: "#f5f3ff", templates: [
+    { title: "New Client Welcome", text: "Welcome to Choose Your Therapist! I'm [Your Name] and I'm truly glad you took this step. Our first session is on [Date] at [Time]. Feel free to reach out if you have any questions before then.\n\n– [Your Name]" },
+  ]},
+  { category: "Payment",    color: "#d97706", bg: "#fffbeb", templates: [
+    { title: "Payment Reminder", text: "Hi [Client Name], this is a gentle reminder that payment for your recent session is pending. Please complete the payment at your earliest convenience. Thank you!\n\n– [Your Name]" },
+  ]},
+];
+
+const PRO_TOOLS = [
+  { icon: "🤖", label: "AI Session Notes",      desc: "Auto-generate structured SOAP notes using AI" },
+  { icon: "📢", label: "Bulk Messaging",         desc: "Send updates to multiple clients at once" },
+  { icon: "📊", label: "Client Progress Charts", desc: "Track mood, symptoms & outcomes over time" },
+  { icon: "📤", label: "Export Reports",          desc: "Export session notes and data as PDF/Excel" },
+];
+
+/* ── FollowUpRow ──────────────────────────────────────────── */
+function FollowUpRow({ fu, fuKey, onDelete, overdue }) {
+  return (
+    <Box sx={{ display:"flex", alignItems:"center", gap:1.5, p:"10px 14px", border:"1.5px solid", borderColor: overdue ? "#fecaca" : "#f0f4f8", borderRadius:"12px", mb:1, background: overdue ? "#fff5f5" : "#fff" }}>
+      <Box sx={{ width:36, height:36, borderRadius:"10px", background: overdue ? "#fee2e2" : "#f0fdf4", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+        <Typography sx={{ fontSize:"16px" }}>{overdue ? "⚠️" : "🕐"}</Typography>
+      </Box>
+      <Box sx={{ flex:1, minWidth:0 }}>
+        <Typography sx={{ fontWeight:700, fontSize:"13px", color:"#1e293b" }}>{fu.clientName}</Typography>
+        <Typography sx={{ fontSize:"11px", color: overdue ? "#dc2626" : "#64748b", fontWeight: overdue ? 600 : 400 }}>
+          {overdue ? "Was due · " : ""}{new Date(fu.date).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" })}
+        </Typography>
+        {fu.note && <Typography sx={{ fontSize:"11px", color:"#94a3b8", mt:0.25, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{fu.note}</Typography>}
+      </Box>
+      <IconButton size="small" onClick={() => onDelete(fuKey)} sx={{ color:"#dc2626", background:"#fef2f2", borderRadius:"8px", p:"4px", "&:hover":{ background:"#fee2e2" } }}>
+        <DeleteOutlineIcon sx={{ fontSize:15 }} />
+      </IconButton>
+    </Box>
+  );
+}
+
+/* ── CommHub ──────────────────────────────────────────────── */
+function CommHub({ allClients, parentLoading }) {
+  const [tab,      setTab]      = React.useState("notes");
+  const [notes,    setNotes]    = React.useState(() => { try { return JSON.parse(localStorage.getItem("cyt_th_notes") || "{}"); } catch { return {}; } });
+  const [followUps,setFollowUps]= React.useState(() => { try { return JSON.parse(localStorage.getItem("cyt_th_followups") || "{}"); } catch { return {}; } });
+  const [activeNote,setActiveNote] = React.useState(null);
+  const [noteText,  setNoteText]   = React.useState("");
+  const [fuClient,  setFuClient]   = React.useState("");
+  const [fuDate,    setFuDate]     = React.useState("");
+  const [fuNote,    setFuNote]     = React.useState("");
+  const [catFilter, setCatFilter]  = React.useState("all");
+  const [copied,    setCopied]     = React.useState(null);
+
+  const clients = React.useMemo(() => {
+    const seen = new Set();
+    return allClients.filter(c => { if (!c.name || seen.has(c.name)) return false; seen.add(c.name); return true; });
+  }, [allClients]);
+
+  const clientKey = name => name.toLowerCase().replace(/\s+/g, "_");
+
+  const saveNote = name => {
+    const k = clientKey(name);
+    const updated = { ...notes, [k]: { text: noteText, clientName: name, savedAt: new Date().toISOString() } };
+    setNotes(updated); localStorage.setItem("cyt_th_notes", JSON.stringify(updated));
+    setActiveNote(null); setNoteText("");
+  };
+
+  const saveFollowUp = () => {
+    if (!fuClient || !fuDate) return;
+    const k = clientKey(fuClient);
+    const updated = { ...followUps, [k]: { clientName: fuClient, date: fuDate, note: fuNote, createdAt: new Date().toISOString() } };
+    setFollowUps(updated); localStorage.setItem("cyt_th_followups", JSON.stringify(updated));
+    setFuClient(""); setFuDate(""); setFuNote("");
+  };
+
+  const deleteFollowUp = k => {
+    const updated = { ...followUps }; delete updated[k];
+    setFollowUps(updated); localStorage.setItem("cyt_th_followups", JSON.stringify(updated));
+  };
+
+  const copyTemplate = (text, idx) => {
+    navigator.clipboard.writeText(text).then(() => { setCopied(idx); setTimeout(() => setCopied(null), 2000); });
+  };
+
+  const todayStr       = new Date().toISOString().split("T")[0];
+  const pendingFUs     = Object.entries(followUps).filter(([, v]) => v.date >= todayStr).sort((a, b) => a[1].date.localeCompare(b[1].date));
+  const overdueFUs     = Object.entries(followUps).filter(([, v]) => v.date < todayStr).sort((a, b) => b[1].date.localeCompare(a[1].date));
+  const allTemplates   = MSG_TEMPLATES.flatMap((cat, ci) => cat.templates.map((t, ti) => ({ ...t, category: cat.category, color: cat.color, bg: cat.bg, idx: `${ci}_${ti}` })));
+  const filteredTmpl   = catFilter === "all" ? allTemplates : allTemplates.filter(t => t.category === catFilter);
+
+  const TABS = [
+    { key: "notes",     label: "Session Notes", badge: Object.keys(notes).length || null },
+    { key: "templates", label: "Templates",      badge: null },
+    { key: "followups", label: "Follow-ups",     badge: (pendingFUs.length + overdueFUs.length) || null },
+  ];
+
+  return (
+    <Paper elevation={0} sx={{ borderRadius:"20px", border:"1.5px solid #f0f4f8", background:"#fff", overflow:"hidden", mt:{ xs:2, md:2.5 } }}>
+
+      {/* Header + Tabs */}
+      <Box sx={{ px:2.5, pt:2.2, pb:0, borderBottom:"1px solid #f1f5f9" }}>
+        <Box sx={{ display:"flex", justifyContent:"space-between", alignItems:"center", mb:1.5 }}>
+          <Box sx={{ display:"flex", alignItems:"center", gap:1 }}>
+            <MessageIcon sx={{ fontSize:17, color:"#228756" }} />
+            <Typography sx={{ fontWeight:800, fontSize:"14px", color:"#1e293b" }}>Communication Hub</Typography>
+            <Box sx={{ background:"#f0fdf4", border:"1px solid #dcfce7", borderRadius:"6px", px:1, py:0.2 }}>
+              <Typography sx={{ fontSize:"10px", fontWeight:700, color:"#228756" }}>FREE</Typography>
+            </Box>
+          </Box>
+          <Typography sx={{ fontSize:"11px", color:"#94a3b8" }}>{clients.length} client{clients.length !== 1 ? "s" : ""}</Typography>
+        </Box>
+        <Box sx={{ display:"flex", gap:0 }}>
+          {TABS.map(t => (
+            <Box key={t.key} onClick={() => setTab(t.key)} sx={{ cursor:"pointer", pb:1.2, mr:3, borderBottom: tab === t.key ? "2.5px solid #228756" : "2.5px solid transparent", transition:"all 0.15s", display:"flex", alignItems:"center", gap:0.8 }}>
+              <Typography sx={{ fontSize:"13px", fontWeight:700, color: tab === t.key ? "#228756" : "#94a3b8" }}>{t.label}</Typography>
+              {t.badge > 0 && (
+                <Box sx={{ background: tab === t.key ? "#f0fdf4" : "#f8fafc", borderRadius:"20px", px:0.9, py:0.1 }}>
+                  <Typography sx={{ fontSize:"10px", fontWeight:800, color: tab === t.key ? "#228756" : "#94a3b8" }}>{t.badge}</Typography>
+                </Box>
+              )}
+            </Box>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Content */}
+      <Box sx={{ p:2.5 }}>
+
+        {/* ── SESSION NOTES ── */}
+        {tab === "notes" && (
+          <Box>
+            {parentLoading || clients.length === 0 ? (
+              <Box sx={{ py:4, textAlign:"center" }}>
+                <Typography sx={{ color:"#94a3b8", fontSize:"13px" }}>
+                  {parentLoading ? "Loading clients…" : "No clients yet. Booked sessions will appear here."}
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ display:"flex", flexDirection:"column", gap:1 }}>
+                {clients.map(client => {
+                  const k = clientKey(client.name);
+                  const saved = notes[k];
+                  const isOpen = activeNote === client.name;
+                  return (
+                    <Box key={client.name} sx={{ border:"1.5px solid", borderColor: isOpen ? "#dcfce7" : "#f0f4f8", borderRadius:"14px", overflow:"hidden", transition:"border-color 0.15s" }}>
+                      <Box onClick={() => { setActiveNote(isOpen ? null : client.name); setNoteText(saved?.text || ""); }}
+                        sx={{ p:"12px 16px", display:"flex", alignItems:"center", gap:1.5, cursor:"pointer", background: isOpen ? "#f0fdf4" : "#fff", transition:"background 0.15s" }}>
+                        <Avatar src={client.imgSrc || defaultProfile} sx={{ width:38, height:38, borderRadius:"11px", flexShrink:0 }} />
+                        <Box sx={{ flex:1, minWidth:0 }}>
+                          <Typography sx={{ fontWeight:700, fontSize:"13.5px", color:"#1e293b" }}>{client.name}</Typography>
+                          {saved
+                            ? <Typography sx={{ fontSize:"11px", color:"#64748b", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>📝 {saved.text.slice(0,70)}{saved.text.length > 70 ? "…" : ""}</Typography>
+                            : <Typography sx={{ fontSize:"11px", color:"#94a3b8" }}>No notes — click to add</Typography>}
+                        </Box>
+                        <Box sx={{ display:"flex", alignItems:"center", gap:0.8, flexShrink:0 }}>
+                          {saved && <Box sx={{ background:"#f0fdf4", border:"1px solid #dcfce7", borderRadius:"6px", px:0.8, py:0.2 }}><Typography sx={{ fontSize:"9px", fontWeight:700, color:"#228756" }}>Saved</Typography></Box>}
+                          <ChevronRightIcon sx={{ fontSize:16, color:"#94a3b8", transform: isOpen ? "rotate(90deg)" : "none", transition:"transform 0.2s" }} />
+                        </Box>
+                      </Box>
+                      {isOpen && (
+                        <Box sx={{ px:2, pb:2, borderTop:"1px solid #f1f5f9", pt:1.5, background:"#fafcff" }}>
+                          <textarea value={noteText} onChange={e => setNoteText(e.target.value)}
+                            placeholder={`Session notes for ${client.name}…`}
+                            style={{ width:"100%", border:"1.5px solid #e2e8f0", borderRadius:"10px", padding:"10px 12px", fontSize:"13px", fontFamily:"inherit", resize:"vertical", minHeight:"80px", outline:"none", color:"#374151", boxSizing:"border-box", lineHeight:1.6 }} />
+                          <Box sx={{ display:"flex", justifyContent:"flex-end", gap:1, mt:1 }}>
+                            <Box onClick={() => setActiveNote(null)} sx={{ cursor:"pointer", px:2, py:0.8, border:"1.5px solid #e2e8f0", borderRadius:"9px" }}>
+                              <Typography sx={{ fontSize:"12px", fontWeight:600, color:"#64748b" }}>Cancel</Typography>
+                            </Box>
+                            <Box onClick={() => saveNote(client.name)} sx={{ cursor:"pointer", px:2.5, py:0.8, background:"#228756", borderRadius:"9px" }}>
+                              <Typography sx={{ fontSize:"12px", fontWeight:700, color:"#fff" }}>Save Note</Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
+            )}
+          </Box>
+        )}
+
+        {/* ── TEMPLATES ── */}
+        {tab === "templates" && (
+          <Box>
+            <Box sx={{ display:"flex", gap:1, flexWrap:"wrap", mb:2 }}>
+              {["all", ...MSG_TEMPLATES.map(c => c.category)].map(cat => (
+                <Box key={cat} onClick={() => setCatFilter(cat)} sx={{ cursor:"pointer", px:1.5, py:0.5, borderRadius:"20px", border:"1.5px solid", borderColor: catFilter === cat ? "#228756" : "#e2e8f0", background: catFilter === cat ? "#f0fdf4" : "#fff", transition:"all 0.15s" }}>
+                  <Typography sx={{ fontSize:"11.5px", fontWeight:700, color: catFilter === cat ? "#228756" : "#64748b", textTransform:"capitalize" }}>{cat === "all" ? "All" : cat}</Typography>
+                </Box>
+              ))}
+            </Box>
+            <Box sx={{ display:"flex", flexDirection:"column", gap:1.5 }}>
+              {filteredTmpl.map(t => (
+                <Box key={t.idx} sx={{ border:"1.5px solid #f0f4f8", borderRadius:"14px", p:"14px 16px", transition:"border-color 0.15s", "&:hover":{ borderColor:"#dcfce7" } }}>
+                  <Box sx={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", mb:1 }}>
+                    <Box>
+                      <Box sx={{ display:"inline-flex", background: t.bg, borderRadius:"6px", px:1, py:0.2, mb:0.7 }}>
+                        <Typography sx={{ fontSize:"9px", fontWeight:800, color: t.color }}>{t.category.toUpperCase()}</Typography>
+                      </Box>
+                      <Typography sx={{ fontWeight:700, fontSize:"13px", color:"#1e293b" }}>{t.title}</Typography>
+                    </Box>
+                    <Box onClick={() => copyTemplate(t.text, t.idx)} sx={{ cursor:"pointer", display:"flex", alignItems:"center", gap:0.5, background: copied === t.idx ? "#f0fdf4" : "#f8fafc", border:"1.5px solid", borderColor: copied === t.idx ? "#dcfce7" : "#e2e8f0", borderRadius:"8px", px:1.2, py:0.6, flexShrink:0, transition:"all 0.15s" }}>
+                      <ContentCopyIcon sx={{ fontSize:12, color: copied === t.idx ? "#228756" : "#94a3b8" }} />
+                      <Typography sx={{ fontSize:"11px", fontWeight:700, color: copied === t.idx ? "#228756" : "#64748b" }}>{copied === t.idx ? "Copied!" : "Copy"}</Typography>
+                    </Box>
+                  </Box>
+                  <Typography sx={{ fontSize:"12px", color:"#64748b", lineHeight:1.65, background:"#f8fafc", borderRadius:"8px", p:"10px 12px", whiteSpace:"pre-line" }}>
+                    "{t.text}"
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {/* ── FOLLOW-UPS ── */}
+        {tab === "followups" && (
+          <Box>
+            <Box sx={{ background:"#f8fafc", borderRadius:"14px", p:2, mb:2.5, border:"1.5px solid #f0f4f8" }}>
+              <Typography sx={{ fontWeight:700, fontSize:"11px", color:"#64748b", mb:1.5, textTransform:"uppercase", letterSpacing:"0.5px" }}>Set New Follow-up</Typography>
+              <Box sx={{ display:"grid", gridTemplateColumns:{ xs:"1fr", sm:"1fr 1fr" }, gap:1.5, mb:1.5 }}>
+                <select value={fuClient} onChange={e => setFuClient(e.target.value)}
+                  style={{ border:"1.5px solid #e2e8f0", borderRadius:"10px", padding:"9px 12px", fontSize:"13px", color: fuClient ? "#1e293b" : "#9ca3af", fontFamily:"inherit", outline:"none", background:"#fff", width:"100%", boxSizing:"border-box" }}>
+                  <option value="">Select client…</option>
+                  {clients.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                </select>
+                <input type="date" value={fuDate} min={todayStr} onChange={e => setFuDate(e.target.value)}
+                  style={{ border:"1.5px solid #e2e8f0", borderRadius:"10px", padding:"9px 12px", fontSize:"13px", color:"#1e293b", fontFamily:"inherit", outline:"none", background:"#fff", width:"100%", boxSizing:"border-box" }} />
+              </Box>
+              <textarea value={fuNote} onChange={e => setFuNote(e.target.value)} placeholder="Follow-up note or reminder… (optional)"
+                style={{ width:"100%", border:"1.5px solid #e2e8f0", borderRadius:"10px", padding:"9px 12px", fontSize:"13px", fontFamily:"inherit", resize:"none", minHeight:"56px", outline:"none", color:"#374151", boxSizing:"border-box", marginBottom:"12px" }} />
+              <Box onClick={saveFollowUp} sx={{ display:"inline-flex", alignItems:"center", gap:0.8, background: fuClient && fuDate ? "#228756" : "#f1f5f9", borderRadius:"10px", px:2.5, py:0.9, cursor: fuClient && fuDate ? "pointer" : "not-allowed", transition:"opacity 0.15s", "&:hover":{ opacity: fuClient && fuDate ? 0.88 : 1 } }}>
+                <Typography sx={{ fontSize:"12.5px", fontWeight:700, color: fuClient && fuDate ? "#fff" : "#94a3b8" }}>Save Follow-up</Typography>
+              </Box>
+            </Box>
+            {overdueFUs.length > 0 && (
+              <Box sx={{ mb:2 }}>
+                <Typography sx={{ fontWeight:800, fontSize:"11px", color:"#dc2626", textTransform:"uppercase", letterSpacing:"0.6px", mb:1 }}>⚠ Overdue</Typography>
+                {overdueFUs.map(([k, fu]) => <FollowUpRow key={k} fu={fu} fuKey={k} onDelete={deleteFollowUp} overdue />)}
+              </Box>
+            )}
+            {pendingFUs.length > 0
+              ? <Box>
+                  <Typography sx={{ fontWeight:800, fontSize:"11px", color:"#228756", textTransform:"uppercase", letterSpacing:"0.6px", mb:1 }}>Scheduled</Typography>
+                  {pendingFUs.map(([k, fu]) => <FollowUpRow key={k} fu={fu} fuKey={k} onDelete={deleteFollowUp} />)}
+                </Box>
+              : overdueFUs.length === 0 && (
+                  <Box sx={{ py:4, textAlign:"center" }}>
+                    <CheckCircleIcon sx={{ fontSize:32, color:"#dcfce7", mb:1 }} />
+                    <Typography sx={{ color:"#94a3b8", fontSize:"13px", fontWeight:600 }}>No follow-ups yet</Typography>
+                    <Typography sx={{ color:"#cbd5e1", fontSize:"11.5px", mt:0.5 }}>Use the form above to set reminders</Typography>
+                  </Box>
+                )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Pro features strip */}
+      <Box sx={{ borderTop:"1px solid #f1f5f9", px:2.5, py:2, background:"linear-gradient(135deg,#fafafa 0%,#f8f9ff 100%)" }}>
+        <Box sx={{ display:"flex", alignItems:"center", gap:1, mb:1.5 }}>
+          <LockIcon sx={{ fontSize:13, color:"#7c3aed" }} />
+          <Typography sx={{ fontWeight:800, fontSize:"11px", color:"#7c3aed", textTransform:"uppercase", letterSpacing:"0.8px" }}>Pro Features</Typography>
+          <Box sx={{ background:"linear-gradient(90deg,#7c3aed,#a855f7)", borderRadius:"20px", px:1, py:0.2 }}>
+            <Typography sx={{ fontSize:"9px", fontWeight:800, color:"#fff" }}>COMING SOON</Typography>
+          </Box>
+        </Box>
+        <Box sx={{ display:"flex", gap:1.5, flexWrap:"wrap" }}>
+          {PRO_TOOLS.map(p => (
+            <Box key={p.label} sx={{ display:"flex", alignItems:"center", gap:1, border:"1.5px dashed #e2e8f0", borderRadius:"12px", px:1.5, py:0.9, opacity:0.72 }}>
+              <Typography sx={{ fontSize:"15px" }}>{p.icon}</Typography>
+              <Box>
+                <Typography sx={{ fontSize:"11.5px", fontWeight:700, color:"#374151" }}>{p.label}</Typography>
+                <Typography sx={{ fontSize:"10px", color:"#94a3b8" }}>{p.desc}</Typography>
+              </Box>
+              <LockIcon sx={{ fontSize:12, color:"#c4b5fd", ml:"auto" }} />
+            </Box>
+          ))}
+        </Box>
+      </Box>
     </Paper>
   );
 }
@@ -571,6 +865,13 @@ export default function TherapistDashboard() {
           )}
 
         </Grid>
+
+        {/* ══ COMMUNICATION HUB ═══════════════════════════════ */}
+        <CommHub
+          allClients={[...todaySessions, ...upcomingSessions]}
+          parentLoading={loading}
+        />
+
       </Box>
 
       {/* ══ FIRST-TIME WELCOME OVERLAY ════════════════════════ */}
