@@ -744,6 +744,20 @@ export default function TherapistDashboard() {
         {/* ══ RESOURCE LIBRARY ════════════════════════════════ */}
         <ResourceLibrary />
 
+        {/* ══ FOOTER ═══════════════════════════════════════════ */}
+        <Box sx={{ mt:{ xs:4, md:5 }, pt:3, borderTop:"1px solid #f0f4f8", display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
+          <Box sx={{ display:"flex", alignItems:"center", gap:1 }}>
+            <Box sx={{ width:28, height:28, borderRadius:"8px", background:"linear-gradient(135deg,#1a6b3a,#228756)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <Typography sx={{ fontSize:"10px", fontWeight:900, color:"#fff", letterSpacing:"0.5px" }}>CYT</Typography>
+            </Box>
+            <Typography sx={{ fontSize:"13px", fontWeight:700, color:"#0f172a" }}>Choose Your Therapist</Typography>
+          </Box>
+          <Typography sx={{ fontSize:"11px", color:"#94a3b8", fontWeight:500 }}>
+            Powered by <Box component="span" sx={{ color:"#228756", fontWeight:700 }}>Choose Your Therapist</Box> · Mental health, made accessible
+          </Typography>
+          <Typography sx={{ fontSize:"10px", color:"#cbd5e1" }}>© {new Date().getFullYear()} chooseyourtherapist.in · All rights reserved</Typography>
+        </Box>
+
       </Box>
 
       {/* ══ FIRST-TIME WELCOME OVERLAY ════════════════════════ */}
