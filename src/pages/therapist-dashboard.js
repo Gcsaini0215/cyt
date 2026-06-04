@@ -745,7 +745,7 @@ export default function TherapistDashboard() {
         <ResourceLibrary />
 
         {/* ══ FOOTER ═══════════════════════════════════════════ */}
-        <Box sx={{ mt:{ xs:4, md:5 }, pt:3, borderTop:"1px solid #f0f4f8", display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
+        <Box sx={{ mt:{ xs:6, md:8 }, pt:3, borderTop:"1px solid #f0f4f8", display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
           <Box sx={{ display:"flex", alignItems:"center", gap:1 }}>
             <Box sx={{ width:28, height:28, borderRadius:"8px", background:"linear-gradient(135deg,#1a6b3a,#228756)", display:"flex", alignItems:"center", justifyContent:"center" }}>
               <Typography sx={{ fontSize:"10px", fontWeight:900, color:"#fff", letterSpacing:"0.5px" }}>CYT</Typography>
