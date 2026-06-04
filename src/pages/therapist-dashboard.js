@@ -300,7 +300,10 @@ function ResourceLibrary() {
       .then(res => { if (res?.status) setResources(res.data || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
+
   }, []);
+
+  if (!loading && resources.length === 0) return null;
 
   const cats     = ["All", ...Array.from(new Set(resources.map(r => r.category)))];
   const filtered = catFilter === "All" ? resources : resources.filter(r => r.category === catFilter);
@@ -610,8 +613,8 @@ export default function TherapistDashboard() {
   const today     = clockTime.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" });
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
 
-  const hour     = clockTime.getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const istHour  = parseInt(clockTime.toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" }));
+  const greeting = istHour < 12 ? "Good morning" : istHour < 17 ? "Good afternoon" : "Good evening";
 
   const hasChartData = !loading && (weeklyData.some(d => d.sessions > 0 || d.revenue > 0) || monthlyData.some(d => d.sessions > 0 || d.revenue > 0));
   const hasSessions  = !loading && (todaySessions.length > 0 || upcomingSessions.length > 0);
@@ -690,23 +693,6 @@ export default function TherapistDashboard() {
             </Box>
           </Box>
 
-          {/* ── Mini stats strip ── */}
-          <Box sx={{ display:"flex", gap:{ xs:1, md:1.5 }, mt:{ xs:2, md:2.5 }, flexWrap:"wrap" }}>
-            {[
-              { icon:"🗓️", label:"Today",      value: loading ? "—" : String(todaySessions.length),                                   accent:"rgba(74,222,128,0.14)",  border:"rgba(74,222,128,0.25)" },
-              { icon:"⏳", label:"Upcoming",   value: loading ? "—" : String(upcomingSessions.length),                                accent:"rgba(96,165,250,0.14)",  border:"rgba(96,165,250,0.25)" },
-              { icon:"💰", label:"This Month", value: loading ? "—" : `₹${Math.round(stats.monthEarnings).toLocaleString("en-IN")}`, accent:"rgba(251,191,36,0.14)",  border:"rgba(251,191,36,0.25)" },
-              { icon:"👥", label:"Clients",    value: loading ? "—" : String(stats.totalClients),                                    accent:"rgba(192,132,252,0.14)", border:"rgba(192,132,252,0.25)" },
-            ].map(s => (
-              <Box key={s.label} sx={{ display:"flex", alignItems:"center", gap:1.2, background:s.accent, border:`1px solid ${s.border}`, borderRadius:"14px", px:{ xs:1.4, md:2 }, py:{ xs:0.9, md:1.1 }, flex:"1 1 auto", minWidth:{ xs:"calc(50% - 8px)", md:"auto" } }}>
-                <Typography sx={{ fontSize:{ xs:"15px", md:"18px" }, flexShrink:0 }}>{s.icon}</Typography>
-                <Box>
-                  <Typography sx={{ fontSize:{ xs:"15px", md:"17px" }, fontWeight:800, color:"#fff", lineHeight:1 }}>{s.value}</Typography>
-                  <Typography sx={{ fontSize:"10px", color:"rgba(255,255,255,0.4)", mt:"2px" }}>{s.label}</Typography>
-                </Box>
-              </Box>
-            ))}
-          </Box>
         </Box>
 
 
