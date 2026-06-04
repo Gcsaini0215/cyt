@@ -4,6 +4,7 @@ import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
 import TawkToWidget from "@/components/global/tawk-widget";
+import CallbackWidget from "@/components/global/callback-widget";
 import CookieConsent from "@/components/global/cookie-consent";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -116,6 +117,7 @@ function MyApp({ Component, pageProps }) {
       {!shouldHideWidgets && (
         <>
           <TawkToWidget />
+          <CallbackWidget />
         </>
       )}
       <CookieConsent />
