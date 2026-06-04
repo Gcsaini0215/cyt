@@ -81,36 +81,39 @@ function StatCard({ icon, label, numericValue, isCurrency, color, bg, gradient, 
   const display = loading ? null : isCurrency ? `₹${counted.toLocaleString("en-IN")}` : counted;
 
   return (
-    <Paper elevation={0} sx={{
+    <Box sx={{
       borderRadius: "20px", background: "#fff", border: "1.5px solid #f0f4f8",
-      height: "100%", overflow: "hidden",
+      height: "100%", overflow: "hidden", position: "relative",
       transition: "transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease",
-      "&:hover": { borderColor: color + "40", boxShadow: `0 10px 36px ${color}16`, transform: "translateY(-4px)" },
+      "&:hover": { borderColor: color + "50", boxShadow: `0 12px 40px ${color}14`, transform: "translateY(-5px)" },
     }}>
-      <Box sx={{ height: "3.5px", background: gradient || color }} />
-      <Box sx={{ p: { xs: "14px 16px 16px", md: "18px 22px 20px" } }}>
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mb: { xs: 1.5, md: 2 } }}>
-          <Box sx={{ width: { xs: 34, md: 42 }, height: { xs: 34, md: 42 }, borderRadius: "12px", background: bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {React.cloneElement(icon, { sx: { fontSize: { xs: 17, md: 21 }, color } })}
+      {/* gradient top bar */}
+      <Box sx={{ height: 4, background: gradient || color }} />
+      {/* faint bg glow */}
+      <Box sx={{ position:"absolute", top:0, right:0, width:90, height:90, borderRadius:"50%", background:`${color}08`, pointerEvents:"none" }} />
+      <Box sx={{ p: { xs: "16px 18px 18px", md: "20px 24px 22px" }, position:"relative" }}>
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mb: { xs: 1.8, md: 2.2 } }}>
+          <Box sx={{ width: { xs: 38, md: 46 }, height: { xs: 38, md: 46 }, borderRadius: "14px", background: bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 4px 14px ${color}20` }}>
+            {React.cloneElement(icon, { sx: { fontSize: { xs: 19, md: 23 }, color } })}
           </Box>
           {trend && !loading && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.3, background: trendUp !== false ? "#f0fdf4" : "#fef2f2", borderRadius: "8px", px: 0.9, py: 0.3 }}>
-              {trendUp !== false ? <TrendingUpIcon sx={{ fontSize: 10, color: "#16a34a" }} /> : <TrendingDownIcon sx={{ fontSize: 10, color: "#dc2626" }} />}
-              <Typography sx={{ fontSize: "9px", color: trendUp !== false ? "#16a34a" : "#dc2626", fontWeight: 700 }}>{trend}</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.4, background: trendUp !== false ? "#f0fdf4" : "#fef2f2", borderRadius: "8px", px: 1, py: 0.4, border: `1px solid ${trendUp !== false ? "#dcfce7" : "#fee2e2"}` }}>
+              {trendUp !== false ? <TrendingUpIcon sx={{ fontSize: 11, color: "#16a34a" }} /> : <TrendingDownIcon sx={{ fontSize: 11, color: "#dc2626" }} />}
+              <Typography sx={{ fontSize: "9.5px", color: trendUp !== false ? "#16a34a" : "#dc2626", fontWeight: 700 }}>{trend}</Typography>
             </Box>
           )}
         </Box>
         {loading
-          ? <Skeleton width={80} height={30} sx={{ borderRadius: "8px", mb: 0.6 }} />
-          : <Typography sx={{ fontWeight: 900, color: "#0f172a", fontSize: { xs: "22px", md: "30px" }, lineHeight: 1, letterSpacing: "-0.8px", mb: 0.7 }}>
+          ? <Skeleton width={90} height={34} sx={{ borderRadius: "8px", mb: 0.8 }} />
+          : <Typography sx={{ fontWeight: 900, color: "#0a0f1e", fontSize: { xs: "24px", md: "32px" }, lineHeight: 1, letterSpacing: "-1px", mb: 0.8 }}>
               {display}
             </Typography>
         }
-        <Typography sx={{ color: "#94a3b8", fontSize: { xs: "10px", md: "10.5px" }, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px" }}>
+        <Typography sx={{ color: "#94a3b8", fontSize: { xs: "10px", md: "10.5px" }, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px" }}>
           {label}
         </Typography>
       </Box>
-    </Paper>
+    </Box>
   );
 }
 
@@ -607,7 +610,8 @@ export default function TherapistDashboard() {
   const today     = clockTime.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" });
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
 
-  const [showStrip, setShowStrip] = React.useState(true);
+  const hour     = clockTime.getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const hasChartData = !loading && (weeklyData.some(d => d.sessions > 0 || d.revenue > 0) || monthlyData.some(d => d.sessions > 0 || d.revenue > 0));
   const hasSessions  = !loading && (todaySessions.length > 0 || upcomingSessions.length > 0);
@@ -625,84 +629,85 @@ export default function TherapistDashboard() {
     <MainLayout>
       <Box sx={{ pt: 0, pb: 6 }}>
 
-        {/* ══ THIN PROFILE STRIP ════════════════════════════════ */}
-        {!showStrip && (
-          <Box onClick={() => setShowStrip(true)} sx={{ display: "flex", alignItems: "center", gap: 1, mb: { xs: 1.5, md: 2 }, cursor: "pointer", width: "fit-content", background: "#f8fafc", border: "1.5px solid #f0f4f8", borderRadius: "22px", px: 1.5, py: 0.6, transition: "all 0.15s", "&:hover": { background: "#f1f5f9" } }}>
-            <Avatar src={avatarSrc} sx={{ width: 22, height: 22, borderRadius: "6px" }} />
-            <Typography sx={{ fontSize: "11.5px", fontWeight: 700, color: "#64748b" }}>{name}</Typography>
-            <ExpandLessRoundedIcon sx={{ fontSize: 14, color: "#94a3b8", transform: "rotate(180deg)" }} />
-          </Box>
-        )}
-        <Paper elevation={0} sx={{ borderRadius: "16px", border: "1.5px solid #f0f4f8", background: "#fff", mb: { xs: 1.5, md: 2 }, overflow: "hidden", display: showStrip ? "block" : "none" }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: { xs: 2, md: 2.5 }, py: { xs: 1.5, md: 1.8 }, gap: 2 }}>
-            {/* Avatar + name + status */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, md: 2 }, minWidth: 0 }}>
-              <Box sx={{ position: "relative", flexShrink: 0 }}>
-                <Avatar src={avatarSrc} alt={name}
-                  sx={{ width: { xs: 42, md: 48 }, height: { xs: 42, md: 48 }, borderRadius: "13px" }} />
-                <Box sx={{ position: "absolute", bottom: -1, right: -1, width: 11, height: 11, borderRadius: "50%", background: "#4ade80", border: "2px solid #fff" }} />
+        {/* ══ HERO BANNER ══════════════════════════════════════ */}
+        <Box sx={{ background:"linear-gradient(135deg,#071c10 0%,#0e2e1a 30%,#1a5c38 70%,#228756 100%)", borderRadius:"24px", mb:{ xs:2, md:2.5 }, p:{ xs:"22px 20px", md:"28px 32px" }, position:"relative", overflow:"hidden" }}>
+          {/* decorative blobs */}
+          <Box sx={{ position:"absolute", top:-70, right:-70, width:240, height:240, borderRadius:"50%", background:"rgba(255,255,255,0.04)", pointerEvents:"none" }} />
+          <Box sx={{ position:"absolute", bottom:-50, left:10, width:180, height:180, borderRadius:"50%", background:"rgba(74,222,128,0.06)", pointerEvents:"none" }} />
+
+          <Box sx={{ position:"relative", display:"flex", alignItems:"flex-start", justifyContent:"space-between", flexWrap:"wrap", gap:2 }}>
+            {/* Left: avatar + greeting */}
+            <Box sx={{ display:"flex", alignItems:"center", gap:{ xs:1.5, md:2.5 } }}>
+              <Box sx={{ position:"relative", flexShrink:0 }}>
+                <Box sx={{ width:{ xs:58, md:74 }, height:{ xs:58, md:74 }, borderRadius:"18px", p:"2.5px", background:"linear-gradient(135deg,#4ade80,#16a34a)" }}>
+                  <Avatar src={avatarSrc} alt={name} sx={{ width:"100%", height:"100%", borderRadius:"16px" }} />
+                </Box>
+                <Box sx={{ position:"absolute", bottom:-2, right:-2, width:14, height:14, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #0e2e1a", boxShadow:"0 0 8px rgba(74,222,128,0.7)" }} />
               </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography sx={{ fontWeight: 800, color: "#0f172a", fontSize: { xs: "14px", md: "15.5px" }, lineHeight: 1.2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {name}
-                </Typography>
-                <Typography sx={{ fontSize: { xs: "11px", md: "11.5px" }, color: "#64748b", fontWeight: 500, mt: 0.25 }}>
-                  {loading ? "Loading…"
-                    : todaySessions.length > 0
-                      ? `${todaySessions.length} appointment${todaySessions.length > 1 ? "s" : ""} today · ${upcomingSessions.length} upcoming`
-                      : `No appointments today · ${upcomingSessions.length} upcoming`}
-                </Typography>
-                {!loading && completionPct < 100 && (
-                  <Link href="/settings" style={{ textDecoration: "none" }}>
-                    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 0.6, background: "#fff8ed", border: "1.5px solid #fde68a", borderRadius: "20px", px: 1.2, py: "2px", cursor: "pointer", "&:hover": { background: "#fef3c7" }, transition: "background 0.15s" }}>
-                      <Box sx={{ width: 5, height: 5, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />
-                      <Typography sx={{ fontSize: "10px", fontWeight: 700, color: "#d97706", whiteSpace: "nowrap" }}>
-                        Profile {completionPct}% complete
-                      </Typography>
-                    </Box>
-                  </Link>
-                )}
+              <Box>
+                <Typography sx={{ fontSize:{ xs:"11px", md:"12px" }, color:"rgba(255,255,255,0.42)", fontWeight:500, letterSpacing:"0.2px", mb:0.3 }}>{greeting},</Typography>
+                <Typography sx={{ fontSize:{ xs:"24px", md:"32px" }, fontWeight:900, color:"#fff", lineHeight:1.05, letterSpacing:"-0.8px" }}>{name}</Typography>
+                <Box sx={{ display:"flex", alignItems:"center", gap:1, mt:0.9, flexWrap:"wrap" }}>
+                  <Box sx={{ display:"flex", alignItems:"center", gap:0.5 }}>
+                    <Box sx={{ width:6, height:6, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 6px rgba(74,222,128,0.8)" }} />
+                    <Typography sx={{ fontSize:"11px", color:"rgba(255,255,255,0.45)", fontWeight:500 }}>{today}</Typography>
+                  </Box>
+                  {!loading && completionPct < 100 && (
+                    <Link href="/settings" style={{ textDecoration:"none" }}>
+                      <Box sx={{ display:"inline-flex", alignItems:"center", gap:0.5, background:"rgba(251,191,36,0.18)", border:"1px solid rgba(251,191,36,0.35)", borderRadius:"20px", px:1, py:"3px", cursor:"pointer" }}>
+                        <Typography sx={{ fontSize:"10px", fontWeight:700, color:"#fcd34d" }}>Profile {completionPct}%</Typography>
+                      </Box>
+                    </Link>
+                  )}
+                </Box>
               </Box>
             </Box>
 
-            {/* Time + refresh */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
-              <Box sx={{ textAlign: "right", display: { xs: "none", sm: "block" } }}>
-                <Typography sx={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", lineHeight: 1.2 }}>
-                  {clockTime.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })}
+            {/* Right: time + actions */}
+            <Box sx={{ display:"flex", alignItems:"center", gap:1, flexShrink:0 }}>
+              <Box sx={{ textAlign:"right", display:{ xs:"none", sm:"block" }, mr:0.5 }}>
+                <Typography sx={{ fontSize:"22px", fontWeight:800, color:"#fff", lineHeight:1, letterSpacing:"-0.5px" }}>
+                  {clockTime.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", hour12:true, timeZone:"Asia/Kolkata" })}
                 </Typography>
-                <Typography sx={{ fontSize: "10px", color: "#94a3b8", fontWeight: 500, mt: 0.1 }}>{today}</Typography>
+                {lastRefreshed && (
+                  <Typography sx={{ fontSize:"10px", color:"rgba(255,255,255,0.3)", mt:0.4 }}>
+                    Updated {lastRefreshed.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", hour12:true })}
+                  </Typography>
+                )}
               </Box>
               <Tooltip title="Notifications">
                 <IconButton component={Link} href="/notifications" size="small"
-                  sx={{ background: "#f8fafc", color: "#64748b", borderRadius: "10px", border: "1.5px solid #f0f4f8", p: "6px", "&:hover": { background: "#f0f9ff", color: "#0ea5e9", borderColor: "#bae6fd" } }}>
-                  <NotificationsIcon sx={{ fontSize: 16 }} />
+                  sx={{ background:"rgba(255,255,255,0.1)", color:"rgba(255,255,255,0.7)", borderRadius:"10px", border:"1px solid rgba(255,255,255,0.15)", p:"7px", "&:hover":{ background:"rgba(255,255,255,0.2)", color:"#fff" } }}>
+                  <NotificationsIcon sx={{ fontSize:17 }} />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Refresh dashboard">
+              <Tooltip title="Refresh">
                 <IconButton onClick={() => load(true)} disabled={refreshing} size="small"
-                  sx={{ background: "#f8fafc", color: "#64748b", borderRadius: "10px", border: "1.5px solid #f0f4f8", p: "6px", "&:hover": { background: "#f0fdf4", color: "#228756", borderColor: "#dcfce7" }, animation: refreshing ? "stripSpin 1s linear infinite" : "none", "@keyframes stripSpin": { to: { transform: "rotate(360deg)" } } }}>
-                  <RefreshIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Minimize">
-                <IconButton size="small" onClick={() => setShowStrip(false)}
-                  sx={{ background: "#f8fafc", color: "#94a3b8", borderRadius: "10px", border: "1.5px solid #f0f4f8", p: "6px", "&:hover": { background: "#fef2f2", color: "#f87171", borderColor: "#fecaca" } }}>
-                  <ExpandLessRoundedIcon sx={{ fontSize: 16 }} />
+                  sx={{ background:"rgba(255,255,255,0.1)", color:"rgba(255,255,255,0.7)", borderRadius:"10px", border:"1px solid rgba(255,255,255,0.15)", p:"7px", "&:hover":{ background:"rgba(255,255,255,0.2)", color:"#fff" }, animation: refreshing ? "stripSpin 1s linear infinite" : "none", "@keyframes stripSpin":{ to:{ transform:"rotate(360deg)" } } }}>
+                  <RefreshIcon sx={{ fontSize:17 }} />
                 </IconButton>
               </Tooltip>
             </Box>
           </Box>
 
-          {lastRefreshed && (
-            <Box sx={{ px: { xs: 2, md: 2.5 }, pb: 1.1, display: "flex", alignItems: "center", gap: 0.6 }}>
-              <Box sx={{ width: 5, height: 5, borderRadius: "50%", background: "#4ade80", flexShrink: 0 }} />
-              <Typography sx={{ fontSize: "9.5px", color: "#94a3b8", fontWeight: 500 }}>
-                Updated {lastRefreshed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}
-              </Typography>
-            </Box>
-          )}
-        </Paper>
+          {/* ── Mini stats strip ── */}
+          <Box sx={{ display:"flex", gap:{ xs:1, md:1.5 }, mt:{ xs:2, md:2.5 }, flexWrap:"wrap" }}>
+            {[
+              { icon:"🗓️", label:"Today",      value: loading ? "—" : String(todaySessions.length),                                   accent:"rgba(74,222,128,0.14)",  border:"rgba(74,222,128,0.25)" },
+              { icon:"⏳", label:"Upcoming",   value: loading ? "—" : String(upcomingSessions.length),                                accent:"rgba(96,165,250,0.14)",  border:"rgba(96,165,250,0.25)" },
+              { icon:"💰", label:"This Month", value: loading ? "—" : `₹${Math.round(stats.monthEarnings).toLocaleString("en-IN")}`, accent:"rgba(251,191,36,0.14)",  border:"rgba(251,191,36,0.25)" },
+              { icon:"👥", label:"Clients",    value: loading ? "—" : String(stats.totalClients),                                    accent:"rgba(192,132,252,0.14)", border:"rgba(192,132,252,0.25)" },
+            ].map(s => (
+              <Box key={s.label} sx={{ display:"flex", alignItems:"center", gap:1.2, background:s.accent, border:`1px solid ${s.border}`, borderRadius:"14px", px:{ xs:1.4, md:2 }, py:{ xs:0.9, md:1.1 }, flex:"1 1 auto", minWidth:{ xs:"calc(50% - 8px)", md:"auto" } }}>
+                <Typography sx={{ fontSize:{ xs:"15px", md:"18px" }, flexShrink:0 }}>{s.icon}</Typography>
+                <Box>
+                  <Typography sx={{ fontSize:{ xs:"15px", md:"17px" }, fontWeight:800, color:"#fff", lineHeight:1 }}>{s.value}</Typography>
+                  <Typography sx={{ fontSize:"10px", color:"rgba(255,255,255,0.4)", mt:"2px" }}>{s.label}</Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
 
 
         {/* ══ STAT CARDS ════════════════════════════════════════ */}
