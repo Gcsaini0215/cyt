@@ -705,6 +705,14 @@ export default function TherapistDashboard() {
           ))}
         </Grid>
 
+        {/* ══ DEV NOTICE ═══════════════════════════════════════ */}
+        <Box sx={{ display:"flex", alignItems:"center", gap:1.5, background:"#fffbeb", border:"1.5px solid #fde68a", borderRadius:"14px", px:2.5, py:1.4, mb:{ xs:2, md:2.5 } }}>
+          <Box sx={{ width:8, height:8, borderRadius:"50%", background:"#f59e0b", flexShrink:0, boxShadow:"0 0 6px rgba(245,158,11,0.6)", animation:"devPulse 1.8s ease infinite", "@keyframes devPulse":{ "0%,100%":{ opacity:1 }, "50%":{ opacity:0.4 } } }} />
+          <Typography sx={{ fontSize:{ xs:"12px", md:"13px" }, fontWeight:600, color:"#92400e" }}>
+            🚧 Dashboard under active development — new features and analytics will appear here soon.
+          </Typography>
+        </Box>
+
         {/* ══ MAIN CONTENT GRID ═════════════════════════════════ */}
         <Grid container spacing={{ xs: 2, md: 2.5 }}>
 
