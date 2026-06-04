@@ -100,7 +100,7 @@ export default function CallbackWidget() {
         .cb-body { padding:18px; }
         .cb-inp-wrap { position:relative; margin-bottom:10px; }
         .cb-inp-label { display:block; font-size:10.5px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
-        .cb-inp { width:100%; border:1.5px solid #e2e8f0; border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; outline:none; color:#0f172a; box-sizing:border-box; transition:border-color .15s,box-shadow .15s; background:#fff; }
+        .cb-inp { width:100%; border:1.5px solid #e2e8f0; border-radius:10px; padding:11px 12px; font-size:13px; font-family:inherit; outline:none; color:#0f172a; box-sizing:border-box; transition:border-color .15s,box-shadow .15s; background:#fff; height:44px; }
         .cb-inp:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,0.1); }
         .cb-inp::placeholder { color:#cbd5e1; }
         .cb-error { font-size:11px; color:#ef4444; margin:-6px 0 8px; font-weight:500; }
@@ -164,7 +164,7 @@ export default function CallbackWidget() {
                   </div>
                   <div className="cb-inp-wrap">
                     <label className="cb-inp-label">Mobile Number</label>
-                    <input className="cb-inp" placeholder="10-digit number" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g,""))} type="tel" maxLength={10} />
+                    <input className="cb-inp" placeholder="10-digit number" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g,""))} type="tel" inputMode="numeric" pattern="[0-9]*" maxLength={10} />
                   </div>
                   {error && <div className="cb-error">{error}</div>}
                   <button className="cb-btn" type="submit" disabled={loading}>
