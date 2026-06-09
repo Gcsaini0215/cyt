@@ -3,7 +3,6 @@ import "@/index.css";
 import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
 import PremiumLoader from "@/components/global/PremiumLoader";
-import TawkToWidget from "@/components/global/tawk-widget";
 import dynamic from "next/dynamic";
 const CallbackWidget = dynamic(() => import("@/components/global/callback-widget"), { ssr: false });
 import CookieConsent from "@/components/global/cookie-consent";
@@ -117,7 +116,6 @@ function MyApp({ Component, pageProps }) {
       {isLoading && !shouldHideWidgets && <PremiumLoader />}
       {!shouldHideWidgets && (
         <>
-          <TawkToWidget />
           <CallbackWidget />
         </>
       )}

@@ -71,8 +71,9 @@ export default function CallbackWidget() {
           box-shadow:0 6px 24px rgba(34,135,86,0.45);
           animation:cbPulse 2.8s ease infinite;
           transition:transform .18s,box-shadow .18s;
+          will-change:transform; transform:translateZ(0);
         }
-        .cb-pill:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(34,135,86,0.55); }
+        .cb-pill:hover { transform:translateY(-2px) translateZ(0); box-shadow:0 10px 32px rgba(34,135,86,0.55); }
         .cb-pill-icon { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.18); flex-shrink:0; }
 
         /* ── Card ── */
@@ -124,8 +125,9 @@ export default function CallbackWidget() {
         .cb-success-sub { font-size:12px; color:#64748b; line-height:1.55; }
 
         @media(max-width:480px){
-          .cb-widget { bottom:80px; right:12px; }
-          .cb-card { width:calc(100vw - 28px); }
+          .cb-widget { bottom:70px; right:12px; }
+          .cb-card { width:calc(100vw - 28px); max-height:calc(100vh - 160px); overflow-y:auto; }
+          .cb-body { overflow-y:auto; }
         }
       `}</style>
 
