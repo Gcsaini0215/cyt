@@ -125,9 +125,12 @@ export default function CallbackWidget() {
         .cb-success-sub { font-size:12px; color:#64748b; line-height:1.55; }
 
         @media(max-width:480px){
-          .cb-widget { bottom:70px; right:12px; }
-          .cb-card { width:calc(100vw - 28px); max-height:calc(100vh - 160px); overflow-y:auto; }
+          .cb-widget { bottom:auto; right:0; top:44%; transform:translateY(-50%); flex-direction:row; align-items:center; gap:0; }
+          .cb-card { order:0; width:248px; max-height:82vh; overflow-y:auto; border-radius:16px 0 0 16px; }
           .cb-body { overflow-y:auto; }
+          .cb-pill { order:1; writing-mode:vertical-rl; border-radius:10px 0 0 10px; padding:18px 11px; font-size:12px; gap:8px; animation:none; box-shadow:-4px 0 20px rgba(34,135,86,0.4); flex-shrink:0; letter-spacing:0.4px; }
+          .cb-pill:hover { transform:translateX(-2px) translateZ(0); box-shadow:-6px 0 24px rgba(34,135,86,0.5); }
+          .cb-pill-icon { width:22px; height:22px; }
         }
       `}</style>
 
