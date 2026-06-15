@@ -8,7 +8,7 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
-import { getBookings, GetMyWorkshopBooking, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
+import { getBookings, GetMyWorkshopBooking, defaultProfile, imagePath, getResourcesUrl, GetReviewsUrl, getClinicLogsUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
@@ -32,6 +32,10 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import StarRoundedIcon from "@mui/icons-material/StarRounded";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import HourglassTopIcon from "@mui/icons-material/HourglassTop";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
 
 const QUICK_ACTIONS = [
   { label: "Workshops",    icon: <AddBoxIcon sx={{ fontSize: 22 }} />,             to: "/workshops",       color: "#0ea5e9", bg: "#f0f9ff" },
@@ -447,7 +451,7 @@ export default function TherapistDashboard() {
   const [loading,          setLoading]          = React.useState(true);
   const [refreshing,       setRefreshing]       = React.useState(false);
   const [lastRefreshed,    setLastRefreshed]    = React.useState(null);
-  const [stats,            setStats]            = React.useState({ totalEarnings:0, monthEarnings:0, upcoming:0, totalClients:0 });
+  const [stats,            setStats]            = React.useState({ totalEarnings:0, monthEarnings:0, upcoming:0, totalClients:0, todayRevenue:0, avgRating:0, reviewCount:0, ratingBreakdown:[], pendingCount:0, completedCount:0, completionRate:0 });
   const [weeklyData,       setWeeklyData]       = React.useState(() => {
     const now = new Date();
     return Array.from({length:7},(_,i)=>{ const d=new Date(now); d.setDate(now.getDate()-(6-i)); return {name:DAY_NAMES[d.getDay()],sessions:0,revenue:0}; });
@@ -470,34 +474,57 @@ export default function TherapistDashboard() {
     if (isRefresh) setRefreshing(true);
     try {
       if (!therapistInfo?.user?.email) fetchTherapistInfo();
-      const [bookingsRes, workshopRes] = await Promise.all([fetchById(getBookings), fetchById(GetMyWorkshopBooking)]);
-      const bookings  = bookingsRes?.status ? (bookingsRes.data||[]) : [];
-      const workshops = workshopRes?.status ? (workshopRes.data||[]) : [];
+      const [bookingsRes, workshopRes, reviewsRes] = await Promise.all([
+        fetchById(getBookings), fetchById(GetMyWorkshopBooking), fetchById(GetReviewsUrl),
+      ]);
+      const bookings  = bookingsRes?.status  ? (bookingsRes.data||[])  : [];
+      const workshops = workshopRes?.status  ? (workshopRes.data||[])  : [];
+      const reviews   = reviewsRes?.status   ? (reviewsRes.data||[])   : (Array.isArray(reviewsRes) ? reviewsRes : []);
 
       const now = new Date();
       const todayStr = now.toDateString();
       const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
 
-      let totalEarnings=0, monthEarnings=0, lastMonthEarnings=0;
+      const isPaid = b => {
+        const st=(b.status||"").toLowerCase();
+        const ps=(b.transaction?.status?.name||b.transaction?.status||"").toLowerCase();
+        return st==="completed"||ps==="success"||ps==="completed"||ps==="paid";
+      };
+
+      let totalEarnings=0, monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
+      let completedCount=0, pendingCount=0;
+
       bookings.forEach(b => {
-        const st=(b.status||"").toLowerCase(), ps=(b.transaction?.status?.name||"").toLowerCase();
-        if (st==="completed"||ps==="success"||ps==="completed") {
-          const amt=getNum(b.transaction?.amount||b.amount||b.fee), bd=new Date(b.booking_date);
+        const st=(b.status||"").toLowerCase();
+        if (st==="completed") completedCount++;
+        const bd=new Date(b.booking_date);
+        if (isPaid(b)) {
+          const amt=getNum(b.transaction?.amount||b.amount||b.charges||b.fee);
           totalEarnings+=amt;
           if (bd>=monthStart) monthEarnings+=amt;
           else if (bd>=lastMonthStart) lastMonthEarnings+=amt;
+          if (bd.toDateString()===todayStr) todayRevenue+=amt;
+        } else if (st!=="cancelled"&&st!=="rejected") {
+          pendingCount++;
         }
       });
       workshops.forEach(w => {
         const s=(w.payment_status||"").toLowerCase();
-        if (s==="success"||s==="completed") {
-          const amt=getNum(w.amount), wd=new Date(w.created_at||w.date);
+        if (s==="success"||s==="completed"||s==="paid") {
+          const amt=getNum(w.amount||w.charges), wd=new Date(w.created_at||w.date);
           totalEarnings+=amt;
           if (wd>=monthStart) monthEarnings+=amt;
           else if (wd>=lastMonthStart) lastMonthEarnings+=amt;
+          if (wd.toDateString()===todayStr) todayRevenue+=amt;
         }
       });
+
+      const rated    = reviews.filter(r=>(r.rating||r.stars)>0);
+      const avgRating= rated.length>0 ? (rated.reduce((s,r)=>s+getNum(r.rating||r.stars),0)/rated.length) : 0;
+      const ratingBreakdown = [5,4,3,2,1].map(star=>({ star, count:rated.filter(r=>(r.rating||r.stars)===star).length }));
+      const totalBk  = bookings.filter(b=>(b.status||"").toLowerCase()!=="cancelled").length;
+      const completionRate = totalBk>0 ? Math.round((completedCount/totalBk)*100) : 0;
 
       const clientSet = new Set(bookings.map(b=>b.client?._id||b.client_id).filter(Boolean));
       const toMap = b => ({ id:b._id, name:b.client?.name||"Unknown", date:b.booking_date, badge:b.format||"Online", imgSrc:b.client?.photo||b.client?.profile });
@@ -519,7 +546,13 @@ export default function TherapistDashboard() {
         .map(b=>({id:b._id,invoice_id:b.transaction?.transaction_id?.slice(-8)||b._id?.slice(-8),client_name:b.client?.name||"Unknown",booking_date:fmtDate(b.booking_date),amount:b.transaction?.amount,status:b.transaction?.status?.name||"Success"}));
 
       const monthGrowth = lastMonthEarnings>0 ? `${((monthEarnings-lastMonthEarnings)/lastMonthEarnings*100).toFixed(0)}% vs last mo` : "This month";
-      setStats({totalEarnings:Math.round(totalEarnings),monthEarnings:Math.round(monthEarnings),upcoming:upcomingList.length,totalClients:clientSet.size,monthGrowth,monthGrowthUp:monthEarnings>=lastMonthEarnings});
+      setStats({
+        totalEarnings:Math.round(totalEarnings), monthEarnings:Math.round(monthEarnings),
+        upcoming:upcomingList.length, totalClients:clientSet.size,
+        monthGrowth, monthGrowthUp:monthEarnings>=lastMonthEarnings,
+        todayRevenue:Math.round(todayRevenue), avgRating:Math.round(avgRating*10)/10,
+        reviewCount:rated.length, ratingBreakdown, pendingCount, completedCount, completionRate,
+      });
       setTodaySessions(todayList);
       setUpcomingSessions(upcomingList);
       setNextSession(upcomingList[0]||null);
@@ -567,10 +600,12 @@ export default function TherapistDashboard() {
   const hasInvoices  = !loading&&invoices.length>0;
 
   const statCards = [
-    { icon:<AccountBalanceWalletIcon/>, label:"Total Earnings",    numericValue:stats.totalEarnings, isCurrency:true,  color:"#228756", bg:"#f0fdf4", gradient:"linear-gradient(90deg,#228756,#4ade80)", trend:"Lifetime",        trendUp:true },
-    { icon:<TrendingUpIcon/>,           label:"This Month",        numericValue:stats.monthEarnings, isCurrency:true,  color:"#0ea5e9", bg:"#f0f9ff", gradient:"linear-gradient(90deg,#0ea5e9,#38bdf8)", trend:stats.monthGrowth, trendUp:stats.monthGrowthUp },
-    { icon:<CalendarMonthIcon/>,        label:"Upcoming Sessions", numericValue:stats.upcoming,      isCurrency:false, color:"#8b5cf6", bg:"#f5f3ff", gradient:"linear-gradient(90deg,#8b5cf6,#c084fc)" },
-    { icon:<PeopleIcon/>,               label:"Total Clients",     numericValue:stats.totalClients,  isCurrency:false, color:"#f59e0b", bg:"#fffbeb", gradient:"linear-gradient(90deg,#f59e0b,#fcd34d)" },
+    { icon:<AccountBalanceWalletIcon/>, label:"Total Earnings",    numericValue:stats.totalEarnings,  isCurrency:true,  color:"#228756", bg:"#f0fdf4", gradient:"linear-gradient(90deg,#228756,#4ade80)", trend:"Lifetime",        trendUp:true },
+    { icon:<TrendingUpIcon/>,           label:"This Month",        numericValue:stats.monthEarnings,  isCurrency:true,  color:"#0ea5e9", bg:"#f0f9ff", gradient:"linear-gradient(90deg,#0ea5e9,#38bdf8)", trend:stats.monthGrowth, trendUp:stats.monthGrowthUp },
+    { icon:<CalendarMonthIcon/>,        label:"Upcoming Sessions", numericValue:stats.upcoming,       isCurrency:false, color:"#8b5cf6", bg:"#f5f3ff", gradient:"linear-gradient(90deg,#8b5cf6,#c084fc)" },
+    { icon:<PeopleIcon/>,               label:"Total Clients",     numericValue:stats.totalClients,   isCurrency:false, color:"#f59e0b", bg:"#fffbeb", gradient:"linear-gradient(90deg,#f59e0b,#fcd34d)" },
+    { icon:<CurrencyRupeeIcon/>,        label:"Today's Revenue",   numericValue:stats.todayRevenue,   isCurrency:true,  color:"#10b981", bg:"#ecfdf5", gradient:"linear-gradient(90deg,#10b981,#34d399)", trend:"Today", trendUp:true },
+    { icon:<TaskAltIcon/>,              label:"Sessions Done",      numericValue:stats.completedCount, isCurrency:false, color:"#6366f1", bg:"#eef2ff", gradient:"linear-gradient(90deg,#6366f1,#a5b4fc)", trend:stats.completionRate>0?`${stats.completionRate}% rate`:undefined },
   ];
 
   return (
@@ -650,11 +685,58 @@ export default function TherapistDashboard() {
         {/* ══ STAT CARDS ════════════════════════════════════════ */}
         <Grid container spacing={{ xs:1.5, md:2 }} sx={{ mb:{ xs:2, md:2.5 } }}>
           {statCards.map((s,i) => (
-            <Grid item xs={6} md={3} key={i}>
+            <Grid item xs={6} md={4} key={i}>
               <StatCard {...s} loading={loading} />
             </Grid>
           ))}
         </Grid>
+
+        {/* ══ RATINGS + PENDING STRIP ═══════════════════════════ */}
+        {!loading && (stats.reviewCount > 0 || stats.pendingCount > 0) && (
+          <Box sx={{ display:"flex", gap:{ xs:1.5, md:2 }, mb:{ xs:2, md:2.5 }, flexWrap:"wrap" }}>
+            {stats.reviewCount > 0 && (
+              <Box sx={{ flex:"1 1 200px", borderRadius:"16px", background:"linear-gradient(135deg,#fffbeb,#fef3c7)", border:"1.5px solid #fde68a", p:"14px 18px", display:"flex", alignItems:"center", gap:2 }}>
+                <Box sx={{ width:44, height:44, borderRadius:"12px", background:"#f59e0b", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <StarRoundedIcon sx={{ fontSize:22, color:"#fff" }} />
+                </Box>
+                <Box>
+                  <Box sx={{ display:"flex", alignItems:"baseline", gap:0.5 }}>
+                    <Typography sx={{ fontWeight:900, fontSize:"24px", color:"#92400e", lineHeight:1, letterSpacing:"-0.5px" }}>{stats.avgRating > 0 ? stats.avgRating.toFixed(1) : "—"}</Typography>
+                    <Typography sx={{ fontSize:"11px", color:"#d97706", fontWeight:700 }}>/5</Typography>
+                  </Box>
+                  <Typography sx={{ fontSize:"11px", color:"#92400e", fontWeight:600 }}>Avg Rating · {stats.reviewCount} review{stats.reviewCount!==1?"s":""}</Typography>
+                </Box>
+                <Box sx={{ ml:"auto", display:"flex", flexDirection:"column", gap:0.3 }}>
+                  {(stats.ratingBreakdown||[]).slice(0,3).map(({ star, count }) => {
+                    const pct = stats.reviewCount > 0 ? (count/stats.reviewCount)*100 : 0;
+                    return (
+                      <Box key={star} sx={{ display:"flex", alignItems:"center", gap:0.5 }}>
+                        <Typography sx={{ fontSize:"9px", color:"#92400e", width:6 }}>{star}</Typography>
+                        <Box sx={{ width:40, height:4, borderRadius:2, background:"#fde68a", overflow:"hidden" }}>
+                          <Box sx={{ width:`${pct}%`, height:"100%", background:"#f59e0b", borderRadius:2 }} />
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            )}
+            {stats.pendingCount > 0 && (
+              <Box sx={{ flex:"1 1 180px", borderRadius:"16px", background:"linear-gradient(135deg,#fff7ed,#ffedd5)", border:"1.5px solid #fed7aa", p:"14px 18px", display:"flex", alignItems:"center", gap:2 }}>
+                <Box sx={{ width:44, height:44, borderRadius:"12px", background:"#f97316", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <HourglassTopIcon sx={{ fontSize:20, color:"#fff" }} />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontWeight:900, fontSize:"24px", color:"#9a3412", lineHeight:1, letterSpacing:"-0.5px" }}>{stats.pendingCount}</Typography>
+                  <Typography sx={{ fontSize:"11px", color:"#c2410c", fontWeight:600 }}>Pending sessions</Typography>
+                  <Link href="/appointments" style={{ textDecoration:"none" }}>
+                    <Typography sx={{ fontSize:"10px", color:"#f97316", fontWeight:700, mt:0.2 }}>View all →</Typography>
+                  </Link>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        )}
 
         {/* ══ PROFILE COMPLETION ════════════════════════════════ */}
         {!loading && <ProfileCard checks={profileChecks} pct={completionPct} />}
