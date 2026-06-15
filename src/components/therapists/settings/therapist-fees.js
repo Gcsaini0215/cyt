@@ -1,15 +1,153 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import useTherapistStore from "../../../store/therapistStore";
 import { updateFeeDetailsUrl } from "../../../utils/url";
 import { postData } from "../../../utils/actions";
 import FormProgressBar from "../../global/form-progressbar";
 import FormMessage from "../../global/form-message";
 import { toast } from "react-toastify";
-import { Box, Typography, Paper, Grid, Switch, Tooltip } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
 import MicIcon from "@mui/icons-material/Mic";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import PersonIcon from "@mui/icons-material/Person";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+
+const PRESETS = [500, 750, 1000, 1500, 2000, 2500];
+
+const FORMAT_CFG = [
+  { label: "Audio Call",  icon: <MicIcon sx={{ fontSize: 20 }} />,      color: "#0ea5e9", light: "#f0f9ff", border: "#bae6fd" },
+  { label: "Video Call",  icon: <VideocamIcon sx={{ fontSize: 20 }} />, color: "#8b5cf6", light: "#f5f3ff", border: "#ddd6fe" },
+  { label: "In-Person",   icon: <PersonIcon sx={{ fontSize: 20 }} />,   color: "#ec4899", light: "#fdf2f8", border: "#fbcfe8" },
+];
+
+function getCfg(name, index) {
+  const n = (name || "").toLowerCase();
+  if (n.includes("audio") || index === 0) return FORMAT_CFG[0];
+  if (n.includes("video") || index === 1) return FORMAT_CFG[1];
+  if (n.includes("person") || index === 2) return FORMAT_CFG[2];
+  return { label: name || "Session", icon: null, color: "#64748b", light: "#f8fafc", border: "#e2e8f0" };
+}
+
+function FeeCard({ format, si, fi, setFee }) {
+  const cfg = getCfg(format.type || format.name, fi);
+  const fee = format.fee;
+  const hasfee = fee !== null && fee !== "" && fee !== undefined && fee !== 0;
+  const [editing, setEditing] = useState(false);
+  const [custom, setCustom] = useState("");
+
+  const applyFee = (val) => {
+    const n = parseInt(val);
+    if (isNaN(n) || n < 100) { toast.error("Enter a valid fee (min ₹100)"); return; }
+    setFee(si, fi, String(n));
+    setEditing(false);
+    setCustom("");
+  };
+
+  const removeFee = () => {
+    setFee(si, fi, "");
+    setEditing(false);
+    setCustom("");
+  };
+
+  if (!hasfee && !editing) {
+    return (
+      <div style={{
+        borderRadius: 14, border: "1.5px dashed #e2e8f0", background: "#f8fafc",
+        padding: "20px 18px", display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", gap: 10, minHeight: 140, cursor: "pointer",
+        transition: "all .15s",
+      }}
+        onClick={() => setEditing(true)}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = cfg.color; e.currentTarget.style.background = cfg.light; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.background = "#f8fafc"; }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
+          {cfg.icon}
+        </div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8" }}>{cfg.label}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, background: "#fff", border: `1.5px solid ${cfg.border}`, borderRadius: 8, padding: "6px 14px", color: cfg.color, fontSize: 12, fontWeight: 700 }}>
+          <AddIcon sx={{ fontSize: 14 }} /> Set Fee
+        </div>
+      </div>
+    );
+  }
+
+  if (editing || !hasfee) {
+    return (
+      <div style={{ borderRadius: 14, border: `1.5px solid ${cfg.border}`, background: cfg.light, padding: "18px 16px", minHeight: 140 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+              {cfg.icon}
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{cfg.label}</span>
+          </div>
+          {hasfee && (
+            <button onClick={() => setEditing(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 2 }}>
+              <CloseIcon sx={{ fontSize: 16 }} />
+            </button>
+          )}
+        </div>
+
+        {/* Preset chips */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+          {PRESETS.map(p => (
+            <button key={p} onClick={() => applyFee(p)}
+              style={{ padding: "5px 11px", borderRadius: 20, border: `1.5px solid ${cfg.border}`, background: "#fff", color: cfg.color, fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all .12s" }}
+              onMouseEnter={e => { e.currentTarget.style.background = cfg.color; e.currentTarget.style.color = "#fff"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = cfg.color; }}>
+              ₹{p.toLocaleString()}
+            </button>
+          ))}
+        </div>
+
+        {/* Custom input */}
+        <div style={{ display: "flex", gap: 6 }}>
+          <div style={{ position: "relative", flex: 1 }}>
+            <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", fontWeight: 800, fontSize: 15, color: "#1e293b" }}>₹</span>
+            <input type="number" placeholder="Custom" value={custom} onChange={e => setCustom(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && applyFee(custom)}
+              style={{ width: "100%", height: 38, paddingLeft: 26, borderRadius: 9, border: `1.5px solid ${cfg.border}`, fontSize: 14, fontWeight: 700, background: "#fff", color: "#1e293b", outline: "none", boxSizing: "border-box" }} />
+          </div>
+          <button onClick={() => applyFee(custom)}
+            style={{ height: 38, padding: "0 14px", borderRadius: 9, border: "none", background: cfg.color, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Set
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Has fee — show it prominently
+  return (
+    <div style={{ borderRadius: 14, border: `1.5px solid ${cfg.border}`, background: cfg.light, padding: "18px 16px", minHeight: 140, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 9, background: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+            {cfg.icon}
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{cfg.label}</span>
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          <button onClick={() => setEditing(true)} title="Edit fee"
+            style={{ background: "none", border: "none", cursor: "pointer", color: cfg.color, padding: 4, borderRadius: 6 }}>
+            <EditIcon sx={{ fontSize: 15 }} />
+          </button>
+          <button onClick={removeFee} title="Remove"
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 4, borderRadius: 6 }}>
+            <CloseIcon sx={{ fontSize: 15 }} />
+          </button>
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
+        <div style={{ fontSize: 32, fontWeight: 900, color: cfg.color, letterSpacing: "-1px" }}>
+          ₹{Number(fee).toLocaleString()}
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>per session</div>
+      </div>
+    </div>
+  );
+}
 
 export default function Fees({ onSuccess }) {
   const { therapistInfo, setFee } = useTherapistStore();
@@ -17,43 +155,13 @@ export default function Fees({ onSuccess }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Local enabled state per format: { "0-0": true, "0-1": false, ... }
-  const [enabledMap, setEnabledMap] = useState({});
-  const [hasInitialized, setHasInitialized] = useState(false);
-
-  useEffect(() => {
-    if (!hasInitialized && therapistInfo?.fees?.length > 0) {
-      const map = {};
-      therapistInfo.fees.forEach((feeItem, si) => {
-        feeItem.formats.forEach((format, fi) => {
-          const key = `${si}-${fi}`;
-          map[key] = format.fee !== null && format.fee !== "" && format.fee !== undefined;
-        });
-      });
-      setEnabledMap(map);
-      setHasInitialized(true);
-    }
-  }, [therapistInfo.fees, hasInitialized]);
-
-  const handleToggle = (si, fi) => {
-    const key = `${si}-${fi}`;
-    const nowEnabled = !(enabledMap[key] ?? false);
-    setEnabledMap((prev) => ({ ...prev, [key]: nowEnabled }));
-    if (nowEnabled) {
-      setFee(si, fi, therapistInfo.fees[si]?.formats[fi]?.fee || "500");
-    } else {
-      setFee(si, fi, "");
-    }
-  };
-
   const handleSubmit = async () => {
-    setError("");
-    setSuccess("");
-    setLoading(true);
+    setError(""); setSuccess(""); setLoading(true);
     try {
       const response = await postData(updateFeeDetailsUrl, { fees: therapistInfo.fees });
       if (response.status) {
         setSuccess(response.message);
+        toast.success("Fees saved successfully!");
         if (onSuccess) onSuccess();
       } else {
         setError(response.message || "Something went wrong");
@@ -64,136 +172,38 @@ export default function Fees({ onSuccess }) {
     setLoading(false);
   };
 
-  const getFormatConfig = (name, index) => {
-    const n = name?.toLowerCase() || "";
-    if (n.includes("audio") || index === 0) return { label: "Audio Call", icon: <MicIcon sx={{ fontSize: 22 }} />, color: "#0ea5e9", bg: "#f0f9ff" };
-    if (n.includes("video") || index === 1) return { label: "Video Call", icon: <VideocamIcon sx={{ fontSize: 22 }} />, color: "#8b5cf6", bg: "#f5f3ff" };
-    if (n.includes("person") || index === 2) return { label: "In-Person", icon: <PersonIcon sx={{ fontSize: 22 }} />, color: "#ec4899", bg: "#fdf2f8" };
-    return { label: name || "Session", icon: <InfoIcon sx={{ fontSize: 22 }} />, color: "#64748b", bg: "#f8fafc" };
-  };
-
   return (
     <div className="rbt-dashboard-content-wrapper">
-      <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 1 }}>
-        <InfoIcon sx={{ color: "#1976d2", fontSize: 18 }} />
-        <Typography sx={{ color: "#64748b", fontSize: "14px", fontWeight: 500 }}>
-          Enable a format and set your fee (₹500 – ₹2500)
-        </Typography>
-      </Box>
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>
+          Select a preset or enter a custom fee for each session format. Leave empty to mark as not offered.
+        </div>
+      </div>
 
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
         {therapistInfo.fees.map((feeItem, si) => (
-          <Paper
-            key={si}
-            elevation={0}
-            sx={{ borderRadius: "18px", border: "1.5px solid #f1f5f9", p: 3, background: "#fff" }}
-          >
-            <Typography sx={{ fontWeight: 800, fontSize: "18px", color: "#1e293b", mb: 2.5 }}>
-              {feeItem.name}
-            </Typography>
-
-            <Grid container spacing={2}>
-              {feeItem.formats.map((format, fi) => {
-                const key = `${si}-${fi}`;
-                const isEnabled = !!enabledMap[key];
-                const cfg = getFormatConfig(format.type || format.name, fi);
-
-                return (
-                  <Grid item xs={12} md={4} key={fi}>
-                    <Box
-                      sx={{
-                        borderRadius: "14px",
-                        border: "1.5px solid",
-                        borderColor: isEnabled ? cfg.color : "#f1f5f9",
-                        background: isEnabled ? cfg.bg : "#f8fafc",
-                        p: 2,
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      {/* Header */}
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                          <Box sx={{
-                            width: 40, height: 40, borderRadius: "10px",
-                            background: isEnabled ? cfg.color : "#e2e8f0",
-                            color: isEnabled ? "#fff" : "#94a3b8",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            transition: "all 0.2s"
-                          }}>
-                            {cfg.icon}
-                          </Box>
-                          <Typography sx={{ fontWeight: 700, fontSize: "14px", color: isEnabled ? "#1e293b" : "#94a3b8" }}>
-                            {cfg.label}
-                          </Typography>
-                        </Box>
-                        <Switch
-                          size="small"
-                          color="success"
-                          checked={isEnabled}
-                          onChange={() => handleToggle(si, fi)}
-                        />
-                      </Box>
-
-                      {/* Fee input */}
-                      {isEnabled ? (
-                        <Box sx={{ position: "relative" }}>
-                          <span style={{
-                            position: "absolute", left: "14px", top: "50%",
-                            transform: "translateY(-50%)", fontWeight: 800,
-                            fontSize: "16px", color: "#1e293b", zIndex: 1
-                          }}>₹</span>
-                          <input
-                            type="number"
-                            placeholder="500"
-                            style={{
-                              width: "100%", height: "46px", borderRadius: "10px",
-                              paddingLeft: "32px", border: `1.5px solid ${cfg.color}44`,
-                              fontSize: "16px", fontWeight: "800",
-                              background: "#fff", color: "#1e293b", outline: "none"
-                            }}
-                            value={format?.fee || ""}
-                            onChange={(e) => setFee(si, fi, e.target.value)}
-                            onBlur={(e) => {
-                              const val = parseInt(e.target.value);
-                              if (e.target.value !== "" && (isNaN(val) || val < 500 || val > 2500)) {
-                                setFee(si, fi, "");
-                                toast.error("Fee must be between ₹500 and ₹2500");
-                              }
-                            }}
-                          />
-                        </Box>
-                      ) : (
-                        <Box sx={{
-                          height: 46, display: "flex", alignItems: "center",
-                          justifyContent: "center", borderRadius: "10px",
-                          border: "1.5px dashed #e2e8f0", color: "#cbd5e1",
-                          fontSize: "12px", fontWeight: 600
-                        }}>
-                          Disabled
-                        </Box>
-                      )}
-                    </Box>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </Paper>
+          <div key={si}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e293b", marginBottom: 14 }}>{feeItem.name}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+              {feeItem.formats.map((format, fi) => (
+                <FeeCard key={fi} format={format} si={si} fi={fi} setFee={setFee} />
+              ))}
+            </div>
+          </div>
         ))}
-      </Box>
+      </div>
 
-      <Box sx={{ mt: 3 }}>
+      <div style={{ marginTop: 28 }}>
         <FormMessage error={error} success={success} />
         {loading && <FormProgressBar />}
         <div className="rbt-form-group">
-          <button
-            className="rbt-btn btn-gradient submit-btn"
+          <button className="rbt-btn btn-gradient submit-btn"
             onClick={handleSubmit}
-            style={{ padding: "0 40px", height: "52px", borderRadius: "12px", fontWeight: "600" }}
-          >
+            style={{ padding: "0 40px", height: "52px", borderRadius: "12px", fontWeight: "600" }}>
             Save Fees
           </button>
         </div>
-      </Box>
+      </div>
     </div>
   );
 }
