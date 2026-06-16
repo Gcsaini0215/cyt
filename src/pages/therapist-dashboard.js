@@ -451,9 +451,7 @@ export default function TherapistDashboard() {
   const load = React.useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      // Always ensure therapist profile is loaded (needed for avatar)
-      const [, bookingsRes, workshopRes, dashRes] = await Promise.all([
-        fetchTherapistInfo(),
+      const [bookingsRes, workshopRes, dashRes] = await Promise.all([
         fetchById(getBookings), fetchById(GetMyWorkshopBooking), fetchById(GetDashboardDataUrl),
       ]);
       const bookings  = bookingsRes?.status ? (bookingsRes.data||[]) : [];
@@ -599,7 +597,7 @@ export default function TherapistDashboard() {
             <Box sx={{ display:"flex", alignItems:"center", gap:{ xs:1.5, md:2.2 } }}>
               <Box sx={{ position:"relative", flexShrink:0 }}>
                 <Box sx={{ width:{ xs:54, md:68 }, height:{ xs:54, md:68 }, borderRadius:"16px", p:"2px", background:"linear-gradient(135deg,#4ade80,#16a34a)" }}>
-                  {loading
+                  {!therapistInfo?.user?.name
                     ? <Skeleton variant="rectangular" width="100%" height="100%" sx={{ borderRadius:"14px", bgcolor:"rgba(255,255,255,0.12)" }} />
                     : <Avatar src={avatarSrc} sx={{ width:"100%", height:"100%", borderRadius:"14px" }} />
                   }
@@ -608,7 +606,10 @@ export default function TherapistDashboard() {
               </Box>
               <Box>
                 <Typography sx={{ fontSize:{ xs:"10px", md:"11px" }, color:"rgba(255,255,255,0.4)", fontWeight:500, mb:0.2 }}>{greeting},</Typography>
-                <Typography sx={{ fontSize:{ xs:"22px", md:"30px" }, fontWeight:900, color:"#fff", lineHeight:1.05, letterSpacing:"-0.6px" }}>{name}</Typography>
+                {!therapistInfo?.user?.name
+                  ? <Skeleton width={120} height={28} sx={{ bgcolor:"rgba(255,255,255,0.12)", borderRadius:"7px" }} />
+                  : <Typography sx={{ fontSize:{ xs:"22px", md:"30px" }, fontWeight:900, color:"#fff", lineHeight:1.05, letterSpacing:"-0.6px" }}>{name}</Typography>
+                }
                 <Box sx={{ display:"flex", alignItems:"center", gap:0.6, mt:0.7 }}>
                   <Box sx={{ width:5, height:5, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 5px rgba(74,222,128,0.8)" }} />
                   <Typography sx={{ fontSize:"10.5px", color:"rgba(255,255,255,0.4)", fontWeight:500 }}>{today}</Typography>
