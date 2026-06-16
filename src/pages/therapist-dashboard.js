@@ -54,54 +54,57 @@ function timeUntil(dateStr) {
   return `${m}m`;
 }
 
-function useCountUp(end, duration = 1200) {
+function useCountUp(end, duration = 1400) {
   const [count, setCount] = React.useState(0);
   const raf = React.useRef(null);
   React.useEffect(() => {
-    if (!end) { setCount(0); return; }
+    cancelAnimationFrame(raf.current);
+    if (!end || end === 0) { setCount(0); return; }
+    let start = 0;
     const t0 = performance.now();
     const step = now => {
       const p = Math.min((now - t0) / duration, 1);
-      setCount(Math.floor((1 - Math.pow(1 - p, 3)) * end));
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount(Math.floor(eased * end));
       if (p < 1) raf.current = requestAnimationFrame(step);
       else setCount(end);
     };
     raf.current = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf.current);
-  }, [end, duration]);
+  }, [end]);
   return count;
 }
 
-/* ── Stat Card ──────────────────────────────────────────────────── */
+/* ── Stat Card (horizontal compact) ────────────────────────────── */
 function StatCard({ icon, label, numericValue, isCurrency, color, bg, gradient, trend, trendUp, loading }) {
   const counted = useCountUp(loading ? 0 : (numericValue || 0));
-  const display = loading ? null : isCurrency ? `₹${counted.toLocaleString("en-IN")}` : counted;
+  const display = loading ? null : isCurrency ? `₹${counted.toLocaleString("en-IN")}` : String(counted);
 
   return (
     <Box sx={{
-      borderRadius: "18px", background: "#fff", border: "1.5px solid #f0f4f8",
-      overflow: "hidden", position: "relative", height: "100%",
+      borderRadius: "16px", background: "#fff", border: "1.5px solid #f0f4f8",
+      overflow: "hidden", minWidth: { xs: 148, sm: 168, md: 190 }, flex: "0 0 auto",
       transition: "transform .2s ease, box-shadow .2s ease, border-color .2s ease",
-      "&:hover": { borderColor: color + "55", boxShadow: `0 10px 36px ${color}12`, transform: "translateY(-4px)" },
+      "&:hover": { borderColor: color + "55", boxShadow: `0 8px 28px ${color}14`, transform: "translateY(-3px)" },
     }}>
-      <Box sx={{ height: 3, background: gradient || color, flexShrink: 0 }} />
-      <Box sx={{ p: { xs: "14px 16px 16px", md: "18px 20px 20px" } }}>
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mb: { xs: 1.5, md: 2 } }}>
-          <Box sx={{ width: { xs: 36, md: 42 }, height: { xs: 36, md: 42 }, borderRadius: "12px", background: bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 3px 12px ${color}18` }}>
-            {React.cloneElement(icon, { sx: { fontSize: { xs: 18, md: 21 }, color } })}
+      <Box sx={{ height: 3, background: gradient || color }} />
+      <Box sx={{ p: "14px 16px 16px" }}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+          <Box sx={{ width: 36, height: 36, borderRadius: "10px", background: bg, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 2px 8px ${color}20` }}>
+            {React.cloneElement(icon, { sx: { fontSize: 17, color } })}
           </Box>
           {trend && !loading && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.4, background: trendUp !== false ? "#f0fdf4" : "#fef2f2", borderRadius: "7px", px: 0.9, py: 0.35, border: `1px solid ${trendUp !== false ? "#dcfce7" : "#fee2e2"}` }}>
-              {trendUp !== false ? <TrendingUpIcon sx={{ fontSize: 10, color: "#16a34a" }} /> : <TrendingDownIcon sx={{ fontSize: 10, color: "#dc2626" }} />}
-              <Typography sx={{ fontSize: "9px", color: trendUp !== false ? "#16a34a" : "#dc2626", fontWeight: 700 }}>{trend}</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.4, background: trendUp !== false ? "#f0fdf4" : "#fef2f2", borderRadius: "6px", px: 0.8, py: 0.3, border: `1px solid ${trendUp !== false ? "#dcfce7" : "#fee2e2"}` }}>
+              {trendUp !== false ? <TrendingUpIcon sx={{ fontSize: 9, color: "#16a34a" }} /> : <TrendingDownIcon sx={{ fontSize: 9, color: "#dc2626" }} />}
+              <Typography sx={{ fontSize: "8.5px", color: trendUp !== false ? "#16a34a" : "#dc2626", fontWeight: 700 }}>{trend}</Typography>
             </Box>
           )}
         </Box>
         {loading
-          ? <Skeleton width={80} height={30} sx={{ borderRadius: "7px", mb: 0.5 }} />
-          : <Typography sx={{ fontWeight: 900, color: "#0a0f1e", fontSize: { xs: "22px", md: "28px" }, lineHeight: 1, letterSpacing: "-0.8px", mb: 0.5 }}>{display}</Typography>
+          ? <Skeleton width={72} height={26} sx={{ borderRadius: "6px", mb: 0.5 }} />
+          : <Typography sx={{ fontWeight: 900, color: "#0a0f1e", fontSize: "20px", lineHeight: 1, letterSpacing: "-0.6px", mb: 0.4 }}>{display}</Typography>
         }
-        <Typography sx={{ color: "#94a3b8", fontSize: { xs: "9.5px", md: "10px" }, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.7px" }}>{label}</Typography>
+        <Typography sx={{ color: "#94a3b8", fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.6px" }}>{label}</Typography>
       </Box>
     </Box>
   );
@@ -655,14 +658,19 @@ export default function TherapistDashboard() {
           )}
         </Box>
 
-        {/* ══ STAT CARDS ════════════════════════════════════════ */}
-        <Grid container spacing={{ xs:1.5, md:2 }} sx={{ mb:{ xs:2, md:2.5 } }}>
-          {statCards.map((s,i) => (
-            <Grid item xs={6} md={4} key={i}>
-              <StatCard {...s} loading={loading} />
-            </Grid>
+        {/* ══ STAT CARDS — horizontal scroll row ════════════════ */}
+        <Box sx={{
+          display: "flex", gap: { xs: 1.5, md: 2 }, mb: { xs: 2, md: 2.5 },
+          overflowX: "auto", pb: 0.5,
+          "&::-webkit-scrollbar": { height: 3 },
+          "&::-webkit-scrollbar-track": { background: "transparent" },
+          "&::-webkit-scrollbar-thumb": { background: "#e2e8f0", borderRadius: 2 },
+          scrollbarWidth: "thin", scrollbarColor: "#e2e8f0 transparent",
+        }}>
+          {statCards.map((s, i) => (
+            <StatCard key={i} {...s} loading={loading} />
           ))}
-        </Grid>
+        </Box>
 
         {/* ══ PENDING SESSIONS ALERT ════════════════════════════ */}
         {!loading && stats.pendingCount > 0 && (
