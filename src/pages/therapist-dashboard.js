@@ -451,8 +451,9 @@ export default function TherapistDashboard() {
   const load = React.useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      if (!therapistInfo?.user?.email) fetchTherapistInfo();
-      const [bookingsRes, workshopRes, dashRes] = await Promise.all([
+      // Always ensure therapist profile is loaded (needed for avatar)
+      const [, bookingsRes, workshopRes, dashRes] = await Promise.all([
+        fetchTherapistInfo(),
         fetchById(getBookings), fetchById(GetMyWorkshopBooking), fetchById(GetDashboardDataUrl),
       ]);
       const bookings  = bookingsRes?.status ? (bookingsRes.data||[]) : [];
@@ -538,7 +539,7 @@ export default function TherapistDashboard() {
       setLastRefreshed(new Date());
     } catch(e) { console.error("Dashboard error:",e); }
     finally { setLoading(false); setRefreshing(false); }
-  }, [therapistInfo?.user?.email]);
+  }, []);
 
   React.useEffect(() => { load(); }, []);
   React.useEffect(() => { const iv = setInterval(()=>load(true), 60000); return ()=>clearInterval(iv); }, [load]);
@@ -598,7 +599,10 @@ export default function TherapistDashboard() {
             <Box sx={{ display:"flex", alignItems:"center", gap:{ xs:1.5, md:2.2 } }}>
               <Box sx={{ position:"relative", flexShrink:0 }}>
                 <Box sx={{ width:{ xs:54, md:68 }, height:{ xs:54, md:68 }, borderRadius:"16px", p:"2px", background:"linear-gradient(135deg,#4ade80,#16a34a)" }}>
-                  <Avatar src={avatarSrc} sx={{ width:"100%", height:"100%", borderRadius:"14px" }} />
+                  {loading
+                    ? <Skeleton variant="rectangular" width="100%" height="100%" sx={{ borderRadius:"14px", bgcolor:"rgba(255,255,255,0.12)" }} />
+                    : <Avatar src={avatarSrc} sx={{ width:"100%", height:"100%", borderRadius:"14px" }} />
+                  }
                 </Box>
                 <Box sx={{ position:"absolute", bottom:-2, right:-2, width:12, height:12, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #0e2e1a", boxShadow:"0 0 8px rgba(74,222,128,0.7)" }} />
               </Box>
