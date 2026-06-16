@@ -4,7 +4,9 @@ import BlogImg from "../../assets/img/blog-card-048b22.jpg";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import axios from "axios";
-import { getBlogsUrl, baseApi } from "../../utils/url";
+import { baseApi } from "../../utils/url";
+
+const BLOGS_API = "https://api.chooseyourtherapist.in/api/get-blogs";
 
 export default function AllBlogs() {
   const [blogs, setBlogs] = useState([]);
@@ -28,7 +30,7 @@ export default function AllBlogs() {
       try {
         setLoading(true);
         setError(null);
-        const res = await axios.get(getBlogsUrl, { timeout: 60000 });
+        const res = await axios.get(BLOGS_API, { timeout: 60000 });
         const data = res.data;
         if (data?.status && Array.isArray(data.data)) {
           setBlogs(data.data);
