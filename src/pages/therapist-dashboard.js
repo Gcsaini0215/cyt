@@ -8,7 +8,7 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
-import { getBookings, GetMyWorkshopBooking, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
+import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
@@ -452,28 +452,27 @@ export default function TherapistDashboard() {
     if (isRefresh) setRefreshing(true);
     try {
       if (!therapistInfo?.user?.email) fetchTherapistInfo();
-      const [bookingsRes, workshopRes] = await Promise.all([
-        fetchById(getBookings), fetchById(GetMyWorkshopBooking),
+      const [bookingsRes, workshopRes, dashRes] = await Promise.all([
+        fetchById(getBookings), fetchById(GetMyWorkshopBooking), fetchById(GetDashboardDataUrl),
       ]);
-      // API returns only bookings that have a transaction (paid) — filter not needed
-      const bookings  = bookingsRes?.status  ? (bookingsRes.data||[])  : [];
-      const workshops = workshopRes?.status  ? (workshopRes.data||[])  : [];
+      const bookings  = bookingsRes?.status ? (bookingsRes.data||[]) : [];
+      const workshops = workshopRes?.status ? (workshopRes.data||[]) : [];
+      // getDashboardData uses correct therapist lookup — authoritative for totals
+      const dash = dashRes?.status ? dashRes.data : null;
 
       const now = new Date();
       const todayStr = now.toDateString();
       const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
 
-      let totalEarnings=0, monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
+      let monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
       let completedCount=0, pendingCount=0;
 
       bookings.forEach(b => {
         const bStatus = b.status || "New";
         const bd = new Date(b.booking_date);
-        // transaction.amount is a proper Number (unlike booking.amount which is Decimal128)
         const amt = getNum(b.transaction?.amount);
 
-        totalEarnings += amt;
         if (bd >= monthStart) monthEarnings += amt;
         else if (bd >= lastMonthStart) lastMonthEarnings += amt;
         if (bd.toDateString() === todayStr) todayRevenue += amt;
@@ -483,15 +482,16 @@ export default function TherapistDashboard() {
       });
 
       workshops.forEach(w => {
-        // Workshop bookings also only returned when they have a transaction
         const amt = getNum(w.transaction?.amount || w.amount);
         const wd  = new Date(w.createdAt || w.created_at || w.date);
-        totalEarnings += amt;
         if (wd >= monthStart) monthEarnings += amt;
         else if (wd >= lastMonthStart) lastMonthEarnings += amt;
         if (wd.toDateString() === todayStr) todayRevenue += amt;
       });
 
+      // Use dashboard API totals (correct Therapist ID lookup) as authoritative
+      const totalEarnings  = dash ? getNum(dash.revenue)  : (bookings.reduce((s,b)=>s+getNum(b.transaction?.amount),0) + workshops.reduce((s,w)=>s+getNum(w.transaction?.amount||w.amount),0));
+      const totalClients   = dash ? getNum(dash.client)   : new Set(bookings.map(b=>b.client?._id||b.client_id).filter(Boolean)).size;
       const totalBk = bookings.filter(b => b.status !== "Cancelled").length;
       const completionRate = totalBk > 0 ? Math.round((completedCount / totalBk) * 100) : 0;
 
@@ -521,7 +521,7 @@ export default function TherapistDashboard() {
         totalEarnings:   Math.round(totalEarnings),
         monthEarnings:   Math.round(monthEarnings),
         upcoming:        upcomingList.length,
-        totalClients:    clientSet.size,
+        totalClients:    totalClients,
         monthGrowth,
         monthGrowthUp:   monthEarnings >= lastMonthEarnings,
         todayRevenue:    Math.round(todayRevenue),
