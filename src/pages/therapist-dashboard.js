@@ -8,7 +8,7 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
-import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
+import { getBookings, GetMyWorkshopBooking, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
@@ -451,27 +451,29 @@ export default function TherapistDashboard() {
   const load = React.useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      const [bookingsRes, workshopRes, dashRes] = await Promise.all([
-        fetchById(getBookings), fetchById(GetMyWorkshopBooking), fetchById(GetDashboardDataUrl),
+      if (!therapistInfo?.user?.email) fetchTherapistInfo();
+      const [bookingsRes, workshopRes] = await Promise.all([
+        fetchById(getBookings), fetchById(GetMyWorkshopBooking),
       ]);
-      const bookings  = bookingsRes?.status ? (bookingsRes.data||[]) : [];
-      const workshops = workshopRes?.status ? (workshopRes.data||[]) : [];
-      // getDashboardData uses correct therapist lookup — authoritative for totals
-      const dash = dashRes?.status ? dashRes.data : null;
+      // API returns only bookings that have a transaction (paid) — filter not needed
+      const bookings  = bookingsRes?.status  ? (bookingsRes.data||[])  : [];
+      const workshops = workshopRes?.status  ? (workshopRes.data||[])  : [];
 
       const now = new Date();
       const todayStr = now.toDateString();
       const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
 
-      let monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
+      let totalEarnings=0, monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
       let completedCount=0, pendingCount=0;
 
       bookings.forEach(b => {
         const bStatus = b.status || "New";
         const bd = new Date(b.booking_date);
+        // transaction.amount is a proper Number (unlike booking.amount which is Decimal128)
         const amt = getNum(b.transaction?.amount);
 
+        totalEarnings += amt;
         if (bd >= monthStart) monthEarnings += amt;
         else if (bd >= lastMonthStart) lastMonthEarnings += amt;
         if (bd.toDateString() === todayStr) todayRevenue += amt;
@@ -481,16 +483,15 @@ export default function TherapistDashboard() {
       });
 
       workshops.forEach(w => {
+        // Workshop bookings also only returned when they have a transaction
         const amt = getNum(w.transaction?.amount || w.amount);
         const wd  = new Date(w.createdAt || w.created_at || w.date);
+        totalEarnings += amt;
         if (wd >= monthStart) monthEarnings += amt;
         else if (wd >= lastMonthStart) lastMonthEarnings += amt;
         if (wd.toDateString() === todayStr) todayRevenue += amt;
       });
 
-      // Use dashboard API totals (correct Therapist ID lookup) as authoritative
-      const totalEarnings  = dash ? getNum(dash.revenue)  : (bookings.reduce((s,b)=>s+getNum(b.transaction?.amount),0) + workshops.reduce((s,w)=>s+getNum(w.transaction?.amount||w.amount),0));
-      const totalClients   = dash ? getNum(dash.client)   : new Set(bookings.map(b=>b.client?._id||b.client_id).filter(Boolean)).size;
       const totalBk = bookings.filter(b => b.status !== "Cancelled").length;
       const completionRate = totalBk > 0 ? Math.round((completedCount / totalBk) * 100) : 0;
 
@@ -520,7 +521,7 @@ export default function TherapistDashboard() {
         totalEarnings:   Math.round(totalEarnings),
         monthEarnings:   Math.round(monthEarnings),
         upcoming:        upcomingList.length,
-        totalClients:    totalClients,
+        totalClients:    clientSet.size,
         monthGrowth,
         monthGrowthUp:   monthEarnings >= lastMonthEarnings,
         todayRevenue:    Math.round(todayRevenue),
@@ -537,7 +538,7 @@ export default function TherapistDashboard() {
       setLastRefreshed(new Date());
     } catch(e) { console.error("Dashboard error:",e); }
     finally { setLoading(false); setRefreshing(false); }
-  }, []);
+  }, [therapistInfo?.user?.email]);
 
   React.useEffect(() => { load(); }, []);
   React.useEffect(() => { const iv = setInterval(()=>load(true), 60000); return ()=>clearInterval(iv); }, [load]);
@@ -597,19 +598,13 @@ export default function TherapistDashboard() {
             <Box sx={{ display:"flex", alignItems:"center", gap:{ xs:1.5, md:2.2 } }}>
               <Box sx={{ position:"relative", flexShrink:0 }}>
                 <Box sx={{ width:{ xs:54, md:68 }, height:{ xs:54, md:68 }, borderRadius:"16px", p:"2px", background:"linear-gradient(135deg,#4ade80,#16a34a)" }}>
-                  {!therapistInfo?.user?.name
-                    ? <Skeleton variant="rectangular" width="100%" height="100%" sx={{ borderRadius:"14px", bgcolor:"rgba(255,255,255,0.12)" }} />
-                    : <Avatar src={avatarSrc} sx={{ width:"100%", height:"100%", borderRadius:"14px" }} />
-                  }
+                  <Avatar src={avatarSrc} sx={{ width:"100%", height:"100%", borderRadius:"14px" }} />
                 </Box>
                 <Box sx={{ position:"absolute", bottom:-2, right:-2, width:12, height:12, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #0e2e1a", boxShadow:"0 0 8px rgba(74,222,128,0.7)" }} />
               </Box>
               <Box>
                 <Typography sx={{ fontSize:{ xs:"10px", md:"11px" }, color:"rgba(255,255,255,0.4)", fontWeight:500, mb:0.2 }}>{greeting},</Typography>
-                {!therapistInfo?.user?.name
-                  ? <Skeleton width={120} height={28} sx={{ bgcolor:"rgba(255,255,255,0.12)", borderRadius:"7px" }} />
-                  : <Typography sx={{ fontSize:{ xs:"22px", md:"30px" }, fontWeight:900, color:"#fff", lineHeight:1.05, letterSpacing:"-0.6px" }}>{name}</Typography>
-                }
+                <Typography sx={{ fontSize:{ xs:"22px", md:"30px" }, fontWeight:900, color:"#fff", lineHeight:1.05, letterSpacing:"-0.6px" }}>{name}</Typography>
                 <Box sx={{ display:"flex", alignItems:"center", gap:0.6, mt:0.7 }}>
                   <Box sx={{ width:5, height:5, borderRadius:"50%", background:"#4ade80", boxShadow:"0 0 5px rgba(74,222,128,0.8)" }} />
                   <Typography sx={{ fontSize:"10.5px", color:"rgba(255,255,255,0.4)", fontWeight:500 }}>{today}</Typography>
