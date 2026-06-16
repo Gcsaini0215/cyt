@@ -159,17 +159,82 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
   const currentUrl = `${frontendUrl}/view-profile/${id}`;
   const seoTitle = `${profileName} | ${profileType} | ${profileLocation.replace('in ', '')} | Choose Your Therapist`;
 
-  // Schema.org structured data
-  const schemaData = {
+  // Parse specializations / expertise areas
+  const expertiseAreas = (() => {
+    const raw = profile?.service_experties;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw.filter(Boolean);
+    if (typeof raw === "string") return raw.split(",").map(s => s.trim()).filter(Boolean);
+    return [];
+  })();
+
+  // Languages
+  const languagesList = (() => {
+    const raw = profile?.languages;
+    if (!raw) return ["English", "Hindi"];
+    if (Array.isArray(raw)) return raw;
+    return raw.split(",").map(l => l.trim());
+  })();
+
+  // Credentials / qualifications
+  const credentialList = [];
+  if (profile?.qualification) {
+    credentialList.push({
+      "@type": "EducationalOccupationalCredential",
+      "credentialCategory": "degree",
+      "name": profile.qualification
+    });
+  }
+  if (profile?.rci_number) {
+    credentialList.push({
+      "@type": "EducationalOccupationalCredential",
+      "credentialCategory": "license",
+      "name": `RCI Registration No: ${profile.rci_number}`,
+      "recognizedBy": {
+        "@type": "Organization",
+        "name": "Rehabilitation Council of India",
+        "url": "https://www.rehabcouncil.nic.in"
+      }
+    });
+  }
+
+  // --- Schema 1: Psychologist / Physician (Person) ---
+  const psychologistSchema = {
     "@context": "https://schema.org",
-    "@type": "Person",
+    "@type": ["Person", "Physician"],
+    "@id": `${currentUrl}#psychologist`,
     "name": profileName,
     "jobTitle": profileType,
-    "description": profileBio.substring(0, 300),
-    "image": profileImage,
+    "description": profileBio.substring(0, 500),
+    "image": {
+      "@type": "ImageObject",
+      "url": profileImage,
+      "width": 400,
+      "height": 400
+    },
     "url": currentUrl,
-    "worksFor": { "@type": "Organization", "name": "Choose Your Therapist", "url": "https://www.chooseyourtherapist.in" },
-    ...(profile?.state && { "address": { "@type": "PostalAddress", "addressRegion": profile.state, "addressCountry": "IN" } }),
+    "knowsLanguage": languagesList,
+    "medicalSpecialty": profileType,
+    "worksFor": {
+      "@type": "MedicalOrganization",
+      "name": "Choose Your Therapist",
+      "url": "https://www.chooseyourtherapist.in"
+    },
+    ...(expertiseAreas.length > 0 && { "knowsAbout": expertiseAreas }),
+    ...(credentialList.length > 0 && { "hasCredential": credentialList }),
+    ...(profile?.experience_years && {
+      "hasOccupation": {
+        "@type": "Occupation",
+        "name": profileType,
+        "experienceRequirements": `${profile.experience_years} years`
+      }
+    }),
+    "address": {
+      "@type": "PostalAddress",
+      "addressRegion": profile?.state || profile?.user?.state || "India",
+      "addressLocality": profile?.city || profile?.user?.city || undefined,
+      "addressCountry": "IN"
+    },
     ...(avgRating && {
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -182,13 +247,88 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
     ...(reviewCount > 0 && {
       "review": reviews.slice(0, 5).map(r => ({
         "@type": "Review",
-        "author": { "@type": "Person", "name": r.name || "Verified User" },
+        "author": { "@type": "Person", "name": r.name || "Verified Client" },
         "reviewRating": { "@type": "Rating", "ratingValue": r.rating || 5, "bestRating": "5" },
         "reviewBody": (r.description || "").substring(0, 300),
         ...(r.createdAt && { "datePublished": new Date(r.createdAt).toISOString().split("T")[0] })
       }))
     })
   };
+
+  // --- Schema 2: MedicalBusiness (for the therapist's practice listing) ---
+  const practiceSchema = {
+    "@context": "https://schema.org",
+    "@type": "MedicalBusiness",
+    "@id": `${currentUrl}#practice`,
+    "name": `${profileName} | ${profileType}`,
+    "description": `Book an online or in-person session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`,
+    "image": profileImage,
+    "url": currentUrl,
+    "medicalSpecialty": profileType,
+    "availableService": expertiseAreas.map(area => ({
+      "@type": "MedicalTherapy",
+      "name": area
+    })),
+    "address": {
+      "@type": "PostalAddress",
+      "addressRegion": profile?.state || profile?.user?.state || "India",
+      "addressLocality": profile?.city || profile?.user?.city || undefined,
+      "addressCountry": "IN"
+    },
+    ...(profile?.fee_per_session && {
+      "priceRange": `₹${profile.fee_per_session} per session`
+    }),
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "09:00",
+      "closes": "21:00"
+    },
+    "parentOrganization": {
+      "@type": "MedicalOrganization",
+      "name": "Choose Your Therapist",
+      "url": "https://www.chooseyourtherapist.in"
+    },
+    ...(avgRating && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": avgRating,
+        "reviewCount": reviewCount,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    })
+  };
+
+  // --- Schema 3: BreadcrumbList ---
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "@id": `${currentUrl}#breadcrumb`,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.chooseyourtherapist.in/" },
+      { "@type": "ListItem", "position": 2, "name": "Find a Psychologist", "item": "https://www.chooseyourtherapist.in/view-all-therapist" },
+      { "@type": "ListItem", "position": 3, "name": `${profileName} — ${profileType}`, "item": currentUrl }
+    ]
+  };
+
+  // --- Schema 4: ProfilePage (GEO signal — helps AI cite this page directly) ---
+  const profilePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "name": seoTitle,
+    "description": seoDescription,
+    "url": currentUrl,
+    "dateModified": new Date().toISOString().split("T")[0],
+    "mainEntity": { "@id": `${currentUrl}#psychologist` },
+    "breadcrumb": { "@id": `${currentUrl}#breadcrumb` },
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": ["h1", "h2", ".therapist-bio"]
+    }
+  };
+
+  const schemaData = [psychologistSchema, practiceSchema, breadcrumbSchema, profilePageSchema];
 
   return loading ? (
     <PageProgressBar />
@@ -229,11 +369,14 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
         <meta name="application-name" content="Choose Your Therapist" />
         <link rel="canonical" href={currentUrl} />
 
-        {/* Schema.org — AggregateRating + Reviews for Google rich snippets */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-        />
+        {/* Schema.org — Psychologist + MedicalBusiness + BreadcrumbList + ProfilePage */}
+        {schemaData.map((schema, i) => (
+          <script
+            key={i}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))}
       </Head>
       <MyNavbar />
       {profile && (

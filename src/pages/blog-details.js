@@ -289,6 +289,52 @@ const TrendingItem = styled(Box)(({ theme }) => ({
   }
 }));
 
+// ─── Content cleaner ─────────────────────────────────────────────────────────
+// Strips legacy Word/font tags, fixes empty headings, normalises inline styles
+function cleanBlogContent(html) {
+  if (!html) return "";
+
+  let c = html;
+
+  // 1. Remove Word-paste mso- inline styles entirely from style attributes
+  c = c.replace(/\s*style="[^"]*mso-[^"]*"/gi, "");
+  // Remove remaining empty style attributes
+  c = c.replace(/\s*style="\s*"/gi, "");
+
+  // 2. Unwrap <font face="..." size="..."> tags — keep inner content
+  c = c.replace(/<font[^>]*>([\s\S]*?)<\/font>/gi, "$1");
+
+  // 3. Remove data-start / data-end / data-section-id attributes (AI noise)
+  c = c.replace(/\s*data-start="[^"]*"/gi, "");
+  c = c.replace(/\s*data-end="[^"]*"/gi, "");
+  c = c.replace(/\s*data-section-id="[^"]*"/gi, "");
+
+  // 4. Remove empty headings like <h2><br></h2> or <h2></h2>
+  c = c.replace(/<h[1-6][^>]*>\s*(<br\s*\/?>)?\s*<\/h[1-6]>/gi, "");
+
+  // 5. Remove empty paragraphs and empty divs
+  c = c.replace(/<p[^>]*>\s*(<br\s*\/?>)?\s*<\/p>/gi, "");
+  c = c.replace(/<div[^>]*>\s*(<br\s*\/?>)?\s*<\/div>/gi, "");
+
+  // 6. Remove lang attributes (Word noise)
+  c = c.replace(/\s*lang="[^"]*"/gi, "");
+
+  // 7. Remove class attributes with mso or MsoNormal
+  c = c.replace(/\s*class="[^"]*Mso[^"]*"/gi, "");
+  c = c.replace(/\s*class="[^"]*mso[^"]*"/gi, "");
+
+  // 8. Remove &nbsp; chains (more than 2 consecutive)
+  c = c.replace(/(&nbsp;){3,}/gi, " ");
+
+  // 9. Collapse multiple <br> into one
+  c = c.replace(/(<br\s*\/?>){3,}/gi, "<br>");
+
+  // 10. Add .blog-intro class to the first <p> for speakable schema targeting
+  c = c.replace(/^(\s*<p)/, '$1 class="blog-intro"');
+
+  return c.trim();
+}
+
 export default function BlogDetails({ initialBlog }) {
   const router = useRouter();
   const { id } = router.query;
@@ -305,7 +351,7 @@ export default function BlogDetails({ initialBlog }) {
 
   useEffect(() => {
     if (blog && blog.content) {
-      setSanitizedContent(dompurify.sanitize(blog.content));
+      setSanitizedContent(dompurify.sanitize(cleanBlogContent(blog.content)));
     }
   }, [blog]);
 
@@ -409,26 +455,62 @@ export default function BlogDetails({ initialBlog }) {
   if (!blog) return <Typography>Blog not found</Typography>;
 
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
-  const cleanDesc = (blog.metaDesc || blog.title || "").replace(/<[^>]*>/g, '').trim();
+
+  // Build a rich meta description: prefer metaDesc, fall back to first 160 chars of plain content
+  const rawMetaDesc = (blog.metaDesc || "").replace(/<[^>]*>/g, '').trim();
+  const plainContentDesc = blog.content
+    ? blog.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 200)
+    : "";
+  const rawCleanDesc = rawMetaDesc.length > 40 ? rawMetaDesc : plainContentDesc;
+  const cleanDesc = rawCleanDesc.length > 160 ? rawCleanDesc.substring(0, 157) + "..." : rawCleanDesc;
+
   const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}`;
   const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
 
+  // Plain text for wordCount
+  const plainText = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
+  const wordCount = plainText.split(" ").filter(Boolean).length;
+
+  // Is this a mental health / psychology article?
+  const isMedical = ["mental health", "psychology", "therapy", "counselling", "relationship concern", "anxiety", "depression"].some(
+    kw => (blog.category || "").toLowerCase().includes(kw)
+  );
+
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "headline": blog.title,
+    "@type": isMedical ? ["Article", "MedicalWebPage"] : "Article",
+    "headline": blog.title?.trim(),
+    "name": blog.title?.trim(),
     "description": cleanDesc,
-    "image": imageUrl,
+    "image": {
+      "@type": "ImageObject",
+      "url": imageUrl,
+      "width": 1200,
+      "height": 630
+    },
+    "url": pageUrl,
+    "wordCount": wordCount,
+    "inLanguage": "en-IN",
+    "articleSection": blog.category || "Mental Health",
+    "keywords": tagsList.length > 0 ? tagsList.join(", ") : (blog.category || "mental health, psychology"),
     "author": {
       "@type": "Person",
-      "name": blog.author || 'Admin'
+      "name": blog.author || "Choose Your Therapist Editorial",
+      "worksFor": {
+        "@type": "Organization",
+        "@id": "https://www.chooseyourtherapist.in#organization",
+        "name": "Choose Your Therapist"
+      }
     },
     "publisher": {
       "@type": "Organization",
+      "@id": "https://www.chooseyourtherapist.in#organization",
       "name": "Choose Your Therapist",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://chooseyourtherapist.in/cytlogo.png"
+        "url": "https://www.chooseyourtherapist.in/logo.png",
+        "width": 250,
+        "height": 60
       }
     },
     "datePublished": blog.createdAt,
@@ -436,6 +518,20 @@ export default function BlogDetails({ initialBlog }) {
     "mainEntityOfPage": {
       "@type": "WebPage",
       "@id": pageUrl
+    },
+    ...(isMedical && {
+      "about": {
+        "@type": "MedicalCondition",
+        "name": blog.category || "Mental Health"
+      },
+      "medicalAudience": {
+        "@type": "MedicalAudience",
+        "audienceType": "Patient"
+      }
+    }),
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "cssSelector": ["h1", "h2", ".blog-intro"]
     }
   };
 
@@ -631,10 +727,97 @@ export default function BlogDetails({ initialBlog }) {
               >
                 Source: Choose Your Therapist Editorial
               </Typography>
-              <ContentWrapper 
+              <ContentWrapper
                 className="blog-content-rich-text"
-                dangerouslySetInnerHTML={{ __html: sanitizedContent }} 
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
               />
+
+              {/* ── Key Takeaways — GEO / AI citation signal ── */}
+              {tagsList.length > 0 && (
+                <Box sx={{
+                  mt: 6, p: { xs: 3, md: 4 },
+                  background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                  borderRadius: '20px', border: '1px solid #bbf7d0'
+                }}>
+                  <Typography variant="h6" sx={{
+                    fontWeight: 900, color: '#064e3b', mb: 2,
+                    fontSize: { xs: '1.4rem', md: '1.6rem' },
+                    display: 'flex', alignItems: 'center', gap: 1
+                  }}>
+                    🔑 Key Topics in This Article
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {tagsList.map((tag, i) => (
+                      <Box key={i} sx={{
+                        px: 2, py: 0.8, borderRadius: '50px',
+                        background: '#fff', border: '1px solid #86efac',
+                        fontSize: '1.2rem', fontWeight: 600, color: '#166534'
+                      }}>
+                        {tag}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              )}
+
+              {/* ── Professional Help CTA ── */}
+              <Box sx={{
+                mt: 5, p: { xs: 3, md: 4 },
+                background: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
+                borderRadius: '20px', textAlign: 'center'
+              }}>
+                <Typography sx={{
+                  fontWeight: 900, color: '#fff', mb: 1.5,
+                  fontSize: { xs: '1.6rem', md: '2rem' }
+                }}>
+                  Want to talk to a psychologist?
+                </Typography>
+                <Typography sx={{
+                  color: 'rgba(255,255,255,0.8)', mb: 3,
+                  fontSize: { xs: '1.3rem', md: '1.5rem' }, lineHeight: 1.6
+                }}>
+                  Reading about mental health is a great first step. Speaking with a verified psychologist is the next one.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Box
+                    component="a"
+                    href="/view-all-therapist"
+                    sx={{
+                      px: 3, py: 1.5, borderRadius: '50px',
+                      background: '#4ade80', color: '#064e3b',
+                      fontWeight: 800, fontSize: '1.4rem',
+                      textDecoration: 'none', display: 'inline-block'
+                    }}
+                  >
+                    Browse Verified Psychologists
+                  </Box>
+                  <Box
+                    component="a"
+                    href="/faqs"
+                    sx={{
+                      px: 3, py: 1.5, borderRadius: '50px',
+                      background: 'rgba(255,255,255,0.15)',
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      color: '#fff', fontWeight: 700, fontSize: '1.4rem',
+                      textDecoration: 'none', display: 'inline-block'
+                    }}
+                  >
+                    Read Therapy FAQs
+                  </Box>
+                </Box>
+              </Box>
+
+              {/* ── Disclaimer ── */}
+              <Box sx={{
+                mt: 4, p: 2.5,
+                background: '#f8fafc', borderRadius: '12px',
+                border: '1px solid #e2e8f0'
+              }}>
+                <Typography sx={{ fontSize: '1.1rem', color: '#94a3b8', lineHeight: 1.6 }}>
+                  <strong style={{ color: '#64748b' }}>Disclaimer:</strong> This article is for informational and educational purposes only. It is not a substitute for professional psychological advice, diagnosis, or treatment. If you are experiencing a mental health crisis, please contact a verified mental health professional or call a helpline immediately.
+                </Typography>
+              </Box>
+
             </Box>
           </Grid>
 

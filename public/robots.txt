@@ -13,3 +13,6 @@ Disallow: /not-authorized
 Disallow: /address-selection
 
 Sitemap: https://www.chooseyourtherapist.in/sitemap.xml
+Sitemap: https://www.chooseyourtherapist.in/sitemap-static.xml
+Sitemap: https://www.chooseyourtherapist.in/api/sitemap-therapists.xml
+Sitemap: https://www.chooseyourtherapist.in/api/sitemap-blogs.xml

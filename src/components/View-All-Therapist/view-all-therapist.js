@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   GetFavriouteTherapistListUrl,
   getTherapistProfiles,
@@ -10,6 +11,7 @@ import { ExpList, languageSpoken, services, stateList } from "../../utils/static
 import { getDecodedToken } from "../../utils/jwt";
 
 export default function ViewAllTherapist() {
+  const router = useRouter();
   const [data, setData] = React.useState([]);
   const [allData, setAllData] = React.useState([]);
   const [search, setSearch] = React.useState("");
@@ -22,11 +24,44 @@ export default function ViewAllTherapist() {
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [tempFilter, setTempFilter] = React.useState({});
   const resultsRef = React.useRef(null);
+  const isFirstRender = React.useRef(true);
 
   const [filter, setFilter] = React.useState({
     profile_type: "", services: "", year_of_exp: "",
     language_spoken: "", state: "", search: "", page: 1, pageSize: 1000,
   });
+
+  // Read URL query params on first load and set filters
+  React.useEffect(() => {
+    if (!router.isReady) return;
+    const q = router.query;
+    const fromUrl = {
+      profile_type: q.profile_type || "",
+      services: q.services || "",
+      year_of_exp: q.year_of_exp || "",
+      language_spoken: q.language_spoken || "",
+      state: q.state || "",
+      search: q.search || "",
+      page: 1,
+      pageSize: 1000,
+    };
+    if (q.search) setSearch(q.search);
+    setFilter(fromUrl);
+  }, [router.isReady]);
+
+  // Sync filter changes back to URL (skip first render to avoid double-set)
+  React.useEffect(() => {
+    if (!router.isReady) return;
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const params = {};
+    if (filter.profile_type) params.profile_type = filter.profile_type;
+    if (filter.services) params.services = filter.services;
+    if (filter.year_of_exp) params.year_of_exp = filter.year_of_exp;
+    if (filter.language_spoken) params.language_spoken = filter.language_spoken;
+    if (filter.state) params.state = filter.state;
+    if (filter.search) params.search = filter.search;
+    router.replace({ pathname: router.pathname, query: params }, undefined, { shallow: true });
+  }, [filter.profile_type, filter.services, filter.year_of_exp, filter.language_spoken, filter.state, filter.search]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -241,6 +276,20 @@ export default function ViewAllTherapist() {
         .vat-skel-line { height:14px; border-radius:6px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200%; animation:vat-shimmer 1.4s infinite; margin-bottom:10px; }
         @keyframes vat-shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
 
+        /* active filter chips */
+        .vat-chip {
+          display: inline-flex; align-items: center; gap: 6px;
+          background: #f0fdf4; border: 1.5px solid #86efac;
+          color: #166534; font-size: 12px; font-weight: 700;
+          padding: 4px 10px 4px 12px; border-radius: 20px;
+        }
+        .vat-chip-x {
+          background: none; border: none; padding: 0; cursor: pointer;
+          color: #16a34a; display: flex; align-items: center;
+          line-height: 1;
+        }
+        .vat-chip-x i { font-size: 11px; }
+
         /* pagination */
         .vat-pagination { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:44px; flex-wrap:wrap; }
         .vat-page-btn {
@@ -443,10 +492,10 @@ export default function ViewAllTherapist() {
           <div className="vat-results-header">
             <div>
               <div className="vat-results-title">
-                {hasFilter ? `${data.length} result${data.length !== 1 ? "s" : ""} found` : "All Therapists"}
+                {hasFilter ? `${filteredData.length} therapist${filteredData.length !== 1 ? "s" : ""} found` : "All Therapists"}
               </div>
               <div className="vat-results-count">
-                {hasFilter ? `${filteredData.length} filtered result${filteredData.length !== 1 ? "s" : ""}` : `${allData.length} verified professionals`}
+                {hasFilter ? "Filtered results" : `${allData.length} verified professionals`}
                 {totalPages > 1 && ` · Page ${currentPage} of ${totalPages}`}
               </div>
             </div>
@@ -457,6 +506,48 @@ export default function ViewAllTherapist() {
               </button>
             )}
           </div>
+
+          {/* Active filter chips */}
+          {hasFilter && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+              {filter.profile_type && (
+                <span className="vat-chip">
+                  {filter.profile_type}
+                  <button onClick={() => setFilter(f => ({ ...f, profile_type: "" }))} className="vat-chip-x"><i className="feather-x" /></button>
+                </span>
+              )}
+              {filter.services && (
+                <span className="vat-chip">
+                  {filter.services}
+                  <button onClick={() => setFilter(f => ({ ...f, services: "" }))} className="vat-chip-x"><i className="feather-x" /></button>
+                </span>
+              )}
+              {filter.year_of_exp && (
+                <span className="vat-chip">
+                  {filter.year_of_exp}
+                  <button onClick={() => setFilter(f => ({ ...f, year_of_exp: "" }))} className="vat-chip-x"><i className="feather-x" /></button>
+                </span>
+              )}
+              {filter.language_spoken && (
+                <span className="vat-chip">
+                  {filter.language_spoken}
+                  <button onClick={() => setFilter(f => ({ ...f, language_spoken: "" }))} className="vat-chip-x"><i className="feather-x" /></button>
+                </span>
+              )}
+              {filter.state && (
+                <span className="vat-chip">
+                  {filter.state}
+                  <button onClick={() => setFilter(f => ({ ...f, state: "" }))} className="vat-chip-x"><i className="feather-x" /></button>
+                </span>
+              )}
+              {filter.search && (
+                <span className="vat-chip">
+                  &ldquo;{filter.search}&rdquo;
+                  <button onClick={() => { setSearch(""); setFilter(f => ({ ...f, search: "" })); }} className="vat-chip-x"><i className="feather-x" /></button>
+                </span>
+              )}
+            </div>
+          )}
 
           {loading ? (
             <div className="row g-4">

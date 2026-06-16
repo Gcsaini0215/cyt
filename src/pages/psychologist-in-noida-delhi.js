@@ -86,34 +86,28 @@ export default function LocalLandingPage() {
 
         <link rel="canonical" href="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
 
-        {/* Local Business & Medical WebPage Schema */}
+        {/* Schema.org — MedicalClinic + MedicalWebPage + FAQPage + BreadcrumbList */}
         <script type="application/ld+json">
           {JSON.stringify([
             {
               "@context": "https://schema.org",
-              "@type": "MedicalWebPage",
-              "name": "Psychologist Services in Noida & Delhi",
-              "description": "Information about top-rated psychologists and mental health services in Noida and Delhi.",
-              "lastReviewed": "2026-03-10",
-              "reviewedBy": {
-                "@type": "Organization",
-                "name": "Choose Your Therapist LLP"
-              }
-            },
-            {
-              "@context": "https://schema.org",
-              "@type": "HealthAndBeautyBusiness",
-              "name": "Choose Your Therapist - Noida Studio",
-              "description": "Premium mental health studio in Noida Sector 51, near LPS Global School. Expert psychologists serving Sector 50, 34, 72, and 52 residents.",
-              "image": "https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg",
-              "@id": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
+              "@type": "MedicalClinic",
+              "@id": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi#clinic",
+              "name": "Choose Your Therapist — Noida Therapy Studio",
+              "alternateName": "CYT Noida Mental Health Studio",
+              "description": "Premier mental health therapy studio in Noida Sector 51. Verified counselling psychologists and clinical psychologists offering in-person and online sessions for anxiety, depression, OCD, trauma, and relationship counselling.",
+              "image": [
+                "https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg",
+                "https://i.postimg.cc/zX7ckC8q/Whats-App-Image-2026-03-10-at-6-01-06-AM.jpg"
+              ],
               "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
-              "telephone": "+918077757951",
+              "telephone": "+91-8077757951",
+              "email": "hello@chooseyourtherapist.in",
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": "D-137, Sector 51",
+                "streetAddress": "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
                 "addressLocality": "Noida",
-                "addressRegion": "UP",
+                "addressRegion": "Uttar Pradesh",
                 "postalCode": "201301",
                 "addressCountry": "IN"
               },
@@ -122,30 +116,87 @@ export default function LocalLandingPage() {
                 "latitude": 28.5672,
                 "longitude": 77.3650
               },
-              "areaServed": ["Noida", "Delhi", "Gurgaon", "Ghaziabad"],
+              "hasMap": "https://maps.google.com/?q=28.5672,77.3650",
+              "medicalSpecialty": [
+                "Counselling Psychology",
+                "Clinical Psychology",
+                "Anxiety & Stress Therapy",
+                "Depression Treatment",
+                "OCD Therapy",
+                "Trauma & PTSD Counselling",
+                "Couples & Relationship Counselling",
+                "Child & Adolescent Psychology",
+                "Special Education"
+              ],
+              "availableService": [
+                { "@type": "MedicalTherapy", "name": "In-Person Therapy Sessions" },
+                { "@type": "MedicalTherapy", "name": "Online Therapy Sessions" },
+                { "@type": "MedicalTherapy", "name": "Anxiety & Stress Management" },
+                { "@type": "MedicalTherapy", "name": "Depression Counselling" },
+                { "@type": "MedicalTherapy", "name": "Couples Therapy" },
+                { "@type": "MedicalTherapy", "name": "Child & Adolescent Therapy" },
+                { "@type": "MedicalTherapy", "name": "OCD Treatment" },
+                { "@type": "MedicalTherapy", "name": "Trauma Therapy" }
+              ],
+              "areaServed": [
+                { "@type": "City", "name": "Noida" },
+                { "@type": "City", "name": "Delhi" },
+                { "@type": "City", "name": "Gurgaon" },
+                { "@type": "City", "name": "Ghaziabad" },
+                { "@type": "City", "name": "Greater Noida" },
+                { "@type": "City", "name": "Faridabad" }
+              ],
               "openingHoursSpecification": {
                 "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-                "opens": "00:00",
-                "closes": "23:59"
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+                "opens": "09:00",
+                "closes": "21:00"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "reviewCount": "300",
+                "bestRating": "5"
+              },
+              "parentOrganization": {
+                "@type": "MedicalOrganization",
+                "@id": "https://www.chooseyourtherapist.in#organization",
+                "name": "Choose Your Therapist",
+                "url": "https://www.chooseyourtherapist.in"
+              },
+              "sameAs": [
+                "https://www.instagram.com/chooseyourtherapist",
+                "https://www.facebook.com/chooseyourtherapist"
+              ]
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "MedicalWebPage",
+              "name": "Best Psychologist in Noida & Delhi | Verified Mental Health Experts",
+              "description": "Find and book verified psychologists and therapists in Noida and Delhi NCR for anxiety, depression, OCD, trauma, and relationship counselling.",
+              "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
+              "lastReviewed": "2026-06-01",
+              "reviewedBy": {
+                "@type": "Organization",
+                "@id": "https://www.chooseyourtherapist.in#organization",
+                "name": "Choose Your Therapist LLP"
+              },
+              "about": {
+                "@type": "MedicalCondition",
+                "name": "Mental Health Disorders",
+                "description": "Includes anxiety, depression, OCD, PTSD, relationship issues, and learning disabilities"
+              },
+              "speakable": {
+                "@type": "SpeakableSpecification",
+                "cssSelector": ["h1", "h2", ".clinic-details"]
               }
             },
             {
               "@context": "https://schema.org",
               "@type": "BreadcrumbList",
               "itemListElement": [
-                {
-                  "@type": "ListItem",
-                  "position": 1,
-                  "name": "Home",
-                  "item": "https://www.chooseyourtherapist.in"
-                },
-                {
-                  "@type": "ListItem",
-                  "position": 2,
-                  "name": "Psychologist in Noida & Delhi",
-                  "item": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi"
-                }
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.chooseyourtherapist.in" },
+                { "@type": "ListItem", "position": 2, "name": "Psychologist in Noida & Delhi", "item": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" }
               ]
             },
             {
@@ -157,7 +208,7 @@ export default function LocalLandingPage() {
                   "name": "Who is the best psychologist in Noida for anxiety and stress?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Choose Your Therapist connects you with top-rated psychologists in Noida specializing in anxiety and stress management. Our experts at the Noida Studio provide personalized evidence-based therapy."
+                    "text": "Choose Your Therapist's Noida Studio (Sector 51) has verified counselling and clinical psychologists specializing in anxiety disorders, stress management, and work-life balance issues. All our psychologists are degree-verified and experienced in evidence-based therapies like CBT."
                   }
                 },
                 {
@@ -165,7 +216,7 @@ export default function LocalLandingPage() {
                   "name": "Do you offer in-person therapy sessions in Noida Sector 51?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Yes, we offer professional in-person counseling at our Noida Studio located in Sector 51, near LPS Global School. Our center is easily accessible for residents of Noida Sector 50, Sector 34, Sector 72, and nearby locations."
+                    "text": "Yes, we offer professional in-person counselling at our therapy studio at Gate No-3, D-137, Sector 51, Noida — near LPS Global School. The center is accessible from Sector 50, 34, 72, and 52. Appointments can be scheduled online at chooseyourtherapist.in."
                   }
                 },
                 {
@@ -173,7 +224,7 @@ export default function LocalLandingPage() {
                   "name": "How can I find a verified clinical psychologist in Delhi NCR?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Our platform features a curated list of verified clinical psychologists across Delhi, Noida, and Gurgaon. You can review their profiles, specializations, and book sessions directly."
+                    "text": "Choose Your Therapist features a curated directory of verified clinical psychologists across Delhi, Noida, and Gurgaon. All clinical psychologists on our platform have verified degrees and RCI registration. Browse profiles, check specializations, and book sessions directly at chooseyourtherapist.in/view-all-therapist."
                   }
                 },
                 {
@@ -181,7 +232,15 @@ export default function LocalLandingPage() {
                   "name": "What is the cost of a therapy session in Noida & Delhi?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Therapy costs vary based on the psychologist's experience and specialization. We offer transparent pricing with options for individual sessions, couple counseling, and student-friendly rates."
+                    "text": "Therapy session costs at Choose Your Therapist range from ₹500 to ₹3000 per session, depending on the psychologist's experience and specialization. We offer transparent pricing, student-friendly rates, and subscription plans for regular therapy."
+                  }
+                },
+                {
+                  "@type": "Question",
+                  "name": "What is the difference between a counselling psychologist and a clinical psychologist in Noida?",
+                  "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A counselling psychologist in Noida helps with everyday challenges like stress, anxiety, relationships, and career issues. A clinical psychologist is qualified to diagnose and treat more complex mental health disorders such as OCD, PTSD, severe depression, and personality disorders. Both are available at Choose Your Therapist."
                   }
                 }
               ]

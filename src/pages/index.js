@@ -211,22 +211,50 @@ export default function HomePage() {
             },
             {
               "@context": "https://schema.org",
-              "@type": "Organization",
+              "@type": ["Organization", "MedicalOrganization"],
+              "@id": "https://www.chooseyourtherapist.in#organization",
               "name": "Choose Your Therapist",
+              "alternateName": "CYT",
+              "description": "India's trusted platform for verified counselling psychologists, clinical psychologists, and special educators offering online and in-person mental health therapy.",
               "url": "https://www.chooseyourtherapist.in",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://www.chooseyourtherapist.in/logo.png"
+                "url": "https://www.chooseyourtherapist.in/logo.png",
+                "width": 250,
+                "height": 60
               },
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "telephone": "+91-8077757951",
-                "contactType": "customer service",
-                "areaServed": "IN",
-                "availableLanguage": ["English", "Hindi"]
-              },
+              "foundingDate": "2021",
+              "areaServed": { "@type": "Country", "name": "India" },
+              "medicalSpecialty": [
+                "Counselling Psychology",
+                "Clinical Psychology",
+                "Child & Adolescent Psychology",
+                "Trauma & PTSD Therapy",
+                "Relationship Counselling",
+                "Anxiety & Depression Treatment",
+                "OCD Therapy",
+                "Special Education"
+              ],
+              "contactPoint": [
+                {
+                  "@type": "ContactPoint",
+                  "telephone": "+91-8077757951",
+                  "contactType": "customer service",
+                  "areaServed": "IN",
+                  "availableLanguage": ["English", "Hindi"]
+                },
+                {
+                  "@type": "ContactPoint",
+                  "email": "hello@chooseyourtherapist.in",
+                  "contactType": "support",
+                  "areaServed": "IN"
+                }
+              ],
               "sameAs": [
-                "https://twitter.com/CYT_India"
+                "https://twitter.com/CYT_India",
+                "https://www.instagram.com/chooseyourtherapist",
+                "https://www.facebook.com/chooseyourtherapist",
+                "https://www.linkedin.com/company/chooseyourtherapist"
               ]
             },
             {
@@ -331,6 +359,87 @@ export default function HomePage() {
                   "acceptedAnswer": {
                     "@type": "Answer",
                     "text": "Yes, all therapists on Choose Your Therapist are verified mental health professionals with valid licenses and qualifications. We verify their degrees, certifications, and registration with recognized psychological associations before onboarding."
+                  }
+                }
+              ]
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              "@id": "https://www.chooseyourtherapist.in/#webpage",
+              "url": "https://www.chooseyourtherapist.in/",
+              "name": userCity
+                ? `Best Psychologist in ${userCity} | Online Therapy | CYT`
+                : userState
+                  ? `Best Psychologist in ${userState} | Online Therapy | CYT`
+                  : "Best Psychologist in India | Online Therapy | CYT",
+              "isPartOf": { "@id": "https://www.chooseyourtherapist.in#organization" },
+              "about": { "@id": "https://www.chooseyourtherapist.in#organization" },
+              "speakable": {
+                "@type": "SpeakableSpecification",
+                "cssSelector": ["h1", "h2", ".therapist-card-name", ".specialization-title"]
+              },
+              "breadcrumb": {
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.chooseyourtherapist.in/" }
+                ]
+              }
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              "name": "Mental Health Services by Choose Your Therapist",
+              "description": "Types of therapy and counselling services available on Choose Your Therapist",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "item": {
+                    "@type": "MedicalTherapy",
+                    "name": "Counselling Psychology",
+                    "description": "Talk therapy for stress, anxiety, relationship issues, and everyday emotional challenges with a verified Counselling Psychologist.",
+                    "url": "https://www.chooseyourtherapist.in/view-all-therapist?profile_type=Counselling+Psychologist"
+                  }
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "item": {
+                    "@type": "MedicalTherapy",
+                    "name": "Clinical Psychology",
+                    "description": "Evidence-based assessment and treatment for depression, OCD, PTSD, anxiety disorders, and complex mental health conditions with a verified Clinical Psychologist.",
+                    "url": "https://www.chooseyourtherapist.in/view-all-therapist?profile_type=Clinical+Psychologist"
+                  }
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 3,
+                  "item": {
+                    "@type": "MedicalTherapy",
+                    "name": "Special Education",
+                    "description": "Specialized support for children and adults with learning disabilities, autism spectrum disorders, and developmental challenges.",
+                    "url": "https://www.chooseyourtherapist.in/view-all-therapist?profile_type=Special+Educator"
+                  }
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 4,
+                  "item": {
+                    "@type": "MedicalTherapy",
+                    "name": "Couples & Relationship Counselling",
+                    "description": "Professional couples therapy and relationship counselling to improve communication, resolve conflicts, and strengthen your bond.",
+                    "url": "https://www.chooseyourtherapist.in/view-all-therapist?services=Couples+Therapy"
+                  }
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 5,
+                  "item": {
+                    "@type": "MedicalTherapy",
+                    "name": "Online Therapy",
+                    "description": "Secure, confidential online therapy sessions from the comfort of your home with verified mental health professionals across India.",
+                    "url": "https://www.chooseyourtherapist.in/view-all-therapist"
                   }
                 }
               ]
