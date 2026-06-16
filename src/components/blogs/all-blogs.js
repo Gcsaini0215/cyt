@@ -3,11 +3,13 @@ import LazyImage from "../../utils/lazy-image";
 import BlogImg from "../../assets/img/blog-card-048b22.jpg";
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { fetchData } from "../../utils/actions";
+import axios from "axios";
 import { getBlogsUrl, baseApi } from "../../utils/url";
 
 export default function AllBlogs() {
   const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -24,18 +26,24 @@ export default function AllBlogs() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await fetchData(getBlogsUrl);
-        if (res) {
-          if (res.status && Array.isArray(res.data)) {
-            setBlogs(res.data);
-          } else if (Array.isArray(res)) {
-            setBlogs(res);
-          } else if (res.blogs && Array.isArray(res.blogs)) {
-            setBlogs(res.blogs);
-          }
+        setLoading(true);
+        setError(null);
+        const res = await axios.get(getBlogsUrl, { timeout: 60000 });
+        const data = res.data;
+        if (data?.status && Array.isArray(data.data)) {
+          setBlogs(data.data);
+        } else if (Array.isArray(data)) {
+          setBlogs(data);
+        } else if (data?.blogs && Array.isArray(data.blogs)) {
+          setBlogs(data.blogs);
+        } else {
+          setBlogs([]);
         }
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
+      } catch (err) {
+        console.error("Error fetching blogs:", err);
+        setError("Blogs load nahi ho sake. Please refresh karein.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchBlogs();
@@ -79,6 +87,41 @@ export default function AllBlogs() {
       selectedCategory === "All" || blog.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (loading) {
+    return (
+      <div className="rbt-blog-area pt--50 rbt-section-gapBottom">
+        <div className="container">
+          <div className="row mt--15 d-flex flex-wrap">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="col-lg-2 col-md-4 col-sm-6 col-6" style={{ marginBottom: 20 }}>
+                <div style={{ borderRadius: 12, overflow: "hidden", aspectRatio: "1/1", background: "#f1f5f9" }}>
+                  <div style={{ width: "100%", height: "100%", background: "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)", backgroundSize: "200%", animation: "shimmer 1.4s infinite" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <style>{`@keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}`}</style>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rbt-blog-area pt--50 rbt-section-gapBottom">
+        <div className="container" style={{ textAlign: "center", padding: "60px 0" }}>
+          <p style={{ color: "#ef4444", fontSize: 16, marginBottom: 16 }}>{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ background: "#228756", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rbt-blog-area pt--50 rbt-section-gapBottom">
