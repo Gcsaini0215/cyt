@@ -8,7 +8,7 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
-import { getBookings, GetMyWorkshopBooking, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
+import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
@@ -446,34 +446,38 @@ export default function TherapistDashboard() {
 
   React.useEffect(() => { const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
 
-  const { therapistInfo, fetchTherapistInfo, paymentStore } = useTherapistStore();
+  const { therapistInfo, paymentStore } = useTherapistStore();
 
   const load = React.useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      if (!therapistInfo?.user?.email) fetchTherapistInfo();
-      const [bookingsRes, workshopRes] = await Promise.all([
-        fetchById(getBookings), fetchById(GetMyWorkshopBooking),
+      // fetchTherapistInfo is handled by Providers.js + top-nav — do NOT call here (causes race condition)
+      const [bookingsRes, workshopRes, dashRes] = await Promise.all([
+        fetchById(getBookings),
+        fetchById(GetMyWorkshopBooking),
+        fetchById(GetDashboardDataUrl),
       ]);
-      // API returns only bookings that have a transaction (paid) — filter not needed
       const bookings  = bookingsRes?.status  ? (bookingsRes.data||[])  : [];
       const workshops = workshopRes?.status  ? (workshopRes.data||[])  : [];
+      const dashData  = dashRes?.status      ? (dashRes.data||{})      : {};
 
       const now = new Date();
       const todayStr = now.toDateString();
       const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
 
-      let totalEarnings=0, monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
+      // Use dashboard aggregate for total revenue + clients (correct Decimal128 handling server-side)
+      const totalEarnings = getNum(dashData.revenue);
+      const totalClients  = Number(dashData.client) || 0;
+
+      let monthEarnings=0, lastMonthEarnings=0, todayRevenue=0;
       let completedCount=0, pendingCount=0;
 
       bookings.forEach(b => {
         const bStatus = b.status || "New";
         const bd = new Date(b.booking_date);
-        // transaction.amount is a proper Number (unlike booking.amount which is Decimal128)
         const amt = getNum(b.transaction?.amount);
 
-        totalEarnings += amt;
         if (bd >= monthStart) monthEarnings += amt;
         else if (bd >= lastMonthStart) lastMonthEarnings += amt;
         if (bd.toDateString() === todayStr) todayRevenue += amt;
@@ -483,10 +487,8 @@ export default function TherapistDashboard() {
       });
 
       workshops.forEach(w => {
-        // Workshop bookings also only returned when they have a transaction
         const amt = getNum(w.transaction?.amount || w.amount);
         const wd  = new Date(w.createdAt || w.created_at || w.date);
-        totalEarnings += amt;
         if (wd >= monthStart) monthEarnings += amt;
         else if (wd >= lastMonthStart) lastMonthEarnings += amt;
         if (wd.toDateString() === todayStr) todayRevenue += amt;
@@ -495,7 +497,6 @@ export default function TherapistDashboard() {
       const totalBk = bookings.filter(b => b.status !== "Cancelled").length;
       const completionRate = totalBk > 0 ? Math.round((completedCount / totalBk) * 100) : 0;
 
-      const clientSet = new Set(bookings.map(b=>b.client?._id||b.client_id).filter(Boolean));
       const toMap = b => ({ id:b._id, name:b.client?.name||"Unknown", date:b.booking_date, badge:b.format||"Online", imgSrc:b.client?.photo||b.client?.profile });
 
       const todayList    = bookings.filter(b=>new Date(b.booking_date).toDateString()===todayStr&&b.status!=="Cancelled").sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
@@ -521,7 +522,7 @@ export default function TherapistDashboard() {
         totalEarnings:   Math.round(totalEarnings),
         monthEarnings:   Math.round(monthEarnings),
         upcoming:        upcomingList.length,
-        totalClients:    clientSet.size,
+        totalClients,
         monthGrowth,
         monthGrowthUp:   monthEarnings >= lastMonthEarnings,
         todayRevenue:    Math.round(todayRevenue),
@@ -538,7 +539,7 @@ export default function TherapistDashboard() {
       setLastRefreshed(new Date());
     } catch(e) { console.error("Dashboard error:",e); }
     finally { setLoading(false); setRefreshing(false); }
-  }, [therapistInfo?.user?.email]);
+  }, []);
 
   React.useEffect(() => { load(); }, []);
   React.useEffect(() => { const iv = setInterval(()=>load(true), 60000); return ()=>clearInterval(iv); }, [load]);
