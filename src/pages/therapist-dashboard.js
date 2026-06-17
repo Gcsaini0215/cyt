@@ -789,12 +789,7 @@ export default function TherapistDashboard() {
         <Grid container spacing={{ xs:2, md:2.5 }}>
           <Grid item xs={12} lg={8}>
             <Box sx={{ display:"flex", flexDirection:"column", gap:{ xs:2, md:2.5 } }}>
-              {/* Next session — mobile only */}
-              <Box sx={{ display:{ xs:"block", lg:"none" } }}>
-                <NextSessionCard session={nextSession} loading={loading} />
-              </Box>
               {hasChartData && <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />}
-              {(hasSessions||loading) && <SessionTimeline todaySessions={todaySessions} upcomingSessions={upcomingSessions} />}
               {hasInvoices  && <RecentInvoices data={invoices} />}
             </Box>
           </Grid>
@@ -802,7 +797,6 @@ export default function TherapistDashboard() {
           {/* Right sticky — desktop */}
           <Grid item lg={4} sx={{ display:{ xs:"none", lg:"block" } }}>
             <Box sx={{ position:"sticky", top:"72px", display:"flex", flexDirection:"column", gap:2 }}>
-              <NextSessionCard session={nextSession} loading={loading} />
               <RecentBookingsCard bookings={recentBookings} loading={loading} />
             </Box>
           </Grid>
