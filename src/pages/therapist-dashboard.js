@@ -784,43 +784,6 @@ export default function TherapistDashboard() {
               "Every session you give is a life you help heal. Keep going! 💚"
             </div>
 
-            {/* ── Divider: Languages + Session formats ── */}
-            {(therapistInfo?.language_spoken || therapistInfo?.session_formats) && (
-              <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
-                {therapistInfo?.language_spoken && (
-                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
-                    <i className="feather-globe" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
-                    <span style={{ fontSize:11, color:"#475569" }}>
-                      <span style={{ fontWeight:700, color:"#334155" }}>Speaks: </span>
-                      {toStr(therapistInfo.language_spoken)}
-                    </span>
-                  </div>
-                )}
-                {therapistInfo?.session_formats && (
-                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                    <i className="feather-video" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
-                    <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
-                      {toStrList(therapistInfo.session_formats).map(f => (
-                        <span key={f} style={{ fontSize:10, fontWeight:700, color:"#475569", background:"#f1f5f9", borderRadius:5, padding:"2px 7px" }}>{f}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── Services ── */}
-            {therapistInfo?.services && (
-              <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
-                <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Services</div>
-                <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                  {toStrList(therapistInfo.services).map(s => (
-                    <span key={s} style={{ fontSize:11, fontWeight:600, color:"#228756", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>{s}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* ── Expertise tags ── */}
             {therapistInfo?.experties && (
               <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
