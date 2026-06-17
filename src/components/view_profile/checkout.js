@@ -130,7 +130,7 @@ export default function TherapistCheckout({ profile }) {
         theme: { color: "#228756" },
         modal: {
           ondismiss: function () {
-            router.push(`/payment-pending/${bookingId}`);
+            router.push(`/view-profile/${profile._id}`);
           }
         }
       };
