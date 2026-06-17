@@ -111,43 +111,26 @@ export default function AllBlogs() {
         </Container>
       </Box>
 
-      {/* GEO Hero — speakable, keyword-rich intro */}
-      <Box sx={{ background: "linear-gradient(135deg, #0f172a 0%, #1a2e1a 100%)", py: { xs: 5, md: 8 }, px: 2 }}>
+      {/* GEO Hero */}
+      <Box sx={{ background: "linear-gradient(135deg, #0f172a 0%, #0d2818 100%)", py: { xs: 7, md: 11 }, px: 2 }}>
         <Container maxWidth="lg">
           <Typography
             className="blogs-hero-heading"
             component="h1"
-            sx={{ color: "#fff", fontWeight: 900, fontSize: { xs: "2rem", md: "3rem" }, mb: 2, lineHeight: 1.2 }}
+            sx={{ color: "#fff", fontWeight: 900, fontSize: { xs: "2.4rem", md: "3.8rem", lg: "4.5rem" }, mb: 2.5, lineHeight: 1.12, letterSpacing: "-0.02em" }}
           >
-            Mental Health Insights from<br />
-            <Box component="span" sx={{ color: "#86efac" }}>Verified Psychologists</Box>
+            Mental Health Insights<br />
+            <Box component="span" sx={{ color: "#86efac" }}>from Verified Psychologists</Box>
           </Typography>
           <Typography
             className="blogs-hero-desc"
-            sx={{ color: "rgba(255,255,255,0.8)", fontSize: { xs: "1rem", md: "1.15rem" }, maxWidth: 640, lineHeight: 1.75, mb: 4 }}
+            sx={{ color: "rgba(255,255,255,0.78)", fontSize: { xs: "1.05rem", md: "1.3rem" }, maxWidth: 660, lineHeight: 1.8, mb: 5, fontWeight: 400 }}
           >
             Evidence-based articles on anxiety, depression, OCD, relationships, trauma, and therapy — written and reviewed by RCI-verified psychologists and counsellors across India.
           </Typography>
-          {/* Topic pills */}
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
-            {[
-              { label: "Anxiety", q: "Anxiety" },
-              { label: "Depression", q: "Depression" },
-              { label: "OCD", q: "OCD" },
-              { label: "Relationships", q: "Relationships" },
-              { label: "Self Care", q: "Self Care" },
-              { label: "Trauma & PTSD", q: "Trauma" },
-              { label: "Therapy Explained", q: "Therapy" },
-            ].map(({ label }) => (
-              <Box
-                key={label}
-                sx={{
-                  px: 2, py: 0.75, borderRadius: "20px",
-                  border: "1.5px solid rgba(134,239,172,0.4)",
-                  color: "#86efac", fontSize: "0.85rem", fontWeight: 700,
-                  cursor: "default"
-                }}
-              >
+            {["Anxiety", "Depression", "OCD", "Relationships", "Self Care", "Trauma & PTSD", "Therapy Explained", "Grief & Loss"].map((label) => (
+              <Box key={label} sx={{ px: 2.5, py: 1, borderRadius: "20px", border: "1.5px solid rgba(134,239,172,0.35)", color: "#86efac", fontSize: "0.9rem", fontWeight: 700 }}>
                 {label}
               </Box>
             ))}
@@ -155,27 +138,61 @@ export default function AllBlogs() {
         </Container>
       </Box>
 
-      {/* GEO Why-read section — speakable, cited by AI */}
-      <Box sx={{ bgcolor: "#f0fdf4", py: { xs: 4, md: 5 }, borderBottom: "1px solid #dcfce7" }}>
+      {/* General Awareness Section */}
+      <Box sx={{ bgcolor: "#ffffff", py: { xs: 5, md: 8 }, borderBottom: "1px solid #f1f5f9" }}>
         <Container maxWidth="lg">
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 3, md: 6 }, alignItems: "flex-start" }}>
+          <Typography sx={{ fontWeight: 900, fontSize: { xs: "1.5rem", md: "2rem" }, color: "#0f172a", mb: 1.5, textAlign: "center" }}>
+            Understanding Mental Health — A Starting Point
+          </Typography>
+          <Typography sx={{ color: "#64748b", fontSize: { xs: "0.95rem", md: "1.05rem" }, textAlign: "center", maxWidth: 620, mx: "auto", mb: 6, lineHeight: 1.8 }}>
+            Therapy is not just for crises. These articles help you understand your emotions, relationships, and mental wellbeing — without any judgment, at your own pace.
+          </Typography>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1fr 1fr 1fr" }, gap: 3 }}>
             {[
               {
-                heading: "Why trust our articles?",
-                text: "Every article on Choose Your Therapist is written or reviewed by a verified psychologist registered with the Rehabilitation Council of India (RCI). We do not publish generic wellness content — our focus is evidence-based mental health information relevant to India."
+                icon: "🧠",
+                heading: "Anxiety vs. everyday stress — what's the difference?",
+                text: "Everyone feels nervous sometimes. But anxiety is different — it's persistent, often irrational, and can interfere with daily life. Understanding the difference is the first step to getting the right support."
               },
               {
-                heading: "Therapy information in Hindi & English",
-                text: "Mental health mein abhi bhi bahut stigma hai — khaaskar India mein. Isliye humara content Hindi aur English dono mein hota hai, taaki har koi therapy ke baare mein khulke samajh sake aur madad le sake."
+                icon: "💬",
+                heading: "Common myths about therapy — debunked",
+                text: "Therapy is not just for people in crisis. It's a structured, confidential conversation with a trained psychologist that helps you understand yourself better and develop practical coping strategies."
               },
               {
-                heading: "From anxiety to OCD — find your topic",
-                text: "Whether you're dealing with anxiety, depression, OCD, relationship issues, trauma, or just want to understand what therapy feels like — our blog covers it all with practical, India-specific advice."
-              }
-            ].map(({ heading, text }) => (
-              <Box key={heading} sx={{ flex: "1 1 260px", minWidth: 220 }}>
-                <Typography sx={{ fontWeight: 800, color: "#166534", fontSize: "1rem", mb: 1 }}>{heading}</Typography>
-                <Typography className="blogs-why-text" sx={{ color: "#374151", fontSize: "0.92rem", lineHeight: 1.75 }}>{text}</Typography>
+                icon: "❤️",
+                heading: "How relationships affect your mental health",
+                text: "Toxic relationships, loneliness, and unresolved family conflict have a direct impact on mental wellbeing. Our articles provide honest, practical perspectives on navigating these challenges."
+              },
+              {
+                icon: "😔",
+                heading: "Depression is more than just sadness",
+                text: "Depression is a medical condition — not a personality flaw or weakness. Its symptoms can be subtle: disturbed sleep, loss of motivation, emotional numbness. Recognising it is the first step toward healing."
+              },
+              {
+                icon: "🔄",
+                heading: "OCD is not just about cleanliness",
+                text: "OCD involves intrusive thoughts, checking behaviours, and mental compulsions — not just handwashing. It is a treatable condition, and understanding it clearly helps reduce stigma and seek the right help."
+              },
+              {
+                icon: "🌱",
+                heading: "Self-care that actually works",
+                text: "Real self-care is not about expensive routines. It means setting boundaries, recognising your own needs, and building sustainable habits. Our articles focus on practical, evidence-backed approaches."
+              },
+            ].map(({ icon, heading, text }) => (
+              <Box
+                key={heading}
+                className="blogs-why-text"
+                sx={{
+                  p: 3, borderRadius: "16px", border: "1.5px solid #f1f5f9",
+                  bgcolor: "#fafafa", transition: "border-color 0.2s",
+                  "&:hover": { borderColor: "#86efac", bgcolor: "#f0fdf4" }
+                }}
+              >
+                <Box sx={{ fontSize: "2.2rem", mb: 1.5 }}>{icon}</Box>
+                <Typography sx={{ fontWeight: 800, color: "#0f172a", fontSize: { xs: "1.05rem", md: "1.15rem" }, mb: 1.5, lineHeight: 1.4 }}>{heading}</Typography>
+                <Typography sx={{ color: "#64748b", fontSize: { xs: "0.95rem", md: "1rem" }, lineHeight: 1.85 }}>{text}</Typography>
               </Box>
             ))}
           </Box>
