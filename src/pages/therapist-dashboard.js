@@ -725,15 +725,6 @@ export default function TherapistDashboard() {
                 />
                 <div style={{ position:"absolute", bottom:3, right:3, width:13, height:13, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #fff" }} />
               </div>
-              {/* Edit profile button — top-right, LinkedIn-style */}
-              <Link href="/my-settings">
-                <div style={{ display:"flex", alignItems:"center", gap:5, background:"#f1f5f9", border:"1.5px solid #e2e8f0", borderRadius:20, padding:"5px 12px", cursor:"pointer", transition:"all .15s", marginBottom:4 }}
-                  onMouseEnter={e=>{e.currentTarget.style.background="#e2e8f0";}}
-                  onMouseLeave={e=>{e.currentTarget.style.background="#f1f5f9";}}>
-                  <i className="feather-edit-2" style={{ fontSize:11, color:"#475569" }}></i>
-                  <span style={{ fontSize:11, fontWeight:700, color:"#475569" }}>Edit Profile</span>
-                </div>
-              </Link>
             </div>
 
             {/* Name + headline */}
