@@ -40,6 +40,17 @@ function getNum(v) {
   const n = parseFloat(v);
   return isNaN(n) ? 0 : n;
 }
+function toStrList(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.map(i => (i?.label || i?.value || String(i)).trim()).filter(Boolean);
+  return String(v).split(",").map(i => i.trim()).filter(Boolean);
+}
+function toStr(v) {
+  if (!v) return "";
+  if (Array.isArray(v)) return v.map(i => i?.label || i?.value || String(i)).filter(Boolean).join(", ");
+  if (typeof v === "object") return v.label || v.value || "";
+  return String(v);
+}
 function fmtDate(d) { return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone:"Asia/Kolkata" }); }
 function fmtTime(d) { return new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone:"Asia/Kolkata" }); }
 function fmtShortDate(d) { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone:"Asia/Kolkata" }); }
@@ -739,9 +750,9 @@ export default function TherapistDashboard() {
             {(therapistInfo?.qualification || therapistInfo?.year_of_exp || therapistInfo?.state) && (
               <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:"4px 0", marginBottom:8 }}>
                 {[
-                  therapistInfo?.qualification && { icon:"feather-award",    text: therapistInfo.qualification },
-                  therapistInfo?.year_of_exp   && { icon:"feather-briefcase",text: `${therapistInfo.year_of_exp} yrs exp` },
-                  therapistInfo?.state         && { icon:"feather-map-pin",  text: therapistInfo.state },
+                  therapistInfo?.qualification && { icon:"feather-award",    text: toStr(therapistInfo.qualification) },
+                  therapistInfo?.year_of_exp   && { icon:"feather-briefcase",text: `${toStr(therapistInfo.year_of_exp)} yrs exp` },
+                  therapistInfo?.state         && { icon:"feather-map-pin",  text: toStr(therapistInfo.state) },
                 ].filter(Boolean).map((chip, i, arr) => (
                   <React.Fragment key={i}>
                     <span style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"#475569" }}>
@@ -781,7 +792,7 @@ export default function TherapistDashboard() {
                     <i className="feather-globe" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
                     <span style={{ fontSize:11, color:"#475569" }}>
                       <span style={{ fontWeight:700, color:"#334155" }}>Speaks: </span>
-                      {therapistInfo.language_spoken}
+                      {toStr(therapistInfo.language_spoken)}
                     </span>
                   </div>
                 )}
@@ -789,10 +800,7 @@ export default function TherapistDashboard() {
                   <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                     <i className="feather-video" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
                     <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
-                      {(Array.isArray(therapistInfo.session_formats)
-                    ? therapistInfo.session_formats.map(f => f?.label || f?.value || f)
-                    : String(therapistInfo.session_formats).split(",")
-                  ).map(f => String(f).trim()).filter(Boolean).map(f => (
+                      {toStrList(therapistInfo.session_formats).map(f => (
                         <span key={f} style={{ fontSize:10, fontWeight:700, color:"#475569", background:"#f1f5f9", borderRadius:5, padding:"2px 7px" }}>{f}</span>
                       ))}
                     </div>
@@ -806,10 +814,7 @@ export default function TherapistDashboard() {
               <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Services</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                  {(Array.isArray(therapistInfo.services)
-                    ? therapistInfo.services.map(s => s?.label || s?.value || s)
-                    : String(therapistInfo.services).split(",")
-                  ).map(s => String(s).trim()).filter(Boolean).map(s => (
+                  {toStrList(therapistInfo.services).map(s => (
                     <span key={s} style={{ fontSize:11, fontWeight:600, color:"#228756", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>{s}</span>
                   ))}
                 </div>
@@ -821,10 +826,7 @@ export default function TherapistDashboard() {
               <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Expertise</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                  {(Array.isArray(therapistInfo.experties)
-                    ? therapistInfo.experties.map(e => e?.label || e?.value || e)
-                    : String(therapistInfo.experties).split(",")
-                  ).map(e => String(e).trim()).filter(Boolean).map(e => (
+                  {toStrList(therapistInfo.experties).map(e => (
                     <span key={e} style={{ fontSize:11, fontWeight:600, color:"#6366f1", background:"#eef2ff", border:"1px solid #c7d2fe", borderRadius:20, padding:"3px 10px" }}>{e}</span>
                   ))}
                 </div>
