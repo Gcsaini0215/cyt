@@ -526,9 +526,9 @@ export default function TherapistDashboard() {
   const [nextSession,      setNextSession]      = React.useState(null);
   const [invoices,         setInvoices]         = React.useState([]);
   const [recentBookings,   setRecentBookings]   = React.useState([]);
-  const [clockTime,        setClockTime]        = React.useState(() => new Date());
+  const [clockTime,        setClockTime]        = React.useState(null);
 
-  React.useEffect(() => { const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
+  React.useEffect(() => { setClockTime(new Date()); const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
 
   const { therapistInfo, paymentStore } = useTherapistStore();
 
@@ -536,14 +536,17 @@ export default function TherapistDashboard() {
     if (isRefresh) setRefreshing(true);
     try {
       // fetchTherapistInfo is handled by Providers.js + top-nav — do NOT call here (causes race condition)
-      const [bookingsRes, workshopRes, dashRes] = await Promise.all([
+      const [bookingsRes, workshopRes, dashRes] = await Promise.allSettled([
         fetchById(getBookings),
         fetchById(GetMyWorkshopBooking),
         fetchById(GetDashboardDataUrl),
       ]);
-      const bookings  = bookingsRes?.status  ? (bookingsRes.data||[])  : [];
-      const workshops = workshopRes?.status  ? (workshopRes.data||[])  : [];
-      const dashData  = dashRes?.status      ? (dashRes.data||{})      : {};
+      const bookingsData = bookingsRes.status === "fulfilled" ? bookingsRes.value : {};
+      const workshopData = workshopRes.status === "fulfilled" ? workshopRes.value : {};
+      const dashResData  = dashRes.status    === "fulfilled" ? dashRes.value    : {};
+      const bookings  = bookingsData?.status  ? (bookingsData.data||[])  : [];
+      const workshops = workshopData?.status  ? (workshopData.data||[])  : [];
+      const dashData  = dashResData?.status   ? (dashResData.data||{})   : {};
 
       const now = new Date();
       const todayStr = now.toDateString();
@@ -657,9 +660,9 @@ export default function TherapistDashboard() {
   const completionPct = Math.round((profileChecks.filter(c=>c.done).length/profileChecks.length)*100);
 
   const name      = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
-  const today     = clockTime.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",timeZone:"Asia/Kolkata"});
+  const today     = clockTime ? clockTime.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",timeZone:"Asia/Kolkata"}) : "";
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
-  const istHour   = parseInt(clockTime.toLocaleString("en-US",{hour:"numeric",hour12:false,timeZone:"Asia/Kolkata"}));
+  const istHour   = clockTime ? parseInt(clockTime.toLocaleString("en-US",{hour:"numeric",hour12:false,timeZone:"Asia/Kolkata"})) : 10;
   const greeting  = istHour<12 ? "Good morning" : istHour<17 ? "Good afternoon" : "Good evening";
 
   const hasChartData = !loading&&(weeklyData.some(d=>d.sessions>0||d.revenue>0)||monthlyData.some(d=>d.sessions>0||d.revenue>0));
@@ -707,7 +710,7 @@ export default function TherapistDashboard() {
             <Box sx={{ display:"flex", alignItems:"center", gap:1, flexShrink:0 }}>
               <Box sx={{ textAlign:"right", display:{ xs:"none", sm:"block" }, mr:0.5 }}>
                 <Typography sx={{ fontSize:{ xs:"18px", md:"22px" }, fontWeight:800, color:"#fff", lineHeight:1, letterSpacing:"-0.5px" }}>
-                  {clockTime.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata"})}
+                  {clockTime ? clockTime.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata"}) : ""}
                 </Typography>
                 {lastRefreshed && (
                   <Typography sx={{ fontSize:"9.5px", color:"rgba(255,255,255,0.28)", mt:0.3 }}>
