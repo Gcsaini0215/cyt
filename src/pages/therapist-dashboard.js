@@ -336,7 +336,7 @@ function RecentBookingsCard({ bookings, loading }) {
       <Box sx={{ px:2.2, pt:2, pb:1.5, borderBottom:"1px solid #f8fafc", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <Box>
           <Typography sx={{ fontWeight:800, fontSize:"13.5px", color:"#1e293b" }}>Recent Bookings</Typography>
-          <Typography sx={{ fontSize:"10.5px", color:"#94a3b8", mt:0.2 }}>Last 7 days</Typography>
+          <Typography sx={{ fontSize:"10.5px", color:"#94a3b8", mt:0.2 }}>Latest bookings</Typography>
         </Box>
         <Link href="/appointments" style={{ textDecoration:"none" }}>
           <Box sx={{ display:"flex", alignItems:"center", gap:0.3, background:"#f0fdf4", borderRadius:"8px", px:1.1, py:0.5, "&:hover":{ background:"#dcfce7" }, transition:"background .15s" }}>
@@ -349,7 +349,7 @@ function RecentBookingsCard({ bookings, loading }) {
       {bookings.length === 0 ? (
         <Box sx={{ py:5, display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
           <EventBusyIcon sx={{ fontSize:28, color:"#e2e8f0" }} />
-          <Typography sx={{ fontSize:"12px", color:"#94a3b8", fontWeight:600 }}>No bookings in last 7 days</Typography>
+          <Typography sx={{ fontSize:"12px", color:"#94a3b8", fontWeight:600 }}>No bookings yet</Typography>
         </Box>
       ) : (
         <Box sx={{ p:"12px 16px", display:"flex", flexDirection:"column", gap:1 }}>
@@ -618,10 +618,8 @@ export default function TherapistDashboard() {
       setWeeklyData(weeklyChart);
       setMonthlyData(Array.from(monthlyMap.values()));
       setInvoices(inv);
-      // Recent bookings for right panel: today + last 7 days, most recent first, max 8
-      const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate()-7);
-      const recent = bookings
-        .filter(b => new Date(b.booking_date) >= sevenDaysAgo)
+      // Recent bookings for right panel: latest 8, most recent first
+      const recent = [...bookings]
         .sort((a,b) => new Date(b.booking_date)-new Date(a.booking_date))
         .slice(0,8);
       setRecentBookings(recent);
