@@ -699,73 +699,91 @@ export default function TherapistDashboard() {
         {/* ══ THERAPIST PROFILE HEADER — LinkedIn style ════════ */}
         <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden" }}>
           {/* Cover banner */}
-          <div style={{ height:80, background:"linear-gradient(135deg,#0a2e1a 0%,#1a5c38 60%,#228756 100%)", position:"relative", flexShrink:0 }}>
+          <div style={{ height:80, background:"linear-gradient(135deg,#0a2e1a 0%,#1a5c38 60%,#228756 100%)", position:"relative" }}>
             <div style={{ position:"absolute", top:-40, right:-20, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.04)", pointerEvents:"none" }} />
             <div style={{ position:"absolute", bottom:-30, left:60, width:100, height:100, borderRadius:"50%", background:"rgba(74,222,128,0.06)", pointerEvents:"none" }} />
-            {/* Date + clock — top-right of banner */}
-            <div style={{ position:"absolute", top:10, right:14, textAlign:"right", maxWidth:"45%" }}>
-              <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", fontWeight:600, letterSpacing:"0.4px", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{today}</div>
-              <div style={{ fontSize:15, fontWeight:800, color:"#fff", lineHeight:1.15 }}>
+            {/* Clock + date — top-right inside banner */}
+            <div style={{ position:"absolute", top:10, right:14, textAlign:"right", maxWidth:"50%" }}>
+              <div style={{ fontSize:9, color:"rgba(255,255,255,0.45)", fontWeight:600, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{today}</div>
+              <div style={{ fontSize:15, fontWeight:800, color:"#fff", lineHeight:1.2 }}>
                 {clockTime ? clockTime.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata"}) : ""}
               </div>
             </div>
           </div>
-          {/* Profile photo overlapping banner + info below */}
+
+          {/* Body */}
           <div style={{ padding:"0 16px 16px 16px" }}>
-            {/* Photo row: photo left, nothing right — keeps layout clean on mobile */}
-            <div style={{ position:"relative", width:70, height:70, marginTop:-35, marginBottom:8 }}>
-              <img
-                src={avatarSrc}
-                alt={name}
-                style={{ width:70, height:70, borderRadius:"50%", objectFit:"cover", border:"3px solid #fff", boxShadow:"0 2px 10px rgba(0,0,0,0.12)", display:"block" }}
-                onError={e=>{e.target.src=defaultProfile;}}
-              />
-              <div style={{ position:"absolute", bottom:2, right:2, width:13, height:13, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #fff" }} />
+            {/* Photo + edit row */}
+            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginTop:-35, marginBottom:10 }}>
+              {/* Profile photo */}
+              <div style={{ position:"relative", width:72, height:72, flexShrink:0 }}>
+                <img
+                  src={avatarSrc}
+                  alt={name}
+                  style={{ width:72, height:72, borderRadius:"50%", objectFit:"cover", border:"3px solid #fff", boxShadow:"0 2px 12px rgba(0,0,0,0.13)", display:"block" }}
+                  onError={e=>{e.target.src=defaultProfile;}}
+                />
+                <div style={{ position:"absolute", bottom:3, right:3, width:13, height:13, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #fff" }} />
+              </div>
+              {/* Edit profile button — top-right, LinkedIn-style */}
+              <Link href="/my-settings">
+                <div style={{ display:"flex", alignItems:"center", gap:5, background:"#f1f5f9", border:"1.5px solid #e2e8f0", borderRadius:20, padding:"5px 12px", cursor:"pointer", transition:"all .15s", marginBottom:4 }}
+                  onMouseEnter={e=>{e.currentTarget.style.background="#e2e8f0";}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="#f1f5f9";}}>
+                  <i className="feather-edit-2" style={{ fontSize:11, color:"#475569" }}></i>
+                  <span style={{ fontSize:11, fontWeight:700, color:"#475569" }}>Edit Profile</span>
+                </div>
+              </Link>
             </div>
-            {/* Name */}
-            <div style={{ fontSize:17, fontWeight:900, color:"#0f172a", lineHeight:1.2, marginBottom:2 }}>
+
+            {/* Name + headline */}
+            <div style={{ fontSize:18, fontWeight:900, color:"#0f172a", lineHeight:1.2, marginBottom:2 }}>
               {therapistInfo?.user?.name || name}
             </div>
-            {/* Headline */}
-            <div style={{ fontSize:12, fontWeight:700, color:"#228756", marginBottom:5 }}>
+            <div style={{ fontSize:12, fontWeight:700, color:"#228756", marginBottom:6 }}>
               {therapistInfo?.profile_type || "Therapist"} · Choose Your Therapist
             </div>
-            {/* Tags: qualification, experience, state */}
+
+            {/* Info chips: qualification · experience · state */}
             {(therapistInfo?.qualification || therapistInfo?.year_of_exp || therapistInfo?.state) && (
-              <div style={{ display:"flex", flexWrap:"wrap", gap:"5px 10px", marginBottom:6 }}>
-                {therapistInfo?.qualification && (
-                  <span style={{ fontSize:11, color:"#475569", display:"flex", alignItems:"center", gap:3 }}>
-                    <i className="feather-award" style={{ fontSize:10, color:"#94a3b8" }}></i>
-                    {therapistInfo.qualification}
-                  </span>
-                )}
-                {therapistInfo?.year_of_exp && (
-                  <span style={{ fontSize:11, color:"#475569", display:"flex", alignItems:"center", gap:3 }}>
-                    <i className="feather-briefcase" style={{ fontSize:10, color:"#94a3b8" }}></i>
-                    {therapistInfo.year_of_exp} yrs exp
-                  </span>
-                )}
-                {therapistInfo?.state && (
-                  <span style={{ fontSize:11, color:"#475569", display:"flex", alignItems:"center", gap:3 }}>
-                    <i className="feather-map-pin" style={{ fontSize:10, color:"#94a3b8" }}></i>
-                    {therapistInfo.state}
-                  </span>
-                )}
+              <div style={{ display:"flex", flexWrap:"wrap", alignItems:"center", gap:"4px 0", marginBottom:8 }}>
+                {[
+                  therapistInfo?.qualification && { icon:"feather-award",    text: therapistInfo.qualification },
+                  therapistInfo?.year_of_exp   && { icon:"feather-briefcase",text: `${therapistInfo.year_of_exp} yrs exp` },
+                  therapistInfo?.state         && { icon:"feather-map-pin",  text: therapistInfo.state },
+                ].filter(Boolean).map((chip, i, arr) => (
+                  <React.Fragment key={i}>
+                    <span style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color:"#475569" }}>
+                      <i className={chip.icon} style={{ fontSize:11, color:"#94a3b8" }}></i>
+                      {chip.text}
+                    </span>
+                    {i < arr.length - 1 && <span style={{ color:"#cbd5e1", margin:"0 6px", fontSize:10 }}>•</span>}
+                  </React.Fragment>
+                ))}
               </div>
             )}
+
             {/* Motivational quote */}
-            <div style={{ fontSize:11, color:"#94a3b8", fontStyle:"italic", marginBottom:10 }}>
+            <div style={{ fontSize:11, color:"#94a3b8", fontStyle:"italic", marginBottom:12 }}>
               "Every session you give is a life you help heal. Keep going! 💚"
             </div>
-            {/* Profile strength bar */}
+
+            {/* Divider + Profile strength */}
             <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10 }}>
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
                 <span style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px" }}>Profile Strength</span>
                 <span style={{ fontSize:10, fontWeight:800, color: completionPct===100?"#228756":completionPct>=60?"#f59e0b":"#ef4444" }}>{completionPct}%</span>
               </div>
               <div style={{ height:5, background:"#f1f5f9", borderRadius:99 }}>
                 <div style={{ height:"100%", width:`${completionPct}%`, borderRadius:99, background: completionPct===100?"#228756":completionPct>=60?"#f59e0b":"#ef4444", transition:"width .4s ease" }} />
               </div>
+              {completionPct < 100 && (
+                <Link href="/my-settings">
+                  <div style={{ fontSize:10, color:"#228756", fontWeight:600, marginTop:5, cursor:"pointer" }}>
+                    Complete your profile →
+                  </div>
+                </Link>
+              )}
             </div>
           </div>
         </div>
