@@ -8,7 +8,7 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
-import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl, deleteBookingUrl } from "../utils/url";
+import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl, deleteBookingUrl, GetMyReviewsUrl } from "../utils/url";
 import { fetchById, deleteById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
@@ -546,6 +546,7 @@ export default function TherapistDashboard() {
   const [nextSession,      setNextSession]      = React.useState(null);
   const [invoices,         setInvoices]         = React.useState([]);
   const [recentBookings,   setRecentBookings]   = React.useState([]);
+  const [myReviews,        setMyReviews]        = React.useState([]);
   const [clockTime,        setClockTime]        = React.useState(null);
 
   React.useEffect(() => { setClockTime(new Date()); const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
@@ -556,14 +557,17 @@ export default function TherapistDashboard() {
     if (isRefresh) setRefreshing(true);
     try {
       // fetchTherapistInfo is handled by Providers.js + top-nav — do NOT call here (causes race condition)
-      const [bookingsRes, workshopRes, dashRes] = await Promise.allSettled([
+      const [bookingsRes, workshopRes, dashRes, reviewsRes] = await Promise.allSettled([
         fetchById(getBookings),
         fetchById(GetMyWorkshopBooking),
         fetchById(GetDashboardDataUrl),
+        fetchById(GetMyReviewsUrl),
       ]);
       const bookingsData = bookingsRes.status === "fulfilled" ? bookingsRes.value : {};
       const workshopData = workshopRes.status === "fulfilled" ? workshopRes.value : {};
       const dashResData  = dashRes.status    === "fulfilled" ? dashRes.value    : {};
+      const reviewsData  = reviewsRes.status === "fulfilled" ? reviewsRes.value : {};
+      setMyReviews(reviewsData?.status ? (reviewsData.data || []) : []);
       const bookings  = bookingsData?.status  ? (bookingsData.data||[])  : [];
       const workshops = workshopData?.status  ? (workshopData.data||[])  : [];
       const dashData  = dashResData?.status   ? (dashResData.data||{})   : {};
@@ -765,6 +769,26 @@ export default function TherapistDashboard() {
               </div>
             )}
 
+            {/* Total sessions + Member since */}
+            <div style={{ display:"flex", gap:12, marginBottom:8 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <i className="feather-check-circle" style={{ fontSize:12, color:"#228756" }}></i>
+                <span style={{ fontSize:11, fontWeight:700, color:"#0f172a" }}>{stats.completedCount}</span>
+                <span style={{ fontSize:11, color:"#64748b" }}>sessions done</span>
+              </div>
+              {therapistInfo?.createdAt && (
+                <>
+                  <span style={{ color:"#e2e8f0" }}>|</span>
+                  <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                    <i className="feather-calendar" style={{ fontSize:12, color:"#94a3b8" }}></i>
+                    <span style={{ fontSize:11, color:"#64748b" }}>
+                      Joined {new Date(therapistInfo.createdAt).toLocaleDateString("en-IN",{month:"short",year:"numeric"})}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Available for clients badge */}
             <div style={{ marginBottom:10 }}>
               {therapistInfo?.show_to_page
@@ -868,6 +892,102 @@ export default function TherapistDashboard() {
             alert("Error: " + msg);
           }
         }} />
+
+        {/* ══ UPCOMING APPOINTMENTS ════════════════════════════ */}
+        {upcomingSessions.length > 0 && (
+          <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden" }}>
+            <div style={{ padding:"14px 16px 10px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #f1f5f9" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <div style={{ width:32, height:32, borderRadius:9, background:"#eef2ff", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <i className="feather-clock" style={{ fontSize:15, color:"#6366f1" }}></i>
+                </div>
+                <span style={{ fontSize:14, fontWeight:800, color:"#1e293b" }}>Upcoming Appointments</span>
+              </div>
+              <span style={{ fontSize:11, fontWeight:700, color:"#6366f1", background:"#eef2ff", borderRadius:20, padding:"2px 10px" }}>{upcomingSessions.length}</span>
+            </div>
+            <div style={{ padding:"8px 0" }}>
+              {upcomingSessions.slice(0,5).map((b, i) => {
+                const bdIST = new Date(new Date(b.booking_date).toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));
+                const nowIST = new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));
+                const isToday = bdIST.toDateString() === nowIST.toDateString();
+                const isTomorrow = bdIST.toDateString() === new Date(nowIST.getTime()+86400000).toDateString();
+                const dayLabel = isToday ? "Today" : isTomorrow ? "Tomorrow" : bdIST.toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+                return (
+                  <div key={b._id||i} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px", borderBottom: i < Math.min(upcomingSessions.length,5)-1 ? "1px solid #f8fafc" : "none" }}>
+                    <div style={{ width:38, height:38, borderRadius:10, background:"#f8fafc", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                      <span style={{ fontSize:13, fontWeight:900, color:"#1e293b", lineHeight:1 }}>{bdIST.getDate()}</span>
+                      <span style={{ fontSize:8, fontWeight:700, color:"#94a3b8", textTransform:"uppercase" }}>{bdIST.toLocaleDateString("en-IN",{month:"short"})}</span>
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:"#1e293b", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                        {b.client?.name || b.name || "Client"}
+                      </div>
+                      <div style={{ fontSize:11, color:"#64748b" }}>
+                        {fmtTime(b.booking_date)} · {b.session_type || b.service || "Session"}
+                      </div>
+                    </div>
+                    <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:3, flexShrink:0 }}>
+                      <span style={{ fontSize:10, fontWeight:700, color: isToday?"#228756":isTomorrow?"#f59e0b":"#6366f1", background: isToday?"#f0fdf4":isTomorrow?"#fffbeb":"#eef2ff", borderRadius:20, padding:"2px 8px" }}>{dayLabel}</span>
+                      {b.amount && <span style={{ fontSize:11, fontWeight:700, color:"#0f172a" }}>₹{getNum(b.amount).toLocaleString("en-IN")}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {upcomingSessions.length > 5 && (
+              <div style={{ padding:"10px 16px", borderTop:"1px solid #f1f5f9", textAlign:"center" }}>
+                <Link href="/appointments">
+                  <span style={{ fontSize:12, fontWeight:700, color:"#6366f1", cursor:"pointer" }}>View All {upcomingSessions.length} Appointments →</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ CLIENT REVIEWS ═══════════════════════════════════ */}
+        {myReviews.length > 0 && (
+          <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden" }}>
+            <div style={{ padding:"14px 16px 10px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #f1f5f9" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <div style={{ width:32, height:32, borderRadius:9, background:"#fffbeb", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <i className="feather-star" style={{ fontSize:15, color:"#f59e0b" }}></i>
+                </div>
+                <span style={{ fontSize:14, fontWeight:800, color:"#1e293b" }}>Client Reviews</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <span style={{ fontSize:13, fontWeight:900, color:"#f59e0b" }}>
+                  {(myReviews.reduce((s,r)=>s+r.rating,0)/myReviews.length).toFixed(1)}
+                </span>
+                <span style={{ fontSize:11, color:"#94a3b8" }}>({myReviews.length})</span>
+              </div>
+            </div>
+            <div style={{ padding:"8px 0" }}>
+              {myReviews.slice(0,3).map((r,i) => (
+                <div key={r._id||i} style={{ padding:"12px 16px", borderBottom: i < Math.min(myReviews.length,3)-1 ? "1px solid #f8fafc":"none" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+                    <span style={{ fontSize:13, fontWeight:700, color:"#1e293b" }}>{r.name || "Client"}</span>
+                    <div style={{ display:"flex", gap:2 }}>
+                      {[1,2,3,4,5].map(s => (
+                        <i key={s} className="feather-star" style={{ fontSize:11, color: s<=r.rating?"#f59e0b":"#e2e8f0" }}></i>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ fontSize:12, color:"#475569", lineHeight:1.5 }}>{r.description}</div>
+                  <div style={{ fontSize:10, color:"#94a3b8", marginTop:4 }}>
+                    {new Date(r.createdAt).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {myReviews.length > 3 && (
+              <div style={{ padding:"10px 16px", borderTop:"1px solid #f1f5f9", textAlign:"center" }}>
+                <Link href="/therapists/reviews">
+                  <span style={{ fontSize:12, fontWeight:700, color:"#f59e0b", cursor:"pointer" }}>View All Reviews →</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
 
       </Box>
 

@@ -141,6 +141,7 @@ export const GetFavoriteTherapistUrl = `${apiUrl}/get-favorite-therapists`;
 export const GetFavoriteTherapistListUrl = `${apiUrl}/get-favorite-therapists-list`;
 export const SubmitReviewUrl = `${apiUrl}/save-review`;
 export const GetReviewsUrl = `${apiUrl}/get-reviews`;
+export const GetMyReviewsUrl = `${apiUrl}/get-my-reviews`;
 export const UpdateReviewStatusUrl = `${apiUrl}/update-review-status`;
 
 // Aliases for compatibility with old spelling
