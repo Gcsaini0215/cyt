@@ -40,9 +40,9 @@ function getNum(v) {
   const n = parseFloat(v);
   return isNaN(n) ? 0 : n;
 }
-function fmtDate(d) { return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }); }
-function fmtTime(d) { return new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }); }
-function fmtShortDate(d) { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" }); }
+function fmtDate(d) { return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone:"Asia/Kolkata" }); }
+function fmtTime(d) { return new Date(d).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone:"Asia/Kolkata" }); }
+function fmtShortDate(d) { return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone:"Asia/Kolkata" }); }
 
 function timeUntil(dateStr) {
   const diff = new Date(dateStr) - new Date();
@@ -353,10 +353,12 @@ function RecentBookingsCard({ bookings, loading }) {
         </Box>
       ) : (
         <Box sx={{ p:"12px 16px", display:"flex", flexDirection:"column", gap:1 }}>
-          {bookings.map(b => {
+          {bookings.slice(0,3).map(b => {
             const st = statusStyle(b.status);
             const clientImg = b.client?.profile ? `${imagePath}/${b.client.profile}` : defaultProfile;
-            const isToday = new Date(b.booking_date).toDateString() === new Date().toDateString();
+            const bdIST = new Date(new Date(b.booking_date).toLocaleString("en-US", { timeZone:"Asia/Kolkata" }));
+            const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone:"Asia/Kolkata" }));
+            const isToday = bdIST.toDateString() === nowIST.toDateString();
             return (
               <Box key={b._id} sx={{ display:"flex", alignItems:"center", gap:1.5, p:"10px 12px", borderRadius:"12px", background: isToday ? "#f0fdf4" : "#fafcff", border:`1px solid ${isToday ? "#dcfce7" : "#f1f5f9"}` }}>
                 <Avatar src={clientImg} sx={{ width:38, height:38, borderRadius:"11px", flexShrink:0 }}
@@ -387,6 +389,13 @@ function RecentBookingsCard({ bookings, loading }) {
           })}
         </Box>
       )}
+      <Box sx={{ px:2, pb:2, pt: bookings.length === 0 ? 0 : 0.5 }}>
+        <Link href="/appointments" style={{ textDecoration:"none", display:"block" }}>
+          <Box sx={{ textAlign:"center", py:1.2, borderRadius:"10px", border:"1.5px solid #e2e8f0", background:"#f8fafc", "&:hover":{ background:"#f0fdf4", borderColor:"#228756" }, transition:"all .15s" }}>
+            <Typography sx={{ fontSize:"12px", fontWeight:700, color:"#228756" }}>View All Bookings →</Typography>
+          </Box>
+        </Link>
+      </Box>
     </Box>
   );
 }
@@ -549,7 +558,7 @@ export default function TherapistDashboard() {
       const dashData  = dashResData?.status   ? (dashResData.data||{})   : {};
 
       const now = new Date();
-      const todayStr = now.toDateString();
+      const todayStr = new Date(now.toLocaleString("en-US", { timeZone:"Asia/Kolkata" })).toDateString();
       const monthStart     = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonthStart = new Date(now.getFullYear(), now.getMonth()-1, 1);
 
@@ -590,7 +599,7 @@ export default function TherapistDashboard() {
 
       const toMap = b => ({ id:b._id, name:b.client?.name||"Unknown", date:b.booking_date, badge:b.format||"Online", imgSrc:b.client?.photo||b.client?.profile });
 
-      const todayList    = bookings.filter(b=>new Date(b.booking_date).toDateString()===todayStr&&b.status!=="Cancelled").sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
+      const todayList    = bookings.filter(b=>new Date(new Date(b.booking_date).toLocaleString("en-US",{timeZone:"Asia/Kolkata"})).toDateString()===todayStr&&b.status!=="Cancelled").sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
       // Include all pending/active bookings (New or Started) regardless of booking_date being past
       const upcomingList = bookings.filter(b=>b.status!=="Completed"&&b.status!=="Cancelled").sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
 
