@@ -8,8 +8,8 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
-import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl } from "../utils/url";
-import { fetchById } from "../utils/actions";
+import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl, deleteBookingUrl } from "../utils/url";
+import { fetchById, deleteById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
 import { Box, Typography, Avatar, Grid, Skeleton, IconButton, Tooltip, LinearProgress } from "@mui/material";
@@ -309,7 +309,7 @@ function SessionTimeline({ todaySessions, upcomingSessions }) {
 }
 
 /* ── Recent Bookings (right panel) ──────────────────────────────── */
-function RecentBookingsCard({ bookings, loading }) {
+function RecentBookingsCard({ bookings, loading, onDelete }) {
   if (loading) return (
     <Box sx={{ borderRadius:"18px", border:"1.5px solid #f0f4f8", background:"#fff", p:"18px 20px" }}>
       <Skeleton width={140} height={14} sx={{ mb:1.5 }} />
@@ -381,8 +381,15 @@ function RecentBookingsCard({ bookings, loading }) {
                     {(b.amount||b.transaction?.amount) && <Typography sx={{ fontSize:"10px", fontWeight:700, color:"#228756", flexShrink:0 }}>₹{getNum(b.amount||b.transaction?.amount)}</Typography>}
                   </Box>
                 </Box>
-                <Box sx={{ background:st.bg, borderRadius:"7px", px:0.9, py:0.3, flexShrink:0 }}>
-                  <Typography sx={{ fontSize:"9px", fontWeight:800, color:st.color }}>{b.status||"New"}</Typography>
+                <Box sx={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:0.6, flexShrink:0 }}>
+                  <Box sx={{ background:st.bg, borderRadius:"7px", px:0.9, py:0.3 }}>
+                    <Typography sx={{ fontSize:"9px", fontWeight:800, color:st.color }}>{b.status||"New"}</Typography>
+                  </Box>
+                  {onDelete && (
+                    <Box onClick={()=>onDelete(b._id)} sx={{ cursor:"pointer", background:"#fee2e2", borderRadius:"6px", px:0.8, py:0.2, "&:hover":{ background:"#fecaca" }, transition:"background .15s" }}>
+                      <Typography sx={{ fontSize:"9px", fontWeight:800, color:"#991b1b" }}>Delete</Typography>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             );
@@ -723,7 +730,13 @@ export default function TherapistDashboard() {
         </div>
 
         {/* ══ RECENT BOOKINGS ══════════════════════════════════ */}
-        <RecentBookingsCard bookings={recentBookings} loading={loading} />
+        <RecentBookingsCard bookings={recentBookings} loading={loading} onDelete={async (id) => {
+          if (!window.confirm("Delete this booking?")) return;
+          try {
+            await deleteById(`${deleteBookingUrl}/${id}`);
+            setRecentBookings(prev => prev.filter(b => b._id !== id));
+          } catch { alert("Delete failed. Try again."); }
+        }} />
 
       </Box>
 

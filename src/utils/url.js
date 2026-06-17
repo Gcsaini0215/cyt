@@ -153,6 +153,7 @@ export const BookTherapistUrlAnonymously = `${apiUrl}/book-therapist-anonymously
 export const pendingPaymentUrl = `${apiUrl}/get-payment`;
 export const savePaymentUrl = `${apiUrl}/save-payment`;
 export const getBookings = `${apiUrl}/get-bookings`;
+export const deleteBookingUrl = `${apiUrl}/delete-booking`;
 export const bookWorkshopUrl = `${apiUrl}/book-workshop`;
 export const getPaymentQrUrl = `${apiUrl}/get-payment-qr`;
 export const getClientDashboardDataUrl = `${apiUrl}/get-client-dashboard`;

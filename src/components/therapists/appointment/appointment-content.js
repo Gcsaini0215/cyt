@@ -6,8 +6,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import PrintIcon from "@mui/icons-material/Print";
 import { Divider, Button } from "@mui/material";
 import { toast } from "react-toastify";
-import { postData, fetchData } from "../../../utils/actions";
-import { StartSessionUrl, EndSessionUrl, getBookings } from "../../../utils/url"; // Fixed URL
+import { postData, fetchData, deleteById } from "../../../utils/actions";
+import { StartSessionUrl, EndSessionUrl, getBookings, deleteBookingUrl } from "../../../utils/url";
 import VerifyOtpDialog from "../../global/verify-otp-dialog";
 import { SESSION_STATUS } from "../../../utils/constant";
 import { formatDateTime } from "../../../utils/time";
@@ -199,6 +199,18 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
   const handleClose = () => setSelectedAppt(null);
   const handleOtpViewClose = () => setOtpView(false);
+
+  const handleDelete = async (appt) => {
+    if (!window.confirm(`Delete booking for ${appt.client?.name || "this client"}?`)) return;
+    try {
+      await deleteById(`${deleteBookingUrl}/${appt._id}`);
+      setAppointments(prev => prev.filter(a => a._id !== appt._id));
+      if (selectedAppt?._id === appt._id) setSelectedAppt(null);
+      toast.success("Booking deleted.");
+    } catch {
+      toast.error("Delete failed. Try again.");
+    }
+  };
 
   const getPaymentStatusColor = (status) => {
     switch ((status || "").toLowerCase()) {
@@ -562,6 +574,9 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                           <button className="ap-btn ap-btn-start" onClick={() => handlePin(appt)}><FaPlay size={11} /> Start</button>
                         )
                       )}
+                      <button className="ap-btn" style={{ color:"#ef4444", borderColor:"#fecaca", background:"#fff5f5" }} onClick={() => handleDelete(appt)}>
+                        <FaTimes size={11} /> Delete
+                      </button>
                     </div>
                   </div>
                 );
@@ -626,6 +641,9 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                                 ? <button className="ap-btn ap-btn-end" style={{ minWidth: 0, flex: "none", padding: "5px 8px" }} onClick={() => endSession(appt)}><FaStop size={10} /></button>
                                 : <button className="ap-btn ap-btn-start" style={{ minWidth: 0, flex: "none", padding: "5px 8px" }} onClick={() => handlePin(appt)}><FaPlay size={10} /></button>
                             )}
+                            <button className="ap-btn" style={{ minWidth:0, flex:"none", padding:"5px 8px", color:"#ef4444", borderColor:"#fecaca", background:"#fff5f5" }} onClick={() => handleDelete(appt)}>
+                              <FaTimes size={10} />
+                            </button>
                           </div>
                         </td>
                       </tr>
