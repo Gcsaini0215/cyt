@@ -893,57 +893,6 @@ export default function TherapistDashboard() {
           }
         }} />
 
-        {/* ══ UPCOMING APPOINTMENTS ════════════════════════════ */}
-        {upcomingSessions.length > 0 && (
-          <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden" }}>
-            <div style={{ padding:"14px 16px 10px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"1px solid #f1f5f9" }}>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <div style={{ width:32, height:32, borderRadius:9, background:"#eef2ff", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  <i className="feather-clock" style={{ fontSize:15, color:"#6366f1" }}></i>
-                </div>
-                <span style={{ fontSize:14, fontWeight:800, color:"#1e293b" }}>Upcoming Appointments</span>
-              </div>
-              <span style={{ fontSize:11, fontWeight:700, color:"#6366f1", background:"#eef2ff", borderRadius:20, padding:"2px 10px" }}>{upcomingSessions.length}</span>
-            </div>
-            <div style={{ padding:"8px 0" }}>
-              {upcomingSessions.slice(0,5).map((b, i) => {
-                const bdIST = new Date(new Date(b.booking_date).toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));
-                const nowIST = new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Kolkata"}));
-                const isToday = bdIST.toDateString() === nowIST.toDateString();
-                const isTomorrow = bdIST.toDateString() === new Date(nowIST.getTime()+86400000).toDateString();
-                const dayLabel = isToday ? "Today" : isTomorrow ? "Tomorrow" : bdIST.toLocaleDateString("en-IN",{day:"numeric",month:"short"});
-                return (
-                  <div key={b._id||i} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 16px", borderBottom: i < Math.min(upcomingSessions.length,5)-1 ? "1px solid #f8fafc" : "none" }}>
-                    <div style={{ width:38, height:38, borderRadius:10, background:"#f8fafc", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                      <span style={{ fontSize:13, fontWeight:900, color:"#1e293b", lineHeight:1 }}>{bdIST.getDate()}</span>
-                      <span style={{ fontSize:8, fontWeight:700, color:"#94a3b8", textTransform:"uppercase" }}>{bdIST.toLocaleDateString("en-IN",{month:"short"})}</span>
-                    </div>
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <div style={{ fontSize:13, fontWeight:700, color:"#1e293b", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-                        {b.client?.name || b.name || "Client"}
-                      </div>
-                      <div style={{ fontSize:11, color:"#64748b" }}>
-                        {fmtTime(b.booking_date)} · {b.session_type || b.service || "Session"}
-                      </div>
-                    </div>
-                    <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:3, flexShrink:0 }}>
-                      <span style={{ fontSize:10, fontWeight:700, color: isToday?"#228756":isTomorrow?"#f59e0b":"#6366f1", background: isToday?"#f0fdf4":isTomorrow?"#fffbeb":"#eef2ff", borderRadius:20, padding:"2px 8px" }}>{dayLabel}</span>
-                      {b.amount && <span style={{ fontSize:11, fontWeight:700, color:"#0f172a" }}>₹{getNum(b.amount).toLocaleString("en-IN")}</span>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            {upcomingSessions.length > 5 && (
-              <div style={{ padding:"10px 16px", borderTop:"1px solid #f1f5f9", textAlign:"center" }}>
-                <Link href="/appointments">
-                  <span style={{ fontSize:12, fontWeight:700, color:"#6366f1", cursor:"pointer" }}>View All {upcomingSessions.length} Appointments →</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* ══ CLIENT REVIEWS ═══════════════════════════════════ */}
         {myReviews.length > 0 && (
           <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden" }}>
