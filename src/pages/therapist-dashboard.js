@@ -381,15 +381,8 @@ function RecentBookingsCard({ bookings, loading, onDelete }) {
                     {(b.amount||b.transaction?.amount) && <Typography sx={{ fontSize:"10px", fontWeight:700, color:"#228756", flexShrink:0 }}>₹{getNum(b.amount||b.transaction?.amount)}</Typography>}
                   </Box>
                 </Box>
-                <Box sx={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:0.6, flexShrink:0 }}>
-                  <Box sx={{ background:st.bg, borderRadius:"7px", px:0.9, py:0.3 }}>
-                    <Typography sx={{ fontSize:"9px", fontWeight:800, color:st.color }}>{b.status||"New"}</Typography>
-                  </Box>
-                  {onDelete && (
-                    <Box onClick={()=>onDelete(b._id)} sx={{ cursor:"pointer", background:"#fee2e2", borderRadius:"6px", px:0.8, py:0.2, "&:hover":{ background:"#fecaca" }, transition:"background .15s" }}>
-                      <Typography sx={{ fontSize:"9px", fontWeight:800, color:"#991b1b" }}>Delete</Typography>
-                    </Box>
-                  )}
+                <Box sx={{ background:st.bg, borderRadius:"7px", px:0.9, py:0.3, flexShrink:0 }}>
+                  <Typography sx={{ fontSize:"9px", fontWeight:800, color:st.color }}>{b.status||"New"}</Typography>
                 </Box>
               </Box>
             );
