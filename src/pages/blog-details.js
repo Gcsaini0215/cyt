@@ -289,6 +289,104 @@ const TrendingItem = styled(Box)(({ theme }) => ({
   }
 }));
 
+// ─── Internal linking engine ─────────────────────────────────────────────────
+// Maps blog category/tags → relevant therapist filter URLs, service labels, state pages
+const TOPIC_MAP = [
+  {
+    keywords: ["anxiety", "panic", "overthinking", "nervousness", "worry", "stress"],
+    service: "Anxiety",
+    label: "Anxiety & Stress",
+    icon: "🧠",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#ddd6fe",
+    desc: "Verified psychologists specialising in anxiety, panic attacks, and stress management.",
+  },
+  {
+    keywords: ["depression", "sad", "hopeless", "low mood", "dysthymia", "burnout"],
+    service: "Depression",
+    label: "Depression",
+    icon: "🌧️",
+    color: "#2563eb",
+    bg: "#eff6ff",
+    border: "#bfdbfe",
+    desc: "Talk to a counsellor trained in depression, low mood, and emotional exhaustion.",
+  },
+  {
+    keywords: ["ocd", "obsessive", "compulsive", "intrusive thought", "checking"],
+    service: "OCD",
+    label: "OCD",
+    icon: "🔄",
+    color: "#d97706",
+    bg: "#fffbeb",
+    border: "#fde68a",
+    desc: "Psychologists experienced in CBT-based treatment for OCD and intrusive thoughts.",
+  },
+  {
+    keywords: ["relationship", "couple", "marriage", "divorce", "breakup", "partner", "family", "conflict", "attachment"],
+    service: "Relationship Counselling",
+    label: "Relationships & Couples",
+    icon: "❤️",
+    color: "#dc2626",
+    bg: "#fff1f2",
+    border: "#fecdd3",
+    desc: "Couples counsellors and relationship therapists for individuals and partners.",
+  },
+  {
+    keywords: ["trauma", "ptsd", "abuse", "grief", "loss", "bereavement", "accident"],
+    service: "Trauma & PTSD",
+    label: "Trauma & PTSD",
+    icon: "🛡️",
+    color: "#0891b2",
+    bg: "#ecfeff",
+    border: "#a5f3fc",
+    desc: "Trauma-informed therapists trained in EMDR, somatic therapy, and grief counselling.",
+  },
+  {
+    keywords: ["child", "teen", "adolescent", "school", "adhd", "learning", "parenting", "kid"],
+    service: "Child & Adolescent Therapy",
+    label: "Child & Teen Therapy",
+    icon: "👶",
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    border: "#bbf7d0",
+    desc: "Child psychologists and special educators for kids, teens, and parents.",
+  },
+  {
+    keywords: ["self esteem", "confidence", "identity", "self worth", "body image", "eating"],
+    service: "Self-Esteem & Identity",
+    label: "Self-Esteem & Identity",
+    icon: "✨",
+    color: "#db2777",
+    bg: "#fdf2f8",
+    border: "#fbcfe8",
+    desc: "Psychologists helping with self-esteem, confidence, and personal identity issues.",
+  },
+  {
+    keywords: ["sleep", "insomnia", "fatigue", "mindfulness", "meditation", "wellbeing"],
+    service: "Counselling Psychology",
+    label: "General Counselling",
+    icon: "🌱",
+    color: "#228756",
+    bg: "#f0fdf4",
+    border: "#86efac",
+    desc: "Counselling psychologists for everyday mental health, stress, and personal growth.",
+  },
+];
+
+function getTopicMatch(blog) {
+  const text = `${blog.title || ""} ${blog.category || ""} ${blog.tags || ""} ${
+    (blog.content || "").replace(/<[^>]*>/g, " ").substring(0, 500)
+  }`.toLowerCase();
+
+  const matches = TOPIC_MAP.filter(({ keywords }) =>
+    keywords.some((kw) => text.includes(kw))
+  );
+
+  // Return top 2 matches max
+  return matches.slice(0, 2);
+}
+
 // ─── Content cleaner ─────────────────────────────────────────────────────────
 // Strips legacy Word/font tags, fixes empty headings, normalises inline styles
 function cleanBlogContent(html) {
@@ -455,6 +553,7 @@ export default function BlogDetails({ initialBlog }) {
   if (!blog) return <Typography>Blog not found</Typography>;
 
   const tagsList = blog.tags ? blog.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== "") : [];
+  const topicMatches = getTopicMatch(blog);
 
   // Build a rich meta description: prefer metaDesc, fall back to first 160 chars of plain content
   const rawMetaDesc = (blog.metaDesc || "").replace(/<[^>]*>/g, '').trim();
@@ -760,51 +859,141 @@ export default function BlogDetails({ initialBlog }) {
                 </Box>
               )}
 
-              {/* ── Professional Help CTA ── */}
-              <Box sx={{
-                mt: 5, p: { xs: 3, md: 4 },
-                background: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
-                borderRadius: '20px', textAlign: 'center'
-              }}>
-                <Typography sx={{
-                  fontWeight: 900, color: '#fff', mb: 1.5,
-                  fontSize: { xs: '1.6rem', md: '2rem' }
-                }}>
-                  Want to talk to a psychologist?
-                </Typography>
-                <Typography sx={{
-                  color: 'rgba(255,255,255,0.8)', mb: 3,
-                  fontSize: { xs: '1.3rem', md: '1.5rem' }, lineHeight: 1.6
-                }}>
-                  Reading about mental health is a great first step. Speaking with a verified psychologist is the next one.
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <Box
-                    component="a"
-                    href="/view-all-therapist"
-                    sx={{
-                      px: 3, py: 1.5, borderRadius: '50px',
-                      background: '#4ade80', color: '#064e3b',
-                      fontWeight: 800, fontSize: '1.4rem',
-                      textDecoration: 'none', display: 'inline-block'
-                    }}
-                  >
-                    Browse Verified Psychologists
+              {/* ── Advanced Internal Linking CTA ── */}
+              <Box sx={{ mt: 6 }}>
+
+                {/* Topic-matched specialisation cards */}
+                {topicMatches.length > 0 && (
+                  <Box sx={{ mb: 4 }}>
+                    <Typography sx={{ fontWeight: 900, fontSize: { xs: '1.3rem', md: '1.6rem' }, color: '#0f172a', mb: 0.75 }}>
+                      This article is related to:
+                    </Typography>
+                    <Typography sx={{ color: '#64748b', fontSize: '1rem', mb: 3 }}>
+                      Find verified psychologists who specialise in exactly what you just read about.
+                    </Typography>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                      {topicMatches.map((topic) => (
+                        <Box
+                          key={topic.service}
+                          component="a"
+                          href={`/view-all-therapist?services=${encodeURIComponent(topic.service)}`}
+                          sx={{
+                            p: 2.5, borderRadius: '16px',
+                            background: topic.bg,
+                            border: `1.5px solid ${topic.border}`,
+                            textDecoration: 'none',
+                            display: 'flex', gap: 2, alignItems: 'flex-start',
+                            transition: 'transform 0.2s, box-shadow 0.2s',
+                            '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }
+                          }}
+                        >
+                          <Box sx={{ fontSize: '2rem', lineHeight: 1, mt: 0.25 }}>{topic.icon}</Box>
+                          <Box>
+                            <Typography sx={{ fontWeight: 800, color: topic.color, fontSize: '1rem', mb: 0.5 }}>
+                              {topic.label} Specialists →
+                            </Typography>
+                            <Typography sx={{ color: '#475569', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                              {topic.desc}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
                   </Box>
-                  <Box
-                    component="a"
-                    href="/faqs"
-                    sx={{
-                      px: 3, py: 1.5, borderRadius: '50px',
-                      background: 'rgba(255,255,255,0.15)',
-                      border: '1px solid rgba(255,255,255,0.3)',
-                      color: '#fff', fontWeight: 700, fontSize: '1.4rem',
-                      textDecoration: 'none', display: 'inline-block'
-                    }}
-                  >
-                    Read Therapy FAQs
+                )}
+
+                {/* Main CTA banner */}
+                <Box sx={{
+                  p: { xs: 3, md: 5 },
+                  background: 'linear-gradient(135deg, #0f172a 0%, #064e3b 100%)',
+                  borderRadius: '24px',
+                }}>
+                  <Typography sx={{ fontWeight: 900, color: '#fff', mb: 1.5, fontSize: { xs: '1.6rem', md: '2.2rem' }, lineHeight: 1.2 }}>
+                    Ready to speak with a psychologist?
+                  </Typography>
+                  <Typography sx={{ color: 'rgba(255,255,255,0.75)', mb: 4, fontSize: { xs: '1rem', md: '1.15rem' }, lineHeight: 1.75, maxWidth: 520 }}>
+                    Reading is a great first step. Our verified psychologists offer online and in-person sessions — confidential, judgment-free, and tailored to your needs.
+                  </Typography>
+
+                  {/* CTA buttons */}
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 4 }}>
+                    <Box
+                      component="a"
+                      href={topicMatches[0] ? `/view-all-therapist?services=${encodeURIComponent(topicMatches[0].service)}` : '/view-all-therapist'}
+                      sx={{
+                        px: 3.5, py: 1.5, borderRadius: '50px',
+                        background: '#4ade80', color: '#064e3b',
+                        fontWeight: 800, fontSize: '1rem',
+                        textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 1
+                      }}
+                    >
+                      🔍 {topicMatches[0] ? `Find ${topicMatches[0].label} Psychologist` : 'Browse Verified Psychologists'}
+                    </Box>
+                    <Box
+                      component="a"
+                      href="/faqs"
+                      sx={{
+                        px: 3.5, py: 1.5, borderRadius: '50px',
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1.5px solid rgba(255,255,255,0.25)',
+                        color: '#fff', fontWeight: 700, fontSize: '1rem',
+                        textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 1
+                      }}
+                    >
+                      💬 How does therapy work?
+                    </Box>
+                  </Box>
+
+                  {/* Trust signals row */}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 2, md: 4 } }}>
+                    {[
+                      { icon: "✅", text: "RCI-verified psychologists" },
+                      { icon: "🔒", text: "100% confidential sessions" },
+                      { icon: "📱", text: "Online & in-person available" },
+                      { icon: "🇮🇳", text: "Across India" },
+                    ].map(({ icon, text }) => (
+                      <Box key={text} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ fontSize: '1rem' }}>{icon}</Box>
+                        <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: 600 }}>{text}</Typography>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
+
+                {/* State-based quick links */}
+                <Box sx={{ mt: 3, p: 3, borderRadius: '16px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                  <Typography sx={{ fontWeight: 800, color: '#475569', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', mb: 2 }}>
+                    Find psychologists near you
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+                    {[
+                      { label: "Delhi", slug: "delhi" },
+                      { label: "Uttar Pradesh", slug: "uttar-pradesh" },
+                      { label: "Maharashtra", slug: "maharashtra" },
+                      { label: "Rajasthan", slug: "rajasthan" },
+                      { label: "Gujarat", slug: "gujarat" },
+                      { label: "Chandigarh", slug: "chandigarh" },
+                      { label: "Uttarakhand", slug: "uttarakhand" },
+                    ].map(({ label, slug }) => (
+                      <Box
+                        key={slug}
+                        component="a"
+                        href={`/psychologist-in/${slug}`}
+                        sx={{
+                          px: 2, py: 0.75, borderRadius: '20px',
+                          border: '1.5px solid #e2e8f0',
+                          background: '#fff', color: '#475569',
+                          fontSize: '0.85rem', fontWeight: 700,
+                          textDecoration: 'none',
+                          '&:hover': { borderColor: '#228756', color: '#228756', background: '#f0fdf4' }
+                        }}
+                      >
+                        {label}
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+
               </Box>
 
               {/* ── Disclaimer ── */}
