@@ -374,7 +374,10 @@ function RecentBookingsCard({ bookings, loading }) {
                       {isToday ? fmtTime(b.booking_date) : `${fmtShortDate(b.booking_date)} · ${fmtTime(b.booking_date)}`}
                     </Typography>
                   </Box>
-                  {b.service && <Typography sx={{ fontSize:"10px", color:"#94a3b8", mt:0.2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{b.service}</Typography>}
+                  <Box sx={{ display:"flex", alignItems:"center", gap:1, mt:0.2 }}>
+                    {b.service && <Typography sx={{ fontSize:"10px", color:"#94a3b8", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>{b.service}</Typography>}
+                    {(b.amount||b.transaction?.amount) && <Typography sx={{ fontSize:"10px", fontWeight:700, color:"#228756", flexShrink:0 }}>₹{getNum(b.amount||b.transaction?.amount)}</Typography>}
+                  </Box>
                 </Box>
                 <Box sx={{ background:st.bg, borderRadius:"7px", px:0.9, py:0.3, flexShrink:0 }}>
                   <Typography sx={{ fontSize:"9px", fontWeight:800, color:st.color }}>{b.status||"New"}</Typography>
@@ -557,7 +560,7 @@ export default function TherapistDashboard() {
       bookings.forEach(b => {
         const bStatus = b.status || "New";
         const bd = new Date(b.booking_date);
-        const amt = getNum(b.transaction?.amount);
+        const amt = getNum(b.amount || b.transaction?.amount);
 
         if (bd >= monthStart) monthEarnings += amt;
         else if (bd >= lastMonthStart) lastMonthEarnings += amt;
@@ -594,8 +597,8 @@ export default function TherapistDashboard() {
       for (let i=5;i>=0;i--) { const d=new Date(now.getFullYear(),now.getMonth()-i,1); monthlyMap.set(`${d.getFullYear()}-${d.getMonth()}`,{name:MONTH_NAMES[d.getMonth()],sessions:0,revenue:0}); }
       bookings.forEach(b=>{ const d=new Date(b.booking_date),key=`${d.getFullYear()}-${d.getMonth()}`; if(monthlyMap.has(key)){const e=monthlyMap.get(key);e.sessions++;e.revenue+=getNum(b.transaction?.amount||b.amount);} });
 
-      const inv = bookings.filter(b=>b.transaction?.amount).sort((a,b)=>new Date(b.booking_date)-new Date(a.booking_date)).slice(0,6)
-        .map(b=>({id:b._id,invoice_id:b.transaction?.transaction_id?.slice(-8)||b._id?.slice(-8),client_name:b.client?.name||"Unknown",booking_date:fmtDate(b.booking_date),amount:b.transaction?.amount,status:b.transaction?.status?.name||"Success"}));
+      const inv = bookings.filter(b=>b.transaction?.amount||b.amount).sort((a,b)=>new Date(b.booking_date)-new Date(a.booking_date)).slice(0,6)
+        .map(b=>({id:b._id,invoice_id:b.transaction?.transaction_id?.slice(-8)||b._id?.slice(-8),client_name:b.client?.name||"Unknown",booking_date:fmtDate(b.booking_date),amount:b.transaction?.amount||b.amount,status:b.transaction?.status?.name||"Success"}));
 
       const monthGrowth = lastMonthEarnings > 0
         ? `${((monthEarnings - lastMonthEarnings) / lastMonthEarnings * 100).toFixed(0)}% vs last mo`
