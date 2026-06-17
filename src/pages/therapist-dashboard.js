@@ -687,54 +687,31 @@ export default function TherapistDashboard() {
     <MainLayout>
       <Box sx={{ pt:0, pb:6 }}>
 
-        {/* ══ TODAY STATS ══════════════════════════════════════ */}
-        <Box sx={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:{ xs:1.5, md:2 }, mb:{ xs:2, md:2.5 } }}>
-          {/* Today's Amount */}
-          <Box sx={{ borderRadius:"18px", background:"#fff", border:"1.5px solid #d1fae5", p:{ xs:"16px", md:"20px 22px" }, boxShadow:"0 2px 12px rgba(34,135,86,0.07)" }}>
-            {loading ? (
-              <>
-                <Skeleton width={80} height={12} sx={{ mb:1 }} />
-                <Skeleton width={120} height={32} />
-              </>
-            ) : (
-              <>
-                <Box sx={{ display:"flex", alignItems:"center", gap:1, mb:1 }}>
-                  <Box sx={{ width:32, height:32, borderRadius:"10px", background:"linear-gradient(135deg,#228756,#4ade80)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <CurrencyRupeeIcon sx={{ fontSize:16, color:"#fff" }} />
-                  </Box>
-                  <Typography sx={{ fontSize:"11px", fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px" }}>Today's Amount</Typography>
-                </Box>
-                <Typography sx={{ fontSize:{ xs:"26px", md:"32px" }, fontWeight:900, color:"#228756", lineHeight:1, letterSpacing:"-1px" }}>
-                  ₹{stats.todayRevenue.toLocaleString("en-IN")}
-                </Typography>
-                <Typography sx={{ fontSize:"11px", color:"#94a3b8", mt:0.8 }}>collected today</Typography>
-              </>
-            )}
-          </Box>
-
-          {/* Today's Clients */}
-          <Box sx={{ borderRadius:"18px", background:"#fff", border:"1.5px solid #e0e7ff", p:{ xs:"16px", md:"20px 22px" }, boxShadow:"0 2px 12px rgba(99,102,241,0.07)" }}>
-            {loading ? (
-              <>
-                <Skeleton width={80} height={12} sx={{ mb:1 }} />
-                <Skeleton width={80} height={32} />
-              </>
-            ) : (
-              <>
-                <Box sx={{ display:"flex", alignItems:"center", gap:1, mb:1 }}>
-                  <Box sx={{ width:32, height:32, borderRadius:"10px", background:"linear-gradient(135deg,#6366f1,#a5b4fc)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <PeopleIcon sx={{ fontSize:16, color:"#fff" }} />
-                  </Box>
-                  <Typography sx={{ fontSize:"11px", fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px" }}>Today's Clients</Typography>
-                </Box>
-                <Typography sx={{ fontSize:{ xs:"26px", md:"32px" }, fontWeight:900, color:"#6366f1", lineHeight:1, letterSpacing:"-1px" }}>
-                  {stats.todayClients}
-                </Typography>
-                <Typography sx={{ fontSize:"11px", color:"#94a3b8", mt:0.8 }}>booked today</Typography>
-              </>
-            )}
-          </Box>
-        </Box>
+        {/* ══ STATS ROW ════════════════════════════════════════ */}
+        <div className="row g-3 mb-4">
+          {[
+            { label:"Today's Amount",  val: loading ? "…" : `₹${stats.todayRevenue.toLocaleString("en-IN")}`, icon:"feather-dollar-sign", color:"#228756", bg:"#f0fdf4" },
+            { label:"Today's Clients", val: loading ? "…" : stats.todayClients,                                icon:"feather-users",       color:"#6366f1", bg:"#eef2ff" },
+            { label:"Total Earnings",  val: loading ? "…" : `₹${stats.totalEarnings.toLocaleString("en-IN")}`,icon:"feather-credit-card",  color:"#f59e0b", bg:"#fffbeb" },
+            { label:"This Month",      val: loading ? "…" : `₹${stats.monthEarnings.toLocaleString("en-IN")}`,icon:"feather-trending-up",  color:"#0ea5e9", bg:"#f0f9ff" },
+          ].map(s => (
+            <div key={s.label} className="col-6 col-lg-3">
+              <div style={{ background:"#fff", border:"1.5px solid #f1f5f9", borderRadius:14, padding:"14px 16px", transition:"all .18s", cursor:"default" }}
+                onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 4px 14px rgba(0,0,0,.08)";}}
+                onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}>
+                <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                  <div style={{ width:40, height:40, borderRadius:11, background:s.bg, display:"flex", alignItems:"center", justifyContent:"center", color:s.color, flexShrink:0 }}>
+                    <i className={s.icon} style={{ fontSize:18 }}></i>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:10, color:"#64748b", fontWeight:700, textTransform:"uppercase", letterSpacing:".5px" }}>{s.label}</div>
+                    <div style={{ fontSize:22, fontWeight:900, color:"#0f172a", lineHeight:1.1 }}>{s.val}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* ══ RECENT BOOKINGS ══════════════════════════════════ */}
         <RecentBookingsCard bookings={recentBookings} loading={loading} />
