@@ -789,7 +789,7 @@ export default function TherapistDashboard() {
                   <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                     <i className="feather-video" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
                     <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
-                      {therapistInfo.session_formats.split(",").map(f => f.trim()).filter(Boolean).map(f => (
+                      {String(therapistInfo.session_formats).split(",").map(f => f.trim()).filter(Boolean).map(f => (
                         <span key={f} style={{ fontSize:10, fontWeight:700, color:"#475569", background:"#f1f5f9", borderRadius:5, padding:"2px 7px" }}>{f}</span>
                       ))}
                     </div>
@@ -803,7 +803,7 @@ export default function TherapistDashboard() {
               <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Services</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                  {therapistInfo.services.split(",").map(s => s.trim()).filter(Boolean).map(s => (
+                  {String(therapistInfo.services).split(",").map(s => s.trim()).filter(Boolean).map(s => (
                     <span key={s} style={{ fontSize:11, fontWeight:600, color:"#228756", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>{s}</span>
                   ))}
                 </div>
@@ -815,7 +815,7 @@ export default function TherapistDashboard() {
               <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Expertise</div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
-                  {therapistInfo.experties.split(",").map(e => e.trim()).filter(Boolean).map(e => (
+                  {String(therapistInfo.experties).split(",").map(e => e.trim()).filter(Boolean).map(e => (
                     <span key={e} style={{ fontSize:11, fontWeight:600, color:"#6366f1", background:"#eef2ff", border:"1px solid #c7d2fe", borderRadius:20, padding:"3px 10px" }}>{e}</span>
                   ))}
                 </div>
