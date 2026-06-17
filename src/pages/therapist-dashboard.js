@@ -500,7 +500,8 @@ export default function TherapistDashboard() {
       const toMap = b => ({ id:b._id, name:b.client?.name||"Unknown", date:b.booking_date, badge:b.format||"Online", imgSrc:b.client?.photo||b.client?.profile });
 
       const todayList    = bookings.filter(b=>new Date(b.booking_date).toDateString()===todayStr&&b.status!=="Cancelled").sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
-      const upcomingList = bookings.filter(b=>b.status!=="Completed"&&b.status!=="Cancelled"&&new Date(b.booking_date)>now).sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
+      // Include all pending/active bookings (New or Started) regardless of booking_date being past
+      const upcomingList = bookings.filter(b=>b.status!=="Completed"&&b.status!=="Cancelled").sort((a,b)=>new Date(a.booking_date)-new Date(b.booking_date)).map(toMap);
 
       const weekMap = {};
       DAY_NAMES.forEach(d=>{ weekMap[d]={name:d,sessions:0,revenue:0}; });
