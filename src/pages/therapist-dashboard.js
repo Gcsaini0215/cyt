@@ -779,11 +779,6 @@ export default function TherapistDashboard() {
               }
             </div>
 
-            {/* Motivational quote */}
-            <div style={{ fontSize:11, color:"#94a3b8", fontStyle:"italic", marginBottom:12 }}>
-              "Every session you give is a life you help heal. Keep going! 💚"
-            </div>
-
             {/* ── Expertise tags ── */}
             {therapistInfo?.experties && (
               <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
