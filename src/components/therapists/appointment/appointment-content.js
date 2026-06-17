@@ -203,12 +203,18 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const handleDelete = async (appt) => {
     if (!window.confirm(`Delete booking for ${appt.client?.name || "this client"}?`)) return;
     try {
-      await deleteById(`${deleteBookingUrl}/${appt._id}`);
-      setAppointments(prev => prev.filter(a => a._id !== appt._id));
-      if (selectedAppt?._id === appt._id) setSelectedAppt(null);
-      toast.success("Booking deleted.");
-    } catch {
-      toast.error("Delete failed. Try again.");
+      const res = await deleteById(`${deleteBookingUrl}/${appt._id}`);
+      if (res?.status) {
+        setAppointments(prev => prev.filter(a => a._id !== appt._id));
+        if (selectedAppt?._id === appt._id) setSelectedAppt(null);
+        toast.success("Booking deleted.");
+      } else {
+        toast.error(res?.message || "Delete failed.");
+      }
+    } catch(e) {
+      const msg = e?.response?.data?.message || e?.message || "Unknown error";
+      console.error("Delete error:", msg);
+      toast.error("Error: " + msg);
     }
   };
 

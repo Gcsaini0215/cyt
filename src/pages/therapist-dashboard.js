@@ -733,9 +733,17 @@ export default function TherapistDashboard() {
         <RecentBookingsCard bookings={recentBookings} loading={loading} onDelete={async (id) => {
           if (!window.confirm("Delete this booking?")) return;
           try {
-            await deleteById(`${deleteBookingUrl}/${id}`);
-            setRecentBookings(prev => prev.filter(b => b._id !== id));
-          } catch { alert("Delete failed. Try again."); }
+            const res = await deleteById(`${deleteBookingUrl}/${id}`);
+            if (res?.status) {
+              setRecentBookings(prev => prev.filter(b => b._id !== id));
+            } else {
+              alert(res?.message || "Delete failed.");
+            }
+          } catch(e) {
+            const msg = e?.response?.data?.message || e?.message || "Unknown error";
+            console.error("Delete error:", msg);
+            alert("Error: " + msg);
+          }
         }} />
 
       </Box>
