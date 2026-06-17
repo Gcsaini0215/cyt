@@ -119,8 +119,27 @@ export default function TherapistCheckout({ profile }) {
         order_id: orderId,
         name: "CYT",
         description: "Therapist Booking",
-        handler: function (response) {
-          router.push(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/verify-razorpay-payment`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                booking_id: bookingId,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.status) {
+              router.push(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
+            } else {
+              setError(verifyData.message || "Payment verification failed. Contact support.");
+            }
+          } catch {
+            setError("Payment verification failed. Please contact support.");
+          }
         },
         prefill: {
           name: info.name || userInfo?.name,
