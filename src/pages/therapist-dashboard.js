@@ -713,10 +713,9 @@ export default function TherapistDashboard() {
 
           {/* Body */}
           <div style={{ padding:"0 16px 16px 16px" }}>
-            {/* Photo + edit row */}
-            <div style={{ display:"flex", alignItems:"flex-end", justifyContent:"space-between", marginTop:-35, marginBottom:10 }}>
-              {/* Profile photo */}
-              <div style={{ position:"relative", width:72, height:72, flexShrink:0 }}>
+            {/* Photo row */}
+            <div style={{ marginTop:-35, marginBottom:10 }}>
+              <div style={{ position:"relative", width:72, height:72 }}>
                 <img
                   src={avatarSrc}
                   alt={name}
@@ -727,10 +726,11 @@ export default function TherapistDashboard() {
               </div>
             </div>
 
-            {/* Name + headline */}
+            {/* Name */}
             <div style={{ fontSize:18, fontWeight:900, color:"#0f172a", lineHeight:1.2, marginBottom:2 }}>
               {therapistInfo?.user?.name || name}
             </div>
+            {/* Headline */}
             <div style={{ fontSize:12, fontWeight:700, color:"#228756", marginBottom:6 }}>
               {therapistInfo?.profile_type || "Therapist"} · Choose Your Therapist
             </div>
@@ -754,12 +754,90 @@ export default function TherapistDashboard() {
               </div>
             )}
 
+            {/* Available for clients badge */}
+            <div style={{ marginBottom:10 }}>
+              {therapistInfo?.show_to_page
+                ? <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:11, fontWeight:700, color:"#228756", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>
+                    <span style={{ width:7, height:7, borderRadius:"50%", background:"#4ade80", display:"inline-block" }}></span>
+                    Available for new clients
+                  </span>
+                : <span style={{ display:"inline-flex", alignItems:"center", gap:5, fontSize:11, fontWeight:700, color:"#64748b", background:"#f8fafc", border:"1px solid #e2e8f0", borderRadius:20, padding:"3px 10px" }}>
+                    <span style={{ width:7, height:7, borderRadius:"50%", background:"#94a3b8", display:"inline-block" }}></span>
+                    Not listed publicly
+                  </span>
+              }
+            </div>
+
             {/* Motivational quote */}
             <div style={{ fontSize:11, color:"#94a3b8", fontStyle:"italic", marginBottom:12 }}>
               "Every session you give is a life you help heal. Keep going! 💚"
             </div>
 
-            {/* Divider + Profile strength */}
+            {/* ── Divider: Languages + Session formats ── */}
+            {(therapistInfo?.language_spoken || therapistInfo?.session_formats) && (
+              <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
+                {therapistInfo?.language_spoken && (
+                  <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:5 }}>
+                    <i className="feather-globe" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
+                    <span style={{ fontSize:11, color:"#475569" }}>
+                      <span style={{ fontWeight:700, color:"#334155" }}>Speaks: </span>
+                      {therapistInfo.language_spoken}
+                    </span>
+                  </div>
+                )}
+                {therapistInfo?.session_formats && (
+                  <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <i className="feather-video" style={{ fontSize:12, color:"#94a3b8", flexShrink:0 }}></i>
+                    <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
+                      {therapistInfo.session_formats.split(",").map(f => f.trim()).filter(Boolean).map(f => (
+                        <span key={f} style={{ fontSize:10, fontWeight:700, color:"#475569", background:"#f1f5f9", borderRadius:5, padding:"2px 7px" }}>{f}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Services ── */}
+            {therapistInfo?.services && (
+              <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Services</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                  {therapistInfo.services.split(",").map(s => s.trim()).filter(Boolean).map(s => (
+                    <span key={s} style={{ fontSize:11, fontWeight:600, color:"#228756", background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:20, padding:"3px 10px" }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Expertise tags ── */}
+            {therapistInfo?.experties && (
+              <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
+                <div style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:6 }}>Expertise</div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:5 }}>
+                  {therapistInfo.experties.split(",").map(e => e.trim()).filter(Boolean).map(e => (
+                    <span key={e} style={{ fontSize:11, fontWeight:600, color:"#6366f1", background:"#eef2ff", border:"1px solid #c7d2fe", borderRadius:20, padding:"3px 10px" }}>{e}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── View Public Profile button ── */}
+            {therapistInfo?._id && (
+              <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10, marginBottom:10 }}>
+                <Link href={`/view-profile/${therapistInfo._id}`} target="_blank">
+                  <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:12, fontWeight:700, color:"#228756", background:"#f0fdf4", border:"1.5px solid #228756", borderRadius:22, padding:"7px 16px", cursor:"pointer", transition:"all .15s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.background="#228756";e.currentTarget.style.color="#fff";}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="#f0fdf4";e.currentTarget.style.color="#228756";}}>
+                    <i className="feather-user" style={{ fontSize:12 }}></i>
+                    View Public Profile
+                    <i className="feather-external-link" style={{ fontSize:11 }}></i>
+                  </div>
+                </Link>
+              </div>
+            )}
+
+            {/* ── Profile strength bar ── */}
             <div style={{ borderTop:"1px solid #f1f5f9", paddingTop:10 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:5 }}>
                 <span style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px" }}>Profile Strength</span>
