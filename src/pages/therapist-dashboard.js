@@ -696,6 +696,75 @@ export default function TherapistDashboard() {
     <MainLayout>
       <Box sx={{ pt:0, pb:6 }}>
 
+        {/* ══ THERAPIST PROFILE HEADER — LinkedIn style ════════ */}
+        <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden" }}>
+          {/* Cover banner */}
+          <div style={{ height:90, background:"linear-gradient(135deg,#0a2e1a 0%,#1a5c38 60%,#228756 100%)", position:"relative" }}>
+            <div style={{ position:"absolute", top:-40, right:-20, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.04)", pointerEvents:"none" }} />
+            <div style={{ position:"absolute", bottom:-30, left:60, width:120, height:120, borderRadius:"50%", background:"rgba(74,222,128,0.06)", pointerEvents:"none" }} />
+            {/* Date + clock top-right */}
+            <div style={{ position:"absolute", top:12, right:16, textAlign:"right" }}>
+              <div style={{ fontSize:10, color:"rgba(255,255,255,0.5)", fontWeight:600, letterSpacing:"0.5px" }}>{today}</div>
+              <div style={{ fontSize:16, fontWeight:800, color:"#fff", lineHeight:1.1 }}>
+                {clockTime ? clockTime.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata"}) : ""}
+              </div>
+            </div>
+          </div>
+          {/* Profile photo overlapping banner */}
+          <div style={{ padding:"0 20px 18px 20px" }}>
+            <div style={{ position:"relative", marginTop:-36, marginBottom:10, display:"inline-block" }}>
+              <img
+                src={avatarSrc}
+                alt={name}
+                style={{ width:72, height:72, borderRadius:"50%", objectFit:"cover", border:"3px solid #fff", boxShadow:"0 2px 10px rgba(0,0,0,0.12)", display:"block" }}
+                onError={e=>{e.target.src=defaultProfile;}}
+              />
+              <div style={{ position:"absolute", bottom:2, right:2, width:14, height:14, borderRadius:"50%", background:"#4ade80", border:"2.5px solid #fff" }} />
+            </div>
+            <div style={{ fontSize:18, fontWeight:900, color:"#0f172a", lineHeight:1.15, marginBottom:2 }}>
+              {therapistInfo?.user?.name || name}
+            </div>
+            <div style={{ fontSize:12, fontWeight:700, color:"#228756", marginBottom:4 }}>
+              {therapistInfo?.profile_type || "Therapist"} · Choose Your Therapist
+            </div>
+            {(therapistInfo?.qualification || therapistInfo?.year_of_exp || therapistInfo?.state) && (
+              <div style={{ display:"flex", flexWrap:"wrap", gap:"6px 12px", marginBottom:6 }}>
+                {therapistInfo?.qualification && (
+                  <span style={{ fontSize:11, color:"#475569", display:"flex", alignItems:"center", gap:4 }}>
+                    <i className="feather-award" style={{ fontSize:11, color:"#94a3b8" }}></i>
+                    {therapistInfo.qualification}
+                  </span>
+                )}
+                {therapistInfo?.year_of_exp && (
+                  <span style={{ fontSize:11, color:"#475569", display:"flex", alignItems:"center", gap:4 }}>
+                    <i className="feather-briefcase" style={{ fontSize:11, color:"#94a3b8" }}></i>
+                    {therapistInfo.year_of_exp} yrs exp
+                  </span>
+                )}
+                {therapistInfo?.state && (
+                  <span style={{ fontSize:11, color:"#475569", display:"flex", alignItems:"center", gap:4 }}>
+                    <i className="feather-map-pin" style={{ fontSize:11, color:"#94a3b8" }}></i>
+                    {therapistInfo.state}
+                  </span>
+                )}
+              </div>
+            )}
+            <div style={{ fontSize:12, color:"#64748b", fontStyle:"italic" }}>
+              "Every session you give is a life you help heal. Keep going! 💚"
+            </div>
+            {/* Profile strength bar */}
+            <div style={{ marginTop:12, borderTop:"1px solid #f1f5f9", paddingTop:10 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+                <span style={{ fontSize:10, fontWeight:700, color:"#64748b", textTransform:"uppercase", letterSpacing:"0.5px" }}>Profile Strength</span>
+                <span style={{ fontSize:10, fontWeight:800, color: completionPct===100?"#228756":completionPct>=60?"#f59e0b":"#ef4444" }}>{completionPct}%</span>
+              </div>
+              <div style={{ height:5, background:"#f1f5f9", borderRadius:99 }}>
+                <div style={{ height:"100%", width:`${completionPct}%`, borderRadius:99, background: completionPct===100?"#228756":completionPct>=60?"#f59e0b":"#ef4444", transition:"width .4s ease" }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* ══ STATS ROW ════════════════════════════════════════ */}
         <div className="row g-3 mb-4">
           {[
