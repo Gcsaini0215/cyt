@@ -308,6 +308,86 @@ function SessionTimeline({ todaySessions, upcomingSessions }) {
   );
 }
 
+/* ── Recent Bookings (right panel) ──────────────────────────────── */
+function RecentBookingsCard({ bookings, loading }) {
+  if (loading) return (
+    <Box sx={{ borderRadius:"18px", border:"1.5px solid #f0f4f8", background:"#fff", p:"18px 20px" }}>
+      <Skeleton width={140} height={14} sx={{ mb:1.5 }} />
+      {[1,2,3].map(i=>(
+        <Box key={i} sx={{ display:"flex", gap:1.5, mb:1.5 }}>
+          <Skeleton variant="circular" width={38} height={38} />
+          <Box sx={{ flex:1 }}><Skeleton width="60%" /><Skeleton width="40%" /></Box>
+        </Box>
+      ))}
+    </Box>
+  );
+
+  const statusStyle = s => {
+    if (!s) return { bg:"#f1f5f9", color:"#64748b" };
+    const l = s.toLowerCase();
+    if (l==="completed") return { bg:"#dcfce7", color:"#166534" };
+    if (l==="started")   return { bg:"#fef9c3", color:"#854d0e" };
+    if (l==="cancelled") return { bg:"#fee2e2", color:"#991b1b" };
+    return { bg:"#dbeafe", color:"#1d4ed8" };
+  };
+
+  return (
+    <Box sx={{ borderRadius:"18px", border:"1.5px solid #f0f4f8", background:"#fff", overflow:"hidden" }}>
+      <Box sx={{ px:2.2, pt:2, pb:1.5, borderBottom:"1px solid #f8fafc", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <Box>
+          <Typography sx={{ fontWeight:800, fontSize:"13.5px", color:"#1e293b" }}>Recent Bookings</Typography>
+          <Typography sx={{ fontSize:"10.5px", color:"#94a3b8", mt:0.2 }}>Last 7 days</Typography>
+        </Box>
+        <Link href="/appointments" style={{ textDecoration:"none" }}>
+          <Box sx={{ display:"flex", alignItems:"center", gap:0.3, background:"#f0fdf4", borderRadius:"8px", px:1.1, py:0.5, "&:hover":{ background:"#dcfce7" }, transition:"background .15s" }}>
+            <Typography sx={{ fontSize:"10.5px", fontWeight:700, color:"#228756" }}>All</Typography>
+            <ChevronRightIcon sx={{ fontSize:13, color:"#228756" }} />
+          </Box>
+        </Link>
+      </Box>
+
+      {bookings.length === 0 ? (
+        <Box sx={{ py:5, display:"flex", flexDirection:"column", alignItems:"center", gap:1 }}>
+          <EventBusyIcon sx={{ fontSize:28, color:"#e2e8f0" }} />
+          <Typography sx={{ fontSize:"12px", color:"#94a3b8", fontWeight:600 }}>No bookings in last 7 days</Typography>
+        </Box>
+      ) : (
+        <Box sx={{ p:"12px 16px", display:"flex", flexDirection:"column", gap:1 }}>
+          {bookings.map(b => {
+            const st = statusStyle(b.status);
+            const clientImg = b.client?.profile ? `${imagePath}/${b.client.profile}` : defaultProfile;
+            const isToday = new Date(b.booking_date).toDateString() === new Date().toDateString();
+            return (
+              <Box key={b._id} sx={{ display:"flex", alignItems:"center", gap:1.5, p:"10px 12px", borderRadius:"12px", background: isToday ? "#f0fdf4" : "#fafcff", border:`1px solid ${isToday ? "#dcfce7" : "#f1f5f9"}` }}>
+                <Avatar src={clientImg} sx={{ width:38, height:38, borderRadius:"11px", flexShrink:0 }}
+                  onError={e=>{e.target.src=defaultProfile;}} />
+                <Box sx={{ flex:1, minWidth:0 }}>
+                  <Box sx={{ display:"flex", alignItems:"center", gap:0.8, mb:0.2 }}>
+                    <Typography sx={{ fontWeight:700, fontSize:"12.5px", color:"#1e293b", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", flex:1 }}>
+                      {b.client?.name || "Unknown"}
+                    </Typography>
+                    {isToday && <Box sx={{ background:"#228756", borderRadius:"5px", px:0.7, py:0.1, flexShrink:0 }}><Typography sx={{ fontSize:"8px", fontWeight:800, color:"#fff" }}>TODAY</Typography></Box>}
+                  </Box>
+                  <Box sx={{ display:"flex", alignItems:"center", gap:0.5 }}>
+                    <AccessTimeIcon sx={{ fontSize:9, color:"#94a3b8" }} />
+                    <Typography sx={{ fontSize:"10.5px", color:"#64748b", fontWeight:600 }}>
+                      {isToday ? fmtTime(b.booking_date) : `${fmtShortDate(b.booking_date)} · ${fmtTime(b.booking_date)}`}
+                    </Typography>
+                  </Box>
+                  {b.service && <Typography sx={{ fontSize:"10px", color:"#94a3b8", mt:0.2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{b.service}</Typography>}
+                </Box>
+                <Box sx={{ background:st.bg, borderRadius:"7px", px:0.9, py:0.3, flexShrink:0 }}>
+                  <Typography sx={{ fontSize:"9px", fontWeight:800, color:st.color }}>{b.status||"New"}</Typography>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+    </Box>
+  );
+}
+
 /* ── Resource Library ────────────────────────────────────────────── */
 const CAT_COLORS = { Mindfulness:"#0891b2",CBT:"#7c3aed",Anxiety:"#d97706",Depression:"#2563eb",Sleep:"#228756",Relationships:"#dc2626",Crisis:"#ef4444","Self-care":"#16a34a",General:"#64748b" };
 const CAT_BG    = { Mindfulness:"#ecfeff",CBT:"#f5f3ff",Anxiety:"#fffbeb",Depression:"#eff6ff",Sleep:"#f0fdf4",Relationships:"#fef2f2",Crisis:"#fff5f5","Self-care":"#f0fdf4",General:"#f8fafc" };
@@ -442,6 +522,7 @@ export default function TherapistDashboard() {
   const [upcomingSessions, setUpcomingSessions] = React.useState([]);
   const [nextSession,      setNextSession]      = React.useState(null);
   const [invoices,         setInvoices]         = React.useState([]);
+  const [recentBookings,   setRecentBookings]   = React.useState([]);
   const [clockTime,        setClockTime]        = React.useState(() => new Date());
 
   React.useEffect(() => { const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
@@ -537,6 +618,13 @@ export default function TherapistDashboard() {
       setWeeklyData(weeklyChart);
       setMonthlyData(Array.from(monthlyMap.values()));
       setInvoices(inv);
+      // Recent bookings for right panel: today + last 7 days, most recent first, max 8
+      const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate()-7);
+      const recent = bookings
+        .filter(b => new Date(b.booking_date) >= sevenDaysAgo)
+        .sort((a,b) => new Date(b.booking_date)-new Date(a.booking_date))
+        .slice(0,8);
+      setRecentBookings(recent);
       setLastRefreshed(new Date());
     } catch(e) { console.error("Dashboard error:",e); }
     finally { setLoading(false); setRefreshing(false); }
@@ -715,6 +803,7 @@ export default function TherapistDashboard() {
           <Grid item lg={4} sx={{ display:{ xs:"none", lg:"block" } }}>
             <Box sx={{ position:"sticky", top:"72px", display:"flex", flexDirection:"column", gap:2 }}>
               <NextSessionCard session={nextSession} loading={loading} />
+              <RecentBookingsCard bookings={recentBookings} loading={loading} />
             </Box>
           </Grid>
         </Grid>
