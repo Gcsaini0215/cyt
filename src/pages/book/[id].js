@@ -258,7 +258,7 @@ export default function BookPage() {
       if (res?.token) {
         localStorage.setItem("token", res.token);
         setLoginOpen(false);
-        doCheckout();
+        doCheckout(lEmail.trim().toLowerCase());
       } else { setLErr("Invalid OTP. Please try again."); }
     } catch(e) { setLErr(e?.response?.data?.message || "Invalid OTP."); }
     finally { setLLoad(false); }
@@ -285,7 +285,7 @@ export default function BookPage() {
     finally { setCouponLoad(false); }
   }
 
-  function doCheckout() {
+  function doCheckout(guestEmail) {
     if (!selSvc || !selFmt || !selDate || !selSlot) return;
     const dt = new Date(selDate);
     const [h, m] = selSlot.val.split(":").map(Number);
@@ -297,6 +297,7 @@ export default function BookPage() {
       ...(bookFor === "other" ? { relation, client_age: age } : {}),
       ...(notes ? { notes } : {}),
       ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
+      ...(guestEmail ? { guest_email: guestEmail } : {}),
     });
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }

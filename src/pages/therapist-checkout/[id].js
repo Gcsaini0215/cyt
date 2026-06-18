@@ -69,12 +69,13 @@ export default function TherapistCheckoutPage() {
     const q    = router.query;
     const isLI = isLoggedIn && !!(userInfo?._id && userInfo._id !== "");
 
-    // decoded token fallback if userInfo not populated
-    const decoded = isLI ? null : getDecodedToken();
-
     const whom = isLI
       ? (q.booking_for === "other" ? "For Other" : "Self")
       : undefined;
+
+    // If just logged in via OTP, userInfo may not be loaded yet —
+    // use guest_email from query to identify the user on backend
+    const guestEmail = q.guest_email || "";
 
     const payload = {
       is_logged_in: isLI,
@@ -94,10 +95,10 @@ export default function TherapistCheckoutPage() {
         email:   userInfo.email || "",
         phone:   userInfo.phone || "",
       } : {
-        // guest: send empty strings — backend creates new user
-        name:  "",
-        email: "",
-        phone: "",
+        // just-logged-in via OTP: use their email so backend finds existing user
+        name:  userInfo?.name  || "",
+        email: userInfo?.email || guestEmail,
+        phone: userInfo?.phone || "",
       }),
 
       // "for other" extra fields
