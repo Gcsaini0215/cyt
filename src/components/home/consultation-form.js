@@ -7,13 +7,14 @@ import MessageIcon from "@mui/icons-material/Message";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import HearingIcon from "@mui/icons-material/Hearing";
+import CakeIcon from "@mui/icons-material/Cake";
 
 import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 
 const formStyles = `
 @media (max-width: 600px) {
-  .cf-row { flex-direction: column !important; }
+  .cf-row { flex-direction: column !important; gap: 6px !important; }
 }
 
 @keyframes fadeInUpPopup {
@@ -129,6 +130,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
     name: "",
     phone: "",
     email: "",
+    age: "",
     concern: "",
     source: "",
     location: ""
@@ -186,13 +188,13 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         subject: "Free Consultation Request",
-        concern: `Location: ${formData.location}\nConcern: ${formData.concern.trim()}`,
+        concern: `Age: ${formData.age}\nConcern: ${formData.concern.trim()}`,
         source: formData.source.trim()
       };
       const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {
         setShowSuccessPopup(true);
-        setFormData({ name: "", phone: "", email: "", concern: "", source: "", location: "" });
+        setFormData({ name: "", phone: "", email: "", age: "", concern: "", source: "", location: "" });
       } else {
         setMessage(response.message || "Failed to submit. Please try again.");
         setMessageType("error");
@@ -248,6 +250,13 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <PersonIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
                 <input type="text" name="name" placeholder="Your name" value={formData.name} onChange={handleChange} required className="cf-input" />
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <label className="cf-label">Age</label>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <CakeIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
+                <input type="text" name="age" placeholder="e.g. 25 yrs" value={formData.age} onChange={handleChange} className="cf-input" />
               </div>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
