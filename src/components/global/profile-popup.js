@@ -208,7 +208,7 @@ export default function ProfilePopup({ open, onClose, therapist }) {
           </Button>
           <Button
             component={Link}
-            href={`/therapist-checkout/${therapist._id}`}
+            href={`/book/${therapist._id}`}
             variant="contained"
             fullWidth
             sx={{

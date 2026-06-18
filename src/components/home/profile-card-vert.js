@@ -338,7 +338,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
             <Link href={`/view-profile/${data._id}`} className="vtc-btn-out">
               View Profile
             </Link>
-            <Link href={`/therapist-checkout/${data._id}`} className="vtc-btn-fill">
+            <Link href={`/book/${data._id}`} className="vtc-btn-fill">
               Book Now
             </Link>
           </div>

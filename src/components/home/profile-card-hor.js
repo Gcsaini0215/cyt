@@ -318,7 +318,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             >
               <Link
                 className="rbt-btn btn-gradient book-btn"
-                href={`/therapist-checkout/${pageData._id}`}
+                href={`/book/${pageData._id}`}
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -363,7 +363,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               </Link>
               <Link
                 className="rbt-btn btn-gradient book-btn"
-                href={`/therapist-checkout/${pageData._id}`}
+                href={`/book/${pageData._id}`}
                 style={{
                   display: "flex",
                   justifyContent: "center",

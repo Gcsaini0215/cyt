@@ -160,7 +160,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                               <Link className="view-btn view-btn-border" href={`/view-profile/${t._id}`} style={{ flex: 1, textAlign: "center", padding: "0 8px", fontSize: "13px", height: "38px", lineHeight: "38px" }}>
                                 View Profile
                               </Link>
-                              <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${t._id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "38px" }}>
+                              <Link className="rbt-btn btn-gradient book-btn" href={`/book/${t._id}`} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", height: "38px" }}>
                                 <span>Book Now</span>
                               </Link>
                             </div>

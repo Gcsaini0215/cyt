@@ -259,15 +259,30 @@ export default function TherapistCheckout({ profile }) {
   const setConfig = useCallback(async (profile) => {
     const validServices = await getServices(profile.fees);
     setServices(validServices);
-    setSelectedService(validServices[0]);
-    const formats = getFormatsByServiceId(profile.fees, validServices[0]._id);
+
+    // Pre-select from query params (passed from booking modal)
+    const qService = router.query.service;
+    const qFormat  = router.query.format;
+    const qPrice   = router.query.price;
+
+    const initSvc = qService
+      ? (validServices.find(s => s.name === qService) || validServices[0])
+      : validServices[0];
+
+    setSelectedService(initSvc);
+    const formats = getFormatsByServiceId(profile.fees, initSvc._id);
     setSessionFormats(formats);
-    setSelectedFormat(formats[0] || {});
+
+    const initFmt = qFormat
+      ? (formats.find(f => f.type === qFormat) || formats[0])
+      : formats[0];
+
+    setSelectedFormat(initFmt || {});
     setInfo((prev) => ({
       ...prev,
-      service: validServices[0].name,
-      format: formats[0].type,
-      amount: formats[0].fee,
+      service: initSvc.name,
+      format: initFmt?.type || formats[0]?.type,
+      amount: qPrice ? Number(qPrice) : (initFmt?.fee || formats[0]?.fee),
       therapist: profile._id,
       is_logged_in: userInfo?.name ? true : false,
       user_id: userInfo?._id ? userInfo._id : "",
@@ -275,8 +290,14 @@ export default function TherapistCheckout({ profile }) {
       phone: userInfo?.phone ? userInfo.phone : "",
       email: userInfo?.email ? userInfo.email : "",
     }));
-    setAmountInfo((prev) => ({ ...prev, amount: formats[0].fee, afterdiscount: formats[0].fee }));
-  }, [userInfo]);
+    const amt = qPrice ? Number(qPrice) : (initFmt?.fee || formats[0]?.fee);
+    setAmountInfo((prev) => ({ ...prev, amount: amt, afterdiscount: amt }));
+
+    // Pre-fill booking_date from slot selection page
+    if (router.query.booking_date) {
+      setInfo((prev) => ({ ...prev, booking_date: router.query.booking_date }));
+    }
+  }, [userInfo, router.query]);
 
   useEffect(() => {
     if (selectedService && Object.keys(selectedService).length > 0) {

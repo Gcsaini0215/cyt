@@ -8,7 +8,7 @@ const TherapistCard = (props) => {
     const router = useRouter();
     const therapist = props.therapist;
 
-    const handleClick = () => router.push(`/therapist-checkout/${therapist._id}`);
+    const handleClick = () => router.push(`/book/${therapist._id}`);
 
 
     return (

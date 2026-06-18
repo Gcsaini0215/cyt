@@ -86,7 +86,7 @@ export default function FavTherapistCard({ data, removeFav }) {
               justifyContent: "center",
             }}
           >
-            <Link className="rbt-btn btn-gradient book-btn" href={`/therapist-checkout/${data.therapist._id}`}>
+            <Link className="rbt-btn btn-gradient book-btn" href={`/book/${data.therapist._id}`}>
               <span>&nbsp;&nbsp;Book Now&nbsp;&nbsp;</span>
             </Link>
           </div>
