@@ -38,15 +38,30 @@ export default function TherapyBooking({ pics = [] }) {
   return (
     <>
       <Head>
-        <title>Find the Right Therapist — Free | Choose Your Therapist</title>
-        <meta
-          name="description"
-          content="Book a free 15-minute discovery call with our verified psychologists. Confidential, no commitment required."
-        />
-        <link
-          rel="canonical"
-          href="https://chooseyourtherapist.in/therapy-booking"
-        />
+        <title>Find Your Therapist in 30 Minutes — Free | Choose Your Therapist</title>
+        <meta name="description" content="Connect with a verified psychologist, share your concerns, and book your therapy appointment — all in 30 minutes." />
+        <link rel="canonical" href="https://chooseyourtherapist.in/therapy-booking" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://chooseyourtherapist.in/therapy-booking" />
+        <meta property="og:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
+        <meta property="og:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential. Find your therapist in 30 minutes." />
+        <meta property="og:image" content="https://chooseyourtherapist.in/api/og-therapy" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/svg+xml" />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
+        <meta name="twitter:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential. Find your therapist in 30 minutes." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/api/og-therapy" />
+
+        {/* WhatsApp uses og:image — same as above */}
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -234,7 +249,7 @@ export default function TherapyBooking({ pics = [] }) {
                 animation: "_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
               }}
             >
-              Fill the form and our team will match you with a verified therapist in 24 hours. Completely free, fully confidential.
+              Fill the form and our team will match you with the right therapist. Completely free, fully confidential.
             </p>
 
             {/* Form Card */}
