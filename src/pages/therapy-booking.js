@@ -50,7 +50,7 @@ export default function TherapyBooking({ pics = [] }) {
         <meta property="og:image" content="https://chooseyourtherapist.in/api/og-therapy" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:type" content="image/svg+xml" />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
 
