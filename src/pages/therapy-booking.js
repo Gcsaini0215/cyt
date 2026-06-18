@@ -1,6 +1,5 @@
 import React from "react";
 import Head from "next/head";
-import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
 import ConsultationForm from "../components/home/consultation-form";
 
@@ -26,9 +25,9 @@ export async function getServerSideProps() {
   }
 }
 
-export default function TherapyBooking({ pics }) {
+export default function TherapyBooking({ pics = [] }) {
   // Build a grid of tiles — repeat images if fewer than needed
-  const TILE_COUNT = 48;
+  const TILE_COUNT = 84;
   const tiles = [];
   if (pics.length > 0) {
     for (let i = 0; i < TILE_COUNT; i++) {
@@ -48,12 +47,15 @@ export default function TherapyBooking({ pics }) {
           rel="canonical"
           href="https://chooseyourtherapist.in/therapy-booking"
         />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </Head>
 
       <style>{`
         *, *::before, *::after { box-sizing: border-box; }
-        @keyframes _fd  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes _fr  { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes _fd  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes _fr  { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
         @keyframes _pulse { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.35)} 60%{box-shadow:0 0 0 12px rgba(74,222,128,0)} }
         @keyframes _shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
         @keyframes _scrollUp {
@@ -61,22 +63,20 @@ export default function TherapyBooking({ pics }) {
           100% { transform: translateY(-50%); }
         }
         @keyframes _scrollDown {
-          0%   { transform: translateY(-50%); }
-          100% { transform: translateY(0); }
+          0%   { transform: translateY(0); }
+          100% { transform: translateY(-50%); }
         }
-        .tb-col-up   { animation: _scrollUp   28s linear infinite; }
-        .tb-col-down { animation: _scrollDown  24s linear infinite; }
+        .tb-col-up   { animation: _scrollUp   60s linear infinite; }
+        .tb-col-down { animation: _scrollDown  70s linear infinite; }
 
         @media (max-width: 900px) {
-          .tb-grid { grid-template-columns: 1fr !important; }
-          .tb-mosaic { display: none !important; }
-          .tb-left { text-align: center; align-items: center !important; }
-          .tb-pills { justify-content: center !important; }
-          .tb-trust { justify-content: center !important; }
+          .tb-col-mobile-hide { display: none !important; }
+          .tb-badge { display: none !important; }
+          .tb-footer-trust { display: none !important; }
         }
       `}</style>
 
-      <div id="__next" style={{ fontFamily: "inherit" }}>
+      <div id="__next" style={{ fontFamily: "'Inter', sans-serif", background: "#060f09", minHeight: "100vh" }}>
         <MyNavbar />
 
         {/* ══ HERO ══════════════════════════════════════════════════════ */}
@@ -87,36 +87,35 @@ export default function TherapyBooking({ pics }) {
             display: "flex",
             alignItems: "stretch",
             overflow: "hidden",
-            background: "#071f12",
+            background: "#000",
           }}
         >
           {/* ── BACKGROUND COLLAGE ── */}
           {tiles.length > 0 && (
             <div
-              className="tb-mosaic"
               style={{
                 position: "absolute",
                 inset: 0,
                 display: "flex",
-                gap: 4,
+                gap: 0,
                 overflow: "hidden",
                 zIndex: 0,
               }}
             >
-              {/* 6 scrolling columns of square tiles */}
-              {[0, 1, 2, 3, 4, 5].map((col) => {
-                const colTiles = tiles.filter((_, i) => i % 6 === col);
-                // Duplicate for infinite scroll
+              {[0, 1, 2, 3, 4, 5, 6].map((col) => {
+                const hideMobile = col >= 4;
+                const colTiles = tiles.filter((_, i) => i % 7 === col);
                 const doubled = [...colTiles, ...colTiles];
                 const isEven = col % 2 === 0;
                 return (
                   <div
                     key={col}
+                    className={hideMobile ? "tb-col-mobile-hide" : ""}
                     style={{ flex: 1, overflow: "hidden", minWidth: 0 }}
                   >
                     <div
                       className={isEven ? "tb-col-up" : "tb-col-down"}
-                      style={{ display: "flex", flexDirection: "column", gap: 4 }}
+                      style={{ display: "flex", flexDirection: "column", gap: 0 }}
                     >
                       {doubled.map((src, idx) => (
                         <div
@@ -126,7 +125,6 @@ export default function TherapyBooking({ pics }) {
                             aspectRatio: "1 / 1",
                             flexShrink: 0,
                             overflow: "hidden",
-                            borderRadius: 8,
                           }}
                         >
                           <img
@@ -139,9 +137,7 @@ export default function TherapyBooking({ pics }) {
                               objectPosition: "top center",
                               display: "block",
                             }}
-                            onError={(e) => {
-                              e.target.src = DEFAULT_PIC;
-                            }}
+                            onError={(e) => { e.target.src = DEFAULT_PIC; }}
                           />
                         </div>
                       ))}
@@ -152,198 +148,101 @@ export default function TherapyBooking({ pics }) {
             </div>
           )}
 
-          {/* Dark green overlay over the collage */}
+          {/* Dark black overlay over the collage */}
           <div
             style={{
               position: "absolute",
               inset: 0,
-              background:
-                "linear-gradient(105deg, rgba(7,31,18,.88) 0%, rgba(13,61,37,.80) 45%, rgba(7,20,13,.92) 100%)",
+              background: "rgba(0,0,0,.84)",
               zIndex: 1,
             }}
           />
 
           {/* ── CONTENT ── */}
           <div
-            className="tb-grid"
             style={{
               position: "relative",
               zIndex: 2,
               width: "100%",
-              maxWidth: 1180,
+              maxWidth: 640,
               margin: "0 auto",
-              padding: "100px 24px 80px",
-              display: "grid",
-              gridTemplateColumns: "1fr 540px",
-              gap: 64,
+              padding: "80px 24px 60px",
+              display: "flex",
+              flexDirection: "column",
               alignItems: "center",
+              textAlign: "center",
             }}
           >
-            {/* LEFT */}
+            {/* Badge */}
             <div
-              className="tb-left"
+              className="tb-badge"
               style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "rgba(74,222,128,.15)",
+                border: "1px solid rgba(74,222,128,.3)",
+                borderRadius: 50,
+                padding: "7px 18px",
+                marginBottom: 24,
+                animation: "_pulse 2.5s ease infinite",
+              }}
+            >
+              <i className="feather-shield" style={{ fontSize: 13, color: "#4ade80" }}></i>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#4ade80", letterSpacing: 1.2, textTransform: "uppercase" }}>
+                100% Free · No Commitment
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1
+              style={{
+                fontSize: "clamp(32px, 4.5vw, 54px)",
+                fontWeight: 900,
+                color: "#fff",
+                lineHeight: 1.15,
+                letterSpacing: "-.8px",
+                margin: "0 0 16px",
+                maxWidth: 720,
                 animation: "_fd .7s cubic-bezier(.22,1,.36,1) both",
               }}
             >
-              {/* Badge */}
-              <div
+              Real Support. Right Therapist.{" "}
+              <span
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: "rgba(74,222,128,.15)",
-                  border: "1px solid rgba(74,222,128,.3)",
-                  borderRadius: 50,
-                  padding: "7px 18px",
-                  marginBottom: 28,
-                  animation: "_pulse 2.5s ease infinite",
+                  background: "linear-gradient(90deg,#4ade80,#86efac,#4ade80)",
+                  backgroundSize: "200%",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  animation: "_shimmer 3s linear infinite",
                 }}
               >
-                <i
-                  className="feather-shield"
-                  style={{ fontSize: 13, color: "#4ade80" }}
-                ></i>
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: "#4ade80",
-                    letterSpacing: 1.2,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  100% Free · No Commitment
-                </span>
-              </div>
+                Start Today.
+              </span>
+            </h1>
 
-              {/* Headline */}
-              <h1
-                style={{
-                  fontSize: "clamp(32px, 4.5vw, 54px)",
-                  fontWeight: 900,
-                  color: "#fff",
-                  lineHeight: 1.15,
-                  letterSpacing: "-.8px",
-                  margin: "0 0 20px",
-                }}
-              >
-                Real Support.<br />
-                Right Therapist.<br />
-                <span
-                  style={{
-                    background:
-                      "linear-gradient(90deg,#4ade80,#86efac,#4ade80)",
-                    backgroundSize: "200%",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                    animation: "_shimmer 3s linear infinite",
-                  }}
-                >
-                  Start Today — Free.
-                </span>
-              </h1>
+            {/* Sub */}
+            <p
+              style={{
+                fontSize: 16,
+                color: "rgba(255,255,255,.72)",
+                lineHeight: 1.7,
+                margin: "0 0 32px",
+                fontWeight: 500,
+                maxWidth: 480,
+                animation: "_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
+              }}
+            >
+              Fill the form and our team will match you with a verified therapist in 24 hours. Completely free, fully confidential.
+            </p>
 
-              {/* Sub */}
-              <p
-                style={{
-                  fontSize: 17,
-                  color: "rgba(255,255,255,.72)",
-                  lineHeight: 1.7,
-                  margin: "0 0 36px",
-                  fontWeight: 500,
-                  maxWidth: 460,
-                }}
-              >
-                Fill the form and our team will match you with a verified
-                therapist in 24 hours. Completely free, fully confidential.
-              </p>
-
-              {/* Pills */}
-              <div
-                className="tb-pills"
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 10,
-                  marginBottom: 48,
-                }}
-              >
-                {[
-                  { icon: "feather-shield", t: "100% Confidential" },
-                  { icon: "feather-check-circle", t: "Verified Experts" },
-                  { icon: "feather-clock", t: "24-hr Response" },
-                  { icon: "feather-heart", t: "Zero Pressure" },
-                ].map((p) => (
-                  <div
-                    key={p.t}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      background: "rgba(255,255,255,.09)",
-                      border: "1px solid rgba(255,255,255,.15)",
-                      borderRadius: 50,
-                      padding: "8px 16px",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: "rgba(255,255,255,.88)",
-                    }}
-                  >
-                    <i
-                      className={p.icon}
-                      style={{ fontSize: 12, color: "#4ade80" }}
-                    ></i>
-                    {p.t}
-                  </div>
-                ))}
-              </div>
-
-              {/* Trust numbers */}
-              <div
-                className="tb-trust"
-                style={{ display: "flex", gap: 36, flexWrap: "wrap" }}
-              >
-                {[
-                  { num: "500+", lbl: "Clients helped" },
-                  { num: "100+", lbl: "Verified therapists" },
-                  { num: "4.9★", lbl: "Average rating" },
-                ].map((t) => (
-                  <div key={t.lbl}>
-                    <div
-                      style={{
-                        fontSize: 26,
-                        fontWeight: 900,
-                        color: "#4ade80",
-                        lineHeight: 1,
-                      }}
-                    >
-                      {t.num}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "rgba(255,255,255,.55)",
-                        fontWeight: 600,
-                        marginTop: 4,
-                      }}
-                    >
-                      {t.lbl}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* RIGHT: Form */}
+            {/* Form Card */}
             <div
               style={{
                 position: "relative",
-                animation: "_fr .7s cubic-bezier(.22,1,.36,1) .15s both",
+                width: "100%",
+                animation: "_fd .8s cubic-bezier(.22,1,.36,1) .25s both",
               }}
             >
               {/* Glow ring */}
@@ -352,8 +251,7 @@ export default function TherapyBooking({ pics }) {
                   position: "absolute",
                   inset: -4,
                   borderRadius: 28,
-                  background:
-                    "linear-gradient(135deg, rgba(74,222,128,.4), rgba(26,92,56,.15), rgba(74,222,128,.2))",
+                  background: "linear-gradient(135deg, rgba(74,222,128,.4), rgba(26,92,56,.15), rgba(74,222,128,.2))",
                   filter: "blur(1px)",
                   zIndex: 0,
                 }}
@@ -367,6 +265,7 @@ export default function TherapyBooking({ pics }) {
                   boxShadow: "0 32px 80px rgba(0,0,0,.3)",
                   position: "relative",
                   zIndex: 1,
+                  textAlign: "left",
                 }}
               >
                 <ConsultationForm showHeading={false} />
@@ -375,7 +274,51 @@ export default function TherapyBooking({ pics }) {
           </div>
         </section>
 
-        <Footer />
+        {/* ── LANDING PAGE FOOTER ── */}
+        <footer style={{
+          background: "#060f09",
+          borderTop: "1px solid rgba(255,255,255,.07)",
+          padding: "16px 24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
+        }}>
+          {/* Trust items */}
+          <div className="tb-footer-trust" style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "nowrap" }}>
+            {[
+              { icon: "feather-shield", t: "100% Confidential" },
+              { icon: "feather-check-circle", t: "Verified Therapists" },
+              { icon: "feather-clock", t: "24-hr Response" },
+              { icon: "feather-lock", t: "Safe & Secure" },
+            ].map(p => (
+              <div key={p.t} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,.50)", fontWeight: 600, whiteSpace: "nowrap" }}>
+                <i className={p.icon} style={{ fontSize: 12, color: "#4ade80" }}></i>
+                {p.t}
+              </div>
+            ))}
+          </div>
+
+          {/* Links */}
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            {[
+              { label: "Home", href: "/" },
+              { label: "View Therapists", href: "/view-all-therapist" },
+              { label: "Privacy Policy", href: "/privacy-policy" },
+              { label: "Contact Us", href: "/contact-us" },
+            ].map(l => (
+              <a key={l.label} href={l.href} style={{ fontSize: 12, color: "rgba(255,255,255,.35)", textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
+                {l.label}
+              </a>
+            ))}
+          </div>
+
+          {/* Copyright */}
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,.22)", margin: 0, whiteSpace: "nowrap" }}>
+            © {new Date().getFullYear()} Choose Your Therapist
+          </p>
+        </footer>
       </div>
     </>
   );

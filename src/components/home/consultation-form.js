@@ -27,7 +27,7 @@ const formStyles = `
   transition: border-color 0.2s, box-shadow 0.2s !important;
   background: #f8fafc !important;
   color: #1e293b !important;
-  height: 50px !important;
+  height: 44px !important;
   box-sizing: border-box !important;
   font-family: 'Inter', sans-serif !important;
   display: flex !important;
@@ -50,7 +50,7 @@ const formStyles = `
   transition: border-color 0.2s, box-shadow 0.2s !important;
   background: #f8fafc !important;
   color: #1e293b !important;
-  min-height: 95px !important;
+  min-height: 70px !important;
   resize: none !important;
   box-sizing: border-box !important;
   font-family: 'Inter', sans-serif !important;
@@ -117,7 +117,9 @@ select.cf-input {
 `;
 
 export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true }) {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"), { noSsr: true });
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -201,7 +203,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
 
   return (
     <>
-      <style>{formStyles}</style>
+      {mounted && <style>{formStyles}</style>}
       <div style={{ width: "100%" }}>
 
         {showHeading && (
@@ -235,80 +237,63 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
 
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
 
-          {/* Name */}
-          <div style={{ marginBottom: "12px" }}>
-            <label className="cf-label">Full Name</label>
-            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-              <PersonIcon style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18, zIndex: 1, pointerEvents: "none" }} />
-              <input type="text" name="name" placeholder="Your full name" value={formData.name} onChange={handleChange} required className="cf-input" />
+          {/* Row 1: Name + Phone */}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <div style={{ flex: 1 }}>
+              <label className="cf-label">Full Name</label>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <PersonIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
+                <input type="text" name="name" placeholder="Your name" value={formData.name} onChange={handleChange} required className="cf-input" />
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="cf-label">Phone Number</label>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <PhoneIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
+                <input type="tel" name="phone" placeholder="10-digit number" value={formData.phone} onChange={handleChange} required className="cf-input" />
+              </div>
             </div>
           </div>
 
-          {/* Phone */}
-          <div style={{ marginBottom: "12px" }}>
-            <label className="cf-label">Phone Number</label>
-            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-              <PhoneIcon style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18, zIndex: 1, pointerEvents: "none" }} />
-              <input type="tel" name="phone" placeholder="10-digit mobile number" value={formData.phone} onChange={handleChange} required className="cf-input" />
+          {/* Row 2: Email + Heard via */}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <div style={{ flex: 1 }}>
+              <label className="cf-label">Email Address</label>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <EmailIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
+                <input type="email" name="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required className="cf-input" />
+              </div>
             </div>
-          </div>
-
-          {/* Email */}
-          <div style={{ marginBottom: "12px" }}>
-            <label className="cf-label">Email Address</label>
-            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-              <EmailIcon style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 18, zIndex: 1, pointerEvents: "none" }} />
-              <input type="email" name="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required className="cf-input" />
-            </div>
-          </div>
-
-          {/* Location + Source (conditionally shown) */}
-          {(showLocation || showSource) && (
-            <div style={{ display: "flex", gap: "12px", marginBottom: "14px" }}>
-              {showLocation && (
-                <div style={{ flex: 1 }}>
-                  <label className="cf-label">Location</label>
-                  <div style={{ position: "relative" }}>
-                    <select name="location" value={formData.location} onChange={handleChange} required={showLocation} className="cf-input">
-                      <option value="" disabled>Select</option>
-                      <option value="Noida Center">Noida (In-Person)</option>
-                      <option value="Delhi Center">Delhi (In-Person)</option>
-                      <option value="Online">Online / Video</option>
-                    </select>
-                  </div>
+            {showSource && (
+              <div style={{ flex: 1 }}>
+                <label className="cf-label">Heard via</label>
+                <div style={{ position: "relative" }}>
+                  <select name="source" value={formData.source} onChange={handleChange} className="cf-input">
+                    <option value="" disabled>Select</option>
+                    <option value="Google Search">Google</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Friend/Family">Friend/Family</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
-              )}
-              {showSource && (
-                <div style={{ flex: 1 }}>
-                  <label className="cf-label">Heard via</label>
-                  <div style={{ position: "relative" }}>
-                    <select name="source" value={formData.source} onChange={handleChange} required={showSource} className="cf-input">
-                      <option value="" disabled>Select</option>
-                      <option value="Google Search">Google</option>
-                      <option value="Instagram">Instagram</option>
-                      <option value="LinkedIn">LinkedIn</option>
-                      <option value="Facebook">Facebook</option>
-                      <option value="Friend/Family">Friend/Family</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
 
-          {/* Concern */}
-          <div style={{ marginBottom: "20px" }}>
+          {/* Row 3: Concern full width */}
+          <div style={{ marginBottom: "10px" }}>
             <label className="cf-label">Your Concern</label>
             <div style={{ position: "relative" }}>
-              <MessageIcon style={{ position: "absolute", left: 13, top: 15, color: "#94a3b8", fontSize: 18, zIndex: 1, pointerEvents: "none" }} />
+              <MessageIcon style={{ position: "absolute", left: 11, top: 13, color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
               <textarea
                 name="concern"
                 placeholder="Briefly describe what you're going through..."
                 value={formData.concern}
                 onChange={handleChange}
                 className="cf-textarea"
-                rows={3}
+                rows={2}
               />
             </div>
           </div>
