@@ -680,24 +680,13 @@ export default function BookPage() {
       </div>
 
       {/* Trust badges */}
-      <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 20, flexWrap: "wrap" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 8, flexWrap: "wrap" }}>
         {[{ icon: "feather-shield", t: "Secure payment" }, { icon: "feather-refresh-cw", t: "Free cancellation" }, { icon: "feather-lock", t: "Encrypted" }].map(b => (
           <span key={b.t} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#64748b", fontWeight: 600 }}>
             <i className={b.icon} style={{ fontSize: 11, color: GL }}></i>{b.t}
           </span>
         ))}
       </div>
-
-      {/* Confirm */}
-      <button onClick={confirmBooking} style={{
-        width: "100%", height: 54, borderRadius: 14, border: "none",
-        background: G, color: "#fff", fontSize: 17, fontWeight: 900,
-        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-      }}>
-        <i className="feather-lock" style={{ fontSize: 16 }}></i>
-        {isLoggedIn ? "Confirm Appointment" : "Sign In & Confirm"}
-        <i className="feather-arrow-right" style={{ fontSize: 16 }}></i>
-      </button>
     </div>
   );
 
@@ -722,7 +711,7 @@ export default function BookPage() {
       <div id="__next" style={{ background: "#f4f6f8", minHeight: "100vh" }}>
         <MyNavbar />
 
-        <div style={{ maxWidth: 540, margin: "0 auto", padding: "24px 12px 80px" }}>
+        <div style={{ maxWidth: 540, margin: "0 auto", padding: `24px 12px ${step === 4 ? "120px" : "80px"}` }}>
           <div style={{
             background: "#fff", borderRadius: 18, overflow: "hidden",
             boxShadow: "0 4px 32px rgba(0,0,0,.07)",
@@ -738,6 +727,32 @@ export default function BookPage() {
 
         <Footer />
       </div>
+
+      {/* ══ STICKY CONFIRM BUTTON (step 4 only) ══ */}
+      {step === 4 && (
+        <div style={{
+          position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 90,
+          background: "#fff", borderTop: "1px solid #e2e8f0",
+          padding: "12px 16px 16px",
+          boxShadow: "0 -4px 24px rgba(0,0,0,.1)",
+        }}>
+          <div style={{ maxWidth: 540, margin: "0 auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</span>
+              <span style={{ fontSize: 20, fontWeight: 900, color: G }}>₹{total.toLocaleString("en-IN")}</span>
+            </div>
+            <button onClick={confirmBooking} style={{
+              width: "100%", height: 52, borderRadius: 14, border: "none",
+              background: G, color: "#fff", fontSize: 16, fontWeight: 900,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}>
+              <i className="feather-lock" style={{ fontSize: 15 }}></i>
+              {isLoggedIn ? "Confirm Appointment" : "Sign In & Confirm"}
+              <i className="feather-arrow-right" style={{ fontSize: 15 }}></i>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ══ COUPON SHEET ══ */}
       {couponSheet && (
