@@ -25,9 +25,13 @@ import {
   FiVolume2,
   FiUsers,
   FiMessageSquare,
-  FiCheckCircle
+  FiCheckCircle,
+  FiShare2,
+  FiSend
 } from "react-icons/fi";
 import { Dialog, DialogContent, Box, Typography, Stack, IconButton, Button, Grid, TextField } from "@mui/material";
+import { postFormUrlEncoded } from "../../utils/actions";
+import { SubmitConsultationUrl } from "../../utils/url";
 
 export default function FreeResources() {
   const router = useRouter();
@@ -49,6 +53,11 @@ export default function FreeResources() {
   const [isSoundPlaying, setIsSoundPlaying] = useState(false);
   const [coupleIStatement, setCoupleIStatement] = useState({ emotion: "", event: "", need: "" });
   const [activeScenarioIndex, setActiveScenarioIndex] = useState(0);
+  const [showLeadPopup, setShowLeadPopup] = useState(false);
+  const [leadData, setLeadData] = useState({ name: "", phone: "" });
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadLoading, setLeadLoading] = useState(false);
+  const [sharedTool, setSharedTool] = useState(null);
 
   const journalPrompts = [
     "What are three things you are grateful for today?",
@@ -103,6 +112,37 @@ export default function FreeResources() {
     setSelectedMood(null);
     setPanicActive(false);
     setPanicTimer(30);
+    // Show lead popup after tool use
+    if (!leadSubmitted) setTimeout(() => setShowLeadPopup(true), 400);
+  };
+
+  const handleShare = (e, tool) => {
+    e.stopPropagation();
+    const url = `https://chooseyourtherapist.in/wellness-toolkit`;
+    const text = `Try the "${tool.title}" tool on Choose Your Therapist — free mental health resources for everyone!`;
+    if (navigator.share) {
+      navigator.share({ title: tool.title, text, url });
+    } else {
+      navigator.clipboard.writeText(`${text} ${url}`);
+      setSharedTool(tool.title);
+      setTimeout(() => setSharedTool(null), 2000);
+    }
+  };
+
+  const handleLeadSubmit = async () => {
+    if (!leadData.name.trim() || !leadData.phone.trim()) return;
+    setLeadLoading(true);
+    try {
+      await postFormUrlEncoded(SubmitConsultationUrl, {
+        name: leadData.name,
+        phone: leadData.phone,
+        subject: "Wellness Toolkit Lead",
+        concern: "Came from Wellness Toolkit",
+        source: "Wellness Toolkit"
+      });
+      setLeadSubmitted(true);
+    } catch (e) {}
+    setLeadLoading(false);
   };
 
   useEffect(() => {
@@ -253,9 +293,20 @@ export default function FreeResources() {
                 <div className="fr-icon-wrap" style={{ background: tool.tagBg, color: tool.color }}>
                   {tool.icon}
                 </div>
-                <span className="fr-tag-pill" style={{ background: tool.tagBg, color: tool.color }}>
-                  {tool.tag}
-                </span>
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <span className="fr-tag-pill" style={{ background: tool.tagBg, color: tool.color }}>
+                    {tool.tag}
+                  </span>
+                  <button
+                    onClick={(e) => handleShare(e, tool)}
+                    title="Share this tool"
+                    style={{ background:"none", border:"none", cursor:"pointer", color:"#94a3b8", padding:"4px", display:"flex", alignItems:"center", borderRadius:6, transition:"color .2s" }}
+                    onMouseEnter={e => e.currentTarget.style.color = tool.color}
+                    onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}
+                  >
+                    {sharedTool === tool.title ? <FiCheck size={14} style={{ color:"#22c55e" }} /> : <FiShare2 size={14} />}
+                  </button>
+                </div>
               </div>
               <h4 className="fr-card-title">{tool.title}</h4>
               <p className="fr-card-desc">{tool.desc}</p>
@@ -520,6 +571,90 @@ export default function FreeResources() {
                     Copy & Share Statement
                   </Button>
                 </Box>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Lead Capture Popup ── */}
+      <Dialog
+        open={showLeadPopup}
+        onClose={() => setShowLeadPopup(false)}
+        maxWidth="xs"
+        fullWidth
+        sx={{ zIndex: 10000 }}
+        PaperProps={{ sx: { borderRadius: "24px", overflow: "hidden" } }}
+      >
+        <DialogContent sx={{ p: 0 }}>
+          <Box sx={{ p: 4, position: "relative" }}>
+            <IconButton onClick={() => setShowLeadPopup(false)} sx={{ position: "absolute", right: 12, top: 12, color: "#94a3b8" }}>
+              <FiX size={18} />
+            </IconButton>
+
+            {!leadSubmitted ? (
+              <>
+                <Box sx={{ textAlign: "center", mb: 3 }}>
+                  <Box sx={{ width: 56, height: 56, borderRadius: "50%", bgcolor: "rgba(34,135,86,.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 26, color: "#228756" }}>
+                    💬
+                  </Box>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: "#1e293b", mb: 0.5 }}>
+                    Want to talk to a therapist?
+                  </Typography>
+                  <Typography sx={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
+                    Our team will connect you with a verified expert — free, no commitment.
+                  </Typography>
+                </Box>
+
+                <Stack spacing={1.5}>
+                  <Box sx={{ position: "relative" }}>
+                    <input
+                      type="text"
+                      placeholder="Your name"
+                      value={leadData.name}
+                      onChange={e => setLeadData(prev => ({ ...prev, name: e.target.value }))}
+                      style={{ width: "100%", padding: "11px 14px", border: "1.5px solid #e2e8f0", borderRadius: 12, fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "#f8fafc" }}
+                      onFocus={e => e.target.style.borderColor = "#228756"}
+                      onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                    />
+                  </Box>
+                  <Box sx={{ position: "relative" }}>
+                    <input
+                      type="tel"
+                      placeholder="Phone number (WhatsApp)"
+                      value={leadData.phone}
+                      onChange={e => setLeadData(prev => ({ ...prev, phone: e.target.value }))}
+                      style={{ width: "100%", padding: "11px 14px", border: "1.5px solid #e2e8f0", borderRadius: 12, fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "#f8fafc" }}
+                      onFocus={e => e.target.style.borderColor = "#228756"}
+                      onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                    />
+                  </Box>
+                </Stack>
+
+                <Button
+                  fullWidth
+                  onClick={handleLeadSubmit}
+                  disabled={leadLoading || !leadData.name.trim() || !leadData.phone.trim()}
+                  sx={{ mt: 2.5, py: 1.5, borderRadius: "12px", background: "linear-gradient(135deg,#166534,#16a34a)", color: "white", fontWeight: 800, fontSize: 15, boxShadow: "0 4px 14px rgba(22,101,52,.25)", "&:hover": { opacity: 0.9 }, "&.Mui-disabled": { background: "#cbd5e1", color: "#94a3b8" } }}
+                >
+                  {leadLoading ? "Connecting..." : "Get Matched — Free"}
+                </Button>
+                <Typography sx={{ textAlign: "center", fontSize: 11, color: "#94a3b8", mt: 1 }}>
+                  🔒 No spam · Confidential · Free
+                </Typography>
+              </>
+            ) : (
+              <Box sx={{ textAlign: "center", py: 3 }}>
+                <Box sx={{ width: 64, height: 64, borderRadius: "50%", bgcolor: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 32 }}>
+                  ✅
+                </Box>
+                <Typography variant="h6" sx={{ fontWeight: 900, color: "#1e293b", mb: 1 }}>You're all set!</Typography>
+                <Typography sx={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
+                  Our team will reach out on WhatsApp within 24 hours. Keep using the tools in the meantime!
+                </Typography>
+                <Button onClick={() => setShowLeadPopup(false)} sx={{ mt: 3, bgcolor: "#f0fdf4", color: "#228756", fontWeight: 800, borderRadius: "12px", px: 4 }}>
+                  Close
+                </Button>
               </Box>
             )}
           </Box>
