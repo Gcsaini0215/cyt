@@ -227,6 +227,10 @@ export default function BookPage() {
     setCouponApplied(null); setCouponSave(0); setCouponErr(""); setCouponInput("");
   }, [selSvc, selFmt]);
 
+  React.useEffect(() => {
+    if (selFmt?.type) setMode(selFmt.type.toLowerCase());
+  }, [selFmt]);
+
   function startTimer() {
     setResend(60);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -471,47 +475,10 @@ export default function BookPage() {
     </div>
   );
 
-  // ── STEP 2: Session Mode ───────────────────────────────────────────────────
+  // ── STEP 2: Who + Notes ────────────────────────────────────────────────────
   const Step2 = (
     <div style={{ padding: "20px 20px 32px" }}>
       <BackBtn onClick={() => setStep(1)} />
-      <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "10px 0 4px" }}>
-        How would you like to meet?
-      </h2>
-      <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
-        Choose your preferred consultation mode.
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {SESSION_MODES.map(s => {
-          const on = mode === s.key;
-          return (
-            <div key={s.key} onClick={() => setMode(s.key)} style={{
-              display: "flex", alignItems: "center", gap: 14,
-              padding: "18px 18px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
-              borderRadius: 12, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
-            }}>
-              <div style={{ width: 44, height: 44, borderRadius: 10, flexShrink: 0, background: on ? G : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <i className={s.icon} style={{ fontSize: 18, color: on ? "#fff" : "#94a3b8" }}></i>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 16, color: "#0f172a" }}>{s.label}</div>
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>{s.desc}</div>
-              </div>
-              <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${on ? G : "#e2e8f0"}`, background: on ? G : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .15s" }}>
-                {on && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#fff" }} />}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <ContinueBtn onClick={() => setStep(3)} />
-    </div>
-  );
-
-  // ── STEP 3: Who + Notes ────────────────────────────────────────────────────
-  const Step3 = (
-    <div style={{ padding: "20px 20px 32px" }}>
-      <BackBtn onClick={() => setStep(2)} />
       <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "10px 0 4px" }}>
         A few details
       </h2>
@@ -568,14 +535,14 @@ export default function BookPage() {
         }} />
       <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "right", marginTop: 4 }}>{notes.length}/500</div>
 
-      <ContinueBtn disabled={bookFor === "other" && !relation} onClick={() => setStep(4)} />
+      <ContinueBtn disabled={bookFor === "other" && !relation} onClick={() => setStep(3)} />
     </div>
   );
 
-  // ── STEP 4: Summary + Coupon + Confirm ────────────────────────────────────
-  const Step4 = (
+  // ── STEP 3: Summary + Coupon + Confirm ────────────────────────────────────
+  const Step3 = (
     <div style={{ padding: "20px 20px 40px" }}>
-      <BackBtn onClick={() => setStep(3)} />
+      <BackBtn onClick={() => setStep(2)} />
       <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "10px 0 4px" }}>
         Booking summary
       </h2>
@@ -690,7 +657,7 @@ export default function BookPage() {
     </div>
   );
 
-  const SCREENS = [Step0, Step1, Step2, Step3, Step4];
+  const SCREENS = [Step0, Step1, Step2, Step3];
 
   // ══════════════════════════════════════════════════════════════════════════
   return (
@@ -711,14 +678,14 @@ export default function BookPage() {
       <div id="__next" style={{ background: "#f4f6f8", minHeight: "100vh" }}>
         <MyNavbar />
 
-        <div style={{ maxWidth: 540, margin: "0 auto", padding: `24px 12px ${step === 4 ? "120px" : "80px"}` }}>
+        <div style={{ maxWidth: 540, margin: "0 auto", padding: `24px 12px ${step === 3 ? "120px" : "80px"}` }}>
           <div style={{
             background: "#fff", borderRadius: 18, overflow: "hidden",
             boxShadow: "0 4px 32px rgba(0,0,0,.07)",
             animation: "_fd .3s ease",
           }}>
             <TherapistBar profile={profile} selFmt={selFmt} couponSave={couponSave} />
-            <StepBar step={step} total={5} />
+            <StepBar step={step} total={4} />
             <div key={step} style={{ animation: "_fd .22s ease" }}>
               {SCREENS[step]}
             </div>
@@ -729,7 +696,7 @@ export default function BookPage() {
       </div>
 
       {/* ══ STICKY CONFIRM BUTTON (step 4 only) ══ */}
-      {step === 4 && (
+      {step === 3 && (
         <div style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 90,
           background: "#fff", borderTop: "1px solid #e2e8f0",
