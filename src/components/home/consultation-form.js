@@ -12,6 +12,10 @@ import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 
 const formStyles = `
+@media (max-width: 600px) {
+  .cf-row { flex-direction: column !important; }
+}
+
 @keyframes fadeInUpPopup {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -238,15 +242,15 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
 
           {/* Row 1: Name + Phone */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
-            <div style={{ flex: 1 }}>
+          <div className="cf-row" style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <label className="cf-label">Full Name</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <PersonIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
                 <input type="text" name="name" placeholder="Your name" value={formData.name} onChange={handleChange} required className="cf-input" />
               </div>
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <label className="cf-label">Phone Number</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <PhoneIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
@@ -256,8 +260,8 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
           </div>
 
           {/* Row 2: Email + Heard via */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
-            <div style={{ flex: 1 }}>
+          <div className="cf-row" style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <label className="cf-label">Email Address</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <EmailIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
@@ -265,7 +269,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
               </div>
             </div>
             {showSource && (
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <label className="cf-label">Heard via</label>
                 <div style={{ position: "relative" }}>
                   <select name="source" value={formData.source} onChange={handleChange} className="cf-input">
