@@ -238,7 +238,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
 
           {/* Row 1: Name + Phone */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
             <div style={{ flex: 1 }}>
               <label className="cf-label">Full Name</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -256,7 +256,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
           </div>
 
           {/* Row 2: Email + Heard via */}
-          <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", gap: "10px", marginBottom: "10px", flexWrap: "wrap" }}>
             <div style={{ flex: 1 }}>
               <label className="cf-label">Email Address</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
