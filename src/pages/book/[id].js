@@ -776,9 +776,9 @@ export default function BookPage() {
       {/* ══ LOGIN SHEET ══ */}
       {loginOpen && (
         <div onClick={() => setLoginOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 999, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "_in .2s" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", animation: "_up .25s cubic-bezier(.22,1,.36,1)" }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 540, height: lOtpSent ? "auto" : "auto", maxHeight: "92vh", overflowY: "auto", animation: "_up .25s cubic-bezier(.22,1,.36,1)" }}>
             <div style={{ width: 36, height: 4, borderRadius: 99, background: "#e2e8f0", margin: "12px auto 0" }} />
-            <div style={{ padding: "24px 24px 40px" }}>
+            <div style={{ padding: "24px 24px 60px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
                 <div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
@@ -811,7 +811,9 @@ export default function BookPage() {
                 <>
                   <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 20 }}>
                     {lOtp.map((d, i) => (
-                      <input key={i} ref={el => { otpRefs.current[i] = el; }} value={d} maxLength={1}
+                      <input key={i} ref={el => { otpRefs.current[i] = el; if (i === 0 && el && lOtpSent) { setTimeout(() => { el.focus(); el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 100); } }} value={d} maxLength={1}
+                        autoFocus={i === 0}
+                        inputMode="numeric"
                         onChange={e => otpChange(e.target.value, i)}
                         onKeyDown={e => { if (e.key === "Backspace" && !d && i > 0) otpRefs.current[i - 1]?.focus(); }}
                         style={{ width: 46, height: 54, border: `1.5px solid ${d ? G : "#e2e8f0"}`, borderRadius: 10, textAlign: "center", fontSize: 22, fontWeight: 900, color: "#0f172a", background: d ? GB : "#fff", outline: "none" }} />
