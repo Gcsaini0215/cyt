@@ -111,10 +111,10 @@ export default function TherapistCheckoutPage() {
         email:   userInfo.email || "",
         phone:   userInfo.phone || "",
       } : {
-        // just-logged-in via OTP: use their email so backend finds existing user
-        name:  userInfo?.name  || "",
-        email: userInfo?.email || guestEmail,
-        phone: userInfo?.phone || "",
+        // guest user: use name/phone from booking form + email from OTP login
+        name:  userInfo?.name  || q.guest_name  || "",
+        email: userInfo?.email || guestEmail    || "",
+        phone: userInfo?.phone || q.guest_phone || "",
       }),
 
       // "for other" extra fields

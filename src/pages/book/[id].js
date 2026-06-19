@@ -174,6 +174,9 @@ export default function BookPage() {
   const [age,      setAge]      = React.useState("");
   const [notes,    setNotes]    = React.useState("");
 
+  const [guestName,  setGuestName]  = React.useState("");
+  const [guestPhone, setGuestPhone] = React.useState("");
+
   const [couponInput,   setCouponInput]   = React.useState("");
   const [couponApplied, setCouponApplied] = React.useState(null);
   const [couponSave,    setCouponSave]    = React.useState(0);
@@ -298,6 +301,8 @@ export default function BookPage() {
       ...(notes ? { notes } : {}),
       ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
       ...(guestEmail ? { guest_email: guestEmail } : {}),
+      ...(!isLoggedIn && guestName.trim() ? { guest_name: guestName.trim() } : {}),
+      ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
     });
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }
@@ -524,6 +529,27 @@ export default function BookPage() {
         </>
       )}
 
+      {!isLoggedIn && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>Your contact details</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <input
+              value={guestName}
+              onChange={e => setGuestName(e.target.value)}
+              placeholder="Full name *"
+              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
+            <input
+              value={guestPhone}
+              onChange={e => setGuestPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              placeholder="WhatsApp number * (10 digits)"
+              type="tel"
+              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
+          </div>
+        </div>
+      )}
+
       <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>
         Notes for therapist <span style={{ fontWeight: 400, textTransform: "none", fontSize: 11 }}>(optional)</span>
       </div>
@@ -536,7 +562,13 @@ export default function BookPage() {
         }} />
       <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "right", marginTop: 4 }}>{notes.length}/500</div>
 
-      <ContinueBtn disabled={bookFor === "other" && !relation} onClick={() => setStep(3)} />
+      <ContinueBtn
+        disabled={
+          (bookFor === "other" && !relation) ||
+          (!isLoggedIn && (!guestName.trim() || guestPhone.length < 10))
+        }
+        onClick={() => setStep(3)}
+      />
     </div>
   );
 
