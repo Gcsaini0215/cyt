@@ -8,7 +8,15 @@
       "WebFetch(domain:chooseyourtherapist.in)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(cmd /c \"dir d:\\\\cyt-admin\\\\src\\\\pages\\\\leads.js\")",
+      "Bash(cmd /c \"dir d:\\\\cyt-admin\\\\src\\\\components\\\\leads\\\\\" 2>&1)",
+      "Bash(npm install *)"
+    ],
+    "additionalDirectories": [
+      "d:\\cyt-admin\\src\\components\\reviews",
+      "d:\\cyt-admin\\src\\components\\home",
+      "d:\\cyt-admin\\src\\components"
     ]
   }
 }
