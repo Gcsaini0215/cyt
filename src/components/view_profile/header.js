@@ -17,6 +17,7 @@ import ImageTag from "../../utils/image-tag";
 import { getDecodedToken } from "../../utils/jwt";
 import { Facebook, Twitter, Linkedin, Link as LinkIcon, MessageCircle, Share2 } from "lucide-react";
 import ConsultationForm from "../home/consultation-form";
+import { getValidServices } from "../../utils/helpers";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
@@ -49,7 +50,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
     }
   }, [pageData, favrioutes]);
 
-  const handleClick = () => router.push(`/therapist-checkout/${pageData._id}`);
+  const handleClick = () => router.push(`/book/${pageData._id}`);
 
   const addFavrioute = async (id) => {
     try {

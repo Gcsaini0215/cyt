@@ -57,8 +57,17 @@ export default function TherapistCheckoutPage() {
     if (!router.isReady || !id) return;
     if (bookedRef.current) return;                        // run only once
     if (isLoggedIn && !userInfo?._id) return;             // wait for userInfo to load
+
+    // safety timeout — if still loading after 15s, show error
+    const safetyTimer = setTimeout(() => {
+      if (status === "booking" || status === "init") {
+        setErr("Request timed out. Please go back and try again.");
+        setStatus("error");
+      }
+    }, 15000);
+
     bookedRef.current = true;
-    doBook();
+    doBook().finally(() => clearTimeout(safetyTimer));
   }, [router.isReady, id, userInfo?._id]);
 
   // ── build payload and call backend ───────────────────────────────────────
@@ -68,6 +77,13 @@ export default function TherapistCheckoutPage() {
 
     const q    = router.query;
     const isLI = isLoggedIn && !!(userInfo?._id && userInfo._id !== "");
+
+    // Validate required query params
+    if (!q.service || !q.format || !q.price) {
+      setErr("Booking details missing. Please go back and try again.");
+      setStatus("error");
+      return;
+    }
 
     const whom = isLI
       ? (q.booking_for === "other" ? "For Other" : "Self")
@@ -80,8 +96,8 @@ export default function TherapistCheckoutPage() {
     const payload = {
       is_logged_in: isLI,
       therapist:    id,
-      service:      q.service      || "",
-      format:       q.format       || "",
+      service:      q.service,
+      format:       q.format,
       amount:       Number(q.price  || 0),
       notes:        q.notes        || "",
       booking_date: q.booking_date || "",
