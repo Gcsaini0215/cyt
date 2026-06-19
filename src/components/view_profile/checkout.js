@@ -166,8 +166,8 @@ export default function TherapistCheckout({ profile }) {
       setError("Please enter valid 10-digit phone number.");
       return false;
     }
-    if (Object.keys(selectedService).length === 0) {
-      setError("Please select service.");
+    if (!info.service || Object.keys(selectedService).length === 0) {
+      setError("Please select a service to continue.");
       return false;
     }
     if (!info.is_logged_in && !userInfo?.email && !info.email) {
@@ -260,6 +260,11 @@ export default function TherapistCheckout({ profile }) {
     const validServices = await getServices(profile.fees);
     setServices(validServices);
 
+    if (!validServices || validServices.length === 0) {
+      setError("This therapist has no available services. Please contact support.");
+      return;
+    }
+
     // Pre-select from query params (passed from booking modal)
     const qService = router.query.service;
     const qFormat  = router.query.format;
@@ -268,6 +273,8 @@ export default function TherapistCheckout({ profile }) {
     const initSvc = qService
       ? (validServices.find(s => s.name === qService) || validServices[0])
       : validServices[0];
+
+    if (!initSvc) return;
 
     setSelectedService(initSvc);
     const formats = getFormatsByServiceId(profile.fees, initSvc._id);
@@ -281,8 +288,8 @@ export default function TherapistCheckout({ profile }) {
     setInfo((prev) => ({
       ...prev,
       service: initSvc.name,
-      format: initFmt?.type || formats[0]?.type,
-      amount: qPrice ? Number(qPrice) : (initFmt?.fee || formats[0]?.fee),
+      format: initFmt?.type || formats[0]?.type || "",
+      amount: qPrice ? Number(qPrice) : (initFmt?.fee || formats[0]?.fee || 0),
       therapist: profile._id,
       is_logged_in: userInfo?.name ? true : false,
       user_id: userInfo?._id ? userInfo._id : "",
@@ -290,7 +297,7 @@ export default function TherapistCheckout({ profile }) {
       phone: userInfo?.phone ? userInfo.phone : "",
       email: userInfo?.email ? userInfo.email : "",
     }));
-    const amt = qPrice ? Number(qPrice) : (initFmt?.fee || formats[0]?.fee);
+    const amt = qPrice ? Number(qPrice) : (initFmt?.fee || formats[0]?.fee || 0);
     setAmountInfo((prev) => ({ ...prev, amount: amt, afterdiscount: amt }));
 
     // Pre-fill booking_date from slot selection page
