@@ -756,7 +756,7 @@ export default function BookPage() {
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             }}>
               <i className="feather-lock" style={{ fontSize: 15 }}></i>
-              {isLoggedIn ? "Confirm Appointment" : "Sign In & Confirm"}
+              Confirm Appointment
               <i className="feather-arrow-right" style={{ fontSize: 15 }}></i>
             </button>
           </div>
@@ -815,66 +815,6 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* ══ LOGIN SHEET ══ */}
-      {loginOpen && (
-        <div onClick={() => setLoginOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 999, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "_in .2s" }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: "16px 16px 0 0", width: "100%", maxWidth: 540, height: lOtpSent ? "auto" : "auto", maxHeight: "92vh", overflowY: "auto", animation: "_up .25s cubic-bezier(.22,1,.36,1)" }}>
-            <div style={{ width: 36, height: 4, borderRadius: 99, background: "#e2e8f0", margin: "12px auto 0" }} />
-            <div style={{ padding: "24px 24px 60px" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
-                    {lOtpSent ? "Enter OTP" : "Sign in to continue"}
-                  </div>
-                  <div style={{ fontSize: 13, color: "#64748b", marginTop: 4, lineHeight: 1.5 }}>
-                    {lOtpSent ? `A 6-digit code was sent to ${lEmail}` : "Enter your email to receive a one-time login code."}
-                  </div>
-                </div>
-                <button onClick={() => { setLoginOpen(false); setLOtpSent(false); setLOtp(["","","","","",""]); setLErr(""); }} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "#f1f5f9", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <i className="feather-x" style={{ fontSize: 15, color: "#64748b" }}></i>
-                </button>
-              </div>
-
-              {lErr && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 10, marginBottom: 16, fontSize: 13, color: "#dc2626" }}>
-                  <i className="feather-alert-circle" style={{ fontSize: 13, flexShrink: 0 }}></i>{lErr}
-                </div>
-              )}
-
-              {!lOtpSent ? (
-                <>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Email address</div>
-                  <input type="email" value={lEmail} onChange={e => { setLEmail(e.target.value); setLErr(""); }} placeholder="you@example.com" style={{ width: "100%", height: 48, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 16px", fontSize: 15, color: "#0f172a", outline: "none", fontFamily: "inherit", marginBottom: 16 }} />
-                  <button onClick={sendOtp} disabled={lLoad} style={{ width: "100%", height: 50, borderRadius: 12, border: "none", background: G, color: "#fff", fontSize: 16, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-                    {lLoad ? <span style={{ width: 20, height: 20, border: "2.5px solid rgba(255,255,255,.3)", borderTop: "2.5px solid #fff", borderRadius: "50%", display: "inline-block", animation: "_sp .7s linear infinite" }} /> : "Send OTP"}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 20 }}>
-                    {lOtp.map((d, i) => (
-                      <input key={i} ref={el => { otpRefs.current[i] = el; if (i === 0 && el && lOtpSent) { setTimeout(() => { el.focus(); el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 100); } }} value={d} maxLength={1}
-                        autoFocus={i === 0}
-                        inputMode="numeric"
-                        onChange={e => otpChange(e.target.value, i)}
-                        onKeyDown={e => { if (e.key === "Backspace" && !d && i > 0) otpRefs.current[i - 1]?.focus(); }}
-                        style={{ width: 46, height: 54, border: `1.5px solid ${d ? G : "#e2e8f0"}`, borderRadius: 10, textAlign: "center", fontSize: 22, fontWeight: 900, color: "#0f172a", background: d ? GB : "#fff", outline: "none" }} />
-                    ))}
-                  </div>
-                  <button onClick={verifyOtp} disabled={lLoad} style={{ width: "100%", height: 50, borderRadius: 12, border: "none", background: G, color: "#fff", fontSize: 16, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 12 }}>
-                    {lLoad ? <span style={{ width: 20, height: 20, border: "2.5px solid rgba(255,255,255,.3)", borderTop: "2.5px solid #fff", borderRadius: "50%", display: "inline-block", animation: "_sp .7s linear infinite" }} /> : "Verify & Confirm Booking"}
-                  </button>
-                  <div style={{ textAlign: "center" }}>
-                    <button onClick={resend === 0 ? sendOtp : undefined} disabled={resend > 0} style={{ border: "none", background: "none", fontSize: 13, fontWeight: 600, color: resend > 0 ? "#94a3b8" : G, cursor: resend > 0 ? "default" : "pointer", padding: "4px 8px" }}>
-                      {resend > 0 ? `Resend OTP in ${resend}s` : "Resend OTP"}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
