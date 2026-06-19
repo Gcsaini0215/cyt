@@ -302,9 +302,9 @@ export default function BookPage() {
       ...(notes ? { notes } : {}),
       ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
       ...(guestEmail ? { guest_email: guestEmail } : {}),
-      ...(!isLoggedIn && guestName.trim() ? { guest_name: guestName.trim() } : {}),
+      ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
       ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
-      ...(!isLoggedIn && guestEmail.trim() ? { guest_email: guestEmail.trim().toLowerCase() } : {}),
+      ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
     });
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }
@@ -574,7 +574,7 @@ export default function BookPage() {
       <ContinueBtn
         disabled={
           (bookFor === "other" && !relation) ||
-          (!isLoggedIn && (!guestName.trim() || guestPhone.length < 10 || !guestEmail.includes("@")))
+          (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10 || !(guestEmail || "").includes("@")))
         }
         onClick={() => setStep(3)}
       />
