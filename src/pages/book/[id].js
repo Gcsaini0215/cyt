@@ -262,7 +262,7 @@ export default function BookPage() {
       if (res?.token) {
         localStorage.setItem("token", res.token);
         setLoginOpen(false);
-        doCheckout(lEmail.trim().toLowerCase());
+        doCheckout();
       } else { setLErr("Invalid OTP. Please try again."); }
     } catch(e) { setLErr(e?.response?.data?.message || "Invalid OTP."); }
     finally { setLLoad(false); }
@@ -289,7 +289,7 @@ export default function BookPage() {
     finally { setCouponLoad(false); }
   }
 
-  function doCheckout(guestEmail) {
+  function doCheckout() {
     if (!selSvc || !selFmt || !selDate || !selSlot) return;
     const dt = new Date(selDate);
     const [h, m] = selSlot.val.split(":").map(Number);
@@ -301,7 +301,6 @@ export default function BookPage() {
       ...(bookFor === "other" ? { relation, client_age: age } : {}),
       ...(notes ? { notes } : {}),
       ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
-      ...(guestEmail ? { guest_email: guestEmail } : {}),
       ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
       ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
       ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
