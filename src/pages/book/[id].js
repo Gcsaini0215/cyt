@@ -176,6 +176,7 @@ export default function BookPage() {
 
   const [guestName,  setGuestName]  = React.useState("");
   const [guestPhone, setGuestPhone] = React.useState("");
+  const [guestEmail, setGuestEmail] = React.useState("");
 
   const [couponInput,   setCouponInput]   = React.useState("");
   const [couponApplied, setCouponApplied] = React.useState(null);
@@ -303,12 +304,13 @@ export default function BookPage() {
       ...(guestEmail ? { guest_email: guestEmail } : {}),
       ...(!isLoggedIn && guestName.trim() ? { guest_name: guestName.trim() } : {}),
       ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
+      ...(!isLoggedIn && guestEmail.trim() ? { guest_email: guestEmail.trim().toLowerCase() } : {}),
     });
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }
 
   function confirmBooking() {
-    if (!isLoggedIn) { setLoginOpen(true); return; }
+    // Guest users go directly to checkout — no OTP login required
     doCheckout();
   }
 
@@ -546,6 +548,13 @@ export default function BookPage() {
               type="tel"
               style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
             />
+            <input
+              value={guestEmail}
+              onChange={e => setGuestEmail(e.target.value)}
+              placeholder="Email address *"
+              type="email"
+              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+            />
           </div>
         </div>
       )}
@@ -565,7 +574,7 @@ export default function BookPage() {
       <ContinueBtn
         disabled={
           (bookFor === "other" && !relation) ||
-          (!isLoggedIn && (!guestName.trim() || guestPhone.length < 10))
+          (!isLoggedIn && (!guestName.trim() || guestPhone.length < 10 || !guestEmail.includes("@")))
         }
         onClick={() => setStep(3)}
       />

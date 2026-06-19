@@ -111,9 +111,9 @@ export default function TherapistCheckoutPage() {
         email:   userInfo.email || "",
         phone:   userInfo.phone || "",
       } : {
-        // guest user: use name/phone from booking form + email from OTP login
+        // guest user: use details from booking form
         name:  userInfo?.name  || q.guest_name  || "",
-        email: userInfo?.email || guestEmail    || "",
+        email: userInfo?.email || q.guest_email || "",
         phone: userInfo?.phone || q.guest_phone || "",
       }),
 
