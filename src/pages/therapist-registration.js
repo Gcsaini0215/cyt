@@ -143,7 +143,7 @@ export default function TherapistRegistration()
     setResendLoading(false);
   };
 
-  const handleOtpChange = (value) => setOtp(value.replace(/\D/g, "").slice(0, 6));
+  const handleOtpChange = (value) => setOtp(value.replace(/\D/g, "").trim().slice(0, 6));
   const onClose = () => setOpen(false);
 
   const verifyOtp = async () => {
@@ -152,7 +152,7 @@ export default function TherapistRegistration()
 
     try {
       setLoading(true);
-      const response = await postData(verifyOtpUrl, { email: registeredEmail, otp });
+      const response = await postData(verifyOtpUrl, { email: registeredEmail, otp: otp.trim() });
       if (response.status) {
         setOtp("");
         setOpen(false);
