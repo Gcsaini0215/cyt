@@ -116,8 +116,8 @@ export default function TherapistRegistration()
       const response = await postFormData(therapistRegistrationUrl, data);
       if (response.status) {
         setRegisteredEmail(email);
-        setOpen(true);
         setError("");
+        setStep(5);
       } else {
         setError("Something went wrong");
       }
@@ -149,7 +149,7 @@ export default function TherapistRegistration()
           checkedValues: [],
           selectedFile: null,
         });
-        setStep(1);
+        setStep(0);
         setSuccess(
           response.message || "Thank you for submitting your resume. Our admin will review your profile soon. You will receive approval via email."
         );
@@ -269,10 +269,11 @@ export default function TherapistRegistration()
                     {step === 2 && "Step 2 of 4 — Personal Details"}
                     {step === 3 && "Step 3 of 4 — Areas of Expertise"}
                     {step === 4 && "Step 4 of 4 — Resume Upload"}
+                    {step === 5 && "Almost done — Verify your email"}
                   </p>
 
                   {/* Step Indicators — only for steps 1–4 */}
-                  {step > 0 && (
+                  {step > 0 && step < 5 && (
                     <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '24px' }}>
                       {[
                         { num: 1, label: "Profile" },
@@ -490,8 +491,48 @@ export default function TherapistRegistration()
                     </div>
                   )}
 
-                  {/* Buttons */}
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                  {/* Step 5 — OTP Verification */}
+                  {step === 5 && (
+                    <div>
+                      <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 18px', marginBottom: '24px' }}>
+                        <p style={{ fontWeight: 800, fontSize: '15px', color: '#166534', margin: '0 0 2px' }}>Check your email</p>
+                        <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>
+                          We've sent a 6-digit OTP to <strong>{registeredEmail}</strong>. Enter it below to complete your registration.
+                        </p>
+                      </div>
+
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Enter OTP</p>
+                      <input
+                        type="text"
+                        placeholder="_ _ _ _ _ _"
+                        value={otp}
+                        onChange={(e) => handleOtpChange(e.target.value)}
+                        maxLength={6}
+                        style={{
+                          width: '100%', padding: '16px', border: '2px solid #e2e8f0', borderRadius: '10px',
+                          fontSize: '28px', fontWeight: 700, letterSpacing: '14px', textAlign: 'center',
+                          boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s',
+                          color: '#111827',
+                        }}
+                        onFocus={e => e.target.style.borderColor = '#22bb33'}
+                        onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                      />
+                      {otpError && <p style={{ color: '#d50000', fontSize: '13px', marginTop: '8px' }}>{otpError}</p>}
+                      {success && <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '8px' }}>{success}</p>}
+
+                      <button
+                        onClick={verifyOtp}
+                        disabled={loading}
+                        className="rbt-btn btn-gradient radius-round"
+                        style={{ width: '100%', minHeight: '48px', marginTop: '20px', opacity: loading ? 0.7 : 1 }}
+                      >
+                        {loading ? <CircularProgress size={18} style={{ color: '#fff' }} /> : 'Verify & Complete Registration'}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Buttons — hidden on step 5 (OTP has its own button) */}
+                  {step < 5 && <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
                     {step > 0 && (
                       <button
                         onClick={prevStep}
@@ -526,7 +567,7 @@ export default function TherapistRegistration()
                         </button>
                       )
                     )}
-                  </div>
+                  </div>}
 
                   <div style={{ textAlign: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
                     <Link href="/login" style={{ fontSize: '13px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
