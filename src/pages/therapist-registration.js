@@ -333,11 +333,43 @@ export default function TherapistRegistration()
                   {/* Step 0 — Email */}
                   {step === 0 && (
                     <div>
-                      <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', marginBottom: '24px' }}>
+                      <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', marginBottom: '20px' }}>
                         You're on your way to becoming part of a trusted community of psychologists, psychiatrists, and mental health professionals.
                         <br /><br />
                         To begin, enter the <strong>email you want attached to your therapist profile</strong>.
                       </p>
+
+                      {/* Subscription Plan Card */}
+                      <div
+                        onClick={() => setPlanOpen(true)}
+                        style={{
+                          border: '1.5px solid #bbf7d0',
+                          borderRadius: '12px',
+                          padding: '14px 16px',
+                          marginBottom: '20px',
+                          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '12px',
+                          transition: 'box-shadow 0.2s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(34,187,51,0.15)'}
+                        onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+                      >
+                        <div>
+                          <p style={{ fontWeight: 800, fontSize: '14px', color: '#166534', margin: '0 0 2px' }}>Starter Plan — ₹1,999 / 3 Months</p>
+                          <p style={{ fontSize: '12px', color: '#15803d', margin: 0 }}>Visibility · Credibility · Storage — View details</p>
+                        </div>
+                        <div style={{
+                          width: '28px', height: '28px', borderRadius: '50%',
+                          background: '#22bb33', color: '#fff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '14px', flexShrink: 0,
+                        }}>›</div>
+                      </div>
+
                       <input
                         type="email"
                         placeholder="Enter your email address"
@@ -662,51 +694,54 @@ export default function TherapistRegistration()
           }
         }}
       >
-        <DialogContent className="p-4 p-md-5 text-center" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
-          <div style={{ 
-            width: '50px', 
-            height: '50px', 
-            background: 'rgba(34, 187, 51, 0.1)', 
-            color: '#22bb33', 
-            borderRadius: '50%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            fontSize: '24px',
-            margin: '0 auto 15px'
-          }}>
-            <FaTags />
-          </div>
-          <h3 style={{ fontWeight: 800, marginBottom: '10px', fontSize: isMobile ? '22px' : '28px' }}>Subscription Plans</h3>
-          <p className="text-muted mb-4 small">
-            We offer flexible monthly and yearly subscription plans designed to help you grow your practice with all our premium features.
-          </p>
-          
-          <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', textAlign: 'left', marginBottom: '20px' }}>
-            <h6 style={{ fontWeight: 700, fontSize: '13px', marginBottom: '8px', color: '#166534' }}>Plan Details:</h6>
-            <p style={{ fontSize: '14px', fontWeight: 700, color: '#22bb33', marginBottom: '8px' }}>Start Basic Plan for 3 Months</p>
-            <ul style={{ paddingLeft: '15px', fontSize: '12px', color: '#475569', marginBottom: 0 }}>
-              <li>Full Access to Therapist Dashboard</li>
-              <li>Unlimited Client Booking Management</li>
-              <li>Professional Invoicing & Reports</li>
-              <li>SEO Profile Management</li>
-            </ul>
+        <DialogContent style={{ padding: '28px 24px', maxHeight: '80vh', overflowY: 'auto' }}>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(34,187,51,0.1)', marginBottom: '12px' }}>
+              <FaTags style={{ color: '#22bb33', fontSize: '20px' }} />
+            </div>
+            <h5 style={{ fontWeight: 800, fontSize: '20px', margin: '0 0 4px' }}>Starter Plan</h5>
+            <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>Everything you need to launch your practice</p>
           </div>
 
-          <p style={{ fontWeight: 600, color: '#64748b', fontSize: '13px', lineHeight: '1.6' }}>
-            For more information and detailed pricing:
-            <br />
-            <a href="mailto:chooseyourtherapist@gmail.com" style={{ color: '#22bb33', fontSize: '14px', textDecoration: 'none', wordBreak: 'break-all' }}>
-              chooseyourtherapist@gmail.com
-            </a>
+          {/* Price */}
+          <div style={{ textAlign: 'center', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '14px', padding: '20px', marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: '#15803d', fontWeight: 600, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>3 Months Access</p>
+            <p style={{ fontSize: '36px', fontWeight: 900, color: '#166534', margin: '0 0 4px' }}>₹1,999</p>
+            <p style={{ fontSize: '12px', color: '#15803d', margin: 0 }}>One-time payment · No auto-renewal</p>
+          </div>
+
+          {/* Features */}
+          <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>What's Included</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+            {[
+              { icon: '👁', title: 'Visibility', desc: 'Your profile listed & discoverable by clients across India' },
+              { icon: '✓', title: 'Credibility', desc: 'Verified badge on your public profile' },
+              { icon: '🗄', title: 'Storage', desc: 'Unlimited client records & session notes storage' },
+              { icon: '📅', title: 'Booking Management', desc: 'Track all upcoming & past appointments easily' },
+              { icon: '📄', title: 'Professional Invoicing', desc: 'Generate invoices for online & in-person sessions' },
+              { icon: '📋', title: 'Task & Prescription Reports', desc: 'Create detailed reports for your clients' },
+            ].map((f, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px' }}>
+                <span style={{ fontSize: '16px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>{f.icon}</span>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: '13px', color: '#111827', margin: '0 0 1px' }}>{f.title}</p>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', marginBottom: '16px' }}>
+            Questions? <a href="mailto:chooseyourtherapist@gmail.com" style={{ color: '#22bb33', fontWeight: 600, textDecoration: 'none' }}>chooseyourtherapist@gmail.com</a>
           </p>
 
           <button
             onClick={() => setPlanOpen(false)}
-            className="rbt-btn btn-border radius-round w-100 mt-4"
-            style={{ minHeight: '45px' }}
+            className="rbt-btn btn-gradient radius-round w-100"
+            style={{ minHeight: '46px' }}
           >
-            Close
+            Got it — Continue Registration
           </button>
         </DialogContent>
       </Dialog>
