@@ -449,12 +449,9 @@ export default function TherapistRegistration()
                   {step === 4 && (
                     <div>
                       {/* Final step banner */}
-                      <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 18px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <div style={{ fontSize: '28px', lineHeight: 1, flexShrink: 0 }}>🎉</div>
-                        <div>
-                          <p style={{ fontWeight: 800, fontSize: '15px', color: '#166534', margin: '0 0 2px' }}>You're almost there!</p>
-                          <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>This is the final step. Upload your resume to complete your registration.</p>
-                        </div>
+                      <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 18px', marginBottom: '24px' }}>
+                        <p style={{ fontWeight: 800, fontSize: '15px', color: '#166534', margin: '0 0 2px' }}>You're almost there!</p>
+                        <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>This is the final step. Upload your resume to complete your registration.</p>
                       </div>
 
                       {/* Upload area */}
@@ -470,14 +467,12 @@ export default function TherapistRegistration()
                         }}>
                           {formData.selectedFile ? (
                             <>
-                              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
-                              <p style={{ fontWeight: 700, fontSize: '14px', color: '#166534', margin: '0 0 4px' }}>✓ File Selected</p>
+                              <p style={{ fontWeight: 700, fontSize: '14px', color: '#166534', margin: '0 0 4px' }}>File Selected</p>
                               <p style={{ fontSize: '12px', color: '#22bb33', margin: 0, wordBreak: 'break-all' }}>{formData.selectedFile.name}</p>
                               <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0' }}>Click to change file</p>
                             </>
                           ) : (
                             <>
-                              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📎</div>
                               <p style={{ fontWeight: 600, fontSize: '14px', color: '#374151', margin: '0 0 4px' }}>Click to upload your resume</p>
                               <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>PDF only · Max 500KB</p>
                             </>
