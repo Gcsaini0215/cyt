@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogActions } from "@mui/material";
 import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl } from "../utils/url";
+import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, resendTherapistOtpUrl } from "../utils/url";
 import Link from "next/link";
 import { postData, postFormData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
@@ -125,6 +125,22 @@ export default function TherapistRegistration()
       setError(err.response?.data?.message || "Something went wrong");
     }
     setLoading(false);
+  };
+
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
+
+  const resendOtp = async () => {
+    setResendMsg("");
+    setOtpError("");
+    setResendLoading(true);
+    try {
+      await postData(resendTherapistOtpUrl, { email: registeredEmail });
+      setResendMsg("OTP resent successfully. Please check your email.");
+    } catch (err) {
+      setOtpError(err.response?.data?.message || "Failed to resend OTP. Please try again.");
+    }
+    setResendLoading(false);
   };
 
   const handleOtpChange = (value) => setOtp(value.replace(/\D/g, "").slice(0, 6));
@@ -518,6 +534,7 @@ export default function TherapistRegistration()
                         onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                       />
                       {otpError && <p style={{ color: '#d50000', fontSize: '13px', marginTop: '8px' }}>{otpError}</p>}
+                      {resendMsg && <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '8px' }}>{resendMsg}</p>}
                       {success && <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '8px' }}>{success}</p>}
 
                       <button
@@ -528,6 +545,17 @@ export default function TherapistRegistration()
                       >
                         {loading ? <CircularProgress size={18} style={{ color: '#fff' }} /> : 'Verify & Complete Registration'}
                       </button>
+
+                      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                        <span style={{ fontSize: '13px', color: '#64748b' }}>Didn't receive the OTP? </span>
+                        <button
+                          onClick={resendOtp}
+                          disabled={resendLoading}
+                          style={{ background: 'none', border: 'none', color: '#22bb33', fontWeight: 700, fontSize: '13px', cursor: 'pointer', padding: 0, opacity: resendLoading ? 0.6 : 1 }}
+                        >
+                          {resendLoading ? 'Sending...' : 'Resend OTP'}
+                        </button>
+                      </div>
                     </div>
                   )}
 
