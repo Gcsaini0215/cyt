@@ -335,49 +335,50 @@ export default function TherapistRegistration()
                   {/* Step 1 — Profile Type + Mode */}
                   {step === 1 && (
                     <div>
-                      <div className="form-group mb-4">
-                        <label style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>Profile Type</label>
-                        <select
-                          value={formData.profileType}
-                          onChange={(e) => setFormData(p => ({ ...p, profileType: e.target.value }))}
-                          style={{
-                            width: '100%', padding: '12px 36px 12px 14px',
-                            border: '1px solid #e2e8f0', borderRadius: '8px',
-                            fontSize: '14px', color: formData.profileType ? '#111827' : '#94a3b8',
-                            background: '#fff', cursor: 'pointer',
-                            appearance: 'none', WebkitAppearance: 'none',
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-                            backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
-                            boxSizing: 'border-box', display: 'block',
-                          }}
-                        >
-                          <option value="">Select your profile type</option>
-                          {profileOptions.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Profile Type</p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '24px' }}>
+                        {profileOptions.map((opt) => (
+                          <div
+                            key={opt}
+                            onClick={() => setFormData(p => ({ ...p, profileType: opt }))}
+                            style={{
+                              border: `2px solid ${formData.profileType === opt ? '#22bb33' : '#e2e8f0'}`,
+                              borderRadius: '10px',
+                              padding: '14px 10px',
+                              cursor: 'pointer',
+                              textAlign: 'center',
+                              background: formData.profileType === opt ? 'rgba(34,187,51,0.05)' : '#fff',
+                              boxShadow: formData.profileType === opt ? '0 2px 10px rgba(34,187,51,0.12)' : 'none',
+                              transition: 'all 0.2s ease',
+                            }}
+                          >
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: formData.profileType === opt ? '#166534' : '#374151', lineHeight: '1.3' }}>{opt}</span>
+                          </div>
+                        ))}
                       </div>
-                      <div className="form-group">
-                        <label style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>Service Mode</label>
-                        <select
-                          value={formData.mode}
-                          onChange={(e) => setFormData(p => ({ ...p, mode: e.target.value }))}
-                          style={{
-                            width: '100%', padding: '12px 36px 12px 14px',
-                            border: '1px solid #e2e8f0', borderRadius: '8px',
-                            fontSize: '14px', color: formData.mode ? '#111827' : '#94a3b8',
-                            background: '#fff', cursor: 'pointer',
-                            appearance: 'none', WebkitAppearance: 'none',
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
-                            backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
-                            boxSizing: 'border-box', display: 'block',
-                          }}
-                        >
-                          <option value="">Select service mode</option>
-                          {modeOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
-                        </select>
+
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Service Mode</p>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                        {modeOptions.map((opt) => (
+                          <div
+                            key={opt.value}
+                            onClick={() => setFormData(p => ({ ...p, mode: opt.value }))}
+                            style={{
+                              border: `2px solid ${formData.mode == opt.value ? '#22bb33' : '#e2e8f0'}`,
+                              borderRadius: '10px',
+                              padding: '14px 8px',
+                              cursor: 'pointer',
+                              textAlign: 'center',
+                              background: formData.mode == opt.value ? 'rgba(34,187,51,0.05)' : '#fff',
+                              boxShadow: formData.mode == opt.value ? '0 2px 10px rgba(34,187,51,0.12)' : 'none',
+                              transition: 'all 0.2s ease',
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+                            }}
+                          >
+                            <span style={{ fontSize: '20px', color: formData.mode == opt.value ? '#22bb33' : '#94a3b8' }}>{opt.icon}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: formData.mode == opt.value ? '#166534' : '#374151' }}>{opt.label}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -447,29 +448,50 @@ export default function TherapistRegistration()
                   {/* Step 4 — Resume (Final) */}
                   {step === 4 && (
                     <div>
-                      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: '18px', lineHeight: 1 }}>🎉</span>
+                      {/* Final step banner */}
+                      <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 18px', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div style={{ fontSize: '28px', lineHeight: 1, flexShrink: 0 }}>🎉</div>
                         <div>
-                          <p style={{ fontWeight: 700, fontSize: '14px', color: '#166534', margin: 0 }}>You're almost there!</p>
-                          <p style={{ fontSize: '12px', color: '#166534', margin: 0, opacity: 0.85 }}>This is the final step. Upload your resume and complete your registration.</p>
+                          <p style={{ fontWeight: 800, fontSize: '15px', color: '#166534', margin: '0 0 2px' }}>You're almost there!</p>
+                          <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>This is the final step. Upload your resume to complete your registration.</p>
                         </div>
                       </div>
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Upload Resume</p>
-                      <div style={{ border: '2px dashed #e2e8f0', borderRadius: '10px', padding: '20px', textAlign: 'center' }}>
-                        <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '12px' }}>PDF only, max 500KB</p>
-                        <input
-                          type="file"
-                          accept=".pdf"
-                          onChange={handleFileChange}
-                          style={{ fontSize: '13px', width: '100%' }}
-                        />
-                        {formData.selectedFile && (
-                          <p style={{ fontSize: '12px', color: '#22bb33', marginTop: '10px', marginBottom: 0, fontWeight: 600 }}>
-                            ✓ {formData.selectedFile.name}
-                          </p>
-                        )}
-                      </div>
-                      <p style={{ color: "#22bb33", fontSize: '13px', marginTop: '10px' }}>{success}</p>
+
+                      {/* Upload area */}
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Upload Resume</p>
+                      <label htmlFor="resume-upload" style={{ display: 'block', cursor: 'pointer' }}>
+                        <div style={{
+                          border: `2px dashed ${formData.selectedFile ? '#22bb33' : '#cbd5e1'}`,
+                          borderRadius: '12px',
+                          padding: '28px 20px',
+                          textAlign: 'center',
+                          background: formData.selectedFile ? 'rgba(34,187,51,0.04)' : '#fafafa',
+                          transition: 'all 0.2s ease',
+                        }}>
+                          {formData.selectedFile ? (
+                            <>
+                              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
+                              <p style={{ fontWeight: 700, fontSize: '14px', color: '#166534', margin: '0 0 4px' }}>✓ File Selected</p>
+                              <p style={{ fontSize: '12px', color: '#22bb33', margin: 0, wordBreak: 'break-all' }}>{formData.selectedFile.name}</p>
+                              <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0' }}>Click to change file</p>
+                            </>
+                          ) : (
+                            <>
+                              <div style={{ fontSize: '32px', marginBottom: '8px' }}>📎</div>
+                              <p style={{ fontWeight: 600, fontSize: '14px', color: '#374151', margin: '0 0 4px' }}>Click to upload your resume</p>
+                              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>PDF only · Max 500KB</p>
+                            </>
+                          )}
+                        </div>
+                      </label>
+                      <input
+                        id="resume-upload"
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                      />
+                      <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '10px', minHeight: '20px' }}>{success}</p>
                     </div>
                   )}
 
