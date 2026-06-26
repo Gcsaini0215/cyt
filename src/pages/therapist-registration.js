@@ -9,16 +9,16 @@ import { Dialog, DialogContent, DialogActions } from "@mui/material";
 import { useState, useEffect } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { therapistRegistrationUrl, verifyOtpUrl } from "../utils/url";
+import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl } from "../utils/url";
 import Link from "next/link";
 import { postData, postFormData } from "../utils/actions";
 import FormMessage from "../components/global/form-message";
 import FormProgressBar from "../components/global/form-progressbar";
-import { FaPhoneAlt, FaLaptop, FaMapMarkerAlt, FaGlobe, FaChartLine, FaCalendarCheck, FaDatabase, FaFileInvoice, FaClipboardList, FaTags, FaSearch } from "react-icons/fa";
+import { FaLaptop, FaMapMarkerAlt, FaGlobe, FaTags } from "react-icons/fa";
 
 export default function TherapistRegistration() 
 {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -61,14 +61,23 @@ export default function TherapistRegistration()
     }));
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     setError("");
-    if (step === 1) {
+    if (step === 0) {
+      if (!validateEmail(formData.email)) return setError("Please enter a valid email address");
+      try {
+        setLoading(true);
+        await postData(checkTherapistEmailUrl, { email: formData.email });
+      } catch (err) {
+        setLoading(false);
+        return setError(err.response?.data?.message || "This email is already registered with us");
+      }
+      setLoading(false);
+    } else if (step === 1) {
       if (!formData.profileType) return setError("Please select profile type");
       if (!formData.mode) return setError("Please select service mode");
     } else if (step === 2) {
       if (formData.name.length < 5) return setError("Please enter full name");
-      if (!validateEmail(formData.email)) return setError("Please enter valid email id");
       if (formData.phone.length !== 10) return setError("Please enter valid phone number");
     }
     setStep(step + 1);
@@ -148,12 +157,6 @@ export default function TherapistRegistration()
     }
     setLoading(false);
   };
-
-  const stats = [
-    { label: "Recieved Resume", value: "100+", color: "#e1f5e3", textColor: "#166534" },
-    { label: "Active Profile", value: "48+", color: "#e0f2fe", textColor: "#0369a1" },
-    { label: "Approval Duration", value: "7D", color: "#fef3c7", textColor: "#92400e" },
-  ];
 
   const profileOptions = [
     "Counselling Psychologist",
@@ -247,114 +250,78 @@ export default function TherapistRegistration()
 
       <div
         style={{
-          background: "#ffffff",
+          background: "#f8fafc",
+          minHeight: "100vh",
           padding: isMobile ? "40px 15px" : "80px 0",
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <div className="container">
-          <div className="row align-items-start g-5">
-            {/* Left Section */}
-            <div className="col-lg-7">
-              <div className="mb-5">
-                <span style={{ 
-                  background: '#e1f5e3', 
-                  color: '#166534', 
-                  padding: '6px 16px', 
-                  borderRadius: '50px', 
-                  fontSize: '14px', 
-                  fontWeight: '600' 
-                }}>
-                  Empowering Mental Health Professionals
-                </span>
-                <h2 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
-                 Get Started with Your Therapist Dashboard Subscription
-                </h2>
-                <p className="text-muted" style={{ fontSize: '18px' }}>
-                  Register as a verified psychologist or therapist and create a trusted profile to connect with clients across Worldwide. Offer online or in-person sessions, track booking easily, and grow your practice on a secure, well-being centered platform.
-                </p>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="d-flex gap-3 mb-5">
-                {stats.map((stat, idx) => (
-                  <div key={idx} className="stat-card" style={{ background: stat.color, border: 'none' }}>
-                    <h3 style={{ margin: 0, color: stat.textColor, fontWeight: 800 }}>{stat.value}</h3>
-                    <p style={{ margin: 0, fontSize: '12px', color: stat.textColor, fontWeight: 600, opacity: 0.8 }}>{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Why Choose Us Section */}
-              <div className="mt-5 pt-4">
-                <h4 style={{ fontWeight: 800, marginBottom: '25px' }}>Why Choose CYT?</h4>
-                <div className="row g-4">
-                  {[
-                    { icon: <FaChartLine />, title: "Comprehensive Therapist Dashboard", desc: "Manage your entire practice from a single, intuitive interface." },
-                    { icon: <FaCalendarCheck />, title: "Track Client Bookings", desc: "Keep track of all your upcoming and past appointments effortlessly." },
-                    { icon: <FaDatabase />, title: "Start with Unlimited Storage", desc: "Securely store client records and session notes to get your practice running." },
-                    { icon: <FaFileInvoice />, title: "Professional Invoicing", desc: "Generate invoices for both online and in-person consultations instantly." },
-                    { icon: <FaClipboardList />, title: "Task & Prescription Reports", desc: "Create detailed task lists and medical reports for your clients." },
-                    { icon: <FaTags />, title: "Custom Coupons & Offers", desc: "Boost your practice by offering personalized discounts on services." },
-                    { icon: <FaSearch />, title: "SEO Profile Management", desc: "Enhance your online visibility with our built-in SEO tools." }
-                  ].map((item, i) => (
-                    <div key={i} className="col-md-6">
-                      <div className="d-flex gap-3 align-items-start">
-                        <div style={{ 
-                          minWidth: '40px', 
-                          height: '40px', 
-                          background: 'rgba(34, 187, 51, 0.1)', 
-                          color: '#22bb33', 
-                          borderRadius: '8px', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          fontSize: '18px'
-                        }}>
-                          {item.icon}
-                        </div>
-                        <div>
-                          <h6 style={{ fontWeight: 700, margin: 0, fontSize: '15px' }}>{item.title}</h6>
-                          <p className="text-muted small mb-0">{item.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Package Note */}
-              <div className="mt-4 p-3 rounded" style={{ background: '#f8fafc', border: '1px dashed #e2e8f0' }}>
-                <p className="mb-0 small" style={{ color: '#475569', fontWeight: 600 }}>
-                  <span className="me-2">💡</span>
-                  Choose from our flexible monthly or yearly subscription packages once your profile is verified. 
-                  <span 
-                    onClick={() => setPlanOpen(true)}
-                    style={{ color: '#22bb33', textDecoration: 'underline', marginLeft: '5px', cursor: 'pointer' }}
-                  >
-                    View basic plan overview
-                  </span>
-                </p>
-              </div>
-            </div>
-            <div className="col-lg-5">
-              <div className="rbt-contact-form p-5 rounded shadow bg-white">
+          <div className="row justify-content-center">
+            <div className="col-lg-5 col-md-8 col-12">
+              <div className="rbt-contact-form p-4 p-md-5 rounded shadow bg-white">
                 <div className="mb-4">
-                  <h4 className="title mb-1">Therapist Registration</h4>
-                  <p className="text-muted small mb-0">Step {step} of 3</p>
-                  
-                  {/* Progress Bar */}
-                  <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '10px', marginTop: '10px' }}>
-                    <div style={{ 
-                      height: '100%', 
-                      width: `${(step / 3) * 100}%`, 
-                      background: '#22bb33', 
-                      borderRadius: '10px',
-                      transition: 'width 0.3s ease'
-                    }}></div>
-                  </div>
+                  <h4 className="title mb-3" style={{ fontWeight: 800 }}>Therapist Registration</h4>
+
+                  {/* Step Indicators — only show for steps 1-3 */}
+                  {step > 0 && (
+                    <div className="d-flex align-items-center gap-2 mb-4">
+                      {[
+                        { num: 1, label: "Profile" },
+                        { num: 2, label: "Details" },
+                        { num: 3, label: "Expertise" },
+                      ].map((s, i) => (
+                        <React.Fragment key={s.num}>
+                          <div className="d-flex flex-column align-items-center" style={{ minWidth: '60px' }}>
+                            <div style={{
+                              width: '36px', height: '36px', borderRadius: '50%',
+                              background: step >= s.num ? '#22bb33' : '#e2e8f0',
+                              color: step >= s.num ? '#fff' : '#94a3b8',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontWeight: 700, fontSize: '14px',
+                              transition: 'all 0.3s ease',
+                            }}>
+                              {step > s.num ? '✓' : s.num}
+                            </div>
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: step >= s.num ? '#22bb33' : '#94a3b8', marginTop: '4px' }}>
+                              {s.label}
+                            </span>
+                          </div>
+                          {i < 2 && (
+                            <div style={{
+                              flex: 1, height: '2px', marginBottom: '16px',
+                              background: step > s.num ? '#22bb33' : '#e2e8f0',
+                              transition: 'background 0.3s ease',
+                            }} />
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <p style={{ color: "#d50000", fontSize: '14px' }}>{error}</p>
+
+                {step === 0 && (
+                  <div className="step-0">
+                    <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', marginBottom: '28px' }}>
+                      You're on your way to becoming a part of a trusted community of psychologists, psychiatrists, and mental health professionals who share your passion for well-being.
+                      <br /><br />
+                      To begin, let us know the <strong>email you want attached to your therapist profile</strong> — we'll use this to set up your account and send you updates.
+                    </p>
+                    <div className="form-group mb-3">
+                      <input
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={formData.email}
+                        onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
+                        className="form-control-custom"
+                        style={{ fontSize: '15px' }}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {step === 1 && (
                   <div className="step-1">
@@ -398,16 +365,6 @@ export default function TherapistRegistration()
                         placeholder="Full Name"
                         value={formData.name}
                         onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                        className="form-control-custom"
-                      />
-                    </div>
-
-                    <div className="form-group mb-3">
-                      <input
-                        type="email"
-                        placeholder="Email Address"
-                        value={formData.email}
-                        onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                         className="form-control-custom"
                       />
                     </div>
@@ -469,7 +426,7 @@ export default function TherapistRegistration()
                   <p style={{ color: "#22bb33" }}>{success}</p>
                   
                   <div className="d-flex gap-2">
-                    {step > 1 && (
+                    {step > 0 && step <= 3 && (
                       <button
                         onClick={prevStep}
                         className="rbt-btn btn-border radius-round w-100"
@@ -478,14 +435,15 @@ export default function TherapistRegistration()
                         Back
                       </button>
                     )}
-                    
+
                     {step < 3 ? (
                       <button
                         onClick={nextStep}
+                        disabled={loading}
                         className="rbt-btn btn-gradient radius-round w-100"
-                        style={{ minHeight: '50px' }}
+                        style={{ minHeight: '50px', opacity: loading ? 0.7 : 1 }}
                       >
-                        Continue
+                        {loading && step === 0 ? <CircularProgress size={18} style={{ color: '#fff' }} /> : (step === 0 ? 'Continue' : 'Next →')}
                       </button>
                     ) : (
                       <>
