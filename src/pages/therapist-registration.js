@@ -83,6 +83,8 @@ export default function TherapistRegistration()
     } else if (step === 2) {
       if (formData.name.length < 5) return setError("Please enter full name");
       if (formData.phone.length !== 10) return setError("Please enter valid phone number");
+    } else if (step === 3) {
+      if (!formData.checkedValues.length) return setError("Please select at least one area of expertise");
     }
     setStep(step + 1);
   };
@@ -98,8 +100,6 @@ export default function TherapistRegistration()
     setError("");
     setSuccess("");
 
-    if (!checkedValues.length)
-      return setError("Please check any 'Interested to serve'");
     if (!selectedFile) return setError("Please upload your resume");
 
     setLoading(true);
@@ -252,49 +252,51 @@ export default function TherapistRegistration()
       <MyNavbar />
       <RegistrationHeader />
 
-      <div
-        style={{
-          background: "#f8fafc",
-          minHeight: "100vh",
-          padding: isMobile ? "40px 15px" : "80px 0",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
+      <div style={{ background: "#f8fafc", padding: isMobile ? "30px 15px" : "60px 0" }}>
         <div className="container">
           <div className="row justify-content-center">
-            <div className="col-lg-5 col-md-8 col-12">
-              <div className="rbt-contact-form p-4 p-md-5 rounded shadow bg-white">
-                <div className="mb-4">
-                  <h4 className="title mb-3" style={{ fontWeight: 800 }}>Therapist Registration</h4>
+            <div className="col-lg-6 col-md-8 col-12">
+              <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
 
-                  {/* Step Indicators — only show for steps 1-3 */}
+                {/* Header */}
+                <div style={{ padding: '28px 28px 0' }}>
+                  <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '4px' }}>Therapist Registration</h5>
+                  <p className="text-muted" style={{ fontSize: '13px', marginBottom: '20px' }}>
+                    {step === 0 && "Let's get you started"}
+                    {step === 1 && "Step 1 of 4 — Profile & Mode"}
+                    {step === 2 && "Step 2 of 4 — Personal Details"}
+                    {step === 3 && "Step 3 of 4 — Areas of Expertise"}
+                    {step === 4 && "Step 4 of 4 — Resume Upload"}
+                  </p>
+
+                  {/* Step Indicators — only for steps 1–4 */}
                   {step > 0 && (
-                    <div className="d-flex align-items-center gap-2 mb-4">
+                    <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '24px' }}>
                       {[
                         { num: 1, label: "Profile" },
                         { num: 2, label: "Details" },
                         { num: 3, label: "Expertise" },
+                        { num: 4, label: "Resume" },
                       ].map((s, i) => (
                         <React.Fragment key={s.num}>
-                          <div className="d-flex flex-column align-items-center" style={{ minWidth: '60px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', flex: '0 0 auto' }}>
                             <div style={{
-                              width: '36px', height: '36px', borderRadius: '50%',
+                              width: '30px', height: '30px', borderRadius: '50%',
                               background: step >= s.num ? '#22bb33' : '#e2e8f0',
                               color: step >= s.num ? '#fff' : '#94a3b8',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontWeight: 700, fontSize: '14px',
+                              fontWeight: 700, fontSize: '12px',
                               transition: 'all 0.3s ease',
                             }}>
                               {step > s.num ? '✓' : s.num}
                             </div>
-                            <span style={{ fontSize: '11px', fontWeight: 600, color: step >= s.num ? '#22bb33' : '#94a3b8', marginTop: '4px' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 600, color: step >= s.num ? '#22bb33' : '#94a3b8', whiteSpace: 'nowrap' }}>
                               {s.label}
                             </span>
                           </div>
-                          {i < 2 && (
+                          {i < 3 && (
                             <div style={{
-                              flex: 1, height: '2px', marginBottom: '16px',
+                              flex: 1, height: '2px', margin: '14px 4px 0',
                               background: step > s.num ? '#22bb33' : '#e2e8f0',
                               transition: 'background 0.3s ease',
                             }} />
@@ -305,176 +307,213 @@ export default function TherapistRegistration()
                   )}
                 </div>
 
-                <p style={{ color: "#d50000", fontSize: '14px' }}>{error}</p>
+                {/* Form Body */}
+                <div style={{ padding: '8px 28px 28px' }}>
+                  <p style={{ color: "#d50000", fontSize: '13px', minHeight: '20px', marginBottom: '8px' }}>{error}</p>
 
-                {step === 0 && (
-                  <div className="step-0">
-                    <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', marginBottom: '28px' }}>
-                      You're on your way to becoming a part of a trusted community of psychologists, psychiatrists, and mental health professionals who share your passion for well-being.
-                      <br /><br />
-                      To begin, let us know the <strong>email you want attached to your therapist profile</strong> — we'll use this to set up your account and send you updates.
-                    </p>
-                    <div className="form-group mb-3">
+                  {/* Step 0 — Email */}
+                  {step === 0 && (
+                    <div>
+                      <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', marginBottom: '24px' }}>
+                        You're on your way to becoming part of a trusted community of psychologists, psychiatrists, and mental health professionals.
+                        <br /><br />
+                        To begin, enter the <strong>email you want attached to your therapist profile</strong>.
+                      </p>
                       <input
                         type="email"
                         placeholder="Enter your email address"
                         value={formData.email}
                         onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                         className="form-control-custom"
-                        style={{ fontSize: '15px' }}
+                        style={{ fontSize: '15px', marginBottom: '8px' }}
                       />
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {step === 1 && (
-                  <div className="step-1">
-                    <h6 className="mb-3">Select Profile Type</h6>
-                    <div className="row g-2 mb-4">
-                      {profileOptions.map((opt) => (
-                        <div key={opt} className="col-md-6 col-12">
-                          <div 
-                            className={`selection-card ${formData.profileType === opt ? 'selected' : ''}`}
-                            onClick={() => setFormData(p => ({ ...p, profileType: opt }))}
-                          >
-                            <span style={{ fontSize: '13px', fontWeight: 600, lineHeight: '1.2' }}>{opt}</span>
-                          </div>
-                        </div>
-                      ))}
+                  {/* Step 1 — Profile Type + Mode */}
+                  {step === 1 && (
+                    <div>
+                      <div className="form-group mb-4">
+                        <label style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>Profile Type</label>
+                        <select
+                          value={formData.profileType}
+                          onChange={(e) => setFormData(p => ({ ...p, profileType: e.target.value }))}
+                          style={{
+                            width: '100%', padding: '12px 36px 12px 14px',
+                            border: '1px solid #e2e8f0', borderRadius: '8px',
+                            fontSize: '14px', color: formData.profileType ? '#111827' : '#94a3b8',
+                            background: '#fff', cursor: 'pointer',
+                            appearance: 'none', WebkitAppearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
+                          }}
+                        >
+                          <option value="">Select your profile type</option>
+                          {profileOptions.map((opt) => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>Service Mode</label>
+                        <select
+                          value={formData.mode}
+                          onChange={(e) => setFormData(p => ({ ...p, mode: e.target.value }))}
+                          style={{
+                            width: '100%', padding: '12px 36px 12px 14px',
+                            border: '1px solid #e2e8f0', borderRadius: '8px',
+                            fontSize: '14px', color: formData.mode ? '#111827' : '#94a3b8',
+                            background: '#fff', cursor: 'pointer',
+                            appearance: 'none', WebkitAppearance: 'none',
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center',
+                          }}
+                        >
+                          <option value="">Select service mode</option>
+                          {modeOptions.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
+                  )}
 
-                    <h6 className="mb-3">Select Service Mode</h6>
-                    <div className="row g-2 mb-4">
-                      {modeOptions.map((opt) => (
-                        <div key={opt.value} className="col-md-4 col-4">
-                          <div 
-                            className={`selection-card ${formData.mode == opt.value ? 'selected' : ''}`}
-                            onClick={() => setFormData(p => ({ ...p, mode: opt.value }))}
-                          >
-                            <div style={{ color: formData.mode == opt.value ? '#22bb33' : '#64748b', fontSize: '20px' }}>{opt.icon}</div>
-                            <span style={{ fontSize: '12px', fontWeight: 600 }}>{opt.label}</span>
-                          </div>
-                        </div>
-                      ))}
+                  {/* Step 2 — Personal Details */}
+                  {step === 2 && (
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Personal Details</p>
+                      <div className="form-group mb-3">
+                        <input
+                          type="text"
+                          placeholder="Full Name"
+                          value={formData.name}
+                          onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                          className="form-control-custom"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          placeholder="Phone Number (10 digits)"
+                          value={formData.phone}
+                          onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                          className="form-control-custom"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {step === 2 && (
-                  <div className="step-2">
-                    <h6 className="mb-3">Personal Information</h6>
-                    <div className="form-group mb-3">
-                      <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={formData.name}
-                        onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                        className="form-control-custom"
-                      />
-                    </div>
-
-                    <div className="form-group mb-4">
-                      <input
-                        type="text"
-                        placeholder="Phone Number"
-                        value={formData.phone}
-                        onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-                        className="form-control-custom"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {step === 3 && (
-                  <div className="step-3">
-                    <h6 className="mb-3">Expertise & Resume</h6>
-                    <div className="form-group mb-3">
-                      <span className="small mb-2 d-block">Interested to serve:</span>
-                      <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '10px', border: '1px solid #eee', borderRadius: '8px' }}>
+                  {/* Step 3 — Expertise */}
+                  {step === 3 && (
+                    <div>
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Areas of Expertise</p>
+                      <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '12px' }}>Select all the services you are interested to offer:</p>
+                      <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
                         {[
-                          "Prescribe Medication(Only for Psychiatrist)",
-                          "Individual counselling",
-                          "Couple counselling",
-                          "Teen counselling",
-                          "Workshops/Events conducting",
-                          "Internship/Training",
+                          "Prescribe Medication (Only for Psychiatrist)",
+                          "Individual Counselling",
+                          "Couple Counselling",
+                          "Teen Counselling",
+                          "Workshops / Events",
+                          "Internship / Training",
                         ].map((val, i) => (
-                          <p key={i} className="rbt-checkbox-wrapper mb-2" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <label key={i} htmlFor={`check-${i}`} style={{
+                            display: 'flex', alignItems: 'center', gap: '12px',
+                            padding: '12px 14px',
+                            borderBottom: i < 5 ? '1px solid #f1f5f9' : 'none',
+                            cursor: 'pointer',
+                            background: formData.checkedValues.includes(val) ? 'rgba(34,187,51,0.04)' : '#fff',
+                            transition: 'background 0.2s',
+                          }}>
                             <input
                               type="checkbox"
                               value={val}
                               onChange={handleCheckboxChange}
                               checked={formData.checkedValues.includes(val)}
                               id={`check-${i}`}
+                              style={{ width: '16px', height: '16px', accentColor: '#22bb33', flexShrink: 0 }}
                             />
-                            <label htmlFor={`check-${i}`} style={{ fontSize: '13px', margin: 0 }}>{val}</label>
-                          </p>
+                            <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>{val}</span>
+                          </label>
                         ))}
                       </div>
                     </div>
+                  )}
 
-                    <div className="form-group mb-4">
-                      <span className="small mb-1 d-block">Resume (PDF)</span>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        className="form-control-custom"
-                        style={{ padding: '8px' }}
-                        onChange={handleFileChange}
-                      />
+                  {/* Step 4 — Resume (Final) */}
+                  {step === 4 && (
+                    <div>
+                      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                        <span style={{ fontSize: '18px', lineHeight: 1 }}>🎉</span>
+                        <div>
+                          <p style={{ fontWeight: 700, fontSize: '14px', color: '#166534', margin: 0 }}>You're almost there!</p>
+                          <p style={{ fontSize: '12px', color: '#166534', margin: 0, opacity: 0.85 }}>This is the final step. Upload your resume and complete your registration.</p>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Upload Resume</p>
+                      <div style={{ border: '2px dashed #e2e8f0', borderRadius: '10px', padding: '20px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '12px' }}>PDF only, max 500KB</p>
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={handleFileChange}
+                          style={{ fontSize: '13px', width: '100%' }}
+                        />
+                        {formData.selectedFile && (
+                          <p style={{ fontSize: '12px', color: '#22bb33', marginTop: '10px', marginBottom: 0, fontWeight: 600 }}>
+                            ✓ {formData.selectedFile.name}
+                          </p>
+                        )}
+                      </div>
+                      <p style={{ color: "#22bb33", fontSize: '13px', marginTop: '10px' }}>{success}</p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="form-submit-group mt-4">
-                  <p style={{ color: "#22bb33" }}>{success}</p>
-                  
-                  <div className="d-flex gap-2">
-                    {step > 0 && step <= 3 && (
+                  {/* Buttons */}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                    {step > 0 && (
                       <button
                         onClick={prevStep}
-                        className="rbt-btn btn-border radius-round w-100"
-                        style={{ background: 'transparent', border: '1px solid #ccc', color: '#666', minHeight: '50px' }}
+                        style={{ flex: 1, minHeight: '48px', background: 'transparent', border: '1px solid #e2e8f0', borderRadius: '50px', fontWeight: 600, fontSize: '14px', color: '#64748b', cursor: 'pointer' }}
                       >
-                        Back
+                        ← Back
                       </button>
                     )}
-
-                    {step < 3 ? (
+                    {step < 4 ? (
                       <button
                         onClick={nextStep}
                         disabled={loading}
-                        className="rbt-btn btn-gradient radius-round w-100"
-                        style={{ minHeight: '50px', opacity: loading ? 0.7 : 1 }}
+                        className="rbt-btn btn-gradient radius-round"
+                        style={{ flex: 1, minHeight: '48px', opacity: loading ? 0.7 : 1 }}
                       >
-                        {loading && step === 0 ? <CircularProgress size={18} style={{ color: '#fff' }} /> : (step === 0 ? 'Continue' : 'Next →')}
+                        {loading && step === 0
+                          ? <CircularProgress size={16} style={{ color: '#fff' }} />
+                          : step === 0 ? 'Continue' : 'Next →'}
                       </button>
                     ) : (
-                      <>
-                        {loading ? (
-                          <Box sx={{ display: "flex", justifyContent: "center", width: '100%' }}>
-                            <CircularProgress size={24} />
-                          </Box>
-                        ) : (
-                          <button
-                            onClick={handleSubmit}
-                            className="rbt-btn btn-gradient radius-round w-100"
-                            style={{ minHeight: '50px' }}
-                          >
-                            Complete Registration
-                          </button>
-                        )}
-                      </>
+                      loading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
+                          <CircularProgress size={24} />
+                        </Box>
+                      ) : (
+                        <button
+                          onClick={handleSubmit}
+                          className="rbt-btn btn-gradient radius-round"
+                          style={{ flex: 1, minHeight: '48px' }}
+                        >
+                          Submit Registration
+                        </button>
+                      )
                     )}
                   </div>
-                </div>
 
-                <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
-                  <Link href="/login" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
-                    Already have an account? <span style={{ color: '#22bb33' }}>Login here</span>
-                  </Link>
-                </div>
-              </div>
+                  <div style={{ textAlign: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                    <Link href="/login" style={{ fontSize: '13px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
+                      Already have an account? <span style={{ color: '#22bb33' }}>Login here</span>
+                    </Link>
+                  </div>
+                </div>{/* end form body */}
+              </div>{/* end card */}
             </div>
           </div>
         </div>
