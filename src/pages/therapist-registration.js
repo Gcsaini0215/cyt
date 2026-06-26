@@ -68,11 +68,15 @@ export default function TherapistRegistration()
       try {
         setLoading(true);
         await postData(checkTherapistEmailUrl, { email: formData.email });
+        setLoading(false);
       } catch (err) {
         setLoading(false);
-        return setError(err.response?.data?.message || "This email is already registered with us");
+        const msg = err.response?.data?.message || "";
+        if (err.response?.status === 400 && msg) {
+          return setError(msg);
+        }
+        // network/server error — allow to proceed
       }
-      setLoading(false);
     } else if (step === 1) {
       if (!formData.profileType) return setError("Please select profile type");
       if (!formData.mode) return setError("Please select service mode");
