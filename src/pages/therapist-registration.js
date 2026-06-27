@@ -165,10 +165,7 @@ export default function TherapistRegistration()
           checkedValues: [],
           selectedFile: null,
         });
-        setStep(0);
-        setSuccess(
-          response.message || "Thank you for submitting your resume. Our admin will review your profile soon. You will receive approval via email."
-        );
+        setStep(6);
       } else {
         setOtpError(response.message || "Invalid OTP");
       }
@@ -580,7 +577,30 @@ export default function TherapistRegistration()
                     </div>
                   )}
 
-                  {/* Buttons — hidden on step 5 (OTP has its own button) */}
+                  {/* Step 6 — Success */}
+                  {step === 6 && (
+                    <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
+                      <div style={{ width: '68px', height: '68px', borderRadius: '50%', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '2px solid #86efac', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                        <span style={{ fontSize: '32px' }}>✓</span>
+                      </div>
+                      <h5 style={{ fontWeight: 800, fontSize: '20px', color: '#0f172a', margin: '0 0 8px' }}>Registration Successful!</h5>
+                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.7, margin: '0 0 20px' }}>
+                        Thank you for registering with <strong>Choose Your Therapist</strong>. Our team will review your profile and resume. You will receive an approval notification via email.
+                      </p>
+                      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
+                        <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.6 }}>
+                          Review usually takes <strong>1–2 business days</strong>. Keep an eye on <strong>{registeredEmail}</strong> for updates.
+                        </p>
+                      </div>
+                      <a href="/" style={{ display: 'block', textDecoration: 'none' }}>
+                        <button className="rbt-btn btn-gradient radius-round w-100" style={{ minHeight: '46px' }}>
+                          Go to Homepage
+                        </button>
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Buttons — hidden on step 5+ (OTP/success have their own buttons) */}
                   {step < 5 && <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
                     {step > 0 && (
                       <button
