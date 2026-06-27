@@ -521,52 +521,62 @@ export default function TherapistRegistration()
                   {/* Step 5 — OTP Verification */}
                   {step === 5 && (
                     <div>
-                      <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 18px', marginBottom: '24px' }}>
-                        <p style={{ fontWeight: 800, fontSize: '15px', color: '#166534', margin: '0 0 2px' }}>Check your email</p>
-                        <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>
-                          We've sent a 6-digit OTP to <strong>{registeredEmail}</strong>. Enter it below to complete your registration.
+                      {/* Icon + heading */}
+                      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '2px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                          <span style={{ fontSize: '24px' }}>📧</span>
+                        </div>
+                        <h6 style={{ fontWeight: 800, fontSize: '16px', color: '#0f172a', margin: '0 0 6px' }}>Check your inbox</h6>
+                        <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>
+                          We've sent a 6-digit code to<br />
+                          <strong style={{ color: '#166534' }}>{registeredEmail}</strong>
                         </p>
                       </div>
 
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Enter OTP</p>
-                      <input
-                        type="text"
-                        placeholder="_ _ _ _ _ _"
-                        value={otp}
-                        onChange={(e) => handleOtpChange(e.target.value)}
-                        maxLength={6}
-                        style={{
-                          width: '100%', padding: '16px', border: '2px solid #e2e8f0', borderRadius: '10px',
-                          fontSize: isMobile ? '22px' : '28px', fontWeight: 700, letterSpacing: isMobile ? '8px' : '14px', textAlign: 'center',
-                          boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s',
-                          color: '#111827',
-                        }}
-                        onFocus={e => e.target.style.borderColor = '#22bb33'}
-                        onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                      />
-                      {otpError && <p style={{ color: '#d50000', fontSize: '13px', marginTop: '8px' }}>{otpError}</p>}
-                      {resendMsg && <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '8px' }}>{resendMsg}</p>}
-                      {success && <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '8px' }}>{success}</p>}
+                      {/* OTP input box */}
+                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 16px', marginBottom: '16px' }}>
+                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center', margin: '0 0 12px' }}>Enter Verification Code</p>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="• • • • • •"
+                          value={otp}
+                          onChange={(e) => handleOtpChange(e.target.value)}
+                          maxLength={6}
+                          style={{
+                            width: '100%', padding: '14px', border: '2px solid #e2e8f0', borderRadius: '10px',
+                            fontSize: isMobile ? '24px' : '30px', fontWeight: 800, letterSpacing: isMobile ? '10px' : '16px', textAlign: 'center',
+                            boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s',
+                            color: '#111827', background: '#fff',
+                          }}
+                          onFocus={e => e.target.style.borderColor = '#22bb33'}
+                          onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                        />
+                      </div>
+
+                      {otpError && <p style={{ color: '#d50000', fontSize: '13px', marginBottom: '8px', textAlign: 'center' }}>{otpError}</p>}
+                      {resendMsg && <p style={{ color: '#22bb33', fontSize: '13px', marginBottom: '8px', textAlign: 'center' }}>{resendMsg}</p>}
+                      {success && <p style={{ color: '#22bb33', fontSize: '13px', marginBottom: '8px', textAlign: 'center' }}>{success}</p>}
 
                       <button
                         onClick={verifyOtp}
                         disabled={loading}
                         className="rbt-btn btn-gradient radius-round"
-                        style={{ width: '100%', minHeight: '48px', marginTop: '20px', opacity: loading ? 0.7 : 1 }}
+                        style={{ width: '100%', minHeight: '48px', opacity: loading ? 0.7 : 1 }}
                       >
                         {loading ? <CircularProgress size={18} style={{ color: '#fff' }} /> : 'Verify & Complete Registration'}
                       </button>
 
-                      <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                        <span style={{ fontSize: '13px', color: '#64748b' }}>Didn't receive the OTP? </span>
+                      <p style={{ textAlign: 'center', marginTop: '14px', fontSize: '13px', color: '#94a3b8' }}>
+                        Didn't receive the code?{' '}
                         <button
                           onClick={resendOtp}
                           disabled={resendLoading}
                           style={{ background: 'none', border: 'none', color: '#22bb33', fontWeight: 700, fontSize: '13px', cursor: 'pointer', padding: 0, opacity: resendLoading ? 0.6 : 1 }}
                         >
-                          {resendLoading ? 'Sending...' : 'Resend OTP'}
+                          {resendLoading ? 'Sending...' : 'Resend'}
                         </button>
-                      </div>
+                      </p>
                     </div>
                   )}
 
