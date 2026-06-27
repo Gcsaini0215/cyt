@@ -279,7 +279,7 @@ export default function TherapistRegistration()
                 {/* Header */}
                 <div style={{ padding: isMobile ? '18px 16px 0' : '20px 28px 0' }}>
                   <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '2px' }}>Therapist Registration</h5>
-                  <p className="text-muted" style={{ fontSize: '13px', marginBottom: step === 0 ? '4px' : '12px' }}>
+                  <p className="text-muted" style={{ fontSize: '13px', marginBottom: step === 0 ? '0px' : '12px' }}>
                     {step === 0 && "Begin your journey as a verified therapist"}
                     {step === 1 && "Step 1 of 4 — Profile & Mode"}
                     {step === 2 && "Step 2 of 4 — Personal Details"}
@@ -328,7 +328,7 @@ export default function TherapistRegistration()
 
                 {/* Form Body */}
                 <div style={{ padding: isMobile ? '4px 16px 24px' : '4px 28px 24px' }}>
-                  <p style={{ color: "#d50000", fontSize: '13px', minHeight: '16px', marginBottom: '4px' }}>{error}</p>
+                  <p style={{ color: "#d50000", fontSize: '13px', minHeight: error ? '16px' : '0', marginBottom: error ? '4px' : '0' }}>{error}</p>
 
                   {/* Step 0 — Email */}
                   {step === 0 && (
