@@ -94,10 +94,10 @@ export default function TherapyBooking({ pics = [] }) {
         .tb-col-down { animation: _tb_down 70s linear infinite; }
         @media (max-width: 900px) { .tb-col-hide { display: none !important; } }
         @media (max-width: 767px) {
-          .tb-banner { padding: 10px 0 10px 0 !important; }
+          .tb-banner { padding: 28px 0 24px 0 !important; }
           .tb-badge { display: none !important; }
-          .tb-title { display: none !important; }
-          .tb-subtitle { display: none !important; }
+          .tb-title { font-size: 22px !important; line-height: 1.3 !important; margin-bottom: 8px !important; }
+          .tb-subtitle { font-size: 13px !important; padding: 0 4px !important; }
         }
       `}</style>
 
@@ -105,13 +105,10 @@ export default function TherapyBooking({ pics = [] }) {
         <MyNavbar />
 
         {/* ── BANNER (collage bg) ── */}
-        {isMobile ? (
-          <div style={{ height: "4px", background: "linear-gradient(90deg, #16a34a, #4ade80)" }} />
-        ) : (
-          <section className="tb-banner" style={{
-            position: "relative", overflow: "hidden", background: "#000",
-            padding: "60px 0 50px",
-          }}>
+        <section className="tb-banner" style={{
+          position: "relative", overflow: "hidden", background: "#000",
+          padding: "60px 0 50px",
+        }}>
             {/* Collage */}
             {tiles.length > 0 && (
               <div style={{ position: "absolute", inset: 0, display: "flex", zIndex: 0 }}>
@@ -175,7 +172,6 @@ export default function TherapyBooking({ pics = [] }) {
               </p>
             </div>
           </section>
-        )}
 
         {/* ── FORM SECTION ── */}
         <div style={{ background: "#f8fafc", padding: isMobile ? "24px 0" : "60px 0" }}>

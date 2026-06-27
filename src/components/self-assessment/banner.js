@@ -50,9 +50,10 @@ const styles = `
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .sa-banner { height: 4px; padding: 0; background-image: none; background: linear-gradient(90deg, #16a34a, #4ade80); }
-  .sa-banner::before { display: none; }
-  .sa-badge, .sa-title, .sa-subtitle { display: none; }
+  .sa-banner { padding: 28px 0 24px 0; }
+  .sa-badge { display: none; }
+  .sa-title { font-size: 22px; margin-bottom: 8px; }
+  .sa-subtitle { font-size: 13px; padding: 0 16px; }
 }
 `;
 

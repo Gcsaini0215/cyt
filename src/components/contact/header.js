@@ -57,10 +57,10 @@ const styles = `
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .contact-banner { padding: 24px 0 20px 0; }
+  .contact-banner { padding: 28px 0 24px 0; }
   .contact-badge { display: none; }
-  .contact-title { font-size: 18px; line-height: 1.4; }
-  .contact-subtitle { font-size: 12px; padding: 0 12px; }
+  .contact-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
+  .contact-subtitle { font-size: 13px; padding: 0 16px; }
   .contact-animated { min-width: 100%; display: block; text-align: center; }
 }
 `;

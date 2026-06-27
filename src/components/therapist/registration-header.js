@@ -84,12 +84,10 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .reg-banner {
-    padding: 10px 0 10px 0;
-  }
+  .reg-banner { padding: 28px 0 24px 0; }
   .reg-badge { display: none; }
-  .reg-title { display: none; }
-  .reg-subtitle { display: none; }
+  .reg-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
+  .reg-subtitle { font-size: 13px; }
   .reg-animated-text { min-width: 100%; display: block; text-align: center; }
 }
 `;
@@ -103,12 +101,6 @@ export default function RegistrationHeader() {
     window.addEventListener("resize", fn);
     return () => window.removeEventListener("resize", fn);
   }, []);
-
-  if (isMobile) {
-    return (
-      <div style={{ height: '4px', background: 'linear-gradient(90deg, #16a34a, #4ade80)' }} />
-    );
-  }
 
   return (
     <>
