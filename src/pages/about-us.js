@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
+import TherapistCollage from "../components/about/therapist-collage";
 import ServiceQuality from "../components/about/service-quality";
 import AboutCyt from "../components/about/about-cyt";
 import CallToActionAbout from "../components/about/call-to-action";
@@ -180,6 +181,7 @@ export default function AboutUs({ pics = [] }) {
       </Head>
       <MyNavbar />
       <AboutUsBanner pics={pics} />
+      <TherapistCollage pics={pics} />
       <AboutCyt />
       <ServiceQuality />
       
