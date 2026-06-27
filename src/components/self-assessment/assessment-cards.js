@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 const assessments = [
   {
@@ -59,88 +59,79 @@ const assessments = [
 ];
 
 export default function AssessmentCards({ onSelectAssessment }) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const fn = () => setIsMobile(window.innerWidth < 768);
-    fn();
-    window.addEventListener("resize", fn);
-    return () => window.removeEventListener("resize", fn);
-  }, []);
-
   return (
     <>
       <style>{`
-        .sa-cards-section { background: #f8fafc; padding: ${isMobile ? "24px 0 40px" : "60px 0"}; }
-        .sa-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; transition: box-shadow .2s, transform .2s; display: flex; flex-direction: column; height: 100%; }
-        .sa-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.10); transform: translateY(-4px); }
-        .sa-card-top { padding: 24px 22px 16px; flex: 1; }
-        .sa-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
-        .sa-card-title { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
-        .sa-card-short { font-size: 11px; font-weight: 700; letter-spacing: .8px; margin: 0 0 10px; }
-        .sa-card-desc { font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; }
-        .sa-card-meta { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 22px; border-top: 1px solid #f1f5f9; }
-        .sa-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 50px; }
-        .sa-card-btn { display: block; width: 100%; padding: 13px; text-align: center; font-size: 14px; font-weight: 700; color: #fff; border: none; cursor: pointer; transition: opacity .2s, transform .2s; }
-        .sa-card-btn:hover { opacity: .88; transform: translateY(-1px); }
+        .sa-section { background: #f8fafc; padding: 52px 0; }
+        .sa-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; display: flex; align-items: center; gap: 20px; padding: 20px 24px; transition: box-shadow .2s, border-color .2s; cursor: pointer; }
+        .sa-row:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); border-color: #cbd5e1; }
+        .sa-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .sa-info { flex: 1; min-width: 0; }
+        .sa-title { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 3px; }
+        .sa-desc { font-size: 13px; color: #64748b; margin: 0; line-height: 1.5; }
+        .sa-meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+        .sa-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 50px; white-space: nowrap; }
+        .sa-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #fff; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: opacity .2s; }
+        .sa-btn:hover { opacity: .85; }
         @media (max-width: 767px) {
-          .sa-cards-section { padding: 24px 0 40px; }
+          .sa-section { padding: 32px 0; }
+          .sa-row { flex-wrap: wrap; gap: 14px; padding: 16px; }
+          .sa-meta { justify-content: flex-start; }
+          .sa-btn { width: 100%; justify-content: center; }
         }
       `}</style>
 
-      <div className="sa-cards-section">
-        <div className={isMobile ? "" : "container"} style={isMobile ? { padding: "0 12px" } : {}}>
+      <div className="sa-section">
+        <div className="container">
 
-          <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 40 }}>
+          <div style={{ textAlign: "center", marginBottom: 36 }}>
             <span style={{
               display: "inline-block", fontSize: 11, fontWeight: 800, color: "#16a34a",
               letterSpacing: 1.4, textTransform: "uppercase", background: "#dcfce7",
               padding: "5px 14px", borderRadius: 50, marginBottom: 12,
             }}>Choose Your Assessment</span>
-            <h2 style={{ fontSize: isMobile ? 22 : 32, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>
+            <h2 style={{ fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>
               What Would You Like to Explore?
             </h2>
-            <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
-              Each assessment takes just a few minutes and gives you clinically-grounded insights.
+            <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
+              Each assessment takes a few minutes and gives you clinically-grounded insights.
             </p>
           </div>
 
-          <div className="row g-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {assessments.map((a) => (
-              <div key={a.id} className="col-12 col-sm-6 col-lg-4">
-                <div className="sa-card">
-                  <div className="sa-card-top">
-                    <div className="sa-card-icon" style={{ background: `${a.color}18`, color: a.color }}>
-                      <i className={a.icon}></i>
-                    </div>
-                    <div className="sa-card-title">{a.title}</div>
-                    <div className="sa-card-short" style={{ color: a.color }}>{a.short}</div>
-                    <p className="sa-card-desc">{a.description}</p>
-                  </div>
+              <div key={a.id} className="sa-row" onClick={() => onSelectAssessment(a.id)}>
 
-                  <div className="sa-card-meta">
-                    <span className="sa-chip" style={{ background: `${a.color}14`, color: a.color }}>
-                      {a.questions} Questions
-                    </span>
-                    <span className="sa-chip" style={{ background: "#f1f5f9", color: "#475569" }}>
-                      {a.duration}
-                    </span>
-                    <span className="sa-chip" style={{ background: `${a.color}14`, color: a.color }}>
-                      {a.age}
-                    </span>
-                  </div>
-
-                  <button
-                    className="sa-card-btn"
-                    style={{ background: a.color }}
-                    onClick={() => onSelectAssessment(a.id)}
-                  >
-                    Start Assessment →
-                  </button>
+                {/* Icon */}
+                <div className="sa-icon" style={{ background: `${a.color}18`, color: a.color }}>
+                  <i className={a.icon}></i>
                 </div>
+
+                {/* Title + desc */}
+                <div className="sa-info">
+                  <div className="sa-title">
+                    {a.title}
+                    <span style={{ fontSize: 11, fontWeight: 700, color: a.color, marginLeft: 8 }}>{a.short}</span>
+                  </div>
+                  <p className="sa-desc">{a.description}</p>
+                </div>
+
+                {/* Chips */}
+                <div className="sa-meta">
+                  <span className="sa-chip" style={{ background: `${a.color}14`, color: a.color }}>{a.questions} Qs</span>
+                  <span className="sa-chip" style={{ background: "#f1f5f9", color: "#475569" }}>{a.duration}</span>
+                  <span className="sa-chip" style={{ background: "#f1f5f9", color: "#475569" }}>{a.age}</span>
+                </div>
+
+                {/* Button */}
+                <button className="sa-btn" style={{ background: a.color }} onClick={(e) => { e.stopPropagation(); onSelectAssessment(a.id); }}>
+                  Start <i className="feather-arrow-right" style={{ fontSize: 13 }}></i>
+                </button>
+
               </div>
             ))}
           </div>
+
         </div>
       </div>
     </>
