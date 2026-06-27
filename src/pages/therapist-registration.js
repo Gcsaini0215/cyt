@@ -333,7 +333,7 @@ export default function TherapistRegistration()
                   {/* Step 0 — Email */}
                   {step === 0 && (
                     <div>
-                      <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', marginBottom: '14px' }}>
+                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.7', marginBottom: '14px' }}>
                         Join a growing network of verified psychologists, psychiatrists, and mental health professionals on <strong>Choose Your Therapist</strong>. Get discovered by clients across India, manage bookings, generate invoices, and grow your practice — all in one place. Start with our{' '}
                         <span
                           onClick={() => setPlanOpen(true)}
