@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Container, useMediaQuery } from "@mui/material";
+import { Box, Container, useMediaQuery } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import SecurityIcon from "@mui/icons-material/Security";
 import { TypeAnimation } from "react-type-animation";
@@ -11,7 +11,7 @@ const styles = `
   background-size: cover;
   background-position: center;
   background-attachment: scroll;
-  padding: 140px 0 100px 0;
+  padding: 60px 0 50px 0;
   overflow: hidden;
   margin-top: 0px;
 }
@@ -45,25 +45,25 @@ const styles = `
 }
 
 .login-title {
-  font-size: 48px;
+  font-size: 30px;
   font-weight: 900;
   color: #ffffff;
-  line-height: 1.2;
-  margin-bottom: 20px;
+  line-height: 1.3;
+  margin-bottom: 12px;
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .login-animated-text {
   color: #4ade80;
   display: inline-block;
-  min-width: 250px;
+  min-width: 220px;
   text-align: left;
 }
 
 .login-subtitle {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 800px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
 }
@@ -84,11 +84,11 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .login-banner { 
-    padding: 100px 0 60px 0;
+  .login-banner {
+    padding: 40px 0 30px 0;
   }
-  .login-title { font-size: 32px; }
-  .login-subtitle { font-size: 16px; }
+  .login-title { font-size: 22px; }
+  .login-subtitle { font-size: 13px; }
   .login-animated-text { min-width: 100%; text-align: center; }
 }
 `;
@@ -102,17 +102,16 @@ export default function LoginHeader() {
       <section className="login-banner">
         <SecurityIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
         <LoginIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
-        
+
         <Container maxWidth="lg">
           <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             <div className="login-badge">
               <SecurityIcon sx={{ fontSize: 18 }} />
               <span>Secure Access</span>
             </div>
-            
+
             <h1 className="login-title">
               Welcome Back to{" "}
-              <br />
               <span className="login-animated-text">
                 <TypeAnimation
                   sequence={[
@@ -129,10 +128,9 @@ export default function LoginHeader() {
                 />
               </span>
             </h1>
-            
+
             <p className="login-subtitle">
-              Access your personalized dashboard, manage appointments, 
-              <br /> and continue your journey towards better mental health.
+              Access your personalized dashboard, manage appointments, and continue your journey towards better mental health.
             </p>
           </Box>
         </Container>

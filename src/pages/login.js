@@ -5,7 +5,6 @@ import Head from "next/head";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
-import ImageTag from "../utils/image-tag";
 import { isValidMail } from "../utils/validators";
 import { loginUrl, verifyOtpUrl } from "../utils/url";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -44,12 +43,6 @@ export default function Login() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const stats = [
-    { label: "Happy Clients", value: "5k+", color: "#e1f5e3", textColor: "#166534" },
-    { label: "Verified Experts", value: "500+", color: "#e0f2fe", textColor: "#0369a1" },
-    { label: "Sessions", value: "10k+", color: "#fef3c7", textColor: "#92400e" },
-  ];
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading || cooldown > 0) return;
@@ -59,9 +52,7 @@ export default function Login() {
       return;
     }
 
-    const value = {
-      email,
-    };
+    const value = { email };
 
     try {
       setLoading(true);
@@ -70,14 +61,14 @@ export default function Login() {
         setSuccess(response.message);
         setError("");
         setOtpView(true);
-        setCooldown(60); // Standard cooldown after success
+        setCooldown(60);
       } else {
         setError(response.message);
       }
     } catch (error) {
       if (error.response?.status === 429) {
         setError(error.response?.data?.message || "Too many requests. Please wait before trying again.");
-        setCooldown(60); // 60 seconds cooldown for 429
+        setCooldown(60);
       } else {
         setError(error.response?.data?.message || error.message || "Something went wrong");
       }
@@ -94,10 +85,7 @@ export default function Login() {
       setError("Please enter valid OTP");
       return;
     }
-    const value = {
-      email,
-      otp,
-    };
+    const value = { email, otp };
     try {
       setLoading(true);
       const response = await postData(verifyOtpUrl, value);
@@ -141,13 +129,13 @@ export default function Login() {
         <meta name="description" content="Securely log in to your Choose Your Therapist account. Manage your sessions, connect with your psychologist, and track your mental health progress." />
         <meta name="keywords" content="Therapist Login, Client Login, Mental Health Dashboard, Secure Therapy Login" />
         <link rel="canonical" href="https://chooseyourtherapist.in/login" />
-        
+
         <meta property="og:title" content="Login | Access Your Therapy Dashboard | Choose Your Therapist" />
         <meta property="og:description" content="Securely log in to manage your therapy sessions and mental health journey." />
         <meta property="og:url" content="https://chooseyourtherapist.in/login" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-        
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Login | Access Your Therapy Dashboard | Choose Your Therapist" />
         <meta name="twitter:description" content="Log in to your secure dashboard to manage your therapy sessions." />
@@ -158,14 +146,6 @@ export default function Login() {
           outline: none !important;
           box-shadow: none !important;
         }
-        .stat-card {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          padding: 15px;
-          border-radius: 12px;
-          text-align: center;
-          flex: 1;
-        }
         .form-control-custom {
           background: #fff;
           border: 1px solid #e2e8f0;
@@ -173,6 +153,8 @@ export default function Login() {
           padding: 12px 15px;
           width: 100%;
           font-size: 14px;
+          box-sizing: border-box;
+          display: block;
           transition: all 0.3s ease;
         }
         .form-control-custom:focus {
@@ -184,128 +166,136 @@ export default function Login() {
       <MyNavbar />
       <LoginHeader />
 
-      <div
-        style={{
-          background: "#ffffff",
-          padding: isMobile ? "40px 15px" : "80px 0",
-        }}
-      >
+      <div style={{ background: '#f8fafc', padding: isMobile ? '32px 15px' : '60px 0' }}>
         <div className="container">
-          <div className="row align-items-start g-5">
-            {/* Left Section */}
-            <div className="col-lg-7">
-              <div className="mb-5">
-                <span style={{ 
-                  background: '#e1f5e3', 
-                  color: '#166534', 
-                  padding: '6px 16px', 
-                  borderRadius: '50px', 
-                  fontSize: '14px', 
-                  fontWeight: '600' 
-                }}>
-                  Empowering Mental Well-being
-                </span>
-                <h3 style={{ fontWeight: 800, marginTop: '20px', fontSize: isMobile ? '28px' : '40px' }}>
-                  Your Journey to <span style={{ color: '#22bb33' }}>Better Health</span> Starts Here
-                </h3>
-                <p className="text-muted" style={{ fontSize: '18px' }}>
-                  Log in to access personalized support, manage your appointments, and stay connected with your therapist. Track your progress in a secure and confidential environment.
-                </p>
-              </div>
+          <div className="row justify-content-center">
+            <div className="col-12 col-sm-10 col-md-8 col-lg-5">
 
-              {/* Stats Grid */}
-              <div className="d-flex gap-3 mb-5">
-                {stats.map((stat, idx) => (
-                  <div key={idx} className="stat-card" style={{ background: stat.color, border: 'none' }}>
-                    <h3 style={{ margin: 0, color: stat.textColor, fontWeight: 800 }}>{stat.value}</h3>
-                    <p style={{ margin: 0, fontSize: '12px', color: stat.textColor, fontWeight: 600, opacity: 0.8 }}>{stat.label}</p>
+              {/* Card */}
+              <div style={{
+                background: '#fff',
+                borderRadius: '16px',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+                border: '1px solid #e2e8f0',
+                overflow: 'hidden',
+              }}>
+                {/* Green top bar */}
+                <div style={{ height: '4px', background: 'linear-gradient(90deg, #22bb33, #4ade80)' }} />
+
+                <div style={{ padding: isMobile ? '24px 20px 28px' : '32px 36px 36px' }}>
+                  {/* Header */}
+                  <div style={{ marginBottom: '24px' }}>
+                    <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '2px' }}>Welcome Back</h5>
+                    <p className="text-muted" style={{ fontSize: '13px', marginBottom: 0 }}>
+                      Enter your email to receive a one-time login code
+                    </p>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Right Section - Form */}
-            <div className="col-lg-5">
-              <div className="rbt-contact-form p-5 rounded shadow bg-white">
-                <div className="mb-4">
-                  <h3 className="title mb-1">Login</h3>
-                  <p className="text-muted small">Enter your email to receive OTP</p>
-                </div>
+                  {/* Messages */}
+                  <FormMessage error={error} success={success} />
 
-                <FormMessage error={error} success={success} />
+                  {otpView ? (
+                    <div>
+                      <p style={{ fontSize: '13px', color: '#475569', marginBottom: '12px' }}>
+                        A 6-digit OTP has been sent to <strong>{email}</strong>. Enter it below to sign in.
+                      </p>
+                      <div className="form-group mb-4">
+                        <input
+                          placeholder="Enter OTP"
+                          type="text"
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value)}
+                          className="form-control-custom text-center"
+                          style={{ fontSize: 24, letterSpacing: 8, fontWeight: 700 }}
+                        />
+                      </div>
 
-                {otpView ? (
-                  <div id="contact-form">
-                    <div className="form-group mb-4">
-                      <input
-                        placeholder="Enter OTP"
-                        type="text"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        className="form-control-custom text-center"
-                        style={{ fontSize: 24, letterSpacing: 8, fontWeight: 700 }}
-                      />
-                    </div>
+                      <div className="form-submit-group">
+                        {loading ? (
+                          <FormProgressBar />
+                        ) : (
+                          <button
+                            onClick={handleOtp}
+                            className="rbt-btn btn-gradient radius-round w-100"
+                            style={{ minHeight: '50px' }}
+                          >
+                            Verify &amp; Sign In
+                          </button>
+                        )}
+                      </div>
 
-                    <div className="form-submit-group">
-                      {loading ? (
-                        <FormProgressBar />
-                      ) : (
-                        <button
-                          onClick={handleOtp}
-                          className="rbt-btn btn-gradient radius-round w-100"
-                          style={{ minHeight: '50px' }}
+                      <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '12px', textAlign: 'center' }}>
+                        Wrong email?{' '}
+                        <span
+                          onClick={() => { setOtpView(false); setOtp(""); setError(""); setSuccess(""); }}
+                          style={{ color: '#22bb33', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
                         >
-                          Verify OTP
-                        </button>
-                      )}
+                          Go back
+                        </span>
+                      </p>
                     </div>
-                  </div>
-                ) : (
-                  <div id="contact-form">
-                    <div className="form-group mb-4">
-                      <input
-                        placeholder="Email Address"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="form-control-custom"
-                      />
-                    </div>
+                  ) : (
+                    <div>
+                      <div className="form-group mb-4">
+                        <input
+                          placeholder="Email Address"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="form-control-custom"
+                          onKeyDown={(e) => e.key === 'Enter' && handleSubmit(e)}
+                        />
+                      </div>
 
-                    <div className="form-submit-group">
-                      {loading ? (
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                          <CircularProgress size={24} />
-                        </Box>
-                      ) : (
-                        <button
-                          onClick={handleSubmit}
-                          disabled={cooldown > 0}
-                          className="rbt-btn btn-gradient radius-round w-100"
-                          style={{ 
-                            minHeight: '50px',
-                            opacity: cooldown > 0 ? 0.6 : 1,
-                            cursor: cooldown > 0 ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {cooldown > 0 ? `Wait ${cooldown}s` : "Send OTP"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
+                      <div className="form-submit-group">
+                        {loading ? (
+                          <Box sx={{ display: "flex", justifyContent: "center" }}>
+                            <CircularProgress size={24} />
+                          </Box>
+                        ) : (
+                          <button
+                            onClick={handleSubmit}
+                            disabled={cooldown > 0}
+                            className="rbt-btn btn-gradient radius-round w-100"
+                            style={{
+                              minHeight: '50px',
+                              opacity: cooldown > 0 ? 0.6 : 1,
+                              cursor: cooldown > 0 ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            {cooldown > 0 ? `Wait ${cooldown}s` : "Send OTP"}
+                          </button>
+                        )}
+                      </div>
 
-                <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
-                  <Link href="/register" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
-                    Don't have an account? <span style={{ color: '#22bb33' }}>Register here</span>
-                  </Link>
+                      <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '14px', textAlign: 'center', lineHeight: 1.6 }}>
+                        We'll send a secure one-time code to your registered email address.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Divider + Register link */}
+                  <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '20px', paddingTop: '16px', textAlign: 'center' }}>
+                    <Link href="/register" style={{ fontSize: '13px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
+                      Don't have an account?{' '}
+                      <span style={{ color: '#22bb33' }}>Register here</span>
+                    </Link>
+                  </div>
+
+                  <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                    <Link href="/therapist-registration" style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'none' }}>
+                      Are you a therapist?{' '}
+                      <span style={{ color: '#22bb33', fontWeight: 600 }}>Join as a professional</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
       </div>
+
       <NewsLetter />
       <Footer />
     </>
