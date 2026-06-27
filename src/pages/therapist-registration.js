@@ -277,9 +277,9 @@ export default function TherapistRegistration()
               <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
 
                 {/* Header */}
-                <div style={{ padding: '28px 28px 0' }}>
-                  <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '4px' }}>Therapist Registration</h5>
-                  <p className="text-muted" style={{ fontSize: '13px', marginBottom: '20px' }}>
+                <div style={{ padding: '20px 28px 0' }}>
+                  <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '2px' }}>Therapist Registration</h5>
+                  <p className="text-muted" style={{ fontSize: '13px', marginBottom: '12px' }}>
                     {step === 0 && "Let's get you started"}
                     {step === 1 && "Step 1 of 4 — Profile & Mode"}
                     {step === 2 && "Step 2 of 4 — Personal Details"}
@@ -327,38 +327,20 @@ export default function TherapistRegistration()
                 </div>
 
                 {/* Form Body */}
-                <div style={{ padding: '8px 28px 28px' }}>
-                  <p style={{ color: "#d50000", fontSize: '13px', minHeight: '20px', marginBottom: '8px' }}>{error}</p>
+                <div style={{ padding: '4px 28px 24px' }}>
+                  <p style={{ color: "#d50000", fontSize: '13px', minHeight: '16px', marginBottom: '4px' }}>{error}</p>
 
                   {/* Step 0 — Email */}
                   {step === 0 && (
                     <div>
-                      <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.8', marginBottom: '20px' }}>
-                        You're on your way to becoming part of a trusted community of psychologists, psychiatrists, and mental health professionals.
-                        <br /><br />
-                        To begin, enter the <strong>email you want attached to your therapist profile</strong>.
+                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.7', marginBottom: '14px' }}>
+                        Join a growing network of verified psychologists, psychiatrists, and mental health professionals on <strong>Choose Your Therapist</strong>. Get discovered by clients across India, manage bookings, generate invoices, and grow your practice — all in one place. Start with our{' '}
+                        <span
+                          onClick={() => setPlanOpen(true)}
+                          style={{ color: '#22bb33', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}
+                        >Starter Plan</span>
+                        {' '}and take your practice to the next level.
                       </p>
-
-                      {/* Subscription Plan Card */}
-                      <div
-                        onClick={() => setPlanOpen(true)}
-                        style={{
-                          border: '2px solid #22bb33',
-                          borderRadius: '12px',
-                          padding: '16px',
-                          marginBottom: '20px',
-                          background: '#fff',
-                          cursor: 'pointer',
-                          textAlign: 'center',
-                          transition: 'box-shadow 0.2s',
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(34,187,51,0.15)'}
-                        onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
-                      >
-                        <p style={{ fontWeight: 800, fontSize: '15px', color: '#22bb33', margin: '0 0 4px' }}>Starter Plan — ₹1,999 / 3 Months</p>
-                        <p style={{ fontSize: '12px', color: '#22bb33', margin: 0, opacity: 0.8 }}>Visibility · Credibility · Storage</p>
-                        <p style={{ fontSize: '12px', color: '#22bb33', fontWeight: 700, margin: '6px 0 0', textDecoration: 'underline' }}>View Plan Details →</p>
-                      </div>
 
                       <input
                         type="email"
@@ -366,8 +348,15 @@ export default function TherapistRegistration()
                         value={formData.email}
                         onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                         className="form-control-custom"
-                        style={{ fontSize: '15px', marginBottom: '8px' }}
+                        style={{ fontSize: '15px', marginBottom: '10px' }}
                       />
+
+                      <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
+                        Have a question about registration or membership?{' '}
+                        <a href="https://wa.me/918077757951" target="_blank" rel="noreferrer" style={{ color: '#22bb33', fontWeight: 600, textDecoration: 'none' }}>
+                          Contact CYT Support
+                        </a>
+                      </p>
                     </div>
                   )}
 
