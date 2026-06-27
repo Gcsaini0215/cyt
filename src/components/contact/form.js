@@ -1,202 +1,170 @@
-import LazyImage from "../../utils/lazy-image";
-import ContactImg from "../../assets/img/contact.webp";
+import { useState } from "react";
+import { postData } from "../../utils/actions";
+import { SubmitConsultationUrl } from "../../utils/url";
 
 export default function ContactForm() {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(''); setSuccess('');
+    if (!formData.name || !formData.email || !formData.message) return setError('Please fill all required fields.');
+    try {
+      setLoading(true);
+      await postData(SubmitConsultationUrl, { ...formData, source: 'Contact Page' });
+      setSuccess("Message sent! We'll get back to you within 24 hours.");
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch {
+      setError('Something went wrong. Please try again or WhatsApp us directly.');
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="rbt-contact-address premium-form-section rbt-section-gap">
+    <div style={{ background: '#f8fafc', padding: '60px 0' }}>
       <div className="container">
-        <div className="row g-5 align-items-center">
-          <div className="col-lg-6 sal-animate" data-sal="slide-right" data-sal-duration="800">
-            <div className="thumbnail contact-img-wrapper">
-              <LazyImage alt="Contact" dim={"550-500"} src={ContactImg} />
-              <div className="image-overlay-card">
-                <i className="feather-check-circle"></i>
-                <span>Verified Professionals</span>
-              </div>
+        <div className="row g-5 align-items-start">
+
+          {/* Left — info + WhatsApp */}
+          <div className="col-lg-5">
+            <div style={{ marginBottom: '12px' }}>
+              <span style={{ background: '#dcfce7', color: '#166534', padding: '5px 14px', borderRadius: '50px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Contact Us
+              </span>
             </div>
-          </div>
-          <div className="col-lg-6 sal-animate" data-sal="slide-left" data-sal-duration="800">
-            <div className="rbt-contact-form premium-green-form">
-              <div className="form-header mb--30">
-                <h3 className="title">Send us a Message</h3>
-                <p>Have a specific inquiry? Fill out the form and we'll get back to you within 24 hours.</p>
+            <h2 style={{ fontWeight: 900, fontSize: '28px', color: '#0f172a', marginBottom: '12px', lineHeight: 1.3 }}>
+              Send Us a Message
+            </h2>
+            <p style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.8, marginBottom: '28px' }}>
+              Have a specific inquiry? Fill out the form and we'll get back to you within 24 hours. Or reach us directly on WhatsApp for faster support.
+            </p>
+
+            {/* WhatsApp CTA */}
+            <a
+              href="https://wa.me/918077757951"
+              target="_blank"
+              rel="noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: '14px', padding: '16px 20px', marginBottom: '12px', transition: 'all 0.2s', cursor: 'pointer' }}>
+                <div style={{ width: '44px', height: '44px', background: '#25d366', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </div>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a', margin: '0 0 2px' }}>Chat on WhatsApp</p>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>+91-807-775-7951 · Usually replies in minutes</p>
+                </div>
               </div>
-              <form
-                id="contact-form"
-                method="POST"
-                className="rainbow-dynamic-form"
-              >
-                <div className="form-group-wrapper">
-                  <div className="form-group">
-                    <label>Your Name</label>
+            </a>
+
+            <a href="tel:+918077757951" style={{ textDecoration: 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: '14px', padding: '16px 20px', cursor: 'pointer' }}>
+                <div style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, #16a34a, #22bb33)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"></path></svg>
+                </div>
+                <div>
+                  <p style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a', margin: '0 0 2px' }}>Call Us Directly</p>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Mon – Sat · 10AM – 7PM IST</p>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          {/* Right — form */}
+          <div className="col-lg-7">
+            <div style={{ background: '#fff', borderRadius: '20px', boxShadow: '0 4px 24px rgba(0,0,0,0.07)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ height: '4px', background: 'linear-gradient(90deg, #22bb33, #4ade80)' }} />
+              <div style={{ padding: '32px 28px' }}>
+
+                {success && (
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
+                    <p style={{ color: '#166534', fontSize: '13px', margin: 0, fontWeight: 600 }}>{success}</p>
+                  </div>
+                )}
+                {error && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
+                    <p style={{ color: '#dc2626', fontSize: '13px', margin: 0 }}>{error}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                  <div className="row g-3 mb-3">
+                    <div className="col-md-6">
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', display: 'block' }}>Your Name *</label>
+                      <input
+                        name="name"
+                        type="text"
+                        placeholder="e.g. Rahul Sharma"
+                        value={formData.name}
+                        onChange={handleChange}
+                        style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '11px 14px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                        onFocus={e => e.target.style.borderColor = '#22bb33'}
+                        onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                      />
+                    </div>
+                    <div className="col-md-6">
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', display: 'block' }}>Email Address *</label>
+                      <input
+                        name="email"
+                        type="email"
+                        placeholder="e.g. rahul@example.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '11px 14px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                        onFocus={e => e.target.style.borderColor = '#22bb33'}
+                        onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', display: 'block' }}>Subject</label>
                     <input
-                      name="contact-name"
-                      id="contact-name"
+                      name="subject"
                       type="text"
-                      placeholder="e.g. John Doe"
+                      placeholder="How can we help?"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '11px 14px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                      onFocus={e => e.target.style.borderColor = '#22bb33'}
+                      onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Email Address</label>
-                    <input
-                      name="contact-phone"
-                      type="email"
-                      placeholder="e.g. john@example.com"
+
+                  <div className="mb-4">
+                    <label style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', display: 'block' }}>Your Message *</label>
+                    <textarea
+                      name="message"
+                      rows={5}
+                      placeholder="Tell us more about your requirements..."
+                      value={formData.message}
+                      onChange={handleChange}
+                      style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '11px 14px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', resize: 'vertical', transition: 'border-color 0.2s' }}
+                      onFocus={e => e.target.style.borderColor = '#22bb33'}
+                      onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                     />
                   </div>
-                </div>
-                
-                <div className="form-group">
-                  <label>Subject</label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    placeholder="How can we help?"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Your Message</label>
-                  <textarea
-                    name="contact-message"
-                    id="contact-message"
-                    placeholder="Tell us more about your requirements..."
-                  ></textarea>
-                </div>
-                
-                <div className="form-submit-group mt--20">
+
                   <button
-                    name="submit"
                     type="submit"
-                    id="submit"
-                    className="premium-submit-btn"
+                    disabled={loading}
+                    className="rbt-btn btn-gradient radius-round w-100"
+                    style={{ minHeight: '50px', fontSize: '15px', fontWeight: 700, opacity: loading ? 0.7 : 1 }}
                   >
-                    <span>Send Message</span>
-                    <i className="feather-arrow-right"></i>
+                    {loading ? 'Sending...' : 'Send Message'}
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
-      <style>{`
-        .premium-form-section {
-          background: #f8fafc;
-        }
-        .contact-img-wrapper {
-          position: relative;
-          border-radius: 30px;
-          overflow: hidden;
-          box-shadow: 0 20px 50px rgba(0,0,0,0.05);
-        }
-        .image-overlay-card {
-          position: absolute;
-          bottom: 30px;
-          left: 30px;
-          background: white;
-          padding: 15px 25px;
-          border-radius: 15px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-          animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-          0% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-          100% { transform: translateY(0px); }
-        }
-        .image-overlay-card i {
-          color: #2ecc71;
-          font-size: 20px;
-        }
-        .image-overlay-card span {
-          font-weight: 700;
-          color: #1e293b;
-          font-size: 14px;
-        }
-        .premium-green-form {
-          background: white;
-          padding: 40px;
-          border-radius: 30px;
-          box-shadow: 0 30px 60px rgba(0,0,0,0.04);
-          border: 1px solid #f1f5f9;
-        }
-        .premium-green-form .title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #1e293b;
-          margin-bottom: 10px;
-        }
-        .form-group label {
-          font-size: 13px;
-          font-weight: 700;
-          color: #64748b;
-          margin-bottom: 8px;
-          display: block;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .premium-green-form input, 
-        .premium-green-form textarea {
-          width: 100%;
-          background: #f8fafc !important;
-          border: 1.5px solid #e2e8f0 !important;
-          border-radius: 12px !important;
-          padding: 12px 20px !important;
-          font-size: 15px !important;
-          transition: all 0.3s ease !important;
-          color: #1e293b !important;
-        }
-        .premium-green-form input:focus, 
-        .premium-green-form textarea:focus {
-          border-color: #2ecc71 !important;
-          background: white !important;
-          box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1) !important;
-        }
-        .form-group-wrapper {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
-          margin-bottom: 20px;
-        }
-        .premium-submit-btn {
-          background: linear-gradient(90deg, #2ecc71, #27ae60);
-          color: white;
-          border: none;
-          padding: 16px 35px;
-          border-radius: 15px;
-          font-weight: 700;
-          font-size: 16px;
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          transition: all 0.3s ease;
-          box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2);
-        }
-        .premium-submit-btn:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 15px 30px rgba(46, 204, 113, 0.3);
-          background: linear-gradient(90deg, #27ae60, #219150);
-        }
-        @media (max-width: 768px) {
-          .premium-green-form {
-            padding: 30px 20px;
-          }
-          .form-group-wrapper {
-            grid-template-columns: 1fr;
-            gap: 0;
-          }
-          .image-overlay-card {
-            display: none;
-          }
-        }
-      `}</style>
     </div>
   );
 }
