@@ -3,8 +3,6 @@ import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
 import ServiceQuality from "../components/about/service-quality";
 import AboutCyt from "../components/about/about-cyt";
-import CallToActionAbout from "../components/about/call-to-action";
-import TeamBanner from "../components/about/team-banner";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
@@ -183,7 +181,6 @@ export default function AboutUs({ pics = [] }) {
       <AboutCyt />
       <ServiceQuality />
       
-      <CallToActionAbout />
       <Feedback />
 
 
