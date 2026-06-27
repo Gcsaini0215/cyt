@@ -173,24 +173,15 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
               fontSize: "clamp(32px, 4.5vw, 54px)",
               fontWeight: 900,
               color: "#fff",
-              lineHeight: 1.15,
+              lineHeight: 1.2,
               letterSpacing: "-.8px",
               margin: "0 0 16px",
               animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) both",
             }}
           >
-            Empowering Minds,{" "}
-            <span
-              style={{
-                background: "linear-gradient(90deg,#4ade80,#86efac,#4ade80)",
-                backgroundSize: "200%",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                animation: "_ab_shimmer 3s linear infinite",
-              }}
-            >
-              Transforming Lives
+            Making Mental Health Support{" "}
+            <span style={{ color: "#4ade80" }}>
+              Accessible to Every Indian
             </span>
           </h1>
 
