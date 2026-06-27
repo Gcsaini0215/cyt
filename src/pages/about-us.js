@@ -128,7 +128,26 @@ const aboutPageSchema = {
   }
 };
 
-export default function AboutUs() {
+export async function getServerSideProps() {
+  try {
+    const res = await fetch(
+      "https://api.chooseyourtherapist.in/api/get-therapists-profile?pageSize=60"
+    );
+    const json = await res.json();
+    const pics = (json.data || [])
+      .map((t) => {
+        const pic = t.profile || (t.user && t.user.profile) || "";
+        if (!pic) return null;
+        return `https://api.chooseyourtherapist.in/uploads/images/${pic}`;
+      })
+      .filter(Boolean);
+    return { props: { pics } };
+  } catch {
+    return { props: { pics: [] } };
+  }
+}
+
+export default function AboutUs({ pics = [] }) {
   return (
     <div id="__next">
       <Head>
@@ -160,7 +179,7 @@ export default function AboutUs() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageSchema) }} />
       </Head>
       <MyNavbar />
-      <AboutUsBanner />
+      <AboutUsBanner pics={pics} />
       <AboutCyt />
       <ServiceQuality />
       
