@@ -85,11 +85,11 @@ const styles = `
 
 @media (max-width: 768px) {
   .reg-banner {
-    padding: 24px 0 20px 0;
+    padding: 16px 0 14px 0;
   }
   .reg-badge { display: none; }
-  .reg-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; display: none; }
-  .reg-subtitle { font-size: 12px; padding: 0 12px; }
+  .reg-title { display: none; }
+  .reg-subtitle { font-size: 13px; padding: 0 16px; }
   .reg-animated-text { min-width: 100%; display: block; text-align: center; }
 }
 `;
