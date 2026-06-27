@@ -1,57 +1,79 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Container, useMediaQuery } from "@mui/material";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { TypeAnimation } from "react-type-animation";
+import React from "react";
+
+const styles = `
+.sa-banner {
+  position: relative;
+  background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: scroll;
+  padding: 60px 0 50px 0;
+  overflow: hidden;
+}
+.sa-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.62);
+  z-index: 1;
+}
+.sa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(4px);
+}
+.sa-title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+.sa-title span { color: #4ade80; }
+.sa-subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+@media (max-width: 768px) {
+  .sa-banner { height: 4px; padding: 0; background-image: none; background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .sa-banner::before { display: none; }
+  .sa-badge, .sa-title, .sa-subtitle { display: none; }
+}
+`;
 
 export default function SelfAssessmentBanner() {
-  const [isMobile, setIsMobile] = useState(false);
-  const mediaQuery = useMediaQuery("(max-width:768px)");
-
-  useEffect(() => {
-    setIsMobile(mediaQuery);
-  }, [mediaQuery]);
-
   return (
-    <div suppressHydrationWarning>
-      <section className="assessment-banner" suppressHydrationWarning>
-        <AssignmentIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
-        <CheckCircleIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
-        
-        <Container maxWidth="lg">
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-            <div className="assessment-badge">
-              <AssignmentIcon sx={{ fontSize: 18 }} />
-              <span>Know Yourself Better</span>
-            </div>
-            
-            <h1 className="assessment-title">
-              Mental Health <br />
-              <span className="assessment-animated-text">
-                <TypeAnimation
-                  sequence={[
-                    "Self Assessment",
-                    2000,
-                    "Understanding You",
-                    2000,
-                    "Your Journey",
-                    2000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
-              </span>
-            </h1>
-            
-            <p className="assessment-subtitle">
-              Take our comprehensive self-assessment test to understand your mental health better. 
-              Get personalized insights and recommendations from our expert psychologists based 
-              on your responses. Your journey to better mental health starts here.
-            </p>
-          </Box>
-        </Container>
+    <>
+      <style>{styles}</style>
+      <section className="sa-banner">
+        <div className="container" style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+          <div className="sa-badge">
+            <i className="feather-clipboard" style={{ fontSize: 15 }}></i>
+            <span>Know Yourself Better</span>
+          </div>
+          <h1 className="sa-title">
+            Mental Health <span>Self Assessment</span>
+          </h1>
+          <p className="sa-subtitle">
+            Take our expert-designed assessments to understand your mental well-being. Get personalized insights and know when to seek professional support.
+          </p>
+        </div>
       </section>
-    </div>
+    </>
   );
 }

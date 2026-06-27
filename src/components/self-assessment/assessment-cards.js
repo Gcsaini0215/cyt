@@ -1,228 +1,148 @@
-import React from "react";
-import { Box, Grid, Paper, Typography, Button, Card, CardContent, CardActions, Chip } from "@mui/material";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import PsychologyIcon from "@mui/icons-material/Psychology";
-import SelfImprovementIcon from "@mui/icons-material/SelfImprovement";
-import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
-import FaceIcon from "@mui/icons-material/Face";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import React, { useState, useEffect } from "react";
 
 const assessments = [
   {
     id: 1,
+    icon: "feather-moon",
     title: "Depression Screening",
-    originalName: "Patient Health Questionnaire-9 (PHQ-9)",
-    description: "Assess your mood and emotional well-being with this comprehensive screening tool",
-    icon: <PsychologyIcon sx={{ fontSize: 50 }} />,
-    color: "#1976d2",
-    bgColor: "#e3f2fd",
-    duration: "5-7 minutes",
+    short: "PHQ-9",
+    description: "Assess your mood and emotional well-being with this clinically validated screening tool.",
     questions: 9,
-    accuracy: 4.8,
-    citation: "Developed by Pfizer",
-    agePopulation: "Ages 13+",
-    reference: "Kroenke K, et al. The PHQ-9: Validity of a brief depression severity measure."
+    duration: "5–7 min",
+    age: "Ages 13+",
+    color: "#3b82f6",
   },
   {
     id: 2,
+    icon: "feather-wind",
     title: "Anxiety Assessment",
-    originalName: "Generalized Anxiety Disorder-7 (GAD-7)",
-    description: "Evaluate your anxiety levels and worry patterns with a clinically validated tool",
-    icon: <AssignmentIcon sx={{ fontSize: 50 }} />,
-    color: "#f57c00",
-    bgColor: "#fff3e0",
-    duration: "5-7 minutes",
+    short: "GAD-7",
+    description: "Evaluate your anxiety levels and worry patterns with a globally recognised scale.",
     questions: 7,
-    accuracy: 4.8,
-    citation: "Developed by Pfizer",
-    agePopulation: "Ages 13+",
-    reference: "Spitzer RL, et al. A brief measure for assessing generalized anxiety disorder."
+    duration: "5–7 min",
+    age: "Ages 13+",
+    color: "#f59e0b",
   },
   {
     id: 3,
+    icon: "feather-sunset",
     title: "Sleep Quality Index",
-    originalName: "Pittsburgh Sleep Quality Index (PSQI)",
-    description: "Evaluate your sleep patterns and overall sleep quality comprehensively",
-    icon: <SelfImprovementIcon sx={{ fontSize: 50 }} />,
-    color: "#7c3aed",
-    bgColor: "#f3e8ff",
-    duration: "5-10 minutes",
+    short: "PSQI",
+    description: "Understand your sleep patterns and identify factors affecting your rest quality.",
     questions: 19,
-    accuracy: 4.7,
-    citation: "Developed by University of Pittsburgh",
-    agePopulation: "Ages 18+",
-    reference: "Buysse DJ, et al. The Pittsburgh Sleep Quality Index: A new instrument for psychiatric research."
+    duration: "5–10 min",
+    age: "Ages 18+",
+    color: "#8b5cf6",
   },
   {
     id: 4,
+    icon: "feather-shield",
     title: "PTSD Checklist",
-    originalName: "PTSD Checklist for DSM-5 (PCL-5)",
-    description: "Screen for post-traumatic stress symptoms using evidence-based assessment",
-    icon: <HealthAndSafetyIcon sx={{ fontSize: 50 }} />,
-    color: "#dc2626",
-    bgColor: "#fee2e2",
-    duration: "7-10 minutes",
+    short: "PCL-5",
+    description: "Screen for post-traumatic stress symptoms using a DSM-5 evidence-based tool.",
     questions: 20,
-    accuracy: 4.8,
-    citation: "Developed by U.S. Department of Veterans Affairs",
-    agePopulation: "Ages 14+",
-    reference: "Weathers FW, et al. The PTSD Checklist for DSM-5 (PCL-5) - Standard."
+    duration: "7–10 min",
+    age: "Ages 14+",
+    color: "#ef4444",
   },
   {
     id: 5,
+    icon: "feather-user",
     title: "Big Five Personality",
-    originalName: "Big Five Personality Test (OCEAN)",
-    description: "Discover your personality traits across 5 major dimensions with detailed insights",
-    icon: <FaceIcon sx={{ fontSize: 50 }} />,
-    color: "#16a34a",
-    bgColor: "#f0fdf4",
-    duration: "8-12 minutes",
+    short: "OCEAN",
+    description: "Discover your personality across 5 major dimensions with deep personal insights.",
     questions: 50,
-    accuracy: 4.9,
-    citation: "Developed by personality psychologists worldwide",
-    agePopulation: "Ages 14+",
-    reference: "Costa PT & McCrae RR. The Five-Factor Model of Personality Traits and Clinical Assessment."
-  }
+    duration: "8–12 min",
+    age: "Ages 14+",
+    color: "#16a34a",
+  },
 ];
 
 export default function AssessmentCards({ onSelectAssessment }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth < 768);
+    fn();
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+
   return (
-    <Box sx={{ py: { xs: 4, sm: 8 }, px: { xs: 1.5, sm: 4 }, width: '100%', overflow: 'hidden' }}>
-      <Box sx={{ mb: { xs: 4, sm: 8 }, textAlign: 'center', px: { xs: 1, sm: 0 } }}>
-        <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 3, fontSize: { xs: '24px', sm: '36px' } }}>
-          Choose Your Assessment
-        </Typography>
-        <Typography variant="h6" sx={{ color: '#64748b', maxWidth: '700px', mx: 'auto', fontSize: { xs: '14px', sm: '18px' }, fontWeight: 500 }}>
-          Select a mental health assessment to get personalized insights about your well-being. 
-          Each assessment takes just a few minutes to complete.
-        </Typography>
-      </Box>
+    <>
+      <style>{`
+        .sa-cards-section { background: #f8fafc; padding: ${isMobile ? "24px 0 40px" : "60px 0"}; }
+        .sa-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; transition: box-shadow .2s, transform .2s; display: flex; flex-direction: column; height: 100%; }
+        .sa-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.10); transform: translateY(-4px); }
+        .sa-card-top { padding: 24px 22px 16px; flex: 1; }
+        .sa-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+        .sa-card-title { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+        .sa-card-short { font-size: 11px; font-weight: 700; letter-spacing: .8px; margin: 0 0 10px; }
+        .sa-card-desc { font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; }
+        .sa-card-meta { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 22px; border-top: 1px solid #f1f5f9; }
+        .sa-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 50px; }
+        .sa-card-btn { display: block; width: 100%; padding: 13px; text-align: center; font-size: 14px; font-weight: 700; color: #fff; border: none; cursor: pointer; transition: opacity .2s, transform .2s; }
+        .sa-card-btn:hover { opacity: .88; transform: translateY(-1px); }
+        @media (max-width: 767px) {
+          .sa-cards-section { padding: 24px 0 40px; }
+        }
+      `}</style>
 
-      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ maxWidth: '1400px', mx: 'auto', width: '100%' }}>
-        {assessments.map((assessment) => (
-          <Grid item xs={12} sm={6} md={6} lg={3} key={assessment.id}>
-            <Card 
-              elevation={0}
-              sx={{
-                borderRadius: { xs: '12px', sm: '16px' },
-                border: '1px solid #e2e8f0',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                overflow: 'hidden',
-                '&:hover': {
-                  boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
-                  transform: 'translateY(-4px)',
-                  borderColor: assessment.color
-                }
-              }}
-            >
-              <CardContent sx={{ pb: { xs: 2, sm: 3 }, px: { xs: 2, sm: 3 }, pt: { xs: 2.5, sm: 3 } }}>
-                <Box sx={{ mb: { xs: 2, sm: 3 } }}>
-                  <Box
-                    sx={{
-                      width: { xs: 80, sm: 100 },
-                      height: { xs: 80, sm: 100 },
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      bgcolor: assessment.bgColor,
-                      color: assessment.color,
-                      mb: 1.5,
-                      mx: 'auto'
-                    }}
+      <div className="sa-cards-section">
+        <div className={isMobile ? "" : "container"} style={isMobile ? { padding: "0 12px" } : {}}>
+
+          <div style={{ textAlign: "center", marginBottom: isMobile ? 24 : 40 }}>
+            <span style={{
+              display: "inline-block", fontSize: 11, fontWeight: 800, color: "#16a34a",
+              letterSpacing: 1.4, textTransform: "uppercase", background: "#dcfce7",
+              padding: "5px 14px", borderRadius: 50, marginBottom: 12,
+            }}>Choose Your Assessment</span>
+            <h2 style={{ fontSize: isMobile ? 22 : 32, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>
+              What Would You Like to Explore?
+            </h2>
+            <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+              Each assessment takes just a few minutes and gives you clinically-grounded insights.
+            </p>
+          </div>
+
+          <div className="row g-3">
+            {assessments.map((a) => (
+              <div key={a.id} className="col-12 col-sm-6 col-lg-4">
+                <div className="sa-card">
+                  <div className="sa-card-top">
+                    <div className="sa-card-icon" style={{ background: `${a.color}18`, color: a.color }}>
+                      <i className={a.icon}></i>
+                    </div>
+                    <div className="sa-card-title">{a.title}</div>
+                    <div className="sa-card-short" style={{ color: a.color }}>{a.short}</div>
+                    <p className="sa-card-desc">{a.description}</p>
+                  </div>
+
+                  <div className="sa-card-meta">
+                    <span className="sa-chip" style={{ background: `${a.color}14`, color: a.color }}>
+                      {a.questions} Questions
+                    </span>
+                    <span className="sa-chip" style={{ background: "#f1f5f9", color: "#475569" }}>
+                      {a.duration}
+                    </span>
+                    <span className="sa-chip" style={{ background: `${a.color}14`, color: a.color }}>
+                      {a.age}
+                    </span>
+                  </div>
+
+                  <button
+                    className="sa-card-btn"
+                    style={{ background: a.color }}
+                    onClick={() => onSelectAssessment(a.id)}
                   >
-                    {assessment.icon}
-                  </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', mb: 0.5, fontSize: { xs: '16px', sm: '18px' }, textAlign: 'center' }}>
-                    {assessment.title}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#7c3aed', fontWeight: 700, fontSize: { xs: '10px', sm: '12px' }, display: 'block', textAlign: 'center', mb: 1 }}>
-                    ({assessment.originalName})
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b', mb: 1.5, fontSize: { xs: '12px', sm: '14px' }, textAlign: 'center', lineHeight: 1.4 }}>
-                    {assessment.description}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 0.75, mb: 1.5, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <Chip
-                    label={`${assessment.questions} Questions`}
-                    size="small"
-                    sx={{
-                      bgcolor: `${assessment.color}15`,
-                      color: assessment.color,
-                      fontWeight: 800,
-                      fontSize: { xs: '9px', sm: '11px' },
-                      height: { xs: '24px', sm: '28px' }
-                    }}
-                  />
-                  <Chip
-                    label={assessment.duration}
-                    size="small"
-                    sx={{
-                      bgcolor: '#f1f5f9',
-                      color: '#475569',
-                      fontWeight: 800,
-                      fontSize: { xs: '9px', sm: '11px' },
-                      height: { xs: '24px', sm: '28px' }
-                    }}
-                  />
-                  <Chip
-                    label={assessment.agePopulation}
-                    size="small"
-                    sx={{
-                      bgcolor: `${assessment.color}15`,
-                      color: assessment.color,
-                      fontWeight: 800,
-                      fontSize: { xs: '9px', sm: '11px' },
-                      height: { xs: '24px', sm: '28px' }
-                    }}
-                  />
-                </Box>
-
-                <Box sx={{ mb: 1.5, textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, fontSize: { xs: '10px', sm: '12px' }, display: 'block' }}>
-                    {assessment.citation}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#94a3b8', fontWeight: 500, fontSize: { xs: '9px', sm: '11px' }, display: 'block', mt: 0.3, fontStyle: 'italic' }}>
-                    {assessment.reference}
-                  </Typography>
-                </Box>
-              </CardContent>
-
-              <CardActions sx={{ pt: { xs: 1, sm: 0 }, mt: 'auto', px: { xs: 1.5, sm: 2 }, pb: { xs: 1.5, sm: 2 } }}>
-                <Button
-                  fullWidth
-                  endIcon={<ArrowForwardIcon />}
-                  onClick={() => onSelectAssessment(assessment.id)}
-                  sx={{
-                    bgcolor: assessment.color,
-                    color: '#fff',
-                    fontWeight: 800,
-                    py: { xs: 1.4, sm: 1.8 },
-                    borderRadius: '8px',
-                    textTransform: 'none',
-                    fontSize: { xs: '14px', sm: '16px' },
-                    letterSpacing: '0.5px',
-                    '&:hover': {
-                      bgcolor: assessment.color,
-                      opacity: 0.9,
-                      transform: 'translateY(-2px)',
-                      boxShadow: `0 8px 16px ${assessment.color}40`
-                    }
-                  }}
-                >
-                  Start Assessment
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+                    Start Assessment →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
