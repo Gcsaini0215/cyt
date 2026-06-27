@@ -280,7 +280,7 @@ export default function TherapistRegistration()
                 <div style={{ padding: '20px 28px 0' }}>
                   <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '2px' }}>Therapist Registration</h5>
                   <p className="text-muted" style={{ fontSize: '13px', marginBottom: '12px' }}>
-                    {step === 0 && "Let's get you started"}
+                    {step === 0 && "Begin your journey as a verified therapist"}
                     {step === 1 && "Step 1 of 4 — Profile & Mode"}
                     {step === 2 && "Step 2 of 4 — Personal Details"}
                     {step === 3 && "Step 3 of 4 — Areas of Expertise"}
@@ -333,7 +333,7 @@ export default function TherapistRegistration()
                   {/* Step 0 — Email */}
                   {step === 0 && (
                     <div>
-                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.7', marginBottom: '14px' }}>
+                      <p style={{ fontSize: '15px', color: '#475569', lineHeight: '1.7', marginBottom: '14px' }}>
                         Join a growing network of verified psychologists, psychiatrists, and mental health professionals on <strong>Choose Your Therapist</strong>. Get discovered by clients across India, manage bookings, generate invoices, and grow your practice — all in one place. Start with our{' '}
                         <span
                           onClick={() => setPlanOpen(true)}
