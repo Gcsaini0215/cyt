@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Typography, Container, useMediaQuery } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Container } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { TypeAnimation } from "react-type-animation";
@@ -85,17 +85,30 @@ const styles = `
 
 @media (max-width: 768px) {
   .reg-banner {
-    padding: 16px 0 14px 0;
+    padding: 10px 0 10px 0;
   }
   .reg-badge { display: none; }
   .reg-title { display: none; }
-  .reg-subtitle { font-size: 13px; padding: 0 16px; }
+  .reg-subtitle { display: none; }
   .reg-animated-text { min-width: 100%; display: block; text-align: center; }
 }
 `;
 
 export default function RegistrationHeader() {
-  const isMobile = useMediaQuery("(max-width:768px)");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth <= 768);
+    fn();
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <div style={{ height: '4px', background: 'linear-gradient(90deg, #16a34a, #4ade80)' }} />
+    );
+  }
 
   return (
     <>
@@ -103,14 +116,14 @@ export default function RegistrationHeader() {
       <section className="reg-banner">
         <VerifiedIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
         <PersonAddIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
-        
+
         <Container maxWidth="lg">
           <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             <div className="reg-badge">
               <VerifiedIcon sx={{ fontSize: 18 }} />
               <span>Be a Preferred Therapist</span>
             </div>
-            
+
             <h1 className="reg-title">
               Join Our Platform to{" "}
               <span className="reg-animated-text">
@@ -130,10 +143,9 @@ export default function RegistrationHeader() {
               </span>
               <br /> List Yourself on Choose Your Therapist
             </h1>
-            
+
             <p className="reg-subtitle">
               Connect with clients seeking support, showcase your specializations, and offer secure online or in-person sessions for stress, anxiety, relationships, and emotional well-being.
-              
             </p>
           </Box>
         </Container>
