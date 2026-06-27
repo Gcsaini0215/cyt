@@ -6,21 +6,16 @@ const DEFAULT_PIC =
 
 const bannerStyles = `
   *, *::before, *::after { box-sizing: border-box; }
+  @keyframes _ab_fd      { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes _ab_pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.35)} 60%{box-shadow:0 0 0 12px rgba(74,222,128,0)} }
+  @keyframes _ab_shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
   @keyframes _ab_scrollUp   { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
   @keyframes _ab_scrollDown { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-  @keyframes _ab_shimmer    { 0%{background-position:200% center} 100%{background-position:-200% center} }
-  @keyframes _ab_pulse      { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.35)} 60%{box-shadow:0 0 0 12px rgba(74,222,128,0)} }
   .ab-col-up   { animation: _ab_scrollUp   60s linear infinite; }
   .ab-col-down { animation: _ab_scrollDown 70s linear infinite; }
   @media (max-width: 900px) {
     .ab-col-mobile-hide { display: none !important; }
     .ab-badge { display: none !important; }
-  }
-  @media (max-width: 768px) {
-    .ab-banner-mobile-strip {
-      height: 4px;
-      background: linear-gradient(90deg, #16a34a, #4ade80);
-    }
   }
 `;
 
@@ -39,12 +34,13 @@ export default function AboutUsBanner({ pics = [] }) {
 
       <section
         style={{
-          minHeight: "60vh",
+          minHeight: "100vh",
           position: "relative",
           display: "flex",
-          alignItems: "center",
+          alignItems: "stretch",
           overflow: "hidden",
           background: "#000",
+          fontFamily: "'Inter', sans-serif",
         }}
       >
         {/* Background collage */}
@@ -110,7 +106,7 @@ export default function AboutUsBanner({ pics = [] }) {
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(0,0,0,.82)",
+            background: "rgba(0,0,0,.84)",
             zIndex: 1,
           }}
         />
@@ -121,14 +117,13 @@ export default function AboutUsBanner({ pics = [] }) {
             position: "relative",
             zIndex: 2,
             width: "100%",
-            maxWidth: 700,
+            maxWidth: 640,
             margin: "0 auto",
             padding: "80px 24px 60px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
-            fontFamily: "'Inter', sans-serif",
           }}
         >
           {/* Badge */}
@@ -143,6 +138,7 @@ export default function AboutUsBanner({ pics = [] }) {
               borderRadius: 50,
               padding: "7px 18px",
               marginBottom: 24,
+              animation: "_ab_pulse 2.5s ease infinite",
             }}
           >
             <span style={{ fontSize: 11, fontWeight: 800, color: "#4ade80", letterSpacing: 1.2, textTransform: "uppercase" }}>
@@ -153,12 +149,14 @@ export default function AboutUsBanner({ pics = [] }) {
           {/* Headline */}
           <h1
             style={{
-              fontSize: "clamp(28px, 4vw, 48px)",
+              fontSize: "clamp(32px, 4.5vw, 54px)",
               fontWeight: 900,
               color: "#fff",
-              lineHeight: 1.2,
-              letterSpacing: "-.6px",
-              margin: "0 0 14px",
+              lineHeight: 1.15,
+              letterSpacing: "-.8px",
+              margin: "0 0 16px",
+              maxWidth: 720,
+              animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) both",
             }}
           >
             Empowering Minds,{" "}
@@ -170,7 +168,6 @@ export default function AboutUsBanner({ pics = [] }) {
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
                 animation: "_ab_shimmer 3s linear infinite",
-                display: "inline-block",
               }}
             >
               <TypeAnimation
@@ -185,12 +182,13 @@ export default function AboutUsBanner({ pics = [] }) {
           {/* Subtitle */}
           <p
             style={{
-              fontSize: 15,
+              fontSize: 16,
               color: "rgba(255,255,255,.72)",
               lineHeight: 1.7,
-              margin: "0",
+              margin: "0 0 32px",
               fontWeight: 500,
-              maxWidth: 520,
+              maxWidth: 480,
+              animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
             }}
           >
             At CYT, we believe mental health is a fundamental human right. We connect individuals with verified psychologists across India for online and in-person therapy.
