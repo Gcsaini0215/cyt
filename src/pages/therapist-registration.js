@@ -343,31 +343,21 @@ export default function TherapistRegistration()
                       <div
                         onClick={() => setPlanOpen(true)}
                         style={{
-                          border: '1.5px solid #bbf7d0',
+                          border: '2px solid #22bb33',
                           borderRadius: '12px',
-                          padding: '14px 16px',
+                          padding: '16px',
                           marginBottom: '20px',
-                          background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+                          background: '#fff',
                           cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '12px',
+                          textAlign: 'center',
                           transition: 'box-shadow 0.2s',
                         }}
                         onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 16px rgba(34,187,51,0.15)'}
                         onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
                       >
-                        <div>
-                          <p style={{ fontWeight: 800, fontSize: '14px', color: '#166534', margin: '0 0 2px' }}>Starter Plan — ₹1,999 / 3 Months</p>
-                          <p style={{ fontSize: '12px', color: '#15803d', margin: 0 }}>Visibility · Credibility · Storage — View details</p>
-                        </div>
-                        <div style={{
-                          width: '28px', height: '28px', borderRadius: '50%',
-                          background: '#22bb33', color: '#fff',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '14px', flexShrink: 0,
-                        }}>›</div>
+                        <p style={{ fontWeight: 800, fontSize: '15px', color: '#22bb33', margin: '0 0 4px' }}>Starter Plan — ₹1,999 / 3 Months</p>
+                        <p style={{ fontSize: '12px', color: '#22bb33', margin: 0, opacity: 0.8 }}>Visibility · Credibility · Storage</p>
+                        <p style={{ fontSize: '12px', color: '#22bb33', fontWeight: 700, margin: '6px 0 0', textDecoration: 'underline' }}>View Plan Details →</p>
                       </div>
 
                       <input
@@ -681,20 +671,20 @@ export default function TherapistRegistration()
         </DialogContent>
       </Dialog>
 
-      <Dialog 
-        open={planOpen} 
-        onClose={() => setPlanOpen(false)} 
-        fullWidth 
+      <Dialog
+        open={planOpen}
+        onClose={() => setPlanOpen(false)}
+        fullWidth
         maxWidth="sm"
         PaperProps={{
           style: {
             borderRadius: '16px',
-            margin: isMobile ? '20px' : '32px',
-            marginTop: isMobile ? '100px' : '0px', // Clear navbar on mobile
+            margin: isMobile ? '12px' : '32px',
+            width: isMobile ? 'calc(100% - 24px)' : undefined,
           }
         }}
       >
-        <DialogContent style={{ padding: '28px 24px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <DialogContent style={{ padding: isMobile ? '20px 16px' : '28px 24px', maxHeight: '85vh', overflowY: 'auto' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(34,187,51,0.1)', marginBottom: '12px' }}>
