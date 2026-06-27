@@ -1,5 +1,4 @@
-import React from "react";
-import { TypeAnimation } from "react-type-animation";
+import React, { useState, useEffect } from "react";
 
 const DEFAULT_PIC =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
@@ -19,7 +18,29 @@ const bannerStyles = `
   }
 `;
 
-export default function AboutUsBanner({ pics = [] }) {
+export default function AboutUsBanner({ pics: picsProp = [] }) {
+  const [pics, setPics] = useState(picsProp);
+
+  useEffect(() => {
+    if (picsProp.length > 0) {
+      setPics(picsProp);
+      return;
+    }
+    fetch("https://api.chooseyourtherapist.in/api/get-therapists-profile?pageSize=60")
+      .then((r) => r.json())
+      .then((json) => {
+        const loaded = (json.data || [])
+          .map((t) => {
+            const pic = t.profile || (t.user && t.user.profile) || "";
+            if (!pic) return null;
+            return `https://api.chooseyourtherapist.in/uploads/images/${pic}`;
+          })
+          .filter(Boolean);
+        if (loaded.length > 0) setPics(loaded);
+      })
+      .catch(() => {});
+  }, [picsProp]);
+
   const TILE_COUNT = 84;
   const tiles = [];
   if (pics.length > 0) {
@@ -155,7 +176,6 @@ export default function AboutUsBanner({ pics = [] }) {
               lineHeight: 1.15,
               letterSpacing: "-.8px",
               margin: "0 0 16px",
-              maxWidth: 720,
               animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) both",
             }}
           >
@@ -170,12 +190,7 @@ export default function AboutUsBanner({ pics = [] }) {
                 animation: "_ab_shimmer 3s linear infinite",
               }}
             >
-              <TypeAnimation
-                sequence={["Transforming Lives", 2000, "Breaking Stigma", 2000, "Healing Together", 2000]}
-                wrapper="span"
-                speed={50}
-                repeat={Infinity}
-              />
+              Transforming Lives
             </span>
           </h1>
 

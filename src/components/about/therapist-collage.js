@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const DEFAULT_PIC =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
@@ -11,7 +11,29 @@ const styles = `
   @media (max-width: 900px) { .tc-col-mobile-hide { display: none !important; } }
 `;
 
-export default function TherapistCollage({ pics = [] }) {
+export default function TherapistCollage({ pics: picsProp = [] }) {
+  const [pics, setPics] = useState(picsProp);
+
+  useEffect(() => {
+    if (picsProp.length > 0) {
+      setPics(picsProp);
+      return;
+    }
+    fetch("https://api.chooseyourtherapist.in/api/get-therapists-profile?pageSize=60")
+      .then((r) => r.json())
+      .then((json) => {
+        const loaded = (json.data || [])
+          .map((t) => {
+            const pic = t.profile || (t.user && t.user.profile) || "";
+            if (!pic) return null;
+            return `https://api.chooseyourtherapist.in/uploads/images/${pic}`;
+          })
+          .filter(Boolean);
+        if (loaded.length > 0) setPics(loaded);
+      })
+      .catch(() => {});
+  }, [picsProp]);
+
   if (pics.length === 0) return null;
 
   const TILE_COUNT = 84;
