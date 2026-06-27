@@ -85,11 +85,12 @@ const styles = `
 
 @media (max-width: 768px) {
   .login-banner {
-    padding: 40px 0 30px 0;
+    padding: 24px 0 20px 0;
   }
-  .login-title { font-size: 22px; }
-  .login-subtitle { font-size: 13px; }
-  .login-animated-text { min-width: 100%; text-align: center; }
+  .login-badge { display: none; }
+  .login-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
+  .login-subtitle { font-size: 12px; padding: 0 12px; }
+  .login-animated-text { min-width: 100%; display: block; text-align: center; }
 }
 `;
 
