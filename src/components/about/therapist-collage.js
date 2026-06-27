@@ -45,32 +45,7 @@ export default function TherapistCollage({ pics: picsProp = [] }) {
   return (
     <>
       <style>{styles}</style>
-      <section style={{ background: "#060f09", padding: "60px 0 0" }}>
-        {/* Heading */}
-        <div style={{ textAlign: "center", marginBottom: 40, padding: "0 24px" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: "rgba(74,222,128,.12)", border: "1px solid rgba(74,222,128,.25)",
-            borderRadius: 50, padding: "6px 16px", marginBottom: 16,
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "#4ade80", letterSpacing: 1.2, textTransform: "uppercase" }}>
-              Our Network
-            </span>
-          </div>
-          <h2 style={{
-            fontSize: "clamp(22px, 3vw, 36px)", fontWeight: 900, color: "#fff",
-            margin: "0 0 10px", fontFamily: "'Inter', sans-serif",
-          }}>
-            Meet Our Verified Therapists
-          </h2>
-          <p style={{
-            fontSize: 15, color: "rgba(255,255,255,.55)", maxWidth: 460,
-            margin: "0 auto", lineHeight: 1.6, fontFamily: "'Inter', sans-serif",
-          }}>
-            Hundreds of certified psychologists across India — ready to support you.
-          </p>
-        </div>
-
+      <section style={{ background: "#060f09", padding: "0" }}>
         {/* Collage grid */}
         <div style={{
           position: "relative",
