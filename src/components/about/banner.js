@@ -175,7 +175,7 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
               color: "#fff",
               lineHeight: 1.2,
               letterSpacing: "-.8px",
-              margin: "0 0 16px",
+              margin: "0 0 8px",
               animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) both",
             }}
           >
@@ -191,9 +191,8 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
               fontSize: 16,
               color: "rgba(255,255,255,.72)",
               lineHeight: 1.7,
-              margin: "0 0 32px",
+              margin: "0",
               fontWeight: 500,
-              maxWidth: 480,
               animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
             }}
           >
