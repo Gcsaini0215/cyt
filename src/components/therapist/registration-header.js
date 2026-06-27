@@ -88,7 +88,7 @@ const styles = `
     padding: 24px 0 20px 0;
   }
   .reg-badge { display: none; }
-  .reg-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
+  .reg-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; display: none; }
   .reg-subtitle { font-size: 12px; padding: 0 12px; }
   .reg-animated-text { min-width: 100%; display: block; text-align: center; }
 }
