@@ -11,7 +11,7 @@ const styles = `
   background-size: cover;
   background-position: center;
   background-attachment: scroll;
-  padding: 140px 0 100px 0;
+  padding: 60px 0 50px 0;
   overflow: hidden;
   margin-top: 0px;
 }
@@ -45,11 +45,11 @@ const styles = `
 }
 
 .reg-title {
-  font-size: 48px;
+  font-size: 30px;
   font-weight: 900;
   color: #ffffff;
-  line-height: 1.2;
-  margin-bottom: 20px;
+  line-height: 1.3;
+  margin-bottom: 12px;
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
@@ -61,9 +61,9 @@ const styles = `
 }
 
 .reg-subtitle {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 800px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
 }
@@ -84,11 +84,11 @@ const styles = `
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
-  .reg-banner { 
-    padding: 100px 0 60px 0;
+  .reg-banner {
+    padding: 40px 0 30px 0;
   }
-  .reg-title { font-size: 32px; }
-  .reg-subtitle { font-size: 16px; }
+  .reg-title { font-size: 22px; }
+  .reg-subtitle { font-size: 13px; }
   .reg-animated-text { min-width: 100%; text-align: center; }
 }
 `;
