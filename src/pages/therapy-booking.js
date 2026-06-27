@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import ConsultationForm from "../components/home/consultation-form";
+import Footer from "../components/footer";
+import NewsLetter from "../components/home/newsletter";
 
 const DEFAULT_PIC =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
@@ -27,6 +29,14 @@ export async function getServerSideProps() {
 
 export default function TherapyBooking({ pics = [] }) {
   const [allPics, setAllPics] = useState(pics);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (pics.length > 0) { setAllPics(pics); return; }
@@ -48,13 +58,6 @@ export default function TherapyBooking({ pics = [] }) {
     for (let i = 0; i < TILE_COUNT; i++) tiles.push(allPics[i % allPics.length]);
   }
 
-  const trustItems = [
-    { icon: "feather-shield", t: "100% Confidential" },
-    { icon: "feather-check-circle", t: "Verified Therapists" },
-    { icon: "feather-clock", t: "24-hr Response" },
-    { icon: "feather-lock", t: "Safe & Secure" },
-  ];
-
   return (
     <>
       <Head>
@@ -73,7 +76,7 @@ export default function TherapyBooking({ pics = [] }) {
         <meta property="og:locale" content="en_IN" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
-        <meta name="twitter:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential. Find your therapist in 30 minutes." />
+        <meta name="twitter:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/api/og-therapy" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -91,66 +94,55 @@ export default function TherapyBooking({ pics = [] }) {
         .tb-col-down { animation: _tb_down 70s linear infinite; }
         @media (max-width: 900px) { .tb-col-hide { display: none !important; } }
         @media (max-width: 767px) {
-          .tb-two-col { flex-direction: column !important; }
-          .tb-left { padding: 60px 20px 24px !important; }
-          .tb-right { padding: 0 20px 40px !important; }
-          .tb-h1 { font-size: 28px !important; }
+          .tb-banner { padding: 10px 0 10px 0 !important; }
           .tb-badge { display: none !important; }
-          .tb-trust { display: none !important; }
-          .tb-footer-links { gap: 12px !important; }
+          .tb-title { display: none !important; }
+          .tb-subtitle { display: none !important; }
         }
       `}</style>
 
-      <div style={{ fontFamily: "'Inter', sans-serif", background: "#060f09", minHeight: "100vh" }}>
+      <div style={{ fontFamily: "'Inter', sans-serif" }}>
         <MyNavbar />
 
-        {/* ── HERO ── */}
-        <section style={{ position: "relative", overflow: "hidden", background: "#000", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-
-          {/* Collage background */}
-          {tiles.length > 0 && (
-            <div style={{ position: "absolute", inset: 0, display: "flex", zIndex: 0 }}>
-              {[0,1,2,3,4,5,6].map(col => {
-                const hide = col >= 4;
-                const colTiles = tiles.filter((_, i) => i % 7 === col);
-                const doubled = [...colTiles, ...colTiles];
-                return (
-                  <div key={col} className={hide ? "tb-col-hide" : ""} style={{ flex: 1, overflow: "hidden", minWidth: 0 }}>
-                    <div className={col % 2 === 0 ? "tb-col-up" : "tb-col-down"} style={{ display: "flex", flexDirection: "column" }}>
-                      {doubled.map((src, idx) => (
-                        <div key={idx} style={{ width: "100%", aspectRatio: "1/1", flexShrink: 0, overflow: "hidden" }}>
-                          <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
-                            onError={e => { e.target.src = DEFAULT_PIC; }} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Overlay */}
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.82)", zIndex: 1 }} />
-
-          {/* Two-column content */}
-          <div className="tb-two-col" style={{
-            position: "relative", zIndex: 2, flex: 1,
-            display: "flex", alignItems: "stretch",
-            maxWidth: 1180, margin: "0 auto", width: "100%",
+        {/* ── BANNER (collage bg) ── */}
+        {isMobile ? (
+          <div style={{ height: "4px", background: "linear-gradient(90deg, #16a34a, #4ade80)" }} />
+        ) : (
+          <section className="tb-banner" style={{
+            position: "relative", overflow: "hidden", background: "#000",
+            padding: "60px 0 50px",
           }}>
+            {/* Collage */}
+            {tiles.length > 0 && (
+              <div style={{ position: "absolute", inset: 0, display: "flex", zIndex: 0 }}>
+                {[0,1,2,3,4,5,6].map(col => {
+                  const colTiles = tiles.filter((_, i) => i % 7 === col);
+                  const doubled = [...colTiles, ...colTiles];
+                  return (
+                    <div key={col} className={col >= 4 ? "tb-col-hide" : ""} style={{ flex: 1, overflow: "hidden", minWidth: 0 }}>
+                      <div className={col % 2 === 0 ? "tb-col-up" : "tb-col-down"} style={{ display: "flex", flexDirection: "column" }}>
+                        {doubled.map((src, idx) => (
+                          <div key={idx} style={{ width: "100%", aspectRatio: "1/1", flexShrink: 0, overflow: "hidden" }}>
+                            <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
+                              onError={e => { e.target.src = DEFAULT_PIC; }} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {/* Overlay */}
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.82)", zIndex: 1 }} />
 
-            {/* LEFT — headline */}
-            <div className="tb-left" style={{
-              flex: "0 0 50%", padding: "100px 48px 60px 24px",
-              display: "flex", flexDirection: "column", justifyContent: "center",
-            }}>
-              {/* Badge */}
+            {/* Content */}
+            <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px" }}>
               <div className="tb-badge" style={{
                 display: "inline-flex", alignItems: "center", gap: 8,
                 background: "rgba(74,222,128,.15)", border: "1px solid rgba(74,222,128,.3)",
-                borderRadius: 50, padding: "7px 18px", marginBottom: 28,
-                animation: "_tb_pulse 2.5s ease infinite", alignSelf: "flex-start",
+                borderRadius: 50, padding: "7px 18px", marginBottom: 20,
+                animation: "_tb_pulse 2.5s ease infinite",
               }}>
                 <i className="feather-shield" style={{ fontSize: 12, color: "#4ade80" }}></i>
                 <span style={{ fontSize: 11, fontWeight: 800, color: "#4ade80", letterSpacing: 1.2, textTransform: "uppercase" }}>
@@ -158,14 +150,12 @@ export default function TherapyBooking({ pics = [] }) {
                 </span>
               </div>
 
-              {/* Headline */}
-              <h1 className="tb-h1" style={{
-                fontSize: "clamp(30px, 3.5vw, 52px)", fontWeight: 900, color: "#fff",
-                lineHeight: 1.12, letterSpacing: "-.8px", margin: "0 0 20px",
+              <h1 className="tb-title" style={{
+                fontSize: "clamp(28px, 3.5vw, 46px)", fontWeight: 900, color: "#fff",
+                lineHeight: 1.15, letterSpacing: "-.6px", margin: "0 0 14px",
                 animation: "_tb_fd .7s cubic-bezier(.22,1,.36,1) both",
               }}>
-                Real Support.{" "}<br />
-                Right Therapist.{" "}
+                Real Support. Right Therapist.{" "}
                 <span style={{
                   background: "linear-gradient(90deg,#4ade80,#86efac,#4ade80)",
                   backgroundSize: "200%", WebkitBackgroundClip: "text",
@@ -176,87 +166,51 @@ export default function TherapyBooking({ pics = [] }) {
                 </span>
               </h1>
 
-              {/* Subtitle */}
-              <p style={{
-                fontSize: 16, color: "rgba(255,255,255,.68)", lineHeight: 1.7,
-                margin: "0 0 36px", fontWeight: 500, maxWidth: 420,
+              <p className="tb-subtitle" style={{
+                fontSize: 15, color: "rgba(255,255,255,.72)", lineHeight: 1.7,
+                margin: "0 auto", fontWeight: 500, maxWidth: 520,
                 animation: "_tb_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
               }}>
-                Fill the form and our team will match you with the right therapist — completely free, fully confidential.
+                Fill the form below and our team will match you with the right therapist — completely free, fully confidential.
               </p>
-
-              {/* Trust pills */}
-              <div className="tb-trust" style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-                {trustItems.map(p => (
-                  <div key={p.t} style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)",
-                    borderRadius: 50, padding: "6px 14px",
-                    fontSize: 12, color: "rgba(255,255,255,.6)", fontWeight: 600,
-                  }}>
-                    <i className={p.icon} style={{ fontSize: 12, color: "#4ade80" }}></i>
-                    {p.t}
-                  </div>
-                ))}
-              </div>
             </div>
+          </section>
+        )}
 
-            {/* RIGHT — form */}
-            <div className="tb-right" style={{
-              flex: "0 0 50%", padding: "100px 24px 60px 48px",
-              display: "flex", flexDirection: "column", justifyContent: "center",
-            }}>
-              <div style={{ position: "relative", animation: "_tb_fd .8s cubic-bezier(.22,1,.36,1) .2s both" }}>
-                {/* Glow ring */}
+        {/* ── FORM SECTION ── */}
+        <div style={{ background: "#f8fafc", padding: isMobile ? "24px 0" : "60px 0" }}>
+          <div className={isMobile ? "" : "container"}>
+            <div className="row justify-content-center" style={{ margin: 0 }}>
+              <div className="col-lg-7 col-md-9 col-12" style={{ padding: isMobile ? "0 12px" : undefined }}>
+
                 <div style={{
-                  position: "absolute", inset: -4, borderRadius: 28,
-                  background: "linear-gradient(135deg, rgba(74,222,128,.35), rgba(26,92,56,.1), rgba(74,222,128,.18))",
-                  filter: "blur(1px)", zIndex: 0,
-                }} />
-                {/* Card */}
-                <div style={{
-                  background: "#fff", borderRadius: 24, padding: "36px 30px",
-                  boxShadow: "0 32px 80px rgba(0,0,0,.35)",
-                  position: "relative", zIndex: 1, textAlign: "left",
+                  background: "#fff", borderRadius: "16px",
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+                  border: "1px solid #e2e8f0", overflow: "hidden",
                 }}>
-                  <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ fontWeight: 800, fontSize: 20, color: "#0f172a", margin: "0 0 4px" }}>
-                      Book a Free Consultation
-                    </h4>
-                    <p style={{ fontSize: 13, color: "#64748b", margin: 0 }}>
-                      Our team will reach out within 24 hours.
-                    </p>
+                  {/* Green top bar */}
+                  <div style={{ height: "4px", background: "linear-gradient(90deg, #22bb33, #4ade80)" }} />
+
+                  <div style={{ padding: isMobile ? "24px 16px 28px" : "32px 36px 36px" }}>
+                    <div style={{ marginBottom: "20px" }}>
+                      <h5 style={{ fontWeight: 800, fontSize: "22px", marginBottom: "4px", color: "#0f172a" }}>
+                        Book a Consultation
+                      </h5>
+                      <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
+                        Our team will reach out on WhatsApp within 24 hours.
+                      </p>
+                    </div>
+                    <ConsultationForm showHeading={false} />
                   </div>
-                  <ConsultationForm showHeading={false} />
                 </div>
+
               </div>
             </div>
-
           </div>
-        </section>
+        </div>
 
-        {/* Footer */}
-        <footer style={{
-          background: "#060f09", borderTop: "1px solid rgba(255,255,255,.07)",
-          padding: "14px 24px", display: "flex", alignItems: "center",
-          justifyContent: "space-between", flexWrap: "wrap", gap: 10,
-        }}>
-          <div className="tb-footer-links" style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-            {[
-              { label: "Home", href: "/" },
-              { label: "View Therapists", href: "/view-all-therapist" },
-              { label: "Privacy Policy", href: "/privacy-policy" },
-              { label: "Contact Us", href: "/contact-us" },
-            ].map(l => (
-              <a key={l.label} href={l.href} style={{ fontSize: 12, color: "rgba(255,255,255,.35)", textDecoration: "none", fontWeight: 600 }}>
-                {l.label}
-              </a>
-            ))}
-          </div>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,.22)", margin: 0 }}>
-            © {new Date().getFullYear()} Choose Your Therapist
-          </p>
-        </footer>
+        <NewsLetter />
+        <Footer />
       </div>
     </>
   );
