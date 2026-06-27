@@ -83,9 +83,12 @@ const bannerStyles = `
 .float-1 { top: 20%; left: 10%; animation: float 6s ease-in-out infinite; }
 .float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 @media (max-width: 768px) {
-  .reg-client-banner { height: 4px; padding: 0; background-image: none; background: linear-gradient(90deg, #16a34a, #4ade80); }
-  .reg-client-banner::before { display: none; }
-  .reg-client-badge, .reg-client-title, .reg-client-subtitle, .floating-icon { display: none; }
+  .reg-client-banner { padding: 28px 0 24px 0; }
+  .reg-client-badge { display: none; }
+  .reg-client-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
+  .reg-client-animated { min-width: 100%; display: block; text-align: center; }
+  .reg-client-subtitle { font-size: 13px; padding: 0 16px; }
+  .floating-icon { display: none; }
 }
 `;
 

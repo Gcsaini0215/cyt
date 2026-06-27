@@ -16,6 +16,12 @@ const bannerStyles = `
     .ab-col-mobile-hide { display: none !important; }
     .ab-badge { display: none !important; }
   }
+  @media (max-width: 768px) {
+    .ab-section { min-height: 0 !important; }
+    .ab-content { padding: 48px 20px 40px !important; }
+    .ab-h1 { font-size: 22px !important; letter-spacing: -.3px !important; margin-bottom: 8px !important; }
+    .ab-sub { font-size: 13px !important; }
+  }
 `;
 
 export default function AboutUsBanner({ pics: picsProp = [] }) {
@@ -54,6 +60,7 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
       <style>{bannerStyles}</style>
 
       <section
+        className="ab-section"
         style={{
           minHeight: "100vh",
           position: "relative",
@@ -134,6 +141,7 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
 
         {/* Content */}
         <div
+          className="ab-content"
           style={{
             position: "relative",
             zIndex: 2,
@@ -169,6 +177,7 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
 
           {/* Headline */}
           <h1
+            className="ab-h1"
             style={{
               fontSize: "clamp(32px, 4.5vw, 54px)",
               fontWeight: 900,
@@ -187,6 +196,7 @@ export default function AboutUsBanner({ pics: picsProp = [] }) {
 
           {/* Subtitle */}
           <p
+            className="ab-sub"
             style={{
               fontSize: 16,
               color: "rgba(255,255,255,.72)",
