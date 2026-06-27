@@ -270,14 +270,14 @@ export default function TherapistRegistration()
       <MyNavbar />
       <RegistrationHeader />
 
-      <div style={{ background: "#f8fafc", padding: isMobile ? "30px 15px" : "60px 0" }}>
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-6 col-md-8 col-12">
+      <div style={{ background: "#f8fafc", padding: isMobile ? "24px 0" : "60px 0" }}>
+        <div className={isMobile ? "" : "container"}>
+          <div className="row justify-content-center" style={{ margin: 0 }}>
+            <div className="col-lg-6 col-md-8 col-12" style={{ padding: isMobile ? '0 12px' : undefined }}>
               <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
 
                 {/* Header */}
-                <div style={{ padding: '20px 28px 0' }}>
+                <div style={{ padding: isMobile ? '18px 16px 0' : '20px 28px 0' }}>
                   <h5 style={{ fontWeight: 800, fontSize: '20px', marginBottom: '2px' }}>Therapist Registration</h5>
                   <p className="text-muted" style={{ fontSize: '13px', marginBottom: '12px' }}>
                     {step === 0 && "Begin your journey as a verified therapist"}
@@ -327,7 +327,7 @@ export default function TherapistRegistration()
                 </div>
 
                 {/* Form Body */}
-                <div style={{ padding: '4px 28px 24px' }}>
+                <div style={{ padding: isMobile ? '4px 16px 24px' : '4px 28px 24px' }}>
                   <p style={{ color: "#d50000", fontSize: '13px', minHeight: '16px', marginBottom: '4px' }}>{error}</p>
 
                   {/* Step 0 — Email */}
@@ -364,7 +364,7 @@ export default function TherapistRegistration()
                   {step === 1 && (
                     <div>
                       <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Profile Type</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '24px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px', marginBottom: '24px' }}>
                         {profileOptions.map((opt) => (
                           <div
                             key={opt}
@@ -537,7 +537,7 @@ export default function TherapistRegistration()
                         maxLength={6}
                         style={{
                           width: '100%', padding: '16px', border: '2px solid #e2e8f0', borderRadius: '10px',
-                          fontSize: '28px', fontWeight: 700, letterSpacing: '14px', textAlign: 'center',
+                          fontSize: isMobile ? '22px' : '28px', fontWeight: 700, letterSpacing: isMobile ? '8px' : '14px', textAlign: 'center',
                           boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s',
                           color: '#111827',
                         }}
