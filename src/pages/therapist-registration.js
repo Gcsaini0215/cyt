@@ -664,61 +664,46 @@ export default function TherapistRegistration()
         open={planOpen}
         onClose={() => setPlanOpen(false)}
         fullWidth
-        maxWidth="sm"
+        maxWidth="xs"
         PaperProps={{
           style: {
             borderRadius: '16px',
-            margin: isMobile ? '12px' : '32px',
-            width: isMobile ? 'calc(100% - 24px)' : undefined,
+            margin: isMobile ? '16px' : '32px',
+            width: isMobile ? 'calc(100% - 32px)' : undefined,
           }
         }}
       >
-        <DialogContent style={{ padding: isMobile ? '20px 16px' : '28px 24px', maxHeight: '85vh', overflowY: 'auto' }}>
-          {/* Header */}
+        <DialogContent style={{ padding: '24px 20px' }}>
+          {/* Price block */}
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(34,187,51,0.1)', marginBottom: '12px' }}>
-              <FaTags style={{ color: '#22bb33', fontSize: '20px' }} />
+            <h5 style={{ fontWeight: 800, fontSize: '18px', margin: '0 0 16px' }}>Starter Plan</h5>
+            <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '12px', padding: '16px' }}>
+              <p style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>3 Months Access</p>
+              <p style={{ fontSize: '32px', fontWeight: 900, color: '#166534', margin: '0 0 2px' }}>₹1,999</p>
+              <p style={{ fontSize: '11px', color: '#15803d', margin: 0 }}>One-time · No auto-renewal</p>
             </div>
-            <h5 style={{ fontWeight: 800, fontSize: '20px', margin: '0 0 4px' }}>Starter Plan</h5>
-            <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>Everything you need to launch your practice</p>
           </div>
 
-          {/* Price */}
-          <div style={{ textAlign: 'center', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '14px', padding: '20px', marginBottom: '20px' }}>
-            <p style={{ fontSize: '13px', color: '#15803d', fontWeight: 600, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>3 Months Access</p>
-            <p style={{ fontSize: '36px', fontWeight: 900, color: '#166534', margin: '0 0 4px' }}>₹1,999</p>
-            <p style={{ fontSize: '12px', color: '#15803d', margin: 0 }}>One-time payment · No auto-renewal</p>
-          </div>
-
-          {/* Features */}
-          <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>What's Included</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+          {/* Features — simple list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
             {[
-              { icon: '👁', title: 'Visibility', desc: 'Your profile listed & discoverable by clients across India' },
-              { icon: '✓', title: 'Credibility', desc: 'Verified badge on your public profile' },
-              { icon: '🗄', title: 'Storage', desc: 'Unlimited client records & session notes storage' },
-              { icon: '📅', title: 'Booking Management', desc: 'Track all upcoming & past appointments easily' },
-              { icon: '📄', title: 'Professional Invoicing', desc: 'Generate invoices for online & in-person sessions' },
-              { icon: '📋', title: 'Task & Prescription Reports', desc: 'Create detailed reports for your clients' },
+              'Profile listed & discoverable by clients',
+              'Verified badge on your public profile',
+              'Booking & appointment management',
+              'Professional invoice generation',
+              'Client records & session notes storage',
             ].map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '10px 12px', background: '#f8fafc', borderRadius: '10px' }}>
-                <span style={{ fontSize: '16px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>{f.icon}</span>
-                <div>
-                  <p style={{ fontWeight: 700, fontSize: '13px', color: '#111827', margin: '0 0 1px' }}>{f.title}</p>
-                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>{f.desc}</p>
-                </div>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ color: '#22bb33', fontWeight: 700, fontSize: '14px', flexShrink: 0 }}>✓</span>
+                <span style={{ fontSize: '13px', color: '#374151' }}>{f}</span>
               </div>
             ))}
           </div>
 
-          <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', marginBottom: '16px' }}>
-            Questions? <a href="mailto:chooseyourtherapist@gmail.com" style={{ color: '#22bb33', fontWeight: 600, textDecoration: 'none' }}>chooseyourtherapist@gmail.com</a>
-          </p>
-
           <button
             onClick={() => setPlanOpen(false)}
             className="rbt-btn btn-gradient radius-round w-100"
-            style={{ minHeight: '46px' }}
+            style={{ minHeight: '44px' }}
           >
             Got it — Continue Registration
           </button>
