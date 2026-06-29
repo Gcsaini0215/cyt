@@ -13,11 +13,7 @@ const NAV = [
 ];
 
 const MOB_NAV = [
-  { to: "/my-dashboard",         icon: "feather-home",     label: "Home" },
-  { to: "/my-bookings",          icon: "feather-calendar", label: "Bookings" },
-  { to: "/my-therapists",        icon: "feather-heart",    label: "My Care" },
-  { to: "/my-workshop-bookings", icon: "feather-star",     label: "Events" },
-  { to: "/my-settings",          icon: "feather-settings", label: "Settings" },
+  { to: "/my-dashboard", icon: "feather-home", label: "Home" },
 ];
 
 export default function ClientTopNav() {

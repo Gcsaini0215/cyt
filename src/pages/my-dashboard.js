@@ -131,9 +131,9 @@ export default function UserDashboard() {
         }
         /* Mobile */
         @media (max-width: 600px) {
-          .db-feat-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-          .db-shell { padding: 14px 10px 100px; }
-          .db-fab { bottom: 80px; right: 16px; padding: 13px 20px; font-size: 13px; }
+          .db-feat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+          .db-shell { padding: 14px 10px 40px; }
+          .db-fab { bottom: 20px; right: 16px; padding: 13px 20px; font-size: 13px; }
           .db-feat, .db-feat-soon { padding: 14px 10px; gap: 10px; }
         }
       `}</style>
