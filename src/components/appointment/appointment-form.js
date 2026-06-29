@@ -87,6 +87,12 @@ export default function AppointmentForm() {
             </div>
           </div>
 
+          {/* Email */}
+          <div>
+            <label className="apt-lbl">Email Address <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "#94a3b8" }}>(for confirmation email)</span></label>
+            <input className="apt-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+          </div>
+
           {/* Concern */}
           <div>
             <label className="apt-lbl">What would you like help with?</label>
