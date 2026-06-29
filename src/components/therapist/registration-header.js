@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Box, Container } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import { TypeAnimation } from "react-type-animation";
 
 const styles = `
 .reg-banner {
@@ -117,23 +116,7 @@ export default function RegistrationHeader() {
             </div>
 
             <h1 className="reg-title">
-              Join Our Platform to{" "}
-              <span className="reg-animated-text">
-                <TypeAnimation
-                  sequence={[
-                    "Build Your Presence",
-                    2000,
-                    "Create Your Impact",
-                    2000,
-                    "Expand Your Reach",
-                    2000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
-              </span>
-              <br /> List Yourself on Choose Your Therapist
+              List Yourself on <span style={{ color: "#4ade80" }}>Choose Your Therapist</span>
             </h1>
 
             <p className="reg-subtitle">
