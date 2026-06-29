@@ -3,6 +3,7 @@ import UserLayout from "../components/dashboard/user-layout";
 import PageWrapper from "../components/global/page-wrapper";
 import DashboardStatics from "../components/dashboard/dashboard-statics";
 import DashInfo from "../components/dashboard/dash-info";
+import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import { getClientDashboardDataUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import { toast } from "react-toastify";
@@ -35,6 +36,7 @@ export default function UserDashboard() {
         <PageWrapper pageTitle={"My Dashboard"} loading={loading}>
           <DashboardStatics data={data}/>
           <DashInfo />
+          <DashAppointmentForm />
         </PageWrapper>
       </UserLayout>
     </div>
