@@ -60,23 +60,6 @@ export default function UserDashboard() {
             {/* ── LEFT: main content ── */}
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-              {/* Quick links */}
-              <div className="db-card">
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>Quick Access</div>
-                <div className="db-ql-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {QUICK_LINKS.map(ql => (
-                    <Link key={ql.href} href={ql.href} className="db-ql">
-                      <div className="db-ql-icon"><i className={ql.icon} style={{ fontSize: 15 }}></i></div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{ql.label}</div>
-                        <div style={{ fontSize: 11, color: "#94a3b8" }}>{ql.desc}</div>
-                      </div>
-                      <i className="feather-chevron-right" style={{ fontSize: 13, color: "#cbd5e1", marginLeft: "auto" }}></i>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
               {/* Appointment requests */}
               {!loading && data.appointmentRequests && data.appointmentRequests.length > 0 && (
                 <div className="db-card">
