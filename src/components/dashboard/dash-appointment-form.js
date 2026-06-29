@@ -15,7 +15,7 @@ const TIME_SLOTS = [
   "Flexible / Any time",
 ];
 
-export default function DashAppointmentForm({ compact = false }) {
+export default function DashAppointmentForm({ compact = false, therapist = null }) {
   const { userInfo } = useUserStore();
   const [form, setForm] = useState({
     name: userInfo?.name || "",
@@ -39,7 +39,12 @@ export default function DashAppointmentForm({ compact = false }) {
       const res = await fetch(`${apiUrl}/appointment-requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, source: "dashboard" }),
+        body: JSON.stringify({
+          ...form,
+          source: "dashboard",
+          therapistId: therapist?._id || "",
+          therapistName: therapist?.user?.name || "",
+        }),
       });
       const data = await res.json();
       if (data.success) setStatus("success");
@@ -67,6 +72,17 @@ export default function DashAppointmentForm({ compact = false }) {
           <div style={{ width: 3, height: 22, background: "#16a34a", borderRadius: 2 }} />
           <h5 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Book an Appointment</h5>
           <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>— We'll confirm via WhatsApp</span>
+        </div>
+      )}
+
+      {therapist && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0 4px", padding: "10px 14px", background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 10 }}>
+          <i className="feather-user" style={{ fontSize: 15, color: "#16a34a" }}></i>
+          <div>
+            <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600 }}>Selected Therapist</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#0f172a" }}>{therapist.user?.name}</div>
+            {therapist.profile_type && <div style={{ fontSize: 11, color: "#64748b" }}>{therapist.profile_type}</div>}
+          </div>
         </div>
       )}
 

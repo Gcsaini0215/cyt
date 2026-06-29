@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ClientTopNav from "../components/dashboard/client-top-nav";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
+import TherapistSearchModal from "../components/dashboard/therapist-search-modal";
 import { GetDashboardDataUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 
@@ -16,12 +17,14 @@ const FEATURE_CARDS = [
   { icon: "feather-activity",   color: "#dc2626", bg: "#fef2f2", label: "My Reports",             desc: "Access your session reports and progress notes",              href: "/my-reports",      tag: "Coming Soon" },
   { icon: "feather-headphones", color: "#6d28d9", bg: "#f5f3ff", label: "Meditation & Resources", desc: "Guided meditations and mental wellness resources",             href: "/resources",       tag: "Coming Soon" },
   { icon: "feather-users",      color: "#059669", bg: "#ecfdf5", label: "Refer a Friend",         desc: "Share CYT with someone who needs support",                    href: "/refer",           tag: "Coming Soon" },
+  { icon: "feather-search",     color: "#0f172a", bg: "#f1f5f9", label: "Find a Therapist",        desc: "Browse all verified therapists and find your match",          href: null,               tag: null, action: "therapist-search" },
 ];
 
 export default function UserDashboard() {
   const [data, setData]       = useState({});
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [therapistModalOpen, setTherapistModalOpen] = useState(false);
 
   useEffect(() => {
     fetchById(GetDashboardDataUrl)
@@ -135,22 +138,36 @@ export default function UserDashboard() {
       <div style={{ paddingTop: 56 }}>
         <div className="db-shell">
           <div className="db-feat-grid">
-            {FEATURE_CARDS.map(c => (
-              <Link key={c.label} href={c.href} className="db-feat">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, fontSize: 20, flexShrink: 0 }}>
-                    <i className={c.icon}></i>
+            {FEATURE_CARDS.map(c => {
+              const inner = (
+                <>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, fontSize: 20, flexShrink: 0 }}>
+                      <i className={c.icon}></i>
+                    </div>
+                    {c.tag && (
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 20, padding: "2px 9px" }}>{c.tag}</span>
+                    )}
                   </div>
-                  {c.tag && (
-                    <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 20, padding: "2px 9px" }}>{c.tag}</span>
-                  )}
-                </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>{c.label}</div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{c.desc}</div>
-                </div>
-              </Link>
-            ))}
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>{c.label}</div>
+                    <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{c.desc}</div>
+                  </div>
+                </>
+              );
+              if (c.action === "therapist-search") {
+                return (
+                  <div key={c.label} className="db-feat" onClick={() => setTherapistModalOpen(true)}>
+                    {inner}
+                  </div>
+                );
+              }
+              return (
+                <Link key={c.label} href={c.href} className="db-feat">
+                  {inner}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -161,7 +178,10 @@ export default function UserDashboard() {
         Request Appointment
       </button>
 
-      {/* Modal */}
+      {/* Therapist search modal */}
+      <TherapistSearchModal open={therapistModalOpen} onClose={() => setTherapistModalOpen(false)} />
+
+      {/* Appointment modal */}
       {modalOpen && (
         <div className="db-overlay" onClick={e => { if (e.target === e.currentTarget) setModalOpen(false); }}>
           <div className="db-modal">
