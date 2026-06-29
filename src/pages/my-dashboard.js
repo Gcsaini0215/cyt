@@ -56,6 +56,13 @@ export default function UserDashboard() {
           box-shadow: 0 6px 20px rgba(0,0,0,0.08);
           transform: translateY(-2px);
         }
+        .db-feat-soon {
+          display: flex; flex-direction: column; gap: 14px;
+          padding: 20px; border-radius: 14px;
+          border: 1.5px solid #fecaca; background: #fff9f9;
+          text-decoration: none; transition: all 0.18s; cursor: not-allowed;
+          box-sizing: border-box; opacity: 0.72;
+        }
         .db-shell {
           min-height: calc(100vh - 56px);
           background: #f8fafc;
@@ -158,6 +165,13 @@ export default function UserDashboard() {
               if (c.action === "therapist-search") {
                 return (
                   <div key={c.label} className="db-feat" onClick={() => setTherapistModalOpen(true)}>
+                    {inner}
+                  </div>
+                );
+              }
+              if (c.tag === "Coming Soon") {
+                return (
+                  <div key={c.label} className="db-feat-soon">
                     {inner}
                   </div>
                 );
