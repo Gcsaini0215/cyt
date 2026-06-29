@@ -60,19 +60,6 @@ export default function UserDashboard() {
             {/* ── LEFT: main content ── */}
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-              {/* Sessions stat */}
-              <div className="db-card db-stat">
-                <div className="db-stat-icon" style={{ background: "#f0fdf4", color: "#16a34a" }}>
-                  <i className="feather-calendar"></i>
-                </div>
-                <div>
-                  <div style={{ fontSize: 26, fontWeight: 900, color: "#0f172a", lineHeight: 1 }}>
-                    {loading ? "—" : sessionCount}
-                  </div>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4, fontWeight: 600 }}>Total Sessions</div>
-                </div>
-              </div>
-
               {/* Quick links */}
               <div className="db-card">
                 <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>Quick Access</div>
