@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import ClientTopNav from "../components/dashboard/client-top-nav";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
-import { getClientDashboardDataUrl } from "../utils/url";
+import { GetDashboardDataUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useUserStore from "../store/userStore";
 
@@ -19,7 +19,7 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchById(getClientDashboardDataUrl)
+    fetchById(GetDashboardDataUrl)
       .then(r => { if (r?.status) setData(r.data || {}); })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -112,6 +112,72 @@ export default function UserDashboard() {
                   ))}
                 </div>
               </div>
+
+              {/* Appointment requests */}
+              {!loading && data.appointmentRequests && data.appointmentRequests.length > 0 && (
+                <div className="db-card">
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 14 }}>Your Appointment Requests</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {data.appointmentRequests.map(req => {
+                      const isConfirmed   = req.status === "confirmed";
+                      const isRescheduled = req.status === "rescheduled";
+                      const isPending     = req.status === "pending";
+                      const isCancelled   = req.status === "cancelled";
+
+                      const statusColor = isConfirmed ? "#16a34a"
+                        : isRescheduled ? "#2563eb"
+                        : isCancelled   ? "#dc2626"
+                        : "#f59e0b";
+                      const statusBg = isConfirmed ? "#f0fdf4"
+                        : isRescheduled ? "#eff6ff"
+                        : isCancelled   ? "#fef2f2"
+                        : "#fffbeb";
+                      const statusLabel = isConfirmed ? "Confirmed"
+                        : isRescheduled ? "Rescheduled"
+                        : isCancelled   ? "Cancelled"
+                        : "Pending";
+
+                      return (
+                        <div key={req._id} style={{ border: `1.5px solid ${isConfirmed || isRescheduled ? statusColor + "40" : "#e2e8f0"}`, borderRadius: 10, padding: "14px 16px", background: isConfirmed || isRescheduled ? statusBg : "#fafafa" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+                              {req.concern || "Appointment Request"}
+                            </div>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, background: statusBg, border: `1px solid ${statusColor}40`, borderRadius: 20, padding: "2px 10px" }}>
+                              {statusLabel}
+                            </span>
+                          </div>
+
+                          {(isConfirmed || isRescheduled) && req.confirmedTime && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                              <i className="feather-clock" style={{ fontSize: 12, color: statusColor }}></i>
+                              <span style={{ fontSize: 13, fontWeight: 700, color: statusColor }}>{req.confirmedTime}</span>
+                            </div>
+                          )}
+
+                          {isPending && (
+                            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                              We'll confirm your time via WhatsApp soon.
+                            </div>
+                          )}
+
+                          {req.adminNote && (
+                            <div style={{ marginTop: 6, fontSize: 12, color: "#475569", background: "#f1f5f9", borderRadius: 6, padding: "6px 10px", borderLeft: `3px solid ${statusColor}` }}>
+                              {req.adminNote}
+                            </div>
+                          )}
+
+                          {req.preferredTime && isPending && (
+                            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+                              Preferred: {req.preferredTime}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
             </div>
 
