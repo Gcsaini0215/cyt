@@ -7,6 +7,7 @@ import { GetDashboardDataUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 
 const FEATURE_CARDS = [
+  { icon: "feather-search",     color: "#0f172a", bg: "#f1f5f9", label: "Find a Therapist",        desc: "Browse all verified therapists and find your match",          href: null,               tag: null, action: "therapist-search" },
   { icon: "feather-clipboard",  color: "#7c3aed", bg: "#f5f3ff", label: "Self Assessment",        desc: "Understand your mental health with quick assessments",        href: "/self-assessment", tag: "Coming Soon" },
   { icon: "feather-book-open",  color: "#0ea5e9", bg: "#f0f9ff", label: "Digital Journaling",     desc: "Write, reflect, and track your emotional journey",            href: "/my-journal",      tag: "Coming Soon" },
   { icon: "feather-file-text",  color: "#f59e0b", bg: "#fffbeb", label: "Worksheets",             desc: "Therapeutic exercises and worksheets for self-growth",        href: "/worksheets",      tag: "Coming Soon" },
@@ -17,7 +18,6 @@ const FEATURE_CARDS = [
   { icon: "feather-activity",   color: "#dc2626", bg: "#fef2f2", label: "My Reports",             desc: "Access your session reports and progress notes",              href: "/my-reports",      tag: "Coming Soon" },
   { icon: "feather-headphones", color: "#6d28d9", bg: "#f5f3ff", label: "Meditation & Resources", desc: "Guided meditations and mental wellness resources",             href: "/resources",       tag: "Coming Soon" },
   { icon: "feather-users",      color: "#059669", bg: "#ecfdf5", label: "Refer a Friend",         desc: "Share CYT with someone who needs support",                    href: "/refer",           tag: "Coming Soon" },
-  { icon: "feather-search",     color: "#0f172a", bg: "#f1f5f9", label: "Find a Therapist",        desc: "Browse all verified therapists and find your match",          href: null,               tag: null, action: "therapist-search" },
 ];
 
 export default function UserDashboard() {
