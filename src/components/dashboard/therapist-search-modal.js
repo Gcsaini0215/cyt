@@ -184,8 +184,10 @@ export default function TherapistSearchModal({ open, onClose }) {
           {/* ── Body ── */}
           <div style={{ overflowY: "auto", flex: 1, padding: "16px 20px 32px" }}>
             {selected ? (
-              /* Appointment form for selected therapist */
-              <DashAppointmentForm compact therapist={selected} />
+              /* Appointment form for selected therapist — centered, max width */
+              <div style={{ maxWidth: 520, margin: "0 auto" }}>
+                <DashAppointmentForm compact therapist={selected} />
+              </div>
             ) : loading ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {[1,2,3,4,5,6].map(i => (
