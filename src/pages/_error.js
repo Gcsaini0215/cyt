@@ -112,23 +112,6 @@ function ErrorPage({ statusCode }) {
             <i className="feather-home" style={{ fontSize: 16 }}></i>
             Back to Home
           </Link>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 14 }}>Quick Links</div>
-          <div className="err-ql-grid">
-            {[
-              { href: "/my-dashboard",         icon: "feather-grid",     label: "My Dashboard",    sub: "Your wellness space" },
-              { href: "/my-bookings",          icon: "feather-calendar", label: "Session History", sub: "View your sessions" },
-              { href: "/my-therapists",        icon: "feather-heart",    label: "My Therapist",    sub: "Your assigned therapist" },
-              { href: "/my-workshop-bookings", icon: "feather-star",     label: "Events & Vibes",  sub: "Workshops & events" },
-            ].map(ql => (
-              <Link key={ql.href} href={ql.href} className="err-ql">
-                <div className="err-ql-icon"><i className={ql.icon}></i></div>
-                <div>
-                  <div className="err-ql-label">{ql.label}</div>
-                  <div className="err-ql-sub">{ql.sub}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </>
