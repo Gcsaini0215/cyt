@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Container } from "@mui/material";
+import { TypeAnimation } from "react-type-animation";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import VerifiedIcon from "@mui/icons-material/Verified";
 
@@ -116,7 +117,22 @@ export default function RegistrationHeader() {
             </div>
 
             <h1 className="reg-title">
-              List Yourself on <span style={{ color: "#4ade80" }}>Choose Your Therapist</span>
+              <span className="reg-animated-text">
+                <TypeAnimation
+                  sequence={[
+                    "Build Your Presence",
+                    2000,
+                    "Create Your Impact",
+                    2000,
+                    "Expand Your Reach",
+                    2000,
+                  ]}
+                  wrapper="span"
+                  speed={50}
+                  repeat={Infinity}
+                />
+              </span>
+              <br /> List Yourself on Choose Your Therapist
             </h1>
 
             <p className="reg-subtitle">
