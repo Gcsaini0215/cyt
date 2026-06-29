@@ -15,7 +15,7 @@ const TIME_SLOTS = [
   "Flexible / Any time",
 ];
 
-export default function DashAppointmentForm() {
+export default function DashAppointmentForm({ compact = false }) {
   const { userInfo } = useUserStore();
   const [form, setForm] = useState({
     name: userInfo?.name || "",
@@ -50,7 +50,7 @@ export default function DashAppointmentForm() {
   };
 
   return (
-    <div style={{ marginTop: 48, marginBottom: 32 }}>
+    <div style={{ marginTop: compact ? 16 : 48, marginBottom: compact ? 0 : 32 }}>
       <style>{`
         .da-inp { border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 13px; font-size: 14px; color: #0f172a; outline: none; width: 100%; box-sizing: border-box; background: #fff; font-family: inherit; transition: border-color 0.15s; }
         .da-inp:focus { border-color: #16a34a; }
@@ -61,12 +61,14 @@ export default function DashAppointmentForm() {
         @media (max-width: 600px) { .da-time-grid { grid-template-columns: 1fr 1fr !important; } }
       `}</style>
 
-      {/* Section header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-        <div style={{ width: 3, height: 22, background: "#16a34a", borderRadius: 2 }} />
-        <h5 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Book an Appointment</h5>
-        <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>— We'll confirm via WhatsApp</span>
-      </div>
+      {/* Section header — hidden in compact mode (card header shows instead) */}
+      {!compact && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          <div style={{ width: 3, height: 22, background: "#16a34a", borderRadius: 2 }} />
+          <h5 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Book an Appointment</h5>
+          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>— We'll confirm via WhatsApp</span>
+        </div>
+      )}
 
       {status === "success" ? (
         <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 12, padding: "20px 24px", display: "flex", alignItems: "center", gap: 14 }}>
@@ -77,7 +79,7 @@ export default function DashAppointmentForm() {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: "24px", boxShadow: "0 2px 12px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", gap: 16 }}>
+        <form onSubmit={handleSubmit} style={{ background: "transparent", border: "none", borderRadius: 0, padding: compact ? "0" : "24px", boxShadow: "none", display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Name + Phone */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
