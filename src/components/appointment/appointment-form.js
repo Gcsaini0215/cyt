@@ -87,12 +87,6 @@ export default function AppointmentForm() {
             </div>
           </div>
 
-          {/* Email */}
-          <div>
-            <label className="apt-lbl">Email Address <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "#94a3b8" }}>(for confirmation email)</span></label>
-            <input className="apt-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
-          </div>
-
           {/* Concern */}
           <div>
             <label className="apt-lbl">What would you like help with?</label>
@@ -114,14 +108,6 @@ export default function AppointmentForm() {
                 >{slot}</button>
               ))}
             </div>
-          </div>
-
-          {/* Message */}
-          <div>
-            <label className="apt-lbl">Anything else you'd like us to know?</label>
-            <textarea className="apt-inp" value={form.message} onChange={e => set("message", e.target.value)}
-              placeholder="e.g. Preferred language, session type (online/in-person), any other details..."
-              rows={3} style={{ height: "auto", resize: "none", lineHeight: 1.6 }} />
           </div>
 
           {/* Error */}
