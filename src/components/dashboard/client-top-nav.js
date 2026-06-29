@@ -1,18 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useUserStore from "../../store/userStore";
 import { removeToken } from "../../utils/jwt";
-import { defaultProfile, imagePath } from "../../utils/url";
+import { defaultProfile, imagePath, GetDashboardDataUrl } from "../../utils/url";
+import { fetchById } from "../../utils/actions";
 
 const logo1 = "/logo.png";
 
 const NAV = [
-  { to: "/my-dashboard",          label: "Home",        icon: "feather-home" },
-  { to: "/my-bookings",           label: "My Bookings", icon: "feather-calendar" },
-  { to: "/my-therapists",         label: "My Care",     icon: "feather-heart" },
-  { to: "/my-workshop-bookings",  label: "Events",      icon: "feather-star" },
-  { to: "/my-settings",           label: "Settings",    icon: "feather-settings" },
+  { to: "/my-dashboard", label: "Home", icon: "feather-home" },
 ];
 
 const MOB_NAV = [
@@ -28,15 +25,28 @@ export default function ClientTopNav() {
   const router = useRouter();
   const pathname = router.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    fetchById(GetDashboardDataUrl)
+      .then(r => {
+        if (r?.status && r.data?.appointmentRequests) {
+          setAppointments(r.data.appointmentRequests.filter(
+            a => a.status === "confirmed" || a.status === "rescheduled"
+          ));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = () => {
     removeToken();
     router.push("/login");
   };
 
-  const avatarSrc = userInfo?.profile
-    ? `${imagePath}/${userInfo.profile}`
-    : defaultProfile;
+  const avatarSrc = userInfo?.profile ? `${imagePath}/${userInfo.profile}` : null;
+  const initials = (userInfo?.name || "U").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <>
@@ -77,6 +87,24 @@ export default function ClientTopNav() {
           text-decoration: none; position: relative;
         }
         .ctn-icon-btn:hover { background: rgba(255,255,255,.08); color: #e2e8f0; }
+        .ctn-notif-dot {
+          position: absolute; top: 4px; right: 4px;
+          width: 15px; height: 15px; border-radius: 50%;
+          background: #ef4444; color: #fff;
+          font-size: 8px; font-weight: 800;
+          display: flex; align-items: center; justify-content: center;
+          border: 2px solid #1e293b;
+        }
+        .ctn-bell-dd {
+          position: absolute; top: calc(100% + 8px); right: 0;
+          background: #1e293b; border: 1px solid rgba(255,255,255,.09);
+          border-radius: 14px; width: 300px; z-index: 600;
+          box-shadow: 0 14px 36px rgba(0,0,0,.45); overflow: hidden;
+        }
+        .ctn-bell-head { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; }
+        .ctn-bell-empty { padding: 20px 16px; text-align: center; font-size: 13px; color: #475569; }
+        .ctn-bell-item { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.06); display: flex; gap: 10px; align-items: flex-start; }
+        .ctn-bell-item:last-child { border-bottom: none; }
         .ctn-prof-btn {
           display: flex; align-items: center; gap: 7px;
           background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
@@ -151,14 +179,51 @@ export default function ClientTopNav() {
         </nav>
 
         <div className="ctn-right">
-          {/* Home link to main site */}
-          <a
-            href="/"
-            className="ctn-icon-btn"
-            title="Go to Website"
-          >
+          {/* Website link */}
+          <a href="/" className="ctn-icon-btn" title="Go to Website">
             <i className="feather-globe"></i>
           </a>
+
+          {/* Bell — confirmed appointments */}
+          <div style={{ position: "relative" }}
+            onMouseEnter={() => setBellOpen(true)}
+            onMouseLeave={() => setBellOpen(false)}
+          >
+            <button className="ctn-icon-btn" onClick={() => setBellOpen(o => !o)}>
+              <i className="feather-bell"></i>
+              {appointments.length > 0 && (
+                <span className="ctn-notif-dot">{appointments.length}</span>
+              )}
+            </button>
+            {bellOpen && (
+              <div className="ctn-bell-dd">
+                <div className="ctn-bell-head">Upcoming Appointments</div>
+                {appointments.length === 0 ? (
+                  <div className="ctn-bell-empty">No confirmed appointments yet.</div>
+                ) : (
+                  appointments.map(req => {
+                    const isRescheduled = req.status === "rescheduled";
+                    const color = isRescheduled ? "#60a5fa" : "#4ade80";
+                    return (
+                      <div key={req._id} className="ctn-bell-item">
+                        <div style={{ width: 32, height: 32, borderRadius: 8, background: isRescheduled ? "rgba(96,165,250,0.12)" : "rgba(74,222,128,0.12)", display: "flex", alignItems: "center", justifyContent: "center", color, flexShrink: 0 }}>
+                          <i className="feather-clock" style={{ fontSize: 14 }}></i>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#e2e8f0" }}>{req.concern || "Therapy Session"}</div>
+                          {req.confirmedTime && <div style={{ fontSize: 12, color, marginTop: 2, fontWeight: 600 }}>{req.confirmedTime}</div>}
+                          {req.adminNote && <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{req.adminNote}</div>}
+                          <span style={{ fontSize: 10, fontWeight: 700, color, marginTop: 3, display: "inline-block" }}>
+                            {isRescheduled ? "Rescheduled" : "Confirmed"}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Profile dropdown */}
           <div
@@ -167,7 +232,10 @@ export default function ClientTopNav() {
             onMouseLeave={() => setProfileOpen(false)}
           >
             <div className="ctn-prof-btn">
-              <img src={avatarSrc} alt={userInfo?.name || "User"} className="ctn-prof-av" />
+              {avatarSrc
+                ? <img src={avatarSrc} alt={userInfo?.name || "User"} className="ctn-prof-av" />
+                : <div style={{ width: 28, height: 28, borderRadius: 8, background: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{initials}</div>
+              }
               <span className="ctn-prof-name">{userInfo?.name || "My Account"}</span>
               <i className="feather-chevron-down ctn-prof-chevron"></i>
             </div>
