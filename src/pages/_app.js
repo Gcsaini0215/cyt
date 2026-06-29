@@ -93,7 +93,18 @@ function MyApp({ Component, pageProps }) {
     "/trainee-psychologist",
   ];
 
-  const shouldHideWidgets = hideWidgetsOn.some(route => router.pathname.startsWith(route));
+  // Client dashboard routes — show callback widget only here
+  const clientDashboardRoutes = [
+    "/my-dashboard",
+    "/my-bookings",
+    "/my-therapists",
+    "/my-workshop-bookings",
+    "/my-settings",
+    "/my-change-password",
+  ];
+
+  const isClientDashboard = clientDashboardRoutes.some(route => router.pathname.startsWith(route));
+  const shouldHideWidgets = hideWidgetsOn.some(route => router.pathname.startsWith(route)) || !isClientDashboard;
 
   // Site-wide schema — relatable therapy conditions & services people actually search for
   const globalConditionsSchema = [
