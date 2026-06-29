@@ -29,11 +29,7 @@ export default function UserDashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
-  const stats = [
-    { label: "Sessions",     value: data.bookings     ?? "—", icon: "feather-calendar", color: "#16a34a", bg: "#f0fdf4" },
-    { label: "Events",       value: data.events       ?? "—", icon: "feather-star",     color: "#7c3aed", bg: "#f5f3ff" },
-    { label: "Appointments", value: data.appointments ?? "—", icon: "feather-clock",    color: "#0ea5e9", bg: "#f0f9ff" },
-  ];
+  const sessionCount = data.bookings ?? "—";
 
   return (
     <>
@@ -47,11 +43,9 @@ export default function UserDashboard() {
         @media (max-width: 900px) {
           .db-main-grid { grid-template-columns: 1fr !important; }
           .db-apt-sticky { position: static !important; }
-          .db-stats-grid { grid-template-columns: 1fr 1fr !important; }
         }
         @media (max-width: 600px) {
           .db-ql-grid { grid-template-columns: 1fr !important; }
-          .db-stats-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
@@ -79,21 +73,17 @@ export default function UserDashboard() {
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="db-stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                {stats.map(s => (
-                  <div key={s.label} className="db-card db-stat">
-                    <div className="db-stat-icon" style={{ background: s.bg, color: s.color }}>
-                      <i className={s.icon}></i>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", lineHeight: 1 }}>
-                        {loading ? "—" : s.value}
-                      </div>
-                      <div style={{ fontSize: 11.5, color: "#94a3b8", marginTop: 3, fontWeight: 600 }}>{s.label}</div>
-                    </div>
+              {/* Sessions stat */}
+              <div className="db-card db-stat">
+                <div className="db-stat-icon" style={{ background: "#f0fdf4", color: "#16a34a" }}>
+                  <i className="feather-calendar"></i>
+                </div>
+                <div>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: "#0f172a", lineHeight: 1 }}>
+                    {loading ? "—" : sessionCount}
                   </div>
-                ))}
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4, fontWeight: 600 }}>Total Sessions</div>
+                </div>
               </div>
 
               {/* Quick links */}
