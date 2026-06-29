@@ -58,64 +58,123 @@ export default function UserDashboard() {
   return (
     <>
       <style>{`
-        .db-feat { display: flex; flex-direction: column; gap: 12px; padding: 18px 18px; border-radius: 12px; border: 1px solid #e2e8f0; background: #fff; text-decoration: none; transition: all 0.15s; cursor: pointer; }
-        .db-feat:hover { border-color: #cbd5e1; box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-2px); }
-        @media (max-width: 900px) {
-          .db-layout { grid-template-columns: 1fr !important; }
-          .db-form-sticky { position: static !important; }
-          .db-feat-grid { grid-template-columns: 1fr 1fr !important; }
+        /* ── Feature card ── */
+        .db-feat {
+          display: flex; flex-direction: column; gap: 14px;
+          padding: 20px; border-radius: 14px;
+          border: 1px solid #e2e8f0; background: #fff;
+          text-decoration: none; transition: all 0.18s; cursor: pointer;
+          height: 100%; box-sizing: border-box;
         }
-        @media (max-width: 540px) {
-          .db-feat-grid { grid-template-columns: 1fr !important; }
-          .db-layout { padding: 16px 12px !important; }
+        .db-feat:hover {
+          border-color: #cbd5e1;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+          transform: translateY(-2px);
+        }
+
+        /* ── Outer shell: topnav=56px, page fills rest ── */
+        .db-shell {
+          min-height: calc(100vh - 56px);
+          background: #f8fafc;
+          padding: 24px 32px 32px;
+          box-sizing: border-box;
+        }
+
+        /* ── Two-column layout ── */
+        .db-layout {
+          display: grid;
+          grid-template-columns: 1fr 380px;
+          gap: 24px;
+          align-items: start;
+          max-width: 1280px;
+          margin: 0 auto;
+        }
+
+        /* ── Left: 2×2 card grid fills the column ── */
+        .db-feat-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          gap: 16px;
+        }
+
+        /* ── Right: form panel ── */
+        .db-form-panel {
+          position: sticky;
+          top: 72px;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        /* ── Tablet ── */
+        @media (max-width: 1024px) {
+          .db-layout { grid-template-columns: 1fr 340px; gap: 18px; }
+          .db-shell { padding: 20px 20px 40px; }
+        }
+
+        /* ── Mobile: stack vertically ── */
+        @media (max-width: 768px) {
+          .db-layout { grid-template-columns: 1fr; }
+          .db-form-panel { position: static; }
+          .db-shell { padding: 16px 14px 80px; }
+        }
+
+        /* ── Small mobile: single column cards ── */
+        @media (max-width: 480px) {
+          .db-feat-grid { grid-template-columns: 1fr; }
         }
       `}</style>
 
       <ClientTopNav />
 
-      <div style={{ background: "#f8fafc", minHeight: "100vh", paddingTop: 56, paddingBottom: 80 }}>
-        <main style={{ padding: "28px 36px", maxWidth: 1300, margin: "0 auto" }}>
-          <div className="db-layout" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
+      <div style={{ paddingTop: 56 }}>
+        <div className="db-shell">
+          <div className="db-layout">
 
-            {/* ── LEFT: feature grid ── */}
-            <div>
-<div className="db-feat-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                {FEATURE_CARDS.map(c => (
-                  <Link key={c.label} href={c.href} className="db-feat">
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <div style={{ width: 42, height: 42, borderRadius: 11, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, fontSize: 19 }}>
-                        <i className={c.icon}></i>
-                      </div>
-                      {c.tag && (
-                        <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 20, padding: "2px 8px" }}>{c.tag}</span>
-                      )}
+            {/* ── LEFT: 2×2 feature grid ── */}
+            <div className="db-feat-grid">
+              {FEATURE_CARDS.map(c => (
+                <Link key={c.label} href={c.href} className="db-feat">
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12,
+                      background: c.bg, display: "flex", alignItems: "center",
+                      justifyContent: "center", color: c.color, fontSize: 20, flexShrink: 0,
+                    }}>
+                      <i className={c.icon}></i>
                     </div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>{c.label}</div>
-                      <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{c.desc}</div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
+                    {c.tag && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, color: "#94a3b8",
+                        background: "#f1f5f9", border: "1px solid #e2e8f0",
+                        borderRadius: 20, padding: "2px 9px",
+                      }}>{c.tag}</span>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", marginBottom: 5 }}>{c.label}</div>
+                    <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{c.desc}</div>
+                  </div>
+                </Link>
+              ))}
             </div>
 
             {/* ── RIGHT: appointment form ── */}
-            <div className="db-form-sticky" style={{ position: "sticky", top: 76 }}>
-              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, overflow: "hidden" }}>
-                <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", padding: "16px 20px" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: 4 }}>Book a Session</div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>Request Appointment</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 2 }}>We'll confirm via WhatsApp</div>
-                </div>
-                <div style={{ padding: "0 20px 20px" }}>
-                  <DashAppointmentForm compact />
-                </div>
+            <div className="db-form-panel">
+              <div style={{ background: "linear-gradient(135deg,#0f172a,#1e293b)", padding: "18px 22px" }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 5 }}>Book a Session</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Request Appointment</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>We'll confirm via WhatsApp</div>
+              </div>
+              <div style={{ padding: "4px 20px 22px" }}>
+                <DashAppointmentForm compact />
               </div>
             </div>
 
           </div>
-        </main>
+        </div>
       </div>
     </>
   );
