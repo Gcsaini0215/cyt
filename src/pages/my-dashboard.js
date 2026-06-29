@@ -42,6 +42,60 @@ const FEATURE_CARDS = [
     href: "/my-bookings",
     tag: null,
   },
+  {
+    icon: "feather-sun",
+    color: "#f97316",
+    bg: "#fff7ed",
+    label: "Mood Tracker",
+    desc: "Log your daily mood and track emotional patterns",
+    href: "/mood-tracker",
+    tag: "Coming Soon",
+  },
+  {
+    icon: "feather-heart",
+    color: "#e11d48",
+    bg: "#fff1f2",
+    label: "My Therapist",
+    desc: "View your assigned therapist's profile and details",
+    href: "/my-therapists",
+    tag: null,
+  },
+  {
+    icon: "feather-video",
+    color: "#0891b2",
+    bg: "#ecfeff",
+    label: "Upcoming Sessions",
+    desc: "See your next booked therapy sessions",
+    href: "/my-bookings",
+    tag: null,
+  },
+  {
+    icon: "feather-activity",
+    color: "#dc2626",
+    bg: "#fef2f2",
+    label: "My Reports",
+    desc: "Access your session reports and progress notes",
+    href: "/my-reports",
+    tag: "Coming Soon",
+  },
+  {
+    icon: "feather-headphones",
+    color: "#6d28d9",
+    bg: "#f5f3ff",
+    label: "Meditation & Resources",
+    desc: "Guided meditations and mental wellness resources",
+    href: "/resources",
+    tag: "Coming Soon",
+  },
+  {
+    icon: "feather-users",
+    color: "#059669",
+    bg: "#ecfdf5",
+    label: "Refer a Friend",
+    desc: "Share CYT with someone who needs support",
+    href: "/refer",
+    tag: "Coming Soon",
+  },
 ];
 
 export default function UserDashboard() {
@@ -90,11 +144,10 @@ export default function UserDashboard() {
           margin: 0 auto;
         }
 
-        /* ── Left: 2×2 card grid fills the column ── */
+        /* ── Left: 2-col card grid, rows auto ── */
         .db-feat-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          grid-template-rows: 1fr 1fr;
           gap: 16px;
         }
 
