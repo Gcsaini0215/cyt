@@ -232,12 +232,7 @@ export default function ClientTopNav() {
             onMouseLeave={() => setProfileOpen(false)}
           >
             <div className="ctn-prof-btn">
-              {avatarSrc
-                ? <img src={avatarSrc} alt={userInfo?.name || "User"} className="ctn-prof-av" />
-                : <div style={{ width: 28, height: 28, borderRadius: 8, background: "#16a34a", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, color: "#fff", flexShrink: 0 }}>{initials}</div>
-              }
               <span className="ctn-prof-name">{userInfo?.name || "My Account"}</span>
-              <i className="feather-chevron-down ctn-prof-chevron"></i>
             </div>
             {profileOpen && (
               <div className="ctn-prof-dd">
