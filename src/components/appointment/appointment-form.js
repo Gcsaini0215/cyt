@@ -72,19 +72,6 @@ export default function AppointmentForm() {
       `}</style>
 
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 36 }}>
-          <span style={{ display: "inline-block", fontSize: 11, fontWeight: 800, color: "#16a34a", letterSpacing: 1.4, textTransform: "uppercase", background: "#dcfce7", padding: "5px 14px", borderRadius: 50, marginBottom: 14 }}>
-            Book a Session
-          </span>
-          <h1 style={{ fontSize: "clamp(22px,4vw,32px)", fontWeight: 900, color: "#0f172a", margin: "0 0 10px", lineHeight: 1.25 }}>
-            Request an Appointment
-          </h1>
-          <p style={{ fontSize: 14, color: "#64748b", margin: 0, lineHeight: 1.7 }}>
-            Fill in your details below. We will contact you on WhatsApp to confirm your session time — usually within a few hours.
-          </p>
-        </div>
-
         {/* Form card */}
         <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 16, border: "1px solid #e2e8f0", padding: "32px 28px", boxShadow: "0 4px 24px rgba(0,0,0,0.06)", display: "flex", flexDirection: "column", gap: 20 }}>
 
