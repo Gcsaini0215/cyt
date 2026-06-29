@@ -66,7 +66,6 @@ export default function UserDashboard() {
                 <div style={{ position: "absolute", bottom: -40, left: 60, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
                 <div style={{ position: "relative" }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.45)", marginBottom: 6, letterSpacing: "0.5px" }}>{greeting}</div>
-                  <h2 style={{ fontSize: 22, fontWeight: 900, color: "#fff", margin: "0 0 6px", letterSpacing: "-0.3px" }}>{firstName} 👋</h2>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.6 }}>
                     Welcome to your wellness space. Your journey matters.
                   </p>
