@@ -60,18 +60,6 @@ export default function UserDashboard() {
             {/* ── LEFT: main content ── */}
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-              {/* Welcome banner */}
-              <div style={{ background: "linear-gradient(135deg,#0f172a 0%,#1e293b 100%)", borderRadius: 14, padding: "24px 28px", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: -30, right: -30, width: 180, height: 180, borderRadius: "50%", background: "rgba(22,163,74,0.12)", pointerEvents: "none" }} />
-                <div style={{ position: "absolute", bottom: -40, left: 60, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-                <div style={{ position: "relative" }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.45)", marginBottom: 6, letterSpacing: "0.5px" }}>{greeting}</div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", margin: 0, lineHeight: 1.6 }}>
-                    Welcome to your wellness space. Your journey matters.
-                  </p>
-                </div>
-              </div>
-
               {/* Sessions stat */}
               <div className="db-card db-stat">
                 <div className="db-stat-icon" style={{ background: "#f0fdf4", color: "#16a34a" }}>
