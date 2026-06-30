@@ -175,6 +175,19 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
     } catch {}
   }, [therapistId]);
 
+  const initRemaining = useCallback(async () => {
+    try {
+      const r = await fetchById(`${chatMessagesUrl}?therapistId=${therapistId}`);
+      if (r?.success) {
+        const since24h = Date.now() - 24 * 60 * 60 * 1000;
+        const sentCount = (r.data || []).filter(m => m.sender === "user" && new Date(m.createdAt).getTime() >= since24h).length;
+        const rem = Math.max(0, 5 - sentCount);
+        setRemaining(rem);
+        if (rem === 0) setLimitHit(true);
+      }
+    } catch {}
+  }, [therapistId]);
+
   useEffect(() => { checkAuth(); }, [checkAuth]);
 
   useEffect(() => {
@@ -223,19 +236,6 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
     } catch {}
     setSending(false);
   };
-
-  const initRemaining = useCallback(async () => {
-    try {
-      const r = await fetchById(`${chatMessagesUrl}?therapistId=${therapistId}`);
-      if (r?.success) {
-        const since24h = Date.now() - 24 * 60 * 60 * 1000;
-        const sentCount = (r.data || []).filter(m => m.sender === "user" && new Date(m.createdAt).getTime() >= since24h).length;
-        const rem = Math.max(0, 5 - sentCount);
-        setRemaining(rem);
-        if (rem === 0) setLimitHit(true);
-      }
-    } catch {}
-  }, [therapistId]);
 
   const fmt = (d) => {
     const date = new Date(d);
