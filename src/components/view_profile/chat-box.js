@@ -155,6 +155,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
   const [remaining, setRemaining] = useState(5);
   const [limitHit,  setLimitHit]  = useState(false);
   const [userName,  setUserName]  = useState("");
+  const [now,       setNow]       = useState(() => new Date());
   const bottomRef = useRef(null);
   const pollRef   = useRef(null);
 
@@ -191,6 +192,12 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Ticker so timestamps update every minute without a full reload
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(t);
+  }, []);
+
   const handleSend = async (e) => {
     e?.preventDefault();
     if (!input.trim() || sending || limitHit) return;
@@ -221,7 +228,8 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
     try {
       const r = await fetchById(`${chatMessagesUrl}?therapistId=${therapistId}`);
       if (r?.success) {
-        const sentCount = (r.data || []).filter(m => m.sender === "user").length;
+        const since24h = Date.now() - 24 * 60 * 60 * 1000;
+        const sentCount = (r.data || []).filter(m => m.sender === "user" && new Date(m.createdAt).getTime() >= since24h).length;
         const rem = Math.max(0, 5 - sentCount);
         setRemaining(rem);
         if (rem === 0) setLimitHit(true);
@@ -231,7 +239,13 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
 
   const fmt = (d) => {
     const date = new Date(d);
-    return date.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", hour12:true });
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1)  return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const isToday = date.toDateString() === now.toDateString();
+    if (isToday) return date.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", hour12:true, timeZone:"Asia/Kolkata" });
+    return date.toLocaleString("en-IN", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit", hour12:true, timeZone:"Asia/Kolkata" });
   };
 
   const containerStyle = isMobile ? {
@@ -330,10 +344,12 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
               <div style={{ padding:"14px 16px", textAlign:"center" }}>
                 <div style={{ fontSize:22, marginBottom:6 }}>🔒</div>
                 <div style={{ fontSize:13, fontWeight:700, color:"#0f172a", marginBottom:3 }}>Message limit reached</div>
-                <div style={{ fontSize:12, color:"#64748b", marginBottom:12, lineHeight:1.5 }}>You've used all 5 free messages with this therapist. Book a session to continue the conversation.</div>
-                <a href="#booking" style={{ display:"inline-block", padding:"9px 18px", background:"linear-gradient(135deg,#228756,#16a34a)", color:"#fff", borderRadius:10, fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 12px rgba(34,135,86,0.3)" }}>
+                <div style={{ fontSize:12, color:"#64748b", marginBottom:12, lineHeight:1.5 }}>You've used all 5 free messages in the last 24 hrs. Book a session to continue.</div>
+                <button
+                  onClick={() => { onClose(); window.location.href = `/book/${therapistId}`; }}
+                  style={{ padding:"9px 18px", background:"linear-gradient(135deg,#228756,#16a34a)", color:"#fff", borderRadius:10, fontSize:13, fontWeight:700, border:"none", cursor:"pointer", boxShadow:"0 4px 12px rgba(34,135,86,0.3)" }}>
                   Book a Session →
-                </a>
+                </button>
               </div>
             ) : (
               <>
