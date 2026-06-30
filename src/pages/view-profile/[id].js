@@ -17,6 +17,7 @@ import PageProgressBar from "../../components/global/page-progress";
 import ProfileWorkshop from "../../components/view_profile/profile-workshop";
 import ProfileReview from "../../components/view_profile/profile-review";
 import SocialShare from "../../components/global/social-share";
+import RequestCallbackWidget from "../../components/view_profile/request-callback-widget";
 import { useRouter } from "next/router";
 import { getDecodedToken } from "../../utils/jwt";
 
@@ -382,8 +383,23 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
       {profile && (
         <>
           <ProfileHeader pageData={profile} favrioutes={favrioutes} />
-          <ProfileInfoTab pageData={profile} />
-          <ProfileReview profile={profile} />
+          <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 20px 40px", display: "flex", gap: 28, alignItems: "flex-start" }}>
+            {/* Main content */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <ProfileInfoTab pageData={profile} />
+              <ProfileReview profile={profile} />
+            </div>
+            {/* Sticky right widget — hidden on mobile */}
+            <div style={{ width: 300, flexShrink: 0, display: "var(--widget-display, block)" }}>
+              <style>{`@media (max-width: 900px) { .callback-widget-col { display: none !important; } }`}</style>
+              <div className="callback-widget-col">
+                <RequestCallbackWidget
+                  therapistName={profile.user?.name}
+                  therapistId={profile._id}
+                />
+              </div>
+            </div>
+          </div>
         </>
       )}
       <NewsLetter />
