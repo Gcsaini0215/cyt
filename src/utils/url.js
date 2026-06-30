@@ -177,10 +177,14 @@ export const ToggleCoupanStatusUrl = ToggleCouponStatusUrl;
 export const ApplyCouponUrl = `${apiUrl}/coupon/apply`;
 export const UpdatePaymentStatusUrl = `${apiUrl}/update-payment-status`;
 
-// Chat
+// Chat — client side
 export const chatMessagesUrl  = `${apiUrl}/chat/messages`;
 export const chatSendUrl      = `${apiUrl}/chat/send`;
 export const chatUnreadUrl    = `${apiUrl}/chat/unread-count`;
+// Chat — therapist side
+export const chatConversationsUrl   = `${apiUrl}/chat/therapist/conversations`;
+export const chatThreadUrl          = `${apiUrl}/chat/therapist/messages`;
+export const chatTherapistSendUrl   = `${apiUrl}/chat/therapist/send`;
 export const StartSessionUrl = `${apiUrl}/start-session`;
 export const EndSessionUrl = `${apiUrl}/end-session`;
 export const SubmitConsultationUrl = `${apiUrl}/save-lead`;

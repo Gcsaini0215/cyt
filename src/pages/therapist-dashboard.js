@@ -8,6 +8,7 @@ const PerformanceChart = dynamic(
 );
 
 import RecentInvoices from "../components/therapists/dashboard/recentInvoices";
+import ChatInbox from "../components/therapists/dashboard/ChatInbox";
 import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, getResourcesUrl, deleteBookingUrl, GetMyReviewsUrl } from "../utils/url";
 import { fetchById, deleteById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
@@ -875,6 +876,9 @@ export default function TherapistDashboard() {
             </div>
           ))}
         </div>
+
+        {/* ══ CHAT INBOX ═══════════════════════════════════════ */}
+        <ChatInbox />
 
         {/* ══ RECENT BOOKINGS ══════════════════════════════════ */}
         <RecentBookingsCard bookings={recentBookings} loading={loading} onDelete={async (id) => {
