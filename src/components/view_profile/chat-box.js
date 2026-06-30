@@ -155,6 +155,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
   const [remaining, setRemaining] = useState(5);
   const [limitHit,  setLimitHit]  = useState(false);
   const [userName,  setUserName]  = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [now,       setNow]       = useState(() => new Date());
   const bottomRef = useRef(null);
   const pollRef   = useRef(null);
@@ -164,6 +165,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
     const user = await fetchById(getUserUrl).catch(() => null);
     if (user?.data) {
       setUserName(user.data.name || "You");
+      setUserEmail(user.data.email || "");
       setAuthed(true);
     }
   }, []);
@@ -285,6 +287,18 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
         </div>
       ) : (
         <>
+          {/* Logged-in as banner */}
+          {userEmail && (
+            <div style={{ display:"flex", alignItems:"center", gap:7, padding:"7px 14px", background:"#f0fdf4", borderBottom:"1px solid #bbf7d0", flexShrink:0 }}>
+              <div style={{ width:22, height:22, borderRadius:"50%", background:"#228756", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="11" height="11" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span style={{ fontSize:11, color:"#166534", fontWeight:600, flex:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                Chatting as <b>{userEmail}</b>
+              </span>
+            </div>
+          )}
+
           {/* Messages */}
           <div style={{ flex:1, overflowY:"auto", padding:"14px 14px 8px", display:"flex", flexDirection:"column", gap:8, background:"#f8fafc" }}>
             {messages.length === 0 && (
