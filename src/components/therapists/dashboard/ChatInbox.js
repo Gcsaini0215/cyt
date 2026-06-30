@@ -14,15 +14,16 @@ const fmt = (d) => {
 const fmtTime = (d) => new Date(d).toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", hour12:true });
 
 export default function ChatInbox() {
-  const [convos,    setConvos]    = useState([]);
-  const [active,    setActive]    = useState(null); // selected conversation
-  const [messages,  setMessages]  = useState([]);
-  const [input,     setInput]     = useState("");
-  const [sending,   setSending]   = useState(false);
-  const [loading,   setLoading]   = useState(true);
-  const bottomRef   = useRef(null);
-  const pollRef     = useRef(null);
-  const threadPoll  = useRef(null);
+  const [convos,     setConvos]    = useState([]);
+  const [active,     setActive]    = useState(null);
+  const [messages,   setMessages]  = useState([]);
+  const [input,      setInput]     = useState("");
+  const [sending,    setSending]   = useState(false);
+  const [sendError,  setSendError] = useState("");
+  const [loading,    setLoading]   = useState(true);
+  const bottomRef    = useRef(null);
+  const pollRef      = useRef(null);
+  const threadPoll   = useRef(null);
 
   const loadConvos = useCallback(async () => {
     try {
@@ -69,14 +70,20 @@ export default function ChatInbox() {
   const handleSend = async (e) => {
     e?.preventDefault();
     if (!input.trim() || sending || !active) return;
+    setSendError("");
     const text = input.trim();
     const userId = active.userId?._id || active.userId;
     setInput("");
     setSending(true);
     setMessages(p => [...p, { _id: Date.now(), sender:"therapist", message:text, createdAt:new Date() }]);
     try {
-      await postData(chatTherapistSendUrl, { userId, message: text });
-      await loadThread(userId);
+      const r = await postData(chatTherapistSendUrl, { userId, message: text });
+      if (r?.blocked === "phone") {
+        setSendError("Phone numbers are not allowed. Use the platform booking system.");
+        setMessages(p => p.slice(0, -1));
+      } else {
+        await loadThread(userId);
+      }
     } catch {}
     setSending(false);
   };
@@ -216,22 +223,31 @@ export default function ChatInbox() {
             </div>
 
             {/* Reply input */}
-            <form onSubmit={handleSend} style={{ display:"flex", gap:8, padding:"10px 12px", borderTop:"1.5px solid #e9eef4", flexShrink:0, background:"#fff" }}>
-              <input
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder={`Reply to ${activeName}…`}
-                style={{ flex:1, border:"1.5px solid #e2e8f0", borderRadius:10, padding:"9px 12px", fontSize:13, outline:"none", color:"#0f172a", background:"#f8fafc" }}
-                autoFocus
-              />
-              <button type="submit" disabled={!input.trim() || sending}
-                style={{ width:38, height:38, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#228756,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                </svg>
-              </button>
-            </form>
+            <div style={{ borderTop:"1.5px solid #e9eef4", flexShrink:0, background:"#fff" }}>
+              {sendError && (
+                <div style={{ padding:"6px 12px", background:"#fef2f2", borderBottom:"1px solid #fecaca", display:"flex", alignItems:"center", gap:6 }}>
+                  <span style={{ fontSize:13 }}>🚫</span>
+                  <span style={{ fontSize:12, color:"#dc2626", fontWeight:600 }}>{sendError}</span>
+                  <button onClick={() => setSendError("")} style={{ marginLeft:"auto", background:"none", border:"none", cursor:"pointer", color:"#dc2626", fontSize:14 }}>×</button>
+                </div>
+              )}
+              <form onSubmit={handleSend} style={{ display:"flex", gap:8, padding:"10px 12px" }}>
+                <input
+                  value={input}
+                  onChange={e => { setInput(e.target.value); if (sendError) setSendError(""); }}
+                  onKeyDown={e => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                  placeholder={`Reply to ${activeName}…`}
+                  style={{ flex:1, border:"1.5px solid #e2e8f0", borderRadius:10, padding:"9px 12px", fontSize:13, outline:"none", color:"#0f172a", background:"#f8fafc" }}
+                  autoFocus
+                />
+                <button type="submit" disabled={!input.trim() || sending}
+                  style={{ width:38, height:38, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#228756,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
           </>
         )}
       </div>

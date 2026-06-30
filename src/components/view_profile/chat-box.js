@@ -147,11 +147,14 @@ function OTPLogin({ onSuccess }) {
 
 /* ── Chat Box ─────────────────────────────────────────────────── */
 export default function ChatBox({ therapistId, therapistName, therapistPhoto, onClose, isMobile }) {
-  const [authed,   setAuthed]   = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [input,    setInput]    = useState("");
-  const [sending,  setSending]  = useState(false);
-  const [userName, setUserName] = useState("");
+  const [authed,    setAuthed]    = useState(false);
+  const [messages,  setMessages]  = useState([]);
+  const [input,     setInput]     = useState("");
+  const [sending,   setSending]   = useState(false);
+  const [sendError, setSendError] = useState("");
+  const [remaining, setRemaining] = useState(5);
+  const [limitHit,  setLimitHit]  = useState(false);
+  const [userName,  setUserName]  = useState("");
   const bottomRef = useRef(null);
   const pollRef   = useRef(null);
 
@@ -174,6 +177,10 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
   useEffect(() => { checkAuth(); }, [checkAuth]);
 
   useEffect(() => {
+    if (authed) initRemaining();
+  }, [authed, initRemaining]);
+
+  useEffect(() => {
     if (!authed) return;
     loadMessages();
     pollRef.current = setInterval(loadMessages, 4000);
@@ -186,18 +193,41 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
 
   const handleSend = async (e) => {
     e?.preventDefault();
-    if (!input.trim() || sending) return;
+    if (!input.trim() || sending || limitHit) return;
+    setSendError("");
     setSending(true);
     const text = input.trim();
     setInput("");
-    // optimistic
     setMessages(p => [...p, { _id: Date.now(), sender: "user", message: text, createdAt: new Date() }]);
     try {
-      await postData(chatSendUrl, { therapistId, message: text });
-      await loadMessages();
+      const r = await postData(chatSendUrl, { therapistId, message: text });
+      if (r?.blocked === "phone") {
+        setSendError("Phone numbers are not allowed in chat.");
+        setMessages(p => p.slice(0, -1));
+      } else if (r?.blocked === "limit") {
+        setLimitHit(true);
+        setRemaining(0);
+        setMessages(p => p.slice(0, -1));
+      } else if (r?.success) {
+        if (typeof r.remaining === "number") setRemaining(r.remaining);
+        if (r.remaining === 0) setLimitHit(true);
+        await loadMessages();
+      }
     } catch {}
     setSending(false);
   };
+
+  const initRemaining = useCallback(async () => {
+    try {
+      const r = await fetchById(`${chatMessagesUrl}?therapistId=${therapistId}`);
+      if (r?.success) {
+        const sentCount = (r.data || []).filter(m => m.sender === "user").length;
+        const rem = Math.max(0, 5 - sentCount);
+        setRemaining(rem);
+        if (rem === 0) setLimitHit(true);
+      }
+    } catch {}
+  }, [therapistId]);
 
   const fmt = (d) => {
     const date = new Date(d);
@@ -284,23 +314,59 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
-          <form onSubmit={handleSend} style={{ display:"flex", gap:8, padding:"10px 12px", borderTop:"1.5px solid #e9eef4", flexShrink:0, background:"#fff", borderRadius:"0 0 20px 20px" }}>
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              placeholder="Type a message…"
-              style={{ flex:1, border:"1.5px solid #e2e8f0", borderRadius:10, padding:"10px 12px", fontSize:13, outline:"none", color:"#0f172a", background:"#f8fafc" }}
-              autoFocus
-            />
-            <button type="submit" disabled={!input.trim() || sending}
-              style={{ width:40, height:40, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#228756,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-            </button>
-          </form>
+          {/* Input area */}
+          <div style={{ flexShrink:0, borderTop:"1.5px solid #e9eef4", background:"#fff", borderRadius:"0 0 20px 20px" }}>
+            {/* Error banner */}
+            {sendError && (
+              <div style={{ padding:"7px 14px", background:"#fef2f2", borderBottom:"1px solid #fecaca", display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ fontSize:14 }}>🚫</span>
+                <span style={{ fontSize:12, color:"#dc2626", fontWeight:600 }}>{sendError}</span>
+                <button onClick={() => setSendError("")} style={{ marginLeft:"auto", background:"none", border:"none", cursor:"pointer", color:"#dc2626", fontSize:14, lineHeight:1 }}>×</button>
+              </div>
+            )}
+
+            {/* Limit reached */}
+            {limitHit ? (
+              <div style={{ padding:"14px 16px", textAlign:"center" }}>
+                <div style={{ fontSize:22, marginBottom:6 }}>🔒</div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#0f172a", marginBottom:3 }}>Message limit reached</div>
+                <div style={{ fontSize:12, color:"#64748b", marginBottom:12, lineHeight:1.5 }}>You've used all 5 free messages with this therapist. Book a session to continue the conversation.</div>
+                <a href="#booking" style={{ display:"inline-block", padding:"9px 18px", background:"linear-gradient(135deg,#228756,#16a34a)", color:"#fff", borderRadius:10, fontSize:13, fontWeight:700, textDecoration:"none", boxShadow:"0 4px 12px rgba(34,135,86,0.3)" }}>
+                  Book a Session →
+                </a>
+              </div>
+            ) : (
+              <>
+                {/* Remaining count */}
+                {remaining <= 3 && (
+                  <div style={{ padding:"5px 14px 0", display:"flex", alignItems:"center", gap:4 }}>
+                    <div style={{ flex:1, height:3, borderRadius:4, background:"#f1f5f9", overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${(remaining/5)*100}%`, background: remaining <= 1 ? "#ef4444" : remaining <= 2 ? "#f59e0b" : "#22c55e", transition:"width 0.3s" }} />
+                    </div>
+                    <span style={{ fontSize:10, color: remaining <= 1 ? "#ef4444" : "#94a3b8", fontWeight:600, flexShrink:0 }}>
+                      {remaining} of 5 left
+                    </span>
+                  </div>
+                )}
+                <form onSubmit={handleSend} style={{ display:"flex", gap:8, padding:"10px 12px" }}>
+                  <input
+                    value={input}
+                    onChange={e => { setInput(e.target.value); if (sendError) setSendError(""); }}
+                    onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                    placeholder="Type a message…"
+                    style={{ flex:1, border:"1.5px solid #e2e8f0", borderRadius:10, padding:"10px 12px", fontSize:13, outline:"none", color:"#0f172a", background:"#f8fafc" }}
+                    autoFocus
+                  />
+                  <button type="submit" disabled={!input.trim() || sending}
+                    style={{ width:40, height:40, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#228756,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
         </>
       )}
     </div>
