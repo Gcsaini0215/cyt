@@ -176,6 +176,11 @@ export const DeleteCoupansUrl = DeleteCouponsUrl;
 export const ToggleCoupanStatusUrl = ToggleCouponStatusUrl;
 export const ApplyCouponUrl = `${apiUrl}/coupon/apply`;
 export const UpdatePaymentStatusUrl = `${apiUrl}/update-payment-status`;
+
+// Chat
+export const chatMessagesUrl  = `${apiUrl}/chat/messages`;
+export const chatSendUrl      = `${apiUrl}/chat/send`;
+export const chatUnreadUrl    = `${apiUrl}/chat/unread-count`;
 export const StartSessionUrl = `${apiUrl}/start-session`;
 export const EndSessionUrl = `${apiUrl}/end-session`;
 export const SubmitConsultationUrl = `${apiUrl}/save-lead`;

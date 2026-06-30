@@ -18,6 +18,7 @@ import { getDecodedToken } from "../../utils/jwt";
 import { Facebook, Twitter, Linkedin, Link as LinkIcon, MessageCircle, Share2 } from "lucide-react";
 import ConsultationForm from "../home/consultation-form";
 import { getValidServices } from "../../utils/helpers";
+import ChatBox from "./chat-box";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
@@ -35,6 +36,8 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [isConsultationModalOpen, setIsConsultationModalOpen] = React.useState(false);
   const [profileUrl, setProfileUrl] = React.useState("");
+  const [chatOpen, setChatOpen] = React.useState(false);
+  const [waitlistDone, setWaitlistDone] = React.useState(false);
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -125,6 +128,10 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         .ph-card { animation: fadeUp 0.45s ease forwards; }
         .book-btn { background: linear-gradient(135deg,#228756,#16a34a); transition: transform 0.2s, box-shadow 0.2s; }
         .book-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(34,135,86,0.38) !important; }
+        .chat-btn { background: linear-gradient(135deg,#1d4ed8,#3b82f6); transition: transform 0.2s, box-shadow 0.2s; }
+        .chat-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(59,130,246,0.38) !important; }
+        .waitlist-btn { background: #fff; border: 1.5px solid #e2e8f0 !important; color: #475569 !important; transition: all 0.2s; }
+        .waitlist-btn:hover { border-color: #228756 !important; color: #228756 !important; background: #f0fdf4 !important; }
       `}</style>
 
       {/* ── BANNER ── */}
@@ -236,7 +243,17 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                   <button onClick={handleClick} className="book-btn" style={{ flex: 1, padding: "13px 16px", borderRadius: 12, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 14, boxShadow: "0 6px 18px rgba(34,135,86,0.28)" }}>
                     Book Session
                   </button>
+                  <button onClick={() => setChatOpen(true)} className="chat-btn" style={{ flex: 1, padding: "13px 16px", borderRadius: 12, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 14, boxShadow: "0 6px 18px rgba(59,130,246,0.28)", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Chat
+                  </button>
                 </div>
+                <button onClick={() => setWaitlistDone(true)} className="waitlist-btn" style={{ width:"100%", padding:"11px", borderRadius:12, fontWeight:700, cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                  {waitlistDone ? "✓ Added to Waitlist" : <>
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Join Waitlist
+                  </>}
+                </button>
                 <div style={{ display: "flex", justifyContent: "center" }}>{shareRow}</div>
               </div>
             )}
@@ -244,11 +261,21 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
           {/* ── DESKTOP ACTION COLUMN ── */}
           {!isMobile && (
-            <div style={{ flexShrink: 0, width: 210, display: "flex", flexDirection: "column", gap: 10, alignSelf: "center" }}>
-              <button onClick={handleClick} className="book-btn" style={{ width: "100%", padding: "15px 20px", borderRadius: 14, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 15, boxShadow: "0 6px 20px rgba(34,135,86,0.28)" }}>
+            <div style={{ flexShrink: 0, width: 220, display: "flex", flexDirection: "column", gap: 10, alignSelf: "center" }}>
+              <button onClick={handleClick} className="book-btn" style={{ width: "100%", padding: "14px 20px", borderRadius: 14, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 15, boxShadow: "0 6px 20px rgba(34,135,86,0.28)" }}>
                 Book Session
               </button>
-              <div style={{ paddingTop: 4 }}>{shareRow}</div>
+              <button onClick={() => setChatOpen(true)} className="chat-btn" style={{ width: "100%", padding: "13px 20px", borderRadius: 14, color: "#fff", fontWeight: 800, border: "none", cursor: "pointer", fontSize: 14, boxShadow: "0 6px 20px rgba(59,130,246,0.28)", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat Now
+              </button>
+              <button onClick={() => setWaitlistDone(w => !w)} className="waitlist-btn" style={{ width: "100%", padding: "11px 20px", borderRadius: 14, fontWeight: 700, cursor: "pointer", fontSize: 14, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                {waitlistDone ? "✓ Added to Waitlist" : <>
+                  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  Join Waitlist
+                </>}
+              </button>
+              <div style={{ paddingTop: 2 }}>{shareRow}</div>
             </div>
           )}
         </div>
@@ -259,6 +286,16 @@ export default function ProfileHeader({ pageData, favrioutes }) {
       </Snackbar>
 
       <ShareModal open={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} url={profileUrl} title={`${pageData.user.name} - ${pageData.profile_type}`} description={`${pageData.user.name}, a ${pageData.profile_type} based in ${pageData.state}. Book a session today!`} />
+
+      {chatOpen && (
+        <ChatBox
+          therapistId={pageData._id}
+          therapistName={pageData.user.name}
+          therapistPhoto={pageData.user.profile ? `https://api.chooseyourtherapist.in/uploads/images/${pageData.user.profile}` : null}
+          onClose={() => setChatOpen(false)}
+          isMobile={isMobile}
+        />
+      )}
 
       <Dialog open={isConsultationModalOpen} onClose={() => setIsConsultationModalOpen(false)} maxWidth="sm" fullWidth PaperProps={{ style: { borderRadius: 24, padding: 0 } }}>
         <IconButton aria-label="close" onClick={() => setIsConsultationModalOpen(false)} sx={{ position: "absolute", right: 12, top: 12, color: "#1e293b", zIndex: 10, background: "rgba(255,255,255,0.8)", "&:hover": { background: "#fff" } }}>
