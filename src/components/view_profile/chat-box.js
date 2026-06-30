@@ -79,7 +79,7 @@ function OTPLogin({ onSuccess }) {
     setLoading(false);
   };
 
-  const S = { width:"100%", border:"1.5px solid #e2e8f0", borderRadius:10, padding:"11px 14px", fontSize:14, color:"#0f172a", outline:"none", boxSizing:"border-box", background:"#fafbfc" };
+  const S = { width:"100%", border:"1.5px solid #e2e8f0", borderRadius:10, padding:"11px 14px", fontSize:16, color:"#0f172a", outline:"none", boxSizing:"border-box", background:"#fafbfc" };
 
   return (
     <div style={{ padding:"28px 24px", display:"flex", flexDirection:"column", gap:0 }}>
@@ -370,7 +370,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
                     onChange={e => { setInput(e.target.value); if (sendError) setSendError(""); }}
                     onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                     placeholder="Type a message…"
-                    style={{ flex:1, border:"1.5px solid #e2e8f0", borderRadius:10, padding:"10px 12px", fontSize:13, outline:"none", color:"#0f172a", background:"#f8fafc" }}
+                    style={{ flex:1, border:"1.5px solid #e2e8f0", borderRadius:10, padding:"10px 12px", fontSize:16, outline:"none", color:"#0f172a", background:"#f8fafc" }}
                     autoFocus
                   />
                   <button type="submit" disabled={!input.trim() || sending}
