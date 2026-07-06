@@ -6,7 +6,7 @@ import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import {
   getTherapistProfile, imagePath, defaultProfile,
-  ApplyCouponUrl, sendOtpUrl, verifyOtpUrl, GetCouponsUrl,
+  ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, GetCouponsUrl,
 } from "../../utils/url";
 import { getValidServices } from "../../utils/helpers";
 import { getToken } from "../../utils/jwt";
@@ -186,9 +186,9 @@ export default function BookPage() {
   const [couponSheet,   setCouponSheet]   = React.useState(false);
   const [couponManual,  setCouponManual]  = React.useState("");
 
-  const [loginOpen, setLoginOpen] = React.useState(false);
-  const [lEmail,    setLEmail]    = React.useState("");
-  const [lOtpSent,  setLOtpSent]  = React.useState(false);
+  const [emailOtpSent,   setEmailOtpSent]   = React.useState(false);
+  const [emailVerified,  setEmailVerified]  = React.useState(false);
+  const [verifiedEmail,  setVerifiedEmail]  = React.useState("");
   const [lOtp,      setLOtp]      = React.useState(["","","","","",""]);
   const [lLoad,     setLLoad]     = React.useState(false);
   const [lErr,      setLErr]      = React.useState("");
@@ -243,28 +243,28 @@ export default function BookPage() {
     }, 1000);
   }
 
-  async function sendOtp() {
-    if (!lEmail.trim()) { setLErr("Please enter your email."); return; }
+  async function sendEmailOtp() {
+    const email = (guestEmail || "").trim().toLowerCase();
+    if (!email.includes("@")) { setLErr("Please enter a valid email."); return; }
     setLLoad(true); setLErr("");
     try {
-      await postData(sendOtpUrl, { email: lEmail.trim().toLowerCase() });
-      setLOtpSent(true); startTimer();
-    } catch(e) { setLErr(e?.response?.data?.message || "Failed to send OTP."); }
+      await postData(sendGuestEmailOtpUrl, { email });
+      setEmailOtpSent(true); startTimer();
+    } catch(e) { setLErr(e?.response?.data?.message || "Failed to send verification code."); }
     finally { setLLoad(false); }
   }
 
-  async function verifyOtp() {
+  async function verifyEmailOtp() {
     const code = lOtp.join("");
-    if (code.length < 6) { setLErr("Enter the 6-digit OTP."); return; }
+    const email = (guestEmail || "").trim().toLowerCase();
+    if (code.length < 6) { setLErr("Enter the 6-digit code."); return; }
     setLLoad(true); setLErr("");
     try {
-      const res = await postData(verifyOtpUrl, { email: lEmail.trim().toLowerCase(), otp: code });
-      if (res?.token) {
-        localStorage.setItem("token", res.token);
-        setLoginOpen(false);
-        doCheckout();
-      } else { setLErr("Invalid OTP. Please try again."); }
-    } catch(e) { setLErr(e?.response?.data?.message || "Invalid OTP."); }
+      const res = await postData(verifyGuestEmailOtpUrl, { email, otp: code });
+      if (res?.status) {
+        setEmailVerified(true); setVerifiedEmail(email);
+      } else { setLErr(res?.message || "Invalid code. Please try again."); }
+    } catch(e) { setLErr(e?.response?.data?.message || "Invalid code."); }
     finally { setLLoad(false); }
   }
 
@@ -304,6 +304,7 @@ export default function BookPage() {
       ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
       ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
       ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
+      ...(!isLoggedIn && emailVerified ? { guest_email_verified: "true" } : {}),
     });
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }
@@ -549,11 +550,75 @@ export default function BookPage() {
             />
             <input
               value={guestEmail}
-              onChange={e => setGuestEmail(e.target.value)}
+              onChange={e => {
+                setGuestEmail(e.target.value);
+                if (emailVerified && e.target.value.trim().toLowerCase() !== verifiedEmail) {
+                  setEmailVerified(false); setEmailOtpSent(false); setLOtp(["","","","","",""]); setLErr("");
+                }
+              }}
               placeholder="Email address *"
               type="email"
-              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+              disabled={emailVerified}
+              style={{ width: "100%", height: 46, border: `1.5px solid ${emailVerified ? "#a7d7bb" : "#e2e8f0"}`, borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: emailVerified ? "#f0fdf4" : "#fff" }}
             />
+
+            {emailVerified ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: G }}>
+                <i className="feather-check-circle" /> Email verified
+              </div>
+            ) : !emailOtpSent ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                <button
+                  type="button"
+                  onClick={sendEmailOtp}
+                  disabled={lLoad || !(guestEmail || "").includes("@")}
+                  style={{
+                    padding: "9px 16px", borderRadius: 8, border: `1.5px solid ${G}`,
+                    background: "#fff", color: G, fontWeight: 700, fontSize: 13, cursor: "pointer",
+                    opacity: !(guestEmail || "").includes("@") ? 0.5 : 1,
+                  }}
+                >
+                  {lLoad ? "Sending…" : "Verify Email"}
+                </button>
+                {lErr && <div style={{ fontSize: 12.5, color: "#dc2626" }}>{lErr}</div>}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ fontSize: 12.5, color: "#64748b" }}>Enter the 6-digit code sent to {guestEmail}</div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {lOtp.map((d, i) => (
+                    <input
+                      key={i}
+                      ref={el => (otpRefs.current[i] = el)}
+                      value={d}
+                      onChange={e => otpChange(e.target.value, i)}
+                      maxLength={1}
+                      inputMode="numeric"
+                      style={{ width: 40, height: 46, textAlign: "center", fontSize: 18, fontWeight: 800, border: "1.5px solid #e2e8f0", borderRadius: 8, outline: "none" }}
+                    />
+                  ))}
+                </div>
+                {lErr && <div style={{ fontSize: 12.5, color: "#dc2626" }}>{lErr}</div>}
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <button
+                    type="button"
+                    onClick={verifyEmailOtp}
+                    disabled={lLoad || lOtp.join("").length < 6}
+                    style={{ padding: "9px 18px", borderRadius: 8, border: "none", background: G, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                  >
+                    {lLoad ? "Verifying…" : "Confirm Code"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={sendEmailOtp}
+                    disabled={resend > 0 || lLoad}
+                    style={{ background: "none", border: "none", color: resend > 0 ? "#94a3b8" : G, fontWeight: 700, fontSize: 12.5, cursor: resend > 0 ? "default" : "pointer" }}
+                  >
+                    {resend > 0 ? `Resend in ${resend}s` : "Resend code"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -573,7 +638,7 @@ export default function BookPage() {
       <ContinueBtn
         disabled={
           (bookFor === "other" && !relation) ||
-          (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10 || !(guestEmail || "").includes("@")))
+          (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10 || !(guestEmail || "").includes("@") || !emailVerified))
         }
         onClick={() => setStep(3)}
       />

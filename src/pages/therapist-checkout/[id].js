@@ -115,6 +115,7 @@ export default function TherapistCheckoutPage() {
         name:  userInfo?.name  || q.guest_name  || "",
         email: userInfo?.email || q.guest_email || "",
         phone: userInfo?.phone || q.guest_phone || "",
+        guest_email_verified: q.guest_email_verified === "true",
       }),
 
       // "for other" extra fields
