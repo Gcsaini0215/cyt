@@ -446,6 +446,80 @@ export default function HomePage() {
             }
           ])}
         </script>
+
+        {/* FAQPage Schema — helps AI search engines and Google surface homepage FAQ answers directly */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is therapy and how does it actually help?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Therapy is a professional conversation with a trained psychologist where you talk openly about your thoughts, feelings, and challenges in a safe, non-judgmental space. Research shows therapy is as effective as medication for conditions like anxiety and depression, with longer-lasting results."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the difference between a Counselling Psychologist and a Clinical Psychologist?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "A Counselling Psychologist helps with everyday emotional challenges such as relationship problems, stress, anxiety, and career confusion. A Clinical Psychologist is trained to assess and treat more complex mental health conditions such as severe depression, OCD, PTSD, and personality disorders, and also conducts psychometric assessments."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is the difference between anxiety and normal tension?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Normal tension arises from a specific situation and fades once it's over. An anxiety disorder is when fear or worry persists without a clear reason, lasts for weeks, and interferes with daily life."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Online therapy vs in-person therapy — which is better?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Research shows online therapy is just as effective as in-person therapy for most conditions, including anxiety, depression, stress, and relationship issues, with the added convenience of attending from home."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How expensive is therapy — can I afford it?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "At Choose Your Therapist, sessions start at ₹500 and go up to ₹3000 per session, depending on the therapist's experience and specialization, with affordable options for students and young professionals."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is what I tell my therapist kept confidential?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, 100%. Everything you share in session stays strictly confidential, except in rare situations involving risk of serious harm, a court order, or a case of minor abuse."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Your psychologists are verified — what does that mean?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Every psychologist on Choose Your Therapist goes through degree verification, RCI registration checks for Clinical Psychologists and Special Educators, experience verification, and reference checks before being listed on the platform."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I change my therapist?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Finding the right therapist is a process, and switching to another therapist without any explanation needed is completely normal and supported on Choose Your Therapist."
+                }
+              }
+            ]
+          })}
+        </script>
       </Head>
 
       <main className="rbt-main-wrapper">

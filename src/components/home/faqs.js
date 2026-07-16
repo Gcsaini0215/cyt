@@ -13,8 +13,8 @@ const faqCategories = [
         a: "Therapy is a professional conversation with a trained psychologist where you talk openly about your thoughts, feelings, and challenges in a safe, non-judgmental space. It helps by giving you tools to understand why you feel the way you do, break unhelpful patterns, and build healthier responses to life's difficulties. Unlike venting to a friend, therapy is structured — your psychologist uses evidence-based techniques tailored specifically to your situation. Research shows therapy is as effective as medication for conditions like anxiety and depression, with longer-lasting results."
       },
       {
-        q: "Therapy lena zyada zaruri kab hota hai — kab khud se theek ho jate hain?",
-        a: "Agar aapki problem 2-3 hafte se zyada reh rahi hai, roz ke kaam mein rukawat aa rahi hai, neend ya khana prabhavit ho raha hai, ya aap khud ko akela mehsoos kar rahe hain — toh psychologist se milna sahi waqt hai. Chhoti problems jaise ek exam ka stress khud theek ho jaati hain. Lekin agar overthinking, panic attacks, constant sadness, ya relationship mein baar baar ek hi problem aa rahi hai — toh professional help lena samajhdari hai, kamzori nahi."
+        q: "When is it necessary to see a therapist — and when do things resolve on their own?",
+        a: "If a problem has lasted more than 2-3 weeks, is interfering with your daily routine, is affecting your sleep or appetite, or you're feeling persistently alone — it's the right time to see a psychologist. Smaller stressors, like pre-exam nerves, usually resolve on their own. But if you're dealing with overthinking, panic attacks, constant sadness, or the same relationship problem resurfacing again and again — seeking professional help is a sign of self-awareness, not weakness."
       },
       {
         q: "What is the difference between a Counselling Psychologist and a Clinical Psychologist?",
@@ -25,8 +25,8 @@ const faqCategories = [
         a: "Therapy has decades of scientific research behind it. Cognitive Behavioural Therapy (CBT) is as effective as antidepressants for depression and more effective in preventing relapse. Exposure and Response Prevention (ERP) is the most effective treatment for OCD, with 60–80% of patients showing significant improvement. Multiple studies published in journals like The Lancet confirm that therapy produces measurable, lasting changes in brain activity. At Choose Your Therapist, every psychologist uses evidence-based methods — not just supportive conversation — so you can expect real, trackable progress."
       },
       {
-        q: "Kya therapy sirf paagal logon ke liye hoti hai?",
-        a: "Bilkul nahi. Yeh India mein sabse bada misconception hai. Therapy un logon ke liye hoti hai jo apni zindagi behtar banana chahte hain. Duniya ke sabse successful log — athletes, CEOs, actors — regularly therapists se milte hain performance aur mental clarity ke liye. Anxiety, relationship issues, self-doubt, career confusion, parenting stress — yeh sab common human experiences hain. Therapy lena utna hi normal hai jitna doctor ke paas jaana ya gym karna. Maanat aur himmat ki nishani hai, kamzori ki nahi."
+        q: "Is therapy only for people who are 'mentally unstable'?",
+        a: "Absolutely not. This is one of the biggest misconceptions about mental health in India. Therapy is for anyone who wants to improve their life. Some of the world's most successful people — athletes, CEOs, actors — see therapists regularly for performance and mental clarity. Anxiety, relationship issues, self-doubt, career confusion, and parenting stress are all common human experiences. Going to therapy is as normal as visiting a doctor or going to the gym. It's a sign of strength and self-awareness, not weakness."
       },
       {
         q: "How many therapy sessions will I need?",
@@ -41,24 +41,24 @@ const faqCategories = [
     bg: "#fff5f5",
     faqs: [
       {
-        q: "Anxiety aur normal tension mein kya fark hai?",
-        a: "Normal tension ek specific situation se hoti hai — jaise exam se pehle ya interview ke din — aur woh situation khatam hone ke baad chali jaati hai. Anxiety disorder tab hota hai jab darr ya chinta bina kisi clear reason ke rehti hai, weeks tak chalti hai, aur daily life ko prabhavit karti hai. Symptoms mein shamil hain: baar baar buri soch aana, seene mein dard ya dil ka tez dhakna, neend na aana, kisi jagah jaane se darna, ya choti cheez pe bahut zyada react karna. Agar aap in symptoms ko pehchante hain, ek counselling psychologist se milna bahut faydemand hoga."
+        q: "What is the difference between anxiety and normal tension?",
+        a: "Normal tension arises from a specific situation — like before an exam or on interview day — and fades once that situation is over. An anxiety disorder is when fear or worry persists without a clear reason, lasts for weeks, and interferes with daily life. Symptoms include recurring negative thoughts, chest pain or a racing heart, difficulty sleeping, avoiding certain places, or overreacting to small triggers. If you recognise these symptoms, seeing a counselling psychologist can be very helpful."
       },
       {
-        q: "Mujhe depression hai ya main sirf udaas hoon — kaise pehchanun?",
-        a: "Udaasi ek emotion hai jo natural hai — kuch bura hone ke baad aata hai aur kuch dino mein guzar jaata hai. Depression ek clinical condition hai jisme: 2 hafte ya zyada time tak mood low rehta hai, kisi cheez mein interest nahi rehta jise aap pehle enjoy karte the, energy bilkul nahi hoti, neend ya toh bahut zyada aati hai ya bilkul nahi, khana khaane ka mann nahi karta, khud ko worthless ya guilty feel hota hai, aur kabhi kabhi zindagi khatam karne ke khayal bhi aate hain. Agar 5 ya zyada symptoms 2 hafte se zyada se hain — toh yeh depression ho sakta hai aur clinical psychologist se milna zaroori hai."
+        q: "Am I depressed or just sad — how do I tell the difference?",
+        a: "Sadness is a natural emotion — it follows something upsetting and passes within a few days. Depression is a clinical condition where, for two weeks or longer: mood stays low, you lose interest in things you used to enjoy, energy is completely drained, sleep is either excessive or absent, appetite disappears, you feel worthless or guilty, and sometimes thoughts of ending your life appear. If five or more of these symptoms have lasted more than two weeks, it may be depression, and seeing a clinical psychologist is important."
       },
       {
-        q: "OCD kya hota hai aur iska treatment kaise hota hai?",
-        a: "OCD mein do cheezein hoti hain — obsessions (unwanted intrusive thoughts jo baar baar aate hain, jaise 'maine darwaza band nahi kiya', 'haath mein germs hain', ya kuch bura ho jayega) aur compulsions (woh repeated actions jo anxiety kam karne ke liye kiye jaate hain, jaise baar baar haath dhona, cheezein count karna, ya darwaza 10 baar check karna). OCD ka gold-standard treatment hai Exposure and Response Prevention (ERP) — jisme trained clinical psychologist dheere dheere aapko obsessive triggers ke saamne expose karta hai bina compulsion karne ke. 60–80% patients mein significant improvement dekhi jaati hai."
+        q: "What is OCD and how is it treated?",
+        a: "OCD involves two components — obsessions (unwanted, intrusive thoughts that recur, like 'I didn't lock the door,' 'my hands are contaminated,' or fear that something bad will happen) and compulsions (repeated actions performed to reduce anxiety, like excessive handwashing, counting, or checking the door multiple times). The gold-standard treatment for OCD is Exposure and Response Prevention (ERP), where a trained clinical psychologist gradually exposes you to obsessive triggers without performing the compulsion. 60–80% of patients show significant improvement."
       },
       {
-        q: "Trauma aur PTSD — kab normal grief khatam hoti hai aur treatment ki zarurat padti hai?",
-        a: "Koi bhi traumatic event ke baad kuch weeks tak distress hona normal hai. PTSD tab diagnose hota hai jab 1 mahine ke baad bhi: flashbacks ya nightmares aa rahe hain, triggers se darna, emotional numbness, hypervigilance (hamesha alert rehna), ya event ke baare mein sochne se bachna jaari hai. Complex trauma (bachpan ki abuse, domestic violence, repeated traumatic events) ke liye Trauma-Focused CBT ya EMDR (Eye Movement Desensitisation and Reprocessing) evidence-based treatments hain. Yeh therapies sirf trained clinical psychologists hi de sakte hain."
+        q: "Trauma and PTSD — when does normal grief end and treatment become necessary?",
+        a: "Some distress after any traumatic event is normal for a few weeks. PTSD is diagnosed when, even a month later, you still experience: flashbacks or nightmares, fear of triggers, emotional numbness, hypervigilance (constantly feeling on edge), or ongoing avoidance of thinking about the event. For complex trauma (childhood abuse, domestic violence, repeated traumatic events), Trauma-Focused CBT or EMDR (Eye Movement Desensitisation and Reprocessing) are the evidence-based treatments. These therapies can only be delivered by trained clinical psychologists."
       },
       {
-        q: "Kya anxiety ya depression ke liye dawai leni padti hai ya therapy hi kaafi hai?",
-        a: "Mild to moderate anxiety aur depression ke liye akeli therapy — especially CBT — utni hi effective hai jitni medication, aur zyada lasting results deti hai. Severe cases mein psychiatrist dawai recommend kar sakte hain jo therapy ke saath milkar better kaam karti hai. Choose Your Therapist par verified psychologists hain jo therapy dete hain. Agar aapko medication ki bhi zarurat lagi, toh hum aapko psychiatrist ke paas refer karne mein help kar sakte hain. Dawai psychology ke bina akeli long-term solution nahi hai — therapy sikhati hai ki future mein khud kaise deal karein."
+        q: "Do I need medication for anxiety or depression, or is therapy enough?",
+        a: "For mild to moderate anxiety and depression, therapy alone — especially CBT — is as effective as medication, and produces more lasting results. In severe cases, a psychiatrist may recommend medication that works even better alongside therapy. Choose Your Therapist has verified psychologists who provide therapy, and if you also need medication, we can help refer you to a psychiatrist. Medication alone isn't a long-term solution without psychological support — therapy teaches you how to cope on your own going forward."
       }
     ]
   },
@@ -69,20 +69,20 @@ const faqCategories = [
     bg: "#faf5ff",
     faqs: [
       {
-        q: "Couples therapy kab leni chahiye — kya yeh sirf tab hoti hai jab divorce ke kinar ho?",
-        a: "Nahi — couples therapy sirf crisis mein nahi, balki preventive tool ki tarah bhi kaam karti hai. Agar aap mein communication problems hain, baar baar ek hi baat pe jhagda hota hai, physical ya emotional intimacy kam ho gayi hai, ek partner ne affair kiya hai, ya dono ko lagta hai ki woh ek doosre ko nahi samjhte — yeh sab couples therapy ke liye sahi reasons hain. Jitni jaldi therapy li jaaye, utna behtar. Research kehta hai ki average couple 6 saal ki problems ke baad therapy lene jaata hai — jab tak bahut zyada damage ho chuka hota hai."
+        q: "When should couples go to therapy — is it only for when a marriage is on the verge of divorce?",
+        a: "No — couples therapy isn't only for crises; it also works as a preventive tool. If you're facing communication problems, having the same argument repeatedly, experiencing reduced physical or emotional intimacy, dealing with an affair, or simply feel like you and your partner don't understand each other — these are all valid reasons for couples therapy. The sooner you start, the better. Research shows the average couple waits 6 years into their problems before seeking therapy — by which point significant damage has already been done."
       },
       {
-        q: "Mera partner therapy ke liye tayyar nahi hai — kya main akele ja sakta/sakti hoon?",
-        a: "Bilkul. Individual therapy mein aap apne relationship patterns, responses, aur needs par kaam kar sakte hain — chahe partner saath aaye ya na aaye. Aksar ek partner ke therapy lene se relationship dynamics naturally badalne lagte hain. Kabhi kabhi ek ka change doosre ko bhi theek hone ki jagah deta hai. Agar aap khud mein clarity laana chahte hain — kya relationship mein rehna chahiye ya nahi, ya apni emotional needs samajhna chahte hain — toh individual counselling bahut helpful hai."
+        q: "My partner isn't ready for therapy — can I go alone?",
+        a: "Absolutely. In individual therapy, you can work on your own relationship patterns, responses, and needs — whether or not your partner joins. Often, one partner going to therapy naturally shifts the relationship dynamics. Sometimes one person's change creates space for the other to heal too. If you want clarity on whether to stay in the relationship, or want to better understand your own emotional needs, individual counselling is extremely helpful."
       },
       {
-        q: "Bacho ke liye kab psychologist ki zarurat padti hai?",
-        a: "Bacho mein yeh signs dekhein: school mein achanak performance girar, friends se alg rehna, baar baar gussa ya rona, neend ki problems, khaana na khaana, school jaane se mana karna, ya koi bada change jaise parents ka alag hona, move karna, ya bullying. Special educational needs (ADHD, learning disability, autism) ke liye psychometric assessment ki zarurat padti hai. Choose Your Therapist par child psychologists aur special educators available hain jo bachon ke saath age-appropriate therapy techniques use karte hain — play therapy, art therapy, aur behavioural interventions."
+        q: "When does a child need to see a psychologist?",
+        a: "Watch for these signs in children: a sudden drop in school performance, withdrawing from friends, frequent anger or crying, sleep problems, loss of appetite, refusing to go to school, or a major life change like parents separating, moving homes, or bullying. Special educational needs (ADHD, learning disabilities, autism) require a psychometric assessment. Choose Your Therapist has child psychologists and special educators who use age-appropriate techniques — play therapy, art therapy, and behavioural interventions."
       },
       {
-        q: "Kya family therapy mein sab logon ko saath aana padta hai?",
-        a: "Ideally haan — family therapy mein jo log involved hain woh saath aate hain (parents aur bachche, ya siblings, ya joint family members). Lekin yeh flexible hai — pehle kuch sessions individual bhi ho sakte hain, phir combined. Family therapy ka goal yeh nahi ki kisi ek ko 'fix' kiya jaaye, balki family ke patterns, communication, aur dynamics ko samjha jaaye. Choose Your Therapist par family systems trained therapists available hain."
+        q: "Does everyone need to attend family therapy together?",
+        a: "Ideally, yes — the family members involved attend together (parents and children, siblings, or joint family members). But it's flexible — some sessions can start individually before becoming combined. The goal of family therapy isn't to 'fix' one person, but to understand the family's patterns, communication, and dynamics as a whole. Choose Your Therapist has therapists trained in family systems approaches."
       }
     ]
   },
@@ -93,20 +93,20 @@ const faqCategories = [
     bg: "#f0f9ff",
     faqs: [
       {
-        q: "Pehle session mein kya hoga — kya mujhe sab kuch batana padega?",
-        a: "Nahi — pehla session ek introduction hota hai, confession nahi. Psychologist aapka background samjhega, aap kya leke aaye hain, aur aap therapy se kya expect kar rahe hain. Aap utna hi share karein jitna comfortable ho. Koi pressure nahi hota. Pehle session mein psychologist treatment plan bhi discuss karta hai — kitne sessions lagenege, kaunsi technique use hongi, aur progress kaise track hogi. Baad mein har session mein dheere dheere deeper jaate hain — aapki apni pace par."
+        q: "What happens in the first session — will I have to share everything?",
+        a: "No — the first session is an introduction, not a confession. The psychologist will understand your background, what brought you in, and what you expect from therapy. Share only as much as you're comfortable with — there's no pressure. The first session also covers your treatment plan — how many sessions you'll likely need, which techniques will be used, and how progress will be tracked. Later sessions gradually go deeper, at your own pace."
       },
       {
-        q: "Online therapy vs in-person therapy — kaunsi better hai?",
-        a: "Research kehta hai ki online therapy in-person therapy jitni hi effective hai majority of conditions ke liye — anxiety, depression, stress, relationship issues, grief. Online therapy ke fayde: ghar se attend karo, koi travel nahi, scheduling flexible hai, aur privacy zyada hoti hai kyunki koi aapko clinic mein nahi dekhta. In-person therapy better ho sakti hai agar: aapko non-verbal cues dekhna important hai, severe mental health condition hai, ya aap physically kisi ke saath hona prefer karte hain. Choose Your Therapist par dono options available hain."
+        q: "Online therapy vs in-person therapy — which is better?",
+        a: "Research shows online therapy is just as effective as in-person therapy for most conditions — anxiety, depression, stress, relationship issues, and grief. Benefits of online therapy: attend from home, no travel, flexible scheduling, and greater privacy since no one sees you at a clinic. In-person therapy may be better if non-verbal cues matter to your treatment, you have a severe mental health condition, or you simply prefer being physically present with someone. Choose Your Therapist offers both options."
       },
       {
-        q: "Sahi therapist kaise choose karein — itne saare profiles mein se kaise decide karein?",
-        a: "Teen cheezein dekho: (1) Specialization — kya unke paas aapki specific problem ka experience hai? Profile mein 'service expertise' section mein dekho. (2) Credentials — Counselling Psychologist ya Clinical Psychologist? Unka degree aur experience kitna hai? (3) Reviews — past clients ne kya likha hai? Pehle session mein therapeutic alliance important hai — agar comfortable nahi laga toh doosre psychologist se try karo. Change karna ekdum normal hai. Sahi fit milna zaroori hai — therapist ka naam ya fees se zyada important yeh hai ki aap unse comfortable feel karo."
+        q: "How do I choose the right therapist among so many profiles?",
+        a: "Look at three things: (1) Specialization — do they have experience with your specific concern? Check the 'service expertise' section on their profile. (2) Credentials — are they a Counselling Psychologist or Clinical Psychologist, and what's their degree and experience? (3) Reviews — what have past clients written? The therapeutic alliance in the first session matters most — if it doesn't feel right, try another psychologist. Switching is completely normal. Finding the right fit matters more than a therapist's name or fees — what matters is feeling comfortable with them."
       },
       {
-        q: "Agar pehli session ke baad achha nahi laga toh kya karein?",
-        a: "Apne psychologist ko honestly batao. Ek achha therapist feedback welcome karta hai. Agar pehle session mein lagta hai ki yeh aapke liye sahi nahi hai — aap dusre therapist se try kar sakte hain. Choose Your Therapist par yeh completely acceptable hai. Kabhi kabhi 2-3 sessions ke baad rapport banta hai. Lekin agar 3 sessions ke baad bhi comfortable nahi feel ho raha ya koi improvement nahi dikh raha — toh switch karna sahi decision hai."
+        q: "What if I don't feel good after the first session?",
+        a: "Be honest with your psychologist about it — a good therapist welcomes feedback. If the first session doesn't feel right, you can try a different therapist. This is completely acceptable at Choose Your Therapist. Sometimes rapport builds after 2-3 sessions, but if you still don't feel comfortable or see any improvement after 3 sessions, switching is the right call."
       }
     ]
   },
@@ -117,20 +117,20 @@ const faqCategories = [
     bg: "#fffbeb",
     faqs: [
       {
-        q: "Therapy kitni mehngi hoti hai — kya yeh afford kar sakte hain?",
-        a: "Choose Your Therapist par sessions ₹500 se shuru hokar ₹3000 per session tak hain — therapist ke experience aur specialization ke hisaab se. Students aur young professionals ke liye affordable options available hain. Online sessions generally in-person se sasti hoti hain. Subscription plans bhi hain agar aap regular therapy karna chahte hain. Ek session ki cost compare karein ek restaurant meal ya entertainment pe kharche se — mental health mein investment usse kahin zyada return deti hai long-term mein."
+        q: "How expensive is therapy — can I afford it?",
+        a: "At Choose Your Therapist, sessions start at ₹500 and go up to ₹3000 per session, depending on the therapist's experience and specialization. Affordable options are available for students and young professionals. Online sessions are generally cheaper than in-person ones, and subscription plans are available for regular therapy. Compare the cost of one session to a restaurant meal or entertainment expense — investing in mental health delivers a far greater return over the long term."
       },
       {
-        q: "Kya jo main therapist ko batata/batati hoon woh confidential rehta hai?",
-        a: "Haan — 100%. Therapists ka ethical code kehta hai ki jo aap session mein share karte hain woh strictly confidential rehta hai. Choose Your Therapist par hum international data protection standards follow karte hain. Sirf teen situations mein confidentiality break hoti hai: (1) agar aap khud ko ya kisi aur ko serious harm pahunchane ki baat karte hain, (2) court order aata hai, (3) minor abuse ka case ho. Baaki sab — relationships, personal secrets, workplace issues, family problems — completely between you and your therapist."
+        q: "Is what I tell my therapist kept confidential?",
+        a: "Yes — 100%. A therapist's ethical code requires that everything you share in session stays strictly confidential. Choose Your Therapist follows international data protection standards. Confidentiality is broken only in three situations: (1) if you disclose intent to seriously harm yourself or someone else, (2) a court order requires it, or (3) it involves a case of minor abuse. Everything else — relationships, personal secrets, workplace issues, family problems — stays completely between you and your therapist."
       },
       {
-        q: "Kya insurance se therapy cover hoti hai India mein?",
-        a: "India mein mental health insurance coverage abhi bhi limited hai, lekin growing hai. 2017 ke Mental Healthcare Act ke baad insurance companies ko mental health conditions cover karna zaroori hai. Kuch policies outpatient therapy cover karti hain. Apne insurer se specifically poochho 'psychological counselling' ya 'psychotherapy' coverage ke baare mein. Choose Your Therapist par invoices aur receipts provide kiye jaate hain jo insurance claims ke liye use ho sakte hain. Agar insurance nahi hai — hamare affordable plans dekhiye."
+        q: "Does insurance cover therapy in India?",
+        a: "Mental health insurance coverage in India is still limited, but growing. Since the Mental Healthcare Act of 2017, insurance companies are required to cover mental health conditions, and some policies cover outpatient therapy. Ask your insurer specifically about 'psychological counselling' or 'psychotherapy' coverage. Choose Your Therapist provides invoices and receipts that can be used for insurance claims. If you don't have insurance, check out our affordable plans."
       },
       {
-        q: "Session record hota hai kya — koi video save toh nahi hoti?",
-        a: "Nahi. Online sessions record nahi kiye jaate — na audio, na video. Yeh psychologists ke ethical guidelines aur Choose Your Therapist ki privacy policy ka hissa hai. Session notes therapist apne clinical records mein rakhte hain jo strictly confidential hote hain aur kisi ke saath share nahi kiye jaate. Aap khud bhi session record nahi kar sakte without therapist's consent — yeh therapeutic relationship ki safety ke liye zaroori hai."
+        q: "Are sessions recorded — is any video saved?",
+        a: "No. Online sessions are never recorded — no audio, no video. This is part of psychologists' ethical guidelines and Choose Your Therapist's privacy policy. Therapists keep session notes in their own clinical records, which remain strictly confidential and are never shared with anyone. You also cannot record a session yourself without the therapist's consent — this protects the safety of the therapeutic relationship."
       }
     ]
   },
@@ -141,16 +141,16 @@ const faqCategories = [
     bg: "#f0fdf4",
     faqs: [
       {
-        q: "Aapke psychologists verified hain — iska kya matlab hai?",
-        a: "Choose Your Therapist par har psychologist ka verification process hota hai: (1) Degree verification — MA/MSc Psychology ya MPhil Clinical Psychology ka proof. (2) Registration — Clinical Psychologists aur Special Educators ki RCI (Rehabilitation Council of India) registration check ki jaati hai. (3) Experience verification — internship aur practice history. (4) Reference checks. Hum kisi bhi unverified ya untrained person ko platform par allow nahi karte. Aap har therapist ki profile mein unka qualification aur experience dekh sakte hain."
+        q: "Your psychologists are verified — what does that mean?",
+        a: "Every psychologist on Choose Your Therapist goes through a verification process: (1) Degree verification — proof of MA/MSc Psychology or MPhil Clinical Psychology. (2) Registration — Clinical Psychologists and Special Educators have their RCI (Rehabilitation Council of India) registration checked. (3) Experience verification — internship and practice history. (4) Reference checks. We do not allow any unverified or untrained person on the platform. You can view each therapist's qualifications and experience on their profile."
       },
       {
-        q: "RCI registration kya hoti hai aur kyon important hai?",
-        a: "RCI (Rehabilitation Council of India) ek government body hai jo Clinical Psychologists aur Special Educators ko register aur regulate karta hai India mein. RCI registration ka matlab hai ki psychologist ne recognized university se MPhil Clinical Psychology ya equivalent degree ki hai, supervised clinical hours complete ki hain, aur professional standards follow karte hain. Without RCI registration, koi bhi 'Clinical Psychologist' ya 'Special Educator' ka title legally use nahi kar sakta. Choose Your Therapist par sab relevant professionals ki RCI registration verified hai."
+        q: "What is RCI registration and why does it matter?",
+        a: "RCI (Rehabilitation Council of India) is a government body that registers and regulates Clinical Psychologists and Special Educators in India. RCI registration means the psychologist has completed an MPhil in Clinical Psychology or equivalent from a recognised university, completed supervised clinical hours, and follows professional standards. Without RCI registration, no one can legally use the title 'Clinical Psychologist' or 'Special Educator.' Every relevant professional on Choose Your Therapist has verified RCI registration."
       },
       {
-        q: "Kya main apna therapist change kar sakta/sakti hoon?",
-        a: "Bilkul. Sahi therapist dhundhna ek process hai aur pehle ya doosre se match nahi hona bilkul normal hai. Agar aapko lagta hai ki aap apne current therapist se comfortable nahi hain, progress nahi ho rahi, ya aap koi aur approach try karna chahte hain — aap bina kisi explanation ke dusre therapist mein switch kar sakte hain. Choose Your Therapist ka goal hai ki aapko sahi fit mile — hum isme help karte hain."
+        q: "Can I change my therapist?",
+        a: "Absolutely. Finding the right therapist is a process, and not matching with the first or second one is completely normal. If you feel uncomfortable with your current therapist, aren't seeing progress, or want to try a different approach, you can switch to another therapist without any explanation needed. Choose Your Therapist's goal is to help you find the right fit — we're here to help with that."
       }
     ]
   }
