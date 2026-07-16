@@ -42,7 +42,7 @@ export default function BusinessHero() {
             </p>
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '48px' }}>
               <a href="#request-demo" className="rbt-btn btn-gradient radius-round"
-                style={{ padding: '16px 36px', fontWeight: 700, fontSize: '16px' }}>
+                style={{ padding: '16px 36px', fontWeight: 700, fontSize: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span className="btn-text">Request a Demo</span>
               </a>
               <a href="#care-model" style={{
