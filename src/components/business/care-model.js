@@ -29,7 +29,7 @@ const tiers = [
 
 export default function CareModel() {
   return (
-    <div id="care-model" style={{ padding: '90px 0', backgroundColor: '#f8fafc' }}>
+    <div id="care-model" style={{ padding: '90px 0', backgroundColor: '#f8fafc', scrollMarginTop: '140px' }}>
       <div className="container">
         <div className="row justify-content-center" style={{ marginBottom: '56px' }}>
           <div className="col-lg-7 text-center">

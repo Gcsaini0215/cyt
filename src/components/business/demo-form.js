@@ -53,7 +53,7 @@ export default function DemoForm() {
   };
 
   return (
-    <div id="request-demo" style={{ background: '#f8fafc', padding: '90px 0' }}>
+    <div id="request-demo" style={{ background: '#f8fafc', padding: '90px 0', scrollMarginTop: '140px' }}>
       <div className="container">
         <div className="row justify-content-center g-5 align-items-center">
           <div className="col-lg-5">
