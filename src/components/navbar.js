@@ -114,6 +114,7 @@ export default function App() {
                       </ul>
                     </li>
                     <li><Link href="/about-us">Our Story</Link></li>
+                    <li><Link href="/for-business">For Business</Link></li>
                     <li><Link href="/contact-us">Contact us</Link></li>
                   </ul>
                 </nav>
@@ -245,6 +246,7 @@ export default function App() {
             <li><Link href="/" onClick={() => setShow(false)}><i className="feather-home"></i> Home</Link></li>
             <li><Link href="/view-all-therapist" onClick={() => setShow(false)}><i className="feather-users"></i> Directory</Link></li>
             <li><Link href="/about-us" onClick={() => setShow(false)}><i className="feather-heart"></i> Our Story</Link></li>
+            <li><Link href="/for-business" onClick={() => setShow(false)}><i className="feather-briefcase"></i> For Business</Link></li>
             <li><Link href="/contact-us" onClick={() => setShow(false)}><i className="feather-mail"></i> Contact</Link></li>
             
             <li className={`has-dropdown ${activeDropdown === "services" ? "open" : ""}`}>
