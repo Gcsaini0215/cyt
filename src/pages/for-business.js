@@ -7,7 +7,9 @@ import BusinessHero from "../components/business/hero";
 import TrustStrip from "../components/business/trust-strip";
 import BusinessAudiences from "../components/business/audiences";
 import CareModel from "../components/business/care-model";
+import OnboardingSteps from "../components/business/onboarding-steps";
 import ImpactStats from "../components/business/impact-stats";
+import PlansComparison from "../components/business/plans-comparison";
 import DemoForm from "../components/business/demo-form";
 import BusinessFaqs from "../components/business/faqs";
 
@@ -53,7 +55,9 @@ export default function ForBusiness() {
       <TrustStrip />
       <BusinessAudiences />
       <CareModel />
+      <OnboardingSteps />
       <ImpactStats />
+      <PlansComparison />
       <DemoForm />
       <BusinessFaqs />
       <Newsletter />
