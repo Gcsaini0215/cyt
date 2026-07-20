@@ -184,7 +184,7 @@ export default function PlansCards({ planType, setPlanType }) {
           </Box>
           <div className="row g-5">
             {currentPlans.map((plan, index) => (
-              <div key={index} className="col-xl-4 col-lg-4 col-md-6 col-12">
+              <div key={index} className="col-xl-4 col-lg-4 col-md-4 col-12">
                 <Box sx={{
                   height: '100%',
                   display: 'flex',
@@ -238,7 +238,7 @@ export default function PlansCards({ planType, setPlanType }) {
                     />
                   </Box>
 
-                  <Box sx={{ p: 4, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ p: { xs: 4, md: 2.5, lg: 4 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
                     {/* Header Info */}
                     <Box sx={{ mb: 3 }}>
                       <Typography sx={{ 
@@ -251,10 +251,10 @@ export default function PlansCards({ planType, setPlanType }) {
                       }}>
                         {plan.sessions}
                       </Typography>
-                      <Typography variant="h4" sx={{ 
-                        fontWeight: 900, 
-                        color: '#1a1a1a', 
-                        fontSize: '26px',
+                      <Typography variant="h4" sx={{
+                        fontWeight: 900,
+                        color: '#1a1a1a',
+                        fontSize: { xs: '26px', md: '22px', lg: '26px' },
                         lineHeight: 1.2
                       }}>
                         {plan.title}
@@ -262,9 +262,9 @@ export default function PlansCards({ planType, setPlanType }) {
                     </Box>
 
                     {/* Pricing */}
-                    <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3, flexWrap: 'wrap' }}>
                       <Typography sx={{ fontSize: '20px', fontWeight: 700, color: '#1a1a1a', mr: 0.5 }}>₹</Typography>
-                      <Typography sx={{ fontSize: '42px', fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>{plan.price}</Typography>
+                      <Typography sx={{ fontSize: { xs: '42px', md: '32px', lg: '42px' }, fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>{plan.price}</Typography>
                       <Typography sx={{ color: '#64748b', ml: 1, fontSize: '15px' }}>/ package</Typography>
                     </Box>
 
