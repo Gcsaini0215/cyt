@@ -1,47 +1,13 @@
 import React from "react";
-import { Box, Typography, Container, useMediaQuery } from "@mui/material";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
-import { TypeAnimation } from "react-type-animation";
+import { Box, Container, useMediaQuery } from "@mui/material";
 
 const styles = `
 .plans-banner {
   position: relative;
-  background-image: url('https://i.postimg.cc/QCWfQP8N/Choose_Your_Therapist_LLP_(1).png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: scroll;
-  padding: 60px 0 50px 0;
+  background: linear-gradient(120deg, #145c38 0%, #1a6b44 45%, #228756 100%);
+  padding: 64px 0;
   overflow: hidden;
   margin-top: 0px;
-}
-
-.plans-banner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 1;
-}
-
-.plans-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  padding: 8px 20px;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(4px);
 }
 
 .plans-title {
@@ -49,48 +15,31 @@ const styles = `
   font-weight: 900;
   color: #ffffff;
   line-height: 1.3;
-  margin-bottom: 12px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.plans-animated-text {
-  color: #4ade80;
-  display: inline-block;
-  min-width: 220px;
-  text-align: left;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.15);
 }
 
 .plans-subtitle {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
   max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.floating-icon {
-  position: absolute;
-  color: rgba(255, 255, 255, 0.1);
-  z-index: 0;
+@media (max-width: 1024px) and (min-width: 769px) {
+  .plans-banner {
+    padding: 48px 0;
+  }
+  .plans-title { font-size: 26px; }
 }
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
-}
-
-.float-1 { top: 20%; left: 10%; animation: float 6s ease-in-out infinite; }
-.float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
 
 @media (max-width: 768px) {
   .plans-banner {
-    padding: 24px 0 20px 0;
+    padding: 36px 0;
   }
-  .plans-badge { display: none; }
-  .plans-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
-  .plans-subtitle { font-size: 12px; padding: 0 12px; }
-  .plans-animated-text { min-width: 100%; display: block; text-align: center; }
+  .plans-title { font-size: 20px; margin-bottom: 6px; }
+  .plans-subtitle { font-size: 13px; }
 }
 `;
 
@@ -101,39 +50,11 @@ export default function PlansHeader({ planType, setPlanType }) {
     <>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="plans-banner">
-        <AutoAwesomeIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
-        <SupportAgentIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
-        
-        <Container maxWidth="lg">
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-            <div className="plans-badge">
-              <AutoAwesomeIcon sx={{ fontSize: 18 }} />
-              <span>Investment in Yourself</span>
-            </div>
-            
-            <h1 className="plans-title">
-              Your Journey to{" "}
-              <span className="plans-animated-text">
-                <TypeAnimation
-                  sequence={[
-                    "Mental Wellness",
-                    2000,
-                    "Inner Peace",
-                    2000,
-                    "Self Growth",
-                    2000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
-              </span>
-              <br /> Starts with a Single Step
-            </h1>
-            
+        <Container maxWidth="lg" disableGutters sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'left' }}>
+            <h1 className="plans-title">Therapy Plans &amp; Pricing</h1>
             <p className="plans-subtitle">
-              Our therapy packages ensure continuity in your healing journey, helping you maintain
-              <br /> steady progress toward your emotional well-being goals.
+              Simple, affordable packages designed to support your healing journey.
             </p>
           </Box>
         </Container>
