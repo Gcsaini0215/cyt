@@ -36,17 +36,25 @@ function MyApp({ Component, pageProps }) {
     });
 
     // Register service worker and subscribe to notifications
+    // Skipped in development to avoid stale-cache reload flicker during HMR
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((registration) => {
-          console.log("Service Worker registered with scope:", registration.scope);
-          // Auto-subscribe after registration
-          subscribeToNotifications();
-        })
-        .catch((error) => {
-          console.error("Service Worker registration failed:", error);
+      if (process.env.NODE_ENV === "production") {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((registration) => {
+            console.log("Service Worker registered with scope:", registration.scope);
+            // Auto-subscribe after registration
+            subscribeToNotifications();
+          })
+          .catch((error) => {
+            console.error("Service Worker registration failed:", error);
+          });
+      } else {
+        // Clean up any service worker registered during a previous dev session
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((registration) => registration.unregister());
         });
+      }
     }
 
     const noLoaderRoutes = [
