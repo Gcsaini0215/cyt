@@ -5,7 +5,7 @@ const styles = `
 .plans-banner {
   position: relative;
   background: linear-gradient(120deg, #145c38 0%, #1a6b44 45%, #228756 100%);
-  padding: 64px 0;
+  padding: 28px 0;
   overflow: hidden;
   margin-top: 0px;
 }
@@ -29,17 +29,17 @@ const styles = `
 
 @media (max-width: 1024px) and (min-width: 769px) {
   .plans-banner {
-    padding: 48px 0;
+    padding: 22px 0;
   }
-  .plans-title { font-size: 26px; }
+  .plans-title { font-size: 24px; }
 }
 
 @media (max-width: 768px) {
   .plans-banner {
-    padding: 36px 0;
+    padding: 16px 0;
   }
-  .plans-title { font-size: 20px; margin-bottom: 6px; }
-  .plans-subtitle { font-size: 13px; }
+  .plans-title { font-size: 18px; margin-bottom: 4px; }
+  .plans-subtitle { font-size: 12px; }
 }
 `;
 
