@@ -8,13 +8,11 @@ import coupleplantherapy from "../../assets/img/coupleplantherapy.jpg";
 import therapyindividualcare from "../../assets/img/therapyindividualcare.jpg";
 import therapycare from "../../assets/img/therapycare.jpg";
 import indicare from "../../assets/img/indicare.jpg";
+import individualcare from "../../assets/img/individualcare.jpg";
+import theapyplancare from "../../assets/img/theapyplancare.jpg";
 
 export default function PlansCards({ planType, setPlanType }) {
   const isMobile = useMediaQuery("(max-width:768px)");
-  // Remove local state since it's now coming from props
-  // const [planType, setPlanType] = useState("individual");
-  const defaultImage = "https://i.postimg.cc/FRMzw223/d405ea7b821eb5830b509ece3d126681.jpg";
-  const essentialImage = "https://i.postimg.cc/cJV8Ng3Y/f342213ac4783b30476d36ce300c2641.jpg";
 
   const individualPlans = [
     {
@@ -47,6 +45,16 @@ export default function PlansCards({ planType, setPlanType }) {
       features: ["12 one-on-one sessions", "Choice to change therapist", "Personalized long-term wellness strategy", "Holistic CBT, mindfulness & lifestyle approach","Activities worksheet", "Free Follow-up through chat", "Priority scheduling support"],
       color: "color-pink",
       btnClass: "bg-pink-opacity"
+    },
+    {
+      title: "Complete Transformation",
+      sessions: "18 Sessions",
+      price: "15,500",
+      image: individualcare.src || individualcare,
+      description: "Our most in-depth program for lasting change across every area of your mental well-being.",
+      features: ["18 one-on-one sessions", "Choice to change therapist", "Comprehensive long-term care plan", "Holistic CBT, mindfulness & lifestyle approach", "Activities worksheet", "Free Follow-up through chat", "Priority scheduling support", "Dedicated progress reviews"],
+      color: "color-primary",
+      btnClass: "bg-primary-opacity"
     }
   ];
 
@@ -81,6 +89,16 @@ export default function PlansCards({ planType, setPlanType }) {
       features: ["Comprehensive support", "Trust rebuilding", "Life transition coaching", "Relationship health"],
       color: "color-pink",
       btnClass: "bg-pink-opacity"
+    },
+    {
+      title: "Lifelong Partnership",
+      sessions: "14 Sessions",
+      price: "15,499",
+      image: theapyplancare.src || theapyplancare,
+      description: "An extensive journey for couples committed to deep, lasting transformation together.",
+      features: ["Extensive joint sessions", "Deep trust rebuilding", "Long-term relationship coaching", "Homework assignments", "Priority scheduling support"],
+      color: "color-primary",
+      btnClass: "bg-primary-opacity"
     }
   ];
 
@@ -182,16 +200,16 @@ export default function PlansCards({ planType, setPlanType }) {
               </button>
             </Box>
           </Box>
-          <div className="row g-4">
+          <div className="row g-3">
             {currentPlans.map((plan, index) => (
-              <div key={index} className="col-xl-4 col-lg-4 col-md-4 col-6">
+              <div key={index} className="col-xl-3 col-lg-3 col-md-3 col-6">
                 <Box
                   onClick={() => handleOpenPlanDetail(plan)}
                   sx={{
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: '18px',
+                    borderRadius: '16px',
                     backgroundColor: 'white',
                     overflow: 'hidden',
                     position: 'relative',
@@ -213,15 +231,15 @@ export default function PlansCards({ planType, setPlanType }) {
                   {plan.popular && (
                     <Box sx={{
                       position: 'absolute',
-                      top: '10px',
-                      left: '10px',
+                      top: '8px',
+                      left: '8px',
                       zIndex: 10,
                       backgroundColor: '#228756',
                       color: 'white',
-                      px: 1.4,
-                      py: 0.35,
+                      px: 1,
+                      py: 0.3,
                       borderRadius: '20px',
-                      fontSize: '10px',
+                      fontSize: '9px',
                       fontWeight: 800,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
@@ -254,10 +272,10 @@ export default function PlansCards({ planType, setPlanType }) {
                     }} />
                     <Typography sx={{
                       position: 'absolute',
-                      left: 10,
-                      bottom: 8,
+                      left: 8,
+                      bottom: 6,
                       color: 'white',
-                      fontSize: { xs: '10px', sm: '11px' },
+                      fontSize: { xs: '9px', sm: '10px' },
                       fontWeight: 800,
                       textTransform: 'uppercase',
                       letterSpacing: '0.5px',
@@ -267,25 +285,25 @@ export default function PlansCards({ planType, setPlanType }) {
                     </Typography>
                   </Box>
 
-                  <Box sx={{ p: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
+                  <Box sx={{ p: { xs: 1.2, sm: 1.5 }, textAlign: 'center' }}>
                     <Typography sx={{
                       fontWeight: 800,
                       color: '#1a1a1a',
-                      fontSize: { xs: '14px', sm: '16px' },
+                      fontSize: { xs: '12px', sm: '14px' },
                       lineHeight: 1.25,
-                      mb: 0.75,
-                      minHeight: { sm: '40px' },
+                      mb: 0.5,
+                      minHeight: { sm: '36px' },
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
                       {plan.title}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.4 }}>
-                      <Typography sx={{ fontSize: { xs: '18px', sm: '22px' }, fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.3, flexWrap: 'wrap' }}>
+                      <Typography sx={{ fontSize: { xs: '15px', sm: '18px' }, fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>
                         ₹{plan.price}
                       </Typography>
-                      <Typography sx={{ fontSize: { xs: '10px', sm: '11px' }, color: '#94a3b8', fontWeight: 600 }}>
+                      <Typography sx={{ fontSize: { xs: '9px', sm: '10px' }, color: '#94a3b8', fontWeight: 600 }}>
                         /package
                       </Typography>
                     </Box>
