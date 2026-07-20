@@ -182,127 +182,113 @@ export default function PlansCards({ planType, setPlanType }) {
               </button>
             </Box>
           </Box>
-          <div className="row g-5">
+          <div className="row g-4">
             {currentPlans.map((plan, index) => (
-              <div key={index} className="col-xl-4 col-lg-4 col-md-4 col-12">
-                <Box sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  borderRadius: '24px',
-                  backgroundColor: 'white',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  border: plan.popular ? '2px solid #228756' : '1px solid #f1f5f9',
-                  boxShadow: plan.popular 
-                    ? '0 20px 40px rgba(34, 135, 86, 0.15)' 
-                    : '0 10px 30px rgba(0, 0, 0, 0.05)',
-                  '&:hover': {
-                    transform: 'translateY(-12px)',
-                    boxShadow: '0 30px 60px rgba(0, 0, 0, 0.12)',
-                  }
-                }}>
+              <div key={index} className="col-xl-4 col-lg-4 col-md-4 col-6">
+                <Box
+                  onClick={() => handleOpenPlanDetail(plan)}
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: '18px',
+                    backgroundColor: 'white',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s ease',
+                    border: plan.popular ? '2px solid #228756' : '1px solid #eef1f4',
+                    boxShadow: plan.popular
+                      ? '0 8px 20px rgba(34, 135, 86, 0.12)'
+                      : '0 2px 10px rgba(15, 23, 42, 0.05)',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 16px 30px rgba(15, 23, 42, 0.1)',
+                    },
+                    '&:hover .plan-tile-img': {
+                      transform: 'scale(1.05)',
+                    }
+                  }}
+                >
                   {plan.popular && (
                     <Box sx={{
                       position: 'absolute',
-                      top: '20px',
-                      right: '20px',
+                      top: '10px',
+                      left: '10px',
                       zIndex: 10,
                       backgroundColor: '#228756',
                       color: 'white',
-                      px: 2,
-                      py: 0.5,
+                      px: 1.4,
+                      py: 0.35,
                       borderRadius: '20px',
-                      fontSize: '12px',
+                      fontSize: '10px',
                       fontWeight: 800,
                       textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      boxShadow: '0 4px 12px rgba(34, 135, 86, 0.3)'
+                      letterSpacing: '0.5px',
+                      boxShadow: '0 4px 10px rgba(34, 135, 86, 0.3)'
                     }}>
-                      Most Popular
+                      ★ Popular
                     </Box>
                   )}
 
-                  {/* Top Image */}
-                  <Box sx={{ width: '100%', height: '200px', overflow: 'hidden' }}>
-                    <img 
-                      src={plan.image} 
-                      alt={plan.title} 
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
+                  {/* Square Image */}
+                  <Box sx={{ width: '100%', aspectRatio: '1 / 1', overflow: 'hidden', position: 'relative' }}>
+                    <Box
+                      className="plan-tile-img"
+                      component="img"
+                      src={plan.image}
+                      alt={plan.title}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 0.6s ease'
-                      }} 
+                        display: 'block',
+                        transition: 'transform 0.4s ease'
+                      }}
                     />
+                    <Box sx={{
+                      position: 'absolute',
+                      left: 0, right: 0, bottom: 0,
+                      height: '45%',
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.35), transparent)'
+                    }} />
+                    <Typography sx={{
+                      position: 'absolute',
+                      left: 10,
+                      bottom: 8,
+                      color: 'white',
+                      fontSize: { xs: '10px', sm: '11px' },
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                      textShadow: '0 1px 4px rgba(0,0,0,0.4)'
+                    }}>
+                      {plan.sessions}
+                    </Typography>
                   </Box>
 
-                  <Box sx={{ p: { xs: 4, md: 2.5, lg: 4 }, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    {/* Header Info */}
-                    <Box sx={{ mb: 3 }}>
-                      <Typography sx={{ 
-                        color: plan.popular ? '#228756' : '#64748b', 
-                        fontSize: '14px', 
-                        fontWeight: 800, 
-                        textTransform: 'uppercase', 
-                        mb: 1,
-                        letterSpacing: '1px'
-                      }}>
-                        {plan.sessions}
-                      </Typography>
-                      <Typography variant="h4" sx={{
-                        fontWeight: 900,
-                        color: '#1a1a1a',
-                        fontSize: { xs: '26px', md: '22px', lg: '26px' },
-                        lineHeight: 1.2
-                      }}>
-                        {plan.title}
-                      </Typography>
-                    </Box>
-
-                    {/* Pricing */}
-                    <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3, flexWrap: 'wrap' }}>
-                      <Typography sx={{ fontSize: '20px', fontWeight: 700, color: '#1a1a1a', mr: 0.5 }}>₹</Typography>
-                      <Typography sx={{ fontSize: { xs: '42px', md: '32px', lg: '42px' }, fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>{plan.price}</Typography>
-                      <Typography sx={{ color: '#64748b', ml: 1, fontSize: '15px' }}>/ package</Typography>
-                    </Box>
-
-                    {/* Description */}
-                    <Typography sx={{ 
-                      color: '#64748b', 
-                      fontSize: '15px', 
-                      lineHeight: 1.6, 
-                      mb: 4,
-                      flex: 1 
+                  <Box sx={{ p: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
+                    <Typography sx={{
+                      fontWeight: 800,
+                      color: '#1a1a1a',
+                      fontSize: { xs: '14px', sm: '16px' },
+                      lineHeight: 1.25,
+                      mb: 0.75,
+                      minHeight: { sm: '40px' },
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}>
-                      {plan.description}
+                      {plan.title}
                     </Typography>
-
-                    {/* Action Button */}
-                    <Button 
-                      variant="contained" 
-                      fullWidth
-                      onClick={() => handleOpenPlanDetail(plan)}
-                      sx={{
-                        py: 2,
-                        borderRadius: '14px',
-                        backgroundColor: plan.popular ? '#228756' : '#1a1a1a',
-                        fontSize: '16px',
-                        fontWeight: 800,
-                        textTransform: 'none',
-                        boxShadow: 'none',
-                        transition: 'all 0.3s ease',
-                        mt: 'auto', // Push to bottom
-                        '&:hover': {
-                          backgroundColor: plan.popular ? '#1a6b44' : '#334155',
-                          boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-                          transform: 'scale(1.02)'
-                        }
-                      }}
-                    >
-                      View Details
-                    </Button>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0.4 }}>
+                      <Typography sx={{ fontSize: { xs: '18px', sm: '22px' }, fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>
+                        ₹{plan.price}
+                      </Typography>
+                      <Typography sx={{ fontSize: { xs: '10px', sm: '11px' }, color: '#94a3b8', fontWeight: 600 }}>
+                        /package
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </div>
