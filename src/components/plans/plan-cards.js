@@ -316,12 +316,12 @@ export default function PlansCards({ planType, setPlanType }) {
       </div>
 
       <Dialog
-        open={openPlanDetail} 
+        open={openPlanDetail}
         onClose={() => setOpenPlanDetail(false)}
-        maxWidth="xs"
+        maxWidth="sm"
         fullWidth
         disableScrollLock
-        sx={{ 
+        sx={{
           zIndex: 9999,
           '& .MuiDialog-container': {
             alignItems: 'center',
@@ -329,40 +329,86 @@ export default function PlansCards({ planType, setPlanType }) {
           }
         }}
         PaperProps={{
-          sx: { 
-            borderRadius: '24px', 
+          sx: {
+            borderRadius: '24px',
             overflow: 'hidden',
             margin: '20px' // Ensure space from edges on mobile
           }
         }}
       >
         {selectedPlan && (
-          <Box sx={{ position: 'relative', p: 4, pt: 6 }}>
+          <Box sx={{ position: 'relative' }}>
             <IconButton
               onClick={() => setOpenPlanDetail(false)}
-              sx={{ 
-                position: 'absolute', 
-                right: 12, 
-                top: 12, 
-                color: '#64748b',
+              sx={{
+                position: 'absolute',
+                right: 12,
+                top: 12,
+                color: 'white',
                 zIndex: 10,
-                '&:hover': { bgcolor: '#f1f5f9' }
+                bgcolor: 'rgba(0,0,0,0.35)',
+                '&:hover': { bgcolor: 'rgba(0,0,0,0.55)' }
               }}
             >
               <CloseIcon sx={{ fontSize: '20px' }} />
             </IconButton>
 
-            <Box sx={{ mb: 4 }}>
-              <Typography sx={{ fontWeight: 900, fontSize: '20px', color: '#1a1a1a', mb: 3, textAlign: 'center' }}>
+            {/* Header image */}
+            <Box sx={{ width: '100%', height: { xs: '160px', sm: '190px' }, position: 'relative', overflow: 'hidden' }}>
+              <Box
+                component="img"
+                src={selectedPlan.image}
+                alt={selectedPlan.title}
+                sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              />
+              <Box sx={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.65), rgba(0,0,0,0.05))'
+              }} />
+              {selectedPlan.popular && (
+                <Box sx={{
+                  position: 'absolute', top: 12, left: 12,
+                  backgroundColor: '#228756', color: 'white',
+                  px: 1.4, py: 0.4, borderRadius: '20px',
+                  fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px'
+                }}>
+                  ★ Popular
+                </Box>
+              )}
+              <Box sx={{ position: 'absolute', left: 20, bottom: 14, right: 20 }}>
+                <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', mb: 0.3 }}>
+                  {selectedPlan.sessions}
+                </Typography>
+                <Typography sx={{ color: 'white', fontSize: { xs: '20px', sm: '24px' }, fontWeight: 900, lineHeight: 1.15 }}>
+                  {selectedPlan.title}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ p: { xs: 3, sm: 4 } }}>
+              {/* Price */}
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5, mb: 2 }}>
+                <Typography sx={{ fontSize: '28px', fontWeight: 900, color: '#1a1a1a', lineHeight: 1 }}>
+                  ₹{selectedPlan.price}
+                </Typography>
+                <Typography sx={{ color: '#64748b', fontSize: '14px' }}>/ package</Typography>
+              </Box>
+
+              {/* Description */}
+              <Typography sx={{ fontSize: '14.5px', color: '#475569', lineHeight: 1.6, mb: 3 }}>
+                {selectedPlan.description}
+              </Typography>
+
+              <Typography sx={{ fontWeight: 900, fontSize: '15px', color: '#1a1a1a', mb: 2 }}>
                 What's included in this plan:
               </Typography>
-              <Stack spacing={2}>
+              <Stack spacing={1.5}>
                 {selectedPlan.features.map((feature, idx) => (
                   <Box key={idx} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                    <Box sx={{ 
-                      width: '20px', 
-                      height: '20px', 
-                      borderRadius: '50%', 
+                    <Box sx={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
                       bgcolor: 'rgba(34, 135, 86, 0.1)',
                       display: 'flex',
                       alignItems: 'center',
@@ -378,37 +424,38 @@ export default function PlansCards({ planType, setPlanType }) {
                   </Box>
                 ))}
               </Stack>
-            </Box>
 
-            <Button 
-              variant="contained" 
-              fullWidth
-              onClick={() => {
-                setOpenPlanDetail(false);
-                handleChoosePlan(selectedPlan);
-              }}
-              sx={{
-                py: 2,
-                borderRadius: '16px',
-                backgroundColor: '#228756',
-                fontSize: '16px',
-                fontWeight: 800,
-                textTransform: 'none',
-                boxShadow: '0 10px 20px rgba(34, 135, 86, 0.2)',
-                '&:hover': { 
-                  backgroundColor: '#1a6b44',
-                  boxShadow: '0 12px 25px rgba(34, 135, 86, 0.3)',
-                  transform: 'translateY(-2px)'
-                },
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Confirm & Choose Plan
-            </Button>
-            
-            <Typography sx={{ mt: 3, fontSize: '11px', color: '#94a3b8', textAlign: 'center' }}>
-              Secure & Confidential Payment via UPI
-            </Typography>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={() => {
+                  setOpenPlanDetail(false);
+                  handleChoosePlan(selectedPlan);
+                }}
+                sx={{
+                  mt: 4,
+                  py: 2,
+                  borderRadius: '16px',
+                  backgroundColor: '#228756',
+                  fontSize: '16px',
+                  fontWeight: 800,
+                  textTransform: 'none',
+                  boxShadow: '0 10px 20px rgba(34, 135, 86, 0.2)',
+                  '&:hover': {
+                    backgroundColor: '#1a6b44',
+                    boxShadow: '0 12px 25px rgba(34, 135, 86, 0.3)',
+                    transform: 'translateY(-2px)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Confirm & Choose Plan
+              </Button>
+
+              <Typography sx={{ mt: 2, fontSize: '11px', color: '#94a3b8', textAlign: 'center' }}>
+                Secure & Confidential Payment via UPI
+              </Typography>
+            </Box>
           </Box>
         )}
       </Dialog>
