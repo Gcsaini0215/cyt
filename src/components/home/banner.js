@@ -11,7 +11,7 @@ import { imagePath, defaultProfile } from "../../utils/url";
 
 export default function Banner({ topTherapists = [], userCity = null }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const isTablet = useMediaQuery((theme) => theme.breakpoints.between("sm", "md"));
 
   const displayList = [...topTherapists]
     .sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0))
@@ -56,7 +56,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     .rbt-banner-1 { padding-top: 10px !important; }
                   }
                 `}</style>
-                <h4 className="title" style={{ fontSize: isMobile ? undefined : "clamp(2.8rem, 5vw, 4.8rem)", lineHeight: 1.15, marginBottom: "12px" }}>
+                <h4 className="title" style={{ fontSize: isMobile ? undefined : isTablet ? "clamp(2rem, 4vw, 3rem)" : "clamp(2.8rem, 5vw, 4.8rem)", lineHeight: 1.15, marginBottom: "12px" }}>
                   Find your&nbsp;
                   <span style={{ display: "inline-block", position: "relative", minWidth: isMobile ? "140px" : "220px", verticalAlign: "bottom" }}>
                     <span className="banner-word-1 theme-gradient">Personalized</span>
@@ -87,8 +87,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
             <div className="content">
               <div>
                 <Swiper
-                  style={{ width: "100%", maxWidth: isMobile ? "100%" : "340px", margin: "0 auto", paddingBottom: "28px" }}
-                  slidesPerView={1}
+                  style={{ width: "100%", maxWidth: isMobile ? "100%" : isTablet ? "100%" : "340px", margin: "0 auto", paddingBottom: "28px" }}
+                  slidesPerView={isTablet ? 2 : 1}
+                  spaceBetween={isTablet ? 16 : 0}
                   autoplay={{ delay: 3000, disableOnInteraction: false }}
                   loop={displayList.length > 1}
                   modules={[Autoplay]}
