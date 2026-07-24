@@ -5,6 +5,10 @@ import StarIcon from "@mui/icons-material/Star";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import SendIcon from "@mui/icons-material/Send";
 import GroupsIcon from "@mui/icons-material/Groups";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism";
+import ConnectWithoutContactIcon from "@mui/icons-material/ConnectWithoutContact";
 import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 import ImageTag from "../../utils/image-tag";
@@ -81,7 +85,7 @@ export default function ProbonoTherapist() {
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadLoading, setLeadLoading] = useState(false);
 
-  const handleConnectNow = (psychologist) => {
+  const handleConnectNow = (psychologist = null) => {
     setSelected(psychologist);
     setLeadData({ name: "", phone: "" });
     setLeadSubmitted(false);
@@ -95,8 +99,10 @@ export default function ProbonoTherapist() {
       await postFormUrlEncoded(SubmitConsultationUrl, {
         name: leadData.name,
         phone: leadData.phone,
-        subject: "Probono Therapist Lead",
-        concern: `Interested in connecting with ${selected?.name || "a probono therapist"}`,
+        subject: "Probono Therapy Request",
+        concern: selected
+          ? `Requesting probono therapy, preferred trainee: ${selected.name}`
+          : "Requesting probono therapy — please match with an available trainee therapist",
         source: "Probono Therapist Page",
       });
       setLeadSubmitted(true);
@@ -107,6 +113,103 @@ export default function ProbonoTherapist() {
   return (
     <>
       <ProbonoBanner />
+
+      {/* What is Probono Therapy + Funnel */}
+      <div className="rbt-section-gapBottom" style={{ paddingTop: 56 }}>
+        <div className="container">
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={7}>
+              <Typography sx={{ fontSize: { xs: 22, md: 26 }, fontWeight: 900, color: "#1e293b", mb: 1.5 }}>
+                What is Probono Therapy?
+              </Typography>
+              <Typography sx={{ fontSize: 14.5, color: "#475569", lineHeight: 1.8, mb: 2 }}>
+                Probono therapy offers free or heavily subsidised sessions to people who can't otherwise afford
+                mental health support. Sessions are conducted by supervised trainee therapists — psychology
+                graduates completing their clinical practicum under the close guidance of a licensed, experienced
+                supervisor — so you receive genuine, structured care while they gain hands-on experience.
+              </Typography>
+
+              <Stack spacing={1.5} sx={{ mb: 3 }}>
+                <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                  <SupervisorAccountIcon sx={{ color: "#228756", fontSize: 20, mt: 0.2 }} />
+                  <Typography sx={{ fontSize: 13.5, color: "#475569" }}>
+                    Every trainee works under the direct supervision of a licensed senior psychologist.
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                  <VolunteerActivismIcon sx={{ color: "#228756", fontSize: 20, mt: 0.2 }} />
+                  <Typography sx={{ fontSize: 13.5, color: "#475569" }}>
+                    Sessions are free or low-cost, made possible by therapists volunteering their time.
+                  </Typography>
+                </Stack>
+              </Stack>
+
+              <Button
+                onClick={() => handleConnectNow()}
+                sx={{
+                  borderRadius: "12px",
+                  py: 1.4,
+                  px: 3.5,
+                  background: "linear-gradient(135deg,#166534,#16a34a)",
+                  color: "white",
+                  fontWeight: 800,
+                  fontSize: 15,
+                  textTransform: "none",
+                  boxShadow: "0 8px 18px rgba(22,101,52,0.25)",
+                  "&:hover": { opacity: 0.92 },
+                }}
+              >
+                Request Probono Therapy
+              </Button>
+            </Grid>
+
+            <Grid item xs={12} md={5}>
+              <Box
+                sx={{
+                  borderRadius: "20px",
+                  border: "1px solid #eef2f0",
+                  background: "#f8faf9",
+                  p: 3,
+                }}
+              >
+                <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#228756", textTransform: "uppercase", letterSpacing: "0.5px", mb: 2 }}>
+                  How it works
+                </Typography>
+                <Stack spacing={2.5}>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Box sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: "50%", background: "#e8f5ee", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <HowToRegIcon sx={{ fontSize: 17, color: "#228756" }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>1. Submit your request</Typography>
+                      <Typography sx={{ fontSize: 12.5, color: "#64748b" }}>Share your name and phone number — no cost, no commitment.</Typography>
+                    </Box>
+                  </Stack>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Box sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: "50%", background: "#e8f5ee", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <SupervisorAccountIcon sx={{ fontSize: 17, color: "#228756" }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>2. We check availability</Typography>
+                      <Typography sx={{ fontSize: 12.5, color: "#64748b" }}>Our team checks which supervised trainee therapist is free.</Typography>
+                    </Box>
+                  </Stack>
+                  <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                    <Box sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: "50%", background: "#e8f5ee", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <ConnectWithoutContactIcon sx={{ fontSize: 17, color: "#228756" }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>3. You get connected</Typography>
+                      <Typography sx={{ fontSize: 12.5, color: "#64748b" }}>If a trainee is available, we connect you on WhatsApp within 24 hours.</Typography>
+                    </Box>
+                  </Stack>
+                </Stack>
+              </Box>
+            </Grid>
+          </Grid>
+        </div>
+      </div>
+
       <div
         className="rbt-section-gap"
         style={{
@@ -182,6 +285,24 @@ export default function ProbonoTherapist() {
                   <Typography sx={{ fontWeight: 800, fontSize: 17, color: "#1e293b", mb: 0.5 }}>
                     {p.name}
                   </Typography>
+
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.5}
+                    sx={{
+                      mb: 1,
+                      px: 1.2,
+                      py: 0.3,
+                      borderRadius: "20px",
+                      background: "#e8f5ee",
+                    }}
+                  >
+                    <SupervisorAccountIcon sx={{ fontSize: 13, color: "#228756" }} />
+                    <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#228756" }}>
+                      Working under supervision
+                    </Typography>
+                  </Stack>
 
                   <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mb: 1.5 }}>
                     {[1, 2, 3, 4, 5].map((s) => (
@@ -286,10 +407,12 @@ export default function ProbonoTherapist() {
                     💬
                   </Box>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: "#1e293b", mb: 0.5 }}>
-                    Connect with {selected?.name || "our psychologist"}
+                    {selected ? `Connect with ${selected.name}` : "Request Probono Therapy"}
                   </Typography>
                   <Typography sx={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
-                    Share your details and our team will reach out to set things up.
+                    {selected
+                      ? "Share your details and our team will reach out to set things up."
+                      : "Share your details and we'll match you with an available trainee therapist, working under supervision."}
                   </Typography>
                 </Box>
 
@@ -376,7 +499,9 @@ export default function ProbonoTherapist() {
                   You're all set!
                 </Typography>
                 <Typography sx={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
-                  Our team will reach out on WhatsApp within 24 hours to connect you with {selected?.name || "your psychologist"}.
+                  {selected
+                    ? `Our team will reach out on WhatsApp within 24 hours to connect you with ${selected.name}.`
+                    : "Our team will reach out on WhatsApp within 24 hours and match you with an available trainee therapist."}
                 </Typography>
                 <Button
                   onClick={() => setShowLeadPopup(false)}
