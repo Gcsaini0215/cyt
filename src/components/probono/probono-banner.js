@@ -21,7 +21,7 @@ export default function ProbonoBanner() {
           background-size: cover;
           background-position: center;
           background-attachment: scroll;
-          padding: 46px 0 46px 0;
+          padding: 70px 0 70px 0;
           overflow: hidden;
           margin-top: 0px;
         }
@@ -56,7 +56,7 @@ export default function ProbonoBanner() {
 
         @media (max-width: 768px) {
           .probono-banner {
-            padding: 26px 0 24px 0;
+            padding: 34px 0 32px 0;
           }
           .probono-title {
             font-size: 17px;
