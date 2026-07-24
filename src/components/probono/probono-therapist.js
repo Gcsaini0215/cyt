@@ -158,7 +158,7 @@ export default function ProbonoTherapist() {
                       right: 0,
                       height: "56px",
                       borderRadius: "20px 20px 0 0",
-                      background: "linear-gradient(135deg, #166534, #22c55e)",
+                      background: "linear-gradient(135deg, #e8f5ee, #d3ecdf)",
                     }}
                   />
 
