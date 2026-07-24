@@ -4,6 +4,7 @@ import { FiX } from "react-icons/fi";
 import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
 import ImageTag from "../../utils/image-tag";
+import ProbonoBanner from "./probono-banner";
 
 import photo1 from "../../assets/img/team-01a1b3.jpg";
 import photo2 from "../../assets/img/team-028418.jpg";
@@ -82,62 +83,64 @@ export default function ProbonoTherapist() {
   };
 
   return (
-    <div className="rbt-section-gap">
-      <div className="container">
-        <div className="row mb--60">
-          <div className="col-lg-12">
-            <div className="section-title text-center">
-              <h2 className="title">Meet Our Probono Psychologists</h2>
-              <p className="description mt--10">
-                Verified psychologists offering free and low-cost sessions. Connect with someone who fits your needs.
-              </p>
+    <>
+      <ProbonoBanner />
+      <div className="rbt-section-gap">
+        <div className="container">
+          <div className="row mb--40">
+            <div className="col-lg-12">
+              <div className="section-title text-center">
+                <p className="description">
+                  Connect with someone who fits your needs.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <Grid container rowSpacing={4} columnSpacing={{ xs: 2, sm: 3, md: 3 }}>
-          {PSYCHOLOGISTS.map((p) => (
-            <Grid item xs={12} sm={6} md={4} key={p.id}>
-              <Box
-                sx={{
-                  textAlign: "center",
-                  p: 3,
-                  borderRadius: "16px",
-                  border: "1px solid #e2e8f0",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Avatar sx={{ width: 96, height: 96, mb: 2, border: "2px solid #228756" }}>
-                  <ImageTag src={p.photo} alt={p.name} width="96" height="96" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                </Avatar>
-                <Typography sx={{ fontWeight: 800, fontSize: 17, color: "#1e293b", mb: 0.5 }}>
-                  {p.name}
-                </Typography>
-                <Typography sx={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, mb: 2.5, flexGrow: 1 }}>
-                  {p.intro}
-                </Typography>
-                <Button
-                  fullWidth
-                  onClick={() => handleConnectNow(p)}
+          <Grid container rowSpacing={4} columnSpacing={{ xs: 2, sm: 3, md: 3 }}>
+            {PSYCHOLOGISTS.map((p) => (
+              <Grid item xs={12} sm={6} md={4} key={p.id}>
+                <Box
                   sx={{
-                    borderRadius: "12px",
-                    py: 1.2,
-                    background: "linear-gradient(135deg,#166534,#16a34a)",
-                    color: "white",
-                    fontWeight: 800,
-                    textTransform: "none",
-                    "&:hover": { opacity: 0.9 },
+                    textAlign: "center",
+                    p: 3,
+                    borderRadius: "16px",
+                    border: "1px solid #e2e8f0",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
                   }}
                 >
-                  Connect Now
-                </Button>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+                  <Avatar sx={{ width: 96, height: 96, mb: 2, border: "2px solid #228756" }}>
+                    <ImageTag src={p.photo} alt={p.name} width="96" height="96" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </Avatar>
+                  <Typography sx={{ fontWeight: 800, fontSize: 17, color: "#1e293b", mb: 0.5 }}>
+                    {p.name}
+                  </Typography>
+                  <Typography sx={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, mb: 2.5, flexGrow: 1 }}>
+                    {p.intro}
+                  </Typography>
+                  <Button
+                    fullWidth
+                    onClick={() => handleConnectNow(p)}
+                    sx={{
+                      borderRadius: "12px",
+                      py: 1.2,
+                      background: "linear-gradient(135deg,#166534,#16a34a)",
+                      color: "white",
+                      fontWeight: 800,
+                      textTransform: "none",
+                      "&:hover": { opacity: 0.9 },
+                    }}
+                  >
+                    Connect Now
+                  </Button>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </div>
       </div>
 
       {/* Connect Now — Lead Capture Modal */}
@@ -278,6 +281,6 @@ export default function ProbonoTherapist() {
           </Box>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
