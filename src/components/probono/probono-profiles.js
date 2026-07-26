@@ -44,7 +44,7 @@ export default function ProbonoProfiles() {
             <div className="col-lg-12">
               <div className="section-title text-center">
                 <Typography sx={{ fontSize: { xs: 20, md: 24 }, fontWeight: 900, color: "#1e293b", mb: 1 }}>
-                  Meet Our Probono Psychologists
+                  Meet Our Psychology Interns
                 </Typography>
                 <p className="description">Connect with someone who fits your needs.</p>
               </div>
