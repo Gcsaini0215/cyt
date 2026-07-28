@@ -10,26 +10,26 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import ImageTag from "../../utils/image-tag";
 import ProbonoBanner from "./probono-banner";
 import ProbonoLeadModal from "./probono-lead-modal";
-import { CONCERN_AREAS } from "./probono-data";
+import { CONCERN_AREAS, PSYCHOLOGISTS } from "./probono-data";
 import { fetchData } from "../../utils/actions";
 import { getProbonoInternsUrl } from "../../utils/url";
 
 export default function ProbonoProfiles() {
-  const [interns, setInterns] = useState([]);
+  const [interns, setInterns] = useState(PSYCHOLOGISTS);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [showLeadPopup, setShowLeadPopup] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
-    console.log('Fetching from:', getProbonoInternsUrl);
     fetchData(getProbonoInternsUrl)
       .then((res) => {
-        console.log('Probono interns response:', res);
-        if (res?.status) setInterns(res.data || []);
+        if (res?.status && res?.data?.length > 0) {
+          setInterns(res.data);
+        }
       })
-      .catch((error) => {
-        console.error('Failed to fetch probono interns:', error);
+      .catch(() => {
+        // Silently fail - mock data is already showing
       })
       .finally(() => setLoading(false));
   }, []);
