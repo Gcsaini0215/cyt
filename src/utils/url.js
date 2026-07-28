@@ -28,15 +28,15 @@ const removeTrailingSlash = (str) => {
 let rawApiUrl = LIVE_API_URL;
 let rawBaseApi = LIVE_BASE_API;
 
-// Force LIVE mode if you want to use production data on localhost
-// Set this to "LOCAL" only if you have a local backend running on port 4000
-const PREFERRED_MODE = process.env.NODE_ENV === "development" ? "LOCAL" : "LIVE";
+// Respect .env configuration first, otherwise use LIVE in development
+// Set NEXT_PUBLIC_API_URL to http://localhost:4000/api if you have a local backend running
+const PREFERRED_MODE = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? "ENV" : "LIVE";
 
 const isDev = process.env.NODE_ENV === 'development';
 const isLocal = isDev || (!isServer && (
-  currentDomain === "localhost" || 
-  currentDomain === "127.0.0.1" || 
-  currentDomain.startsWith("192.168.") || 
+  currentDomain === "localhost" ||
+  currentDomain === "127.0.0.1" ||
+  currentDomain.startsWith("192.168.") ||
   currentDomain.startsWith("10.") ||
   window.location.port !== ""
 ));
@@ -44,14 +44,15 @@ const isLocal = isDev || (!isServer && (
 if (isLocal) {
   const port = isServer ? "3000" : window.location.port;
   baseFrontendUrl = `${currentProtocol}//${currentDomain}${port ? ':' + port : ''}`;
-  
-  if (PREFERRED_MODE === "LOCAL") {
-    rawApiUrl = LOCAL_API_URL;
-    rawBaseApi = LOCAL_BASE_API;
+
+  if (PREFERRED_MODE === "ENV") {
+    // Use .env if explicitly set
+    rawApiUrl = envApiUrl;
+    rawBaseApi = envBaseApi;
   } else {
-    // Even on local, if not in LOCAL mode, try to use .env or fallback to LIVE
-    rawApiUrl = (envApiUrl && envApiUrl !== "undefined" && envApiUrl !== "") ? envApiUrl : LIVE_API_URL;
-    rawBaseApi = (envBaseApi && envBaseApi !== "undefined" && envBaseApi !== "") ? envBaseApi : LIVE_BASE_API;
+    // Fallback to LIVE if .env not set
+    rawApiUrl = LIVE_API_URL;
+    rawBaseApi = LIVE_BASE_API;
   }
 } else {
   baseFrontendUrl = "https://chooseyourtherapist.in";
@@ -196,3 +197,4 @@ export const updateClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const deleteClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const sendClinicInvoiceEmailUrl = `${apiUrl}/send-invoice-email`;
 export const getResourcesUrl           = `${apiUrl}/resources`;
+export const getProbonoInternsUrl      = `${apiUrl}/probono-interns`;

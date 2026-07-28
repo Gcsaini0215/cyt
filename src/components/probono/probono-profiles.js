@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Box, Typography, Grid, Avatar, Button, Stack } from "@mui/material";
+import { Box, Typography, Grid, Avatar, Button, Stack, Chip } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StarIcon from "@mui/icons-material/Star";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -8,20 +8,46 @@ import SendIcon from "@mui/icons-material/Send";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import ImageTag from "../../utils/image-tag";
+import ProbonoBanner from "./probono-banner";
 import ProbonoLeadModal from "./probono-lead-modal";
-import { PSYCHOLOGISTS } from "./probono-data";
+import { CONCERN_AREAS } from "./probono-data";
+import { fetchData } from "../../utils/actions";
+import { getProbonoInternsUrl } from "../../utils/url";
 
 export default function ProbonoProfiles() {
+  const [interns, setInterns] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [showLeadPopup, setShowLeadPopup] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  useEffect(() => {
+    console.log('Fetching from:', getProbonoInternsUrl);
+    fetchData(getProbonoInternsUrl)
+      .then((res) => {
+        console.log('Probono interns response:', res);
+        if (res?.status) setInterns(res.data || []);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch probono interns:', error);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleConnectNow = (psychologist) => {
     setSelected(psychologist);
     setShowLeadPopup(true);
   };
 
+  const filteredList = useMemo(() => {
+    if (activeFilter === "All") return interns;
+    return interns.filter((p) => p.concerns?.includes(activeFilter));
+  }, [activeFilter, interns]);
+
   return (
     <>
+      <ProbonoBanner />
+
       <div className="rbt-section-gap" style={{ paddingTop: 40, background: "#f8faf9" }}>
         <div className="container">
           <Link href="/probono-therapist" passHref legacyBehavior>
@@ -40,7 +66,7 @@ export default function ProbonoProfiles() {
             </Button>
           </Link>
 
-          <div className="row mb--40">
+          <div className="row mb--30">
             <div className="col-lg-12">
               <div className="section-title text-center">
                 <Typography sx={{ fontSize: { xs: 20, md: 24 }, fontWeight: 900, color: "#1e293b", mb: 1 }}>
@@ -51,9 +77,47 @@ export default function ProbonoProfiles() {
             </div>
           </div>
 
+          <Stack
+            direction="row"
+            flexWrap="wrap"
+            justifyContent="center"
+            gap={1}
+            sx={{ mb: 5 }}
+          >
+            {["All", ...CONCERN_AREAS].map((label) => (
+              <Chip
+                key={label}
+                label={label}
+                onClick={() => setActiveFilter(label)}
+                sx={{
+                  fontWeight: 700,
+                  fontSize: 13,
+                  px: 0.5,
+                  color: activeFilter === label ? "#fff" : "#228756",
+                  background: activeFilter === label ? "linear-gradient(135deg,#166534,#16a34a)" : "#e8f5ee",
+                  "&:hover": {
+                    background: activeFilter === label ? "linear-gradient(135deg,#166534,#16a34a)" : "#d3ecdf",
+                  },
+                }}
+              />
+            ))}
+          </Stack>
+
+          {loading && (
+            <Typography sx={{ textAlign: "center", color: "#94a3b8", fontSize: 14, py: 4 }}>
+              Loading interns…
+            </Typography>
+          )}
+
+          {!loading && filteredList.length === 0 && (
+            <Typography sx={{ textAlign: "center", color: "#94a3b8", fontSize: 14, py: 4 }}>
+              No interns match this filter right now. Try another concern area.
+            </Typography>
+          )}
+
           <Grid container rowSpacing={5} columnSpacing={{ xs: 2, sm: 3, md: 4 }}>
-            {PSYCHOLOGISTS.map((p) => (
-              <Grid item xs={12} sm={6} md={4} key={p.id}>
+            {filteredList.map((p) => (
+              <Grid item xs={12} sm={6} md={4} key={p._id}>
                 <Box
                   sx={{
                     position: "relative",
