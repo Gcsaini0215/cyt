@@ -5,6 +5,14 @@ import photo4 from "../../assets/img/team-042782.jpg";
 import photo5 from "../../assets/img/team-05006a.jpg";
 import photo6 from "../../assets/img/team-06076f.jpg";
 
+export const CONCERN_AREAS = [
+  "Stress & Anxiety",
+  "Relationships",
+  "Academic Pressure",
+  "Family Concerns",
+  "Self-Esteem",
+];
+
 export const PSYCHOLOGISTS = [
   {
     id: 1,
