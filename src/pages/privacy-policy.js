@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
       <MyNavbar />
 
       <div className="rbt-section-gap" style={{ paddingTop: 40, background: "#f8faf9" }}>
-        <Container maxWidth={false}
+        <Container maxWidth={false}>
           <Box sx={{ mb: 4, textAlign: "center" }}>
             <Typography sx={{ fontSize: { xs: 24, md: 32 }, fontWeight: 900, color: "#1e293b", mb: 2 }}>
               Privacy Policy
