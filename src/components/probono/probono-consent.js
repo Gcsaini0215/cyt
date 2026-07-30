@@ -130,7 +130,14 @@ export default function ProbonoConsent() {
                 }
                 label={
                   <Typography sx={{ fontSize: 13.5, color: "#78350f", lineHeight: 1.7 }}>
-                    {CONSENT_STATEMENT}
+                    {CONSENT_STATEMENT}{" "}
+                    <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700, textDecoration: "underline" }}>
+                      Terms and Conditions
+                    </Link>
+                    {" "}and{" "}
+                    <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700, textDecoration: "underline" }}>
+                      Privacy Policy
+                    </Link>
                   </Typography>
                 }
                 sx={{ alignItems: "flex-start", mb: 3 }}
@@ -144,14 +151,16 @@ export default function ProbonoConsent() {
                     borderRadius: "12px",
                     py: 1.4,
                     px: 3.5,
-                    background: "linear-gradient(135deg,#166534,#16a34a)",
+                    background: "#16a34a",
                     color: "white",
                     fontWeight: 800,
                     fontSize: 15,
                     textTransform: "none",
-                    boxShadow: "0 8px 18px rgba(22,101,52,0.25)",
-                    "&:hover": { opacity: 0.92 },
-                    "&.Mui-disabled": { background: "#e2e8f0", color: "#94a3b8", boxShadow: "none" },
+                    boxShadow: "0 8px 18px rgba(22, 163, 74, 0.25)",
+                    cursor: agreed ? "pointer" : "not-allowed",
+                    opacity: agreed ? 1 : 0.6,
+                    "&:hover": { opacity: agreed ? 0.92 : 0.6 },
+                    "&.Mui-disabled": { background: "#16a34a", color: "white", boxShadow: "0 8px 18px rgba(22, 163, 74, 0.25)" },
                   }}
                 >
                   I Understand and Agree — Continue
