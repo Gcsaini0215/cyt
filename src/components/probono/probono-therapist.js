@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, FormControlLabel, Checkbox } from "@mui/material";
 import ProbonoBanner from "./probono-banner";
 
 export default function ProbonoTherapist() {
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
   return (
     <>
       <ProbonoBanner />
@@ -31,20 +33,47 @@ export default function ProbonoTherapist() {
               develop practical skills under professional supervision.
             </Typography>
 
-            <Link href="/probono-therapist/consent" passHref legacyBehavior>
+            <Box sx={{ mb: 3, textAlign: "left", maxWidth: 500, mx: "auto" }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    sx={{ color: "#228756", "&.Mui-checked": { color: "#228756" } }}
+                  />
+                }
+                label={
+                  <Typography sx={{ fontSize: 14, color: "#475569", ml: 1 }}>
+                    I have read and agree to the{" "}
+                    <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700, textDecoration: "underline" }}>
+                      terms and conditions
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700, textDecoration: "underline" }}>
+                      privacy policy
+                    </Link>
+                  </Typography>
+                }
+              />
+            </Box>
+
+            <Link href={agreedToTerms ? "/probono-therapist/consent" : "#"} passHref legacyBehavior>
               <Button
                 component="a"
+                disabled={!agreedToTerms}
+                onClick={(e) => !agreedToTerms && e.preventDefault()}
                 sx={{
                   borderRadius: "12px",
                   py: 1.4,
                   px: 4,
-                  background: "linear-gradient(135deg,#166534,#16a34a)",
+                  background: agreedToTerms ? "linear-gradient(135deg,#166534,#16a34a)" : "#cccccc",
                   color: "white",
                   fontWeight: 800,
                   fontSize: 15,
                   textTransform: "none",
-                  boxShadow: "0 8px 18px rgba(22,101,52,0.25)",
-                  "&:hover": { opacity: 0.92 },
+                  boxShadow: agreedToTerms ? "0 8px 18px rgba(22,101,52,0.25)" : "none",
+                  cursor: agreedToTerms ? "pointer" : "not-allowed",
+                  "&:hover": { opacity: agreedToTerms ? 0.92 : 1 },
                 }}
               >
                 Continue
