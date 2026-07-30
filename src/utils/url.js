@@ -197,4 +197,4 @@ export const updateClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const deleteClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const sendClinicInvoiceEmailUrl = `${apiUrl}/send-invoice-email`;
 export const getResourcesUrl           = `${apiUrl}/resources`;
-export const getProbonoInternsUrl      = `${apiUrl}/probono`;
+export const getProbonoInternsUrl      = `${apiUrl}/probono-interns`;
