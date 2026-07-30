@@ -33,7 +33,7 @@ export default function ProbonoTherapist() {
               develop practical skills under professional supervision.
             </Typography>
 
-            <Box sx={{ mb: 3, textAlign: "left", maxWidth: 500, mx: "auto" }}>
+            <Box sx={{ mb: 3, textAlign: "left", maxWidth: 720, mx: "auto", px: 2 }}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -66,14 +66,15 @@ export default function ProbonoTherapist() {
                   borderRadius: "12px",
                   py: 1.4,
                   px: 4,
-                  background: agreedToTerms ? "linear-gradient(135deg,#166534,#16a34a)" : "#cccccc",
+                  background: "linear-gradient(135deg,#166534,#16a34a)",
                   color: "white",
                   fontWeight: 800,
                   fontSize: 15,
                   textTransform: "none",
-                  boxShadow: agreedToTerms ? "0 8px 18px rgba(22,101,52,0.25)" : "none",
+                  boxShadow: "0 8px 18px rgba(22,101,52,0.25)",
                   cursor: agreedToTerms ? "pointer" : "not-allowed",
-                  "&:hover": { opacity: agreedToTerms ? 0.92 : 1 },
+                  opacity: agreedToTerms ? 1 : 0.6,
+                  "&:hover": { opacity: agreedToTerms ? 0.92 : 0.6 },
                 }}
               >
                 Continue
