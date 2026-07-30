@@ -78,19 +78,14 @@ export const defaultProfile =
 
 export const frontendUrl = baseFrontendUrl;
 // Use baseApi for images to ensure they load from the correct source (local or live)
-// Special case: if we are on local but want to see images from live server
-export const imagePath = isLocal ? `${LIVE_BASE_API}/uploads/images` : `${baseApi}/uploads/images`;
-export const blogImagePath = isLocal ? `${LIVE_BASE_API}/uploads/images` : `${baseApi}/uploads/images`;
+export const imagePath = `${baseApi}/uploads/images`;
+export const blogImagePath = `${baseApi}/uploads/images`;
 
 export const getFullBlogImagePath = (imageName) => {
   if (!imageName) return null;
   const trimmed = imageName.toString().trim();
   if (trimmed.startsWith('data:') || trimmed.startsWith('http')) return trimmed;
-  
-  // If we are on local, use the live API for images as we likely don't have them locally
-  if (isLocal) {
-    return `${LIVE_BASE_API}/uploads/images/${trimmed}`;
-  }
+
   return `${baseApi}/uploads/images/${trimmed}`;
 };
 
