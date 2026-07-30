@@ -57,7 +57,7 @@ export default function ProbonoTherapist() {
               />
             </Box>
 
-            <Link href={agreedToTerms ? "/probono-therapist/consent" : "#"} passHref legacyBehavior>
+            <Link href={agreedToTerms ? "/probono-therapist/profiles" : "#"} passHref legacyBehavior>
               <Button
                 component="a"
                 disabled={!agreedToTerms}
