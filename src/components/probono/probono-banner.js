@@ -6,10 +6,10 @@ export default function ProbonoBanner() {
     <section className="probono-banner">
       <Container maxWidth="lg">
         <Box sx={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-          <h1 className="probono-title">Meet Our Probono Psychologists</h1>
+          <h1 className="probono-title">Meet Our Probono Mental Health Guides</h1>
 
           <p className="probono-subtitle">
-            Verified psychologists volunteering their time to make free and low-cost therapy accessible to everyone.
+            Verified mental health guides volunteering their time to make free and low-cost support accessible to everyone.
           </p>
         </Box>
       </Container>

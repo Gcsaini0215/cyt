@@ -70,7 +70,7 @@ export default function ProbonoProfiles() {
             <div className="col-lg-12">
               <div className="section-title text-center">
                 <Typography sx={{ fontSize: { xs: 20, md: 24 }, fontWeight: 900, color: "#1e293b", mb: 1 }}>
-                  Meet Our Psychology Interns
+                  Meet Our Mental Health Guides
                 </Typography>
                 <p className="description">Connect with someone who fits your needs.</p>
               </div>
@@ -105,13 +105,13 @@ export default function ProbonoProfiles() {
 
           {loading && (
             <Typography sx={{ textAlign: "center", color: "#94a3b8", fontSize: 14, py: 4 }}>
-              Loading interns…
+              Loading guides…
             </Typography>
           )}
 
           {!loading && filteredList.length === 0 && (
             <Typography sx={{ textAlign: "center", color: "#94a3b8", fontSize: 14, py: 4 }}>
-              No interns match this filter right now. Try another concern area.
+              No guides match this filter right now. Try another concern area.
             </Typography>
           )}
 
