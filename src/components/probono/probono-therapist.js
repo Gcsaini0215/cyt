@@ -22,12 +22,9 @@ export default function ProbonoTherapist() {
               or other personal issues.
             </Typography>
             <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "left" }}>
-              The sessions are conducted by <strong>psychology interns</strong> who are currently completing their
-              professional education and supervised clinical training. These interns have received academic
-              training in psychology but <strong>are not yet licensed psychologists or therapists</strong>. Every
-              session is conducted under the <strong>direct guidance and supervision of a licensed mental health
-              professional</strong>, ensuring that interns receive appropriate support while providing a safe and
-              structured experience for participants.
+              Our <strong>interns are trained psychology professionals</strong> working under the active supervision
+              with <strong>certified mental health experts</strong>. Every session is directly overseen by a qualified
+              therapist to ensure you receive <strong>safe, professional, and high-quality care</strong>.
             </Typography>
             <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 4, textAlign: "left" }}>
               This program aims to make mental health support more accessible while helping psychology interns
