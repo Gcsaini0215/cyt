@@ -12,7 +12,15 @@ import ProbonoBanner from "./probono-banner";
 import ProbonoLeadModal from "./probono-lead-modal";
 import { CONCERN_AREAS, PSYCHOLOGISTS } from "./probono-data";
 import { fetchData } from "../../utils/actions";
-import { getProbonoInternsUrl } from "../../utils/url";
+import { getProbonoInternsUrl, baseApi } from "../../utils/url";
+
+const fixImageUrl = (url) => {
+  if (!url) return url;
+  if (url.includes('api.chooseyourtherapist.in')) {
+    return url.replace('https://api.chooseyourtherapist.in', baseApi);
+  }
+  return url;
+};
 
 export default function ProbonoProfiles() {
   const [interns, setInterns] = useState(PSYCHOLOGISTS);
@@ -25,7 +33,11 @@ export default function ProbonoProfiles() {
     fetchData(getProbonoInternsUrl)
       .then((res) => {
         if (res?.status && res?.data?.length > 0) {
-          setInterns(res.data);
+          const fixedData = res.data.map(item => ({
+            ...item,
+            photo: fixImageUrl(item.photo)
+          }));
+          setInterns(fixedData);
         }
       })
       .catch(() => {
