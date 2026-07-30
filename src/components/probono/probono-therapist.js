@@ -15,18 +15,18 @@ export default function ProbonoTherapist() {
               About Pro Bono Support
             </Typography>
 
-            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "left" }}>
+            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "justify" }}>
               Welcome to our <strong>Pro Bono Support Program</strong>. This service is designed to provide{" "}
               <strong>free, supervised emotional support</strong> to individuals who may be experiencing stress,
               anxiety, emotional challenges, relationship concerns, academic pressure, work-related difficulties,
               or other personal issues.
             </Typography>
-            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "left" }}>
+            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "justify" }}>
               Our <strong>interns are trained psychology professionals</strong> working under the active supervision
               with <strong>certified mental health experts</strong>. Every session is directly overseen by a qualified
               therapist to ensure you receive <strong>safe, professional, and high-quality care</strong>.
             </Typography>
-            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 4, textAlign: "left" }}>
+            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 4, textAlign: "justify" }}>
               This program aims to make mental health support more accessible while helping psychology interns
               develop practical skills under professional supervision.
             </Typography>
