@@ -56,7 +56,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                     .rbt-banner-1 { padding-top: 10px !important; }
                   }
                 `}</style>
-                <h4 className="title" style={{ fontSize: isMobile ? undefined : isTablet ? "clamp(2rem, 4vw, 3rem)" : "clamp(2.8rem, 5vw, 4.8rem)", lineHeight: 1.15, marginBottom: "12px" }}>
+                <h4 className="title" style={{ fontSize: isMobile ? undefined : isTablet ? "clamp(2.6rem, 5.5vw, 3.8rem)" : "clamp(2.8rem, 5vw, 4.8rem)", lineHeight: 1.15, marginBottom: "12px" }}>
                   Find your&nbsp;
                   <span style={{ display: "inline-block", position: "relative", minWidth: isMobile ? "140px" : "220px", verticalAlign: "bottom" }}>
                     <span className="banner-word-1 theme-gradient">Personalized</span>
@@ -83,7 +83,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           </div>
 
           {/* RIGHT — real therapist cards */}
-          <div className="col-lg-5 col-md-12 col-sm-12 col-12" style={{ marginTop: isMobile ? 10 : 0 }}>
+          <div className="col-lg-5 col-md-12 col-sm-12 col-12" style={{ marginTop: isMobile ? 10 : isTablet ? 40 : 0 }}>
             <div className="content">
               <div>
                 <Swiper
