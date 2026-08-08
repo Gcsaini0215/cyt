@@ -30,32 +30,30 @@ import {
   DialogActions,
   TextField
 } from '@mui/material';
-import {
-  School,
-  People,
-  Psychology,
-  Assignment,
-  CheckCircle,
-  Star,
-  Phone,
-  Chat,
-  GroupWork,
-  Lightbulb,
-  TrendingUp,
-  Support,
-  EmojiEvents,
-  Gavel,
-  Handshake,
-  TrendingUpRounded,
-  PersonalVideo,
-  Assessment,
-  Diversity3,
-  Biotech,
-  MenuBook,
-  Groups,
-  TableChart,
-  Done
-} from '@mui/icons-material';
+import School from '@mui/icons-material/School';
+import People from '@mui/icons-material/People';
+import Psychology from '@mui/icons-material/Psychology';
+import Assignment from '@mui/icons-material/Assignment';
+import CheckCircle from '@mui/icons-material/CheckCircle';
+import Star from '@mui/icons-material/Star';
+import Phone from '@mui/icons-material/Phone';
+import Chat from '@mui/icons-material/Chat';
+import GroupWork from '@mui/icons-material/GroupWork';
+import Lightbulb from '@mui/icons-material/Lightbulb';
+import TrendingUp from '@mui/icons-material/TrendingUp';
+import Support from '@mui/icons-material/Support';
+import EmojiEvents from '@mui/icons-material/EmojiEvents';
+import Gavel from '@mui/icons-material/Gavel';
+import Handshake from '@mui/icons-material/Handshake';
+import TrendingUpRounded from '@mui/icons-material/TrendingUpRounded';
+import PersonalVideo from '@mui/icons-material/PersonalVideo';
+import Assessment from '@mui/icons-material/Assessment';
+import Diversity3 from '@mui/icons-material/Diversity3';
+import Biotech from '@mui/icons-material/Biotech';
+import MenuBook from '@mui/icons-material/MenuBook';
+import Groups from '@mui/icons-material/Groups';
+import TableChart from '@mui/icons-material/TableChart';
+import Done from '@mui/icons-material/Done';
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 

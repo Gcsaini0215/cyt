@@ -7,6 +7,7 @@ import {
 } from "../../utils/url";
 import { fetchById, fetchData } from "../../utils/actions";
 import ProfileCardVert from "../home/profile-card-vert.js";
+import ConsultationConsentModal from "../global/consultation-consent-modal";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
 
@@ -23,8 +24,15 @@ export default function ViewAllTherapist() {
   const ITEMS_PER_PAGE = 9;
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [tempFilter, setTempFilter] = React.useState({});
+  const [consultOpen, setConsultOpen] = React.useState(false);
   const resultsRef = React.useRef(null);
   const isFirstRender = React.useRef(true);
+
+  // Auto-open the 15-min consultation modal a few seconds after landing on the page
+  React.useEffect(() => {
+    const t = setTimeout(() => setConsultOpen(true), 4000);
+    return () => clearTimeout(t);
+  }, []);
 
   const [filter, setFilter] = React.useState({
     profile_type: "", services: "", year_of_exp: "",
@@ -386,6 +394,8 @@ export default function ViewAllTherapist() {
           </div>
         </div>
       </div>
+
+      <ConsultationConsentModal open={consultOpen} onClose={() => setConsultOpen(false)} />
 
       {/* ── Sticky filter bar (overlaps banner bottom) ── */}
       <div className="vat-sticky-bar">

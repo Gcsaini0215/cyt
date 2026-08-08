@@ -1,6 +1,9 @@
 import React from 'react';
 import { Box, Container, Typography, Grid, Paper, Button } from '@mui/material';
-import { LocationOn, Phone, Email, Navigation } from '@mui/icons-material';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Phone from '@mui/icons-material/Phone';
+import Email from '@mui/icons-material/Email';
+import Navigation from '@mui/icons-material/Navigation';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const LocalPresence = () => {

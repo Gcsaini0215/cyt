@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Container, Button } from "@mui/material";
-import { Print as PrintIcon } from "@mui/icons-material";
+import PrintIcon from "@mui/icons-material/Print";
 
 export default function LetterOfRecommendation({ guide }) {
   const today = new Date();

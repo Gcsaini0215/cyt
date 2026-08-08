@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Button, Slide, Paper, IconButton } from '@mui/material';
-import { LocationOn, Cookie, Close, CheckCircle } from '@mui/icons-material';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Cookie from '@mui/icons-material/Cookie';
+import Close from '@mui/icons-material/Close';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 
 const LocationConsent = ({ onAccept }) => {
   const [show, setShow] = useState(false);

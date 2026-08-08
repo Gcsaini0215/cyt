@@ -19,6 +19,7 @@ const ProcessSteps = dynamic(() => import("../components/home/process-steps"), {
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
+const ConsultOfferBar = dynamic(() => import("../components/global/consult-offer-bar"), { ssr: false });
 
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
@@ -544,6 +545,7 @@ export default function HomePage() {
         getTopTherapists();
       }} />
       <BookingPopup delay={5000} showHeading={false} showLocation={false} showSource={false} />
+      <ConsultOfferBar delay={3000} />
     </div>
   );
 }

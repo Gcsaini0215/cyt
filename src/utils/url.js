@@ -186,6 +186,7 @@ export const chatTherapistSendUrl   = `${apiUrl}/chat/therapist/send`;
 export const StartSessionUrl = `${apiUrl}/start-session`;
 export const EndSessionUrl = `${apiUrl}/end-session`;
 export const SubmitConsultationUrl = `${apiUrl}/save-lead`;
+export const VerifyConsultPaymentUrl = `${apiUrl}/verify-consult-payment`;
 export const getClinicLogsUrl = `${apiUrl}/clinic-logs`;
 export const createClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const updateClinicLogUrl = `${apiUrl}/clinic-logs`;

@@ -1,12 +1,10 @@
 import React from "react";
-import {
-  Videocam,
-  Schedule,
-  Assessment,
-  Security,
-  Psychology,
-  PhoneAndroid
-} from "@mui/icons-material";
+import Videocam from "@mui/icons-material/Videocam";
+import Schedule from "@mui/icons-material/Schedule";
+import Assessment from "@mui/icons-material/Assessment";
+import Security from "@mui/icons-material/Security";
+import Psychology from "@mui/icons-material/Psychology";
+import PhoneAndroid from "@mui/icons-material/PhoneAndroid";
 
 export default function TechnologyShowcase() {
   const technologies = [

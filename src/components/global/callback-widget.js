@@ -59,29 +59,38 @@ export default function CallbackWidget() {
         @keyframes cbSpin   { to{transform:rotate(360deg)} }
         @keyframes cbCheck  { from{opacity:0;transform:scale(0.5)} to{opacity:1;transform:scale(1)} }
 
-        .cb-widget { position:fixed; bottom:28px; right:28px; z-index:9990; display:flex; flex-direction:column; align-items:flex-end; gap:12px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+        .cb-widget {
+          position:fixed; top:150px; right:0; bottom:auto; z-index:9990;
+          display:flex; flex-direction:row; align-items:flex-start; gap:0;
+          font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+        }
 
-        /* ── Pill button ── */
+        /* ── Vertical side tab ── */
         .cb-pill {
-          display:flex; align-items:center; gap:9px;
+          order:1;
+          display:flex; align-items:center; gap:8px;
           background:linear-gradient(135deg,#1a6b3a,#228756);
-          color:#fff; border:none; border-radius:50px;
-          padding:12px 20px; font-size:13.5px; font-weight:700;
-          cursor:pointer; letter-spacing:0.2px;
-          box-shadow:0 6px 24px rgba(34,135,86,0.45);
+          color:#fff; border:none; border-radius:10px 0 0 10px;
+          padding:18px 11px; font-size:12.5px; font-weight:700;
+          cursor:pointer; letter-spacing:0.4px;
+          writing-mode:vertical-rl;
+          box-shadow:-4px 0 20px rgba(34,135,86,0.4);
           animation:cbPulse 2.8s ease infinite;
           transition:transform .18s,box-shadow .18s;
           will-change:transform; transform:translateZ(0);
+          flex-shrink:0;
         }
-        .cb-pill:hover { transform:translateY(-2px) translateZ(0); box-shadow:0 10px 32px rgba(34,135,86,0.55); }
-        .cb-pill-icon { display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.18); flex-shrink:0; }
+        .cb-pill:hover { transform:translateX(-2px) translateZ(0); box-shadow:-6px 0 24px rgba(34,135,86,0.5); }
+        .cb-pill-icon { display:flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,0.18); flex-shrink:0; }
 
         /* ── Card ── */
         .cb-card {
-          background:#fff; border-radius:20px; width:300px;
+          order:0;
+          background:#fff; border-radius:20px 0 0 20px; width:300px;
           box-shadow:0 12px 50px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06);
           animation:cbSlide .28s cubic-bezier(.34,1.56,.64,1);
           overflow:hidden; border:1px solid rgba(0,0,0,0.06);
+          max-height:82vh; overflow-y:auto;
         }
 
         /* Card header */
@@ -125,11 +134,9 @@ export default function CallbackWidget() {
         .cb-success-sub { font-size:12px; color:#64748b; line-height:1.55; }
 
         @media(max-width:480px){
-          .cb-widget { bottom:auto; right:0; top:44%; transform:translateY(-50%); flex-direction:row; align-items:center; gap:0; }
-          .cb-card { order:0; width:248px; max-height:82vh; overflow-y:auto; border-radius:16px 0 0 16px; }
-          .cb-body { overflow-y:auto; }
-          .cb-pill { order:1; writing-mode:vertical-rl; border-radius:10px 0 0 10px; padding:18px 11px; font-size:12px; gap:8px; animation:none; box-shadow:-4px 0 20px rgba(34,135,86,0.4); flex-shrink:0; letter-spacing:0.4px; }
-          .cb-pill:hover { transform:translateX(-2px) translateZ(0); box-shadow:-6px 0 24px rgba(34,135,86,0.5); }
+          .cb-widget { top:38%; }
+          .cb-card { width:248px; border-radius:16px 0 0 16px; }
+          .cb-pill { padding:16px 9px; font-size:12px; gap:6px; animation:none; }
           .cb-pill-icon { width:22px; height:22px; }
         }
       `}</style>

@@ -2,13 +2,11 @@ import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
-import {
-  Star,
-  ArrowForward,
-  Close,
-  CheckCircle,
-  LocationOn,
-} from "@mui/icons-material";
+import Star from "@mui/icons-material/Star";
+import ArrowForward from "@mui/icons-material/ArrowForward";
+import Close from "@mui/icons-material/Close";
+import CheckCircle from "@mui/icons-material/CheckCircle";
+import LocationOn from "@mui/icons-material/LocationOn";
 import {
   Avatar,
   Box,

@@ -9,7 +9,8 @@ import {
   IconButton,
   Alert
 } from '@mui/material';
-import { LocationOn, MyLocation } from '@mui/icons-material';
+import LocationOn from '@mui/icons-material/LocationOn';
+import MyLocation from '@mui/icons-material/MyLocation';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import { Loader } from '@googlemaps/js-api-loader';
 

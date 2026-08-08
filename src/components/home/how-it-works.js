@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Box, Container, Typography, Grid, Paper, useMediaQuery } from "@mui/material";
-import {
-  Search,
-  CheckCircle,
-  Phone,
-  Favorite
-} from "@mui/icons-material";
+import Search from "@mui/icons-material/Search";
+import CheckCircle from "@mui/icons-material/CheckCircle";
+import Phone from "@mui/icons-material/Phone";
+import Favorite from "@mui/icons-material/Favorite";
 
 export default function HowItWorks() {
   const isMobile = useMediaQuery("(max-width:768px)");

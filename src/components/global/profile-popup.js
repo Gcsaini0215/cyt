@@ -10,15 +10,13 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {
-  Close,
-  CheckCircle,
-  LocationOn,
-  ArrowForward,
-  Star,
-  Language,
-  Work,
-} from "@mui/icons-material";
+import Close from "@mui/icons-material/Close";
+import CheckCircle from "@mui/icons-material/CheckCircle";
+import LocationOn from "@mui/icons-material/LocationOn";
+import ArrowForward from "@mui/icons-material/ArrowForward";
+import Star from "@mui/icons-material/Star";
+import Language from "@mui/icons-material/Language";
+import Work from "@mui/icons-material/Work";
 import Link from "next/link";
 import { imagePath } from "../../utils/url";
 

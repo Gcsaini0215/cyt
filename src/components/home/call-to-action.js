@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Box, Typography, Paper, useMediaQuery, Grid, Chip } from "@mui/material";
-import {
-  Search,
-  SentimentDissatisfied,
-  SentimentSatisfied,
-  Favorite,
-  NightsStay,
-  Work,
-  Psychology,
-  School,
-  Groups,
-  TrendingUp
-} from "@mui/icons-material";
+import Search from "@mui/icons-material/Search";
+import SentimentDissatisfied from "@mui/icons-material/SentimentDissatisfied";
+import SentimentSatisfied from "@mui/icons-material/SentimentSatisfied";
+import Favorite from "@mui/icons-material/Favorite";
+import NightsStay from "@mui/icons-material/NightsStay";
+import Work from "@mui/icons-material/Work";
+import Psychology from "@mui/icons-material/Psychology";
+import School from "@mui/icons-material/School";
+import Groups from "@mui/icons-material/Groups";
+import TrendingUp from "@mui/icons-material/TrendingUp";
 
 export default function CallToAction() {
   const isMobile = useMediaQuery("(max-width:768px)");

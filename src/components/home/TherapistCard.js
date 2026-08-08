@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@mui/material";
 import { Button, Avatar } from "@mui/material";
-import { Star, LocationOn, Verified } from "@mui/icons-material";
+import Star from "@mui/icons-material/Star";
+import LocationOn from "@mui/icons-material/LocationOn";
+import Verified from "@mui/icons-material/Verified";
 import { imagePath } from "../../utils/url";
 import { useRouter } from "next/router";
 
