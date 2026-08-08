@@ -34,6 +34,7 @@ const LocationConsent = ({ onAccept }) => {
   return (
     <Slide direction="up" in={show} mountOnEnter unmountOnExit>
       <Paper
+        id="cyt-location-consent-bar"
         elevation={10}
         sx={{
           position: 'fixed',

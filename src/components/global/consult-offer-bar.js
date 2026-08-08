@@ -10,8 +10,29 @@ export default function ConsultOfferBar({ delay = 3000 }) {
   const [modalOpen, setModalOpen] = React.useState(false);
 
   React.useEffect(() => {
-    const t = setTimeout(() => setVisible(true), delay);
-    return () => clearTimeout(t);
+    let pollTimer;
+    let cancelled = false;
+    const maxWaitAt = Date.now() + delay + 15000; // give up waiting after 15s past the base delay
+
+    const isBlocked = () =>
+      document.getElementById("cyt-cookie-consent-bar") ||
+      document.getElementById("cyt-location-consent-bar");
+
+    const tryShow = () => {
+      if (cancelled) return;
+      if (!isBlocked() || Date.now() > maxWaitAt) {
+        setVisible(true);
+      } else {
+        pollTimer = setTimeout(tryShow, 500);
+      }
+    };
+
+    const t = setTimeout(tryShow, delay);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+      clearTimeout(pollTimer);
+    };
   }, [delay]);
 
   const handleDismiss = () => {
@@ -31,6 +52,7 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           bottom: 0; left: 0; right: 0;
           z-index: 9990;
           animation: cob-slide-up 0.5s cubic-bezier(.16,1,.3,1);
+          padding-bottom: env(safe-area-inset-bottom, 0px);
         }
         .cob-card {
           width: 100%;
@@ -42,13 +64,14 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           max-width: 1200px;
           width: 100%;
           margin: 0 auto;
-          padding: 13px 24px;
+          padding: 14px 24px;
           display: flex;
+          flex-wrap: wrap;
           align-items: center;
-          gap: 15px;
+          gap: 16px;
           box-sizing: border-box;
         }
-        .cob-text { flex: 1; min-width: 0; }
+        .cob-text { flex: 1 1 auto; min-width: 0; order: 1; }
         .cob-title {
           margin: 0; color: #fff; font-weight: 800; font-size: 15px;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -58,21 +81,22 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         .cob-price-old { color: rgba(255,255,255,0.45); text-decoration: line-through; font-weight: 600; font-size: 12.5px; flex-shrink: 0; }
         .cob-price-new { color: #6ee7b7; font-weight: 900; font-size: 16px; flex-shrink: 0; }
         .cob-sub { margin: 3px 0 0; color: rgba(255,255,255,0.6); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cob-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .cob-cta {
+          order: 2;
           background: #ffffff;
           color: #0d3a5c; border: none;
           padding: 11px 22px; border-radius: 12px;
           font-size: 13.5px; font-weight: 700; cursor: pointer;
-          white-space: nowrap;
+          white-space: nowrap; flex-shrink: 0;
           box-shadow: 0 8px 20px rgba(0,0,0,0.22);
           transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
         }
         .cob-cta:hover { transform: translateY(-1px); background: #f0f9ff; box-shadow: 0 10px 26px rgba(0,0,0,0.28); }
         .cob-close {
+          order: 3;
           background: rgba(255,255,255,0.08); border: none; cursor: pointer;
-          color: rgba(255,255,255,0.55); padding: 7px; border-radius: 9px;
-          display: flex; align-items: center; line-height: 1;
+          color: rgba(255,255,255,0.55); padding: 8px; border-radius: 9px;
+          display: flex; align-items: center; line-height: 1; flex-shrink: 0;
         }
         .cob-close:hover { color: #fff; background: rgba(255,255,255,0.16); }
 
@@ -81,18 +105,26 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           .cob-sub { display: none; }
         }
 
-        /* Mobile — keep it one compact row */
+        /* Mobile — text+close on row 1, full-width CTA on row 2 */
         @media (max-width: 600px) {
-          .cob-inner { padding: 9px 12px; gap: 10px; }
+          .cob-inner { padding: 12px 16px 14px; gap: 10px 12px; }
           .cob-title-full { display: none; }
           .cob-title-short { display: inline; }
-          .cob-title { font-size: 12.5px; gap: 6px; }
-          .cob-price-old { font-size: 10.5px; }
-          .cob-price-new { font-size: 13.5px; }
-          .cob-cta { padding: 9px 14px; font-size: 12px; border-radius: 10px; }
-          .cob-close { padding: 6px; }
+          .cob-title { font-size: 13.5px; gap: 6px; }
+          .cob-price-old { font-size: 11.5px; }
+          .cob-price-new { font-size: 15px; }
+          .cob-close { order: 2; }
+          .cob-cta {
+            order: 3;
+            flex: 1 1 100%;
+            width: 100%;
+            padding: 13px 16px;
+            font-size: 14px;
+            border-radius: 11px;
+            text-align: center;
+          }
         }
-        @media (max-width: 360px) {
+        @media (max-width: 340px) {
           .cob-price-old { display: none; }
         }
       `}</style>
@@ -109,12 +141,10 @@ export default function ConsultOfferBar({ delay = 3000 }) {
               </p>
               <p className="cob-sub">Talk to our team today &amp; get matched with the right therapist.</p>
             </div>
-            <div className="cob-actions">
-              <button className="cob-cta" onClick={() => setModalOpen(true)}>Book Now</button>
-              <button className="cob-close" onClick={handleDismiss} aria-label="Dismiss">
-                <Close sx={{ fontSize: 17 }} />
-              </button>
-            </div>
+            <button className="cob-close" onClick={handleDismiss} aria-label="Dismiss">
+              <Close sx={{ fontSize: 17 }} />
+            </button>
+            <button className="cob-cta" onClick={() => setModalOpen(true)}>Book Now</button>
           </div>
         </div>
       </div>

@@ -47,6 +47,8 @@ export default function ConsultationConsentModal({ open, onClose }) {
       TransitionComponent={Zoom}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
+      sx={{ zIndex: 100001 }}
       slotProps={{
         backdrop: {
           sx: {
@@ -57,14 +59,16 @@ export default function ConsultationConsentModal({ open, onClose }) {
       }}
       PaperProps={{
         sx: {
-          borderRadius: "28px",
+          borderRadius: isMobile ? 0 : "28px",
           p: 0,
           overflow: "hidden",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >
-      <Box sx={{ position: "relative", px: isMobile ? 2 : 4, pt: isMobile ? 5 : 4, pb: 1 }}>
+      <Box sx={{ position: "relative", px: isMobile ? 2 : 4, pt: isMobile ? 5 : 4, pb: 1, flexShrink: 0 }}>
         {step === "form" && (
           <IconButton
             onClick={() => setStep("info")}
@@ -98,7 +102,7 @@ export default function ConsultationConsentModal({ open, onClose }) {
       </Box>
 
       {step === "info" ? (
-        <DialogContent sx={{ px: isMobile ? 2 : 4, pb: isMobile ? 3 : 4, pt: 0 }}>
+        <DialogContent sx={{ px: isMobile ? 2 : 4, pb: isMobile ? 3 : 4, pt: 0, flex: 1, overflowY: "auto", minHeight: 0 }}>
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <Box
               sx={{
@@ -194,7 +198,7 @@ export default function ConsultationConsentModal({ open, onClose }) {
           </Button>
         </DialogContent>
       ) : (
-        <DialogContent sx={{ px: isMobile ? 2 : 4, pb: isMobile ? 3 : 4, pt: 0 }}>
+        <DialogContent sx={{ px: isMobile ? 2 : 4, pb: isMobile ? 3 : 4, pt: 0, flex: 1, overflowY: "auto", minHeight: 0 }}>
           <Box sx={{ textAlign: "center", mb: 2.5 }}>
             <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: 900, color: "#1e293b", mb: 0.5 }}>
               Book Your Consultation
