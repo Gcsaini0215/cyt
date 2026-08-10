@@ -192,7 +192,7 @@ export default function ProbonoProfiles() {
                       >
                         <SupervisorAccountIcon sx={{ fontSize: 13, color: "#228756" }} />
                         <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#228756" }}>
-                          Working under supervision
+                          Trainee Psychologist
                         </Typography>
                       </Stack>
 

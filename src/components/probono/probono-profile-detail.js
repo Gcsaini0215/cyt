@@ -1,37 +1,63 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { Box, Typography, Avatar, Button, Stack } from "@mui/material";
+import { Box, Typography, Avatar, Button, Stack, Tooltip } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StarIcon from "@mui/icons-material/Star";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import SendIcon from "@mui/icons-material/Send";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { Share2 } from "lucide-react";
 import ImageTag from "../../utils/image-tag";
 import ProbonoLeadModal from "./probono-lead-modal";
+import ShareModal from "../global/share-modal";
 
-export default function ProbonoProfileDetail({ psychologist }) {
+export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
   const [showLeadPopup, setShowLeadPopup] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   return (
     <>
       <div className="rbt-section-gap" style={{ paddingTop: 40, background: "#f8faf9", minHeight: "60vh" }}>
         <div className="container">
-          <Link href="/probono-therapist/profiles" passHref legacyBehavior>
-            <Button
-              component="a"
-              startIcon={<ArrowBackIcon />}
-              sx={{
-                mb: 3,
-                color: "#228756",
-                fontWeight: 700,
-                textTransform: "none",
-                "&:hover": { background: "#f0fdf4" },
-              }}
-            >
-              Back
-            </Button>
-          </Link>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
+            <Link href="/probono-therapist/profiles" passHref legacyBehavior>
+              <Button
+                component="a"
+                startIcon={<ArrowBackIcon />}
+                sx={{
+                  color: "#228756",
+                  fontWeight: 700,
+                  textTransform: "none",
+                  "&:hover": { background: "#f0fdf4" },
+                }}
+              >
+                Back
+              </Button>
+            </Link>
+
+            <Tooltip title="Share this profile" arrow>
+              <Box
+                onClick={() => setShowShareModal(true)}
+                sx={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: "11px",
+                  background: "#228756",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  boxShadow: "0 4px 12px rgba(34,135,86,0.25)",
+                  "&:hover": { background: "#1a6b3a" },
+                }}
+              >
+                <Share2 size={17} />
+              </Box>
+            </Tooltip>
+          </Stack>
 
           <Box
             sx={{
@@ -83,7 +109,7 @@ export default function ProbonoProfileDetail({ psychologist }) {
             >
               <SupervisorAccountIcon sx={{ fontSize: 15, color: "#228756" }} />
               <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#228756" }}>
-                Working under supervision
+                Trainee Psychologist
               </Typography>
             </Stack>
 
@@ -153,6 +179,14 @@ export default function ProbonoProfileDetail({ psychologist }) {
       </div>
 
       <ProbonoLeadModal open={showLeadPopup} onClose={() => setShowLeadPopup(false)} selected={psychologist} />
+
+      <ShareModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        url={pageUrl}
+        title={`${psychologist.name} - Trainee Psychologist`}
+        description={psychologist.intro}
+      />
     </>
   );
 }

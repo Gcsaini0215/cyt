@@ -156,16 +156,41 @@ export default function ProbonoProfileDetailPage() {
     );
   }
 
+  const pageUrl = `${PAGE_BASE_URL}/${psychologist.slug}`;
+  const seoTitle = `${psychologist.name} | Probono Psychologist | Choose Your Therapist`;
+  const seoDescription = psychologist.intro;
+
   return (
     <div id="__next">
       <Head>
-        <title>{psychologist.name} | Probono Psychologist | Choose Your Therapist</title>
-        <meta name="description" content={psychologist.intro} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={`${PAGE_BASE_URL}/${psychologist.slug}`} />
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="profile" />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:image" content={psychologist.photo} />
+        <meta property="og:image:secure_url" content={psychologist.photo} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={psychologist.name} />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={pageUrl} />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:image" content={psychologist.photo} />
+        <meta name="twitter:site" content="@chooseyourtherapist" />
       </Head>
       <MyNavbar />
-      <ProbonoProfileDetail psychologist={psychologist} />
+      <ProbonoProfileDetail psychologist={psychologist} pageUrl={pageUrl} />
       <NewsLetter />
       <Footer />
     </div>
