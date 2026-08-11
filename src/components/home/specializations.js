@@ -64,15 +64,8 @@ const specs = [
 
 export default function Specializations() {
   const [activeCat, setActiveCat] = useState("All");
-  const [search, setSearch] = useState("");
 
-  const filtered = specs.filter(s => {
-    const matchCat = activeCat === "All" || s.cat === activeCat;
-    const matchSearch =
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.short.toLowerCase().includes(search.toLowerCase());
-    return matchCat && matchSearch;
-  });
+  const filtered = specs.filter(s => activeCat === "All" || s.cat === activeCat);
 
   return (
     <section style={{ background: "#fff", padding: "64px 0 68px" }}>
@@ -86,25 +79,6 @@ export default function Specializations() {
           justify-content:space-between; gap:16px;
           margin-bottom:24px; flex-wrap:wrap;
         }
-        .sp-search-wrap { display:flex; align-items:center; }
-        .sp-search-box {
-          display:flex; align-items:center; gap:8px;
-          border:1.5px solid #e2e8f0; border-radius:12px;
-          background:#fff; padding:0 14px;
-          width:240px; transition:border-color .2s, box-shadow .2s;
-        }
-        .sp-search-box:focus-within {
-          border-color:#228756;
-          box-shadow:0 0 0 3px rgba(34,135,86,.08);
-        }
-        .sp-search-ic { color:#94a3b8; font-size:15px; flex-shrink:0; line-height:1; }
-        .sp-search {
-          border:none; background:transparent; outline:none;
-          padding:11px 0; font-size:14px; color:#1e293b;
-          width:100%; line-height:1.4;
-        }
-        .sp-search::placeholder { color:#b0bec5; }
-
         .sp-pills {
           display:flex; gap:8px; overflow-x:auto;
           padding-bottom:4px; scrollbar-width:none;
@@ -185,7 +159,6 @@ export default function Specializations() {
 
         @media(max-width:767px){
           .sp-header { flex-direction:column; gap:14px; }
-          .sp-search-wrap { display:none; }
           .sp-card-top { height:120px; }
           .sp-card-body { padding:10px 12px 12px; gap:5px; }
           .sp-card-title { font-size:13.5px; }
@@ -200,18 +173,6 @@ export default function Specializations() {
             <div className="sp-accent-bar"></div>
             <h2 className="sp-title">Explore Specializations</h2>
             <p className="sp-sub">Find the right expert for your specific concern</p>
-          </div>
-          <div className="sp-search-wrap">
-            <div className="sp-search-box">
-              <i className="feather-search sp-search-ic"></i>
-              <input
-                type="text"
-                className="sp-search"
-                placeholder="Search concerns..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
           </div>
         </div>
 

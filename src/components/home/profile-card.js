@@ -111,24 +111,29 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
         borderRadius: '50%', pointerEvents: 'none'
       }}></div>
 
+      <style>{`
+        .pc-hero-title {
+          font-size: clamp(2rem, 5.2vw, 4.5rem);
+          font-weight: 900;
+          color: #f1f5f9;
+          line-height: 1.15;
+          text-align: left;
+          margin: 0 0 15px;
+          padding: 0;
+          flex: 1 1 320px;
+          min-width: 0;
+        }
+        @media (max-width: 600px) {
+          .pc-hero-title { line-height: 1.25; }
+        }
+      `}</style>
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
           <div className="col-lg-12">
             <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'nowrap', gap: '10px' }}>
-                <h3 className="title" style={{
-                  fontSize: isMobile ? "2.8rem" : "4.5rem",
-                  fontWeight: "900",
-                  color: "#f1f5f9",
-                  marginTop: '0px',
-                  lineHeight: isMobile ? '3.2rem' : '1.1',
-                  whiteSpace: isMobile ? "normal" : "nowrap",
-                  textAlign: 'left',
-                  marginBottom: '15px',
-                  padding: 0,
-                  flex: '1'
-                }}>
-                  Best Online Psychologists {isMobile && <br />} From <span style={{
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
+                <h3 className="title pc-hero-title">
+                  Best Online Psychologists From <span style={{
                     backgroundImage: "linear-gradient(135deg, #4ade80 0%, #34d399 50%, #22d3ee 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",

@@ -98,9 +98,10 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                   className="mySwiper"
                 >
                   {displayList.length > 0 ? displayList.map((t, i) => {
-                    const avgRating = t.reviews?.length > 0
+                    const hasReviews = t.reviews?.length > 0;
+                    const avgRating = hasReviews
                       ? (t.reviews.reduce((a, r) => a + (r.rating || 5), 0) / t.reviews.length).toFixed(1)
-                      : null;
+                      : "5.0";
                     return (
                       <SwiperSlide key={i}>
                         <div style={{ borderRadius: "18px", overflow: "hidden", border: "1px solid #e8f5e9", boxShadow: "0 2px 10px rgba(0,0,0,0.06)", background: "#fff", display: "flex", flexDirection: "column" }}>
@@ -120,14 +121,14 @@ export default function Banner({ topTherapists = [], userCity = null }) {
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)", zIndex: 1 }} />
                             {/* Name + rating overlay */}
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 12px", zIndex: 2 }}>
-                              {avgRating && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "6px" }}>
-                                  {[1,2,3,4,5].map(s => (
-                                    <Star key={s} sx={{ fontSize: 13, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
-                                  ))}
+                              <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "6px" }}>
+                                {[1,2,3,4,5].map(s => (
+                                  <Star key={s} sx={{ fontSize: 13, color: s <= Math.round(avgRating) ? "#fbc02d" : "rgba(255,255,255,0.3)" }} />
+                                ))}
+                                {hasReviews && (
                                   <span style={{ fontSize: "12px", color: "#fff", fontWeight: 700, marginLeft: "4px" }}>{avgRating}</span>
-                                </div>
-                              )}
+                                )}
+                              </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                 <span style={{ color: "#fff", fontSize: "21px", fontWeight: 800, lineHeight: 1.2, textShadow: "0 2px 8px rgba(0,0,0,0.7)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                   {t.user?.name || "Therapist"}

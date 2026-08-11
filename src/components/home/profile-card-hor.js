@@ -231,17 +231,17 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                   const hasReviews = pageData.reviews && pageData.reviews.length > 0;
                   const avgRating = hasReviews
                     ? pageData.reviews.reduce((acc, rev) => acc + (rev.rating || 5), 0) / pageData.reviews.length
-                    : 0;
-                  const filledStars = hasReviews ? Math.round(avgRating) : 0;
+                    : 5;
+                  const filledStars = Math.round(avgRating);
                   return (
                     <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "5px" }}>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <StarIcon
                           key={star}
-                          className={hasReviews && star <= filledStars ? "star-filled" : "star-empty"}
+                          className={star <= filledStars ? "star-filled" : "star-empty"}
                           sx={{
                             fontSize: 18,
-                            animationDelay: hasReviews ? `${(star - 1) * 0.1}s` : "0s",
+                            animationDelay: `${(star - 1) * 0.1}s`,
                           }}
                         />
                       ))}
