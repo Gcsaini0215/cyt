@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { Box, Typography, Grid, Avatar, Button, Stack, Chip } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -7,44 +7,16 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import SendIcon from "@mui/icons-material/Send";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import TuneRoundedIcon from "@mui/icons-material/TuneRounded";
 import ImageTag from "../../utils/image-tag";
 import ProbonoBanner from "./probono-banner";
 import ProbonoLeadModal from "./probono-lead-modal";
 import { CONCERN_AREAS, PSYCHOLOGISTS } from "./probono-data";
-import { fetchData } from "../../utils/actions";
-import { getProbonoInternsUrl, baseApi } from "../../utils/url";
 
-const fixImageUrl = (url) => {
-  if (!url) return url;
-  if (url.includes('api.chooseyourtherapist.in')) {
-    return url.replace('https://api.chooseyourtherapist.in', baseApi);
-  }
-  return url;
-};
-
-export default function ProbonoProfiles() {
-  const [interns, setInterns] = useState(PSYCHOLOGISTS);
-  const [loading, setLoading] = useState(true);
+export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
   const [selected, setSelected] = useState(null);
   const [showLeadPopup, setShowLeadPopup] = useState(false);
   const [activeFilter, setActiveFilter] = useState("All");
-
-  useEffect(() => {
-    fetchData(getProbonoInternsUrl)
-      .then((res) => {
-        if (res?.status && res?.data?.length > 0) {
-          const fixedData = res.data.map(item => ({
-            ...item,
-            photo: fixImageUrl(item.photo)
-          }));
-          setInterns(fixedData);
-        }
-      })
-      .catch(() => {
-        // Silently fail - mock data is already showing
-      })
-      .finally(() => setLoading(false));
-  }, []);
 
   const handleConnectNow = (psychologist) => {
     setSelected(psychologist);
@@ -60,68 +32,64 @@ export default function ProbonoProfiles() {
     <>
       <ProbonoBanner />
 
-      <div className="rbt-section-gap" style={{ paddingTop: 40, background: "#f8faf9" }}>
+      <div className="rbt-section-gap" style={{ paddingTop: 28, background: "#f8faf9" }}>
         <div className="container">
-          <Link href="/probono-therapist" passHref legacyBehavior>
-            <Button
-              component="a"
-              startIcon={<ArrowBackIcon />}
-              sx={{
-                mb: 3,
-                color: "#228756",
-                fontWeight: 700,
-                textTransform: "none",
-                "&:hover": { background: "#f0fdf4" },
-              }}
-            >
-              Back
-            </Button>
-          </Link>
-
-          <div className="row mb--30">
-            <div className="col-lg-12">
-              <div className="section-title text-center">
-                <Typography sx={{ fontSize: { xs: 20, md: 24 }, fontWeight: 900, color: "#1e293b", mb: 1 }}>
-                  Meet Our Mental Health Guides
-                </Typography>
-                <p className="description">Connect with someone who fits your needs.</p>
-              </div>
-            </div>
-          </div>
-
           <Stack
-            direction="row"
-            flexWrap="wrap"
-            justifyContent="center"
-            gap={1}
-            sx={{ mb: 5 }}
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "flex-start", sm: "center" }}
+            justifyContent="space-between"
+            spacing={1.5}
+            sx={{ mb: 3 }}
           >
-            {["All", ...CONCERN_AREAS].map((label) => (
-              <Chip
-                key={label}
-                label={label}
-                onClick={() => setActiveFilter(label)}
+            <Link href="/probono-therapist" passHref legacyBehavior>
+              <Button
+                component="a"
+                startIcon={<ArrowBackIcon />}
                 sx={{
+                  color: "#228756",
                   fontWeight: 700,
-                  fontSize: 13,
-                  px: 0.5,
-                  color: activeFilter === label ? "#fff" : "#228756",
-                  background: activeFilter === label ? "linear-gradient(135deg,#166534,#16a34a)" : "#e8f5ee",
-                  "&:hover": {
-                    background: activeFilter === label ? "linear-gradient(135deg,#166534,#16a34a)" : "#d3ecdf",
-                  },
+                  textTransform: "none",
+                  "&:hover": { background: "#f0fdf4" },
                 }}
-              />
-            ))}
+              >
+                Back
+              </Button>
+            </Link>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: "#64748b" }}>
+              {filteredList.length} guide{filteredList.length === 1 ? "" : "s"} available
+            </Typography>
           </Stack>
 
-          {loading && (
-            <Typography sx={{ textAlign: "center", color: "#94a3b8", fontSize: 14, py: 4 }}>
-              Loading guides…
-            </Typography>
-          )}
+          <Box sx={{ mb: 5, pb: 2.5, borderBottom: "1px solid #e5eee9" }}>
+            <Stack direction="row" alignItems="center" spacing={0.75} sx={{ mb: 1.5 }}>
+              <TuneRoundedIcon sx={{ fontSize: 16, color: "#228756" }} />
+              <Typography sx={{ fontSize: 12, fontWeight: 800, color: "#228756", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                Filter by concern
+              </Typography>
+            </Stack>
+            <Stack direction="row" flexWrap="wrap" gap={1}>
+              {["All", ...CONCERN_AREAS].map((label) => (
+                <Chip
+                  key={label}
+                  label={label}
+                  onClick={() => setActiveFilter(label)}
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: 13,
+                    px: 0.5,
+                    color: activeFilter === label ? "#fff" : "#228756",
+                    background: activeFilter === label ? "linear-gradient(135deg,#166534,#16a34a)" : "#e8f5ee",
+                    boxShadow: activeFilter === label ? "0 6px 14px rgba(22,101,52,0.25)" : "none",
+                    "&:hover": {
+                      background: activeFilter === label ? "linear-gradient(135deg,#166534,#16a34a)" : "#d3ecdf",
+                    },
+                  }}
+                />
+              ))}
+            </Stack>
+          </Box>
 
-          {!loading && filteredList.length === 0 && (
+          {filteredList.length === 0 && (
             <Typography sx={{ textAlign: "center", color: "#94a3b8", fontSize: 14, py: 4 }}>
               No guides match this filter right now. Try another concern area.
             </Typography>

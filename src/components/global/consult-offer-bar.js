@@ -53,12 +53,26 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           z-index: 9990;
           animation: cob-slide-up 0.5s cubic-bezier(.16,1,.3,1);
           padding-bottom: env(safe-area-inset-bottom, 0px);
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+          will-change: transform;
         }
         .cob-card {
+          position: relative;
           width: 100%;
           background: linear-gradient(90deg, #071e33 0%, #0d3a5c 55%, #0f4c74 100%);
           border-top: 1px solid rgba(255,255,255,0.08);
           box-shadow: 0 -10px 30px rgba(3,20,36,0.35);
+        }
+        /* Bleeds solid colour below the visible edge so iOS/Android elastic
+           overscroll at the bottom of the page never reveals a gap under the bar. */
+        .cob-card::after {
+          content: "";
+          position: absolute;
+          left: 0; right: 0; top: 100%;
+          height: 100px;
+          background: #0f4c74;
+          pointer-events: none;
         }
         .cob-inner {
           max-width: 1200px;
@@ -100,27 +114,35 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         }
         .cob-close:hover { color: #fff; background: rgba(255,255,255,0.16); }
 
-        /* Tablet */
-        @media (max-width: 900px) {
-          .cob-sub { display: none; }
+        /* iPad / tablet — single row still fits, but give it real height & presence
+           instead of the cramped compact bar it was collapsing to. */
+        @media (max-width: 1024px) and (min-width: 601px) {
+          .cob-inner { padding: 18px 28px; gap: 14px 18px; }
+          .cob-title { font-size: 16px; }
+          .cob-price-old { font-size: 13px; }
+          .cob-price-new { font-size: 18px; }
+          .cob-sub { font-size: 12.5px; }
+          .cob-cta { padding: 14px 28px; font-size: 14.5px; border-radius: 13px; }
+          .cob-close { padding: 10px; }
         }
 
         /* Mobile — text+close on row 1, full-width CTA on row 2 */
         @media (max-width: 600px) {
-          .cob-inner { padding: 12px 16px 14px; gap: 10px 12px; }
+          .cob-inner { padding: 14px 16px 16px; gap: 10px 12px; }
           .cob-title-full { display: none; }
           .cob-title-short { display: inline; }
           .cob-title { font-size: 13.5px; gap: 6px; }
           .cob-price-old { font-size: 11.5px; }
           .cob-price-new { font-size: 15px; }
+          .cob-sub { display: none; }
           .cob-close { order: 2; }
           .cob-cta {
             order: 3;
             flex: 1 1 100%;
             width: 100%;
-            padding: 13px 16px;
-            font-size: 14px;
-            border-radius: 11px;
+            padding: 15px 16px;
+            font-size: 14.5px;
+            border-radius: 12px;
             text-align: center;
           }
         }
