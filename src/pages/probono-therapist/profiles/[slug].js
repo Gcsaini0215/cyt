@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import SearchOffRoundedIcon from "@mui/icons-material/SearchOffRounded";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -23,6 +22,27 @@ const fixImageUrl = (url) => {
   }
   return url;
 };
+
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+
+  const staticMatch = PSYCHOLOGISTS.find((p) => p.slug === slug);
+  if (staticMatch) {
+    return { props: { psychologist: staticMatch } };
+  }
+
+  try {
+    const res = await fetchData(getProbonoInternsUrl);
+    const match = res?.data?.find((p) => p.slug === slug);
+    if (match) {
+      return { props: { psychologist: { ...match, photo: fixImageUrl(match.photo) } } };
+    }
+  } catch (err) {
+    console.error("Error fetching probono intern for SSR:", err);
+  }
+
+  return { props: { psychologist: null } };
+}
 
 function ProfileNotFound() {
   return (
@@ -112,40 +132,7 @@ function ProfileNotFound() {
   );
 }
 
-export default function ProbonoProfileDetailPage() {
-  const router = useRouter();
-  const { slug } = router.query;
-
-  const [psychologist, setPsychologist] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!router.isReady || !slug) return;
-
-    const staticMatch = PSYCHOLOGISTS.find((p) => p.slug === slug);
-    if (staticMatch) {
-      setPsychologist(staticMatch);
-      setLoading(false);
-      return;
-    }
-
-    fetchData(getProbonoInternsUrl)
-      .then((res) => {
-        const match = res?.data?.find((p) => p.slug === slug);
-        if (match) {
-          setPsychologist({ ...match, photo: fixImageUrl(match.photo) });
-        }
-      })
-      .catch(() => {
-        // stay null -> not found state below
-      })
-      .finally(() => setLoading(false));
-  }, [router.isReady, slug]);
-
-  if (!router.isReady || loading) {
-    return null;
-  }
-
+export default function ProbonoProfileDetailPage({ psychologist }) {
   if (!psychologist) {
     return (
       <div id="__next">
