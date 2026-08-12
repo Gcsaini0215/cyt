@@ -67,7 +67,7 @@ const HOUR_PRICES = {
   "240 hrs": 8499,
 };
 function fmtINR(n) { return `₹${n.toLocaleString("en-IN")}`; }
-const MODES   = ["Online", "Offline", "Hybrid"];
+const MODES   = ["Online", "Offline"];
 
 const PROGRAM_DATA = {
   "Clinical Psychology": {
@@ -376,6 +376,66 @@ function ProgramModal({ domain, onClose }) {
   );
 }
 
+function AboutOrgModal({ onClose }) {
+  React.useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(15,23,42,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", backdropFilter: "blur(3px)" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 560, maxHeight: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }}>
+
+        {/* Header */}
+        <div style={{ background: "linear-gradient(135deg, #071a0e 0%, #1b5e20 100%)", padding: "22px 26px", flexShrink: 0, position: "relative" }}>
+          <button onClick={onClose} style={{ position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.12)", border: "none", width: 30, height: 30, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <i className="feather-x" style={{ fontSize: 15, color: "#fff" }}></i>
+          </button>
+          <p style={{ margin: "0 0 4px", fontSize: 10, fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>About the Organization</p>
+          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: "#fff" }}>Choose Your Therapist</h2>
+        </div>
+
+        {/* Body */}
+        <div style={{ overflowY: "auto", padding: "22px 26px 26px", flex: 1, WebkitOverflowScrolling: "touch" }}>
+          <p style={{ fontSize: 13.5, color: "#374151", lineHeight: 1.8, margin: "0 0 22px" }}>
+            Choose Your Therapist (CYT) is India's trusted mental health platform, connecting individuals
+            with verified counselling psychologists, clinical psychologists, and special educators for
+            online and in-person therapy. The Supervision cum Internship Program gives students hands-on,
+            mentor-led exposure to how a real mental health practice operates.
+          </p>
+
+          <h3 style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 14, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
+            Meet the Founder
+          </h3>
+
+          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+            <img src="/assets/img/deepdirec.png" alt="Deepak Kumar"
+              style={{ width: 68, height: 68, borderRadius: 14, objectFit: "cover", border: "3px solid #f0fdf4", flexShrink: 0 }} />
+            <div>
+              <p style={{ margin: "0 0 2px", fontSize: 15, fontWeight: 800, color: "#1e293b" }}>Mr. Deepak Kumar</p>
+              <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 700, color: "#228756" }}>
+                Founder &amp; Director | Psychologist (B.A, M.A, Ph.D Psychology&nbsp;-&nbsp;NET)
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: "#475569", lineHeight: 1.7, fontStyle: "italic" }}>
+                "As a practicing psychologist, my vision is to create a world where mental wellness is
+                valued equally to physical health, and seeking help is seen as a sign of strength."
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: "14px 26px", borderTop: "1px solid #f1f5f9", flexShrink: 0 }}>
+          <button onClick={onClose} style={{ width: "100%", padding: "11px", borderRadius: 10, background: "#f0fdf4", color: "#166534", border: "1.5px solid #bbf7d0", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Got it
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CustomSelect({ value, onChange, options, placeholder }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
@@ -506,6 +566,7 @@ export default function InternshipRegistration() {
   const [isMobile, setIsMobile] = useState(false);
   const [modalDomain, setModalDomain] = useState(null);
   const [welcomeModal, setWelcomeModal] = useState(false);
+  const [aboutModal, setAboutModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
   useEffect(() => {
@@ -590,10 +651,24 @@ export default function InternshipRegistration() {
   return (
     <>
       <Head>
-        <title>Internship Registration | Choose Your Therapist</title>
+        <title>Supervision cum Internship Program | Choose Your Therapist</title>
         <meta name="robots" content="index, follow" />
-        <meta name="description" content="Apply for internship at Choose Your Therapist. Gain hands-on experience in clinical psychology, counselling, research, content, and more." />
+        <meta name="description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
         <link rel="canonical" href="https://chooseyourtherapist.in/internship-registration" />
+
+        {/* Open Graph / share preview */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://chooseyourtherapist.in/internship-registration" />
+        <meta property="og:title" content="Supervision cum Internship Program | Choose Your Therapist" />
+        <meta property="og:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
+        <meta property="og:image" content="https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg" />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Supervision cum Internship Program | Choose Your Therapist" />
+        <meta name="twitter:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
+        <meta name="twitter:image" content="https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg" />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `
@@ -660,13 +735,13 @@ export default function InternshipRegistration() {
           <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
             <div className="intern-badge">
               <span className="intern-badge-dot"></span>
-              Applications Open — 2025
+              Applications Open
             </div>
             <h1 className="intern-title">
-              Launch Your Career in <span style={{ color: "#4ade80" }}>Mental Health</span>
+              Supervision <span style={{ color: "#4ade80" }}>cum Internship</span> Program
             </h1>
             <p className="intern-subtitle">
-              Join the Choose Your Therapist Internship Program. Work with licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
+              A mentor-led, supervised internship at Choose Your Therapist — work alongside licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
             </p>
           </div>
         </div>
@@ -796,7 +871,13 @@ export default function InternshipRegistration() {
               </div>
             ) : (
               <form onSubmit={handleReview} noValidate>
-                <h2 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 900, color: "#1e293b", marginBottom: 6 }}>Apply for Internship</h2>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+                  <h2 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 900, color: "#1e293b", margin: 0 }}>Application Form</h2>
+                  <button type="button" onClick={() => setAboutModal(true)}
+                    style={{ background: "none", border: "none", padding: 0, color: "#228756", fontSize: 12.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+                    Read more information
+                  </button>
+                </div>
                 <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>
                   Fill in the details below. Fields marked <span className="req">*</span> are required.
                 </p>
@@ -1165,6 +1246,7 @@ export default function InternshipRegistration() {
 
       {modalDomain && <ProgramModal domain={modalDomain} onClose={() => setModalDomain(null)} />}
       {welcomeModal && <WelcomeModal onClose={() => setWelcomeModal(false)} />}
+      {aboutModal && <AboutOrgModal onClose={() => setAboutModal(false)} />}
     </>
   );
 }
