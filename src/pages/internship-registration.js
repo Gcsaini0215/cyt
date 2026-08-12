@@ -436,6 +436,78 @@ function AboutOrgModal({ onClose }) {
   );
 }
 
+function QrPaymentModal({ amount, onClose, onSubmit, submitting }) {
+  const [txnId, setTxnId] = React.useState("");
+  const [txnErr, setTxnErr] = React.useState("");
+
+  React.useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape" && !submitting) onClose(); };
+    document.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose, submitting]);
+
+  const upiId = "chooseyourtherapist@okhdfcbank";
+  const payeeName = encodeURIComponent("Choose Your Therapist");
+  const upiLink = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${encodeURIComponent("Internship Program Fee")}`;
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+
+  const handleSubmitClick = () => {
+    if (!txnId.trim() || txnId.trim().length < 4) {
+      setTxnErr("Enter a valid transaction / UTR ID");
+      return;
+    }
+    setTxnErr("");
+    onSubmit(txnId.trim());
+  };
+
+  return (
+    <div onClick={() => !submitting && onClose()} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(15,23,42,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", backdropFilter: "blur(3px)" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 400, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)", position: "relative" }}>
+        <button onClick={onClose} disabled={submitting} style={{ position: "absolute", top: 14, right: 14, background: "#f1f5f9", border: "none", width: 30, height: 30, borderRadius: 8, cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
+          <i className="feather-x" style={{ fontSize: 15, color: "#64748b" }}></i>
+        </button>
+
+        <div style={{ padding: "28px 26px 26px", textAlign: "center" }}>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Scan to Pay</h2>
+          <p style={{ color: "#64748b", fontSize: 13, marginBottom: 20 }}>Use any UPI app to pay your program fee</p>
+
+          <div style={{ background: "#f8fafc", padding: 16, borderRadius: 18, display: "inline-flex", border: "2px dashed #e2e8f0", marginBottom: 16 }}>
+            <img src={qrSrc} alt="UPI QR Code" style={{ width: 190, height: 190, display: "block" }} />
+          </div>
+
+          <div style={{ padding: "12px 16px", background: "#f0fdf4", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 22 }}>
+            <i className="feather-tag" style={{ fontSize: 14, color: "#166534" }}></i>
+            <span style={{ fontSize: 14, fontWeight: 900, color: "#166534" }}>Amount: {fmtINR(amount)}</span>
+          </div>
+
+          <div style={{ textAlign: "left" }}>
+            <label style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 6, display: "block" }}>
+              Transaction / UTR ID <span className="req">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. 234567891011"
+              value={txnId}
+              onChange={e => { setTxnId(e.target.value); setTxnErr(""); }}
+              style={{ width: "100%", background: "#fff", border: `1.5px solid ${txnErr ? "#fca5a5" : "#e2e8f0"}`, borderRadius: 10, padding: "11px 14px", fontSize: 14, color: "#1e293b", outline: "none", boxSizing: "border-box" }}
+            />
+            {txnErr && <p style={{ color: "#dc2626", fontSize: 11.5, margin: "5px 0 0", fontWeight: 600 }}>{txnErr}</p>}
+            <p style={{ fontSize: 11, color: "#94a3b8", margin: "6px 0 0" }}>Found in your UPI app's payment confirmation screen after paying.</p>
+          </div>
+
+          <button type="button" onClick={handleSubmitClick} disabled={submitting}
+            style={{ width: "100%", marginTop: 20, padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            {submitting
+              ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }}></span> Submitting...</>
+              : <><i className="feather-check-circle"></i> Submit Payment</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CustomSelect({ value, onChange, options, placeholder }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
@@ -515,6 +587,25 @@ function SuccessScreen({ name, internType }) {
           Our team will review it and reach out within{" "}
           <strong>3–5 business days</strong> on your registered email and phone.
         </p>
+
+        <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 14, padding: "18px 20px", marginBottom: 24, textAlign: "left" }}>
+          <p style={{ fontSize: 13, fontWeight: 800, color: "#166534", margin: "0 0 4px" }}>Need further assistance?</p>
+          <p style={{ fontSize: 12.5, color: "#3f6212", margin: "0 0 12px", lineHeight: 1.6 }}>
+            Message us on WhatsApp or email us — our team is happy to help with any questions about your application.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <a href="https://wa.me/918077757951?text=Hi%2C%20I%20applied%20for%20the%20Supervision%20cum%20Internship%20Program%20and%20need%20assistance."
+              target="_blank" rel="noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#25D366", color: "#fff", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
+              <i className="feather-message-circle"></i> WhatsApp Us
+            </a>
+            <a href="mailto:hello@chooseyourtherapist.in"
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#fff", color: "#166534", border: "1.5px solid #86efac", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
+              <i className="feather-mail"></i> hello@chooseyourtherapist.in
+            </a>
+          </div>
+        </div>
+
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/" style={{
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
@@ -568,6 +659,7 @@ export default function InternshipRegistration() {
   const [welcomeModal, setWelcomeModal] = useState(false);
   const [aboutModal, setAboutModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   useEffect(() => {
     const draft = loadDraft();
@@ -596,7 +688,7 @@ export default function InternshipRegistration() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (transactionId) => {
     setError("");
     setLoading(true);
     try {
@@ -605,7 +697,7 @@ export default function InternshipRegistration() {
           name:    form.name,
           email:   form.email,
           phone:   form.phone,
-          message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Program Fee: ${HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—"} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
+          message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Program Fee: ${HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—"} | Transaction ID: ${transactionId} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
           type: "internship",
         }),
         fetch("/api/send-internship-email", {
@@ -624,6 +716,7 @@ export default function InternshipRegistration() {
             duration:       form.duration,
             hours:          form.hours,
             programFee:     HOUR_PRICES[form.hours] || null,
+            transactionId:  transactionId,
             availableFrom:  form.availableFrom,
             motivation:     form.motivation,
           }),
@@ -631,6 +724,7 @@ export default function InternshipRegistration() {
       ]);
     } finally {
       setLoading(false);
+      setShowQr(false);
       setSubmitted(true);
       try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     }
@@ -861,11 +955,9 @@ export default function InternshipRegistration() {
                     style={{ flex: 1, minWidth: 120, padding: "14px", borderRadius: 12, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     <i className="feather-edit-2"></i> Edit Details
                   </button>
-                  <button type="button" onClick={handleSubmit} disabled={loading}
+                  <button type="button" onClick={() => setShowQr(true)} disabled={loading}
                     style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                    {loading
-                      ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }}></span> Submitting...</>
-                      : <><i className="feather-send"></i> Confirm & Submit</>}
+                    <i className="feather-credit-card"></i> Proceed to Payment
                   </button>
                 </div>
               </div>
@@ -1247,6 +1339,14 @@ export default function InternshipRegistration() {
       {modalDomain && <ProgramModal domain={modalDomain} onClose={() => setModalDomain(null)} />}
       {welcomeModal && <WelcomeModal onClose={() => setWelcomeModal(false)} />}
       {aboutModal && <AboutOrgModal onClose={() => setAboutModal(false)} />}
+      {showQr && (
+        <QrPaymentModal
+          amount={HOUR_PRICES[form.hours] || 0}
+          submitting={loading}
+          onClose={() => !loading && setShowQr(false)}
+          onSubmit={(transactionId) => handleSubmit(transactionId)}
+        />
+      )}
     </>
   );
 }
