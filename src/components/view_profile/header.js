@@ -53,7 +53,13 @@ export default function ProfileHeader({ pageData, favrioutes }) {
     }
   }, [pageData, favrioutes]);
 
-  const handleClick = () => router.push(`/book/${pageData._id}`);
+  const handleClick = () => {
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "book_now_click", therapist_id: pageData._id });
+    }
+    router.push(`/book/${pageData._id}`);
+  };
 
   const addFavrioute = async (id) => {
     try {

@@ -30,6 +30,7 @@ export default function PaymentSuccessPage() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tick,    setTick]    = useState(false);
+  const trackedRef = React.useRef(false);
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +43,24 @@ export default function PaymentSuccessPage() {
       setTimeout(() => setTick(true), 100);
     }).catch(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!booking || trackedRef.current || typeof window === "undefined") return;
+    trackedRef.current = true;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "purchase",
+      ecommerce: {
+        transaction_id: payment_id || booking._id,
+        value: Number(booking.amount || 0),
+        currency: "INR",
+        items: [{
+          item_id: booking.therapist?._id || "",
+          item_name: booking.service || "Therapy Session",
+        }],
+      },
+    });
+  }, [booking, payment_id]);
 
   const therapistName = booking?.therapist?.user?.name || "Your Therapist";
   const therapistImg  = booking?.therapist?.user?.profile
