@@ -2,7 +2,6 @@ import "@/App.css";
 import "@/index.css";
 import "@/components/bottom-navigation.css";
 import Providers from "@/components/Providers";
-import PremiumLoader from "@/components/global/PremiumLoader";
 import dynamic from "next/dynamic";
 const CallbackWidget = dynamic(() => import("@/components/global/callback-widget"), { ssr: false });
 const ActiveBookingBanner = dynamic(() => import("@/components/global/active-booking-banner"), { ssr: false });
@@ -12,12 +11,11 @@ import "react-toastify/dist/ReactToastify.css";
 import { postData } from "../utils/actions";
 import { subscribeToNotifications } from "../utils/push-notifications";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Head from "next/head";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Global error handler to suppress external widget errors (like Tawk.to)
@@ -57,29 +55,7 @@ function MyApp({ Component, pageProps }) {
       }
     }
 
-    const noLoaderRoutes = [
-      "/therapist-dashboard", "/appointments", "/clinic-patients",
-      "/case-history", "/create-report", "/workshops", "/coupons",
-      "/settings", "/create-workshop", "/add-offline-client",
-      "/therapist-blogs", "/therapist-ai-blog", "/therapists/",
-      "/coupon/", "/update-workshop/",
-    ];
-    const handleStart = (url) => {
-      const skip = noLoaderRoutes.some((r) => url.startsWith(r));
-      if (!skip) setIsLoading(true);
-    };
-    const handleComplete = () => setIsLoading(false);
-
-    router.events?.on("routeChangeStart", handleStart);
-    router.events?.on("routeChangeComplete", handleComplete);
-    router.events?.on("routeChangeError", handleComplete);
-
-    return () => {
-      router.events?.off("routeChangeStart", handleStart);
-      router.events?.off("routeChangeComplete", handleComplete);
-      router.events?.off("routeChangeError", handleComplete);
-    };
-  }, [router]);
+  }, []);
 
   const hideWidgetsOn = [
     "/therapist-dashboard",
@@ -283,7 +259,6 @@ function MyApp({ Component, pageProps }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(globalConditionsSchema) }}
         />
       </Head>
-      {isLoading && !shouldHideWidgets && <PremiumLoader />}
       {!shouldHideWidgets && (
         <>
           <CallbackWidget />

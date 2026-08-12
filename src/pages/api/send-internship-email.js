@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
 
-  const { name, email, phone, city, college, degree, specialization, internType, mode, duration, hours, availableFrom, motivation } = req.body;
+  const { name, email, phone, city, college, degree, specialization, internType, mode, duration, hours, programFee, availableFrom, motivation } = req.body;
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -83,6 +83,12 @@ export default async function handler(req, res) {
         <td style="padding:7px 0;color:#64748b;">Required Hours</td>
         <td style="padding:7px 0;font-weight:700;color:#1e293b;">${hours}</td>
       </tr>
+      ${programFee ? `
+      <tr>
+        <td style="padding:7px 0;color:#64748b;">Program Fee</td>
+        <td style="padding:7px 0;font-weight:700;color:#166534;">₹${Number(programFee).toLocaleString("en-IN")}</td>
+      </tr>
+      ` : ""}
       <tr>
         <td style="padding:7px 0;color:#64748b;">Start From</td>
         <td style="padding:7px 0;font-weight:700;color:#1e293b;">${availableFrom}</td>

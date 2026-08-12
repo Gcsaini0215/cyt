@@ -1,46 +1,26 @@
-import React, { useEffect, useState } from "react";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
 import NewsLetter from "../../components/home/newsletter";
 import { fetchData } from "../../utils/actions";
 import { pendingPaymentUrl } from "../../utils/url";
-import PageProgressBar from "../../components/global/page-progress";
-import { useCallback } from "react";
 import PaymentPending from "../../components/view_profile/payment-pending";
-import { toast } from "react-toastify";
-import { useRouter } from "next/router";
 import PageBreadCrumb from "../../components/global/page-breadcrumb";
 
-export default function PaymentPendingPage() {
-  const router = useRouter();
-  const { id } = router.query;
-  const [data, setData] = useState();
-  const [loading, setLoading] = useState(true);
-
-
-  const getData = useCallback(async () => {
-    try {
-      const res = await fetchData(`${pendingPaymentUrl}/${id}`);
-
-      if (res.status) {
-        setData(res.data);
-      } else {
-        toast.error(res.message);
-      }
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
-      toast.error(err?.response?.data?.message || "Something went wrong");
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+  try {
+    const res = await fetchData(`${pendingPaymentUrl}/${id}`);
+    if (res.status) {
+      return { props: { data: res.data } };
     }
-  }, [id]);
+  } catch (err) {
+    console.error("Error fetching pending payment for SSR:", err);
+  }
+  return { props: { data: null } };
+}
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
-
-  return loading ? (
-    <PageProgressBar />
-  ) : (
+export default function PaymentPendingPage({ data }) {
+  return (
     <div id="__next">
       <MyNavbar />
       <PageBreadCrumb title="Payment" linkTitle="Payment"/>

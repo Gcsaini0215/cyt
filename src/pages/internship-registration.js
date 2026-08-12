@@ -44,17 +44,30 @@ const SPECIALIZATIONS = [
 ];
 const YEARS   = ["1st Semester", "2nd Semester", "3rd Semester", "4th Semester", "5th Semester", "6th Semester", "7th Semester", "8th Semester", "9th Semester", "10th Semester"];
 const DURS    = ["1 Month", "2 Months", "3 Months", "6 Months"];
-const HOURS   = ["30 hrs", "40 hrs", "60 hrs", "80 hrs", "100 hrs", "120 hrs", "280 hrs"];
-const MODES   = ["Online", "Offline", "Hybrid"];
+const HOURS   = ["30 hrs", "40 hrs", "60 hrs", "80 hrs", "100 hrs", "120 hrs", "240 hrs"];
 
-const PERKS = [
-  { icon: "feather-award",         text: "Certificate of Internship" },
-  { icon: "feather-users",         text: "Mentorship by Professionals" },
-  { icon: "feather-file-text",     text: "Letter of Recommendation (exam-based)" },
-  { icon: "feather-monitor",       text: "Flexible Online / Offline Options" },
-  { icon: "feather-briefcase",     text: "Portfolio-Worthy Real Projects" },
-  { icon: "feather-trending-up",   text: "Career Growth in Mental Health" },
-];
+/* Required Hours options are constrained by the chosen Duration —
+   picking a duration first narrows down the hours (and fee) choices. */
+const DURATION_HOURS = {
+  "1 Month":  ["30 hrs", "40 hrs", "60 hrs"],
+  "2 Months": ["80 hrs", "100 hrs", "120 hrs"],
+  "3 Months": ["240 hrs"],
+  "6 Months": ["240 hrs"],
+};
+
+/* Program fee ladder — per-hour cost tapers off at higher tiers to
+   reward committing to the longer, higher-value packages. */
+const HOUR_PRICES = {
+  "30 hrs":  1999,
+  "40 hrs":  2499,
+  "60 hrs":  3499,
+  "80 hrs":  4499,
+  "100 hrs": 5499,
+  "120 hrs": 6499,
+  "240 hrs": 8499,
+};
+function fmtINR(n) { return `₹${n.toLocaleString("en-IN")}`; }
+const MODES   = ["Online", "Offline", "Hybrid"];
 
 const PROGRAM_DATA = {
   "Clinical Psychology": {
@@ -531,7 +544,7 @@ export default function InternshipRegistration() {
           name:    form.name,
           email:   form.email,
           phone:   form.phone,
-          message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
+          message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Program Fee: ${HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—"} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
           type: "internship",
         }),
         fetch("/api/send-internship-email", {
@@ -549,6 +562,7 @@ export default function InternshipRegistration() {
             mode:           form.mode,
             duration:       form.duration,
             hours:          form.hours,
+            programFee:     HOUR_PRICES[form.hours] || null,
             availableFrom:  form.availableFrom,
             motivation:     form.motivation,
           }),
@@ -570,8 +584,8 @@ export default function InternshipRegistration() {
   const labelStyle = { fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 6, display: "block" };
   const sectionHead = { fontSize: 15, fontWeight: 800, color: "#1b5e20", marginBottom: 18, paddingBottom: 10, borderBottom: "2px solid #f0fdf4", display: "flex", alignItems: "center", gap: 8 };
   const fieldWrap = { marginBottom: 18 };
-  const gridTwo   = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0 18px" };
-  const gridThree = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0 18px" };
+  const gridTwo   = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0 18px", alignItems: "start" };
+  const gridThree = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0 18px", alignItems: "start" };
 
   return (
     <>
@@ -597,118 +611,74 @@ export default function InternshipRegistration() {
 
       <MyNavbar />
 
-      {/* ── HERO BANNER ── */}
-      <div style={{
-        background: "linear-gradient(135deg, #071a0e 0%, #0d3320 45%, #1b5e20 100%)",
-        paddingTop: isMobile ? "95px" : "110px",
-        paddingBottom: isMobile ? "70px" : "96px",
-        position: "relative",
-        overflow: "hidden",
-        textAlign: "center",
-      }}>
-        {/* dot-grid pattern */}
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px)", backgroundSize: "26px 26px" }} />
-        {/* glow orbs */}
-        <div style={{ position: "absolute", top: -60, left: -60, width: 260, height: 260, borderRadius: "50%", background: "rgba(46,204,113,0.08)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: 20, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(46,204,113,0.06)", pointerEvents: "none" }} />
-
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
-
-          {/* badge */}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(46,204,113,0.18)", border: "1px solid rgba(46,204,113,0.3)", color: "#6ee7a0", fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", padding: "5px 13px", borderRadius: 20, marginBottom: 18 }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#2ecc71", display: "inline-block", animation: "pulse 2s infinite" }}></span>
-            Applications Open — 2025
-          </div>
-
-          <h1 style={{ color: "#fff", fontSize: isMobile ? 26 : 40, fontWeight: 900, lineHeight: 1.15, marginBottom: 14, letterSpacing: "-0.5px" }}>
-            Launch Your Career<br />
-            <span style={{ color: "#6ee7a0" }}>in Mental Health</span>
-          </h1>
-
-          <p style={{ color: "rgba(255,255,255,0.62)", fontSize: isMobile ? 13 : 15, lineHeight: 1.7, marginBottom: 28, maxWidth: 520, margin: "0 auto 28px" }}>
-            Join the Choose Your Therapist Internship Program. Work with licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
-          </p>
-
-          {/* CTA buttons */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-            <a href="#apply-form" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#2ecc71", color: "#071a0e", textDecoration: "none", borderRadius: 10, padding: "11px 28px", fontSize: 13, fontWeight: 800, boxShadow: "0 4px 18px rgba(46,204,113,0.3)" }}>
-              <i className="feather-edit-3"></i> Apply Now
-            </a>
-            <Link href="/intern-login" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", textDecoration: "none", borderRadius: 10, padding: "11px 20px", fontSize: 13, fontWeight: 700, border: "1px solid rgba(255,255,255,0.18)" }}>
-              <i className="feather-log-in"></i> Intern Login
-            </Link>
+      {/* ── HERO BANNER (matches login page banner style) ── */}
+      <style>{`
+        .intern-banner {
+          position: relative;
+          background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+          background-size: cover;
+          background-position: center;
+          background-attachment: scroll;
+          padding: 70px 0 70px 0;
+          overflow: hidden;
+          margin-top: 0px;
+        }
+        .intern-banner::before {
+          content: "";
+          position: absolute; inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 1;
+        }
+        .intern-badge {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.15); color: #ffffff;
+          padding: 8px 20px; border-radius: 50px;
+          font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
+          margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);
+          backdrop-filter: blur(4px); position: relative; z-index: 1;
+        }
+        .intern-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; animation: internPulse 2s infinite; }
+        @keyframes internPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.5)} }
+        .intern-title {
+          font-size: 30px; font-weight: 900; color: #ffffff; line-height: 1.3;
+          margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+          position: relative; z-index: 1;
+        }
+        .intern-subtitle {
+          font-size: 14px; color: rgba(255,255,255,0.85); max-width: 600px;
+          margin: 0 auto; line-height: 1.6; position: relative; z-index: 1;
+        }
+        @media (max-width: 768px) {
+          .intern-banner { padding: 24px 0 20px 0; }
+          .intern-badge { display: none; }
+          .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
+          .intern-subtitle { font-size: 12px; padding: 0 12px; }
+        }
+      `}</style>
+      <section className="intern-banner">
+        <div className="container">
+          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+            <div className="intern-badge">
+              <span className="intern-badge-dot"></span>
+              Applications Open — 2025
+            </div>
+            <h1 className="intern-title">
+              Launch Your Career in <span style={{ color: "#4ade80" }}>Mental Health</span>
+            </h1>
+            <p className="intern-subtitle">
+              Join the Choose Your Therapist Internship Program. Work with licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
+            </p>
           </div>
         </div>
-
-        <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.5)}}`}</style>
-
-        {/* concave bottom — white dome cuts into banner */}
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0,
-          height: isMobile ? 50 : 64,
-          background: "#fff",
-          borderTopLeftRadius: "50%",
-          borderTopRightRadius: "50%",
-          pointerEvents: "none",
-        }} />
-      </div>
+      </section>
 
       {/* ── MAIN CONTENT ── */}
       <div id="apply-form" className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
         {submitted ? (
           <SuccessScreen name={form.name} internType={form.internType} />
         ) : (
-        <div style={{ display: "flex", gap: 36, alignItems: "flex-start" }}>
-
-          {/* LEFT SIDEBAR — hidden on mobile */}
-          {!isMobile && (
-            <div style={{ width: 300, flexShrink: 0, position: "sticky", top: 90 }}>
-              {/* Perks card */}
-              <div id="why-join" style={{ background: "linear-gradient(160deg, #1e293b, #334155)", borderRadius: 20, padding: "24px 22px", marginBottom: 20, position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#fff", marginBottom: 18, position: "relative" }}>Why Join Us?</h3>
-                {PERKS.map((p, i) => (
-                  <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14, position: "relative" }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <i className={p.icon} style={{ fontSize: 14, color: "#94a3b8" }}></i>
-                    </div>
-                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", fontWeight: 500, lineHeight: 1.5, paddingTop: 6 }}>{p.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Domains */}
-              <div style={{ background: "#fff", border: "1.5px solid #f1f5f9", borderRadius: 20, padding: "20px 22px", marginBottom: 20 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <h4 style={{ fontSize: 13, fontWeight: 800, color: "#1e293b", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0 }}>Internship Domains</h4>
-                  <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>click to explore</span>
-                </div>
-                {[...PSYCH_TYPES, ...GENERAL_TYPES].map((t, i) => (
-                  <div key={i} onClick={() => setModalDomain(t)}
-                    style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6, fontSize: 12, color: PROGRAM_DATA[t] ? "#1e293b" : "#475569", fontWeight: 600, padding: "7px 10px", borderRadius: 8, cursor: PROGRAM_DATA[t] ? "pointer" : "default", background: "#fafafa", border: "1px solid #f1f5f9", transition: "all 0.15s" }}
-                    onMouseEnter={e => { if (PROGRAM_DATA[t]) e.currentTarget.style.background = "#f0fdf4"; e.currentTarget.style.borderColor = "#bbf7d0"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "#fafafa"; e.currentTarget.style.borderColor = "#f1f5f9"; }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: PROGRAM_DATA[t] ? (PROGRAM_DATA[t].color) : "#228756", flexShrink: 0 }}></span>
-                      {t}
-                    </div>
-                    {PROGRAM_DATA[t] && <i className="feather-chevron-right" style={{ fontSize: 12, color: "#94a3b8" }}></i>}
-                  </div>
-                ))}
-              </div>
-
-              {/* Already applied */}
-              <div style={{ background: "#1e293b", borderRadius: 16, padding: "18px 20px", textAlign: "center" }}>
-                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, marginBottom: 12 }}>Already applied?</p>
-                <Link href="/intern-login" style={{ display: "block", background: "rgba(255,255,255,0.12)", color: "#fff", textDecoration: "none", borderRadius: 10, padding: "10px", fontSize: 13, fontWeight: 700, border: "1px solid rgba(255,255,255,0.15)" }}>
-                  <i className="feather-log-in" style={{ marginRight: 6 }}></i> Intern Login
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* RIGHT FORM */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <div>
             {reviewing ? (
               /* ── REVIEW SCREEN ── */
               <div>
@@ -742,7 +712,9 @@ export default function InternshipRegistration() {
                   { title: "Internship Preferences", icon: "feather-settings", color: "#8b5cf6", rows: [
                     ["Internship Types", form.internType.join(", "), true],
                     ["Mode", form.mode, false], ["Duration", form.duration, false],
-                    ["Required Hours", form.hours, false], ["Start From", form.availableFrom, false],
+                    ["Required Hours", form.hours, false],
+                    ["Program Fee", HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—", true],
+                    ["Start From", form.availableFrom, false],
                   ]},
                 ].map((section, si) => (
                   <div key={si} className="section-card" style={{ marginBottom: 16 }}>
@@ -963,7 +935,12 @@ export default function InternshipRegistration() {
                                   ? [...next, "Research & Data"] : next;
                                 set("internType", withResearch);
                               }} />
-                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3 }}>{t}</span>
+                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3, flex: 1 }}>{t}</span>
+                            {PROGRAM_DATA[t] && (
+                              <i className="feather-info" title="View curriculum"
+                                onClick={e => { e.preventDefault(); e.stopPropagation(); setModalDomain(t); }}
+                                style={{ fontSize: 13, color: "#94a3b8", flexShrink: 0 }}></i>
+                            )}
                           </label>
                         );
                       })}
@@ -1004,10 +981,15 @@ export default function InternshipRegistration() {
                                   : [...form.internType, t];
                                 set("internType", next);
                               }} />
-                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3 }}>
+                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3, flex: 1 }}>
                               {t}
                               {locked && <span style={{ display: "block", fontSize: 9, color: "#16a34a", fontWeight: 600, marginTop: 1 }}>Auto-required</span>}
                             </span>
+                            {PROGRAM_DATA[t] && (
+                              <i className="feather-info" title="View curriculum"
+                                onClick={e => { e.preventDefault(); e.stopPropagation(); setModalDomain(t); }}
+                                style={{ fontSize: 13, color: "#94a3b8", flexShrink: 0 }}></i>
+                            )}
                           </label>
                         );
                       })}
@@ -1034,11 +1016,34 @@ export default function InternshipRegistration() {
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Duration <span className="req">*</span></label>
-                      <CustomSelect value={form.duration} onChange={v => set("duration", v)} placeholder="Select duration" options={DURS} />
+                      <CustomSelect value={form.duration} placeholder="Select duration" options={DURS}
+                        onChange={v => {
+                          const allowed = DURATION_HOURS[v] || [];
+                          setForm(p => ({ ...p, duration: v, hours: allowed.includes(p.hours) ? p.hours : "" }));
+                        }} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Required Hours <span className="req">*</span></label>
-                      <CustomSelect value={form.hours} onChange={v => set("hours", v)} placeholder="Select hours" options={HOURS} />
+                      {form.duration ? (
+                        <CustomSelect value={form.hours} onChange={v => set("hours", v)} placeholder="Select hours" options={DURATION_HOURS[form.duration] || HOURS} />
+                      ) : (
+                        <div style={{ ...inputStyle, color: "#94a3b8", cursor: "not-allowed", background: "#f8fafc" }}>Select duration first</div>
+                      )}
+                      {form.hours && HOUR_PRICES[form.hours] && (
+                        <div style={{
+                          marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between",
+                          background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 9,
+                          padding: "7px 12px",
+                        }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#166534" }}>Program Fee</span>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: "#166534" }}>
+                            {fmtINR(HOUR_PRICES[form.hours])}
+                            {form.hours === "240 hrs" && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", marginLeft: 6 }}>Best Value</span>
+                            )}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Start From <span className="req">*</span></label>
@@ -1123,13 +1128,10 @@ export default function InternshipRegistration() {
                   </label>
                 </div>
 
-                {/* Mobile login link */}
-                {isMobile && (
-                  <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginBottom: 20 }}>
-                    Already applied?{" "}
-                    <Link href="/intern-login" style={{ color: "#228756", fontWeight: 700 }}>Intern Login →</Link>
-                  </p>
-                )}
+                <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginBottom: 20 }}>
+                  Already applied?{" "}
+                  <Link href="/intern-login" style={{ color: "#228756", fontWeight: 700 }}>Intern Login →</Link>
+                </p>
 
                 <button type="submit" disabled={loading}
                   style={{
