@@ -5,27 +5,30 @@ import { postFormUrlEncoded, patchData } from "../../utils/actions";
 import { SubmitConsultationUrl, probonoRequestSentUrl } from "../../utils/url";
 
 export default function ProbonoLeadModal({ open, onClose, selected, onSuccess }) {
-  const [leadData, setLeadData] = useState({ name: "", phone: "" });
+  const [leadData, setLeadData] = useState({ name: "", phone: "", email: "", concern: "" });
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadLoading, setLeadLoading] = useState(false);
 
+  const isFormValid =
+    leadData.name.trim() && leadData.phone.trim() && leadData.email.trim() && leadData.concern.trim();
+
   const handleClose = () => {
     onClose();
-    setLeadData({ name: "", phone: "" });
+    setLeadData({ name: "", phone: "", email: "", concern: "" });
     setLeadSubmitted(false);
   };
 
   const handleLeadSubmit = async () => {
-    if (!leadData.name.trim() || !leadData.phone.trim()) return;
+    if (!isFormValid) return;
     setLeadLoading(true);
     try {
+      const concernPrefix = selected ? `Preferred trainee: ${selected.name}. ` : "";
       await postFormUrlEncoded(SubmitConsultationUrl, {
         name: leadData.name,
         phone: leadData.phone,
+        email: leadData.email,
         subject: "Probono Therapy Request",
-        concern: selected
-          ? `Requesting probono therapy, preferred trainee: ${selected.name}`
-          : "Requesting probono therapy — please match with an available trainee therapist",
+        concern: `${concernPrefix}${leadData.concern.trim()}`,
         source: "Probono Therapist Page",
       });
       if (selected?._id) {
@@ -43,10 +46,13 @@ export default function ProbonoLeadModal({ open, onClose, selected, onSuccess })
       onClose={handleClose}
       maxWidth="xs"
       fullWidth
-      sx={{ zIndex: 10000 }}
-      PaperProps={{ sx: { borderRadius: "24px", overflow: "hidden" } }}
+      sx={{ zIndex: 10500 }}
+      BackdropProps={{
+        sx: { backdropFilter: "blur(6px)", backgroundColor: "rgba(15,23,42,0.45)" },
+      }}
+      PaperProps={{ sx: { borderRadius: "24px", overflow: "hidden", maxHeight: "88vh", m: 2 } }}
     >
-      <DialogContent sx={{ p: 0 }}>
+      <DialogContent sx={{ p: 0, overflowY: "auto" }}>
         <Box sx={{ p: 4, position: "relative" }}>
           <IconButton onClick={handleClose} sx={{ position: "absolute", right: 12, top: 12, color: "#94a3b8" }}>
             <FiX size={18} />
@@ -118,12 +124,49 @@ export default function ProbonoLeadModal({ open, onClose, selected, onSuccess })
                     background: "#f8fafc",
                   }}
                 />
+                <Box
+                  component="input"
+                  type="email"
+                  placeholder="Email address"
+                  value={leadData.email}
+                  onChange={(e) => setLeadData((prev) => ({ ...prev, email: e.target.value }))}
+                  sx={{
+                    width: "100%",
+                    padding: "11px 14px",
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: "12px",
+                    fontSize: 14,
+                    outline: "none",
+                    fontFamily: "inherit",
+                    boxSizing: "border-box",
+                    background: "#f8fafc",
+                  }}
+                />
+                <Box
+                  component="textarea"
+                  rows={3}
+                  placeholder="Briefly describe your major concern..."
+                  value={leadData.concern}
+                  onChange={(e) => setLeadData((prev) => ({ ...prev, concern: e.target.value }))}
+                  sx={{
+                    width: "100%",
+                    padding: "11px 14px",
+                    border: "1.5px solid #e2e8f0",
+                    borderRadius: "12px",
+                    fontSize: 14,
+                    outline: "none",
+                    fontFamily: "inherit",
+                    resize: "none",
+                    boxSizing: "border-box",
+                    background: "#f8fafc",
+                  }}
+                />
               </Stack>
 
               <Button
                 fullWidth
                 onClick={handleLeadSubmit}
-                disabled={leadLoading || !leadData.name.trim() || !leadData.phone.trim()}
+                disabled={leadLoading || !isFormValid}
                 sx={{
                   mt: 2.5,
                   py: 1.5,

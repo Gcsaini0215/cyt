@@ -4,8 +4,6 @@ import { Box, Typography, Grid, Avatar, Button, Stack } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import StarIcon from "@mui/icons-material/Star";
 import VerifiedIcon from "@mui/icons-material/Verified";
-import SendIcon from "@mui/icons-material/Send";
-import GroupsIcon from "@mui/icons-material/Groups";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ImageTag from "../../utils/image-tag";
@@ -170,38 +168,6 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                       )}
                     </Box>
                   </Link>
-
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{
-                      width: "100%",
-                      mb: 2.5,
-                      p: "10px 12px",
-                      borderRadius: "6px",
-                      background: "#f8faf9",
-                      border: "1px solid #eef2f0",
-                    }}
-                  >
-                    <Box sx={{ flex: 1, textAlign: "center", borderRight: "1px solid #e2e8f0" }}>
-                      <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-                        <SendIcon sx={{ fontSize: 14, color: "#228756" }} />
-                        <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>{p.requestsSent}</Typography>
-                      </Stack>
-                      <Typography sx={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 600, mt: 0.25 }}>
-                        Requests Sent
-                      </Typography>
-                    </Box>
-                    <Box sx={{ flex: 1, textAlign: "center" }}>
-                      <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-                        <GroupsIcon sx={{ fontSize: 14, color: "#228756" }} />
-                        <Typography sx={{ fontSize: 14, fontWeight: 800, color: "#1e293b" }}>{p.connected}</Typography>
-                      </Stack>
-                      <Typography sx={{ fontSize: 10.5, color: "#94a3b8", fontWeight: 600, mt: 0.25 }}>
-                        Connected
-                      </Typography>
-                    </Box>
-                  </Stack>
 
                   <Button
                     fullWidth

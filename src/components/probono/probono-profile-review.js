@@ -22,6 +22,9 @@ export default function ProbonoProfileReview({ probonoIntern, onReviewSubmitted 
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false);
+  const [expandedReviews, setExpandedReviews] = useState({});
+
+  const toggleExpand = (id) => setExpandedReviews((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const formRef = useRef(null);
   const internId = probonoIntern?._id;
@@ -188,9 +191,34 @@ export default function ProbonoProfileReview({ probonoIntern, onReviewSubmitted 
                       </span>
                     )}
                   </div>
-                  <p style={{ fontSize: "15px", lineHeight: "1.6", color: "#4a5568", margin: 0 }}>
+                  <p
+                    style={{
+                      fontSize: "15px",
+                      lineHeight: "1.6",
+                      color: "#4a5568",
+                      margin: 0,
+                      textAlign: "justify",
+                      ...(expandedReviews[rev._id || index]
+                        ? {}
+                        : {
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }),
+                    }}
+                  >
                     {rev.description}
                   </p>
+                  {rev.description && rev.description.length > 160 && (
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(rev._id || index)}
+                      style={{ background: "none", border: "none", padding: 0, marginTop: 6, color: "#2ecc71", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                    >
+                      {expandedReviews[rev._id || index] ? "Show less" : "Read more"}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
