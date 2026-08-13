@@ -606,33 +606,14 @@ function SuccessScreen({ name, internType, traineeSlug }) {
         </div>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          {traineeSlug && (
-            <Link href={`/supervision_to_psychologist/${traineeSlug}`} style={{
-              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "13px 28px", borderRadius: 12,
-              background: "linear-gradient(135deg,#1b5e20,#228756)",
-              color: "#fff", fontWeight: 700, fontSize: 14,
-              boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
-            }}>
-              <i className="feather-user"></i> View My Profile
-            </Link>
-          )}
           <Link href="/" style={{
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
             padding: "13px 28px", borderRadius: 12,
-            background: traineeSlug ? "#fff" : "linear-gradient(135deg,#1b5e20,#228756)",
-            color: traineeSlug ? "#228756" : "#fff", fontWeight: 700, fontSize: 14,
-            border: traineeSlug ? "1.5px solid #228756" : "none",
-            boxShadow: traineeSlug ? "none" : "0 4px 14px rgba(34,135,86,0.25)",
+            background: "linear-gradient(135deg,#1b5e20,#228756)",
+            color: "#fff", fontWeight: 700, fontSize: 14,
+            boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
           }}>
             <i className="feather-home"></i> Go to Home
-          </Link>
-          <Link href="/supervision-login" style={{
-            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "13px 24px", borderRadius: 12,
-            border: "1.5px solid #228756", color: "#228756", fontWeight: 700, fontSize: 14,
-          }}>
-            <i className="feather-log-in"></i> Trainee Login
           </Link>
         </div>
       </div>
@@ -1354,11 +1335,6 @@ export default function InternshipRegistration() {
                     </ul>
                   </div>
                 </div>
-
-                <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginBottom: 20 }}>
-                  Already applied?{" "}
-                  <Link href="/supervision-login" style={{ color: "#228756", fontWeight: 700 }}>Trainee Login →</Link>
-                </p>
 
                 <button type="submit" disabled={loading}
                   style={{
