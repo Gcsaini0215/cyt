@@ -19,13 +19,16 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogActions-root": { padding: theme.spacing(1) },
 }));
 
+const fmtK = (n) => {
+  const k = n / 1000;
+  return `${k % 1 === 0 ? k : k.toFixed(1)}K+`;
+};
+
 export default function NewsLetter() {
   const isMobile = useMediaQuery("(max-width: 991px)");
   const { ref, inView } = useInView({ threshold: 0 });
-  const initialValue = 50;
-  const initialValue2 = 900;
-  const [count, setCount] = useState(initialValue);
-  const [count1, setCount1] = useState(initialValue);
+  const [sessionsCount, setSessionsCount] = useState(0);
+  const [clientsCount, setClientsCount] = useState(0);
   const [otpView, setOtpView] = useState(false);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
@@ -33,10 +36,8 @@ export default function NewsLetter() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const duration = 50;
-  const duration1 = 2500;
-  const targetValue = 1000;
-  const targetValue1 = 100;
+  const SESSIONS_TARGET = 5000;
+  const CLIENTS_TARGET  = 2000;
 
   const handleSubmit = async () => {
     setSuccess("");
@@ -111,140 +112,142 @@ export default function NewsLetter() {
   };
 
   useEffect(() => {
-    let startValue = initialValue2;
-    const interval = Math.floor(duration / (targetValue - initialValue2));
-    const counter = setInterval(() => {
-      startValue += 1;
-      setCount(startValue);
-      if (startValue >= targetValue) clearInterval(counter);
-    }, interval);
-    return () => clearInterval(counter);
-  }, [targetValue, initialValue, inView]);
-
-  useEffect(() => {
-    let startValue = initialValue;
-    const interval = Math.floor(duration1 / (targetValue1 - initialValue));
-    const counter = setInterval(() => {
-      startValue += 1;
-      setCount1(startValue);
-      if (startValue >= targetValue1) clearInterval(counter);
-    }, interval);
-    return () => clearInterval(counter);
-  }, [targetValue1, initialValue, inView]);
+    if (!inView) return;
+    const dur = 1600;
+    const start = performance.now();
+    let raf;
+    const tick = (now) => {
+      const p = Math.min((now - start) / dur, 1);
+      setSessionsCount(Math.floor(p * SESSIONS_TARGET));
+      setClientsCount(Math.floor(p * CLIENTS_TARGET));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView]);
 
   return (
-    <div ref={ref} style={{ background: '#0f172a', padding: isMobile ? '52px 0' : '72px 0', position: 'relative', overflow: 'hidden' }}>
+    <div ref={ref} style={{ background: '#f8faf9' }}>
       <style>{`
-        .nl-input { width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; outline:none; transition:border-color .2s; margin-bottom:12px; color:#1e293b; }
-        .nl-input:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
-        .nl-btn { width:100%; padding:14px; background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.3px; }
-        .nl-btn:disabled { opacity:.7; cursor:not-allowed; }
-        .nl-link { color:#64748b; font-size:12px; text-align:center; margin-top:10px; cursor:pointer; display:block; }
+        .nl-label { display:block; font-size:11.5px; font-weight:700; color:#64748b; margin-bottom:7px; }
+        .nl-input { width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; outline:none; transition:border-color .2s,box-shadow .2s; margin-bottom:14px; color:#1e293b; background:#f8fafc; box-sizing:border-box; font-family:inherit; }
+        .nl-input:focus { border-color:#228756; background:#fff; box-shadow:0 0 0 3px rgba(34,135,86,.1); }
+        .nl-btn { width:100%; padding:14px; background:linear-gradient(135deg,#1b5e20,#228756); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.2px; box-shadow:0 10px 24px rgba(15,89,54,0.28); transition:transform .2s,box-shadow .2s; }
+        .nl-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 14px 28px rgba(15,89,54,0.34); }
+        .nl-btn:disabled { opacity:.7; cursor:not-allowed; transform:none; }
+        .nl-link { color:#94a3b8; font-size:12px; text-align:center; margin-top:12px; cursor:pointer; display:block; }
         .nl-link:hover { color:#228756; }
+        .nl-band { background:linear-gradient(120deg,#0d3320 0%,#1a6b3a 55%,#228756 100%); width:100%; padding: 64px 0; position:relative; overflow:hidden; }
+        @media(max-width:991px){ .nl-band { padding:44px 0; } }
+        .nl-card { background:#fff; border-radius:20px; padding:32px; box-shadow:0 20px 45px rgba(0,0,0,0.18); }
+        @media(max-width:991px){ .nl-card { padding:26px 22px; } }
+        @media(min-width:768px) and (max-width:1024px){ .nl-input,.nl-btn { min-height:48px; } }
       `}</style>
 
-      {/* subtle decorative bg shapes */}
-      <div style={{ position:'absolute', top:-80, right:-60, width:260, height:260, borderRadius:'50%', background:'rgba(34,135,86,.07)', pointerEvents:'none' }}></div>
-      <div style={{ position:'absolute', bottom:-100, left:-60, width:320, height:320, borderRadius:'50%', background:'rgba(34,135,86,.05)', pointerEvents:'none' }}></div>
+      <div className="nl-band">
+        {/* decorative blobs */}
+        <div style={{ position:'absolute', top:-70, right:-50, width:240, height:240, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}></div>
+        <div style={{ position:'absolute', bottom:-90, left:60, width:200, height:200, borderRadius:'50%', background:'rgba(74,222,128,.1)', pointerEvents:'none' }}></div>
 
-      <div className="container" style={{ position:'relative', zIndex:1 }}>
-        <div className="row align-items-center g-5">
+        <div className="container" style={{ position:'relative', zIndex:1 }}>
+          <div className="row align-items-center g-5">
 
-          {/* Left: content */}
-          <div className="col-lg-6">
-            <span style={{
-              display:'inline-block', background:'rgba(34,135,86,.2)',
-              color:'#4ade80', padding:'5px 15px', borderRadius:'50px',
-              fontSize:'12px', fontWeight:700, letterSpacing:'1px',
-              textTransform:'uppercase', marginBottom:'16px'
-            }}>
-              Stay Updated
-            </span>
+            {/* Left: content */}
+            <div className="col-lg-6">
+              <span style={{
+                display:'inline-flex', alignItems:'center', gap:7, background:'rgba(255,255,255,.14)',
+                color:'#fff', padding:'6px 16px', borderRadius:'50px',
+                fontSize:'11.5px', fontWeight:700, letterSpacing:'1px',
+                textTransform:'uppercase', marginBottom:'20px',
+                border:'1px solid rgba(255,255,255,.2)',
+              }}>
+                <i className="feather-mail" style={{ fontSize:12 }}></i> Stay Updated
+              </span>
 
-            <h3 style={{
-              color:'#f1f5f9', fontSize: isMobile ? '1.8rem' : '2.6rem',
-              fontWeight:900, lineHeight:1.18, margin:'0 0 14px'
-            }}>
-              Join Our Mental<br />Health Community
-            </h3>
+              <h3 style={{
+                color:'#fff', fontSize: isMobile ? '1.8rem' : '2.5rem',
+                fontWeight:900, lineHeight:1.18, margin:'0 0 14px'
+              }}>
+                Join Our Mental<br />Health Community
+              </h3>
 
-            <p style={{
-              color:'#64748b', fontSize:'.97rem', lineHeight:1.75,
-              margin:'0 0 30px', maxWidth:400
-            }}>
-              Get weekly insights, expert tips, and exclusive resources on mental wellness — delivered straight to your inbox.
-            </p>
-
-            <div style={{ display:'flex', gap:'28px', flexWrap:'wrap' }}>
-              <div>
-                <div style={{ color:'#f1f5f9', fontSize:'1.9rem', fontWeight:900, lineHeight:1 }}>{count}+</div>
-                <div style={{ color:'#475569', fontSize:'13px', marginTop:'4px', fontWeight:500 }}>Successful Sessions</div>
-              </div>
-              <div style={{ width:1, background:'rgba(255,255,255,.08)', alignSelf:'center', height:36 }}></div>
-              <div>
-                <div style={{ color:'#f1f5f9', fontSize:'1.9rem', fontWeight:900, lineHeight:1 }}>{count1}+</div>
-                <div style={{ color:'#475569', fontSize:'13px', marginTop:'4px', fontWeight:500 }}>Happy Members</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: subscribe card */}
-          <div className="col-lg-5 offset-lg-1">
-            <div style={{
-              background:'#fff',
-              borderRadius:'22px',
-              padding: isMobile ? '28px 22px' : '36px',
-              boxShadow:'0 20px 50px rgba(0,0,0,0.3)'
-            }}>
-              <h4 style={{ fontSize:'1.3rem', fontWeight:800, color:'#1e293b', margin:'0 0 5px' }}>
-                {otpView ? 'Verify Your Email' : 'Subscribe Now'}
-              </h4>
-              <p style={{ color:'#94a3b8', fontSize:'13.5px', margin:'0 0 20px', lineHeight:1.5 }}>
-                {otpView
-                  ? `OTP sent to ${email}`
-                  : 'Join 1,000+ members. No spam, ever.'}
+              <p style={{
+                color:'rgba(255,255,255,.72)', fontSize:'.97rem', lineHeight:1.75,
+                margin:'0 0 32px', maxWidth:400
+              }}>
+                Get weekly insights, expert tips, and exclusive resources on mental wellness — delivered straight to your inbox.
               </p>
 
-              {otpView ? (
-                <>
-                  <input
-                    type="text"
-                    className="nl-input"
-                    placeholder="• • • • • •"
-                    value={otp}
-                    onChange={handleOtpChange}
-                    style={{ textAlign:'center', fontSize:'24px', letterSpacing:'10px', fontWeight:800 }}
-                  />
-                  {error && <p style={{ color:'#ef4444', fontSize:'13px', margin:'-6px 0 10px', fontWeight:600 }}>{error}</p>}
-                  <button className="nl-btn" onClick={handleOtpSubmit} disabled={loading}>
-                    {loading ? 'Verifying...' : 'Verify & Subscribe →'}
-                  </button>
-                  <span className="nl-link" onClick={handleCloseOtpView}>← Use a different email</span>
-                </>
-              ) : (
-                <>
-                  <input
-                    type="email"
-                    className="nl-input"
-                    placeholder="yourname@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                  />
-                  {error && <p style={{ color:'#ef4444', fontSize:'13px', margin:'-6px 0 10px', fontWeight:600 }}>{error}</p>}
-                  <button className="nl-btn" onClick={handleSubmit} disabled={loading}>
-                    {loading ? 'Sending OTP...' : 'Subscribe Now →'}
-                  </button>
-                </>
-              )}
-
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', marginTop:'14px' }}>
-                <i className="feather-shield" style={{ color:'#228756', fontSize:'13px' }}></i>
-                <span style={{ fontSize:'12px', color:'#94a3b8' }}>100% private · Unsubscribe anytime</span>
+              <div style={{ display:'flex', gap: isMobile ? '24px' : '44px', flexWrap:'wrap' }}>
+                <div>
+                  <div style={{ color:'#fff', fontSize:'2.2rem', fontWeight:900, lineHeight:1 }}>{fmtK(sessionsCount)}</div>
+                  <div style={{ color:'rgba(255,255,255,.65)', fontSize:'12.5px', marginTop:'6px', fontWeight:600 }}>Successful Sessions</div>
+                </div>
+                <div style={{ width:1, background:'rgba(255,255,255,.18)', alignSelf:'stretch' }}></div>
+                <div>
+                  <div style={{ color:'#fff', fontSize:'2.2rem', fontWeight:900, lineHeight:1 }}>{fmtK(clientsCount)}</div>
+                  <div style={{ color:'rgba(255,255,255,.65)', fontSize:'12.5px', marginTop:'6px', fontWeight:600 }}>Happy Clients</div>
+                </div>
               </div>
             </div>
-          </div>
 
+            {/* Right: subscribe card */}
+            <div className="col-lg-5 offset-lg-1">
+              <div className="nl-card">
+                <h4 style={{ fontSize:'1.3rem', fontWeight:800, color:'#1e293b', margin:'0 0 5px' }}>
+                  {otpView ? 'Verify Your Email' : 'Subscribe Now'}
+                </h4>
+                <p style={{ color:'#94a3b8', fontSize:'13.5px', margin:'0 0 20px', lineHeight:1.5 }}>
+                  {otpView
+                    ? `A 6-digit OTP has been sent to ${email}`
+                    : 'Join our community. No spam, unsubscribe anytime.'}
+                </p>
+
+                {otpView ? (
+                  <>
+                    <label className="nl-label" htmlFor="nl-otp">One-Time Password</label>
+                    <input
+                      id="nl-otp"
+                      type="text"
+                      className="nl-input"
+                      placeholder="• • • • • •"
+                      value={otp}
+                      onChange={handleOtpChange}
+                      style={{ textAlign:'center', fontSize:'24px', letterSpacing:'10px', fontWeight:800 }}
+                    />
+                    {error && <p style={{ color:'#ef4444', fontSize:'13px', margin:'-8px 0 12px', fontWeight:600 }}>{error}</p>}
+                    <button className="nl-btn" onClick={handleOtpSubmit} disabled={loading}>
+                      {loading ? 'Verifying...' : 'Verify & Subscribe →'}
+                    </button>
+                    <span className="nl-link" onClick={handleCloseOtpView}>← Use a different email</span>
+                  </>
+                ) : (
+                  <>
+                    <label className="nl-label" htmlFor="nl-email">Email Address</label>
+                    <input
+                      id="nl-email"
+                      type="email"
+                      className="nl-input"
+                      placeholder="yourname@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                    />
+                    {error && <p style={{ color:'#ef4444', fontSize:'13px', margin:'-8px 0 12px', fontWeight:600 }}>{error}</p>}
+                    <button className="nl-btn" onClick={handleSubmit} disabled={loading}>
+                      {loading ? 'Sending OTP...' : 'Subscribe Now →'}
+                    </button>
+                  </>
+                )}
+
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', marginTop:'16px' }}>
+                  <i className="feather-shield" style={{ color:'#228756', fontSize:'13px' }}></i>
+                  <span style={{ fontSize:'12px', color:'#94a3b8' }}>100% private · Unsubscribe anytime</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
 
