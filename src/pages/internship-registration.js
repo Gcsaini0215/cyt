@@ -4,7 +4,7 @@ import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
-import { SubmitConsultationUrl } from "../utils/url";
+import { SubmitConsultationUrl, createTraineeUrl } from "../utils/url";
 import { postData } from "../utils/actions";
 
 const PSYCH_TYPES = [
@@ -43,7 +43,7 @@ const SPECIALIZATIONS = [
   "Cognitive Psychology", "Rehabilitation Psychology", "Other",
 ];
 const YEARS   = ["1st Semester", "2nd Semester", "3rd Semester", "4th Semester", "5th Semester", "6th Semester", "7th Semester", "8th Semester", "9th Semester", "10th Semester"];
-const DURS    = ["1 Month", "2 Months", "3 Months", "6 Months"];
+const DURS    = ["1 Month", "2 Months", "3 Months"];
 const HOURS   = ["30 hrs", "40 hrs", "60 hrs", "80 hrs", "100 hrs", "120 hrs", "240 hrs"];
 
 /* Required Hours options are constrained by the chosen Duration —
@@ -52,7 +52,6 @@ const DURATION_HOURS = {
   "1 Month":  ["30 hrs", "40 hrs", "60 hrs"],
   "2 Months": ["80 hrs", "100 hrs", "120 hrs"],
   "3 Months": ["240 hrs"],
-  "6 Months": ["240 hrs"],
 };
 
 /* Program fee ladder — per-hour cost tapers off at higher tiers to
@@ -117,7 +116,7 @@ const PROGRAM_DATA = {
   "Research & Data": {
     icon: "feather-bar-chart-2", color: "#8b5cf6", bg: "#f5f3ff",
     tagline: "Conduct clinical, counselling, and administrative research to generate insights that shape mental health practice.",
-    duration: "1–6 Months | 40–280 hrs",
+    duration: "1–3 Months | 40–240 hrs",
     modules: [
       { title: "Module 1: Research Methodology Fundamentals", activities: ["Quantitative, qualitative & mixed-methods research designs", "Hypothesis formulation & research question development", "Literature review: PubMed, Google Scholar, APA PsycINFO", "Research ethics: consent, anonymization & IRB basics"] },
       { title: "Module 2: Clinical Research", activities: ["Research on psychological assessment reliability & validity", "Study clinical outcome measures: symptom reduction, functioning", "Analyze anonymized clinical case data trends", "Contribute to clinical efficacy & intervention research"] },
@@ -521,8 +520,8 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button type="button" onClick={() => setOpen(p => !p)} style={{
-        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : "#e2e8f0"}`,
-        borderRadius: 10, padding: "11px 14px", fontSize: 14, cursor: "pointer",
+        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : "#cbd5c9"}`,
+        borderRadius: 3, padding: "10px 13px", fontSize: 14, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
         textAlign: "left", fontFamily: "inherit", outline: "none",
         boxShadow: open ? "0 0 0 3px rgba(34,135,86,0.08)" : "none",
@@ -537,7 +536,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
       {open && (
         <div style={{
           position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 300,
-          background: "#fff", border: "1.5px solid #e2e8f0", borderRadius: 10,
+          background: "#fff", border: "1.5px solid #cbd5c9", borderRadius: 3,
           boxShadow: "0 8px 28px rgba(0,0,0,0.10)", overflow: "hidden", maxHeight: 220, overflowY: "auto",
         }}>
           {options.map((opt, i) => {
@@ -570,7 +569,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   );
 }
 
-function SuccessScreen({ name, internType }) {
+function SuccessScreen({ name, internType, traineeSlug }) {
   const types = Array.isArray(internType) ? internType.join(", ") : internType;
   return (
     <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
@@ -607,21 +606,33 @@ function SuccessScreen({ name, internType }) {
         </div>
 
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          {traineeSlug && (
+            <Link href={`/supervision_to_psychologist/${traineeSlug}`} style={{
+              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "13px 28px", borderRadius: 12,
+              background: "linear-gradient(135deg,#1b5e20,#228756)",
+              color: "#fff", fontWeight: 700, fontSize: 14,
+              boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
+            }}>
+              <i className="feather-user"></i> View My Profile
+            </Link>
+          )}
           <Link href="/" style={{
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
             padding: "13px 28px", borderRadius: 12,
-            background: "linear-gradient(135deg,#1b5e20,#228756)",
-            color: "#fff", fontWeight: 700, fontSize: 14,
-            boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
+            background: traineeSlug ? "#fff" : "linear-gradient(135deg,#1b5e20,#228756)",
+            color: traineeSlug ? "#228756" : "#fff", fontWeight: 700, fontSize: 14,
+            border: traineeSlug ? "1.5px solid #228756" : "none",
+            boxShadow: traineeSlug ? "none" : "0 4px 14px rgba(34,135,86,0.25)",
           }}>
             <i className="feather-home"></i> Go to Home
           </Link>
-          <Link href="/intern-login" style={{
+          <Link href="/supervision-login" style={{
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
             padding: "13px 24px", borderRadius: 12,
             border: "1.5px solid #228756", color: "#228756", fontWeight: 700, fontSize: 14,
           }}>
-            <i className="feather-log-in"></i> Intern Login
+            <i className="feather-log-in"></i> Trainee Login
           </Link>
         </div>
       </div>
@@ -660,6 +671,7 @@ export default function InternshipRegistration() {
   const [aboutModal, setAboutModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [traineeSlug, setTraineeSlug] = useState(null);
 
   useEffect(() => {
     const draft = loadDraft();
@@ -692,7 +704,26 @@ export default function InternshipRegistration() {
     setError("");
     setLoading(true);
     try {
-      await Promise.allSettled([
+      const traineePayload = {
+        name:           form.name,
+        email:          form.email,
+        phone:          form.phone,
+        city:           form.city,
+        college:        form.college,
+        degree:         form.degree,
+        specialization: form.specialization,
+        internType:     form.internType,
+        mode:           form.mode,
+        duration:       form.duration,
+        hours:          form.hours,
+        programFee:     HOUR_PRICES[form.hours] || null,
+        transactionId:  transactionId,
+        availableFrom:  form.availableFrom,
+        motivation:     form.motivation,
+      };
+
+      const [traineeResult] = await Promise.allSettled([
+        postData(createTraineeUrl, traineePayload),
         postData(SubmitConsultationUrl, {
           name:    form.name,
           email:   form.email,
@@ -703,25 +734,13 @@ export default function InternshipRegistration() {
         fetch("/api/send-internship-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name:           form.name,
-            email:          form.email,
-            phone:          form.phone,
-            city:           form.city,
-            college:        form.college,
-            degree:         form.degree,
-            specialization: form.specialization,
-            internType:     form.internType,
-            mode:           form.mode,
-            duration:       form.duration,
-            hours:          form.hours,
-            programFee:     HOUR_PRICES[form.hours] || null,
-            transactionId:  transactionId,
-            availableFrom:  form.availableFrom,
-            motivation:     form.motivation,
-          }),
+          body: JSON.stringify(traineePayload),
         }),
       ]);
+
+      if (traineeResult.status === "fulfilled" && traineeResult.value?.data?.slug) {
+        setTraineeSlug(traineeResult.value.data.slug);
+      }
     } finally {
       setLoading(false);
       setShowQr(false);
@@ -731,13 +750,14 @@ export default function InternshipRegistration() {
   };
 
   const inputStyle = {
-    width: "100%", background: "#fff", border: "1.5px solid #e2e8f0",
-    borderRadius: 10, padding: "11px 14px", fontSize: 14, color: "#1e293b",
+    width: "100%", background: "#fff", border: "1.5px solid #cbd5c9",
+    borderRadius: 3, padding: "10px 13px", fontSize: 14, color: "#1e293b",
     outline: "none", transition: "border-color 0.2s",
     fontFamily: "inherit",
   };
-  const labelStyle = { fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 6, display: "block" };
-  const sectionHead = { fontSize: 15, fontWeight: 800, color: "#1b5e20", marginBottom: 18, paddingBottom: 10, borderBottom: "2px solid #f0fdf4", display: "flex", alignItems: "center", gap: 8 };
+  const labelStyle = { fontSize: 11.5, fontWeight: 700, color: "#3f4d47", marginBottom: 6, display: "block", textTransform: "uppercase", letterSpacing: "0.4px" };
+  const sectionHead = { fontSize: 13.5, fontWeight: 800, color: "#0f3d24", marginBottom: 20, paddingBottom: 12, borderBottom: "2px solid #0f3d24", display: "flex", alignItems: "center", gap: 12, textTransform: "uppercase", letterSpacing: "0.8px" };
+  const sectionNum   = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 4, background: "#0f3d24", color: "#fff", fontSize: 12, fontWeight: 900, flexShrink: 0, letterSpacing: 0, textTransform: "none" };
   const fieldWrap = { marginBottom: 18 };
   const gridTwo   = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0 18px", alignItems: "start" };
   const gridThree = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0 18px", alignItems: "start" };
@@ -771,11 +791,24 @@ export default function InternshipRegistration() {
         input[type="date"] { -webkit-appearance: none; appearance: none; }
         @media (max-width: 640px) { input[type="date"] { font-size: 13px !important; padding: 10px 10px !important; min-height: unset !important; } }
         .req { color: #ef4444; }
-        .section-card { background: #fff; border: 1.5px solid #f1f5f9; border-radius: 18px; padding: 24px 26px; margin-bottom: 22px; }
+        .section-card { background: #fff; border: 1px solid #dbe3df; border-radius: 4px; padding: 26px 28px; margin-bottom: 20px; }
         @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
-        .submit-btn { background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; border: none; borderRadius: 12px; padding: 14px 40px; fontSize: 15px; fontWeight: 800; cursor: pointer; width: 100%; letterSpacing: 0.3px; transition: opacity 0.2s; }
+        .submit-btn { background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; border: none; borderRadius: 3px; padding: 14px 40px; fontSize: 15px; fontWeight: 800; cursor: pointer; width: 100%; letterSpacing: 0.3px; transition: opacity 0.2s; }
         .submit-btn:hover { opacity: 0.9; }
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* ── Academic / official-form styling ── */
+        .af-doc { border: 1px solid #dbe3df; border-radius: 4px; background: #fff; overflow: hidden; }
+        .af-titlebar {
+          background: #0f3d24; text-align: left;
+          padding: 18px 24px; border-radius: 4px 4px 0 0;
+          border-bottom: 3px solid #d4af37;
+        }
+        .af-titlebar-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65) !important; margin: 0 0 4px; }
+        .af-titlebar-title { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; color: #ffffff !important; }
+        .af-titlebar-sub { font-size: 12px; color: rgba(255,255,255,0.7) !important; margin: 6px 0 0; }
+        .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
+        select.intern-input, .intern-input { border-radius: 3px !important; }
       ` }} />
 
       <MyNavbar />
@@ -844,9 +877,20 @@ export default function InternshipRegistration() {
       {/* ── MAIN CONTENT ── */}
       <div id="apply-form" className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
         {submitted ? (
-          <SuccessScreen name={form.name} internType={form.internType} />
+          <SuccessScreen name={form.name} internType={form.internType} traineeSlug={traineeSlug} />
         ) : (
         <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <div className="af-doc" style={{ marginBottom: 24 }}>
+            <div className="af-titlebar">
+              <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
+              <h1 className="af-titlebar-title">Application Form</h1>
+              <p className="af-titlebar-sub">Supervision cum Internship Program</p>
+            </div>
+            <div className="af-notice">
+              <i className="feather-alert-circle" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
+              <span>Please read all instructions carefully before filling this form. Fields marked <strong>*</strong> are mandatory. Incomplete or inaccurate applications may be rejected.</span>
+            </div>
+          </div>
           <div>
             {reviewing ? (
               /* ── REVIEW SCREEN ── */
@@ -869,16 +913,16 @@ export default function InternshipRegistration() {
 
                 {/* Personal */}
                 {[
-                  { title: "Personal Information", icon: "feather-user", color: "#228756", rows: [
+                  { title: "Personal Details", icon: "feather-user", color: "#228756", rows: [
                     ["Full Name", form.name, true], ["Email", form.email, true],
                     ["Phone", form.phone, true], ["City", form.city, false],
                     ["Gender", form.gender || "—", false], ["Date of Birth", form.dob || "—", false],
                   ]},
-                  { title: "Academic Information", icon: "feather-book", color: "#0ea5e9", rows: [
+                  { title: "Academic Qualification", icon: "feather-book", color: "#0ea5e9", rows: [
                     ["College / Institute", form.college, true], ["Degree", form.degree, false],
                     ["Specialization", form.specialization || "—", false], ["Current Semester", form.year, false],
                   ]},
-                  { title: "Internship Preferences", icon: "feather-settings", color: "#8b5cf6", rows: [
+                  { title: "Program Preferences", icon: "feather-settings", color: "#8b5cf6", rows: [
                     ["Internship Types", form.internType.join(", "), true],
                     ["Mode", form.mode, false], ["Duration", form.duration, false],
                     ["Required Hours", form.hours, false],
@@ -952,11 +996,11 @@ export default function InternshipRegistration() {
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                   <button type="button" onClick={() => { setReviewing(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                    style={{ flex: 1, minWidth: 120, padding: "14px", borderRadius: 12, border: "1.5px solid #e2e8f0", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    style={{ flex: 1, minWidth: 120, padding: "14px", borderRadius: 3, border: "1.5px solid #cbd5c9", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     <i className="feather-edit-2"></i> Edit Details
                   </button>
                   <button type="button" onClick={() => setShowQr(true)} disabled={loading}
-                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                     <i className="feather-credit-card"></i> Proceed to Payment
                   </button>
                 </div>
@@ -964,7 +1008,7 @@ export default function InternshipRegistration() {
             ) : (
               <form onSubmit={handleReview} noValidate>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
-                  <h2 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 900, color: "#1e293b", margin: 0 }}>Application Form</h2>
+                  <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>Applicant Details</h2>
                   <button type="button" onClick={() => setAboutModal(true)}
                     style={{ background: "none", border: "none", padding: 0, color: "#228756", fontSize: 12.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
                     Read more information
@@ -983,10 +1027,8 @@ export default function InternshipRegistration() {
                 {/* ── Section 1: Personal ── */}
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="feather-user" style={{ fontSize: 14, color: "#228756" }}></i>
-                    </div>
-                    Personal Information
+                    <span style={sectionNum}>01</span>
+                    Personal Details
                   </div>
 
                   <div style={gridTwo}>
@@ -1027,10 +1069,8 @@ export default function InternshipRegistration() {
                 {/* ── Section 2: Academic ── */}
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "#f0f9ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="feather-book" style={{ fontSize: 14, color: "#0ea5e9" }}></i>
-                    </div>
-                    Academic Information
+                    <span style={sectionNum}>02</span>
+                    Academic Qualification
                   </div>
 
                   <div style={fieldWrap}>
@@ -1062,10 +1102,8 @@ export default function InternshipRegistration() {
                 {/* ── Section 3: Preferences ── */}
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "#f5f3ff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="feather-settings" style={{ fontSize: 14, color: "#8b5cf6" }}></i>
-                    </div>
-                    Internship Preferences
+                    <span style={sectionNum}>03</span>
+                    Program Preferences
                   </div>
 
                   <div style={fieldWrap}>
@@ -1084,8 +1122,8 @@ export default function InternshipRegistration() {
                         return (
                           <label key={t} style={{
                             display: "flex", alignItems: "center", gap: 9, padding: "9px 12px",
-                            borderRadius: 9, cursor: "pointer", userSelect: "none",
-                            border: `1.5px solid ${checked ? "#228756" : "#e2e8f0"}`,
+                            borderRadius: 3, cursor: "pointer", userSelect: "none",
+                            border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
                             background: checked ? "#f0fdf4" : "#fff",
                             transition: "all 0.15s",
                           }}>
@@ -1131,8 +1169,8 @@ export default function InternshipRegistration() {
                         return (
                           <label key={t} style={{
                             display: "flex", alignItems: "center", gap: 9, padding: "9px 12px",
-                            borderRadius: 9, cursor: locked ? "not-allowed" : "pointer", userSelect: "none",
-                            border: `1.5px solid ${checked ? (locked ? "#86efac" : "#228756") : "#e2e8f0"}`,
+                            borderRadius: 3, cursor: locked ? "not-allowed" : "pointer", userSelect: "none",
+                            border: `1.5px solid ${checked ? (locked ? "#86efac" : "#228756") : "#cbd5c9"}`,
                             background: checked ? (locked ? "#f0fdf4" : "#f0fdf4") : "#fff",
                             opacity: locked ? 0.85 : 1,
                             transition: "all 0.15s",
@@ -1176,8 +1214,8 @@ export default function InternshipRegistration() {
                         {MODES.map(m => (
                           <button type="button" key={m} onClick={() => set("mode", m)}
                             style={{
-                              flex: 1, padding: "9px 8px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                              border: `1.5px solid ${form.mode === m ? "#228756" : "#e2e8f0"}`,
+                              flex: 1, padding: "9px 8px", borderRadius: 3, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                              border: `1.5px solid ${form.mode === m ? "#228756" : "#cbd5c9"}`,
                               background: form.mode === m ? "#f0fdf4" : "#fff",
                               color: form.mode === m ? "#166534" : "#64748b",
                               transition: "all 0.15s",
@@ -1228,10 +1266,8 @@ export default function InternshipRegistration() {
                 {/* ── Section 4: About ── */}
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: "#fffbeb", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="feather-edit-2" style={{ fontSize: 14, color: "#f59e0b" }}></i>
-                    </div>
-                    Tell Us About Yourself
+                    <span style={sectionNum}>04</span>
+                    Statement of Purpose & Documents
                   </div>
 
                   <div style={fieldWrap}>
@@ -1261,8 +1297,8 @@ export default function InternshipRegistration() {
                           onDragLeave={e => { e.currentTarget.style.borderColor = form[key] ? color : "#e2e8f0"; }}
                           onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) set(key, f); e.currentTarget.style.borderColor = color; }}
                           style={{
-                            border: `2px dashed ${form[key] ? color : "#e2e8f0"}`,
-                            borderRadius: 12, padding: "18px 12px", textAlign: "center",
+                            border: `2px dashed ${form[key] ? color : "#cbd5c9"}`,
+                            borderRadius: 3, padding: "18px 12px", textAlign: "center",
                             background: form[key] ? bg : "#fafafa", cursor: "pointer",
                             transition: "all 0.2s", minHeight: 110,
                             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
@@ -1286,7 +1322,7 @@ export default function InternshipRegistration() {
                   </div>
 
                   {/* Terms */}
-                  <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 4, padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#e2e8f0"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
+                  <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 4, padding: "14px 16px", borderRadius: 3, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#cbd5c9"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
                     <input type="checkbox" checked={form.agreeTerms} onChange={e => set("agreeTerms", e.target.checked)} style={{ display: "none" }} />
                     <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#228756" : "#cbd5e1"}`, background: form.agreeTerms ? "#228756" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
                       {form.agreeTerms && <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>}
@@ -1299,17 +1335,35 @@ export default function InternshipRegistration() {
                       I confirm that all information provided is accurate and complete.
                     </span>
                   </label>
+
+                  <div style={{ marginTop: 14, background: "#f8fafc", border: "1px solid #dbe3df", borderRadius: 3, padding: "14px 16px" }}>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+                      <i className="feather-info" style={{ fontSize: 12 }}></i> Before You Submit
+                    </p>
+                    <ul style={{ margin: 0, padding: "0 0 0 18px", display: "flex", flexDirection: "column", gap: 8 }}>
+                      {[
+                        "Applications are reviewed within 3–5 business days of submission.",
+                        "Keep your uploaded Resume, College ID, and Photo clear and valid — incomplete documents can delay review.",
+                        "The Program Fee is collected via UPI at the time of application to confirm your slot.",
+                        "Double-check your Transaction / UTR ID before submitting — an incorrect ID can delay payment verification.",
+                        "Selected applicants will be contacted on their registered email and phone number.",
+                        "The Certificate of Internship and Letter of Recommendation are issued only after completing the required hours.",
+                      ].map((t, i) => (
+                        <li key={i} style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>{t}</li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
 
                 <p style={{ textAlign: "center", fontSize: 13, color: "#64748b", marginBottom: 20 }}>
                   Already applied?{" "}
-                  <Link href="/intern-login" style={{ color: "#228756", fontWeight: 700 }}>Intern Login →</Link>
+                  <Link href="/supervision-login" style={{ color: "#228756", fontWeight: 700 }}>Trainee Login →</Link>
                 </p>
 
                 <button type="submit" disabled={loading}
                   style={{
                     width: "100%", background: "linear-gradient(135deg, #1b5e20, #228756)",
-                    color: "#fff", border: "none", borderRadius: 12, padding: "15px 40px",
+                    color: "#fff", border: "none", borderRadius: 3, padding: "15px 40px",
                     fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer",
                     opacity: loading ? 0.7 : 1, letterSpacing: "0.3px", display: "flex",
                     alignItems: "center", justifyContent: "center", gap: 10,

@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { getDecodedToken, removeToken } from "../utils/jwt";
+import { getDecodedToken, removeToken } from "../../utils/jwt";
+import { fetchData } from "../../utils/actions";
+import { getTraineeUrl } from "../../utils/url";
+
+export async function getServerSideProps(context) {
+  const { name } = context.params;
+  try {
+    const res = await fetchData(`${getTraineeUrl}/${name}`);
+    if (res?.status && res?.data) {
+      return { props: { trainee: res.data } };
+    }
+  } catch (err) {
+    console.error("Error fetching trainee for SSR:", err);
+  }
+  return { props: { trainee: null } };
+}
 
 // ── Mock data (replace with API when backend ready) ───────────────────────────
 
@@ -463,25 +479,29 @@ function ResourcesTab({isMobile}) {
 
 // ── Tab: Profile ──────────────────────────────────────────────────────────────
 
-function ProfileTab({user, isMobile}) {
+function ProfileTab({user, trainee, isMobile}) {
   const personal = [
-    {label:"Full Name",      value:user?.name||"—",  icon:"feather-user"},
-    {label:"Email",          value:user?.email||"—", icon:"feather-mail"},
-    {label:"Phone",          value:"—",              icon:"feather-phone"},
-    {label:"City",           value:"—",              icon:"feather-map-pin"},
-    {label:"College",        value:"—",              icon:"feather-book"},
-    {label:"Degree",         value:"—",              icon:"feather-layers"},
-    {label:"Specialization", value:"—",              icon:"feather-award"},
+    {label:"Full Name",      value:trainee?.name||user?.name||"—",   icon:"feather-user"},
+    {label:"Email",          value:trainee?.email||user?.email||"—", icon:"feather-mail"},
+    {label:"Phone",          value:trainee?.phone||"—",              icon:"feather-phone"},
+    {label:"City",           value:trainee?.city||"—",               icon:"feather-map-pin"},
+    {label:"College",        value:trainee?.college||"—",            icon:"feather-book"},
+    {label:"Degree",         value:trainee?.degree||"—",             icon:"feather-layers"},
+    {label:"Specialization", value:trainee?.specialization||"—",     icon:"feather-award"},
   ];
 
+  const internTypeStr = Array.isArray(trainee?.internType) ? trainee.internType.join(", ") : (trainee?.internType || "—");
+  const feeStr = trainee?.programFee ? `₹${Number(trainee.programFee).toLocaleString("en-IN")}` : "—";
+  const statusLabel = trainee?.status ? trainee.status.charAt(0).toUpperCase() + trainee.status.slice(1) : "—";
+
   const internInfo = [
-    {label:"Internship Type", value:"Clinical Internship"},
-    {label:"Mode",            value:"Hybrid"},
-    {label:"Duration",        value:"3 Months"},
-    {label:"Supervisor",      value:"Dr. Anjali Mehta"},
-    {label:"Start Date",      value:"June 1, 2025"},
-    {label:"End Date",        value:"August 31, 2025"},
-    {label:"Status",          value:"Active"},
+    {label:"Internship Type", value: internTypeStr},
+    {label:"Mode",            value: trainee?.mode || "—"},
+    {label:"Duration",        value: trainee?.duration || "—"},
+    {label:"Required Hours",  value: trainee?.hours || "—"},
+    {label:"Program Fee",     value: feeStr},
+    {label:"Start Date",      value: trainee?.availableFrom || "—"},
+    {label:"Status",          value: statusLabel},
   ];
 
   return (
@@ -586,7 +606,7 @@ function CertificatesTab({isMobile}) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-export default function TraineeDashboard() {
+export default function TraineeDashboard({ trainee }) {
   const router = useRouter();
   const [user, setUser]             = useState(null);
   const [tab, setTab]               = useState("overview");
@@ -603,13 +623,36 @@ export default function TraineeDashboard() {
 
   useEffect(() => {
     const decoded = getDecodedToken();
-    if (!decoded) { router.push("/intern-login"); return; }
+    if (!decoded) { router.push("/supervision-login"); return; }
     setUser(decoded);
   }, [router]);
 
-  const logout = () => { removeToken(); router.push("/intern-login"); };
+  const logout = () => { removeToken(); router.push("/supervision-login"); };
 
   const TAB_TITLE = {overview:"Overview", tasks:"My Tasks", attendance:"Attendance", progress:"Progress", resources:"Resources", profile:"My Profile", certificates:"Certificates"};
+
+  if (!trainee) {
+    return (
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#f1f5f9",padding:"40px 16px"}}>
+        <div style={{maxWidth:420,width:"100%",textAlign:"center",background:"#fff",borderRadius:20,border:"1.5px solid #f1f5f9",padding:"40px 32px"}}>
+          <div style={{width:64,height:64,borderRadius:"50%",background:"#fef2f2",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}>
+            <i className="feather-user-x" style={{fontSize:28,color:"#dc2626"}}></i>
+          </div>
+          <h2 style={{fontSize:19,fontWeight:800,color:"#1e293b",marginBottom:8}}>Profile Not Found</h2>
+          <p style={{fontSize:13,color:"#64748b",lineHeight:1.6,marginBottom:20}}>
+            We couldn't find a trainee profile at this link. Please check the URL, or apply for the internship first.
+          </p>
+          <Link href="/internship-registration" style={{
+            display:"inline-flex",alignItems:"center",gap:8,textDecoration:"none",
+            padding:"11px 22px",borderRadius:10,background:"linear-gradient(135deg,#1b5e20,#228756)",
+            color:"#fff",fontWeight:700,fontSize:13,
+          }}>
+            <i className="feather-edit-3"></i> Apply for Internship
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) return null;
 
@@ -670,7 +713,7 @@ export default function TraineeDashboard() {
                 <span style={{color:"#fff",fontWeight:900,fontSize:15}}>{(user.name||"T").charAt(0).toUpperCase()}</span>
               </div>
               <div style={{minWidth:0}}>
-                <p style={{margin:"0 0 3px",fontSize:12,fontWeight:700,color:"#fff",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name||"Trainee"}</p>
+                <p style={{margin:"0 0 3px",fontSize:12,fontWeight:700,color:"#fff",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{trainee?.name||user.name||"Trainee"}</p>
                 <span style={{fontSize:10,fontWeight:700,background:"rgba(34,135,86,0.25)",color:"#4ade80",border:"1px solid rgba(74,222,128,0.25)",borderRadius:20,padding:"1px 8px"}}>
                   Active
                 </span>
@@ -752,7 +795,7 @@ export default function TraineeDashboard() {
             {tab === "attendance"   && <AttendanceTab   isMobile={isMobile}/>}
             {tab === "progress"     && <ProgressTab     isMobile={isMobile}/>}
             {tab === "resources"    && <ResourcesTab    isMobile={isMobile}/>}
-            {tab === "profile"      && <ProfileTab      user={user} isMobile={isMobile}/>}
+            {tab === "profile"      && <ProfileTab      user={user} trainee={trainee} isMobile={isMobile}/>}
             {tab === "certificates" && <CertificatesTab isMobile={isMobile}/>}
           </main>
         </div>

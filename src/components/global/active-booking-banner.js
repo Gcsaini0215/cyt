@@ -9,7 +9,7 @@ import useUserStore from "../../store/userStore";
 const HIDE_ROUTES = [
   "/therapist-dashboard", "/appointments", "/clinic-patients",
   "/case-history", "/create-report", "/settings", "/therapist-checkout",
-  "/payment-success", "/payment-pending", "/intern-login", "/login", "/register",
+  "/payment-success", "/payment-pending", "/supervision-login", "/login", "/register",
 ];
 
 export default function ActiveBookingBanner() {

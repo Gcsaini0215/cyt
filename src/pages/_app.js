@@ -73,8 +73,8 @@ function MyApp({ Component, pageProps }) {
     "/therapists/",
     "/coupon/",
     "/update-workshop/",
-    "/intern-login",
-    "/trainee-psychologist",
+    "/supervision-login",
+    "/supervision_to_psychologist",
   ];
 
   const clientDashboardRoutes = [
