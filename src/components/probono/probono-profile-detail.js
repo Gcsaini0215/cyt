@@ -7,6 +7,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import SendIcon from "@mui/icons-material/Send";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import { Share2 } from "lucide-react";
 import ImageTag from "../../utils/image-tag";
 import ProbonoLeadModal from "./probono-lead-modal";
@@ -157,8 +158,38 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
 
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.75} sx={{ mt: 0.75, mb: 2 }}>
               <SupervisorAccountIcon sx={{ fontSize: 15, color: "#228756" }} />
-              <Typography className="ppd-role">Trainee Psychologist</Typography>
+              <Typography className="ppd-role">{psychologist.roleLabel || "Trainee Psychologist"}</Typography>
             </Stack>
+
+            {!!psychologist.availableDays?.length && (
+              <Box sx={{ mb: 2.5 }}>
+                <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mb: 0.75 }}>
+                  <EventAvailableRoundedIcon sx={{ fontSize: 14, color: "#228756" }} />
+                  <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                    Available Days
+                  </Typography>
+                </Stack>
+                <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={0.6}>
+                  {psychologist.availableDays.map((d) => (
+                    <Box
+                      key={d}
+                      sx={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "#228756",
+                        background: "#f8faf9",
+                        border: "1px solid #cfe4d7",
+                        borderRadius: "4px",
+                        px: 1,
+                        py: 0.35,
+                      }}
+                    >
+                      {d}
+                    </Box>
+                  ))}
+                </Stack>
+              </Box>
+            )}
 
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mb: 2.5 }}>
               {[1, 2, 3, 4, 5].map((s) => (
@@ -238,7 +269,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
         open={showShareModal}
         onClose={() => setShowShareModal(false)}
         url={pageUrl}
-        title={`${psychologist.name} - Trainee Psychologist`}
+        title={`${psychologist.name} - ${psychologist.roleLabel || "Trainee Psychologist"}`}
         description={psychologist.intro}
       />
     </>

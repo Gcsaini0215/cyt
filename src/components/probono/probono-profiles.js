@@ -7,6 +7,7 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 import SendIcon from "@mui/icons-material/Send";
 import GroupsIcon from "@mui/icons-material/Groups";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ImageTag from "../../utils/image-tag";
 import ProbonoBanner from "./probono-banner";
 import ProbonoLeadModal from "./probono-lead-modal";
@@ -121,7 +122,7 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                       >
                         <SupervisorAccountIcon sx={{ fontSize: 13, color: "#228756" }} />
                         <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                          Trainee Psychologist
+                          {p.roleLabel || "Trainee Psychologist"}
                         </Typography>
                       </Stack>
 
@@ -134,9 +135,39 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                         </Typography>
                       </Stack>
 
-                      <Typography sx={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, mb: 2.5 }}>
+                      <Typography sx={{ fontSize: 13.5, color: "#64748b", lineHeight: 1.6, mb: p.availableDays?.length ? 1.5 : 2.5 }}>
                         {p.intro}
                       </Typography>
+
+                      {!!p.availableDays?.length && (
+                        <Box sx={{ width: "100%", mb: 2.5, p: "10px 12px", borderRadius: "6px", background: "#f8faf9", border: "1px solid #eef2f0" }}>
+                          <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mb: 0.75 }}>
+                            <EventAvailableRoundedIcon sx={{ fontSize: 13, color: "#228756" }} />
+                            <Typography sx={{ fontSize: 10, fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                              Available Days
+                            </Typography>
+                          </Stack>
+                          <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={0.6}>
+                            {p.availableDays.map((d) => (
+                              <Box
+                                key={d}
+                                sx={{
+                                  fontSize: 10.5,
+                                  fontWeight: 700,
+                                  color: "#228756",
+                                  background: "#fff",
+                                  border: "1px solid #cfe4d7",
+                                  borderRadius: "4px",
+                                  px: 0.9,
+                                  py: 0.3,
+                                }}
+                              >
+                                {d.slice(0, 3)}
+                              </Box>
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
                     </Box>
                   </Link>
 
