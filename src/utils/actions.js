@@ -201,3 +201,26 @@ export const putData = (url, data) => {
       });
   });
 };
+
+export const patchData = (url, data = {}) => {
+  return new Promise((resolve, reject) => {
+    const token = getToken();
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    axios
+      .patch(url, data, {
+        headers,
+      })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        console.error("API Patch Error:", url, error);
+        reject(error);
+      });
+  });
+};

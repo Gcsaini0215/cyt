@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Box, Typography, Button, Dialog, DialogContent, IconButton, Stack } from "@mui/material";
 import { FiX } from "react-icons/fi";
-import { postFormUrlEncoded } from "../../utils/actions";
-import { SubmitConsultationUrl } from "../../utils/url";
+import { postFormUrlEncoded, patchData } from "../../utils/actions";
+import { SubmitConsultationUrl, probonoRequestSentUrl } from "../../utils/url";
 
-export default function ProbonoLeadModal({ open, onClose, selected }) {
+export default function ProbonoLeadModal({ open, onClose, selected, onSuccess }) {
   const [leadData, setLeadData] = useState({ name: "", phone: "" });
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadLoading, setLeadLoading] = useState(false);
@@ -28,7 +28,11 @@ export default function ProbonoLeadModal({ open, onClose, selected }) {
           : "Requesting probono therapy — please match with an available trainee therapist",
         source: "Probono Therapist Page",
       });
+      if (selected?._id) {
+        patchData(`${probonoRequestSentUrl}/${selected._id}/request-sent`).catch(() => {});
+      }
       setLeadSubmitted(true);
+      onSuccess?.();
     } catch (e) {}
     setLeadLoading(false);
   };

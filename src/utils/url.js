@@ -194,5 +194,7 @@ export const deleteClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const sendClinicInvoiceEmailUrl = `${apiUrl}/send-invoice-email`;
 export const getResourcesUrl           = `${apiUrl}/resources`;
 export const getProbonoInternsUrl      = `${apiUrl}/probono-interns`;
+export const probonoRequestSentUrl     = `${apiUrl}/probono-interns`; // PATCH ${..}/{id}/request-sent
+export const probonoReviewUrl          = `${apiUrl}/probono-interns`; // POST/GET ${..}/{id}/review(s)
 export const createTraineeUrl          = `${apiUrl}/trainees`;
 export const getTraineeUrl             = `${apiUrl}/trainees`; // GET ${getTraineeUrl}/{slug}
