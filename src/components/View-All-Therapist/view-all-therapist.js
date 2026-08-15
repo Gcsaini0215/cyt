@@ -21,7 +21,7 @@ export default function ViewAllTherapist() {
   const [loading, setLoading] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [filteredData, setFilteredData] = React.useState([]);
-  const ITEMS_PER_PAGE = 9;
+  const ITEMS_PER_PAGE = 18;
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [tempFilter, setTempFilter] = React.useState({});
   const [consultOpen, setConsultOpen] = React.useState(false);
