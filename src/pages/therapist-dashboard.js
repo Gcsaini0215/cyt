@@ -1,6 +1,6 @@
 import React from "react";
 import MainLayout from "../components/therapists/main-layout";
-import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, GetMyReviewsUrl, ToggleMyVisibilityUrl } from "../utils/url";
+import { getBookings, GetMyWorkshopBooking, GetDashboardDataUrl, defaultProfile, imagePath, GetMyReviewsUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import Link from "next/link";
@@ -152,17 +152,6 @@ export default function TherapistDashboard() {
   React.useEffect(() => { setClockTime(new Date()); const iv = setInterval(() => setClockTime(new Date()), 60000); return () => clearInterval(iv); }, []);
 
   const { therapistInfo, paymentStore, setInfo } = useTherapistStore();
-  const [togglingVisibility, setTogglingVisibility] = React.useState(false);
-
-  const handleToggleVisibility = React.useCallback(async () => {
-    if (togglingVisibility) return;
-    setTogglingVisibility(true);
-    try {
-      const res = await fetchById(ToggleMyVisibilityUrl);
-      if (res?.status) setInfo("show_to_page", res.data.show_to_page);
-    } catch (e) { console.error("toggle visibility error:", e); }
-    setTogglingVisibility(false);
-  }, [togglingVisibility, setInfo]);
 
   const load = React.useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -363,21 +352,8 @@ export default function TherapistDashboard() {
               </div>
             </div>
 
-            {/* Availability toggle + public profile link — inline in the banner */}
-            <div style={{ marginTop:16, paddingTop:12, borderTop:"1px solid rgba(255,255,255,0.14)", position:"relative", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:10 }}>
-              <div
-                onClick={handleToggleVisibility}
-                role="button"
-                aria-pressed={!!therapistInfo?.show_to_page}
-                style={{ display:"flex", alignItems:"center", gap:8, cursor: togglingVisibility ? "default" : "pointer", opacity: togglingVisibility ? 0.6 : 1, userSelect:"none" }}
-              >
-                <span style={{ position:"relative", width:34, height:19, borderRadius:99, background: therapistInfo?.show_to_page ? "#4ade80" : "rgba(255,255,255,0.25)", transition:"background .2s ease", flexShrink:0 }}>
-                  <span style={{ position:"absolute", top:2, left: therapistInfo?.show_to_page ? 17 : 2, width:15, height:15, borderRadius:"50%", background:"#fff", boxShadow:"0 1px 3px rgba(0,0,0,.3)", transition:"left .2s ease" }} />
-                </span>
-                <span style={{ fontSize:11.5, fontWeight:700, color: therapistInfo?.show_to_page ? "#fff" : "rgba(255,255,255,0.65)" }}>
-                  {therapistInfo?.show_to_page ? "Available for new clients" : "Not listed publicly"}
-                </span>
-              </div>
+            {/* Public profile link — inline in the banner */}
+            <div style={{ marginTop:16, paddingTop:12, borderTop:"1px solid rgba(255,255,255,0.14)", position:"relative", display:"flex", alignItems:"center", justifyContent:"flex-end", flexWrap:"wrap", gap:10 }}>
               {therapistInfo?._id && (
                 <Link href={`/view-profile/${therapistInfo._id}`} target="_blank">
                   <div style={{ display:"inline-flex", alignItems:"center", gap:6, fontSize:11.5, fontWeight:700, color:"#d4af37", cursor:"pointer" }}>
