@@ -180,66 +180,60 @@ export default function FreeResources() {
 
         /* header */
         .fr-tag {
-          display:inline-flex; align-items:center; gap:7px;
-          background:rgba(34,135,86,.1); border:1px solid rgba(34,135,86,.25);
-          color:#228756; font-size:11px; font-weight:700;
-          padding:5px 14px; border-radius:50px;
-          letter-spacing:.8px; text-transform:uppercase; margin-bottom:14px;
+          display:inline-flex; align-items:center; gap:8px;
+          font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+          color:#166534; margin-bottom:12px;
         }
-        .fr-tag-dot { width:6px; height:6px; border-radius:50%; background:#228756; animation:fr-pulse 1.8s ease-in-out infinite; }
-        @keyframes fr-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-        .fr-title { font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; color:#1e293b; margin:0 0 8px; line-height:1.15; }
-        .fr-title span { color:#228756; }
-        .fr-sub { color:#64748b; font-size:15px; margin:0; line-height:1.6; }
+        .fr-tag-dot { width:20px; height:2px; background:#d4af37; display:inline-block; }
+        .fr-title { font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:800; color:#132a1c; margin:0 0 8px; line-height:1.25; }
+        .fr-title span { color:#166534; }
+        .fr-sub { color:#64748b; font-size:14.5px; margin:0; line-height:1.6; }
 
         /* grid */
         .fr-grid {
           display:grid;
           grid-template-columns: repeat(4, 1fr);
-          gap:20px;
+          gap:16px;
           position:relative; z-index:1;
         }
-        @media(max-width:1024px){ .fr-grid { grid-template-columns: repeat(2,1fr); } }
-        @media(max-width:480px){ .fr-grid { grid-template-columns: repeat(2,1fr); gap:12px; } }
+        @media(min-width:768px) and (max-width:1024px){ .fr-grid { grid-template-columns: repeat(3,1fr); gap:14px; } }
+        @media(max-width:767px){ .fr-grid { grid-template-columns: repeat(2,1fr); } }
+        @media(max-width:480px){ .fr-grid { grid-template-columns: repeat(2,1fr); gap:10px; } }
 
         /* card */
         .fr-card {
-          background:#f8fafc;
-          border:1.5px solid #e2e8f0;
-          border-radius:20px;
-          padding:22px 18px 18px;
-          display:flex; flex-direction:column; gap:11px;
+          background:#fff;
+          border:1px solid #dbe3df;
+          border-top:3px solid transparent;
+          border-radius:6px;
+          padding:20px 16px 16px;
+          display:flex; flex-direction:column; gap:10px;
           cursor:pointer;
-          transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+          transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
           position:relative; overflow:hidden;
         }
-        .fr-card::after {
-          content:''; position:absolute; bottom:0; left:0; right:0; height:3px;
-          background:var(--accent); border-radius:0 0 20px 20px;
-          opacity:0; transition:opacity .25s;
-        }
         .fr-card:hover {
-          transform:translateY(-5px);
-          box-shadow:0 16px 40px rgba(34,135,86,.12);
-          border-color:var(--accent);
+          transform:translateY(-3px);
+          box-shadow:0 14px 30px rgba(15,61,36,.1);
+          border-top-color:var(--accent);
+          border-color:#cfe4d7;
         }
-        .fr-card:hover::after { opacity:1; }
 
         .fr-icon-wrap {
-          width:48px; height:48px; border-radius:13px;
+          width:42px; height:42px; border-radius:8px;
           display:flex; align-items:center; justify-content:center;
-          font-size:20px; flex-shrink:0;
-          transition:transform .25s;
+          font-size:18px; flex-shrink:0;
+          transition:transform .2s;
         }
-        .fr-card:hover .fr-icon-wrap { transform:scale(1.1); }
+        .fr-card:hover .fr-icon-wrap { transform:scale(1.06); }
 
         .fr-tag-pill {
           display:inline-block; font-size:10px; font-weight:800;
-          padding:3px 10px; border-radius:50px;
+          padding:3px 9px; border-radius:4px;
           letter-spacing:.5px; text-transform:uppercase;
         }
         .fr-card-title {
-          font-size:14.5px; font-weight:800; color:#1e293b; margin:0; line-height:1.3;
+          font-size:14.5px; font-weight:800; color:#132a1c; margin:0; line-height:1.3;
           transition:color .2s;
         }
         .fr-card:hover .fr-card-title { color:var(--accent); }
@@ -257,10 +251,10 @@ export default function FreeResources() {
         .fr-card:hover .fr-card-cta { gap:8px; }
 
         @media(max-width:480px){
-          .fr-card { padding:14px 12px 12px; gap:8px; border-radius:16px; }
-          .fr-icon-wrap { width:40px; height:40px; font-size:17px; border-radius:11px; }
-          .fr-card-title { font-size:13px; }
-          .fr-card-desc { font-size:11.5px; }
+          .fr-card { padding:13px 11px 11px; gap:7px; border-radius:6px; }
+          .fr-icon-wrap { width:36px; height:36px; font-size:15px; border-radius:6px; }
+          .fr-card-title { font-size:12.5px; }
+          .fr-card-desc { font-size:11px; }
         }
       `}</style>
 
@@ -326,24 +320,28 @@ export default function FreeResources() {
         maxWidth="sm"
         fullWidth
         sx={{ zIndex: 9999 }}
-        PaperProps={{ sx: { borderRadius: "28px", overflow: "hidden" } }}
+        PaperProps={{ sx: { borderRadius: "10px", overflow: "hidden" } }}
       >
         <DialogContent sx={{ p: 0 }}>
-          <Box sx={{ p: 4, position: "relative" }}>
-            <IconButton onClick={handleCloseModal} sx={{ position: "absolute", right: 16, top: 16, color: "#64748b" }}>
-              <FiX />
+          <Box sx={{
+            background: "linear-gradient(135deg,#0f3d24,#175c37)",
+            borderBottom: "3px solid #d4af37",
+            px: 3, py: 2.5, position: "relative",
+            display: "flex", alignItems: "center", gap: 2,
+          }}>
+            <IconButton onClick={handleCloseModal} sx={{ position: "absolute", right: 12, top: 12, color: "rgba(255,255,255,.85)", bgcolor: "rgba(255,255,255,.12)", width: 30, height: 30, "&:hover": { bgcolor: "rgba(255,255,255,.22)" } }}>
+              <FiX size={16} />
             </IconButton>
-
-            <Box sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ width: "48px", height: "48px", borderRadius: "12px", bgcolor: `${selectedTool?.color}15`, color: selectedTool?.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-                {selectedTool?.icon}
-              </Box>
-              <Box>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: "#1e293b" }}>{selectedTool?.title}</Typography>
-                <Typography variant="body2" sx={{ color: "#64748b" }}>Wellness Resource</Typography>
-              </Box>
+            <Box sx={{ width: "44px", height: "44px", borderRadius: "8px", bgcolor: "rgba(255,255,255,.14)", color: selectedTool?.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>
+              {selectedTool?.icon}
             </Box>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: "#fff", fontSize: "17px", lineHeight: 1.3 }}>{selectedTool?.title}</Typography>
+              <Typography variant="body2" sx={{ color: "#d4af37", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>Wellness Resource</Typography>
+            </Box>
+          </Box>
 
+          <Box sx={{ p: 4 }}>
             {/* Panic Button */}
             {selectedTool?.title === "Panic Button" && (
               <Box sx={{ textAlign: "center", py: panicActive ? 2 : 4 }}>
@@ -584,7 +582,7 @@ export default function FreeResources() {
         maxWidth="xs"
         fullWidth
         sx={{ zIndex: 10000 }}
-        PaperProps={{ sx: { borderRadius: "24px", overflow: "hidden" } }}
+        PaperProps={{ sx: { borderRadius: "10px", overflow: "hidden" } }}
       >
         <DialogContent sx={{ p: 0 }}>
           <Box sx={{ p: 4, position: "relative" }}>
@@ -595,7 +593,7 @@ export default function FreeResources() {
             {!leadSubmitted ? (
               <>
                 <Box sx={{ textAlign: "center", mb: 3 }}>
-                  <Box sx={{ width: 56, height: 56, borderRadius: "50%", bgcolor: "rgba(34,135,86,.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 26, color: "#228756" }}>
+                  <Box sx={{ width: 56, height: 56, borderRadius: "8px", bgcolor: "#eef5f1", border: "2px solid #d4af37", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 26, color: "#166534" }}>
                     💬
                   </Box>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: "#1e293b", mb: 0.5 }}>
@@ -635,7 +633,7 @@ export default function FreeResources() {
                   fullWidth
                   onClick={handleLeadSubmit}
                   disabled={leadLoading || !leadData.name.trim() || !leadData.phone.trim()}
-                  sx={{ mt: 2.5, py: 1.5, borderRadius: "12px", background: "linear-gradient(135deg,#166534,#16a34a)", color: "white", fontWeight: 800, fontSize: 15, boxShadow: "0 4px 14px rgba(22,101,52,.25)", "&:hover": { opacity: 0.9 }, "&.Mui-disabled": { background: "#cbd5e1", color: "#94a3b8" } }}
+                  sx={{ mt: 2.5, py: 1.5, borderRadius: "6px", background: "linear-gradient(135deg,#166534,#16a34a)", color: "white", fontWeight: 800, fontSize: 15, boxShadow: "0 4px 14px rgba(22,101,52,.25)", "&:hover": { opacity: 0.9 }, "&.Mui-disabled": { background: "#cbd5e1", color: "#94a3b8" } }}
                 >
                   {leadLoading ? "Connecting..." : "Get Matched — Free"}
                 </Button>
@@ -652,7 +650,7 @@ export default function FreeResources() {
                 <Typography sx={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
                   Our team will reach out on WhatsApp within 24 hours. Keep using the tools in the meantime!
                 </Typography>
-                <Button onClick={() => setShowLeadPopup(false)} sx={{ mt: 3, bgcolor: "#f0fdf4", color: "#228756", fontWeight: 800, borderRadius: "12px", px: 4 }}>
+                <Button onClick={() => setShowLeadPopup(false)} sx={{ mt: 3, bgcolor: "#f0fdf4", color: "#166534", fontWeight: 800, borderRadius: "6px", px: 4 }}>
                   Close
                 </Button>
               </Box>

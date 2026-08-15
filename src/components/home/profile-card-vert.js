@@ -70,18 +70,20 @@ export default function ProfileCardVert({ data, favrioutes }) {
         .vtc-card {
           display: flex;
           flex-direction: row;
-          border-radius: 18px;
+          border-radius: 6px;
           background: #fff;
-          border: 1px solid #eef2f7;
-          box-shadow: 0 3px 16px rgba(0,0,0,.06);
+          border: 1px solid #dbe3df;
+          border-top: 3px solid transparent;
+          box-shadow: 0 2px 10px rgba(15,61,36,.05);
           overflow: hidden;
           height: 100%;
           transition: transform .25s ease, box-shadow .25s ease, border-color .25s;
         }
         .vtc-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 34px rgba(0,0,0,.11);
-          border-color: #bbf7d0;
+          transform: translateY(-3px);
+          box-shadow: 0 14px 30px rgba(15,61,36,.12);
+          border-top-color: #d4af37;
+          border-color: #cfe4d7;
         }
 
         /* ── Left: image ─────────────────────── */
@@ -117,10 +119,10 @@ export default function ProfileCardVert({ data, favrioutes }) {
           position: absolute;
           bottom: 10px; left: 8px; z-index: 3;
           font-size: 10px; font-weight: 800;
-          padding: 3px 8px; border-radius: 20px; color: #fff;
+          padding: 3px 8px; border-radius: 4px; color: #fff;
         }
-        .vtc-pri.rec { background: rgba(34,135,86,.9); }
-        .vtc-pri.ver { background: rgba(37,99,235,.9); }
+        .vtc-pri.rec { background: rgba(212,175,55,.95); color: #0f3d24; }
+        .vtc-pri.ver { background: rgba(15,61,36,.9); }
 
         /* ── Right: content ──────────────────── */
         .vtc-body {
@@ -148,13 +150,13 @@ export default function ProfileCardVert({ data, favrioutes }) {
           flex: 1;
           min-width: 0;
         }
-        .vtc-name:hover { color: #228756; }
+        .vtc-name:hover { color: #166534; }
 
         /* bookmark */
         .vtc-bk {
           width: 30px; height: 30px; flex-shrink: 0;
-          border-radius: 8px; border: 1.5px solid #e8edf2;
-          background: #f8fafc;
+          border-radius: 4px; border: 1.5px solid #dbe3df;
+          background: #f8faf9;
           display: flex; align-items: center; justify-content: center;
           cursor: pointer; transition: all .2s; margin-top: 1px;
         }
@@ -163,9 +165,9 @@ export default function ProfileCardVert({ data, favrioutes }) {
         /* type badge */
         .vtc-type {
           display: inline-flex; align-items: center; gap: 5px;
-          font-size: 11.5px; font-weight: 700;
-          padding: 4px 10px; border-radius: 20px;
-          width: fit-content; letter-spacing: .2px;
+          font-size: 11px; font-weight: 700;
+          padding: 4px 10px; border-radius: 4px;
+          width: fit-content; letter-spacing: .3px; text-transform: uppercase;
         }
         .vtc-type-dot {
           width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
@@ -175,7 +177,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
         .vtc-rating {
           display: inline-flex; align-items: center; gap: 3px;
           background: #fffbeb; border: 1px solid #fde68a;
-          border-radius: 20px; padding: 2px 8px;
+          border-radius: 4px; padding: 2px 8px;
           width: fit-content;
         }
         .vtc-rating span { font-size: 12px; font-weight: 700; color: #92400e; }
@@ -189,44 +191,44 @@ export default function ProfileCardVert({ data, favrioutes }) {
           display: flex; align-items: center; gap: 3px;
           font-size: 12px; color: #64748b; font-weight: 600;
         }
-        .vtc-meta-it i { color: #228756; font-size: 11px; }
+        .vtc-meta-it i { color: #166534; font-size: 11px; }
         .vtc-sep { color: #e2e8f0; font-size: 11px; margin: 0 2px; }
 
         /* price */
         .vtc-price {
-          font-size: 14px; font-weight: 800; color: #228756;
+          font-size: 14px; font-weight: 800; color: #166534;
         }
 
         /* chips */
         .vtc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
         .vtc-chip {
-          background: #f8fafc; color: #475569;
+          background: #f8faf9; color: #52667f;
           font-size: 11px; font-weight: 700;
-          padding: 2px 9px; border-radius: 20px;
-          border: 1px solid #e2e8f0;
+          padding: 2px 9px; border-radius: 4px;
+          border: 1px solid #dbe3df;
         }
 
         /* action buttons */
         .vtc-btns { display: flex; gap: 6px; margin-top: auto; }
         .vtc-btn-out {
           flex: 1; text-align: center; display: block;
-          padding: 8px 0; border-radius: 9px;
-          border: 1.5px solid #e2e8f0; color: #475569;
+          padding: 8px 0; border-radius: 4px;
+          border: 1.5px solid #cbd5c9; color: #475569;
           font-weight: 700; font-size: 12px; text-decoration: none;
           transition: all .2s;
         }
-        .vtc-btn-out:hover { border-color: #228756; color: #228756; }
+        .vtc-btn-out:hover { border-color: #166534; color: #166534; }
         .vtc-btn-fill {
           flex: 1.3; text-align: center; display: block;
-          padding: 8px 0; border-radius: 9px;
-          background: linear-gradient(135deg, #228756, #1a6b44);
+          padding: 8px 0; border-radius: 4px;
+          background: linear-gradient(135deg, #0f3d24, #175c37);
           color: #fff; font-weight: 700; font-size: 12px;
           text-decoration: none;
-          box-shadow: 0 3px 10px rgba(34,135,86,.22);
+          box-shadow: 0 3px 10px rgba(15,61,36,.22);
           transition: all .2s;
         }
         .vtc-btn-fill:hover {
-          box-shadow: 0 6px 16px rgba(34,135,86,.32);
+          box-shadow: 0 6px 16px rgba(15,61,36,.32);
           transform: translateY(-1px);
         }
 

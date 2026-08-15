@@ -11,7 +11,12 @@
       "Bash(git push *)",
       "Bash(cmd /c \"dir d:\\\\cyt-admin\\\\src\\\\pages\\\\leads.js\")",
       "Bash(cmd /c \"dir d:\\\\cyt-admin\\\\src\\\\components\\\\leads\\\\\" 2>&1)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001 --max-time 3)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000 --max-time 3)",
+      "Bash(grep -A5 '\"scripts\"' /e/cyt-admin/package.json)",
+      "Read(//e/cyt-admin/**)"
     ],
     "additionalDirectories": [
       "d:\\cyt-admin\\src\\components\\reviews",

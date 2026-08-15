@@ -129,18 +129,18 @@ export default function NewsLetter() {
   return (
     <div ref={ref} style={{ background: '#f8faf9' }}>
       <style>{`
-        .nl-label { display:block; font-size:11.5px; font-weight:700; color:#64748b; margin-bottom:7px; }
-        .nl-input { width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid #e2e8f0; font-size:15px; outline:none; transition:border-color .2s,box-shadow .2s; margin-bottom:14px; color:#1e293b; background:#f8fafc; box-sizing:border-box; font-family:inherit; }
-        .nl-input:focus { border-color:#228756; background:#fff; box-shadow:0 0 0 3px rgba(34,135,86,.1); }
-        .nl-btn { width:100%; padding:14px; background:linear-gradient(135deg,#1b5e20,#228756); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.2px; box-shadow:0 10px 24px rgba(15,89,54,0.28); transition:transform .2s,box-shadow .2s; }
-        .nl-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 14px 28px rgba(15,89,54,0.34); }
+        .nl-label { display:block; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.4px; margin-bottom:7px; }
+        .nl-input { width:100%; padding:13px 16px; border-radius:4px; border:1.5px solid #cbd5c9; font-size:15px; outline:none; transition:border-color .2s,box-shadow .2s; margin-bottom:14px; color:#1e293b; background:#f8faf9; box-sizing:border-box; font-family:inherit; }
+        .nl-input:focus { border-color:#166534; background:#fff; box-shadow:0 0 0 3px rgba(22,101,52,.1); }
+        .nl-btn { width:100%; padding:14px; background:linear-gradient(135deg,#0f3d24,#175c37); color:#fff; border:none; border-radius:4px; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.2px; box-shadow:0 10px 24px rgba(15,61,36,0.28); transition:transform .2s,box-shadow .2s; }
+        .nl-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 14px 28px rgba(15,61,36,0.34); }
         .nl-btn:disabled { opacity:.7; cursor:not-allowed; transform:none; }
         .nl-link { color:#94a3b8; font-size:12px; text-align:center; margin-top:12px; cursor:pointer; display:block; }
-        .nl-link:hover { color:#228756; }
-        .nl-band { background:linear-gradient(120deg,#0d3320 0%,#1a6b3a 55%,#228756 100%); width:100%; padding: 64px 0; position:relative; overflow:hidden; }
-        @media(max-width:991px){ .nl-band { padding:44px 0; } }
-        .nl-card { background:#fff; border-radius:20px; padding:32px; box-shadow:0 20px 45px rgba(0,0,0,0.18); }
-        @media(max-width:991px){ .nl-card { padding:26px 22px; } }
+        .nl-link:hover { color:#166534; }
+        .nl-band { background:linear-gradient(135deg,#0f3d24,#175c37); width:100%; padding: 56px 0; position:relative; overflow:hidden; border-top:3px solid #d4af37; border-bottom:3px solid #d4af37; }
+        @media(max-width:991px){ .nl-band { padding:40px 0; } }
+        .nl-card { background:#fff; border-radius:8px; border:1px solid #dbe3df; padding:32px; box-shadow:0 20px 45px rgba(0,0,0,0.18); }
+        @media(max-width:991px){ .nl-card { padding:24px 20px; } }
         @media(min-width:768px) and (max-width:1024px){ .nl-input,.nl-btn { min-height:48px; } }
       `}</style>
 
@@ -155,11 +155,11 @@ export default function NewsLetter() {
             {/* Left: content */}
             <div className="col-lg-6">
               <span style={{
-                display:'inline-flex', alignItems:'center', gap:7, background:'rgba(255,255,255,.14)',
-                color:'#fff', padding:'6px 16px', borderRadius:'50px',
+                display:'inline-flex', alignItems:'center', gap:7, background:'rgba(212,175,55,.14)',
+                color:'#d4af37', padding:'6px 16px', borderRadius:'4px',
                 fontSize:'11.5px', fontWeight:700, letterSpacing:'1px',
                 textTransform:'uppercase', marginBottom:'20px',
-                border:'1px solid rgba(255,255,255,.2)',
+                border:'1px solid rgba(212,175,55,.35)',
               }}>
                 <i className="feather-mail" style={{ fontSize:12 }}></i> Stay Updated
               </span>
@@ -241,7 +241,7 @@ export default function NewsLetter() {
                 )}
 
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', marginTop:'16px' }}>
-                  <i className="feather-shield" style={{ color:'#228756', fontSize:'13px' }}></i>
+                  <i className="feather-shield" style={{ color:'#166534', fontSize:'13px' }}></i>
                   <span style={{ fontSize:'12px', color:'#94a3b8' }}>100% private · Unsubscribe anytime</span>
                 </div>
               </div>

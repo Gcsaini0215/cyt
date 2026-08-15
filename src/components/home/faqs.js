@@ -1,5 +1,6 @@
+import React, { useState } from "react";
 import FAQ from "./faq";
-import { HelpCircle, Brain, Heart, Users, BookOpen, Shield, IndianRupee } from "lucide-react";
+import { Brain, Heart, Users, BookOpen, Shield, IndianRupee } from "lucide-react";
 
 const faqCategories = [
   {
@@ -157,96 +158,105 @@ const faqCategories = [
 ];
 
 export default function Faqs() {
+  const [active, setActive] = useState(0);
+  const category = faqCategories[active];
+
   return (
-    <div style={{ backgroundColor: '#f8fafc', padding: '80px 0 100px' }}>
+    <div style={{ backgroundColor: '#f8faf9', padding: '56px 0 64px' }}>
       <div className="container">
 
         {/* Header */}
-        <div className="row justify-content-center" style={{ marginBottom: '60px' }}>
+        <div className="row justify-content-center" style={{ marginBottom: '32px' }}>
           <div className="col-lg-8 text-center">
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              backgroundColor: 'rgba(34, 135, 86, 0.1)', color: '#228756',
-              padding: '8px 20px', borderRadius: '100px',
-              fontSize: '14px', fontWeight: 700, marginBottom: '20px'
+              fontSize: '11px', fontWeight: 800, letterSpacing: '1.2px', textTransform: 'uppercase',
+              color: '#166534', marginBottom: '12px'
             }}>
-              <HelpCircle size={18} />
+              <span style={{ width: '20px', height: '2px', background: '#d4af37', display: 'inline-block' }} />
               Frequently Asked Questions
+              <span style={{ width: '20px', height: '2px', background: '#d4af37', display: 'inline-block' }} />
             </div>
-            <h2 style={{ fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 900, color: '#1e293b', marginBottom: '16px', lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: '#132a1c', marginBottom: '10px', lineHeight: 1.25 }}>
               Everything You Want to Know About Therapy
             </h2>
-            <p style={{ color: '#64748b', fontSize: '18px', lineHeight: 1.7, maxWidth: '600px', margin: '0 auto' }}>
+            <p style={{ color: '#64748b', fontSize: '14.5px', lineHeight: 1.65, maxWidth: '560px', margin: '0 auto' }}>
               Real answers to the questions most people are too hesitant to ask — about therapy, psychologists, costs, and what actually happens in a session.
             </p>
           </div>
         </div>
 
-        {/* Categories */}
-        {faqCategories.map((category, catIndex) => {
-          const Icon = category.icon;
-          return (
-            <div key={catIndex} style={{ marginBottom: '56px' }}>
+        {/* Category tabs */}
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px',
+          marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid #eef2f0'
+        }}>
+          {faqCategories.map((cat, i) => {
+            const Icon = cat.icon;
+            const isActive = i === active;
+            return (
+              <button
+                key={i}
+                onClick={() => setActive(i)}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '7px',
+                  padding: '9px 16px', borderRadius: '6px',
+                  border: `1.5px solid ${isActive ? '#166534' : '#dbe3df'}`,
+                  background: isActive ? '#166534' : '#fff',
+                  color: isActive ? '#fff' : '#475569',
+                  fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Icon size={15} color={isActive ? '#fff' : cat.color} />
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
 
-              {/* Category Header */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                marginBottom: '24px', padding: '14px 20px',
-                backgroundColor: category.bg, borderRadius: '14px',
-                borderLeft: `4px solid ${category.color}`
-              }}>
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '10px',
-                  backgroundColor: category.color, display: 'flex',
-                  alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                }}>
-                  <Icon size={20} color="#fff" />
-                </div>
-                <div>
-                  <h3 style={{
-                    fontSize: '20px', fontWeight: 800, color: '#1e293b',
-                    margin: 0, lineHeight: 1.2
-                  }}>
-                    {category.label}
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '13px', color: '#64748b', marginTop: '2px' }}>
-                    {category.faqs.length} questions
-                  </p>
-                </div>
-              </div>
-
-              {/* FAQs in this category */}
-              <div style={{ maxWidth: '900px' }}>
-                {category.faqs.map((item, index) => (
-                  <FAQ key={index} q={item.q} a={item.a} />
-                ))}
-              </div>
-
-            </div>
-          );
-        })}
+        {/* Active category's FAQs */}
+        <div style={{ maxWidth: '820px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <span style={{
+              width: '22px', height: '22px', borderRadius: '4px', flexShrink: 0,
+              background: '#166534', color: '#fff', fontSize: '10px', fontWeight: 800,
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              {String(active + 1).padStart(2, '0')}
+            </span>
+            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#132a1c', margin: 0 }}>
+              {category.label}
+            </h3>
+            <span style={{ fontSize: '12.5px', color: '#94a3b8', fontWeight: 600 }}>
+              · {category.faqs.length} questions
+            </span>
+          </div>
+          {category.faqs.map((item, index) => (
+            <FAQ key={`${active}-${index}`} q={item.q} a={item.a} />
+          ))}
+        </div>
 
         {/* Bottom CTA */}
         <div style={{
-          textAlign: 'center', marginTop: '20px', padding: '48px 32px',
-          backgroundColor: '#fff', borderRadius: '24px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.04)'
+          textAlign: 'center', marginTop: '40px', padding: '36px 28px',
+          background: 'linear-gradient(135deg,#0f3d24,#175c37)', borderRadius: '8px',
+          borderBottom: '3px solid #d4af37'
         }}>
-          <h3 style={{ fontSize: '26px', fontWeight: 800, color: '#1e293b', marginBottom: '12px' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>
             Still have questions?
           </h3>
-          <p style={{ color: '#64748b', fontSize: '17px', marginBottom: '28px', maxWidth: '480px', margin: '0 auto 28px' }}>
+          <p style={{ color: 'rgba(255,255,255,.75)', fontSize: '14px', marginBottom: '22px', maxWidth: '480px', margin: '0 auto 22px' }}>
             Talk to a real person. Our team is happy to help you find the right psychologist for your specific needs.
           </p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a
               href="/view-all-therapist"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '14px 32px', borderRadius: '50px',
-                backgroundColor: '#228756', color: '#fff',
-                fontWeight: 700, fontSize: '16px', textDecoration: 'none',
+                padding: '11px 24px', borderRadius: '6px',
+                backgroundColor: '#d4af37', color: '#0f3d24',
+                fontWeight: 700, fontSize: '14px', textDecoration: 'none',
                 transition: 'all 0.2s'
               }}
             >
@@ -256,10 +266,10 @@ export default function Faqs() {
               href="/contact-us"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '14px 32px', borderRadius: '50px',
-                backgroundColor: '#f1f5f9', color: '#1e293b',
-                fontWeight: 700, fontSize: '16px', textDecoration: 'none',
-                border: '1px solid #e2e8f0'
+                padding: '11px 24px', borderRadius: '6px',
+                backgroundColor: 'rgba(255,255,255,.08)', color: '#fff',
+                fontWeight: 700, fontSize: '14px', textDecoration: 'none',
+                border: '1px solid rgba(255,255,255,.25)'
               }}
             >
               Contact Us

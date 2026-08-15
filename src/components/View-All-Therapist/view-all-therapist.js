@@ -207,30 +207,39 @@ export default function ViewAllTherapist() {
           background-size: cover;
           background-position: center;
           overflow: visible;
-          padding: 56px 0 76px;
+          padding: 60px 0 80px;
+          border-bottom: 3px solid #d4af37;
         }
         .vat-banner::before {
           content:''; position:absolute; inset:0;
-          background: linear-gradient(135deg,rgba(10,46,28,.88) 0%,rgba(0,0,0,.65) 100%);
+          background: rgba(0,0,0,.5);
           z-index:1;
         }
         .vat-ban-inner { position:relative; z-index:2; text-align:left; }
-        .vat-ban-title { color:#fff; font-size:clamp(2rem,5vw,3rem); font-weight:900; margin:0 0 12px; line-height:1.15; }
-        .vat-ban-title span { color:#86efac; }
-        .vat-ban-sub { color:rgba(255,255,255,.75); font-size:clamp(1rem,2vw,1.1rem); margin:0 0 0; max-width:520px; line-height:1.65; font-weight:500; padding:0; }
+        .vat-ban-eyebrow {
+          display:inline-flex; align-items:center; gap:8px;
+          font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+          color:#d4af37; margin-bottom:14px;
+          text-shadow: 0 2px 10px rgba(0,0,0,.6);
+        }
+        .vat-ban-eyebrow::before { content:''; width:22px; height:2px; background:#d4af37; display:inline-block; }
+        .vat-ban-title { color:#fff; font-size:clamp(1.9rem,4.6vw,2.7rem); font-weight:800; margin:0 0 12px; line-height:1.2; letter-spacing:-.3px; text-shadow: 0 2px 14px rgba(0,0,0,.65); }
+        .vat-ban-title span { color:#d4af37; }
+        .vat-ban-sub { color:rgba(255,255,255,.92); font-size:clamp(.95rem,1.8vw,1.05rem); margin:0 0 0; max-width:520px; line-height:1.65; font-weight:500; padding:0; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
 
         /* ── Sticky filter bar (overlaps banner bottom) ─ */
         .vat-sticky-bar {
           position: sticky;
           top: 0;
           z-index: 200;
-          margin-top: -52px;
+          margin-top: -46px;
           padding: 0 0 16px;
         }
         .vat-filter-card {
           background: #fff;
-          border-radius: 18px;
-          box-shadow: 0 8px 36px rgba(0,0,0,.18);
+          border: 1px solid #dbe3df;
+          border-radius: 8px;
+          box-shadow: 0 8px 28px rgba(15,61,36,.14);
           padding: 14px 18px;
         }
         .vat-filter-inner {
@@ -241,55 +250,55 @@ export default function ViewAllTherapist() {
         .vat-search-wrap { position:relative; flex:1; min-width:0; }
         .vat-search-input {
           width:100%; padding:10px 42px 10px 16px;
-          border-radius:10px; border:1.5px solid #e2e8f0;
-          font-size:14px; background:#f8fafc; outline:none;
+          border-radius:4px; border:1.5px solid #cbd5c9;
+          font-size:14px; background:#f8faf9; outline:none;
           color:#1e293b; transition:border-color .2s; box-sizing:border-box;
         }
-        .vat-search-input:focus { border-color:#228756; background:#fff; box-shadow:0 0 0 3px rgba(34,135,86,.08); }
+        .vat-search-input:focus { border-color:#166534; background:#fff; box-shadow:0 0 0 3px rgba(22,101,52,.08); }
         .vat-search-btn {
           position:absolute; right:8px; top:50%; transform:translateY(-50%);
-          background:#228756; color:#fff; border:none;
-          width:30px; height:30px; border-radius:8px;
+          background:#166534; color:#fff; border:none;
+          width:30px; height:30px; border-radius:4px;
           display:flex; align-items:center; justify-content:center;
           cursor:pointer; flex-shrink:0;
         }
         .vat-search-btn i { font-size:13px; }
         .vat-fsel {
-          height:40px; border-radius:10px; border:1.5px solid #e8edf2;
-          background:#f8fafc; font-size:13px; padding:0 10px;
+          height:40px; border-radius:4px; border:1.5px solid #cbd5c9;
+          background:#f8faf9; font-size:13px; padding:0 10px;
           color:#475569; font-weight:600; outline:none; cursor:pointer;
           transition:border-color .2s; white-space:nowrap;
         }
-        .vat-fsel:focus { border-color:#228756; }
-        .vat-fsel.active { border-color:#228756; background:#f0fdf4; color:#228756; }
+        .vat-fsel:focus { border-color:#166534; }
+        .vat-fsel.active { border-color:#166534; background:#f0fdf4; color:#166534; }
         .vat-reset-btn {
           display:inline-flex; align-items:center; gap:4px;
           font-size:12px; font-weight:700; color:#ef4444;
           border:1px solid #fecaca; background:#fff5f5;
-          padding:0 12px; height:40px; border-radius:10px;
+          padding:0 12px; height:40px; border-radius:4px;
           cursor:pointer; white-space:nowrap; flex-shrink:0;
         }
 
         /* ── Results ─────────────────────────────────── */
         .vat-results-wrap { padding:44px 0 60px; }
-        .vat-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px; }
-        .vat-results-title { font-size:18px; font-weight:800; color:#1e293b; }
-        .vat-results-count { font-size:14px; color:#64748b; font-weight:600; }
-        .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:20px; cursor:pointer; }
+        .vat-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px; padding-bottom:16px; border-bottom:1px solid #eef2f0; }
+        .vat-results-title { font-size:17px; font-weight:800; color:#132a1c; }
+        .vat-results-count { font-size:13px; color:#64748b; font-weight:600; }
+        .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:4px; cursor:pointer; }
 
         /* loading skeleton */
-        .vat-skeleton { border-radius:18px; background:#f8fafc; overflow:hidden; }
+        .vat-skeleton { border-radius:6px; background:#f8faf9; overflow:hidden; border:1px solid #eef2f0; }
         .vat-skel-img { height:220px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200%; animation:vat-shimmer 1.4s infinite; }
         .vat-skel-body { padding:16px; }
-        .vat-skel-line { height:14px; border-radius:6px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200%; animation:vat-shimmer 1.4s infinite; margin-bottom:10px; }
+        .vat-skel-line { height:14px; border-radius:4px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200%; animation:vat-shimmer 1.4s infinite; margin-bottom:10px; }
         @keyframes vat-shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
 
         /* active filter chips */
         .vat-chip {
           display: inline-flex; align-items: center; gap: 6px;
-          background: #f0fdf4; border: 1.5px solid #86efac;
+          background: #eef5f1; border: 1.5px solid #cfe4d7;
           color: #166534; font-size: 12px; font-weight: 700;
-          padding: 4px 10px 4px 12px; border-radius: 20px;
+          padding: 4px 10px 4px 12px; border-radius: 4px;
         }
         .vat-chip-x {
           background: none; border: none; padding: 0; cursor: pointer;
@@ -301,13 +310,13 @@ export default function ViewAllTherapist() {
         /* pagination */
         .vat-pagination { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:44px; flex-wrap:wrap; }
         .vat-page-btn {
-          min-width:38px; height:38px; border-radius:10px; border:1.5px solid #e2e8f0;
+          min-width:38px; height:38px; border-radius:4px; border:1.5px solid #cbd5c9;
           background:#fff; color:#475569; font-size:14px; font-weight:700;
           cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
           transition:all .18s; padding:0 6px;
         }
-        .vat-page-btn:hover:not(:disabled):not(.ellipsis) { border-color:#228756; color:#228756; background:#f0fdf4; }
-        .vat-page-btn.active { background:#228756; border-color:#228756; color:#fff; box-shadow:0 4px 12px rgba(34,135,86,.25); }
+        .vat-page-btn:hover:not(:disabled):not(.ellipsis) { border-color:#166534; color:#166534; background:#f0fdf4; }
+        .vat-page-btn.active { background:#166534; border-color:#166534; color:#fff; box-shadow:0 4px 12px rgba(22,101,52,.25); }
         .vat-page-btn:disabled { opacity:.4; cursor:not-allowed; }
         .vat-page-btn.ellipsis { border:none; background:transparent; cursor:default; }
         .vat-page-info { font-size:13px; color:#94a3b8; font-weight:600; text-align:center; margin-top:12px; }
@@ -333,47 +342,48 @@ export default function ViewAllTherapist() {
             display:flex; align-items:center; gap:8px;
             position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
             z-index:300;
-            background:linear-gradient(135deg,#228756,#1a6b44); color:#fff;
-            border:none; padding:12px 24px; border-radius:50px;
+            background:linear-gradient(135deg,#0f3d24,#175c37); color:#fff;
+            border:1px solid #d4af37; padding:12px 24px; border-radius:6px;
             font-size:14px; font-weight:700;
-            box-shadow:0 6px 20px rgba(34,135,86,.4);
+            box-shadow:0 6px 20px rgba(15,61,36,.4);
             cursor:pointer; white-space:nowrap;
           }
           .vat-filter-fab:active { transform:translateX(-50%) scale(.96); }
           .vat-fab-badge {
-            background:#fff; color:#228756; font-size:11px; font-weight:800;
-            width:18px; height:18px; border-radius:50%;
+            background:#d4af37; color:#0f3d24; font-size:11px; font-weight:800;
+            width:18px; height:18px; border-radius:4px;
             display:inline-flex; align-items:center; justify-content:center;
           }
 
           .vat-sheet-overlay {
             display:block; position:fixed; inset:0; z-index:400;
-            background:rgba(0,0,0,.5); backdrop-filter:blur(2px);
+            background:rgba(15,35,26,.5); backdrop-filter:blur(4px);
             opacity:0; pointer-events:none; transition:opacity .25s;
           }
           .vat-sheet-overlay.open { opacity:1; pointer-events:all; }
 
           .vat-sheet {
             display:block; position:fixed; bottom:0; left:0; right:0;
-            z-index:500; background:#fff; border-radius:22px 22px 0 0;
+            z-index:500; background:#fff; border-radius:12px 12px 0 0;
+            border-top:3px solid #d4af37;
             padding:0 0 env(safe-area-inset-bottom,0);
             transform:translateY(100%);
             transition:transform .3s cubic-bezier(.4,0,.2,1);
             max-height:85vh; overflow-y:auto;
           }
           .vat-sheet.open { transform:translateY(0); }
-          .vat-sheet-handle { width:40px; height:4px; border-radius:2px; background:#e2e8f0; margin:12px auto 0; display:block; }
-          .vat-sheet-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid #f1f5f9; }
-          .vat-sheet-head h5 { margin:0; font-size:16px; font-weight:800; color:#1e293b; }
-          .vat-sheet-close { width:30px; height:30px; border-radius:50%; border:none; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+          .vat-sheet-handle { width:40px; height:4px; border-radius:2px; background:#dbe3df; margin:12px auto 0; display:block; }
+          .vat-sheet-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px 12px; border-bottom:1px solid #eef2f0; }
+          .vat-sheet-head h5 { margin:0; font-size:15px; font-weight:800; color:#132a1c; }
+          .vat-sheet-close { width:30px; height:30px; border-radius:6px; border:none; background:#f1f5f9; color:#64748b; display:flex; align-items:center; justify-content:center; cursor:pointer; }
           .vat-sheet-body { padding:16px 20px; display:flex; flex-direction:column; gap:12px; }
           .vat-sheet-label { font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.6px; margin-bottom:4px; }
-          .vat-sheet-sel { width:100%; height:46px; border-radius:12px; border:1.5px solid #e8edf2; background:#f8fafc; font-size:14px; padding:0 14px; color:#1e293b; font-weight:600; outline:none; cursor:pointer; }
-          .vat-sheet-sel:focus { border-color:#228756; }
-          .vat-sheet-sel.active { border-color:#228756; background:#f0fdf4; color:#228756; }
-          .vat-sheet-footer { display:flex; gap:10px; padding:14px 20px 20px; border-top:1px solid #f1f5f9; }
-          .vat-sheet-clear { flex:1; height:46px; border-radius:12px; border:1.5px solid #e2e8f0; background:#fff; color:#64748b; font-size:14px; font-weight:700; cursor:pointer; }
-          .vat-sheet-apply { flex:2; height:46px; border-radius:12px; border:none; background:linear-gradient(135deg,#228756,#1a6b44); color:#fff; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(34,135,86,.3); }
+          .vat-sheet-sel { width:100%; height:46px; border-radius:4px; border:1.5px solid #cbd5c9; background:#f8faf9; font-size:14px; padding:0 14px; color:#1e293b; font-weight:600; outline:none; cursor:pointer; }
+          .vat-sheet-sel:focus { border-color:#166534; }
+          .vat-sheet-sel.active { border-color:#166534; background:#f0fdf4; color:#166534; }
+          .vat-sheet-footer { display:flex; gap:10px; padding:14px 20px 20px; border-top:1px solid #eef2f0; }
+          .vat-sheet-clear { flex:1; height:46px; border-radius:4px; border:1.5px solid #cbd5c9; background:#fff; color:#64748b; font-size:14px; font-weight:700; cursor:pointer; }
+          .vat-sheet-apply { flex:2; height:46px; border-radius:4px; border:none; background:linear-gradient(135deg,#0f3d24,#175c37); color:#fff; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 12px rgba(15,61,36,.3); }
         }
 
         @media(min-width:768px) and (max-width:1100px){
@@ -385,6 +395,7 @@ export default function ViewAllTherapist() {
       <div className="vat-banner">
         <div className="container">
           <div className="vat-ban-inner">
+            <div className="vat-ban-eyebrow">Verified Therapist Directory</div>
             <h1 className="vat-ban-title">
               Find Your <span>Perfect</span> Therapist
             </h1>

@@ -1,7 +1,7 @@
 'use client';
 
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "sonner";
 import { useEffect } from "react";
 import useTherapistStore from "@/store/therapistStore";
 import useUserStore from "@/store/userStore";
@@ -37,7 +37,7 @@ export default function Providers({ children }) {
   return (
     <ThemeProvider theme={theme}>
       {children}
-      <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-right" richColors />
     </ThemeProvider>
   );
 }

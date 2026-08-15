@@ -73,7 +73,7 @@ export default function App() {
           <div className="left-info">
             <span><i className="feather-phone"></i> +91-807-775-7951</span>
             <span className="divider">|</span>
-            <span><i className="feather-mail"></i> info.cyt@gmail.com</span>
+            <span><i className="feather-mail"></i> hello@chooseyourtherapist.in</span>
           </div>
           <div className="right-info">
             <span><i className="feather-map-pin"></i> Block D-137, Sector 51, Noida, Uttar Pradesh 201301</span>
@@ -127,43 +127,35 @@ export default function App() {
                     {userType === 1 || userType === 2 ? (
                       <Link
                         href={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"}
-                        className="service-menu-parent d-flex align-items-center gap-2"
+                        className="nav-profile-pill"
                       >
-                        {userType === 2 && (
-                          <div className="thumbnail rbt-avatars size-xs">
+                        <span className="nav-profile-av">
+                          {userType === 2 ? (
                             <ImageTag
                               alt={therapistInfo.user.name || "Profile"}
-                              style={{
-                                height: 42,
-                                width: 42,
-                                borderRadius: "50%",
-                                objectFit: "cover",
-                                border: "1.5px solid #2ecc71"
-                              }}
-                              src={therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
-                                ? `${imagePath}/${therapistInfo.user.profile}` 
+                              src={therapistInfo.user.profile && therapistInfo.user.profile !== "null"
+                                ? `${imagePath}/${therapistInfo.user.profile}`
                                 : defaultProfile}
                             />
-                          </div>
-                        )}
-                        {userType === 1 && <i className="feather-user"></i>}
-                        <span style={{ fontWeight: 600, color: "#228756", fontSize: "16px" }}>
+                          ) : (
+                            <i className="feather-user"></i>
+                          )}
+                        </span>
+                        <span className="nav-profile-name">
                           {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist Profile")}
                         </span>
                       </Link>
                     ) : (
-                      <Link href="/login" className="service-menu-parent">
-                        <i className="feather-user"></i> Sign In/Sign Up
+                      <Link href="/login" className="nav-profile-pill">
+                        <span className="nav-profile-av"><i className="feather-user"></i></span>
+                        <span className="nav-profile-name">Sign In / Sign Up</span>
                       </Link>
                     )}
                   </li>
                 </ul>
                 <div className="rbt-btn-wrapper d-none d-xl-block">
-                  <Link
-                    className="rbt-btn rbt-marquee-btn marquee-auto btn-border-gradient radius-round btn-sm hover-transform-none"
-                    href="/therapist-registration"
-                  >
-                    <span data-text="Are You a Therapist?">Are You a Therapist?</span>
+                  <Link className="nav-cta-btn" href="/therapist-registration">
+                    Are You a Therapist?
                   </Link>
                 </div>
 
@@ -673,16 +665,20 @@ export default function App() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          background-color: #2ecc71;
-          color: #fff;
+          background: linear-gradient(135deg,#0f3d24,#175c37);
+          color: rgba(255,255,255,.85);
           padding: 0 15px;
-          font-size: 14px;
+          font-size: 13px;
+          font-weight: 500;
           height: ${GREEN_STRIP_HEIGHT}px;
           line-height: ${GREEN_STRIP_HEIGHT}px;
+          border-bottom: 2px solid #d4af37;
         }
         .top-strip-desktop .left-info { display: flex; align-items: center; }
-        .top-strip-desktop .divider { margin: 0 10px; }
+        .top-strip-desktop .left-info i { color: #d4af37; margin-right: 4px; }
+        .top-strip-desktop .divider { margin: 0 10px; opacity: .35; }
         .top-strip-desktop .right-info { text-align: right; }
+        .top-strip-desktop .right-info i { color: #d4af37; margin-right: 4px; }
         @media (max-width: 991px) { .top-strip-desktop { display: none; } }
 
         .rbt-header.rbt-header-10 {
@@ -690,10 +686,44 @@ export default function App() {
           top: ${GREEN_STRIP_HEIGHT}px;
           z-index: 10001;
           background: #fff;
-          box-shadow: 0 2px 20px rgba(0,0,0,0.08);
-          border-bottom: 1px solid #f0f0f0;
+          box-shadow: 0 2px 16px rgba(15,61,36,.07);
+          border-bottom: 1px solid #dbe3df;
         }
         @media (max-width: 991px) { .rbt-header.rbt-header-10 { top: 0; } }
+
+        /* ── Nav link accents (academic green) ────────── */
+        .mainmenu-nav .mainmenu > li > a { color: #132a1c !important; font-weight: 600 !important; }
+        .mainmenu-nav .mainmenu > li > a:hover,
+        .mainmenu-nav .mainmenu > li.has-dropdown:hover > a { color: #166534 !important; }
+        .mainmenu-nav .submenu a:hover { color: #166534 !important; }
+
+        /* ── Profile pill (logged in / logged out) ─────── */
+        .nav-profile-pill {
+          display: flex; align-items: center; gap: 9px;
+          padding: 5px 14px 5px 5px; border-radius: 30px;
+          border: 1.5px solid #dbe3df; background: #f8faf9;
+          text-decoration: none !important; transition: all .18s ease;
+        }
+        .nav-profile-pill:hover { border-color: #166534; background: #f0fdf4; }
+        .nav-profile-av {
+          width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+          overflow: hidden; display: flex; align-items: center; justify-content: center;
+          background: #eef5f1; border: 2px solid #d4af37;
+          color: #166534; font-size: 15px;
+        }
+        .nav-profile-av img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        .nav-profile-name { font-weight: 700; color: #132a1c; font-size: 14.5px; white-space: nowrap; }
+
+        /* ── "Are You a Therapist?" CTA ─────────────────── */
+        .nav-cta-btn {
+          display: inline-flex; align-items: center; justify-content: center;
+          padding: 10px 20px; border-radius: 6px;
+          background: linear-gradient(135deg,#0f3d24,#175c37);
+          border: 1px solid #d4af37; color: #fff !important;
+          font-weight: 700; font-size: 13.5px; white-space: nowrap;
+          text-decoration: none !important; transition: filter .18s ease;
+        }
+        .nav-cta-btn:hover { filter: brightness(1.12); }
 
         /* Mobile Menu */
         .popup-mobile-menu {
