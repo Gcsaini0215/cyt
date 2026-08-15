@@ -329,7 +329,7 @@ export default function ViewAllTherapist() {
         .vat-sheet-overlay { display:none; }
         .vat-sheet { display:none; }
 
-        @media(max-width:767px){
+        @media(max-width:991px){
           .vat-banner { padding:36px 0 66px; }
           .vat-sticky-bar { margin-top:-44px; padding:0 0 12px; }
           .vat-filter-card { padding:10px 14px; border-radius:14px; }

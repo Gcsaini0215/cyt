@@ -241,6 +241,17 @@ export default function ProfileCardVert({ data, favrioutes }) {
           .vtc-btn-out, .vtc-btn-fill { font-size: 11.5px; padding: 7px 0; }
           .vtc-chips { display: none; }
         }
+
+        /* ── Tablet 2-col squeeze (576–991px: Bootstrap's fixed
+           720px container / 2 columns leaves each card ~340px) ── */
+        @media(min-width: 576px) and (max-width: 991px) {
+          .vtc-img-col { width: 110px; }
+          .vtc-img { width: 110px; }
+          .vtc-body { padding: 12px 13px 12px 11px; gap: 6px; }
+          .vtc-chips { display: none; }
+          .vtc-btns { flex-direction: column; }
+          .vtc-btn-out, .vtc-btn-fill { flex: none; font-size: 12px; padding: 8px 0; }
+        }
       `}</style>
 
       <div className="vtc-card">
