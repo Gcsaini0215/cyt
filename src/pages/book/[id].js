@@ -2,6 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import MyNavbar from "../../components/navbar";
+import NewsLetter from "../../components/home/newsletter";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import {
@@ -15,9 +16,12 @@ import { getToken } from "../../utils/jwt";
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const SDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MONS  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const G  = "#1a5c38";
-const GL = "#228756";
-const GB = "#f0fdf4";
+const G    = "#0f3d24";
+const GL   = "#166534";
+const GB   = "#eef5f1";
+const GOLD = "#d4af37";
+const DARK = "#132a1c";
+const GRAD = `linear-gradient(135deg, ${G}, #175c37)`;
 
 const SESSION_MODES = [
   { key:"video",     icon:"feather-video",   label:"Video Call",  desc:"Online from home" },
@@ -74,11 +78,11 @@ function TherapistBar({ profile, selFmt, couponSave }) {
       padding: "12px 20px", display: "flex", alignItems: "center", gap: 14,
     }}>
       <img src={avatar} alt="" style={{
-        width: 44, height: 44, borderRadius: 10, objectFit: "cover",
-        objectPosition: "top", border: "1px solid #e5e7eb", flexShrink: 0,
+        width: 44, height: 44, borderRadius: 8, objectFit: "cover",
+        objectPosition: "top", border: `2px solid ${GOLD}`, flexShrink: 0,
       }} onError={e => { e.target.src = defaultProfile; }} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a",
+        <div style={{ fontWeight: 700, fontSize: 15, color: "#132a1c",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {profile?.user?.name}
         </div>
@@ -88,7 +92,7 @@ function TherapistBar({ profile, selFmt, couponSave }) {
       </div>
       {total != null && (
         <div style={{ textAlign: "right", flexShrink: 0 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, color: G }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: G }}>
             ₹{total.toLocaleString("en-IN")}
           </div>
           {couponSave > 0 && (
@@ -110,7 +114,7 @@ function StepBar({ step, total }) {
         {Array.from({ length: total }, (_, i) => (
           <div key={i} style={{
             flex: 1, height: 4, borderRadius: 99,
-            background: i < step ? G : i === step ? GL : "#e2e8f0",
+            background: i < step ? G : i === step ? GOLD : "#e2e8f0",
             transition: "background .3s",
           }} />
         ))}
@@ -137,12 +141,13 @@ function BackBtn({ onClick }) {
 function ContinueBtn({ label = "Continue", disabled, onClick, loading }) {
   return (
     <button onClick={onClick} disabled={disabled || loading} style={{
-      width: "100%", height: 52, borderRadius: 12, border: "none",
-      background: disabled ? "#e2e8f0" : G,
+      width: "100%", height: 52, borderRadius: 8,
+      border: disabled ? "1px solid #e2e8f0" : `1px solid ${GOLD}`,
+      background: disabled ? "#e2e8f0" : GRAD,
       color: disabled ? "#94a3b8" : "#fff",
-      fontSize: 16, fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer",
+      fontSize: 16, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer",
       display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-      transition: "background .2s", marginTop: 24,
+      transition: "filter .2s", marginTop: 24,
     }}>
       {loading
         ? <span style={{ width: 20, height: 20, border: "2.5px solid rgba(255,255,255,.3)", borderTop: "2.5px solid #fff", borderRadius: "50%", display: "inline-block", animation: "_sp .7s linear infinite" }} />
@@ -340,7 +345,7 @@ export default function BookPage() {
   // ── STEP 0: Choose Service ─────────────────────────────────────────────────
   const Step0 = (
     <div style={{ padding: "20px 20px 32px" }}>
-      <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "0 0 4px" }}>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "0 0 4px" }}>
         What kind of help do you need?
       </h2>
       <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
@@ -353,13 +358,13 @@ export default function BookPage() {
             <div key={svc._id} onClick={() => { setSelSvc(svc); setSelFmt(svc.formats[0] || null); }} style={{
               display: "flex", alignItems: "center", gap: 14,
               padding: "16px 18px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
-              borderRadius: 12, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
+              borderRadius: 8, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
             }}>
-              <div style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0, background: on ? G : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 40, height: 40, borderRadius: 8, flexShrink: 0, background: on ? G : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <i className="feather-clipboard" style={{ fontSize: 17, color: on ? "#fff" : "#94a3b8" }}></i>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a" }}>{svc.name}</div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: "#132a1c" }}>{svc.name}</div>
                 <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
                   {svc.formats.length} format{svc.formats.length > 1 ? "s" : ""} · from ₹{Math.min(...svc.formats.map(f => f.fee)).toLocaleString("en-IN")}
                 </div>
@@ -385,11 +390,11 @@ export default function BookPage() {
                 <div key={fmt.type} onClick={() => setSelFmt(fmt)} style={{
                   display: "flex", alignItems: "center", gap: 8,
                   padding: "10px 16px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
-                  borderRadius: 10, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
+                  borderRadius: 8, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
                 }}>
                   <i className={icons[fmt.type?.toLowerCase()] || "feather-calendar"} style={{ fontSize: 14, color: on ? G : "#94a3b8" }}></i>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{fmt.type}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#132a1c" }}>{fmt.type}</div>
                     <div style={{ fontSize: 12, color: on ? GL : "#64748b", fontWeight: 600 }}>₹{Number(fmt.fee).toLocaleString("en-IN")}</div>
                   </div>
                 </div>
@@ -407,7 +412,7 @@ export default function BookPage() {
   const Step1 = (
     <div style={{ padding: "20px 20px 32px" }}>
       <BackBtn onClick={() => setStep(0)} />
-      <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "10px 0 4px" }}>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
         Pick a date & time
       </h2>
       <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
@@ -424,13 +429,13 @@ export default function BookPage() {
               <div key={i} onClick={() => has && setSelDate(new Date(d))} style={{
                 flexShrink: 0, width: 58, padding: "10px 4px",
                 border: `1.5px solid ${on ? G : has ? "#e2e8f0" : "#f1f5f9"}`,
-                borderRadius: 12, textAlign: "center", cursor: has ? "pointer" : "not-allowed",
+                borderRadius: 8, textAlign: "center", cursor: has ? "pointer" : "not-allowed",
                 background: on ? G : "#fff", opacity: has ? 1 : 0.35, transition: "all .15s",
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: on ? "rgba(255,255,255,.7)" : "#94a3b8", textTransform: "uppercase" }}>
                   {SDAYS[d.getDay()]}
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: on ? "#fff" : "#0f172a", lineHeight: 1.2, marginTop: 2 }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: on ? "#fff" : "#132a1c", lineHeight: 1.2, marginTop: 2 }}>
                   {d.getDate()}
                 </div>
                 <div style={{ fontSize: 9, fontWeight: 600, color: on ? "rgba(255,255,255,.6)" : "#94a3b8", marginTop: 1 }}>
@@ -461,10 +466,10 @@ export default function BookPage() {
                 const on   = selSlot?.val === s.val && !past;
                 return (
                   <div key={s.val} onClick={() => !past && setSelSlot(s)} style={{
-                    padding: "10px 18px", borderRadius: 10,
+                    padding: "10px 18px", borderRadius: 8,
                     border: `1.5px solid ${on ? G : past ? "#f1f5f9" : "#e2e8f0"}`,
                     background: on ? G : past ? "#f8fafc" : "#fff",
-                    color: on ? "#fff" : past ? "#cbd5e1" : "#0f172a",
+                    color: on ? "#fff" : past ? "#cbd5e1" : "#132a1c",
                     fontSize: 14, fontWeight: 700,
                     cursor: past ? "not-allowed" : "pointer",
                     textDecoration: past ? "line-through" : "none",
@@ -487,7 +492,7 @@ export default function BookPage() {
   const Step2 = (
     <div style={{ padding: "20px 20px 32px" }}>
       <BackBtn onClick={() => setStep(1)} />
-      <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "10px 0 4px" }}>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
         A few details
       </h2>
       <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
@@ -498,9 +503,9 @@ export default function BookPage() {
         {[{ key: "self", label: "Myself" }, { key: "other", label: "Someone else" }].map(o => (
           <div key={o.key} onClick={() => { setBookFor(o.key); if(o.key === "self") setRelation(""); }} style={{
             flex: 1, padding: "14px 12px", border: `1.5px solid ${bookFor === o.key ? G : "#e2e8f0"}`,
-            borderRadius: 12, cursor: "pointer", textAlign: "center",
+            borderRadius: 8, cursor: "pointer", textAlign: "center",
             background: bookFor === o.key ? GB : "#fff",
-            fontWeight: 800, fontSize: 14, color: bookFor === o.key ? G : "#64748b", transition: "all .15s",
+            fontWeight: 700, fontSize: 14, color: bookFor === o.key ? G : "#64748b", transition: "all .15s",
           }}>
             {o.label}
           </div>
@@ -524,8 +529,8 @@ export default function BookPage() {
           <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Patient's age</div>
           <input value={age} onChange={e => setAge(e.target.value.replace(/\D/g, "").slice(0, 3))}
             placeholder="e.g. 28" style={{
-              width: 120, height: 44, border: "1.5px solid #e2e8f0", borderRadius: 10,
-              padding: "0 14px", fontSize: 15, fontWeight: 700, color: "#0f172a",
+              width: 120, height: 44, border: "1.5px solid #e2e8f0", borderRadius: 8,
+              padding: "0 14px", fontSize: 15, fontWeight: 700, color: "#132a1c",
               outline: "none", marginBottom: 20,
             }} />
         </>
@@ -539,14 +544,14 @@ export default function BookPage() {
               value={guestName}
               onChange={e => setGuestName(e.target.value)}
               placeholder="Full name *"
-              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#132a1c", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
             />
             <input
               value={guestPhone}
               onChange={e => setGuestPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
               placeholder="WhatsApp number * (10 digits)"
               type="tel"
-              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
+              style={{ width: "100%", height: 46, border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#132a1c", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
             />
             <input
               value={guestEmail}
@@ -559,7 +564,7 @@ export default function BookPage() {
               placeholder="Email address *"
               type="email"
               disabled={emailVerified}
-              style={{ width: "100%", height: 46, border: `1.5px solid ${emailVerified ? "#a7d7bb" : "#e2e8f0"}`, borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#0f172a", outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: emailVerified ? "#f0fdf4" : "#fff" }}
+              style={{ width: "100%", height: 46, border: `1.5px solid ${emailVerified ? GL : "#e2e8f0"}`, borderRadius: 8, padding: "0 14px", fontSize: 14, fontWeight: 600, color: "#132a1c", outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: emailVerified ? GB : "#fff" }}
             />
 
             {emailVerified ? (
@@ -594,7 +599,7 @@ export default function BookPage() {
                       onChange={e => otpChange(e.target.value, i)}
                       maxLength={1}
                       inputMode="numeric"
-                      style={{ width: 40, height: 46, textAlign: "center", fontSize: 18, fontWeight: 800, border: "1.5px solid #e2e8f0", borderRadius: 8, outline: "none" }}
+                      style={{ width: 40, height: 46, textAlign: "center", fontSize: 18, fontWeight: 700, border: "1.5px solid #e2e8f0", borderRadius: 8, outline: "none" }}
                     />
                   ))}
                 </div>
@@ -629,8 +634,8 @@ export default function BookPage() {
       <textarea value={notes} onChange={e => setNotes(e.target.value)} maxLength={500}
         placeholder="Briefly describe what you'd like to discuss…"
         style={{
-          width: "100%", minHeight: 100, border: "1.5px solid #e2e8f0", borderRadius: 10,
-          padding: "12px 14px", fontSize: 14, color: "#0f172a", outline: "none",
+          width: "100%", minHeight: 100, border: "1.5px solid #e2e8f0", borderRadius: 8,
+          padding: "12px 14px", fontSize: 14, color: "#132a1c", outline: "none",
           resize: "vertical", lineHeight: 1.6, fontFamily: "inherit",
         }} />
       <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "right", marginTop: 4 }}>{notes.length}/500</div>
@@ -649,7 +654,7 @@ export default function BookPage() {
   const Step3 = (
     <div style={{ padding: "20px 20px 40px" }}>
       <BackBtn onClick={() => setStep(2)} />
-      <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "10px 0 4px" }}>
+      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
         Booking summary
       </h2>
       <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
@@ -657,7 +662,7 @@ export default function BookPage() {
       </p>
 
       {/* Summary rows */}
-      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
+      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
         {[
           { k: "Therapist", v: profile.user?.name },
           { k: "Service",   v: selSvc?.name },
@@ -669,16 +674,16 @@ export default function BookPage() {
         ].map((row, i, arr) => (
           <div key={row.k} style={{ display: "flex", padding: "12px 16px", borderBottom: i < arr.length - 1 ? "1px solid #e2e8f0" : "none" }}>
             <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{row.k}</span>
-            <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 700, flex: 1 }}>{row.v}</span>
+            <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700, flex: 1 }}>{row.v}</span>
           </div>
         ))}
       </div>
 
       {/* Fee breakdown */}
-      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
+      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ display: "flex", padding: "12px 16px", borderBottom: couponSave > 0 ? "1px solid #e2e8f0" : "none" }}>
           <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>Session fee</span>
-          <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 700 }}>₹{base.toLocaleString("en-IN")}</span>
+          <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{base.toLocaleString("en-IN")}</span>
         </div>
         {couponSave > 0 && (
           <div style={{ display: "flex", padding: "12px 16px" }}>
@@ -691,26 +696,26 @@ export default function BookPage() {
       {/* Total */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "16px 18px", background: GB, border: `1.5px solid #bbf7d0`,
-        borderRadius: 12, marginBottom: 20,
+        padding: "16px 18px", background: GB, border: `1.5px solid ${GOLD}`,
+        borderRadius: 8, marginBottom: 20,
       }}>
         <div>
           <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</div>
           {couponSave > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{couponSave.toLocaleString("en-IN")}</div>}
         </div>
-        <div style={{ fontSize: 28, fontWeight: 900, color: G }}>₹{total.toLocaleString("en-IN")}</div>
+        <div style={{ fontSize: 28, fontWeight: 800, color: G }}>₹{total.toLocaleString("en-IN")}</div>
       </div>
 
       {/* Coupon */}
       <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>Have a coupon?</div>
         {couponApplied ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", border: `1.5px solid ${G}`, borderRadius: 12, background: GB }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", border: `1.5px solid ${G}`, borderRadius: 8, background: GB }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: G, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <i className="feather-check" style={{ fontSize: 15, color: "#fff" }}></i>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 800, fontSize: 14, color: "#0f172a" }}>{couponApplied.code} applied</div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "#132a1c" }}>{couponApplied.code} applied</div>
               <div style={{ fontSize: 12, color: "#16a34a", fontWeight: 600, marginTop: 1 }}>You saved ₹{couponSave.toLocaleString("en-IN")}</div>
             </div>
             <button onClick={() => { setCouponApplied(null); setCouponSave(0); setCouponInput(""); }} style={{ border: "none", background: "none", cursor: "pointer", color: "#94a3b8", fontSize: 22, lineHeight: 1, padding: "0 4px" }}>×</button>
@@ -720,11 +725,11 @@ export default function BookPage() {
             {coupons.length > 0 && (
               <button onClick={() => setCouponSheet(true)} style={{
                 display: "flex", alignItems: "center", gap: 10, width: "100%",
-                padding: "12px 16px", border: "1.5px solid #e2e8f0", borderRadius: 12,
+                padding: "12px 16px", border: "1.5px solid #e2e8f0", borderRadius: 8,
                 background: "#fff", cursor: "pointer", marginBottom: 10,
               }}>
                 <i className="feather-tag" style={{ fontSize: 15, color: G }}></i>
-                <span style={{ flex: 1, textAlign: "left", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>
+                <span style={{ flex: 1, textAlign: "left", fontSize: 14, fontWeight: 700, color: "#132a1c" }}>
                   View {coupons.length} available offer{coupons.length > 1 ? "s" : ""}
                 </span>
                 <i className="feather-chevron-right" style={{ fontSize: 15, color: "#94a3b8" }}></i>
@@ -733,13 +738,13 @@ export default function BookPage() {
             <div style={{ display: "flex", gap: 8 }}>
               <input value={couponInput} onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponErr(""); }}
                 placeholder="ENTER CODE" style={{
-                  flex: 1, height: 46, border: "1.5px solid #e2e8f0", borderRadius: 10,
+                  flex: 1, height: 46, border: "1.5px solid #e2e8f0", borderRadius: 8,
                   padding: "0 14px", fontSize: 14, fontWeight: 700, letterSpacing: 2,
-                  textTransform: "uppercase", color: "#0f172a", outline: "none", fontFamily: "inherit",
+                  textTransform: "uppercase", color: "#132a1c", outline: "none", fontFamily: "inherit",
                 }} />
               <button onClick={() => applyCoupon()} disabled={couponLoad || !couponInput.trim()} style={{
                 height: 46, padding: "0 22px", background: G, color: "#fff",
-                border: "none", borderRadius: 10, fontSize: 14, fontWeight: 800,
+                border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700,
                 cursor: couponInput.trim() ? "pointer" : "not-allowed", opacity: couponInput.trim() ? 1 : .55,
               }}>{couponLoad ? "…" : "Apply"}</button>
             </div>
@@ -777,7 +782,7 @@ export default function BookPage() {
         @keyframes _in { from { opacity: 0; } to { opacity: 1; } }
         @keyframes _up { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes _fd { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        input:focus, textarea:focus { border-color: ${G} !important; box-shadow: 0 0 0 3px rgba(26,92,56,.08) !important; outline: none !important; }
+        input:focus, textarea:focus { border-color: ${G} !important; box-shadow: 0 0 0 3px rgba(15,61,36,.08) !important; outline: none !important; }
         ::-webkit-scrollbar { display: none; }
       `}</style>
 
@@ -786,8 +791,9 @@ export default function BookPage() {
 
         <div style={{ maxWidth: 540, margin: "0 auto", padding: `24px 12px ${step === 3 ? "120px" : "80px"}` }}>
           <div style={{
-            background: "#fff", borderRadius: 18, overflow: "hidden",
+            background: "#fff", borderRadius: 10, overflow: "hidden",
             boxShadow: "0 4px 32px rgba(0,0,0,.07)",
+            borderTop: `3px solid ${GOLD}`,
             animation: "_fd .3s ease",
           }}>
             <TherapistBar profile={profile} selFmt={selFmt} couponSave={couponSave} />
@@ -798,6 +804,7 @@ export default function BookPage() {
           </div>
         </div>
 
+        <NewsLetter />
         <Footer />
       </div>
 
@@ -812,11 +819,11 @@ export default function BookPage() {
           <div style={{ maxWidth: 540, margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</span>
-              <span style={{ fontSize: 20, fontWeight: 900, color: G }}>₹{total.toLocaleString("en-IN")}</span>
+              <span style={{ fontSize: 20, fontWeight: 800, color: G }}>₹{total.toLocaleString("en-IN")}</span>
             </div>
             <button onClick={confirmBooking} style={{
-              width: "100%", height: 52, borderRadius: 14, border: "none",
-              background: G, color: "#fff", fontSize: 16, fontWeight: 900,
+              width: "100%", height: 52, borderRadius: 10, border: `1px solid ${GOLD}`,
+              background: GRAD, color: "#fff", fontSize: 16, fontWeight: 800,
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             }}>
               <i className="feather-lock" style={{ fontSize: 15 }}></i>
@@ -835,7 +842,7 @@ export default function BookPage() {
             <div style={{ padding: "20px 20px 36px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: "#0f172a" }}>Available Offers</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#132a1c" }}>Available Offers</div>
                   <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Tap a coupon to apply it</div>
                 </div>
                 <button onClick={() => setCouponSheet(false)} style={{ width: 32, height: 32, borderRadius: "50%", border: "none", background: "#f1f5f9", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -844,8 +851,8 @@ export default function BookPage() {
               </div>
               <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>Enter manually</div>
               <div style={{ display: "flex", gap: 8, marginBottom: couponErr ? 6 : 16 }}>
-                <input value={couponManual} onChange={e => { setCouponManual(e.target.value.toUpperCase()); setCouponErr(""); }} placeholder="COUPON CODE" style={{ flex: 1, height: 44, border: "1.5px solid #e2e8f0", borderRadius: 10, padding: "0 14px", fontSize: 14, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "#0f172a", outline: "none", fontFamily: "inherit" }} />
-                <button onClick={async () => { setCouponInput(couponManual); const ok = await applyCoupon(couponManual); if (ok) setCouponSheet(false); }} disabled={couponLoad || !couponManual.trim()} style={{ height: 44, padding: "0 20px", background: G, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: couponManual.trim() ? "pointer" : "not-allowed", opacity: couponManual.trim() ? 1 : .55 }}>
+                <input value={couponManual} onChange={e => { setCouponManual(e.target.value.toUpperCase()); setCouponErr(""); }} placeholder="COUPON CODE" style={{ flex: 1, height: 44, border: "1.5px solid #e2e8f0", borderRadius: 8, padding: "0 14px", fontSize: 14, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "#132a1c", outline: "none", fontFamily: "inherit" }} />
+                <button onClick={async () => { setCouponInput(couponManual); const ok = await applyCoupon(couponManual); if (ok) setCouponSheet(false); }} disabled={couponLoad || !couponManual.trim()} style={{ height: 44, padding: "0 20px", background: G, color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: couponManual.trim() ? "pointer" : "not-allowed", opacity: couponManual.trim() ? 1 : .55 }}>
                   {couponLoad ? "…" : "Apply"}
                 </button>
               </div>
@@ -858,12 +865,12 @@ export default function BookPage() {
               {coupons.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "24px 0", color: "#94a3b8", fontSize: 13 }}>No active offers right now.</div>
               ) : coupons.map(c => (
-                <div key={c._id || c.code} onClick={async () => { setCouponInput(c.code); const ok = await applyCoupon(c.code); if (ok) setCouponSheet(false); }} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", border: "1.5px solid #e2e8f0", borderRadius: 12, cursor: "pointer", background: "#fff", marginBottom: 8 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: GB, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div key={c._id || c.code} onClick={async () => { setCouponInput(c.code); const ok = await applyCoupon(c.code); if (ok) setCouponSheet(false); }} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 16px", border: "1.5px solid #e2e8f0", borderRadius: 8, cursor: "pointer", background: "#fff", marginBottom: 8 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, background: GB, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <i className="feather-tag" style={{ fontSize: 17, color: G }}></i>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#132a1c" }}>
                       {c.code}
                       <span style={{ marginLeft: 8, background: GB, color: G, borderRadius: 5, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>
                         {c.discount_type === "percent" ? `${c.discount_value}% OFF` : `₹${c.discount_value} OFF`}
@@ -871,7 +878,7 @@ export default function BookPage() {
                     </div>
                     {(c.name || c.description) && <div style={{ fontSize: 12, color: "#64748b", marginTop: 3 }}>{c.name || c.description}</div>}
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: G, flexShrink: 0, paddingTop: 2 }}>APPLY</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: G, flexShrink: 0, paddingTop: 2 }}>APPLY</span>
                 </div>
               ))}
             </div>
