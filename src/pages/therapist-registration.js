@@ -5,7 +5,7 @@ import MyNavbar from "../components/navbar";
 import RegistrationHeader from "../components/therapist/registration-header";
 import NewsLetter from "../components/home/newsletter";
 import Footer from "../components/footer";
-import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, resendTherapistOtpUrl } from "../utils/url";
+import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 
 const PROFILE_TYPES = ["Counselling Psychologist", "Psychiatrist", "Clinical Psychologist", "Special Educator"];
@@ -23,6 +23,64 @@ const EXPERTISE = [
   "Internship / Training",
 ];
 const ID_CARD_TYPES = ["Aadhar Card", "PAN Card", "Voter ID", "Passport", "Driving License"];
+
+const JOURNEY_STEPS = [
+  { label: "Application", icon: "feather-edit-3" },
+  { label: "Review",      icon: "feather-search" },
+  { label: "Approval",    icon: "feather-shield" },
+  { label: "Payment",     icon: "feather-credit-card" },
+  { label: "Live",        icon: "feather-zap" },
+];
+
+function JourneySteps({ current, isMobile }) {
+  const circleSize = isMobile ? 22 : 28;
+  return (
+    <div style={{ background: "#fff", border: "1px solid #dbe3df", borderRadius: 4, borderTop: "3px solid #d4af37", padding: isMobile ? "10px 10px" : "12px 20px", marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center" }}>
+        {JOURNEY_STEPS.map((s, i) => {
+          const done = i < current;
+          const active = i === current;
+          const state = done ? "done" : active ? "active" : "upcoming";
+          const color = state === "upcoming" ? "#cbd5c9" : "#0f3d24";
+          return (
+            <React.Fragment key={s.label}>
+              <div style={{
+                display: "flex", flexDirection: isMobile ? "column" : "row",
+                alignItems: "center", gap: isMobile ? 3 : 7, flex: 1, minWidth: 0, justifyContent: "center",
+              }}>
+                <div style={{
+                  width: circleSize, height: circleSize, borderRadius: "50%", flexShrink: 0,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: state === "done" ? "#0f3d24" : state === "active" ? "#f0fdf4" : "#fff",
+                  border: `2px solid ${state === "active" ? "#228756" : color}`,
+                  boxShadow: state === "active" ? "0 0 0 3px rgba(34,135,86,0.12)" : "none",
+                  transition: "all 0.2s",
+                }}>
+                  {state === "done"
+                    ? <i className="feather-check" style={{ fontSize: isMobile ? 10 : 12, color: "#fff" }}></i>
+                    : <i className={s.icon} style={{ fontSize: isMobile ? 10 : 12, color: state === "active" ? "#228756" : "#94a3b8" }}></i>}
+                </div>
+                <span style={{
+                  fontSize: isMobile ? 8.5 : 12, fontWeight: state === "upcoming" ? 600 : 800,
+                  color: state === "upcoming" ? "#94a3b8" : "#0f3d24",
+                  whiteSpace: "nowrap",
+                }}>{s.label}</span>
+              </div>
+              {i < JOURNEY_STEPS.length - 1 && (
+                <div style={{
+                  flex: isMobile ? "0 0 8px" : "0 0 20px", height: 2, minWidth: isMobile ? 8 : 20,
+                  alignSelf: isMobile ? "flex-start" : "center",
+                  marginTop: isMobile ? circleSize / 2 - 1 : 0,
+                  background: i < current ? "#0f3d24" : "#e2e8f0", transition: "background 0.2s",
+                }} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const EMPTY = {
   name: "", email: "", phone: "",
@@ -91,6 +149,94 @@ function CustomSelect({ value, onChange, options, placeholder }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+const STAGE_INFO = {
+  email_pending: { icon: "feather-mail",         color: "#fbbf24", label: "Email verification pending", text: "Please check your inbox for the OTP to verify your email." },
+  review:        { icon: "feather-search",       color: "#38bdf8", label: "Under review",                text: "Your application is with our team for review." },
+  approved:      { icon: "feather-check-circle", color: "#4ade80", label: "Approved",                    text: "You're approved! Log in to access your therapist dashboard." },
+};
+
+function StatusCheckBox({ isMobile }) {
+  const [open, setOpen] = React.useState(false);
+  const [email, setEmail] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [result, setResult] = React.useState(null);
+  const [err, setErr] = React.useState("");
+
+  const check = async () => {
+    setErr(""); setResult(null);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr("Enter a valid email address"); return; }
+    setLoading(true);
+    try {
+      const res = await postData(checkTherapistStatusUrl, { email });
+      setResult(res.data);
+    } catch (e) {
+      setErr(e.response?.data?.message || "No application found for this email");
+    }
+    setLoading(false);
+  };
+
+  const boxStyle = {
+    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.25)",
+    borderRadius: 3, padding: "10px 12px", width: isMobile ? "100%" : 320, flexShrink: 0,
+  };
+
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} style={{
+        ...boxStyle, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+        color: "#fff", fontSize: 12.5, fontWeight: 700, justifyContent: isMobile ? "center" : "flex-start",
+      }}>
+        <i className="feather-search" style={{ fontSize: 13 }}></i> Already applied? Check status
+      </button>
+    );
+  }
+
+  return (
+    <div style={boxStyle}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 10.5, fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 0.6 }}>Check Application Status</span>
+        <button type="button" onClick={() => { setOpen(false); setResult(null); setErr(""); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+          <i className="feather-x" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}></i>
+        </button>
+      </div>
+      <input
+        type="email" value={email} placeholder="you@example.com"
+        onChange={e => { setEmail(e.target.value); setErr(""); setResult(null); }}
+        onKeyDown={e => e.key === "Enter" && check()}
+        style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.95)", border: "none", borderRadius: 3, padding: "8px 10px", fontSize: 12.5, outline: "none", fontFamily: "inherit", marginBottom: 8 }}
+      />
+      <button type="button" onClick={check} disabled={loading} style={{
+        width: "100%", background: "#d4af37", border: "none", borderRadius: 3, padding: "8px 12px",
+        color: "#0f3d24", fontWeight: 800, fontSize: 12, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
+      }}>
+        {loading ? "Checking…" : "Check Status"}
+      </button>
+
+      {err && (
+        <p style={{ fontSize: 11, color: "#fca5a5", margin: "8px 0 0", fontWeight: 600 }}>{err}</p>
+      )}
+
+      {result && (() => {
+        const info = STAGE_INFO[result.stage] || STAGE_INFO.review;
+        return (
+          <div style={{ marginTop: 10, background: "rgba(255,255,255,0.1)", border: `1px solid ${info.color}55`, borderRadius: 3, padding: "9px 10px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+              <i className={info.icon} style={{ fontSize: 12, color: info.color }}></i>
+              <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>{info.label}</span>
+            </div>
+            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", margin: 0, lineHeight: 1.5 }}>{info.text}</p>
+            {result.appliedOn && (
+              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", margin: "6px 0 0" }}>
+                Applied on {new Date(result.appliedOn).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+              </p>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
@@ -307,6 +453,9 @@ export default function TherapistRegistration() {
       <RegistrationHeader />
 
       <div className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
+        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <JourneySteps current={submitted ? 1 : 0} isMobile={isMobile} />
+        </div>
         {submitted ? (
           <SuccessScreen name={form.name} email={registeredEmail} />
         ) : otpStep ? (
@@ -365,10 +514,13 @@ export default function TherapistRegistration() {
         ) : (
           <div style={{ maxWidth: 860, margin: "0 auto" }}>
             <div className="af-doc" style={{ marginBottom: 24 }}>
-              <div className="af-titlebar">
-                <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
-                <h1 className="af-titlebar-title">Therapist Registration Form</h1>
-                <p className="af-titlebar-sub">Join our network of verified mental health professionals</p>
+              <div className="af-titlebar" style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "flex-start", justifyContent: "space-between", gap: isMobile ? 14 : 20 }}>
+                <div>
+                  <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
+                  <h1 className="af-titlebar-title">Therapist Registration Form</h1>
+                  <p className="af-titlebar-sub">Join our network of verified mental health professionals</p>
+                </div>
+                <StatusCheckBox isMobile={isMobile} />
               </div>
               <div className="af-notice">
                 <i className="feather-alert-circle" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
