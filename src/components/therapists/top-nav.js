@@ -8,7 +8,7 @@ import { defaultProfile, imagePath, getBookings } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import { toast } from "react-toastify";
 
-const logo1 = "/logo.png";
+const logo1 = "/cyt-emblem.png";
 
 const NAV = [
   { to: "/therapist-dashboard", label: "Dashboard", icon: "feather-home" },
@@ -73,118 +73,121 @@ export default function DashboardTopNav() {
   return (
     <>
       <style>{`
-        /* ── Bar ─────────────────────────────────────── */
+        /* ── VS Code style title bar ─────────────────── */
         .tn-bar {
           position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
-          height: 56px; background: #1e293b;
-          display: flex; align-items: center;
-          padding: 0 16px 0 20px;
-          box-shadow: 0 1px 0 rgba(255,255,255,.06);
-          overflow: visible;
+          height: 38px; background: #14171c;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          display: flex; align-items: center; gap: 8px;
+          padding: 0 12px;
+          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+          user-select: none;
         }
 
         /* ── Logo ─────────────────────────────────────── */
         .tn-logo {
-          display: flex; align-items: center;
-          text-decoration: none; flex-shrink: 0; margin-right: 20px;
+          display: flex; align-items: center; gap: 8px;
+          text-decoration: none; flex-shrink: 0;
         }
+        .tn-logo-badge {
+          width: 30px; height: 30px; flex-shrink: 0;
+          background: #fff; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          overflow: hidden;
+        }
+        .tn-logo-badge img { width: 92%; height: 92%; object-fit: contain; display: block; }
+        .tn-title-text { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.75); letter-spacing: 0.2px; white-space: nowrap; }
 
-        /* ── Nav ──────────────────────────────────────── */
-        .tn-nav { display: flex; align-items: center; gap: 2px; flex: 1; overflow: visible; }
+        /* ── Nav (menu-bar style) ─────────────────────── */
+        .tn-nav { display: flex; align-items: center; gap: 1px; margin-left: 6px; height: 100%; flex: 1; min-width: 0; overflow: visible; }
         .tn-link {
-          padding: 6px 11px; border-radius: 8px;
-          font-size: 13px; font-weight: 600; color: #94a3b8;
-          text-decoration: none; white-space: nowrap; cursor: pointer;
-          display: flex; align-items: center; gap: 5px;
-          border: none; background: transparent; transition: all 0.15s;
+          height: 26px; padding: 0 10px;
+          display: flex; align-items: center; gap: 6px;
+          border-radius: 4px; border: none; background: none;
+          color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500;
+          text-decoration: none !important; white-space: nowrap; cursor: pointer;
+          transition: background 0.12s, color 0.12s;
           position: relative;
         }
-        .tn-link:hover { color: #e2e8f0; background: rgba(255,255,255,.07); }
-        .tn-link.active { color: #fff; background: rgba(255,255,255,.1); }
-        .tn-link-underline {
-          position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
-          width: 16px; height: 2px; background: #4ade80; border-radius: 2px;
-        }
+        .tn-link i { font-size: 13px !important; }
+        .tn-link:hover, .tn-link.active { background: rgba(255,255,255,0.09); color: #fff; text-decoration: none; }
 
         /* ── Events dropdown ─────────────────────────── */
-        .tn-dd-wrap { position: relative; }
+        .tn-dd-wrap { position: relative; height: 100%; display: flex; align-items: center; }
         .tn-dd {
-          position: absolute; top: calc(100% + 8px); left: 0;
-          background: #1e293b; border: 1px solid rgba(255,255,255,.09);
-          border-radius: 12px; padding: 6px; min-width: 180px;
-          z-index: 500; box-shadow: 0 12px 32px rgba(0,0,0,.4);
+          position: absolute; top: calc(100% + 4px); left: 0;
+          background: #1c1f26; border: 1px solid rgba(255,255,255,.09);
+          border-radius: 8px; padding: 4px; min-width: 190px;
+          z-index: 500; box-shadow: 0 16px 40px rgba(0,0,0,.55);
         }
         .tn-dd a {
-          display: flex; align-items: center; gap: 10px;
-          padding: 9px 12px; border-radius: 8px;
-          color: #94a3b8; font-size: 13px; font-weight: 600;
-          text-decoration: none; transition: all 0.15s;
+          display: flex; align-items: center; gap: 9px;
+          padding: 7px 10px; border-radius: 5px;
+          color: rgba(255,255,255,0.7); font-size: 12.5px; font-weight: 500;
+          text-decoration: none !important; transition: background 0.12s, color 0.12s;
         }
-        .tn-dd a:hover { background: rgba(255,255,255,.07); color: #e2e8f0; }
+        .tn-dd a:hover { background: rgba(255,255,255,.08); color: #fff; }
         .tn-dd a.active { color: #4ade80; background: rgba(74,222,128,.08); }
 
         /* ── Right controls ──────────────────────────── */
-        .tn-right { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
+        .tn-right { display: flex; align-items: center; gap: 2px; margin-left: auto; flex-shrink: 0; height: 100%; }
         .tn-icon-btn {
-          width: 34px; height: 34px; border-radius: 8px;
+          width: 26px; height: 26px; border-radius: 4px;
           background: transparent; border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
-          color: #94a3b8; font-size: 18px; transition: all 0.15s;
+          color: rgba(255,255,255,0.6); font-size: 14px; transition: background 0.12s, color 0.12s;
           text-decoration: none; position: relative;
         }
-        .tn-icon-btn:hover { background: rgba(255,255,255,.08); color: #e2e8f0; }
+        .tn-icon-btn:hover { background: rgba(255,255,255,.09); color: #fff; }
         .tn-notif-dot {
-          position: absolute; top: 4px; right: 4px;
-          width: 15px; height: 15px; border-radius: 50%;
+          position: absolute; top: 1px; right: 1px;
+          width: 13px; height: 13px; border-radius: 50%;
           background: #ef4444; color: #fff;
-          font-size: 8px; font-weight: 800;
+          font-size: 7.5px; font-weight: 800;
           display: flex; align-items: center; justify-content: center;
-          border: 2px solid #1e293b;
+          border: 2px solid #14171c;
         }
 
-        /* ── Profile button ──────────────────────────── */
+        /* ── Profile menu item ─────────────────────────── */
         .tn-prof-btn {
-          display: flex; align-items: center; gap: 7px;
-          background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
-          border-radius: 10px; padding: 4px 10px 4px 4px;
-          cursor: pointer; transition: all 0.15s; user-select: none;
+          height: 26px; padding: 0 10px;
+          display: flex; align-items: center; gap: 6px;
+          border-radius: 4px; border: none; background: none;
+          color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500;
+          cursor: pointer; transition: background 0.12s, color 0.12s;
         }
-        .tn-prof-btn:hover { background: rgba(255,255,255,.12); }
-        .tn-prof-av {
-          width: 28px; height: 28px; border-radius: 8px; object-fit: cover; flex-shrink: 0;
-        }
-        .tn-prof-name {
-          font-size: 13px; font-weight: 700; color: #e2e8f0;
-          max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-        .tn-prof-chevron { font-size: 12px; color: #64748b; }
+        .tn-prof-btn:hover { background: rgba(255,255,255,.09); color: #fff; }
+        .tn-prof-av { width: 18px; height: 18px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+        .tn-prof-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tn-prof-chevron { font-size: 12px; opacity: 0.6; }
 
         /* ── Profile dropdown ─────────────────────────── */
         .tn-prof-dd {
-          position: absolute; top: calc(100% + 8px); right: 0;
-          background: #1e293b; border: 1px solid rgba(255,255,255,.09);
-          border-radius: 14px; min-width: 200px; z-index: 600;
-          box-shadow: 0 14px 36px rgba(0,0,0,.45); overflow: hidden;
+          position: absolute; top: calc(100% + 4px); right: 0;
+          background: #1c1f26; border: 1px solid rgba(255,255,255,.09);
+          border-radius: 8px; min-width: 200px; z-index: 600;
+          box-shadow: 0 16px 40px rgba(0,0,0,.55); padding: 4px;
         }
-        .tn-prof-dd-head { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .tn-prof-dd-head { padding: 10px 12px 8px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 4px; }
         .tn-prof-dd a, .tn-prof-dd button {
-          display: flex; align-items: center; gap: 10px;
-          padding: 10px 16px; width: 100%;
-          color: #94a3b8; font-size: 13px; font-weight: 600;
-          text-decoration: none; transition: all 0.15s;
-          background: transparent; border: none; cursor: pointer; text-align: left;
+          display: flex; align-items: center; gap: 9px;
+          padding: 7px 10px; width: 100%;
+          color: rgba(255,255,255,0.7); font-size: 12.5px; font-weight: 500;
+          text-decoration: none !important; transition: background 0.12s, color 0.12s;
+          background: transparent; border: none; border-radius: 5px; cursor: pointer; text-align: left;
         }
-        .tn-prof-dd a:hover, .tn-prof-dd button:hover { background: rgba(255,255,255,.06); color: #e2e8f0; }
-        .tn-prof-dd .logout-btn { color: #ef4444; }
-        .tn-prof-dd .logout-btn:hover { background: rgba(239,68,68,.08); color: #ef4444; }
+        .tn-prof-dd a:hover, .tn-prof-dd button:hover { background: rgba(255,255,255,.08); color: #fff; }
+        .tn-prof-dd .logout-btn { color: #f87171; }
+        .tn-prof-dd .logout-btn:hover { background: rgba(248,113,113,.1); color: #f87171; }
 
         /* ── Mobile bottom nav ───────────────────────── */
         .tn-mob-nav { display: none; }
         @media(max-width: 960px) {
           .tn-nav { display: none; }
+          .tn-title-text { display: none; }
           .tn-mob-nav {
             display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-            z-index: 1200; background: #1e293b;
+            z-index: 1200; background: #14171c;
             border-top: 1px solid rgba(255,255,255,.08);
             padding: 6px 0 10px;
           }
@@ -207,9 +210,8 @@ export default function DashboardTopNav() {
       {/* ── Top bar ───────────────────────────────────── */}
       <div className="tn-bar">
         <Link href="/therapist-dashboard" className="tn-logo">
-          <div style={{ background: "#fff", borderRadius: "8px", padding: "3px 10px", display: "flex", alignItems: "center" }}>
-            <ImageTag alt="CYT Logo" height="34" width="110" src={logo1} style={{ objectFit: "contain", display: "block" }} />
-          </div>
+          <span className="tn-logo-badge"><ImageTag alt="CYT" height="30" width="30" src={logo1} style={{ objectFit: "contain", display: "block" }} /></span>
+          <span className="tn-title-text">Choose Your Therapist — Therapist Portal</span>
         </Link>
 
         <nav className="tn-nav">
@@ -222,9 +224,9 @@ export default function DashboardTopNav() {
                 onMouseLeave={() => setEventsOpen(false)}
               >
                 <span className={`tn-link${isItemActive(item) ? " active" : ""}`}>
+                  <i className={item.icon}></i>
                   {item.label}
-                  <i className="feather-chevron-down" style={{ fontSize: 11 }}></i>
-                  {isItemActive(item) && <span className="tn-link-underline"></span>}
+                  <i className="feather-chevron-down" style={{ fontSize: 10 }}></i>
                 </span>
                 {eventsOpen && (
                   <div className="tn-dd">
@@ -248,19 +250,19 @@ export default function DashboardTopNav() {
                 className={`tn-link${isItemActive(item) ? " active" : ""}`}
                 onClick={item.hasBadge ? () => setNotificationCount(0) : undefined}
               >
+                <i className={item.icon}></i>
                 {item.label}
                 {item.hasBadge && notificationCount > 0 && (
                   <span
                     style={{
                       background: "#ef4444", color: "#fff",
-                      borderRadius: 8, padding: "1px 6px",
-                      fontSize: 10, fontWeight: 800,
+                      borderRadius: 8, padding: "1px 5px",
+                      fontSize: 9, fontWeight: 800,
                     }}
                   >
                     {notificationCount}
                   </span>
                 )}
-                {isItemActive(item) && <span className="tn-link-underline"></span>}
               </Link>
             )
           )}
@@ -292,22 +294,22 @@ export default function DashboardTopNav() {
 
           {/* Profile */}
           <div
-            style={{ position: "relative" }}
+            style={{ position: "relative", height: "100%", display: "flex", alignItems: "center" }}
             onMouseEnter={() => setProfileOpen(true)}
             onMouseLeave={() => setProfileOpen(false)}
           >
-            <div className="tn-prof-btn">
+            <button className="tn-prof-btn">
               <img src={avatarSrc} alt={therapistInfo?.user?.name || "Therapist"} className="tn-prof-av" />
               <span className="tn-prof-name">{therapistInfo?.user?.name || "Therapist"}</span>
               <i className="feather-chevron-down tn-prof-chevron"></i>
-            </div>
+            </button>
             {profileOpen && (
               <div className="tn-prof-dd">
                 <div className="tn-prof-dd-head">
-                  <p style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 14, margin: 0 }}>
+                  <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, margin: 0 }}>
                     {therapistInfo?.user?.name}
                   </p>
-                  <p style={{ color: "#64748b", fontSize: 12, margin: "2px 0 0" }}>Therapist</p>
+                  <p style={{ color: "#4ade80", fontSize: 10.5, margin: "2px 0 0", fontWeight: 500 }}>Therapist</p>
                 </div>
                 <Link href="/therapist-dashboard">
                   <i className="feather-home"></i> Dashboard

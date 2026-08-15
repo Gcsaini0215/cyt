@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { fetchById, postData } from "../../../utils/actions";
-import { chatConversationsUrl, chatThreadUrl, chatTherapistSendUrl } from "../../../utils/url";
+import { fetchById, postData, deleteById } from "../../../utils/actions";
+import { chatConversationsUrl, chatThreadUrl, chatTherapistSendUrl, chatDeleteConversationUrl } from "../../../utils/url";
 
 const fmt = (d) => {
   if (!d) return "";
@@ -67,6 +67,22 @@ export default function ChatInbox() {
     setMessages([]);
   };
 
+  const handleDeleteConvo = async (c) => {
+    const userId = c.userId?._id || c.userId;
+    const name = (c.user || c.lastMessage?.userId)?.name || "this client";
+    if (!window.confirm(`Delete the entire conversation with ${name}? This cannot be undone.`)) return;
+    try {
+      const r = await deleteById(chatDeleteConversationUrl, { userId });
+      if (r?.success) {
+        if (active && (active.userId?._id || active.userId) === userId) {
+          setActive(null);
+          setMessages([]);
+        }
+        loadConvos();
+      }
+    } catch {}
+  };
+
   const handleSend = async (e) => {
     e?.preventDefault();
     if (!input.trim() || sending || !active) return;
@@ -93,7 +109,7 @@ export default function ChatInbox() {
   const activeEmail = activeUser?.email || "";
 
   return (
-    <div style={{ background:"#fff", border:"1.5px solid #e2e8f0", borderRadius:16, marginBottom:20, overflow:"hidden", display:"flex", height:480 }}>
+    <div style={{ background:"#fff", border:"1px solid #dbe3df", borderRadius:8, overflow:"hidden", display:"flex", height:480 }}>
 
       {/* ── Left: conversation list ── */}
       <div style={{ width:220, borderRight:"1.5px solid #f1f5f9", display:"flex", flexDirection:"column", flexShrink:0 }}>
@@ -156,6 +172,17 @@ export default function ChatInbox() {
                     )}
                   </div>
                 </div>
+                <button
+                  onClick={e => { e.stopPropagation(); handleDeleteConvo(c); }}
+                  title="Delete conversation"
+                  style={{ background:"none", border:"none", cursor:"pointer", color:"#cbd5e1", padding:2, flexShrink:0, alignSelf:"flex-start", display:"flex" }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "#ef4444"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "#cbd5e1"; }}
+                >
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </button>
               </div>
             );
           })}
@@ -177,10 +204,19 @@ export default function ChatInbox() {
               <div style={{ width:34, height:34, borderRadius:"50%", background:"linear-gradient(135deg,#3b82f6,#6366f1)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:13, flexShrink:0 }}>
                 {activeName.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()}
               </div>
-              <div>
+              <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:13, fontWeight:800, color:"#0f172a" }}>{activeName}</div>
                 {activeEmail && <div style={{ fontSize:10, color:"#94a3b8" }}>{activeEmail}</div>}
               </div>
+              <button
+                onClick={() => handleDeleteConvo(active)}
+                title="Delete conversation"
+                style={{ background:"#fff1f2", border:"1px solid #fecaca", borderRadius:8, width:30, height:30, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"#ef4444", flexShrink:0 }}
+              >
+                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
             </div>
 
             {/* Messages */}
@@ -203,7 +239,7 @@ export default function ChatInbox() {
                       <div style={{
                         padding:"9px 12px",
                         borderRadius: isMe ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
-                        background: isMe ? "linear-gradient(135deg,#228756,#16a34a)" : "#fff",
+                        background: isMe ? "linear-gradient(135deg,#166534,#16a34a)" : "#fff",
                         color: isMe ? "#fff" : "#0f172a",
                         fontSize:13, lineHeight:1.55, fontWeight:500,
                         boxShadow: isMe ? "0 2px 8px rgba(34,135,86,0.2)" : "0 2px 6px rgba(0,0,0,0.07)",
@@ -241,7 +277,7 @@ export default function ChatInbox() {
                   autoFocus
                 />
                 <button type="submit" disabled={!input.trim() || sending}
-                  style={{ width:38, height:38, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#228756,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
+                  style={{ width:38, height:38, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#166534,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                   </svg>

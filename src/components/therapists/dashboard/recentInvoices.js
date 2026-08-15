@@ -16,7 +16,7 @@ function statusStyle(status) {
 }
 
 function avatarColor(name) {
-  const colors = ["#0ea5e9","#8b5cf6","#f59e0b","#228756","#f43f5e","#14b8a6"];
+  const colors = ["#0ea5e9","#8b5cf6","#f59e0b","#166534","#f43f5e","#14b8a6"];
   const idx = (name?.charCodeAt(0) || 0) % colors.length;
   return colors[idx];
 }
@@ -25,7 +25,7 @@ export default function RecentInvoices({ data }) {
   const invoices = data || [];
 
   return (
-    <Paper elevation={0} sx={{ borderRadius: "18px", border: "1.5px solid #f1f5f9", background: "#fff", overflow: "hidden" }}>
+    <Paper elevation={0} sx={{ borderRadius: "8px", border: "1px solid #dbe3df", background: "#fff", overflow: "hidden" }}>
       {/* header */}
       <Box sx={{
         display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -34,11 +34,11 @@ export default function RecentInvoices({ data }) {
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#1e293b" }}>Recent Invoices</Typography>
-          <Chip label={invoices.length} size="small" sx={{ height: 18, fontSize: "10px", fontWeight: 700, background: "#f0fdf4", color: "#228756", borderRadius: "5px" }} />
+          <Chip label={invoices.length} size="small" sx={{ height: 18, fontSize: "10px", fontWeight: 700, background: "#f0fdf4", color: "#166534", borderRadius: "5px" }} />
         </Box>
         <Button component={Link} href="/clinic-patients"
           endIcon={<ArrowForwardIcon sx={{ fontSize: 13 }} />}
-          sx={{ color: "#228756", fontWeight: 700, textTransform: "none", fontSize: "11px", px: 0, minWidth: 0 }}>
+          sx={{ color: "#166534", fontWeight: 700, textTransform: "none", fontSize: "11px", px: 0, minWidth: 0 }}>
           View All
         </Button>
       </Box>

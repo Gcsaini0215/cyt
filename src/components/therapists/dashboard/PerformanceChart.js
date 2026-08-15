@@ -24,7 +24,7 @@ const CustomTooltip = ({ active, payload, label, metric }) => {
         {label}
       </Typography>
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-        <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: entry?.color || "#228756", flexShrink: 0 }} />
+        <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: entry?.color || "#166534", flexShrink: 0 }} />
         <Typography sx={{ fontSize: "14px", color: "#1e293b", fontWeight: 900, letterSpacing: "-0.3px" }}>
           {metric === "revenue"
             ? `₹${Number(entry?.value || 0).toLocaleString("en-IN")}`
@@ -42,11 +42,11 @@ export default function PerformanceChart({ weeklyData = [], monthlyData = [] }) 
   const data        = period === 0 ? weeklyData : monthlyData;
   const totalRev    = data.reduce((s, d) => s + (d.revenue  || 0), 0);
   const totalSes    = data.reduce((s, d) => s + (d.sessions || 0), 0);
-  const strokeColor = metric === "revenue" ? "#228756" : "#0ea5e9";
+  const strokeColor = metric === "revenue" ? "#166534" : "#0ea5e9";
   const gradId      = metric === "revenue" ? "gRev" : "gSes";
 
   return (
-    <Paper elevation={0} sx={{ borderRadius: "20px", border: "1.5px solid #f1f5f9", background: "#fff", overflow: "hidden" }}>
+    <Paper elevation={0} sx={{ borderRadius: "8px", border: "1px solid #dbe3df", background: "#fff", overflow: "hidden" }}>
 
       {/* ── summary bar ── */}
       <Box sx={{
@@ -101,7 +101,7 @@ export default function PerformanceChart({ weeklyData = [], monthlyData = [] }) 
           {/* metric chips */}
           <Box sx={{ display: "flex", gap: 0.6 }}>
             {[
-              { key: "revenue",  label: "Revenue",  color: "#228756", bg: "#f0fdf4" },
+              { key: "revenue",  label: "Revenue",  color: "#166534", bg: "#f0fdf4" },
               { key: "sessions", label: "Sessions", color: "#0ea5e9", bg: "#f0f9ff" },
             ].map(m => (
               <Chip key={m.key} label={m.label} size="small" onClick={() => setMetric(m.key)}
@@ -125,8 +125,8 @@ export default function PerformanceChart({ weeklyData = [], monthlyData = [] }) 
             <AreaChart data={data} margin={{ top: 6, right: 6, left: -22, bottom: 0 }}>
               <defs>
                 <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="#228756" stopOpacity={0.22} />
-                  <stop offset="95%" stopColor="#228756" stopOpacity={0}    />
+                  <stop offset="5%"  stopColor="#166534" stopOpacity={0.22} />
+                  <stop offset="95%" stopColor="#166534" stopOpacity={0}    />
                 </linearGradient>
                 <linearGradient id="gSes" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%"  stopColor="#0ea5e9" stopOpacity={0.22} />
