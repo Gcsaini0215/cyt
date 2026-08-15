@@ -304,14 +304,28 @@ export default function TherapistPayment() {
                 </div>
               </SectionCard>
 
-              {profile.subscription && (
+              {profile.isLive ? (
                 <div className="section-card" style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <i className="feather-check-circle" style={{ fontSize: 18, color: "#166534" }}></i>
                     <div>
-                      <p style={{ fontSize: 14, fontWeight: 800, color: "#166534", margin: "0 0 2px" }}>You already have an active subscription</p>
+                      <p style={{ fontSize: 14, fontWeight: 800, color: "#166534", margin: "0 0 2px" }}>Your profile is live on Choose Your Therapist</p>
                       <p style={{ fontSize: 12.5, color: "#3f6212", margin: 0 }}>
-                        Valid until <strong>{fmtDate(profile.subscription.expiresAt)}</strong>. You can renew or upgrade below.
+                        {profile.subscription
+                          ? <>Subscription valid until <strong>{fmtDate(profile.subscription.expiresAt)}</strong>. You can renew or upgrade below.</>
+                          : "Your profile is currently visible to clients. Choose a plan below to keep it active going forward."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="section-card" style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <i className="feather-alert-circle" style={{ fontSize: 18, color: "#b45309" }}></i>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 800, color: "#78350f", margin: "0 0 2px" }}>Your profile is approved but not live yet</p>
+                      <p style={{ fontSize: 12.5, color: "#92400e", margin: 0 }}>
+                        Choose a subscription plan below and complete payment to activate your profile on the public directory.
                       </p>
                     </div>
                   </div>
