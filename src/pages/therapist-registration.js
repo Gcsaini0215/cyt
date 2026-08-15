@@ -1,123 +1,217 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import RegistrationHeader from "../components/therapist/registration-header";
 import NewsLetter from "../components/home/newsletter";
 import Footer from "../components/footer";
-import { Dialog, DialogContent, DialogActions } from "@mui/material";
-import { useState, useEffect } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, resendTherapistOtpUrl } from "../utils/url";
-import Link from "next/link";
 import { postData, postFormData } from "../utils/actions";
-import FormMessage from "../components/global/form-message";
-import FormProgressBar from "../components/global/form-progressbar";
-import { FaLaptop, FaMapMarkerAlt, FaGlobe, FaTags } from "react-icons/fa";
 
-export default function TherapistRegistration() 
-{
-  const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    profileType: "",
-    mode: "",
-    checkedValues: [],
-    selectedFile: null,
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [planOpen, setPlanOpen] = useState(false);
-  const [otpError, setOtpError] = useState("");
-  const [otp, setOtp] = useState("");
-  const [registeredEmail, setRegisteredEmail] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
+const PROFILE_TYPES = ["Counselling Psychologist", "Psychiatrist", "Clinical Psychologist", "Special Educator"];
+const MODES = [
+  { label: "Virtual", value: "1", icon: "feather-video" },
+  { label: "In-Person", value: "2", icon: "feather-map-pin" },
+  { label: "Both", value: "3", icon: "feather-globe" },
+];
+const EXPERTISE = [
+  "Prescribe Medication (Only for Psychiatrist)",
+  "Individual Counselling",
+  "Couple Counselling",
+  "Teen Counselling",
+  "Workshops / Events",
+  "Internship / Training",
+];
+const ID_CARD_TYPES = ["Aadhar Card", "PAN Card", "Voter ID", "Passport", "Driving License"];
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+const EMPTY = {
+  name: "", email: "", phone: "",
+  profileType: "", mode: "",
+  checkedValues: [],
+  resumeFile: null, qualificationCertFile: null, idCardFile: null, idCardType: "",
+  agreeTerms: false,
+};
+
+function validate(f) {
+  if (!f.name.trim() || f.name.trim().length < 3)          return "Enter your full name (min 3 chars)";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))          return "Enter a valid email address";
+  if (!/^\d{10}$/.test(f.phone))                             return "Enter a valid 10-digit phone number";
+  if (!f.profileType)                                        return "Select your profile type";
+  if (!f.mode)                                               return "Select your preferred service mode";
+  if (!f.checkedValues.length)                               return "Select at least one area of expertise";
+  if (!f.resumeFile)                                         return "Upload your resume";
+  if (!f.qualificationCertFile)                              return "Upload your highest qualification certificate";
+  if (!f.idCardType)                                         return "Select your ID card type";
+  if (!f.idCardFile)                                         return "Upload your ID card";
+  if (!f.agreeTerms)                                         return "Please agree to the terms and conditions";
+  return null;
+}
+
+function CustomSelect({ value, onChange, options, placeholder }) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const handleFileChange = (event) =>
-    setFormData((prev) => ({ ...prev, selectedFile: event.target.files[0] }));
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button type="button" onClick={() => setOpen(p => !p)} style={{
+        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : "#cbd5c9"}`,
+        borderRadius: 3, padding: "10px 13px", fontSize: 14, cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+        textAlign: "left", fontFamily: "inherit", outline: "none",
+        boxShadow: open ? "0 0 0 3px rgba(34,135,86,0.08)" : "none",
+        transition: "border-color 0.2s, box-shadow 0.2s",
+      }}>
+        <span style={{ color: value ? "#1e293b" : "#94a3b8", fontWeight: value ? 500 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {value || placeholder}
+        </span>
+        <i className="feather-chevron-down" style={{ fontSize: 14, color: "#94a3b8", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+      </button>
 
-  const validateEmail = (email) =>
-    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email.toLowerCase());
+      {open && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 300,
+          background: "#fff", border: "1.5px solid #cbd5c9", borderRadius: 3,
+          boxShadow: "0 8px 28px rgba(0,0,0,0.10)", overflow: "hidden", maxHeight: 220, overflowY: "auto",
+        }}>
+          {options.map((opt) => (
+            <div key={opt} onMouseDown={() => { onChange(opt); setOpen(false); }} style={{
+              padding: "9px 14px", cursor: "pointer", fontSize: 13,
+              fontWeight: value === opt ? 700 : 400,
+              color: value === opt ? "#228756" : "#374151",
+              background: value === opt ? "#f0fdf4" : "transparent",
+            }}>
+              {opt}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
-  const handleCheckboxChange = (event) => {
-    const { value, checked } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      checkedValues: checked
-        ? [...prev.checkedValues, value]
-        : prev.checkedValues.filter((v) => v !== value),
-    }));
-  };
+function SuccessScreen({ name, email }) {
+  return (
+    <div style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 16px" }}>
+      <div style={{ maxWidth: 520, width: "100%", textAlign: "center" }}>
+        <div style={{ width: 80, height: 80, borderRadius: "50%", background: "linear-gradient(135deg,#1b5e20,#2ecc71)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+          <i className="feather-check" style={{ fontSize: 36, color: "#fff" }}></i>
+        </div>
+        <h2 style={{ fontSize: 26, fontWeight: 800, color: "#1e293b", marginBottom: 12 }}>
+          Registration Successful
+        </h2>
+        <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.8, marginBottom: 28 }}>
+          Thank you, <strong>{name}</strong>. Your application and documents have been received.
+          Our team will review your profile, resume, qualification certificate, and ID within{" "}
+          <strong>1–2 business days</strong> on your registered email <strong>{email}</strong>.
+        </p>
 
-  const nextStep = async () => {
+        <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 14, padding: "18px 20px", marginBottom: 24, textAlign: "left" }}>
+          <p style={{ fontSize: 13, fontWeight: 800, color: "#166534", margin: "0 0 4px" }}>Need further assistance?</p>
+          <p style={{ fontSize: 12.5, color: "#3f6212", margin: "0 0 12px", lineHeight: 1.6 }}>
+            Message us on WhatsApp or email us — our team is happy to help with any questions about your application.
+          </p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <a href="https://wa.me/918077757951?text=Hi%2C%20I%20registered%20as%20a%20therapist%20and%20need%20assistance."
+              target="_blank" rel="noreferrer"
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#25D366", color: "#fff", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
+              <i className="feather-message-circle"></i> WhatsApp Us
+            </a>
+            <a href="mailto:hello@chooseyourtherapist.in"
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#fff", color: "#166534", border: "1.5px solid #86efac", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
+              <i className="feather-mail"></i> hello@chooseyourtherapist.in
+            </a>
+          </div>
+        </div>
+
+        <Link href="/" style={{
+          textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+          padding: "13px 28px", borderRadius: 12,
+          background: "linear-gradient(135deg,#1b5e20,#228756)",
+          color: "#fff", fontWeight: 700, fontSize: 14,
+          boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
+        }}>
+          <i className="feather-home"></i> Go to Home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function TherapistRegistration() {
+  const [form, setForm] = useState(EMPTY);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [otpStep, setOtpStep] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 992);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const handleReview = async (e) => {
+    e.preventDefault();
     setError("");
-    if (step === 0) {
-      if (!validateEmail(formData.email)) return setError("Please enter a valid email address");
-      try {
-        setLoading(true);
-        await postData(checkTherapistEmailUrl, { email: formData.email });
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-        const msg = err.response?.data?.message || "";
-        if (err.response?.status === 400 && msg) {
-          return setError(msg);
-        }
-        // network/server error — allow to proceed
+    const err = validate(form);
+    if (err) { setError(err); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+
+    setLoading(true);
+    try {
+      await postData(checkTherapistEmailUrl, { email: form.email });
+    } catch (err2) {
+      setLoading(false);
+      const msg = err2.response?.data?.message || "";
+      if (err2.response?.status === 400 && msg) {
+        setError(msg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
       }
-    } else if (step === 1) {
-      if (!formData.profileType) return setError("Please select profile type");
-      if (!formData.mode) return setError("Please select service mode");
-    } else if (step === 2) {
-      if (formData.name.length < 5) return setError("Please enter full name");
-      if (formData.phone.length !== 10) return setError("Please enter valid phone number");
-    } else if (step === 3) {
-      if (!formData.checkedValues.length) return setError("Please select at least one area of expertise");
+      // network/server error — allow to proceed
     }
-    setStep(step + 1);
-  };
-
-  const prevStep = () => {
-    setError("");
-    setStep(step - 1);
+    setLoading(false);
+    setReviewing(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSubmit = async () => {
-    const { name, phone, email, profileType, mode, checkedValues, selectedFile } = formData;
-
     setError("");
-    setSuccess("");
-
-    if (!selectedFile) return setError("Please upload your resume");
-
     setLoading(true);
     const data = new FormData();
-    data.append("file", selectedFile);
-    data.append("name", name);
-    data.append("phone", phone);
-    data.append("email", email);
-    data.append("type", profileType);
-    data.append("mode", mode);
-    data.append("serve", checkedValues.join(", "));
+    data.append("resume", form.resumeFile);
+    data.append("qualification_certificate", form.qualificationCertFile);
+    data.append("id_card", form.idCardFile);
+    data.append("idCardType", form.idCardType);
+    data.append("name", form.name);
+    data.append("phone", form.phone);
+    data.append("email", form.email);
+    data.append("type", form.profileType);
+    data.append("mode", form.mode);
+    data.append("serve", form.checkedValues.join(", "));
 
     try {
       const response = await postFormData(therapistRegistrationUrl, data);
       if (response.status) {
-        setRegisteredEmail(email);
-        setError("");
-        setStep(5);
+        setRegisteredEmail(form.email);
+        setReviewing(false);
+        setOtpStep(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         setError("Something went wrong");
       }
@@ -127,8 +221,7 @@ export default function TherapistRegistration()
     setLoading(false);
   };
 
-  const [resendLoading, setResendLoading] = useState(false);
-  const [resendMsg, setResendMsg] = useState("");
+  const handleOtpChange = (value) => setOtp(value.replace(/\D/g, "").trim().slice(0, 6));
 
   const resendOtp = async () => {
     setResendMsg("");
@@ -143,29 +236,16 @@ export default function TherapistRegistration()
     setResendLoading(false);
   };
 
-  const handleOtpChange = (value) => setOtp(value.replace(/\D/g, "").trim().slice(0, 6));
-  const onClose = () => setOpen(false);
-
   const verifyOtp = async () => {
     setOtpError("");
     if (otp.length !== 6) return setOtpError("Please enter valid OTP");
-
     try {
       setLoading(true);
       const response = await postData(verifyOtpUrl, { email: registeredEmail, otp: otp.trim() });
       if (response.status) {
         setOtp("");
-        setOpen(false);
-        setFormData({
-          name: "",
-          phone: "",
-          email: "",
-          profileType: "",
-          mode: "",
-          checkedValues: [],
-          selectedFile: null,
-        });
-        setStep(6);
+        setOtpStep(false);
+        setSubmitted(true);
       } else {
         setOtpError(response.message || "Invalid OTP");
       }
@@ -175,18 +255,17 @@ export default function TherapistRegistration()
     setLoading(false);
   };
 
-  const profileOptions = [
-    "Counselling Psychologist",
-    "Psychiatrist",
-    "Clinical Psychologist",
-    "Special Educator"
-  ];
-
-  const modeOptions = [
-    { label: "Virtual", value: 1, icon: <FaLaptop /> },
-    { label: "In-Person", value: 2, icon: <FaMapMarkerAlt /> },
-    { label: "Both", value: 3, icon: <FaGlobe /> }
-  ];
+  const inputStyle = {
+    width: "100%", background: "#fff", border: "1.5px solid #cbd5c9",
+    borderRadius: 3, padding: "10px 13px", fontSize: 14, color: "#1e293b",
+    outline: "none", transition: "border-color 0.2s",
+    fontFamily: "inherit",
+  };
+  const labelStyle = { fontSize: 11.5, fontWeight: 700, color: "#3f4d47", marginBottom: 6, display: "block", textTransform: "uppercase", letterSpacing: "0.4px" };
+  const sectionHead = { fontSize: 13.5, fontWeight: 800, color: "#0f3d24", marginBottom: 20, paddingBottom: 12, borderBottom: "2px solid #0f3d24", display: "flex", alignItems: "center", gap: 12, textTransform: "uppercase", letterSpacing: "0.8px" };
+  const sectionNum = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, borderRadius: 4, background: "#0f3d24", color: "#fff", fontSize: 12, fontWeight: 900, flexShrink: 0, letterSpacing: 0, textTransform: "none" };
+  const fieldWrap = { marginBottom: 18 };
+  const gridTwo = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0 18px", alignItems: "start" };
 
   return (
     <>
@@ -196,549 +275,456 @@ export default function TherapistRegistration()
         <meta name="description" content="Are you a qualified psychologist or psychiatrist? Register with Choose Your Therapist to connect with clients across India and grow your professional practice on our secure platform." />
         <meta name="keywords" content="Therapist Registration, Join Mental Health Network, Psychologist Jobs India, Online Therapy Practice" />
         <link rel="canonical" href="https://chooseyourtherapist.in/therapist-registration" />
-        
+
         <meta property="og:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
         <meta property="og:description" content="Register with Choose Your Therapist to connect with clients across India and grow your professional practice." />
         <meta property="og:url" content="https://chooseyourtherapist.in/therapist-registration" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
-        
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
         <meta name="twitter:description" content="Register as a verified therapist and grow your practice with Choose Your Therapist." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
 
-      <style>{`
-        input:focus, select:focus, textarea:focus, button:focus {
-          outline: none !important;
-          box-shadow: none !important;
-        }
-        .stat-card {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          padding: 15px;
-          border-radius: 12px;
-          text-align: center;
-          flex: 1;
-        }
-        .selection-card {
-          border: 2px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 15px 10px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          text-align: center;
-          background: #fff;
-          height: 100%;
-          min-height: 70px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-        .selection-card:hover {
-          border-color: #22bb33;
-          background: rgba(34, 187, 51, 0.02);
-        }
-        .selection-card.selected {
-          border-color: #22bb33;
-          background: rgba(34, 187, 51, 0.05);
-          box-shadow: 0 4px 12px rgba(34, 187, 51, 0.1);
-        }
-        .form-control-custom {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 12px 15px;
-          width: 100%;
-          font-size: 14px;
-          transition: all 0.3s ease;
-          box-sizing: border-box;
-          display: block;
-        }
-        .form-control-custom:focus {
-          border-color: #22bb33;
-          box-shadow: 0 0 0 3px rgba(34, 187, 51, 0.1) !important;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{ __html: `
+        input:focus, select:focus, textarea:focus { border-color: #228756 !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
+        .req { color: #ef4444; }
+        .section-card { background: #fff; border: 1px solid #dbe3df; border-radius: 4px; padding: 26px 28px; margin-bottom: 20px; }
+        @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
+        @keyframes trspin { to { transform: rotate(360deg); } }
+
+        .af-doc { border: 1px solid #dbe3df; border-radius: 4px; background: #fff; overflow: hidden; }
+        .af-titlebar { background: #0f3d24; text-align: left; padding: 18px 24px; border-radius: 4px 4px 0 0; border-bottom: 3px solid #d4af37; }
+        .af-titlebar-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65) !important; margin: 0 0 4px; }
+        .af-titlebar-title { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; color: #ffffff !important; }
+        .af-titlebar-sub { font-size: 12px; color: rgba(255,255,255,0.7) !important; margin: 6px 0 0; }
+        .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
+      ` }} />
 
       <MyNavbar />
       <RegistrationHeader />
 
-      <div style={{ background: "#f8fafc", padding: isMobile ? "24px 0" : "60px 0" }}>
-        <div className={isMobile ? "" : "container"}>
-          <div className="row justify-content-center" style={{ margin: 0 }}>
-            <div className="col-lg-6 col-md-8 col-12" style={{ padding: isMobile ? '0 12px' : undefined }}>
-              <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-
-                {/* Header */}
-                <div style={{ padding: isMobile ? '18px 16px 0' : '20px 28px 0' }}>
-                  <h5 style={{ fontWeight: 800, fontSize: '24px', marginBottom: '8px' }}>Therapist Registration</h5>
-                  <p className="text-muted" style={{ fontSize: '13px', marginBottom: step === 0 ? '12px' : '12px' }}>
-                    {step === 0 && "Begin your journey as a verified therapist"}
-                    {step === 1 && "Step 1 of 4 — Profile & Mode"}
-                    {step === 2 && "Step 2 of 4 — Personal Details"}
-                    {step === 3 && "Step 3 of 4 — Areas of Expertise"}
-                    {step === 4 && "Step 4 of 4 — Resume Upload"}
-                    {step === 5 && "Almost done — Verify your email"}
+      <div className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
+        {submitted ? (
+          <SuccessScreen name={form.name} email={registeredEmail} />
+        ) : otpStep ? (
+          /* ── OTP VERIFICATION ── */
+          <div style={{ maxWidth: 480, margin: "0 auto" }}>
+            <div className="af-doc">
+              <div className="af-titlebar">
+                <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
+                <h1 className="af-titlebar-title">Verify Your Email</h1>
+                <p className="af-titlebar-sub">Final step to complete your registration</p>
+              </div>
+              <div style={{ padding: "26px 28px" }}>
+                <div style={{ textAlign: "center", marginBottom: 20 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#f0fdf4", border: "2px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
+                    <i className="feather-mail" style={{ fontSize: 22, color: "#166534" }}></i>
+                  </div>
+                  <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                    We've sent a 6-digit code to<br />
+                    <strong style={{ color: "#166534" }}>{registeredEmail}</strong>
                   </p>
-
-                  {/* Step Indicators — only for steps 1–4 */}
-                  {step > 0 && step < 5 && (
-                    <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '24px' }}>
-                      {[
-                        { num: 1, label: "Profile" },
-                        { num: 2, label: "Details" },
-                        { num: 3, label: "Expertise" },
-                        { num: 4, label: "Resume" },
-                      ].map((s, i) => (
-                        <React.Fragment key={s.num}>
-                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', flex: '0 0 auto' }}>
-                            <div style={{
-                              width: '30px', height: '30px', borderRadius: '50%',
-                              background: step >= s.num ? '#22bb33' : '#e2e8f0',
-                              color: step >= s.num ? '#fff' : '#94a3b8',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontWeight: 700, fontSize: '12px',
-                              transition: 'all 0.3s ease',
-                            }}>
-                              {step > s.num ? '✓' : s.num}
-                            </div>
-                            <span style={{ fontSize: '10px', fontWeight: 600, color: step >= s.num ? '#22bb33' : '#94a3b8', whiteSpace: 'nowrap' }}>
-                              {s.label}
-                            </span>
-                          </div>
-                          {i < 3 && (
-                            <div style={{
-                              flex: 1, height: '2px', margin: '14px 4px 0',
-                              background: step > s.num ? '#22bb33' : '#e2e8f0',
-                              transition: 'background 0.3s ease',
-                            }} />
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
-                {/* Form Body */}
-                <div style={{ padding: isMobile ? '4px 16px 24px' : '4px 28px 24px' }}>
-                  <p style={{ color: "#d50000", fontSize: '13px', minHeight: error ? '16px' : '0', marginBottom: error ? '4px' : '0' }}>{error}</p>
+                <div style={{ background: "#f8fafc", border: "1px solid #dbe3df", borderRadius: 3, padding: "18px 14px", marginBottom: 16 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", textAlign: "center", margin: "0 0 12px" }}>Enter Verification Code</p>
+                  <input
+                    type="text" inputMode="numeric" placeholder="• • • • • •"
+                    value={otp} onChange={(e) => handleOtpChange(e.target.value)} maxLength={6}
+                    style={{
+                      width: "100%", padding: 14, border: "1.5px solid #cbd5c9", borderRadius: 3,
+                      fontSize: isMobile ? 24 : 28, fontWeight: 800, letterSpacing: isMobile ? 10 : 14, textAlign: "center",
+                      boxSizing: "border-box", outline: "none", color: "#111827", background: "#fff", fontFamily: "inherit",
+                    }}
+                  />
+                </div>
 
-                  {/* Step 0 — Email */}
-                  {step === 0 && (
-                    <div>
-                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.7', marginBottom: '14px' }}>
-                        Join a growing network of verified psychologists, psychiatrists, and mental health professionals on <strong>Choose Your Therapist</strong>. Get discovered by clients across India, manage bookings, generate invoices, and grow your practice — all in one place. Start with our{' '}
-                        <span
-                          onClick={() => setPlanOpen(true)}
-                          style={{ color: '#22bb33', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}
-                        >Starter Plan</span>
-                        {' '}and take your practice to the next level.
-                      </p>
+                {otpError && <p style={{ color: "#dc2626", fontSize: 13, marginBottom: 8, textAlign: "center", fontWeight: 600 }}>{otpError}</p>}
+                {resendMsg && <p style={{ color: "#228756", fontSize: 13, marginBottom: 8, textAlign: "center", fontWeight: 600 }}>{resendMsg}</p>}
 
-                      <input
-                        type="email"
-                        placeholder="Enter your email address"
-                        value={formData.email}
-                        onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                        className="form-control-custom"
-                        style={{ fontSize: '15px', marginBottom: '10px' }}
-                      />
+                <button onClick={verifyOtp} disabled={loading}
+                  style={{ width: "100%", padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                  {loading
+                    ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span> Verifying...</>
+                    : <><i className="feather-check-circle"></i> Verify &amp; Complete Registration</>}
+                </button>
 
-                      <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>
-                        Have a question about registration or membership?{' '}
-                        <a href="https://wa.me/918077757951" target="_blank" rel="noreferrer" style={{ color: '#22bb33', fontWeight: 600, textDecoration: 'none' }}>
-                          Contact CYT Support
-                        </a>
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Step 1 — Profile Type + Mode */}
-                  {step === 1 && (
-                    <div>
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Profile Type</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px', marginBottom: '24px' }}>
-                        {profileOptions.map((opt) => (
-                          <div
-                            key={opt}
-                            onClick={() => setFormData(p => ({ ...p, profileType: opt }))}
-                            style={{
-                              border: `2px solid ${formData.profileType === opt ? '#22bb33' : '#e2e8f0'}`,
-                              borderRadius: '10px',
-                              padding: '14px 10px',
-                              cursor: 'pointer',
-                              textAlign: 'center',
-                              background: formData.profileType === opt ? 'rgba(34,187,51,0.05)' : '#fff',
-                              boxShadow: formData.profileType === opt ? '0 2px 10px rgba(34,187,51,0.12)' : 'none',
-                              transition: 'all 0.2s ease',
-                            }}
-                          >
-                            <span style={{ fontSize: '13px', fontWeight: 600, color: formData.profileType === opt ? '#166534' : '#374151', lineHeight: '1.3' }}>{opt}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Service Mode</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                        {modeOptions.map((opt) => (
-                          <div
-                            key={opt.value}
-                            onClick={() => setFormData(p => ({ ...p, mode: opt.value }))}
-                            style={{
-                              border: `2px solid ${formData.mode == opt.value ? '#22bb33' : '#e2e8f0'}`,
-                              borderRadius: '10px',
-                              padding: '14px 8px',
-                              cursor: 'pointer',
-                              textAlign: 'center',
-                              background: formData.mode == opt.value ? 'rgba(34,187,51,0.05)' : '#fff',
-                              boxShadow: formData.mode == opt.value ? '0 2px 10px rgba(34,187,51,0.12)' : 'none',
-                              transition: 'all 0.2s ease',
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
-                            }}
-                          >
-                            <span style={{ fontSize: '20px', color: formData.mode == opt.value ? '#22bb33' : '#94a3b8' }}>{opt.icon}</span>
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: formData.mode == opt.value ? '#166534' : '#374151' }}>{opt.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 2 — Personal Details */}
-                  {step === 2 && (
-                    <div>
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Personal Details</p>
-                      <div className="form-group mb-3">
-                        <input
-                          type="text"
-                          placeholder="Full Name"
-                          value={formData.name}
-                          onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-                          className="form-control-custom"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          placeholder="Phone Number (10 digits)"
-                          value={formData.phone}
-                          onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
-                          className="form-control-custom"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 3 — Expertise */}
-                  {step === 3 && (
-                    <div>
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>Areas of Expertise</p>
-                      <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '12px' }}>Select all the services you are interested to offer:</p>
-                      <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-                        {[
-                          "Prescribe Medication (Only for Psychiatrist)",
-                          "Individual Counselling",
-                          "Couple Counselling",
-                          "Teen Counselling",
-                          "Workshops / Events",
-                          "Internship / Training",
-                        ].map((val, i) => (
-                          <label key={i} htmlFor={`check-${i}`} style={{
-                            display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '12px 14px',
-                            borderBottom: i < 5 ? '1px solid #f1f5f9' : 'none',
-                            cursor: 'pointer',
-                            background: formData.checkedValues.includes(val) ? 'rgba(34,187,51,0.04)' : '#fff',
-                            transition: 'background 0.2s',
-                          }}>
-                            <input
-                              type="checkbox"
-                              value={val}
-                              onChange={handleCheckboxChange}
-                              checked={formData.checkedValues.includes(val)}
-                              id={`check-${i}`}
-                              style={{ width: '16px', height: '16px', accentColor: '#22bb33', flexShrink: 0 }}
-                            />
-                            <span style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>{val}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 4 — Resume (Final) */}
-                  {step === 4 && (
-                    <div>
-                      {/* Final step banner */}
-                      <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 18px', marginBottom: '24px' }}>
-                        <p style={{ fontWeight: 800, fontSize: '15px', color: '#166534', margin: '0 0 2px' }}>You're almost there!</p>
-                        <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>This is the final step. Upload your resume to complete your registration.</p>
-                      </div>
-
-                      {/* Upload area */}
-                      <p style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Upload Resume</p>
-                      <label htmlFor="resume-upload" style={{ display: 'block', cursor: 'pointer' }}>
-                        <div style={{
-                          border: `2px dashed ${formData.selectedFile ? '#22bb33' : '#cbd5e1'}`,
-                          borderRadius: '12px',
-                          padding: '28px 20px',
-                          textAlign: 'center',
-                          background: formData.selectedFile ? 'rgba(34,187,51,0.04)' : '#fafafa',
-                          transition: 'all 0.2s ease',
-                        }}>
-                          {formData.selectedFile ? (
-                            <>
-                              <p style={{ fontWeight: 700, fontSize: '14px', color: '#166534', margin: '0 0 4px' }}>File Selected</p>
-                              <p style={{ fontSize: '12px', color: '#22bb33', margin: 0, wordBreak: 'break-all' }}>{formData.selectedFile.name}</p>
-                              <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0' }}>Click to change file</p>
-                            </>
-                          ) : (
-                            <>
-                              <p style={{ fontWeight: 600, fontSize: '14px', color: '#374151', margin: '0 0 4px' }}>Click to upload your resume</p>
-                              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>PDF only · Max 500KB</p>
-                            </>
-                          )}
-                        </div>
-                      </label>
-                      <input
-                        id="resume-upload"
-                        type="file"
-                        accept=".pdf"
-                        onChange={handleFileChange}
-                        style={{ display: 'none' }}
-                      />
-                      <p style={{ color: '#22bb33', fontSize: '13px', marginTop: '10px', minHeight: '20px' }}>{success}</p>
-                    </div>
-                  )}
-
-                  {/* Step 5 — OTP Verification */}
-                  {step === 5 && (
-                    <div>
-                      {/* Icon + heading */}
-                      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '2px solid #bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                          <span style={{ fontSize: '24px' }}>📧</span>
-                        </div>
-                        <h6 style={{ fontWeight: 800, fontSize: '16px', color: '#0f172a', margin: '0 0 6px' }}>Check your inbox</h6>
-                        <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>
-                          We've sent a 6-digit code to<br />
-                          <strong style={{ color: '#166534' }}>{registeredEmail}</strong>
-                        </p>
-                      </div>
-
-                      {/* OTP input box */}
-                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 16px', marginBottom: '16px' }}>
-                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center', margin: '0 0 12px' }}>Enter Verification Code</p>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="• • • • • •"
-                          value={otp}
-                          onChange={(e) => handleOtpChange(e.target.value)}
-                          maxLength={6}
-                          style={{
-                            width: '100%', padding: '14px', border: '2px solid #e2e8f0', borderRadius: '10px',
-                            fontSize: isMobile ? '24px' : '30px', fontWeight: 800, letterSpacing: isMobile ? '10px' : '16px', textAlign: 'center',
-                            boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s',
-                            color: '#111827', background: '#fff',
-                          }}
-                          onFocus={e => e.target.style.borderColor = '#22bb33'}
-                          onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                        />
-                      </div>
-
-                      {otpError && <p style={{ color: '#d50000', fontSize: '13px', marginBottom: '8px', textAlign: 'center' }}>{otpError}</p>}
-                      {resendMsg && <p style={{ color: '#22bb33', fontSize: '13px', marginBottom: '8px', textAlign: 'center' }}>{resendMsg}</p>}
-                      {success && <p style={{ color: '#22bb33', fontSize: '13px', marginBottom: '8px', textAlign: 'center' }}>{success}</p>}
-
-                      <button
-                        onClick={verifyOtp}
-                        disabled={loading}
-                        className="rbt-btn btn-gradient radius-round"
-                        style={{ width: '100%', minHeight: '48px', opacity: loading ? 0.7 : 1 }}
-                      >
-                        {loading ? <CircularProgress size={18} style={{ color: '#fff' }} /> : 'Verify & Complete Registration'}
-                      </button>
-
-                      <p style={{ textAlign: 'center', marginTop: '14px', fontSize: '13px', color: '#94a3b8' }}>
-                        Didn't receive the code?{' '}
-                        <button
-                          onClick={resendOtp}
-                          disabled={resendLoading}
-                          style={{ background: 'none', border: 'none', color: '#22bb33', fontWeight: 700, fontSize: '13px', cursor: 'pointer', padding: 0, opacity: resendLoading ? 0.6 : 1 }}
-                        >
-                          {resendLoading ? 'Sending...' : 'Resend'}
-                        </button>
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Step 6 — Success */}
-                  {step === 6 && (
-                    <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
-                      <div style={{ width: '68px', height: '68px', borderRadius: '50%', background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '2px solid #86efac', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                        <span style={{ fontSize: '32px' }}>✓</span>
-                      </div>
-                      <h5 style={{ fontWeight: 800, fontSize: '20px', color: '#0f172a', margin: '0 0 8px' }}>Registration Successful!</h5>
-                      <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.7, margin: '0 0 20px' }}>
-                        Thank you for registering with <strong>Choose Your Therapist</strong>. Our team will review your profile and resume. You will receive an approval notification via email.
-                      </p>
-                      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '14px 16px', marginBottom: '20px' }}>
-                        <p style={{ fontSize: '12px', color: '#15803d', margin: 0, lineHeight: 1.6 }}>
-                          Review usually takes <strong>1–2 business days</strong>. Keep an eye on <strong>{registeredEmail}</strong> for updates.
-                        </p>
-                      </div>
-                      <a href="/" style={{ display: 'block', textDecoration: 'none' }}>
-                        <button className="rbt-btn btn-gradient radius-round w-100" style={{ minHeight: '46px' }}>
-                          Go to Homepage
-                        </button>
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Buttons — hidden on step 5+ (OTP/success have their own buttons) */}
-                  {step < 5 && <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
-                    {step > 0 && (
-                      <button
-                        onClick={prevStep}
-                        style={{ flex: 1, minHeight: '48px', background: 'transparent', border: '1px solid #e2e8f0', borderRadius: '50px', fontWeight: 600, fontSize: '14px', color: '#64748b', cursor: 'pointer' }}
-                      >
-                        ← Back
-                      </button>
-                    )}
-                    {step < 4 ? (
-                      <button
-                        onClick={nextStep}
-                        disabled={loading}
-                        className="rbt-btn btn-gradient radius-round"
-                        style={{ flex: 1, minHeight: '48px', opacity: loading ? 0.7 : 1 }}
-                      >
-                        {loading && step === 0
-                          ? <CircularProgress size={16} style={{ color: '#fff' }} />
-                          : step === 0 ? 'Continue' : 'Next →'}
-                      </button>
-                    ) : (
-                      loading ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', flex: 1 }}>
-                          <CircularProgress size={24} />
-                        </Box>
-                      ) : (
-                        <button
-                          onClick={handleSubmit}
-                          className="rbt-btn btn-gradient radius-round"
-                          style={{ flex: 1, minHeight: '48px' }}
-                        >
-                          Submit Registration
-                        </button>
-                      )
-                    )}
-                  </div>}
-
-                  <div style={{ textAlign: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                    <Link href="/login" style={{ fontSize: '13px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
-                      Already have an account? <span style={{ color: '#22bb33' }}>Login here</span>
-                    </Link>
-                  </div>
-                </div>{/* end form body */}
-              </div>{/* end card */}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Dialog 
-        open={open} 
-        onClose={onClose} 
-        fullWidth 
-        maxWidth="sm"
-        PaperProps={{
-          style: {
-            borderRadius: '16px',
-            margin: isMobile ? '20px' : '32px',
-            marginTop: isMobile ? '100px' : '0px', // Clear navbar on mobile
-          }
-        }}
-      >
-        <DialogContent className="p-4 p-md-5 text-center">
-          <h3 style={{ fontWeight: 800, color: "#22bb33", fontSize: isMobile ? '24px' : '30px' }}>Verify Your Email</h3>
-          <p className="mb-4 small">We've sent a 6-digit OTP to your email address. Please enter it below to complete your registration.</p>
-          
-          <div className="form-group mb-4">
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => handleOtpChange(e.target.value)}
-              className="form-control text-center"
-              style={{ fontSize: isMobile ? 20 : 24, letterSpacing: isMobile ? 4 : 8, fontWeight: 700, height: '60px' }}
-            />
-            <p className="text-danger mt-2 small">{otpError}</p>
-          </div>
-
-          <button
-            disabled={loading}
-            onClick={verifyOtp}
-            className="rbt-btn btn-gradient radius-round w-100"
-            style={{ minHeight: '50px' }}
-          >
-            {loading ? <CircularProgress size={20} /> : "Verify & Submit"}
-          </button>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={planOpen}
-        onClose={() => setPlanOpen(false)}
-        fullWidth
-        maxWidth="xs"
-        PaperProps={{
-          style: {
-            borderRadius: '16px',
-            margin: isMobile ? '16px' : '32px',
-            width: isMobile ? 'calc(100% - 32px)' : undefined,
-          }
-        }}
-      >
-        <DialogContent style={{ padding: '24px 20px' }}>
-          {/* Price block */}
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <h5 style={{ fontWeight: 800, fontSize: '18px', margin: '0 0 16px' }}>Starter Plan</h5>
-            <div style={{ background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', borderRadius: '12px', padding: '16px' }}>
-              <p style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>3 Months Access</p>
-              <p style={{ fontSize: '32px', fontWeight: 900, color: '#166534', margin: '0 0 2px' }}>₹1,999</p>
-              <p style={{ fontSize: '11px', color: '#15803d', margin: 0 }}>One-time · No auto-renewal</p>
-            </div>
-          </div>
-
-          {/* Features — simple list */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-            {[
-              'Profile listed & discoverable by clients',
-              'Verified badge on your public profile',
-              'Booking & appointment management',
-              'Professional invoice generation',
-              'Client records & session notes storage',
-            ].map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: '#22bb33', fontWeight: 700, fontSize: '14px', flexShrink: 0 }}>✓</span>
-                <span style={{ fontSize: '13px', color: '#374151' }}>{f}</span>
+                <p style={{ textAlign: "center", marginTop: 14, fontSize: 13, color: "#94a3b8" }}>
+                  Didn't receive the code?{" "}
+                  <button onClick={resendOtp} disabled={resendLoading}
+                    style={{ background: "none", border: "none", color: "#228756", fontWeight: 700, fontSize: 13, cursor: "pointer", padding: 0, opacity: resendLoading ? 0.6 : 1 }}>
+                    {resendLoading ? "Sending..." : "Resend"}
+                  </button>
+                </p>
               </div>
-            ))}
+            </div>
           </div>
+        ) : (
+          <div style={{ maxWidth: 860, margin: "0 auto" }}>
+            <div className="af-doc" style={{ marginBottom: 24 }}>
+              <div className="af-titlebar">
+                <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
+                <h1 className="af-titlebar-title">Therapist Registration Form</h1>
+                <p className="af-titlebar-sub">Join our network of verified mental health professionals</p>
+              </div>
+              <div className="af-notice">
+                <i className="feather-alert-circle" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
+                <span>Please read all instructions carefully before filling this form. Fields marked <strong>*</strong> are mandatory. Applications with incomplete or unclear documents may be rejected.</span>
+              </div>
+            </div>
 
-          <button
-            onClick={() => setPlanOpen(false)}
-            className="rbt-btn btn-gradient radius-round w-100"
-            style={{ minHeight: '44px' }}
-          >
-            Got it — Continue Registration
-          </button>
-        </DialogContent>
-      </Dialog>
+            {reviewing ? (
+              /* ── REVIEW SCREEN ── */
+              <div>
+                <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Review Your Application</h2>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Please review all details before submitting.</p>
+
+                {error && (
+                  <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
+                    <i className="feather-alert-circle"></i> {error}
+                  </div>
+                )}
+
+                {[
+                  { title: "Personal Details", icon: "feather-user", color: "#228756", rows: [
+                    ["Full Name", form.name], ["Email", form.email], ["Phone", form.phone],
+                  ]},
+                  { title: "Professional Profile", icon: "feather-briefcase", color: "#0ea5e9", rows: [
+                    ["Profile Type", form.profileType],
+                    ["Service Mode", MODES.find(m => m.value === form.mode)?.label || "—"],
+                  ]},
+                  { title: "Areas of Expertise", icon: "feather-check-square", color: "#8b5cf6", rows: [
+                    ["Selected Services", form.checkedValues.join(", ")],
+                  ]},
+                ].map((section, si) => (
+                  <div key={si} className="section-card" style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 10, borderBottom: "1.5px solid #f1f5f9" }}>
+                      <div style={{ width: 26, height: 26, borderRadius: 7, background: section.color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <i className={section.icon} style={{ fontSize: 13, color: section.color }}></i>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>{section.title}</span>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "10px 24px" }}>
+                      {section.rows.map(([label, val], ri) => (
+                        <div key={ri} style={section.rows.length === 1 ? { gridColumn: "1 / -1" } : undefined}>
+                          <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</span>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", margin: "3px 0 0", wordBreak: "break-word", lineHeight: 1.5 }}>{val || "—"}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Documents */}
+                <div className="section-card" style={{ marginBottom: 24 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 10, borderBottom: "1.5px solid #f1f5f9" }}>
+                    <div style={{ width: 26, height: 26, borderRadius: 7, background: "#fffbeb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <i className="feather-upload-cloud" style={{ fontSize: 13, color: "#f59e0b" }}></i>
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#1e293b" }}>Verification Documents</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {[
+                      { label: "Resume / CV", file: form.resumeFile, icon: "feather-file-text" },
+                      { label: "Highest Qualification Certificate", file: form.qualificationCertFile, icon: "feather-award" },
+                      { label: `ID Card${form.idCardType ? ` (${form.idCardType})` : ""}`, file: form.idCardFile, icon: "feather-credit-card" },
+                    ].map(({ label, file, icon }) => (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <i className={icon} style={{ fontSize: 14, color: file ? "#228756" : "#cbd5e1", flexShrink: 0 }}></i>
+                        <div>
+                          <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>{label}</span>
+                          <span style={{ fontSize: 13, color: file ? "#374151" : "#94a3b8" }}>{file ? file.name : "Not uploaded"}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  <button type="button" onClick={() => { setReviewing(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    style={{ flex: 1, minWidth: 120, padding: "14px", borderRadius: 3, border: "1.5px solid #cbd5c9", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                    <i className="feather-edit-2"></i> Edit Details
+                  </button>
+                  <button type="button" onClick={handleSubmit} disabled={loading}
+                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                    {loading
+                      ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span> Submitting...</>
+                      : <><i className="feather-send"></i> Confirm &amp; Submit</>}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* ── MAIN FORM ── */
+              <form onSubmit={handleReview} noValidate>
+                <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Applicant Details</h2>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>
+                  Fill in the details below. Fields marked <span className="req">*</span> are required.
+                </p>
+
+                {error && (
+                  <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
+                    <i className="feather-alert-circle"></i> {error}
+                  </div>
+                )}
+
+                {/* ── Section 1: Personal ── */}
+                <div className="section-card">
+                  <div style={sectionHead}>
+                    <span style={sectionNum}>01</span>
+                    Personal Details
+                  </div>
+
+                  <div style={gridTwo}>
+                    <div style={fieldWrap}>
+                      <label style={labelStyle}>Full Name <span className="req">*</span></label>
+                      <input style={inputStyle} type="text" placeholder="Full name" value={form.name} onChange={e => set("name", e.target.value)} />
+                    </div>
+                    <div style={fieldWrap}>
+                      <label style={labelStyle}>Email Address <span className="req">*</span></label>
+                      <input style={inputStyle} type="email" placeholder="you@example.com" value={form.email} onChange={e => set("email", e.target.value)} />
+                    </div>
+                  </div>
+                  <div style={fieldWrap}>
+                    <label style={labelStyle}>Phone Number <span className="req">*</span></label>
+                    <input style={{ ...inputStyle, maxWidth: isMobile ? "100%" : "calc(50% - 9px)" }} type="tel" placeholder="10-digit number" maxLength={10}
+                      value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} />
+                  </div>
+                </div>
+
+                {/* ── Section 2: Professional Profile ── */}
+                <div className="section-card">
+                  <div style={sectionHead}>
+                    <span style={sectionNum}>02</span>
+                    Professional Profile
+                  </div>
+
+                  <div style={fieldWrap}>
+                    <label style={labelStyle}>Profile Type <span className="req">*</span></label>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 8 }}>
+                      {PROFILE_TYPES.map(opt => {
+                        const checked = form.profileType === opt;
+                        return (
+                          <div key={opt} onClick={() => set("profileType", opt)} style={{
+                            border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
+                            borderRadius: 3, padding: "10px 8px", cursor: "pointer", textAlign: "center",
+                            background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s",
+                          }}>
+                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3 }}>{opt}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div style={fieldWrap}>
+                    <label style={labelStyle}>Preferred Service Mode <span className="req">*</span></label>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                      {MODES.map(m => {
+                        const checked = form.mode === m.value;
+                        return (
+                          <div key={m.value} onClick={() => set("mode", m.value)} style={{
+                            border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
+                            borderRadius: 3, padding: "12px 8px", cursor: "pointer", textAlign: "center",
+                            background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s",
+                            display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                          }}>
+                            <i className={m.icon} style={{ fontSize: 18, color: checked ? "#228756" : "#94a3b8" }}></i>
+                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569" }}>{m.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* ── Section 3: Expertise ── */}
+                <div className="section-card">
+                  <div style={sectionHead}>
+                    <span style={sectionNum}>03</span>
+                    Areas of Expertise
+                  </div>
+                  <p style={{ fontSize: 13, color: "#64748b", marginTop: -8, marginBottom: 14 }}>Select all the services you are interested to offer.</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {EXPERTISE.map((val) => {
+                      const checked = form.checkedValues.includes(val);
+                      return (
+                        <label key={val} style={{
+                          display: "flex", alignItems: "center", gap: 9, padding: "11px 14px",
+                          borderRadius: 3, cursor: "pointer", userSelect: "none",
+                          border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
+                          background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s",
+                        }}>
+                          <span style={{
+                            width: 16, height: 16, borderRadius: 4, flexShrink: 0,
+                            border: `2px solid ${checked ? "#228756" : "#cbd5e1"}`,
+                            background: checked ? "#228756" : "#fff",
+                            display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s",
+                          }}>
+                            {checked && <i className="feather-check" style={{ fontSize: 10, color: "#fff" }}></i>}
+                          </span>
+                          <input type="checkbox" checked={checked} style={{ display: "none" }}
+                            onChange={() => {
+                              const next = checked ? form.checkedValues.filter(v => v !== val) : [...form.checkedValues, val];
+                              set("checkedValues", next);
+                            }} />
+                          <span style={{ fontSize: 13, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#374151" }}>{val}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Section 4: Verification Documents ── */}
+                <div className="section-card">
+                  <div style={sectionHead}>
+                    <span style={sectionNum}>04</span>
+                    Verification Documents
+                  </div>
+                  <p style={{ fontSize: 13, color: "#64748b", marginTop: -8, marginBottom: 18 }}>
+                    We verify every therapist before listing them publicly. Please upload clear, valid documents.
+                  </p>
+
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14, marginBottom: 18 }}>
+                    {[
+                      { id: "resumeInput", key: "resumeFile", label: "Resume / CV", hint: "PDF, DOC — max 5MB", accept: ".pdf,.doc,.docx", icon: "feather-file-text", color: "#228756", bg: "#f0fdf4" },
+                      { id: "qualCertInput", key: "qualificationCertFile", label: "Highest Qualification Certificate", hint: "Degree / diploma certificate — PDF, JPG, PNG — max 5MB", accept: ".pdf,.jpg,.jpeg,.png,.doc,.docx", icon: "feather-award", color: "#0ea5e9", bg: "#f0f9ff" },
+                    ].map(({ id, key, label, hint, accept, icon, color, bg }) => (
+                      <div key={id}>
+                        <label style={{ ...labelStyle, marginBottom: 8 }}>{label} <span className="req">*</span></label>
+                        <div
+                          onClick={() => document.getElementById(id).click()}
+                          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = color; }}
+                          onDragLeave={e => { e.currentTarget.style.borderColor = form[key] ? color : "#e2e8f0"; }}
+                          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) set(key, f); e.currentTarget.style.borderColor = color; }}
+                          style={{
+                            border: `2px dashed ${form[key] ? color : "#cbd5c9"}`,
+                            borderRadius: 3, padding: "18px 12px", textAlign: "center",
+                            background: form[key] ? bg : "#fafafa", cursor: "pointer",
+                            transition: "all 0.2s", minHeight: 110,
+                            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                          }}>
+                          <input id={id} type="file" accept={accept} style={{ display: "none" }}
+                            onChange={e => set(key, e.target.files?.[0] || null)} />
+                          <i className={icon} style={{ fontSize: 24, color: form[key] ? color : "#94a3b8" }}></i>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: form[key] ? color : "#64748b", wordBreak: "break-all", padding: "0 4px" }}>
+                            {form[key] ? `✓ ${form[key].name}` : "Click or drag & drop"}
+                          </span>
+                          <span style={{ fontSize: 10, color: "#94a3b8" }}>{hint}</span>
+                        </div>
+                        {form[key] && (
+                          <button type="button" onClick={() => set(key, null)}
+                            style={{ marginTop: 4, background: "none", border: "none", fontSize: 11, color: "#ef4444", cursor: "pointer", fontWeight: 600 }}>
+                            ✕ Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ID card: type selector + upload */}
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "220px 1fr", gap: 14, alignItems: "start" }}>
+                    <div style={fieldWrap}>
+                      <label style={labelStyle}>ID Card Type <span className="req">*</span></label>
+                      <CustomSelect value={form.idCardType} onChange={v => set("idCardType", v)} placeholder="e.g. Aadhar, PAN" options={ID_CARD_TYPES} />
+                      <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 8, lineHeight: 1.6 }}>
+                        Any government-issued photo ID such as Aadhar Card or PAN Card is accepted.
+                      </p>
+                    </div>
+                    <div>
+                      <label style={{ ...labelStyle, marginBottom: 8 }}>Upload ID Card <span className="req">*</span></label>
+                      <div
+                        onClick={() => document.getElementById("idCardInput").click()}
+                        onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                        onDragLeave={e => { e.currentTarget.style.borderColor = form.idCardFile ? "#8b5cf6" : "#e2e8f0"; }}
+                        onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) set("idCardFile", f); e.currentTarget.style.borderColor = "#8b5cf6"; }}
+                        style={{
+                          border: `2px dashed ${form.idCardFile ? "#8b5cf6" : "#cbd5c9"}`,
+                          borderRadius: 3, padding: "18px 12px", textAlign: "center",
+                          background: form.idCardFile ? "#f5f3ff" : "#fafafa", cursor: "pointer",
+                          transition: "all 0.2s", minHeight: 78,
+                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                        }}>
+                        <input id="idCardInput" type="file" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }}
+                          onChange={e => set("idCardFile", e.target.files?.[0] || null)} />
+                        <i className="feather-credit-card" style={{ fontSize: 22, color: form.idCardFile ? "#8b5cf6" : "#94a3b8" }}></i>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: form.idCardFile ? "#8b5cf6" : "#64748b", wordBreak: "break-all", padding: "0 4px" }}>
+                          {form.idCardFile ? `✓ ${form.idCardFile.name}` : "Click or drag & drop — JPG, PNG, PDF · max 5MB"}
+                        </span>
+                      </div>
+                      {form.idCardFile && (
+                        <button type="button" onClick={() => set("idCardFile", null)}
+                          style={{ marginTop: 4, background: "none", border: "none", fontSize: 11, color: "#ef4444", cursor: "pointer", fontWeight: 600 }}>
+                          ✕ Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Terms */}
+                  <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 20, padding: "14px 16px", borderRadius: 3, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#cbd5c9"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
+                    <input type="checkbox" checked={form.agreeTerms} onChange={e => set("agreeTerms", e.target.checked)} style={{ display: "none" }} />
+                    <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#228756" : "#cbd5e1"}`, background: form.agreeTerms ? "#228756" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                      {form.agreeTerms && <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>}
+                    </div>
+                    <span style={{ fontSize: 12, color: form.agreeTerms ? "#166534" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
+                      I agree to the{" "}
+                      <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700 }}>Terms &amp; Conditions</Link>{" "}
+                      and{" "}
+                      <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700 }}>Privacy Policy</Link>.
+                      I confirm that all information and documents provided are accurate, valid, and belong to me.
+                    </span>
+                  </label>
+
+                  <div style={{ marginTop: 14, background: "#f8fafc", border: "1px solid #dbe3df", borderRadius: 3, padding: "14px 16px" }}>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+                      <i className="feather-info" style={{ fontSize: 12 }}></i> Before You Submit
+                    </p>
+                    <ul style={{ margin: 0, padding: "0 0 0 18px", display: "flex", flexDirection: "column", gap: 8 }}>
+                      {[
+                        "Applications are reviewed within 1–2 business days of submission.",
+                        "Keep your Resume, Qualification Certificate, and ID Card clear and valid — blurry or incomplete documents can delay approval.",
+                        "Your ID Card is used only for identity verification and is never shown on your public profile.",
+                        "You will be notified of approval on your registered email and phone number.",
+                      ].map((t, i) => (
+                        <li key={i} style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>{t}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <button type="submit" disabled={loading}
+                  style={{
+                    width: "100%", background: "linear-gradient(135deg, #1b5e20, #228756)",
+                    color: "#fff", border: "none", borderRadius: 3, padding: "15px 40px",
+                    fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer",
+                    opacity: loading ? 0.7 : 1, letterSpacing: "0.3px", display: "flex",
+                    alignItems: "center", justifyContent: "center", gap: 10,
+                  }}>
+                  {loading ? (
+                    <>
+                      <span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span>
+                      Checking...
+                    </>
+                  ) : (
+                    <>
+                      <i className="feather-save"></i> Review Application
+                    </>
+                  )}
+                </button>
+
+                <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+                  <Link href="/login" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>
+                    Already have an account? <span style={{ color: "#228756" }}>Login here</span>
+                  </Link>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+      </div>
 
       <NewsLetter />
       <Footer />

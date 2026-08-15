@@ -104,7 +104,7 @@ export default function RegistrationHeader() {
 
   return (
     <>
-      <style>{styles}</style>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="reg-banner">
         <VerifiedIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
         <PersonAddIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
