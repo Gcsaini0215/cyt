@@ -159,12 +159,15 @@ const STAGE_INFO = {
   approved:      { icon: "feather-check-circle", color: "#4ade80", label: "Approved",                    text: "You're approved! Log in to access your therapist dashboard." },
 };
 
-function StatusCheckBox({ isMobile }) {
+const STAGE_TO_STEP = { email_pending: 0, review: 1, approved: 2 };
+
+function StatusCheckBox({ isMobile, onResult }) {
   const [open, setOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState(null);
   const [err, setErr] = React.useState("");
+  const [paymentMsg, setPaymentMsg] = React.useState(false);
 
   const check = async () => {
     setErr(""); setResult(null);
@@ -173,6 +176,7 @@ function StatusCheckBox({ isMobile }) {
     try {
       const res = await postData(checkTherapistStatusUrl, { email });
       setResult(res.data);
+      onResult?.(res.data);
     } catch (e) {
       setErr(e.response?.data?.message || "No application found for this email");
     }
@@ -216,6 +220,18 @@ function StatusCheckBox({ isMobile }) {
         {loading ? "Checking…" : "Check Status"}
       </button>
 
+      <button type="button" onClick={() => setPaymentMsg(true)} style={{
+        width: "100%", marginTop: 8, background: "transparent", border: "1.5px solid rgba(255,255,255,0.35)", borderRadius: 3, padding: "8px 12px",
+        color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+      }}>
+        <i className="feather-credit-card" style={{ fontSize: 12 }}></i> Make Payment
+      </button>
+      {paymentMsg && (
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", lineHeight: 1.5 }}>
+          Payment is enabled once your application is approved — you'll receive a payment link on your registered email at that stage.
+        </p>
+      )}
+
       {err && (
         <p style={{ fontSize: 11, color: "#fca5a5", margin: "8px 0 0", fontWeight: 600 }}>{err}</p>
       )}
@@ -249,12 +265,13 @@ function SuccessScreen({ name, email }) {
           <i className="feather-check" style={{ fontSize: 36, color: "#fff" }}></i>
         </div>
         <h2 style={{ fontSize: 26, fontWeight: 800, color: "#1e293b", marginBottom: 12 }}>
-          Registration Successful
+          Your Profile Has Been Sent Under Review
         </h2>
         <p style={{ color: "#64748b", fontSize: 15, lineHeight: 1.8, marginBottom: 28 }}>
-          Thank you, <strong>{name}</strong>. Your application and documents have been received.
-          Our team will review your profile, resume, qualification certificate, and ID within{" "}
-          <strong>1–2 business days</strong> on your registered email <strong>{email}</strong>.
+          Thank you, <strong>{name}</strong>. Your application and documents have been received
+          and our team is now reviewing your profile, resume, qualification certificate, and ID.
+          You'll hear back within <strong>1–2 business days</strong> on your registered email{" "}
+          <strong>{email}</strong>.
         </p>
 
         <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 14, padding: "18px 20px", marginBottom: 24, textAlign: "left" }}>
@@ -296,6 +313,7 @@ export default function TherapistRegistration() {
   const [reviewing, setReviewing] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [otpStep, setOtpStep] = useState(false);
+  const [checkedStage, setCheckedStage] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -454,7 +472,7 @@ export default function TherapistRegistration() {
 
       <div className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
         <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <JourneySteps current={submitted ? 1 : 0} isMobile={isMobile} />
+          <JourneySteps current={checkedStage ? (STAGE_TO_STEP[checkedStage] ?? (submitted ? 1 : 0)) : (submitted ? 1 : 0)} isMobile={isMobile} />
         </div>
         {submitted ? (
           <SuccessScreen name={form.name} email={registeredEmail} />
@@ -520,7 +538,7 @@ export default function TherapistRegistration() {
                   <h1 className="af-titlebar-title">Therapist Registration Form</h1>
                   <p className="af-titlebar-sub">Join our network of verified mental health professionals</p>
                 </div>
-                <StatusCheckBox isMobile={isMobile} />
+                <StatusCheckBox isMobile={isMobile} onResult={(data) => setCheckedStage(data?.stage || null)} />
               </div>
               <div className="af-notice">
                 <i className="feather-alert-circle" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
