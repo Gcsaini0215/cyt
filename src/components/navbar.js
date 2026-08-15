@@ -652,7 +652,7 @@ export default function App() {
       )}
 
       {/* CSS */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .top-strip {
           width: 100%;
           position: sticky;
@@ -778,7 +778,7 @@ export default function App() {
             transform: translateY(0) scale(1);
           }
         }
-      `}</style>
+      ` }} />
 
       {/* Bottom Navigation for Mobile */}
     </>

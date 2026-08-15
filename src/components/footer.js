@@ -8,7 +8,7 @@ export default function Footer() {
 
   return (
     <footer className="rbt-footer footer-style-1 cyt-footer-academic">
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .cyt-footer-academic { background: #fff; border-top: 3px solid #d4af37; }
         .cyt-footer-academic .footer-top { padding-top: 64px; padding-bottom: 40px; }
         .cyt-footer-academic .description { color: #52667f !important; opacity: 1 !important; }
@@ -60,7 +60,7 @@ export default function Footer() {
           .cyt-footer-academic .footer-top { padding-top: 40px; padding-bottom: 20px; }
           .cyt-footer-academic .disclaimer-bar p { font-size: 11px !important; line-height: 1.6; }
         }
-      `}</style>
+      ` }} />
 
       {/* Main Footer Content */}
       <div className="footer-top">
