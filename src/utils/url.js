@@ -93,6 +93,7 @@ export const loginUrl = `${apiUrl}/login`;
 export const therapistRegistrationUrl = `${apiUrl}/therapist-registeration`;
 export const checkTherapistEmailUrl = `${apiUrl}/check-therapist-email`;
 export const checkTherapistStatusUrl = `${apiUrl}/check-therapist-status`;
+export const verifyTherapistSubscriptionUrl = `${apiUrl}/verify-therapist-subscription`;
 export const resendTherapistOtpUrl = `${apiUrl}/resend-therapist-otp`;
 export const registerUrl = `${apiUrl}/register`;
 export const sendOtpUrl = `${apiUrl}/send-otp`;

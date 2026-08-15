@@ -167,7 +167,6 @@ function StatusCheckBox({ isMobile, onResult }) {
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState(null);
   const [err, setErr] = React.useState("");
-  const [paymentMsg, setPaymentMsg] = React.useState(false);
 
   const check = async () => {
     setErr(""); setResult(null);
@@ -220,17 +219,13 @@ function StatusCheckBox({ isMobile, onResult }) {
         {loading ? "Checking…" : "Check Status"}
       </button>
 
-      <button type="button" onClick={() => setPaymentMsg(true)} style={{
+      <Link href={email ? `/therapist-payment?email=${encodeURIComponent(email)}` : "/therapist-payment"} style={{
         width: "100%", marginTop: 8, background: "transparent", border: "1.5px solid rgba(255,255,255,0.35)", borderRadius: 3, padding: "8px 12px",
         color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+        textDecoration: "none", boxSizing: "border-box",
       }}>
         <i className="feather-credit-card" style={{ fontSize: 12 }}></i> Make Payment
-      </button>
-      {paymentMsg && (
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", lineHeight: 1.5 }}>
-          Payment is enabled once your application is approved — you'll receive a payment link on your registered email at that stage.
-        </p>
-      )}
+      </Link>
 
       {err && (
         <p style={{ fontSize: 11, color: "#fca5a5", margin: "8px 0 0", fontWeight: 600 }}>{err}</p>
