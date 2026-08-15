@@ -103,6 +103,7 @@ export default function TherapistPayment() {
   const [checking, setChecking] = useState(false);
   const [checkErr, setCheckErr] = useState("");
   const [profile, setProfile] = useState(null);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [paying, setPaying] = useState(false);
   const [payErr, setPayErr] = useState("");
@@ -122,7 +123,7 @@ export default function TherapistPayment() {
   }, [router.isReady, router.query.email]);
 
   const checkStatus = async () => {
-    setCheckErr(""); setProfile(null); setPaySuccess(null);
+    setCheckErr(""); setProfile(null); setPaySuccess(null); setShowUpgrade(false);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setCheckErr("Enter a valid email address"); return; }
     setChecking(true);
     try {
@@ -306,16 +307,26 @@ export default function TherapistPayment() {
 
               {profile.isLive ? (
                 <div className="section-card" style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <i className="feather-check-circle" style={{ fontSize: 18, color: "#166534" }}></i>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 800, color: "#166534", margin: "0 0 2px" }}>Your profile is live on Choose Your Therapist</p>
-                      <p style={{ fontSize: 12.5, color: "#3f6212", margin: 0 }}>
-                        {profile.subscription
-                          ? <>Subscription valid until <strong>{fmtDate(profile.subscription.expiresAt)}</strong>. You can renew or upgrade below.</>
-                          : "Your profile is currently visible to clients. Choose a plan below to keep it active going forward."}
-                      </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <i className="feather-check-circle" style={{ fontSize: 18, color: "#166534" }}></i>
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 800, color: "#166534", margin: "0 0 2px" }}>Your profile is live on Choose Your Therapist</p>
+                        <p style={{ fontSize: 12.5, color: "#3f6212", margin: 0 }}>
+                          {profile.subscription?.startedAt
+                            ? <>Live since <strong>{fmtDate(profile.subscription.startedAt)}</strong>{profile.subscription.expiresAt ? <> — valid until <strong>{fmtDate(profile.subscription.expiresAt)}</strong></> : ""}.</>
+                            : "Your profile is currently visible to clients."}
+                        </p>
+                      </div>
                     </div>
+                    {!showUpgrade && (
+                      <button type="button" onClick={() => setShowUpgrade(true)} style={{
+                        background: "none", border: "none", padding: 0, color: "#166534", fontSize: 13, fontWeight: 800,
+                        cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3, flexShrink: 0,
+                      }}>
+                        Upgrade Plan →
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -332,68 +343,72 @@ export default function TherapistPayment() {
                 </div>
               )}
 
-              {/* ── Plans ── */}
-              <SectionCard icon="feather-award" title="Choose a Subscription Plan">
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 14 }}>
-                  {PLANS.map(plan => {
-                    const on = selectedPlan === plan.id;
-                    return (
-                      <div key={plan.id} onClick={() => setSelectedPlan(plan.id)} style={{
-                        border: `2px solid ${on ? G : "#e2e8f0"}`, borderRadius: 6, padding: "18px 16px",
-                        cursor: "pointer", background: on ? "#f0fdf4" : "#fff", position: "relative",
-                        transition: "all 0.15s",
-                      }}>
-                        {plan.tag && (
-                          <span style={{
-                            position: "absolute", top: -11, left: 16, background: GOLD, color: G,
-                            fontSize: 10, fontWeight: 800, padding: "2px 10px", borderRadius: 20, textTransform: "uppercase", letterSpacing: 0.4,
-                          }}>{plan.tag}</span>
-                        )}
-                        <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b", margin: "6px 0 4px" }}>{plan.label}</p>
-                        <p style={{ fontSize: 26, fontWeight: 900, color: G, margin: "0 0 14px" }}>{fmtINR(plan.amount)}</p>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-                          {plan.benefits.map((b, i) => (
-                            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                              <i className="feather-check" style={{ fontSize: 11, color: G, marginTop: 3, flexShrink: 0 }}></i>
-                              <span style={{ fontSize: 12, color: "#475569", lineHeight: 1.5 }}>{b}</span>
+              {(!profile.isLive || showUpgrade) && (
+                <>
+                  {/* ── Plans ── */}
+                  <SectionCard icon="feather-award" title={profile.isLive ? "Upgrade Your Plan" : "Choose a Subscription Plan"}>
+                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 14 }}>
+                      {PLANS.map(plan => {
+                        const on = selectedPlan === plan.id;
+                        return (
+                          <div key={plan.id} onClick={() => setSelectedPlan(plan.id)} style={{
+                            border: `2px solid ${on ? G : "#e2e8f0"}`, borderRadius: 6, padding: "18px 16px",
+                            cursor: "pointer", background: on ? "#f0fdf4" : "#fff", position: "relative",
+                            transition: "all 0.15s",
+                          }}>
+                            {plan.tag && (
+                              <span style={{
+                                position: "absolute", top: -11, left: 16, background: GOLD, color: G,
+                                fontSize: 10, fontWeight: 800, padding: "2px 10px", borderRadius: 20, textTransform: "uppercase", letterSpacing: 0.4,
+                              }}>{plan.tag}</span>
+                            )}
+                            <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b", margin: "6px 0 4px" }}>{plan.label}</p>
+                            <p style={{ fontSize: 26, fontWeight: 900, color: G, margin: "0 0 14px" }}>{fmtINR(plan.amount)}</p>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                              {plan.benefits.map((b, i) => (
+                                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                                  <i className="feather-check" style={{ fontSize: 11, color: G, marginTop: 3, flexShrink: 0 }}></i>
+                                  <span style={{ fontSize: 12, color: "#475569", lineHeight: 1.5 }}>{b}</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                        <div style={{
-                          width: "100%", textAlign: "center", padding: "8px", borderRadius: 3, fontSize: 12.5, fontWeight: 800,
-                          border: `1.5px solid ${on ? G : "#cbd5c9"}`, color: on ? "#fff" : "#64748b", background: on ? G : "transparent",
-                        }}>
-                          {on ? "Selected" : "Select Plan"}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </SectionCard>
+                            <div style={{
+                              width: "100%", textAlign: "center", padding: "8px", borderRadius: 3, fontSize: 12.5, fontWeight: 800,
+                              border: `1.5px solid ${on ? G : "#cbd5c9"}`, color: on ? "#fff" : "#64748b", background: on ? G : "transparent",
+                            }}>
+                              {on ? "Selected" : "Select Plan"}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </SectionCard>
 
-              {payErr && (
-                <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600 }}>
-                  <i className="feather-alert-circle" style={{ marginRight: 6 }}></i>{payErr}
-                </div>
+                  {payErr && (
+                    <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600 }}>
+                      <i className="feather-alert-circle" style={{ marginRight: 6 }}></i>{payErr}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={!selectedPlan || paying}
+                    onClick={() => openRazorpay(PLANS.find(p => p.id === selectedPlan))}
+                    style={{
+                      width: "100%", padding: "16px", borderRadius: 4, border: "none",
+                      background: selectedPlan ? GRAD : "#e2e8f0", color: selectedPlan ? "#fff" : "#94a3b8",
+                      fontSize: 15, fontWeight: 800, cursor: selectedPlan && !paying ? "pointer" : "not-allowed",
+                      marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                    }}
+                  >
+                    {paying ? (
+                      <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "tpspin 0.8s linear infinite" }}></span> Processing…</>
+                    ) : (
+                      <><i className="feather-credit-card"></i> {profile.isLive ? "Upgrade Now" : "Pay Now"}{selectedPlan ? ` — ${fmtINR(PLANS.find(p => p.id === selectedPlan).amount)}` : ""}</>
+                    )}
+                  </button>
+                </>
               )}
-
-              <button
-                type="button"
-                disabled={!selectedPlan || paying}
-                onClick={() => openRazorpay(PLANS.find(p => p.id === selectedPlan))}
-                style={{
-                  width: "100%", padding: "16px", borderRadius: 4, border: "none",
-                  background: selectedPlan ? GRAD : "#e2e8f0", color: selectedPlan ? "#fff" : "#94a3b8",
-                  fontSize: 15, fontWeight: 800, cursor: selectedPlan && !paying ? "pointer" : "not-allowed",
-                  marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                }}
-              >
-                {paying ? (
-                  <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "tpspin 0.8s linear infinite" }}></span> Processing…</>
-                ) : (
-                  <><i className="feather-credit-card"></i> Pay Now{selectedPlan ? ` — ${fmtINR(PLANS.find(p => p.id === selectedPlan).amount)}` : ""}</>
-                )}
-              </button>
             </>
           )}
 
