@@ -1,21 +1,18 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
-import WatchLaterIcon from "@mui/icons-material/WatchLater";
-import { successColor } from "../../utils/colors";
 import { getValidServices } from "../../utils/helpers";
+
+const TABS = [
+  { id: 1, label: "Overview" },
+  { id: 2, label: "Fees" },
+  { id: 3, label: "Availability" },
+];
 
 export default function ProfileInfoTab({ pageData }) {
   const [tab, setTab] = React.useState(1);
   const [services, setServices] = React.useState();
 
-  const handleClick = (id) => {
-    setTab(id);
-  };
-
-  const listStyleTime = {
-    fontSize: 24,
-    color: successColor,
-  };
+  const handleClick = (id) => setTab(id);
 
   const setConfig = async (profile) => {
     const validServices = await getValidServices(profile.fees);
@@ -26,246 +23,177 @@ export default function ProfileInfoTab({ pageData }) {
     setConfig(pageData);
   }, [pageData]);
 
-  // Glassmorphism card style
-  const glassCard = {
-    backdropFilter: "blur(10px)",
-    background: "rgba(255, 255, 255, 0.8)",
-    borderRadius: "20px",
-    padding: "30px",
-    marginBottom: "25px",
-    boxShadow: "0 10px 40px 0 rgba(0, 0, 0, 0.05)",
-    border: "1px solid rgba(0, 0, 0, 0.05)",
-    transition: "all 0.3s ease",
+  const sectionCard = {
+    background: "#fff",
+    borderRadius: 6,
+    padding: "28px 30px",
+    marginBottom: 20,
+    boxShadow: "0 4px 20px rgba(15,61,36,0.08)",
   };
 
   const bioTextStyle = {
-    fontSize: "17px",
-    lineHeight: "1.8",
-    color: "#4a5568",
-    fontFamily: "'Inter', 'Roboto', sans-serif",
-    textAlign: "left",
-    letterSpacing: "0.2px",
+    fontSize: 16,
+    lineHeight: 1.85,
+    color: "#374b40",
+    fontFamily: "'Georgia', 'Inter', serif",
     whiteSpace: "pre-line",
-    wordSpacing: "1px"
   };
 
-  const chipStyleBase = {
+  const tagStyle = {
     display: "inline-flex",
     alignItems: "center",
-    padding: "10px 22px",
-    borderRadius: "50px",
-    margin: "6px",
-    fontWeight: 700,
-    fontSize: "14px",
-    cursor: "default",
-    fontFamily: "'Inter', sans-serif",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    whiteSpace: "nowrap"
+    padding: "6px 13px",
+    borderRadius: 4,
+    margin: "0 6px 8px 0",
+    fontWeight: 600,
+    fontSize: 12.5,
+    background: "#fbfaf7",
+    color: "#374b40",
+    border: "1px solid #dbe3df",
   };
 
-  const serviceChipStyle = {
-    ...chipStyleBase,
-    background: "#f0fdf4",
-    color: "#166534",
-    border: "1.5px solid #dcfce7",
-  };
-
-  const expertiseChipStyle = {
-    ...chipStyleBase,
-    background: "#eff6ff",
-    color: "#1e40af",
-    border: "1.5px solid #dbeafe",
-  };
+  const expertiseTagStyle = { ...tagStyle, color: "#0f3d24", borderColor: "#c8ddd0" };
 
   return (
-    <div
-      className="rbt-advance-tab-area"
-      style={{
-        paddingBottom: 50,
-        background: "#fff",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="rbt-advance-tab-area" style={{ paddingTop: 44, paddingBottom: 50, background: "#fff" }}>
       <div className="container">
         <style>{`
-          .profile-bio-text {
-            word-spacing: 2px;
-            letter-spacing: 0.1px;
+          .pit-tab-btn {
+            background: none; border: none; cursor: pointer; padding: 12px 4px; margin-right: 30px;
+            font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+            color: #8a978f; border-bottom: 2.5px solid transparent; transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap;
           }
-          .section-title-accent {
-            border-left: 5px solid #228756;
-            padding-left: 15px;
+          .pit-tab-btn:hover { color: #0f3d24; }
+          .pit-tab-btn.active { color: #0f3d24; border-bottom-color: #c9962c; }
+          .pit-tabbar { display: flex; overflow-x: auto; border-bottom: 1px solid #e3e8e4; margin-bottom: 28px; -ms-overflow-style: none; scrollbar-width: none; }
+          .pit-tabbar::-webkit-scrollbar { display: none; }
+          .pit-section-head {
+            font-family: Playfair Display, Georgia, serif; font-weight: 700; color: #122019;
+            font-size: 21px; margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1.5px solid #ecefec;
           }
-          .service-chip:hover {
-            transform: translateY(-2px) scale(1.03);
-            background: #dcfce7 !important;
-            border-color: #228756 !important;
+          .pit-table-wrap { border-radius: 6px; overflow: hidden; box-shadow: 0 4px 20px rgba(15,61,36,0.08); }
+          .pit-table-wrap + .pit-table-wrap { margin-top: 18px; }
+          .pit-table { width: 100%; border-collapse: collapse; }
+          .pit-table th {
+            text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px;
+            color: #8a978f; font-weight: 700; padding: 12px 18px; background: #fbfaf7;
+            border-bottom: 1.5px solid #e3e8e4; line-height: 1.4;
           }
-          .expertise-chip:hover {
-            transform: translateY(-2px) scale(1.03);
-            background: #dbeafe !important;
-            border-color: #3b82f6 !important;
+          .pit-table td {
+            padding: 15px 18px; font-size: 14px; color: #122019; line-height: 1.5;
+            border-bottom: 1px solid #ecefec; vertical-align: middle; font-variant-numeric: tabular-nums;
+          }
+          .pit-table tr:last-child td { border-bottom: none; }
+          .pit-table tbody tr:hover td { background: #fbfaf7; }
+          @media (max-width: 991px) {
+            .rbt-advance-tab-area { padding-top: 26px !important; }
           }
           @media (max-width: 768px) {
-            .profile-bio-text {
-              text-align: left !important;
-              word-spacing: 1px;
-              font-size: 15px !important;
-              line-height: 1.7 !important;
-            }
-            .rbt-advance-tab-area {
-              padding-top: 20px !important;
-            }
-            .glass-card-mobile {
-              padding: 20px !important;
-              margin-bottom: 20px !important;
-              border-radius: 16px !important;
-            }
-            .service-chip, .expertise-chip {
-              padding: 8px 16px !important;
-              font-size: 13px !important;
-              margin: 4px !important;
-            }
-            .rbt-title-style-3 {
-              font-size: 18px !important;
-            }
+            .pit-section-card { padding: 20px 18px !important; }
+            .pit-section-head { font-size: 18px !important; }
           }
         `}</style>
-        <div className="row g-5">
+
+        <div className="row" style={{ gap: 0 }}>
+          {/* ── MAIN COLUMN ── */}
           <div className="col-lg-10 offset-lg-1">
-            {/* Tabs */}
-            <div className="advance-tab-button mb-4">
-              <ul className="nav nav-tabs tab-button-style-2" id="myTab-4" style={{ justifyContent: 'center' }}>
-                <li>
-                  <Link
-                    className={tab === 1 ? "tab-button active" : "tab-button"}
-                    id="home-tab-4"
-                    aria-selected={tab === 1 ? "true" : "false"}
-                    onClick={() => handleClick(1)}
-                    href="#"
-                  >
-                    <span className="title" style={{ cursor: "pointer" }}>
-                      Overview
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className={tab === 3 ? "tab-button active" : "tab-button"}
-                    id="contact-tab-4"
-                    aria-selected={tab === 3 ? "true" : "false"}
-                    onClick={() => handleClick(3)}
-                    href="#"
-                  >
-                    <span className="title" style={{ cursor: "pointer" }}>
-                      Fees
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className={tab === 4 ? "tab-button active" : "tab-button"}
-                    id="business-tab-4"
-                    aria-selected={tab === 4 ? "true" : "false"}
-                    onClick={() => handleClick(4)}
-                    href="#"
-                  >
-                    <span className="title" style={{ cursor: "pointer" }}>
-                      Availability
-                    </span>
-                  </Link>
-                </li>
-              </ul>
+            <div className="pit-tabbar">
+              {TABS.map(t => (
+                <button key={t.id} className={`pit-tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => handleClick(t.id)}>
+                  {t.label}
+                </button>
+              ))}
             </div>
 
-            {/* Tab Contents */}
-            <div className="tab-content advance-tab-content-style-2">
-
-              {/* Overview Tab */}
-              <div
-                className={tab === 1 ? "tab-pane fade active show" : "tab-pane fade"}
-                id="home-4"
-                role="tabpanel"
-                aria-labelledby="home-tab-4"
-              >
-                {/* About Me */}
-                <div style={glassCard} className="glass-card-mobile">
-                  <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c' }}>About Me</h4>
-                  <p className="profile-bio-text" style={bioTextStyle}>
-                    {pageData.user.bio}
-                  </p>
+            {/* Overview */}
+            {tab === 1 && (
+              <div>
+                <div style={sectionCard} className="pit-section-card">
+                  <h4 className="pit-section-head">About</h4>
+                  <p style={bioTextStyle}>{pageData.user.bio}</p>
                 </div>
 
-                {/* Services */}
-                <div style={glassCard} className="glass-card-mobile">
-                  <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c' }}>Services</h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {(pageData.services || "").split(",").map((item) => (
-                      <span key={item} className="service-chip" style={serviceChipStyle}>{item.trim()}</span>
+                <div style={sectionCard} className="pit-section-card">
+                  <h4 className="pit-section-head">Services Offered</h4>
+                  <div>
+                    {(pageData.services || "").split(",").filter(s => s.trim()).map((item) => (
+                      <span key={item} style={tagStyle}>{item.trim()}</span>
                     ))}
                   </div>
                 </div>
 
-                {/* Expertise */}
-                <div style={glassCard} className="glass-card-mobile">
-                  <h4 className="rbt-title-style-3 mb-3 section-title-accent" style={{ fontWeight: 800, color: '#1a202c', borderLeftColor: '#3b82f6' }}>Expertise</h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {(pageData.experties || "").split(",").map((item) => (
-                      <span key={item} className="expertise-chip" style={expertiseChipStyle}>{item.trim()}</span>
+                <div style={sectionCard} className="pit-section-card">
+                  <h4 className="pit-section-head">Areas of Expertise</h4>
+                  <div>
+                    {(pageData.experties || "").split(",").filter(s => s.trim()).map((item) => (
+                      <span key={item} style={expertiseTagStyle}>{item.trim()}</span>
                     ))}
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Fees Tab */}
-              <div
-                className={tab === 3 ? "tab-pane fade active show" : "tab-pane fade"}
-                id="contact-4"
-                role="tabpanel"
-                aria-labelledby="contact-tab-4"
-              >
-                <div className="content">
-                  {services && services.map((item) => (
-                    <div key={item._id} style={glassCard}>
-                      <h4 className="rbt-title-style-3 mb-2">{item.name}</h4>
-                      <ul className="rbt-list-style-2" style={{ color: "#333" }}>
-                        {item.formats.map((format) => (
-                          <li key={format._id}>
-                            <i className="feather-check text-success me-2"></i>
-                            {format.type.charAt(0).toUpperCase() + format.type.slice(1)}: ₹{format.fee}
-                          </li>
-                        ))}
-                      </ul>
+            {/* Fees */}
+            {tab === 2 && (
+              <div>
+                {services && services.map((item) => (
+                  <div key={item._id} style={sectionCard} className="pit-section-card">
+                    <h4 className="pit-section-head">{item.name}</h4>
+                    <div className="pit-table-wrap">
+                      <table className="pit-table">
+                        <thead>
+                          <tr><th>Format</th><th style={{ textAlign: "right" }}>Fee</th></tr>
+                        </thead>
+                        <tbody>
+                          {item.formats.map((format) => (
+                            <tr key={format._id}>
+                              <td>{format.type.charAt(0).toUpperCase() + format.type.slice(1)}</td>
+                              <td style={{ textAlign: "right", fontWeight: 700 }}>₹{format.fee}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+                {(!services || services.length === 0) && (
+                  <div style={sectionCard} className="pit-section-card">
+                    <p style={{ margin: 0, color: "#8a978f", fontSize: 14 }}>Fee details will be shared during booking.</p>
+                  </div>
+                )}
               </div>
+            )}
 
-              {/* Availability Tab */}
-              <div
-                className={tab === 4 ? "tab-pane fade active show" : "tab-pane fade"}
-                id="business-4"
-                role="tabpanel"
-                aria-labelledby="business-tab-4"
-              >
-                <div className="content">
-                  {pageData.availabilities &&
-                    pageData.availabilities.map((item, index) => (
-                      <div key={index} style={glassCard}>
-                        <h4 className="rbt-title-style-3 mb-2">{item.day}</h4>
-                        {item.times.map((time, idx) => (
-                          <span style={{ marginRight: 40, fontSize: 16, color: "#333" }} key={idx}>
-                            <WatchLaterIcon style={listStyleTime} />
-                            &nbsp;{time.open}-{time.close}
-                          </span>
+            {/* Availability */}
+            {tab === 3 && (
+              <div style={sectionCard} className="pit-section-card">
+                <h4 className="pit-section-head">Weekly Availability</h4>
+                {pageData.availabilities && pageData.availabilities.length > 0 ? (
+                  <div className="pit-table-wrap">
+                    <table className="pit-table">
+                      <thead>
+                        <tr><th>Day</th><th style={{ textAlign: "right" }}>Hours</th></tr>
+                      </thead>
+                      <tbody>
+                        {pageData.availabilities.map((item, index) => (
+                          <tr key={index}>
+                            <td style={{ fontWeight: 700 }}>{item.day}</td>
+                            <td style={{ textAlign: "right" }}>
+                              {item.times.map((time, idx) => (
+                                <span key={idx} style={{ marginLeft: idx > 0 ? 14 : 0 }}>{time.open}–{time.close}</span>
+                              ))}
+                            </td>
+                          </tr>
                         ))}
-                      </div>
-                    ))}
-                </div>
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, color: "#8a978f", fontSize: 14 }}>Please contact via chat to confirm current availability.</p>
+                )}
               </div>
-
-            </div>
+            )}
           </div>
         </div>
       </div>

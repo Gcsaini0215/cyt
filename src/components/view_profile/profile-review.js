@@ -33,19 +33,16 @@ export default function ProfileReview({ profile: initialProfile }) {
   }, [initialProfile]);
 
   const glassCard = {
-    backdropFilter: "blur(10px)",
-    background: "rgba(255, 255, 255, 0.8)",
-    borderRadius: "20px",
-    padding: "30px",
+    background: "#fff",
+    borderRadius: "6px",
+    padding: "28px 30px",
     marginBottom: "20px",
-    boxShadow: "0 10px 40px 0 rgba(0, 0, 0, 0.05)",
-    border: "1px solid rgba(0, 0, 0, 0.05)",
-    transition: "all 0.3s ease",
+    boxShadow: "0 4px 20px rgba(15,61,36,0.08)",
   };
 
   const inputStyle = {
-    borderRadius: "12px",
-    border: "1px solid #e2e8f0",
+    borderRadius: "4px",
+    border: "1px solid #dbe3df",
     padding: "12px 15px",
     fontSize: "15px",
     width: "100%",
@@ -54,14 +51,13 @@ export default function ProfileReview({ profile: initialProfile }) {
 
   const btnStyle = {
     padding: "12px 30px",
-    borderRadius: "12px",
-    background: "#2ecc71",
+    borderRadius: "4px",
+    background: "#0f3d24",
     color: "#fff",
     fontWeight: "700",
     border: "none",
     cursor: "pointer",
-    boxShadow: "0 8px 15px rgba(46, 204, 113, 0.2)",
-    transition: "all 0.3s ease",
+    transition: "background 0.2s",
     marginTop: "10px"
   };
 
@@ -112,8 +108,8 @@ export default function ProfileReview({ profile: initialProfile }) {
           >
             <DialogContent>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 2 }}>
-                <CheckCircleIcon sx={{ fontSize: 80, color: '#2ecc71', mb: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: '#1a202c' }}>
+                <CheckCircleIcon sx={{ fontSize: 80, color: '#0f3d24', mb: 2 }} />
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: '#122019' }}>
                   Thank You!
                 </Typography>
                 <Typography variant="body1" sx={{ color: '#4a5568', mb: 3 }}>
@@ -123,8 +119,8 @@ export default function ProfileReview({ profile: initialProfile }) {
                   onClick={handleCloseSuccess}
                   variant="contained"
                   sx={{ 
-                    backgroundColor: '#2ecc71', 
-                    '&:hover': { backgroundColor: '#27ae60' },
+                    backgroundColor: '#0f3d24', 
+                    '&:hover': { backgroundColor: '#16512f' },
                     borderRadius: '12px',
                     px: 4,
                     py: 1.5,
@@ -139,7 +135,7 @@ export default function ProfileReview({ profile: initialProfile }) {
             </DialogContent>
           </Dialog>
           <div style={glassCard}>
-            <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#1a202c' }}>
+            <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#122019' }}>
               Leave a Review for {profile?.user?.name || "Therapist"}
             </h4>
 
@@ -166,7 +162,7 @@ export default function ProfileReview({ profile: initialProfile }) {
                     return (
                       <button type="button" key={index} style={{ background: "none", border: "none", cursor: "pointer", padding: "0 2px", outline: "none" }}
                         onClick={() => setRating(index)} onMouseEnter={() => setHover(index)} onMouseLeave={() => setHover(rating)}>
-                        {index <= (hover || rating) ? <StarIcon style={{ color: "#ffb400", fontSize: 30 }} /> : <StarBorderIcon style={{ color: "#cbd5e0", fontSize: 30 }} />}
+                        {index <= (hover || rating) ? <StarIcon style={{ color: "#c9962c", fontSize: 30 }} /> : <StarBorderIcon style={{ color: "#cbd5e0", fontSize: 30 }} />}
                       </button>
                     );
                   })}
@@ -175,7 +171,7 @@ export default function ProfileReview({ profile: initialProfile }) {
               <div className="mb-3">
                 <label className="form-label" style={{ fontWeight: 600, color: '#4a5568' }}>Review Description</label>
                 <textarea className="form-control" rows="4" placeholder="Share your experience with this therapist..." value={reviewText} onChange={(e) => setReviewText(e.target.value)}
-                  style={{ borderRadius: "12px", border: "1px solid #e2e8f0", padding: "15px", fontSize: "15px", resize: "none" }} required />
+                  style={{ borderRadius: "4px", border: "1px solid #dbe3df", padding: "15px", fontSize: "15px", resize: "none" }} required />
               </div>
               <button type="submit" style={{ ...btnStyle, opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }} disabled={submitting}>
                 {submitting ? "Submitting..." : "Submit Review"}
@@ -186,7 +182,7 @@ export default function ProfileReview({ profile: initialProfile }) {
           {/* Display existing reviews if any */}
           {profile?.reviews && profile.reviews.length > 0 && (
             <div className="mt--40">
-              <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#1a202c' }}>
+              <h4 className="rbt-title-style-3 mb-4" style={{ fontWeight: 800, color: '#122019' }}>
                 Client Feedback ({profile.reviews.length})
               </h4>
               <div className="row g-4">
@@ -206,7 +202,7 @@ export default function ProfileReview({ profile: initialProfile }) {
                             <div className="rating">
                               {[...Array(5)].map((_, i) => (
                                 <StarIcon key={i} style={{ 
-                                  color: i < rev.rating ? "#ffb400" : "#cbd5e0", 
+                                  color: i < rev.rating ? "#c9962c" : "#cbd5e0", 
                                   fontSize: 18 
                                 }} />
                               ))}
@@ -214,7 +210,7 @@ export default function ProfileReview({ profile: initialProfile }) {
                           </div>
                           {rev.createdAt && (
                             <span style={{ fontSize: '13px', color: '#718096' }}>
-                              {new Date(rev.createdAt).toLocaleDateString()}
+                              {new Date(rev.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" })}
                             </span>
                           )}
                         </div>
@@ -239,18 +235,18 @@ export default function ProfileReview({ profile: initialProfile }) {
                     style={{
                       ...btnStyle,
                       background: 'transparent',
-                      color: '#2ecc71',
-                      border: '2px solid #2ecc71',
+                      color: '#0f3d24',
+                      border: '2px solid #0f3d24',
                       boxShadow: 'none',
                       padding: '10px 25px'
                     }}
                     onMouseOver={(e) => {
-                      e.target.style.background = '#2ecc71';
+                      e.target.style.background = '#0f3d24';
                       e.target.style.color = '#fff';
                     }}
                     onMouseOut={(e) => {
                       e.target.style.background = 'transparent';
-                      e.target.style.color = '#2ecc71';
+                      e.target.style.color = '#0f3d24';
                     }}
                   >
                     Load More Reviews

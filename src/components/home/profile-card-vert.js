@@ -44,9 +44,6 @@ export default function ProfileCardVert({ data, favrioutes }) {
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviewCount).toFixed(1)
     : null;
 
-  const serviceChips = data.services
-    ? data.services.split(",").map(s => s.trim()).filter(Boolean).slice(0, 2)
-    : [];
   const firstLang = data.language_spoken?.split(",")[0]?.trim() || "";
 
   useEffect(() => {
@@ -142,7 +139,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
           gap: 6px;
         }
         .vtc-name {
-          font-size: 15.5px;
+          font-size: 18px;
           font-weight: 800;
           color: #1e293b;
           text-decoration: none;
@@ -164,23 +161,21 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
         /* type badge */
         .vtc-type {
-          display: inline-flex; align-items: center; gap: 5px;
-          font-size: 11px; font-weight: 700;
-          padding: 4px 10px; border-radius: 4px;
+          display: inline-flex; align-items: center; gap: 4px;
+          font-size: 9.5px; font-weight: 700;
+          padding: 2.5px 7px; border-radius: 4px;
           width: fit-content; letter-spacing: .3px; text-transform: uppercase;
         }
         .vtc-type-dot {
-          width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+          width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
         }
 
-        /* rating row */
+        /* rating row — plain inline, not a pill */
         .vtc-rating {
-          display: inline-flex; align-items: center; gap: 3px;
-          background: #fffbeb; border: 1px solid #fde68a;
-          border-radius: 4px; padding: 2px 8px;
-          width: fit-content;
+          display: inline-flex; align-items: center; gap: 4px;
         }
-        .vtc-rating span { font-size: 12px; font-weight: 700; color: #92400e; }
+        .vtc-rating span { font-size: 12.5px; font-weight: 700; color: #374151; }
+        .vtc-rating span b { color: #92400e; font-weight: 800; }
 
         /* meta row */
         .vtc-meta {
@@ -197,15 +192,6 @@ export default function ProfileCardVert({ data, favrioutes }) {
         /* price */
         .vtc-price {
           font-size: 14px; font-weight: 800; color: #166534;
-        }
-
-        /* chips */
-        .vtc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-        .vtc-chip {
-          background: #f8faf9; color: #52667f;
-          font-size: 11px; font-weight: 700;
-          padding: 2px 9px; border-radius: 4px;
-          border: 1px solid #dbe3df;
         }
 
         /* action buttons */
@@ -237,9 +223,8 @@ export default function ProfileCardVert({ data, favrioutes }) {
           .vtc-img-col { width: 110px; }
           .vtc-img { width: 110px; }
           .vtc-body { padding: 11px 12px 12px 10px; gap: 6px; }
-          .vtc-name { font-size: 14px; }
+          .vtc-name { font-size: 15.5px; }
           .vtc-btn-out, .vtc-btn-fill { font-size: 11.5px; padding: 7px 0; }
-          .vtc-chips { display: none; }
         }
 
         /* ── Tablet 2-col squeeze (576–991px: Bootstrap's fixed
@@ -248,7 +233,6 @@ export default function ProfileCardVert({ data, favrioutes }) {
           .vtc-img-col { width: 110px; }
           .vtc-img { width: 110px; }
           .vtc-body { padding: 12px 13px 12px 11px; gap: 6px; }
-          .vtc-chips { display: none; }
           .vtc-btns { flex-direction: column; }
           .vtc-btn-out, .vtc-btn-fill { flex: none; font-size: 12px; padding: 8px 0; }
         }
@@ -306,8 +290,8 @@ export default function ProfileCardVert({ data, favrioutes }) {
           {/* Rating */}
           {avgRating && (
             <div className="vtc-rating">
-              <StarIcon sx={{ color: "#f59e0b", fontSize: 13 }} />
-              <span>{avgRating} ({reviewCount} reviews)</span>
+              <StarIcon sx={{ color: "#f59e0b", fontSize: 14 }} />
+              <span><b>{avgRating}</b> ({reviewCount} reviews)</span>
             </div>
           )}
 
@@ -338,13 +322,6 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
           {/* Price */}
           <div className="vtc-price">{price}</div>
-
-          {/* Specialty chips */}
-          {serviceChips.length > 0 && (
-            <div className="vtc-chips">
-              {serviceChips.map(s => <span key={s} className="vtc-chip">{s}</span>)}
-            </div>
-          )}
 
           {/* Buttons */}
           <div className="vtc-btns">
