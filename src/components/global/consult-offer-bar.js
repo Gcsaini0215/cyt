@@ -51,7 +51,7 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           position: fixed;
           bottom: 0; left: 0; right: 0;
           z-index: 9990;
-          animation: cob-slide-up 0.5s cubic-bezier(.16,1,.3,1);
+          animation: cob-slide-up 0.45s cubic-bezier(.16,1,.3,1);
           padding-bottom: env(safe-area-inset-bottom, 0px);
           transform: translateZ(0);
           -webkit-transform: translateZ(0);
@@ -60,9 +60,9 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         .cob-card {
           position: relative;
           width: 100%;
-          background: linear-gradient(90deg, #071e33 0%, #0d3a5c 55%, #0f4c74 100%);
-          border-top: 1px solid rgba(255,255,255,0.08);
-          box-shadow: 0 -10px 30px rgba(3,20,36,0.35);
+          background: #0f3d24;
+          border-top: 3px solid #c9962c;
+          box-shadow: 0 -10px 30px rgba(15,61,36,0.4);
         }
         /* Bleeds solid colour below the visible edge so iOS/Android elastic
            overscroll at the bottom of the page never reveals a gap under the bar. */
@@ -71,67 +71,77 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           position: absolute;
           left: 0; right: 0; top: 100%;
           height: 100px;
-          background: #0f4c74;
+          background: #0f3d24;
           pointer-events: none;
         }
         .cob-inner {
-          max-width: 1200px;
+          max-width: 1180px;
           width: 100%;
           margin: 0 auto;
-          padding: 14px 24px;
+          padding: 13px 24px;
           display: flex;
           flex-wrap: wrap;
           align-items: center;
-          gap: 16px;
+          gap: 8px 18px;
           box-sizing: border-box;
         }
         .cob-text { flex: 1 1 auto; min-width: 0; order: 1; }
+        .cob-eyebrow {
+          display: flex; align-items: center; gap: 7px;
+          margin: 0 0 3px; font-size: 10px; font-weight: 800;
+          letter-spacing: 1.4px; text-transform: uppercase; color: #c9962c;
+        }
+        .cob-eyebrow::before { content: ""; width: 14px; height: 1px; background: #c9962c; display: inline-block; }
         .cob-title {
-          margin: 0; color: #fff; font-weight: 800; font-size: 15px;
+          margin: 0; color: #fff; font-weight: 700; font-size: 14.5px;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
           display: flex; align-items: baseline; gap: 9px;
+          font-family: Georgia, "Times New Roman", serif;
         }
         .cob-title-short { display: none; }
-        .cob-price-old { color: rgba(255,255,255,0.45); text-decoration: line-through; font-weight: 600; font-size: 12.5px; flex-shrink: 0; }
-        .cob-price-new { color: #6ee7b7; font-weight: 900; font-size: 16px; flex-shrink: 0; }
+        .cob-price-old { color: rgba(255,255,255,0.45); text-decoration: line-through; font-weight: 600; font-size: 12.5px; flex-shrink: 0; font-family: -apple-system, sans-serif; }
+        .cob-price-new { color: #6ee7a8; font-weight: 800; font-size: 16px; flex-shrink: 0; font-family: -apple-system, sans-serif; }
         .cob-sub { margin: 3px 0 0; color: rgba(255,255,255,0.6); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cob-cta {
           order: 2;
-          background: #ffffff;
-          color: #0d3a5c; border: none;
-          padding: 11px 22px; border-radius: 12px;
+          background: #fff;
+          color: #0f3d24; border: none;
+          padding: 11px 22px; border-radius: 4px;
           font-size: 13.5px; font-weight: 700; cursor: pointer;
           white-space: nowrap; flex-shrink: 0;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.22);
-          transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+          display: inline-flex; align-items: center; gap: 7px;
+          transition: background 0.18s, transform 0.18s;
         }
-        .cob-cta:hover { transform: translateY(-1px); background: #f0f9ff; box-shadow: 0 10px 26px rgba(0,0,0,0.28); }
+        .cob-cta:hover { background: #eef6f0; transform: translateY(-1px); }
+        .cob-cta:active { transform: translateY(0); }
         .cob-close {
           order: 3;
           background: rgba(255,255,255,0.08); border: none; cursor: pointer;
-          color: rgba(255,255,255,0.55); padding: 8px; border-radius: 9px;
+          color: rgba(255,255,255,0.55); padding: 8px; border-radius: 4px;
           display: flex; align-items: center; line-height: 1; flex-shrink: 0;
+          transition: background 0.15s, color 0.15s;
         }
-        .cob-close:hover { color: #fff; background: rgba(255,255,255,0.16); }
+        .cob-close:hover { color: #fff; background: rgba(255,255,255,0.14); }
 
         /* iPad / tablet — single row still fits, but give it real height & presence
            instead of the cramped compact bar it was collapsing to. */
         @media (max-width: 1024px) and (min-width: 601px) {
-          .cob-inner { padding: 18px 28px; gap: 14px 18px; }
-          .cob-title { font-size: 16px; }
+          .cob-inner { padding: 16px 28px; gap: 10px 18px; }
+          .cob-title { font-size: 15.5px; }
           .cob-price-old { font-size: 13px; }
           .cob-price-new { font-size: 18px; }
           .cob-sub { font-size: 12.5px; }
-          .cob-cta { padding: 14px 28px; font-size: 14.5px; border-radius: 13px; }
-          .cob-close { padding: 10px; }
+          .cob-cta { padding: 13px 26px; font-size: 14px; }
+          .cob-close { padding: 9px; }
         }
 
         /* Mobile — text+close on row 1, full-width CTA on row 2 */
         @media (max-width: 600px) {
-          .cob-inner { padding: 14px 16px 16px; gap: 10px 12px; }
+          .cob-inner { padding: 13px 16px 14px; gap: 8px 12px; }
           .cob-title-full { display: none; }
           .cob-title-short { display: inline; }
           .cob-title { font-size: 13.5px; gap: 6px; }
+          .cob-eyebrow { font-size: 9px; letter-spacing: 1.1px; }
           .cob-price-old { font-size: 11.5px; }
           .cob-price-new { font-size: 15px; }
           .cob-sub { display: none; }
@@ -140,10 +150,9 @@ export default function ConsultOfferBar({ delay = 3000 }) {
             order: 3;
             flex: 1 1 100%;
             width: 100%;
-            padding: 15px 16px;
-            font-size: 14.5px;
-            border-radius: 12px;
-            text-align: center;
+            padding: 14px 16px;
+            font-size: 14px;
+            justify-content: center;
           }
         }
         @media (max-width: 340px) {
@@ -155,6 +164,7 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         <div className="cob-card">
           <div className="cob-inner">
             <div className="cob-text">
+              <p className="cob-eyebrow">Limited-Time Offer</p>
               <p className="cob-title">
                 <span className="cob-title-full">15-Min Therapist Consultation</span>
                 <span className="cob-title-short">15-Min Consult</span>
@@ -166,7 +176,10 @@ export default function ConsultOfferBar({ delay = 3000 }) {
             <button className="cob-close" onClick={handleDismiss} aria-label="Dismiss">
               <Close sx={{ fontSize: 17 }} />
             </button>
-            <button className="cob-cta" onClick={() => setModalOpen(true)}>Book Now</button>
+            <button className="cob-cta" onClick={() => setModalOpen(true)}>
+              Book Now
+              <span aria-hidden="true">→</span>
+            </button>
           </div>
         </div>
       </div>
