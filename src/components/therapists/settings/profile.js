@@ -42,7 +42,7 @@ const SkeletonLoader = () => (
         0% { background-position: -468px 0; }
         100% { background-position: 468px 0; }
       }
-      .skeleton-wrapper * {
+      .skeleton-wrapper *:not(style) {
         background: #f6f7f8;
         background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
         background-repeat: no-repeat;
@@ -285,133 +285,100 @@ export default function Profile() {
     >
       <div
         className="rbt-dashboard-content-wrapper"
-        style={{ marginTop: isMobile ? 20 : 0 }}
+        style={{ marginTop: isMobile ? 16 : 0 }}
       >
         <div
-          className="tutor-bg-photo"
-          style={{ 
-            height: isMobile ? "auto" : 200, 
-            minHeight: isMobile ? 180 : 200,
-            background: "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
-            borderRadius: "15px",
+          style={{
+            background: "#fbfaf7",
+            border: "1px solid #ecefec",
+            borderLeft: "3px solid #c9962c",
+            borderRadius: 6,
             position: "relative",
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             alignItems: "center",
-            padding: isMobile ? "30px 20px" : "0 40px",
-            marginBottom: "30px"
+            textAlign: isMobile ? "center" : "left",
+            gap: isMobile ? 14 : 18,
+            padding: isMobile ? "20px 16px" : "16px 22px",
+            marginBottom: 22,
           }}
         >
-          <div style={{ 
-            display: "flex", 
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: "center", 
-            textAlign: isMobile ? "center" : "left",
-            gap: isMobile ? "20px" : "30px",
-            width: "100%"
-          }}>
-            <div className="thumbnail rbt-avatars size-lg position-relative" style={{ flexShrink: 0 }}>
+            <div className="position-relative" style={{ flexShrink: 0 }}>
               {(previewImage || (therapistInfo.user.profile && therapistInfo.user.profile !== "null")) ? (
                 <ImageTag
                   alt={therapistInfo.user.name || "Profile"}
                   style={{
-                    height: isMobile ? 120 : 130,
-                    width: isMobile ? 120 : 130,
-                    borderRadius: "20px",
+                    height: isMobile ? 84 : 76,
+                    width: isMobile ? 84 : 76,
+                    borderRadius: 6,
                     objectFit: "cover",
                     backgroundColor: "#fff",
-                    border: "4px solid rgba(255,255,255,0.3)",
-                    boxShadow: "0 8px 20px rgba(0,0,0,0.2)"
+                    border: "1px solid #e3e8e4",
                   }}
                   src={previewImage ?? `${imagePath}/${therapistInfo.user.profile}`}
                 />
               ) : (
-                <div 
+                <div
                   style={{
-                    height: isMobile ? 120 : 130,
-                    width: isMobile ? 120 : 130,
-                    borderRadius: "20px",
-                    backgroundColor: "rgba(255,255,255,0.1)",
+                    height: isMobile ? 84 : 76,
+                    width: isMobile ? 84 : 76,
+                    borderRadius: 6,
+                    backgroundColor: "#fff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    border: "4px solid rgba(255,255,255,0.3)",
-                    boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
-                    color: "#fff"
+                    border: "1px solid #e3e8e4",
+                    color: "#8a978f",
                   }}
                 >
-                  <i className="feather-user" style={{ fontSize: isMobile ? "45px" : "50px" }}></i>
+                  <i className="feather-user" style={{ fontSize: 30 }}></i>
                 </div>
               )}
-              <div className="rbt-edit-photo-inner" style={{ bottom: "-5px", right: "-5px" }}>
-                <button
-                  className="rbt-edit-photo"
-                  title="Upload Photo"
-                  onClick={handleImageUpload}
-                  style={{ 
-                    backgroundColor: "#fff",
-                    width: isMobile ? "34px" : "36px",
-                    height: isMobile ? "34px" : "36px",
-                    lineHeight: isMobile ? "34px" : "36px",
-                    border: "none",
-                    borderRadius: "50%",
-                    boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                    color: "#059669"
-                  }}
-                >
-                  <i className="feather-camera" style={{ fontSize: isMobile ? "14px" : "16px" }}></i>
-                </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  onChange={handleImageChange}
-                />
-              </div>
+              <button
+                title="Upload Photo"
+                onClick={handleImageUpload}
+                style={{
+                  position: "absolute", bottom: -6, right: -6,
+                  backgroundColor: "#0f3d24",
+                  width: 26, height: 26, lineHeight: "26px",
+                  border: "2px solid #fbfaf7",
+                  borderRadius: "50%",
+                  color: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                <i className="feather-camera" style={{ fontSize: 12 }}></i>
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleImageChange}
+              />
             </div>
-            <div className="tutor-content" style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "center" : "flex-start" }}>
-              <h5 className="title" style={{ 
-                marginBottom: "5px", 
-                fontSize: isMobile ? "22px" : "28px", 
-                color: "#fff", 
-                fontWeight: "800",
-                textShadow: "0 2px 4px rgba(0,0,0,0.1)"
+            <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "center" : "flex-start", gap: 4 }}>
+              <h5 style={{
+                margin: 0,
+                fontSize: isMobile ? 18 : 19,
+                color: "#122019",
+                fontWeight: 800,
+                fontFamily: "Georgia, 'Times New Roman', serif",
               }}>
                 {therapistInfo.user.name}
               </h5>
-              <div style={{ 
-                display: "flex", 
-                flexDirection: "column", 
-                alignItems: isMobile ? "center" : "flex-start", 
-                gap: "8px" 
-              }}>
-                <span style={{ 
-                  color: "rgba(255,255,255,0.9)", 
-                  fontSize: isMobile ? "14px" : "15px", 
-                  fontWeight: "500",
-                  display: "flex",
-                  alignItems: "center"
+              <span style={{ color: "#5b6b62", fontSize: 12.5, fontWeight: 500, display: "flex", alignItems: "center", gap: 6 }}>
+                <i className="feather-mail"></i>{therapistInfo.user.email}
+              </span>
+              {therapistInfo.profile_type && (
+                <span style={{
+                  color: "#0f3d24", fontSize: 10.5, fontWeight: 700, textTransform: "uppercase",
+                  letterSpacing: "0.6px", marginTop: 2,
                 }}>
-                  <i className="feather-mail mr--5"></i>{therapistInfo.user.email}
-                </span>
-                <span 
-                  className="badge" 
-                  style={{ 
-                    backgroundColor: "rgba(255,255,255,0.2)", 
-                    color: "white",
-                    padding: "4px 12px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    fontWeight: "700",
-                    border: "1px solid rgba(255,255,255,0.3)",
-                    backdropFilter: "blur(4px)"
-                  }}
-                >
                   {therapistInfo.profile_type}
                 </span>
-              </div>
+              )}
             </div>
-          </div>
         </div>
       </div>
 
@@ -570,27 +537,18 @@ export default function Profile() {
 
         <div className="col-lg-12 col-md-12 col-sm-12 col-12 mt--6 mb--30">
           <div className="rbt-form-group">
-            <label style={{ marginBottom: '15px', fontWeight: 800, fontSize: '16px', color: '#1e293b' }}>Session Formats</label>
-            <Grid container spacing={2}>
+            <label style={{ marginBottom: 10, fontWeight: 700, fontSize: 11, color: '#5b6b62', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Session Formats</label>
+            <Grid container spacing={1.5}>
               {sessionFormatsList.map((item) => {
                 const isSelected = therapistInfo.session_formats.includes(item);
+                const theme = { main: '#0f3d24', light: '#f0fdf4' };
                 const getIcon = () => {
                   const n = item.toLowerCase();
-                  if (n.includes('audio')) return <MicIcon sx={{ fontSize: 28, color: isSelected ? '#fff' : '#0ea5e9' }} />;
-                  if (n.includes('video')) return <VideocamIcon sx={{ fontSize: 28, color: isSelected ? '#fff' : '#8b5cf6' }} />;
-                  if (n.includes('person') || n.includes('offline')) return <PersonIcon sx={{ fontSize: 28, color: isSelected ? '#fff' : '#ec4899' }} />;
+                  if (n.includes('audio')) return <MicIcon sx={{ fontSize: 22, color: isSelected ? '#fff' : theme.main }} />;
+                  if (n.includes('video')) return <VideocamIcon sx={{ fontSize: 22, color: isSelected ? '#fff' : theme.main }} />;
+                  if (n.includes('person') || n.includes('offline')) return <PersonIcon sx={{ fontSize: 22, color: isSelected ? '#fff' : theme.main }} />;
                   return null;
                 };
-
-                const getThemeColor = () => {
-                  const n = item.toLowerCase();
-                  if (n.includes('audio')) return { main: '#0ea5e9', light: '#f0f9ff' };
-                  if (n.includes('video')) return { main: '#8b5cf6', light: '#f5f3ff' };
-                  if (n.includes('person') || n.includes('offline')) return { main: '#ec4899', light: '#fdf2f8' };
-                  return { main: '#2ecc71', light: '#f0fdf4' };
-                };
-
-                const theme = getThemeColor();
 
                 return (
                   <Grid item xs={6} md={4} key={item}>
@@ -601,55 +559,53 @@ export default function Profile() {
                       }}
                       elevation={0}
                       sx={{
-                        p: 2,
+                        p: 1.75,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
-                        borderRadius: '16px',
-                        border: '2px solid',
-                        borderColor: isSelected ? theme.main : '#f1f5f9',
+                        borderRadius: '6px',
+                        border: '1.5px solid',
+                        borderColor: isSelected ? theme.main : '#dbe3df',
                         background: isSelected ? theme.light : '#fff',
-                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transition: 'all 0.2s',
                         position: 'relative',
-                        minHeight: '100px',
+                        minHeight: '88px',
                         '&:hover': {
                           borderColor: theme.main,
                           background: theme.light,
-                          transform: 'translateY(-2px)',
                         }
                       }}
                     >
                       {isSelected && (
-                        <CheckCircleIcon 
-                          sx={{ 
-                            position: 'absolute', 
-                            top: 8, 
-                            right: 8, 
-                            fontSize: 18, 
-                            color: theme.main 
-                          }} 
+                        <CheckCircleIcon
+                          sx={{
+                            position: 'absolute',
+                            top: 7,
+                            right: 7,
+                            fontSize: 15,
+                            color: '#c9962c'
+                          }}
                         />
                       )}
-                      <Box sx={{ 
-                        mb: 1, 
-                        width: 40, 
-                        height: 40, 
-                        borderRadius: '10px', 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                      <Box sx={{
+                        mb: 0.75,
+                        width: 32,
+                        height: 32,
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
                         justifyContent: 'center',
                         background: isSelected ? '#fff' : theme.light,
-                        boxShadow: isSelected ? '0 2px 6px rgba(0,0,0,0.05)' : 'none'
                       }}>
-                        {React.cloneElement(getIcon(), { 
-                          sx: { ...getIcon().props.sx, fontSize: 24, color: theme.main } 
+                        {React.cloneElement(getIcon(), {
+                          sx: { ...getIcon().props.sx, fontSize: 18, color: theme.main }
                         })}
                       </Box>
-                      <Typography sx={{ 
-                        fontWeight: 700, 
-                        fontSize: '14px', 
+                      <Typography sx={{
+                        fontWeight: 700,
+                        fontSize: '12.5px',
                         color: isSelected ? theme.main : '#475569',
                         textAlign: 'center'
                       }}>

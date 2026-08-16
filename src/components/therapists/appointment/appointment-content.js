@@ -222,7 +222,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     switch ((status || "").toLowerCase()) {
       case "success":
       case "completed":
-        return "#228756";
+        return "#0f3d24";
       case "pending":
       case "processing":
         return "#ed6c02";
@@ -254,15 +254,15 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     doc.write(`
       <html><head><title>Invoice - ${item.client?.name}</title>
       <style>
-        body{font-family:sans-serif;margin:0;padding:0;color:#1e293b;}
-        .top{background:#228756;height:12px;width:100%;}
+        body{font-family:sans-serif;margin:0;padding:0;color:#122019;}
+        .top{background:#0f3d24;height:12px;width:100%;}
         .body{padding:40px;}
         .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;}
-        .brand{color:#228756;font-weight:900;font-size:22px;margin:0;}
+        .brand{color:#0f3d24;font-weight:900;font-size:22px;margin:0;}
         .div{border-top:1px dashed #e2e8f0;margin:20px 0;}
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
         .lbl{font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin:0 0 4px;}
-        .val{font-weight:800;color:#1e293b;font-size:15px;margin:0;}
+        .val{font-weight:800;color:#122019;font-size:15px;margin:0;}
         .box{background:#f8fafc;padding:20px;border-radius:12px;}
         .row{display:flex;justify-content:space-between;margin-bottom:10px;color:#64748b;font-weight:600;}
         .total{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:2px solid #e2e8f0;font-weight:900;font-size:18px;}
@@ -280,8 +280,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           <div style="text-align:right"><p class="lbl">Invoice Date</p><p class="val">${formatDateTime(item.booking_date)}</p></div>
         </div>
         <div class="box">
-          <div class="row"><span>${item.service} (${item.format})</span><span style="color:#1e293b">₹${item.transaction?.amount}</span></div>
-          <div class="total"><span>Total Payable</span><span style="color:#228756">₹${item.transaction?.amount}</span></div>
+          <div class="row"><span>${item.service} (${item.format})</span><span style="color:#122019">₹${item.transaction?.amount}</span></div>
+          <div class="total"><span>Total Payable</span><span style="color:#0f3d24">₹${item.transaction?.amount}</span></div>
         </div>
         <div class="ft"><p>Thank you for choosing Choose Your Therapist LLP.<br/>Computer-generated invoice — no signature required.</p></div>
       </div></body></html>
@@ -345,63 +345,63 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         /* ── New booking banner ─── */
         .nb-banner{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:5000;width:calc(100% - 32px);max-width:520px;animation:nbDrop .4s cubic-bezier(.34,1.56,.64,1);}
         @keyframes nbDrop{from{transform:translateX(-50%) translateY(-120px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-        .nb-inner{background:linear-gradient(135deg,#064e3b,#228756);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 36px rgba(34,135,86,.45);position:relative;overflow:hidden;}
-        .nb-glow{position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,.12);border-radius:50%;filter:blur(16px);pointer-events:none;}
-        .nb-icon{width:40px;height:40px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;}
+        .nb-inner{background:#0f3d24;border:1px solid #c9962c;border-radius:6px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(15,61,36,.35);position:relative;overflow:hidden;}
+        .nb-glow{position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(201,150,44,.12);border-radius:50%;filter:blur(16px);pointer-events:none;}
+        .nb-icon{width:40px;height:40px;background:rgba(255,255,255,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;}
         .nb-text{flex:1;min-width:0;}
         .nb-title{font-size:14px;font-weight:800;color:#fff;}
         .nb-sub{font-size:12px;color:rgba(255,255,255,.72);margin-top:2px;}
-        .nb-view{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:12px;font-weight:700;padding:7px 15px;border-radius:8px;cursor:pointer;flex-shrink:0;font-family:inherit;}
-        .nb-cls{width:28px;height:28px;background:rgba(255,255,255,.12);border:none;border-radius:7px;color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+        .nb-view{background:rgba(201,150,44,.25);border:1px solid rgba(201,150,44,.5);color:#fff;font-size:12px;font-weight:700;padding:7px 15px;border-radius:4px;cursor:pointer;flex-shrink:0;font-family:inherit;}
+        .nb-cls{width:28px;height:28px;background:rgba(255,255,255,.1);border:none;border-radius:4px;color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
 
         /* ── Stats ─── */
-        .ap-stat{background:#fff;border:1.5px solid #f1f5f9;border-radius:14px;padding:14px 16px;transition:all .18s;}
-        .ap-stat:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.08);}
+        .ap-stat{background:#fff;border:1.5px solid #ecefec;border-radius:6px;padding:13px 15px;transition:all .18s;}
+        .ap-stat:hover{border-color:#c9962c;box-shadow:0 4px 14px rgba(15,61,36,.08);}
 
         /* ── Filter tabs ─── */
         .ap-tabs{display:flex;gap:4px;flex-wrap:wrap;}
-        .ap-tab{border:none;background:none;padding:7px 16px;border-radius:9px;font-size:12.5px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s;white-space:nowrap;}
-        .ap-tab.on{background:#228756;color:#fff;}
-        .ap-tab:hover:not(.on){background:#f0fdf4;color:#228756;}
+        .ap-tab{border:none;background:none;padding:7px 15px;border-radius:4px;font-size:12px;font-weight:600;color:#5b6b62;cursor:pointer;transition:all .15s;white-space:nowrap;}
+        .ap-tab.on{background:#0f3d24;color:#fff;}
+        .ap-tab:hover:not(.on){background:#f0fdf4;color:#0f3d24;}
 
         /* ── Search ─── */
         .ap-search{position:relative;}
-        .ap-search input{padding-left:34px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:13px;background:#f8fafc;height:38px;outline:none;width:240px;transition:border-color .18s;}
-        .ap-search input:focus{border-color:#228756;background:#fff;}
-        .ap-si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:15px;}
+        .ap-search input{padding-left:34px;border-radius:4px;border:1.5px solid #dbe3df;font-size:13px;background:#fbfaf7;height:38px;outline:none;width:220px;transition:border-color .18s;}
+        .ap-search input:focus{border-color:#0f3d24;background:#fff;}
+        .ap-si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#8a978f;font-size:15px;}
 
         /* ── View toggle ─── */
-        .ap-vt{display:flex;gap:2px;background:#f1f5f9;border-radius:9px;padding:3px;}
-        .ap-vt-b{border:none;background:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;}
-        .ap-vt-b.on{background:#fff;color:#228756;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+        .ap-vt{display:flex;gap:2px;background:#fbfaf7;border:1px solid #ecefec;border-radius:4px;padding:3px;}
+        .ap-vt-b{border:none;background:none;border-radius:3px;padding:6px 12px;font-size:12px;font-weight:600;color:#5b6b62;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;}
+        .ap-vt-b.on{background:#fff;color:#0f3d24;box-shadow:0 1px 4px rgba(0,0,0,.08);}
 
         /* ── Grid cards ─── */
-        .ap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-        .ap-card{background:#fff;border-radius:14px;padding:16px;border:1.5px solid #f1f5f9;border-top-width:3px;cursor:pointer;transition:all .17s;box-shadow:0 1px 4px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px;}
-        .ap-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);}
+        .ap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
+        .ap-card{background:#fff;border-radius:6px;padding:15px;border:1.5px solid #ecefec;border-top-width:3px;cursor:pointer;transition:all .17s;display:flex;flex-direction:column;gap:9px;}
+        .ap-card:hover{border-color:#c9962c;box-shadow:0 8px 22px rgba(15,61,36,.10);}
         .ap-head{display:flex;align-items:center;gap:10px;}
-        .ap-av{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;}
+        .ap-av{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
         .ap-info{flex:1;min-width:0;}
-        .ap-name{font-size:13.5px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .ap-svc{font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .ap-name{font-size:13.5px;font-weight:800;color:#122019;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .ap-svc{font-size:11px;color:#5b6b62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .ap-badge{font-size:10px;font-weight:800;border-radius:20px;padding:3px 9px;white-space:nowrap;flex-shrink:0;}
-        .ap-meta{font-size:11.5px;color:#64748b;display:flex;align-items:center;gap:6px;background:#f8fafc;padding:8px 10px;border-radius:8px;}
-        .ap-actions{display:flex;gap:7px;flex-wrap:wrap;}
-        .ap-btn{flex:1;min-width:70px;padding:7px 8px;border-radius:9px;border:1.5px solid #e2e8f0;background:#fff;font-size:11.5px;font-weight:700;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;font-family:inherit;}
-        .ap-btn:hover{background:#f8fafc;border-color:#cbd5e1;}
-        .ap-btn-start{background:linear-gradient(135deg,#228756,#1b6843);color:#fff;border-color:transparent;}
-        .ap-btn-start:hover{opacity:.9;background:linear-gradient(135deg,#228756,#1b6843);}
-        .ap-btn-end{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-color:transparent;}
-        .ap-btn-end:hover{opacity:.9;background:linear-gradient(135deg,#ef4444,#dc2626);}
-        .ap-btn-done{background:#f1f5f9;color:#94a3b8;border-color:transparent;cursor:not-allowed;}
+        .ap-meta{font-size:11.5px;color:#5b6b62;display:flex;align-items:center;gap:6px;background:#fbfaf7;padding:8px 10px;border-radius:4px;}
+        .ap-actions{display:flex;gap:6px;flex-wrap:wrap;}
+        .ap-btn{flex:1;min-width:70px;padding:7px 8px;border-radius:4px;border:1.5px solid #dbe3df;background:#fff;font-size:11.5px;font-weight:700;color:#374b40;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;font-family:inherit;}
+        .ap-btn:hover{background:#fbfaf7;border-color:#c9d1cb;}
+        .ap-btn-start{background:#0f3d24;color:#fff;border-color:transparent;}
+        .ap-btn-start:hover{background:#16512f;border-color:transparent;}
+        .ap-btn-end{background:#b91c1c;color:#fff;border-color:transparent;}
+        .ap-btn-end:hover{background:#991b1b;border-color:transparent;}
+        .ap-btn-done{background:#ecefec;color:#8a978f;border-color:transparent;cursor:not-allowed;}
 
         /* ── List table ─── */
-        .ap-table thead th{background:#1e293b !important;color:#fff !important;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:12px 14px !important;border:none !important;white-space:nowrap;}
-        .ap-table td{padding:11px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle;font-size:13px;}
-        .ap-table tbody tr:hover td{background:#f8fafc;cursor:pointer;}
+        .ap-table thead th{background:#0f3d24 !important;color:#fff !important;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:12px 14px !important;border:none !important;white-space:nowrap;}
+        .ap-table td{padding:11px 14px;border-bottom:1px solid #ecefec;vertical-align:middle;font-size:13px;}
+        .ap-table tbody tr:hover td{background:#fbfaf7;cursor:pointer;}
 
         /* ── Empty ─── */
-        .ap-empty{text-align:center;padding:52px 0;color:#94a3b8;}
+        .ap-empty{text-align:center;padding:52px 0;color:#8a978f;}
         .ap-empty i{font-size:40px;display:block;margin-bottom:12px;}
 
         /* ── Mobile ─── */
@@ -409,19 +409,19 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         @media(max-width:480px){.ap-grid{grid-template-columns:1fr;}}
 
         /* ── Right panel ─── */
-        .ap-overlay{position:fixed;inset:0;z-index:1299;background:rgba(15,23,42,.35);}
-        .ap-panel{position:fixed;top:56px;right:0;bottom:0;width:420px;max-width:100vw;background:#fff;z-index:1300;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(0,0,0,.15);animation:panelIn .24s cubic-bezier(.4,0,.2,1);}
+        .ap-overlay{position:fixed;inset:0;z-index:1299;background:rgba(15,32,25,.35);}
+        .ap-panel{position:fixed;top:56px;right:0;bottom:0;width:420px;max-width:100vw;background:#fff;z-index:1300;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(15,61,36,.14);animation:panelIn .24s cubic-bezier(.4,0,.2,1);border-left:3px solid #c9962c;}
         @keyframes panelIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
         @media(max-width:480px){.ap-panel{width:100%;top:56px;}}
-        .ap-panel-hdr{padding:16px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:12px;flex-shrink:0;}
-        .ap-panel-tabs{display:flex;gap:2px;padding:10px 18px 0;border-bottom:1px solid #f1f5f9;flex-shrink:0;}
-        .ap-panel-tab{padding:8px 18px;border:none;background:none;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit;}
-        .ap-panel-tab.on{color:#228756;border-bottom-color:#228756;}
+        .ap-panel-hdr{padding:16px 18px;border-bottom:1px solid #ecefec;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+        .ap-panel-tabs{display:flex;gap:2px;padding:10px 18px 0;border-bottom:1px solid #ecefec;flex-shrink:0;}
+        .ap-panel-tab{padding:8px 16px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#8a978f;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit;}
+        .ap-panel-tab.on{color:#0f3d24;border-bottom-color:#c9962c;}
         .ap-panel-body{flex:1;overflow-y:auto;padding:18px;}
-        .ap-detail-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;border:1px solid #f1f5f9;margin-bottom:10px;}
-        .ap-detail-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .ap-detail-lbl{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
-        .ap-detail-val{font-size:13.5px;font-weight:700;color:#1e293b;}
+        .ap-detail-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;border:1px solid #ecefec;margin-bottom:9px;}
+        .ap-detail-icon{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .ap-detail-lbl{font-size:10.5px;color:#8a978f;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+        .ap-detail-val{font-size:13.5px;font-weight:700;color:#122019;}
       `}</style>
 
       {/* ── New booking banner ─────────────────────── */}
@@ -442,9 +442,9 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
       {/* ── Audio unlock ──────────────────────────── */}
       {!userInteracted && (
-        <div style={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, background: "#1e293b", color: "#fff", padding: "10px 14px", borderRadius: 12, display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 24px rgba(0,0,0,.25)", border: "1px solid rgba(255,255,255,.1)" }}>
+        <div style={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, background: "#0f3d24", color: "#fff", padding: "10px 14px", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 24px rgba(15,61,36,.3)", border: "1px solid rgba(255,255,255,.1)" }}>
           <span style={{ fontSize: 12, fontWeight: 600 }}>Enable sound alerts</span>
-          <button onClick={() => setUserInteracted(true)} style={{ background: "#228756", color: "#fff", border: "none", borderRadius: 7, padding: "5px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
+          <button onClick={() => setUserInteracted(true)} style={{ background: "#c9962c", color: "#0f3d24", border: "none", borderRadius: 4, padding: "5px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
             Activate
           </button>
         </div>
@@ -455,8 +455,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         {/* ── Header ─────────────────────────────── */}
         <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
           <div>
-            <h4 className="fw-bold mb-0" style={{ color: "#0f172a" }}>Sessions</h4>
-            <p className="text-muted mb-0" style={{ fontSize: 13 }}>Manage your client sessions & bookings</p>
+            <h4 className="fw-bold mb-0" style={{ color: "#122019", fontFamily: "Georgia, 'Times New Roman', serif" }}>Sessions</h4>
+            <p className="text-muted mb-0" style={{ fontSize: 12.5 }}>Manage your client sessions & bookings</p>
           </div>
           <div className="d-flex align-items-center gap-2 flex-wrap">
             <div className="ap-vt desk-view">
@@ -467,7 +467,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                 <i className="feather-list" style={{ fontSize: 13 }}></i> List
               </button>
             </div>
-            <button onClick={onRefresh} className="ap-vt-b" style={{ border: "1.5px solid #e2e8f0", background: "#fff", borderRadius: 9 }}>
+            <button onClick={onRefresh} className="ap-vt-b" style={{ border: "1.5px solid #dbe3df", background: "#fff", borderRadius: 4 }}>
               <i className="feather-refresh-cw" style={{ fontSize: 13 }}></i> Refresh
             </button>
           </div>
@@ -476,20 +476,20 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         {/* ── Stats ──────────────────────────────── */}
         <div className="row g-3 mb-4">
           {[
-            { label: "Total",     val: stats.total,     icon: "feather-calendar",   color: "#3b82f6", bg: "#eff6ff" },
-            { label: "Today",     val: stats.today,     icon: "feather-sun",        color: "#8b5cf6", bg: "#f5f3ff" },
-            { label: "Upcoming",  val: stats.upcoming,  icon: "feather-clock",      color: "#f59e0b", bg: "#fffbeb" },
-            { label: "Completed", val: stats.completed, icon: "feather-check-circle",color: "#22c55e", bg: "#f0fdf4" },
+            { label: "Total",     val: stats.total,     icon: "feather-calendar" },
+            { label: "Today",     val: stats.today,     icon: "feather-sun" },
+            { label: "Upcoming",  val: stats.upcoming,  icon: "feather-clock" },
+            { label: "Completed", val: stats.completed, icon: "feather-check-circle" },
           ].map(s => (
             <div key={s.label} className="col-6 col-lg-3">
               <div className="ap-stat">
                 <div className="d-flex align-items-center gap-3">
-                  <div style={{ width: 40, height: 40, borderRadius: 11, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", color: s.color, flexShrink: 0 }}>
-                    <i className={s.icon} style={{ fontSize: 18 }}></i>
+                  <div style={{ width: 38, height: 38, borderRadius: 4, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", color: "#0f3d24", flexShrink: 0 }}>
+                    <i className={s.icon} style={{ fontSize: 17 }}></i>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: "#64748b", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".5px" }}>{s.label}</div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: "#0f172a", lineHeight: 1.1 }}>{s.val}</div>
+                    <div style={{ fontSize: 10, color: "#8a978f", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".5px" }}>{s.label}</div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: "#122019", lineHeight: 1.1 }}>{s.val}</div>
                   </div>
                 </div>
               </div>
@@ -531,7 +531,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
               <p style={{ fontSize: 13, marginTop: 4 }}>
                 {(searchTerm || filterStatus !== "all") && (
                   <button onClick={() => { setSearchTerm(""); setFilterStatus("all"); }}
-                    style={{ background: "none", border: "none", color: "#228756", fontWeight: 700, cursor: "pointer", fontSize: 13 }}>
+                    style={{ background: "none", border: "none", color: "#0f3d24", fontWeight: 700, cursor: "pointer", fontSize: 13 }}>
                     Clear filters
                   </button>
                 )}
@@ -548,7 +548,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <div className="ap-head">
                       <div className="ap-av" style={{ background: cfg.bg, color: cfg.color }}>
                         {appt.client?.photo
-                          ? <img src={appt.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 11, objectFit: "cover" }} />
+                          ? <img src={appt.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 4, objectFit: "cover" }} />
                           : initials(appt.client?.name)}
                       </div>
                       <div className="ap-info">
@@ -621,13 +621,13 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                                 ? <img src={appt.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
                                 : initials(appt.client?.name)}
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a" }}>{appt.client?.name || "Unknown"}</div>
+                            <div style={{ fontWeight: 700, fontSize: 13, color: "#122019" }}>{appt.client?.name || "Unknown"}</div>
                           </div>
                         </td>
                         <td style={{ fontSize: 12, color: "#475569" }}>{formatDateTime(appt.booking_date)}</td>
                         <td style={{ fontSize: 12, color: "#475569" }}>{appt.service || "—"}</td>
                         <td>
-                          <span style={{ fontSize: 10, fontWeight: 700, background: appt.format === "Offline" ? "#f1f5f9" : "#f0fdf4", color: appt.format === "Offline" ? "#64748b" : "#228756", borderRadius: 20, padding: "2px 8px" }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, background: appt.format === "Offline" ? "#f1f5f9" : "#f0fdf4", color: appt.format === "Offline" ? "#64748b" : "#0f3d24", borderRadius: 20, padding: "2px 8px" }}>
                             {appt.format || "Online"}
                           </span>
                         </td>
@@ -667,18 +667,18 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
             <div className="ap-panel">
               {/* Header */}
               <div className="ap-panel-hdr">
-                <div style={{ width: 42, height: 42, borderRadius: 12, background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 6, background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
                   {item.client?.photo
-                    ? <img src={item.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 12, objectFit: "cover" }} />
+                    ? <img src={item.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }} />
                     : initials(item.client?.name)}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: "#122019", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {item.client?.name || "Unknown"}
                   </div>
                   <span style={{ fontSize: 10, fontWeight: 800, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "2px 9px" }}>{cfg.label}</span>
                 </div>
-                <button onClick={handleClose} style={{ width: 32, height: 32, borderRadius: 8, border: "1.5px solid #e2e8f0", background: "#f8fafc", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0 }}>
+                <button onClick={handleClose} style={{ width: 32, height: 32, borderRadius: 4, border: "1.5px solid #dbe3df", background: "#fbfaf7", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#5b6b62", flexShrink: 0 }}>
                   <FaTimes size={13} />
                 </button>
               </div>
@@ -698,25 +698,25 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                 {detailTab === "details" && (
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     {/* Client info */}
-                    <div style={{ background: "#f8fafc", borderRadius: 14, padding: "14px 16px", marginBottom: 14, display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ width: 60, height: 60, borderRadius: 14, background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 800, flexShrink: 0 }}>
+                    <div style={{ background: "#fbfaf7", border: "1px solid #ecefec", borderRadius: 6, padding: "14px 16px", marginBottom: 14, display: "flex", alignItems: "center", gap: 14 }}>
+                      <div style={{ width: 56, height: 56, borderRadius: 6, background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0 }}>
                         {item.client?.photo
-                          ? <img src={item.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 14, objectFit: "cover" }} />
+                          ? <img src={item.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }} />
                           : initials(item.client?.name)}
                       </div>
                       <div>
-                        <div style={{ fontWeight: 800, fontSize: 16, color: "#1e293b" }}>{item.client?.name || "Unknown"}</div>
+                        <div style={{ fontWeight: 800, fontSize: 16, color: "#122019" }}>{item.client?.name || "Unknown"}</div>
                         {item.client?.phone && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, fontSize: 13, color: "#64748b", fontWeight: 600 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, fontSize: 13, color: "#5b6b62", fontWeight: 600 }}>
                             <FaPhone size={11} />{item.client.phone}
                           </div>
                         )}
-                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>ID: #{item._id?.slice(-8)}</div>
+                        <div style={{ fontSize: 11, color: "#8a978f", marginTop: 3 }}>ID: #{item._id?.slice(-8)}</div>
                       </div>
                     </div>
 
                     <div className="ap-detail-row">
-                      <div className="ap-detail-icon" style={{ background: "#e8f5e9", color: "#228756" }}><FaClock size={15} /></div>
+                      <div className="ap-detail-icon" style={{ background: "#f0fdf4", color: "#0f3d24" }}><FaClock size={15} /></div>
                       <div>
                         <div className="ap-detail-lbl">Booking Date</div>
                         <div className="ap-detail-val">{formatDateTime(item.booking_date)}</div>
@@ -747,9 +747,9 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     </div>
 
                     {item.notes && (
-                      <div style={{ background: "#f8fafc", borderRadius: 12, padding: "13px 14px", marginTop: 4 }}>
-                        <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginBottom: 6 }}>Notes</div>
-                        <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{item.notes}</div>
+                      <div style={{ background: "#fbfaf7", border: "1px solid #ecefec", borderRadius: 6, padding: "13px 14px", marginTop: 4 }}>
+                        <div style={{ fontSize: 10.5, color: "#8a978f", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".4px", marginBottom: 6 }}>Notes</div>
+                        <div style={{ fontSize: 13, color: "#374b40", lineHeight: 1.6 }}>{item.notes}</div>
                       </div>
                     )}
 
@@ -778,12 +778,12 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
                       <div>
-                        <div style={{ fontWeight: 900, fontSize: 18, color: "#228756" }}>ChooseYourTherapist</div>
-                        <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>Professional Therapy Services</div>
+                        <div style={{ fontWeight: 700, fontSize: 18, color: "#0f3d24", fontFamily: "Georgia, 'Times New Roman', serif" }}>ChooseYourTherapist</div>
+                        <div style={{ fontSize: 12, color: "#5b6b62", marginTop: 2 }}>Professional Therapy Services</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
                         <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>Invoice</div>
-                        <div style={{ fontWeight: 800, color: "#1e293b", fontSize: 14 }}>#{item.transaction?.transaction_id?.slice(-8) || item._id?.slice(-8)}</div>
+                        <div style={{ fontWeight: 800, color: "#122019", fontSize: 14 }}>#{item.transaction?.transaction_id?.slice(-8) || item._id?.slice(-8)}</div>
                       </div>
                     </div>
 
@@ -792,39 +792,39 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
                       <div>
                         <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 800, textTransform: "uppercase", marginBottom: 4 }}>Billed To</div>
-                        <div style={{ fontWeight: 800, color: "#1e293b" }}>{item.client?.name}</div>
+                        <div style={{ fontWeight: 800, color: "#122019" }}>{item.client?.name}</div>
                         <div style={{ fontSize: 12, color: "#64748b" }}>Booking: #{item._id?.slice(-8)}</div>
                       </div>
                       <div style={{ textAlign: "right" }}>
                         <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 800, textTransform: "uppercase", marginBottom: 4 }}>Date</div>
-                        <div style={{ fontWeight: 700, color: "#1e293b", fontSize: 13 }}>{formatDateTime(item.booking_date)}</div>
+                        <div style={{ fontWeight: 700, color: "#122019", fontSize: 13 }}>{formatDateTime(item.booking_date)}</div>
                         <span style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 800, background: getPaymentStatusColor(item.transaction?.status?.name) + "15", color: getPaymentStatusColor(item.transaction?.status?.name), borderRadius: 6, padding: "2px 9px" }}>
                           {item.transaction?.status?.name || "PAID"}
                         </span>
                       </div>
                     </div>
 
-                    <div style={{ background: "#f8fafc", borderRadius: 14, padding: "16px 18px", marginBottom: 20 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 13, color: "#64748b", fontWeight: 600 }}>
+                    <div style={{ background: "#fbfaf7", border: "1px solid #ecefec", borderRadius: 6, padding: "16px 18px", marginBottom: 20 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 13, color: "#5b6b62", fontWeight: 600 }}>
                         <span>{item.service} ({item.format})</span>
-                        <span style={{ color: "#1e293b" }}>₹{item.transaction?.amount}</span>
+                        <span style={{ color: "#122019" }}>₹{item.transaction?.amount}</span>
                       </div>
                       <Divider sx={{ my: 1.5 }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 900, fontSize: 16 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16 }}>
                         <span>Total</span>
-                        <span style={{ color: "#228756" }}>₹{item.transaction?.amount}</span>
+                        <span style={{ color: "#0f3d24" }}>₹{item.transaction?.amount}</span>
                       </div>
                     </div>
 
                     <div style={{ display: "flex", gap: 10 }}>
                       <Button fullWidth variant="contained" startIcon={<DownloadIcon />}
                         onClick={() => printInvoice(item)}
-                        sx={{ bgcolor: "#228756", "&:hover": { bgcolor: "#1b6843" }, borderRadius: "12px", py: 1.5, textTransform: "none", fontWeight: 800 }}>
+                        sx={{ bgcolor: "#0f3d24", "&:hover": { bgcolor: "#16512f" }, borderRadius: "4px", boxShadow: "none", py: 1.5, textTransform: "none", fontWeight: 700 }}>
                         Download PDF
                       </Button>
                       <Button fullWidth variant="outlined" startIcon={<PrintIcon />}
                         onClick={() => printInvoice(item)}
-                        sx={{ borderColor: "#e2e8f0", color: "#64748b", borderRadius: "12px", py: 1.5, textTransform: "none", fontWeight: 800, "&:hover": { borderColor: "#cbd5e1", background: "#f8fafc" } }}>
+                        sx={{ borderColor: "#dbe3df", color: "#5b6b62", borderRadius: "4px", py: 1.5, textTransform: "none", fontWeight: 700, "&:hover": { borderColor: "#0f3d24", color: "#0f3d24", background: "#f0fdf4" } }}>
                         Print
                       </Button>
                     </div>

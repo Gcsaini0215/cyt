@@ -87,13 +87,14 @@ export default function ServicesAndExperties({ onSuccess }) {
   };
 
   const getServiceConfig = (service) => {
+    const base = { color: "#0f3d24", bg: "#f0fdf4" };
     switch (service) {
-      case "Individual Counselling": return { icon: <PersonIcon sx={{ fontSize: 26 }} />, color: "#6366f1", bg: "#eef2ff", desc: "One-on-one personal sessions" };
-      case "Couple Counselling": return { icon: <PeopleIcon sx={{ fontSize: 26 }} />, color: "#ec4899", bg: "#fdf2f8", desc: "Relationship & couples therapy" };
-      case "Teen Counselling": return { icon: <ChildCareIcon sx={{ fontSize: 26 }} />, color: "#f59e0b", bg: "#fffbeb", desc: "Youth & adolescent support" };
-      case "Diagnosis": return { icon: <PsychologyIcon sx={{ fontSize: 26 }} />, color: "#0ea5e9", bg: "#f0f9ff", desc: "Clinical assessment & diagnosis" };
-      case "Workshops/Training": return { icon: <GroupsIcon sx={{ fontSize: 26 }} />, color: "#10b981", bg: "#f0fdf4", desc: "Group sessions & workshops" };
-      default: return { icon: <CheckCircleIcon sx={{ fontSize: 26 }} />, color: "#64748b", bg: "#f8fafc", desc: "" };
+      case "Individual Counselling": return { icon: <PersonIcon sx={{ fontSize: 22 }} />, ...base, desc: "One-on-one personal sessions" };
+      case "Couple Counselling": return { icon: <PeopleIcon sx={{ fontSize: 22 }} />, ...base, desc: "Relationship & couples therapy" };
+      case "Teen Counselling": return { icon: <ChildCareIcon sx={{ fontSize: 22 }} />, ...base, desc: "Youth & adolescent support" };
+      case "Diagnosis": return { icon: <PsychologyIcon sx={{ fontSize: 22 }} />, ...base, desc: "Clinical assessment & diagnosis" };
+      case "Workshops/Training": return { icon: <GroupsIcon sx={{ fontSize: 22 }} />, ...base, desc: "Group sessions & workshops" };
+      default: return { icon: <CheckCircleIcon sx={{ fontSize: 22 }} />, color: "#5b6b62", bg: "#fbfaf7", desc: "" };
     }
   };
 
@@ -109,7 +110,10 @@ export default function ServicesAndExperties({ onSuccess }) {
       <div className="rbt-profile-row rbt-default-form row row--15">
         <div className="col-12">
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 3, color: '#1e293b' }}>
+            <Typography sx={{
+              fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 700, fontSize: 19,
+              color: '#122019', mb: 2, pb: 1.25, borderBottom: '1.5px solid #ecefec',
+            }}>
               What services do you offer?
             </Typography>
             <div className="row g-3">
@@ -121,54 +125,52 @@ export default function ServicesAndExperties({ onSuccess }) {
                     <Box
                       onClick={() => handleServiceChange(service)}
                       sx={{
-                        p: "16px 20px",
+                        p: "14px 16px",
                         cursor: 'pointer',
-                        borderRadius: '14px',
-                        border: '2px solid',
-                        borderColor: isSelected ? config.color : '#f1f5f9',
+                        borderRadius: '6px',
+                        border: '1.5px solid',
+                        borderColor: isSelected ? config.color : '#dbe3df',
                         background: isSelected ? config.bg : '#fff',
-                        transition: 'all 0.25s ease',
+                        transition: 'all 0.2s',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 2,
+                        gap: 1.5,
                         position: 'relative',
-                        boxShadow: isSelected ? `0 4px 16px ${config.color}22` : '0 1px 4px rgba(0,0,0,0.04)',
                         '&:hover': {
                           borderColor: config.color,
-                          boxShadow: `0 6px 20px ${config.color}22`,
-                          transform: 'translateY(-2px)',
+                          background: config.bg,
                         }
                       }}
                     >
                       {/* Icon box */}
                       <Box sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: '12px',
+                        width: 38,
+                        height: 38,
+                        borderRadius: '4px',
                         background: isSelected ? config.color : config.bg,
                         color: isSelected ? '#fff' : config.color,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
-                        transition: 'all 0.25s ease'
+                        transition: 'all 0.2s'
                       }}>
                         {config.icon}
                       </Box>
 
                       {/* Text */}
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography sx={{ fontSize: '15px', fontWeight: 700, color: isSelected ? config.color : '#1e293b', lineHeight: 1.2 }}>
+                        <Typography sx={{ fontSize: '13.5px', fontWeight: 700, color: isSelected ? config.color : '#122019', lineHeight: 1.2 }}>
                           {service}
                         </Typography>
-                        <Typography sx={{ fontSize: '12px', color: '#94a3b8', mt: 0.3, fontWeight: 500 }}>
+                        <Typography sx={{ fontSize: '11px', color: '#8a978f', mt: 0.3, fontWeight: 500 }}>
                           {config.desc}
                         </Typography>
                       </Box>
 
                       {/* Checkmark */}
                       {isSelected && (
-                        <CheckCircleIcon sx={{ color: config.color, fontSize: 22, flexShrink: 0 }} />
+                        <CheckCircleIcon sx={{ color: '#c9962c', fontSize: 18, flexShrink: 0 }} />
                       )}
                     </Box>
                   </div>
@@ -179,38 +181,39 @@ export default function ServicesAndExperties({ onSuccess }) {
         </div>
 
         <div className="col-12 mt--20">
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#1e293b' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1, pb: 1.25, borderBottom: '1.5px solid #ecefec' }}>
+            <Typography sx={{ fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 700, fontSize: 19, color: '#122019' }}>
               Your Area of Expertise
             </Typography>
             {selectedExpertise.length > 0 && (
               <Chip
                 label={`${selectedExpertise.length} selected`}
                 size="small"
-                sx={{ background: '#2ecc71', color: '#fff', fontWeight: 700, fontSize: '12px' }}
+                sx={{ background: '#0f3d24', color: '#fff', fontWeight: 700, fontSize: '11px', borderRadius: '4px' }}
               />
             )}
           </Box>
 
           {/* Category Tabs */}
-          <Box sx={{ borderBottom: '2px solid #f1f5f9', mb: 3 }}>
+          <Box sx={{ borderBottom: '1px solid #ecefec', mb: 3 }}>
             <Tabs
               value={activeTab}
               onChange={(_, val) => setActiveTab(val)}
               variant="scrollable"
               scrollButtons="auto"
               sx={{
-                minHeight: '44px',
+                minHeight: '40px',
                 '& .MuiTab-root': {
                   fontWeight: 700,
-                  fontSize: '13px',
-                  color: '#64748b',
-                  minHeight: '44px',
-                  textTransform: 'none',
-                  px: 2,
+                  fontSize: '11.5px',
+                  letterSpacing: '0.4px',
+                  textTransform: 'uppercase',
+                  color: '#8a978f',
+                  minHeight: '40px',
+                  px: 1.5,
                 },
-                '& .Mui-selected': { color: '#2ecc71 !important' },
-                '& .MuiTabs-indicator': { background: '#2ecc71', height: '3px', borderRadius: '3px' }
+                '& .Mui-selected': { color: '#0f3d24 !important' },
+                '& .MuiTabs-indicator': { background: '#c9962c', height: '2.5px' }
               }}
             >
               {categories.map((cat, idx) => {
@@ -223,12 +226,13 @@ export default function ServicesAndExperties({ onSuccess }) {
                         {cat.title}
                         {count > 0 && (
                           <Box sx={{
-                            background: '#2ecc71',
-                            color: '#fff',
-                            borderRadius: '20px',
-                            fontSize: '11px',
+                            background: '#f0fdf4',
+                            color: '#0f3d24',
+                            border: '1px solid #c8ddd0',
+                            borderRadius: '4px',
+                            fontSize: '10px',
                             fontWeight: 800,
-                            px: 0.8,
+                            px: 0.7,
                             py: 0.1,
                             lineHeight: 1.6
                           }}>
@@ -244,7 +248,7 @@ export default function ServicesAndExperties({ onSuccess }) {
           </Box>
 
           {/* Chips for active tab */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.2, minHeight: 80 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, minHeight: 80 }}>
             {categories[activeTab]?.list.map((item) => {
               const isSelected = selectedExpertise.includes(item);
               return (
@@ -253,21 +257,21 @@ export default function ServicesAndExperties({ onSuccess }) {
                   label={item}
                   onClick={() => handleExpertiseChange(item)}
                   sx={{
-                    borderRadius: '10px',
+                    borderRadius: '4px',
                     cursor: 'pointer',
                     fontWeight: 600,
-                    fontSize: '13px',
-                    background: isSelected ? '#2ecc71' : '#fff',
-                    color: isSelected ? '#fff' : '#475569',
+                    fontSize: '12.5px',
+                    background: isSelected ? '#0f3d24' : '#fff',
+                    color: isSelected ? '#fff' : '#374b40',
                     border: '1.5px solid',
-                    borderColor: isSelected ? '#2ecc71' : '#e2e8f0',
+                    borderColor: isSelected ? '#0f3d24' : '#dbe3df',
                     transition: 'all 0.2s',
-                    height: '36px',
-                    '& .MuiChip-label': { px: 1.5 },
+                    height: '32px',
+                    '& .MuiChip-label': { px: 1.4 },
                     '&:hover': {
-                      background: isSelected ? '#27ae60' : '#f0fdf4',
-                      borderColor: '#2ecc71',
-                      color: isSelected ? '#fff' : '#2ecc71'
+                      background: isSelected ? '#16512f' : '#f0fdf4',
+                      borderColor: '#0f3d24',
+                      color: isSelected ? '#fff' : '#0f3d24'
                     }
                   }}
                 />

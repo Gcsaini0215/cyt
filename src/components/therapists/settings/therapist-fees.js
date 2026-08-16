@@ -15,9 +15,9 @@ import EditIcon from "@mui/icons-material/Edit";
 const PRESETS = [500, 750, 1000, 1500, 2000, 2500];
 
 const FORMAT_CFG = [
-  { label: "Audio Call",  icon: <MicIcon sx={{ fontSize: 20 }} />,      color: "#0ea5e9", light: "#f0f9ff", border: "#bae6fd" },
-  { label: "Video Call",  icon: <VideocamIcon sx={{ fontSize: 20 }} />, color: "#8b5cf6", light: "#f5f3ff", border: "#ddd6fe" },
-  { label: "In-Person",   icon: <PersonIcon sx={{ fontSize: 20 }} />,   color: "#ec4899", light: "#fdf2f8", border: "#fbcfe8" },
+  { label: "Audio Call",  icon: <MicIcon sx={{ fontSize: 18 }} />,      color: "#0f3d24", light: "#f0fdf4", border: "#c8ddd0" },
+  { label: "Video Call",  icon: <VideocamIcon sx={{ fontSize: 18 }} />, color: "#0f3d24", light: "#f0fdf4", border: "#c8ddd0" },
+  { label: "In-Person",   icon: <PersonIcon sx={{ fontSize: 18 }} />,   color: "#0f3d24", light: "#f0fdf4", border: "#c8ddd0" },
 ];
 
 function getCfg(name, index) {
@@ -52,20 +52,20 @@ function FeeCard({ format, si, fi, setFee }) {
   if (!hasfee && !editing) {
     return (
       <div style={{
-        borderRadius: 14, border: "1.5px dashed #e2e8f0", background: "#f8fafc",
-        padding: "20px 18px", display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", gap: 10, minHeight: 140, cursor: "pointer",
+        borderRadius: 6, border: "1.5px dashed #dbe3df", background: "#fbfaf7",
+        padding: "18px 16px", display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", gap: 8, minHeight: 128, cursor: "pointer",
         transition: "all .15s",
       }}
         onClick={() => setEditing(true)}
         onMouseEnter={e => { e.currentTarget.style.borderColor = cfg.color; e.currentTarget.style.background = cfg.light; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.background = "#f8fafc"; }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8" }}>
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "#dbe3df"; e.currentTarget.style.background = "#fbfaf7"; }}>
+        <div style={{ width: 36, height: 36, borderRadius: 4, background: "#ecefec", display: "flex", alignItems: "center", justifyContent: "center", color: "#8a978f" }}>
           {cfg.icon}
         </div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8" }}>{cfg.label}</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, background: "#fff", border: `1.5px solid ${cfg.border}`, borderRadius: 8, padding: "6px 14px", color: cfg.color, fontSize: 12, fontWeight: 700 }}>
-          <AddIcon sx={{ fontSize: 14 }} /> Set Fee
+        <div style={{ fontSize: 12.5, fontWeight: 700, color: "#8a978f" }}>{cfg.label}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, background: "#fff", border: `1.5px solid ${cfg.border}`, borderRadius: 4, padding: "5px 12px", color: cfg.color, fontSize: 11.5, fontWeight: 700 }}>
+          <AddIcon sx={{ fontSize: 13 }} /> Set Fee
         </div>
       </div>
     );
@@ -73,17 +73,17 @@ function FeeCard({ format, si, fi, setFee }) {
 
   if (editing || !hasfee) {
     return (
-      <div style={{ borderRadius: 14, border: `1.5px solid ${cfg.border}`, background: cfg.light, padding: "18px 16px", minHeight: 140 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+      <div style={{ borderRadius: 6, border: `1.5px solid ${cfg.border}`, background: cfg.light, padding: "16px 14px", minHeight: 128 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 11 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+            <div style={{ width: 30, height: 30, borderRadius: 4, background: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
               {cfg.icon}
             </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{cfg.label}</span>
+            <span style={{ fontSize: 12.5, fontWeight: 700, color: "#122019" }}>{cfg.label}</span>
           </div>
           {hasfee && (
-            <button onClick={() => setEditing(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 2 }}>
-              <CloseIcon sx={{ fontSize: 16 }} />
+            <button onClick={() => setEditing(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#8a978f", padding: 2 }}>
+              <CloseIcon sx={{ fontSize: 15 }} />
             </button>
           )}
         </div>
@@ -92,7 +92,7 @@ function FeeCard({ format, si, fi, setFee }) {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
           {PRESETS.map(p => (
             <button key={p} onClick={() => applyFee(p)}
-              style={{ padding: "5px 11px", borderRadius: 20, border: `1.5px solid ${cfg.border}`, background: "#fff", color: cfg.color, fontSize: 12, fontWeight: 700, cursor: "pointer", transition: "all .12s" }}
+              style={{ padding: "5px 10px", borderRadius: 4, border: `1.5px solid ${cfg.border}`, background: "#fff", color: cfg.color, fontSize: 11.5, fontWeight: 700, cursor: "pointer", transition: "all .12s" }}
               onMouseEnter={e => { e.currentTarget.style.background = cfg.color; e.currentTarget.style.color = "#fff"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = cfg.color; }}>
               ₹{p.toLocaleString()}
@@ -103,13 +103,13 @@ function FeeCard({ format, si, fi, setFee }) {
         {/* Custom input */}
         <div style={{ display: "flex", gap: 6 }}>
           <div style={{ position: "relative", flex: 1 }}>
-            <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", fontWeight: 800, fontSize: 15, color: "#1e293b" }}>₹</span>
+            <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", fontWeight: 800, fontSize: 14, color: "#122019" }}>₹</span>
             <input type="number" placeholder="Custom" value={custom} onChange={e => setCustom(e.target.value)}
               onKeyDown={e => e.key === "Enter" && applyFee(custom)}
-              style={{ width: "100%", height: 38, paddingLeft: 26, borderRadius: 9, border: `1.5px solid ${cfg.border}`, fontSize: 14, fontWeight: 700, background: "#fff", color: "#1e293b", outline: "none", boxSizing: "border-box" }} />
+              style={{ width: "100%", height: 36, paddingLeft: 26, borderRadius: 4, border: `1.5px solid ${cfg.border}`, fontSize: 13, fontWeight: 700, background: "#fff", color: "#122019", outline: "none", boxSizing: "border-box" }} />
           </div>
           <button onClick={() => applyFee(custom)}
-            style={{ height: 38, padding: "0 14px", borderRadius: 9, border: "none", background: cfg.color, color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            style={{ height: 36, padding: "0 13px", borderRadius: 4, border: "none", background: cfg.color, color: "#fff", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
             Set
           </button>
         </div>
@@ -119,31 +119,31 @@ function FeeCard({ format, si, fi, setFee }) {
 
   // Has fee — show it prominently
   return (
-    <div style={{ borderRadius: 14, border: `1.5px solid ${cfg.border}`, background: cfg.light, padding: "18px 16px", minHeight: 140, display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ borderRadius: 6, border: `1.5px solid ${cfg.border}`, background: cfg.light, padding: "16px 14px", minHeight: 128, display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, background: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+          <div style={{ width: 30, height: 30, borderRadius: 4, background: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
             {cfg.icon}
           </div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>{cfg.label}</span>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: "#122019" }}>{cfg.label}</span>
         </div>
         <div style={{ display: "flex", gap: 4 }}>
           <button onClick={() => setEditing(true)} title="Edit fee"
-            style={{ background: "none", border: "none", cursor: "pointer", color: cfg.color, padding: 4, borderRadius: 6 }}>
-            <EditIcon sx={{ fontSize: 15 }} />
+            style={{ background: "none", border: "none", cursor: "pointer", color: cfg.color, padding: 4, borderRadius: 4 }}>
+            <EditIcon sx={{ fontSize: 14 }} />
           </button>
           <button onClick={removeFee} title="Remove"
-            style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 4, borderRadius: 6 }}>
-            <CloseIcon sx={{ fontSize: 15 }} />
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", padding: 4, borderRadius: 4 }}>
+            <CloseIcon sx={{ fontSize: 14 }} />
           </button>
         </div>
       </div>
 
       <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
-        <div style={{ fontSize: 32, fontWeight: 900, color: cfg.color, letterSpacing: "-1px" }}>
+        <div style={{ fontSize: 28, fontWeight: 800, color: cfg.color, letterSpacing: "-0.5px", fontFamily: "Georgia, 'Times New Roman', serif" }}>
           ₹{Number(fee).toLocaleString()}
         </div>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>per session</div>
+        <div style={{ fontSize: 10.5, fontWeight: 600, color: "#8a978f", textTransform: "uppercase", letterSpacing: "0.5px" }}>per session</div>
       </div>
     </div>
   );
@@ -174,17 +174,17 @@ export default function Fees({ onSuccess }) {
 
   return (
     <div className="rbt-dashboard-content-wrapper">
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>
+      <div style={{ marginBottom: 22, paddingBottom: 14, borderBottom: "1.5px solid #ecefec" }}>
+        <div style={{ fontSize: 12.5, color: "#5b6b62", fontWeight: 500 }}>
           Select a preset or enter a custom fee for each session format. Leave empty to mark as not offered.
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {therapistInfo.fees.map((feeItem, si) => (
           <div key={si}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1e293b", marginBottom: 14 }}>{feeItem.name}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+            <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 16, fontWeight: 700, color: "#122019", marginBottom: 12 }}>{feeItem.name}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 12 }}>
               {feeItem.formats.map((format, fi) => (
                 <FeeCard key={fi} format={format} si={si} fi={fi} setFee={setFee} />
               ))}

@@ -2,12 +2,11 @@ import MainLayout from "../components/therapists/main-layout";
 import Profile from "../components/therapists/settings/profile";
 import Availability from "../components/therapists/settings/availability";
 import PaymentDetails from "../components/therapists/settings/payment-details";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import TherapistFees from "../components/therapists/settings/therapist-fees";
 import ServicesAndExperties from "../components/therapists/settings/services-and-experties";
 import useTherapistStore from "../store/therapistStore";
 import { useMediaQueryClient } from "../hooks/useMediaQueryClient";
-import { redColor } from "../utils/colors";
 import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageTag from "../utils/image-tag";
@@ -16,13 +15,9 @@ import Link from "next/link";
 
 export default function ProfileSettings() {
   const isMobile = useMediaQueryClient("sm");
-  const { therapistInfo, fetchTherapistInfo, profileSet, paymentStore } = useTherapistStore();
+  const { therapistInfo, fetchTherapistInfo, profileSet } = useTherapistStore();
   const [tab, setTab] = React.useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
-
-  const style = {
-    cursor: "pointer",
-  };
 
   const isEmpty = React.useCallback(() => {
     return !therapistInfo?.user?.email;
@@ -34,140 +29,113 @@ export default function ProfileSettings() {
     }
   }, [fetchTherapistInfo, isEmpty]);
 
-  const completionPercentage = useMemo(() => {
-    if (!therapistInfo?.user?.email) return 0;
-    const fields = [
-      therapistInfo.user.name,
-      therapistInfo.user.phone,
-      therapistInfo.user.gender,
-      therapistInfo.qualification,
-      therapistInfo.state,
-      therapistInfo.year_of_exp,
-      therapistInfo.user.bio,
-      therapistInfo.language_spoken.length > 0,
-      therapistInfo.session_formats.length > 0,
-      therapistInfo.availabilities.length > 0,
-      therapistInfo.fees.length > 0,
-      paymentStore.ac_name || paymentStore.upi,
-    ];
-    const completedFields = fields.filter((field) => 
-      typeof field === 'boolean' ? field : (field && field !== "" && field !== "Select")
-    ).length;
-    return Math.round((completedFields / fields.length) * 100);
-  }, [therapistInfo, paymentStore]);
-
-  const handleGlobalUpdate = () => {
-    const saveButton = document.querySelector(".tab-content .submit-btn");
-    if (saveButton) {
-      saveButton.click();
-    }
-  };
+  const TABS = [
+    { id: 0, label: "Profile" },
+    { id: 2, label: "Offerings" },
+    { id: 3, label: "Availability" },
+    { id: 4, label: "Fees" },
+    { id: 5, label: "Payments" },
+  ];
 
   return (
     <MainLayout>
-      <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mb--100" style={{ padding: isMobile ? "20px 14px" : undefined }}>
-        <div className="content">
-          <div className="section-title d-flex justify-content-between align-items-center mb--30">
-            <h4 className="rbt-title-style-3 mb--0">
-              Settings{" "}
-              {!profileSet && (
-                <span style={{ 
-                  fontSize: 12, 
-                  color: "#ef4444", 
-                  background: "#fee2e2", 
-                  padding: "2px 8px", 
-                  borderRadius: "4px",
-                  marginLeft: "8px",
-                  fontWeight: "500"
-                }}>
-                  Incomplete
-                </span>
-              )}
-            </h4>
-            {isMobile ? (
-              <IconButton 
-                onClick={() => setPreviewOpen(true)}
-                sx={{ 
-                  color: "#2ecc71", 
-                  padding: "8px",
-                  background: "rgba(46, 204, 113, 0.1)",
-                  "&:hover": { background: "rgba(46, 204, 113, 0.2)" }
-                }}
-                title="Preview Profile"
-              >
-                <i className="feather-eye" style={{ fontSize: "22px" }}></i>
-              </IconButton>
-            ) : (
-              <button 
-                className="rbt-btn btn-border btn-sm" 
-                onClick={() => setPreviewOpen(true)}
-                style={{ height: "40px", padding: "0 20px" }}
-              >
-                <i className="feather-eye mr--5"></i> Preview Profile
-              </button>
-            )}
-          </div>
+      <div className="stg-shell">
+        <style suppressHydrationWarning>{`
+          .stg-shell { background: #fff; border-radius: 6px; border-top: 3px solid #c9962c;
+            box-shadow: 0 4px 20px rgba(15,61,36,0.08); overflow: hidden; margin-bottom: 32px; }
+          .stg-head { padding: 22px 26px; display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 16px; border-bottom: 1px solid #ecefec; }
+          .stg-title { font-family: Georgia, "Times New Roman", serif; font-weight: 700; font-size: 22px;
+            color: #122019; margin: 0 0 4px; letter-spacing: -0.2px; }
+          .stg-sub { font-size: 12.5px; color: #8a978f; margin: 0; }
+          .stg-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+            padding: 3px 9px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-left: 10px;
+            vertical-align: middle; }
+          .stg-badge.incomplete { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+          .stg-badge.complete { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+          .stg-preview-btn { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px;
+            border-radius: 4px; border: 1.5px solid #0f3d24; background: #fff; color: #0f3d24;
+            font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+          .stg-preview-btn:hover { background: #0f3d24; color: #fff; }
+          .stg-preview-icon { width: 38px; height: 38px; border-radius: 4px; border: 1.5px solid #0f3d24;
+            background: #fff; color: #0f3d24; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-          <div className="advance-tab-button mb--40" style={{ borderBottom: "1px solid #f1f5f9" }}>
-            <ul
-              className="nav nav-tabs tab-button-style-2 justify-content-start"
-              id="settinsTab-4"
-              style={{ border: "none", gap: "30px" }}
-            >
-              <li>
-                <a
-                  className={tab === 0 ? "tab-button active" : "tab-button"}
-                  onClick={() => setTab(0)}
-                  style={{ ...style, padding: "12px 0" }}
-                >
-                  <span className="title">Profile</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className={tab === 2 ? "tab-button active" : "tab-button"}
-                  onClick={() => setTab(2)}
-                  style={{ ...style, padding: "12px 0" }}
-                >
-                  <span className="title">Offerings</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className={tab === 3 ? "tab-button active" : "tab-button"}
-                  onClick={() => setTab(3)}
-                  style={{ ...style, padding: "12px 0" }}
-                >
-                  <span className="title">Availability</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className={tab === 4 ? "tab-button active" : "tab-button"}
-                  onClick={() => setTab(4)}
-                  style={{ ...style, padding: "12px 0" }}
-                >
-                  <span className="title">Fees</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  className={tab === 5 ? "tab-button active" : "tab-button"}
-                  onClick={() => setTab(5)}
-                  style={{ ...style, padding: "12px 0" }}
-                >
-                  <span className="title">Payments</span>
-                </a>
-              </li>
-            </ul>
+          .stg-tabbar { display: flex; overflow-x: auto; padding: 0 26px; gap: 26px; border-bottom: 1px solid #ecefec;
+            -ms-overflow-style: none; scrollbar-width: none; background: #fbfaf7; }
+          .stg-tabbar::-webkit-scrollbar { display: none; }
+          .stg-tab-btn { background: none; border: none; cursor: pointer; padding: 13px 2px; margin: 0;
+            font-size: 12.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+            color: #8a978f; border-bottom: 2.5px solid transparent; transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap; }
+          .stg-tab-btn:hover { color: #0f3d24; }
+          .stg-tab-btn.active { color: #0f3d24; border-bottom-color: #c9962c; }
+
+          .stg-body { padding: 26px; }
+
+          /* ── Consistent field styling wherever the shared theme classes are used ── */
+          .stg-body .rbt-form-group { margin-bottom: 18px; }
+          .stg-body .rbt-form-group label {
+            font-size: 11px; font-weight: 700; color: #5b6b62; text-transform: uppercase;
+            letter-spacing: 0.6px; margin-bottom: 7px; display: block;
+          }
+          .stg-body .rbt-form-group input:not([type="file"]),
+          .stg-body .rbt-form-group select,
+          .stg-body .rbt-form-group textarea {
+            border: 1.5px solid #dbe3df !important; border-radius: 4px !important;
+            font-size: 14px; color: #122019; transition: border-color 0.2s, box-shadow 0.2s;
+          }
+          .stg-body .rbt-form-group input:not([type="file"]):focus,
+          .stg-body .rbt-form-group select:focus,
+          .stg-body .rbt-form-group textarea:focus {
+            border-color: #0f3d24 !important; box-shadow: 0 0 0 3px rgba(15,61,36,0.08); outline: none;
+          }
+          .stg-body .rbt-btn.btn-gradient { background: #0f3d24 !important; border-radius: 4px !important;
+            box-shadow: none !important; transition: background 0.2s, transform 0.2s; }
+          .stg-body .rbt-btn.btn-gradient:hover { background: #16512f !important; transform: translateY(-1px); }
+
+          @media (max-width: 767px) {
+            .stg-head { padding: 16px 16px; flex-direction: column; }
+            .stg-tabbar { padding: 0 16px; gap: 18px; }
+            .stg-body { padding: 16px; }
+            .stg-title { font-size: 18px; }
+          }
+        `}</style>
+
+        <div className="stg-head">
+          <div>
+            <h1 className="stg-title">
+              Settings
+              <span className={`stg-badge ${profileSet ? "complete" : "incomplete"}`}>
+                {profileSet ? "✓ Complete" : "Incomplete"}
+              </span>
+            </h1>
+            <p className="stg-sub">Manage how your public profile appears to clients.</p>
           </div>
-          <div className="tab-content" style={{ minHeight: "400px" }}>
-            {tab === 0 && <Profile />}
-            {tab === 2 && <ServicesAndExperties />}
-            {tab === 3 && <Availability />}
-            {tab === 4 && <TherapistFees />}
-            {tab === 5 && <PaymentDetails />}
-          </div>
+          {isMobile ? (
+            <button className="stg-preview-icon" onClick={() => setPreviewOpen(true)} title="Preview Profile">
+              <i className="feather-eye" style={{ fontSize: 18 }}></i>
+            </button>
+          ) : (
+            <button className="stg-preview-btn" onClick={() => setPreviewOpen(true)}>
+              <i className="feather-eye" style={{ fontSize: 14 }}></i> Preview Profile
+            </button>
+          )}
+        </div>
+
+        <div className="stg-tabbar">
+          {TABS.map(t => (
+            <button key={t.id} className={`stg-tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="stg-body tab-content">
+          {tab === 0 && <Profile />}
+          {tab === 2 && <ServicesAndExperties />}
+          {tab === 3 && <Availability />}
+          {tab === 4 && <TherapistFees />}
+          {tab === 5 && <PaymentDetails />}
         </div>
       </div>
 
@@ -231,95 +199,6 @@ export default function ProfileSettings() {
           </div>
         </DialogContent>
       </Dialog>
-
-      <style suppressHydrationWarning>{`
-        .settings-sticky-bar-container {
-          position: fixed;
-          bottom: 20px;
-          right: 0;
-          left: 100px;
-          display: flex;
-          justify-content: center;
-          padding: 0 40px;
-          z-index: 1100;
-          pointer-events: none;
-        }
-        .settings-sticky-bar {
-          pointer-events: auto;
-          width: 100%;
-          max-width: 1500px;
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(15px);
-          padding: 15px 30px;
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.4);
-          box-shadow: 0 20px 50px rgba(0,0,0,0.12) !important;
-        }
-        .w-mobile-100 {
-          width: auto;
-        }
-        .tab-button-style-2 {
-          border-bottom: 1px solid #e1e1e1;
-          gap: 20px;
-          display: flex;
-        }
-        .tab-button-style-2 li a.tab-button {
-          padding: 15px 5px;
-          margin-right: 0;
-          background: transparent !important;
-          color: #64748b !important;
-          font-weight: 600;
-          font-size: 16px;
-          transition: all 0.3s ease;
-          position: relative;
-          border: none !important;
-          border-radius: 0 !important;
-        }
-        .tab-button-style-2 li a.tab-button:hover {
-          color: #2ecc71 !important;
-        }
-        .tab-button-style-2 li a.tab-button.active {
-          color: #2ecc71 !important;
-        }
-        .tab-button-style-2 li a.tab-button.active::after {
-          content: "";
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          width: 100%;
-          height: 3px;
-          background: #2ecc71;
-          border-radius: 3px;
-        }
-        @media (max-width: 991px) {
-          .settings-sticky-bar-container {
-            left: 0;
-            padding: 0 20px;
-            bottom: 90px;
-            justify-content: center;
-          }
-          .settings-sticky-bar {
-            padding: 10px;
-            border-radius: 24px;
-            max-width: 340px;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
-          }
-          .advance-tab-button {
-            overflow-x: auto;
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 5px;
-          }
-          .tab-button-style-2 {
-            display: inline-flex;
-            min-width: max-content;
-            border-bottom: none;
-          }
-        }
-      `}</style>
     </MainLayout>
   );
 }
