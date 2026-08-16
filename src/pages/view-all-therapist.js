@@ -1,10 +1,12 @@
 import React from "react";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import ViewAllTherapist from "../components/View-All-Therapist/view-all-therapist";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
+import { fetchData } from "../utils/actions";
+import { getTherapistProfiles } from "../utils/url";
+import { filterTherapists } from "../utils/filterTherapists";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/view-all-therapist";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
@@ -136,9 +138,66 @@ function getDynamicMeta(query) {
   };
 }
 
-export default function ViewAllTherapistPage() {
-  const router = useRouter();
-  const { title, description } = getDynamicMeta(router.query);
+export async function getServerSideProps(context) {
+  const { profile_type = "", services = "", year_of_exp = "", language_spoken = "", state = "", search = "" } = context.query;
+
+  const filter = {
+    profile_type, services, year_of_exp, language_spoken, state, search,
+    page: 1, pageSize: 1000,
+  };
+
+  // Fetch the full unfiltered pool (the backend doesn't support state/services
+  // filtering at all, and we want one client-side re-filterable dataset for
+  // interactive use) — then apply the same predicate used client-side to get
+  // the actual filtered set a crawler landing on this URL should see.
+  let initialAllData = [];
+  try {
+    const res = await fetchData(getTherapistProfiles, { page: 1, pageSize: 1000 });
+    if (res?.data) initialAllData = res.data;
+  } catch (err) {
+    console.error("Error in view-all-therapist getServerSideProps:", err);
+  }
+  const initialFilteredData = filterTherapists(initialAllData, filter);
+
+  // Only state/profile_type produce a finite, meaningful set of indexable
+  // combinations (mirrors the JustDial city x category pattern). Other
+  // filters (search, language, experience) are left as thin/noindex
+  // variants that still canonicalize back to the clean combination.
+  const seoParams = new URLSearchParams();
+  if (profile_type) seoParams.set("profile_type", profile_type);
+  if (state) seoParams.set("state", state);
+  const canonical = seoParams.toString()
+    ? `${PAGE_URL}?${seoParams.toString()}`
+    : PAGE_URL;
+  const hasThinFilter = Boolean(services || year_of_exp || language_spoken || search);
+  const robots = hasThinFilter ? "noindex, follow" : "index, follow";
+
+  return {
+    props: {
+      initialAllData,
+      initialFilteredData,
+      initialFilters: filter,
+      seo: { canonical, robots },
+    },
+  };
+}
+
+export default function ViewAllTherapistPage({ initialAllData, initialFilteredData, initialFilters, seo }) {
+  const { title, description } = getDynamicMeta(initialFilters);
+
+  // ItemList schema — lets Google see the actual therapists on this
+  // combination of filters, not just the generic directory description.
+  const itemListSchema = initialFilteredData?.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": initialFilteredData.slice(0, 30).map((t, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "url": `https://www.chooseyourtherapist.in/view-profile/${t._id}`,
+      "name": `${t.user?.name || "Therapist"} — ${t.profile_type || "Therapist"}`,
+    })),
+  } : null;
+  const pageSchemas = itemListSchema ? [...allSchemas, itemListSchema] : allSchemas;
 
   return (
     <div id="__next">
@@ -146,13 +205,13 @@ export default function ViewAllTherapistPage() {
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="keywords" content="find psychologist India, verified therapists India, counselling psychologist near me, online therapy India, best psychologist India, therapist directory, clinical psychologist, mental health counseling, book therapist online" />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href={PAGE_URL} />
+        <meta name="robots" content={seo.robots} />
+        <link rel="canonical" href={seo.canonical} />
 
         {/* Open Graph */}
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:url" content={PAGE_URL} />
+        <meta property="og:url" content={seo.canonical} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={OG_IMAGE} />
         <meta property="og:site_name" content="Choose Your Therapist" />
@@ -165,8 +224,8 @@ export default function ViewAllTherapistPage() {
         <meta name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@CYT_India" />
 
-        {/* Schema.org — MedicalOrganization + CollectionPage + Service */}
-        {allSchemas.map((schema, i) => (
+        {/* Schema.org — MedicalOrganization + CollectionPage + Service + ItemList */}
+        {pageSchemas.map((schema, i) => (
           <script
             key={i}
             type="application/ld+json"
@@ -177,7 +236,7 @@ export default function ViewAllTherapistPage() {
       <main className="">
         <MyNavbar />
         <main className="rbt-main-wrapper">
-          <ViewAllTherapist />
+          <ViewAllTherapist initialAllData={initialAllData} initialFilters={initialFilters} />
           <NewsLetter />
         </main>
         <Footer />

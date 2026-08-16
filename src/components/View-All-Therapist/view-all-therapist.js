@@ -10,23 +10,28 @@ import ProfileCardVert from "../home/profile-card-vert.js";
 import ConsultationConsentModal from "../global/consultation-consent-modal";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
+import { filterTherapists } from "../../utils/filterTherapists";
 
-export default function ViewAllTherapist() {
+const EMPTY_FILTER = {
+  profile_type: "", services: "", year_of_exp: "",
+  language_spoken: "", state: "", search: "", page: 1, pageSize: 1000,
+};
+
+export default function ViewAllTherapist({ initialAllData = [], initialFilters = null }) {
   const router = useRouter();
-  const [data, setData] = React.useState([]);
-  const [allData, setAllData] = React.useState([]);
-  const [search, setSearch] = React.useState("");
+  const [allData, setAllData] = React.useState(initialAllData);
+  const [search, setSearch] = React.useState(initialFilters?.search || "");
   const [favrioutes, setFavrioutes] = React.useState([]);
   const timeoutRef = React.useRef(null);
   const [loading, setLoading] = React.useState(false);
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [filteredData, setFilteredData] = React.useState([]);
   const ITEMS_PER_PAGE = 18;
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [tempFilter, setTempFilter] = React.useState({});
   const [consultOpen, setConsultOpen] = React.useState(false);
   const resultsRef = React.useRef(null);
   const isFirstRender = React.useRef(true);
+  const hasServerData = React.useRef(initialAllData.length > 0);
 
   // Auto-open the 15-min consultation modal a few seconds after landing on the page
   React.useEffect(() => {
@@ -34,10 +39,7 @@ export default function ViewAllTherapist() {
     return () => clearTimeout(t);
   }, []);
 
-  const [filter, setFilter] = React.useState({
-    profile_type: "", services: "", year_of_exp: "",
-    language_spoken: "", state: "", search: "", page: 1, pageSize: 1000,
-  });
+  const [filter, setFilter] = React.useState(initialFilters || EMPTY_FILTER);
 
   // Read URL query params on first load and set filters
   React.useEffect(() => {
@@ -141,7 +143,9 @@ export default function ViewAllTherapist() {
       } catch {}
     };
 
-    getData();
+    // Server already fetched the initial (unfiltered-by-search) dataset for
+    // this URL — skip the redundant duplicate call and avoid a loading flash.
+    if (!hasServerData.current) getData();
     const tokenData = getDecodedToken();
     if (tokenData && tokenData.role !== 1) getFavrioutes();
   }, []);
@@ -151,31 +155,19 @@ export default function ViewAllTherapist() {
     return [...new Set(types)].map(t => ({ label: t, value: t }));
   }, [allData]);
 
-  React.useEffect(() => {
-    let filtered = allData;
-    if (filter.search) {
-      const q = filter.search.toLowerCase();
-      filtered = filtered.filter(i =>
-        (i.user?.name || "").toLowerCase().includes(q) ||
-        (i.services || "").toLowerCase().includes(q) ||
-        (i.language_spoken || "").toLowerCase().includes(q) ||
-        (i.state || "").toLowerCase().includes(q)
-      );
-    }
-    if (filter.profile_type) filtered = filtered.filter(i => i.profile_type === filter.profile_type);
-    if (filter.services) filtered = filtered.filter(i => i.services?.includes(filter.services));
-    if (filter.year_of_exp) filtered = filtered.filter(i => (i.year_of_exp || "").trim() === filter.year_of_exp);
-    if (filter.language_spoken) filtered = filtered.filter(i => i.language_spoken?.includes(filter.language_spoken));
-    if (filter.state) filtered = filtered.filter(i => (i.state || "").toLowerCase() === filter.state.toLowerCase());
-    setFilteredData(filtered);
-    setCurrentPage(1);
-    setData(filtered.slice(0, ITEMS_PER_PAGE));
-  }, [filter, allData]);
-
-  React.useEffect(() => {
+  // Computed synchronously (not in an effect) so the server-rendered HTML
+  // already contains the correctly filtered/paginated list for crawlers —
+  // an effect wouldn't run during SSR and would leave the initial markup empty.
+  const filteredData = React.useMemo(() => filterTherapists(allData, filter), [allData, filter]);
+  const data = React.useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    setData(filteredData.slice(start, start + ITEMS_PER_PAGE));
-  }, [currentPage, filteredData]);
+    return filteredData.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredData, currentPage]);
+
+  // Reset to page 1 whenever the filter (or the underlying dataset) changes.
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, allData]);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 

@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
-import NotFoundPage from "../notfound";
 
 const ProfileCard = dynamic(() => import("../../components/home/profile-card"), { ssr: false });
 const NewsLetter = dynamic(() => import("../../components/home/newsletter"), { ssr: false });
@@ -268,38 +266,40 @@ const SERVICES = [
   { title: "Child & Adolescent", desc: "Therapy for ADHD, autism, anxiety, and behavioural issues in children.", icon: "feather-user", color: "#b45309" },
 ];
 
+// ─── Static generation: known state slugs are prebuilt; anything else is a
+// real 404 (not a soft-404 rendered client-side, which Google discounts).
+// revalidate keeps the therapist list from going stale without a redeploy.
+export async function getStaticPaths() {
+  return {
+    paths: Object.keys(STATE_CONFIG).map(slug => ({ params: { state: slug } })),
+    fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }) {
+  const config = STATE_CONFIG[params.state];
+  if (!config) return { notFound: true };
+
+  let therapists = [];
+  try {
+    const res = await fetchData(getTherapistProfiles);
+    const all = (res?.data) ? res.data : (Array.isArray(res) ? res : []);
+    therapists = all.filter(t => {
+      const s = (t.state || "").toLowerCase();
+      return config.filterValues.some(v => s.includes(v));
+    });
+  } catch (e) {
+    console.error("Error in psychologist-in/[state] getStaticProps:", e);
+  }
+
+  return {
+    props: { config, therapists },
+    revalidate: 3600,
+  };
+}
+
 // ─── Page component ──────────────────────────────────────────────────────────
-export default function StatePsychologistPage() {
-  const router = useRouter();
-  const { state: stateSlug } = router.query;
-
-  const config = stateSlug ? STATE_CONFIG[stateSlug] : null;
-
-  const [therapists, setTherapists] = useState([]);
-
-  const fetchTherapists = useCallback(async () => {
-    if (!config) return;
-    try {
-      const res = await fetchData(getTherapistProfiles);
-      const all = (res?.data) ? res.data : (Array.isArray(res) ? res : []);
-      const filtered = all.filter(t => {
-        const s = (t.state || "").toLowerCase();
-        return config.filterValues.some(v => s.includes(v));
-      });
-      setTherapists(filtered);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    fetchTherapists();
-  }, [fetchTherapists]);
-
-  if (router.isFallback) return null;
-  if (stateSlug && !config) return <NotFoundPage />;
-  if (!config) return null;
-
+export default function StatePsychologistPage({ config, therapists }) {
   const PAGE_URL = `https://www.chooseyourtherapist.in/psychologist-in/${config.slug}`;
   const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
 

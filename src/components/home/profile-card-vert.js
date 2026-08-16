@@ -218,7 +218,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
           transform: translateY(-1px);
         }
 
-        /* ── Mobile (<576px) ─────────────────── */
+        /* ── Mobile (under 576px) ─────────────────── */
         @media(max-width: 575px) {
           .vtc-img-col { width: 110px; }
           .vtc-img { width: 110px; }
@@ -227,7 +227,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
           .vtc-btn-out, .vtc-btn-fill { font-size: 11.5px; padding: 7px 0; }
         }
 
-        /* ── Tablet 2-col squeeze (576–991px: Bootstrap's fixed
+        /* ── Tablet 2-col squeeze (576–991px: the Bootstrap fixed
            720px container / 2 columns leaves each card ~340px) ── */
         @media(min-width: 576px) and (max-width: 991px) {
           .vtc-img-col { width: 110px; }
