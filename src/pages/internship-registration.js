@@ -5,7 +5,7 @@ import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Newsletter from "../components/home/newsletter";
 import { SubmitConsultationUrl, createTraineeUrl } from "../utils/url";
-import { postData } from "../utils/actions";
+import { postData, postFormData } from "../utils/actions";
 
 const PSYCH_TYPES = [
   "Clinical Psychology", "Counselling Psychology", "Industrial & Organizational Psychology",
@@ -703,8 +703,31 @@ export default function InternshipRegistration() {
         motivation:     form.motivation,
       };
 
+      const traineeFormData = new FormData();
+      traineeFormData.append("name", form.name);
+      traineeFormData.append("email", form.email);
+      traineeFormData.append("phone", form.phone);
+      traineeFormData.append("city", form.city);
+      traineeFormData.append("gender", form.gender);
+      traineeFormData.append("dob", form.dob);
+      traineeFormData.append("college", form.college);
+      traineeFormData.append("degree", form.degree);
+      traineeFormData.append("specialization", form.specialization);
+      traineeFormData.append("year", form.year);
+      form.internType.forEach((t) => traineeFormData.append("internType", t));
+      traineeFormData.append("mode", form.mode);
+      traineeFormData.append("duration", form.duration);
+      traineeFormData.append("hours", form.hours);
+      traineeFormData.append("programFee", HOUR_PRICES[form.hours] || "");
+      traineeFormData.append("transactionId", transactionId);
+      traineeFormData.append("availableFrom", form.availableFrom);
+      traineeFormData.append("motivation", form.motivation);
+      if (form.resumeFile) traineeFormData.append("resumeFile", form.resumeFile);
+      if (form.collegeId) traineeFormData.append("collegeId", form.collegeId);
+      if (form.passportPhoto) traineeFormData.append("passportPhoto", form.passportPhoto);
+
       const [traineeResult] = await Promise.allSettled([
-        postData(createTraineeUrl, traineePayload),
+        postFormData(createTraineeUrl, traineeFormData),
         postData(SubmitConsultationUrl, {
           name:    form.name,
           email:   form.email,
@@ -798,7 +821,7 @@ export default function InternshipRegistration() {
       <style>{`
         .intern-banner {
           position: relative;
-          background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+          background-image: url(https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg);
           background-size: cover;
           background-position: center;
           background-attachment: scroll;
@@ -807,7 +830,7 @@ export default function InternshipRegistration() {
           margin-top: 0px;
         }
         .intern-banner::before {
-          content: "";
+          content: no-open-quote;
           position: absolute; inset: 0;
           background: rgba(0, 0, 0, 0.6);
           z-index: 1;
