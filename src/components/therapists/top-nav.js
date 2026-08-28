@@ -1,25 +1,33 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import ImageTag from "../../utils/image-tag";
 import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath, getBookings } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import { toast } from "react-toastify";
 
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
+import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+
 const logo1 = "/cyt-emblem.png";
 
 const NAV = [
-  { to: "/therapist-dashboard", label: "Dashboard", icon: "feather-home" },
-  { to: "/appointments", label: "Appointments", icon: "feather-calendar", hasBadge: true },
-  { to: "/settings", label: "Settings", icon: "feather-settings" },
+  { to: "/therapist-dashboard", label: "Dashboard", Icon: HomeRoundedIcon },
+  { to: "/appointments", label: "Appointments", Icon: CalendarMonthRoundedIcon, hasBadge: true },
+  { to: "/settings", label: "Settings", Icon: SettingsRoundedIcon },
 ];
 
 const MOB_NAV = [
-  { to: "/therapist-dashboard", icon: "feather-home", label: "Home" },
-  { to: "/appointments", icon: "feather-calendar", label: "Appointments", badge: true },
-  { to: "/settings", icon: "feather-settings", label: "Settings" },
+  { to: "/therapist-dashboard", Icon: HomeRoundedIcon, label: "Home" },
+  { to: "/appointments", Icon: CalendarMonthRoundedIcon, label: "Appointments", badge: true },
+  { to: "/settings", Icon: SettingsRoundedIcon, label: "Settings" },
 ];
 
 export default function DashboardTopNav() {
@@ -63,8 +71,7 @@ export default function DashboardTopNav() {
     router.push("/login");
   };
 
-  const isItemActive = (item) =>
-    item.sub ? item.activePaths?.includes(pathname) : pathname === item.to;
+  const isItemActive = (item) => pathname === item.to;
 
   const avatarSrc = therapistInfo?.user?.profile
     ? `${imagePath}/${therapistInfo.user.profile}`
@@ -72,12 +79,16 @@ export default function DashboardTopNav() {
 
   return (
     <>
-      <style>{`
-        /* ── VS Code style title bar ─────────────────── */
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        /* ── Deep-green chrome bar ─────────────────────── */
         .tn-bar {
           position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
-          height: 38px; background: #14171c;
-          border-bottom: 1px solid rgba(255,255,255,0.07);
+          height: 38px;
+          background: linear-gradient(180deg, #0f3d24 0%, #0b2f1c 100%);
+          border-bottom: 1px solid rgba(212,175,55,0.28);
+          box-shadow: 0 1px 0 rgba(255,255,255,0.03), 0 4px 14px rgba(4,22,14,0.35);
           display: flex; align-items: center; gap: 8px;
           padding: 0 12px;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
@@ -85,251 +96,204 @@ export default function DashboardTopNav() {
         }
 
         /* ── Logo ─────────────────────────────────────── */
-        .tn-logo {
-          display: flex; align-items: center; gap: 8px;
-          text-decoration: none; flex-shrink: 0;
-        }
+        .tn-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; flex-shrink: 0; }
         .tn-logo-badge {
-          width: 30px; height: 30px; flex-shrink: 0;
+          width: 28px; height: 28px; flex-shrink: 0;
           background: #fff; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          overflow: hidden;
+          display: grid; place-items: center;
+          box-shadow: 0 0 0 1.5px rgba(212,175,55,0.6), 0 2px 6px rgba(0,0,0,0.3);
         }
-        .tn-logo-badge img { width: 92%; height: 92%; object-fit: contain; display: block; }
-        .tn-title-text { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.75); letter-spacing: 0.2px; white-space: nowrap; }
+        .tn-logo-badge img { width: 19px; height: 19px; object-fit: contain; display: block; }
+        .tn-title-text { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.82); letter-spacing: 0.2px; white-space: nowrap; }
 
-        /* ── Nav (menu-bar style) ─────────────────────── */
-        .tn-nav { display: flex; align-items: center; gap: 1px; margin-left: 6px; height: 100%; flex: 1; min-width: 0; overflow: visible; }
+        /* ── Nav ──────────────────────────────────────── */
+        .tn-nav { display: flex; align-items: center; gap: 2px; margin-left: 10px; height: 100%; flex: 1; min-width: 0; }
         .tn-link {
-          height: 26px; padding: 0 10px;
+          height: 28px; padding: 0 11px;
           display: flex; align-items: center; gap: 6px;
-          border-radius: 4px; border: none; background: none;
-          color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500;
+          border-radius: 7px; border: none; background: none;
+          color: rgba(255,255,255,0.66); font-size: 12px; font-weight: 600;
           text-decoration: none !important; white-space: nowrap; cursor: pointer;
-          transition: background 0.12s, color 0.12s;
+          transition: background 0.14s, color 0.14s;
           position: relative;
         }
-        .tn-link i { font-size: 13px !important; }
-        .tn-link:hover, .tn-link.active { background: rgba(255,255,255,0.09); color: #fff; text-decoration: none; }
-
-        /* ── Events dropdown ─────────────────────────── */
-        .tn-dd-wrap { position: relative; height: 100%; display: flex; align-items: center; }
-        .tn-dd {
-          position: absolute; top: calc(100% + 4px); left: 0;
-          background: #1c1f26; border: 1px solid rgba(255,255,255,.09);
-          border-radius: 8px; padding: 4px; min-width: 190px;
-          z-index: 500; box-shadow: 0 16px 40px rgba(0,0,0,.55);
+        .tn-link svg { font-size: 15px; }
+        .tn-link:hover { background: rgba(255,255,255,0.09); color: #fff; }
+        .tn-link.active { background: rgba(74,222,128,0.16); color: #86efac; }
+        .tn-link.active::after {
+          content: ''; position: absolute; left: 11px; right: 11px; bottom: -1px;
+          height: 2px; border-radius: 2px; background: #22c55e;
         }
-        .tn-dd a {
-          display: flex; align-items: center; gap: 9px;
-          padding: 7px 10px; border-radius: 5px;
-          color: rgba(255,255,255,0.7); font-size: 12.5px; font-weight: 500;
-          text-decoration: none !important; transition: background 0.12s, color 0.12s;
-        }
-        .tn-dd a:hover { background: rgba(255,255,255,.08); color: #fff; }
-        .tn-dd a.active { color: #4ade80; background: rgba(74,222,128,.08); }
 
         /* ── Right controls ──────────────────────────── */
-        .tn-right { display: flex; align-items: center; gap: 2px; margin-left: auto; flex-shrink: 0; height: 100%; }
+        .tn-right { display: flex; align-items: center; gap: 3px; margin-left: auto; flex-shrink: 0; height: 100%; }
         .tn-icon-btn {
-          width: 26px; height: 26px; border-radius: 4px;
+          width: 28px; height: 28px; border-radius: 7px;
           background: transparent; border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          color: rgba(255,255,255,0.6); font-size: 14px; transition: background 0.12s, color 0.12s;
+          display: grid; place-items: center;
+          color: rgba(255,255,255,0.66); transition: background 0.14s, color 0.14s;
           text-decoration: none; position: relative;
         }
-        .tn-icon-btn:hover { background: rgba(255,255,255,.09); color: #fff; }
+        .tn-icon-btn svg { font-size: 16px; }
+        .tn-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .tn-notif-dot {
-          position: absolute; top: 1px; right: 1px;
-          width: 13px; height: 13px; border-radius: 50%;
+          position: absolute; top: 0px; right: 0px;
+          min-width: 13px; height: 13px; padding: 0 3px; border-radius: 7px;
           background: #ef4444; color: #fff;
           font-size: 7.5px; font-weight: 800;
           display: flex; align-items: center; justify-content: center;
-          border: 2px solid #14171c;
+          border: 2px solid #0b2f1c;
         }
 
-        /* ── Profile menu item ─────────────────────────── */
+        /* ── Profile ──────────────────────────────────── */
         .tn-prof-btn {
-          height: 26px; padding: 0 10px;
-          display: flex; align-items: center; gap: 6px;
-          border-radius: 4px; border: none; background: none;
-          color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 500;
-          cursor: pointer; transition: background 0.12s, color 0.12s;
+          height: 28px; padding: 0 8px 0 6px;
+          display: flex; align-items: center; gap: 7px;
+          border-radius: 7px; border: none; background: none;
+          color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600;
+          cursor: pointer; transition: background 0.14s, color 0.14s;
         }
-        .tn-prof-btn:hover { background: rgba(255,255,255,.09); color: #fff; }
-        .tn-prof-av { width: 18px; height: 18px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
-        .tn-prof-name { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .tn-prof-chevron { font-size: 12px; opacity: 0.6; }
+        .tn-prof-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .tn-prof-av {
+          width: 20px; height: 20px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
+          box-shadow: 0 0 0 1px rgba(212,175,55,0.5);
+        }
+        .tn-prof-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tn-prof-chevron { font-size: 14px !important; opacity: 0.6; }
 
-        /* ── Profile dropdown ─────────────────────────── */
         .tn-prof-dd {
-          position: absolute; top: calc(100% + 4px); right: 0;
-          background: #1c1f26; border: 1px solid rgba(255,255,255,.09);
-          border-radius: 8px; min-width: 200px; z-index: 600;
-          box-shadow: 0 16px 40px rgba(0,0,0,.55); padding: 4px;
+          position: absolute; top: calc(100% + 6px); right: 0;
+          background: #0f3d24; border: 1px solid rgba(212,175,55,0.22);
+          border-radius: 10px; min-width: 210px; z-index: 600;
+          box-shadow: 0 18px 44px rgba(4,22,14,0.6); padding: 5px;
         }
-        .tn-prof-dd-head { padding: 10px 12px 8px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 4px; }
+        .tn-prof-dd-head { padding: 10px 12px 9px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 5px; }
         .tn-prof-dd a, .tn-prof-dd button {
-          display: flex; align-items: center; gap: 9px;
-          padding: 7px 10px; width: 100%;
-          color: rgba(255,255,255,0.7); font-size: 12.5px; font-weight: 500;
+          display: flex; align-items: center; gap: 10px;
+          padding: 8px 10px; width: 100%;
+          color: rgba(255,255,255,0.74); font-size: 12.5px; font-weight: 600;
           text-decoration: none !important; transition: background 0.12s, color 0.12s;
-          background: transparent; border: none; border-radius: 5px; cursor: pointer; text-align: left;
+          background: transparent; border: none; border-radius: 7px; cursor: pointer; text-align: left;
         }
-        .tn-prof-dd a:hover, .tn-prof-dd button:hover { background: rgba(255,255,255,.08); color: #fff; }
-        .tn-prof-dd .logout-btn { color: #f87171; }
-        .tn-prof-dd .logout-btn:hover { background: rgba(248,113,113,.1); color: #f87171; }
+        .tn-prof-dd a svg, .tn-prof-dd button svg { font-size: 16px; }
+        .tn-prof-dd a:hover, .tn-prof-dd button:hover { background: rgba(74,222,128,0.12); color: #fff; }
+        .tn-prof-dd .logout-btn { color: #fca5a5; }
+        .tn-prof-dd .logout-btn:hover { background: rgba(248,113,113,0.12); color: #fca5a5; }
 
-        /* ── Mobile bottom nav ───────────────────────── */
+        /* ── Glass bottom nav (mobile / tablet) ───────── */
         .tn-mob-nav { display: none; }
         @media(max-width: 960px) {
           .tn-nav { display: none; }
           .tn-title-text { display: none; }
           .tn-mob-nav {
             display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-            z-index: 1200; background: #14171c;
-            border-top: 1px solid rgba(255,255,255,.08);
-            padding: 6px 0 10px;
+            z-index: 1200;
+            padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+            gap: 4px;
+            background: rgba(11, 47, 28, 0.72);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            backdrop-filter: blur(18px) saturate(180%);
+            border-top: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 -8px 30px rgba(4,22,14,0.35);
+          }
+          @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+            .tn-mob-nav { background: rgba(11, 47, 28, 0.96); }
           }
           .tn-mob-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-            text-decoration: none; color: #64748b;
-            font-size: 10px; font-weight: 600; padding: 4px 0;
-            transition: color 0.15s; position: relative;
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            text-decoration: none; color: rgba(255,255,255,0.6);
+            font-size: 10px; font-weight: 700; letter-spacing: 0.2px;
+            padding: 2px 0; position: relative;
+            transition: color 0.16s;
           }
-          .tn-mob-item.active { color: #4ade80; }
-          .tn-mob-item i { font-size: 20px; }
+          .tn-mob-ico {
+            width: 40px; height: 26px; border-radius: 9px;
+            display: grid; place-items: center;
+            transition: background 0.16s, box-shadow 0.16s, transform 0.16s;
+          }
+          .tn-mob-ico svg { font-size: 21px; }
+          .tn-mob-item.active { color: #bbf7d0; }
+          .tn-mob-item.active .tn-mob-ico {
+            background: linear-gradient(135deg, rgba(74,222,128,0.26), rgba(34,197,94,0.12));
+            box-shadow: inset 0 0 0 1px rgba(134,239,172,0.35), 0 6px 16px rgba(34,197,94,0.28);
+            transform: translateY(-1px);
+          }
           .tn-mob-badge {
-            position: absolute; top: 0; right: calc(50% - 18px);
+            position: absolute; top: -2px; right: calc(50% - 22px);
             background: #ef4444; color: #fff; border-radius: 8px;
             padding: 1px 5px; font-size: 9px; font-weight: 800;
+            border: 1.5px solid rgba(11,47,28,0.9);
           }
         }
-      `}</style>
+      `,
+        }}
+      />
 
       {/* ── Top bar ───────────────────────────────────── */}
       <div className="tn-bar">
         <Link href="/therapist-dashboard" className="tn-logo">
-          <span className="tn-logo-badge"><ImageTag alt="CYT" height="30" width="30" src={logo1} style={{ objectFit: "contain", display: "block" }} /></span>
+          <span className="tn-logo-badge">
+            <img src={logo1} alt="CYT" width={19} height={19} />
+          </span>
           <span className="tn-title-text">Choose Your Therapist — Therapist Portal</span>
         </Link>
 
         <nav className="tn-nav">
-          {NAV.map((item) =>
-            item.sub ? (
-              <div
-                key={item.label}
-                className="tn-dd-wrap"
-                onMouseEnter={() => setEventsOpen(true)}
-                onMouseLeave={() => setEventsOpen(false)}
-              >
-                <span className={`tn-link${isItemActive(item) ? " active" : ""}`}>
-                  <i className={item.icon}></i>
-                  {item.label}
-                  <i className="feather-chevron-down" style={{ fontSize: 10 }}></i>
+          {NAV.map((item) => (
+            <Link
+              key={item.to}
+              href={item.to}
+              className={`tn-link${isItemActive(item) ? " active" : ""}`}
+              onClick={item.hasBadge ? () => setNotificationCount(0) : undefined}
+            >
+              <item.Icon />
+              {item.label}
+              {item.hasBadge && notificationCount > 0 && (
+                <span style={{ background: "#ef4444", color: "#fff", borderRadius: 8, padding: "1px 5px", fontSize: 9, fontWeight: 800 }}>
+                  {notificationCount}
                 </span>
-                {eventsOpen && (
-                  <div className="tn-dd">
-                    {item.sub.map((s) => (
-                      <Link
-                        key={s.to}
-                        href={s.to}
-                        className={pathname === s.to ? "active" : ""}
-                      >
-                        <i className={s.icon}></i>
-                        {s.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                key={item.to}
-                href={item.to}
-                className={`tn-link${isItemActive(item) ? " active" : ""}`}
-                onClick={item.hasBadge ? () => setNotificationCount(0) : undefined}
-              >
-                <i className={item.icon}></i>
-                {item.label}
-                {item.hasBadge && notificationCount > 0 && (
-                  <span
-                    style={{
-                      background: "#ef4444", color: "#fff",
-                      borderRadius: 8, padding: "1px 5px",
-                      fontSize: 9, fontWeight: 800,
-                    }}
-                  >
-                    {notificationCount}
-                  </span>
-                )}
-              </Link>
-            )
-          )}
+              )}
+            </Link>
+          ))}
         </nav>
 
         <div className="tn-right">
-          {/* Website link */}
-          <a
-            href="https://chooseyourtherapist.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="tn-icon-btn"
-            title="Go to Website"
-          >
-            <i className="feather-globe"></i>
+          <a href="https://chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-icon-btn" title="Go to Website">
+            <LanguageRoundedIcon />
           </a>
 
-          {/* Bell */}
-          <Link
-            href="/appointments"
-            className="tn-icon-btn"
-            onClick={() => setNotificationCount(0)}
-          >
-            <i className="feather-bell"></i>
-            {notificationCount > 0 && (
-              <span className="tn-notif-dot">{notificationCount}</span>
-            )}
+          <Link href="/appointments" className="tn-icon-btn" onClick={() => setNotificationCount(0)} title="Notifications">
+            <NotificationsRoundedIcon />
+            {notificationCount > 0 && <span className="tn-notif-dot">{notificationCount}</span>}
           </Link>
 
-          {/* Profile */}
           <div
             style={{ position: "relative", height: "100%", display: "flex", alignItems: "center" }}
             onMouseEnter={() => setProfileOpen(true)}
             onMouseLeave={() => setProfileOpen(false)}
           >
             <button className="tn-prof-btn">
-              <img src={avatarSrc} alt={therapistInfo?.user?.name || "Therapist"} className="tn-prof-av" />
+              <img src={avatarSrc} alt={therapistInfo?.user?.name || "Therapist"} className="tn-prof-av" onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }} />
               <span className="tn-prof-name">{therapistInfo?.user?.name || "Therapist"}</span>
-              <i className="feather-chevron-down tn-prof-chevron"></i>
+              <KeyboardArrowDownRoundedIcon className="tn-prof-chevron" />
             </button>
             {profileOpen && (
               <div className="tn-prof-dd">
                 <div className="tn-prof-dd-head">
-                  <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, margin: 0 }}>
-                    {therapistInfo?.user?.name}
-                  </p>
-                  <p style={{ color: "#4ade80", fontSize: 10.5, margin: "2px 0 0", fontWeight: 500 }}>Therapist</p>
+                  <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, margin: 0 }}>{therapistInfo?.user?.name}</p>
+                  <p style={{ color: "#4ade80", fontSize: 10.5, margin: "2px 0 0", fontWeight: 600 }}>Therapist</p>
                 </div>
-                <Link href="/therapist-dashboard">
-                  <i className="feather-home"></i> Dashboard
-                </Link>
-                <Link href="/settings">
-                  <i className="feather-settings"></i> Edit Profile
-                </Link>
-                <Link href="/appointments">
-                  <i className="feather-calendar"></i> Appointments
-                </Link>
-                <button onClick={handleLogout} className="logout-btn">
-                  <i className="feather-log-out"></i> Logout
-                </button>
+                <Link href="/therapist-dashboard"><HomeRoundedIcon /> Dashboard</Link>
+                <Link href="/settings"><PersonRoundedIcon /> Edit Profile</Link>
+                <Link href="/appointments"><CalendarMonthRoundedIcon /> Appointments</Link>
+                <button onClick={handleLogout} className="logout-btn"><LogoutRoundedIcon /> Logout</button>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* ── Mobile bottom nav ─────────────────────────── */}
+      {/* ── Glass bottom nav ──────────────────────────── */}
       <div className="tn-mob-nav">
         {MOB_NAV.map((item) => (
           <Link
@@ -338,10 +302,8 @@ export default function DashboardTopNav() {
             className={`tn-mob-item${pathname === item.to ? " active" : ""}`}
             onClick={() => item.badge && setNotificationCount(0)}
           >
-            {item.badge && notificationCount > 0 && (
-              <span className="tn-mob-badge">{notificationCount}</span>
-            )}
-            <i className={item.icon}></i>
+            {item.badge && notificationCount > 0 && <span className="tn-mob-badge">{notificationCount}</span>}
+            <span className="tn-mob-ico"><item.Icon /></span>
             {item.label}
           </Link>
         ))}
