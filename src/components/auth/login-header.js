@@ -103,7 +103,11 @@ export default function LoginHeader() {
 
   return (
     <>
-      <style>{styles}</style>
+      {/* dangerouslySetInnerHTML, not a string child: React escapes text
+          children of <style> (' -> &#x27;, > -> &gt;) but browsers don't
+          un-escape inside <style>, so a string child hydration-mismatches
+          whenever the CSS contains quotes / child combinators. */}
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="login-banner">
         <SecurityIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
         <LoginIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
