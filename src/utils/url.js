@@ -152,6 +152,7 @@ export const GetFavriouteTherapistUrl = GetFavoriteTherapistUrl;
 export const GetFavriouteTherapistListUrl = GetFavoriteTherapistListUrl;
 export const BookTherapistUrl = `${apiUrl}/book-therapist`;
 export const BookTherapistUrlAnonymously = `${apiUrl}/book-therapist-anonymously`;
+export const BookedSlotsUrl = `${apiUrl}/booked-slots/`;
 export const sendGuestEmailOtpUrl = `${apiUrl}/send-guest-email-otp`;
 export const verifyGuestEmailOtpUrl = `${apiUrl}/verify-guest-email-otp`;
 export const pendingPaymentUrl = `${apiUrl}/get-payment`;

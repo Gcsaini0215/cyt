@@ -8,6 +8,7 @@ import { fetchData, postData } from "../../utils/actions";
 import {
   getTherapistProfile, imagePath, defaultProfile,
   ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, GetCouponsUrl,
+  BookedSlotsUrl,
 } from "../../utils/url";
 import { getValidServices } from "../../utils/helpers";
 import { getToken } from "../../utils/jwt";
@@ -174,6 +175,7 @@ export default function BookPage() {
   const [selSlot,  setSelSlot]  = React.useState(null);
   const [mode,     setMode]     = React.useState("video");
   const [avSlots,  setAvSlots]  = React.useState([]);
+  const [bookedSlots, setBookedSlots] = React.useState(() => new Set());
   const [bookFor,  setBookFor]  = React.useState("self");
   const [relation, setRelation] = React.useState("");
   const [age,      setAge]      = React.useState("");
@@ -221,6 +223,23 @@ export default function BookPage() {
     fetchData(GetCouponsUrl).then(r => {
       if (r?.status) setCoupons((r.data || []).filter(c => c.status));
     }).catch(() => {});
+  }, []);
+
+  // Slots already taken for this therapist — refreshed whenever the user
+  // lands on the date step so the picker stays reasonably current.
+  React.useEffect(() => {
+    if (!id) return;
+    fetchData(BookedSlotsUrl + id)
+      .then(r => { if (r?.status && Array.isArray(r.data)) setBookedSlots(new Set(r.data)); })
+      .catch(() => {});
+  }, [id, step]);
+
+  const slotIso = React.useCallback((date, val) => {
+    if (!date || !val) return "";
+    const [h, m] = val.split(":").map(Number);
+    const d = new Date(date);
+    d.setHours(h, m, 0, 0);
+    return d.toISOString();
   }, []);
 
   React.useEffect(() => {
@@ -472,20 +491,25 @@ export default function BookPage() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {avSlots.map(s => {
                 const [h, m] = s.val.split(":").map(Number);
-                const past = isToday(selDate) && (h * 60 + m) <= nowMin;
-                const on   = selSlot?.val === s.val && !past;
+                const past   = isToday(selDate) && (h * 60 + m) <= nowMin;
+                const taken  = bookedSlots.has(slotIso(selDate, s.val));
+                const blocked = past || taken;
+                const on     = selSlot?.val === s.val && !blocked;
                 return (
-                  <div key={s.val} onClick={() => !past && setSelSlot(s)} style={{
+                  <div key={s.val} onClick={() => !blocked && setSelSlot(s)} style={{
                     padding: "10px 18px", borderRadius: 8,
-                    border: `1.5px solid ${on ? G : past ? "#f1f5f9" : "#e2e8f0"}`,
-                    background: on ? G : past ? "#f8fafc" : "#fff",
-                    color: on ? "#fff" : past ? "#cbd5e1" : "#132a1c",
+                    border: `1.5px solid ${on ? G : blocked ? "#f1f5f9" : "#e2e8f0"}`,
+                    background: on ? G : blocked ? "#f8fafc" : "#fff",
+                    color: on ? "#fff" : blocked ? "#cbd5e1" : "#132a1c",
                     fontSize: 14, fontWeight: 700,
-                    cursor: past ? "not-allowed" : "pointer",
+                    cursor: blocked ? "not-allowed" : "pointer",
                     textDecoration: past ? "line-through" : "none",
                     transition: "all .15s",
                   }}>
                     {s.label}
+                    {taken && !past && (
+                      <span style={{ display: "block", fontSize: 9, fontWeight: 700, color: "#94a3b8", marginTop: 1 }}>Booked</span>
+                    )}
                   </div>
                 );
               })}
