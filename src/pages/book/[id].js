@@ -315,7 +315,17 @@ export default function BookPage() {
   }
 
   function confirmBooking() {
-    // Guest users go directly to checkout — no OTP login required
+    // Hard gate: a guest cannot reach payment without verified contact details.
+    if (!isLoggedIn && !emailVerified) {
+      setStep(2);
+      setLErr("Please verify your email address to continue.");
+      return;
+    }
+    if (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10)) {
+      setStep(2);
+      setLErr("Please add your name and 10-digit WhatsApp number.");
+      return;
+    }
     doCheckout();
   }
 

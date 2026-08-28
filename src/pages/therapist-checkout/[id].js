@@ -7,7 +7,7 @@ import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile } from "../../utils/url";
 import useUserStore from "../../store/userStore";
-import { getToken, getDecodedToken } from "../../utils/jwt";
+import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
 
 const G  = "#1a5c38";
 const GL = "#228756";
@@ -19,7 +19,25 @@ const MONS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov",
 function fmtDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);
-  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONS[d.getMonth()]} · ${d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })} IST`;
+  if (isNaN(d.getTime())) return "";
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONS[d.getMonth()]} · ${d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })} IST`;
+}
+
+// Razorpay's checkout.js is loaded async — wait for window.Razorpay before use.
+function waitForRazorpay(timeout = 12000) {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== "undefined" && window.Razorpay) return resolve();
+    const t0 = Date.now();
+    const iv = setInterval(() => {
+      if (typeof window !== "undefined" && window.Razorpay) {
+        clearInterval(iv);
+        resolve();
+      } else if (Date.now() - t0 > timeout) {
+        clearInterval(iv);
+        reject(new Error("Payment library failed to load. Please check your connection and retry."));
+      }
+    }, 150);
+  });
 }
 
 export default function TherapistCheckoutPage() {
@@ -32,6 +50,7 @@ export default function TherapistCheckoutPage() {
   const [status,   setStatus]   = useState("init"); // init | booking | error | done
   const [err,      setErr]      = useState("");
   const bookedRef = useRef(false);
+  const bookingIdRef = useRef(null); // remember the created booking so retries don't re-book
 
   const token       = typeof window !== "undefined" ? getToken() : null;
   const isLoggedIn  = !!token;
@@ -128,11 +147,18 @@ export default function TherapistCheckoutPage() {
 
     console.log("[checkout] payload →", payload);
 
+    // Already created this booking on a previous attempt — reuse it, don't re-book.
+    if (bookingIdRef.current) {
+      await openRazorpay(bookingIdRef.current, Number(q.price || 0));
+      return;
+    }
+
     try {
       const res = await postData(BookTherapistUrl, payload);
       console.log("[checkout] bookTherapist response →", res);
 
       if (res?.status && res?.data?.id) {
+        bookingIdRef.current = res.data.id;
         await openRazorpay(res.data.id, Number(q.price || 0));
       } else {
         setErr(res?.message || "Booking failed. Please go back and try again.");
@@ -148,6 +174,13 @@ export default function TherapistCheckoutPage() {
 
   // ── Razorpay ─────────────────────────────────────────────────────────────
   async function openRazorpay(bookingId, amount) {
+    try {
+      await waitForRazorpay();
+    } catch (e) {
+      setErr(e.message || "Payment library failed to load. Please retry.");
+      setStatus("error");
+      return;
+    }
     try {
       const orderRes = await fetch("/api/create-razorpay-order", {
         method:  "POST",
@@ -185,6 +218,12 @@ export default function TherapistCheckoutPage() {
             );
             const vd = await verifyRes.json();
             if (vd.status) {
+              // Backend hands back a session token so a guest becomes a
+              // logged-in user — persist it so the success page (and
+              // "My Bookings") can actually load this booking.
+              if (vd.token && !getToken()) {
+                setToken(vd.token);
+              }
               setStatus("done");
               router.replace(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
             } else {

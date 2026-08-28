@@ -11,17 +11,18 @@ const G  = "#1a5c38";
 const GL = "#228756";
 const GB = "#f0fdf4";
 
-const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const MONS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 function fmtDate(iso) {
   if (!iso) return null;
   const d = new Date(iso);
-  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONS[d.getMonth()]} ${d.getFullYear()}`;
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
 }
 function fmtTime(iso) {
   if (!iso) return null;
-  return new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" });
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" });
 }
 
 export default function PaymentSuccessPage() {
