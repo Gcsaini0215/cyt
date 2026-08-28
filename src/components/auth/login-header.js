@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Container, useMediaQuery } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Container } from "@mui/material";
 import LoginIcon from "@mui/icons-material/Login";
 import SecurityIcon from "@mui/icons-material/Security";
 import { TypeAnimation } from "react-type-animation";
@@ -95,7 +95,11 @@ const styles = `
 `;
 
 export default function LoginHeader() {
-  const isMobile = useMediaQuery("(max-width:768px)");
+  // TypeAnimation renders different text on the server vs. the client (it starts
+  // animating immediately), which caused a hydration mismatch. Render a stable
+  // static string for SSR + first client paint, then swap in the animation.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <>
@@ -114,19 +118,23 @@ export default function LoginHeader() {
             <h1 className="login-title">
               Welcome Back to{" "}
               <span className="login-animated-text">
-                <TypeAnimation
-                  sequence={[
-                    "Your Safe Space",
-                    2000,
-                    "Better Well-being",
-                    2000,
-                    "Choose Your Therapist",
-                    2000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
+                {mounted ? (
+                  <TypeAnimation
+                    sequence={[
+                      "Your Safe Space",
+                      2000,
+                      "Better Well-being",
+                      2000,
+                      "Choose Your Therapist",
+                      2000,
+                    ]}
+                    wrapper="span"
+                    speed={50}
+                    repeat={Infinity}
+                  />
+                ) : (
+                  <span>Your Safe Space</span>
+                )}
               </span>
             </h1>
 
