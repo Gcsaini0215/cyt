@@ -197,56 +197,50 @@ export default function DashboardTopNav() {
         .tn-prof-dd .logout-btn { color: #fca5a5; }
         .tn-prof-dd .logout-btn:hover { background: rgba(248,113,113,0.12); color: #fca5a5; }
 
-        /* ── Floating "Blinkit-style" glass bottom nav ─── */
+        /* ── Floating app-style bottom nav (solid white) ── */
         .tn-mob-nav { display: none; }
         @media(max-width: 960px) {
           .tn-nav { display: none; }
           .tn-title-text { display: none; }
           .tn-mob-nav {
             display: flex; position: fixed; z-index: 1200;
-            left: 14px; right: 14px; max-width: 460px; margin: 0 auto;
+            left: 16px; right: 16px; max-width: 440px; margin: 0 auto;
             bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-            padding: 9px 8px;
+            padding: 8px 6px;
             gap: 2px;
-            background: rgba(11, 47, 28, 0.82);
-            -webkit-backdrop-filter: blur(22px) saturate(180%);
-            backdrop-filter: blur(22px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.14);
-            border-radius: 26px;
-            box-shadow: 0 14px 36px rgba(4,22,14,0.5), 0 3px 10px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.09);
-            transform: translateY(calc(100% + 30px));
+            background: #ffffff;
+            border: 1px solid rgba(15,61,36,0.08);
+            border-radius: 22px;
+            box-shadow: 0 10px 34px rgba(4,22,14,0.16), 0 2px 8px rgba(4,22,14,0.08);
+            transform: translateY(calc(100% + 28px));
             opacity: 0;
             pointer-events: none;
-            transition: transform .34s cubic-bezier(.4,0,.2,1), opacity .28s ease;
+            transition: transform .34s cubic-bezier(.4,0,.2,1), opacity .26s ease;
           }
           .tn-mob-nav.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
-          @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-            .tn-mob-nav { background: rgba(11, 47, 28, 0.97); }
-          }
           .tn-mob-item {
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
-            text-decoration: none; color: rgba(255,255,255,0.62);
-            font-size: 10px; font-weight: 700; letter-spacing: 0.2px;
-            padding: 2px 0; position: relative;
+            text-decoration: none; color: #64748b;
+            font-size: 10.5px; font-weight: 700; letter-spacing: 0.1px;
+            padding: 3px 0; position: relative;
             transition: color 0.16s;
           }
           .tn-mob-ico {
-            width: 46px; height: 30px; border-radius: 999px;
+            width: 48px; height: 30px; border-radius: 999px;
             display: grid; place-items: center;
-            transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+            transition: background 0.18s, transform 0.18s;
           }
-          .tn-mob-ico svg { font-size: 22px; }
-          .tn-mob-item.active { color: #bbf7d0; }
+          .tn-mob-ico svg { font-size: 23px; }
+          .tn-mob-item.active { color: #166534; }
           .tn-mob-item.active .tn-mob-ico {
-            background: linear-gradient(135deg, rgba(74,222,128,0.3), rgba(34,197,94,0.14));
-            box-shadow: inset 0 0 0 1px rgba(134,239,172,0.4), 0 6px 18px rgba(34,197,94,0.32);
+            background: #e7f6ec;
             transform: translateY(-1px);
           }
           .tn-mob-badge {
-            position: absolute; top: -3px; right: calc(50% - 24px);
+            position: absolute; top: -2px; right: calc(50% - 25px);
             background: #ef4444; color: #fff; border-radius: 8px;
             padding: 1px 5px; font-size: 9px; font-weight: 800;
-            border: 1.5px solid rgba(11,47,28,0.95);
+            border: 2px solid #fff;
           }
         }
       `,
