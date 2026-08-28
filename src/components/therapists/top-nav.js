@@ -7,10 +7,10 @@ import { defaultProfile, imagePath, getBookings } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import { toast } from "react-toastify";
 
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
-import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
-import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
+import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
+import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
+import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -19,15 +19,15 @@ import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 const logo1 = "/cyt-emblem.png";
 
 const NAV = [
-  { to: "/therapist-dashboard", label: "Dashboard", Icon: HomeRoundedIcon },
-  { to: "/appointments", label: "Appointments", Icon: CalendarMonthRoundedIcon, hasBadge: true },
-  { to: "/settings", label: "Settings", Icon: SettingsRoundedIcon },
+  { to: "/therapist-dashboard", label: "Dashboard", Icon: MonitorHeartRoundedIcon },
+  { to: "/appointments", label: "Appointments", Icon: EventAvailableRoundedIcon, hasBadge: true },
+  { to: "/settings", label: "Settings", Icon: ManageAccountsRoundedIcon },
 ];
 
 const MOB_NAV = [
-  { to: "/therapist-dashboard", Icon: HomeRoundedIcon, label: "Home" },
-  { to: "/appointments", Icon: CalendarMonthRoundedIcon, label: "Appointments", badge: true },
-  { to: "/settings", Icon: SettingsRoundedIcon, label: "Settings" },
+  { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Home" },
+  { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badge: true },
+  { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
 ];
 
 export default function DashboardTopNav() {
@@ -37,6 +37,23 @@ export default function DashboardTopNav() {
   const pathname = router.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
   const prevBookingsCount = useRef(null);
+
+  // Blinkit-style floating bottom bar: tucked away at the top of the page,
+  // slides up into view once the user scrolls down; hides again near the top.
+  const [showMobNav, setShowMobNav] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY || 0;
+      if (y < 40) setShowMobNav(false);
+      else if (y > lastScrollY.current + 2) setShowMobNav(true); // scrolling down
+      lastScrollY.current = y;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     fetchTherapistInfo();
@@ -180,49 +197,56 @@ export default function DashboardTopNav() {
         .tn-prof-dd .logout-btn { color: #fca5a5; }
         .tn-prof-dd .logout-btn:hover { background: rgba(248,113,113,0.12); color: #fca5a5; }
 
-        /* ── Glass bottom nav (mobile / tablet) ───────── */
+        /* ── Floating "Blinkit-style" glass bottom nav ─── */
         .tn-mob-nav { display: none; }
         @media(max-width: 960px) {
           .tn-nav { display: none; }
           .tn-title-text { display: none; }
           .tn-mob-nav {
-            display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-            z-index: 1200;
-            padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
-            gap: 4px;
-            background: rgba(11, 47, 28, 0.72);
-            -webkit-backdrop-filter: blur(18px) saturate(180%);
-            backdrop-filter: blur(18px) saturate(180%);
-            border-top: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 -8px 30px rgba(4,22,14,0.35);
+            display: flex; position: fixed; z-index: 1200;
+            left: 14px; right: 14px; max-width: 460px; margin: 0 auto;
+            bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+            padding: 9px 8px;
+            gap: 2px;
+            background: rgba(11, 47, 28, 0.82);
+            -webkit-backdrop-filter: blur(22px) saturate(180%);
+            backdrop-filter: blur(22px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 26px;
+            box-shadow: 0 14px 36px rgba(4,22,14,0.5), 0 3px 10px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.09);
+            transform: translateY(calc(100% + 30px));
+            opacity: 0;
+            pointer-events: none;
+            transition: transform .34s cubic-bezier(.4,0,.2,1), opacity .28s ease;
           }
+          .tn-mob-nav.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
           @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-            .tn-mob-nav { background: rgba(11, 47, 28, 0.96); }
+            .tn-mob-nav { background: rgba(11, 47, 28, 0.97); }
           }
           .tn-mob-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
-            text-decoration: none; color: rgba(255,255,255,0.6);
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+            text-decoration: none; color: rgba(255,255,255,0.62);
             font-size: 10px; font-weight: 700; letter-spacing: 0.2px;
             padding: 2px 0; position: relative;
             transition: color 0.16s;
           }
           .tn-mob-ico {
-            width: 40px; height: 26px; border-radius: 9px;
+            width: 46px; height: 30px; border-radius: 999px;
             display: grid; place-items: center;
-            transition: background 0.16s, box-shadow 0.16s, transform 0.16s;
+            transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
           }
-          .tn-mob-ico svg { font-size: 21px; }
+          .tn-mob-ico svg { font-size: 22px; }
           .tn-mob-item.active { color: #bbf7d0; }
           .tn-mob-item.active .tn-mob-ico {
-            background: linear-gradient(135deg, rgba(74,222,128,0.26), rgba(34,197,94,0.12));
-            box-shadow: inset 0 0 0 1px rgba(134,239,172,0.35), 0 6px 16px rgba(34,197,94,0.28);
+            background: linear-gradient(135deg, rgba(74,222,128,0.3), rgba(34,197,94,0.14));
+            box-shadow: inset 0 0 0 1px rgba(134,239,172,0.4), 0 6px 18px rgba(34,197,94,0.32);
             transform: translateY(-1px);
           }
           .tn-mob-badge {
-            position: absolute; top: -2px; right: calc(50% - 22px);
+            position: absolute; top: -3px; right: calc(50% - 24px);
             background: #ef4444; color: #fff; border-radius: 8px;
             padding: 1px 5px; font-size: 9px; font-weight: 800;
-            border: 1.5px solid rgba(11,47,28,0.9);
+            border: 1.5px solid rgba(11,47,28,0.95);
           }
         }
       `,
@@ -263,7 +287,7 @@ export default function DashboardTopNav() {
           </a>
 
           <Link href="/appointments" className="tn-icon-btn" onClick={() => setNotificationCount(0)} title="Notifications">
-            <NotificationsRoundedIcon />
+            <NotificationsActiveRoundedIcon />
             {notificationCount > 0 && <span className="tn-notif-dot">{notificationCount}</span>}
           </Link>
 
@@ -283,9 +307,9 @@ export default function DashboardTopNav() {
                   <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, margin: 0 }}>{therapistInfo?.user?.name}</p>
                   <p style={{ color: "#4ade80", fontSize: 10.5, margin: "2px 0 0", fontWeight: 600 }}>Therapist</p>
                 </div>
-                <Link href="/therapist-dashboard"><HomeRoundedIcon /> Dashboard</Link>
+                <Link href="/therapist-dashboard"><MonitorHeartRoundedIcon /> Dashboard</Link>
                 <Link href="/settings"><PersonRoundedIcon /> Edit Profile</Link>
-                <Link href="/appointments"><CalendarMonthRoundedIcon /> Appointments</Link>
+                <Link href="/appointments"><EventAvailableRoundedIcon /> Appointments</Link>
                 <button onClick={handleLogout} className="logout-btn"><LogoutRoundedIcon /> Logout</button>
               </div>
             )}
@@ -293,8 +317,8 @@ export default function DashboardTopNav() {
         </div>
       </div>
 
-      {/* ── Glass bottom nav ──────────────────────────── */}
-      <div className="tn-mob-nav">
+      {/* ── Floating glass bottom nav (reveals on scroll) ── */}
+      <div className={`tn-mob-nav${showMobNav ? " show" : ""}`}>
         {MOB_NAV.map((item) => (
           <Link
             key={item.to}

@@ -3,20 +3,20 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useTherapistStore from "../../store/therapistStore";
 
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
-import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
-import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
+import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
+import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
 
 const NAV_ITEMS = [
-  { to: "/therapist-dashboard", Icon: HomeRoundedIcon, label: "Dashboard" },
-  { to: "/appointments", Icon: CalendarMonthRoundedIcon, label: "Appointments", hasBadge: true },
+  { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
+  { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", hasBadge: true },
   { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices" },
   { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews" },
-  { to: "/therapists/notifications", Icon: NotificationsRoundedIcon, label: "Notifications" },
-  { to: "/settings", Icon: SettingsRoundedIcon, label: "Settings" },
+  { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications" },
+  { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
 ];
 
 export default function TherapistSideNav() {
