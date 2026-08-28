@@ -6,6 +6,7 @@ import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
 import { isValidMail, sanitizeOtp } from "../utils/validators";
+import { apiErrorMessage } from "../utils/api-error";
 import { loginUrl, verifyOtpUrl } from "../utils/url";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Box } from "@mui/material";
@@ -94,19 +95,8 @@ export default function Login() {
         captchaRef.current?.refresh();
       }
     } catch (err) {
-      if (err.response?.status === 429) {
-        setError(
-          err.response?.data?.message ||
-            "Too many requests. Please wait before trying again."
-        );
-        setCooldown(RESEND_COOLDOWN);
-      } else {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "Something went wrong. Please try again."
-        );
-      }
+      if (err.response?.status === 429) setCooldown(RESEND_COOLDOWN);
+      setError(apiErrorMessage(err, "Unable to send OTP. Please try again."));
       captchaRef.current?.refresh();
     } finally {
       setLoading(false);
@@ -152,11 +142,7 @@ export default function Login() {
       }
     } catch (err) {
       setSuccess("");
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Something went wrong. Please try again."
-      );
+      setError(apiErrorMessage(err, "Couldn't verify the OTP. Please try again."));
     } finally {
       setLoading(false);
       submittingRef.current = false;
