@@ -65,7 +65,8 @@ function TherapistCard({ t, className = "", style }) {
 export default function Banner({ topTherapists = [], userCity = null }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.between("sm", "md"));
-  const isDesktop = useMediaQuery((theme) => theme.breakpoints.up("lg"));
+  // desktop = the fanned layout; also fires on iPad landscape (>=1024)
+  const isDesktop = useMediaQuery("(min-width:1024px)");
 
   const ranked = [...topTherapists].sort(
     (a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0)
@@ -293,12 +294,33 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         .cyt-swiper .swiper-slide .cyt-tcard { max-width: none; }
         .cyt-swiper .swiper-slide:not(.swiper-slide-active) { opacity: 0.72; }
 
-        /* ── fan (desktop) ── */
-        @media (min-width: 1200px) {
-          .cyt-hero-inner { flex-direction: row; align-items: center; gap: 30px; }
-          .cyt-hero-copy { flex: 0 0 58%; max-width: none; }
-          .cyt-hero-visual { flex: 1; min-height: 460px; justify-content: flex-end; }
-          .cyt-hero-visual::before { left: auto; right: 0; transform: none; top: -10px; width: 470px; height: 470px; }
+        /* ── fan (desktop + iPad landscape) ── */
+        @media (min-width: 1024px) {
+          .cyt-hero-inner { flex-direction: row; align-items: center; gap: 26px; }
+          .cyt-hero-copy { flex: 0 0 52%; max-width: none; }
+          .cyt-hero-visual { flex: 1; min-height: 420px; justify-content: flex-end; }
+          .cyt-hero-visual::before { left: auto; right: 0; transform: none; top: -6px; width: 400px; height: 400px; }
+          .cyt-fan { width: 408px; height: 372px; }
+          .cyt-fan-card { width: 192px; max-width: 192px; }
+          .cyt-fan-1 { left: 0; }
+          .cyt-fan-2 { left: 108px; }
+          .cyt-fan-3 { left: 216px; }
+        }
+        /* iPad landscape / small desktop: trim the headline so it fits beside the fan */
+        @media (min-width: 1024px) and (max-width: 1299px) {
+          .cyt-hero .title { font-size: clamp(2.2rem, 4vw, 3rem) !important; }
+        }
+        /* roomier fan on real desktop widths */
+        @media (min-width: 1300px) {
+          .cyt-hero-inner { gap: 30px; }
+          .cyt-hero-copy { flex: 0 0 56%; }
+          .cyt-hero-visual { min-height: 460px; }
+          .cyt-hero-visual::before { top: -10px; width: 470px; height: 470px; }
+          .cyt-fan { width: 486px; height: 404px; }
+          .cyt-fan-card { width: 220px; max-width: 220px; }
+          .cyt-fan-1 { left: 0; }
+          .cyt-fan-2 { left: 133px; }
+          .cyt-fan-3 { left: 266px; }
         }
         .cyt-fan-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
         .cyt-fan {
