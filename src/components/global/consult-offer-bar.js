@@ -60,8 +60,8 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         .cob-card {
           position: relative;
           width: 100%;
-          background: #0f3d24;
-          border-top: 3px solid #c9962c;
+          background: linear-gradient(135deg, #238a5b 0%, #155f3d 100%);
+          border-top: 1px solid rgba(255,255,255,0.14);
           box-shadow: 0 -10px 30px rgba(15,61,36,0.4);
         }
         /* Bleeds solid colour below the visible edge so iOS/Android elastic
@@ -71,7 +71,7 @@ export default function ConsultOfferBar({ delay = 3000 }) {
           position: absolute;
           left: 0; right: 0; top: 100%;
           height: 100px;
-          background: #0f3d24;
+          background: #155f3d;
           pointer-events: none;
         }
         .cob-inner {
@@ -89,35 +89,36 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         .cob-eyebrow {
           display: flex; align-items: center; gap: 7px;
           margin: 0 0 3px; font-size: 10px; font-weight: 800;
-          letter-spacing: 1.4px; text-transform: uppercase; color: #c9962c;
+          letter-spacing: 1.4px; text-transform: uppercase; color: #bfe8cf;
         }
-        .cob-eyebrow::before { content: ""; width: 14px; height: 1px; background: #c9962c; display: inline-block; }
+        .cob-eyebrow::before { content: ""; width: 14px; height: 1px; background: rgba(191,232,207,0.6); display: inline-block; }
         .cob-title {
           margin: 0; color: #fff; font-weight: 700; font-size: 14.5px;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
           display: flex; align-items: baseline; gap: 9px;
-          font-family: Georgia, "Times New Roman", serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
         .cob-title-short { display: none; }
-        .cob-price-old { color: rgba(255,255,255,0.45); text-decoration: line-through; font-weight: 600; font-size: 12.5px; flex-shrink: 0; font-family: -apple-system, sans-serif; }
-        .cob-price-new { color: #6ee7a8; font-weight: 800; font-size: 16px; flex-shrink: 0; font-family: -apple-system, sans-serif; }
-        .cob-sub { margin: 3px 0 0; color: rgba(255,255,255,0.6); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cob-price-old { color: rgba(255,255,255,0.5); text-decoration: line-through; font-weight: 600; font-size: 12.5px; flex-shrink: 0; font-family: -apple-system, sans-serif; }
+        .cob-price-new { color: #fff; font-weight: 800; font-size: 16px; flex-shrink: 0; font-family: -apple-system, sans-serif; }
+        .cob-sub { margin: 3px 0 0; color: rgba(255,255,255,0.72); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cob-cta {
           order: 2;
           background: #fff;
-          color: #0f3d24; border: none;
-          padding: 11px 22px; border-radius: 4px;
-          font-size: 13.5px; font-weight: 700; cursor: pointer;
+          color: #146b43; border: none;
+          padding: 12px 26px; border-radius: 999px;
+          font-size: 13.5px; font-weight: 800; cursor: pointer;
           white-space: nowrap; flex-shrink: 0;
           display: inline-flex; align-items: center; gap: 7px;
-          transition: background 0.18s, transform 0.18s;
+          box-shadow: 0 6px 18px -6px rgba(0,0,0,0.35);
+          transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
         }
-        .cob-cta:hover { background: #eef6f0; transform: translateY(-1px); }
+        .cob-cta:hover { background: #f1faf4; transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.4); }
         .cob-cta:active { transform: translateY(0); }
         .cob-close {
           order: 3;
-          background: rgba(255,255,255,0.08); border: none; cursor: pointer;
-          color: rgba(255,255,255,0.55); padding: 8px; border-radius: 4px;
+          background: rgba(255,255,255,0.12); border: none; cursor: pointer;
+          color: rgba(255,255,255,0.7); padding: 8px; border-radius: 999px;
           display: flex; align-items: center; line-height: 1; flex-shrink: 0;
           transition: background 0.15s, color 0.15s;
         }

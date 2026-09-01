@@ -691,6 +691,33 @@ export default function App() {
         }
         @media (max-width: 991px) { .rbt-header.rbt-header-10 { top: 0; } }
 
+        /* ── Floating rounded-card header (desktop only) ─────────────── */
+        @media (min-width: 992px) {
+          .rbt-header.rbt-header-10 {
+            top: calc(${GREEN_STRIP_HEIGHT}px + 12px);
+            background: transparent;
+            box-shadow: none;
+            border-bottom: none;
+            padding: 0 22px;
+          }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper {
+            background: #fff !important;
+            border: 1px solid #e7efe9 !important;
+            border-radius: 18px !important;
+            box-shadow: 0 18px 44px -18px rgba(15,61,36,.26), 0 4px 14px rgba(15,61,36,.06) !important;
+          }
+          .rbt-header.rbt-header-10.header-sticky .rbt-header-wrapper {
+            box-shadow: 0 14px 34px -16px rgba(15,61,36,.32), 0 3px 12px rgba(15,61,36,.08) !important;
+          }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper > .container-fluid {
+            padding-left: 26px;
+            padding-right: 18px;
+          }
+        }
+        @media (min-width: 1400px) {
+          .rbt-header.rbt-header-10 { padding: 0 max(22px, calc((100vw - 1360px) / 2)); }
+        }
+
         /* ── Nav link accents (academic green) ────────── */
         .mainmenu-nav .mainmenu > li > a { color: #132a1c !important; font-weight: 600 !important; }
         .mainmenu-nav .mainmenu > li > a:hover,
