@@ -699,6 +699,9 @@ export default function App() {
             box-shadow: none;
             border-bottom: none;
             padding: 0 22px;
+            /* float over the page — don't reserve flow space, so every page's
+               first section (its banner / hero) runs up behind the card */
+            margin-bottom: -86px;
           }
           .rbt-header.rbt-header-10 .rbt-header-wrapper {
             background: #fff !important;
@@ -713,6 +716,22 @@ export default function App() {
             padding-left: 26px;
             padding-right: 18px;
           }
+
+          /* The header no longer reserves space, so page banners already flow
+             up behind it. Give their content enough top room to clear the
+             floating card. (Banners with big top padding — e.g. For Business
+             at 140px — already clear it and need no rule.) */
+          .login-banner,
+          .sa-banner,
+          .contact-banner,
+          .reg-client-banner,
+          section.tb-banner,
+          div.ab-section,
+          .vat-banner {
+            padding-top: 130px !important;
+          }
+          .plans-banner { padding-top: 106px !important; }
+          .rbt-breadcrumb-default { padding-top: 178px !important; }
         }
         @media (min-width: 1400px) {
           .rbt-header.rbt-header-10 { padding: 0 max(22px, calc((100vw - 1360px) / 2)); }

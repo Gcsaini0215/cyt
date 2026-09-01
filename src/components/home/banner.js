@@ -217,13 +217,14 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         }
         @media (max-width: 600px) { .cyt-hero.rbt-banner-1 { padding-top: 14px; } }
 
-        /* Desktop: pull the hero (and its background image) up so it fills the
-           space behind the green strip + the floating-card navbar. The nav's
-           card sits over the image; content is padded clear of it. */
+        /* Desktop: the floating navbar no longer reserves space, so the hero
+           already starts just under the green strip and its background image
+           runs up behind the card. Pull up 35px more to also fill behind the
+           strip; pad the content clear of the floating card. */
         @media (min-width: 992px) {
           .cyt-hero {
-            margin-top: calc(-1 * (35px + 98px));
-            padding-top: calc(35px + 98px + 26px);
+            margin-top: -35px;
+            padding-top: calc(35px + 86px + 26px);
           }
         }
 
