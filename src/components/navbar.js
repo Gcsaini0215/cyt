@@ -698,10 +698,7 @@ export default function App() {
             background: transparent;
             box-shadow: none;
             border-bottom: none;
-            padding: 0 22px;
-            /* float over the page — don't reserve flow space, so every page's
-               first section (its banner / hero) runs up behind the card */
-            margin-bottom: -86px;
+            padding: 0 12px;
           }
           .rbt-header.rbt-header-10 .rbt-header-wrapper {
             background: #fff !important;
@@ -713,14 +710,32 @@ export default function App() {
             box-shadow: 0 14px 34px -16px rgba(15,61,36,.32), 0 3px 12px rgba(15,61,36,.08) !important;
           }
           .rbt-header.rbt-header-10 .rbt-header-wrapper > .container-fluid {
-            padding-left: 26px;
-            padding-right: 18px;
+            padding-left: 16px;
+            padding-right: 16px;
           }
 
-          /* The header no longer reserves space, so page banners already flow
-             up behind it. Give their content enough top room to clear the
-             floating card. (Banners with big top padding — e.g. For Business
-             at 140px — already clear it and need no rule.) */
+          /* ── never let the header's contents overlap — at any width or
+                browser zoom. Only horizontal spacing is touched; the row's
+                vertical rhythm is left exactly as the theme sets it. ── */
+          .rbt-header.rbt-header-10 .mainbar-row { flex-wrap: nowrap; gap: 12px; }
+          .rbt-header.rbt-header-10 .header-left,
+          .rbt-header.rbt-header-10 .header-right { flex: 0 0 auto; }
+          .rbt-header.rbt-header-10 .rbt-main-navigation {
+            flex: 1 1 auto; min-width: 0; margin-left: 10px !important; margin-right: 10px !important;
+          }
+          .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu {
+            display: flex; align-items: center; flex-wrap: nowrap;
+            gap: clamp(4px, 0.9vw, 20px);
+          }
+          .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu > li { margin: 0 !important; }
+          .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu > li > a {
+            padding-left: 0 !important; padding-right: 0 !important; white-space: nowrap;
+          }
+
+          /* page banners run up behind the floating card — zoom-safe: a fixed
+             over-pull past any possible header height, with a matching pad, so
+             the gap under the card stays constant at every zoom level. */
+          .cyt-hero,
           .login-banner,
           .sa-banner,
           .contact-banner,
@@ -728,13 +743,12 @@ export default function App() {
           section.tb-banner,
           div.ab-section,
           .vat-banner {
-            padding-top: 130px !important;
+            margin-top: -200px !important;
+            padding-top: 228px !important;
           }
-          .plans-banner { padding-top: 106px !important; }
-          .rbt-breadcrumb-default { padding-top: 178px !important; }
         }
-        @media (min-width: 1400px) {
-          .rbt-header.rbt-header-10 { padding: 0 max(22px, calc((100vw - 1360px) / 2)); }
+        @media (min-width: 1440px) {
+          .rbt-header.rbt-header-10 { padding: 0 max(12px, calc((100vw - 1380px) / 2)); }
         }
 
         /* ── Nav link accents (academic green) ────────── */

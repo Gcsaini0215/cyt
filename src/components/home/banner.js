@@ -217,16 +217,9 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         }
         @media (max-width: 600px) { .cyt-hero.rbt-banner-1 { padding-top: 14px; } }
 
-        /* Desktop: the floating navbar no longer reserves space, so the hero
-           already starts just under the green strip and its background image
-           runs up behind the card. Pull up 35px more to also fill behind the
-           strip; pad the content clear of the floating card. */
-        @media (min-width: 992px) {
-          .cyt-hero {
-            margin-top: -35px;
-            padding-top: calc(35px + 86px + 26px);
-          }
-        }
+        /* Desktop: the hero runs up behind the floating navbar. The zoom-safe
+           over-pull + matching top padding live in navbar.js so every page's
+           banner gets the same treatment consistently. */
 
         .cyt-hero-inner {
           position: relative;
