@@ -741,7 +741,7 @@ export default function App() {
           .contact-banner,
           .reg-client-banner,
           section.tb-banner,
-          div.ab-section,
+          section.ab-section,
           .vat-banner {
             margin-top: -200px !important;
             padding-top: 228px !important;
