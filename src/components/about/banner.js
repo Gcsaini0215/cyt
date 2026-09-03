@@ -1,66 +1,79 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 /**
- * About-Us hero — "Strip Divider".
- * Copy on warm paper up top, a thin full-bleed band of verified-therapist
- * faces slicing across the middle, and the proof stats sitting below it.
- * Keeps the `ab-section` class so navbar.js runs it up behind the floating
- * desktop navbar.
+ * About-Us hero — "Soft Organic".
+ * A calm sage field with rounded blob shapes, the founder's portrait tucked
+ * into an arch, and a serif headline. Keeps the `ab-section` class so
+ * navbar.js runs it up behind the floating desktop navbar.
  */
-const API =
-  "https://api.chooseyourtherapist.in/api/get-therapists-profile?pageSize=60";
-const IMG_BASE = "https://api.chooseyourtherapist.in/uploads/images/";
-const STRIP_COUNT = 16;
-
-const STATS = [
-  ["10k+", "Sessions"],
-  ["50+", "Experts"],
-  ["4.9★", "Rating"],
-  ["4+", "Cities"],
-];
+const DEEPAK_IMG = "/assets/img/deepdirec.png";
 
 const bannerStyles = `
   *, *::before, *::after { box-sizing: border-box; }
 
-  @keyframes _sd_up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes _so_up  { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes _so_pop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
 
   .ab-section {
     position: relative;
-    min-height: 86vh;
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
-    background: #f4f6ee;
-    color: #10231a;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  }
-
-  .ab-top {
-    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background: #eef2e6;
+    color: #1f3320;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .ab-section::before {
+    content: "";
+    position: absolute;
+    width: 560px; height: 560px;
+    border-radius: 50%;
+    background: #dcebd6;
+    right: -170px; top: -190px;
+    pointer-events: none;
+  }
+  .ab-section::after {
+    content: "";
+    position: absolute;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: #e4efde;
+    left: -150px; bottom: -170px;
+    pointer-events: none;
+  }
+  @media (min-width: 992px) {
+    .ab-section { min-height: 84vh; }
+  }
+
+  .ab-wrap {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 1180px;
     margin: 0 auto;
-    padding: 40px clamp(22px, 5vw, 80px) 46px;
+    padding: 56px clamp(22px, 5vw, 72px) 72px;
+    display: grid;
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: clamp(28px, 5vw, 60px);
+    align-items: center;
   }
 
   .ab-kicker {
     font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #1f7a4d;
+    color: #3c7a4a;
     margin: 0 0 18px;
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    animation: _sd_up .55s cubic-bezier(.22, 1, .36, 1) both;
+    animation: _so_up .55s cubic-bezier(.22, 1, .36, 1) both;
   }
   .ab-kicker::before {
     content: "";
-    width: 30px;
+    width: 28px;
     height: 2px;
     background: #c0962f;
     display: inline-block;
@@ -68,155 +81,121 @@ const bannerStyles = `
 
   .ab-h1 {
     margin: 0;
-    font-weight: 800;
-    line-height: 1.09;
-    letter-spacing: -0.012em;
-    font-size: clamp(2rem, 4.8vw, 3.6rem);
-    color: #10231a;
-    max-width: 20ch;
-    animation: _sd_up .55s cubic-bezier(.22, 1, .36, 1) .05s both;
-  }
-  .ab-h1 .ab-accent { color: #1f7a4d; }
-
-  .ab-sub {
-    margin: 16px 0 0;
-    max-width: 54ch;
-    font-size: clamp(0.95rem, 1.1vw, 1.06rem);
-    line-height: 1.7;
-    font-weight: 500;
-    color: #40544a;
-    animation: _sd_up .55s cubic-bezier(.22, 1, .36, 1) .1s both;
-  }
-
-  .ab-strip {
-    display: flex;
-    overflow: hidden;
-    border-top: 1px solid #1f7a4d;
-    border-bottom: 1px solid #1f7a4d;
-    background: #10231a;
-  }
-  .ab-strip.is-empty {
-    height: 3px;
-    background: #1f7a4d;
-    border: 0;
-  }
-  .ab-strip img {
-    flex: 1 1 0;
-    min-width: 0;
-    height: clamp(92px, 11vw, 132px);
-    object-fit: cover;
-    object-position: top center;
-    filter: grayscale(0.55) sepia(0.22) hue-rotate(78deg) saturate(1.05) contrast(1.02);
-    opacity: 0.92;
-  }
-
-  .ab-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-  }
-  .ab-stat {
-    padding: clamp(20px, 3vw, 34px) 12px;
-    text-align: center;
-    border-right: 1px solid #dfe6d7;
-  }
-  .ab-stat:last-child { border-right: 0; }
-  .ab-stat-v {
     font-family: Georgia, 'Times New Roman', serif;
     font-weight: 600;
-    font-size: clamp(1.7rem, 3.4vw, 2.6rem);
-    color: #1f7a4d;
+    line-height: 1.12;
     letter-spacing: -0.01em;
-    line-height: 1;
+    font-size: clamp(2.1rem, 5vw, 3.7rem);
+    color: #1f3320;
+    max-width: 16ch;
+    animation: _so_up .55s cubic-bezier(.22, 1, .36, 1) .05s both;
   }
-  .ab-stat-l {
-    margin-top: 6px;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: #8a9a8e;
+  .ab-h1 .ab-accent { font-style: italic; color: #3c7a4a; }
+
+  .ab-sub {
+    margin: 20px 0 0;
+    max-width: 44ch;
+    font-size: clamp(0.95rem, 1.1vw, 1.06rem);
+    line-height: 1.72;
+    font-weight: 500;
+    color: #4c5b45;
+    animation: _so_up .55s cubic-bezier(.22, 1, .36, 1) .1s both;
   }
 
-  @media (max-width: 991px) {
-    .ab-section { min-height: 0; }
+  .ab-chips {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    animation: _so_up .55s cubic-bezier(.22, 1, .36, 1) .15s both;
   }
-  @media (max-width: 640px) {
-    .ab-top { padding: 34px 20px 38px; }
-    .ab-h1 { font-size: clamp(1.9rem, 8vw, 2.6rem); max-width: none; }
-    .ab-strip img { height: 84px; }
-    .ab-stats { grid-template-columns: repeat(2, 1fr); }
-    .ab-stat:nth-child(2n) { border-right: 0; }
-    .ab-stat:nth-child(1), .ab-stat:nth-child(2) { border-bottom: 1px solid #dfe6d7; }
+  .ab-chips span {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 999px;
+    background: #e2efdc;
+    border: 1px solid #cfe0c6;
+    color: #35603f;
+    white-space: nowrap;
+  }
+
+  .ab-portrait {
+    position: relative;
+    justify-self: center;
+    margin: 0;
+    width: min(330px, 82%);
+    aspect-ratio: 3 / 3.8;
+    border-radius: 1000px 1000px 30px 30px;
+    overflow: hidden;
+    border: 7px solid #fff;
+    box-shadow: 0 30px 60px -28px rgba(31, 51, 28, 0.42);
+    animation: _so_pop .6s cubic-bezier(.22, 1, .36, 1) .12s both;
+  }
+  .ab-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    filter: saturate(1.03) contrast(1.02);
+  }
+  .ab-portrait figcaption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 30px 16px 14px;
+    background: linear-gradient(180deg, transparent, rgba(20, 40, 22, 0.74));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  @media (max-width: 860px) {
+    .ab-wrap { grid-template-columns: 1fr; padding: 42px 20px 54px; }
+    .ab-h1 { max-width: none; }
+    .ab-portrait { width: min(280px, 72%); margin-top: 8px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .ab-kicker, .ab-h1, .ab-sub { animation: none; }
+    .ab-kicker, .ab-h1, .ab-sub, .ab-chips, .ab-portrait { animation: none; }
   }
 `;
 
 export default function AboutUsBanner() {
-  const [pics, setPics] = useState([]);
-
-  useEffect(() => {
-    let alive = true;
-    fetch(API)
-      .then((r) => r.json())
-      .then((json) => {
-        if (!alive) return;
-        const loaded = (json.data || [])
-          .map((t) => {
-            const pic = t.profile || (t.user && t.user.profile) || "";
-            return pic ? IMG_BASE + pic : null;
-          })
-          .filter(Boolean);
-        if (loaded.length) setPics(loaded);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  const strip = pics.length
-    ? Array.from({ length: STRIP_COUNT }, (_, i) => pics[i % pics.length])
-    : [];
-
   return (
     <>
-      {/* dangerouslySetInnerHTML: React escapes quotes in a text-node <style> on
-          the server but not the client, which trips a hydration mismatch. */}
+      {/* dangerouslySetInnerHTML: a text-node <style> escapes quotes differently
+          on server vs client and trips a hydration mismatch. */}
       <style dangerouslySetInnerHTML={{ __html: bannerStyles }} />
 
       <section className="ab-section">
-        <div className="ab-top">
-          <span className="ab-kicker">Our Story &amp; Vision</span>
+        <div className="ab-wrap">
+          <div className="ab-copy">
+            <span className="ab-kicker">Our Story &amp; Vision</span>
 
-          <h1 className="ab-h1">
-            Making Mental Health Support{" "}
-            <span className="ab-accent">Accessible to Every Indian</span>
-          </h1>
+            <h1 className="ab-h1">
+              Making Mental Health Support{" "}
+              <span className="ab-accent">Accessible to Every Indian</span>
+            </h1>
 
-          <p className="ab-sub">
-            At CYT, we believe mental health is a fundamental human right. We connect
-            individuals with verified psychologists across India for online and in-person therapy.
-          </p>
-        </div>
+            <p className="ab-sub">
+              At CYT, we believe mental health is a fundamental human right. We connect
+              individuals with verified psychologists across India for online and in-person therapy.
+            </p>
 
-        <div className={`ab-strip${strip.length ? "" : " is-empty"}`}>
-          {strip.map((src, i) => (
-            <img key={i} src={src} alt="" loading="lazy" />
-          ))}
-        </div>
-
-        <div className="ab-stats">
-          {STATS.map(([v, l]) => (
-            <div className="ab-stat" key={l}>
-              <div className="ab-stat-v">{v}</div>
-              <div className="ab-stat-l">{l}</div>
+            <div className="ab-chips">
+              <span>Founded 2020</span>
+              <span>MCA &amp; MSME registered</span>
+              <span>Noida &middot; Delhi NCR &middot; Online</span>
             </div>
-          ))}
+          </div>
+
+          <figure className="ab-portrait">
+            <img
+              src={DEEPAK_IMG}
+              alt="Dr. Deepak Kumar, Founder &amp; Director at Choose Your Therapist"
+            />
+            <figcaption>Dr. Deepak Kumar &mdash; Founder &amp; Director</figcaption>
+          </figure>
         </div>
       </section>
     </>
