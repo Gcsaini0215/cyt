@@ -62,9 +62,9 @@ const bannerStyles = `
   .ab-h1 {
     margin: 0;
     font-weight: 800;
-    line-height: 1.06;
-    letter-spacing: -0.012em;
-    font-size: clamp(2.15rem, 6.2vw, 5rem);
+    line-height: 1.04;
+    letter-spacing: -0.014em;
+    font-size: clamp(2.5rem, 7.4vw, 6rem);
     color: #eafff3;
     max-width: 15ch;
     animation: _ohb_up .6s cubic-bezier(.22, 1, .36, 1) .06s both;
@@ -73,8 +73,8 @@ const bannerStyles = `
   @supports ((-webkit-text-stroke: 1px #fff) or (text-stroke: 1px #fff)) {
     .ab-h1 .ab-stroke {
       color: transparent;
-      -webkit-text-stroke: 1.6px rgba(234, 255, 243, 0.92);
-      text-stroke: 1.6px rgba(234, 255, 243, 0.92);
+      -webkit-text-stroke: 2px rgba(234, 255, 243, 0.92);
+      text-stroke: 2px rgba(234, 255, 243, 0.92);
     }
   }
 
@@ -110,7 +110,7 @@ const bannerStyles = `
   }
   @media (max-width: 768px) {
     .ab-content { padding: 46px 20px 54px; }
-    .ab-h1 { font-size: clamp(2rem, 8.6vw, 3rem); max-width: none; }
+    .ab-h1 { font-size: clamp(2.35rem, 10vw, 3.6rem); max-width: none; }
     .ab-sub { font-size: 14px; margin-top: 22px; }
     .ab-kicker { margin-bottom: 18px; letter-spacing: 0.16em; }
     .ab-chips span { font-size: 11.5px; padding: 7px 13px; }
