@@ -1,213 +1,157 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
-const DEFAULT_PIC =
-  "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
-
+/**
+ * About-Us hero — "Outline Headline".
+ * A solid brand-green field. The first half of the headline is set in
+ * outline (stroked) type, the payoff phrase is filled — stark and confident.
+ * The section keeps the `ab-section` class so navbar.js runs it up behind
+ * the floating desktop navbar.
+ */
 const bannerStyles = `
   *, *::before, *::after { box-sizing: border-box; }
-  @keyframes _ab_fd      { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes _ab_pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.35)} 60%{box-shadow:0 0 0 12px rgba(74,222,128,0)} }
-  @keyframes _ab_shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
-  @keyframes _ab_scrollUp   { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-  @keyframes _ab_scrollDown { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-  .ab-col-up   { animation: _ab_scrollUp   60s linear infinite; }
-  .ab-col-down { animation: _ab_scrollDown 70s linear infinite; }
-  @media (max-width: 900px) {
-    .ab-col-mobile-hide { display: none !important; }
-    .ab-badge { display: none !important; }
+
+  @keyframes _ohb_up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .ab-section {
+    position: relative;
+    min-height: 88vh;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    background:
+      radial-gradient(130% 100% at 12% 8%, #2a9462 0%, rgba(42, 148, 98, 0) 55%),
+      radial-gradient(120% 90% at 100% 100%, #1a6b43 0%, rgba(26, 107, 67, 0) 50%),
+      #1f7a4d;
+    color: #eafff3;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .ab-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 72px clamp(22px, 5vw, 80px) 76px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .ab-kicker {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #bfe8cf;
+    margin: 0 0 26px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    animation: _ohb_up .6s cubic-bezier(.22, 1, .36, 1) both;
+  }
+  .ab-kicker::before {
+    content: "";
+    width: 30px;
+    height: 2px;
+    background: #7ff0bd;
+    display: inline-block;
+  }
+
+  .ab-h1 {
+    margin: 0;
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -0.012em;
+    font-size: clamp(2.15rem, 6.2vw, 5rem);
+    color: #eafff3;
+    max-width: 15ch;
+    animation: _ohb_up .6s cubic-bezier(.22, 1, .36, 1) .06s both;
+  }
+  .ab-h1 .ab-fill { color: #eafff3; }
+  @supports ((-webkit-text-stroke: 1px #fff) or (text-stroke: 1px #fff)) {
+    .ab-h1 .ab-stroke {
+      color: transparent;
+      -webkit-text-stroke: 1.6px rgba(234, 255, 243, 0.92);
+      text-stroke: 1.6px rgba(234, 255, 243, 0.92);
+    }
+  }
+
+  .ab-sub {
+    margin: 30px 0 0;
+    max-width: 46ch;
+    font-size: clamp(0.95rem, 1.1vw, 1.08rem);
+    line-height: 1.7;
+    font-weight: 500;
+    color: rgba(234, 255, 243, 0.82);
+    animation: _ohb_up .6s cubic-bezier(.22, 1, .36, 1) .12s both;
+  }
+
+  .ab-chips {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    animation: _ohb_up .6s cubic-bezier(.22, 1, .36, 1) .18s both;
+  }
+  .ab-chips span {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 999px;
+    border: 1px solid rgba(234, 255, 243, 0.38);
+    color: #eafff3;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 991px) {
+    .ab-section { min-height: 0; }
   }
   @media (max-width: 768px) {
-    .ab-section { min-height: 0 !important; }
-    .ab-content { padding: 48px 20px 40px !important; }
-    .ab-h1 { font-size: 22px !important; letter-spacing: -.3px !important; margin-bottom: 8px !important; }
-    .ab-sub { font-size: 13px !important; }
+    .ab-content { padding: 46px 20px 54px; }
+    .ab-h1 { font-size: clamp(2rem, 8.6vw, 3rem); max-width: none; }
+    .ab-sub { font-size: 14px; margin-top: 22px; }
+    .ab-kicker { margin-bottom: 18px; letter-spacing: 0.16em; }
+    .ab-chips span { font-size: 11.5px; padding: 7px 13px; }
+  }
+  @media (max-width: 600px) {
+    .ab-h1 .ab-stroke {
+      color: #eafff3 !important;
+      -webkit-text-stroke: 0 !important;
+      text-stroke: 0 !important;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ab-kicker, .ab-h1, .ab-sub, .ab-chips { animation: none; }
   }
 `;
 
-export default function AboutUsBanner({ pics: picsProp = [] }) {
-  const [pics, setPics] = useState(picsProp);
-
-  useEffect(() => {
-    if (picsProp.length > 0) {
-      setPics(picsProp);
-      return;
-    }
-    fetch("https://api.chooseyourtherapist.in/api/get-therapists-profile?pageSize=60")
-      .then((r) => r.json())
-      .then((json) => {
-        const loaded = (json.data || [])
-          .map((t) => {
-            const pic = t.profile || (t.user && t.user.profile) || "";
-            if (!pic) return null;
-            return `https://api.chooseyourtherapist.in/uploads/images/${pic}`;
-          })
-          .filter(Boolean);
-        if (loaded.length > 0) setPics(loaded);
-      })
-      .catch(() => {});
-  }, [picsProp]);
-
-  const TILE_COUNT = 84;
-  const tiles = [];
-  if (pics.length > 0) {
-    for (let i = 0; i < TILE_COUNT; i++) {
-      tiles.push(pics[i % pics.length]);
-    }
-  }
-
+export default function AboutUsBanner() {
   return (
     <>
       <style>{bannerStyles}</style>
 
-      <section
-        className="ab-section"
-        style={{
-          minHeight: "100vh",
-          position: "relative",
-          display: "flex",
-          alignItems: "stretch",
-          overflow: "hidden",
-          background: "#000",
-          fontFamily: "'Inter', sans-serif",
-        }}
-      >
-        {/* Background collage */}
-        {tiles.length > 0 && (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              gap: 0,
-              overflow: "hidden",
-              zIndex: 0,
-            }}
-          >
-            {[0, 1, 2, 3, 4, 5, 6].map((col) => {
-              const hideMobile = col >= 4;
-              const colTiles = tiles.filter((_, i) => i % 7 === col);
-              const doubled = [...colTiles, ...colTiles];
-              const isEven = col % 2 === 0;
-              return (
-                <div
-                  key={col}
-                  className={hideMobile ? "ab-col-mobile-hide" : ""}
-                  style={{ flex: 1, overflow: "hidden", minWidth: 0 }}
-                >
-                  <div
-                    className={isEven ? "ab-col-up" : "ab-col-down"}
-                    style={{ display: "flex", flexDirection: "column", gap: 0 }}
-                  >
-                    {doubled.map((src, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          width: "100%",
-                          aspectRatio: "1 / 1",
-                          flexShrink: 0,
-                          overflow: "hidden",
-                        }}
-                      >
-                        <img
-                          src={src}
-                          alt=""
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            objectPosition: "top center",
-                            display: "block",
-                          }}
-                          onError={(e) => { e.target.src = DEFAULT_PIC; }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+      <section className="ab-section">
+        <div className="ab-content">
+          <span className="ab-kicker">Our Story &amp; Vision</span>
 
-        {/* Dark overlay */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,.84)",
-            zIndex: 1,
-          }}
-        />
-
-        {/* Content */}
-        <div
-          className="ab-content"
-          style={{
-            position: "relative",
-            zIndex: 2,
-            width: "100%",
-            maxWidth: 640,
-            margin: "0 auto",
-            padding: "80px 24px 60px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-          }}
-        >
-          {/* Badge */}
-          <div
-            className="ab-badge"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              background: "rgba(74,222,128,.15)",
-              border: "1px solid rgba(74,222,128,.3)",
-              borderRadius: 50,
-              padding: "7px 18px",
-              marginBottom: 24,
-              animation: "_ab_pulse 2.5s ease infinite",
-            }}
-          >
-            <span style={{ fontSize: 11, fontWeight: 800, color: "#4ade80", letterSpacing: 1.2, textTransform: "uppercase" }}>
-              Our Story &amp; Vision
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1
-            className="ab-h1"
-            style={{
-              fontSize: "clamp(32px, 4.5vw, 54px)",
-              fontWeight: 900,
-              color: "#fff",
-              lineHeight: 1.2,
-              letterSpacing: "-.8px",
-              margin: "0 0 8px",
-              animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) both",
-            }}
-          >
-            Making Mental Health Support{" "}
-            <span style={{ color: "#4ade80" }}>
-              Accessible to Every Indian
-            </span>
+          <h1 className="ab-h1">
+            <span className="ab-stroke">Making Mental Health Support</span>{" "}
+            <span className="ab-fill">Accessible to Every Indian</span>
           </h1>
 
-          {/* Subtitle */}
-          <p
-            className="ab-sub"
-            style={{
-              fontSize: 16,
-              color: "rgba(255,255,255,.72)",
-              lineHeight: 1.7,
-              margin: "0",
-              fontWeight: 500,
-              animation: "_ab_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
-            }}
-          >
-            At CYT, we believe mental health is a fundamental human right. We connect individuals with verified psychologists across India for online and in-person therapy.
+          <p className="ab-sub">
+            At CYT, we believe mental health is a fundamental human right. We connect
+            individuals with verified psychologists across India for online and in-person therapy.
           </p>
+
+          <div className="ab-chips">
+            <span>Founded 2020</span>
+            <span>MCA &amp; MSME registered</span>
+            <span>Noida &middot; Delhi NCR &middot; Online</span>
+            <span>50+ verified experts</span>
+          </div>
         </div>
       </section>
     </>
