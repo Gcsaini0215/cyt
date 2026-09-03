@@ -185,7 +185,9 @@ export default function AboutUsBanner() {
 
   return (
     <>
-      <style>{bannerStyles}</style>
+      {/* dangerouslySetInnerHTML: React escapes quotes in a text-node <style> on
+          the server but not the client, which trips a hydration mismatch. */}
+      <style dangerouslySetInnerHTML={{ __html: bannerStyles }} />
 
       <section className="ab-section">
         <div className="ab-top">
