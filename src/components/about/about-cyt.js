@@ -107,51 +107,48 @@ const styles = `
   .ac-milestone-city { font-size: 13px; font-weight: 800; color: #1f3320; margin: 0 0 3px; }
   .ac-milestone-desc { font-size: 11px; color: #8a9a80; margin: 0; line-height: 1.4; }
 
-  .ac-card {
+  /* What We Offer — compact chips */
+  .ac-chip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .ac-chip {
     background: #fff;
     border: 1px solid #e0ead8;
-    border-radius: 22px;
-    padding: 24px 22px;
-    height: 100%;
+    border-radius: 18px;
+    padding: 20px;
     transition: box-shadow .2s, transform .2s, border-color .2s;
   }
-  .ac-card:hover { box-shadow: 0 16px 40px -22px rgba(31, 51, 28, 0.28); transform: translateY(-3px); border-color: #cfe0c6; }
-  .ac-icon {
-    width: 46px; height: 46px;
-    background: #e6f0e0;
-    border-radius: 50%;
+  .ac-chip:hover { box-shadow: 0 16px 40px -24px rgba(31, 51, 28, 0.26); transform: translateY(-3px); border-color: #cfe0c6; }
+  .ac-chip-row { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+  .ac-chip-ic {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #e6f0e0; color: #3c7a4a;
     display: flex; align-items: center; justify-content: center;
-    color: #3c7a4a; font-size: 18px; margin-bottom: 14px; flex-shrink: 0;
+    font-size: 15px; flex-shrink: 0;
   }
-  .ac-card-title { font-size: 15px; font-weight: 800; color: #1f3320; margin: 0 0 5px; }
-  .ac-card-desc { font-size: 13px; color: #5a6a52; line-height: 1.6; margin: 0; }
-  .ac-service-row { display: flex; align-items: flex-start; gap: 14px; }
+  .ac-chip-row h3 { margin: 0; font-size: 14.5px; font-weight: 800; color: #1f3320; }
+  .ac-chip p { margin: 0; font-size: 12.5px; color: #5a6a52; line-height: 1.6; }
 
-  .ac-step {
-    background: #fff;
-    border: 1px solid #e0ead8;
-    border-radius: 22px;
-    padding: 28px 20px 24px;
-    text-align: center;
-    position: relative;
-    height: 100%;
+  /* How It Works — zigzag timeline */
+  .ac-tl { position: relative; max-width: 780px; margin: 4px auto 0; }
+  .ac-tl::before {
+    content: ""; position: absolute; left: 50%; top: 12px; bottom: 12px;
+    width: 2px; background: #cfe0c6; transform: translateX(-50%);
   }
-  .ac-step-num {
-    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-    background: #3c7a4a; color: #fff;
-    font-size: 11px; font-weight: 800;
-    width: 28px; height: 28px; border-radius: 50%;
+  .ac-ev { position: relative; width: calc(50% - 36px); margin-bottom: 22px; }
+  .ac-ev:last-child { margin-bottom: 0; }
+  .ac-ev:nth-child(even) { margin-left: calc(50% + 36px); }
+  .ac-ev-dot {
+    position: absolute; top: 16px;
+    box-sizing: border-box;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #3c7a4a; color: #fff; font-weight: 800; font-size: 12px;
     display: flex; align-items: center; justify-content: center;
     border: 4px solid #f5f7ef;
   }
-  .ac-step-icon {
-    width: 50px; height: 50px;
-    background: #e6f0e0; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: #3c7a4a; font-size: 20px; margin: 10px auto 14px;
-  }
-  .ac-step-title { font-size: 16px; font-weight: 800; color: #1f3320; margin: 0 0 6px; }
-  .ac-step-desc { font-size: 13px; color: #5a6a52; line-height: 1.6; margin: 0; }
+  .ac-ev:nth-child(odd) .ac-ev-dot { right: -53px; }
+  .ac-ev:nth-child(even) .ac-ev-dot { left: -53px; }
+  .ac-ev-card { background: #fff; border: 1px solid #e0ead8; border-radius: 18px; padding: 18px 20px; }
+  .ac-ev-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #1f3320; }
+  .ac-ev-card p { margin: 0; font-size: 12.5px; color: #5a6a52; line-height: 1.6; }
 
   .ac-divider { border: none; border-top: 1px solid #dfe9d6; margin: clamp(34px, 5vw, 52px) 0; }
 
@@ -162,8 +159,12 @@ const styles = `
     .ac-mile-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 767px) {
-    .ac-steps-row { display: flex; flex-direction: column; gap: 22px; }
-    .ac-steps-row > div { width: 100%; }
+    .ac-chip-grid { grid-template-columns: 1fr; }
+    .ac-tl { max-width: none; }
+    .ac-tl::before { left: 17px; }
+    .ac-ev, .ac-ev:nth-child(even) { width: auto; margin-left: 44px; }
+    .ac-ev:nth-child(odd) .ac-ev-dot,
+    .ac-ev:nth-child(even) .ac-ev-dot { left: -44px; right: auto; }
   }
 `;
 
@@ -217,18 +218,14 @@ export default function AboutCyt() {
             <span className="ac-tag">What We Offer</span>
             <h2 className="ac-h2">Therapy That Fits <span className="accent">Your Life</span></h2>
           </div>
-          <div className="row g-3 mb-2">
+          <div className="ac-chip-grid">
             {services.map((s) => (
-              <div className="col-12 col-md-4" key={s.title}>
-                <div className="ac-card h-100">
-                  <div className="ac-service-row">
-                    <div className="ac-icon"><i className={s.icon}></i></div>
-                    <div>
-                      <div className="ac-card-title">{s.title}</div>
-                      <p className="ac-card-desc">{s.desc}</p>
-                    </div>
-                  </div>
+              <div className="ac-chip" key={s.title}>
+                <div className="ac-chip-row">
+                  <span className="ac-chip-ic"><i className={s.icon}></i></span>
+                  <h3>{s.title}</h3>
                 </div>
+                <p>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -240,14 +237,13 @@ export default function AboutCyt() {
             <span className="ac-tag">How It Works</span>
             <h2 className="ac-h2">Three Steps to <span className="accent">Better Mental Health</span></h2>
           </div>
-          <div className="row g-3 ac-steps-row">
+          <div className="ac-tl">
             {steps.map((s) => (
-              <div className="col-12 col-md-4" key={s.num}>
-                <div className="ac-step">
-                  <div className="ac-step-num">{s.num}</div>
-                  <div className="ac-step-icon"><i className={s.icon}></i></div>
-                  <div className="ac-step-title">{s.title}</div>
-                  <p className="ac-step-desc">{s.desc}</p>
+              <div className="ac-ev" key={s.num}>
+                <div className="ac-ev-dot">{s.num}</div>
+                <div className="ac-ev-card">
+                  <h3>{s.title}</h3>
+                  <p>{s.desc}</p>
                 </div>
               </div>
             ))}
