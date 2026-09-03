@@ -67,45 +67,62 @@ const styles = `
   .ac-h2 .accent { font-style: italic; color: #3c7a4a; }
   .ac-lead { font-size: 14.5px; color: #5a6a52; line-height: 1.75; margin: 0; }
 
-  .ac-story-card {
-    background: #fff;
-    border: 1px solid #e0ead8;
-    border-radius: 26px;
-    padding: clamp(22px, 3vw, 34px);
-    height: 100%;
-    box-shadow: 0 22px 44px -34px rgba(31, 51, 28, 0.35);
-  }
+  /* Our Story — journey line */
+  .ac-story-head { max-width: 640px; margin-bottom: clamp(26px, 4vw, 38px); }
+  .ac-story-head .ac-lead + .ac-lead { margin-top: 12px; }
 
-  .ac-pill {
-    background: #eef4e9;
-    border: 1px solid #d8e6cf;
-    border-radius: 18px;
-    padding: 16px 10px;
-    text-align: center;
+  .ac-journey {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: relative;
+    margin-bottom: clamp(26px, 4vw, 36px);
   }
-  .ac-stat-val {
+  .ac-journey::before {
+    content: "";
+    position: absolute;
+    top: 9px; left: 12%; right: 12%;
+    height: 2px;
+    background: #cfe0c6;
+  }
+  .ac-j { text-align: center; padding: 0 10px; }
+  .ac-jdot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #3c7a4a;
+    margin: 0 auto 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .ac-j.active .ac-jdot { background: #3c7a4a; }
+  .ac-jy {
+    display: block;
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: 24px; font-weight: 700; color: #3c7a4a; line-height: 1; margin-bottom: 3px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #3c7a4a;
+    margin-bottom: 2px;
   }
-  .ac-stat-lbl { font-size: 10px; font-weight: 700; color: #8a9a80; text-transform: uppercase; letter-spacing: 0.1em; }
+  .ac-jc { font-size: 14px; font-weight: 800; color: #1f3320; margin: 0 0 3px; }
+  .ac-jd { font-size: 11.5px; color: #7d8c74; margin: 0; line-height: 1.45; }
 
-  .ac-milestone {
-    background: #fff;
-    border: 1px solid #e0ead8;
-    border-radius: 18px;
-    padding: 16px 12px;
-    text-align: center;
+  .ac-statbox {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border: 1px solid #dde8d3;
+    border-radius: 16px;
+    overflow: hidden;
   }
-  .ac-milestone.active { border-color: #b7d5bd; box-shadow: 0 0 0 3px rgba(60, 122, 74, 0.10); }
-  .ac-milestone-yr {
-    font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 999px;
-    background: #eef4e9; color: #5a6a52; display: inline-block; margin-bottom: 8px;
+  .ac-s { padding: 20px 12px; text-align: center; border-right: 1px solid #dde8d3; }
+  .ac-s:last-child { border-right: 0; }
+  .ac-sv {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700; font-size: 1.7rem; color: #3c7a4a; line-height: 1;
   }
-  .ac-milestone.done .ac-milestone-yr { background: #e2efdc; color: #35603f; }
-  .ac-milestone.active .ac-milestone-yr { background: #3c7a4a; color: #fff; }
-  .ac-milestone.global .ac-milestone-yr { background: #eef2e6; color: #7d8c74; }
-  .ac-milestone-city { font-size: 13px; font-weight: 800; color: #1f3320; margin: 0 0 3px; }
-  .ac-milestone-desc { font-size: 11px; color: #8a9a80; margin: 0; line-height: 1.4; }
+  .ac-sl {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.1em; color: #8a9a80; margin-top: 4px;
+  }
 
   /* What We Offer — compact chips */
   .ac-chip-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
@@ -152,13 +169,12 @@ const styles = `
 
   .ac-divider { border: none; border-top: 1px solid #dfe9d6; margin: clamp(34px, 5vw, 52px) 0; }
 
-  .ac-stat-grid, .ac-mile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .ac-stat-grid { margin-bottom: 12px; }
-
-  @media (max-width: 560px) {
-    .ac-mile-grid { grid-template-columns: repeat(2, 1fr); }
-  }
   @media (max-width: 767px) {
+    .ac-journey { grid-template-columns: 1fr; gap: 20px; }
+    .ac-journey::before { display: none; }
+    .ac-statbox { grid-template-columns: repeat(2, 1fr); }
+    .ac-s:nth-child(2) { border-right: 0; }
+    .ac-s:nth-child(1), .ac-s:nth-child(2) { border-bottom: 1px solid #dde8d3; }
     .ac-chip-grid { grid-template-columns: 1fr; }
     .ac-tl { max-width: none; }
     .ac-tl::before { left: 17px; }
@@ -177,38 +193,35 @@ export default function AboutCyt() {
         <div className="container">
 
           {/* — Our Story — */}
-          <div className="row g-4 align-items-stretch mb-2">
-            <div className="col-12 col-lg-5">
-              <div className="ac-story-card">
-                <span className="ac-tag">Our Story</span>
-                <h2 className="ac-h2">Born During a Crisis. <span className="accent">Built for India.</span></h2>
-                <p className="ac-lead" style={{ marginBottom: 14 }}>
-                  Choose Your Therapist started in 2020 during the pandemic — a response to the surge in mental health struggles when support systems were collapsing.
-                </p>
-                <p className="ac-lead">
-                  By 2021 we registered under MCA &amp; MSME and expanded from Haridwar to Delhi NCR, adding online therapy to reach anyone, anywhere.
-                </p>
+          <div className="ac-story-head">
+            <span className="ac-tag">Our Story</span>
+            <h2 className="ac-h2">Born During a Crisis. <span className="accent">Built for India.</span></h2>
+            <p className="ac-lead">
+              Choose Your Therapist started in 2020 during the pandemic — a response to the surge in mental health struggles when support systems were collapsing.
+            </p>
+            <p className="ac-lead">
+              By 2021 we registered under MCA &amp; MSME and expanded from Haridwar to Delhi NCR, adding online therapy to reach anyone, anywhere.
+            </p>
+          </div>
+
+          <div className="ac-journey">
+            {milestones.map((m) => (
+              <div key={m.city} className={`ac-j${m.active ? " active" : ""}`}>
+                <div className="ac-jdot" />
+                <span className="ac-jy">{m.year}</span>
+                <div className="ac-jc">{m.city}</div>
+                <p className="ac-jd">{m.desc}</p>
               </div>
-            </div>
-            <div className="col-12 col-lg-7">
-              <div className="ac-stat-grid">
-                {stats.map((s) => (
-                  <div key={s.label} className="ac-pill">
-                    <div className="ac-stat-val">{s.value}</div>
-                    <div className="ac-stat-lbl">{s.label}</div>
-                  </div>
-                ))}
+            ))}
+          </div>
+
+          <div className="ac-statbox">
+            {stats.map((s) => (
+              <div key={s.label} className="ac-s">
+                <div className="ac-sv">{s.value}</div>
+                <div className="ac-sl">{s.label}</div>
               </div>
-              <div className="ac-mile-grid">
-                {milestones.map((m) => (
-                  <div key={m.city} className={`ac-milestone${m.done ? " done" : ""}${m.active ? " active" : ""}${m.global ? " global" : ""}`}>
-                    <div className="ac-milestone-yr">{m.year}</div>
-                    <div className="ac-milestone-city">{m.city}</div>
-                    <div className="ac-milestone-desc">{m.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
 
           <hr className="ac-divider" />
