@@ -119,9 +119,72 @@ select.cf-input {
   background: #94a3b8;
   box-shadow: none;
 }
+
+.cf-error {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cf-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: #f0fdf4;
+  border-radius: 10px;
+  border: 1px solid #bbf7d0;
+}
+
+.cf-foot {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+/* ── "WhatsApp" variant — used only by the home lead popup ─────────── */
+.cf-whatsapp .cf-label { display: none; }
+.cf-whatsapp .cf-input,
+.cf-whatsapp .cf-textarea {
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+  color: #3b4a54 !important;
+}
+.cf-whatsapp .cf-input:focus,
+.cf-whatsapp .cf-textarea:focus {
+  background: #fff !important;
+  box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.4) !important;
+}
+.cf-whatsapp .cf-consent {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 0 !important;
+}
+.cf-whatsapp .cf-submit {
+  background: #25d366 !important;
+  color: #05341f !important;
+  box-shadow: 0 4px 14px rgba(5, 52, 31, 0.2) !important;
+}
+.cf-whatsapp .cf-submit:hover:not(:disabled) {
+  background: #20bd5a !important;
+  box-shadow: 0 8px 20px rgba(5, 52, 31, 0.26) !important;
+}
+.cf-whatsapp .cf-foot { color: #4b5b63; }
 `;
 
-export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true }) {
+export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true, variant = "default" }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"), { noSsr: true });
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => { setMounted(true); }, []);
@@ -210,7 +273,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
   return (
     <>
       {mounted && <style>{formStyles}</style>}
-      <div style={{ width: "100%" }}>
+      <div style={{ width: "100%" }} className={variant === "whatsapp" ? "cf-whatsapp" : ""}>
 
         {showHeading && (
           <div style={{ marginBottom: 28, textAlign: "center" }}>
@@ -224,19 +287,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
         )}
 
         {message && messageType === "error" && (
-          <div style={{
-            padding: "12px 16px",
-            marginBottom: "20px",
-            borderRadius: "10px",
-            fontSize: "13px",
-            fontWeight: 600,
-            backgroundColor: "#fef2f2",
-            color: "#dc2626",
-            border: "1px solid #fee2e2",
-            display: "flex",
-            alignItems: "center",
-            gap: 8
-          }}>
+          <div className="cf-error">
             <span>⚠️</span> {message}
           </div>
         )}
@@ -312,7 +363,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
           </div>
 
           {/* Consent checkbox */}
-          <div style={{ display:"flex", alignItems:"flex-start", gap:9, marginBottom:16, padding:"10px 12px", background:"#f0fdf4", borderRadius:10, border:"1px solid #bbf7d0" }}>
+          <div className="cf-consent">
             <input
               type="checkbox"
               id="cf-consent"
@@ -329,7 +380,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
             {loading ? "Submitting..." : "Talk to a Therapist →"}
           </button>
 
-          <p style={{ textAlign: "center", fontSize: "11px", color: "#94a3b8", marginTop: 12, marginBottom: 0 }}>
+          <p className="cf-foot">
             🔒 100% confidential · No spam, ever
           </p>
         </form>

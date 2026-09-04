@@ -23,6 +23,24 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
 
   if (!isOpen) return null;
 
+  const head = (
+    <div className="bp-wa-head">
+      <span className="bp-wa-avatar">💬</span>
+      <div className="bp-wa-titles">
+        <h5 className="bp-wa-title">Chat with CYT</h5>
+        <span className="bp-wa-sub">Typically replies within minutes</span>
+      </div>
+      <button className="bp-wa-close" onClick={handleClose} aria-label="Close">✕</button>
+    </div>
+  );
+
+  const body = (showHeadingProp) => (
+    <div className="bp-wa-body">
+      <p className="bp-wa-note">Share a few details and our team will message you on WhatsApp.</p>
+      <ConsultationForm showHeading={showHeadingProp} showLocation={showLocation} showSource={showSource} variant="whatsapp" />
+    </div>
+  );
+
   return (
     <>
       <style>{`
@@ -39,33 +57,14 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
           padding: 20px;
         }
 
-        /* ── Desktop modal ─────────────────────────── */
+        /* ── Desktop / tablet modal — centered on every viewport ─────── */
         .bp-modal {
           background: #fff; border-radius: 24px;
-          width: 100%; max-width: 520px;
+          width: 100%; max-width: 460px;
           position: relative;
           box-shadow: 0 32px 64px rgba(0,0,0,.28);
-          max-height: 90vh; overflow-y: auto;
+          max-height: 90vh; overflow-y: auto; overflow-x: hidden;
           animation: bp-pop-in .3s cubic-bezier(.4,0,.2,1);
-        }
-        .bp-modal-inner { padding: 36px 32px 28px; }
-
-        /* close btn */
-        .bp-close {
-          position: absolute; top: 14px; right: 14px;
-          width: 34px; height: 34px; border-radius: 50%;
-          border: none; background: #f1f5f9;
-          display: flex; align-items: center; justify-content: center;
-          cursor: pointer; font-size: 18px; color: #64748b;
-          transition: background .2s; z-index: 2;
-        }
-        .bp-close:hover { background: #e2e8f0; color: #1e293b; }
-
-        /* green accent bar at top */
-        .bp-top-bar {
-          height: 5px;
-          background: linear-gradient(90deg, #1a6b44, #228756, #4ade80);
-          border-radius: 24px 24px 0 0;
         }
 
         /* ── Mobile bottom sheet ───────────────────── */
@@ -83,54 +82,71 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
           position: relative; z-index: 1;
           width: 100%; background: #fff;
           border-radius: 22px 22px 0 0;
-          max-height: 92vh; overflow-y: auto;
+          max-height: 92vh; overflow-y: auto; overflow-x: hidden;
           animation: bp-slide-up .32s cubic-bezier(.4,0,.2,1);
-          padding-bottom: env(safe-area-inset-bottom, 0);
         }
         .bp-sheet-handle {
           width: 40px; height: 4px; border-radius: 2px;
-          background: #e2e8f0; margin: 12px auto 0; display: block;
+          background: #e2e8f0; margin: 12px auto 6px; display: block;
         }
-        .bp-sheet-head {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 20px 10px;
-          border-bottom: 1px solid #f1f5f9;
-        }
-        .bp-sheet-title { font-size: 16px; font-weight: 800; color: #1e293b; margin: 0; }
-        .bp-sheet-close {
-          width: 30px; height: 30px; border-radius: 50%; border: none;
-          background: #f1f5f9; color: #64748b; font-size: 16px;
-          display: flex; align-items: center; justify-content: center;
-          cursor: pointer;
-        }
-        .bp-sheet-body { padding: 16px 20px 24px; }
 
+        /* ── "WhatsApp" header + wallpaper body — shared by both layouts ── */
+        .bp-wa-head {
+          display: flex; align-items: center; gap: 12px;
+          background: #075e54; color: #fff;
+          padding: 15px 18px;
+        }
+        .bp-modal .bp-wa-head { border-radius: 24px 24px 0 0; }
+        .bp-wa-avatar {
+          width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+          background: #25d366;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px;
+        }
+        .bp-wa-titles { flex: 1; min-width: 0; }
+        .bp-wa-title { margin: 0; font-size: 14.5px; font-weight: 800; color: #fff; }
+        .bp-wa-sub { font-size: 11px; color: rgba(255,255,255,.72); }
+        .bp-wa-close {
+          width: 30px; height: 30px; border-radius: 50%; border: none; flex-shrink: 0;
+          background: rgba(255,255,255,.15); color: #fff; font-size: 14px;
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; transition: background .2s;
+        }
+        .bp-wa-close:hover { background: rgba(255,255,255,.28); }
+
+        .bp-wa-body {
+          background: #e5ddd5;
+          padding: 20px 22px 24px;
+          padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+        }
+        .bp-wa-note {
+          background: #fff; border-radius: 10px; padding: 10px 13px;
+          font-size: 12.5px; color: #3b4a54; line-height: 1.5;
+          margin: 0 0 16px;
+          box-shadow: 0 1px 2px rgba(0,0,0,.08);
+        }
+
+        @media (max-width: 380px) {
+          .bp-wa-body { padding: 16px 16px 20px; }
+        }
       `}</style>
 
       {isMobile ? (
-        /* ── Mobile: Bottom sheet ── */
+        /* ── Mobile: bottom sheet ── */
         <div className="bp-sheet-wrap">
           <div className="bp-sheet-overlay" onClick={handleClose} />
           <div className="bp-sheet">
             <span className="bp-sheet-handle"></span>
-            <div className="bp-sheet-head">
-              <h5 className="bp-sheet-title">Free Consultation</h5>
-              <button className="bp-sheet-close" onClick={handleClose}>✕</button>
-            </div>
-            <div className="bp-sheet-body">
-              <ConsultationForm showHeading={false} showLocation={showLocation} showSource={showSource} />
-            </div>
+            {head}
+            {body(false)}
           </div>
         </div>
       ) : (
-        /* ── Desktop: Centered modal ── */
+        /* ── Tablet / desktop: centered modal ── */
         <div className="bp-overlay" onClick={handleClose}>
           <div className="bp-modal" onClick={e => e.stopPropagation()}>
-            <div className="bp-top-bar"></div>
-            <button className="bp-close" onClick={handleClose}>✕</button>
-            <div className="bp-modal-inner">
-              <ConsultationForm showHeading={showHeading} showLocation={showLocation} showSource={showSource} />
-            </div>
+            {head}
+            {body(showHeading)}
           </div>
         </div>
       )}
