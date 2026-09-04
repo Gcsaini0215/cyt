@@ -50,6 +50,18 @@ export default function Footer() {
         .cyt-footer-academic .copyright-area a:hover { color: #166534 !important; }
         .cyt-footer-academic .copyright-link .separator { color: #dbe3df !important; font-size: 13px !important; }
 
+        .cyt-footer-academic .ft-cities { background: #f8faf9; border-top: 1px solid #eef2f0; padding: 28px 0; }
+        .cyt-footer-academic .ft-cities .ft-title { margin-bottom: 14px; }
+        .cyt-footer-academic .ft-cities-row { display: flex; flex-wrap: wrap; gap: 8px 0; }
+        .cyt-footer-academic .ft-cities-row a {
+          color: #52667f; font-size: 13px; padding: 0 12px;
+          border-right: 1px solid #dbe3df; line-height: 1.3;
+          text-decoration: none; transition: color .15s ease;
+        }
+        .cyt-footer-academic .ft-cities-row a:first-child { padding-left: 0; }
+        .cyt-footer-academic .ft-cities-row a:last-child { border-right: none; }
+        .cyt-footer-academic .ft-cities-row a:hover { color: #166534; }
+
         /* ── iPad tuning (768–1024) ────────────────────── */
         @media (min-width:768px) and (max-width:1024px) {
           .cyt-footer-academic .footer-top { padding-top: 52px; padding-bottom: 32px; }
@@ -154,6 +166,34 @@ export default function Footer() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Cities & Regions We Serve — internal links for local SEO */}
+      <div className="ft-cities">
+        <div className="container">
+          <h5 className="ft-title">Find a Psychologist Near You</h5>
+          <div className="ft-cities-row">
+            <Link href="/psychologist-in-noida-delhi">Noida &amp; Delhi</Link>
+            <Link href="/psychologist-in/mumbai">Mumbai</Link>
+            <Link href="/psychologist-in/bangalore">Bangalore</Link>
+            <Link href="/psychologist-in/pune">Pune</Link>
+            <Link href="/psychologist-in/hyderabad">Hyderabad</Link>
+            <Link href="/psychologist-in/chennai">Chennai</Link>
+            <Link href="/psychologist-in/kolkata">Kolkata</Link>
+            <Link href="/psychologist-in/ahmedabad">Ahmedabad</Link>
+            <Link href="/psychologist-in/jaipur">Jaipur</Link>
+            <Link href="/psychologist-in/lucknow">Lucknow</Link>
+            <Link href="/psychologist-in/chandigarh">Chandigarh</Link>
+            <Link href="/psychologist-in/delhi">Delhi</Link>
+            <Link href="/psychologist-in/uttar-pradesh">Uttar Pradesh</Link>
+            <Link href="/psychologist-in/maharashtra">Maharashtra</Link>
+            <Link href="/psychologist-in/rajasthan">Rajasthan</Link>
+            <Link href="/psychologist-in/gujarat">Gujarat</Link>
+            <Link href="/psychologist-in/uttarakhand">Uttarakhand</Link>
+            <Link href="/psychologist-in/west-bengal">West Bengal</Link>
+            <Link href="/psychologist-in/andhra-pradesh">Andhra Pradesh</Link>
           </div>
         </div>
       </div>
