@@ -20,6 +20,7 @@ const STATE_CONFIG = {
     geo: { lat: 26.8467, lng: 80.9462, region: "IN-UP" },
     description: "Find verified counselling psychologists and clinical psychologists across Uttar Pradesh — in Noida, Lucknow, Agra, Kanpur, and online. Book sessions for anxiety, depression, OCD, relationship issues, and more.",
     localKeywords: "psychologist in Noida, therapist in Lucknow, counsellor in Agra, psychologist in Kanpur, mental health UP, online therapy Uttar Pradesh",
+    localIntro: "Uttar Pradesh's rapid urban growth — from Noida's corporate corridors to smaller cities finding their footing — has brought real change in how mental health is talked about, but access still lags outside the biggest hubs. Choose Your Therapist closes that gap with the same verified psychologists, whether you're in a Sector 62 office or a smaller town without a single local clinic, and whether you want an in-person session at our Noida studio or a private video call from home.",
     faqs: [
       {
         q: "Which are the best psychologists in Uttar Pradesh?",
@@ -47,6 +48,7 @@ const STATE_CONFIG = {
     geo: { lat: 28.6139, lng: 77.2090, region: "IN-DL" },
     description: "Connect with verified psychologists in Delhi for anxiety, depression, OCD, trauma, and relationship counselling. Book online or in-person sessions with top-rated mental health professionals across Delhi.",
     localKeywords: "psychologist in Delhi, therapist in South Delhi, counsellor in Dwarka, psychologist in Saket, mental health Delhi, online therapy Delhi NCR",
+    localIntro: "Delhi's pace — long commutes, competitive workplaces, and a culture that prizes achievement — takes a real toll, yet finding an hour for a walk-in appointment across the city is its own source of stress. Choose Your Therapist works around that: book a verified psychologist for a video session between meetings, or visit in person if you're closer to our Noida-Delhi studio, without losing half a day to travel.",
     faqs: [
       {
         q: "Who are the best psychologists in Delhi?",
@@ -74,6 +76,7 @@ const STATE_CONFIG = {
     geo: { lat: 19.7515, lng: 75.7139, region: "IN-MH" },
     description: "Find verified psychologists in Maharashtra — Mumbai, Pune, Nagpur and beyond. Book online or in-person therapy sessions for anxiety, depression, relationship issues, OCD, and more.",
     localKeywords: "psychologist in Mumbai, therapist in Pune, counsellor in Nagpur, mental health Maharashtra, online therapy Mumbai, psychologist near me Mumbai",
+    localIntro: "Maharashtra covers two very different rhythms of stress — Mumbai's round-the-clock financial-capital pressure and Pune's dense student and early-career population — and both need the same thing: a therapist who's actually available when you are. Choose Your Therapist's verified network spans the state, from Nagpur to Nashik, so quality care isn't limited to whichever city happens to have a clinic nearby.",
     faqs: [
       {
         q: "Which are the best psychologists in Mumbai?",
@@ -101,6 +104,7 @@ const STATE_CONFIG = {
     geo: { lat: 27.0238, lng: 74.2179, region: "IN-RJ" },
     description: "Find verified psychologists in Rajasthan — in Jaipur, Jodhpur, Udaipur, Kota, and online. Book therapy sessions for anxiety, depression, relationship counselling, stress management, and more.",
     localKeywords: "psychologist in Jaipur, therapist in Jodhpur, counsellor in Udaipur, mental health Rajasthan, online therapy Jaipur, best psychologist Kota",
+    localIntro: "Rajasthan is home to some of India's most demanding academic environments — Kota's coaching culture in particular puts enormous pressure on students and their families — alongside heritage cities where mental health support has traditionally meant leaning on joint family, not professionals. Choose Your Therapist offers a private, judgment-free alternative, reachable from Jaipur, Jodhpur, Udaipur, or any smaller town with an internet connection.",
     faqs: [
       {
         q: "Are there verified psychologists in Jaipur?",
@@ -128,6 +132,7 @@ const STATE_CONFIG = {
     geo: { lat: 22.2587, lng: 71.1924, region: "IN-GJ" },
     description: "Find verified psychologists in Gujarat — in Ahmedabad, Surat, Vadodara, Rajkot, and online. Book therapy sessions for anxiety, depression, OCD, stress, relationship issues, and more.",
     localKeywords: "psychologist in Ahmedabad, therapist in Surat, counsellor in Vadodara, mental health Gujarat, online therapy Ahmedabad, best psychologist Gujarat",
+    localIntro: "Gujarat's entrepreneurial economy means a lot of people carrying business stress home with them — long hours, financial pressure, and family-run businesses where work and personal life rarely separate. Choose Your Therapist's verified psychologists understand that context and offer flexible online sessions across Ahmedabad, Surat, Vadodara, and Rajkot, so getting support doesn't mean stepping away from the business for an afternoon.",
     faqs: [
       {
         q: "Who are the best psychologists in Ahmedabad?",
@@ -155,6 +160,7 @@ const STATE_CONFIG = {
     geo: { lat: 30.7333, lng: 76.7794, region: "IN-CH" },
     description: "Find verified psychologists in Chandigarh, Mohali, and Panchkula. Book online or in-person therapy sessions for anxiety, depression, stress, relationship counselling, OCD, and more.",
     localKeywords: "psychologist in Chandigarh, therapist in Mohali, counsellor in Panchkula, mental health Chandigarh, online therapy Chandigarh, best psychologist Chandigarh",
+    localIntro: "As one of India's most planned and prosperous cities, Chandigarh has a young professional and student population that's often more open to therapy than smaller nearby towns — but options within the tricity (Chandigarh, Mohali, Panchkula) can still feel limited. Choose Your Therapist adds verified, degree-checked psychologists to the mix, available online or in person, without the wait times a single local clinic often has.",
     faqs: [
       {
         q: "Are there psychologists available in Chandigarh?",
@@ -182,6 +188,7 @@ const STATE_CONFIG = {
     geo: { lat: 30.0668, lng: 79.0193, region: "IN-UT" },
     description: "Find verified psychologists in Uttarakhand — Dehradun, Haridwar, Rishikesh, and online. Book therapy sessions for anxiety, depression, stress, OCD, and relationship counselling.",
     localKeywords: "psychologist in Dehradun, therapist in Haridwar, counsellor in Rishikesh, mental health Uttarakhand, online therapy Dehradun",
+    localIntro: "Uttarakhand is known worldwide for wellness tourism — Rishikesh especially — yet residents of the state's own hill towns often have the least local access to mental health professionals, with many practitioners concentrated in Dehradun. Choose Your Therapist was founded here, in Haridwar, in 2020, and our online sessions now reach smaller towns and villages across the state where a psychologist's office simply doesn't exist.",
     faqs: [
       {
         q: "Are there psychologists available in Dehradun?",
@@ -209,6 +216,7 @@ const STATE_CONFIG = {
     geo: { lat: 22.9868, lng: 87.8550, region: "IN-WB" },
     description: "Find verified psychologists in West Bengal — Kolkata, Howrah, Siliguri, and online. Book therapy sessions for anxiety, depression, OCD, relationship counselling, and stress management.",
     localKeywords: "psychologist in Kolkata, therapist in Howrah, counsellor in Siliguri, mental health West Bengal, online therapy Kolkata, best psychologist Kolkata",
+    localIntro: "West Bengal has a strong culture of conversation — adda over tea, long family discussions — which can feel like emotional support but isn't a substitute for professional help when anxiety or depression run deep. Choose Your Therapist's verified psychologists, some fluent in Bengali, are available online across Kolkata, Howrah, and Siliguri for anyone who wants that conversation to be genuinely therapeutic, not just cathartic.",
     faqs: [
       {
         q: "Who are the best psychologists in Kolkata?",
@@ -236,6 +244,7 @@ const STATE_CONFIG = {
     geo: { lat: 15.9129, lng: 79.7400, region: "IN-AP" },
     description: "Find verified psychologists in Andhra Pradesh — Visakhapatnam, Vijayawada, Tirupati, and online. Book therapy sessions for anxiety, depression, OCD, relationship counselling, and more.",
     localKeywords: "psychologist in Visakhapatnam, therapist in Vijayawada, counsellor in Tirupati, mental health Andhra Pradesh, online therapy Andhra Pradesh",
+    localIntro: "Andhra Pradesh's growing IT and port-city economy — centred on Visakhapatnam and Vijayawada — has brought a newer, faster pace of life to a state where mental health support has historically meant family or, for many, nothing at all. Choose Your Therapist's verified network offers a confidential, professional option for residents across the state, reachable online wherever the nearest clinic happens to be.",
     faqs: [
       {
         q: "Are there verified psychologists in Andhra Pradesh?",
@@ -264,6 +273,8 @@ const STATE_CONFIG = {
     geo: { lat: 19.0760, lng: 72.8777, region: "IN-MH" },
     description: "Connect with verified psychologists serving Mumbai online — for anxiety, depression, OCD, relationship issues, and workplace stress. Book flexible video sessions with degree-verified therapists from anywhere in the city.",
     localKeywords: "psychologist in Mumbai, therapist in Andheri, counsellor in Bandra, online therapy Mumbai, best psychologist Mumbai, mental health Mumbai, psychologist near me Mumbai",
+    relatedRegion: { slug: "maharashtra", name: "Maharashtra" },
+    localIntro: "Mumbai runs on speed — two-hour commutes, always-on work culture, and a cost of living that keeps the pressure constant — which leaves little room to find, let alone visit, a psychologist across town. Choose Your Therapist removes the travel from the equation: book a verified therapist for a video session between your commute and the next deadline, from Andheri to Chembur.",
     faqs: [
       { q: "Are there verified psychologists available for Mumbai residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists serving Mumbai through secure online video sessions. All therapists are degree-verified and experienced in evidence-based approaches like CBT and ERP." },
       { q: "Is online therapy as effective as in-person therapy in Mumbai?", a: "Research shows online therapy is as effective as in-person sessions for most concerns, including anxiety, depression, and relationship issues. It also saves commute time across a city as spread out as Mumbai." },
@@ -279,6 +290,7 @@ const STATE_CONFIG = {
     geo: { lat: 12.9716, lng: 77.5946, region: "IN-KA" },
     description: "Find verified psychologists serving Bangalore online — for work stress, anxiety, depression, and relationship counselling. Book a video session with a degree-verified therapist that fits your schedule.",
     localKeywords: "psychologist in Bangalore, therapist in Koramangala, counsellor in Whitefield, online therapy Bangalore, best psychologist Bangalore, mental health Bangalore, therapist near me Bangalore",
+    localIntro: "Bangalore's tech and startup culture has normalised burnout in a way few other cities have — long sprints, constant deadlines, and a young migrant workforce often living far from the family support they'd otherwise lean on. Choose Your Therapist's verified psychologists are used to that specific kind of stress, and video sessions mean you can book one between stand-ups without adding a commute to an already long day.",
     faqs: [
       { q: "Are there psychologists who understand tech-industry burnout in Bangalore?", a: "Yes. Several therapists on Choose Your Therapist specialize in work-related stress, burnout, and career anxiety — common concerns among Bangalore's IT and startup workforce." },
       { q: "Can I book a therapy session in Bangalore outside office hours?", a: "Yes. Online sessions on our platform can be scheduled early morning, evening, or weekends, so you can fit therapy around a demanding work schedule." },
@@ -294,6 +306,8 @@ const STATE_CONFIG = {
     geo: { lat: 18.5204, lng: 73.8567, region: "IN-MH" },
     description: "Connect with verified psychologists serving Pune online — for anxiety, depression, academic stress, and relationship counselling. Book a video session with a degree-verified therapist at a time that works for you.",
     localKeywords: "psychologist in Pune, therapist in Kothrud, counsellor in Baner, online therapy Pune, best psychologist Pune, mental health Pune, student counsellor Pune",
+    relatedRegion: { slug: "maharashtra", name: "Maharashtra" },
+    localIntro: "As one of India's biggest education hubs, Pune has a huge population of students living away from home for the first time, alongside a growing IT workforce navigating a very different kind of pressure. Choose Your Therapist's psychologists work with both — from exam anxiety and homesickness to early-career burnout — through online sessions available across Kothrud, Baner, Hinjewadi, and the rest of the city.",
     faqs: [
       { q: "Are there therapists who work with students in Pune?", a: "Yes. Choose Your Therapist has psychologists experienced with academic stress, exam anxiety, and the transition to college life — relevant for Pune's large student population." },
       { q: "Is online therapy available across Pune?", a: "Yes. All psychologists on our platform offer secure online video sessions accessible from Kothrud, Baner, Hinjewadi, Viman Nagar, or anywhere else in Pune." },
@@ -309,6 +323,7 @@ const STATE_CONFIG = {
     geo: { lat: 17.3850, lng: 78.4867, region: "IN-TG" },
     description: "Find verified psychologists serving Hyderabad online — for anxiety, depression, OCD, and relationship counselling. Book a video session with a degree-verified therapist from anywhere in the city.",
     localKeywords: "psychologist in Hyderabad, therapist in Gachibowli, counsellor in Banjara Hills, online therapy Hyderabad, best psychologist Hyderabad, mental health Hyderabad",
+    localIntro: "Hyderabad's IT corridor around Gachibowli and Hitech City has pulled in a young, high-earning workforce that's also under high pressure — long hours balanced against family expectations that haven't always caught up with a corporate lifestyle. Choose Your Therapist's verified psychologists offer online sessions that fit around demanding schedules, wherever in the city you're based.",
     faqs: [
       { q: "Are there verified psychologists available for Hyderabad residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering secure online video sessions to residents of Hyderabad and the wider Telangana region." },
       { q: "Can I find a Telugu-speaking psychologist for Hyderabad?", a: "Some therapists on our platform are comfortable communicating in Telugu. Use the 'languages spoken' filter on the therapist directory to find one." },
@@ -324,6 +339,7 @@ const STATE_CONFIG = {
     geo: { lat: 13.0827, lng: 80.2707, region: "IN-TN" },
     description: "Connect with verified psychologists serving Chennai online — for anxiety, depression, relationship issues, and stress management. Book a video session with a degree-verified therapist that fits your schedule.",
     localKeywords: "psychologist in Chennai, therapist in Adyar, counsellor in T Nagar, online therapy Chennai, best psychologist Chennai, mental health Chennai",
+    localIntro: "Chennai balances a strong traditional family structure with one of South India's biggest IT and healthcare job markets, and that mix often means mental health struggles stay private rather than discussed — even within the family. Choose Your Therapist offers a confidential online alternative, with some Tamil-speaking psychologists on the platform, reachable from Adyar, T Nagar, OMR, or anywhere else in the city.",
     faqs: [
       { q: "Are there verified psychologists available for Chennai residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering online video sessions to residents across Chennai." },
       { q: "Can I find a Tamil-speaking therapist for Chennai?", a: "Some therapists on our platform are comfortable communicating in Tamil. Use the 'languages spoken' filter on the therapist directory to find a match." },
@@ -339,6 +355,8 @@ const STATE_CONFIG = {
     geo: { lat: 22.5726, lng: 88.3639, region: "IN-WB" },
     description: "Find verified psychologists serving Kolkata online — for anxiety, depression, OCD, and relationship counselling. Book a video session with a degree-verified therapist at a time that suits you.",
     localKeywords: "psychologist in Kolkata, therapist in Salt Lake, counsellor in New Town, online therapy Kolkata, best psychologist Kolkata, mental health Kolkata",
+    relatedRegion: { slug: "west-bengal", name: "West Bengal" },
+    localIntro: "Kolkata's culture of long, open conversation — over tea, at family gatherings — often stands in for emotional support, but it isn't the same as working through anxiety or depression with a trained professional. Choose Your Therapist's verified psychologists, some fluent in Bengali, are available for online sessions across Salt Lake, New Town, and the rest of the city, private and outside the usual social circle.",
     faqs: [
       { q: "Are there verified psychologists available for Kolkata residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering secure online video sessions to Kolkata and the wider West Bengal region." },
       { q: "Can I find a Bengali-speaking psychologist for Kolkata?", a: "Some therapists on our platform are comfortable in Bengali. Use the 'languages spoken' filter on our therapist directory to find one." },
@@ -354,6 +372,8 @@ const STATE_CONFIG = {
     geo: { lat: 23.0225, lng: 72.5714, region: "IN-GJ" },
     description: "Connect with verified psychologists serving Ahmedabad online — for anxiety, depression, stress, and relationship counselling. Book a video session with a degree-verified therapist from anywhere in the city.",
     localKeywords: "psychologist in Ahmedabad, therapist in Satellite, counsellor in Bopal, online therapy Ahmedabad, best psychologist Ahmedabad, mental health Ahmedabad",
+    relatedRegion: { slug: "gujarat", name: "Gujarat" },
+    localIntro: "Ahmedabad's business-first culture means a lot of people carrying financial and family-business pressure home, often without ever naming it as stress they could get help for. Choose Your Therapist's verified psychologists, some comfortable in Gujarati, offer private online sessions across Satellite, Bopal, Navrangpura, and Vastrapur — support that fits around a business day, not the other way round.",
     faqs: [
       { q: "Are there verified psychologists available for Ahmedabad residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering online video sessions across Ahmedabad and Gujarat." },
       { q: "Can I get therapy in Gujarati for someone in Ahmedabad?", a: "Some therapists on our platform are comfortable communicating in Gujarati. Check the 'languages spoken' filter on our therapist directory to find a match." },
@@ -369,6 +389,8 @@ const STATE_CONFIG = {
     geo: { lat: 26.9124, lng: 75.7873, region: "IN-RJ" },
     description: "Find verified psychologists serving Jaipur online — for anxiety, depression, academic stress, and relationship counselling. Book a video session with a degree-verified therapist that fits your schedule.",
     localKeywords: "psychologist in Jaipur, therapist in Malviya Nagar, counsellor in Vaishali Nagar, online therapy Jaipur, best psychologist Jaipur, mental health Jaipur",
+    relatedRegion: { slug: "rajasthan", name: "Rajasthan" },
+    localIntro: "Jaipur's growing student and young-professional population is increasingly open to therapy, but the city's fast expansion has outpaced the number of psychologists practicing locally, especially outside the older parts of the city. Choose Your Therapist fills that gap with verified therapists available online across Malviya Nagar, Vaishali Nagar, C-Scheme, and Mansarovar — no waitlist for the one clinic in your area.",
     faqs: [
       { q: "Are there verified psychologists available for Jaipur residents?", a: "Yes. Choose Your Therapist has verified counselling psychologists serving Jaipur and the wider Rajasthan region through secure online video sessions." },
       { q: "Can students in Jaipur access online counselling?", a: "Yes. We have therapists who specialize in academic stress, exam anxiety, and burnout — sessions can be booked from your room, around your study schedule." },
@@ -384,6 +406,8 @@ const STATE_CONFIG = {
     geo: { lat: 26.8467, lng: 80.9462, region: "IN-UP" },
     description: "Connect with verified psychologists serving Lucknow online — for anxiety, depression, OCD, and relationship counselling. Book a video session with a degree-verified therapist from anywhere in the city.",
     localKeywords: "psychologist in Lucknow, therapist in Gomti Nagar, counsellor in Hazratganj, online therapy Lucknow, best psychologist Lucknow, mental health Lucknow",
+    relatedRegion: { slug: "uttar-pradesh", name: "Uttar Pradesh" },
+    localIntro: "Lucknow's growing corporate and government-exam-prep population is under real pressure — competitive exams, career uncertainty, family expectations — often without a nearby psychologist who understands that specific context. Choose Your Therapist's verified network is reachable online across Gomti Nagar, Hazratganj, Indira Nagar, and Alambagh, with most therapists comfortable communicating in Hindi as well as English.",
     faqs: [
       { q: "Are there verified psychologists available for Lucknow residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists serving Lucknow and across Uttar Pradesh through secure online video sessions." },
       { q: "Can I find a Hindi-speaking psychologist for Lucknow?", a: "Yes, most therapists on our platform are comfortable communicating in Hindi in addition to English. You can confirm this on each therapist's profile before booking." },
@@ -458,6 +482,9 @@ export default function StatePsychologistPage({ config, therapists }) {
     "availableService": SERVICES.map(s => ({ "@type": "MedicalTherapy", "name": s.title, "description": s.desc })),
     "address": { "@type": "PostalAddress", "addressRegion": config.name, "addressCountry": "IN" },
     "geo": { "@type": "GeoCoordinates", "latitude": config.geo.lat, "longitude": config.geo.lng },
+    // Real, org-wide rating (matches the Organization schema on the homepage) —
+    // not a fabricated per-city number.
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "500", "bestRating": "5" },
     "parentOrganization": {
       "@type": "MedicalOrganization",
       "@id": "https://www.chooseyourtherapist.in#organization",
@@ -484,6 +511,38 @@ export default function StatePsychologistPage({ config, therapists }) {
       { "@type": "ListItem", "position": 3, "name": `Psychologist in ${config.name}`, "item": PAGE_URL }
     ]
   };
+
+  // WebPage + speakable — flags the headline/intro as the citable summary
+  // for voice assistants and AI answer engines.
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${PAGE_URL}#webpage`,
+    "url": PAGE_URL,
+    "name": `Best Psychologist in ${config.name} | Choose Your Therapist`,
+    "description": config.description,
+    "isPartOf": { "@id": "https://www.chooseyourtherapist.in#organization" },
+    "about": { "@id": `${PAGE_URL}#business` },
+    "speakable": { "@type": "SpeakableSpecification", "cssSelector": ["h1", ".local-intro-text"] }
+  };
+
+  // ItemList of the real, currently-displayed verified psychologists —
+  // omitted entirely when the city has none yet (no placeholder entries).
+  const itemListSchema = therapists.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `Verified Psychologists in ${config.name}`,
+    "itemListElement": therapists.slice(0, 12).map((t, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "Person",
+        "name": t.user?.name || t.name || "Verified Psychologist",
+        "jobTitle": t.profile_type || "Psychologist",
+        "url": `https://www.chooseyourtherapist.in/view-profile/${t._id}`
+      }
+    }))
+  } : null;
 
   return (
     <div style={{ overflowX: "hidden", width: "100%" }}>
@@ -516,6 +575,10 @@ export default function StatePsychologistPage({ config, therapists }) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
+        {itemListSchema && (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+        )}
       </Head>
 
       <MyNavbar />
@@ -614,6 +677,30 @@ export default function StatePsychologistPage({ config, therapists }) {
           </div>
         </div>
       </div>
+
+      {/* ── Local intro — unique per-page content, not just a template ──────── */}
+      {config.localIntro && (
+        <div style={{ background: "#fff", padding: "56px 0 8px" }}>
+          <div className="container">
+            <div style={{ maxWidth: "800px", margin: "0 auto" }} className="clinic-details">
+              <h2 style={{ fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 900, color: "#1e293b", marginBottom: "14px" }}>
+                Why Choose Online Therapy in {config.name}
+              </h2>
+              <p className="local-intro-text" style={{ color: "#475569", fontSize: "16px", lineHeight: 1.8, margin: 0 }}>
+                {config.localIntro}
+              </p>
+              {config.relatedRegion && (
+                <p style={{ color: "#64748b", fontSize: "14px", marginTop: "18px" }}>
+                  Looking further afield? See verified psychologists across all of{" "}
+                  <a href={`/psychologist-in/${config.relatedRegion.slug}`} style={{ color: "#166534", fontWeight: 700, textDecoration: "none" }}>
+                    {config.relatedRegion.name}
+                  </a>.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Services grid ─────────────────────────────────────────────────── */}
       <div style={{ background: "#f8fafc", padding: "72px 0" }}>
