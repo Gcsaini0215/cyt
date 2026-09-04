@@ -45,7 +45,7 @@ const UI = {
   faint: "#94a3b8",
   line: "#eef2f0",
   cardBorder: "1px solid #e4ece7",
-  cardRadius: 10,
+  cardRadius: 12,
   cardShadow: "0 1px 2px rgba(15,23,42,.04), 0 10px 26px rgba(15,23,42,.06)",
   green: {
     d900: "#0f3d24",
