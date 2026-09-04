@@ -48,7 +48,7 @@ export default function MainLayout(props) {
           background: "#f8faf9",
           minHeight: "100vh",
           paddingTop: "38px",
-          paddingLeft: isNavStacked ? 0 : 200,
+          paddingLeft: isNavStacked ? 0 : 60,
           paddingBottom: isNavStacked ? "80px" : "0",
         }}
       >

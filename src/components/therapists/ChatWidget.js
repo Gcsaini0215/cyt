@@ -97,8 +97,8 @@ export default function ChatWidget() {
           .cw-panel { left: 16px; bottom: 140px; width: calc(100vw - 32px); }
         }
         @media (min-width: 961px) {
-          .cw-fab   { left: 220px; }
-          .cw-panel { left: 220px; }
+          .cw-fab   { left: 80px; }
+          .cw-panel { left: 80px; }
         }
       `}</style>
 

@@ -10,30 +10,18 @@ import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
 
-/* "Two-Tier Nav": the top bar carries brand + account, this sidebar carries
-   the sectioned, labeled section nav underneath it. */
-const SECTIONS = [
-  {
-    label: "Overview",
-    items: [{ to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" }],
-  },
-  {
-    label: "Practice",
-    items: [
-      { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", hasBadge: true },
-      { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices" },
-      { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews" },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications" },
-      { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
-    ],
-  },
+const NAV_ITEMS = [
+  { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
+  { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", hasBadge: true },
+  { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices" },
+  { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews" },
+  { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications" },
+  { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
 ];
 
+/* "Command Bar + Slim Sidebar" — a minimal white icon rail under the
+   search-first top bar. Labels drop to a hover tooltip since the rail
+   itself is icon-only. */
 export default function TherapistSideNav() {
   const router = useRouter();
   const pathname = router.pathname;
@@ -46,35 +34,40 @@ export default function TherapistSideNav() {
           __html: `
         .tsn-rail {
           position: fixed; left: 0; top: 38px; bottom: 0; z-index: 1100;
-          width: 200px;
+          width: 60px;
           background: #fff;
           border-right: 1px solid #e4ece7;
-          overflow-y: auto;
-          padding: 16px 12px 24px;
+          display: flex; flex-direction: column; align-items: center;
+          padding: 14px 0;
+          gap: 4px;
         }
-        .tsn-sec {
-          font-size: 10px; font-weight: 800; color: #94a3b8;
-          text-transform: uppercase; letter-spacing: 0.06em;
-          padding: 0 10px; margin: 16px 0 6px;
-        }
-        .tsn-sec:first-child { margin-top: 0; }
         .tsn-item {
           position: relative;
-          display: flex; align-items: center; gap: 11px;
-          padding: 9px 10px; margin-bottom: 2px;
-          border-radius: 9px; color: #475569; font-size: 12.5px; font-weight: 700;
+          width: 38px; height: 38px;
+          display: grid; place-items: center;
+          border-radius: 10px; color: #94a3b8;
           text-decoration: none !important;
           transition: background 0.15s ease, color 0.15s ease;
         }
-        .tsn-item svg { font-size: 18px; flex-shrink: 0; }
-        .tsn-item:hover { background: #f8faf9; color: #0f172a; text-decoration: none; }
+        .tsn-item svg { font-size: 19px; }
+        .tsn-item:hover { background: #f8faf9; color: #166534; text-decoration: none; }
         .tsn-item.active { background: #f0fdf4; color: #166534; }
-        .tsn-item.active svg { color: #16a34a; }
         .tsn-badge {
-          margin-left: auto;
+          position: absolute; top: 1px; right: 2px;
           background: #ef4444; color: #fff; border-radius: 8px;
-          min-width: 17px; padding: 0 5px; font-size: 9.5px; font-weight: 800;
-          line-height: 17px; text-align: center; flex-shrink: 0;
+          min-width: 15px; padding: 0 4px; font-size: 8px; font-weight: 800;
+          line-height: 14px; text-align: center; border: 1.5px solid #fff;
+        }
+
+        /* Tooltip: attr()-based content avoids literal quote characters in
+           this style block, which is what breaks SSR/client hydration here. */
+        .tsn-item:hover::after {
+          content: attr(data-label);
+          position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+          background: #0f172a; color: #fff; font-size: 12px; font-weight: 600;
+          padding: 6px 11px; border-radius: 7px; white-space: nowrap;
+          box-shadow: 0 10px 28px rgba(15,23,42,0.28);
+          z-index: 1010; pointer-events: none;
         }
 
         @media (max-width: 960px) { .tsn-rail { display: none; } }
@@ -82,21 +75,15 @@ export default function TherapistSideNav() {
         }}
       />
       <nav className="tsn-rail">
-        {SECTIONS.map((sec) => (
-          <React.Fragment key={sec.label}>
-            <div className="tsn-sec">{sec.label}</div>
-            {sec.items.map((item) => {
-              const active = pathname === item.to;
-              return (
-                <Link key={item.to} href={item.to} className={`tsn-item${active ? " active" : ""}`}>
-                  <item.Icon />
-                  {item.label}
-                  {item.hasBadge && notificationCount > 0 && <span className="tsn-badge">{notificationCount}</span>}
-                </Link>
-              );
-            })}
-          </React.Fragment>
-        ))}
+        {NAV_ITEMS.map((item) => {
+          const active = pathname === item.to;
+          return (
+            <Link key={item.to} href={item.to} data-label={item.label} className={`tsn-item${active ? " active" : ""}`}>
+              <item.Icon />
+              {item.hasBadge && notificationCount > 0 && <span className="tsn-badge">{notificationCount}</span>}
+            </Link>
+          );
+        })}
       </nav>
     </>
   );

@@ -15,6 +15,8 @@ import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
 const logo1 = "/cyt-emblem.png";
 
@@ -24,6 +26,8 @@ const MOB_NAV = [
   { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
 ];
 
+/* "Command Bar + Slim Sidebar" — a light, search-first top bar: hamburger,
+   logo, a command-style search field, and account controls on the right. */
 export default function DashboardTopNav() {
   const { therapistInfo, fetchTherapistInfo, notificationCount, setNotificationCount } =
     useTherapistStore();
@@ -91,29 +95,42 @@ export default function DashboardTopNav() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        /* ── Deep-green chrome bar ─────────────────────── */
+        /* ── Light command-bar chrome ──────────────────── */
         .tn-bar {
           position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
           height: 38px;
-          background: linear-gradient(180deg, #0f3d24 0%, #0b2f1c 100%);
-          border-bottom: 1px solid rgba(212,175,55,0.28);
-          box-shadow: 0 1px 0 rgba(255,255,255,0.03), 0 4px 14px rgba(4,22,14,0.35);
-          display: flex; align-items: center; gap: 8px;
+          background: #fff;
+          border-bottom: 1px solid #e4ece7;
+          box-shadow: 0 1px 3px rgba(15,23,42,0.03);
+          display: flex; align-items: center; gap: 10px;
           padding: 0 12px;
           font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
           user-select: none;
         }
 
-        /* ── Logo ─────────────────────────────────────── */
-        .tn-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; flex-shrink: 0; }
-        .tn-logo-badge {
-          width: 28px; height: 28px; flex-shrink: 0;
-          background: #fff; border-radius: 50%;
-          display: grid; place-items: center;
-          box-shadow: 0 0 0 1.5px rgba(212,175,55,0.6), 0 2px 6px rgba(0,0,0,0.3);
+        /* ── Menu toggle + logo ─────────────────────────── */
+        .tn-menu-btn {
+          width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+          background: transparent; border: none; cursor: pointer;
+          display: grid; place-items: center; color: #5b6b7c;
+          transition: background 0.14s, color 0.14s;
         }
-        .tn-logo-badge img { width: 19px; height: 19px; object-fit: contain; display: block; }
-        .tn-title-text { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.82); letter-spacing: 0.2px; white-space: nowrap; }
+        .tn-menu-btn:hover { background: #f8faf9; color: #166534; }
+        .tn-menu-btn svg { font-size: 17px; }
+        .tn-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
+        .tn-logo img { width: 21px; height: 21px; object-fit: contain; display: block; }
+        .tn-title-text { font-size: 12.5px; font-weight: 700; color: #0f172a; letter-spacing: 0.1px; white-space: nowrap; }
+
+        /* ── Command / search field ─────────────────────── */
+        .tn-cmd {
+          flex: 1; max-width: 360px;
+          height: 25px;
+          background: #f1f5f4; border-radius: 8px;
+          display: flex; align-items: center; gap: 7px;
+          padding: 0 10px;
+          color: #94a3b8; font-size: 11.5px; font-weight: 600;
+        }
+        .tn-cmd svg { font-size: 14px; flex-shrink: 0; }
 
         /* ── Right controls ──────────────────────────── */
         .tn-right { display: flex; align-items: center; gap: 3px; margin-left: auto; flex-shrink: 0; height: 100%; }
@@ -121,18 +138,18 @@ export default function DashboardTopNav() {
           width: 28px; height: 28px; border-radius: 7px;
           background: transparent; border: none; cursor: pointer;
           display: grid; place-items: center;
-          color: rgba(255,255,255,0.66); transition: background 0.14s, color 0.14s;
+          color: #5b6b7c; transition: background 0.14s, color 0.14s;
           text-decoration: none; position: relative;
         }
         .tn-icon-btn svg { font-size: 16px; }
-        .tn-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .tn-icon-btn:hover { background: #f8faf9; color: #166534; }
         .tn-notif-dot {
           position: absolute; top: 0px; right: 0px;
           min-width: 13px; height: 13px; padding: 0 3px; border-radius: 7px;
           background: #ef4444; color: #fff;
           font-size: 7.5px; font-weight: 800;
           display: flex; align-items: center; justify-content: center;
-          border: 2px solid #0b2f1c;
+          border: 2px solid #fff;
         }
 
         /* ── Profile ──────────────────────────────────── */
@@ -140,40 +157,40 @@ export default function DashboardTopNav() {
           height: 28px; padding: 0 8px 0 6px;
           display: flex; align-items: center; gap: 7px;
           border-radius: 7px; border: none; background: none;
-          color: rgba(255,255,255,0.7); font-size: 12px; font-weight: 600;
+          color: #334155; font-size: 12px; font-weight: 700;
           cursor: pointer; transition: background 0.14s, color 0.14s;
         }
-        .tn-prof-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .tn-prof-btn:hover { background: #f8faf9; }
         .tn-prof-av {
           width: 20px; height: 20px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
-          box-shadow: 0 0 0 1px rgba(212,175,55,0.5);
+          box-shadow: 0 0 0 1px #e4ece7;
         }
         .tn-prof-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .tn-prof-chevron { font-size: 14px !important; opacity: 0.6; }
+        .tn-prof-chevron { font-size: 14px !important; opacity: 0.55; }
 
         .tn-prof-dd {
           position: absolute; top: calc(100% + 6px); right: 0;
-          background: #0f3d24; border: 1px solid rgba(212,175,55,0.22);
+          background: #fff; border: 1px solid #e4ece7;
           border-radius: 10px; min-width: 210px; z-index: 600;
-          box-shadow: 0 18px 44px rgba(4,22,14,0.6); padding: 5px;
+          box-shadow: 0 18px 44px rgba(15,23,42,0.14); padding: 5px;
         }
-        .tn-prof-dd-head { padding: 10px 12px 9px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 5px; }
+        .tn-prof-dd-head { padding: 10px 12px 9px; border-bottom: 1px solid #eef2f0; margin-bottom: 5px; }
         .tn-prof-dd a, .tn-prof-dd button {
           display: flex; align-items: center; gap: 10px;
           padding: 8px 10px; width: 100%;
-          color: rgba(255,255,255,0.74); font-size: 12.5px; font-weight: 600;
+          color: #475569; font-size: 12.5px; font-weight: 600;
           text-decoration: none !important; transition: background 0.12s, color 0.12s;
           background: transparent; border: none; border-radius: 7px; cursor: pointer; text-align: left;
         }
         .tn-prof-dd a svg, .tn-prof-dd button svg { font-size: 16px; }
-        .tn-prof-dd a:hover, .tn-prof-dd button:hover { background: rgba(74,222,128,0.12); color: #fff; }
-        .tn-prof-dd .logout-btn { color: #fca5a5; }
-        .tn-prof-dd .logout-btn:hover { background: rgba(248,113,113,0.12); color: #fca5a5; }
+        .tn-prof-dd a:hover, .tn-prof-dd button:hover { background: #f0fdf4; color: #166534; }
+        .tn-prof-dd .logout-btn { color: #dc2626; }
+        .tn-prof-dd .logout-btn:hover { background: #fef2f2; color: #dc2626; }
 
         /* ── Floating app-style bottom nav (solid white) ── */
         .tn-mob-nav { display: none; }
         @media(max-width: 960px) {
-          .tn-title-text { display: none; }
+          .tn-cmd, .tn-title-text { display: none; }
           .tn-mob-nav {
             display: flex; position: fixed; z-index: 1200;
             left: 16px; right: 16px; max-width: 440px; margin: 0 auto;
@@ -221,12 +238,19 @@ export default function DashboardTopNav() {
 
       {/* ── Top bar ───────────────────────────────────── */}
       <div className="tn-bar">
+        <button className="tn-menu-btn" title="Menu">
+          <MenuRoundedIcon />
+        </button>
+
         <Link href="/therapist-dashboard" className="tn-logo">
-          <span className="tn-logo-badge">
-            <img src={logo1} alt="CYT" width={19} height={19} />
-          </span>
-          <span className="tn-title-text">Choose Your Therapist — Therapist Portal</span>
+          <img src={logo1} alt="CYT" width={21} height={21} />
+          <span className="tn-title-text">Therapist Portal</span>
         </Link>
+
+        <div className="tn-cmd">
+          <SearchRoundedIcon />
+          Search clients, invoices…
+        </div>
 
         <div className="tn-right">
           <a href="https://chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-icon-btn" title="Go to Website">
@@ -251,8 +275,8 @@ export default function DashboardTopNav() {
             {profileOpen && (
               <div className="tn-prof-dd">
                 <div className="tn-prof-dd-head">
-                  <p style={{ color: "#fff", fontWeight: 700, fontSize: 13, margin: 0 }}>{therapistInfo?.user?.name}</p>
-                  <p style={{ color: "#4ade80", fontSize: 10.5, margin: "2px 0 0", fontWeight: 600 }}>Therapist</p>
+                  <p style={{ color: "#0f172a", fontWeight: 700, fontSize: 13, margin: 0 }}>{therapistInfo?.user?.name}</p>
+                  <p style={{ color: "#166534", fontSize: 10.5, margin: "2px 0 0", fontWeight: 600 }}>Therapist</p>
                 </div>
                 <Link href="/therapist-dashboard"><MonitorHeartRoundedIcon /> Dashboard</Link>
                 <Link href="/settings"><PersonRoundedIcon /> Edit Profile</Link>

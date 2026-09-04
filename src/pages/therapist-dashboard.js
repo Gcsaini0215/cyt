@@ -247,7 +247,7 @@ function CardLink({ href, label = "View all" }) {
 }
 
 /** KPI stat card. */
-function StatCard({ icon: Icon, label, value, isCurrency, accent = UI.green.main, accentBg = UI.green.bg, loading, trend, trendUp }) {
+function StatCard({ icon: Icon, label, value, isCurrency, accent = UI.green.main, accentDark = UI.green.d900, loading, trend, trendUp }) {
   const counted = useCountUp(loading ? 0 : getNum(value));
   const display = loading ? null : isCurrency ? `₹${counted.toLocaleString("en-IN")}` : String(counted);
 
@@ -259,8 +259,8 @@ function StatCard({ icon: Icon, label, value, isCurrency, accent = UI.green.main
         border: UI.cardBorder,
         overflow: "hidden",
         boxShadow: UI.cardShadow,
-        transition: "transform .2s ease, box-shadow .2s ease",
-        "&:hover": { transform: "translateY(-3px)", boxShadow: `0 6px 12px rgba(15,23,42,.06), 0 20px 38px ${accent}22` },
+        transition: "transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease",
+        "&:hover": { transform: "translateY(-4px)", boxShadow: `0 8px 16px rgba(15,23,42,.06), 0 22px 40px ${accent}28` },
       }}
     >
       <Box sx={{ height: 3, background: accent }} />
@@ -270,13 +270,14 @@ function StatCard({ icon: Icon, label, value, isCurrency, accent = UI.green.main
             sx={{
               width: 34,
               height: 34,
-              borderRadius: "8px",
-              background: accentBg,
+              borderRadius: "9px",
+              background: `linear-gradient(135deg, ${accent}, ${accentDark})`,
+              boxShadow: `0 4px 10px -3px ${accent}66`,
               display: "grid",
               placeItems: "center",
             }}
           >
-            <Icon sx={{ fontSize: 17, color: accent }} />
+            <Icon sx={{ fontSize: 17, color: "#fff", filter: "drop-shadow(0 1px 1px rgba(0,0,0,.18))" }} />
           </Box>
           {trend && !loading && (
             <Box
@@ -889,12 +890,12 @@ export default function TherapistDashboard() {
   ].filter(Boolean);
 
   const statCards = [
-    { icon: AccountBalanceWalletRoundedIcon, label: "Total Earnings", value: stats.totalEarnings, isCurrency: true, accent: "#166534", accentBg: "#f0fdf4" },
-    { icon: TrendingUpRoundedIcon, label: "This Month", value: stats.monthEarnings, isCurrency: true, accent: "#0f766e", accentBg: "#f0fdfa", trend: stats.monthGrowth, trendUp: stats.monthGrowthUp },
-    { icon: EventRepeatRoundedIcon, label: "Upcoming", value: stats.upcoming, accent: "#15803d", accentBg: "#f0fdf4" },
-    { icon: GroupsRoundedIcon, label: "Total Clients", value: stats.totalClients, accent: "#b8860b", accentBg: "#fffbeb" },
-    { icon: PaymentsRoundedIcon, label: "Today's Revenue", value: stats.todayRevenue, isCurrency: true, accent: "#059669", accentBg: "#ecfdf5" },
-    { icon: TaskAltRoundedIcon, label: "Sessions Done", value: stats.completedCount, accent: "#166534", accentBg: "#f0fdf4", trend: stats.completionRate > 0 ? `${stats.completionRate}%` : undefined, trendUp: true },
+    { icon: AccountBalanceWalletRoundedIcon, label: "Total Earnings", value: stats.totalEarnings, isCurrency: true, accent: "#16a34a", accentDark: "#0f3d24" },
+    { icon: TrendingUpRoundedIcon, label: "This Month", value: stats.monthEarnings, isCurrency: true, accent: "#0ea5a3", accentDark: "#0f5c5a", trend: stats.monthGrowth, trendUp: stats.monthGrowthUp },
+    { icon: EventRepeatRoundedIcon, label: "Upcoming", value: stats.upcoming, accent: "#f59e0b", accentDark: "#b45309" },
+    { icon: GroupsRoundedIcon, label: "Total Clients", value: stats.totalClients, accent: "#6366f1", accentDark: "#3730a3" },
+    { icon: PaymentsRoundedIcon, label: "Today's Revenue", value: stats.todayRevenue, isCurrency: true, accent: "#059669", accentDark: "#065f46" },
+    { icon: TaskAltRoundedIcon, label: "Sessions Done", value: stats.completedCount, accent: "#22c55e", accentDark: "#15803d", trend: stats.completionRate > 0 ? `${stats.completionRate}%` : undefined, trendUp: true },
   ];
 
   return (
