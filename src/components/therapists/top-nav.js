@@ -18,12 +18,6 @@ import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 
 const logo1 = "/cyt-emblem.png";
 
-const NAV = [
-  { to: "/therapist-dashboard", label: "Dashboard", Icon: MonitorHeartRoundedIcon },
-  { to: "/appointments", label: "Appointments", Icon: EventAvailableRoundedIcon, hasBadge: true },
-  { to: "/settings", label: "Settings", Icon: ManageAccountsRoundedIcon },
-];
-
 const MOB_NAV = [
   { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Home" },
   { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badge: true },
@@ -88,8 +82,6 @@ export default function DashboardTopNav() {
     router.push("/login");
   };
 
-  const isItemActive = (item) => pathname === item.to;
-
   const avatarSrc = therapistInfo?.user?.profile
     ? `${imagePath}/${therapistInfo.user.profile}`
     : defaultProfile;
@@ -122,25 +114,6 @@ export default function DashboardTopNav() {
         }
         .tn-logo-badge img { width: 19px; height: 19px; object-fit: contain; display: block; }
         .tn-title-text { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.82); letter-spacing: 0.2px; white-space: nowrap; }
-
-        /* ── Nav ──────────────────────────────────────── */
-        .tn-nav { display: flex; align-items: center; gap: 2px; margin-left: 10px; height: 100%; flex: 1; min-width: 0; }
-        .tn-link {
-          height: 28px; padding: 0 11px;
-          display: flex; align-items: center; gap: 6px;
-          border-radius: 7px; border: none; background: none;
-          color: rgba(255,255,255,0.66); font-size: 12px; font-weight: 600;
-          text-decoration: none !important; white-space: nowrap; cursor: pointer;
-          transition: background 0.14s, color 0.14s;
-          position: relative;
-        }
-        .tn-link svg { font-size: 15px; }
-        .tn-link:hover { background: rgba(255,255,255,0.09); color: #fff; }
-        .tn-link.active { background: rgba(74,222,128,0.16); color: #86efac; }
-        .tn-link.active::after {
-          content: ''; position: absolute; left: 11px; right: 11px; bottom: -1px;
-          height: 2px; border-radius: 2px; background: #22c55e;
-        }
 
         /* ── Right controls ──────────────────────────── */
         .tn-right { display: flex; align-items: center; gap: 3px; margin-left: auto; flex-shrink: 0; height: 100%; }
@@ -200,7 +173,6 @@ export default function DashboardTopNav() {
         /* ── Floating app-style bottom nav (solid white) ── */
         .tn-mob-nav { display: none; }
         @media(max-width: 960px) {
-          .tn-nav { display: none; }
           .tn-title-text { display: none; }
           .tn-mob-nav {
             display: flex; position: fixed; z-index: 1200;
@@ -255,25 +227,6 @@ export default function DashboardTopNav() {
           </span>
           <span className="tn-title-text">Choose Your Therapist — Therapist Portal</span>
         </Link>
-
-        <nav className="tn-nav">
-          {NAV.map((item) => (
-            <Link
-              key={item.to}
-              href={item.to}
-              className={`tn-link${isItemActive(item) ? " active" : ""}`}
-              onClick={item.hasBadge ? () => setNotificationCount(0) : undefined}
-            >
-              <item.Icon />
-              {item.label}
-              {item.hasBadge && notificationCount > 0 && (
-                <span style={{ background: "#ef4444", color: "#fff", borderRadius: 8, padding: "1px 5px", fontSize: 9, fontWeight: 800 }}>
-                  {notificationCount}
-                </span>
-              )}
-            </Link>
-          ))}
-        </nav>
 
         <div className="tn-right">
           <a href="https://chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-icon-btn" title="Go to Website">
