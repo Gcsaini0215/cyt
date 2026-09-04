@@ -652,35 +652,49 @@ export default function StatePsychologistPage({ config, therapists }) {
       </div>
 
       {/* ── Therapist cards ───────────────────────────────────────────────── */}
-      <div style={{ background: "#fff", padding: "72px 0" }}>
-        <div className="container">
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 900, color: "#1e293b", marginBottom: "12px" }}>
-              Verified Psychologists in {config.name}
-            </h2>
-            <p style={{ color: "#64748b", fontSize: "17px" }}>
-              All therapists are degree-verified and experienced in evidence-based therapy
-            </p>
+      {therapists.length > 0 ? (
+        <div style={{ background: "#fff", paddingTop: "48px" }}>
+          <div className="container">
+            <div style={{ textAlign: "center", marginBottom: "16px" }}>
+              <h2 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 900, color: "#1e293b", marginBottom: "12px" }}>
+                Verified Psychologists in {config.name}
+              </h2>
+              <p style={{ color: "#64748b", fontSize: "17px" }}>
+                All therapists are degree-verified and experienced in evidence-based therapy
+              </p>
+            </div>
           </div>
-          {therapists.length > 0
-            ? <ProfileCard profiles={therapists} />
-            : (
-              <div style={{ textAlign: "center", padding: "60px 0" }}>
-                <p style={{ color: "#64748b", fontSize: "17px", marginBottom: "24px" }}>
-                  Online therapists available for {config.name} residents
-                </p>
-                <a href="/view-all-therapist" style={{
-                  padding: "14px 32px", borderRadius: "50px",
-                  background: "#228756", color: "#fff",
-                  fontWeight: 700, fontSize: "15px", textDecoration: "none"
-                }}>
-                  View All Therapists
-                </a>
-              </div>
-            )
-          }
+          {/* ProfileCard paints its own full-bleed background — kept outside
+              .container so it spans the full viewport, not the container's
+              max-width (that was the "cut off on left/right" bug). */}
+          <ProfileCard profiles={therapists} />
         </div>
-      </div>
+      ) : (
+        <div style={{ background: "#fff", padding: "72px 0" }}>
+          <div className="container">
+            <div style={{ textAlign: "center", marginBottom: "48px" }}>
+              <h2 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 900, color: "#1e293b", marginBottom: "12px" }}>
+                Verified Psychologists in {config.name}
+              </h2>
+              <p style={{ color: "#64748b", fontSize: "17px" }}>
+                All therapists are degree-verified and experienced in evidence-based therapy
+              </p>
+            </div>
+            <div style={{ textAlign: "center", padding: "60px 0" }}>
+              <p style={{ color: "#64748b", fontSize: "17px", marginBottom: "24px" }}>
+                Online therapists available for {config.name} residents
+              </p>
+              <a href="/view-all-therapist" style={{
+                padding: "14px 32px", borderRadius: "50px",
+                background: "#228756", color: "#fff",
+                fontWeight: 700, fontSize: "15px", textDecoration: "none"
+              }}>
+                View All Therapists
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── FAQ ───────────────────────────────────────────────────────────── */}
       <div style={{ background: "#f8fafc", padding: "72px 0" }}>
