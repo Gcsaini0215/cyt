@@ -8,6 +8,7 @@ import { getTherapistProfiles } from "../../utils/url";
 
 const ProfileCard = dynamic(() => import("../../components/home/profile-card"), { ssr: false });
 const NewsLetter = dynamic(() => import("../../components/home/newsletter"), { ssr: false });
+const ConsultationForm = dynamic(() => import("../../components/home/consultation-form"), { ssr: false });
 
 // ─── State config ────────────────────────────────────────────────────────────
 const STATE_CONFIG = {
@@ -253,6 +254,142 @@ const STATE_CONFIG = {
         a: "Therapy sessions in Andhra Pradesh on Choose Your Therapist start from ₹500 per session. Fees vary by therapist and are displayed on their profiles."
       }
     ]
+  },
+  // ─── City-level pages — same online network, city-specific search intent ──
+  "mumbai": {
+    name: "Mumbai",
+    filterValues: ["maharashtra"],
+    cities: ["Andheri", "Bandra", "Powai", "Thane", "Navi Mumbai", "Borivali", "Malad", "Chembur"],
+    slug: "mumbai",
+    geo: { lat: 19.0760, lng: 72.8777, region: "IN-MH" },
+    description: "Connect with verified psychologists serving Mumbai online — for anxiety, depression, OCD, relationship issues, and workplace stress. Book flexible video sessions with degree-verified therapists from anywhere in the city.",
+    localKeywords: "psychologist in Mumbai, therapist in Andheri, counsellor in Bandra, online therapy Mumbai, best psychologist Mumbai, mental health Mumbai, psychologist near me Mumbai",
+    faqs: [
+      { q: "Are there verified psychologists available for Mumbai residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists serving Mumbai through secure online video sessions. All therapists are degree-verified and experienced in evidence-based approaches like CBT and ERP." },
+      { q: "Is online therapy as effective as in-person therapy in Mumbai?", a: "Research shows online therapy is as effective as in-person sessions for most concerns, including anxiety, depression, and relationship issues. It also saves commute time across a city as spread out as Mumbai." },
+      { q: "Can I find a therapist in Mumbai who speaks Marathi or Hindi?", a: "Some therapists on our platform are comfortable in Marathi and Hindi in addition to English. Use the 'languages spoken' filter on our therapist directory to find the right match." },
+      { q: "What does a therapy session cost for someone based in Mumbai?", a: "Online sessions on Choose Your Therapist start from ₹500. All pricing is shown transparently on each therapist's profile before you book, with no hidden fees." }
+    ]
+  },
+  "bangalore": {
+    name: "Bangalore",
+    filterValues: ["karnataka"],
+    cities: ["Whitefield", "Koramangala", "Indiranagar", "HSR Layout", "Electronic City", "Jayanagar"],
+    slug: "bangalore",
+    geo: { lat: 12.9716, lng: 77.5946, region: "IN-KA" },
+    description: "Find verified psychologists serving Bangalore online — for work stress, anxiety, depression, and relationship counselling. Book a video session with a degree-verified therapist that fits your schedule.",
+    localKeywords: "psychologist in Bangalore, therapist in Koramangala, counsellor in Whitefield, online therapy Bangalore, best psychologist Bangalore, mental health Bangalore, therapist near me Bangalore",
+    faqs: [
+      { q: "Are there psychologists who understand tech-industry burnout in Bangalore?", a: "Yes. Several therapists on Choose Your Therapist specialize in work-related stress, burnout, and career anxiety — common concerns among Bangalore's IT and startup workforce." },
+      { q: "Can I book a therapy session in Bangalore outside office hours?", a: "Yes. Online sessions on our platform can be scheduled early morning, evening, or weekends, so you can fit therapy around a demanding work schedule." },
+      { q: "Is online counselling available across Bangalore?", a: "Yes. Whether you're in Whitefield, Koramangala, Electronic City, or anywhere else in Bangalore, all you need is a stable internet connection to book a session." },
+      { q: "What is the fee for a psychologist for someone in Bangalore?", a: "Sessions start from ₹500 on Choose Your Therapist. Fees vary by therapist experience and specialization, and are shown clearly on each profile." }
+    ]
+  },
+  "pune": {
+    name: "Pune",
+    filterValues: ["maharashtra"],
+    cities: ["Kothrud", "Baner", "Viman Nagar", "Hinjewadi", "Kharadi", "Aundh"],
+    slug: "pune",
+    geo: { lat: 18.5204, lng: 73.8567, region: "IN-MH" },
+    description: "Connect with verified psychologists serving Pune online — for anxiety, depression, academic stress, and relationship counselling. Book a video session with a degree-verified therapist at a time that works for you.",
+    localKeywords: "psychologist in Pune, therapist in Kothrud, counsellor in Baner, online therapy Pune, best psychologist Pune, mental health Pune, student counsellor Pune",
+    faqs: [
+      { q: "Are there therapists who work with students in Pune?", a: "Yes. Choose Your Therapist has psychologists experienced with academic stress, exam anxiety, and the transition to college life — relevant for Pune's large student population." },
+      { q: "Is online therapy available across Pune?", a: "Yes. All psychologists on our platform offer secure online video sessions accessible from Kothrud, Baner, Hinjewadi, Viman Nagar, or anywhere else in Pune." },
+      { q: "Can I find a Marathi-speaking counsellor for someone in Pune?", a: "Some therapists on our platform are comfortable in Marathi. Use the 'languages spoken' filter on the therapist directory to find a match." },
+      { q: "What does therapy cost for someone based in Pune?", a: "Online sessions start from ₹500 on Choose Your Therapist. All pricing is transparent and shown on each therapist's profile." }
+    ]
+  },
+  "hyderabad": {
+    name: "Hyderabad",
+    filterValues: ["telangana"],
+    cities: ["Gachibowli", "Banjara Hills", "Madhapur", "Kukatpally", "Secunderabad", "Jubilee Hills"],
+    slug: "hyderabad",
+    geo: { lat: 17.3850, lng: 78.4867, region: "IN-TG" },
+    description: "Find verified psychologists serving Hyderabad online — for anxiety, depression, OCD, and relationship counselling. Book a video session with a degree-verified therapist from anywhere in the city.",
+    localKeywords: "psychologist in Hyderabad, therapist in Gachibowli, counsellor in Banjara Hills, online therapy Hyderabad, best psychologist Hyderabad, mental health Hyderabad",
+    faqs: [
+      { q: "Are there verified psychologists available for Hyderabad residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering secure online video sessions to residents of Hyderabad and the wider Telangana region." },
+      { q: "Can I find a Telugu-speaking psychologist for Hyderabad?", a: "Some therapists on our platform are comfortable communicating in Telugu. Use the 'languages spoken' filter on the therapist directory to find one." },
+      { q: "Is online counselling available across Hyderabad?", a: "Yes. Whether you're in Gachibowli, Banjara Hills, Kukatpally, or Secunderabad, you can book an online session from anywhere with an internet connection." },
+      { q: "What is the cost of therapy for someone in Hyderabad?", a: "Sessions start from ₹500 on Choose Your Therapist. Fees vary by therapist and are displayed transparently on each profile." }
+    ]
+  },
+  "chennai": {
+    name: "Chennai",
+    filterValues: ["tamil nadu"],
+    cities: ["Adyar", "T Nagar", "Velachery", "Anna Nagar", "OMR", "Nungambakkam"],
+    slug: "chennai",
+    geo: { lat: 13.0827, lng: 80.2707, region: "IN-TN" },
+    description: "Connect with verified psychologists serving Chennai online — for anxiety, depression, relationship issues, and stress management. Book a video session with a degree-verified therapist that fits your schedule.",
+    localKeywords: "psychologist in Chennai, therapist in Adyar, counsellor in T Nagar, online therapy Chennai, best psychologist Chennai, mental health Chennai",
+    faqs: [
+      { q: "Are there verified psychologists available for Chennai residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering online video sessions to residents across Chennai." },
+      { q: "Can I find a Tamil-speaking therapist for Chennai?", a: "Some therapists on our platform are comfortable communicating in Tamil. Use the 'languages spoken' filter on the therapist directory to find a match." },
+      { q: "Is online therapy available across Chennai?", a: "Yes. Whether you're in Adyar, T Nagar, OMR, or Anna Nagar, you can book a session with any therapist on our platform online." },
+      { q: "What does a therapy session cost for someone in Chennai?", a: "Online sessions start from ₹500 on Choose Your Therapist. All fees are shown transparently on each therapist's profile before booking." }
+    ]
+  },
+  "kolkata": {
+    name: "Kolkata",
+    filterValues: ["west bengal"],
+    cities: ["Salt Lake", "New Town", "Howrah", "Behala", "Park Street", "Ballygunge"],
+    slug: "kolkata",
+    geo: { lat: 22.5726, lng: 88.3639, region: "IN-WB" },
+    description: "Find verified psychologists serving Kolkata online — for anxiety, depression, OCD, and relationship counselling. Book a video session with a degree-verified therapist at a time that suits you.",
+    localKeywords: "psychologist in Kolkata, therapist in Salt Lake, counsellor in New Town, online therapy Kolkata, best psychologist Kolkata, mental health Kolkata",
+    faqs: [
+      { q: "Are there verified psychologists available for Kolkata residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering secure online video sessions to Kolkata and the wider West Bengal region." },
+      { q: "Can I find a Bengali-speaking psychologist for Kolkata?", a: "Some therapists on our platform are comfortable in Bengali. Use the 'languages spoken' filter on our therapist directory to find one." },
+      { q: "Is online counselling available across Kolkata?", a: "Yes. Whether you're in Salt Lake, New Town, Howrah, or South Kolkata, you can book an online session with any therapist on our platform." },
+      { q: "What is the cost of therapy for someone based in Kolkata?", a: "Sessions start from ₹500 on Choose Your Therapist. Fees vary by therapist and are shown transparently on each profile." }
+    ]
+  },
+  "ahmedabad": {
+    name: "Ahmedabad",
+    filterValues: ["gujarat"],
+    cities: ["Satellite", "Bopal", "Navrangpura", "Vastrapur", "Prahlad Nagar", "Maninagar"],
+    slug: "ahmedabad",
+    geo: { lat: 23.0225, lng: 72.5714, region: "IN-GJ" },
+    description: "Connect with verified psychologists serving Ahmedabad online — for anxiety, depression, stress, and relationship counselling. Book a video session with a degree-verified therapist from anywhere in the city.",
+    localKeywords: "psychologist in Ahmedabad, therapist in Satellite, counsellor in Bopal, online therapy Ahmedabad, best psychologist Ahmedabad, mental health Ahmedabad",
+    faqs: [
+      { q: "Are there verified psychologists available for Ahmedabad residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists offering online video sessions across Ahmedabad and Gujarat." },
+      { q: "Can I get therapy in Gujarati for someone in Ahmedabad?", a: "Some therapists on our platform are comfortable communicating in Gujarati. Check the 'languages spoken' filter on our therapist directory to find a match." },
+      { q: "Is online therapy available across Ahmedabad?", a: "Yes. Whether you're in Satellite, Bopal, Navrangpura, or Vastrapur, you can book a session online from anywhere in the city." },
+      { q: "What does therapy cost for someone based in Ahmedabad?", a: "Online sessions start from ₹500 on Choose Your Therapist. All pricing is transparently displayed on each therapist's profile." }
+    ]
+  },
+  "jaipur": {
+    name: "Jaipur",
+    filterValues: ["rajasthan"],
+    cities: ["Malviya Nagar", "Vaishali Nagar", "C-Scheme", "Mansarovar", "Jagatpura"],
+    slug: "jaipur",
+    geo: { lat: 26.9124, lng: 75.7873, region: "IN-RJ" },
+    description: "Find verified psychologists serving Jaipur online — for anxiety, depression, academic stress, and relationship counselling. Book a video session with a degree-verified therapist that fits your schedule.",
+    localKeywords: "psychologist in Jaipur, therapist in Malviya Nagar, counsellor in Vaishali Nagar, online therapy Jaipur, best psychologist Jaipur, mental health Jaipur",
+    faqs: [
+      { q: "Are there verified psychologists available for Jaipur residents?", a: "Yes. Choose Your Therapist has verified counselling psychologists serving Jaipur and the wider Rajasthan region through secure online video sessions." },
+      { q: "Can students in Jaipur access online counselling?", a: "Yes. We have therapists who specialize in academic stress, exam anxiety, and burnout — sessions can be booked from your room, around your study schedule." },
+      { q: "Is online therapy available across Jaipur?", a: "Yes. Whether you're in Malviya Nagar, Vaishali Nagar, C-Scheme, or Mansarovar, all you need is an internet connection to book a session." },
+      { q: "What is the cost of therapy for someone in Jaipur?", a: "Sessions start from ₹500 on Choose Your Therapist. Fees are shown transparently on each therapist's profile before you book." }
+    ]
+  },
+  "lucknow": {
+    name: "Lucknow",
+    filterValues: ["uttar pradesh", "up"],
+    cities: ["Gomti Nagar", "Hazratganj", "Indira Nagar", "Alambagh", "Aliganj"],
+    slug: "lucknow",
+    geo: { lat: 26.8467, lng: 80.9462, region: "IN-UP" },
+    description: "Connect with verified psychologists serving Lucknow online — for anxiety, depression, OCD, and relationship counselling. Book a video session with a degree-verified therapist from anywhere in the city.",
+    localKeywords: "psychologist in Lucknow, therapist in Gomti Nagar, counsellor in Hazratganj, online therapy Lucknow, best psychologist Lucknow, mental health Lucknow",
+    faqs: [
+      { q: "Are there verified psychologists available for Lucknow residents?", a: "Yes. Choose Your Therapist has verified counselling and clinical psychologists serving Lucknow and across Uttar Pradesh through secure online video sessions." },
+      { q: "Can I find a Hindi-speaking psychologist for Lucknow?", a: "Yes, most therapists on our platform are comfortable communicating in Hindi in addition to English. You can confirm this on each therapist's profile before booking." },
+      { q: "Is online counselling available across Lucknow?", a: "Yes. Whether you're in Gomti Nagar, Hazratganj, Indira Nagar, or Alambagh, you can book a session online from anywhere in the city." },
+      { q: "What does a therapy session cost for someone in Lucknow?", a: "Online sessions start from ₹500 on Choose Your Therapist. All pricing is transparent and shown on each therapist's profile." }
+    ]
   }
 };
 
@@ -415,13 +552,27 @@ export default function StatePsychologistPage({ config, therapists }) {
               </p>
 
               {/* city pills */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "36px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "28px" }}>
                 {config.cities.map(city => (
                   <span key={city} style={{
                     padding: "6px 14px", borderRadius: "50px", fontSize: "13px", fontWeight: 600,
                     background: "rgba(255,255,255,0.12)", color: "#fff",
                     border: "1px solid rgba(255,255,255,0.2)"
                   }}>{city}</span>
+                ))}
+              </div>
+
+              {/* trust stats */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "28px", marginBottom: "32px" }}>
+                {[
+                  { label: "Verified Therapists", value: therapists.length || "10+" },
+                  { label: "Avg. Rating", value: "4.8 ★" },
+                  { label: "Starting From", value: "₹500/session" },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <div style={{ color: "#4ade80", fontWeight: 900, fontSize: "22px", lineHeight: 1 }}>{s.value}</div>
+                    <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", fontWeight: 600, marginTop: "4px" }}>{s.label}</div>
+                  </div>
                 ))}
               </div>
 
@@ -444,32 +595,20 @@ export default function StatePsychologistPage({ config, therapists }) {
               </div>
             </div>
 
-            {/* Stats card */}
+            {/* Lead capture form */}
             <div className="col-lg-5">
               <div style={{
-                background: "rgba(255,255,255,0.08)", borderRadius: "20px",
-                padding: "32px", backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255,255,255,0.15)"
+                background: "rgba(255,255,255,0.97)", borderRadius: "20px",
+                padding: "24px", boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
+                border: "1px solid rgba(255,255,255,0.5)"
               }}>
-                <h3 style={{ color: "#fff", fontWeight: 800, fontSize: "18px", marginBottom: "24px" }}>
-                  Psychologists in {config.name}
+                <h3 style={{ color: "#064e3b", fontWeight: 800, fontSize: "17px", marginBottom: "4px" }}>
+                  Book a Free Consultation
                 </h3>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  {[
-                    { label: "Verified Therapists", value: therapists.length || "10+" },
-                    { label: "Avg. Rating", value: "4.8 ★" },
-                    { label: "Session Types", value: "Online + In-Person" },
-                    { label: "Starting From", value: "₹500/session" },
-                  ].map((s, i) => (
-                    <div key={i} style={{
-                      background: "rgba(255,255,255,0.1)", borderRadius: "12px",
-                      padding: "16px", textAlign: "center"
-                    }}>
-                      <div style={{ color: "#4ade80", fontWeight: 900, fontSize: "20px", marginBottom: "4px" }}>{s.value}</div>
-                      <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "12px", fontWeight: 600 }}>{s.label}</div>
-                    </div>
-                  ))}
-                </div>
+                <p style={{ color: "#64748b", fontSize: "13px", marginBottom: "18px" }}>
+                  For {config.name} residents — online, no commitment.
+                </p>
+                <ConsultationForm showHeading={false} showLocation={false} showSource={false} />
               </div>
             </div>
           </div>
