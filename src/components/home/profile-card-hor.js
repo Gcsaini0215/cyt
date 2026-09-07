@@ -21,7 +21,7 @@ import {
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
 
-export default function ProfileCardHor({ pageData, favrioutes, showRecommended = false, showOnlyBookButton = false }) {
+export default function ProfileCardHor({ pageData, favrioutes, showRecommended = false, showOnlyBookButton = false, variant = "row" }) {
 
   const isRecommended = pageData.priority === 1 || (pageData.priority === undefined && showRecommended);
 
@@ -94,8 +94,10 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
     setBookmark(favrioutes.includes(pageData._id));
   }, [pageData, favrioutes]);
 
+  const outerClass = variant === "row" ? "col-12 sal-animate" : "sal-animate tile-outer";
+
   return (
-    <div className="col-12 sal-animate">
+    <div className={outerClass}>
       <style>{`
         .rbt-card:hover .card-profile-img {
           transform: scale(1.08);
@@ -110,9 +112,76 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         .star-empty {
           color: #e2e8f0;
         }
+
+        /* ── full-bleed tile variant (used for the directory grid) ──
+           sized mobile-first for a ~150px tile; scales up to match
+           the 190px / 230px tile widths set in profile-card.js ── */
+        .rbt-card.tile { position: relative; aspect-ratio: 3 / 4; border-radius: 12px !important; }
+        .rbt-card.tile .rbt-card-img { position: absolute !important; inset: 0; height: 100%; }
+        .rbt-card.tile .card-profile-img { height: 100% !important; width: 100% !important; }
+        .rbt-card.tile .pch-img-gradient { height: 78% !important; }
+
+        .rbt-card.tile .rbt-badge-group { top: 0; bottom: auto !important; }
+        .rbt-card.tile .rbt-badge-group .pch-badge {
+          padding: 3px 8px 3px 10px !important; font-size: 7.5px !important; gap: 3px !important;
+          letter-spacing: .1px !important; clip-path: none !important; border-radius: 0 0 0 12px !important;
+        }
+        .rbt-card.tile .rbt-badge-group .pch-badge svg { font-size: 9px !important; width: 9px !important; height: 9px !important; }
+
+        .rbt-card.tile .rbt-card-body {
+          position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+          padding: 8px 8px 7px !important;
+          background: linear-gradient(to top, rgba(4,15,9,.92), rgba(4,15,9,.45) 65%, transparent 100%);
+        }
+        .rbt-card.tile .pch-header { gap: 4px !important; margin-bottom: 2px !important; }
+        .rbt-card.tile .pch-header > div:first-child { gap: 3px !important; }
+        .rbt-card.tile .rbt-card-title,
+        .rbt-card.tile .rbt-card-title a {
+          color: #fff !important; font-size: 11px !important; letter-spacing: 0 !important; max-width: 100% !important;
+        }
+        .rbt-card.tile .pch-verified-icon svg { font-size: 11px !important; width: 11px !important; height: 11px !important; }
+        .rbt-card.tile .pch-bookmark { width: 22px !important; height: 22px !important; border-radius: 7px !important; }
+        .rbt-card.tile .pch-bookmark svg { font-size: 13px !important; }
+        .rbt-card.tile .pch-bookmark {
+          background: rgba(255,255,255,.18) !important; border-color: rgba(255,255,255,.3) !important; color: #fff !important;
+        }
+        .rbt-card.tile .pch-type {
+          color: rgba(255,255,255,.82) !important; font-size: 9px !important;
+          display: block !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important;
+        }
+        .rbt-card.tile .pch-rating { margin-top: 3px !important; gap: 0 !important; }
+        .rbt-card.tile .pch-rating,
+        .rbt-card.tile .pch-rating span { color: #fff !important; font-size: 9px !important; }
+        .rbt-card.tile .pch-rating svg { font-size: 9px !important; width: 9px !important; height: 9px !important; }
+
+        .rbt-card.tile .rbt-meta,
+        .rbt-card.tile .pch-actions { display: none !important; }
+
+        @media (min-width: 601px) {
+          .rbt-card.tile .rbt-card-body { padding: 11px 11px 10px !important; }
+          .rbt-card.tile .rbt-card-title, .rbt-card.tile .rbt-card-title a { font-size: 12.5px !important; }
+          .rbt-card.tile .pch-type { font-size: 10px !important; }
+          .rbt-card.tile .pch-rating, .rbt-card.tile .pch-rating span { font-size: 10px !important; }
+          .rbt-card.tile .pch-rating svg { font-size: 10px !important; width: 10px !important; height: 10px !important; }
+          .rbt-card.tile .pch-verified-icon svg { font-size: 12px !important; width: 12px !important; height: 12px !important; }
+          .rbt-card.tile .pch-bookmark { width: 25px !important; height: 25px !important; }
+          .rbt-card.tile .pch-bookmark svg { font-size: 14px !important; }
+          .rbt-card.tile .rbt-badge-group .pch-badge { font-size: 9px !important; padding: 4px 10px 4px 12px !important; }
+          .rbt-card.tile .rbt-badge-group .pch-badge svg { font-size: 11px !important; width: 11px !important; height: 11px !important; }
+        }
+        @media (min-width: 1024px) {
+          .rbt-card.tile .rbt-card-body { padding: 13px 13px 12px !important; }
+          .rbt-card.tile .rbt-card-title, .rbt-card.tile .rbt-card-title a { font-size: 13.5px !important; }
+          .rbt-card.tile .pch-type { font-size: 11px !important; }
+          .rbt-card.tile .pch-rating, .rbt-card.tile .pch-rating span { font-size: 11px !important; }
+          .rbt-card.tile .pch-rating svg { font-size: 11px !important; width: 11px !important; height: 11px !important; }
+          .rbt-card.tile .pch-verified-icon svg { font-size: 14px !important; width: 14px !important; height: 14px !important; }
+          .rbt-card.tile .pch-bookmark { width: 28px !important; height: 28px !important; }
+          .rbt-card.tile .pch-bookmark svg { font-size: 15px !important; }
+        }
       `}</style>
-      <div 
-        className="rbt-card variation-01 rbt-hover card-list-2" 
+      <div
+        className={`rbt-card variation-01 rbt-hover card-list-2 ${variant !== "row" ? variant : ""}`}
         style={{
           borderRadius: "20px",
           overflow: "hidden",
@@ -138,7 +207,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               className="card-profile-img"
             />
             {/* Gradient Overlay for better badge visibility */}
-            <div style={{
+            <div className="pch-img-gradient" style={{
               position: "absolute",
               bottom: 0,
               left: 0,
@@ -159,6 +228,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               }}
             >
               <span
+                className="pch-badge"
                 style={{
                   background: isRecommended
                     ? "linear-gradient(135deg, #1a7a4a 0%, #2ecc71 50%, #27ae60 100%)"
@@ -197,7 +267,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
         {/* Card Body */}
         <div className="rbt-card-body" style={{ padding: "20px" }}>
             {/* Header row: name + icon + bookmark */}
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "8px" }}>
+            <div className="pch-header" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "8px" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                   <h4 className="rbt-card-title" style={{
@@ -215,14 +285,16 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                       {pageData.user?.name || "Therapist"}
                     </Link>
                   </h4>
-                  {isRecommended ? (
-                    <WorkspacePremiumIcon sx={{ fontSize: 18, color: "#27ae60", flexShrink: 0 }} />
-                  ) : (
-                    <VerifiedIcon sx={{ fontSize: 18, color: "#1976d2", flexShrink: 0 }} />
-                  )}
+                  <span className="pch-verified-icon">
+                    {isRecommended ? (
+                      <WorkspacePremiumIcon sx={{ fontSize: 18, color: "#27ae60", flexShrink: 0 }} />
+                    ) : (
+                      <VerifiedIcon sx={{ fontSize: 18, color: "#1976d2", flexShrink: 0 }} />
+                    )}
+                  </span>
                 </div>
                 <div style={{ marginTop: "3px" }}>
-                  <span style={{ fontSize: "13px", fontWeight: "600", color: "#64748b" }}>
+                  <span className="pch-type" style={{ fontSize: "13px", fontWeight: "600", color: "#64748b" }}>
                     {pageData.profile_type}
                   </span>
                 </div>
@@ -234,7 +306,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                     : 5;
                   const filledStars = Math.round(avgRating);
                   return (
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "5px" }}>
+                    <div className="pch-rating" style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "5px" }}>
                       {[1, 2, 3, 4, 5].map((star) => (
                         <StarIcon
                           key={star}
@@ -259,6 +331,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               {/* Bookmark button top-right */}
               {showBookmark && (
                 <button
+                  className="pch-bookmark"
                   style={{
                     cursor: "pointer",
                     background: "#f8fafc",
@@ -310,6 +383,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           {/* Buttons */}
           {showOnlyBookButton ? (
             <div
+              className="pch-actions"
               style={{
                 display: "flex",
                 justifyContent: "center",
@@ -334,6 +408,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             </div>
           ) : (
             <div
+              className="pch-actions"
               style={{
                 display: "flex",
                 justifyContent: "space-between",

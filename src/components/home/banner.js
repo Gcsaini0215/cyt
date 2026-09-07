@@ -1,7 +1,7 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
@@ -18,12 +18,28 @@ function initialsOf(name) {
   return (p[0][0] + (p[1]?.[0] || "")).toUpperCase();
 }
 
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function langList(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map((l) => String(l).trim()).filter(Boolean);
+  return String(raw).split(",").map((l) => l.trim()).filter(Boolean);
+}
+
 function TherapistCard({ t, className = "", style }) {
   const hasReviews = t.reviews?.length > 0;
   const avg = hasReviews
     ? (t.reviews.reduce((a, r) => a + (r.rating || 5), 0) / t.reviews.length).toFixed(1)
     : "5.0";
   const rounded = Math.round(Number(avg));
+  const langs = langList(t.language_spoken).slice(0, 2);
 
   return (
     <div className={`cyt-tcard ${className}`} style={style}>
@@ -42,17 +58,25 @@ function TherapistCard({ t, className = "", style }) {
         {t.state && <span className="cyt-tpin">{t.state}</span>}
       </div>
       <div className="cyt-tbody">
-        <div className="cyt-tname">{t.user?.name || "Therapist"}</div>
+        <div className="cyt-tname-row">
+          <span className="cyt-tname">{t.user?.name || "Therapist"}</span>
+          {t.year_of_exp && <span className="cyt-texp">{t.year_of_exp} yrs</span>}
+        </div>
+        <span className="cyt-ttag">{t.profile_type || "Mental Health Professional"}</span>
         <div className="cyt-trate">
           {[1, 2, 3, 4, 5].map((s) => (
             <Star key={s} sx={{ fontSize: 13, color: s <= rounded ? "#f4b53c" : "#e3ece5" }} />
           ))}
           <span>{avg}</span>
+          {hasReviews && <span className="cyt-tcnt">({t.reviews.length})</span>}
         </div>
-        <div className="cyt-tspec">
-          {t.profile_type || "Mental Health Professional"}
-          {t.language_spoken ? ` · ${t.language_spoken}` : ""}
-        </div>
+        {langs.length > 0 && (
+          <div className="cyt-tlangs">
+            {langs.map((l) => (
+              <span key={l} className="cyt-tlang">{l}</span>
+            ))}
+          </div>
+        )}
         <div className="cyt-trow">
           <Link className="cyt-v" href={`/view-profile/${t._id}`}>View</Link>
           <Link className="cyt-b" href={`/book/${t._id}`}>Book</Link>
@@ -65,20 +89,29 @@ function TherapistCard({ t, className = "", style }) {
 export default function Banner({ topTherapists = [], userCity = null }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery((theme) => theme.breakpoints.between("sm", "md"));
-  // desktop = the fanned layout; also fires on iPad landscape (>=1024)
+  // desktop = the coverflow layout; also fires on iPad landscape (>=1024)
   const isDesktop = useMediaQuery("(min-width:1024px)");
+  const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
-  const ranked = [...topTherapists].sort(
-    (a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0)
-  );
+  // shuffled once per load — same top-rated pool, different order each visit
+  const ranked = useMemo(() => shuffled(topTherapists), [topTherapists]);
   const strip = ranked.slice(0, 10); // mobile / tablet carousel
 
-  /* desktop fan — manual only, navigated with the arrows */
-  const [fanStart, setFanStart] = useState(0);
-  const fanCards = ranked.length
-    ? Array.from({ length: Math.min(3, ranked.length) }, (_, i) => ranked[(fanStart + i) % ranked.length])
+  /* desktop coverflow — auto-advances, arrows still work, pauses on hover */
+  const [coverStart, setCoverStart] = useState(0);
+  const [coverPaused, setCoverPaused] = useState(false);
+  const coverCards = ranked.length
+    ? Array.from({ length: Math.min(3, ranked.length) }, (_, i) => ranked[(coverStart + i) % ranked.length])
     : [];
-  const fanGo = (d) => setFanStart((s) => (s + d + ranked.length) % ranked.length);
+  const coverGo = (d) => setCoverStart((s) => (s + d + ranked.length) % ranked.length);
+
+  useEffect(() => {
+    if (!isDesktop || prefersReducedMotion || coverPaused || ranked.length <= 3) return;
+    const id = setInterval(() => {
+      setCoverStart((s) => (s + 1) % ranked.length);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [isDesktop, prefersReducedMotion, coverPaused, ranked.length]);
 
   return (
     <section className="rbt-banner-area rbt-banner-1 variation-2 cyt-hero">
@@ -141,23 +174,27 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
         {/* ── visual ── */}
         <div className="cyt-hero-visual">
-          {isDesktop && fanCards.length > 0 ? (
-            <div className="cyt-fan-wrap">
-              <div className="cyt-fan">
-                {fanCards.map((t, i) => (
+          {isDesktop && coverCards.length > 0 ? (
+            <div
+              className="cyt-cover-wrap"
+              onMouseEnter={() => setCoverPaused(true)}
+              onMouseLeave={() => setCoverPaused(false)}
+            >
+              <div className="cyt-cover">
+                {coverCards.map((t, i) => (
                   <TherapistCard
-                    key={t._id || `${fanStart}-${i}`}
+                    key={t._id || `${coverStart}-${i}`}
                     t={t}
-                    className={`cyt-fan-card cyt-fan-${i + 1}`}
+                    className={`cyt-cover-card ${i === 0 ? "cyt-cover-side-l" : i === 1 ? "cyt-cover-center" : "cyt-cover-side-r"}`}
                   />
                 ))}
               </div>
               {ranked.length > 3 && (
-                <div className="cyt-fan-nav">
-                  <button type="button" aria-label="Previous therapist" onClick={() => fanGo(-1)}>
+                <div className="cyt-cover-nav">
+                  <button type="button" aria-label="Previous therapist" onClick={() => coverGo(-1)}>
                     <ChevronLeftRounded sx={{ fontSize: 24 }} />
                   </button>
-                  <button type="button" aria-label="Next therapist" onClick={() => fanGo(1)}>
+                  <button type="button" aria-label="Next therapist" onClick={() => coverGo(1)}>
                     <ChevronRightRounded sx={{ fontSize: 24 }} />
                   </button>
                 </div>
@@ -184,7 +221,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
               ))}
             </Swiper>
           ) : (
-            <div className="cyt-fan-skeleton" />
+            <div className="cyt-cover-skeleton" />
           )}
         </div>
       </div>
@@ -266,13 +303,21 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           background: rgba(255, 255, 255, 0.92); color: #1c6b45; padding: 3px 10px; border-radius: 999px;
         }
         .cyt-tbody { padding: 14px 16px 16px; }
-        .cyt-tname { font-weight: 800; font-size: 15px; color: #142a1d; }
-        .cyt-trate { display: flex; align-items: center; gap: 1px; margin: 4px 0 8px; }
-        .cyt-trate span { font-size: 12px; font-weight: 700; color: #49594e; margin-left: 6px; }
-        .cyt-tspec {
-          font-size: 12px; color: #5a6a5f; margin-bottom: 12px;
+        .cyt-tname-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+        .cyt-tname {
+          font-weight: 800; font-size: 15px; color: #142a1d;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        .cyt-texp { font-size: 10.5px; color: #6b7a70; flex-shrink: 0; }
+        .cyt-ttag {
+          display: inline-block; margin-top: 7px; font-size: 10.5px; font-weight: 700; color: #1c6b45;
+          background: #eaf5ee; padding: 3px 9px; border-radius: 999px;
+        }
+        .cyt-trate { display: flex; align-items: center; gap: 1px; margin: 8px 0 7px; }
+        .cyt-trate span { font-size: 12px; font-weight: 700; color: #49594e; margin-left: 6px; }
+        .cyt-trate .cyt-tcnt { font-weight: 400; color: #7c8b81; margin-left: 2px; }
+        .cyt-tlangs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+        .cyt-tlang { font-size: 10px; color: #5a6a5f; background: #f0f4f1; padding: 3px 8px; border-radius: 999px; }
         .cyt-trow { display: flex; gap: 8px; }
         .cyt-trow a {
           flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; padding: 9px 6px;
@@ -288,75 +333,78 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         .cyt-swiper .swiper-slide .cyt-tcard { max-width: none; }
         .cyt-swiper .swiper-slide:not(.swiper-slide-active) { opacity: 0.72; }
 
-        /* ── fan (desktop + iPad landscape) ── */
+        /* ── coverflow (desktop + iPad landscape) ── */
         @media (min-width: 1024px) {
           .cyt-hero-inner { flex-direction: row; align-items: center; gap: 26px; }
           .cyt-hero-copy { flex: 0 0 52%; max-width: none; }
           .cyt-hero-visual { flex: 1; min-height: 420px; justify-content: flex-end; }
           .cyt-hero-visual::before { left: auto; right: 0; transform: none; top: -6px; width: 400px; height: 400px; }
-          .cyt-fan { width: 408px; height: 372px; }
-          .cyt-fan-card { width: 192px; max-width: 192px; }
-          .cyt-fan-1 { left: 0; }
-          .cyt-fan-2 { left: 108px; }
-          .cyt-fan-3 { left: 216px; }
+          .cyt-cover { width: 440px; height: 400px; }
+          .cyt-cover-center { width: 208px; }
+          .cyt-cover-side-l { width: 178px; transform: translate(calc(-50% - 108px), 16px) rotateY(26deg) scale(0.86); }
+          .cyt-cover-side-r { width: 178px; transform: translate(calc(-50% + 108px), 16px) rotateY(-26deg) scale(0.86); }
+          .cyt-cover-side-l:hover { transform: translate(calc(-50% - 108px), 4px) rotateY(14deg) scale(0.92); }
+          .cyt-cover-side-r:hover { transform: translate(calc(-50% + 108px), 4px) rotateY(-14deg) scale(0.92); }
         }
-        /* iPad landscape / small desktop: trim the headline so it fits beside the fan */
+        /* iPad landscape / small desktop: trim the headline so it fits beside the cards */
         @media (min-width: 1024px) and (max-width: 1299px) {
           .cyt-hero .title { font-size: clamp(2.2rem, 4vw, 3rem) !important; }
         }
-        /* roomier fan on real desktop widths */
+        /* roomier coverflow on real desktop widths */
         @media (min-width: 1300px) {
           .cyt-hero-inner { gap: 30px; }
           .cyt-hero-copy { flex: 0 0 56%; }
           .cyt-hero-visual { min-height: 460px; }
           .cyt-hero-visual::before { top: -10px; width: 470px; height: 470px; }
-          .cyt-fan { width: 486px; height: 404px; }
-          .cyt-fan-card { width: 220px; max-width: 220px; }
-          .cyt-fan-1 { left: 0; }
-          .cyt-fan-2 { left: 133px; }
-          .cyt-fan-3 { left: 266px; }
+          .cyt-cover { width: 500px; height: 430px; }
+          .cyt-cover-center { width: 232px; }
+          .cyt-cover-side-l { width: 198px; transform: translate(calc(-50% - 124px), 18px) rotateY(26deg) scale(0.86); }
+          .cyt-cover-side-r { width: 198px; transform: translate(calc(-50% + 124px), 18px) rotateY(-26deg) scale(0.86); }
+          .cyt-cover-side-l:hover { transform: translate(calc(-50% - 124px), 4px) rotateY(14deg) scale(0.92); }
+          .cyt-cover-side-r:hover { transform: translate(calc(-50% + 124px), 4px) rotateY(-14deg) scale(0.92); }
         }
-        .cyt-fan-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
-        .cyt-fan {
-          position: relative; z-index: 1; width: 486px; height: 404px;
-          animation: cytFanIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+        .cyt-cover-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
+        .cyt-cover {
+          position: relative; z-index: 1; width: 500px; height: 430px;
+          perspective: 1300px;
+          animation: cytCoverIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
-        @keyframes cytFanIn {
+        @keyframes cytCoverIn {
           from { opacity: 0; transform: translateY(26px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .cyt-fan-card {
-          position: absolute; width: 220px; max-width: 220px;
-          transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.42s ease;
+        .cyt-cover-card {
+          position: absolute; left: 50%; top: 0;
+          transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease, filter 0.4s ease;
           will-change: transform;
           animation: cytCardIn 0.6s ease both;
         }
         @keyframes cytCardIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .cyt-fan-nav { display: flex; gap: 10px; margin-right: 4px; }
-        .cyt-fan-nav button {
+        .cyt-cover-center { transform: translate(-50%, 0) scale(1); z-index: 3; }
+        .cyt-cover-side-l, .cyt-cover-side-r { z-index: 1; opacity: 0.6; filter: saturate(0.85) brightness(0.96); }
+        .cyt-cover-side-l:hover, .cyt-cover-side-r:hover { opacity: 1; filter: none; z-index: 4; }
+        .cyt-cover-center:hover {
+          transform: translate(-50%, -8px) scale(1.03); z-index: 5;
+          box-shadow: 0 44px 76px -22px rgba(18, 66, 42, 0.36), 0 8px 20px rgba(18, 66, 42, 0.1);
+        }
+
+        .cyt-cover-nav { display: flex; gap: 10px; margin-right: 4px; }
+        .cyt-cover-nav button {
           width: 42px; height: 42px; border-radius: 50%; border: 1px solid #dbe9e0;
           background: rgba(255, 255, 255, 0.92); color: #1c6b45; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           box-shadow: 0 10px 22px -10px rgba(18, 66, 42, 0.28);
           transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
-        .cyt-fan-nav button:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 16px 30px -12px rgba(18, 66, 42, 0.35); }
-        .cyt-fan-nav button:active { transform: scale(0.92); }
-        @media (prefers-reduced-motion: reduce) { .cyt-fan-nav button { transition: none; } }
-        .cyt-fan-1 { left: 0; top: 40px; transform: rotate(-8deg); z-index: 1; }
-        .cyt-fan-2 { left: 133px; top: 6px; transform: rotate(-1deg); z-index: 2; }
-        .cyt-fan-3 { left: 266px; top: 44px; transform: rotate(7deg); z-index: 3; }
-        .cyt-fan:hover .cyt-fan-card { filter: saturate(0.97) brightness(0.99); }
-        .cyt-fan-card:hover {
-          transform: rotate(0deg) translateY(-10px) scale(1.045); z-index: 9; filter: none;
-          box-shadow: 0 44px 76px -22px rgba(18, 66, 42, 0.36), 0 8px 20px rgba(18, 66, 42, 0.1);
-        }
+        .cyt-cover-nav button:hover { transform: translateY(-2px); background: #fff; box-shadow: 0 16px 30px -12px rgba(18, 66, 42, 0.35); }
+        .cyt-cover-nav button:active { transform: scale(0.92); }
+        @media (prefers-reduced-motion: reduce) { .cyt-cover-nav button { transition: none; } }
 
-        .cyt-fan-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130, 204, 161, 0.18); }
+        .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130, 204, 161, 0.18); }
 
         @media (prefers-reduced-motion: reduce) {
-          .cyt-fan, .cyt-fan-card, .cyt-trow a, .cyt-swiper .swiper-slide,
+          .cyt-cover, .cyt-cover-card, .cyt-trow a, .cyt-swiper .swiper-slide,
           .banner-word-1, .banner-word-2 { animation: none !important; transition: none !important; }
         }
       `}</style>

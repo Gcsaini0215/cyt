@@ -1,8 +1,4 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
@@ -11,28 +7,18 @@ import {
 } from "../../utils/url";
 import ProfileCardHor from "./profile-card-hor";
 import { getDecodedToken } from "../../utils/jwt";
-export default function ProfileCard({ profiles, detectedState, detectedCity }) {
+
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+export default function ProfileCard({ profiles }) {
   const [isMobile, setIsMobile] = useState(false);
-  const [userDetectedState, setUserDetectedState] = useState(detectedState || "");
-  const [userDetectedCity, setUserDetectedCity] = useState(detectedCity || "");
-  const [activeState, setActiveState] = useState(detectedCity || detectedState || "");
-
-  useEffect(() => {
-    if (detectedState || detectedCity) {
-      setUserDetectedState(detectedState || "");
-      setUserDetectedCity(detectedCity || "");
-      setActiveState(detectedCity || detectedState || "");
-    }
-  }, [detectedState, detectedCity]);
-
-  const onSlideChange = (swiper) => {
-    if (data && data[swiper.realIndex]) {
-      const state = data[swiper.realIndex].state || "";
-      if (state) {
-        setActiveState(state);
-      }
-    }
-  };
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 600px)");
@@ -90,6 +76,11 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
       }
     }
   }, []);
+
+  // random order each time the list loads (fresh page load or tab switch) —
+  // not sorted by reviews/priority, so it's a different mix every visit
+  const shuffledData = useMemo(() => shuffled(data), [data]);
+
   return (
     <div className="rbt-rbt-card-area rbt-section-gap" style={{
       background: '#071a10',
@@ -126,6 +117,24 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
         @media (max-width: 600px) {
           .pc-hero-title { line-height: 1.25; }
         }
+
+        /* ── full-bleed tile row, auto-sliding ── */
+        .tile-strip-frame { overflow: hidden; position: relative; width: 100%; }
+        .tile-strip-frame::before, .tile-strip-frame::after {
+          content: ""; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 3; pointer-events: none;
+        }
+        .tile-strip-frame::before { left: 0; background: linear-gradient(90deg, #071a10, transparent); }
+        .tile-strip-frame::after { right: 0; background: linear-gradient(-90deg, #071a10, transparent); }
+        .tile-track { display: flex; width: max-content; animation-name: cytTileMarquee; animation-timing-function: linear; animation-iteration-count: infinite; }
+        .tile-strip-frame:hover .tile-track { animation-play-state: paused; }
+        .tile-group { display: flex; gap: 14px; flex-shrink: 0; padding-right: 14px; }
+        .tile-outer { width: 150px; flex-shrink: 0; }
+        @keyframes cytTileMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (min-width: 601px) { .tile-group { gap: 18px; padding-right: 18px; } .tile-outer { width: 190px; } }
+        @media (min-width: 1024px) { .tile-group { gap: 20px; padding-right: 20px; } .tile-outer { width: 230px; } }
+        @media (prefers-reduced-motion: reduce) {
+          .tile-track { animation: none; overflow-x: auto; }
+        }
       `}</style>
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
@@ -133,13 +142,13 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
             <div className="section-title text-start" style={{ marginBottom: '30px', textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                 <h3 className="title pc-hero-title">
-                  Best Online Psychologists From <span style={{
+                  Meet India's <span style={{
                     backgroundImage: "linear-gradient(135deg, #4ade80 0%, #34d399 50%, #22d3ee 100%)",
                     WebkitBackgroundClip: "text",
                     backgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                     color: "transparent"
-                  }}>{activeState || "Across India"}</span>
+                  }}>Best Online Psychologists</span>
                 </h3>
                 <div className="view-all-btn-wrapper" style={{ marginTop: isMobile ? '10px' : '0', flexShrink: 0 }}>
                   <Link
@@ -185,36 +194,23 @@ export default function ProfileCard({ profiles, detectedState, detectedCity }) {
         </div>
         <div className="row row--15" style={{ margin: isMobile ? 5 : 0 }}>
           {data && data.length > 0 ? (
-            isMobile ? (
-              <div style={{ display: 'flex', overflowX: 'auto', gap: '16px', paddingBottom: '12px', scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}>
-                {data.slice(0, 10).map((item) => (
-                  <div key={item._id} style={{ minWidth: '85vw', scrollSnapAlign: 'start', flexShrink: 0 }}>
-                    <ProfileCardHor pageData={item} favrioutes={favrioutes} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <Swiper
-                slidesPerView={1}
-                spaceBetween={16}
-                onSlideChange={onSlideChange}
-                breakpoints={{
-                  640: { slidesPerView: 1, spaceBetween: 20 },
-                  768: { slidesPerView: 2, spaceBetween: 30 },
-                  1024: { slidesPerView: 2, spaceBetween: 40 },
-                }}
-                loop={data.length > 2}
-                autoplay={{ delay: 2500, disableOnInteraction: false }}
-                modules={[Autoplay]}
-                className="mySwiper"
+            <div className="tile-strip-frame">
+              <div
+                className="tile-track"
+                style={{ animationDuration: `${Math.max(20, shuffledData.length * 3)}s` }}
               >
-                {data.map((item) => (
-                  <SwiperSlide key={item._id}>
-                    <ProfileCardHor pageData={item} favrioutes={favrioutes} />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            )
+                <div className="tile-group">
+                  {shuffledData.map((item) => (
+                    <ProfileCardHor key={item._id} pageData={item} favrioutes={favrioutes} variant="tile" />
+                  ))}
+                </div>
+                <div className="tile-group" aria-hidden="true" inert="">
+                  {shuffledData.map((item) => (
+                    <ProfileCardHor key={`dup-${item._id}`} pageData={item} favrioutes={favrioutes} variant="tile" />
+                  ))}
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="col-lg-12 text-center" style={{ padding: '40px', background: 'rgba(255,255,255,0.5)', borderRadius: '15px' }}>
               <p style={{ fontSize: '1.2rem', color: '#666' }}>No therapists found for this category.</p>

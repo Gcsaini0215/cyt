@@ -8,6 +8,15 @@ import BottomNavigation from "./bottom-navigation";
 import useTherapistStore from "../store/therapistStore";
 import { imagePath, defaultProfile } from "../utils/url";
 
+const LEAD_STRIP_MESSAGES = [
+  { icon: "feather-heart", text: "Feeling anxious or low? Talk to a verified psychologist today.", href: "/view-all-therapist" },
+  { icon: "feather-percent", text: "First session at just ₹500 — no waitlists, no judgment.", href: "/plans" },
+  { icon: "feather-check-circle", text: "500+ verified therapists across India, online & in-person.", href: "/view-all-therapist" },
+  { icon: "feather-shield", text: "100% confidential sessions. Your privacy, our promise.", href: "/view-all-therapist" },
+  { icon: "feather-phone", text: "Book in under 2 minutes — call +91-807-775-7951", href: "tel:+918077757951" },
+  { icon: "feather-users", text: "Couples, teens, individuals — therapy for every stage of life.", href: "/view-all-therapist" },
+];
+
 export default function App() {
   const [show, setShow] = React.useState(false);
   const [showChatbot, setShowChatbot] = React.useState(false);
@@ -67,16 +76,25 @@ export default function App() {
 
   return (
     <>
-      {/* Top Green Strip */}
+      {/* Top Green Strip — running lead-gen ticker */}
       <div className="top-strip">
         <div className="top-strip-desktop">
-          <div className="left-info">
-            <span><i className="feather-phone"></i> +91-807-775-7951</span>
-            <span className="divider">|</span>
-            <span><i className="feather-mail"></i> hello@chooseyourtherapist.in</span>
-          </div>
-          <div className="right-info">
-            <span><i className="feather-map-pin"></i> Block D-137, Sector 51, Noida, Uttar Pradesh 201301</span>
+          <div className="marquee-track">
+            {[0, 1].map((group) => (
+              <div className="marquee-content" key={group} aria-hidden={group === 1}>
+                {LEAD_STRIP_MESSAGES.map((m, i) =>
+                  m.href.startsWith("tel:") ? (
+                    <a key={i} href={m.href} className="marquee-item" tabIndex={group === 1 ? -1 : 0}>
+                      <i className={m.icon}></i> {m.text}
+                    </a>
+                  ) : (
+                    <Link key={i} href={m.href} className="marquee-item" tabIndex={group === 1 ? -1 : 0}>
+                      <i className={m.icon}></i> {m.text}
+                    </Link>
+                  )
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -663,22 +681,35 @@ export default function App() {
         }
         .top-strip-desktop {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          background: linear-gradient(135deg,#0f3d24,#175c37);
-          color: rgba(255,255,255,.85);
-          padding: 0 15px;
+          background: linear-gradient(135deg,#f0cf6e,#d4af37);
+          color: #111;
           font-size: 13px;
           font-weight: 500;
           height: ${GREEN_STRIP_HEIGHT}px;
-          line-height: ${GREEN_STRIP_HEIGHT}px;
-          border-bottom: 2px solid #d4af37;
+          border-bottom: 2px solid #175c37;
+          overflow: hidden;
+          position: relative;
         }
-        .top-strip-desktop .left-info { display: flex; align-items: center; }
-        .top-strip-desktop .left-info i { color: #d4af37; margin-right: 4px; }
-        .top-strip-desktop .divider { margin: 0 10px; opacity: .35; }
-        .top-strip-desktop .right-info { text-align: right; }
-        .top-strip-desktop .right-info i { color: #d4af37; margin-right: 4px; }
+        .top-strip-desktop::before,
+        .top-strip-desktop::after {
+          content: ""; position: absolute; top: 0; bottom: 0; width: 48px; z-index: 2; pointer-events: none;
+        }
+        .top-strip-desktop::before { left: 0; background: linear-gradient(90deg,#f0cf6e,transparent); }
+        .top-strip-desktop::after { right: 0; background: linear-gradient(-90deg,#d4af37,transparent); }
+        .marquee-track { display: flex; width: max-content; animation: cytMarquee 30s linear infinite; }
+        .top-strip-desktop:hover .marquee-track { animation-play-state: paused; }
+        .marquee-content { display: flex; align-items: center; flex-shrink: 0; }
+        .marquee-item {
+          display: flex; align-items: center; white-space: nowrap; padding: 0 22px;
+          color: inherit; text-decoration: none;
+        }
+        .marquee-item:hover { color: #175c37; text-decoration: underline; }
+        .marquee-item::before { content: "•"; margin-right: 22px; color: rgba(0,0,0,.35); }
+        .marquee-item:first-child::before { content: none; }
+        .marquee-item i { color: #175c37; margin-right: 6px; }
+        @keyframes cytMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
         @media (max-width: 991px) { .top-strip-desktop { display: none; } }
 
         .rbt-header.rbt-header-10 {

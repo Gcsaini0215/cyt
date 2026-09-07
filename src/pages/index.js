@@ -15,7 +15,7 @@ const ProfileCard = dynamic(() => import("../components/home/profile-card"), { s
 const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
 const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
 const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
-const ProcessSteps = dynamic(() => import("../components/home/process-steps"), { ssr: false });
+const FindByLocation = dynamic(() => import("../components/home/find-by-location"), { ssr: false });
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
@@ -531,7 +531,7 @@ export default function HomePage() {
         <ProfileCard profiles={topTherapists} detectedState={userState} detectedCity={userCity} />
         <FreeResources />
         <HomeWorkshop isWhite={false} />
-        <ProcessSteps />
+        <FindByLocation />
         <Feedback therapists={topTherapists} />
         <Blogs />
         <Faqs />
