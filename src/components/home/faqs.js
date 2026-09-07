@@ -240,13 +240,13 @@ export default function Faqs() {
         {/* Bottom CTA */}
         <div style={{
           textAlign: 'center', marginTop: '40px', padding: '36px 28px',
-          background: 'linear-gradient(135deg,#0f3d24,#175c37)', borderRadius: '8px',
-          borderBottom: '3px solid #d4af37'
+          background: 'transparent', borderRadius: '8px',
+          border: '1.5px solid #cfe4d7'
         }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#fff', marginBottom: '8px' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#132a1c', marginBottom: '8px' }}>
             Still have questions?
           </h3>
-          <p style={{ color: 'rgba(255,255,255,.75)', fontSize: '14px', marginBottom: '22px', maxWidth: '480px', margin: '0 auto 22px' }}>
+          <p style={{ color: '#52667f', fontSize: '14px', marginBottom: '22px', maxWidth: '480px', margin: '0 auto 22px' }}>
             Talk to a real person. Our team is happy to help you find the right psychologist for your specific needs.
           </p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -255,7 +255,7 @@ export default function Faqs() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 padding: '11px 24px', borderRadius: '6px',
-                backgroundColor: '#d4af37', color: '#0f3d24',
+                backgroundColor: '#166534', color: '#fff',
                 fontWeight: 700, fontSize: '14px', textDecoration: 'none',
                 transition: 'all 0.2s'
               }}
@@ -267,9 +267,9 @@ export default function Faqs() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
                 padding: '11px 24px', borderRadius: '6px',
-                backgroundColor: 'rgba(255,255,255,.08)', color: '#fff',
+                backgroundColor: 'transparent', color: '#166534',
                 fontWeight: 700, fontSize: '14px', textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,.25)'
+                border: '1.5px solid #166534'
               }}
             >
               Contact Us

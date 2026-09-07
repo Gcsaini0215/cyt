@@ -3,58 +3,74 @@ import { ChevronDown } from "lucide-react";
 
 export default function Faq(props) {
   const [isOpen, setIsOpen] = React.useState(props.defaultOpen || false);
-  
+
   return (
-    <div 
-      className="faq-item" 
-      style={{
-        marginBottom: '10px',
-        borderRadius: '6px',
-        overflow: 'hidden',
-        border: `1px solid ${isOpen ? '#cfe4d7' : '#dbe3df'}`,
-        backgroundColor: '#fff',
-        transition: 'all 0.2s ease',
-        boxShadow: isOpen ? '0 4px 16px rgba(15,61,36,.07)' : 'none'
-      }}
-    >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '16px 18px',
-          background: 'none',
-          border: 'none',
-          textAlign: 'left',
-          cursor: 'pointer',
-          color: isOpen ? '#166534' : '#132a1c',
-          transition: 'color 0.2s ease'
-        }}
-      >
-        <span style={{ fontSize: '14.5px', fontWeight: 700, lineHeight: 1.4 }}>{props.q}</span>
-        <ChevronDown
-          size={17}
+    <div className="faq-chat-item" style={{ marginBottom: "16px" }}>
+      {/* Question — like an incoming chat message */}
+      <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
+        <span
           style={{
-            flexShrink: 0,
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.25s ease',
-            color: isOpen ? '#166534' : '#94a3b8'
+            width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
+            background: "#eef2f0", color: "#64748b", fontSize: "12px", fontWeight: 800,
+            display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px",
           }}
-        />
-      </button>
+        >
+          ?
+        </span>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            display: "flex", alignItems: "center", gap: "10px",
+            textAlign: "left", background: isOpen ? "#e8efe9" : "#eef2f0",
+            border: "none", borderRadius: "4px 14px 14px 14px",
+            padding: "12px 14px", maxWidth: "88%", cursor: "pointer",
+            transition: "background 0.2s ease",
+          }}
+        >
+          <span style={{ fontSize: "14.5px", fontWeight: 700, lineHeight: 1.4, color: "#132a1c" }}>
+            {props.q}
+          </span>
+          <ChevronDown
+            size={16}
+            style={{
+              flexShrink: 0,
+              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.25s ease",
+              color: "#166534",
+            }}
+          />
+        </button>
+      </div>
+
+      {/* Answer — like a reply bubble, revealed on click */}
       <div
         style={{
-          maxHeight: isOpen ? '500px' : '0',
-          overflow: 'hidden',
-          transition: 'all 0.3s cubic-bezier(0, 1, 0, 1)',
-          backgroundColor: '#f8faf9'
+          maxHeight: isOpen ? "700px" : "0px",
+          opacity: isOpen ? 1 : 0,
+          overflow: "hidden",
+          transition: "max-height 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease",
         }}
       >
-        <div style={{ padding: '0 18px 18px', color: '#52667f', fontSize: '13.5px', lineHeight: 1.7, textAlign: 'justify' }}>
-          {props.a}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", justifyContent: "flex-end", marginTop: "8px" }}>
+          <div
+            style={{
+              background: "linear-gradient(135deg,#1a6f47,#166534)",
+              borderRadius: "14px 4px 14px 14px",
+              padding: "12px 14px", maxWidth: "88%",
+              color: "#fff", fontSize: "13.5px", lineHeight: 1.7, textAlign: "left",
+            }}
+          >
+            {props.a}
+          </div>
+          <span
+            style={{
+              width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
+              background: "#d4af37", color: "#0f3d24", fontSize: "10px", fontWeight: 800,
+              display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px",
+            }}
+          >
+            CYT
+          </span>
         </div>
       </div>
     </div>

@@ -9,6 +9,34 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { fetchData } from "../../utils/actions";
 import { getBlogsUrl, baseApi } from "../../utils/url";
 
+const FALLBACK_BLOGS = [
+  {
+    _id: "fallback-1",
+    title: "The Art of Setting Boundaries without Feeling Guilty",
+    category: "Self-Care",
+    image: BlogCardImg,
+    author: "Editor's Choice",
+  },
+  {
+    _id: "fallback-2",
+    title: "Is Your Relationship Missing the Intimacy?",
+    category: "Relationships",
+    image: BlogCardImg2,
+  },
+  {
+    _id: "fallback-3",
+    title: "How to Help a Friend during a Panic Attack?",
+    category: "Anxiety",
+    image: BlogCardImg3,
+  },
+  {
+    _id: "fallback-4",
+    title: "Self-Care: Why It Is Not Selfish",
+    category: "Self-Care",
+    image: BlogCardImg4,
+  },
+];
+
 export default function Blogs() {
   const isMobile = useMediaQuery("(max-width:768px)");
   const [blogs, setBlogs] = useState([]);
@@ -33,14 +61,14 @@ export default function Blogs() {
     fetchBlogs();
   }, []);
 
-  const featuredBlog = blogs.length > 0 ? blogs[0] : null;
-  const otherBlogs = blogs.length > 1 ? blogs.slice(1, 4) : [];
+  const items = blogs.length > 0 ? blogs.slice(0, 4) : FALLBACK_BLOGS;
 
-  const getFullImagePath = (imageName) => {
-    if (!imageName) return BlogCardImg;
-    if (imageName.startsWith('data:')) return imageName;
-    if (imageName.startsWith('http')) return imageName;
-    return `${baseApi}/uploads/images/${imageName}`;
+  const getFullImagePath = (image) => {
+    if (!image) return BlogCardImg;
+    if (typeof image !== "string") return image; // local imported fallback image
+    if (image.startsWith("data:")) return image;
+    if (image.startsWith("http")) return image;
+    return `${baseApi}/uploads/images/${image}`;
   };
 
   return (
@@ -63,10 +91,10 @@ export default function Blogs() {
         <div className="row g-5 align-items-end" style={{ marginBottom: '50px' }}>
           <div className="col-lg-8 col-md-12 col-12">
             <div className="section-title text-start">
-              <span className="subtitle" style={{ 
-                background: '#228756', 
-                color: '#ffffff', 
-                padding: '8px 20px', 
+              <span className="subtitle" style={{
+                background: '#228756',
+                color: '#ffffff',
+                padding: '8px 20px',
                 borderRadius: '50px',
                 fontWeight: '700',
                 fontSize: '1rem',
@@ -76,25 +104,25 @@ export default function Blogs() {
               }}>
                 Mental Health Chronicles
               </span>
-              <h2 className="title" style={{ 
-                fontSize: isMobile ? "2.5rem" : "4.5rem", 
-                fontWeight: "900", 
+              <h2 className="title" style={{
+                fontSize: isMobile ? "2.5rem" : "4.5rem",
+                fontWeight: "900",
                 color: "#000000",
                 marginTop: '25px',
                 lineHeight: isMobile ? '3rem' : '1.1'
               }}>
-                Latest <span style={{ 
-                  backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)", 
-                  WebkitBackgroundClip: "text", 
+                Latest <span style={{
+                  backgroundImage: "linear-gradient(135deg, #27ae60 0%, #10b981 50%, #007f99 100%)",
+                  WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   color: "transparent"
                 }}>Articles</span>
               </h2>
-              <p style={{ 
-                fontSize: isMobile ? '1.2rem' : '1.5rem', 
-                color: '#444', 
-                maxWidth: '850px', 
+              <p style={{
+                fontSize: isMobile ? '1.2rem' : '1.5rem',
+                color: '#444',
+                maxWidth: '850px',
                 margin: '20px 0 0',
                 lineHeight: '1.6',
                 fontWeight: '500',
@@ -123,239 +151,73 @@ export default function Blogs() {
             </div>
           </div>
         </div>
-        <div className="row g-5">
-          {featuredBlog ? (
-            <div className="col-lg-12">
-              <div 
-                className="rbt-card variation-02 rbt-hover" 
-                style={{ 
-                  height: 'auto',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: '24px',
-                  border: 'none',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-                  padding: '0'
-                }}
-              >
-                <div className="rbt-card-img" style={{ position: 'relative' }}>
-                  <Link href={`/blog-details?id=${featuredBlog._id}`} style={{ width: '100%', display: 'block' }}>
-                    <ImageTag
-                      alt={featuredBlog.title}
-                      src={getFullImagePath(featuredBlog.image)}
-                      style={{ height: isMobile ? '450px' : '600px', width: '100%', display: 'block', objectFit: 'cover' }}
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.4)', // Base dark overlay
-                      backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%)',
-                      zIndex: 1
-                    }}></div>
-                  </Link>
-                </div>
-                <div className="rbt-card-body" style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  padding: isMobile ? '20px' : '50px',
-                  zIndex: 2,
-                  textAlign: 'left'
-                }}>
-                  <span style={{
-                    background: '#ff5421',
-                    color: '#fff',
-                    padding: '4px 12px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    textTransform: 'uppercase',
-                    marginBottom: '15px',
-                    display: 'inline-block'
-                  }}>
-                    {featuredBlog.category || "Must Read"} • {featuredBlog.author || featuredBlog.author_name || "Admin"}
-                  </span>
-                  <h2 className="rbt-card-title" style={{ color: '#fff', fontSize: isMobile ? '24px' : '42px', lineHeight: 1.2, fontWeight: 800, marginBottom: '15px' }}>
-                    <Link href={`/blog-details?id=${featuredBlog._id}`} style={{ color: '#fff' }}>
-                      {featuredBlog.title}
-                    </Link>
-                  </h2>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '16px', maxWidth: '700px', marginBottom: '25px', display: isMobile ? 'none' : 'block' }}>
-                    {featuredBlog.short_desc}
-                  </p>
-                  <Link className="rbt-btn btn-white btn-sm" href={`/blog-details?id=${featuredBlog._id}`}>
-                    <span className="btn-text">Read Full Story</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="col-lg-12">
-              <div 
-                className="rbt-card variation-02 rbt-hover" 
-                style={{ 
-                  height: 'auto',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderRadius: '24px',
-                  border: 'none',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-                  padding: '0'
-                }}
-              >
-                <div className="rbt-card-img" style={{ position: 'relative' }}>
-                  <Link href="/blog-details/1" style={{ width: '100%', display: 'block' }}>
-                    <ImageTag
-                      alt="Featured Blog"
-                      src={BlogCardImg}
-                      style={{ height: isMobile ? '450px' : '600px', width: '100%', display: 'block', objectFit: 'cover' }}
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      background: 'rgba(0,0,0,0.4)', // Base dark overlay
-                      backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%)',
-                      zIndex: 1
-                    }}></div>
-                  </Link>
-                </div>
-                <div className="rbt-card-body" style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  padding: isMobile ? '20px' : '50px',
-                  zIndex: 2,
-                  textAlign: 'left'
-                }}>
-                  <span style={{
-                    background: '#ff5421',
-                    color: '#fff',
-                    padding: '4px 12px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    textTransform: 'uppercase',
-                    marginBottom: '15px',
-                    display: 'inline-block'
-                  }}>
-                    Must Read • Editor's Choice
-                  </span>
-                  <h2 className="rbt-card-title" style={{ color: '#fff', fontSize: isMobile ? '24px' : '42px', lineHeight: 1.2, fontWeight: 800, marginBottom: '15px' }}>
-                    <Link href="/blog-details/1" style={{ color: '#fff' }}>
-                      The Art of Setting Boundaries without Feeling Guilty
-                    </Link>
-                  </h2>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '16px', maxWidth: '700px', marginBottom: '25px', display: isMobile ? 'none' : 'block' }}>
-                    Have you ever found yourself saying “yes” when deep down you wanted to scream “no”? Learn how to protect your peace of mind.
-                  </p>
-                  <Link className="rbt-btn btn-white btn-sm" href="/blog-details/1">
-                    <span className="btn-text">Read Full Story</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {otherBlogs.length > 0 ? (
-            otherBlogs.map((blog) => (
-              <div className="col-lg-4 col-md-6 col-12 mt--30" key={blog._id}>
-                <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
-                  <div className="rbt-card-img">
-                    <Link href={`/blog-details?id=${blog._id}`}>
-                      <ImageTag alt={blog.title} src={getFullImagePath(blog.image)} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
-                    </Link>
-                  </div>
-                  <div className="rbt-card-body" style={{ padding: '20px' }}>
-                    <span style={{
-                      color: '#228756',
-                      fontSize: '12px',
-                      fontWeight: '700',
-                      textTransform: 'uppercase',
-                      marginBottom: '8px',
-                      display: 'block'
-                    }}>
-                      {blog.category}
-                    </span>
-                    <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                      <Link href={`/blog-details?id=${blog._id}`}>{blog.title}</Link>
-                    </h5>
-                    <div style={{ marginBottom: '15px', fontSize: '13px', color: '#666' }}>
-                      By {blog.author || blog.author_name || "Admin"}
-                    </div>
-                    <Link className="transparent-button" href={`/blog-details?id=${blog._id}`} style={{ fontSize: '14px', fontWeight: 600 }}>
-                      Read Article <i className="feather-arrow-right"></i>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <>
-              <div className="col-lg-4 col-md-6 col-12 mt--30">
-                <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
-                  <div className="rbt-card-img">
-                    <Link href="/blog-details/2">
-                      <ImageTag alt="Card" src={BlogCardImg2} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
-                    </Link>
-                  </div>
-                  <div className="rbt-card-body" style={{ padding: '20px' }}>
-                    <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                      <Link href="/blog-details/2">Is Your Relationship Missing the Intimacy?</Link>
-                    </h5>
-                    <Link className="transparent-button" href="/blog-details/2" style={{ fontSize: '14px', fontWeight: 600 }}>
-                      Read Article <i className="feather-arrow-right"></i>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 col-12 mt--30">
-                <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
-                  <div className="rbt-card-img">
-                    <Link href="/blog-details/3">
-                      <ImageTag alt="Card" src={BlogCardImg3} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
-                    </Link>
-                  </div>
-                  <div className="rbt-card-body" style={{ padding: '20px' }}>
-                    <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                      <Link href="/blog-details/3">How to Help a Friend during a Panic Attack?</Link>
-                    </h5>
-                    <Link className="transparent-button" href="/blog-details/3" style={{ fontSize: '14px', fontWeight: 600 }}>
-                      Read Article <i className="feather-arrow-right"></i>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              <div className="col-lg-4 col-md-6 col-12 mt--30">
-                <div className="rbt-card variation-02 rbt-hover" style={{ borderRadius: '16px', overflow: 'hidden', height: '100%', padding: '0' }}>
-                  <div className="rbt-card-img">
-                    <Link href="/blog-details/4">
-                      <ImageTag alt="Card" src={BlogCardImg4} style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
-                    </Link>
-                  </div>
-                  <div className="rbt-card-body" style={{ padding: '20px' }}>
-                    <h5 className="rbt-card-title" style={{ fontSize: '18px', fontWeight: 700 }}>
-                      <Link href="/blog-details/4">Self-Care: Why It Is Not Selfish</Link>
-                    </h5>
-                    <Link className="transparent-button" href="/blog-details/4" style={{ fontSize: '14px', fontWeight: 600 }}>
-                      Read Article <i className="feather-arrow-right"></i>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+        {/* Full-bleed magazine grid — every story gets equal visual weight */}
+        <div className="mhc-grid">
+          {items.map((blog) => (
+            <Link key={blog._id} href={`/blog-details?id=${blog._id}`} className="mhc-tile">
+              <ImageTag alt={blog.title} src={getFullImagePath(blog.image)} className="mhc-img" />
+              <span className="mhc-scrim"></span>
+              <span className="mhc-cat">{blog.category || "Article"}</span>
+              <span className="mhc-info">
+                <span className="mhc-title">{blog.title}</span>
+                {(blog.author || blog.author_name) && (
+                  <span className="mhc-meta">By {blog.author || blog.author_name}</span>
+                )}
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
+
+      <style jsx global>{`
+        .mhc-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        .mhc-tile {
+          position: relative;
+          display: block;
+          aspect-ratio: 4 / 3;
+          border-radius: 18px;
+          overflow: hidden;
+          text-decoration: none !important;
+          box-shadow: 0 20px 44px -22px rgba(15, 47, 31, 0.4);
+        }
+        .mhc-tile .mhc-img {
+          position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+        .mhc-tile:hover .mhc-img { transform: scale(1.06); }
+        .mhc-scrim {
+          position: absolute; left: 0; right: 0; bottom: 0; height: 70%;
+          background: linear-gradient(to top, rgba(4, 15, 9, 0.88), transparent);
+        }
+        .mhc-cat {
+          position: absolute; top: 14px; left: 14px; z-index: 2;
+          font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+          color: #fff; background: linear-gradient(135deg, #2aa066, #1c6b45);
+          padding: 5px 12px; border-radius: 999px;
+        }
+        .mhc-info {
+          position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+          padding: 18px; display: flex; flex-direction: column; gap: 4px;
+        }
+        .mhc-title {
+          font-weight: 800; color: #fff; font-size: 18px; line-height: 1.3;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .mhc-meta { font-size: 12px; color: rgba(255, 255, 255, 0.8); }
+
+        @media (min-width: 601px) {
+          .mhc-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+          .mhc-grid { grid-template-columns: repeat(4, 1fr); gap: 22px; }
+          .mhc-title { font-size: 15px; }
+        }
+      `}</style>
     </div>
   );
 }

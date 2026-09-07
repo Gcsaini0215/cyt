@@ -23,11 +23,31 @@ export default function App() {
   const [userType, setUserType] = React.useState(0);
   const [activeDropdown, setActiveDropdown] = React.useState("");
   const [isSticky, setIsSticky] = React.useState(false);
+  const [showAccountMenu, setShowAccountMenu] = React.useState(false);
+  const accountMenuRef = React.useRef(null);
   const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
 
   const toggleDropdown = (name) => {
     setActiveDropdown(activeDropdown === name ? "" : name);
   };
+
+  useEffect(() => {
+    if (!showAccountMenu) return;
+    const handleClickOutside = (e) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target)) {
+        setShowAccountMenu(false);
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setShowAccountMenu(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [showAccountMenu]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -164,10 +184,28 @@ export default function App() {
                         </span>
                       </Link>
                     ) : (
-                      <Link href="/login" className="nav-profile-pill">
-                        <span className="nav-profile-av"><i className="feather-user"></i></span>
-                        <span className="nav-profile-name">Sign In / Sign Up</span>
-                      </Link>
+                      <div className="nav-account-dropdown" ref={accountMenuRef}>
+                        <button
+                          type="button"
+                          className="nav-account-trigger"
+                          onClick={() => setShowAccountMenu((v) => !v)}
+                          aria-expanded={showAccountMenu}
+                          aria-haspopup="true"
+                        >
+                          <span>Account</span>
+                          <i className={`feather-chevron-${showAccountMenu ? "up" : "down"}`}></i>
+                        </button>
+                        {showAccountMenu && (
+                          <div className="nav-account-menu">
+                            <Link href="/login" onClick={() => setShowAccountMenu(false)}>
+                              <i className="feather-log-in"></i> Log In
+                            </Link>
+                            <Link href="/register" onClick={() => setShowAccountMenu(false)}>
+                              <i className="feather-user-plus"></i> Create Account
+                            </Link>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </li>
                 </ul>
@@ -804,6 +842,36 @@ export default function App() {
         }
         .nav-profile-av img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
         .nav-profile-name { font-weight: 700; color: #132a1c; font-size: 14.5px; white-space: nowrap; }
+
+        /* ── Account dropdown (logged-out state) ─────────── */
+        .nav-account-dropdown { position: relative; }
+        .nav-account-trigger {
+          display: flex; align-items: center; gap: 6px;
+          padding: 9px 16px; border-radius: 30px;
+          border: 1.5px solid #dbe3df; background: #f8faf9;
+          font-weight: 700; color: #132a1c; font-size: 14px;
+          cursor: pointer; transition: all .18s ease;
+        }
+        .nav-account-trigger:hover,
+        .nav-account-trigger[aria-expanded="true"] { border-color: #166534; background: #f0fdf4; color: #166534; }
+        .nav-account-trigger i { font-size: 14px; }
+        .nav-account-menu {
+          position: absolute; top: calc(100% + 10px); right: 0; z-index: 20;
+          min-width: 190px; background: #fff; border: 1px solid #e7efe9; border-radius: 14px;
+          box-shadow: 0 18px 38px -16px rgba(15,61,36,.3), 0 4px 12px rgba(15,61,36,.08);
+          padding: 8px; display: flex; flex-direction: column; gap: 2px;
+          animation: navAccountMenuIn .16s ease both;
+        }
+        @keyframes navAccountMenuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-account-menu a {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 12px; border-radius: 9px;
+          font-weight: 700; font-size: 13.5px; color: #132a1c;
+          text-decoration: none !important; transition: background .15s ease;
+        }
+        .nav-account-menu a:hover { background: #f0fdf4; color: #166534; }
+        .nav-account-menu a i { font-size: 15px; color: #166534; flex-shrink: 0; }
+        @media (prefers-reduced-motion: reduce) { .nav-account-menu { animation: none; } }
 
         /* ── "Are You a Therapist?" CTA ─────────────────── */
         .nav-cta-btn {
