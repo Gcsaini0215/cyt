@@ -150,6 +150,8 @@ export default function Banner({ topTherapists = [], userCity = null }) {
             >
               <span className="banner-word-1 theme-gradient">Personalized</span>
               <span className="banner-word-2 theme-gradient">Affordable</span>
+              <span className="banner-word-3 theme-gradient">Verified</span>
+              <span className="banner-word-4 theme-gradient">Multilingual</span>
               <span style={{ visibility: "hidden" }}>Personalized</span>
             </span>
             <br />
@@ -228,14 +230,16 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
       <style jsx global>{`
         @keyframes wordCycle {
-          0%   { opacity: 0; }
-          5%   { opacity: 1; }
-          45%  { opacity: 1; }
-          50%  { opacity: 0; }
-          100% { opacity: 0; }
+          0%    { opacity: 0; }
+          2.5%  { opacity: 1; }
+          22.5% { opacity: 1; }
+          25%   { opacity: 0; }
+          100%  { opacity: 0; }
         }
-        .banner-word-1 { position: absolute; left: 0; top: 0; animation: wordCycle 6s ease-in-out infinite; }
-        .banner-word-2 { position: absolute; left: 0; top: 0; animation: wordCycle 6s ease-in-out infinite; animation-delay: 3s; opacity: 0; }
+        .banner-word-1 { position: absolute; left: 0; top: 0; animation: wordCycle 12s ease-in-out infinite; }
+        .banner-word-2 { position: absolute; left: 0; top: 0; animation: wordCycle 12s ease-in-out infinite; animation-delay: 3s; opacity: 0; }
+        .banner-word-3 { position: absolute; left: 0; top: 0; animation: wordCycle 12s ease-in-out infinite; animation-delay: 6s; opacity: 0; }
+        .banner-word-4 { position: absolute; left: 0; top: 0; animation: wordCycle 12s ease-in-out infinite; animation-delay: 9s; opacity: 0; }
 
         /* keep the original .rbt-banner-1 background image — just lay a soft,
            calm wash over it so the light cards and copy stay readable */
@@ -405,7 +409,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
 
         @media (prefers-reduced-motion: reduce) {
           .cyt-cover, .cyt-cover-card, .cyt-trow a, .cyt-swiper .swiper-slide,
-          .banner-word-1, .banner-word-2 { animation: none !important; transition: none !important; }
+          .banner-word-1, .banner-word-2, .banner-word-3, .banner-word-4 { animation: none !important; transition: none !important; }
         }
       `}</style>
     </section>

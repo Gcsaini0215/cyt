@@ -237,46 +237,6 @@ export default function Faqs() {
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div style={{
-          textAlign: 'center', marginTop: '40px', padding: '36px 28px',
-          background: 'transparent', borderRadius: '8px',
-          border: '1.5px solid #cfe4d7'
-        }}>
-          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#132a1c', marginBottom: '8px' }}>
-            Still have questions?
-          </h3>
-          <p style={{ color: '#52667f', fontSize: '14px', marginBottom: '22px', maxWidth: '480px', margin: '0 auto 22px' }}>
-            Talk to a real person. Our team is happy to help you find the right psychologist for your specific needs.
-          </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a
-              href="/view-all-therapist"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '11px 24px', borderRadius: '6px',
-                backgroundColor: '#166534', color: '#fff',
-                fontWeight: 700, fontSize: '14px', textDecoration: 'none',
-                transition: 'all 0.2s'
-              }}
-            >
-              Browse Psychologists
-            </a>
-            <a
-              href="/contact-us"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                padding: '11px 24px', borderRadius: '6px',
-                backgroundColor: 'transparent', color: '#166534',
-                fontWeight: 700, fontSize: '14px', textDecoration: 'none',
-                border: '1.5px solid #166534'
-              }}
-            >
-              Contact Us
-            </a>
-          </div>
-        </div>
-
       </div>
     </div>
   );

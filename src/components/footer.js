@@ -9,58 +9,62 @@ export default function Footer() {
   return (
     <footer className="rbt-footer footer-style-1 cyt-footer-academic">
       <style dangerouslySetInnerHTML={{ __html: `
-        .cyt-footer-academic { background: #fff; border-top: 3px solid #d4af37; }
+        html, body { background-color: #0f1a13 !important; }
+        .cyt-footer-academic { background: #0f1a13; border-top: 3px solid #d4af37; overscroll-behavior-y: none; }
         .cyt-footer-academic .footer-top { padding-top: 64px; padding-bottom: 40px; }
-        .cyt-footer-academic .description { color: #52667f !important; opacity: 1 !important; }
-        .cyt-footer-academic .ft-title { color: #0f3d24 !important; font-size: 13px; font-weight: 800 !important; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 2px solid #d4af37; display: inline-block; }
+        .cyt-footer-academic .footer-logo-chip { display: inline-block; background: #fff; border-radius: 10px; padding: 10px 14px; }
+        .cyt-footer-academic .description { color: rgba(255,255,255,.65) !important; opacity: 1 !important; }
+        .cyt-footer-academic .ft-title { color: #7fd8a5 !important; font-size: 14px; font-weight: 800 !important; letter-spacing: .2px; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 2px solid #d4af37; display: inline-block; }
         .cyt-footer-academic .ft-link a,
-        .cyt-footer-academic .ft-link a.color-black { color: #475569 !important; font-size: 14px; transition: color .15s ease; }
-        .cyt-footer-academic .ft-link a:hover { color: #166534 !important; }
+        .cyt-footer-academic .ft-link a.color-black { color: rgba(255,255,255,.75) !important; font-size: 14px; transition: color .15s ease; }
+        .cyt-footer-academic .ft-link a:hover { color: #d4af37 !important; }
+        .cyt-footer-academic .ft-cities-col { column-count: 2; column-gap: 18px; }
+        .cyt-footer-academic .ft-cities-col li { break-inside: avoid; -webkit-column-break-inside: avoid; }
 
         .cyt-footer-academic .social-icon a {
           width: 36px; height: 36px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
-          background: #f8faf9; border: 1px solid #dbe3df;
+          background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+          color: #fff;
           transition: all .18s ease;
         }
-        .cyt-footer-academic .social-icon a:hover { background: #fdf6e3; border-color: #d4af37; transform: translateY(-2px); }
+        .cyt-footer-academic .social-icon a:hover { background: rgba(212,175,55,.15); border-color: #d4af37; transform: translateY(-2px); }
 
-        .cyt-footer-academic .single-info .icon { background: #eef5f1 !important; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .cyt-footer-academic .single-info .icon i { color: #166534 !important; font-size: 15px !important; }
+        .cyt-footer-academic .single-info .icon { background: rgba(255,255,255,.08) !important; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cyt-footer-academic .single-info .icon i { color: #7fd8a5 !important; font-size: 15px !important; }
         .cyt-footer-academic .single-info .text span {
-          color: #94a3b8 !important; font-size: 11px !important; font-weight: 700 !important;
-          text-transform: uppercase; letter-spacing: .4px; line-height: 1.4; margin-bottom: 2px;
+          color: rgba(255,255,255,.5) !important; font-size: 11px !important; font-weight: 700 !important;
+          letter-spacing: .2px; line-height: 1.4; margin-bottom: 2px;
         }
         .cyt-footer-academic .single-info .text a,
         .cyt-footer-academic .single-info .text span.color-black {
-          color: #132a1c !important; font-size: 14.5px !important; font-weight: 700 !important; line-height: 1.4;
+          color: #fff !important; font-size: 14px !important; font-weight: 400 !important; line-height: 1.4;
         }
-        .cyt-footer-academic .single-info .text a:hover { color: #166534 !important; }
+        .cyt-footer-academic .single-info .text a:hover { color: #d4af37 !important; }
 
-        .cyt-footer-academic .disclaimer-bar { background: #f8faf9 !important; border-top: 1px solid #eef2f0 !important; border-bottom: 1px solid #eef2f0; }
-        .cyt-footer-academic .disclaimer-bar p { color: #64748b !important; }
-        .cyt-footer-academic .disclaimer-bar .fw-bold { color: #166534 !important; }
+        .cyt-footer-academic .disclaimer-bar { background: #0a1310 !important; border-top: 1px solid rgba(255,255,255,.08) !important; border-bottom: 1px solid rgba(255,255,255,.08); padding: 32px 0 26px !important; }
+        .cyt-footer-academic .disclaimer-bar p { color: rgba(255,255,255,.6) !important; }
+        .cyt-footer-academic .disclaimer-bar .fw-bold { color: #7fd8a5 !important; }
+        .cyt-footer-academic .legal-block { text-align: left; margin-bottom: 18px; }
+        .cyt-footer-academic .legal-block:last-child { margin-bottom: 0; }
+        .cyt-footer-academic .legal-block h6 { color: #7fd8a5 !important; font-size: 13px; font-weight: 800; letter-spacing: .3px; margin-bottom: 8px; }
+        .cyt-footer-academic .legal-block p { color: rgba(255,255,255,.55) !important; font-size: 12px; line-height: 1.7; letter-spacing: .2px; text-align: left; }
+        .cyt-footer-academic .legal-block p + p { margin-top: 8px; }
 
         .cyt-footer-academic .copyright-area { border-top: none !important; }
         .cyt-footer-academic .copyright-area p,
-        .cyt-footer-academic .copyright-area .color-black { color: #64748b !important; font-size: 13px !important; font-weight: 500 !important; }
-        .cyt-footer-academic .copyright-area p a { color: #132a1c !important; font-size: 13px !important; font-weight: 700 !important; }
-        .cyt-footer-academic .copyright-link { font-size: 13px !important; }
-        .cyt-footer-academic .copyright-link a { color: #132a1c !important; font-size: 13px !important; font-weight: 600 !important; }
-        .cyt-footer-academic .copyright-area a:hover { color: #166534 !important; }
-        .cyt-footer-academic .copyright-link .separator { color: #dbe3df !important; font-size: 13px !important; }
+        .cyt-footer-academic .copyright-area .color-black { color: rgba(255,255,255,.6) !important; font-size: 14px !important; font-weight: 500 !important; }
+        .cyt-footer-academic .copyright-area p a { color: #fff !important; font-size: 14px !important; font-weight: 700 !important; }
+        .cyt-footer-academic .copyright-link { font-size: 14px !important; }
+        .cyt-footer-academic .copyright-link a { color: #fff !important; font-size: 14px !important; font-weight: 600 !important; }
+        .cyt-footer-academic .copyright-area a:hover { color: #d4af37 !important; }
+        .cyt-footer-academic .copyright-link .separator { color: rgba(255,255,255,.3) !important; font-size: 14px !important; }
 
-        .cyt-footer-academic .ft-cities { background: #f8faf9; border-top: 1px solid #eef2f0; padding: 28px 0; }
-        .cyt-footer-academic .ft-cities .ft-title { margin-bottom: 14px; }
-        .cyt-footer-academic .ft-cities-row { display: flex; flex-wrap: wrap; gap: 8px 0; }
-        .cyt-footer-academic .ft-cities-row a {
-          color: #52667f; font-size: 13px; padding: 0 12px;
-          border-right: 1px solid #dbe3df; line-height: 1.3;
-          text-decoration: none; transition: color .15s ease;
-        }
-        .cyt-footer-academic .ft-cities-row a:first-child { padding-left: 0; }
-        .cyt-footer-academic .ft-cities-row a:last-child { border-right: none; }
-        .cyt-footer-academic .ft-cities-row a:hover { color: #166534; }
+        .cyt-footer-academic .footer-logo-chip img { max-width: 100%; height: auto; }
+
+        .cyt-footer-academic .ft-contact-row { background: #0a1310; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); padding: 22px 0; }
+        .cyt-footer-academic .ft-contact-row .contact-row-inner { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px 40px; }
+        .cyt-footer-academic .ft-contact-row .single-info { margin-bottom: 0 !important; }
 
         /* ── iPad tuning (768–1024) ────────────────────── */
         @media (min-width:768px) and (max-width:1024px) {
@@ -77,12 +81,12 @@ export default function Footer() {
       {/* Main Footer Content */}
       <div className="footer-top">
         <div className="container">
-          <div className="row g-5">
+          <div className="row g-4">
             {/* Column 1: Brand & Identity */}
-            <div className="col-lg-4 col-md-6 col-sm-12">
+            <div className="col-lg-3 col-md-6 col-sm-12">
               <div className="footer-widget">
                 <div className="logo">
-                  <Link href="/">
+                  <Link href="/" className="footer-logo-chip">
                     <ImageTag
                       alt="Choose Your Therapist"
                       height={"60"}
@@ -92,120 +96,172 @@ export default function Footer() {
                   </Link>
                 </div>
                 <p className="description mt--25" style={{ lineHeight: '1.8' }}>
-                  Professional mental health support at your fingertips. We connect you with verified therapists to begin your journey toward emotional well-being.
+                  Professional mental health support at your fingertips.
                 </p>
-                <ul className="social-icon social-default justify-content-start mt--30 gap-3">
-                  <li><a href="#" aria-label="Facebook"><i className="feather-facebook"></i></a></li>
-                  <li><a href="#" aria-label="Instagram"><i className="feather-instagram"></i></a></li>
-                  <li><a href="#" aria-label="LinkedIn"><i className="feather-linkedin"></i></a></li>
-                  <li><a href="https://wa.me/918077757951" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i className="feather-message-circle"></i></a></li>
-                </ul>
               </div>
             </div>
 
-            {/* Column 2: Quick Navigation */}
-            <div className="col-lg-2 col-md-6 col-sm-6">
+            {/* Column 2: Get Started */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Quick Access</h5>
+                <h5 className="ft-title">Get Started</h5>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/view-all-therapist">Find a Therapist</Link></li>
-                  <li className="mb--12"><Link href="/mentorship-for-students">Student Mentorship</Link></li>
+                  <li className="mb--12"><Link href="/therapy-booking">Free Consultation</Link></li>
                   <li className="mb--12"><Link href="/how-it-works">How It Works</Link></li>
-                  <li className="mb--12"><Link href="/blog-view">Mental Health Blog</Link></li>
+                  <li className="mb--12"><Link href="/service-page">Our Services</Link></li>
+                  <li className="mb--12"><Link href="/blogs">Blog</Link></li>
+                  <li className="mb--12"><Link href="/faqs">FAQs</Link></li>
                   <li><Link href="/emergency-support">Emergency Help</Link></li>
                 </ul>
               </div>
             </div>
 
-            {/* Column 3: Portals */}
-            <div className="col-lg-2 col-md-6 col-sm-6">
+            {/* Column 3: Self-Help Tools */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
+              <div className="footer-widget">
+                <h5 className="ft-title">Self-Help Tools</h5>
+                <ul className="ft-link liststyle-none mt--20">
+                  <li className="mb--12"><Link href="/self-assessment">Self-Assessment</Link></li>
+                  <li className="mb--12"><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
+                  <li className="mb--12"><Link href="/daily-journal">Daily Journal</Link></li>
+                  <li className="mb--12"><Link href="/plans">Therapy Plans</Link></li>
+                  <li><Link href="/allworkshop">Workshops</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Column 4: Programs */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
+              <div className="footer-widget">
+                <h5 className="ft-title">Programs</h5>
+                <ul className="ft-link liststyle-none mt--20">
+                  <li className="mb--12"><Link href="/mentorship-for-students">Student Mentorship</Link></li>
+                  <li className="mb--12"><Link href="/internship-registration">Apply for Internship</Link></li>
+                  <li className="mb--12"><Link href="/internship-modules">Internship Curriculum</Link></li>
+                  <li><Link href="/probono-therapist">Pro Bono Program</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Column 5: Member Portals */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
                 <h5 className="ft-title">Member Portals</h5>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/login">Client Login</Link></li>
                   <li className="mb--12"><Link href="/register">Client Sign Up</Link></li>
                   <li className="mb--12"><Link href="/therapist-registration">Therapist Join Us</Link></li>
-                  <li className="mb--12"><Link href="/internship-registration">Apply for Internship</Link></li>
                   <li><Link href="/supervision-login">Trainee Login</Link></li>
                 </ul>
               </div>
             </div>
 
-            {/* Column 4: Contact & Office */}
-            <div className="col-lg-4 col-md-6 col-sm-12">
+            {/* Column 6: Cities We Serve */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Connect With Us</h5>
-                <div className="contact-info mt--20">
-                  <div className="single-info d-flex align-items-center mb--20">
-                    <div className="icon rounded-circle p-3 mr--15">
-                      <i className="feather-phone"></i>
-                    </div>
-                    <div className="text">
-                      <span className="d-block fs-14">Support Hotline</span>
-                      <a href="tel:+918077757951" className="fw-bold">+91 80777 57951</a>
-                    </div>
-                  </div>
-                  <div className="single-info d-flex align-items-center mb--20">
-                    <div className="icon rounded-circle p-3 mr--15">
-                      <i className="feather-mail"></i>
-                    </div>
-                    <div className="text">
-                      <span className="d-block fs-14">Email Address</span>
-                      <a href="mailto:Chooseyourtherapist@gmail.com" className="fw-bold">Chooseyourtherapist@gmail.com</a>
-                    </div>
-                  </div>
-                  <div className="single-info d-flex align-items-start">
-                    <div className="icon rounded-circle p-3 mr--15">
-                      <i className="feather-map-pin"></i>
-                    </div>
-                    <div className="text">
-                      <span className="d-block fs-14">Head Office</span>
-                      <span className="color-black">Sector 51, Noida, Uttar Pradesh, India</span>
-                    </div>
-                  </div>
-                </div>
+                <h5 className="ft-title">Cities We Serve</h5>
+                <ul className="ft-link ft-cities-col liststyle-none mt--20">
+                  <li className="mb--10"><Link href="/psychologist-in-noida-delhi">Noida</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/mumbai">Mumbai</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/bangalore">Bangalore</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/pune">Pune</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/hyderabad">Hyderabad</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/chennai">Chennai</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/kolkata">Kolkata</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/ahmedabad">Ahmedabad</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/jaipur">Jaipur</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/lucknow">Lucknow</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/chandigarh">Chandigarh</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/delhi">Delhi</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/uttarakhand">Haridwar</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/uttarakhand">Dehradun</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in/uttarakhand">Rishikesh</Link></li>
+                  <li><Link href="/psychologist-in/uttarakhand">Haldwani</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Column 7: International Clients */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
+              <div className="footer-widget">
+                <h5 className="ft-title">International Clients</h5>
+                <ul className="ft-link liststyle-none mt--20">
+                  <li className="mb--12"><Link href="/appointment">Request an Appointment</Link></li>
+                  <li className="mb--12"><Link href="/therapy-booking">Book an Online Session</Link></li>
+                  <li className="mb--12"><Link href="/view-all-therapist">Browse Our Therapists</Link></li>
+                  <li><Link href="/emergency-support">Emergency Support</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Column 8: Corporate */}
+            <div className="col-lg-3 col-md-6 col-sm-6">
+              <div className="footer-widget">
+                <h5 className="ft-title">Corporate</h5>
+                <ul className="ft-link liststyle-none mt--20">
+                  <li className="mb--12"><Link href="/about-us">About Us</Link></li>
+                  <li className="mb--12"><Link href="/for-business">Corporate Wellness</Link></li>
+                  <li className="mb--12"><Link href="/contact-us">Contact Us</Link></li>
+                  <li className="mb--12"><Link href="/terms-conditions">Terms of Service</Link></li>
+                  <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Cities & Regions We Serve — internal links for local SEO */}
-      <div className="ft-cities">
+      {/* Contact Info Row */}
+      <div className="ft-contact-row">
         <div className="container">
-          <h5 className="ft-title">Find a Psychologist Near You</h5>
-          <div className="ft-cities-row">
-            <Link href="/psychologist-in-noida-delhi">Noida &amp; Delhi</Link>
-            <Link href="/psychologist-in/mumbai">Mumbai</Link>
-            <Link href="/psychologist-in/bangalore">Bangalore</Link>
-            <Link href="/psychologist-in/pune">Pune</Link>
-            <Link href="/psychologist-in/hyderabad">Hyderabad</Link>
-            <Link href="/psychologist-in/chennai">Chennai</Link>
-            <Link href="/psychologist-in/kolkata">Kolkata</Link>
-            <Link href="/psychologist-in/ahmedabad">Ahmedabad</Link>
-            <Link href="/psychologist-in/jaipur">Jaipur</Link>
-            <Link href="/psychologist-in/lucknow">Lucknow</Link>
-            <Link href="/psychologist-in/chandigarh">Chandigarh</Link>
-            <Link href="/psychologist-in/delhi">Delhi</Link>
-            <Link href="/psychologist-in/uttar-pradesh">Uttar Pradesh</Link>
-            <Link href="/psychologist-in/maharashtra">Maharashtra</Link>
-            <Link href="/psychologist-in/rajasthan">Rajasthan</Link>
-            <Link href="/psychologist-in/gujarat">Gujarat</Link>
-            <Link href="/psychologist-in/uttarakhand">Uttarakhand</Link>
-            <Link href="/psychologist-in/west-bengal">West Bengal</Link>
-            <Link href="/psychologist-in/andhra-pradesh">Andhra Pradesh</Link>
+          <div className="contact-row-inner">
+            <div className="single-info d-flex align-items-center">
+              <div className="icon rounded-circle p-2 mr--12">
+                <i className="feather-phone"></i>
+              </div>
+              <div className="text">
+                <a href="tel:+918077757951">+91 80777 57951</a>
+              </div>
+            </div>
+            <div className="single-info d-flex align-items-center">
+              <div className="icon rounded-circle p-2 mr--12">
+                <i className="feather-mail"></i>
+              </div>
+              <div className="text">
+                <a href="mailto:Chooseyourtherapist@gmail.com">Chooseyourtherapist@gmail.com</a>
+              </div>
+            </div>
+            <div className="single-info d-flex align-items-center">
+              <div className="icon rounded-circle p-2 mr--12">
+                <i className="feather-map-pin"></i>
+              </div>
+              <div className="text">
+                <span className="color-black">Sector 51, Noida, Uttar Pradesh, India</span>
+              </div>
+            </div>
+            <ul className="social-icon social-default justify-content-center mb-0 gap-3">
+              <li><a href="#" aria-label="Facebook"><i className="feather-facebook"></i></a></li>
+              <li><a href="#" aria-label="Instagram"><i className="feather-instagram"></i></a></li>
+              <li><a href="#" aria-label="LinkedIn"><i className="feather-linkedin"></i></a></li>
+              <li><a href="https://wa.me/918077757951" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i className="feather-message-circle"></i></a></li>
+            </ul>
           </div>
         </div>
       </div>
 
       {/* Clean Disclaimer Bar */}
-      <div className="disclaimer-bar py-4">
+      <div className="disclaimer-bar">
         <div className="container">
-          <p className="text-center mb-0" style={{ fontSize: '12px', letterSpacing: '0.5px' }}>
-            <span className="fw-bold mr--10">DISCLAIMER:</span>
-            Choose Your Therapist connects you with independent licensed professionals. We do not provide medical advice or emergency services directly.
-            For crisis support, contact <span className="fw-bold">Tele Manas: 1800-89-14416</span>.
-          </p>
+          <div className="legal-block">
+            <h6>Disclaimer</h6>
+            <p className="mb-0">
+              The information available on this website — including but not limited to articles, blogs, self-assessment tools, wellness resources, FAQs and other content (&quot;Content&quot;) — is published by Choose Your Therapist solely for informational purposes and is not a substitute for professional medical or psychological advice, diagnosis or treatment.
+            </p>
+            <p className="mb-0">
+              The Content must not be construed as therapy, medical advice, diagnosis or prescription. We strongly advise you to consult a qualified, licensed mental health professional regarding your specific condition or treatment. Reliance on any information on this website is solely at your own discretion and risk. For a medical or psychiatric emergency, contact your nearest hospital or <span className="fw-bold">Tele Manas: 1800-89-14416</span> immediately.
+            </p>
+          </div>
         </div>
       </div>
 
