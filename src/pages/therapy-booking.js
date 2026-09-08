@@ -143,7 +143,7 @@ export default function TherapyBooking({ pics = [] }) {
               }}>
                 <i className="feather-shield" style={{ fontSize: 12, color: "#4ade80" }}></i>
                 <span style={{ fontSize: 11, fontWeight: 800, color: "#4ade80", letterSpacing: 1.2, textTransform: "uppercase" }}>
-                  100% Free · No Commitment
+                  100% Confidential · No Commitment
                 </span>
               </div>
 
@@ -168,7 +168,7 @@ export default function TherapyBooking({ pics = [] }) {
                 margin: "0 auto", fontWeight: 500, maxWidth: 520,
                 animation: "_tb_fd .7s cubic-bezier(.22,1,.36,1) .1s both",
               }}>
-                Fill the form below and our team will match you with the right therapist — completely free, fully confidential.
+                Fill the form below and our team will reach out on WhatsApp or call to match you with the right therapist — fully confidential.
               </p>
 
               {/* ── Frosted-glass form card — floats over the collage, blurred through it ── */}
