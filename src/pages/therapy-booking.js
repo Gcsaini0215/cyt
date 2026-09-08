@@ -104,10 +104,10 @@ export default function TherapyBooking({ pics = [] }) {
       <div style={{ fontFamily: "'Inter', sans-serif" }}>
         <MyNavbar />
 
-        {/* ── BANNER (collage bg) ── */}
+        {/* ── BANNER (collage bg) — the booking form now floats on it as a glass card ── */}
         <section className="tb-banner" style={{
           position: "relative", overflow: "hidden", background: "#000",
-          padding: "60px 0 50px",
+          padding: "60px 0 60px",
         }}>
             {/* Collage */}
             {tiles.length > 0 && (
@@ -170,40 +170,30 @@ export default function TherapyBooking({ pics = [] }) {
               }}>
                 Fill the form below and our team will match you with the right therapist — completely free, fully confidential.
               </p>
-            </div>
-          </section>
 
-        {/* ── FORM SECTION ── */}
-        <div style={{ background: "#f8fafc", padding: isMobile ? "24px 0" : "60px 0" }}>
-          <div className={isMobile ? "" : "container"}>
-            <div className="row justify-content-center" style={{ margin: 0 }}>
-              <div className="col-lg-7 col-md-9 col-12" style={{ padding: isMobile ? "0 12px" : undefined }}>
-
-                <div style={{
-                  background: "#fff", borderRadius: "16px",
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-                  border: "1px solid #e2e8f0", overflow: "hidden",
-                }}>
-                  {/* Green top bar */}
-                  <div style={{ height: "4px", background: "linear-gradient(90deg, #22bb33, #4ade80)" }} />
-
-                  <div style={{ padding: isMobile ? "24px 16px 28px" : "32px 36px 36px" }}>
-                    <div style={{ marginBottom: "20px" }}>
-                      <h5 style={{ fontWeight: 800, fontSize: "22px", marginBottom: "4px", color: "#0f172a" }}>
-                        Book a Consultation
-                      </h5>
-                      <p style={{ fontSize: "13px", color: "#64748b", margin: 0 }}>
-                        Our team will reach out on WhatsApp within 24 hours.
-                      </p>
-                    </div>
-                    <ConsultationForm showHeading={false} />
-                  </div>
+              {/* ── Frosted-glass form card — floats over the collage, blurred through it ── */}
+              <div style={{
+                maxWidth: 560, margin: "32px auto 0", textAlign: "left",
+                background: "rgba(255,255,255,.14)",
+                backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+                border: "1px solid rgba(255,255,255,.25)",
+                borderRadius: "20px",
+                boxShadow: "0 24px 60px -20px rgba(0,0,0,.5)",
+                padding: isMobile ? "22px 18px 26px" : "32px 36px 36px",
+                animation: "_tb_fd .7s cubic-bezier(.22,1,.36,1) .2s both",
+              }}>
+                <div style={{ marginBottom: "20px" }}>
+                  <h5 style={{ fontWeight: 800, fontSize: "22px", marginBottom: "4px", color: "#fff" }}>
+                    Book a Consultation
+                  </h5>
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,.75)", margin: 0 }}>
+                    Our team will reach out on WhatsApp within 24 hours.
+                  </p>
                 </div>
-
+                <ConsultationForm showHeading={false} />
               </div>
             </div>
-          </div>
-        </div>
+          </section>
 
         <NewsLetter />
         <Footer />
