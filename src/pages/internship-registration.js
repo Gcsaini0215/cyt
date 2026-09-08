@@ -7,10 +7,10 @@ import Newsletter from "../components/home/newsletter";
 import { SubmitConsultationUrl, createTraineeUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 
-const PSYCH_TYPES = [
+export const PSYCH_TYPES = [
   "Clinical Psychology", "Counselling Psychology", "Industrial & Organizational Psychology",
 ];
-const GENERAL_TYPES = [
+export const GENERAL_TYPES = [
   "Research & Data", "Content / Social Media",
   "Administrative / Operations", "Social Media & Outreach",
 ];
@@ -68,7 +68,7 @@ const HOUR_PRICES = {
 function fmtINR(n) { return `₹${n.toLocaleString("en-IN")}`; }
 const MODES   = ["Online", "Offline"];
 
-const PROGRAM_DATA = {
+export const PROGRAM_DATA = {
   "Clinical Psychology": {
     icon: "feather-activity", color: "#228756", bg: "#f0fdf4",
     tagline: "Work alongside clinical psychologists in assessment, documentation, case analysis, and therapeutic practice.",
@@ -88,7 +88,7 @@ const PROGRAM_DATA = {
   "Counselling Psychology": {
     icon: "feather-message-circle", color: "#0ea5e9", bg: "#f0f9ff",
     tagline: "Develop core counselling competencies through supervised practice, theory, and reflective learning.",
-    duration: "1–3 Months | 30–120 hrs",
+    duration: "1–3 Months | 30–240 hrs",
     modules: [
       { title: "Module 1: Foundations of Counselling", activities: ["History & evolution of counselling psychology", "Counselling vs psychotherapy vs coaching — distinctions", "Core values: empathy, unconditional positive regard, congruence", "Introduction to the therapeutic relationship & working alliance"] },
       { title: "Module 2: Counselling Theories & Approaches", activities: ["Person-Centered Therapy (Rogers) — principles & application", "Cognitive Behavioural Therapy (CBT) — thought records & behavioral experiments", "Acceptance & Commitment Therapy (ACT) — values & defusion", "Existential, Gestalt & narrative approaches overview"] },
@@ -116,7 +116,7 @@ const PROGRAM_DATA = {
   "Research & Data": {
     icon: "feather-bar-chart-2", color: "#8b5cf6", bg: "#f5f3ff",
     tagline: "Conduct clinical, counselling, and administrative research to generate insights that shape mental health practice.",
-    duration: "1–3 Months | 40–240 hrs",
+    duration: "1–3 Months | 40–180 hrs",
     modules: [
       { title: "Module 1: Research Methodology Fundamentals", activities: ["Quantitative, qualitative & mixed-methods research designs", "Hypothesis formulation & research question development", "Literature review: PubMed, Google Scholar, APA PsycINFO", "Research ethics: consent, anonymization & IRB basics"] },
       { title: "Module 2: Clinical Research", activities: ["Research on psychological assessment reliability & validity", "Study clinical outcome measures: symptom reduction, functioning", "Analyze anonymized clinical case data trends", "Contribute to clinical efficacy & intervention research"] },
@@ -375,66 +375,6 @@ function ProgramModal({ domain, onClose }) {
   );
 }
 
-function AboutOrgModal({ onClose }) {
-  React.useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
-  }, [onClose]);
-
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(15,23,42,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", backdropFilter: "blur(3px)" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 560, maxHeight: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 24px 60px rgba(0,0,0,0.18)" }}>
-
-        {/* Header */}
-        <div style={{ background: "linear-gradient(135deg, #071a0e 0%, #1b5e20 100%)", padding: "22px 26px", flexShrink: 0, position: "relative" }}>
-          <button onClick={onClose} style={{ position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.12)", border: "none", width: 30, height: 30, borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <i className="feather-x" style={{ fontSize: 15, color: "#fff" }}></i>
-          </button>
-          <p style={{ margin: "0 0 4px", fontSize: 10, fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>About the Organization</p>
-          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 900, color: "#fff" }}>Choose Your Therapist</h2>
-        </div>
-
-        {/* Body */}
-        <div style={{ overflowY: "auto", padding: "22px 26px 26px", flex: 1, WebkitOverflowScrolling: "touch" }}>
-          <p style={{ fontSize: 13.5, color: "#374151", lineHeight: 1.8, margin: "0 0 22px" }}>
-            Choose Your Therapist (CYT) is India's trusted mental health platform, connecting individuals
-            with verified counselling psychologists, clinical psychologists, and special educators for
-            online and in-person therapy. The Supervision cum Internship Program gives students hands-on,
-            mentor-led exposure to how a real mental health practice operates.
-          </p>
-
-          <h3 style={{ fontSize: 12, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 14, borderTop: "1px solid #f1f5f9", paddingTop: 20 }}>
-            Meet the Founder
-          </h3>
-
-          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-            <img src="/assets/img/deepdirec.png" alt="Deepak Kumar"
-              style={{ width: 68, height: 68, borderRadius: 14, objectFit: "cover", border: "3px solid #f0fdf4", flexShrink: 0 }} />
-            <div>
-              <p style={{ margin: "0 0 2px", fontSize: 15, fontWeight: 800, color: "#1e293b" }}>Mr. Deepak Kumar</p>
-              <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 700, color: "#228756" }}>
-                Founder &amp; Director | Psychologist (B.A, M.A, Ph.D Psychology&nbsp;-&nbsp;NET)
-              </p>
-              <p style={{ margin: 0, fontSize: 13, color: "#475569", lineHeight: 1.7, fontStyle: "italic" }}>
-                "As a practicing psychologist, my vision is to create a world where mental wellness is
-                valued equally to physical health, and seeking help is seen as a sign of strength."
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ padding: "14px 26px", borderTop: "1px solid #f1f5f9", flexShrink: 0 }}>
-          <button onClick={onClose} style={{ width: "100%", padding: "11px", borderRadius: 10, background: "#f0fdf4", color: "#166534", border: "1.5px solid #bbf7d0", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-            Got it
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function QrPaymentModal({ amount, onClose, onSubmit, submitting }) {
   const [txnId, setTxnId] = React.useState("");
   const [txnErr, setTxnErr] = React.useState("");
@@ -649,7 +589,6 @@ export default function InternshipRegistration() {
   const [isMobile, setIsMobile] = useState(false);
   const [modalDomain, setModalDomain] = useState(null);
   const [welcomeModal, setWelcomeModal] = useState(false);
-  const [aboutModal, setAboutModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [showQr, setShowQr] = useState(false);
   const [traineeSlug, setTraineeSlug] = useState(null);
@@ -1013,10 +952,10 @@ export default function InternshipRegistration() {
               <form onSubmit={handleReview} noValidate>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
                   <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>Applicant Details</h2>
-                  <button type="button" onClick={() => setAboutModal(true)}
-                    style={{ background: "none", border: "none", padding: 0, color: "#228756", fontSize: 12.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
-                    Read more information
-                  </button>
+                  <Link href="/internship-modules"
+                    style={{ color: "#228756", fontSize: 12.5, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3 }}>
+                    See the modules
+                  </Link>
                 </div>
                 <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>
                   Fill in the details below. Fields marked <span className="req">*</span> are required.
@@ -1391,7 +1330,6 @@ export default function InternshipRegistration() {
 
       {modalDomain && <ProgramModal domain={modalDomain} onClose={() => setModalDomain(null)} />}
       {welcomeModal && <WelcomeModal onClose={() => setWelcomeModal(false)} />}
-      {aboutModal && <AboutOrgModal onClose={() => setAboutModal(false)} />}
       {showQr && (
         <QrPaymentModal
           amount={HOUR_PRICES[form.hours] || 0}

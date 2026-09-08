@@ -811,7 +811,8 @@ export default function App() {
           .reg-client-banner,
           section.tb-banner,
           section.ab-section,
-          .vat-banner {
+          .vat-banner,
+          .intern-banner {
             margin-top: -200px !important;
             padding-top: 228px !important;
           }
