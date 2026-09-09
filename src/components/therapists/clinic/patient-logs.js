@@ -1314,7 +1314,7 @@ export default function ClientLogs() {
               <Box sx={{ bgcolor: '#f8fafc', p: { xs: 2, sm: 3 }, borderRadius: 4, border: '1px solid #e2e8f0', mb: 4 }}>
                 <Typography sx={{ fontSize: 13, color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', mb: 1.5, letterSpacing: 1 }}>Email Preview</Typography>
                 <Box sx={{ bgcolor: '#fff', p: { xs: 1.5, sm: 2.5 }, borderRadius: 3, border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                  <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 1, color: '#475569' }}><strong>From:</strong> appointment.cyt@gmail.com</Typography>
+                  <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 1, color: '#475569' }}><strong>From:</strong> hello@chooseyourtherapist.in</Typography>
                   <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 1, color: '#475569' }}><strong>To:</strong> {selectedLog?.email}</Typography>
                   <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 2, color: '#1e293b', fontWeight: 700 }}><strong>Subject:</strong> Invoice from Choose Your Therapist - #{selectedLog?.id?.toString().slice(-8)}</Typography>
                   <Divider sx={{ mb: 2 }} />

@@ -196,7 +196,7 @@ export default function InvoiceViewPage() {
               <Typography sx={{ fontSize: '1.15rem', color: '#64748b', fontWeight: 600 }}>Choose Your Therapist, D-137, Sector 51</Typography>
               <Typography sx={{ fontSize: '1.15rem', color: '#64748b', fontWeight: 600 }}>Noida, Uttar Pradesh, 201301</Typography>
               <Typography sx={{ fontSize: '1.15rem', color: '#64748b' }}>+91-8077757951</Typography>
-              <Typography sx={{ fontSize: '1.15rem', color: '#64748b' }}>appointment.cyt@gmail.com</Typography>
+              <Typography sx={{ fontSize: '1.15rem', color: '#64748b' }}>hello@chooseyourtherapist.in</Typography>
             </Grid>
           </Grid>
 

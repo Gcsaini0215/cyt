@@ -14,7 +14,7 @@ const LocalPresence = () => {
       city: "Noida",
       address: "D-137, Sector 51, Noida, Uttar Pradesh 201301",
       phone: "+91 8077757951",
-      email: "appointment.cyt@gmail.com",
+      email: "hello@chooseyourtherapist.in",
       image: "/assets/img/noida.jpeg",
       mapUrl: "https://www.google.com/maps/search/?api=1&query=D-137%2C+Sector+51%2C+Noida%2C+Uttar+Pradesh+201301"
     },
@@ -22,7 +22,7 @@ const LocalPresence = () => {
       city: "Delhi",
       address: "Serving clients across South Delhi, East Delhi & Central Delhi",
       phone: "+91 8077757951",
-      email: "appointment.cyt@gmail.com",
+      email: "hello@chooseyourtherapist.in",
       image: "https://images.unsplash.com/photo-1587474260584-1f21915c0f79?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
       mapUrl: "https://www.google.com/maps/search/?api=1&query=Delhi+India"
     }

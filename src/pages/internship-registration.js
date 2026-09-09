@@ -624,24 +624,6 @@ export default function InternshipRegistration() {
     setError("");
     setLoading(true);
     try {
-      const traineePayload = {
-        name:           form.name,
-        email:          form.email,
-        phone:          form.phone,
-        city:           form.city,
-        college:        form.college,
-        degree:         form.degree,
-        specialization: form.specialization,
-        internType:     form.internType,
-        mode:           form.mode,
-        duration:       form.duration,
-        hours:          form.hours,
-        programFee:     HOUR_PRICES[form.hours] || null,
-        transactionId:  transactionId,
-        availableFrom:  form.availableFrom,
-        motivation:     form.motivation,
-      };
-
       const traineeFormData = new FormData();
       traineeFormData.append("name", form.name);
       traineeFormData.append("email", form.email);
@@ -673,11 +655,6 @@ export default function InternshipRegistration() {
           phone:   form.phone,
           message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Program Fee: ${HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—"} | Transaction ID: ${transactionId} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
           type: "internship",
-        }),
-        fetch("/api/send-internship-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(traineePayload),
         }),
       ]);
 

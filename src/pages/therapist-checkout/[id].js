@@ -5,7 +5,7 @@ import Head from "next/head";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
-import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile } from "../../utils/url";
+import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile, createRazorpayOrderUrl } from "../../utils/url";
 import useUserStore from "../../store/userStore";
 import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
 
@@ -182,12 +182,12 @@ export default function TherapistCheckoutPage() {
       return;
     }
     try {
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      const orderRes = await fetch(createRazorpayOrderUrl, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ amount, bookingId }),
       });
-      const { orderId, error } = await orderRes.json();
+      const { orderId, keyId, error } = await orderRes.json();
       if (!orderId) {
         setErr(error || "Payment init failed. Please try again.");
         setStatus("error");
@@ -195,7 +195,7 @@ export default function TherapistCheckoutPage() {
       }
 
       const options = {
-        key:         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key:         keyId,
         amount:      Math.round(amount * 100),
         currency:    "INR",
         order_id:    orderId,

@@ -8,7 +8,7 @@ import MessageIcon from "@mui/icons-material/Message";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CakeIcon from "@mui/icons-material/Cake";
 
-import { VerifyConsultPaymentUrl } from "../../utils/url";
+import { VerifyConsultPaymentUrl, createRazorpayOrderUrl } from "../../utils/url";
 
 const AMOUNT = 99;
 const G = "#0f4c74";
@@ -165,12 +165,12 @@ export default function ConsultPaymentForm() {
 
     setLoading(true);
     try {
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      const orderRes = await fetch(createRazorpayOrderUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: AMOUNT, bookingId: `consult_${Date.now()}` }),
       });
-      const { orderId, error } = await orderRes.json();
+      const { orderId, keyId, error } = await orderRes.json();
       if (!orderId) {
         setMessage(error || "Payment initialization failed. Please try again.");
         setLoading(false);
@@ -178,7 +178,7 @@ export default function ConsultPaymentForm() {
       }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: Math.round(AMOUNT * 100),
         currency: "INR",
         order_id: orderId,

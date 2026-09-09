@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import NewsLetter from "../components/home/newsletter";
-import { checkTherapistStatusUrl, verifyTherapistSubscriptionUrl } from "../utils/url";
+import { checkTherapistStatusUrl, verifyTherapistSubscriptionUrl, createRazorpayOrderUrl } from "../utils/url";
 import { postData } from "../utils/actions";
 
 const G    = "#0f3d24";
@@ -140,12 +140,12 @@ export default function TherapistPayment() {
     setPayErr("");
     setPaying(true);
     try {
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      const orderRes = await fetch(createRazorpayOrderUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: plan.amount, bookingId: `sub_${email}_${Date.now()}` }),
       });
-      const { orderId, error } = await orderRes.json();
+      const { orderId, keyId, error } = await orderRes.json();
       if (!orderId) {
         setPayErr(error || "Payment init failed. Please try again.");
         setPaying(false);
@@ -153,7 +153,7 @@ export default function TherapistPayment() {
       }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: Math.round(plan.amount * 100),
         currency: "INR",
         order_id: orderId,

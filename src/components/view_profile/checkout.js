@@ -6,7 +6,7 @@ import { useMediaQueryClient } from "../../hooks/useMediaQueryClient";
 
 import FormMessage from "../global/form-message";
 import { postData } from "../../utils/actions";
-import { ApplyCouponUrl, BookTherapistUrl, verifyOtpUrl, imagePath } from "../../utils/url";
+import { ApplyCouponUrl, BookTherapistUrl, verifyOtpUrl, imagePath, createRazorpayOrderUrl } from "../../utils/url";
 import { useRouter } from "next/router";
 import FormProgressBar from "../global/form-progressbar";
 import useUserStore from "../../store/userStore";
@@ -104,16 +104,16 @@ export default function TherapistCheckout({ profile }) {
 
   const handlePayment = async (bookingId, amount) => {
     try {
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      const orderRes = await fetch(createRazorpayOrderUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, bookingId }),
       });
-      const { orderId, error } = await orderRes.json();
+      const { orderId, keyId, error } = await orderRes.json();
       if (!orderId) { setError(error || "Payment init failed. Try again."); return; }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: Math.round(amount * 100),
         currency: "INR",
         order_id: orderId,

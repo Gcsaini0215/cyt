@@ -192,6 +192,9 @@ export const StartSessionUrl = `${apiUrl}/start-session`;
 export const EndSessionUrl = `${apiUrl}/end-session`;
 export const SubmitConsultationUrl = `${apiUrl}/save-lead`;
 export const VerifyConsultPaymentUrl = `${apiUrl}/verify-consult-payment`;
+// Razorpay order creation lives on the backend (secret key never touches the frontend).
+// Expects { amount, bookingId } -> returns { orderId, keyId }.
+export const createRazorpayOrderUrl = `${apiUrl}/create-razorpay-order`;
 export const getClinicLogsUrl = `${apiUrl}/clinic-logs`;
 export const createClinicLogUrl = `${apiUrl}/clinic-logs`;
 export const updateClinicLogUrl = `${apiUrl}/clinic-logs`;
