@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import { isValidMail } from "../utils/validators";
 import { registerUrl, verifyOtpUrl } from "../utils/url";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
 import FormProgressBar from "../components/global/form-progressbar";
 import FormMessage from "../components/global/form-message";
@@ -19,7 +18,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 const bannerStyles = `
 .reg-client-banner {
   position: relative;
-  background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+  background-image: url('/images/bg-image-12dabd.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: scroll;
@@ -184,7 +183,12 @@ export default function Register() {
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
 
-      <style>{`
+      {/* dangerouslySetInnerHTML, not a string child: React escapes text
+          children of <style> (' -> &#x27;) but browsers don't un-escape
+          inside <style>, so a string child both hydration-mismatches and
+          silently breaks any rule with a quote in it (the banner's
+          background-image url('...') included). */}
+      <style dangerouslySetInnerHTML={{ __html: `
         ${bannerStyles}
         input:focus { outline: none !important; box-shadow: none !important; }
         .form-control-custom {
@@ -202,7 +206,7 @@ export default function Register() {
           border-color: #22bb33;
           box-shadow: 0 0 0 3px rgba(34,187,51,0.1) !important;
         }
-      `}</style>
+      ` }} />
 
       <MyNavbar />
 
@@ -352,7 +356,6 @@ export default function Register() {
         </div>
       </div>
 
-      <NewsLetter />
       <Footer />
     </div>
   );
