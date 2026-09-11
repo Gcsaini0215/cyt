@@ -524,7 +524,11 @@ export default function TherapistRegistration() {
             </div>
           </div>
         ) : (
-          <div style={{ maxWidth: 860, margin: "0 auto" }}>
+          <div style={{
+            maxWidth: 860, margin: "0 auto",
+            background: "#fff",
+            padding: isMobile ? "20px 16px 24px" : "32px 36px 36px",
+          }}>
             <div className="af-doc" style={{ marginBottom: 24 }}>
               <div className="af-titlebar" style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "flex-start", justifyContent: "space-between", gap: isMobile ? 14 : 20 }}>
                 <div>
