@@ -3,7 +3,6 @@ import Head from "next/head";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import RegistrationHeader from "../components/therapist/registration-header";
-import NewsLetter from "../components/home/newsletter";
 import Footer from "../components/footer";
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
@@ -891,7 +890,6 @@ export default function TherapistRegistration() {
         )}
       </div>
 
-      <NewsLetter />
       <Footer />
     </>
   );
