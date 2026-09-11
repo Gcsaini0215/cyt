@@ -11,12 +11,18 @@ export default function Footer() {
       <style dangerouslySetInnerHTML={{ __html: `
         html, body { background-color: #0f1a13 !important; }
         .cyt-footer-academic { background: #0f1a13; border-top: 3px solid #d4af37; overscroll-behavior-y: none; }
-        .cyt-footer-academic .footer-top { padding-top: 64px; padding-bottom: 40px; }
+        .cyt-footer-academic .footer-top { padding-top: 52px; padding-bottom: 28px; }
+        .cyt-footer-academic .footer-widget { margin-bottom: 26px; }
         .cyt-footer-academic .footer-logo-chip { display: inline-block; background: #fff; border-radius: 10px; padding: 10px 14px; }
-        .cyt-footer-academic .description { color: rgba(255,255,255,.65) !important; opacity: 1 !important; }
-        .cyt-footer-academic .ft-title { color: #7fd8a5 !important; font-size: 14px; font-weight: 800 !important; letter-spacing: .2px; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 2px solid #d4af37; display: inline-block; }
+        .cyt-footer-academic .description { color: rgba(255,255,255,.65) !important; opacity: 1 !important; line-height: 1.6 !important; }
+        .cyt-footer-academic .ft-title { color: #7fd8a5 !important; font-size: 14px; font-weight: 800 !important; letter-spacing: .2px; margin-bottom: 4px; padding-bottom: 6px; border-bottom: 2px solid #d4af37; display: inline-block; }
+        /* Tighten the generic spacing utilities, scoped to the footer only */
+        .cyt-footer-academic .mt--25 { margin-top: 12px !important; }
+        .cyt-footer-academic .mt--20 { margin-top: 12px !important; }
+        .cyt-footer-academic .mb--12 { margin-bottom: 8px !important; }
+        .cyt-footer-academic .mb--10 { margin-bottom: 6px !important; }
         .cyt-footer-academic .ft-link a,
-        .cyt-footer-academic .ft-link a.color-black { color: rgba(255,255,255,.75) !important; font-size: 14px; transition: color .15s ease; }
+        .cyt-footer-academic .ft-link a.color-black { color: rgba(255,255,255,.75) !important; font-size: 14px; line-height: 1.3; transition: color .15s ease; }
         .cyt-footer-academic .ft-link a:hover { color: #d4af37 !important; }
         .cyt-footer-academic .ft-cities-col { column-count: 2; column-gap: 18px; }
         .cyt-footer-academic .ft-cities-col li { break-inside: avoid; -webkit-column-break-inside: avoid; }
@@ -68,12 +74,22 @@ export default function Footer() {
 
         /* ── iPad tuning (768–1024) ────────────────────── */
         @media (min-width:768px) and (max-width:1024px) {
-          .cyt-footer-academic .footer-top { padding-top: 52px; padding-bottom: 32px; }
-          .cyt-footer-academic .footer-widget { margin-bottom: 8px; }
+          .cyt-footer-academic .footer-top { padding-top: 40px; padding-bottom: 20px; }
+          .cyt-footer-academic .footer-widget { margin-bottom: 18px; }
+          /* 2-per-row left tall/short columns wildly uneven (Brand next to a
+             7-link column, Member Portals next to Cities' 16 links) and the
+             page read as full of dead space. 3-per-row keeps the columns
+             closer in height so it reads dense instead of gappy. */
+          .cyt-footer-academic .footer-top .row > [class*="col-md-6"] {
+            flex: 0 0 33.3333% !important;
+            max-width: 33.3333% !important;
+            width: 33.3333% !important;
+          }
         }
         /* ── Mobile tuning (<576) ───────────────────────── */
         @media (max-width:575px) {
-          .cyt-footer-academic .footer-top { padding-top: 40px; padding-bottom: 20px; }
+          .cyt-footer-academic .footer-top { padding-top: 36px; padding-bottom: 16px; }
+          .cyt-footer-academic .footer-widget { margin-bottom: 20px; }
           .cyt-footer-academic .disclaimer-bar p { font-size: 11px !important; line-height: 1.6; }
         }
       ` }} />
@@ -81,7 +97,7 @@ export default function Footer() {
       {/* Main Footer Content */}
       <div className="footer-top">
         <div className="container">
-          <div className="row g-4">
+          <div className="row gx-4 gy-3">
             {/* Column 1: Brand & Identity */}
             <div className="col-lg-3 col-md-6 col-sm-12">
               <div className="footer-widget">
