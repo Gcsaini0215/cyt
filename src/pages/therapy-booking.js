@@ -3,7 +3,6 @@ import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import ConsultationForm from "../components/home/consultation-form";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 
 const DEFAULT_PIC =
   "https://e7.pngegg.com/pngimages/753/432/png-clipart-user-profile-2018-in-sight-user-conference-expo-business-default-business-angle-service-thumbnail.png";
@@ -184,10 +183,10 @@ export default function TherapyBooking({ pics = [] }) {
               }}>
                 <div style={{ marginBottom: "20px" }}>
                   <h5 style={{ fontWeight: 800, fontSize: "22px", marginBottom: "4px", color: "#fff" }}>
-                    Book a Consultation
+                    One Step Closer to Feeling Better.
                   </h5>
                   <p style={{ fontSize: "13px", color: "rgba(255,255,255,.75)", margin: 0 }}>
-                    Our team will reach out on WhatsApp within 24 hours.
+                    Free, confidential, and no commitment — we'll reach out on WhatsApp within 24 hours.
                   </p>
                 </div>
                 <ConsultationForm showHeading={false} />
@@ -195,7 +194,6 @@ export default function TherapyBooking({ pics = [] }) {
             </div>
           </section>
 
-        <NewsLetter />
         <Footer />
       </div>
     </>
