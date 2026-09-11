@@ -756,7 +756,11 @@ export default function InternshipRegistration() {
       <MyNavbar />
 
       {/* ── HERO BANNER (matches login page banner style) ── */}
-      <style>{`
+      {/* dangerouslySetInnerHTML, not a string child: React escapes text
+          children of <style> (' -> &#x27;) but browsers don't un-escape
+          inside <style>, so a string child can both hydration-mismatch and
+          silently break any rule with a quote in it. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .intern-banner {
           position: relative;
           background-image: url(/images/bg-image-12dabd.jpg);
@@ -798,7 +802,7 @@ export default function InternshipRegistration() {
           .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
           .intern-subtitle { font-size: 12px; padding: 0 12px; }
         }
-      `}</style>
+      ` }} />
       <section className="intern-banner">
         <div className="container">
           <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
