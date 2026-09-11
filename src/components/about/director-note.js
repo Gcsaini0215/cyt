@@ -9,8 +9,6 @@ import { imagePath } from "../../utils/url";
 const DEEPAK_IMG = `${imagePath}/2bbed01e-4c05-4d99-aa6a-7c1f2053cfa5_profile-picture.jpg`;
 
 const styles = `
-  @import url('https://fonts.googleapis.com/css2?family=Sacramento&display=swap');
-
   .dn-section {
     background: #fff;
     padding: clamp(48px, 8vw, 84px) 0;
@@ -83,13 +81,8 @@ const styles = `
     margin: 0 0 22px;
   }
 
-  .dn-sign-name {
-    font-family: 'Sacramento', cursive;
-    font-size: 34px;
-    line-height: 1;
-    color: #0f3d24;
-  }
-  .dn-sign-role { font-size: 12.5px; color: #6b7a63; margin-top: 6px; }
+  .dn-sign-name { font-weight: 700; font-size: 16px; color: #0f3d24; }
+  .dn-sign-role { font-size: 12.5px; color: #6b7a63; margin-top: 4px; }
 
   @media (max-width: 860px) {
     .dn-wrap { grid-template-columns: 1fr; text-align: center; }
