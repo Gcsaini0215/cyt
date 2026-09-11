@@ -2,13 +2,15 @@ import React from "react";
 import { imagePath } from "../../utils/url";
 
 /**
- * Founder's note — a short personal message from Dr. Deepak Kumar, image on
+ * Founder's note — a short personal message from Mr. Deepak Kumar, image on
  * one side and the note on the other. Sits right under the hero banner.
  */
 // Same photo as his therapist directory card.
 const DEEPAK_IMG = `${imagePath}/2bbed01e-4c05-4d99-aa6a-7c1f2053cfa5_profile-picture.jpg`;
 
 const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Sacramento&display=swap');
+
   .dn-section {
     background: #fff;
     padding: clamp(48px, 8vw, 84px) 0;
@@ -81,8 +83,13 @@ const styles = `
     margin: 0 0 22px;
   }
 
-  .dn-sign-name { font-weight: 700; font-size: 15px; color: #0f3d24; }
-  .dn-sign-role { font-size: 12.5px; color: #6b7a63; margin-top: 2px; }
+  .dn-sign-name {
+    font-family: 'Sacramento', cursive;
+    font-size: 34px;
+    line-height: 1;
+    color: #0f3d24;
+  }
+  .dn-sign-role { font-size: 12.5px; color: #6b7a63; margin-top: 6px; }
 
   @media (max-width: 860px) {
     .dn-wrap { grid-template-columns: 1fr; text-align: center; }
@@ -102,8 +109,8 @@ export default function DirectorNote() {
       <section className="dn-section">
         <div className="dn-wrap">
           <figure className="dn-portrait">
-            <img src={DEEPAK_IMG} alt="Dr. Deepak Kumar, Founder & Director at Choose Your Therapist" />
-            <figcaption>Dr. Deepak Kumar — Founder &amp; Director</figcaption>
+            <img src={DEEPAK_IMG} alt="Mr. Deepak Kumar, Founder & Director at Choose Your Therapist" />
+            <figcaption>Mr. Deepak Kumar — Founder &amp; Director</figcaption>
           </figure>
 
           <div className="dn-copy">
@@ -116,7 +123,7 @@ export default function DirectorNote() {
               therapist on our network is personally verified, every session is confidential,
               and every person who comes to us is met with care — not judgment.
             </p>
-            <div className="dn-sign-name">Dr. Deepak Kumar</div>
+            <div className="dn-sign-name">Mr. Deepak Kumar</div>
             <div className="dn-sign-role">Founder &amp; Director, Choose Your Therapist LLP</div>
           </div>
         </div>
