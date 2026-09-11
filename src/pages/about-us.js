@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
 import DirectorNote from "../components/about/director-note";
@@ -6,7 +6,8 @@ import ServiceQuality from "../components/about/service-quality";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
-import NewsLetter from "../components/home/newsletter";
+import { fetchData } from "../utils/actions";
+import { getTherapistProfiles } from "../utils/url";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
@@ -127,6 +128,22 @@ const aboutPageSchema = {
 };
 
 export default function AboutUs() {
+  const [therapists, setTherapists] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchData(getTherapistProfiles);
+        const data = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+        if (!cancelled) setTherapists(data || []);
+      } catch (error) {
+        console.error("Error fetching therapists for reviews:", error);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div id="__next">
       <Head>
@@ -162,10 +179,8 @@ export default function AboutUs() {
       <DirectorNote />
       <ServiceQuality />
       
-      <Feedback />
+      <Feedback therapists={therapists} />
 
-
-      <NewsLetter />
       <Footer />
     </div>
   );
