@@ -464,6 +464,10 @@ export default function TherapistRegistration() {
       <MyNavbar />
       <RegistrationHeader />
 
+      {/* Full-bleed white backdrop — Footer.js forces <body> dark site-wide,
+          so without this the margins around the container (and the gap
+          before Footer actually starts) would show that dark green through. */}
+      <div style={{ background: "#fff" }}>
       <div className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
         <div style={{ maxWidth: 860, margin: "0 auto" }}>
           <JourneySteps current={checkedStage ? (STAGE_TO_STEP[checkedStage] ?? (submitted ? 1 : 0)) : (submitted ? 1 : 0)} isMobile={isMobile} />
@@ -892,6 +896,7 @@ export default function TherapistRegistration() {
             )}
           </div>
         )}
+      </div>
       </div>
 
       <Footer />
