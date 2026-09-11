@@ -26,7 +26,8 @@ const styles = `
   .dn-portrait {
     position: relative;
     justify-self: center;
-    width: min(320px, 100%);
+    width: 320px;
+    max-width: 100%;
     aspect-ratio: 3 / 3.6;
     border-radius: 20px;
     overflow: hidden;
@@ -75,7 +76,7 @@ const styles = `
 
   .dn-note {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+    font-size: 17px;
     line-height: 1.75;
     color: #2b3d2a;
     margin: 0 0 22px;
@@ -84,10 +85,18 @@ const styles = `
   .dn-sign-name { font-weight: 700; font-size: 16px; color: #0f3d24; }
   .dn-sign-role { font-size: 12.5px; color: #6b7a63; margin-top: 4px; }
 
+  /* Tablet + mobile (grid already stacks here) — smaller portrait so it
+     doesn't dominate the screen; note/kicker/sign sizes stay exactly as
+     above at every width, on purpose. */
   @media (max-width: 860px) {
     .dn-wrap { grid-template-columns: 1fr; text-align: center; }
     .dn-kicker { justify-content: center; }
     .dn-quote-mark { text-align: center; }
+    .dn-portrait { width: 240px; }
+  }
+  @media (max-width: 480px) {
+    .dn-portrait { width: 190px; }
+    .dn-quote-mark { font-size: 44px; }
   }
 `;
 
