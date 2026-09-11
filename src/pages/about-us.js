@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
+import DirectorNote from "../components/about/director-note";
 import ServiceQuality from "../components/about/service-quality";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
@@ -158,6 +159,7 @@ export default function AboutUs() {
       </Head>
       <MyNavbar />
       <AboutUsBanner />
+      <DirectorNote />
       <ServiceQuality />
       
       <Feedback />
