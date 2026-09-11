@@ -7,7 +7,7 @@ import { TypeAnimation } from "react-type-animation";
 const styles = `
 .login-banner {
   position: relative;
-  background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+  background-image: url('/images/bg-image-12dabd.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: scroll;
