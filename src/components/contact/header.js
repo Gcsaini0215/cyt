@@ -5,7 +5,7 @@ import { TypeAnimation } from "react-type-animation";
 const styles = `
 .contact-banner {
   position: relative;
-  background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+  background-image: url('/images/bg-image-12dabd.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: scroll;
@@ -68,7 +68,11 @@ const styles = `
 export default function Header() {
   return (
     <>
-      <style>{styles}</style>
+      {/* dangerouslySetInnerHTML, not a string child: React escapes quotes
+          in <style> text children but browsers don't un-escape them, so a
+          string child hydration-mismatches and silently breaks any rule
+          with a quote in it (the url('...') here included). */}
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="contact-banner">
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Box sx={{ textAlign: 'center' }}>
