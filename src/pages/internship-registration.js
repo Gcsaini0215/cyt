@@ -3,7 +3,6 @@ import Head from "next/head";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import Newsletter from "../components/home/newsletter";
 import { SubmitConsultationUrl, createTraineeUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 
@@ -695,14 +694,14 @@ export default function InternshipRegistration() {
         <meta property="og:url" content="https://chooseyourtherapist.in/internship-registration" />
         <meta property="og:title" content="Supervision cum Internship Program | Choose Your Therapist" />
         <meta property="og:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
-        <meta property="og:image" content="https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/images/bg-image-12dabd.jpg" />
         <meta property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Supervision cum Internship Program | Choose Your Therapist" />
         <meta name="twitter:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
-        <meta name="twitter:image" content="https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg" />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/images/bg-image-12dabd.jpg" />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `
@@ -737,7 +736,7 @@ export default function InternshipRegistration() {
       <style>{`
         .intern-banner {
           position: relative;
-          background-image: url(https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg);
+          background-image: url(/images/bg-image-12dabd.jpg);
           background-size: cover;
           background-position: center;
           background-attachment: scroll;
@@ -795,11 +794,19 @@ export default function InternshipRegistration() {
       </section>
 
       {/* ── MAIN CONTENT ── */}
+      {/* Full-bleed white backdrop — Footer.js forces <body> dark site-wide,
+          so without this the margins around the container would show that
+          dark green through. */}
+      <div style={{ background: "#fff" }}>
       <div id="apply-form" className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
         {submitted ? (
           <SuccessScreen name={form.name} internType={form.internType} traineeSlug={traineeSlug} />
         ) : (
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
+        <div style={{
+          maxWidth: 860, margin: "0 auto",
+          background: "#fff",
+          padding: isMobile ? "20px 16px 24px" : "32px 36px 36px",
+        }}>
           <div className="af-doc" style={{ marginBottom: 24 }}>
             <div className="af-titlebar">
               <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
@@ -1301,8 +1308,8 @@ export default function InternshipRegistration() {
         </div>
         )}
       </div>
+      </div>
 
-      <Newsletter />
       <Footer />
 
       {modalDomain && <ProgramModal domain={modalDomain} onClose={() => setModalDomain(null)} />}
