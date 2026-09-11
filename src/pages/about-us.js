@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
 import ServiceQuality from "../components/about/service-quality";
-import AboutCyt from "../components/about/about-cyt";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
@@ -159,7 +158,6 @@ export default function AboutUs() {
       </Head>
       <MyNavbar />
       <AboutUsBanner />
-      <AboutCyt />
       <ServiceQuality />
       
       <Feedback />
