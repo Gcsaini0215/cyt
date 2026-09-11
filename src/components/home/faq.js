@@ -8,15 +8,17 @@ export default function Faq(props) {
     <div className="faq-chat-item" style={{ marginBottom: "16px" }}>
       {/* Question — like an incoming chat message */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: "8px" }}>
-        <span
-          style={{
-            width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
-            background: "#eef2f0", color: "#64748b", fontSize: "12px", fontWeight: 800,
-            display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px",
-          }}
-        >
-          ?
-        </span>
+        {!props.hideIcon && (
+          <span
+            style={{
+              width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
+              background: "#eef2f0", color: "#64748b", fontSize: "12px", fontWeight: 800,
+              display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px",
+            }}
+          >
+            ?
+          </span>
+        )}
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{
