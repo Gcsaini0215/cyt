@@ -1,19 +1,5 @@
 import Link from "next/link";
 
-const milestones = [
-  { year: "2020", city: "Haridwar", desc: "Founded during the pandemic", done: true },
-  { year: "2021", city: "Dehradun", desc: "Registered under MCA & MSME", done: true },
-  { year: "Now", city: "Noida & Delhi", desc: "In-Person Therapy Hubs", active: true },
-  { year: "Global", city: "Worldwide", desc: "Online Support for Everyone", global: true },
-];
-
-const stats = [
-  { value: "10k+", label: "Sessions" },
-  { value: "50+", label: "Experts" },
-  { value: "4.9★", label: "Rating" },
-  { value: "4+", label: "Cities" },
-];
-
 const services = [
   { icon: "feather-users", title: "In-Person Therapy", desc: "Dedicated clinical spaces in Noida and Delhi NCR for face-to-face sessions." },
   { icon: "feather-video", title: "Online Worldwide", desc: "Seamless video/audio consultations available globally for complete flexibility." },
@@ -191,40 +177,6 @@ export default function AboutCyt() {
 
       <section className="ac-section">
         <div className="container">
-
-          {/* — Our Story — */}
-          <div className="ac-story-head">
-            <span className="ac-tag">Our Story</span>
-            <h2 className="ac-h2">Born During a Crisis. <span className="accent">Built for India.</span></h2>
-            <p className="ac-lead">
-              Choose Your Therapist started in 2020 during the pandemic — a response to the surge in mental health struggles when support systems were collapsing.
-            </p>
-            <p className="ac-lead">
-              By 2021 we registered under MCA &amp; MSME and expanded from Haridwar to Delhi NCR, adding online therapy to reach anyone, anywhere.
-            </p>
-          </div>
-
-          <div className="ac-journey">
-            {milestones.map((m) => (
-              <div key={m.city} className={`ac-j${m.active ? " active" : ""}`}>
-                <div className="ac-jdot" />
-                <span className="ac-jy">{m.year}</span>
-                <div className="ac-jc">{m.city}</div>
-                <p className="ac-jd">{m.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="ac-statbox">
-            {stats.map((s) => (
-              <div key={s.label} className="ac-s">
-                <div className="ac-sv">{s.value}</div>
-                <div className="ac-sl">{s.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <hr className="ac-divider" />
 
           {/* — What We Offer — */}
           <div className="text-center mb-4">
