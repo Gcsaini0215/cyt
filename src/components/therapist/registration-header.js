@@ -14,6 +14,9 @@ const styles = `
   padding: 60px 0 50px 0;
   overflow: hidden;
   margin-top: 0px;
+  /* Desktop run-up behind the floating navbar card is handled centrally in
+     navbar.js's ".reg-banner, .login-banner, ..." rule, so every hero banner
+     gets the exact same offset and only needs updating in one place. */
 }
 
 .reg-banner::before {

@@ -806,6 +806,7 @@ export default function App() {
              the gap under the card stays constant at every zoom level. */
           .cyt-hero,
           .login-banner,
+          .reg-banner,
           .sa-banner,
           .contact-banner,
           .reg-client-banner,

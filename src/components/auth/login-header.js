@@ -14,6 +14,8 @@ const styles = `
   padding: 60px 0 50px 0;
   overflow: hidden;
   margin-top: 0px;
+  /* Desktop run-up behind the floating navbar card is handled centrally in
+     navbar.js's ".login-banner, .reg-banner, ..." rule. */
 }
 
 .login-banner::before {
