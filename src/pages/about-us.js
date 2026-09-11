@@ -3,6 +3,7 @@ import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
 import DirectorNote from "../components/about/director-note";
 import ServiceQuality from "../components/about/service-quality";
+import AboutFaqs, { aboutFaqData } from "../components/about/faqs";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
@@ -127,6 +128,19 @@ const aboutPageSchema = {
   }
 };
 
+// FAQPage schema — mirrors aboutFaqData in components/about/faqs.js word
+// for word (platform/company questions, distinct from the general therapy
+// FAQs on /faqs, so this doesn't duplicate that page's structured data).
+const aboutFaqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": aboutFaqData.map(({ q, a }) => ({
+    "@type": "Question",
+    "name": q,
+    "acceptedAnswer": { "@type": "Answer", "text": a }
+  }))
+};
+
 export default function AboutUs() {
   const [therapists, setTherapists] = useState([]);
 
@@ -173,11 +187,13 @@ export default function AboutUs() {
         {/* Schema.org — Organization + AboutPage */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutFaqSchema) }} />
       </Head>
       <MyNavbar />
       <AboutUsBanner />
       <DirectorNote />
       <ServiceQuality />
+      <AboutFaqs />
       
       <Feedback therapists={therapists} />
 
