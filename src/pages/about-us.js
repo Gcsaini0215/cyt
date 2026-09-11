@@ -11,7 +11,9 @@ import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
-const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
+// Self-hosted (not a third-party hotlink) so social/AI crawlers always get
+// it; same photo as this page's own hero banner.
+const OG_IMAGE = "https://www.chooseyourtherapist.in/images/bg5.jpg";
 
 // Organization schema — the most trusted signal for AI engines
 const organizationSchema = {
@@ -162,17 +164,23 @@ export default function AboutUs() {
     <div id="__next">
       <Head>
         <title>About Choose Your Therapist | India's Verified Psychologist Network</title>
-        <meta name="description" content="Choose Your Therapist (CYT) is India's trusted mental health platform. We connect individuals with verified counselling psychologists, clinical psychologists, and special educators for online and in-person therapy." />
-        <meta name="keywords" content="about Choose Your Therapist, CYT India, mental health platform India, verified psychologist network, online therapy India, counselling psychology, clinical psychology, Noida psychologist" />
-        <meta name="robots" content="index, follow" />
+        <meta name="description" content="Choose Your Therapist (CYT) is a MCA & MSME registered mental health platform connecting people across India — Noida, Delhi NCR, and online nationwide — with verified, licensed psychologists, counsellors and psychiatrists for confidential online and in-person therapy." />
+        <meta name="keywords" content="about Choose Your Therapist, CYT India, mental health platform India, verified psychologist network India, online therapy India, therapist near me India, counselling psychologist India, clinical psychologist India, Noida psychologist, Delhi NCR therapist, pan India online counselling, MCA MSME registered mental health platform" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="author" content="Choose Your Therapist LLP" />
+        <meta name="geo.region" content="IN" />
+        <meta name="geo.placename" content="India" />
         <link rel="canonical" href={PAGE_URL} />
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
-        <meta property="og:description" content="Learn about our mission to make mental health support accessible across India through our network of verified counselling and clinical psychologists." />
+        <meta property="og:description" content="Learn how Choose Your Therapist connects people across India with verified, licensed psychologists for confidential online and in-person therapy — our story, our founder, and how we work." />
         <meta property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1440" />
+        <meta property="og:image:height" content="960" />
+        <meta property="og:image:alt" content="Choose Your Therapist — mental health support across India" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:locale" content="en_IN" />
 
@@ -182,6 +190,7 @@ export default function AboutUs() {
         <meta name="twitter:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
         <meta name="twitter:description" content="Learn about Choose Your Therapist and our mission for mental health accessibility in India." />
         <meta name="twitter:image" content={OG_IMAGE} />
+        <meta name="twitter:image:alt" content="Choose Your Therapist — mental health support across India" />
         <meta name="twitter:site" content="@CYT_India" />
 
         {/* Schema.org — Organization + AboutPage */}
