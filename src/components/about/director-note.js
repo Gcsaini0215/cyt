@@ -1,10 +1,12 @@
 import React from "react";
+import { imagePath } from "../../utils/url";
 
 /**
  * Founder's note — a short personal message from Dr. Deepak Kumar, image on
  * one side and the note on the other. Sits right under the hero banner.
  */
-const DEEPAK_IMG = "/assets/img/deepdirec.png";
+// Same photo as his therapist directory card.
+const DEEPAK_IMG = `${imagePath}/2bbed01e-4c05-4d99-aa6a-7c1f2053cfa5_profile-picture.jpg`;
 
 const styles = `
   .dn-section {
