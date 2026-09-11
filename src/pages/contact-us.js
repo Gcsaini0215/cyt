@@ -5,7 +5,6 @@ import Footer from "../components/footer";
 import ContactForm from "../components/contact/form";
 import Map from "../components/contact/map";
 import Header from "../components/contact/header";
-import NewsLetter from "../components/home/newsletter";
 export default function ContactUs() {
   return (
     <div id="__next">
@@ -32,7 +31,6 @@ export default function ContactUs() {
       <Header />
       <ContactForm />
       <Map />
-      <NewsLetter />
       <Footer />
     </div>
   );
