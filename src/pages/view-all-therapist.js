@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import ViewAllTherapist from "../components/View-All-Therapist/view-all-therapist";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
@@ -237,7 +236,6 @@ export default function ViewAllTherapistPage({ initialAllData, initialFilteredDa
         <MyNavbar />
         <main className="rbt-main-wrapper">
           <ViewAllTherapist initialAllData={initialAllData} initialFilters={initialFilters} />
-          <NewsLetter />
         </main>
         <Footer />
       </main>
