@@ -5,7 +5,6 @@ import AssessmentCards from "../components/self-assessment/assessment-cards";
 import AssessmentForm from "../components/self-assessment/assessment-form";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
-import NewsLetter from "../components/home/newsletter";
 
 export default function SelfAssessment() {
   const [selectedAssessment, setSelectedAssessment] = useState(null);
@@ -51,7 +50,6 @@ export default function SelfAssessment() {
         <AssessmentCards onSelectAssessment={handleSelectAssessment} />
       )}
       
-      <NewsLetter />
       <Footer />
     </div>
   );

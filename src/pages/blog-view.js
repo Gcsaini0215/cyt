@@ -39,7 +39,6 @@ import {
 } from 'lucide-react';
 import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
-import NewsLetter from '../components/home/newsletter';
 
 // 2. Reading Progress Bar
 const ProgressBar = styled(LinearProgress)(({ theme }) => ({
@@ -682,7 +681,6 @@ export default function BlogView() {
         </Container>
       </StyledSection>
 
-      <NewsLetter />
       <Footer />
 
       {/* Back to Top Button */}

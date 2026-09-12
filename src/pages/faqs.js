@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import Newsletter from "../components/home/newsletter";
 import Faqs from "../components/home/faqs";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
 
@@ -266,7 +265,6 @@ export default function FaqPage() {
         </div>
       </div>
 
-      <Newsletter />
       <Footer />
     </div>
   );

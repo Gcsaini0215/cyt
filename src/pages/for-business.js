@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import Newsletter from "../components/home/newsletter";
 import BusinessHero from "../components/business/hero";
 import TrustStrip from "../components/business/trust-strip";
 import BusinessAudiences from "../components/business/audiences";
@@ -60,7 +59,6 @@ export default function ForBusiness() {
       <PlansComparison />
       <DemoForm />
       <BusinessFaqs />
-      <Newsletter />
       <Footer />
     </div>
   );

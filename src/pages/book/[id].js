@@ -2,7 +2,6 @@ import React from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import {
@@ -838,7 +837,6 @@ export default function BookPage() {
           </div>
         </div>
 
-        <NewsLetter />
         <Footer />
       </div>
 

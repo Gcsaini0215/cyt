@@ -3,7 +3,6 @@ import Head from "next/head";
 import { Box, Typography, Container } from "@mui/material";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 
 export default function PrivacyPolicy() {
   return (
@@ -134,7 +133,6 @@ export default function PrivacyPolicy() {
         </Container>
       </div>
 
-      <NewsLetter />
       <Footer />
     </>
   );

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
 import { isValidMail, sanitizeOtp } from "../utils/validators";
 import { apiErrorMessage } from "../utils/api-error";
@@ -423,7 +422,6 @@ export default function Login() {
         </div>
       </div>
 
-      <NewsLetter />
       <Footer />
     </>
   );

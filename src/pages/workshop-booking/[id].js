@@ -1,6 +1,5 @@
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 import { fetchData } from "../../utils/actions";
 import { getWorkshopWebUrl } from "../../utils/url";
 import ErrorPage from "../error-page";
@@ -31,7 +30,6 @@ export default function WorkshopBookingPage({ data }) {
             <PageBreadCrumb title="Confirm Your Program Access" linkTitle="Checkout"/>
             {Object.keys(data).length > 0 && <WorkshopCheckout data={data} />}
 
-            <NewsLetter />
             <Footer />
         </div>
     );

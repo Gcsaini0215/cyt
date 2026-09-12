@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import { 
   Box, 
   Container, 
@@ -695,7 +694,6 @@ export default function DailyJournalPage() {
       </Grid>
     </Container>
 
-      <NewsLetter />
       <Footer />
     </>
     )}

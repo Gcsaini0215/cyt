@@ -5,7 +5,6 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import { checkTherapistStatusUrl, verifyTherapistSubscriptionUrl, createRazorpayOrderUrl } from "../utils/url";
 import { postData } from "../utils/actions";
 
@@ -487,7 +486,6 @@ export default function TherapistPayment() {
         </div>
       </div>
 
-      <NewsLetter />
       <Footer />
     </>
   );

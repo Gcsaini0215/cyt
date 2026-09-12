@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Box, Typography, TextField, Button, Paper, Avatar, CircularProgress, Container } from "@mui/material";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 
 export default function AIChat() {
   const [messages, setMessages] = useState([]);
@@ -155,7 +154,6 @@ export default function AIChat() {
           </Button>
         </Box>
       </Container>
-      <NewsLetter />
       <Footer />
     </div>
   );

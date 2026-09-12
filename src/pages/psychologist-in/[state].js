@@ -7,7 +7,6 @@ import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 
 const ProfileCard = dynamic(() => import("../../components/home/profile-card"), { ssr: false });
-const NewsLetter = dynamic(() => import("../../components/home/newsletter"), { ssr: false });
 const ConsultationForm = dynamic(() => import("../../components/home/consultation-form"), { ssr: false });
 
 // ─── State config ────────────────────────────────────────────────────────────
@@ -799,7 +798,6 @@ export default function StatePsychologistPage({ config, therapists }) {
         </div>
       </div>
 
-      <NewsLetter />
       <Footer />
     </div>
   );

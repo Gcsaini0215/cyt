@@ -38,7 +38,6 @@ import {
 } from 'lucide-react';
 import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
-import NewsLetter from '../components/home/newsletter';
 import SocialShare from '../components/global/social-share';
 import BookingPopup from '../components/global/booking-popup';
 import { getBlogUrl, baseApi, getBlogsUrl, frontendUrl, getFullBlogImagePath } from '../utils/url';
@@ -1151,7 +1150,6 @@ export default function BlogDetails({ initialBlog }) {
         </Grid>
       </Container>
 
-      <NewsLetter />
       <Footer />
       <BookingPopup delay={5000} showHeading={false} showLocation={false} showSource={false} />
     </Box>

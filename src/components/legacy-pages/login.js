@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Footer from "../footer";
-import NewsLetter from "../home/newsletter";
 import MyNavbar from "../navbar";
 import ClientImg from "../../assets/img/avatar-027dc8.png";
 import Fabiha from "../../assets/img/psychologist.png";
@@ -273,7 +272,6 @@ export default function Login() {
         </div>
       </div>
 
-      <NewsLetter />
       <Footer />
     </div>
   );

@@ -1,6 +1,5 @@
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 import { fetchData } from "../../utils/actions";
 import { getPaymentQrUrl } from "../../utils/url";
 import WorkshopPaymentPending from "../../components/therapists/workshops/workshop-pending-payment";
@@ -28,7 +27,6 @@ export default function PaymentWorkshopPage({ data, error }) {
       {data && Object.keys(data).length > 0
         ? <WorkshopPaymentPending pageData={data} />
         : <h5 className="title mt--15" style={{ color: "red", paddingLeft: "20px" }}>{error}</h5>}
-      <NewsLetter />
       <Footer />
     </div>
   );

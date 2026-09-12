@@ -1,6 +1,5 @@
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 import { fetchData } from "../../utils/actions";
 import { pendingPaymentUrl } from "../../utils/url";
 import PaymentPending from "../../components/view_profile/payment-pending";
@@ -25,7 +24,6 @@ export default function PaymentPendingPage({ data }) {
       <MyNavbar />
       <PageBreadCrumb title="Payment" linkTitle="Payment"/>
       {data && Object.keys(data).length > 0 && <PaymentPending pageData={data} />}
-      <NewsLetter />
       <Footer />
     </div>
   );

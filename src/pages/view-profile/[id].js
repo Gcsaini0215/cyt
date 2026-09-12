@@ -4,7 +4,6 @@ import ProfileHeader from "../../components/view_profile/header";
 import ProfileInfoTab from "../../components/view_profile/profile-info-tab";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
   GetFavoriteTherapistListUrl,
@@ -386,7 +385,6 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
           <ProfileReview profile={profile} />
         </>
       )}
-      <NewsLetter />
       <Footer />
     </div>
   );
