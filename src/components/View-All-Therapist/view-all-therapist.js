@@ -17,6 +17,22 @@ const EMPTY_FILTER = {
   language_spoken: "", state: "", search: "", page: 1, pageSize: 1000,
 };
 
+const FEE_RANGES = [
+  { label: "Any Fees", value: "" },
+  { label: "Under ₹1000", value: "0-1000" },
+  { label: "₹1000 – ₹2000", value: "1000-2000" },
+  { label: "₹2000 – ₹3000", value: "2000-3000" },
+  { label: "Above ₹3000", value: "3000-Infinity" },
+];
+
+const getMinFee = (fees) => {
+  if (!fees || !Array.isArray(fees)) return null;
+  const allFees = fees
+    .filter((f) => f && Array.isArray(f.formats))
+    .flatMap((f) => f.formats.filter((fmt) => fmt && typeof fmt.fee === "number").map((fmt) => fmt.fee));
+  return allFees.length > 0 ? Math.min(...allFees) : null;
+};
+
 export default function ViewAllTherapist({ initialAllData = [], initialFilters = null }) {
   const router = useRouter();
   const [allData, setAllData] = React.useState(initialAllData);
@@ -29,6 +45,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [tempFilter, setTempFilter] = React.useState({});
   const [consultOpen, setConsultOpen] = React.useState(false);
+  const [feeRange, setFeeRange] = React.useState("");
   const resultsRef = React.useRef(null);
   const isFirstRender = React.useRef(true);
   const hasServerData = React.useRef(initialAllData.length > 0);
@@ -115,10 +132,11 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
   const resetFilters = () => {
     setSearch("");
     setCurrentPage(1);
+    setFeeRange("");
     setFilter({ profile_type: "", services: "", year_of_exp: "", language_spoken: "", state: "", search: "", page: 1, pageSize: 1000 });
   };
 
-  const hasFilter = filter.profile_type || filter.services || filter.year_of_exp || filter.language_spoken || filter.state || filter.search;
+  const hasFilter = filter.profile_type || filter.services || filter.year_of_exp || filter.language_spoken || filter.state || filter.search || feeRange;
   const activeFilterCount = [filter.profile_type, filter.services, filter.year_of_exp, filter.language_spoken, filter.state].filter(Boolean).length;
 
   React.useEffect(() => {
@@ -158,7 +176,17 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
   // Computed synchronously (not in an effect) so the server-rendered HTML
   // already contains the correctly filtered/paginated list for crawlers —
   // an effect wouldn't run during SSR and would leave the initial markup empty.
-  const filteredData = React.useMemo(() => filterTherapists(allData, filter), [allData, filter]);
+  const filteredData = React.useMemo(() => {
+    const base = filterTherapists(allData, filter);
+    if (!feeRange) return base;
+    const [minStr, maxStr] = feeRange.split("-");
+    const min = Number(minStr);
+    const max = maxStr === "Infinity" ? Infinity : Number(maxStr);
+    return base.filter((t) => {
+      const fee = getMinFee(t.fees);
+      return fee !== null && fee >= min && fee <= max;
+    });
+  }, [allData, filter, feeRange]);
   const data = React.useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredData.slice(start, start + ITEMS_PER_PAGE);
@@ -284,6 +312,24 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         .vat-results-title { font-size:26px; font-weight:800; color:#0f3d24; letter-spacing:-0.3px; position:relative; padding-left:18px; line-height:1.2; }
         .vat-results-title::before { content:''; position:absolute; left:0; top:3px; bottom:3px; width:4px; border-radius:2px; background:linear-gradient(180deg,#d4af37,#b8912a); }
         .vat-results-count { font-size:13.5px; color:#64748b; font-weight:600; margin-top:6px; padding-left:18px; }
+        .vat-header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .vat-fee-filter { display:flex; align-items:center; gap:8px; }
+        .vat-fee-filter label { font-size:13px; font-weight:700; color:#0f3d24; }
+        .vat-fee-filter select {
+          appearance:none;
+          -webkit-appearance:none;
+          font-size:13.5px;
+          font-weight:600;
+          color:#132a1c;
+          background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="%23134e2f" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 12px center;
+          border:1.5px solid #d9e3dc;
+          border-radius:8px;
+          padding:8px 32px 8px 12px;
+          cursor:pointer;
+          transition: border-color .2s ease;
+        }
+        .vat-fee-filter select:hover,
+        .vat-fee-filter select:focus { border-color:#d4af37; outline:none; }
         .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:4px; cursor:pointer; }
 
         /* loading skeleton */
@@ -409,12 +455,26 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
                 {totalPages > 1 && ` · Page ${currentPage} of ${totalPages}`}
               </div>
             </div>
-            {hasFilter && (
-              <button className="vat-reset" onClick={resetFilters}>
-                <i className="feather-x" style={{ fontSize: 12 }}></i>
-                Clear Filters
-              </button>
-            )}
+            <div className="vat-header-right">
+              <div className="vat-fee-filter">
+                <label htmlFor="vat-fee-select">Fees</label>
+                <select
+                  id="vat-fee-select"
+                  value={feeRange}
+                  onChange={(e) => setFeeRange(e.target.value)}
+                >
+                  {FEE_RANGES.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              {hasFilter && (
+                <button className="vat-reset" onClick={resetFilters}>
+                  <i className="feather-x" style={{ fontSize: 12 }}></i>
+                  Clear Filters
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Active filter chips */}
