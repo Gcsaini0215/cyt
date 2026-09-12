@@ -191,11 +191,16 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
 
   return (
     <>
-      <style suppressHydrationWarning>{`
+      {/* dangerouslySetInnerHTML, not a string child: React escapes quotes
+          in <style> text children but browsers don't un-escape them, so a
+          string child hydration-mismatches and silently breaks any rule
+          with a quote in it (the banner's url('...') included) — that's
+          what suppressHydrationWarning was papering over. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         /* ── Banner ──────────────────────────────────── */
         .vat-banner {
           position: relative;
-          background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
+          background-image: url('/images/bg-image-12dabd.jpg');
           background-size: cover;
           background-position: center;
           overflow: visible;
@@ -272,7 +277,10 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         }
 
         /* ── Results ─────────────────────────────────── */
-        .vat-results-wrap { padding:44px 0 60px; }
+        /* Footer.js forces <body> dark green site-wide; this section had no
+           background of its own, so the therapist cards floated on that
+           dark green instead of a page background. */
+        .vat-results-wrap { padding:44px 0 60px; background:#fff; }
         .vat-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px; padding-bottom:16px; border-bottom:1px solid #eef2f0; }
         .vat-results-title { font-size:17px; font-weight:800; color:#132a1c; }
         .vat-results-count { font-size:13px; color:#64748b; font-weight:600; }
@@ -381,7 +389,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         @media(min-width:768px) and (max-width:1100px){
           .vat-fsel { font-size:12px; padding:0 7px; }
         }
-      `}</style>
+      ` }} />
 
       {/* ── Banner: title + subtitle only ─────────────── */}
       <div className="vat-banner">
