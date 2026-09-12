@@ -205,7 +205,6 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
           background-position: center;
           overflow: visible;
           padding: 60px 0 80px;
-          border-bottom: 3px solid #d4af37;
         }
         .vat-banner::before {
           content:''; position:absolute; inset:0;
@@ -281,9 +280,10 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
            background of its own, so the therapist cards floated on that
            dark green instead of a page background. */
         .vat-results-wrap { padding:44px 0 60px; background:#fff; }
-        .vat-results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:10px; padding-bottom:16px; border-bottom:1px solid #eef2f0; }
-        .vat-results-title { font-size:17px; font-weight:800; color:#132a1c; }
-        .vat-results-count { font-size:13px; color:#64748b; font-weight:600; }
+        .vat-results-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:10px; padding-bottom:18px; border-bottom:1px solid #eef2f0; }
+        .vat-results-title { font-size:26px; font-weight:800; color:#0f3d24; letter-spacing:-0.3px; position:relative; padding-left:18px; line-height:1.2; }
+        .vat-results-title::before { content:''; position:absolute; left:0; top:3px; bottom:3px; width:4px; border-radius:2px; background:linear-gradient(180deg,#d4af37,#b8912a); }
+        .vat-results-count { font-size:13.5px; color:#64748b; font-weight:600; margin-top:6px; padding-left:18px; }
         .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:4px; cursor:pointer; }
 
         /* loading skeleton */
@@ -391,121 +391,10 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         }
       ` }} />
 
-      {/* ── Banner: title + subtitle only ─────────────── */}
-      <div className="vat-banner">
-        <div className="container">
-          <div className="vat-ban-inner">
-            <div className="vat-ban-eyebrow">Verified Therapist Directory</div>
-            <h1 className="vat-ban-title">
-              Find Your <span>Perfect</span> Therapist
-            </h1>
-            <p className="vat-ban-sub">
-              Browse verified mental health professionals across India. Filter by expertise, language, or location.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* ── Banner: image only ────────────────────────── */}
+      <div className="vat-banner" />
 
       <ConsultationConsentModal open={consultOpen} onClose={() => setConsultOpen(false)} />
-
-      {/* ── Sticky filter bar (overlaps banner bottom) ── */}
-      <div className="vat-sticky-bar">
-        <div className="container">
-          <div className="vat-filter-card">
-          <div className="vat-filter-inner">
-
-            {/* Search */}
-            <div className="vat-search-wrap">
-              <input
-                type="text"
-                className="vat-search-input"
-                placeholder="Search by name, concern, or language..."
-                value={search}
-                onChange={handleSearchChange}
-              />
-              <button className="vat-search-btn" type="button">
-                <i className="feather-search"></i>
-              </button>
-            </div>
-
-            {/* Desktop filter selects */}
-            <div className="vat-desk-filters">
-              <select name="profile_type" value={filter.profile_type} onChange={handleChange} className={`vat-fsel${filter.profile_type ? " active" : ""}`}>
-                <option value="">Type</option>
-                {profileTypeOptions.map((item, i) => <option key={i} value={item.value}>{ro(item)}</option>)}
-              </select>
-              <select name="services" value={filter.services} onChange={handleChange} className={`vat-fsel${filter.services ? " active" : ""}`}>
-                <option value="">Specialty</option>
-                {services.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
-              </select>
-              <select name="year_of_exp" value={filter.year_of_exp} onChange={handleChange} className={`vat-fsel${filter.year_of_exp ? " active" : ""}`}>
-                <option value="">Experience</option>
-                {ExpList.map((item, i) => <option key={i} value={item}>{ro(item)}</option>)}
-              </select>
-              <select name="language_spoken" value={filter.language_spoken} onChange={handleChange} className={`vat-fsel${filter.language_spoken ? " active" : ""}`}>
-                <option value="">Language</option>
-                {languageSpoken.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
-              </select>
-              <select name="state" value={filter.state} onChange={handleChange} className={`vat-fsel${filter.state ? " active" : ""}`}>
-                <option value="">State</option>
-                {stateList.map((item, i) => <option key={i} value={typeof item === "string" ? item : item.value}>{ro(item)}</option>)}
-              </select>
-
-              {hasFilter && (
-                <button className="vat-reset-btn" onClick={resetFilters}>
-                  <i className="feather-x" style={{ fontSize: 11 }}></i>
-                  Clear
-                </button>
-              )}
-            </div>
-
-          </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Mobile: Bottom Sheet Overlay ─────────────── */}
-      <div className={`vat-sheet-overlay${sheetOpen ? " open" : ""}`} onClick={() => setSheetOpen(false)} />
-
-      {/* ── Mobile: Bottom Sheet Panel ───────────────── */}
-      <div className={`vat-sheet${sheetOpen ? " open" : ""}`}>
-        <span className="vat-sheet-handle"></span>
-        <div className="vat-sheet-head">
-          <h5>Filter Therapists</h5>
-          <button className="vat-sheet-close" onClick={() => setSheetOpen(false)}>
-            <i className="feather-x"></i>
-          </button>
-        </div>
-        <div className="vat-sheet-body">
-          {[
-            { label: "Profile Type", name: "profile_type", options: profileTypeOptions, isObj: true },
-            { label: "Specialty / Concern", name: "services", options: services, isObj: false },
-            { label: "Experience", name: "year_of_exp", options: ExpList, isObj: false },
-            { label: "Language", name: "language_spoken", options: languageSpoken, isObj: true },
-            { label: "State", name: "state", options: stateList, isObj: true },
-          ].map(({ label, name, options, isObj }) => (
-            <div key={name}>
-              <div className="vat-sheet-label">{label}</div>
-              <select
-                name={name}
-                value={tempFilter[name] || ""}
-                onChange={handleTempChange}
-                className={`vat-sheet-sel${tempFilter[name] ? " active" : ""}`}
-              >
-                <option value="">All {label}s</option>
-                {options.map((item, i) => {
-                  const val = isObj && typeof item === "object" ? item.value : item;
-                  return <option key={i} value={val}>{ro(item)}</option>;
-                })}
-              </select>
-            </div>
-          ))}
-        </div>
-        <div className="vat-sheet-footer">
-          <button className="vat-sheet-clear" onClick={clearSheet}>Clear All</button>
-          <button className="vat-sheet-apply" onClick={applySheet}>Show Results</button>
-        </div>
-      </div>
 
       {/* ── Results ───────────────────────────────────── */}
       <div ref={resultsRef} className="vat-results-wrap">
@@ -642,14 +531,6 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         </div>
       </div>
 
-      {/* ── Mobile Filter FAB ─────────────────────────── */}
-      <button className="vat-filter-fab" onClick={openSheet}>
-        <i className="feather-sliders"></i>
-        Filters
-        {activeFilterCount > 0 && (
-          <span className="vat-fab-badge">{activeFilterCount}</span>
-        )}
-      </button>
     </>
   );
 }
