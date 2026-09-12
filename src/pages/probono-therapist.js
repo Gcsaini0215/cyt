@@ -3,7 +3,6 @@ import Head from "next/head";
 import ProbonoTherapist from "../components/probono/probono-therapist";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
-import NewsLetter from "../components/home/newsletter";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/probono-therapist";
 
@@ -21,7 +20,6 @@ export default function ProbonoTherapistPage() {
       </Head>
       <MyNavbar />
       <ProbonoTherapist />
-      <NewsLetter />
       <Footer />
     </div>
   );

@@ -1,7 +1,6 @@
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import Head from "next/head";
-import Newsletter from "../components/home/newsletter";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
 import Link from "next/link";
 
@@ -240,7 +239,6 @@ export default function EmergencySupport() {
         </div>
       </div>
 
-      <Newsletter />
       <Footer />
     </div>
   );

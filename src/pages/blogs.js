@@ -7,7 +7,6 @@ import BlogHeader from "../components/blogs/header";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
 import Blogs from "../components/blogs/all-blogs";
-import NewsLetter from "../components/home/newsletter";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/blogs";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
@@ -200,7 +199,6 @@ export default function AllBlogs() {
       </Box>
 
       <Blogs />
-      <NewsLetter />
       <Footer />
     </div>
   );

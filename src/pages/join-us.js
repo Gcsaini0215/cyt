@@ -6,7 +6,6 @@ import ServiceBenefits from "../components/joinus/service-benefits";
 
 import CallToAction from "../components/home/call-to-action";
 import FAQs from "../components/home/faqs";
-import Newsletter from "../components/home/newsletter";
 import ServiceQuality from "../components/about/service-quality";
 export default function JoinUs() {
   return (
@@ -22,7 +21,6 @@ export default function JoinUs() {
       </div>
       <CallToAction />
       <FAQs />
-      <Newsletter />
       <Footer />
     </div>
   );

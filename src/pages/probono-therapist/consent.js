@@ -3,7 +3,6 @@ import Head from "next/head";
 import ProbonoConsent from "../../components/probono/probono-consent";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/probono-therapist/consent";
 
@@ -21,7 +20,6 @@ export default function ProbonoConsentPage() {
       </Head>
       <MyNavbar />
       <ProbonoConsent />
-      <NewsLetter />
       <Footer />
     </div>
   );

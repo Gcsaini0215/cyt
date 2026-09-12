@@ -8,7 +8,6 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import ProbonoProfileDetail from "../../../components/probono/probono-profile-detail";
 import Footer from "../../../components/footer";
 import MyNavbar from "../../../components/navbar";
-import NewsLetter from "../../../components/home/newsletter";
 import { PSYCHOLOGISTS } from "../../../components/probono/probono-data";
 import { fetchData } from "../../../utils/actions";
 import { getProbonoInternsUrl, baseApi } from "../../../utils/url";
@@ -178,7 +177,6 @@ export default function ProbonoProfileDetailPage({ psychologist }) {
       </Head>
       <MyNavbar />
       <ProbonoProfileDetail psychologist={psychologist} pageUrl={pageUrl} />
-      <NewsLetter />
       <Footer />
     </div>
   );

@@ -3,7 +3,6 @@ import Head from "next/head";
 import ProbonoProfiles from "../../components/probono/probono-profiles";
 import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
-import NewsLetter from "../../components/home/newsletter";
 import { PSYCHOLOGISTS } from "../../components/probono/probono-data";
 import { fetchData } from "../../utils/actions";
 import { getProbonoInternsUrl, baseApi } from "../../utils/url";
@@ -45,7 +44,6 @@ export default function ProbonoProfilesPage({ interns }) {
       </Head>
       <MyNavbar />
       <ProbonoProfiles interns={interns} />
-      <NewsLetter />
       <Footer />
     </div>
   );

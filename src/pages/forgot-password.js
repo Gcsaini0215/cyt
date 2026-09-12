@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import MyNavbar from "../components/navbar";
 import ClientImg from "../assets/img/avatar-027dc8.png";
 import Fabiha from "../assets/img/psychologist.png";
@@ -344,7 +343,6 @@ export default function Forgotpassword() {
         </div>
       </div>
 
-      <NewsLetter />
       <Footer />
       <Modal
         open={open}

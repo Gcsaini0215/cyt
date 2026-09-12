@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Box, Typography, TextField, Button, Paper, Card, CardContent, CircularProgress, Alert, Container } from "@mui/material";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 
 export default function AIAffirmation() {
   const [input, setInput] = useState("");
@@ -102,7 +101,6 @@ export default function AIAffirmation() {
           </Card>
         )}
       </Container>
-      <NewsLetter />
       <Footer />
     </div>
   );

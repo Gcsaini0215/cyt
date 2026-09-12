@@ -10,7 +10,6 @@ const Blogs = dynamic(() => import("../components/home/blogs"), { ssr: false });
 const Faqs = dynamic(() => import("../components/home/faqs"), { ssr: false });
 const CallToAction = dynamic(() => import("../components/home/call-to-action"), { ssr: false });
 const Counter = dynamic(() => import("../components/home/counter"), { ssr: false });
-const NewsLetter = dynamic(() => import("../components/home/newsletter"), { ssr: false });
 const ProfileCard = dynamic(() => import("../components/home/profile-card"), { ssr: false });
 const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
 const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
@@ -535,7 +534,6 @@ export default function HomePage() {
         <Feedback therapists={topTherapists} />
         <Blogs />
         <Faqs />
-        <NewsLetter />
       </main>
       
       {/* Footer */}

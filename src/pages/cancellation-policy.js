@@ -2,7 +2,6 @@ import MyNavbar from "../components/navbar";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Head from "next/head";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 export default function CancellationPolicy() {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const styles = {
@@ -72,7 +71,6 @@ export default function CancellationPolicy() {
         <br />
         <br />
       </div>
-      <NewsLetter />
 
       <div className="rbt-progress-parent">
         <svg

@@ -2,7 +2,6 @@ import React from "react";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import NewsLetter from "../components/home/newsletter";
 import FreeResources from "../components/home/free-resources";
 import WellnessToolkitBanner from "../components/wellness-toolkit/banner";
 import CrisisSupport from "../components/wellness-toolkit/crisis-support";
@@ -46,7 +45,6 @@ export default function WellnessToolkit() {
         <CrisisSupport />
       </main>
 
-      <NewsLetter />
       <Footer />
     </div>
   );

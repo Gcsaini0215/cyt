@@ -2,7 +2,6 @@ import ServicesHeader from "../../components/services/header";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import TherapistProfile from "../../components/services/thrapist-profile";
-import NewsLetter from "../../components/home/newsletter";
 import ServiceDetails from "../../components/services/service-details";
 import React from "react";
 import { useRouter } from "next/router";
@@ -83,7 +82,6 @@ export default function Services() {
           </>
         )}
       </div>
-      <NewsLetter />
       <Footer />
     </div>
   ) : (
