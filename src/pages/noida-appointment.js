@@ -285,6 +285,21 @@ export default function NoidaAppointment() {
 
       {mounted && <style>{`
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; }
+
+        .na-footer {
+          background: #0f3d22; color: rgba(255,255,255,.85); padding: 24px 20px;
+          display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+        }
+        .na-footer-brand { display: flex; align-items: center; gap: 8px; }
+        .na-footer-logo {
+          width: 26px; height: 26px; border-radius: 7px; background: #1a6b3a; color: #fff;
+          font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+        }
+        .na-footer-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .na-footer-info { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font-size: 12.5px; }
+        .na-footer-link { color: rgba(255,255,255,.8); text-decoration: none; }
+        .na-footer-link:hover { color: #fff; }
+        .na-footer-copy { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 4px; }
         .na-wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 60px; }
         .na-card {
           background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14);
@@ -684,6 +699,19 @@ export default function NoidaAppointment() {
             )}
           </div>
         </div>
+
+        <footer className="na-footer">
+          <div className="na-footer-brand">
+            <span className="na-footer-logo">CYT</span>
+            <span className="na-footer-name">Choose Your Therapist</span>
+          </div>
+          <div className="na-footer-info">
+            <a href="tel:+918077757951" className="na-footer-link">📞 +91 80777 57951</a>
+            <a href="mailto:chooseyourtherapist@gmail.com" className="na-footer-link">✉️ chooseyourtherapist@gmail.com</a>
+            <span className="na-footer-link">📍 Sector 51, Noida, Uttar Pradesh</span>
+          </div>
+          <div className="na-footer-copy">© {new Date().getFullYear()} Choose Your Therapist LLP. All rights reserved.</div>
+        </footer>
       </div>
     </>
   );
