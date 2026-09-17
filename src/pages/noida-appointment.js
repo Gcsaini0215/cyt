@@ -5,7 +5,7 @@ import { apiUrl } from "../utils/url";
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const STEP_LABELS = ["You", "When", "Confirm"];
+const STEP_LABELS = ["You", "Session", "When", "Confirm"];
 
 function dateLabel(dateStr) {
   const [y, m, d] = dateStr.split("-").map(Number);
@@ -160,15 +160,20 @@ export default function NoidaAppointment() {
       setError("Please enter a valid 10-digit phone number."); return;
     }
     if (!effectiveName?.trim()) { setError("Name is required."); return; }
-    if (sessionMode === "package" && !selectedPackageId) { setError("Please choose a package."); return; }
-    if (format === "home-visit" && !address.trim()) { setError("Please add your address for the home visit."); return; }
     setStep(2);
   };
 
   const goToStep3 = () => {
     setError("");
-    if (!selectedDate || !selectedSlot) { setError("Please select a date and time slot."); return; }
+    if (sessionMode === "package" && !selectedPackageId) { setError("Please choose a package."); return; }
+    if (format === "home-visit" && !address.trim()) { setError("Please add your address for the home visit."); return; }
     setStep(3);
+  };
+
+  const goToStep4 = () => {
+    setError("");
+    if (!selectedDate || !selectedSlot) { setError("Please select a date and time slot."); return; }
+    setStep(4);
   };
 
   const finalizeBooking = async (paymentResponse) => {
@@ -516,56 +521,12 @@ export default function NoidaAppointment() {
                     )}
 
                     {(bookingType === "new" || form.phone.length === 10) && (
-                      <>
-                        <div className="na-section-label">Session type</div>
-                        <div className="na-pill-row">
-                          <div className={`na-pill ${sessionMode === "individual" ? "active" : ""}`} onClick={() => setSessionMode("individual")}>
-                            Individual
-                            <span className="na-pill-price">₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</span>
-                          </div>
-                          <div className={`na-pill ${sessionMode === "couple" ? "active" : ""}`} onClick={() => setSessionMode("couple")}>
-                            Couple
-                            <span className="na-pill-price">₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</span>
-                          </div>
+                      <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
+                        <div>
+                          <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                          <textarea className="na-inp na-textarea" rows={3} value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Briefly describe what you're going through…" />
                         </div>
-
-                        {(pricing?.packages || []).length > 0 && (
-                          <>
-                            <div className="na-section-label">Or choose a package</div>
-                            <div className="na-pkg-card-row">
-                              {pricing.packages.map(pkg => (
-                                <div
-                                  key={pkg._id}
-                                  className={`na-pkg-card ${sessionMode === "package" && selectedPackageId === pkg._id ? "active" : ""}`}
-                                  onClick={() => { setSessionMode("package"); setSelectedPackageId(pkg._id); }}
-                                >
-                                  <div>
-                                    <div className="na-pkg-card-name">{pkg.name}</div>
-                                    <div className="na-pkg-card-meta">{pkg.sessionsCount} sessions</div>
-                                  </div>
-                                  <div className="na-pkg-card-price">₹{pkg.price}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
-
-                        <div className="na-section-label">Format</div>
-                        <div className="na-pill-row">
-                          <div className={`na-pill ${format === "in-person" ? "active" : ""}`} onClick={() => setFormat("in-person")}>In-person</div>
-                          <div className={`na-pill ${format === "online" ? "active" : ""}`} onClick={() => setFormat("online")}>Online</div>
-                          <div className={`na-pill ${format === "home-visit" ? "active" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</div>
-                        </div>
-
-                        {format === "home-visit" && (
-                          <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
-                            <div>
-                              <label className="na-lbl">Address in Noida *</label>
-                              <textarea className="na-inp na-textarea" rows={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Flat / House no., Street, Sector, Landmark…" />
-                            </div>
-                          </div>
-                        )}
-                      </>
+                      </div>
                     )}
 
                     {error && <div className="na-error">⚠️ {error}</div>}
@@ -574,6 +535,68 @@ export default function NoidaAppointment() {
                 )}
 
                 {step === 2 && (
+                  <>
+                    <div className="na-section-label">What kind of session?</div>
+                    <div className="na-pill-row">
+                      <div className={`na-pill ${sessionMode === "individual" ? "active" : ""}`} onClick={() => setSessionMode("individual")}>
+                        Individual
+                        <span className="na-pill-price">₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</span>
+                      </div>
+                      <div className={`na-pill ${sessionMode === "couple" ? "active" : ""}`} onClick={() => setSessionMode("couple")}>
+                        Couple
+                        <span className="na-pill-price">₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</span>
+                      </div>
+                      {(pricing?.packages || []).length > 0 && (
+                        <div className={`na-pill ${sessionMode === "package" ? "active" : ""}`} onClick={() => setSessionMode("package")}>
+                          Package
+                          <span className="na-pill-price">{pricing.packages.length} available</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {sessionMode === "package" && (
+                      <div className="na-pkg-card-row">
+                        {(pricing?.packages || []).map(pkg => (
+                          <div
+                            key={pkg._id}
+                            className={`na-pkg-card ${selectedPackageId === pkg._id ? "active" : ""}`}
+                            onClick={() => setSelectedPackageId(pkg._id)}
+                          >
+                            <div>
+                              <div className="na-pkg-card-name">{pkg.name}</div>
+                              <div className="na-pkg-card-meta">{pkg.sessionsCount} sessions</div>
+                            </div>
+                            <div className="na-pkg-card-price">₹{pkg.price}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="na-section-label">Format</div>
+                    <div className="na-pill-row">
+                      <div className={`na-pill ${format === "in-person" ? "active" : ""}`} onClick={() => setFormat("in-person")}>In-person</div>
+                      <div className={`na-pill ${format === "online" ? "active" : ""}`} onClick={() => setFormat("online")}>Online</div>
+                      <div className={`na-pill ${format === "home-visit" ? "active" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</div>
+                    </div>
+
+                    {format === "home-visit" && (
+                      <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
+                        <div>
+                          <label className="na-lbl">Address in Noida *</label>
+                          <textarea className="na-inp na-textarea" rows={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Flat / House no., Street, Sector, Landmark…" />
+                        </div>
+                      </div>
+                    )}
+
+                    {error && <div className="na-error">⚠️ {error}</div>}
+                    <div className="na-btn-row">
+                      <button type="button" className="na-btn-back" onClick={() => setStep(1)}>Back</button>
+                      <button type="button" className="na-submit" onClick={goToStep3}>Continue →</button>
+                    </div>
+                  </>
+                )}
+
+                {step === 3 && (
                   <>
                     <div className="na-section-label">Choose a date</div>
                     {dateOptions === null ? (
@@ -624,13 +647,13 @@ export default function NoidaAppointment() {
 
                     {error && <div className="na-error" style={{ marginTop: 16 }}>⚠️ {error}</div>}
                     <div className="na-btn-row">
-                      <button type="button" className="na-btn-back" onClick={() => setStep(1)}>Back</button>
-                      <button type="button" className="na-submit" disabled={!selectedSlot} onClick={goToStep3}>Continue →</button>
+                      <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                      <button type="button" className="na-submit" disabled={!selectedSlot} onClick={goToStep4}>Continue →</button>
                     </div>
                   </>
                 )}
 
-                {step === 3 && (
+                {step === 4 && (
                   <>
                     <div className="na-section-label">Review &amp; confirm</div>
                     <div className="na-review">
@@ -640,6 +663,7 @@ export default function NoidaAppointment() {
                       {format === "home-visit" && <div><strong>Address:</strong> {address}</div>}
                       <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
                       <div><strong>Time:</strong> {selectedSlot}</div>
+                      {form.concern && <div><strong>Concern:</strong> {form.concern}</div>}
                       <div className="na-price-breakdown">
                         <div>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}: ₹{baseAmount}</div>
                         <div>Platform fee: ₹{platformFee}</div>
@@ -647,16 +671,9 @@ export default function NoidaAppointment() {
                       </div>
                     </div>
 
-                    <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
-                      <div>
-                        <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
-                        <textarea className="na-inp na-textarea" rows={3} value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Briefly describe what you're going through…" />
-                      </div>
-                    </div>
-
                     {error && <div className="na-error">⚠️ {error}</div>}
                     <div className="na-btn-row">
-                      <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                      <button type="button" className="na-btn-back" onClick={() => setStep(3)}>Back</button>
                       <button type="submit" className="na-submit" disabled={status === "loading"}>
                         {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
                       </button>
