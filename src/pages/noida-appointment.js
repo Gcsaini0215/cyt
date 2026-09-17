@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
+import Script from "next/script";
 import { apiUrl } from "../utils/url";
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -12,12 +13,55 @@ function dateLabel(dateStr) {
   return { value: dateStr, weekday: WEEKDAY_SHORT[dt.getDay()], day: dt.getDate(), month: MONTH_SHORT[dt.getMonth()] };
 }
 
+function priceFieldFor(sessionMode, format) {
+  const fmt = format === "home-visit" ? "homevisit" : format === "online" ? "online" : "inperson";
+  const mode = sessionMode === "couple" ? "couple" : "individual";
+  return `${mode}_${fmt}`;
+}
+
+function waitForRazorpay(timeout = 12000) {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== "undefined" && window.Razorpay) return resolve();
+    const t0 = Date.now();
+    const iv = setInterval(() => {
+      if (typeof window !== "undefined" && window.Razorpay) {
+        clearInterval(iv);
+        resolve();
+      } else if (Date.now() - t0 > timeout) {
+        clearInterval(iv);
+        reject(new Error("Payment library failed to load. Please check your connection and retry."));
+      }
+    }, 150);
+  });
+}
+
 export default function NoidaAppointment() {
   const [step, setStep] = useState(1); // 1 = You, 2 = When, 3 = Confirm
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup"
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+
+  // ── Pricing + packages, fetched once ─────────────────────────────────
+  const [pricing, setPricing] = useState(null);
+  useEffect(() => {
+    fetch(`${apiUrl}/noida-appointments/pricing`)
+      .then(r => r.json())
+      .then(data => setPricing(data?.status ? data.data : null))
+      .catch(() => setPricing(null));
+  }, []);
+
+  const [sessionMode, setSessionMode] = useState("individual"); // "individual" | "couple" | "package"
+  const [selectedPackageId, setSelectedPackageId] = useState("");
+  const [format, setFormat] = useState("in-person"); // "in-person" | "online" | "home-visit"
+  const [address, setAddress] = useState("");
+
+  const selectedPackage = (pricing?.packages || []).find(p => p._id === selectedPackageId);
+  const baseAmount = sessionMode === "package"
+    ? (selectedPackage?.price ?? 0)
+    : (pricing?.[priceFieldFor(sessionMode, format)] ?? 0);
+  const platformFee = pricing?.platformFee ?? 20;
+  const totalAmount = baseAmount + platformFee;
 
   // ── Date strip — only dates the admin has actually opened for this type ─
   const [dateOptions, setDateOptions] = useState(null); // null = loading
@@ -116,6 +160,8 @@ export default function NoidaAppointment() {
       setError("Please enter a valid 10-digit phone number."); return;
     }
     if (!effectiveName?.trim()) { setError("Name is required."); return; }
+    if (sessionMode === "package" && !selectedPackageId) { setError("Please choose a package."); return; }
+    if (format === "home-visit" && !address.trim()) { setError("Please add your address for the home visit."); return; }
     setStep(2);
   };
 
@@ -125,10 +171,7 @@ export default function NoidaAppointment() {
     setStep(3);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setStatus("loading");
+  const finalizeBooking = async (paymentResponse) => {
     try {
       const res = await fetch(`${apiUrl}/noida-appointments`, {
         method: "POST",
@@ -142,23 +185,82 @@ export default function NoidaAppointment() {
           date: selectedDate,
           slot: selectedSlot,
           type: bookingType,
+          sessionMode,
+          format,
+          address: format === "home-visit" ? address.trim() : "",
+          packageId: sessionMode === "package" ? selectedPackageId : undefined,
+          razorpay_order_id: paymentResponse.razorpay_order_id,
+          razorpay_payment_id: paymentResponse.razorpay_payment_id,
+          razorpay_signature: paymentResponse.razorpay_signature,
         }),
       });
       const data = await res.json();
       if (data.status) {
         setStatus("success");
       } else {
-        setError(data.message || "Something went wrong. Please try again.");
+        setError(`${data.message || "Booking failed after payment."} Please WhatsApp us with payment ID ${paymentResponse.razorpay_payment_id} and we'll sort it out.`);
         setStatus(null);
-        if (res.status === 409) { loadSlots(selectedDate, bookingType); setStep(2); } // slot got taken — refresh and let them repick
       }
     } catch {
-      setError("Could not connect. Please try again.");
+      setError(`Payment succeeded but we couldn't save the booking. Please WhatsApp us with payment ID ${paymentResponse.razorpay_payment_id}.`);
+      setStatus(null);
+    }
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    setError("");
+    setStatus("loading");
+    try {
+      const orderRes = await fetch(`${apiUrl}/noida-appointments/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionMode, format,
+          packageId: sessionMode === "package" ? selectedPackageId : undefined,
+          address: format === "home-visit" ? address.trim() : undefined,
+        }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderData.status) {
+        setError(orderData.message || "Could not start payment. Please try again.");
+        setStatus(null);
+        return;
+      }
+
+      await waitForRazorpay();
+
+      const rzp = new window.Razorpay({
+        key: orderData.data.keyId,
+        amount: Math.round(orderData.data.amount * 100),
+        currency: "INR",
+        order_id: orderData.data.orderId,
+        name: "Choose Your Therapist",
+        description: "Noida Center Appointment",
+        handler: (response) => finalizeBooking(response),
+        prefill: { name: effectiveName, email: form.email, contact: form.phone },
+        theme: { color: "#1a6b3a" },
+        modal: {
+          ondismiss: () => {
+            setStatus(null);
+            setError("Payment was cancelled. You can try again whenever you're ready.");
+          },
+        },
+      });
+      rzp.on("payment.failed", () => {
+        setStatus(null);
+        setError("Payment failed. Please try again or use a different payment method.");
+      });
+      rzp.open();
+    } catch (err) {
+      setError(err.message || "Could not start payment. Please try again.");
       setStatus(null);
     }
   };
 
   const selectedDateLabel = (dateOptions || []).find(d => d.value === selectedDate);
+  const formatLabel = format === "home-visit" ? "Home Visit" : format === "online" ? "Online" : "In-person";
+  const modeLabel = sessionMode === "package" ? (selectedPackage?.name || "Package") : sessionMode === "couple" ? "Couple" : "Individual";
 
   return (
     <>
@@ -173,6 +275,8 @@ export default function NoidaAppointment() {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </Head>
+
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
       {mounted && <style>{`
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; }
@@ -205,6 +309,28 @@ export default function NoidaAppointment() {
           font-size: 11.5px; font-weight: 800; color: #64748b; text-transform: uppercase;
           letter-spacing: 0.6px; margin-bottom: 12px;
         }
+
+        .na-pill-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .na-pill {
+          flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; text-align: center;
+          border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; transition: all .15s;
+          font-size: 12.5px; font-weight: 700; color: #334155;
+        }
+        .na-pill:hover { border-color: #94a3b8; }
+        .na-pill.active { background: #f0fdf4; border-color: #1a6b3a; color: #15803d; }
+        .na-pill-price { display: block; font-size: 10.5px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
+        .na-pill.active .na-pill-price { color: #15803d; }
+
+        .na-pkg-card-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .na-pkg-card {
+          display: flex; align-items: center; justify-content: space-between; padding: 12px 14px;
+          border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; transition: all .15s;
+        }
+        .na-pkg-card:hover { border-color: #94a3b8; }
+        .na-pkg-card.active { background: #f0fdf4; border-color: #1a6b3a; }
+        .na-pkg-card-name { font-size: 13px; font-weight: 700; color: #0f172a; }
+        .na-pkg-card-meta { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+        .na-pkg-card-price { font-size: 14px; font-weight: 800; color: #1a6b3a; }
 
         .na-date-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 26px; }
         .na-date-pill {
@@ -265,6 +391,8 @@ export default function NoidaAppointment() {
 
         .na-review { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; font-size: 13.5px; color: #334155; line-height: 2; margin-bottom: 20px; }
         .na-review strong { color: #0f172a; }
+        .na-price-breakdown { border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 8px; }
+        .na-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #1a6b3a; margin-top: 4px; }
 
         .na-success { text-align: center; padding: 20px 4px; }
         .na-success-icon {
@@ -287,12 +415,14 @@ export default function NoidaAppointment() {
                 <div className="na-summary">
                   <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
                   <div><strong>Time:</strong> {selectedSlot}</div>
+                  <div><strong>Session:</strong> {modeLabel} · {formatLabel}</div>
+                  <div><strong>Amount Paid:</strong> ₹{totalAmount}</div>
                   <div><strong>Location:</strong> Sector 51, Noida, Uttar Pradesh</div>
                   {form.email && <div><strong>Confirmation sent to:</strong> {form.email}</div>}
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handlePayment}>
                 <div className="na-steps">
                   {STEP_LABELS.map((label, i) => {
                     const n = i + 1;
@@ -385,8 +515,61 @@ export default function NoidaAppointment() {
                       </>
                     )}
 
+                    {(bookingType === "new" || form.phone.length === 10) && (
+                      <>
+                        <div className="na-section-label">Session type</div>
+                        <div className="na-pill-row">
+                          <div className={`na-pill ${sessionMode === "individual" ? "active" : ""}`} onClick={() => setSessionMode("individual")}>
+                            Individual
+                            <span className="na-pill-price">₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</span>
+                          </div>
+                          <div className={`na-pill ${sessionMode === "couple" ? "active" : ""}`} onClick={() => setSessionMode("couple")}>
+                            Couple
+                            <span className="na-pill-price">₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</span>
+                          </div>
+                        </div>
+
+                        {(pricing?.packages || []).length > 0 && (
+                          <>
+                            <div className="na-section-label">Or choose a package</div>
+                            <div className="na-pkg-card-row">
+                              {pricing.packages.map(pkg => (
+                                <div
+                                  key={pkg._id}
+                                  className={`na-pkg-card ${sessionMode === "package" && selectedPackageId === pkg._id ? "active" : ""}`}
+                                  onClick={() => { setSessionMode("package"); setSelectedPackageId(pkg._id); }}
+                                >
+                                  <div>
+                                    <div className="na-pkg-card-name">{pkg.name}</div>
+                                    <div className="na-pkg-card-meta">{pkg.sessionsCount} sessions</div>
+                                  </div>
+                                  <div className="na-pkg-card-price">₹{pkg.price}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        <div className="na-section-label">Format</div>
+                        <div className="na-pill-row">
+                          <div className={`na-pill ${format === "in-person" ? "active" : ""}`} onClick={() => setFormat("in-person")}>In-person</div>
+                          <div className={`na-pill ${format === "online" ? "active" : ""}`} onClick={() => setFormat("online")}>Online</div>
+                          <div className={`na-pill ${format === "home-visit" ? "active" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</div>
+                        </div>
+
+                        {format === "home-visit" && (
+                          <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
+                            <div>
+                              <label className="na-lbl">Address in Noida *</label>
+                              <textarea className="na-inp na-textarea" rows={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Flat / House no., Street, Sector, Landmark…" />
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
                     {error && <div className="na-error">⚠️ {error}</div>}
-                    <button type="button" className="na-submit" onClick={goToStep2}>Continue</button>
+                    <button type="button" className="na-submit" onClick={goToStep2}>Continue →</button>
                   </>
                 )}
 
@@ -442,7 +625,7 @@ export default function NoidaAppointment() {
                     {error && <div className="na-error" style={{ marginTop: 16 }}>⚠️ {error}</div>}
                     <div className="na-btn-row">
                       <button type="button" className="na-btn-back" onClick={() => setStep(1)}>Back</button>
-                      <button type="button" className="na-submit" disabled={!selectedSlot} onClick={goToStep3}>Continue</button>
+                      <button type="button" className="na-submit" disabled={!selectedSlot} onClick={goToStep3}>Continue →</button>
                     </div>
                   </>
                 )}
@@ -453,8 +636,15 @@ export default function NoidaAppointment() {
                     <div className="na-review">
                       <div><strong>Name:</strong> {effectiveName || "—"}</div>
                       <div><strong>Phone:</strong> {form.phone}</div>
+                      <div><strong>Session:</strong> {modeLabel} · {formatLabel}</div>
+                      {format === "home-visit" && <div><strong>Address:</strong> {address}</div>}
                       <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
                       <div><strong>Time:</strong> {selectedSlot}</div>
+                      <div className="na-price-breakdown">
+                        <div>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}: ₹{baseAmount}</div>
+                        <div>Platform fee: ₹{platformFee}</div>
+                        <div className="na-price-total"><span>Total</span><span>₹{totalAmount}</span></div>
+                      </div>
                     </div>
 
                     <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
@@ -468,7 +658,7 @@ export default function NoidaAppointment() {
                     <div className="na-btn-row">
                       <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
                       <button type="submit" className="na-submit" disabled={status === "loading"}>
-                        {status === "loading" ? "Booking…" : `Confirm ${selectedSlot}`}
+                        {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
                       </button>
                     </div>
                   </>
