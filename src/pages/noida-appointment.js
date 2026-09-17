@@ -25,6 +25,12 @@ function nowIST() {
   return new Date(utcMs + IST_OFFSET_MS);
 }
 
+function dateLabel(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(y, m - 1, d, 12);
+  return { value: dateStr, weekday: WEEKDAY_SHORT[dt.getDay()], day: dt.getDate(), month: MONTH_SHORT[dt.getMonth()], isSunday: dt.getDay() === 0 };
+}
+
 // Next 14 calendar days, IST-anchored so "today" matches the center's clock, not the visitor's device.
 // Deliberately not run during the initial render (see mount effect below) — "now" differs between
 // the server-rendered pass and the browser, which would otherwise trip a hydration mismatch.
@@ -34,26 +40,20 @@ function buildDateOptions() {
   for (let i = 0; i < 14; i++) {
     const d = new Date(base);
     d.setDate(d.getDate() + i);
-    days.push({
-      value: toDateStr(d),
-      weekday: WEEKDAY_SHORT[d.getDay()],
-      day: d.getDate(),
-      month: MONTH_SHORT[d.getMonth()],
-      isSunday: d.getDay() === 0,
-    });
+    days.push(dateLabel(toDateStr(d)));
   }
   return days;
 }
 
 export default function NoidaAppointment() {
-  const [dateOptions, setDateOptions] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [slots, setSlots] = useState([]);
-  const [slotsLoading, setSlotsLoading] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState("");
+  const [bookingType, setBookingType] = useState("new"); // "new" | "followup"
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+
+  // ── New-client date strip (fixed 14-day window) ─────────────────────
+  const [dateOptions, setDateOptions] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     const opts = buildDateOptions();
@@ -61,17 +61,35 @@ export default function NoidaAppointment() {
     setSelectedDate(opts.find(d => !d.isSunday)?.value || opts[0]?.value || "");
   }, []);
 
-  const [form, setForm] = useState({ name: "", phone: "", email: "", concern: "" });
-  const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
-  const [error, setError] = useState("");
+  // ── Follow-up date strip (only dates the admin has actually opened) ─
+  const [followupDateOptions, setFollowupDateOptions] = useState(null); // null = not loaded yet
+  const [followupDate, setFollowupDate] = useState("");
 
-  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  useEffect(() => {
+    if (bookingType !== "followup" || followupDateOptions !== null) return;
+    fetch(`${apiUrl}/noida-appointments/followup-dates`)
+      .then(r => r.json())
+      .then(data => {
+        const dates = data?.status ? (data.data || []) : [];
+        const opts = dates.map(dateLabel);
+        setFollowupDateOptions(opts);
+        setFollowupDate(opts[0]?.value || "");
+      })
+      .catch(() => setFollowupDateOptions([]));
+  }, [bookingType, followupDateOptions]);
 
-  const loadSlots = useCallback(async (date) => {
+  const activeDate = bookingType === "followup" ? followupDate : selectedDate;
+
+  // ── Slots for whichever date is active ───────────────────────────────
+  const [slots, setSlots] = useState([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState("");
+
+  const loadSlots = useCallback(async (date, type) => {
     setSlotsLoading(true);
     setSelectedSlot("");
     try {
-      const res = await fetch(`${apiUrl}/noida-appointments/slots?date=${date}`);
+      const res = await fetch(`${apiUrl}/noida-appointments/slots?date=${date}&type=${type}`);
       const data = await res.json();
       setSlots(data?.status ? (data.data || []) : []);
     } catch {
@@ -82,15 +100,75 @@ export default function NoidaAppointment() {
   }, []);
 
   useEffect(() => {
-    if (selectedDate) loadSlots(selectedDate);
-  }, [selectedDate, loadSlots]);
+    if (activeDate) loadSlots(activeDate, bookingType);
+    else setSlots([]);
+  }, [activeDate, bookingType, loadSlots]);
+
+  // ── Follow-up phone lookup ───────────────────────────────────────────
+  const [lookupStatus, setLookupStatus] = useState(null); // null | "checking" | "found" | "not-found"
+  const [foundName, setFoundName] = useState("");
+  const [manualOverride, setManualOverride] = useState(false); // "not you? enter manually"
+
+  const runLookup = useCallback(async (phone) => {
+    if (!/^\d{10}$/.test(phone)) { setLookupStatus(null); return; }
+    setLookupStatus("checking");
+    try {
+      const res = await fetch(`${apiUrl}/noida-appointments/lookup?phone=${phone}`);
+      const data = await res.json();
+      if (data?.status && data.data?.found) {
+        setFoundName(data.data.name || "");
+        setLookupStatus("found");
+      } else {
+        setLookupStatus("not-found");
+      }
+    } catch {
+      setLookupStatus("not-found");
+    }
+  }, []);
+
+  // ── Form ──────────────────────────────────────────────────────────────
+  const [form, setForm] = useState({ name: "", age: "", phone: "", email: "", concern: "" });
+  const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
+  const [error, setError] = useState("");
+
+  const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const handlePhoneChange = (v) => {
+    const digits = v.replace(/\D/g, "").slice(0, 10);
+    set("phone", digits);
+    setManualOverride(false);
+    if (digits.length === 10 && bookingType === "followup") runLookup(digits);
+    else setLookupStatus(null);
+  };
+
+  const switchTab = (type) => {
+    setBookingType(type);
+    setStatus(null);
+    setError("");
+    setLookupStatus(null);
+    setManualOverride(false);
+    setForm({ name: "", age: "", phone: "", email: "", concern: "" });
+  };
+
+  const needsFullDetails = bookingType === "new" || lookupStatus === "not-found" || manualOverride;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.name.trim() || !form.phone.trim()) { setError("Name and phone number are required."); return; }
-    if (!/^\d{10}$/.test(form.phone.trim())) { setError("Please enter a valid 10-digit phone number."); return; }
-    if (!selectedDate || !selectedSlot) { setError("Please select a date and time slot."); return; }
+
+    if (!form.phone.trim() || !/^\d{10}$/.test(form.phone.trim())) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+    const effectiveName = bookingType === "followup" && lookupStatus === "found" && !manualOverride ? foundName : form.name;
+    if (!effectiveName?.trim()) {
+      setError("Name is required.");
+      return;
+    }
+    if (!activeDate || !selectedSlot) {
+      setError("Please select a date and time slot.");
+      return;
+    }
 
     setStatus("loading");
     try {
@@ -98,12 +176,14 @@ export default function NoidaAppointment() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name.trim(),
+          name: effectiveName.trim(),
+          age: form.age.trim(),
           phone: form.phone.trim(),
           email: form.email.trim(),
           concern: form.concern,
-          date: selectedDate,
+          date: activeDate,
           slot: selectedSlot,
+          type: bookingType,
         }),
       });
       const data = await res.json();
@@ -112,7 +192,7 @@ export default function NoidaAppointment() {
       } else {
         setError(data.message || "Something went wrong. Please try again.");
         setStatus(null);
-        if (res.status === 409) loadSlots(selectedDate); // slot got taken — refresh the list
+        if (res.status === 409) loadSlots(activeDate, bookingType); // slot got taken — refresh the list
       }
     } catch {
       setError("Could not connect. Please try again.");
@@ -120,7 +200,9 @@ export default function NoidaAppointment() {
     }
   };
 
-  const selectedDateLabel = dateOptions.find(d => d.value === selectedDate);
+  const activeDateOptions = bookingType === "followup" ? (followupDateOptions || []) : dateOptions;
+  const selectedDateLabel = activeDateOptions.find(d => d.value === activeDate);
+  const confirmedName = bookingType === "followup" && lookupStatus === "found" && !manualOverride ? foundName : form.name;
 
   return (
     <>
@@ -156,6 +238,11 @@ export default function NoidaAppointment() {
           background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14);
           padding: 28px 24px 32px;
         }
+
+        .na-tabs { display: flex; gap: 6px; background: #f1f5f9; border-radius: 12px; padding: 5px; margin-bottom: 24px; }
+        .na-tab { flex: 1; border: none; background: none; padding: 10px 0; border-radius: 9px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; }
+        .na-tab.active { background: #fff; color: #1a6b3a; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+
         .na-section-label {
           font-size: 11.5px; font-weight: 800; color: #64748b; text-transform: uppercase;
           letter-spacing: 0.6px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
@@ -209,6 +296,12 @@ export default function NoidaAppointment() {
 
         .na-address { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: 13px; color: rgba(255,255,255,.85); margin-top: 16px; }
 
+        .na-lookup-box { border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .na-lookup-checking { background: #f8fafc; color: #64748b; }
+        .na-lookup-found { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-weight: 700; }
+        .na-lookup-notfound { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+        .na-lookup-link { background: none; border: none; color: inherit; text-decoration: underline; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; flex-shrink: 0; }
+
         .na-success { text-align: center; padding: 20px 4px; }
         .na-success-icon {
           width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #16a34a;
@@ -234,10 +327,10 @@ export default function NoidaAppointment() {
             {status === "success" ? (
               <div className="na-success">
                 <div className="na-success-icon">✓</div>
-                <h2>You're all set, {form.name.split(" ")[0]}!</h2>
+                <h2>You're all set, {(confirmedName || "there").split(" ")[0]}!</h2>
                 <p>Your appointment at our Noida center is confirmed. We'll see you there — please arrive 10 minutes early.</p>
                 <div className="na-summary">
-                  <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
+                  <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : activeDate}</div>
                   <div><strong>Time:</strong> {selectedSlot}</div>
                   <div><strong>Location:</strong> Sector 51, Noida, Uttar Pradesh</div>
                   {form.email && <div><strong>Confirmation sent to:</strong> {form.email}</div>}
@@ -245,65 +338,134 @@ export default function NoidaAppointment() {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
-                <div className="na-section-label"><span className="na-section-num">1</span> Choose a date</div>
-                <div className="na-date-strip">
-                  {dateOptions.map(d => (
-                    <div
-                      key={d.value}
-                      className={`na-date-pill ${d.isSunday ? "disabled" : ""} ${selectedDate === d.value ? "active" : ""}`}
-                      onClick={() => !d.isSunday && setSelectedDate(d.value)}
-                    >
-                      <div className="na-dow">{d.weekday}</div>
-                      <div className="na-dnum">{d.day}</div>
-                      <div className="na-dmon">{d.month}</div>
-                    </div>
-                  ))}
+                <div className="na-tabs">
+                  <button type="button" className={`na-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
+                  <button type="button" className={`na-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
                 </div>
 
-                <div className="na-section-label"><span className="na-section-num">2</span> Choose a time</div>
-                {slotsLoading ? (
-                  <div className="na-slot-empty">Loading available times…</div>
-                ) : slots.length === 0 ? (
-                  <div className="na-slot-empty">No slots left for this day — try another date.</div>
-                ) : (
-                  <div className="na-slot-grid">
-                    {slots.map(s => (
-                      <button
-                        type="button"
-                        key={s}
-                        className={`na-slot-btn ${selectedSlot === s ? "active" : ""}`}
-                        onClick={() => setSelectedSlot(s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
+                {bookingType === "followup" && (
+                  <>
+                    <div className="na-section-label"><span className="na-section-num">1</span> Your phone number</div>
+                    <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: lookupStatus ? 10 : 20 }}>
+                      <input
+                        className="na-inp" value={form.phone} onChange={e => handlePhoneChange(e.target.value)}
+                        placeholder="10-digit mobile you booked with before" type="tel" inputMode="numeric" maxLength={10}
+                      />
+                    </div>
+                    {lookupStatus === "checking" && (
+                      <div className="na-lookup-box na-lookup-checking">Checking…</div>
+                    )}
+                    {lookupStatus === "found" && !manualOverride && (
+                      <div className="na-lookup-box na-lookup-found">
+                        <span>👋 Welcome back, {foundName}!</span>
+                        <button type="button" className="na-lookup-link" onClick={() => setManualOverride(true)}>Not you?</button>
+                      </div>
+                    )}
+                    {(lookupStatus === "not-found" || (lookupStatus === "found" && manualOverride)) && (
+                      <div className="na-lookup-box na-lookup-notfound">
+                        {lookupStatus === "not-found" ? "New here — please fill in your details below." : "No problem, fill in your details below."}
+                      </div>
+                    )}
+                  </>
                 )}
 
-                <div className="na-section-label"><span className="na-section-num">3</span> Your details</div>
-                <div className="na-row">
-                  <div>
-                    <label className="na-lbl">Full Name *</label>
-                    <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" />
+                {(bookingType === "new" || form.phone.length === 10) && (
+                  <>
+                    <div className="na-section-label"><span className="na-section-num">{bookingType === "followup" ? 2 : 1}</span> Choose a date</div>
+                    {bookingType === "followup" && followupDateOptions === null ? (
+                      <div className="na-slot-empty">Loading available dates…</div>
+                    ) : activeDateOptions.length === 0 ? (
+                      <div className="na-slot-empty">No follow-up slots are open right now — please WhatsApp us and we'll set one up.</div>
+                    ) : (
+                      <div className="na-date-strip">
+                        {activeDateOptions.map(d => (
+                          <div
+                            key={d.value}
+                            className={`na-date-pill ${d.isSunday ? "disabled" : ""} ${activeDate === d.value ? "active" : ""}`}
+                            onClick={() => !d.isSunday && (bookingType === "followup" ? setFollowupDate(d.value) : setSelectedDate(d.value))}
+                          >
+                            <div className="na-dow">{d.weekday}</div>
+                            <div className="na-dnum">{d.day}</div>
+                            <div className="na-dmon">{d.month}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {activeDateOptions.length > 0 && (
+                      <>
+                        <div className="na-section-label"><span className="na-section-num">{bookingType === "followup" ? 3 : 2}</span> Choose a time</div>
+                        {slotsLoading ? (
+                          <div className="na-slot-empty">Loading available times…</div>
+                        ) : slots.length === 0 ? (
+                          <div className="na-slot-empty">No slots left for this day — try another date.</div>
+                        ) : (
+                          <div className="na-slot-grid">
+                            {slots.map(s => (
+                              <button
+                                type="button"
+                                key={s}
+                                className={`na-slot-btn ${selectedSlot === s ? "active" : ""}`}
+                                onClick={() => setSelectedSlot(s)}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+
+                {needsFullDetails && (
+                  <>
+                    <div className="na-section-label"><span className="na-section-num">{bookingType === "followup" ? 4 : 3}</span> Your details</div>
+                    <div className="na-row">
+                      <div>
+                        <label className="na-lbl">Full Name *</label>
+                        <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" />
+                      </div>
+                      <div>
+                        <label className="na-lbl">Age</label>
+                        <input className="na-inp" value={form.age} onChange={e => set("age", e.target.value.replace(/\D/g, "").slice(0, 3))} placeholder="e.g. 27" inputMode="numeric" />
+                      </div>
+                    </div>
+                    {bookingType === "new" && (
+                      <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
+                        <div>
+                          <label className="na-lbl">Phone Number *</label>
+                          <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" type="tel" inputMode="numeric" maxLength={10} />
+                        </div>
+                      </div>
+                    )}
+                    <div className="na-row">
+                      <div>
+                        <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional, for confirmation)</span></label>
+                        <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+                      </div>
+                      <div>
+                        <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                        <select className="na-inp" value={form.concern} onChange={e => set("concern", e.target.value)}>
+                          <option value="">Select</option>
+                          {CONCERNS.map(c => <option key={c}>{c}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {!needsFullDetails && bookingType === "followup" && lookupStatus === "found" && (
+                  <div className="na-row" style={{ gridTemplateColumns: "1fr", marginTop: -4 }}>
+                    <div>
+                      <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                      <select className="na-inp" value={form.concern} onChange={e => set("concern", e.target.value)}>
+                        <option value="">Select</option>
+                        {CONCERNS.map(c => <option key={c}>{c}</option>)}
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label className="na-lbl">Phone Number *</label>
-                    <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} placeholder="10-digit mobile" type="tel" inputMode="numeric" maxLength={10} />
-                  </div>
-                </div>
-                <div className="na-row">
-                  <div>
-                    <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional, for confirmation)</span></label>
-                    <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
-                  </div>
-                  <div>
-                    <label className="na-lbl">Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
-                    <select className="na-inp" value={form.concern} onChange={e => set("concern", e.target.value)}>
-                      <option value="">Select</option>
-                      {CONCERNS.map(c => <option key={c}>{c}</option>)}
-                    </select>
-                  </div>
-                </div>
+                )}
 
                 {error && <div className="na-error">⚠️ {error}</div>}
 
