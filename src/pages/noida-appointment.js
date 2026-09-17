@@ -379,7 +379,7 @@ export default function NoidaAppointment() {
         }
         .na-btn-back:hover { border-color: #94a3b8; }
         .na-submit {
-          flex: 1; padding: 15px 0; border: none; border-radius: 12px;
+          display: block; width: 100%; flex: 1; padding: 15px 0; border: none; border-radius: 12px;
           background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff;
           font-size: 15px; font-weight: 800; cursor: pointer; transition: all .2s;
           box-shadow: 0 6px 18px rgba(22,101,52,.28);
