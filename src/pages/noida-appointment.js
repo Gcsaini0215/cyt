@@ -4,45 +4,13 @@ import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import { apiUrl } from "../utils/url";
 
-const CONCERNS = [
-  "Anxiety", "Depression", "Stress Management", "Relationship Issues",
-  "Trauma / PTSD", "Grief & Loss", "Self-Esteem", "Anger Management",
-  "OCD", "Sleep Issues", "Life Transitions", "Career Counselling", "Other",
-];
-
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
-
-function pad2(n) { return String(n).padStart(2, "0"); }
-function toDateStr(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
-
-// Current wall-clock instant in Asia/Kolkata, computed with plain offset math
-// (no locale-string round-trip) so it can't drift between server and browser ICU builds.
-function nowIST() {
-  const now = new Date();
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utcMs + IST_OFFSET_MS);
-}
 
 function dateLabel(dateStr) {
   const [y, m, d] = dateStr.split("-").map(Number);
   const dt = new Date(y, m - 1, d, 12);
-  return { value: dateStr, weekday: WEEKDAY_SHORT[dt.getDay()], day: dt.getDate(), month: MONTH_SHORT[dt.getMonth()], isSunday: dt.getDay() === 0 };
-}
-
-// Next 14 calendar days, IST-anchored so "today" matches the center's clock, not the visitor's device.
-// Deliberately not run during the initial render (see mount effect below) — "now" differs between
-// the server-rendered pass and the browser, which would otherwise trip a hydration mismatch.
-function buildDateOptions() {
-  const base = nowIST();
-  const days = [];
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(base);
-    d.setDate(d.getDate() + i);
-    days.push(dateLabel(toDateStr(d)));
-  }
-  return days;
+  return { value: dateStr, weekday: WEEKDAY_SHORT[dt.getDay()], day: dt.getDate(), month: MONTH_SHORT[dt.getMonth()] };
 }
 
 export default function NoidaAppointment() {
@@ -51,34 +19,23 @@ export default function NoidaAppointment() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  // ── New-client date strip (fixed 14-day window) ─────────────────────
-  const [dateOptions, setDateOptions] = useState([]);
+  // ── Date strip — only dates the admin has actually opened for this type ─
+  const [dateOptions, setDateOptions] = useState(null); // null = loading
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
-    const opts = buildDateOptions();
-    setDateOptions(opts);
-    setSelectedDate(opts.find(d => !d.isSunday)?.value || opts[0]?.value || "");
-  }, []);
-
-  // ── Follow-up date strip (only dates the admin has actually opened) ─
-  const [followupDateOptions, setFollowupDateOptions] = useState(null); // null = not loaded yet
-  const [followupDate, setFollowupDate] = useState("");
-
-  useEffect(() => {
-    if (bookingType !== "followup" || followupDateOptions !== null) return;
-    fetch(`${apiUrl}/noida-appointments/followup-dates`)
+    setDateOptions(null);
+    setSelectedDate("");
+    fetch(`${apiUrl}/noida-appointments/followup-dates?type=${bookingType}`)
       .then(r => r.json())
       .then(data => {
         const dates = data?.status ? (data.data || []) : [];
         const opts = dates.map(dateLabel);
-        setFollowupDateOptions(opts);
-        setFollowupDate(opts[0]?.value || "");
+        setDateOptions(opts);
+        setSelectedDate(opts[0]?.value || "");
       })
-      .catch(() => setFollowupDateOptions([]));
-  }, [bookingType, followupDateOptions]);
-
-  const activeDate = bookingType === "followup" ? followupDate : selectedDate;
+      .catch(() => setDateOptions([]));
+  }, [bookingType]);
 
   // ── Slots for whichever date is active ───────────────────────────────
   const [slots, setSlots] = useState([]);
@@ -100,9 +57,9 @@ export default function NoidaAppointment() {
   }, []);
 
   useEffect(() => {
-    if (activeDate) loadSlots(activeDate, bookingType);
+    if (selectedDate) loadSlots(selectedDate, bookingType);
     else setSlots([]);
-  }, [activeDate, bookingType, loadSlots]);
+  }, [selectedDate, bookingType, loadSlots]);
 
   // ── Follow-up phone lookup ───────────────────────────────────────────
   const [lookupStatus, setLookupStatus] = useState(null); // null | "checking" | "found" | "not-found"
@@ -165,7 +122,7 @@ export default function NoidaAppointment() {
       setError("Name is required.");
       return;
     }
-    if (!activeDate || !selectedSlot) {
+    if (!selectedDate || !selectedSlot) {
       setError("Please select a date and time slot.");
       return;
     }
@@ -180,8 +137,8 @@ export default function NoidaAppointment() {
           age: form.age.trim(),
           phone: form.phone.trim(),
           email: form.email.trim(),
-          concern: form.concern,
-          date: activeDate,
+          concern: form.concern.trim(),
+          date: selectedDate,
           slot: selectedSlot,
           type: bookingType,
         }),
@@ -192,7 +149,7 @@ export default function NoidaAppointment() {
       } else {
         setError(data.message || "Something went wrong. Please try again.");
         setStatus(null);
-        if (res.status === 409) loadSlots(activeDate, bookingType); // slot got taken — refresh the list
+        if (res.status === 409) loadSlots(selectedDate, bookingType); // slot got taken — refresh the list
       }
     } catch {
       setError("Could not connect. Please try again.");
@@ -200,8 +157,7 @@ export default function NoidaAppointment() {
     }
   };
 
-  const activeDateOptions = bookingType === "followup" ? (followupDateOptions || []) : dateOptions;
-  const selectedDateLabel = activeDateOptions.find(d => d.value === activeDate);
+  const selectedDateLabel = (dateOptions || []).find(d => d.value === selectedDate);
   const confirmedName = bookingType === "followup" && lookupStatus === "found" && !manualOverride ? foundName : form.name;
 
   return (
@@ -257,7 +213,6 @@ export default function NoidaAppointment() {
           flex-shrink: 0; width: 62px; padding: 10px 0; border-radius: 12px; text-align: center;
           border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; transition: all .15s;
         }
-        .na-date-pill.disabled { opacity: .4; cursor: not-allowed; }
         .na-date-pill.active { background: #1a6b3a; border-color: #1a6b3a; }
         .na-date-pill.active .na-dow, .na-date-pill.active .na-dnum, .na-date-pill.active .na-dmon { color: #fff; }
         .na-dow { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
@@ -280,6 +235,7 @@ export default function NoidaAppointment() {
           font-family: inherit; transition: border-color .15s;
         }
         .na-inp:focus { border-color: #1a6b3a; background: #fff; }
+        .na-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
         .na-lbl { font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 6px; }
         .na-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
         @media (max-width: 480px) { .na-row { grid-template-columns: 1fr; } }
@@ -330,7 +286,7 @@ export default function NoidaAppointment() {
                 <h2>You're all set, {(confirmedName || "there").split(" ")[0]}!</h2>
                 <p>Your appointment at our Noida center is confirmed. We'll see you there — please arrive 10 minutes early.</p>
                 <div className="na-summary">
-                  <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : activeDate}</div>
+                  <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
                   <div><strong>Time:</strong> {selectedSlot}</div>
                   <div><strong>Location:</strong> Sector 51, Noida, Uttar Pradesh</div>
                   {form.email && <div><strong>Confirmation sent to:</strong> {form.email}</div>}
@@ -372,17 +328,17 @@ export default function NoidaAppointment() {
                 {(bookingType === "new" || form.phone.length === 10) && (
                   <>
                     <div className="na-section-label"><span className="na-section-num">{bookingType === "followup" ? 2 : 1}</span> Choose a date</div>
-                    {bookingType === "followup" && followupDateOptions === null ? (
+                    {dateOptions === null ? (
                       <div className="na-slot-empty">Loading available dates…</div>
-                    ) : activeDateOptions.length === 0 ? (
-                      <div className="na-slot-empty">No follow-up slots are open right now — please WhatsApp us and we'll set one up.</div>
+                    ) : dateOptions.length === 0 ? (
+                      <div className="na-slot-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div>
                     ) : (
                       <div className="na-date-strip">
-                        {activeDateOptions.map(d => (
+                        {dateOptions.map(d => (
                           <div
                             key={d.value}
-                            className={`na-date-pill ${d.isSunday ? "disabled" : ""} ${activeDate === d.value ? "active" : ""}`}
-                            onClick={() => !d.isSunday && (bookingType === "followup" ? setFollowupDate(d.value) : setSelectedDate(d.value))}
+                            className={`na-date-pill ${selectedDate === d.value ? "active" : ""}`}
+                            onClick={() => setSelectedDate(d.value)}
                           >
                             <div className="na-dow">{d.weekday}</div>
                             <div className="na-dnum">{d.day}</div>
@@ -392,7 +348,7 @@ export default function NoidaAppointment() {
                       </div>
                     )}
 
-                    {activeDateOptions.length > 0 && (
+                    {dateOptions && dateOptions.length > 0 && (
                       <>
                         <div className="na-section-label"><span className="na-section-num">{bookingType === "followup" ? 3 : 2}</span> Choose a time</div>
                         {slotsLoading ? (
@@ -431,25 +387,29 @@ export default function NoidaAppointment() {
                         <input className="na-inp" value={form.age} onChange={e => set("age", e.target.value.replace(/\D/g, "").slice(0, 3))} placeholder="e.g. 27" inputMode="numeric" />
                       </div>
                     </div>
-                    {bookingType === "new" && (
-                      <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
+                    {bookingType === "new" ? (
+                      <div className="na-row">
                         <div>
                           <label className="na-lbl">Phone Number *</label>
                           <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" type="tel" inputMode="numeric" maxLength={10} />
                         </div>
+                        <div>
+                          <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                          <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
+                        <div>
+                          <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional, for confirmation)</span></label>
+                          <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+                        </div>
                       </div>
                     )}
-                    <div className="na-row">
-                      <div>
-                        <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional, for confirmation)</span></label>
-                        <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
-                      </div>
+                    <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                       <div>
                         <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
-                        <select className="na-inp" value={form.concern} onChange={e => set("concern", e.target.value)}>
-                          <option value="">Select</option>
-                          {CONCERNS.map(c => <option key={c}>{c}</option>)}
-                        </select>
+                        <textarea className="na-inp na-textarea" rows={3} value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Briefly describe what you're going through…" />
                       </div>
                     </div>
                   </>
@@ -459,10 +419,7 @@ export default function NoidaAppointment() {
                   <div className="na-row" style={{ gridTemplateColumns: "1fr", marginTop: -4 }}>
                     <div>
                       <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
-                      <select className="na-inp" value={form.concern} onChange={e => set("concern", e.target.value)}>
-                        <option value="">Select</option>
-                        {CONCERNS.map(c => <option key={c}>{c}</option>)}
-                      </select>
+                      <textarea className="na-inp na-textarea" rows={3} value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Briefly describe what you'd like to follow up on…" />
                     </div>
                   </div>
                 )}
