@@ -37,7 +37,7 @@ function waitForRazorpay(timeout = 12000) {
 
 export default function NoidaAppointment() {
   const [step, setStep] = useState(1); // 1 = You, 2 = When, 3 = Confirm
-  const [bookingType, setBookingType] = useState("new"); // "new" | "followup"
+  const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
 
   // ── Pricing + packages, fetched once ─────────────────────────────────
   const [pricing, setPricing] = useState(null);
@@ -65,6 +65,7 @@ export default function NoidaAppointment() {
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
+    if (bookingType === "reschedule") return; // reschedule has its own date/slot fetching below
     setDateOptions(null);
     setSelectedDate("");
     fetch(`${apiUrl}/noida-appointments/followup-dates?type=${bookingType}`)
@@ -129,6 +130,92 @@ export default function NoidaAppointment() {
 
   const usingCredit = bookingType === "followup" && !!credit;
 
+  // ── Reschedule tab — a compact, single-screen flow separate from the
+  // multi-step booking wizard above: phone → auto-lookup nearest upcoming
+  // booking → pick new date/time → confirm. Reuses the same date-strip /
+  // slot-grid markup and classes as the booking wizard.
+  const [reschedulePhone, setReschedulePhone] = useState("");
+  const [rescheduleStatus, setRescheduleStatus] = useState(null); // null | "checking" | "found" | "not-found"
+  const [rescheduleInfo, setRescheduleInfo] = useState(null); // { name, date, slot, type }
+  const [rescheduleDateOptions, setRescheduleDateOptions] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleSlots, setRescheduleSlots] = useState([]);
+  const [rescheduleSlotsLoading, setRescheduleSlotsLoading] = useState(false);
+  const [rescheduleSlot, setRescheduleSlot] = useState("");
+  const [rescheduleSubmitting, setRescheduleSubmitting] = useState(false);
+  const [rescheduleDone, setRescheduleDone] = useState(false);
+  const [rescheduleError, setRescheduleError] = useState("");
+
+  const runRescheduleLookup = useCallback(async (phone) => {
+    if (!/^\d{10}$/.test(phone)) { setRescheduleStatus(null); setRescheduleInfo(null); return; }
+    setRescheduleStatus("checking");
+    try {
+      const res = await fetch(`${apiUrl}/noida-appointments/upcoming?phone=${phone}`);
+      const data = await res.json();
+      if (data?.status && data.data?.found) {
+        setRescheduleInfo(data.data);
+        setRescheduleStatus("found");
+      } else {
+        setRescheduleInfo(null);
+        setRescheduleStatus("not-found");
+      }
+    } catch {
+      setRescheduleStatus("not-found");
+      setRescheduleInfo(null);
+    }
+  }, []);
+
+  const handleReschedulePhoneChange = (v) => {
+    const digits = v.replace(/\D/g, "").slice(0, 10);
+    setReschedulePhone(digits);
+    setRescheduleDate(""); setRescheduleSlot(""); setRescheduleError("");
+    if (digits.length === 10) runRescheduleLookup(digits);
+    else { setRescheduleStatus(null); setRescheduleInfo(null); }
+  };
+
+  useEffect(() => {
+    if (!rescheduleInfo) { setRescheduleDateOptions(null); return; }
+    setRescheduleDateOptions(null);
+    setRescheduleDate("");
+    fetch(`${apiUrl}/noida-appointments/followup-dates?type=${rescheduleInfo.type}`)
+      .then(r => r.json())
+      .then(data => setRescheduleDateOptions((data?.status ? (data.data || []) : []).map(dateLabel)))
+      .catch(() => setRescheduleDateOptions([]));
+  }, [rescheduleInfo]);
+
+  useEffect(() => {
+    if (!rescheduleDate || !rescheduleInfo) { setRescheduleSlots([]); return; }
+    setRescheduleSlotsLoading(true);
+    setRescheduleSlot("");
+    fetch(`${apiUrl}/noida-appointments/slots?date=${rescheduleDate}&type=${rescheduleInfo.type}`)
+      .then(r => r.json())
+      .then(data => setRescheduleSlots(data?.status ? (data.data || []) : []))
+      .catch(() => setRescheduleSlots([]))
+      .finally(() => setRescheduleSlotsLoading(false));
+  }, [rescheduleDate, rescheduleInfo]);
+
+  const rescheduleDateLabel = (rescheduleDateOptions || []).find(d => d.value === rescheduleDate);
+
+  const submitReschedule = async () => {
+    setRescheduleError("");
+    if (!rescheduleDate || !rescheduleSlot) { setRescheduleError("Please select a date and time."); return; }
+    setRescheduleSubmitting(true);
+    try {
+      const res = await fetch(`${apiUrl}/noida-appointments/reschedule`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: reschedulePhone, newDate: rescheduleDate, newSlot: rescheduleSlot }),
+      });
+      const data = await res.json();
+      if (data.status) setRescheduleDone(true);
+      else setRescheduleError(data.message || "Could not reschedule. Please try again.");
+    } catch {
+      setRescheduleError("Could not reschedule. Please try again.");
+    } finally {
+      setRescheduleSubmitting(false);
+    }
+  };
+
   // ── Form ──────────────────────────────────────────────────────────────
   const [form, setForm] = useState({ name: "", age: "", phone: "", email: "", concern: "" });
   const [status, setStatus] = useState(null); // null | "loading" | "success" | "error"
@@ -146,12 +233,15 @@ export default function NoidaAppointment() {
 
   const switchTab = (type) => {
     setBookingType(type);
+    setStep(1);
     setStatus(null);
     setError("");
     setLookupStatus(null);
     setManualOverride(false);
     setCredit(null);
     setForm({ name: "", age: "", phone: "", email: "", concern: "" });
+    setReschedulePhone(""); setRescheduleStatus(null); setRescheduleInfo(null);
+    setRescheduleDate(""); setRescheduleSlot(""); setRescheduleDone(false); setRescheduleError("");
   };
 
   const needsFullDetails = bookingType === "new" || lookupStatus === "not-found" || manualOverride;
@@ -470,6 +560,108 @@ export default function NoidaAppointment() {
                 )}
               </div>
             ) : (
+              <>
+                <div className="na-tabs">
+                  <button type="button" className={`na-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
+                  <button type="button" className={`na-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
+                  <button type="button" className={`na-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
+                </div>
+
+                {bookingType === "reschedule" ? (
+                  rescheduleDone ? (
+                    <div className="na-success">
+                      <div className="na-success-icon">✓</div>
+                      <h2>All set!</h2>
+                      <p>Your appointment has been moved to the new time. We've sent a confirmation to your email if you gave us one.</p>
+                      <div className="na-summary">
+                        <div><strong>New Date:</strong> {rescheduleDateLabel ? `${rescheduleDateLabel.weekday}, ${rescheduleDateLabel.day} ${rescheduleDateLabel.month}` : rescheduleDate}</div>
+                        <div><strong>New Time:</strong> {rescheduleSlot}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: rescheduleStatus ? 10 : 14 }}>
+                        <div>
+                          <label className="na-lbl">Phone Number *</label>
+                          <input
+                            className="na-inp" value={reschedulePhone} onChange={e => handleReschedulePhoneChange(e.target.value)}
+                            placeholder="10-digit mobile you booked with" type="tel" inputMode="numeric" maxLength={10}
+                          />
+                        </div>
+                      </div>
+
+                      {rescheduleStatus === "checking" && <div className="na-lookup-box na-lookup-checking">Checking…</div>}
+                      {rescheduleStatus === "not-found" && (
+                        <div className="na-lookup-box na-lookup-notfound">No upcoming appointment found for this number — check it, or WhatsApp us for help.</div>
+                      )}
+                      {rescheduleStatus === "found" && rescheduleInfo && (
+                        <>
+                          <div className="na-lookup-box na-lookup-found">
+                            <span>📅 Currently: {rescheduleInfo.date} at {rescheduleInfo.slot}</span>
+                          </div>
+
+                          <div className="na-section-label">Pick a new date</div>
+                          {rescheduleDateOptions === null ? (
+                            <div className="na-slot-empty">Loading available dates…</div>
+                          ) : rescheduleDateOptions.length === 0 ? (
+                            <div className="na-slot-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div>
+                          ) : (
+                            <div className="na-date-strip">
+                              {rescheduleDateOptions.map(d => (
+                                <div
+                                  key={d.value}
+                                  className={`na-date-pill ${rescheduleDate === d.value ? "active" : ""}`}
+                                  onClick={() => setRescheduleDate(d.value)}
+                                >
+                                  <div className="na-dow">{d.weekday}</div>
+                                  <div className="na-dnum">{d.day}</div>
+                                  <div className="na-dmon">{d.month}</div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {rescheduleDateOptions && rescheduleDateOptions.length > 0 && (
+                            <>
+                              <div className="na-section-label">Pick a new time</div>
+                              {rescheduleSlotsLoading ? (
+                                <div className="na-slot-empty">Loading available times…</div>
+                              ) : rescheduleSlots.length === 0 ? (
+                                <div className="na-slot-empty">No slots left for this day — try another date.</div>
+                              ) : (
+                                <div className="na-slot-grid">
+                                  {rescheduleSlots.map(s => (
+                                    <button
+                                      type="button"
+                                      key={s.slot}
+                                      disabled={s.booked}
+                                      className={`na-slot-btn ${rescheduleSlot === s.slot ? "active" : ""} ${s.booked ? "taken" : ""}`}
+                                      onClick={() => setRescheduleSlot(s.slot)}
+                                    >
+                                      {s.slot}
+                                      {s.booked && <span className="na-slot-taken-tag">Not available</span>}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      {rescheduleError && <div className="na-error" style={{ marginTop: 12 }}>⚠️ {rescheduleError}</div>}
+
+                      {rescheduleStatus === "found" && (
+                        <button
+                          type="button" className="na-submit" style={{ marginTop: 10 }}
+                          disabled={rescheduleSubmitting || !rescheduleSlot} onClick={submitReschedule}
+                        >
+                          {rescheduleSubmitting ? "Rescheduling…" : "Confirm New Time"}
+                        </button>
+                      )}
+                    </>
+                  )
+                ) : (
               <form onSubmit={handlePayment}>
                 <div className="na-steps">
                   {STEP_LABELS.map((label, i) => {
@@ -489,11 +681,6 @@ export default function NoidaAppointment() {
 
                 {step === 1 && (
                   <>
-                    <div className="na-tabs">
-                      <button type="button" className={`na-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
-                      <button type="button" className={`na-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
-                    </div>
-
                     {bookingType === "followup" ? (
                       <>
                         <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: lookupStatus ? 10 : 14 }}>
@@ -742,6 +929,8 @@ export default function NoidaAppointment() {
                   </>
                 )}
               </form>
+                )}
+              </>
             )}
           </div>
         </div>
