@@ -109,13 +109,15 @@ export default function NoidaAppointment() {
   const [lookupStatus, setLookupStatus] = useState(null); // null | "checking" | "found" | "not-found"
   const [foundName, setFoundName] = useState("");
   const [manualOverride, setManualOverride] = useState(false); // "not you? enter manually"
+  const [credit, setCredit] = useState(null); // { available, sessionsRemaining, packageName } | null
 
   const runLookup = useCallback(async (phone) => {
-    if (!/^\d{10}$/.test(phone)) { setLookupStatus(null); return; }
+    if (!/^\d{10}$/.test(phone)) { setLookupStatus(null); setCredit(null); return; }
     setLookupStatus("checking");
     try {
       const res = await fetch(`${apiUrl}/noida-appointments/lookup?phone=${phone}`);
       const data = await res.json();
+      setCredit(data?.data?.credit?.available ? data.data.credit : null);
       if (data?.status && data.data?.found) {
         setFoundName(data.data.name || "");
         setLookupStatus("found");
@@ -124,8 +126,11 @@ export default function NoidaAppointment() {
       }
     } catch {
       setLookupStatus("not-found");
+      setCredit(null);
     }
   }, []);
+
+  const usingCredit = bookingType === "followup" && !!credit;
 
   // ── Form ──────────────────────────────────────────────────────────────
   const [form, setForm] = useState({ name: "", age: "", phone: "", email: "", concern: "" });
@@ -139,7 +144,7 @@ export default function NoidaAppointment() {
     set("phone", digits);
     setManualOverride(false);
     if (digits.length === 10 && bookingType === "followup") runLookup(digits);
-    else setLookupStatus(null);
+    else { setLookupStatus(null); setCredit(null); }
   };
 
   const switchTab = (type) => {
@@ -148,6 +153,7 @@ export default function NoidaAppointment() {
     setError("");
     setLookupStatus(null);
     setManualOverride(false);
+    setCredit(null);
     setForm({ name: "", age: "", phone: "", email: "", concern: "" });
   };
 
@@ -176,7 +182,7 @@ export default function NoidaAppointment() {
     setStep(4);
   };
 
-  const finalizeBooking = async (paymentResponse) => {
+  const finalizeBooking = async (paymentResponse = {}) => {
     try {
       const res = await fetch(`${apiUrl}/noida-appointments`, {
         method: "POST",
@@ -202,12 +208,19 @@ export default function NoidaAppointment() {
       const data = await res.json();
       if (data.status) {
         setStatus("success");
-      } else {
+      } else if (paymentResponse.razorpay_payment_id) {
         setError(`${data.message || "Booking failed after payment."} Please WhatsApp us with payment ID ${paymentResponse.razorpay_payment_id} and we'll sort it out.`);
+        setStatus(null);
+      } else {
+        setError(data.message || "Booking failed. Please try again.");
         setStatus(null);
       }
     } catch {
-      setError(`Payment succeeded but we couldn't save the booking. Please WhatsApp us with payment ID ${paymentResponse.razorpay_payment_id}.`);
+      if (paymentResponse.razorpay_payment_id) {
+        setError(`Payment succeeded but we couldn't save the booking. Please WhatsApp us with payment ID ${paymentResponse.razorpay_payment_id}.`);
+      } else {
+        setError("Could not save the booking. Please try again.");
+      }
       setStatus(null);
     }
   };
@@ -216,6 +229,12 @@ export default function NoidaAppointment() {
     e.preventDefault();
     setError("");
     setStatus("loading");
+
+    if (usingCredit) {
+      await finalizeBooking();
+      return;
+    }
+
     try {
       const orderRes = await fetch(`${apiUrl}/noida-appointments/create-order`, {
         method: "POST",
@@ -432,7 +451,11 @@ export default function NoidaAppointment() {
                   <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
                   <div><strong>Time:</strong> {selectedSlot}</div>
                   <div><strong>Session:</strong> {modeLabel} · {formatLabel}</div>
-                  <div><strong>Amount Paid:</strong> ₹{totalAmount}</div>
+                  {usingCredit ? (
+                    <div><strong>Payment:</strong> Package session used ({credit.sessionsRemaining - 1} remaining)</div>
+                  ) : (
+                    <div><strong>Amount Paid:</strong> ₹{totalAmount}</div>
+                  )}
                   {form.email && <div><strong>Confirmation sent to:</strong> {form.email}</div>}
                 </div>
 
@@ -488,7 +511,10 @@ export default function NoidaAppointment() {
                         {lookupStatus === "checking" && <div className="na-lookup-box na-lookup-checking">Checking…</div>}
                         {lookupStatus === "found" && !manualOverride && (
                           <div className="na-lookup-box na-lookup-found">
-                            <span>👋 Welcome back, {foundName}!</span>
+                            <span>
+                              👋 Welcome back, {foundName}!
+                              {usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""} — no payment needed.`}
+                            </span>
                             <button type="button" className="na-lookup-link" onClick={() => setManualOverride(true)}>Not you?</button>
                           </div>
                         )}
@@ -559,40 +585,48 @@ export default function NoidaAppointment() {
 
                 {step === 2 && (
                   <>
-                    <div className="na-section-label">Choose Format (50–60 min session)</div>
-                    <div className="na-pill-row">
-                      <div className={`na-pill ${sessionMode === "individual" ? "active" : ""}`} onClick={() => setSessionMode("individual")}>
-                        Individual
-                        <span className="na-pill-price">₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</span>
+                    {usingCredit ? (
+                      <div className="na-lookup-box na-lookup-found" style={{ marginBottom: 18 }}>
+                        <span>🎟️ Using 1 of your {credit.sessionsRemaining} remaining session(s){credit.packageName ? ` on ${credit.packageName}` : ""} — no payment for this booking.</span>
                       </div>
-                      <div className={`na-pill ${sessionMode === "couple" ? "active" : ""}`} onClick={() => setSessionMode("couple")}>
-                        Couple
-                        <span className="na-pill-price">₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</span>
-                      </div>
-                      {(pricing?.packages || []).length > 0 && (
-                        <div className={`na-pill ${sessionMode === "package" ? "active" : ""}`} onClick={() => setSessionMode("package")}>
-                          Package
-                          <span className="na-pill-price">{pricing.packages.length} available</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {sessionMode === "package" && (
-                      <div className="na-pkg-card-row">
-                        {(pricing?.packages || []).map(pkg => (
-                          <div
-                            key={pkg._id}
-                            className={`na-pkg-card ${selectedPackageId === pkg._id ? "active" : ""}`}
-                            onClick={() => setSelectedPackageId(pkg._id)}
-                          >
-                            <div>
-                              <div className="na-pkg-card-name">{pkg.name}</div>
-                              <div className="na-pkg-card-meta">{pkg.sessionsCount} sessions</div>
-                            </div>
-                            <div className="na-pkg-card-price">₹{pkg.price}</div>
+                    ) : (
+                      <>
+                        <div className="na-section-label">Choose Format (50–60 min session)</div>
+                        <div className="na-pill-row">
+                          <div className={`na-pill ${sessionMode === "individual" ? "active" : ""}`} onClick={() => setSessionMode("individual")}>
+                            Individual
+                            <span className="na-pill-price">₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</span>
                           </div>
-                        ))}
-                      </div>
+                          <div className={`na-pill ${sessionMode === "couple" ? "active" : ""}`} onClick={() => setSessionMode("couple")}>
+                            Couple
+                            <span className="na-pill-price">₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</span>
+                          </div>
+                          {(pricing?.packages || []).length > 0 && (
+                            <div className={`na-pill ${sessionMode === "package" ? "active" : ""}`} onClick={() => setSessionMode("package")}>
+                              Package
+                              <span className="na-pill-price">{pricing.packages.length} available</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {sessionMode === "package" && (
+                          <div className="na-pkg-card-row">
+                            {(pricing?.packages || []).map(pkg => (
+                              <div
+                                key={pkg._id}
+                                className={`na-pkg-card ${selectedPackageId === pkg._id ? "active" : ""}`}
+                                onClick={() => setSelectedPackageId(pkg._id)}
+                              >
+                                <div>
+                                  <div className="na-pkg-card-name">{pkg.name}</div>
+                                  <div className="na-pkg-card-meta">{pkg.sessionsCount} sessions</div>
+                                </div>
+                                <div className="na-pkg-card-price">₹{pkg.price}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
                     )}
 
                     <div className="na-section-label">Mode</div>
@@ -687,18 +721,25 @@ export default function NoidaAppointment() {
                       <div><strong>Date:</strong> {selectedDateLabel ? `${selectedDateLabel.weekday}, ${selectedDateLabel.day} ${selectedDateLabel.month}` : selectedDate}</div>
                       <div><strong>Time:</strong> {selectedSlot}</div>
                       {form.concern && <div><strong>Concern:</strong> {form.concern}</div>}
-                      <div className="na-price-breakdown">
-                        <div>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}: ₹{baseAmount}</div>
-                        <div>Platform fee: ₹{platformFee}</div>
-                        <div className="na-price-total"><span>Total</span><span>₹{totalAmount}</span></div>
-                      </div>
+                      {usingCredit ? (
+                        <div className="na-price-breakdown">
+                          <div>Package session: <strong>1 of {credit.sessionsRemaining} remaining</strong></div>
+                          <div className="na-price-total"><span>Amount due</span><span>₹0</span></div>
+                        </div>
+                      ) : (
+                        <div className="na-price-breakdown">
+                          <div>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}: ₹{baseAmount}</div>
+                          <div>Platform fee: ₹{platformFee}</div>
+                          <div className="na-price-total"><span>Total</span><span>₹{totalAmount}</span></div>
+                        </div>
+                      )}
                     </div>
 
                     {error && <div className="na-error">⚠️ {error}</div>}
                     <div className="na-btn-row">
                       <button type="button" className="na-btn-back" onClick={() => setStep(3)}>Back</button>
                       <button type="submit" className="na-submit" disabled={status === "loading"}>
-                        {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
+                        {status === "loading" ? (usingCredit ? "Booking…" : "Opening payment…") : usingCredit ? "Confirm Booking" : `Pay ₹${totalAmount} & Confirm`}
                       </button>
                     </div>
                   </>
