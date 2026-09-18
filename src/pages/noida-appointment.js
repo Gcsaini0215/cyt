@@ -537,7 +537,7 @@ export default function NoidaAppointment() {
 
                 {step === 2 && (
                   <>
-                    <div className="na-section-label">What kind of session?</div>
+                    <div className="na-section-label">Choose Format (50–60 min session)</div>
                     <div className="na-pill-row">
                       <div className={`na-pill ${sessionMode === "individual" ? "active" : ""}`} onClick={() => setSessionMode("individual")}>
                         Individual
@@ -573,7 +573,7 @@ export default function NoidaAppointment() {
                       </div>
                     )}
 
-                    <div className="na-section-label">Format</div>
+                    <div className="na-section-label">Mode</div>
                     <div className="na-pill-row">
                       <div className={`na-pill ${format === "in-person" ? "active" : ""}`} onClick={() => setFormat("in-person")}>In-person</div>
                       <div className={`na-pill ${format === "online" ? "active" : ""}`} onClick={() => setFormat("online")}>Online</div>
