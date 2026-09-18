@@ -39,9 +39,6 @@ export default function NoidaAppointment() {
   const [step, setStep] = useState(1); // 1 = You, 2 = When, 3 = Confirm
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup"
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   // ── Pricing + packages, fetched once ─────────────────────────────────
   const [pricing, setPricing] = useState(null);
   useEffect(() => {
@@ -302,7 +299,7 @@ export default function NoidaAppointment() {
 
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
-      {mounted && <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; }
 
         .na-wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 60px; }
@@ -436,7 +433,7 @@ export default function NoidaAppointment() {
         .na-address-text { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
         .na-address-link { font-size: 12.5px; font-weight: 700; color: #1a6b3a; text-decoration: none; }
         .na-address-link:hover { text-decoration: underline; }
-      `}</style>}
+      ` }} />
 
       <div className="na-page">
         <div className="na-wrap">
