@@ -60,6 +60,7 @@ function MyApp({ Component, pageProps }) {
   const hideWidgetsOn = [
     "/therapist-dashboard",
     "/appointments",
+    "/noida-appointment",
     "/clinic-patients",
     "/case-history",
     "/create-report",
