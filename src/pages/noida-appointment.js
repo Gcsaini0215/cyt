@@ -287,6 +287,10 @@ export default function NoidaAppointment() {
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; }
 
         .na-wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 60px; }
+        .na-brand-tag {
+          text-align: center; font-size: 11px; font-weight: 300; letter-spacing: 1.5px;
+          text-transform: uppercase; color: #a3aca6; margin-bottom: 18px;
+        }
         .na-card {
           background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14);
           padding: 28px 24px 32px;
@@ -413,6 +417,7 @@ export default function NoidaAppointment() {
       <div className="na-page">
         <div className="na-wrap">
           <div className="na-card">
+            <div className="na-brand-tag">Choose Your Therapist</div>
             {status === "success" ? (
               <div className="na-success">
                 <div className="na-success-icon">✓</div>
