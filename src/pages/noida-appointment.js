@@ -286,26 +286,6 @@ export default function NoidaAppointment() {
       {mounted && <style>{`
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; }
 
-        .na-gold-strip {
-          background: linear-gradient(90deg, #f0cf6e, #d4af37); color: #3d2b06;
-          text-align: center; padding: 8px 16px; font-size: 12.5px; font-weight: 700;
-        }
-
-        .na-footer {
-          background: #3f3f46; color: rgba(255,255,255,.85); padding: 10px 16px;
-          display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-          gap: 6px 16px; text-align: center; font-size: 12px;
-        }
-        .na-footer-brand { display: flex; align-items: center; gap: 6px; }
-        .na-footer-logo {
-          width: 20px; height: 20px; border-radius: 6px; background: #1a6b3a; color: #fff;
-          font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-        .na-footer-name { font-size: 12.5px; font-weight: 800; color: #fff; }
-        .na-footer-link { color: rgba(255,255,255,.75); text-decoration: none; }
-        .na-footer-link:hover { color: #fff; }
-        .na-footer-copy { color: rgba(255,255,255,.5); }
-        .na-footer-dot { color: rgba(255,255,255,.3); }
         .na-wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 60px; }
         .na-card {
           background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14);
@@ -431,7 +411,6 @@ export default function NoidaAppointment() {
       `}</style>}
 
       <div className="na-page">
-        <div className="na-gold-strip">✨ First session at just ₹500 — no waitlists, no judgment.</div>
         <div className="na-wrap">
           <div className="na-card">
             {status === "success" ? (
@@ -706,19 +685,6 @@ export default function NoidaAppointment() {
             )}
           </div>
         </div>
-
-        <footer className="na-footer">
-          <span className="na-footer-brand">
-            <span className="na-footer-logo">CYT</span>
-            <span className="na-footer-name">Choose Your Therapist</span>
-          </span>
-          <span className="na-footer-dot">·</span>
-          <a href="tel:+918077757951" className="na-footer-link">+91 80777 57951</a>
-          <span className="na-footer-dot">·</span>
-          <span className="na-footer-link">Sector 51, Noida</span>
-          <span className="na-footer-dot">·</span>
-          <span className="na-footer-copy">© {new Date().getFullYear()} All rights reserved.</span>
-        </footer>
       </div>
     </>
   );
