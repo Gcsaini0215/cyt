@@ -412,12 +412,17 @@ export default function NoidaAppointment() {
         .na-success h2 { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 10px; }
         .na-success p { font-size: 14px; color: #64748b; line-height: 1.7; margin-bottom: 20px; }
         .na-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; text-align: left; font-size: 13.5px; color: #334155; line-height: 2; }
+        .na-address-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 18px; text-align: left; margin-top: 12px; }
+        .na-address-title { font-size: 12.5px; font-weight: 800; color: #166534; margin-bottom: 6px; }
+        .na-address-text { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+        .na-address-link { font-size: 12.5px; font-weight: 700; color: #1a6b3a; text-decoration: none; }
+        .na-address-link:hover { text-decoration: underline; }
       `}</style>}
 
       <div className="na-page">
         <div className="na-wrap">
           <div className="na-card">
-            <div className="na-brand-tag">Choose Your Therapist</div>
+            <div className="na-brand-tag">Choose Your Therapist LLP | NOIDA</div>
             {status === "success" ? (
               <div className="na-success">
                 <div className="na-success-icon">✓</div>
@@ -428,9 +433,21 @@ export default function NoidaAppointment() {
                   <div><strong>Time:</strong> {selectedSlot}</div>
                   <div><strong>Session:</strong> {modeLabel} · {formatLabel}</div>
                   <div><strong>Amount Paid:</strong> ₹{totalAmount}</div>
-                  <div><strong>Location:</strong> Sector 51, Noida, Uttar Pradesh</div>
                   {form.email && <div><strong>Confirmation sent to:</strong> {form.email}</div>}
                 </div>
+
+                {format !== "online" && (
+                  <div className="na-address-box">
+                    <div className="na-address-title">📍 Our Noida Center</div>
+                    <div className="na-address-text">Choose Your Therapist LLP<br />Sector 51, Noida, Uttar Pradesh, India</div>
+                    <a
+                      href="https://www.google.com/maps/search/?api=1&query=Choose+Your+Therapist+LLP+Sector+51+Noida"
+                      target="_blank" rel="noopener noreferrer" className="na-address-link"
+                    >
+                      Get Directions →
+                    </a>
+                  </div>
+                )}
               </div>
             ) : (
               <form onSubmit={handlePayment}>
