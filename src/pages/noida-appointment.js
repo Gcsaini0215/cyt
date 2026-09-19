@@ -897,12 +897,11 @@ export default function NoidaAppointment() {
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
         .na-hero { max-width: 1100px; margin: 0 auto; padding: 24px 20px 0; }
         .na-foot { padding: 22px 20px 36px; }
-        .na-shell { max-width: 1100px; margin: 20px auto 0; padding-top: 8px; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; }
-        .na-shell .na-hero, .na-shell .na-topbar, .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
+        .na-shell { max-width: 1100px; margin: 8px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; }
+        .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
         .na-shell .na-fullslots-wrap { padding-top: 6px; padding-bottom: 16px; }
         .na-shell .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
         .na-shell .na-fullslots-card, .na-shell .na-card { background: transparent; box-shadow: none; border-radius: 0; }
-        .na-shell .na-topbar-tabs { background: #f1f5f4; box-shadow: none; }
         .na-hero-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
         .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
         .na-wa-btn:hover { background: #f0fdf4; border-color: #1a6b3a; }
@@ -1055,7 +1054,7 @@ export default function NoidaAppointment() {
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
         .is-tablet .na-hero { max-width: none; padding: 28px 32px 0; }
-        .is-tablet .na-shell { margin: 20px 24px 0; }
+        .is-tablet .na-shell { margin: 8px 32px 0; }
         .is-tablet .na-foot { padding: 24px 32px 40px; }
         .na-tab .na-skel-cell { height: 50px; }
         .na-tab.land .na-skel-cell { height: 42px; }
@@ -1131,7 +1130,6 @@ export default function NoidaAppointment() {
       ` }} />
 
       <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
-        <div className="na-shell">
         {isMobile && (
           <header className="na-hero">
             <div className="na-hero-row">
@@ -1153,6 +1151,7 @@ export default function NoidaAppointment() {
           )}
         </div>
 
+        <div className="na-shell">
         {bookingType === "reschedule" ? (
           <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
             <div className="na-card">
