@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import { apiUrl } from "../utils/url";
@@ -26,6 +26,21 @@ function priceFieldFor(sessionMode, format) {
   const fmt = format === "home-visit" ? "homevisit" : format === "online" ? "online" : "inperson";
   const mode = sessionMode === "couple" ? "couple" : "individual";
   return `${mode}_${fmt}`;
+}
+
+// Slot times are always IST regardless of the viewer's own timezone — build
+// the true UTC instant by constructing as if UTC, then undoing the +5:30
+// offset, so a live countdown is correct no matter where the browser is.
+function slotStartInstant(dateStr, slotLabel) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const startMin = slotStartMinutes(slotLabel);
+  const utcMs = Date.UTC(y, m - 1, d, Math.floor(startMin / 60), startMin % 60) - (5 * 60 + 30) * 60000;
+  return new Date(utcMs);
+}
+
+function mmss(totalSeconds) {
+  const s = Math.max(0, Math.round(totalSeconds || 0));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
 function waitForRazorpay(timeout = 12000) {
@@ -56,14 +71,18 @@ async function fetchSlotsMatrix(type) {
   const times = Array.from(new Set(all.filter(s => dateSet.has(s.date)).map(s => s.slot)))
     .sort((a, b) => slotStartMinutes(a) - slotStartMinutes(b));
   const grid = {};
-  all.forEach(s => { if (dateSet.has(s.date)) grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : "open"; });
+  all.forEach(s => { if (dateSet.has(s.date)) grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : (s.lastMinute ? "lastMinute" : "open"); });
   return { dates, times, grid };
 }
 
 // Reusable date x time availability table — an open cell is a clickable
-// button, booked/not-opened cells are inert. `selected` (optional
+// button, booked/not-opened cells are inert. A "lastMinute" cell (inside
+// the last-minute window) is still clickable but styled distinctly, since
+// picking it starts the request-and-wait flow instead of an instant book.
+// `disableLastMinute` makes those cells inert too — used for Reschedule,
+// which doesn't support the request flow. `selected` (optional
 // {date, slot}) highlights the currently-picked cell.
-function SlotsTable({ matrix, loading, selected }) {
+function SlotsTable({ matrix, loading, selected, disableLastMinute }) {
   if (loading) return <div className="na-fullslots-empty">Loading…</div>;
   if (!matrix.dates.length) return <div className="na-fullslots-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div>;
   return (
@@ -85,16 +104,24 @@ function SlotsTable({ matrix, loading, selected }) {
               {matrix.dates.map(d => {
                 const state = matrix.grid[`${d}|${t}`];
                 const isSelected = selected && selected.date === d && selected.slot === t;
-                if (state === "open") {
+                if (state === "lastMinute" && disableLastMinute) {
+                  return (
+                    <td key={d}>
+                      <span className="na-slotcell closed" title="Starting too soon to reschedule into">–</span>
+                    </td>
+                  );
+                }
+                if (state === "open" || state === "lastMinute") {
+                  const isLM = state === "lastMinute";
                   return (
                     <td key={d}>
                       <button
                         type="button"
-                        className={`na-slotcell open ${isSelected ? "selected" : ""}`}
-                        title={isSelected ? `Selected — ${t}` : `Book ${t}`}
-                        onClick={() => matrix.onPick(d, t)}
+                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""}`}
+                        title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : `Book ${t}`}
+                        onClick={() => matrix.onPick(d, t, isLM)}
                       >
-                        {isSelected ? "✓" : ""}
+                        {isSelected ? "✓" : isLM ? "!" : ""}
                       </button>
                     </td>
                   );
@@ -102,9 +129,7 @@ function SlotsTable({ matrix, loading, selected }) {
                 const label = state === "taken" ? "Booked" : "Not opened";
                 return (
                   <td key={d}>
-                    <span className={`na-slotcell ${state || "closed"}`} title={label}>
-                      {state === "taken" ? "–" : "–"}
-                    </span>
+                    <span className={`na-slotcell ${state || "closed"}`} title={label}>–</span>
                   </td>
                 );
               })}
@@ -165,15 +190,98 @@ export default function NoidaAppointment() {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
 
-  const handlePickSlot = (date, slot) => {
+  // ── Last-minute request flow (see LAST_MINUTE_WINDOW_MINUTES backend-side)
+  // A slot inside the last-minute window can't be booked outright — the
+  // client sends a request, staff accepts it from the admin panel, and only
+  // then does payment unlock.
+  const [selectedIsLastMinute, setSelectedIsLastMinute] = useState(false);
+  const [lastMinuteRequestId, setLastMinuteRequestId] = useState(null);
+  const [lastMinuteStatus, setLastMinuteStatus] = useState(null); // null | "pending" | "accepted" | "rejected" | "expired"
+  const [lastMinuteExpiresIn, setLastMinuteExpiresIn] = useState(null); // seconds, as of lastMinutePolledAt
+  const [lastMinutePolledAt, setLastMinutePolledAt] = useState(null); // ms epoch
+  const [lastMinuteSending, setLastMinuteSending] = useState(false);
+  const lastMinutePollRef = useRef(null);
+  const [nowTick, setNowTick] = useState(Date.now());
+
+  const stopLastMinutePoll = () => {
+    if (lastMinutePollRef.current) { clearInterval(lastMinutePollRef.current); lastMinutePollRef.current = null; }
+  };
+  useEffect(() => () => stopLastMinutePoll(), []);
+
+  // Ticks once a second only while a live countdown is actually on screen.
+  useEffect(() => {
+    const active = phase === "form" && step === 3 && selectedIsLastMinute && lastMinuteStatus !== "accepted";
+    if (!active) return;
+    const iv = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(iv);
+  }, [phase, step, selectedIsLastMinute, lastMinuteStatus]);
+
+  const resetLastMinute = () => {
+    stopLastMinutePoll();
+    setSelectedIsLastMinute(false);
+    setLastMinuteRequestId(null);
+    setLastMinuteStatus(null);
+    setLastMinuteExpiresIn(null);
+    setLastMinutePolledAt(null);
+  };
+
+  const handlePickSlot = (date, slot, isLastMinute) => {
+    resetLastMinute();
     setSelectedDate(date);
     setSelectedSlot(slot);
+    setSelectedIsLastMinute(!!isLastMinute);
     setPhase("form");
     // Follow-up already collected phone/name during the identify phase —
     // jump straight to Session. New Client hasn't, so start at You.
     setStep(bookingType === "followup" ? 2 : 1);
     setError("");
     setStatus(null);
+  };
+
+  const pollLastMinuteStatus = async (id) => {
+    try {
+      const res = await fetch(`${apiUrl}/noida-appointments/last-minute-requests/${id}/status`);
+      const data = await res.json();
+      if (!data?.status) return;
+      setLastMinuteStatus(data.data.status);
+      setLastMinuteExpiresIn(data.data.expiresInSeconds);
+      setLastMinutePolledAt(Date.now());
+      if (data.data.status !== "pending") stopLastMinutePoll();
+    } catch {
+      // transient network error while polling — just try again next tick
+    }
+  };
+
+  const handleSendLastMinuteRequest = async () => {
+    setLastMinuteSending(true);
+    setError("");
+    try {
+      const res = await fetch(`${apiUrl}/noida-appointments/last-minute-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: effectiveName.trim(), age: form.age.trim(), phone: form.phone.trim(),
+          email: form.email.trim(), concern: form.concern.trim(),
+          date: selectedDate, slot: selectedSlot, type: bookingType,
+          sessionMode, format,
+          address: format === "home-visit" ? address.trim() : undefined,
+          packageId: sessionMode === "package" ? selectedPackageId : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!data.status) { setError(data.message || "Could not send request. Please try again."); return; }
+      setLastMinuteRequestId(data.data._id);
+      setLastMinuteStatus(data.data.status);
+      setLastMinuteExpiresIn(data.data.status === "pending" ? 10 * 60 : null);
+      setLastMinutePolledAt(Date.now());
+      if (data.data.status === "pending") {
+        lastMinutePollRef.current = setInterval(() => pollLastMinuteStatus(data.data._id), 3000);
+      }
+    } catch {
+      setError("Could not send request. Please try again.");
+    } finally {
+      setLastMinuteSending(false);
+    }
   };
 
   // ── Follow-up phone lookup ───────────────────────────────────────────
@@ -298,6 +406,7 @@ export default function NoidaAppointment() {
   };
 
   const switchTab = (type) => {
+    resetLastMinute();
     setBookingType(type);
     setPhase(type === "followup" ? "identify" : "slots");
     setStep(1);
@@ -492,6 +601,10 @@ export default function NoidaAppointment() {
         button.na-slotcell.open:hover { background: #1a6b3a; border-color: #1a6b3a; color: #fff; transform: translateY(-1px); }
         button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; box-shadow: 0 0 0 3px rgba(26,107,58,.2); }
         button.na-slotcell.open.selected:hover { transform: none; }
+        button.na-slotcell.lastminute { background: #fffbeb; border-color: #fde68a; color: #b45309; cursor: pointer; transition: all .15s; }
+        button.na-slotcell.lastminute:hover { background: #f59e0b; border-color: #f59e0b; color: #fff; transform: translateY(-1px); }
+        button.na-slotcell.lastminute.selected { background: #f59e0b; border-color: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
+        button.na-slotcell.lastminute.selected:hover { transform: none; }
         .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; }
         .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
@@ -552,6 +665,10 @@ export default function NoidaAppointment() {
         .na-price-breakdown { border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 8px; }
         .na-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #1a6b3a; margin-top: 4px; }
 
+        .na-lastmin-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 18px; margin-top: 4px; }
+        .na-lastmin-title { font-size: 14px; font-weight: 800; color: #92400e; margin-bottom: 6px; }
+        .na-lastmin-text { font-size: 13px; color: #78350f; line-height: 1.6; }
+
         .na-success { text-align: center; padding: 20px 4px; }
         .na-success-icon { width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 34px; }
         .na-success h2 { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 10px; }
@@ -608,7 +725,7 @@ export default function NoidaAppointment() {
                         </div>
 
                         <div className="na-section-label">Pick a new date &amp; time</div>
-                        <SlotsTable matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }} loading={rescheduleMatrixLoading} selected={rescheduleDate && rescheduleSlot ? { date: rescheduleDate, slot: rescheduleSlot } : null} />
+                        <SlotsTable matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }} loading={rescheduleMatrixLoading} selected={rescheduleDate && rescheduleSlot ? { date: rescheduleDate, slot: rescheduleSlot } : null} disableLastMinute />
                         {rescheduleDate && rescheduleSlot && (
                           <div className="na-lookup-box na-lookup-found" style={{ marginTop: 14, marginBottom: 0 }}>
                             <span>New time: {rescheduleDateLabel.weekday}, {rescheduleDateLabel.day} {rescheduleDateLabel.month} · {rescheduleSlot}</span>
@@ -699,6 +816,7 @@ export default function NoidaAppointment() {
 
               <div className="na-fullslots-legend">
                 <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open — tap to book</span>
+                <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon — needs a quick OK from us</span>
                 <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
                 <span><i style={{ background: "#f8fafc" }} /> Not opened</span>
               </div>
@@ -741,8 +859,8 @@ export default function NoidaAppointment() {
                 ) : (
                   <>
                     <div className="na-picked-banner">
-                      <span>📅 {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}</span>
-                      <button type="button" className="na-picked-change" onClick={() => setPhase("slots")}>Change</button>
+                      <span>📅 {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}{selectedIsLastMinute && " · ⚡ Last-minute"}</span>
+                      <button type="button" className="na-picked-change" onClick={() => { resetLastMinute(); setPhase("slots"); }}>Change</button>
                     </div>
 
                     <div className="na-steps">
@@ -941,7 +1059,50 @@ export default function NoidaAppointment() {
 
                         {error && <div className="na-error">⚠️ {error}</div>}
 
-                        {usingCredit ? (
+                        {selectedIsLastMinute && lastMinuteStatus !== "accepted" ? (
+                          <>
+                            <div className="na-lastmin-box">
+                              {lastMinuteStatus === "pending" ? (
+                                <>
+                                  <div className="na-lastmin-title">⏳ Waiting for the center to confirm</div>
+                                  <div className="na-lastmin-text">
+                                    We'll unlock payment the moment they accept — expires in{" "}
+                                    {mmss(Math.max(0, (lastMinuteExpiresIn ?? 0) - (lastMinutePolledAt ? (nowTick - lastMinutePolledAt) / 1000 : 0)))}.
+                                  </div>
+                                </>
+                              ) : lastMinuteStatus === "rejected" || lastMinuteStatus === "expired" ? (
+                                <>
+                                  <div className="na-lastmin-title">
+                                    {lastMinuteStatus === "rejected" ? "This request wasn't accepted" : "This request timed out"}
+                                  </div>
+                                  <div className="na-lastmin-text">Please pick another slot.</div>
+                                  <button type="button" className="na-btn-back" style={{ marginTop: 12 }} onClick={() => { resetLastMinute(); setPhase("slots"); }}>Choose another slot</button>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="na-lastmin-title">⚡ This slot starts very soon</div>
+                                  <div className="na-lastmin-text">
+                                    It's inside our last-minute window, so we need the center to confirm they can take you before you pay.
+                                    {(() => {
+                                      const secondsToStart = Math.round((slotStartInstant(selectedDate, selectedSlot).getTime() - nowTick) / 1000);
+                                      return secondsToStart <= 120 && secondsToStart > 0 ? (
+                                        <strong style={{ color: "#dc2626", display: "block", marginTop: 6 }}>
+                                          Closing in {mmss(secondsToStart)} — send your request now.
+                                        </strong>
+                                      ) : null;
+                                    })()}
+                                  </div>
+                                  <button type="button" className="na-submit" style={{ marginTop: 12 }} disabled={lastMinuteSending} onClick={handleSendLastMinuteRequest}>
+                                    {lastMinuteSending ? "Sending…" : "Send Request"}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                            <div className="na-btn-row">
+                              <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                            </div>
+                          </>
+                        ) : usingCredit ? (
                           <div className="na-btn-row">
                             <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
                             <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleConfirmCredit}>
