@@ -910,9 +910,11 @@ export default function NoidaAppointment() {
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
         .na-foot { background: #e9edeb; margin-top: 44px; padding: 44px 20px 40px; }
         .na-foot-in { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; align-items: center; }
-        .na-foot-in > :not(.na-foot-wm) { grid-column: 1; }
-        .na-foot-wm { grid-column: 2; grid-row: 1 / span 5; display: flex; align-items: flex-end; font-size: clamp(96px, 13vw, 168px); font-weight: 800; letter-spacing: -.05em; line-height: .8; text-transform: lowercase; color: #1a6b3a; padding-bottom: .06em; user-select: none; }
-        .na-foot-wm-dot { flex-shrink: 0; width: .17em; height: .17em; margin: 0 0 .03em .05em; border-radius: 50%; background: #f5b301; }
+        .na-foot-in > :not(.na-foot-help) { grid-column: 1; }
+        .na-foot-help { grid-column: 2; grid-row: 1 / span 5; align-self: center; width: 300px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding-left: 32px; border-left: 1px solid #d5dcd8; }
+        .na-foot-help-title { font-size: 17px; font-weight: 800; color: #334155; }
+        .na-foot-help-text { margin: 0; font-size: 13px; line-height: 1.55; color: #5b6b64; }
+        .na-foot-help .na-wa-btn { margin-top: 4px; }
         .na-foot-big { font-size: clamp(30px, 6.4vw, 60px); font-weight: 800; line-height: 1.08; letter-spacing: -1.2px; color: #c5cec9; }
         .na-foot-tag { margin: 22px 0 0; font-size: 14px; line-height: 1.5; color: #5b6b64; }
         .na-foot-list { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; }
@@ -1114,8 +1116,8 @@ export default function NoidaAppointment() {
           .na-shell { margin: 8px 8px 0; border-radius: 16px; }
           .na-foot { margin-top: 32px; padding: 32px 16px 32px; }
           .na-foot-in { grid-template-columns: 1fr; }
-          .na-foot-in > :not(.na-foot-wm) { grid-column: 1; }
-          .na-foot-wm { grid-column: 1; grid-row: auto; order: 5; justify-content: flex-end; font-size: 92px; margin-top: 22px; }
+          .na-foot-in > :not(.na-foot-help) { grid-column: 1; }
+          .na-foot-help { grid-column: 1; grid-row: auto; order: 5; width: auto; padding: 18px 0 0; margin-top: 20px; border-left: 0; border-top: 1px solid #d5dcd8; }
           .na-foot-brand { order: 6; }
           .na-foot-big { letter-spacing: -.8px; }
           .na-foot-tag { margin-top: 16px; font-size: 13px; }
@@ -1726,7 +1728,11 @@ export default function NoidaAppointment() {
 
         <footer className="na-foot">
           <div className="na-foot-in">
-            <div className="na-foot-wm" aria-hidden="true">cyt<i className="na-foot-wm-dot" /></div>
+            <div className="na-foot-help">
+              <div className="na-foot-help-title">Need help booking?</div>
+              <p className="na-foot-help-text">Stuck at any step or unsure which session fits? Message us and we'll sort it out.</p>
+              <a className="na-wa-btn" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={18} /> Chat on WhatsApp</a>
+            </div>
             <div className="na-foot-big" aria-hidden="true">In-person therapy,<br />confirmed instantly.</div>
             <p className="na-foot-tag">Our Noida center. Pick a slot, pay, and your session is booked.</p>
             <ul className="na-foot-list">
