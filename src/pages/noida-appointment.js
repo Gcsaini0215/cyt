@@ -824,7 +824,7 @@ export default function NoidaAppointment() {
         button.na-slotcell.lastminute.selected:hover { transform: none; }
         .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; overflow: hidden; }
         .na-wm { display: inline-flex; align-items: flex-end; font-size: 16px; font-weight: 800; letter-spacing: -.3px; text-transform: lowercase; line-height: 1; }
-        .na-wm-dot { display: inline-block; flex-shrink: 0; width: 7px; height: 7px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; box-shadow: 0 0 0 1px rgba(180, 120, 0, .35); }
+        .na-wm-dot { display: inline-block; flex-shrink: 0; width: 6px; height: 6px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; }
         .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #cbd5e1; text-transform: uppercase; }
         .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #dc2626; text-transform: uppercase; white-space: nowrap; }
         .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
