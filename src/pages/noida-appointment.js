@@ -224,7 +224,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                         title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : `Book ${t}`}
                         onClick={() => matrix.onPick(d, t, isLM)}
                       >
-                        {isLM ? (isSelected ? "✓" : "!") : <span className="na-wm">cyt</span>}
+                        {isLM ? (isSelected ? "✓" : "!") : <span className="na-wm">cyt<i className="na-wm-dot" aria-hidden="true" /></span>}
                       </button>
                     </td>
                   );
@@ -823,8 +823,8 @@ export default function NoidaAppointment() {
         button.na-slotcell.lastminute.selected { background: #f59e0b; border-color: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
         button.na-slotcell.lastminute.selected:hover { transform: none; }
         .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; overflow: hidden; }
-        .na-wm { font-size: 16px; font-weight: 800; letter-spacing: -.3px; text-transform: lowercase; line-height: 1; }
-        .na-wm::after { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #f59e0b; margin-left: 2px; }
+        .na-wm { display: inline-flex; align-items: flex-end; font-size: 16px; font-weight: 800; letter-spacing: -.3px; text-transform: lowercase; line-height: 1; }
+        .na-wm-dot { display: inline-block; flex-shrink: 0; width: 7px; height: 7px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; box-shadow: 0 0 0 1px rgba(180, 120, 0, .35); }
         .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #cbd5e1; text-transform: uppercase; }
         .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #dc2626; text-transform: uppercase; white-space: nowrap; }
         .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
