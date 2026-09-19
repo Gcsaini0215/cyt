@@ -152,7 +152,10 @@ function shortTime(label) {
   return label.split(" - ")[0].replace(":00 ", " ");
 }
 
-function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, header }) {
+function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header }) {
+  // Phones page through 5 days; tablets fit all 10 but share the compact
+  // header (weekday + day circle) and short time labels.
+  const compact = isMobile || isTablet;
   const [page, setPage] = useState(0);
   if (loading) return <>{header}<div className="na-fullslots-empty">Loading…</div></>;
   if (!matrix.dates.length) return <>{header}<div className="na-fullslots-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div></>;
@@ -185,7 +188,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, he
             <th></th>
             {visibleDates.map((d, i) => {
               const lbl = dateLabel(d);
-              if (!isMobile) return <th key={d}>{lbl.weekday}<br />{lbl.day} {lbl.month}</th>;
+              if (!compact) return <th key={d}>{lbl.weekday}<br />{lbl.day} {lbl.month}</th>;
               const isToday = d === today;
               return (
                 <th key={d} className="na-th-m">
@@ -200,7 +203,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, he
         <tbody>
           {matrix.times.map(t => (
             <tr key={t}>
-              <td className="na-time-col">{isMobile ? shortTime(t) : t.split(" - ")[0]}</td>
+              <td className="na-time-col">{compact ? shortTime(t) : t.split(" - ")[0]}</td>
               {visibleDates.map(d => {
                 const state = matrix.grid[`${d}|${t}`];
                 const isSelected = selected && selected.date === d && selected.slot === t;
@@ -259,6 +262,24 @@ export default function NoidaAppointment() {
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
+  // Tablet layout: a touch screen wider than a phone (iPad). Portrait stacks
+  // the table above a "Selected" card; landscape puts a "Your booking" panel
+  // beside the table. Mouse-driven desktops keep the original layout.
+  const [tablet, setTablet] = useState(false);
+  const [landscape, setLandscape] = useState(false);
+  useEffect(() => {
+    const mqT = window.matchMedia("(min-width: 641px) and (min-height: 600px) and (pointer: coarse)");
+    const mqL = window.matchMedia("(orientation: landscape)");
+    const sync = () => { setTablet(mqT.matches); setLandscape(mqL.matches); };
+    sync();
+    mqT.addEventListener("change", sync);
+    mqL.addEventListener("change", sync);
+    return () => { mqT.removeEventListener("change", sync); mqL.removeEventListener("change", sync); };
+  }, []);
+  const tabletLandscape = tablet && landscape;
+  // On phones and tablets a tap only selects a slot; Continue moves on.
+  const usePendingPick = isMobile || tablet;
+
   // The site-wide cookie banner is fixed to the bottom of the screen and sits
   // above everything; lift the page's own bottom bars clear of it until it's dismissed.
   const [cookieH, setCookieH] = useState(0);
@@ -403,7 +424,7 @@ export default function NoidaAppointment() {
     setPhase("form");
     // Follow-up already collected phone/name during the identify phase —
     // jump straight to Session. New Client hasn't, so start at You.
-    setStep(bookingType === "followup" ? 2 : 1);
+    setStep(bookingType === "followup" ? (skipSession ? 3 : 2) : 1);
     setError("");
     setStatus(null);
   };
@@ -610,13 +631,24 @@ export default function NoidaAppointment() {
   const needsFullDetails = bookingType === "new" || lookupStatus === "not-found" || manualOverride;
   const effectiveName = bookingType === "followup" && lookupStatus === "found" && !manualOverride ? foundName : form.name;
 
+  // Landscape tablets pick session + mode in the "Your booking" panel beside
+  // the table, so the Session step is skipped unless something still needs
+  // filling in (a package to choose, or a home-visit address) or the client
+  // is using package credit (which only asks for the mode there).
+  const skipSession = tabletLandscape && !usingCredit && sessionMode !== "package" && format !== "home-visit";
+
   const goToStep2 = () => {
     setError("");
     if (!form.phone.trim() || !/^\d{10}$/.test(form.phone.trim())) {
       setError("Please enter a valid 10-digit phone number."); return;
     }
     if (!effectiveName?.trim()) { setError("Name is required."); return; }
-    setStep(2);
+    setStep(skipSession ? 3 : 2);
+  };
+  const goBackFromPay = () => {
+    if (!skipSession) { setStep(2); return; }
+    if (bookingType === "followup") { resetLastMinute(); setPhase("slots"); }
+    else setStep(1);
   };
   // Follow-up's identify phase — same validation as goToStep2, but moves
   // to the slots table instead of a wizard step.
@@ -889,6 +921,52 @@ export default function NoidaAppointment() {
         .na-rv b { font-weight: 700; color: #0f172a; text-align: right; }
         .na-secure { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
 
+        /* ── Tablet (touch, wider than a phone) ─────────────────────────── */
+        .na-tab .na-tab-cols { display: flex; gap: 20px; align-items: stretch; }
+        .na-tab.port .na-tab-cols { flex-direction: column; }
+        .is-tablet .na-topbar { padding: 28px 32px 4px; max-width: none; }
+        .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
+        .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
+        .is-tablet .na-topbar-brand { font-weight: 600; letter-spacing: 1.6px; color: #64748b; }
+        .na-fullslots-wrap.na-tab, .na-centerwrap.na-tab { padding: 24px 32px 48px; max-width: none; }
+        .na-tab .na-fullslots-card { padding: 24px 24px 22px; }
+        .na-tab .na-tab-main { flex: 1; min-width: 0; }
+        .na-tab .na-fullslots-scroll { overflow-x: visible; }
+        .na-tab .na-fullslots-table { table-layout: fixed; }
+        .na-tab .na-fullslots-table th:first-child { width: 64px; }
+        .na-tab .na-fullslots-table td { padding: 2px; }
+        .na-tab .na-fullslots-table td.na-time-col { width: 64px; font-size: 12.5px; padding-right: 6px; }
+        .na-tab .na-slotcell { min-width: 0; height: 50px; font-size: 14px; }
+        .na-tab.land .na-slotcell { height: 42px; }
+        .na-tab .na-th-m { padding: 0 0 6px !important; }
+        .na-tab .na-dn { width: 30px; height: 30px; border-radius: 15px; font-size: 15px; }
+        .na-tab-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 14px; }
+        .na-tab-legend { margin: 0; padding: 0; border: none; max-width: 300px; justify-content: flex-end; gap: 8px 16px; }
+        .na-tab-selcard { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 24px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); }
+        .na-tab-selv { font-size: 21px; font-weight: 800; color: #0f172a; margin-top: 3px; }
+        .na-tab-cta { flex-shrink: 0; height: 56px; padding: 0 40px; border: none; border-radius: 14px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(22,101,52,.28); font-family: inherit; }
+        .na-tab-cta:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+        .na-tab-panel { flex-shrink: 0; width: 330px; box-sizing: border-box; padding: 22px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); display: flex; flex-direction: column; gap: 14px; }
+        .na-tab-panel-title { font-size: 20px; font-weight: 800; color: #0f172a; }
+        .na-tab-slotbox { padding: 16px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; }
+        .na-tab-slotbox-k { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #166534; }
+        .na-tab-slotbox-v { font-size: 18px; font-weight: 800; color: #14532d; margin-top: 4px; }
+        .na-tab-slotbox-t { font-size: 15px; font-weight: 600; color: #166534; margin-top: 2px; }
+        .na-tab-pills { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
+        .na-tab-pill { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 56px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; color: #334155; font-size: 14px; font-weight: 700; padding: 0; cursor: pointer; font-family: inherit; }
+        .na-tab-pill.short { height: 48px; font-size: 13px; }
+        .na-tab-pill small { font-size: 12px; font-weight: 600; color: #64748b; }
+        .na-tab-pill.on { background: #f0fdf4; border-color: #1a6b3a; color: #15803d; }
+        .na-tab-pill.on small { color: #15803d; }
+        .na-tab-price { padding: 4px 16px 12px; border: 1px solid #e2e8f0; border-radius: 14px; }
+        .na-centerwrap.na-tab .na-card { max-width: 700px; margin: 0 auto; padding: 32px 36px 36px; }
+        .na-tab .na-card-inner { max-width: none; }
+        .na-tab input.na-inp { height: 52px; font-size: 16px; border-radius: 12px; }
+        .na-tab textarea.na-inp { font-size: 16px; border-radius: 12px; }
+        .na-tab .na-submit, .na-tab .na-btn-back { height: 56px; padding-top: 0; padding-bottom: 0; border-radius: 14px; font-size: 16px; }
+        .na-tab .na-pill { padding: 14px 8px; font-size: 14px; }
+        .na-tab .na-step-circle { width: 30px; height: 30px; }
+
         @media (max-width: 640px) {
           .na-topbar { padding: 14px 12px 4px; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
           .na-topbar-brand { font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: #64748b; padding: 0 4px; }
@@ -913,7 +991,7 @@ export default function NoidaAppointment() {
         }
       ` }} />
 
-      <div className="na-page" style={{ "--na-ck": `${cookieH}px` }}>
+      <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
         <div className="na-topbar">
           <div className="na-topbar-tabs">
             <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
@@ -924,7 +1002,7 @@ export default function NoidaAppointment() {
         </div>
 
         {bookingType === "reschedule" ? (
-          <div className="na-centerwrap">
+          <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
             <div className="na-card">
               <div className="na-card-inner">
                 {rescheduleDone ? (
@@ -960,6 +1038,7 @@ export default function NoidaAppointment() {
                           matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }}
                           loading={rescheduleMatrixLoading}
                           isMobile={isMobile}
+                          isTablet={tablet}
                           selected={rescheduleDate && rescheduleSlot ? { date: rescheduleDate, slot: rescheduleSlot } : null}
                           header={<div className="na-section-label" style={{ marginBottom: isMobile ? 0 : 12 }}>Pick a new date &amp; time</div>}
                           disableLastMinute
@@ -985,7 +1064,7 @@ export default function NoidaAppointment() {
             </div>
           </div>
         ) : phase === "identify" ? (
-          <div className="na-centerwrap">
+          <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
             <div className="na-card">
               <div className="na-card-inner">
                 <div className="na-section-label" style={{ marginBottom: 16 }}>Let's find you first</div>
@@ -1045,15 +1124,30 @@ export default function NoidaAppointment() {
             </div>
           </div>
         ) : phase === "slots" ? (
-          <div className={`na-fullslots-wrap ${isMobile && pendingPick ? "has-bar" : ""}`}>
-            <div className="na-fullslots-card">
+          <div className={`na-fullslots-wrap ${isMobile && pendingPick ? "has-bar" : ""} ${tablet ? `na-tab ${landscape ? "land" : "port"}` : ""}`}>
+            <div className="na-tab-cols">
+            <div className="na-fullslots-card na-tab-main">
               <SlotsTable
-                matrix={{ ...slotsMatrix, onPick: isMobile ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
+                matrix={{ ...slotsMatrix, onPick: usePendingPick ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
                 loading={slotsMatrixLoading}
                 isMobile={isMobile}
-                selected={isMobile ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
+                isTablet={tablet}
+                selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
+                ) : tablet ? (
+                  <div className="na-tab-head">
+                    <div>
+                      <div className="na-fullslots-title" style={{ fontSize: 20 }}>Pick an open slot</div>
+                      <div className="na-fullslots-sub" style={{ marginBottom: 0 }}>{bookingType === "followup" ? "Follow-up" : "New client"} · next {MATRIX_DAYS} open days · times in IST</div>
+                    </div>
+                    <div className="na-fullslots-legend na-tab-legend">
+                      <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open</span>
+                      <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon</span>
+                      <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
+                      <span><i style={{ background: "#f1f5f9" }} /> Passed</span>
+                    </div>
+                  </div>
                 ) : (
                   <>
                     <div className="na-fullslots-title">Pick an open slot to start booking</div>
@@ -1062,16 +1156,95 @@ export default function NoidaAppointment() {
                 )}
               />
 
-              <div className="na-fullslots-legend">
-                <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open{isMobile ? "" : " — tap to book"}</span>
-                <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon{isMobile ? "" : " — needs a quick OK from us"}</span>
-                <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
-                <span><i style={{ background: "#f1f5f9" }} /> {isMobile ? "Passed" : "Passed / not opened"}</span>
-              </div>
+              {!tablet && (
+                <div className="na-fullslots-legend">
+                  <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open{isMobile ? "" : " — tap to book"}</span>
+                  <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon{isMobile ? "" : " — needs a quick OK from us"}</span>
+                  <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
+                  <span><i style={{ background: "#f1f5f9" }} /> {isMobile ? "Passed" : "Passed / not opened"}</span>
+                </div>
+              )}
+            </div>
+
+            {tablet && (() => {
+              const lbl = pendingPick ? dateLabel(pendingPick.date) : null;
+              const go = () => pendingPick && handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM);
+              const cta = pendingPick?.isLM ? "Send request" : "Continue";
+              if (!landscape) {
+                return (
+                  <div className="na-tab-selcard">
+                    <div>
+                      <div className="na-selbar-k">Selected</div>
+                      <div className="na-tab-selv">{lbl ? `${lbl.weekday}, ${lbl.day} ${lbl.month} · ${pendingPick.slot}` : "Tap an open slot to continue"}</div>
+                      <div className="na-selbar-h">{pendingPick?.isLM ? "Starts within 15 min — the center confirms first" : "50–60 min session · Sector 51, Noida"}</div>
+                    </div>
+                    <button type="button" className="na-tab-cta" disabled={!pendingPick} onClick={go}>{cta}</button>
+                  </div>
+                );
+              }
+              return (
+                <div className="na-tab-panel">
+                  <div className="na-tab-panel-title">Your booking</div>
+                  <div className="na-tab-slotbox">
+                    <div className="na-tab-slotbox-k">Selected slot</div>
+                    {lbl ? (
+                      <>
+                        <div className="na-tab-slotbox-v">{lbl.weekday}, {lbl.day} {lbl.month}</div>
+                        <div className="na-tab-slotbox-t">{pendingPick.slot}</div>
+                      </>
+                    ) : (
+                      <div className="na-tab-slotbox-t" style={{ marginTop: 6 }}>Tap an open slot in the table</div>
+                    )}
+                  </div>
+
+                  {usingCredit ? (
+                    <div className="na-lookup-box na-lookup-found" style={{ marginBottom: 0 }}>
+                      <span>🎟️ Uses 1 of your {credit.sessionsRemaining} remaining session(s) — no payment.</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <div className="na-section-label" style={{ marginBottom: 8 }}>Session · 50–60 min</div>
+                        <div className="na-tab-pills">
+                          <button type="button" className={`na-tab-pill ${sessionMode === "individual" ? "on" : ""}`} onClick={() => setSessionMode("individual")}>Individual<small>₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</small></button>
+                          <button type="button" className={`na-tab-pill ${sessionMode === "couple" ? "on" : ""}`} onClick={() => setSessionMode("couple")}>Couple<small>₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</small></button>
+                          {(pricing?.packages || []).length > 0 && (
+                            <button type="button" className={`na-tab-pill ${sessionMode === "package" ? "on" : ""}`} onClick={() => setSessionMode("package")}>Package<small>{pricing.packages.length} available</small></button>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="na-section-label" style={{ marginBottom: 8 }}>Mode</div>
+                        <div className="na-tab-pills">
+                          <button type="button" className={`na-tab-pill short ${format === "in-person" ? "on" : ""}`} onClick={() => setFormat("in-person")}>In-person</button>
+                          <button type="button" className={`na-tab-pill short ${format === "online" ? "on" : ""}`} onClick={() => setFormat("online")}>Online</button>
+                          <button type="button" className={`na-tab-pill short ${format === "home-visit" ? "on" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</button>
+                        </div>
+                      </div>
+                      <div className="na-tab-price">
+                        {sessionMode === "package" && !selectedPackage ? (
+                          <div className="na-selbar-h" style={{ padding: "10px 0 6px" }}>You'll choose a package in the next step.</div>
+                        ) : (
+                          <>
+                            <div className="na-rv"><span>{sessionMode === "package" ? selectedPackage?.name : `${sessionMode === "couple" ? "Couple" : "Individual"} session`}</span><b>₹{baseAmount}</b></div>
+                            <div className="na-rv" style={{ borderTop: "none", paddingTop: 0 }}><span>Platform fee</span><b>₹{platformFee}</b></div>
+                            <div className="na-price-total" style={{ fontSize: 22, alignItems: "baseline", borderTop: "1px dashed #cbd5e1", paddingTop: 10 }}><span>Total</span><span>₹{totalAmount}</span></div>
+                          </>
+                        )}
+                        {format === "home-visit" && <div className="na-selbar-h" style={{ marginTop: 8 }}>Home visit charges may increase with distance.</div>}
+                      </div>
+                    </>
+                  )}
+
+                  <div style={{ flexGrow: 1 }} />
+                  <button type="button" className="na-tab-cta" style={{ width: "100%" }} disabled={!pendingPick} onClick={go}>{cta}</button>
+                </div>
+              );
+            })()}
             </div>
           </div>
         ) : (
-          <div className="na-centerwrap">
+          <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
             <div className="na-card">
               <div className="na-card-inner">
                 {status === "success" ? (
@@ -1347,12 +1520,12 @@ export default function NoidaAppointment() {
                               )}
                             </div>
                             <div className="na-btn-row">
-                              <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                              <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
                             </div>
                           </>
                         ) : usingCredit ? (
                           <div className="na-btn-row">
-                            <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                            <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
                             <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleConfirmCredit}>
                               {status === "loading" ? "Booking…" : "Confirm Booking"}
                             </button>
@@ -1361,7 +1534,7 @@ export default function NoidaAppointment() {
                           <>
                           <div className="na-secure">Secure checkout by Razorpay — UPI, cards &amp; netbanking</div>
                           <div className="na-btn-row">
-                            <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                            <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
                             <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleRazorpay}>
                               {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
                             </button>
