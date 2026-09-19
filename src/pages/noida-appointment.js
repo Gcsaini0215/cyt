@@ -1093,7 +1093,9 @@ export default function NoidaAppointment() {
         .na-tab .na-step-circle { width: 30px; height: 30px; }
 
         @media (max-width: 640px) {
-          .na-topbar { padding: 14px 12px 4px; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
+          .na-topbar { padding: 12px 12px 4px; flex-wrap: nowrap; gap: 8px; }
+          .na-topbar-tabs { flex: 1 1 auto; min-width: 0; }
+          .na-wa-btn { flex: 0 0 auto; }
           .na-hero { padding: 14px 12px 0; }
           .na-foot { padding: 18px 12px 28px; }
           .na-logo { height: 34px; }
@@ -1105,7 +1107,7 @@ export default function NoidaAppointment() {
           .na-fact-note { width: 100%; background: transparent !important; box-shadow: none !important; padding: 2px 2px 0 !important; border-radius: 0 !important; color: #475569 !important; font-weight: 500 !important; }
           .na-skel-cell { height: 38px; }
           .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-          .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
+          .na-topbar-tab { padding: 0; height: 44px; font-size: 12.5px; }
           .na-centerwrap, .na-fullslots-wrap { padding: 12px 12px 32px; }
           .na-card { padding: 16px 14px 18px; }
           .na-fullslots-card { padding: 14px 10px 14px; }
@@ -1129,9 +1131,6 @@ export default function NoidaAppointment() {
         <header className="na-hero">
           <div className="na-hero-row">
             <img className="na-logo" src="/logo.png" width="166" height="43" alt="Choose Your Therapist — Know Expertise Before Choose" />
-            <a className="na-wa-btn" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
-              <Ic I={WhatsAppIcon} s={18} /><span className="na-wa-text">Chat with us</span>
-            </a>
           </div>
         </header>
 
@@ -1141,6 +1140,9 @@ export default function NoidaAppointment() {
             <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
             <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
           </div>
+          <a className="na-wa-btn" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+            <Ic I={WhatsAppIcon} s={18} /><span className="na-wa-text">Chat with us</span>
+          </a>
         </div>
 
         {bookingType === "reschedule" ? (
