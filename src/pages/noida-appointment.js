@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import { apiUrl } from "../utils/url";
@@ -285,19 +285,7 @@ export default function NoidaAppointment() {
   const [form, setForm] = useState({ name: "", age: "", phone: "", email: "", concern: "" });
   const [status, setStatus] = useState(null); // null | "loading" | "success"
   const [error, setError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState(null); // null | "razorpay" | "qr"
-
-  // Dynamic Razorpay UPI QR — polled server-side confirmation, never a
-  // client-reported "I paid". See createNoidaQrOrder / getNoidaQrStatus.
-  const [qrData, setQrData] = useState(null); // { qrCodeId, qrImageUrl, amount, expiresAt }
-  const [qrLoading, setQrLoading] = useState(false);
-  const [qrState, setQrState] = useState(null); // null | "waiting" | "expired"
-  const qrPollRef = useRef(null);
-
-  const stopQrPoll = () => {
-    if (qrPollRef.current) { clearInterval(qrPollRef.current); qrPollRef.current = null; }
-  };
-  useEffect(() => () => stopQrPoll(), []);
+  const [paymentMethod, setPaymentMethod] = useState(null); // null | "razorpay"
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
@@ -310,7 +298,6 @@ export default function NoidaAppointment() {
   };
 
   const switchTab = (type) => {
-    stopQrPoll();
     setBookingType(type);
     setPhase(type === "followup" ? "identify" : "slots");
     setStep(1);
@@ -321,8 +308,6 @@ export default function NoidaAppointment() {
     setCredit(null);
     setForm({ name: "", age: "", phone: "", email: "", concern: "" });
     setPaymentMethod(null);
-    setQrData(null);
-    setQrState(null);
     setSelectedDate(""); setSelectedSlot("");
     setReschedulePhone(""); setRescheduleStatus(null); setRescheduleInfo(null);
     setRescheduleDate(""); setRescheduleSlot(""); setRescheduleDone(false); setRescheduleError("");
@@ -385,15 +370,12 @@ export default function NoidaAppointment() {
       } else if (paymentExtra.razorpay_payment_id) {
         setError(`${data.message || "Booking failed after payment."} Please WhatsApp us with payment ID ${paymentExtra.razorpay_payment_id} and we'll sort it out.`);
         setStatus(null);
-      } else if (paymentExtra.qr_code_id) {
-        setError(`${data.message || "Booking failed after payment."} Please WhatsApp us with QR reference ${paymentExtra.qr_code_id} and we'll sort it out.`);
-        setStatus(null);
       } else {
         setError(data.message || "Booking failed. Please try again.");
         setStatus(null);
       }
     } catch {
-      if (paymentExtra.razorpay_payment_id || paymentExtra.qr_code_id) {
+      if (paymentExtra.razorpay_payment_id) {
         setError("Payment succeeded but we couldn't save the booking. Please WhatsApp us and we'll sort it out.");
       } else {
         setError("Could not save the booking. Please try again.");
@@ -405,7 +387,6 @@ export default function NoidaAppointment() {
   const handleConfirmCredit = () => finalizeBooking();
 
   const handleRazorpay = async () => {
-    stopQrPoll();
     setPaymentMethod("razorpay");
     setStatus("loading");
     setError("");
@@ -458,60 +439,6 @@ export default function NoidaAppointment() {
     } catch (err) {
       setError(err.message || "Could not start payment. Please try again.");
       setStatus(null);
-    }
-  };
-
-  const pollQrStatus = async (qrCodeId) => {
-    try {
-      const res = await fetch(`${apiUrl}/noida-appointments/qr-status/${qrCodeId}`);
-      const data = await res.json();
-      if (!data?.status) return;
-      if (data.data.paid) {
-        stopQrPoll();
-        if (data.data.alreadyUsed) {
-          setQrState("expired");
-          setError("This payment has already been used for a booking. Please generate a new QR code.");
-          return;
-        }
-        setQrState("paid");
-        await finalizeBooking({ qr_code_id: qrCodeId });
-      } else if (data.data.expired) {
-        stopQrPoll();
-        setQrState("expired");
-      }
-    } catch {
-      // transient network error while polling — just try again next tick
-    }
-  };
-
-  const handleShowQr = async () => {
-    stopQrPoll();
-    setPaymentMethod("qr");
-    setQrLoading(true);
-    setQrData(null);
-    setQrState(null);
-    setError("");
-    try {
-      const res = await fetch(`${apiUrl}/noida-appointments/create-qr-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionMode, format,
-          packageId: sessionMode === "package" ? selectedPackageId : undefined,
-          address: format === "home-visit" ? address.trim() : undefined,
-          type: bookingType, phone: form.phone.trim(),
-        }),
-      });
-      const data = await res.json();
-      if (!data.status) { setError(data.message || "Could not generate QR code. Please try again."); return; }
-      if (data.data.freeSession) { await finalizeBooking(); return; }
-      setQrData(data.data);
-      setQrState("waiting");
-      qrPollRef.current = setInterval(() => pollQrStatus(data.data.qrCodeId), 3000);
-    } catch {
-      setError("Could not generate QR code. Please try again.");
-    } finally {
-      setQrLoading(false);
     }
   };
 
@@ -611,10 +538,6 @@ export default function NoidaAppointment() {
         .na-btn-back:hover { border-color: #94a3b8; }
         .na-submit { display: block; width: 100%; flex: 1; padding: 15px 0; border: none; border-radius: 12px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .2s; box-shadow: 0 6px 18px rgba(22,101,52,.28); }
         .na-submit:disabled { opacity: .6; cursor: not-allowed; }
-        .na-pay-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-        .na-pay-btn { flex: 1; min-width: 160px; padding: 15px 10px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; color: #1a6b3a; font-size: 14px; font-weight: 800; cursor: pointer; transition: all .15s; }
-        .na-pay-btn:hover:not(:disabled) { border-color: #1a6b3a; background: #f0fdf4; }
-        .na-pay-btn:disabled { opacity: .6; cursor: not-allowed; }
 
         .na-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; }
 
@@ -628,9 +551,6 @@ export default function NoidaAppointment() {
         .na-review strong { color: #0f172a; }
         .na-price-breakdown { border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 8px; }
         .na-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #1a6b3a; margin-top: 4px; }
-
-        .na-qr-box { text-align: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-top: 12px; }
-        .na-qr-box img { width: 200px; height: 200px; }
 
         .na-success { text-align: center; padding: 20px 4px; }
         .na-success-icon { width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #16a34a; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 34px; }
@@ -822,7 +742,7 @@ export default function NoidaAppointment() {
                   <>
                     <div className="na-picked-banner">
                       <span>📅 {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}</span>
-                      <button type="button" className="na-picked-change" onClick={() => { stopQrPoll(); setPhase("slots"); }}>Change</button>
+                      <button type="button" className="na-picked-change" onClick={() => setPhase("slots")}>Change</button>
                     </div>
 
                     <div className="na-steps">
@@ -1026,43 +946,12 @@ export default function NoidaAppointment() {
                             </button>
                           </div>
                         ) : (
-                          <>
-                            <div className="na-pay-row">
-                              <button type="button" className="na-pay-btn" disabled={status === "loading"} onClick={handleRazorpay}>
-                                {status === "loading" && paymentMethod === "razorpay" ? "Opening…" : "Pay with Razorpay"}
-                              </button>
-                              <button type="button" className="na-pay-btn" disabled={status === "loading" || qrLoading} onClick={handleShowQr}>
-                                {qrLoading ? "Generating…" : "Scan UPI QR"}
-                              </button>
-                            </div>
-
-                            {paymentMethod === "qr" && (qrLoading || qrState) && (
-                              <div className="na-qr-box">
-                                {qrLoading ? (
-                                  <div style={{ fontSize: 13, color: "#64748b" }}>Generating QR…</div>
-                                ) : qrState === "expired" ? (
-                                  <>
-                                    <div style={{ fontSize: 13, color: "#dc2626", fontWeight: 700, marginBottom: 10 }}>This QR code has expired.</div>
-                                    <button type="button" className="na-submit" onClick={handleShowQr}>Generate New QR</button>
-                                  </>
-                                ) : qrData ? (
-                                  <>
-                                    <img src={qrData.qrImageUrl} alt="Scan to pay" />
-                                    <div style={{ fontSize: 12.5, color: "#64748b", margin: "10px 0" }}>
-                                      Scan with any UPI app to pay ₹{qrData.amount}. This confirms automatically once paid — please don't close this page.
-                                    </div>
-                                    <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700 }}>
-                                      {status === "loading" ? "Payment received — confirming your booking…" : "Waiting for payment…"}
-                                    </div>
-                                  </>
-                                ) : null}
-                              </div>
-                            )}
-
-                            <div className="na-btn-row">
-                              <button type="button" className="na-btn-back" onClick={() => { stopQrPoll(); setStep(2); }}>Back</button>
-                            </div>
-                          </>
+                          <div className="na-btn-row">
+                            <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
+                            <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleRazorpay}>
+                              {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
+                            </button>
+                          </div>
                         )}
                       </>
                     )}
