@@ -416,6 +416,7 @@ export default function NoidaAppointment() {
   };
 
   const handlePickSlot = (date, slot, isLastMinute) => {
+    setSlotNotice("");
     setPendingPick(null);
     resetLastMinute();
     setSelectedDate(date);
@@ -598,6 +599,8 @@ export default function NoidaAppointment() {
   const [form, setForm] = useState({ name: "", age: "", phone: "", email: "", concern: "" });
   const [status, setStatus] = useState(null); // null | "loading" | "success"
   const [error, setError] = useState("");
+  // Shown above the slots table when a slot was lost while the client was booking it.
+  const [slotNotice, setSlotNotice] = useState("");
   const [paymentMethod, setPaymentMethod] = useState(null); // null | "razorpay"
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -611,6 +614,7 @@ export default function NoidaAppointment() {
   };
 
   const switchTab = (type) => {
+    setSlotNotice("");
     setPendingPick(null);
     resetLastMinute();
     setBookingType(type);
@@ -693,6 +697,19 @@ export default function NoidaAppointment() {
       const data = await res.json();
       if (data.status) {
         setStatus("success");
+      } else if (data.paymentHandled && data.refunded !== undefined) {
+        // Paid, but the slot went before the booking could be made — the server
+        // has already refunded (or flagged it for staff). Send them back to
+        // pick another slot with the explanation, instead of a dead-end error.
+        setSlotNotice(data.message);
+        setError("");
+        setStatus(null);
+        resetLastMinute();
+        setPhase("slots");
+        loadSlotsMatrix(bookingType);
+      } else if (data.paymentHandled) {
+        setError(data.message);
+        setStatus(null);
       } else if (paymentExtra.razorpay_payment_id) {
         setError(`${data.message || "Booking failed after payment."} Please WhatsApp us with payment ID ${paymentExtra.razorpay_payment_id} and we'll sort it out.`);
         setStatus(null);
@@ -725,10 +742,25 @@ export default function NoidaAppointment() {
           packageId: sessionMode === "package" ? selectedPackageId : undefined,
           address: format === "home-visit" ? address.trim() : undefined,
           type: bookingType, phone: form.phone.trim(),
+          // The whole booking goes with the order so the server can refuse a
+          // taken slot before charging, and finish or refund the booking itself
+          // if this browser never gets to confirm.
+          name: effectiveName.trim(), age: form.age.trim(), email: form.email.trim(), concern: form.concern.trim(),
+          date: selectedDate, slot: selectedSlot,
         }),
       });
       const orderData = await orderRes.json();
       if (!orderData.status) {
+        if (orderRes.status === 409) {
+          // Someone took the slot while this client was filling in the form — nothing was charged.
+          setSlotNotice(orderData.message || "That slot was just booked. Please pick another.");
+          setError("");
+          setStatus(null);
+          resetLastMinute();
+          setPhase("slots");
+          loadSlotsMatrix(bookingType);
+          return;
+        }
         setError(orderData.message || "Could not start payment. Please try again.");
         setStatus(null);
         return;
@@ -1129,6 +1161,12 @@ export default function NoidaAppointment() {
           <div className={`na-fullslots-wrap ${isMobile && pendingPick ? "has-bar" : ""} ${tablet ? `na-tab ${landscape ? "land" : "port"}` : ""}`}>
             <div className="na-tab-cols">
             <div className="na-fullslots-card na-tab-main">
+              {slotNotice && (
+                <div className="na-error" role="alert" style={{ marginBottom: 14, display: "flex", gap: 10, alignItems: "flex-start", justifyContent: "space-between" }}>
+                  <span>⚠️ {slotNotice}</span>
+                  <button type="button" aria-label="Dismiss" onClick={() => setSlotNotice("")} style={{ background: "none", border: "none", color: "inherit", fontSize: 18, lineHeight: 1, cursor: "pointer", padding: "0 4px", fontFamily: "inherit" }}>×</button>
+                </div>
+              )}
               <SlotsTable
                 matrix={{ ...slotsMatrix, onPick: usePendingPick ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
                 loading={slotsMatrixLoading}
