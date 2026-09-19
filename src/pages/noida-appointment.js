@@ -896,11 +896,12 @@ export default function NoidaAppointment() {
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
         .na-hero { max-width: 1100px; margin: 0 auto; padding: 24px 20px 0; }
+        .na-foot { padding: 22px 20px 36px; }
         .na-hero-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .na-logo { height: 43px; width: auto; display: block; }
         .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
         .na-wa-btn:hover { background: #f0fdf4; border-color: #1a6b3a; }
-        .na-hero-line { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: #475569; }
+        .na-hero-line { margin: 0; font-size: 14px; line-height: 1.5; color: #475569; }
         .na-facts { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
         .na-facts li { margin: 0; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #fff; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #334155; box-shadow: 0 1px 3px rgba(15,61,34,.06); }
         .na-facts li svg { color: #1a6b3a; }
@@ -1049,6 +1050,7 @@ export default function NoidaAppointment() {
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
         .is-tablet .na-hero { max-width: none; padding: 28px 32px 0; }
+        .is-tablet .na-foot { padding: 24px 32px 40px; }
         .na-tab .na-skel-cell { height: 50px; }
         .na-tab.land .na-skel-cell { height: 42px; }
         .na-fullslots-wrap.na-tab, .na-centerwrap.na-tab { padding: 24px 32px 48px; max-width: none; }
@@ -1093,10 +1095,11 @@ export default function NoidaAppointment() {
         @media (max-width: 640px) {
           .na-topbar { padding: 14px 12px 4px; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
           .na-hero { padding: 14px 12px 0; }
+          .na-foot { padding: 18px 12px 28px; }
           .na-logo { height: 34px; }
           .na-wa-btn { padding: 10px; width: 44px; height: 44px; }
           .na-wa-text { display: none; }
-          .na-hero-line { font-size: 13px; margin-top: 10px; }
+          .na-hero-line { font-size: 13px; }
           .na-facts { gap: 6px; }
           .na-facts li { padding: 6px 10px; font-size: 12px; }
           .na-fact-note { width: 100%; background: transparent !important; box-shadow: none !important; padding: 2px 2px 0 !important; border-radius: 0 !important; color: #475569 !important; font-weight: 500 !important; }
@@ -1130,17 +1133,6 @@ export default function NoidaAppointment() {
               <Ic I={WhatsAppIcon} s={18} /><span className="na-wa-text">Chat with us</span>
             </a>
           </div>
-          <p className="na-hero-line">In-person therapy at our Noida center. Pick a slot, pay, and it's confirmed instantly.</p>
-          <ul className="na-facts">
-            <li><Ic I={ScheduleRounded} /> 50–60 min session</li>
-            <li>
-              {pricing
-                ? <><Ic I={CurrencyRupeeRounded} /> Individual ₹{pricing.individual_inperson} · Couple ₹{pricing.couple_inperson}</>
-                : <span className="na-skel na-skel-chip" aria-hidden="true" />}
-            </li>
-            <li><Ic I={PlaceRounded} /> Sector 51, Noida</li>
-            <li className="na-fact-note"><Ic I={InfoOutlined} /> Need a different time? Use the Reschedule tab. To cancel, WhatsApp us.</li>
-          </ul>
         </header>
 
         <div className="na-topbar">
@@ -1705,6 +1697,20 @@ export default function NoidaAppointment() {
             </div>
           </div>
         )}
+
+        <footer className="na-hero na-foot">
+          <p className="na-hero-line">In-person therapy at our Noida center. Pick a slot, pay, and it's confirmed instantly.</p>
+          <ul className="na-facts">
+            <li><Ic I={ScheduleRounded} /> 50–60 min session</li>
+            <li>
+              {pricing
+                ? <><Ic I={CurrencyRupeeRounded} /> Individual ₹{pricing.individual_inperson} · Couple ₹{pricing.couple_inperson}</>
+                : <span className="na-skel na-skel-chip" aria-hidden="true" />}
+            </li>
+            <li><Ic I={PlaceRounded} /> Sector 51, Noida</li>
+            <li className="na-fact-note"><Ic I={InfoOutlined} /> Need a different time? Use the Reschedule tab. To cancel, WhatsApp us.</li>
+          </ul>
+        </footer>
 
         {isMobile && phase === "slots" && bookingType !== "reschedule" && pendingPick && (() => {
           const lbl = dateLabel(pendingPick.date);
