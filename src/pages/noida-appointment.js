@@ -16,6 +16,8 @@ import BoltRounded from "@mui/icons-material/BoltRounded";
 import CheckRounded from "@mui/icons-material/CheckRounded";
 import CloseRounded from "@mui/icons-material/CloseRounded";
 import EventBusyRounded from "@mui/icons-material/EventBusyRounded";
+import DirectionsRounded from "@mui/icons-material/DirectionsRounded";
+import DownloadRounded from "@mui/icons-material/DownloadRounded";
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -164,6 +166,125 @@ const waLink = (text) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t
 const Ic = ({ I, s = 16 }) => <I aria-hidden="true" style={{ fontSize: s, verticalAlign: "-0.2em", flexShrink: 0 }} />;
 
 // Same shape as the real table, so nothing jumps when the slots arrive.
+const CENTER_ADDRESS = "Choose Your Therapist LLP, Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301";
+const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Choose+Your+Therapist+LLP+Sector+51+Noida";
+
+function slotEndInstant(dateStr, slotLabel) {
+  const start = slotStartInstant(dateStr, slotLabel);
+  const endPart = (slotLabel || "").split(" - ")[1];
+  if (!endPart) return new Date(start.getTime() + 60 * 60000);
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const endMin = slotStartMinutes(endPart);
+  return new Date(Date.UTC(y, m - 1, d, Math.floor(endMin / 60), endMin % 60) - (5 * 60 + 30) * 60000);
+}
+
+const icsStamp = (dt) => dt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+const icsEscape = (t) => String(t || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+
+function calendarEvent({ date, slot, online }) {
+  const start = slotStartInstant(date, slot);
+  const end = slotEndInstant(date, slot);
+  const title = "Therapy session - Choose Your Therapist";
+  const location = online ? "Online session" : CENTER_ADDRESS;
+  const details = online
+    ? "Your online session with Choose Your Therapist. The center will share the joining link."
+    : "Please arrive 10 minutes early. Need to change the time? Use the Reschedule tab on chooseyourtherapist.in/noida-appointment.";
+  const google = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + "&text=" + encodeURIComponent(title)
+    + "&dates=" + icsStamp(start) + "/" + icsStamp(end)
+    + "&details=" + encodeURIComponent(details)
+    + "&location=" + encodeURIComponent(location);
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Choose Your Therapist//Noida Booking//EN", "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    "UID:" + icsStamp(start) + "-" + Math.random().toString(36).slice(2, 10) + "@chooseyourtherapist.in",
+    "DTSTAMP:" + icsStamp(new Date()),
+    "DTSTART:" + icsStamp(start),
+    "DTEND:" + icsStamp(end),
+    "SUMMARY:" + icsEscape(title),
+    "LOCATION:" + icsEscape(location),
+    "DESCRIPTION:" + icsEscape(details),
+    "BEGIN:VALARM", "TRIGGER:-PT60M", "ACTION:DISPLAY", "DESCRIPTION:Therapy session in 1 hour", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ].join("\r\n");
+  return { google, ics };
+}
+
+function downloadIcs(ics) {
+  try {
+    const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "therapy-session.ics";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch { /* ignore — Google Calendar link still works */ }
+}
+
+// Animated tick + ticket-style confirmation shared by a fresh booking and a
+// reschedule. `format` is "in-person" | "online" | "home-visit" | null (unknown:
+// no address / directions shown).
+function BookingSuccess({ title, text, dateStr, dateLbl, slot, rows, format, showAddress }) {
+  const cal = calendarEvent({ date: dateStr, slot, online: format === "online" });
+  const shareText = "My therapy session at Choose Your Therapist"
+    + (format === "online" ? " (online)" : ", Sector 51 Noida")
+    + ": " + (dateLbl ? dateLbl.weekday + ", " + dateLbl.day + " " + dateLbl.month : dateStr) + ", " + slot;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setTimeout(fireConfetti, 350);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div className="na-success">
+      <div className="na-tick" aria-hidden="true">
+        <svg viewBox="0 0 52 52">
+          <circle className="na-tick-bg" cx="26" cy="26" r="24" />
+          <circle className="na-tick-c" cx="26" cy="26" r="24" />
+          <path className="na-tick-p" d="M15 27l8 8 14-16" />
+        </svg>
+      </div>
+      <h2>{title}</h2>
+      <p>{text}</p>
+      <div className="na-ticket">
+        <div className="na-ticket-top">
+          {dateLbl && (
+            <div className="na-ticket-date"><span>{dateLbl.weekday}</span><b>{dateLbl.day}</b><span>{dateLbl.month}</span></div>
+          )}
+          <div>
+            <div className="na-ticket-time">{slot}</div>
+            {rows[0] && <div className="na-ticket-sub">{rows[0][1]}</div>}
+          </div>
+        </div>
+        {rows.length > 1 && (
+          <>
+            <div className="na-ticket-tear" />
+            <div className="na-ticket-rows">
+              {rows.slice(1).map(([k, v]) => <div className="na-ticket-row" key={k}><span>{k}</span><b>{v}</b></div>)}
+            </div>
+          </>
+        )}
+      </div>
+      <div className="na-succ-actions">
+        <a className="na-succ-btn" href={cal.google} target="_blank" rel="noopener noreferrer"><Ic I={CalendarMonthRounded} s={18} /> Google Calendar</a>
+        <button type="button" className="na-succ-btn" onClick={() => downloadIcs(cal.ics)}><Ic I={DownloadRounded} s={18} /> Apple / Outlook</button>
+        <a className="na-succ-btn" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={18} /> Share on WhatsApp</a>
+      </div>
+      {showAddress && (
+        <div className="na-address-box">
+          <div className="na-address-title"><Ic I={PlaceRounded} /> Our Noida Center</div>
+          <div className="na-address-text">Choose Your Therapist LLP<br />Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida</div>
+          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="na-address-link">Get Directions →</a>
+        </div>
+      )}
+      {showAddress && <p className="na-succ-hint">Please arrive 10 minutes early.</p>}
+    </div>
+  );
+}
+
 function SlotsSkeleton({ cols }) {
   return (
     <div className="na-fullslots-scroll" role="status" aria-label="Loading available slots">
@@ -246,10 +367,10 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
             <th></th>
             {visibleDates.map((d, i) => {
               const lbl = dateLabel(d);
-              if (!compact) return <th key={d}>{lbl.weekday}<br />{lbl.day} {lbl.month}</th>;
               const isToday = d === today;
+              if (!compact) return <th key={d} className={isToday ? "na-th-today" : undefined}>{isToday ? "Today" : lbl.weekday}<br />{lbl.day} {lbl.month}</th>;
               return (
-                <th key={d} className="na-th-m">
+                <th key={d} className={`na-th-m ${isToday ? "na-th-today" : ""}`}>
                   <div className="na-wd">{isToday ? "Today" : lbl.weekday}</div>
                   <div className={`na-dn ${isToday ? "today" : ""}`}>{lbl.day}</div>
                   {(i === 0 || lbl.day === 1) && <div className="na-mo">{lbl.month}</div>}
@@ -259,23 +380,24 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
           </tr>
         </thead>
         <tbody>
-          {matrix.times.map(t => (
+          {matrix.times.map((t, ri) => (
             <tr key={t}>
               <td className="na-time-col">{compact ? shortTime(t) : t.split(" - ")[0]}</td>
-              {visibleDates.map(d => {
+              {visibleDates.map((d, ci) => {
+                const tdProps = { className: d === today ? "na-td-today" : undefined, style: { "--na-i": ri + ci } };
                 const state = matrix.grid[`${d}|${t}`];
                 const isSelected = selected && selected.date === d && selected.slot === t;
                 if (state === "lastMinute" && disableLastMinute) {
                   return (
-                    <td key={d}>
-                      <span className="na-slotcell closed" title="Starting too soon to reschedule into">–</span>
+                    <td key={d} {...tdProps}>
+                      <span className="na-slotcell closed" title="Starting too soon to reschedule into" aria-label="Starting too soon to reschedule into" />
                     </td>
                   );
                 }
                 if (state === "open" || state === "lastMinute") {
                   const isLM = state === "lastMinute";
                   return (
-                    <td key={d}>
+                    <td key={d} {...tdProps}>
                       <button
                         type="button"
                         className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""}`}
@@ -289,9 +411,9 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                 }
                 const label = state === "taken" ? "Booked" : state === "past" ? "Time has passed" : "Not opened";
                 return (
-                  <td key={d}>
-                    <span className={`na-slotcell ${state === "past" ? "closed" : (state || "closed")}`} title={label}>
-                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : "–"}
+                  <td key={d} {...tdProps}>
+                    <span className={`na-slotcell ${state || "closed"}`} title={label} aria-label={label}>
+                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : null}
                     </span>
                   </td>
                 );
@@ -964,7 +1086,18 @@ export default function NoidaAppointment() {
         .na-wm-dot { display: inline-block; flex-shrink: 0; width: 6px; height: 6px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; }
         .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #64748b; text-transform: uppercase; }
         .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #c81e1e; text-transform: uppercase; white-space: nowrap; }
-        .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
+        .na-slotcell.closed { background: repeating-linear-gradient(135deg, #f8fafc 0 6px, #eef2f6 6px 12px); border-color: #eef2f6; }
+        .na-slotcell.past { background: #f8fafc; color: #e2e8f0; }
+        .na-sw-open { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+        .na-sw-lm { background: #fffbeb; border: 1.5px solid #fde68a; }
+        .na-sw-taken { background: #fef2f2; border: 1.5px solid #fecaca; }
+        .na-sw-past { background: #f1f5f9; }
+        .na-sw-closed { background: repeating-linear-gradient(135deg, #f8fafc 0 3px, #dbe2ea 3px 6px); border: 1px solid #e2e8f0; }
+        .na-fullslots-table th.na-th-today { color: #166534; background: #e7f5ec; border-radius: 12px; }
+        .na-th-m.na-th-today { background: transparent; }
+        .na-td-today button.na-slotcell.open { border-color: #86efac; }
+        .na-foot-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .na-foot-link:hover { color: #166534; }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
         .na-fullslots-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #64748b; font-weight: 600; }
         .na-fullslots-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
@@ -977,8 +1110,11 @@ export default function NoidaAppointment() {
         .na-step-dot.active .na-step-circle { border-color: #1a6b3a; color: #1a6b3a; }
         .na-step-label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .4px; }
         .na-step-dot.active .na-step-label, .na-step-dot.done .na-step-label { color: #1a6b3a; }
-        .na-step-line { flex: 1.4; height: 2px; background: #e2e8f0; margin-top: -22px; }
-        .na-step-line.done { background: #1a6b3a; }
+        .na-step-line { position: relative; overflow: hidden; flex: 1.4; height: 2px; background: #e2e8f0; margin-top: -22px; }
+        .na-step-line::after { content: ""; position: absolute; inset: 0; background: #1a6b3a; transform: scaleX(0); transform-origin: left center; transition: transform .45s ease; }
+        .na-step-line.done::after { transform: scaleX(1); }
+        .na-step-dot.active .na-step-circle { box-shadow: 0 0 0 4px rgba(26,107,58,.14); }
+        .na-step-dot.done .na-step-circle svg { animation: naPop .35s ease; }
 
         .na-section-label { font-size: 11.5px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
 
@@ -1139,6 +1275,121 @@ export default function NoidaAppointment() {
           .na-submit { height: 52px; padding: 0; }
           .na-fullslots-legend { gap: 8px 14px; }
         }
+
+        /* ── motion ─────────────────────────────────────────────────── */
+        @keyframes naPop { 0% { transform: scale(.9); } 55% { transform: scale(1.07); } 100% { transform: scale(1); } }
+        @keyframes naSlideUp { from { transform: translateY(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+        @keyframes naFadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        @keyframes naRing { 0% { box-shadow: 0 0 0 0 rgba(26,107,58,.35); } 100% { box-shadow: 0 0 0 14px rgba(26,107,58,0); } }
+        @keyframes naDraw { to { stroke-dashoffset: 0; } }
+        @keyframes naSpin { to { transform: rotate(360deg); } }
+        .na-fullslots-table td .na-slotcell { animation: naCellIn .4s ease backwards; animation-delay: calc(var(--na-i, 0) * 14ms); }
+        @keyframes naCellIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        button.na-slotcell.selected { animation: naPop .32s ease; }
+        .na-selbar { animation: naSlideUp .28s ease; }
+        .na-selbar-v, .na-tab-selv { animation: naFadeUp .28s ease; }
+        .na-tab-slotbox { animation: naRing .7s ease-out; }
+        .na-tab-slotbox-v, .na-tab-slotbox-t { animation: naFadeUp .3s ease; }
+        .na-submit[data-busy]::before { content: ""; display: inline-block; width: 14px; height: 14px; margin-right: 9px; vertical-align: -2px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: naSpin .7s linear infinite; }
+
+        /* ── booking confirmation ───────────────────────────────────── */
+        .na-tick { width: 84px; height: 84px; margin: 0 auto 18px; }
+        .na-tick svg { width: 100%; height: 100%; display: block; }
+        .na-tick-bg { fill: #dcfce7; transform-origin: 26px 26px; animation: naPop .5s ease; }
+        .na-tick-c { fill: none; stroke: #16a34a; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 152; stroke-dashoffset: 152; animation: naDraw .6s ease .1s forwards; }
+        .na-tick-p { fill: none; stroke: #16a34a; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: naDraw .35s ease .55s forwards; }
+        .na-ticket { margin-top: 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; text-align: left; overflow: hidden; box-shadow: 0 8px 24px rgba(15,61,34,.08); }
+        .na-ticket-top { display: flex; align-items: center; gap: 16px; padding: 18px; }
+        .na-ticket-date { flex: 0 0 auto; width: 68px; border-radius: 14px; background: #1a6b3a; color: #fff; text-align: center; padding: 8px 0 9px; line-height: 1.1; }
+        .na-ticket-date span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; opacity: .85; }
+        .na-ticket-date b { display: block; font-size: 26px; font-weight: 800; margin: 2px 0; }
+        .na-ticket-time { font-size: 17px; font-weight: 800; color: #0f172a; }
+        .na-ticket-sub { font-size: 13px; color: #64748b; margin-top: 3px; }
+        .na-ticket-tear { border-top: 2px dashed #e2e8f0; margin: 0 16px; }
+        .na-ticket-rows { padding: 10px 18px 14px; }
+        .na-ticket-row { display: flex; justify-content: space-between; gap: 14px; font-size: 13px; color: #475569; padding: 5px 0; }
+        .na-ticket-row b { color: #0f172a; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+        .na-succ-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
+        .na-succ-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #bbf7d0; background: #f0fdf4; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; font-family: inherit; transition: all .15s; }
+        .na-succ-btn:hover { border-color: #1a6b3a; background: #e3f8ea; }
+        .na-succ-hint { font-size: 12.5px; color: #64748b; margin: 14px 0 0 !important; }
+        @media (prefers-reduced-motion: reduce) {
+          .na-fullslots-table td .na-slotcell, button.na-slotcell.selected, .na-selbar, .na-selbar-v, .na-tab-selv, .na-tab-slotbox, .na-tab-slotbox-v, .na-tab-slotbox-t, .na-tick-bg, .na-step-dot.done .na-step-circle svg { animation: none; }
+          .na-tick-c, .na-tick-p { animation: none; stroke-dashoffset: 0; }
+          .na-step-line::after { transition: none; }
+        }
+
+        /* ── dark theme (follows the device setting) ─────────────────── */
+        @media (prefers-color-scheme: dark) {
+          .na-page { background: #0e1411; color-scheme: dark; }
+          .na-page .na-shell, .na-page .na-tab-selcard, .na-page .na-tab-panel, .na-page .na-selbar, .na-page .na-topbar-tabs, .na-page .na-ticket { background: #171f1b; box-shadow: 0 20px 50px rgba(0,0,0,.45); }
+          .na-page .na-selbar { border-top-color: #2b3831; }
+          .na-page .na-ticket { border-color: #2b3831; box-shadow: none; }
+          .na-page .na-ticket-tear { border-top-color: #2b3831; }
+          .na-page .na-topbar-tab { color: #93a59b; }
+          .na-page .na-topbar-tab.active { color: #fff; }
+          .na-page .na-fullslots-title, .na-page .na-tab-panel-title, .na-page .na-tab-selv, .na-page .na-selbar-v, .na-page .na-empty-title, .na-page .na-success h2, .na-page .na-pkg-card-name, .na-page .na-rv b, .na-page .na-review strong, .na-page .na-dn, .na-page .na-ticket-time, .na-page .na-ticket-row b { color: #eef5f0; }
+          .na-page .na-dn.today { color: #fff; }
+          .na-page .na-fullslots-sub, .na-page .na-fullslots-table th, .na-page .na-wd, .na-page .na-mo, .na-page .na-section-label, .na-page .na-selbar-k, .na-page .na-selbar-h, .na-page .na-secure, .na-page .na-fullslots-legend span, .na-page .na-pager-range, .na-page .na-empty-text, .na-page .na-tab-pill small, .na-page .na-pill-price, .na-page .na-pkg-card-meta, .na-page .na-success p, .na-page .na-fullslots-empty, .na-page .na-past-label, .na-page .na-lookup-checking, .na-page .na-ticket-sub, .na-page .na-ticket-row, .na-page .na-succ-hint, .na-page .na-lbl { color: #93a59b; }
+          .na-page .na-fullslots-table th.na-th-today { color: #86efac; background: #14301f; }
+          .na-page .na-th-m.na-th-today { background: transparent; }
+          .na-page .na-fullslots-table td.na-time-col { background: #212c26; color: #dbe7e0; }
+          .na-page button.na-slotcell.open { background: #14301f; border-color: #1f5a35; color: #4ade80; }
+          .na-page button.na-slotcell.open:hover, .na-page button.na-slotcell.open.selected { background: #1a6b3a; border-color: #22c55e; color: #fff; }
+          .na-page .na-td-today button.na-slotcell.open { border-color: #22c55e; }
+          .na-page button.na-slotcell.lastminute { background: #33280f; border-color: #6b4e10; color: #fbbf24; }
+          .na-page button.na-slotcell.lastminute:hover, .na-page button.na-slotcell.lastminute.selected { background: #b45309; border-color: #d97706; color: #fff; }
+          .na-page .na-slotcell.taken { background: #2e1517; border-color: #5b2226; color: #f87171; }
+          .na-page .na-taken-stamp { color: #f87171; }
+          .na-page .na-slotcell.closed { background: repeating-linear-gradient(135deg, #171f1b 0 6px, #1e2823 6px 12px); border-color: #1e2823; }
+          .na-page .na-slotcell.past { background: #171f1b; color: #3a4a41; }
+          .na-page .na-sw-closed { background: repeating-linear-gradient(135deg, #171f1b 0 3px, #2b3831 3px 6px); border-color: #2b3831; }
+          .na-page .na-fullslots-legend { border-top-color: #26322b; }
+          .na-page .na-sw-open { background: #14301f; border-color: #22c55e; }
+          .na-page .na-sw-lm { background: #33280f; border-color: #d97706; }
+          .na-page .na-sw-taken { background: #2e1517; border-color: #ef4444; }
+          .na-page .na-sw-past { background: #26322b; }
+          .na-page .na-inp { background: #1e2823; border-color: #2b3831; color: #eef5f0; }
+          .na-page .na-inp:focus { background: #222f28; border-color: #4ade80; }
+          .na-page .na-inp::placeholder { color: #667a6f; }
+          .na-page .na-pill, .na-page .na-pkg-card, .na-page .na-tab-pill, .na-page .na-btn-back, .na-page .na-pager-btn, .na-page .na-wa-btn { background: #1e2823; border-color: #2b3831; color: #dbe7e0; }
+          .na-page .na-pill.active, .na-page .na-pkg-card.active, .na-page .na-tab-pill.on { background: #14301f; border-color: #22c55e; color: #4ade80; }
+          .na-page .na-pill.active .na-pill-price, .na-page .na-tab-pill.on small { color: #4ade80; }
+          .na-page .na-pager-btn { color: #4ade80; }
+          .na-page .na-pager-btn:disabled { background: #171f1b; color: #3a4a41; }
+          .na-page .na-wa-btn { color: #86efac; border-color: #1f5a35; }
+          .na-page .na-wa-btn:hover { background: #14301f; }
+          .na-page .na-picked-banner, .na-page .na-lookup-found, .na-page .na-address-box, .na-page .na-tab-slotbox, .na-page .na-succ-btn { background: #14301f; border-color: #1f5a35; color: #86efac; }
+          .na-page .na-succ-btn:hover { background: #1a3d28; border-color: #22c55e; }
+          .na-page .na-tab-slotbox-k, .na-page .na-tab-slotbox-t, .na-page .na-address-title { color: #86efac; }
+          .na-page .na-tab-slotbox-v { color: #bbf7d0; }
+          .na-page .na-address-text { color: #c9d8cf; }
+          .na-page .na-review, .na-page .na-summary, .na-page .na-lookup-checking { background: #1e2823; border-color: #2b3831; color: #c9d8cf; }
+          .na-page .na-lastmin-box, .na-page .na-lookup-notfound { background: #33280f; border-color: #6b4e10; color: #fbbf24; }
+          .na-page .na-lastmin-title, .na-page .na-lastmin-text { color: #fbbf24; }
+          .na-page .na-error { background: #2e1517; border-color: #5b2226; color: #fca5a5; }
+          .na-page .na-tab-price { border-color: #2b3831; }
+          .na-page .na-rv { color: #c9d8cf; }
+          .na-page .na-rv + .na-rv { border-top-color: #26322b; }
+          .na-page .na-price-breakdown { border-top-color: #2b3831; }
+          .na-page .na-picked-change, .na-page .na-address-link, .na-page .na-pkg-card-price, .na-page .na-price-total { color: #4ade80; }
+          .na-page .na-step-circle { background: #171f1b; border-color: #3a4a41; color: #93a59b; }
+          .na-page .na-step-dot.done .na-step-circle { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+          .na-page .na-step-dot.active .na-step-circle { border-color: #4ade80; color: #4ade80; }
+          .na-page .na-step-dot.active .na-step-label, .na-page .na-step-dot.done .na-step-label { color: #4ade80; }
+          .na-page .na-step-line { background: #2b3831; }
+          .na-page .na-skel { background: linear-gradient(90deg, #1e2823 25%, #2a372f 37%, #1e2823 63%); background-size: 400% 100%; }
+          .na-page .na-empty-ic { background: #1e2823; color: #93a59b; }
+          .na-page .na-tick-bg { fill: #14301f; }
+          .na-page .na-tick-c, .na-page .na-tick-p { stroke: #4ade80; }
+          .na-page .na-foot { background: #0a0f0c; }
+          .na-page .na-foot-big { color: #222d27; }
+          .na-page .na-foot-tag, .na-page .na-foot-note, .na-page .na-foot-help-text, .na-page .na-foot-list li svg { color: #7f9187; }
+          .na-page .na-foot-list li, .na-page .na-foot-help-title { color: #b6c4bc; }
+          .na-page .na-foot-help { border-left-color: #1e2823; }
+          .na-page .na-foot-brand { border-top-color: #1e2823; color: #5f7168; }
+          .na-page .na-foot-link:hover { color: #86efac; }
+        }
       ` }} />
 
       <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
@@ -1157,15 +1408,16 @@ export default function NoidaAppointment() {
             <div className="na-card">
               <div className="na-card-inner">
                 {rescheduleDone ? (
-                  <div className="na-success">
-                    <div className="na-success-icon"><Ic I={CheckRounded} s={36} /></div>
-                    <h2>All set!</h2>
-                    <p>Your appointment has been moved to the new time. We've sent a confirmation to your email if you gave us one.</p>
-                    <div className="na-summary">
-                      <div><strong>New Date:</strong> {rescheduleDateLabel ? `${rescheduleDateLabel.weekday}, ${rescheduleDateLabel.day} ${rescheduleDateLabel.month}` : rescheduleDate}</div>
-                      <div><strong>New Time:</strong> {rescheduleSlot}</div>
-                    </div>
-                  </div>
+                  <BookingSuccess
+                    title="All set!"
+                    text="Your appointment has been moved to the new time. We've sent a confirmation to your email if you gave us one."
+                    dateStr={rescheduleDate}
+                    dateLbl={rescheduleDateLabel}
+                    slot={rescheduleSlot}
+                    rows={[["Time", "New appointment time"]]}
+                    format={null}
+                    showAddress={false}
+                  />
                 ) : (
                   <>
                     <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: rescheduleStatus ? 10 : 14 }}>
@@ -1299,10 +1551,11 @@ export default function NoidaAppointment() {
                       <div className="na-fullslots-sub" style={{ marginBottom: 0 }}>{bookingType === "followup" ? "Follow-up" : "New client"} · next {MATRIX_DAYS} open days · times in IST</div>
                     </div>
                     <div className="na-fullslots-legend na-tab-legend">
-                      <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open</span>
-                      <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon</span>
-                      <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
-                      <span><i style={{ background: "#f1f5f9" }} /> Passed</span>
+                      <span><i className="na-sw na-sw-open" /> Open</span>
+                      <span><i className="na-sw na-sw-lm" /> Starting soon</span>
+                      <span><i className="na-sw na-sw-taken" /> Booked</span>
+                      <span><i className="na-sw na-sw-past" /> Passed</span>
+                      <span><i className="na-sw-closed" /> Not open</span>
                     </div>
                   </div>
                 ) : (
@@ -1315,10 +1568,11 @@ export default function NoidaAppointment() {
 
               {!tablet && (
                 <div className="na-fullslots-legend">
-                  <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open{isMobile ? "" : " — tap to book"}</span>
-                  <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon{isMobile ? "" : " — needs a quick OK from us"}</span>
-                  <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
-                  <span><i style={{ background: "#f1f5f9" }} /> {isMobile ? "Passed" : "Passed / not opened"}</span>
+                  <span><i className="na-sw na-sw-open" /> Open{isMobile ? "" : " — tap to book"}</span>
+                  <span><i className="na-sw na-sw-lm" /> Starting soon{isMobile ? "" : " — needs a quick OK from us"}</span>
+                  <span><i className="na-sw na-sw-taken" /> Booked</span>
+                  <span><i className="na-sw na-sw-past" /> Passed</span>
+                  <span><i className="na-sw-closed" /> Not open</span>
                 </div>
               )}
             </div>
@@ -1332,7 +1586,7 @@ export default function NoidaAppointment() {
                   <div className="na-tab-selcard">
                     <div>
                       <div className="na-selbar-k">Selected</div>
-                      <div className="na-tab-selv">{lbl ? `${lbl.weekday}, ${lbl.day} ${lbl.month} · ${pendingPick.slot}` : "Tap an open slot to continue"}</div>
+                      <div className="na-tab-selv" key={pendingPick ? pendingPick.date + pendingPick.slot : "none"}>{lbl ? `${lbl.weekday}, ${lbl.day} ${lbl.month} · ${pendingPick.slot}` : "Tap an open slot to continue"}</div>
                       <div className="na-selbar-h">{pendingPick?.isLM ? "Starts within 15 min — the center confirms first" : "50–60 min session · Sector 51, Noida"}</div>
                     </div>
                     <button type="button" className="na-tab-cta" disabled={!pendingPick} onClick={go}>{cta}</button>
@@ -1342,7 +1596,7 @@ export default function NoidaAppointment() {
               return (
                 <div className="na-tab-panel">
                   <div className="na-tab-panel-title">Your booking</div>
-                  <div className="na-tab-slotbox">
+                  <div className="na-tab-slotbox" key={pendingPick ? pendingPick.date + pendingPick.slot : "none"}>
                     <div className="na-tab-slotbox-k">Selected slot</div>
                     {lbl ? (
                       <>
@@ -1405,35 +1659,20 @@ export default function NoidaAppointment() {
             <div className="na-card">
               <div className="na-card-inner">
                 {status === "success" ? (
-                  <div className="na-success">
-                    <div className="na-success-icon"><Ic I={CheckRounded} s={36} /></div>
-                    <h2>You're all set, {(effectiveName || "there").split(" ")[0]}!</h2>
-                    <p>Your appointment at our Noida center is confirmed. We'll see you there — please arrive 10 minutes early.</p>
-                    <div className="na-summary">
-                      <div><strong>Date:</strong> {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate}</div>
-                      <div><strong>Time:</strong> {selectedSlot}</div>
-                      <div><strong>Session:</strong> {modeLabel} · {formatLabel}</div>
-                      {usingCredit ? (
-                        <div><strong>Payment:</strong> Package session used ({credit.sessionsRemaining - 1} remaining)</div>
-                      ) : (
-                        <div><strong>Amount Paid:</strong> ₹{totalAmount}</div>
-                      )}
-                      {form.email && <div><strong>Confirmation sent to:</strong> {form.email}</div>}
-                    </div>
-
-                    {format !== "online" && (
-                      <div className="na-address-box">
-                        <div className="na-address-title"><Ic I={PlaceRounded} /> Our Noida Center</div>
-                        <div className="na-address-text">Choose Your Therapist LLP<br />Sector 51, Noida, Uttar Pradesh, India</div>
-                        <a
-                          href="https://www.google.com/maps/search/?api=1&query=Choose+Your+Therapist+LLP+Sector+51+Noida"
-                          target="_blank" rel="noopener noreferrer" className="na-address-link"
-                        >
-                          Get Directions →
-                        </a>
-                      </div>
-                    )}
-                  </div>
+                  <BookingSuccess
+                    title={`You're all set, ${(effectiveName || "there").split(" ")[0]}!`}
+                    text="Your appointment at our Noida center is confirmed. We'll see you there."
+                    dateStr={selectedDate}
+                    dateLbl={pickedDateLabel}
+                    slot={selectedSlot}
+                    rows={[
+                      ["Session", `${modeLabel} · ${formatLabel}`],
+                      [usingCredit ? "Payment" : "Amount paid", usingCredit ? `Package session used (${credit.sessionsRemaining - 1} remaining)` : `₹${totalAmount}`],
+                      ...(form.email ? [["Confirmation sent to", form.email]] : []),
+                    ]}
+                    format={format}
+                    showAddress={format !== "online"}
+                  />
                 ) : (
                   <>
                     <div className="na-picked-banner">
@@ -1683,7 +1922,7 @@ export default function NoidaAppointment() {
                         ) : usingCredit ? (
                           <div className="na-btn-row">
                             <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
-                            <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleConfirmCredit}>
+                            <button type="button" className="na-submit" data-busy={status === "loading" ? "1" : undefined} disabled={status === "loading"} onClick={handleConfirmCredit}>
                               {status === "loading" ? "Booking…" : "Confirm Booking"}
                             </button>
                           </div>
@@ -1692,7 +1931,7 @@ export default function NoidaAppointment() {
                           <div className="na-secure">Secure checkout by Razorpay — UPI, cards &amp; netbanking</div>
                           <div className="na-btn-row">
                             <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
-                            <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleRazorpay}>
+                            <button type="button" className="na-submit" data-busy={status === "loading" ? "1" : undefined} disabled={status === "loading"} onClick={handleRazorpay}>
                               {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
                             </button>
                           </div>
@@ -1726,7 +1965,9 @@ export default function NoidaAppointment() {
                   : <span className="na-skel na-skel-chip" aria-hidden="true" />}
               </li>
               <li><Ic I={PlaceRounded} /> Sector 51, Noida</li>
+              <li><Ic I={DirectionsRounded} /> <a className="na-foot-link" href={MAPS_URL} target="_blank" rel="noopener noreferrer">Get directions</a></li>
             </ul>
+            <p className="na-foot-note"><Ic I={PlaceRounded} s={15} /> Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida 201301</p>
             <p className="na-foot-note"><Ic I={InfoOutlined} s={15} /> Need a different time? Use the Reschedule tab. To cancel, WhatsApp us.</p>
             <div className="na-foot-brand">Choose Your Therapist · Know Expertise Before Choose</div>
           </div>
@@ -1738,7 +1979,7 @@ export default function NoidaAppointment() {
             <div className="na-selbar" role="region" aria-label="Selected slot">
               <div className="na-selbar-info">
                 <div className="na-selbar-k">Selected</div>
-                <div className="na-selbar-v">{lbl.weekday}, {lbl.day} {lbl.month} · {shortTime(pendingPick.slot)}</div>
+                <div className="na-selbar-v" key={pendingPick.date + pendingPick.slot}>{lbl.weekday}, {lbl.day} {lbl.month} · {shortTime(pendingPick.slot)}</div>
                 <div className="na-selbar-h">{pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "50–60 min session · Sector 51, Noida"}</div>
               </div>
               <button type="button" className="na-selbar-btn" onClick={() => handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM)}>
