@@ -909,7 +909,10 @@ export default function NoidaAppointment() {
         /* the site's bottom navigation reserves 75px of body padding up to 1200px wide; let the grey footer fill it */
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
         .na-foot { background: #e9edeb; margin-top: 44px; padding: 44px 20px 40px; }
-        .na-foot-in { max-width: 1100px; margin: 0 auto; }
+        .na-foot-in { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; align-items: center; }
+        .na-foot-in > :not(.na-foot-wm) { grid-column: 1; }
+        .na-foot-wm { grid-column: 2; grid-row: 1 / span 5; display: flex; align-items: flex-end; font-size: clamp(96px, 13vw, 168px); font-weight: 800; letter-spacing: -.05em; line-height: .8; text-transform: lowercase; color: #1a6b3a; padding-bottom: .06em; user-select: none; }
+        .na-foot-wm-dot { flex-shrink: 0; width: .17em; height: .17em; margin: 0 0 .03em .05em; border-radius: 50%; background: #f5b301; }
         .na-foot-big { font-size: clamp(30px, 6.4vw, 60px); font-weight: 800; line-height: 1.08; letter-spacing: -1.2px; color: #c5cec9; }
         .na-foot-tag { margin: 22px 0 0; font-size: 14px; line-height: 1.5; color: #5b6b64; }
         .na-foot-list { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; }
@@ -917,7 +920,7 @@ export default function NoidaAppointment() {
         .na-foot-list li svg { color: #5b6b64; }
         .na-foot-note { margin: 14px 0 0; display: flex; align-items: flex-start; gap: 6px; font-size: 12.5px; line-height: 1.5; color: #5b6b64; }
         .na-foot-note svg { flex: 0 0 auto; margin-top: 2px; }
-        .na-foot-brand { margin-top: 26px; padding-top: 16px; border-top: 1px solid #d5dcd8; font-size: 12px; font-weight: 700; color: #7b8a83; }
+        .na-foot-brand { grid-column: 1 / -1 !important; margin-top: 26px; padding-top: 16px; border-top: 1px solid #d5dcd8; font-size: 12px; font-weight: 700; color: #7b8a83; }
         .na-skel-chip { width: 170px; height: 14px; }
         .na-skel-head { width: 40px; height: 34px; margin: 0 auto; }
         .na-skel-time { width: 36px; height: 12px; }
@@ -1110,6 +1113,10 @@ export default function NoidaAppointment() {
         @media (max-width: 640px) {
           .na-shell { margin: 8px 8px 0; border-radius: 16px; }
           .na-foot { margin-top: 32px; padding: 32px 16px 32px; }
+          .na-foot-in { grid-template-columns: 1fr; }
+          .na-foot-in > :not(.na-foot-wm) { grid-column: 1; }
+          .na-foot-wm { grid-column: 1; grid-row: auto; order: 5; justify-content: flex-end; font-size: 92px; margin-top: 22px; }
+          .na-foot-brand { order: 6; }
           .na-foot-big { letter-spacing: -.8px; }
           .na-foot-tag { margin-top: 16px; font-size: 13px; }
           .na-topbar { padding: 10px 12px 4px; flex-direction: column; align-items: stretch; }
@@ -1719,6 +1726,7 @@ export default function NoidaAppointment() {
 
         <footer className="na-foot">
           <div className="na-foot-in">
+            <div className="na-foot-wm" aria-hidden="true">cyt<i className="na-foot-wm-dot" /></div>
             <div className="na-foot-big" aria-hidden="true">In-person therapy,<br />confirmed instantly.</div>
             <p className="na-foot-tag">Our Noida center. Pick a slot, pay, and your session is booked.</p>
             <ul className="na-foot-list">
