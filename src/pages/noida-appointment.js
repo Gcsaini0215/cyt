@@ -895,14 +895,12 @@ export default function NoidaAppointment() {
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
-        .na-hero { max-width: 1100px; margin: 0 auto; padding: 24px 20px 0; }
         .na-shell { max-width: 1100px; margin: 8px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; }
         .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
         .na-shell .na-fullslots-wrap { padding-top: 6px; padding-bottom: 16px; }
         .na-shell .na-fullslots-wrap.na-tab { padding: 8px 10px 20px; }
         .na-shell .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
         .na-shell .na-fullslots-card, .na-shell .na-card { background: transparent; box-shadow: none; border-radius: 0; }
-        .na-hero-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
         .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
         .na-wa-btn:hover { background: #f0fdf4; border-color: #1a6b3a; }
         .na-skel { display: block; border-radius: 8px; background: linear-gradient(90deg, #e8eeeb 25%, #f6f8f7 37%, #e8eeeb 63%); background-size: 400% 100%; animation: naShimmer 1.4s ease infinite; }
@@ -1068,7 +1066,6 @@ export default function NoidaAppointment() {
         .is-tablet .na-topbar { padding: 24px 20px 4px; max-width: none; }
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
-        .is-tablet .na-hero { max-width: none; padding: 28px 32px 0; }
         .is-tablet .na-foot { padding: 48px 24px 44px; }
         .is-tablet .na-shell { margin: 8px 16px 0; }
         .na-tab .na-skel-cell { height: 52px; }
@@ -1122,8 +1119,6 @@ export default function NoidaAppointment() {
           .na-foot-big { letter-spacing: -.8px; }
           .na-foot-tag { margin-top: 16px; font-size: 13px; }
           .na-topbar { padding: 10px 12px 4px; flex-direction: column; align-items: stretch; }
-          .na-hero { padding: 14px 12px 0; }
-          .na-wa-btn.na-wa-text-only { padding: 8px 14px; font-size: 12.5px; }
           .na-skel-cell { height: 44px; }
           .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
           .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
@@ -1147,13 +1142,6 @@ export default function NoidaAppointment() {
       ` }} />
 
       <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
-        {isMobile && (
-          <header className="na-hero">
-            <div className="na-hero-row">
-              <a className="na-wa-btn na-wa-text-only" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer">Chat with us</a>
-            </div>
-          </header>
-        )}
 
         <div className="na-topbar">
           <div className="na-topbar-tabs">
@@ -1161,11 +1149,6 @@ export default function NoidaAppointment() {
             <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
             <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
           </div>
-          {!isMobile && (
-            <a className="na-wa-btn" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
-              <Ic I={WhatsAppIcon} s={18} /><span className="na-wa-text">Chat with us</span>
-            </a>
-          )}
         </div>
 
         <div className="na-shell">
