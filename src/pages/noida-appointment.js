@@ -126,7 +126,7 @@ async function fetchSlotsMatrix(type) {
   const times = Array.from(new Set(all.filter(s => dateSet.has(s.date)).map(s => s.slot)))
     .sort((a, b) => slotStartMinutes(a) - slotStartMinutes(b));
   const grid = {};
-  all.forEach(s => { if (dateSet.has(s.date)) grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : (s.lastMinute ? "lastMinute" : "open"); });
+  all.forEach(s => { if (dateSet.has(s.date)) grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : s.past ? "past" : (s.lastMinute ? "lastMinute" : "open"); });
   return { dates, times, grid };
 }
 
@@ -181,11 +181,11 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute }) {
                     </td>
                   );
                 }
-                const label = state === "taken" ? "Booked" : "Not opened";
+                const label = state === "taken" ? "Booked" : state === "past" ? "Time has passed" : "Not opened";
                 return (
                   <td key={d}>
-                    <span className={`na-slotcell ${state || "closed"}`} title={label}>
-                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : "–"}
+                    <span className={`na-slotcell ${state === "past" ? "closed" : (state || "closed")}`} title={label}>
+                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : "–"}
                     </span>
                   </td>
                 );
@@ -693,6 +693,7 @@ export default function NoidaAppointment() {
         button.na-slotcell.lastminute.selected { background: #f59e0b; border-color: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
         button.na-slotcell.lastminute.selected:hover { transform: none; }
         .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; overflow: hidden; }
+        .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #cbd5e1; text-transform: uppercase; }
         .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #dc2626; text-transform: uppercase; white-space: nowrap; }
         .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
