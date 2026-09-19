@@ -2,6 +2,20 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import { apiUrl } from "../utils/url";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import ScheduleRounded from "@mui/icons-material/ScheduleRounded";
+import CurrencyRupeeRounded from "@mui/icons-material/CurrencyRupeeRounded";
+import PlaceRounded from "@mui/icons-material/PlaceRounded";
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
+import CalendarMonthRounded from "@mui/icons-material/CalendarMonthRounded";
+import WarningAmberRounded from "@mui/icons-material/WarningAmberRounded";
+import ConfirmationNumberRounded from "@mui/icons-material/ConfirmationNumberRounded";
+import WavingHandRounded from "@mui/icons-material/WavingHandRounded";
+import HourglassTopRounded from "@mui/icons-material/HourglassTopRounded";
+import BoltRounded from "@mui/icons-material/BoltRounded";
+import CheckRounded from "@mui/icons-material/CheckRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
+import EventBusyRounded from "@mui/icons-material/EventBusyRounded";
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -142,6 +156,50 @@ async function fetchSlotsMatrix(type) {
 // `header` sits beside the pager on mobile and above the table otherwise.
 const MOBILE_PAGE_DAYS = 5;
 
+const WA_NUMBER = "918077757951";
+const waLink = (text) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+
+// One consistent icon style everywhere instead of emoji, which render
+// differently on every phone.
+const Ic = ({ I, s = 16 }) => <I aria-hidden="true" style={{ fontSize: s, verticalAlign: "-0.2em", flexShrink: 0 }} />;
+
+// Same shape as the real table, so nothing jumps when the slots arrive.
+function SlotsSkeleton({ cols }) {
+  return (
+    <div className="na-fullslots-scroll" role="status" aria-label="Loading available slots">
+      <table className="na-fullslots-table">
+        <thead>
+          <tr>
+            <th></th>
+            {Array.from({ length: cols }).map((_, i) => <th key={i}><span className="na-skel na-skel-head" /></th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 10 }).map((_, r) => (
+            <tr key={r}>
+              <td className="na-time-col"><span className="na-skel na-skel-time" /></td>
+              {Array.from({ length: cols }).map((_, c) => <td key={c}><span className="na-skel na-skel-cell" /></td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function EmptySlots() {
+  return (
+    <div className="na-empty">
+      <div className="na-empty-ic"><Ic I={EventBusyRounded} s={30} /></div>
+      <div className="na-empty-title">No slots are open right now</div>
+      <p className="na-empty-text">We open new times regularly. Message us and we'll find one that suits you.</p>
+      <a className="na-wa-btn" href={waLink("Hi, I'd like to book a session at your Noida center.")} target="_blank" rel="noopener noreferrer">
+        <Ic I={WhatsAppIcon} s={18} /> WhatsApp us
+      </a>
+    </div>
+  );
+}
+
 function istTodayStr() {
   const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -157,8 +215,8 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   // header (weekday + day circle) and short time labels.
   const compact = isMobile || isTablet;
   const [page, setPage] = useState(0);
-  if (loading) return <>{header}<div className="na-fullslots-empty">Loading…</div></>;
-  if (!matrix.dates.length) return <>{header}<div className="na-fullslots-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div></>;
+  if (loading) return <>{header}<SlotsSkeleton cols={isMobile ? MOBILE_PAGE_DAYS : 10} /></>;
+  if (!matrix.dates.length) return <>{header}<EmptySlots /></>;
 
   const pageCount = isMobile ? Math.ceil(matrix.dates.length / MOBILE_PAGE_DAYS) : 1;
   const safePage = Math.min(page, pageCount - 1);
@@ -224,7 +282,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                         title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : `Book ${t}`}
                         onClick={() => matrix.onPick(d, t, isLM)}
                       >
-                        {isLM ? (isSelected ? "✓" : "!") : <span className="na-wm">cyt<i className="na-wm-dot" aria-hidden="true" /></span>}
+                        {isLM ? (isSelected ? <Ic I={CheckRounded} s={16} /> : "!") : <span className="na-wm">cyt<i className="na-wm-dot" aria-hidden="true" /></span>}
                       </button>
                     </td>
                   );
@@ -813,6 +871,16 @@ export default function NoidaAppointment() {
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Book an In-Person Appointment — Noida Therapy Center" />
         <meta property="og:description" content="Pick a date and time for your in-person session at our Noida center — instantly confirmed." />
+        <meta property="og:url" content="https://chooseyourtherapist.in/noida-appointment" />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:image" content="https://chooseyourtherapist.in/og-noida-appointment.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Choose Your Therapist — book an in-person session at our Noida center" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Book an In-Person Appointment — Noida Therapy Center" />
+        <meta name="twitter:description" content="Pick a date and time for your in-person session at our Noida center — instantly confirmed." />
+        <meta name="twitter:image" content="https://chooseyourtherapist.in/og-noida-appointment.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -827,7 +895,26 @@ export default function NoidaAppointment() {
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
-        .na-topbar-brand { font-size: 11px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: #556377; }
+        .na-hero { max-width: 1100px; margin: 0 auto; padding: 24px 20px 0; }
+        .na-hero-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .na-logo { height: 43px; width: auto; display: block; }
+        .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
+        .na-wa-btn:hover { background: #f0fdf4; border-color: #1a6b3a; }
+        .na-hero-line { margin: 12px 0 0; font-size: 14px; line-height: 1.5; color: #475569; }
+        .na-facts { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+        .na-facts li { margin: 0; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #fff; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #334155; box-shadow: 0 1px 3px rgba(15,61,34,.06); }
+        .na-facts li svg { color: #1a6b3a; }
+        .na-skel { display: block; border-radius: 8px; background: linear-gradient(90deg, #e8eeeb 25%, #f6f8f7 37%, #e8eeeb 63%); background-size: 400% 100%; animation: naShimmer 1.4s ease infinite; }
+        .na-skel-chip { width: 170px; height: 14px; }
+        .na-skel-head { width: 40px; height: 34px; margin: 0 auto; }
+        .na-skel-time { width: 36px; height: 12px; }
+        .na-skel-cell { height: 34px; border-radius: 9px; }
+        @keyframes naShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+        @media (prefers-reduced-motion: reduce) { .na-skel { animation: none; } }
+        .na-empty { text-align: center; padding: 44px 16px; }
+        .na-empty-ic { width: 60px; height: 60px; border-radius: 50%; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+        .na-empty-title { font-size: 16px; font-weight: 800; color: #0f172a; }
+        .na-empty-text { font-size: 13.5px; color: #64748b; line-height: 1.6; margin: 6px auto 18px; max-width: 340px; }
 
         .na-centerwrap { max-width: 1100px; margin: 0 auto; padding: 20px 20px 60px; }
         .na-card-inner { max-width: 560px; margin: 0 auto; }
@@ -961,7 +1048,9 @@ export default function NoidaAppointment() {
         .is-tablet .na-topbar { padding: 28px 32px 4px; max-width: none; }
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
-        .is-tablet .na-topbar-brand { font-weight: 600; letter-spacing: 1.6px; color: #556377; }
+        .is-tablet .na-hero { max-width: none; padding: 28px 32px 0; }
+        .na-tab .na-skel-cell { height: 50px; }
+        .na-tab.land .na-skel-cell { height: 42px; }
         .na-fullslots-wrap.na-tab, .na-centerwrap.na-tab { padding: 24px 32px 48px; max-width: none; }
         .na-tab .na-fullslots-card { padding: 24px 24px 22px; }
         .na-tab .na-tab-main { flex: 1; min-width: 0; }
@@ -1003,7 +1092,15 @@ export default function NoidaAppointment() {
 
         @media (max-width: 640px) {
           .na-topbar { padding: 14px 12px 4px; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
-          .na-topbar-brand { font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: #556377; padding: 0 4px; }
+          .na-hero { padding: 14px 12px 0; }
+          .na-logo { height: 34px; }
+          .na-wa-btn { padding: 10px; width: 44px; height: 44px; }
+          .na-wa-text { display: none; }
+          .na-hero-line { font-size: 13px; margin-top: 10px; }
+          .na-facts { gap: 6px; }
+          .na-facts li { padding: 6px 10px; font-size: 12px; }
+          .na-fact-note { width: 100%; background: transparent !important; box-shadow: none !important; padding: 2px 2px 0 !important; border-radius: 0 !important; color: #475569 !important; font-weight: 500 !important; }
+          .na-skel-cell { height: 38px; }
           .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
           .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
           .na-centerwrap, .na-fullslots-wrap { padding: 12px 12px 32px; }
@@ -1026,13 +1123,32 @@ export default function NoidaAppointment() {
       ` }} />
 
       <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
+        <header className="na-hero">
+          <div className="na-hero-row">
+            <img className="na-logo" src="/logo.png" width="166" height="43" alt="Choose Your Therapist — Know Expertise Before Choose" />
+            <a className="na-wa-btn" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+              <Ic I={WhatsAppIcon} s={18} /><span className="na-wa-text">Chat with us</span>
+            </a>
+          </div>
+          <p className="na-hero-line">In-person therapy at our Noida center. Pick a slot, pay, and it's confirmed instantly.</p>
+          <ul className="na-facts">
+            <li><Ic I={ScheduleRounded} /> 50–60 min session</li>
+            <li>
+              {pricing
+                ? <><Ic I={CurrencyRupeeRounded} /> Individual ₹{pricing.individual_inperson} · Couple ₹{pricing.couple_inperson}</>
+                : <span className="na-skel na-skel-chip" aria-hidden="true" />}
+            </li>
+            <li><Ic I={PlaceRounded} /> Sector 51, Noida</li>
+            <li className="na-fact-note"><Ic I={InfoOutlined} /> Need a different time? Use the Reschedule tab. To cancel, WhatsApp us.</li>
+          </ul>
+        </header>
+
         <div className="na-topbar">
           <div className="na-topbar-tabs">
             <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
             <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
             <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
           </div>
-          <div className="na-topbar-brand">Choose Your Therapist LLP | NOIDA</div>
         </div>
 
         {bookingType === "reschedule" ? (
@@ -1041,7 +1157,7 @@ export default function NoidaAppointment() {
               <div className="na-card-inner">
                 {rescheduleDone ? (
                   <div className="na-success">
-                    <div className="na-success-icon">✓</div>
+                    <div className="na-success-icon"><Ic I={CheckRounded} s={36} /></div>
                     <h2>All set!</h2>
                     <p>Your appointment has been moved to the new time. We've sent a confirmation to your email if you gave us one.</p>
                     <div className="na-summary">
@@ -1065,7 +1181,7 @@ export default function NoidaAppointment() {
                     {rescheduleStatus === "found" && rescheduleInfo && (
                       <>
                         <div className="na-lookup-box na-lookup-found">
-                          <span>📅 Currently: {rescheduleInfo.date} at {rescheduleInfo.slot}</span>
+                          <span><Ic I={CalendarMonthRounded} /> Currently: {rescheduleInfo.date} at {rescheduleInfo.slot}</span>
                         </div>
 
                         <SlotsTable
@@ -1085,7 +1201,7 @@ export default function NoidaAppointment() {
                       </>
                     )}
 
-                    {rescheduleError && <div className="na-error" style={{ marginTop: 12 }}>⚠️ {rescheduleError}</div>}
+                    {rescheduleError && <div className="na-error" style={{ marginTop: 12 }}><Ic I={WarningAmberRounded} /> {rescheduleError}</div>}
 
                     {rescheduleStatus === "found" && (
                       <button type="button" className="na-submit" style={{ marginTop: 10 }} disabled={rescheduleSubmitting || !rescheduleSlot} onClick={submitReschedule}>
@@ -1112,7 +1228,7 @@ export default function NoidaAppointment() {
                 {lookupStatus === "found" && !manualOverride && (
                   <div className="na-lookup-box na-lookup-found">
                     <span>
-                      👋 Welcome back, {foundName}!
+                      <Ic I={WavingHandRounded} /> Welcome back, {foundName}!
                       {usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""} — no payment needed.`}
                     </span>
                     <button type="button" className="na-lookup-link" onClick={() => setManualOverride(true)}>Not you?</button>
@@ -1152,7 +1268,7 @@ export default function NoidaAppointment() {
                   </div>
                 )}
 
-                {error && <div className="na-error">⚠️ {error}</div>}
+                {error && <div className="na-error"><Ic I={WarningAmberRounded} /> {error}</div>}
                 <div className="na-btn-row"><button type="button" className="na-submit" onClick={goToIdentifySlots}>Continue →</button></div>
               </div>
             </div>
@@ -1163,8 +1279,8 @@ export default function NoidaAppointment() {
             <div className="na-fullslots-card na-tab-main">
               {slotNotice && (
                 <div className="na-error" role="alert" style={{ marginBottom: 14, display: "flex", gap: 10, alignItems: "flex-start", justifyContent: "space-between" }}>
-                  <span>⚠️ {slotNotice}</span>
-                  <button type="button" aria-label="Dismiss" onClick={() => setSlotNotice("")} style={{ background: "none", border: "none", color: "inherit", fontSize: 18, lineHeight: 1, cursor: "pointer", padding: "0 4px", fontFamily: "inherit" }}>×</button>
+                  <span><Ic I={WarningAmberRounded} /> {slotNotice}</span>
+                  <button type="button" aria-label="Dismiss" onClick={() => setSlotNotice("")} style={{ background: "none", border: "none", color: "inherit", fontSize: 18, lineHeight: 1, cursor: "pointer", padding: "0 4px", fontFamily: "inherit" }}><Ic I={CloseRounded} s={18} /></button>
                 </div>
               )}
               <SlotsTable
@@ -1239,7 +1355,7 @@ export default function NoidaAppointment() {
 
                   {usingCredit ? (
                     <div className="na-lookup-box na-lookup-found" style={{ marginBottom: 0 }}>
-                      <span>🎟️ Uses 1 of your {credit.sessionsRemaining} remaining session(s) — no payment.</span>
+                      <span><Ic I={ConfirmationNumberRounded} /> Uses 1 of your {credit.sessionsRemaining} remaining session(s) — no payment.</span>
                     </div>
                   ) : (
                     <>
@@ -1289,7 +1405,7 @@ export default function NoidaAppointment() {
               <div className="na-card-inner">
                 {status === "success" ? (
                   <div className="na-success">
-                    <div className="na-success-icon">✓</div>
+                    <div className="na-success-icon"><Ic I={CheckRounded} s={36} /></div>
                     <h2>You're all set, {(effectiveName || "there").split(" ")[0]}!</h2>
                     <p>Your appointment at our Noida center is confirmed. We'll see you there — please arrive 10 minutes early.</p>
                     <div className="na-summary">
@@ -1306,7 +1422,7 @@ export default function NoidaAppointment() {
 
                     {format !== "online" && (
                       <div className="na-address-box">
-                        <div className="na-address-title">📍 Our Noida Center</div>
+                        <div className="na-address-title"><Ic I={PlaceRounded} /> Our Noida Center</div>
                         <div className="na-address-text">Choose Your Therapist LLP<br />Sector 51, Noida, Uttar Pradesh, India</div>
                         <a
                           href="https://www.google.com/maps/search/?api=1&query=Choose+Your+Therapist+LLP+Sector+51+Noida"
@@ -1320,7 +1436,7 @@ export default function NoidaAppointment() {
                 ) : (
                   <>
                     <div className="na-picked-banner">
-                      <span>📅 {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}{selectedIsLastMinute && " · ⚡ Last-minute"}</span>
+                      <span><Ic I={CalendarMonthRounded} /> {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}{selectedIsLastMinute && <> · <Ic I={BoltRounded} /> Last-minute</>}</span>
                       <button type="button" className="na-picked-change" onClick={() => { resetLastMinute(); setPhase("slots"); }}>Change</button>
                     </div>
 
@@ -1331,7 +1447,7 @@ export default function NoidaAppointment() {
                         return (
                           <React.Fragment key={label}>
                             <div className={`na-step-dot ${state}`}>
-                              <div className="na-step-circle">{n < step ? "✓" : n}</div>
+                              <div className="na-step-circle">{n < step ? <Ic I={CheckRounded} s={15} /> : n}</div>
                               <div className="na-step-label">{label}</div>
                             </div>
                             {i < STEP_LABELS.length - 1 && <div className={`na-step-line ${n < step ? "done" : ""}`} />}
@@ -1353,7 +1469,7 @@ export default function NoidaAppointment() {
                             {lookupStatus === "checking" && <div className="na-lookup-box na-lookup-checking">Checking…</div>}
                             {lookupStatus === "found" && !manualOverride && (
                               <div className="na-lookup-box na-lookup-found">
-                                <span>👋 Welcome back, {foundName}!{usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""} — no payment needed.`}</span>
+                                <span><Ic I={WavingHandRounded} /> Welcome back, {foundName}!{usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""} — no payment needed.`}</span>
                                 <button type="button" className="na-lookup-link" onClick={() => setManualOverride(true)}>Not you?</button>
                               </div>
                             )}
@@ -1415,7 +1531,7 @@ export default function NoidaAppointment() {
                           </div>
                         )}
 
-                        {error && <div className="na-error">⚠️ {error}</div>}
+                        {error && <div className="na-error"><Ic I={WarningAmberRounded} /> {error}</div>}
                         <div className="na-btn-row"><button type="button" className="na-submit" onClick={goToStep2}>Continue →</button></div>
                       </>
                     )}
@@ -1424,7 +1540,7 @@ export default function NoidaAppointment() {
                       <>
                         {usingCredit ? (
                           <div className="na-lookup-box na-lookup-found" style={{ marginBottom: 18 }}>
-                            <span>🎟️ Using 1 of your {credit.sessionsRemaining} remaining session(s){credit.packageName ? ` on ${credit.packageName}` : ""} — no payment for this booking.</span>
+                            <span><Ic I={ConfirmationNumberRounded} /> Using 1 of your {credit.sessionsRemaining} remaining session(s){credit.packageName ? ` on ${credit.packageName}` : ""} — no payment for this booking.</span>
                           </div>
                         ) : (
                           <>
@@ -1480,12 +1596,12 @@ export default function NoidaAppointment() {
                               <textarea className="na-inp na-textarea" rows={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Flat / House no., Street, Sector, Landmark…" />
                             </div>
                             <div className="na-lookup-box na-lookup-notfound" style={{ marginTop: 10, marginBottom: 0 }}>
-                              <span>ℹ️ Home visit charges may increase depending on distance from our Noida center — we'll confirm the final amount with you before your session.</span>
+                              <span><Ic I={InfoOutlined} /> Home visit charges may increase depending on distance from our Noida center — we'll confirm the final amount with you before your session.</span>
                             </div>
                           </div>
                         )}
 
-                        {error && <div className="na-error">⚠️ {error}</div>}
+                        {error && <div className="na-error"><Ic I={WarningAmberRounded} /> {error}</div>}
                         <div className="na-btn-row">
                           <button type="button" className="na-btn-back" onClick={() => bookingType === "followup" ? setPhase("slots") : setStep(1)}>Back</button>
                           <button type="button" className="na-submit" onClick={goToPayment}>Continue →</button>
@@ -1518,14 +1634,14 @@ export default function NoidaAppointment() {
                           )}
                         </div>
 
-                        {error && <div className="na-error">⚠️ {error}</div>}
+                        {error && <div className="na-error"><Ic I={WarningAmberRounded} /> {error}</div>}
 
                         {selectedIsLastMinute && lastMinuteStatus !== "accepted" ? (
                           <>
                             <div className="na-lastmin-box">
                               {lastMinuteStatus === "pending" ? (
                                 <>
-                                  <div className="na-lastmin-title">⏳ Waiting for the center to confirm</div>
+                                  <div className="na-lastmin-title"><Ic I={HourglassTopRounded} /> Waiting for the center to confirm</div>
                                   <div className="na-lastmin-text">
                                     We'll unlock payment the moment they accept — expires in{" "}
                                     {mmss(Math.max(0, (lastMinuteExpiresIn ?? 0) - (lastMinutePolledAt ? (nowTick - lastMinutePolledAt) / 1000 : 0)))}.
@@ -1541,7 +1657,7 @@ export default function NoidaAppointment() {
                                 </>
                               ) : (
                                 <>
-                                  <div className="na-lastmin-title">⚡ This slot starts very soon</div>
+                                  <div className="na-lastmin-title"><Ic I={BoltRounded} /> This slot starts very soon</div>
                                   <div className="na-lastmin-text">
                                     It's inside our last-minute window, so we need the center to confirm they can take you before you pay.
                                     {(() => {
