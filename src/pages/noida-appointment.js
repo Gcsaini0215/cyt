@@ -900,6 +900,9 @@ export default function NoidaAppointment() {
                               <label className="na-lbl">Address in Noida *</label>
                               <textarea className="na-inp na-textarea" rows={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Flat / House no., Street, Sector, Landmark…" />
                             </div>
+                            <div className="na-lookup-box na-lookup-notfound" style={{ marginTop: 10, marginBottom: 0 }}>
+                              <span>ℹ️ Home visit charges may increase depending on distance from our Noida center — we'll confirm the final amount with you before your session.</span>
+                            </div>
                           </div>
                         )}
 
