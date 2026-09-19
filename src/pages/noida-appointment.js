@@ -900,6 +900,7 @@ export default function NoidaAppointment() {
         .na-shell { max-width: 1100px; margin: 8px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; }
         .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
         .na-shell .na-fullslots-wrap { padding-top: 6px; padding-bottom: 16px; }
+        .na-shell .na-fullslots-wrap.na-tab { padding: 8px 10px 20px; }
         .na-shell .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
         .na-shell .na-fullslots-card, .na-shell .na-card { background: transparent; box-shadow: none; border-radius: 0; }
         .na-hero-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
@@ -913,7 +914,7 @@ export default function NoidaAppointment() {
         .na-skel-chip { width: 170px; height: 14px; }
         .na-skel-head { width: 40px; height: 34px; margin: 0 auto; }
         .na-skel-time { width: 36px; height: 12px; }
-        .na-skel-cell { height: 34px; border-radius: 9px; }
+        .na-skel-cell { height: 44px; border-radius: 12px; }
         @keyframes naShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
         @media (prefers-reduced-motion: reduce) { .na-skel { animation: none; } }
         .na-empty { text-align: center; padding: 44px 16px; }
@@ -933,11 +934,13 @@ export default function NoidaAppointment() {
         .na-fullslots-title { font-size: 16px; font-weight: 800; color: #0f172a; }
         .na-fullslots-sub { font-size: 12.5px; color: #64748b; margin-top: 3px; margin-bottom: 18px; }
         .na-fullslots-scroll { overflow-x: auto; }
-        .na-fullslots-table { width: 100%; border-collapse: collapse; }
+        .na-fullslots-table { width: 100%; border-collapse: separate; border-spacing: 6px; }
+        .na-fullslots-table th, .na-fullslots-table td, .na-fullslots-table tr { border: 0; }
         .na-fullslots-table th { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; padding: 6px 5px 10px; text-align: center; white-space: nowrap; line-height: 1.4; }
-        .na-fullslots-table td { padding: 3px; text-align: center; }
-        .na-fullslots-table td.na-time-col { text-align: left; font-size: 12.5px; font-weight: 700; color: #334155; white-space: nowrap; padding-right: 14px; }
-        .na-slotcell { display: flex; align-items: center; justify-content: center; width: 100%; min-width: 68px; height: 34px; border-radius: 9px; border: 1.5px solid transparent; font-size: 13px; font-weight: 800; cursor: default; box-sizing: border-box; font-family: inherit; }
+        .na-fullslots-table td { padding: 0; text-align: center; }
+        .na-fullslots-table td.na-time-col { text-align: center; font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; background: #eef3f0; border-radius: 12px; padding: 0 12px; width: 104px; letter-spacing: .1px; }
+        .na-fullslots-table th:first-child { width: 104px; }
+        .na-slotcell { display: flex; align-items: center; justify-content: center; width: 100%; min-width: 68px; height: 44px; border-radius: 12px; border: 1.5px solid transparent; font-size: 13px; font-weight: 800; cursor: default; box-sizing: border-box; font-family: inherit; }
         button.na-slotcell.open { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; cursor: pointer; transition: all .15s; }
         button.na-slotcell.open:hover { background: #1a6b3a; border-color: #1a6b3a; color: #fff; transform: translateY(-1px); }
         button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; box-shadow: 0 0 0 3px rgba(26,107,58,.2); }
@@ -1050,24 +1053,24 @@ export default function NoidaAppointment() {
         /* ── Tablet (touch, wider than a phone) ─────────────────────────── */
         .na-tab .na-tab-cols { display: flex; gap: 20px; align-items: stretch; }
         .na-tab.port .na-tab-cols { flex-direction: column; }
-        .is-tablet .na-topbar { padding: 28px 32px 4px; max-width: none; }
+        .is-tablet .na-topbar { padding: 24px 20px 4px; max-width: none; }
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
         .is-tablet .na-hero { max-width: none; padding: 28px 32px 0; }
-        .is-tablet .na-shell { margin: 8px 32px 0; }
+        .is-tablet .na-shell { margin: 8px 16px 0; }
         .is-tablet .na-foot { padding: 24px 32px 40px; }
-        .na-tab .na-skel-cell { height: 50px; }
-        .na-tab.land .na-skel-cell { height: 42px; }
+        .na-tab .na-skel-cell { height: 52px; }
+        .na-tab.land .na-skel-cell { height: 44px; }
         .na-fullslots-wrap.na-tab, .na-centerwrap.na-tab { padding: 24px 32px 48px; max-width: none; }
-        .na-tab .na-fullslots-card { padding: 24px 24px 22px; }
+        .na-tab .na-fullslots-card { padding: 20px 14px 18px; }
         .na-tab .na-tab-main { flex: 1; min-width: 0; }
         .na-tab .na-fullslots-scroll { overflow-x: visible; }
         .na-tab .na-fullslots-table { table-layout: fixed; }
-        .na-tab .na-fullslots-table th:first-child { width: 64px; }
-        .na-tab .na-fullslots-table td { padding: 2px; }
-        .na-tab .na-fullslots-table td.na-time-col { width: 64px; font-size: 12.5px; padding-right: 6px; }
-        .na-tab .na-slotcell { min-width: 0; height: 50px; font-size: 14px; }
-        .na-tab.land .na-slotcell { height: 42px; }
+        .na-tab .na-fullslots-table { border-spacing: 5px; }
+        .na-tab .na-fullslots-table th:first-child { width: 84px; }
+        .na-tab .na-fullslots-table td.na-time-col { width: 84px; font-size: 13px; padding: 0 6px; }
+        .na-tab .na-slotcell { min-width: 0; height: 52px; font-size: 14px; }
+        .na-tab.land .na-slotcell { height: 44px; }
         .na-tab .na-th-m { padding: 0 0 6px !important; }
         .na-tab .na-dn { width: 30px; height: 30px; border-radius: 15px; font-size: 15px; }
         .na-tab-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 14px; }
@@ -1107,18 +1110,18 @@ export default function NoidaAppointment() {
           .na-facts { gap: 6px; }
           .na-facts li { padding: 6px 10px; font-size: 12px; }
           .na-fact-note { width: 100%; background: transparent !important; box-shadow: none !important; padding: 2px 2px 0 !important; border-radius: 0 !important; color: #475569 !important; font-weight: 500 !important; }
-          .na-skel-cell { height: 38px; }
+          .na-skel-cell { height: 44px; }
           .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
           .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
           .na-centerwrap, .na-fullslots-wrap { padding: 8px 6px 20px; }
           .na-card { padding: 16px 14px 18px; }
-          .na-fullslots-card { padding: 14px 10px 14px; }
+          .na-fullslots-card { padding: 12px 4px 12px; }
           .na-fullslots-scroll { overflow-x: visible; }
           .na-fullslots-table { table-layout: fixed; }
-          .na-fullslots-table th:first-child { width: 44px; }
-          .na-fullslots-table td { padding: 1.5px; }
-          .na-fullslots-table td.na-time-col { width: 44px; padding-right: 4px; font-size: 11px; }
-          .na-slotcell { min-width: 0; height: 38px; }
+          .na-fullslots-table { border-spacing: 4px; }
+          .na-fullslots-table th:first-child { width: 50px; }
+          .na-fullslots-table td.na-time-col { width: 50px; padding: 0 2px; font-size: 11px; border-radius: 10px; }
+          .na-slotcell { min-width: 0; height: 44px; border-radius: 10px; }
           .na-inp { font-size: 16px; }
           input.na-inp { height: 48px; }
           .na-textarea { min-height: 76px; }
