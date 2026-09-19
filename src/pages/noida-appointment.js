@@ -795,19 +795,19 @@ export default function NoidaAppointment() {
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
-        .na-topbar-brand { font-size: 11px; font-weight: 300; letter-spacing: 1.5px; text-transform: uppercase; color: #a3aca6; }
+        .na-topbar-brand { font-size: 11px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; color: #556377; }
 
         .na-centerwrap { max-width: 1100px; margin: 0 auto; padding: 20px 20px 60px; }
         .na-card-inner { max-width: 560px; margin: 0 auto; }
         .na-card { background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); padding: 28px 24px 32px; }
 
         .na-picked-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 700; margin-bottom: 18px; }
-        .na-picked-change { background: none; border: none; color: #1a6b3a; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer; flex-shrink: 0; }
+        .na-picked-change { background: none; border: none; color: #1a6b3a; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer; flex-shrink: 0; padding: 12px 10px; margin: -12px -10px; font-family: inherit; }
 
         .na-fullslots-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 20px 60px; }
         .na-fullslots-card { background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); padding: 26px 26px 22px; }
         .na-fullslots-title { font-size: 16px; font-weight: 800; color: #0f172a; }
-        .na-fullslots-sub { font-size: 12.5px; color: #94a3b8; margin-top: 3px; margin-bottom: 18px; }
+        .na-fullslots-sub { font-size: 12.5px; color: #64748b; margin-top: 3px; margin-bottom: 18px; }
         .na-fullslots-scroll { overflow-x: auto; }
         .na-fullslots-table { width: 100%; border-collapse: collapse; }
         .na-fullslots-table th { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; padding: 6px 5px 10px; text-align: center; white-space: nowrap; line-height: 1.4; }
@@ -819,26 +819,26 @@ export default function NoidaAppointment() {
         button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; box-shadow: 0 0 0 3px rgba(26,107,58,.2); }
         button.na-slotcell.open.selected:hover { transform: none; }
         button.na-slotcell.lastminute { background: #fffbeb; border-color: #fde68a; color: #b45309; cursor: pointer; transition: all .15s; }
-        button.na-slotcell.lastminute:hover { background: #f59e0b; border-color: #f59e0b; color: #fff; transform: translateY(-1px); }
-        button.na-slotcell.lastminute.selected { background: #f59e0b; border-color: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
+        button.na-slotcell.lastminute:hover { background: #b45309; border-color: #b45309; color: #fff; transform: translateY(-1px); }
+        button.na-slotcell.lastminute.selected { background: #b45309; border-color: #b45309; color: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
         button.na-slotcell.lastminute.selected:hover { transform: none; }
         .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; overflow: hidden; }
         .na-wm { display: inline-flex; align-items: flex-end; font-size: 16px; font-weight: 800; letter-spacing: -.3px; text-transform: lowercase; line-height: 1; }
         .na-wm-dot { display: inline-block; flex-shrink: 0; width: 6px; height: 6px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; }
-        .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #cbd5e1; text-transform: uppercase; }
-        .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #dc2626; text-transform: uppercase; white-space: nowrap; }
+        .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #64748b; text-transform: uppercase; }
+        .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #c81e1e; text-transform: uppercase; white-space: nowrap; }
         .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
         .na-fullslots-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #64748b; font-weight: 600; }
         .na-fullslots-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
-        .na-fullslots-empty { font-size: 13px; color: #94a3b8; padding: 40px 0; text-align: center; }
+        .na-fullslots-empty { font-size: 13px; color: #64748b; padding: 40px 0; text-align: center; }
 
         .na-steps { display: flex; align-items: center; gap: 6px; margin-bottom: 22px; }
         .na-step-dot { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-        .na-step-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 2px solid #e2e8f0; color: #94a3b8; background: #fff; transition: all .2s; }
+        .na-step-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 2px solid #cbd5e1; color: #64748b; background: #fff; transition: all .2s; }
         .na-step-dot.done .na-step-circle { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
         .na-step-dot.active .na-step-circle { border-color: #1a6b3a; color: #1a6b3a; }
-        .na-step-label { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .4px; }
+        .na-step-label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .4px; }
         .na-step-dot.active .na-step-label, .na-step-dot.done .na-step-label { color: #1a6b3a; }
         .na-step-line { flex: 1.4; height: 2px; background: #e2e8f0; margin-top: -22px; }
         .na-step-line.done { background: #1a6b3a; }
@@ -849,7 +849,7 @@ export default function NoidaAppointment() {
         .na-pill { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; text-align: center; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; transition: all .15s; font-size: 12.5px; font-weight: 700; color: #334155; }
         .na-pill:hover { border-color: #94a3b8; }
         .na-pill.active { background: #f0fdf4; border-color: #1a6b3a; color: #15803d; }
-        .na-pill-price { display: block; font-size: 10.5px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
+        .na-pill-price { display: block; font-size: 10.5px; font-weight: 600; color: #64748b; margin-top: 2px; }
         .na-pill.active .na-pill-price { color: #15803d; }
 
         .na-pkg-card-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
@@ -857,7 +857,7 @@ export default function NoidaAppointment() {
         .na-pkg-card:hover { border-color: #94a3b8; }
         .na-pkg-card.active { background: #f0fdf4; border-color: #1a6b3a; }
         .na-pkg-card-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-        .na-pkg-card-meta { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+        .na-pkg-card-meta { font-size: 11.5px; color: #64748b; margin-top: 2px; }
         .na-pkg-card-price { font-size: 14px; font-weight: 800; color: #1a6b3a; }
 
         .na-inp { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 11px 13px; font-size: 14px; color: #0f172a; outline: none; background: #f8fafc; box-sizing: border-box; font-family: inherit; transition: border-color .15s; }
@@ -873,7 +873,7 @@ export default function NoidaAppointment() {
         .na-submit { display: block; width: 100%; flex: 1; padding: 15px 0; border: none; border-radius: 12px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .2s; box-shadow: 0 6px 18px rgba(22,101,52,.28); }
         .na-submit:disabled { opacity: .6; cursor: not-allowed; }
 
-        .na-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; }
+        .na-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; }
 
         .na-lookup-box { border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .na-lookup-checking { background: #f8fafc; color: #64748b; }
@@ -929,7 +929,7 @@ export default function NoidaAppointment() {
         .is-tablet .na-topbar { padding: 28px 32px 4px; max-width: none; }
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
-        .is-tablet .na-topbar-brand { font-weight: 600; letter-spacing: 1.6px; color: #64748b; }
+        .is-tablet .na-topbar-brand { font-weight: 600; letter-spacing: 1.6px; color: #556377; }
         .na-fullslots-wrap.na-tab, .na-centerwrap.na-tab { padding: 24px 32px 48px; max-width: none; }
         .na-tab .na-fullslots-card { padding: 24px 24px 22px; }
         .na-tab .na-tab-main { flex: 1; min-width: 0; }
@@ -971,7 +971,7 @@ export default function NoidaAppointment() {
 
         @media (max-width: 640px) {
           .na-topbar { padding: 14px 12px 4px; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
-          .na-topbar-brand { font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: #64748b; padding: 0 4px; }
+          .na-topbar-brand { font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: #556377; padding: 0 4px; }
           .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
           .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
           .na-centerwrap, .na-fullslots-wrap { padding: 12px 12px 32px; }
@@ -1106,7 +1106,7 @@ export default function NoidaAppointment() {
                 {form.phone.length === 10 && (
                   <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                     <div>
-                      <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional, for confirmation)</span></label>
+                      <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional, for confirmation)</span></label>
                       <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
                     </div>
                   </div>
@@ -1114,7 +1114,7 @@ export default function NoidaAppointment() {
                 {form.phone.length === 10 && (
                   <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                     <div>
-                      <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                      <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
                       <textarea className="na-inp na-textarea" rows={2} value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Briefly describe what you're going through…" />
                     </div>
                   </div>
@@ -1337,7 +1337,7 @@ export default function NoidaAppointment() {
                             {form.phone.length === 10 && (
                               <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                                 <div>
-                                  <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                                  <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
                                   <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
                                 </div>
                               </div>
@@ -1361,7 +1361,7 @@ export default function NoidaAppointment() {
                                 <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" type="tel" inputMode="numeric" maxLength={10} />
                               </div>
                               <div>
-                                <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                                <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
                                 <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
                               </div>
                             </div>
@@ -1371,7 +1371,7 @@ export default function NoidaAppointment() {
                         {(bookingType === "new" || form.phone.length === 10) && (
                           <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                             <div>
-                              <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#94a3b8" }}>(optional)</span></label>
+                              <label className="na-lbl">Major Concern <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
                               <textarea className="na-inp na-textarea" rows={2} value={form.concern} onChange={e => set("concern", e.target.value)} placeholder="Briefly describe what you're going through…" />
                             </div>
                           </div>
@@ -1509,7 +1509,7 @@ export default function NoidaAppointment() {
                                     {(() => {
                                       const secondsToStart = Math.round((slotStartInstant(selectedDate, selectedSlot).getTime() - nowTick) / 1000);
                                       return secondsToStart <= 120 && secondsToStart > 0 ? (
-                                        <strong style={{ color: "#dc2626", display: "block", marginTop: 6 }}>
+                                        <strong style={{ color: "#b91c1c", display: "block", marginTop: 6 }}>
                                           Closing in {mmss(secondsToStart)} — send your request now.
                                         </strong>
                                       ) : null;
