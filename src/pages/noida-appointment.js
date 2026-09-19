@@ -897,8 +897,13 @@ export default function NoidaAppointment() {
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
         .na-hero { max-width: 1100px; margin: 0 auto; padding: 24px 20px 0; }
         .na-foot { padding: 22px 20px 36px; }
-        .na-hero-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-        .na-logo { height: 43px; width: auto; display: block; }
+        .na-shell { max-width: 1100px; margin: 20px auto 0; padding-top: 8px; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; }
+        .na-shell .na-hero, .na-shell .na-topbar, .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
+        .na-shell .na-fullslots-wrap { padding-top: 6px; padding-bottom: 16px; }
+        .na-shell .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
+        .na-shell .na-fullslots-card, .na-shell .na-card { background: transparent; box-shadow: none; border-radius: 0; }
+        .na-shell .na-topbar-tabs { background: #f1f5f4; box-shadow: none; }
+        .na-hero-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
         .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
         .na-wa-btn:hover { background: #f0fdf4; border-color: #1a6b3a; }
         .na-hero-line { margin: 0; font-size: 14px; line-height: 1.5; color: #475569; }
@@ -1050,6 +1055,7 @@ export default function NoidaAppointment() {
         .is-tablet .na-topbar-tabs { width: 400px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 5px; border-radius: 14px; }
         .is-tablet .na-topbar-tab { height: 46px; padding: 0; font-size: 14px; border-radius: 10px; }
         .is-tablet .na-hero { max-width: none; padding: 28px 32px 0; }
+        .is-tablet .na-shell { margin: 20px 24px 0; }
         .is-tablet .na-foot { padding: 24px 32px 40px; }
         .na-tab .na-skel-cell { height: 50px; }
         .na-tab.land .na-skel-cell { height: 42px; }
@@ -1093,10 +1099,10 @@ export default function NoidaAppointment() {
         .na-tab .na-step-circle { width: 30px; height: 30px; }
 
         @media (max-width: 640px) {
+          .na-shell { margin: 8px 8px 0; border-radius: 16px; }
           .na-topbar { padding: 10px 12px 4px; flex-direction: column; align-items: stretch; }
           .na-hero { padding: 14px 12px 0; }
           .na-foot { padding: 18px 12px 28px; }
-          .na-logo { height: 34px; }
           .na-wa-btn.na-wa-text-only { padding: 8px 14px; font-size: 12.5px; }
           .na-hero-line { font-size: 13px; }
           .na-facts { gap: 6px; }
@@ -1105,7 +1111,7 @@ export default function NoidaAppointment() {
           .na-skel-cell { height: 38px; }
           .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
           .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
-          .na-centerwrap, .na-fullslots-wrap { padding: 12px 12px 32px; }
+          .na-centerwrap, .na-fullslots-wrap { padding: 8px 6px 20px; }
           .na-card { padding: 16px 14px 18px; }
           .na-fullslots-card { padding: 14px 10px 14px; }
           .na-fullslots-scroll { overflow-x: visible; }
@@ -1125,14 +1131,14 @@ export default function NoidaAppointment() {
       ` }} />
 
       <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
-        <header className="na-hero">
-          <div className="na-hero-row">
-            <img className="na-logo" src="/logo.png" width="166" height="43" alt="Choose Your Therapist — Know Expertise Before Choose" />
-            {isMobile && (
+        <div className="na-shell">
+        {isMobile && (
+          <header className="na-hero">
+            <div className="na-hero-row">
               <a className="na-wa-btn na-wa-text-only" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer">Chat with us</a>
-            )}
-          </div>
-        </header>
+            </div>
+          </header>
+        )}
 
         <div className="na-topbar">
           <div className="na-topbar-tabs">
@@ -1701,6 +1707,8 @@ export default function NoidaAppointment() {
             </div>
           </div>
         )}
+
+        </div>
 
         <footer className="na-hero na-foot">
           <p className="na-hero-line">In-person therapy at our Noida center. Pick a slot, pay, and it's confirmed instantly.</p>
