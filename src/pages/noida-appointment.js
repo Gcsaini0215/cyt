@@ -137,26 +137,71 @@ async function fetchSlotsMatrix(type) {
 // `disableLastMinute` makes those cells inert too — used for Reschedule,
 // which doesn't support the request flow. `selected` (optional
 // {date, slot}) highlights the currently-picked cell.
-function SlotsTable({ matrix, loading, selected, disableLastMinute }) {
-  if (loading) return <div className="na-fullslots-empty">Loading…</div>;
-  if (!matrix.dates.length) return <div className="na-fullslots-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div>;
+// On a phone there's no room for 10 day-columns, so the table shows 5 days
+// at a time with prev/next buttons (`isMobile`) instead of scrolling sideways.
+// `header` sits beside the pager on mobile and above the table otherwise.
+const MOBILE_PAGE_DAYS = 5;
+
+function istTodayStr() {
+  const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// "10:00 AM" -> "10 AM" (keeps "10:30 AM"), to fit the narrow time column.
+function shortTime(label) {
+  return label.split(" - ")[0].replace(":00 ", " ");
+}
+
+function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, header }) {
+  const [page, setPage] = useState(0);
+  if (loading) return <>{header}<div className="na-fullslots-empty">Loading…</div></>;
+  if (!matrix.dates.length) return <>{header}<div className="na-fullslots-empty">No slots are open right now — please WhatsApp us and we'll set one up.</div></>;
+
+  const pageCount = isMobile ? Math.ceil(matrix.dates.length / MOBILE_PAGE_DAYS) : 1;
+  const safePage = Math.min(page, pageCount - 1);
+  const visibleDates = isMobile ? matrix.dates.slice(safePage * MOBILE_PAGE_DAYS, safePage * MOBILE_PAGE_DAYS + MOBILE_PAGE_DAYS) : matrix.dates;
+  const today = istTodayStr();
+  const first = dateLabel(visibleDates[0]);
+  const last = dateLabel(visibleDates[visibleDates.length - 1]);
+  const rangeLabel = first.month === last.month ? `${first.day} – ${last.day} ${last.month}` : `${first.day} ${first.month} – ${last.day} ${last.month}`;
+
   return (
+    <>
+      {isMobile ? (
+        <div className="na-pager-row">
+          <div className="na-pager-head">{header}<div className="na-pager-range">{rangeLabel} · IST</div></div>
+          {pageCount > 1 && (
+            <div className="na-pager-btns">
+              <button type="button" className="na-pager-btn" aria-label="Earlier days" disabled={safePage === 0} onClick={() => setPage(safePage - 1)}>‹</button>
+              <button type="button" className="na-pager-btn" aria-label="Later days" disabled={safePage >= pageCount - 1} onClick={() => setPage(safePage + 1)}>›</button>
+            </div>
+          )}
+        </div>
+      ) : header}
     <div className="na-fullslots-scroll">
       <table className="na-fullslots-table">
         <thead>
           <tr>
             <th></th>
-            {matrix.dates.map(d => {
+            {visibleDates.map((d, i) => {
               const lbl = dateLabel(d);
-              return <th key={d}>{lbl.weekday}<br />{lbl.day} {lbl.month}</th>;
+              if (!isMobile) return <th key={d}>{lbl.weekday}<br />{lbl.day} {lbl.month}</th>;
+              const isToday = d === today;
+              return (
+                <th key={d} className="na-th-m">
+                  <div className="na-wd">{isToday ? "Today" : lbl.weekday}</div>
+                  <div className={`na-dn ${isToday ? "today" : ""}`}>{lbl.day}</div>
+                  {(i === 0 || lbl.day === 1) && <div className="na-mo">{lbl.month}</div>}
+                </th>
+              );
             })}
           </tr>
         </thead>
         <tbody>
           {matrix.times.map(t => (
             <tr key={t}>
-              <td className="na-time-col">{t.split(" - ")[0]}</td>
-              {matrix.dates.map(d => {
+              <td className="na-time-col">{isMobile ? shortTime(t) : t.split(" - ")[0]}</td>
+              {visibleDates.map(d => {
                 const state = matrix.grid[`${d}|${t}`];
                 const isSelected = selected && selected.date === d && selected.slot === t;
                 if (state === "lastMinute" && disableLastMinute) {
@@ -195,6 +240,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute }) {
         </tbody>
       </table>
     </div>
+    </>
   );
 }
 
@@ -202,6 +248,29 @@ export default function NoidaAppointment() {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
+
+  // Phone layout: paged 5-day table and a bottom "Selected → Continue" bar
+  // instead of a table that scrolls sideways. Desktop is unchanged.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  // The site-wide cookie banner is fixed to the bottom of the screen and sits
+  // above everything; lift the page's own bottom bars clear of it until it's dismissed.
+  const [cookieH, setCookieH] = useState(0);
+  useEffect(() => {
+    if (!isMobile) { setCookieH(0); return; }
+    const read = () => setCookieH(document.getElementById("cyt-cookie-consent-bar")?.offsetHeight || 0);
+    read();
+    const iv = setInterval(read, 400);
+    return () => clearInterval(iv);
+  }, [isMobile]);
+  // On mobile a tap only selects a slot; the bottom bar's Continue moves on.
+  const [pendingPick, setPendingPick] = useState(null); // { date, slot, isLM } | null
 
   // ── Pricing + packages, fetched once ─────────────────────────────────
   const [pricing, setPricing] = useState(null);
@@ -217,6 +286,13 @@ export default function NoidaAppointment() {
   // booking form, so there's no separate "pick a date/time" step later.
   const [slotsMatrix, setSlotsMatrix] = useState({ dates: [], times: [], grid: {} });
   const [slotsMatrixLoading, setSlotsMatrixLoading] = useState(true);
+
+  // A slot tapped on mobile can get booked (or pass) before Continue is hit.
+  useEffect(() => {
+    if (!pendingPick) return;
+    const st = slotsMatrix.grid[`${pendingPick.date}|${pendingPick.slot}`];
+    if (st !== "open" && st !== "lastMinute") setPendingPick(null);
+  }, [slotsMatrix, pendingPick]);
 
   // Baseline for spotting a slot that flipped open -> booked between two
   // polls, so the confetti only fires for a live booking, never on first load.
@@ -319,6 +395,7 @@ export default function NoidaAppointment() {
   };
 
   const handlePickSlot = (date, slot, isLastMinute) => {
+    setPendingPick(null);
     resetLastMinute();
     setSelectedDate(date);
     setSelectedSlot(slot);
@@ -513,6 +590,7 @@ export default function NoidaAppointment() {
   };
 
   const switchTab = (type) => {
+    setPendingPick(null);
     resetLastMinute();
     setBookingType(type);
     setPhase(type === "followup" ? "identify" : "slots");
@@ -788,9 +866,54 @@ export default function NoidaAppointment() {
         .na-address-text { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
         .na-address-link { font-size: 12.5px; font-weight: 700; color: #1a6b3a; text-decoration: none; }
         .na-address-link:hover { text-decoration: underline; }
+
+        .na-pager-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; padding: 0 2px; }
+        .na-pager-range { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .na-pager-btns { display: flex; gap: 6px; flex-shrink: 0; }
+        .na-pager-btn { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #fff; color: #1a6b3a; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+        .na-pager-btn:disabled { color: #cbd5e1; background: #f8fafc; cursor: default; }
+        .na-th-m { padding: 0 0 6px !important; }
+        .na-wd { font-size: 10px; font-weight: 800; letter-spacing: .5px; color: #64748b; text-transform: uppercase; }
+        .na-dn { margin: 3px auto 0; width: 26px; height: 26px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #0f172a; }
+        .na-dn.today { background: #1a6b3a; color: #fff; }
+        .na-mo { font-size: 9.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 1px; }
+        .na-selbar { position: fixed; left: 0; right: 0; bottom: var(--na-ck, 0px); z-index: 50; display: flex; align-items: center; gap: 12px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #e2e8f0; box-shadow: 0 -8px 24px rgba(15,61,34,.10); }
+        .na-selbar-info { flex: 1; min-width: 0; }
+        .na-selbar-k { font-size: 10.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #64748b; }
+        .na-selbar-v { font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 1px; }
+        .na-selbar-h { font-size: 12px; color: #64748b; margin-top: 1px; }
+        .na-selbar-btn { flex-shrink: 0; height: 52px; padding: 0 22px; border: none; border-radius: 12px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(22,101,52,.28); font-family: inherit; }
+        .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
+        .na-rv { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; color: #334155; padding: 9px 0; }
+        .na-rv + .na-rv { border-top: 1px solid #eef2f6; }
+        .na-rv b { font-weight: 700; color: #0f172a; text-align: right; }
+        .na-secure { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
+
+        @media (max-width: 640px) {
+          .na-topbar { padding: 14px 12px 4px; flex-direction: column-reverse; align-items: stretch; gap: 10px; }
+          .na-topbar-brand { font-size: 10px; font-weight: 600; letter-spacing: 1.4px; color: #64748b; padding: 0 4px; }
+          .na-topbar-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+          .na-topbar-tab { padding: 0; height: 44px; font-size: 13px; }
+          .na-centerwrap, .na-fullslots-wrap { padding: 12px 12px 32px; }
+          .na-card { padding: 16px 14px 18px; }
+          .na-fullslots-card { padding: 14px 10px 14px; }
+          .na-fullslots-scroll { overflow-x: visible; }
+          .na-fullslots-table { table-layout: fixed; }
+          .na-fullslots-table th:first-child { width: 44px; }
+          .na-fullslots-table td { padding: 1.5px; }
+          .na-fullslots-table td.na-time-col { width: 44px; padding-right: 4px; font-size: 11px; }
+          .na-slotcell { min-width: 0; height: 38px; }
+          .na-inp { font-size: 16px; }
+          input.na-inp { height: 48px; }
+          .na-textarea { min-height: 76px; }
+          .na-btn-row { position: sticky; bottom: var(--na-ck, 0px); z-index: 5; margin: 18px -14px -18px; padding: 12px 14px calc(14px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #e2e8f0; border-radius: 0 0 20px 20px; }
+          .na-btn-back { height: 52px; padding: 0 20px; }
+          .na-submit { height: 52px; padding: 0; }
+          .na-fullslots-legend { gap: 8px 14px; }
+        }
       ` }} />
 
-      <div className="na-page">
+      <div className="na-page" style={{ "--na-ck": `${cookieH}px` }}>
         <div className="na-topbar">
           <div className="na-topbar-tabs">
             <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
@@ -833,8 +956,14 @@ export default function NoidaAppointment() {
                           <span>📅 Currently: {rescheduleInfo.date} at {rescheduleInfo.slot}</span>
                         </div>
 
-                        <div className="na-section-label">Pick a new date &amp; time</div>
-                        <SlotsTable matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }} loading={rescheduleMatrixLoading} selected={rescheduleDate && rescheduleSlot ? { date: rescheduleDate, slot: rescheduleSlot } : null} disableLastMinute />
+                        <SlotsTable
+                          matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }}
+                          loading={rescheduleMatrixLoading}
+                          isMobile={isMobile}
+                          selected={rescheduleDate && rescheduleSlot ? { date: rescheduleDate, slot: rescheduleSlot } : null}
+                          header={<div className="na-section-label" style={{ marginBottom: isMobile ? 0 : 12 }}>Pick a new date &amp; time</div>}
+                          disableLastMinute
+                        />
                         {rescheduleDate && rescheduleSlot && (
                           <div className="na-lookup-box na-lookup-found" style={{ marginTop: 14, marginBottom: 0 }}>
                             <span>New time: {rescheduleDateLabel.weekday}, {rescheduleDateLabel.day} {rescheduleDateLabel.month} · {rescheduleSlot}</span>
@@ -911,23 +1040,33 @@ export default function NoidaAppointment() {
                 )}
 
                 {error && <div className="na-error">⚠️ {error}</div>}
-                <button type="button" className="na-submit" onClick={goToIdentifySlots}>Continue →</button>
+                <div className="na-btn-row"><button type="button" className="na-submit" onClick={goToIdentifySlots}>Continue →</button></div>
               </div>
             </div>
           </div>
         ) : phase === "slots" ? (
-          <div className="na-fullslots-wrap">
+          <div className={`na-fullslots-wrap ${isMobile && pendingPick ? "has-bar" : ""}`}>
             <div className="na-fullslots-card">
-              <div className="na-fullslots-title">Pick an open slot to start booking</div>
-              <div className="na-fullslots-sub">{bookingType === "followup" ? "Follow-up" : "New client"} availability — next {MATRIX_DAYS} open days</div>
-
-              <SlotsTable matrix={{ ...slotsMatrix, onPick: handlePickSlot }} loading={slotsMatrixLoading} selected={selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null} />
+              <SlotsTable
+                matrix={{ ...slotsMatrix, onPick: isMobile ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
+                loading={slotsMatrixLoading}
+                isMobile={isMobile}
+                selected={isMobile ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
+                header={isMobile ? (
+                  <div className="na-fullslots-title">Pick a slot</div>
+                ) : (
+                  <>
+                    <div className="na-fullslots-title">Pick an open slot to start booking</div>
+                    <div className="na-fullslots-sub">{bookingType === "followup" ? "Follow-up" : "New client"} availability — next {MATRIX_DAYS} open days</div>
+                  </>
+                )}
+              />
 
               <div className="na-fullslots-legend">
-                <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open — tap to book</span>
-                <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon — needs a quick OK from us</span>
+                <span><i style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }} /> Open{isMobile ? "" : " — tap to book"}</span>
+                <span><i style={{ background: "#fffbeb", border: "1.5px solid #fde68a" }} /> Starting soon{isMobile ? "" : " — needs a quick OK from us"}</span>
                 <span><i style={{ background: "#fef2f2", border: "1.5px solid #fecaca" }} /> Booked</span>
-                <span><i style={{ background: "#f8fafc" }} /> Not opened</span>
+                <span><i style={{ background: "#f1f5f9" }} /> {isMobile ? "Passed" : "Passed / not opened"}</span>
               </div>
             </div>
           </div>
@@ -1064,7 +1203,7 @@ export default function NoidaAppointment() {
                         )}
 
                         {error && <div className="na-error">⚠️ {error}</div>}
-                        <button type="button" className="na-submit" onClick={goToStep2}>Continue →</button>
+                        <div className="na-btn-row"><button type="button" className="na-submit" onClick={goToStep2}>Continue →</button></div>
                       </>
                     )}
 
@@ -1144,24 +1283,24 @@ export default function NoidaAppointment() {
                     {step === 3 && (
                       <>
                         <div className="na-section-label">Review &amp; pay</div>
-                        <div className="na-review">
-                          <div><strong>Name:</strong> {effectiveName || "—"}</div>
-                          <div><strong>Phone:</strong> {form.phone}</div>
-                          <div><strong>Session:</strong> {modeLabel} · {formatLabel}</div>
-                          {format === "home-visit" && <div><strong>Address:</strong> {address}</div>}
-                          <div><strong>Date:</strong> {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate}</div>
-                          <div><strong>Time:</strong> {selectedSlot}</div>
-                          {form.concern && <div><strong>Concern:</strong> {form.concern}</div>}
+                        <div className="na-review" style={{ lineHeight: 1.5, padding: "6px 16px" }}>
+                          <div className="na-rv"><span>Name</span><b>{effectiveName || "—"}</b></div>
+                          <div className="na-rv"><span>Phone</span><b>{form.phone}</b></div>
+                          <div className="na-rv"><span>Session</span><b>{modeLabel} · {formatLabel}</b></div>
+                          {format === "home-visit" && <div className="na-rv"><span>Address</span><b>{address}</b></div>}
+                          <div className="na-rv"><span>Date</span><b>{pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate}</b></div>
+                          <div className="na-rv"><span>Time</span><b>{selectedSlot}</b></div>
+                          {form.concern && <div className="na-rv"><span>Concern</span><b>{form.concern}</b></div>}
                           {usingCredit ? (
                             <div className="na-price-breakdown">
-                              <div>Package session: <strong>1 of {credit.sessionsRemaining} remaining</strong></div>
+                              <div className="na-rv"><span>Package session</span><b>1 of {credit.sessionsRemaining} remaining</b></div>
                               <div className="na-price-total"><span>Amount due</span><span>₹0</span></div>
                             </div>
                           ) : (
-                            <div className="na-price-breakdown">
-                              <div>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}: ₹{baseAmount}</div>
-                              <div>Platform fee: ₹{platformFee}</div>
-                              <div className="na-price-total"><span>Total</span><span>₹{totalAmount}</span></div>
+                            <div className="na-price-breakdown" style={{ paddingBottom: 10 }}>
+                              <div className="na-rv"><span>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}</span><b>₹{baseAmount}</b></div>
+                              <div className="na-rv" style={{ borderTop: "none", paddingTop: 0 }}><span>Platform fee</span><b>₹{platformFee}</b></div>
+                              <div className="na-price-total" style={{ fontSize: 18, alignItems: "baseline" }}><span>Total</span><span>₹{totalAmount}</span></div>
                             </div>
                           )}
                         </div>
@@ -1219,12 +1358,15 @@ export default function NoidaAppointment() {
                             </button>
                           </div>
                         ) : (
+                          <>
+                          <div className="na-secure">Secure checkout by Razorpay — UPI, cards &amp; netbanking</div>
                           <div className="na-btn-row">
                             <button type="button" className="na-btn-back" onClick={() => setStep(2)}>Back</button>
                             <button type="button" className="na-submit" disabled={status === "loading"} onClick={handleRazorpay}>
                               {status === "loading" ? "Opening payment…" : `Pay ₹${totalAmount} & Confirm`}
                             </button>
                           </div>
+                          </>
                         )}
                       </>
                     )}
@@ -1234,6 +1376,22 @@ export default function NoidaAppointment() {
             </div>
           </div>
         )}
+
+        {isMobile && phase === "slots" && bookingType !== "reschedule" && pendingPick && (() => {
+          const lbl = dateLabel(pendingPick.date);
+          return (
+            <div className="na-selbar" role="region" aria-label="Selected slot">
+              <div className="na-selbar-info">
+                <div className="na-selbar-k">Selected</div>
+                <div className="na-selbar-v">{lbl.weekday}, {lbl.day} {lbl.month} · {shortTime(pendingPick.slot)}</div>
+                <div className="na-selbar-h">{pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "50–60 min session · Sector 51, Noida"}</div>
+              </div>
+              <button type="button" className="na-selbar-btn" onClick={() => handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM)}>
+                {pendingPick.isLM ? "Send request" : "Continue"}
+              </button>
+            </div>
+          );
+        })()}
       </div>
     </>
   );
