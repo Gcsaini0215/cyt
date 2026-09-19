@@ -248,6 +248,26 @@ export default function NoidaAppointment() {
     return () => clearInterval(iv);
   }, [bookingType, loadSlotsMatrix]);
 
+  // A tab left open on the slots table would otherwise keep running the old
+  // build after a deploy. Reload it, but only while idle on the New Client
+  // table — never mid-form, and not Follow-up where a typed phone would be lost.
+  useEffect(() => {
+    if (phase !== "slots" || bookingType !== "new") return;
+    const current = window.__NEXT_DATA__?.buildId;
+    if (!current) return;
+    const iv = setInterval(async () => {
+      if (document.hidden) return;
+      try {
+        const html = await (await fetch(window.location.pathname, { cache: "no-store" })).text();
+        const m = html.match(/"buildId":"([^"]+)"/);
+        if (m && m[1] !== current) window.location.reload();
+      } catch {
+        // offline or mid-deploy — try again next tick
+      }
+    }, 60000);
+    return () => clearInterval(iv);
+  }, [phase, bookingType]);
+
   const [sessionMode, setSessionMode] = useState("individual"); // "individual" | "couple" | "package"
   const [selectedPackageId, setSelectedPackageId] = useState("");
   const [format, setFormat] = useState("in-person"); // "in-person" | "online" | "home-visit"
