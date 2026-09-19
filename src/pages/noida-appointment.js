@@ -43,6 +43,61 @@ function mmss(totalSeconds) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+// A short confetti burst — used to celebrate a slot getting booked live,
+// spotted via the auto-refreshing slots table. No external library: a
+// plain canvas overlay that removes itself when the animation ends.
+function fireConfetti() {
+  if (typeof window === "undefined") return;
+  const canvas = document.createElement("canvas");
+  canvas.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;";
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext("2d");
+  const colors = ["#1a6b3a", "#f59e0b", "#dc2626", "#3b82f6", "#a855f7", "#16a34a"];
+  const particles = Array.from({ length: 120 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -20 - Math.random() * canvas.height * 0.3,
+    w: 5 + Math.random() * 4,
+    h: 3 + Math.random() * 3,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    vx: (Math.random() - 0.5) * 4,
+    vy: 2 + Math.random() * 3,
+    rotation: Math.random() * 360,
+    vr: (Math.random() - 0.5) * 10,
+  }));
+  const start = Date.now();
+  const duration = 2600;
+  function tick() {
+    const elapsed = Date.now() - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.05;
+      p.rotation += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rotation * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (elapsed < duration) requestAnimationFrame(tick);
+    else canvas.remove();
+  }
+  tick();
+}
+
+// True when any cell that was open (or a last-minute request slot) in the
+// previous grid is now booked — i.e. someone just took it.
+function hasNewlyBooked(prevGrid, nextGrid) {
+  if (!prevGrid) return false;
+  return Object.keys(nextGrid).some(
+    (key) => nextGrid[key] === "taken" && (prevGrid[key] === "open" || prevGrid[key] === "lastMinute")
+  );
+}
+
 function waitForRazorpay(timeout = 12000) {
   return new Promise((resolve, reject) => {
     if (typeof window !== "undefined" && window.Razorpay) return resolve();
@@ -129,7 +184,9 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute }) {
                 const label = state === "taken" ? "Booked" : "Not opened";
                 return (
                   <td key={d}>
-                    <span className={`na-slotcell ${state || "closed"}`} title={label}>–</span>
+                    <span className={`na-slotcell ${state || "closed"}`} title={label}>
+                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : "–"}
+                    </span>
                   </td>
                 );
               })}
@@ -161,19 +218,35 @@ export default function NoidaAppointment() {
   const [slotsMatrix, setSlotsMatrix] = useState({ dates: [], times: [], grid: {} });
   const [slotsMatrixLoading, setSlotsMatrixLoading] = useState(true);
 
-  const loadSlotsMatrix = useCallback(async (type) => {
+  // Baseline for spotting a slot that flipped open -> booked between two
+  // polls, so the confetti only fires for a live booking, never on first load.
+  const prevGridRef = useRef(null);
+
+  const loadSlotsMatrix = useCallback(async (type, { silent = false } = {}) => {
     if (type !== "new" && type !== "followup") return;
-    setSlotsMatrixLoading(true);
+    if (!silent) setSlotsMatrixLoading(true);
     try {
-      setSlotsMatrix(await fetchSlotsMatrix(type));
+      const fresh = await fetchSlotsMatrix(type);
+      if (hasNewlyBooked(prevGridRef.current, fresh.grid)) fireConfetti();
+      prevGridRef.current = fresh.grid;
+      setSlotsMatrix(fresh);
     } catch {
-      setSlotsMatrix({ dates: [], times: [], grid: {} });
+      // A silent background poll keeps the last known table on screen
+      // instead of blanking it over one dropped request.
+      if (!silent) setSlotsMatrix({ dates: [], times: [], grid: {} });
     } finally {
-      setSlotsMatrixLoading(false);
+      if (!silent) setSlotsMatrixLoading(false);
     }
   }, []);
 
-  useEffect(() => { loadSlotsMatrix(bookingType); }, [bookingType, loadSlotsMatrix]);
+  useEffect(() => {
+    prevGridRef.current = null;
+    loadSlotsMatrix(bookingType);
+    const iv = setInterval(() => {
+      if (!document.hidden) loadSlotsMatrix(bookingType, { silent: true });
+    }, 6000);
+    return () => clearInterval(iv);
+  }, [bookingType, loadSlotsMatrix]);
 
   const [sessionMode, setSessionMode] = useState("individual"); // "individual" | "couple" | "package"
   const [selectedPackageId, setSelectedPackageId] = useState("");
@@ -355,10 +428,24 @@ export default function NoidaAppointment() {
     if (!rescheduleInfo) { setRescheduleMatrix({ dates: [], times: [], grid: {} }); return; }
     setRescheduleMatrixLoading(true);
     setRescheduleDate(""); setRescheduleSlot("");
-    fetchSlotsMatrix(rescheduleInfo.type)
-      .then(setRescheduleMatrix)
-      .catch(() => setRescheduleMatrix({ dates: [], times: [], grid: {} }))
-      .finally(() => setRescheduleMatrixLoading(false));
+    let prevGrid = null;
+    let cancelled = false;
+    const load = async (silent) => {
+      try {
+        const fresh = await fetchSlotsMatrix(rescheduleInfo.type);
+        if (cancelled) return;
+        if (hasNewlyBooked(prevGrid, fresh.grid)) fireConfetti();
+        prevGrid = fresh.grid;
+        setRescheduleMatrix(fresh);
+      } catch {
+        if (!silent && !cancelled) setRescheduleMatrix({ dates: [], times: [], grid: {} });
+      } finally {
+        if (!silent && !cancelled) setRescheduleMatrixLoading(false);
+      }
+    };
+    load(false);
+    const iv = setInterval(() => { if (!document.hidden) load(true); }, 6000);
+    return () => { cancelled = true; clearInterval(iv); };
   }, [rescheduleInfo]);
 
   const handleReschedulePickSlot = (date, slot) => {
@@ -605,7 +692,8 @@ export default function NoidaAppointment() {
         button.na-slotcell.lastminute:hover { background: #f59e0b; border-color: #f59e0b; color: #fff; transform: translateY(-1px); }
         button.na-slotcell.lastminute.selected { background: #f59e0b; border-color: #f59e0b; color: #fff; box-shadow: 0 0 0 3px rgba(245,158,11,.25); }
         button.na-slotcell.lastminute.selected:hover { transform: none; }
-        .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; }
+        .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; color: #fca5a5; overflow: hidden; }
+        .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #dc2626; text-transform: uppercase; white-space: nowrap; }
         .na-slotcell.closed { background: #f8fafc; color: #e2e8f0; }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
         .na-fullslots-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #64748b; font-weight: 600; }
