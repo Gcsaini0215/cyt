@@ -142,8 +142,13 @@ async function fetchSlotsMatrix(type) {
   const times = Array.from(new Set(all.filter(s => dateSet.has(s.date)).map(s => s.slot)))
     .sort((a, b) => slotStartMinutes(a) - slotStartMinutes(b));
   const grid = {};
-  all.forEach(s => { if (dateSet.has(s.date)) grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : s.past ? "past" : (s.lastMinute ? "lastMinute" : "open"); });
-  return { dates, times, grid };
+  const codes = {}; // client number of whoever holds a booked slot (no names on the public page)
+  all.forEach(s => {
+    if (!dateSet.has(s.date)) return;
+    grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : s.past ? "past" : (s.lastMinute ? "lastMinute" : "open");
+    if (s.booked && s.clientCode) codes[`${s.date}|${s.slot}`] = s.clientCode;
+  });
+  return { dates, times, grid, codes };
 }
 
 // Reusable date x time availability table — an open cell is a clickable
@@ -413,7 +418,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                 return (
                   <td key={d} {...tdProps}>
                     <span className={`na-slotcell ${state || "closed"}`} title={label} aria-label={label}>
-                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : null}
+                      {state === "taken" ? <><span className="na-taken-stamp">Booked</span>{matrix.codes?.[`${d}|${t}`] && <span className="na-taken-code">{matrix.codes[`${d}|${t}`]}</span>}</> : state === "past" ? <span className="na-past-label">Passed</span> : null}
                     </span>
                   </td>
                 );
@@ -1129,7 +1134,9 @@ export default function NoidaAppointment() {
         .na-wm { display: inline-flex; align-items: flex-end; font-size: 16px; font-weight: 800; letter-spacing: -.3px; text-transform: lowercase; line-height: 1; }
         .na-wm-dot { display: inline-block; flex-shrink: 0; width: 6px; height: 6px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; }
         .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #64748b; text-transform: uppercase; }
-        .na-taken-stamp { display: inline-block; transform: rotate(-18deg); font-size: 9px; font-weight: 900; letter-spacing: .4px; color: #c81e1e; text-transform: uppercase; white-space: nowrap; }
+        .na-slotcell.taken { flex-direction: column; gap: 2px; padding: 0 4px; }
+        .na-taken-code { display: block; white-space: nowrap; font-size: 9.5px; font-weight: 600; letter-spacing: .3px; color: #4338ca; font-variant-numeric: tabular-nums; line-height: 1; }
+        .na-taken-stamp { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 500; letter-spacing: .1px; color: #b91c1c; white-space: nowrap; line-height: 1.1; }
         .na-slotcell.closed { background: repeating-linear-gradient(135deg, #f8fafc 0 6px, #eef2f6 6px 12px); border-color: #eef2f6; }
         .na-slotcell.past { background: #f8fafc; color: #e2e8f0; }
         .na-sw-open { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
