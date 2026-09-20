@@ -290,6 +290,38 @@ function BookingSuccess({ title, text, dateStr, dateLbl, slot, rows, format, sho
   );
 }
 
+
+// "Which therapist would you like?" — optional; the server only accepts therapists the
+// admin offered who are still live. It records a preference, it doesn't lock the slot.
+function TherapistPicker({ list, value, onChange, hint }) {
+  if (!list || !list.length) return null;
+  const initials = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+  return (
+    <div className="na-th">
+      <div className="na-section-label">Therapist <span className="na-th-opt">(optional)</span></div>
+      <div className="na-th-row" role="radiogroup" aria-label="Choose a therapist">
+        <button type="button" role="radio" aria-checked={!value} className={`na-th-card ${!value ? "on" : ""}`} onClick={() => onChange("")}>
+          <span className="na-th-av na-th-any" aria-hidden="true">?</span>
+          <span className="na-th-body"><span className="na-th-name">No preference</span><span className="na-th-meta">First available</span></span>
+        </button>
+        {list.map(t => (
+          <button key={t._id} type="button" role="radio" aria-checked={value === t._id} className={`na-th-card ${value === t._id ? "on" : ""}`} onClick={() => onChange(t._id)}>
+            <span className="na-th-av" aria-hidden="true">
+              {initials(t.name)}
+              {t.image && <img src={t.image} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
+            </span>
+            <span className="na-th-body">
+              <span className="na-th-name">{t.name}</span>
+              <span className="na-th-meta">{[t.profileType, t.experience ? `${t.experience} yrs` : ""].filter(Boolean).join(" · ") || t.qualification || "Therapist"}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className="na-th-hint">{hint || "We'll do our best to match your choice."}</div>
+    </div>
+  );
+}
+
 function SlotsSkeleton({ cols }) {
   return (
     <div className="na-fullslots-scroll" role="status" aria-label="Loading available slots">
@@ -480,6 +512,17 @@ export default function NoidaAppointment() {
 
   // ── Pricing + packages, fetched once ─────────────────────────────────
   const [pricing, setPricing] = useState(null);
+  // Optional therapist choice — the list is what the admin offered at CYT Noida (live therapists only).
+  const [therapists, setTherapists] = useState([]);
+  const [therapistId, setTherapistId] = useState("");
+  const selectedTherapist = therapists.find(t => t._id === therapistId) || null;
+  useEffect(() => {
+    fetch(`${apiUrl}/noida-appointments/therapists`)
+      .then(r => r.json())
+      .then(data => setTherapists(data?.status ? (data.data || []) : []))
+      .catch(() => setTherapists([]));
+  }, []);
+  useEffect(() => { if (therapistId && therapists.length && !therapists.some(t => t._id === therapistId)) setTherapistId(""); }, [therapists, therapistId]);
   useEffect(() => {
     fetch(`${apiUrl}/noida-appointments/pricing`)
       .then(r => r.json())
@@ -659,7 +702,7 @@ export default function NoidaAppointment() {
           date: selectedDate, slot: selectedSlot, type: bookingType,
           sessionMode, format,
           address: format === "home-visit" ? address.trim() : undefined,
-          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
         }),
       });
       const data = await res.json();
@@ -911,7 +954,7 @@ export default function NoidaAppointment() {
     date: selectedDate, slot: selectedSlot, type: bookingType,
     sessionMode, format,
     address: format === "home-visit" ? address.trim() : "",
-    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code,
+    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
   });
 
   const finalizeBooking = async (paymentExtra = {}) => {
@@ -968,7 +1011,7 @@ export default function NoidaAppointment() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionMode, format,
-          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
           address: format === "home-visit" ? address.trim() : undefined,
           type: bookingType, phone: form.phone.trim(),
           // The whole booking goes with the order so the server can refuse a
@@ -1066,7 +1109,7 @@ export default function NoidaAppointment() {
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
-        .na-shell { max-width: 1100px; margin: 8px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; }
+        .na-shell { max-width: 1100px; margin: 8px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; overflow: clip; }
         .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
         .na-shell .na-fullslots-wrap { padding-top: 6px; padding-bottom: 16px; }
         .na-shell .na-fullslots-wrap.na-tab { padding: 8px 10px 20px; }
@@ -1212,6 +1255,23 @@ export default function NoidaAppointment() {
 
         .na-review { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; font-size: 13.5px; color: #334155; line-height: 2; margin-bottom: 20px; }
         .na-review strong { color: #0f172a; }
+        .na-th { margin: 2px 0 14px; }
+        .na-th-opt { font-weight: 400; text-transform: none; letter-spacing: 0; color: #94a3b8; }
+        .na-th-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+        .na-th-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; font-family: inherit; min-width: 0; transition: all .15s; }
+        .na-th-card:hover { border-color: #94a3b8; }
+        .na-th-card.on { background: #f0fdf4; border-color: #1a6b3a; }
+        .na-th-av { position: relative; width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; background: #e2e8f0; color: #475569; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .na-th-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .na-th-any { background: #f1f5f9; color: #64748b; font-size: 17px; }
+        .na-th-body { display: flex; flex-direction: column; min-width: 0; }
+        .na-th-name { font-size: 13.5px; font-weight: 600; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .na-th-meta { font-size: 11.5px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .na-th-hint { margin-top: 6px; font-size: 12px; color: #64748b; }
+        @media (max-width: 640px) {
+          .na-th-row { display: flex; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+          .na-th-card { flex: 0 0 212px; scroll-snap-align: start; min-height: 60px; }
+        }
         .na-coupon { padding: 4px 0 10px; }
         .na-coupon-link { background: none; border: none; color: #1a6b3a; font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 10px 0; font-family: inherit; }
         .na-coupon-row { display: flex; gap: 8px; padding-top: 6px; }
@@ -1625,6 +1685,11 @@ export default function NoidaAppointment() {
                           <button type="button" className={`na-tab-pill short ${format === "home-visit" ? "on" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</button>
                         </div>
                       </div>
+                      {therapists.length > 0 && (
+                        <div style={{ maxHeight: 240, overflowY: "auto" }}>
+                          <TherapistPicker list={therapists} value={therapistId} onChange={setTherapistId} />
+                        </div>
+                      )}
                       <div className="na-tab-price">
                         {sessionMode === "package" && !selectedPackage ? (
                           <div className="na-selbar-h" style={{ padding: "10px 0 6px" }}>You'll choose a package in the next step.</div>
@@ -1660,6 +1725,7 @@ export default function NoidaAppointment() {
                     slot={selectedSlot}
                     rows={[
                       ["Session", `${modeLabel} · ${formatLabel}`],
+                      ...(selectedTherapist ? [["Therapist", selectedTherapist.name]] : []),
                       [usingCredit ? "Payment" : "Amount paid", usingCredit ? `Package session used (${credit.sessionsRemaining - 1} remaining)` : `₹${totalAmount}`],
                       ...(form.email ? [["Confirmation sent to", form.email]] : []),
                     ]}
@@ -1836,6 +1902,8 @@ export default function NoidaAppointment() {
                           <div className={`na-pill ${format === "home-visit" ? "active" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</div>
                         </div>
 
+                        <TherapistPicker list={therapists} value={therapistId} onChange={setTherapistId} />
+
                         {format === "home-visit" && (
                           <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                             <div>
@@ -1863,6 +1931,7 @@ export default function NoidaAppointment() {
                           <div className="na-rv"><span>Name</span><b>{effectiveName || "—"}</b></div>
                           <div className="na-rv"><span>Phone</span><b>{form.phone}</b></div>
                           <div className="na-rv"><span>Session</span><b>{modeLabel} · {formatLabel}</b></div>
+                          {selectedTherapist && <div className="na-rv"><span>Therapist</span><b>{selectedTherapist.name}</b></div>}
                           {format === "home-visit" && <div className="na-rv"><span>Address</span><b>{address}</b></div>}
                           <div className="na-rv"><span>Date</span><b>{pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate}</b></div>
                           <div className="na-rv"><span>Time</span><b>{selectedSlot}</b></div>
