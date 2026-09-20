@@ -565,7 +565,14 @@ export default function NoidaAppointment() {
     ? (selectedPackage?.price ?? 0)
     : (pricing?.[priceFieldFor(sessionMode, format)] ?? 0);
   const platformFee = pricing?.platformFee ?? 20;
-  const totalAmount = baseAmount + platformFee;
+  // Coupon: validated on the server; the client only ever sends the code back.
+  const [coupon, setCoupon] = useState(null); // { code, discountAmount, description }
+  const [couponInput, setCouponInput] = useState("");
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const discountAmount = coupon?.discountAmount || 0;
+  const totalAmount = baseAmount - discountAmount + platformFee;
 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
@@ -647,7 +654,7 @@ export default function NoidaAppointment() {
           date: selectedDate, slot: selectedSlot, type: bookingType,
           sessionMode, format,
           address: format === "home-visit" ? address.trim() : undefined,
-          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code,
         }),
       });
       const data = await res.json();
@@ -692,6 +699,7 @@ export default function NoidaAppointment() {
   }, []);
 
   const usingCredit = bookingType === "followup" && !!credit;
+
 
   // ── Reschedule tab — compact single-screen flow: phone → nearest
   // upcoming booking → pick new date/time from the same slots table.
@@ -787,6 +795,32 @@ export default function NoidaAppointment() {
 
   // ── Form ──────────────────────────────────────────────────────────────
   const [form, setForm] = useState({ name: "", age: "", phone: "", email: "", concern: "" });
+
+  // Any change to what's being bought makes a validated coupon stale — ask again.
+  useEffect(() => {
+    setCoupon(null); setCouponError("");
+    // eslint-disable-next-line
+  }, [sessionMode, selectedPackageId, customN, format, form.phone]);
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponBusy(true); setCouponError("");
+    try {
+      const data = await fetch(`${apiUrl}/noida-appointments/coupon/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, phone: form.phone.trim(), sessionMode, format, packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined }),
+      }).then(r => r.json());
+      if (data?.status) { setCoupon(data.data); setCouponOpen(false); }
+      else setCouponError(data?.message || "That coupon isn't valid.");
+    } catch (e) {
+      setCouponError(e?.response?.data?.message || "Couldn't check the coupon. Please try again.");
+    } finally {
+      setCouponBusy(false);
+    }
+  };
+  const removeCoupon = () => { setCoupon(null); setCouponInput(""); setCouponError(""); };
   const [status, setStatus] = useState(null); // null | "loading" | "success"
   const [error, setError] = useState("");
   // Shown above the slots table when a slot was lost while the client was booking it.
@@ -872,7 +906,7 @@ export default function NoidaAppointment() {
     date: selectedDate, slot: selectedSlot, type: bookingType,
     sessionMode, format,
     address: format === "home-visit" ? address.trim() : "",
-    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined,
+    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code,
   });
 
   const finalizeBooking = async (paymentExtra = {}) => {
@@ -929,7 +963,7 @@ export default function NoidaAppointment() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionMode, format,
-          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code,
           address: format === "home-visit" ? address.trim() : undefined,
           type: bookingType, phone: form.phone.trim(),
           // The whole booking goes with the order so the server can refuse a
@@ -1171,6 +1205,15 @@ export default function NoidaAppointment() {
 
         .na-review { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; font-size: 13.5px; color: #334155; line-height: 2; margin-bottom: 20px; }
         .na-review strong { color: #0f172a; }
+        .na-coupon { padding: 4px 0 10px; }
+        .na-coupon-link { background: none; border: none; color: #1a6b3a; font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 10px 0; font-family: inherit; }
+        .na-coupon-row { display: flex; gap: 8px; padding-top: 6px; }
+        .na-coupon-row .na-inp { flex: 1; min-width: 0; text-transform: uppercase; letter-spacing: .5px; }
+        .na-coupon-btn { height: 46px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #1a6b3a; background: #fff; color: #1a6b3a; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .na-coupon-btn:disabled { opacity: .55; cursor: default; }
+        .na-coupon-err { margin-top: 8px; font-size: 12.5px; color: #b91c1c; }
+        .na-coupon-applied { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; padding: 10px 12px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; }
+        .na-coupon-applied button { background: none; border: none; color: inherit; text-decoration: underline; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 6px 0 6px 8px; font-family: inherit; }
         .na-price-breakdown { border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 8px; }
         .na-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #1a6b3a; margin-top: 4px; }
 
@@ -1824,7 +1867,25 @@ export default function NoidaAppointment() {
                             </div>
                           ) : (
                             <div className="na-price-breakdown" style={{ paddingBottom: 10 }}>
+                              <div className="na-coupon">
+                                {coupon ? (
+                                  <div className="na-coupon-applied"><span><b>{coupon.code}</b> applied — you save ₹{coupon.discountAmount}</span><button type="button" onClick={removeCoupon}>Remove</button></div>
+                                ) : couponOpen ? (
+                                  <>
+                                    <div className="na-coupon-row">
+                                      <input className="na-inp" aria-label="Coupon code" placeholder="Coupon code" value={couponInput} autoCapitalize="characters" maxLength={20}
+                                        onChange={e => { setCouponInput(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "")); setCouponError(""); }}
+                                        onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }} />
+                                      <button type="button" className="na-coupon-btn" disabled={couponBusy || !couponInput.trim()} onClick={applyCoupon}>{couponBusy ? "Checking…" : "Apply"}</button>
+                                    </div>
+                                    {couponError && <div className="na-coupon-err">{couponError}</div>}
+                                  </>
+                                ) : (
+                                  <button type="button" className="na-coupon-link" onClick={() => setCouponOpen(true)}>Have a coupon code?</button>
+                                )}
+                              </div>
                               <div className="na-rv"><span>{modeLabel === "Package" ? selectedPackage?.name : `${modeLabel} session`}</span><b>₹{baseAmount}</b></div>
+                              {discountAmount > 0 && <div className="na-rv" style={{ borderTop: "none", paddingTop: 0, color: "#15803d" }}><span>Coupon ({coupon.code})</span><b style={{ color: "#15803d" }}>−₹{discountAmount}</b></div>}
                               <div className="na-rv" style={{ borderTop: "none", paddingTop: 0 }}><span>Platform fee</span><b>₹{platformFee}</b></div>
                               <div className="na-price-total" style={{ fontSize: 18, alignItems: "baseline" }}><span>Total</span><span>₹{totalAmount}</span></div>
                             </div>
