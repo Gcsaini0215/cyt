@@ -275,7 +275,7 @@ function BookingSuccess({ title, text, dateStr, dateLbl, slot, rows, format, sho
       </div>
       {showAddress && (
         <div className="na-address-box">
-          <div className="na-address-title"><Ic I={PlaceRounded} /> Our Noida Center</div>
+          <div className="na-address-title"><Ic I={PlaceRounded} /> CYT Noida</div>
           <div className="na-address-text">Choose Your Therapist LLP<br />Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida</div>
           <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="na-address-link">Get Directions →</a>
         </div>
@@ -314,7 +314,7 @@ function EmptySlots() {
       <div className="na-empty-ic"><Ic I={EventBusyRounded} s={30} /></div>
       <div className="na-empty-title">No slots are open right now</div>
       <p className="na-empty-text">We open new times regularly. Message us and we'll find one that suits you.</p>
-      <a className="na-wa-btn" href={waLink("Hi, I'd like to book a session at your Noida center.")} target="_blank" rel="noopener noreferrer">
+      <a className="na-wa-btn" href={waLink("Hi, I'd like to book a session at CYT Noida.")} target="_blank" rel="noopener noreferrer">
         <Ic I={WhatsAppIcon} s={18} /> WhatsApp us
       </a>
     </div>
@@ -954,7 +954,7 @@ export default function NoidaAppointment() {
         currency: "INR",
         order_id: orderData.data.orderId,
         name: "Choose Your Therapist",
-        description: "Noida Center Appointment",
+        description: "CYT Noida Appointment",
         handler: (response) => finalizeBooking({
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
@@ -992,16 +992,16 @@ export default function NoidaAppointment() {
         <link rel="canonical" href="https://chooseyourtherapist.in/noida-appointment" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Book an In-Person Appointment — Noida Therapy Center" />
-        <meta property="og:description" content="Pick a date and time for your in-person session at our Noida center — instantly confirmed." />
+        <meta property="og:description" content="Pick a date and time for your in-person session at CYT Noida — instantly confirmed." />
         <meta property="og:url" content="https://chooseyourtherapist.in/noida-appointment" />
         <meta property="og:site_name" content="Choose Your Therapist" />
         <meta property="og:image" content="https://chooseyourtherapist.in/og-noida-appointment.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Choose Your Therapist — book an in-person session at our Noida center" />
+        <meta property="og:image:alt" content="Choose Your Therapist — book an in-person session at CYT Noida" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Book an In-Person Appointment — Noida Therapy Center" />
-        <meta name="twitter:description" content="Pick a date and time for your in-person session at our Noida center — instantly confirmed." />
+        <meta name="twitter:description" content="Pick a date and time for your in-person session at CYT Noida — instantly confirmed." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/og-noida-appointment.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -1589,7 +1589,7 @@ export default function NoidaAppointment() {
                 {status === "success" ? (
                   <BookingSuccess
                     title={`You're all set, ${(effectiveName || "there").split(" ")[0]}!`}
-                    text="Your appointment at our Noida center is confirmed. We'll see you there."
+                    text="Your appointment at CYT Noida is confirmed. We'll see you there."
                     dateStr={selectedDate}
                     dateLbl={pickedDateLabel}
                     slot={selectedSlot}
@@ -1764,7 +1764,7 @@ export default function NoidaAppointment() {
                               <textarea className="na-inp na-textarea" rows={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Flat / House no., Street, Sector, Landmark…" />
                             </div>
                             <div className="na-lookup-box na-lookup-notfound" style={{ marginTop: 10, marginBottom: 0 }}>
-                              <span><Ic I={InfoOutlined} /> Home visit charges may increase depending on distance from our Noida center — we'll confirm the final amount with you before your session.</span>
+                              <span><Ic I={InfoOutlined} /> Home visit charges may increase depending on distance from CYT Noida — we'll confirm the final amount with you before your session.</span>
                             </div>
                           </div>
                         )}
@@ -1881,10 +1881,10 @@ export default function NoidaAppointment() {
             <div className="na-foot-help">
               <div className="na-foot-help-title">Need help booking?</div>
               <p className="na-foot-help-text">Stuck at any step or unsure which session fits? Message us and we'll sort it out.</p>
-              <a className="na-wa-btn" href={waLink("Hi, I need help with booking at the Noida center.")} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={18} /> Chat on WhatsApp</a>
+              <a className="na-wa-btn" href={waLink("Hi, I need help with booking at CYT Noida.")} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={18} /> Chat on WhatsApp</a>
             </div>
             <div className="na-foot-big" aria-hidden="true">In-person therapy,<br />confirmed instantly.</div>
-            <p className="na-foot-tag">Our Noida center. Pick a slot, pay, and your session is booked.</p>
+            <p className="na-foot-tag">CYT Noida. Pick a slot, pay, and your session is booked.</p>
             <ul className="na-foot-list">
               <li><Ic I={ScheduleRounded} /> 50–60 min session</li>
               <li>
