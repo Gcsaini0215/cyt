@@ -550,7 +550,17 @@ export default function NoidaAppointment() {
   const [format, setFormat] = useState("in-person"); // "in-person" | "online" | "home-visit"
   const [address, setAddress] = useState("");
 
-  const selectedPackage = (pricing?.packages || []).find(p => p._id === selectedPackageId);
+  // "Custom package": the client picks how many sessions; the server prices it (sessions x per-session rate).
+  const [customSessions, setCustomSessions] = useState(0);
+  const packageOptions = pricing?.packages || [];
+  const cp = pricing?.customPackage?.enabled ? pricing.customPackage : null;
+  const customN = cp ? Math.min(cp.maxSessions, Math.max(cp.minSessions, customSessions || cp.minSessions)) : 0;
+  const isCustomPackage = selectedPackageId === "custom" && !!cp;
+  const hasPackages = packageOptions.length > 0 || !!cp;
+  const packageCount = packageOptions.length + (cp ? 1 : 0);
+  const selectedPackage = isCustomPackage
+    ? { _id: "custom", name: `Custom package · ${customN} sessions`, sessionsCount: customN, price: customN * cp.perSessionPrice }
+    : packageOptions.find(p => p._id === selectedPackageId);
   const baseAmount = sessionMode === "package"
     ? (selectedPackage?.price ?? 0)
     : (pricing?.[priceFieldFor(sessionMode, format)] ?? 0);
@@ -637,7 +647,7 @@ export default function NoidaAppointment() {
           date: selectedDate, slot: selectedSlot, type: bookingType,
           sessionMode, format,
           address: format === "home-visit" ? address.trim() : undefined,
-          packageId: sessionMode === "package" ? selectedPackageId : undefined,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined,
         }),
       });
       const data = await res.json();
@@ -862,7 +872,7 @@ export default function NoidaAppointment() {
     date: selectedDate, slot: selectedSlot, type: bookingType,
     sessionMode, format,
     address: format === "home-visit" ? address.trim() : "",
-    packageId: sessionMode === "package" ? selectedPackageId : undefined,
+    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined,
   });
 
   const finalizeBooking = async (paymentExtra = {}) => {
@@ -919,7 +929,7 @@ export default function NoidaAppointment() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionMode, format,
-          packageId: sessionMode === "package" ? selectedPackageId : undefined,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined,
           address: format === "home-visit" ? address.trim() : undefined,
           type: bookingType, phone: form.phone.trim(),
           // The whole booking goes with the order so the server can refuse a
@@ -1126,6 +1136,11 @@ export default function NoidaAppointment() {
         .na-pill.active .na-pill-price { color: #15803d; }
 
         .na-pkg-card-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        .na-pkg-custom { flex-wrap: wrap; gap: 10px 12px; }
+        .na-stepper { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+        .na-stepper button { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #cbd5e1; background: #fff; color: #1a6b3a; font-size: 20px; line-height: 1; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; }
+        .na-stepper button:disabled { opacity: .35; cursor: default; }
+        .na-stepper span { min-width: 28px; text-align: center; font-size: 16px; font-weight: 600; color: #0f172a; }
         .na-pkg-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; transition: all .15s; }
         .na-pkg-card:hover { border-color: #94a3b8; }
         .na-pkg-card.active { background: #f0fdf4; border-color: #1a6b3a; }
@@ -1547,8 +1562,8 @@ export default function NoidaAppointment() {
                         <div className="na-tab-pills">
                           <button type="button" className={`na-tab-pill ${sessionMode === "individual" ? "on" : ""}`} onClick={() => setSessionMode("individual")}>Individual<small>₹{pricing?.[priceFieldFor("individual", format)] ?? "—"}</small></button>
                           <button type="button" className={`na-tab-pill ${sessionMode === "couple" ? "on" : ""}`} onClick={() => setSessionMode("couple")}>Couple<small>₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</small></button>
-                          {(pricing?.packages || []).length > 0 && (
-                            <button type="button" className={`na-tab-pill ${sessionMode === "package" ? "on" : ""}`} onClick={() => setSessionMode("package")}>Package<small>{pricing.packages.length} available</small></button>
+                          {hasPackages && (
+                            <button type="button" className={`na-tab-pill ${sessionMode === "package" ? "on" : ""}`} onClick={() => setSessionMode("package")}>Package<small>{packageCount} available</small></button>
                           )}
                         </div>
                       </div>
@@ -1722,17 +1737,17 @@ export default function NoidaAppointment() {
                                 Couple
                                 <span className="na-pill-price">₹{pricing?.[priceFieldFor("couple", format)] ?? "—"}</span>
                               </div>
-                              {(pricing?.packages || []).length > 0 && (
+                              {hasPackages && (
                                 <div className={`na-pill ${sessionMode === "package" ? "active" : ""}`} onClick={() => setSessionMode("package")}>
                                   Package
-                                  <span className="na-pill-price">{pricing.packages.length} available</span>
+                                  <span className="na-pill-price">{packageCount} available</span>
                                 </div>
                               )}
                             </div>
 
                             {sessionMode === "package" && (
                               <div className="na-pkg-card-row">
-                                {(pricing?.packages || []).map(pkg => (
+                                {packageOptions.map(pkg => (
                                   <div
                                     key={pkg._id}
                                     className={`na-pkg-card ${selectedPackageId === pkg._id ? "active" : ""}`}
@@ -1745,6 +1760,20 @@ export default function NoidaAppointment() {
                                     <div className="na-pkg-card-price">₹{pkg.price}</div>
                                   </div>
                                 ))}
+                                {cp && (
+                                  <div className={`na-pkg-card na-pkg-custom ${isCustomPackage ? "active" : ""}`} onClick={() => setSelectedPackageId("custom")}>
+                                    <div>
+                                      <div className="na-pkg-card-name">Custom package</div>
+                                      <div className="na-pkg-card-meta">Choose your own number of sessions · ₹{cp.perSessionPrice} each</div>
+                                    </div>
+                                    <div className="na-stepper" onClick={e => e.stopPropagation()}>
+                                      <button type="button" aria-label="Fewer sessions" disabled={customN <= cp.minSessions} onClick={() => { setSelectedPackageId("custom"); setCustomSessions(customN - 1); }}>−</button>
+                                      <span aria-live="polite">{customN}</span>
+                                      <button type="button" aria-label="More sessions" disabled={customN >= cp.maxSessions} onClick={() => { setSelectedPackageId("custom"); setCustomSessions(customN + 1); }}>+</button>
+                                    </div>
+                                    <div className="na-pkg-card-price">₹{customN * cp.perSessionPrice}</div>
+                                  </div>
+                                )}
                               </div>
                             )}
                           </>
