@@ -313,6 +313,7 @@ function TherapistPicker({ list, value, onChange, hint }) {
             <span className="na-th-body">
               <span className="na-th-name">{t.name}</span>
               <span className="na-th-meta">{[t.profileType, t.experience ? `${t.experience} yrs` : ""].filter(Boolean).join(" · ") || t.qualification || "Therapist"}</span>
+              {t.reviewCount > 0 && <span className="na-th-rate" aria-label={`Rated ${t.rating} out of 5 from ${t.reviewCount} reviews`}><span className="na-th-star" aria-hidden="true">★</span> {t.rating.toFixed(1)} <span className="na-th-cnt">({t.reviewCount})</span></span>}
             </span>
           </button>
         ))}
@@ -1267,6 +1268,9 @@ export default function NoidaAppointment() {
         .na-th-body { display: flex; flex-direction: column; min-width: 0; }
         .na-th-name { font-size: 13.5px; font-weight: 600; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .na-th-meta { font-size: 11.5px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .na-th-rate { display: flex; align-items: center; gap: 3px; margin-top: 2px; font-size: 11.5px; font-weight: 600; color: #92400e; }
+        .na-th-star { color: #f59e0b; font-size: 13px; line-height: 1; }
+        .na-th-cnt { font-weight: 400; color: #64748b; }
         .na-th-hint { margin-top: 6px; font-size: 12px; color: #64748b; }
         @media (max-width: 640px) {
           .na-th-row { display: flex; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
