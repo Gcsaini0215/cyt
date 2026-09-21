@@ -56,7 +56,7 @@ export default function AppointmentPage({ pics = [] }) {
         <meta property="og:title" content="Book an Appointment | Choose Your Therapist" />
         <meta property="og:description" content="Request a therapy appointment. We will confirm your session time via WhatsApp." />
         <meta property="og:url" content="https://chooseyourtherapist.in/appointment" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

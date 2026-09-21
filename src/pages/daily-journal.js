@@ -285,7 +285,7 @@ export default function DailyJournalPage() {
         <meta name="keywords" content="digital journal, online diary, mental health tools, mood tracker, daily reflection, mindfulness journal, private journaling" />
         
         {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/daily-journal" />
         <meta property="og:title" content="Daily Journaling | Your Private Digital Diary" />
         <meta property="og:description" content="A safe, private space to express your thoughts and track your emotional journey." />

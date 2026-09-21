@@ -63,7 +63,7 @@ export default function TherapyBooking({ pics = [] }) {
         <title>Find Your Therapist in 30 Minutes — Free | Choose Your Therapist</title>
         <meta name="description" content="Connect with a verified psychologist, share your concerns, and book your therapy appointment — all in 30 minutes." />
         <link rel="canonical" href="https://chooseyourtherapist.in/therapy-booking" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://chooseyourtherapist.in/therapy-booking" />
         <meta property="og:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
         <meta property="og:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential. Find your therapist in 30 minutes." />
@@ -71,8 +71,8 @@ export default function TherapyBooking({ pics = [] }) {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
         <meta name="twitter:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential." />

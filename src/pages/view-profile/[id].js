@@ -342,7 +342,7 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
         <meta name="language" content="English" />
 
         {/* Open Graph */}
-        <meta property="og:type" content="profile" />
+        <meta key="og:type" property="og:type" content="profile" />
         <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
@@ -351,8 +351,8 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={`${profileName} - ${profileType}`} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

@@ -211,10 +211,10 @@ export default function ViewAllTherapistPage({ initialAllData, initialFilteredDa
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={seo.canonical} />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -234,6 +234,7 @@ export default function ViewAllTherapistPage({ initialAllData, initialFilteredDa
       </Head>
       <main className="">
         <MyNavbar />
+        <h1 data-seo-h1 style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>Find verified psychologists and therapists in India</h1>
         <main className="rbt-main-wrapper">
           <ViewAllTherapist initialAllData={initialAllData} initialFilters={initialFilters} />
         </main>

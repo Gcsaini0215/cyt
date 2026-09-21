@@ -243,9 +243,9 @@ function MyApp({ Component, pageProps }) {
         <meta name="theme-color" content="#228756" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:type" property="og:type" content="website" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
         {/* Global Geo Tags - Defaulting to Noida, India to prevent US-based Googlebot/VPN detection sync issues */}
         <meta name="geo.region" content="IN-UP" />
         <meta name="geo.placename" content="Sector 51, Noida, Uttar Pradesh, India" />

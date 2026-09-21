@@ -128,6 +128,7 @@ export default function HomePage() {
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
+      <h1 data-seo-h1 style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>Best psychologists in India — online and in-person therapy with Choose Your Therapist</h1>
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Favicon */}
@@ -149,13 +150,13 @@ export default function HomePage() {
         <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph Meta Tags */}
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:type" property="og:type" content="website" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Meta Tags */}
         <meta name="twitter:card" content="summary_large_image" />

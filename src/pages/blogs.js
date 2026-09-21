@@ -76,10 +76,10 @@ export default function AllBlogs() {
         <meta property="og:title" content="Mental Health & Psychology Blog | Choose Your Therapist" />
         <meta property="og:description" content="Expert articles on anxiety, depression, OCD, relationships, and therapy from verified psychologists in India." />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Mental Health & Psychology Blog | Choose Your Therapist" />

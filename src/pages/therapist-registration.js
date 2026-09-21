@@ -437,7 +437,7 @@ export default function TherapistRegistration() {
         <meta property="og:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
         <meta property="og:description" content="Register with Choose Your Therapist to connect with clients across India and grow your professional practice." />
         <meta property="og:url" content="https://chooseyourtherapist.in/therapist-registration" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
 
         <meta name="twitter:card" content="summary_large_image" />

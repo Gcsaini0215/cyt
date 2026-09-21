@@ -155,7 +155,7 @@ export default function ProbonoProfileDetailPage({ psychologist }) {
         <link rel="canonical" href={pageUrl} />
 
         {/* Open Graph */}
-        <meta property="og:type" content="profile" />
+        <meta key="og:type" property="og:type" content="profile" />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
@@ -164,8 +164,8 @@ export default function ProbonoProfileDetailPage({ psychologist }) {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={psychologist.name} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

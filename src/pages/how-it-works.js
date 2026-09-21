@@ -16,7 +16,7 @@ export default function HowItWorks() {
         <meta property="og:title" content="How It Works | Find Your Perfect Therapist | Choose Your Therapist" />
         <meta property="og:description" content="A simple 3-step process to connect with verified mental health professionals." />
         <meta property="og:url" content="https://chooseyourtherapist.in/how-it-works" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />

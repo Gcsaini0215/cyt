@@ -31,7 +31,7 @@ export default function WorkshopDetail(props) {
         <meta property="og:title" content={data.title} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={`${imagePath}/${data.workshop_image}`} />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={data.title} />

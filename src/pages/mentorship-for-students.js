@@ -16,7 +16,7 @@ export default function MentorshipForStudents() {
         <meta property="og:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
         <meta property="og:description" content="Shape your future in mental health with our comprehensive mentorship program for students." />
         <meta property="og:url" content="https://chooseyourtherapist.in/mentorship-for-students" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />

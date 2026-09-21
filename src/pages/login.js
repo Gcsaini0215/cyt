@@ -169,7 +169,7 @@ export default function Login() {
         <meta property="og:title" content="Login | Access Your Therapy Dashboard | Choose Your Therapist" />
         <meta property="og:description" content="Securely log in to manage your therapy sessions and mental health journey." />
         <meta property="og:url" content="https://chooseyourtherapist.in/login" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
 
         <meta name="twitter:card" content="summary_large_image" />

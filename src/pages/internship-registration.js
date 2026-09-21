@@ -713,12 +713,12 @@ export default function InternshipRegistration() {
         <link rel="canonical" href="https://chooseyourtherapist.in/internship-registration" />
 
         {/* Open Graph / share preview */}
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://chooseyourtherapist.in/internship-registration" />
         <meta property="og:title" content="Supervision cum Internship Program | Choose Your Therapist" />
         <meta property="og:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
         <meta property="og:image" content="https://chooseyourtherapist.in/images/bg-image-12dabd.jpg" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />

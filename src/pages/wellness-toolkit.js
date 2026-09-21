@@ -20,9 +20,9 @@ export default function WellnessToolkit() {
         <meta property="og:title" content="Wellness Toolkit | Free Mental Health Resources | Choose Your Therapist" />
         <meta property="og:description" content="Free mental health tools and resources to help you manage anxiety, track your mood, and practice mindfulness." />
         <meta property="og:url" content="https://chooseyourtherapist.in/wellness-toolkit" />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Wellness Toolkit | Free Mental Health Resources | Choose Your Therapist" />

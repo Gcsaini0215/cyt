@@ -37,9 +37,9 @@ export default function ForBusiness() {
         <meta property="og:title" content="Choose Your Therapist for Business | Corporate Mental Health" />
         <meta property="og:description" content="Confidential, verified mental health support for employees, students, and members — delivered at scale." />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Choose Your Therapist for Business" />

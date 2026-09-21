@@ -557,13 +557,13 @@ export default function StatePsychologistPage({ config, therapists }) {
         <meta name="geo.position" content={`${config.geo.lat};${config.geo.lng}`} />
         <meta name="ICBM" content={`${config.geo.lat}, ${config.geo.lng}`} />
 
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content={`Best Psychologist in ${config.name} | Choose Your Therapist`} />
         <meta property="og:description" content={config.description} />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`Best Psychologist in ${config.name} | Choose Your Therapist`} />

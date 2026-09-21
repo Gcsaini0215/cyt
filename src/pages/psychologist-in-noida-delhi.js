@@ -71,12 +71,12 @@ export default function LocalLandingPage() {
         <meta name="ICBM" content="28.5672, 77.3650" />
         
         {/* OpenGraph / Social Media Tags */}
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
         <meta property="og:title" content="Best Psychologist in Noida & Delhi | Verified Experts" />
         <meta property="og:description" content="Professional therapy at our Noida Studio or online. Connect with top-rated psychologists in Delhi NCR." />
         <meta property="og:image" content="https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />

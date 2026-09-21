@@ -27,12 +27,12 @@ export default function SelfAssessment() {
         <link rel="canonical" href="https://www.chooseyourtherapist.in/self-assessment" />
         
         {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/self-assessment" />
         <meta property="og:title" content="Mental Health Self Assessment | Professional Evaluation" />
         <meta property="og:description" content="Take a step towards better mental health with our guided self-assessment tools." />
         <meta property="og:image" content="https://www.chooseyourtherapist.in/images/assessment-preview.jpg" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

@@ -173,7 +173,7 @@ export default function AboutUs() {
         <link rel="canonical" href={PAGE_URL} />
 
         {/* Open Graph */}
-        <meta property="og:type" content="website" />
+        <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
         <meta property="og:description" content="Learn how Choose Your Therapist connects people across India with verified, licensed psychologists for confidential online and in-person therapy — our story, our founder, and how we work." />
@@ -181,8 +181,8 @@ export default function AboutUs() {
         <meta property="og:image:width" content="1440" />
         <meta property="og:image:height" content="960" />
         <meta property="og:image:alt" content="Choose Your Therapist — mental health support across India" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:locale" content="en_IN" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:locale" property="og:locale" content="en_IN" />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

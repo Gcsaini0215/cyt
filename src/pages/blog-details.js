@@ -678,7 +678,7 @@ export default function BlogDetails({ initialBlog }) {
         />
         
         {/* Open Graph / Facebook */}
-        <meta property="og:type" content="article" />
+        <meta key="og:type" property="og:type" content="article" />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:title" content={`${blog.title} | Choose Your Therapist`} />
         <meta property="og:description" content={cleanDesc} />
@@ -687,7 +687,7 @@ export default function BlogDetails({ initialBlog }) {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={blog.title} />
-        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta property="article:published_time" content={blog.createdAt} />
         <meta property="article:author" content={blog.author || 'Admin'} />
         <meta property="article:section" content={blog.category} />
