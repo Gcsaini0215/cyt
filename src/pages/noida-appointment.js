@@ -3,6 +3,7 @@ import Head from "next/head";
 import Script from "next/script";
 import { apiUrl } from "../utils/url";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import LockRounded from "@mui/icons-material/LockRounded";
 import ScheduleRounded from "@mui/icons-material/ScheduleRounded";
 import CurrencyRupeeRounded from "@mui/icons-material/CurrencyRupeeRounded";
 import PlaceRounded from "@mui/icons-material/PlaceRounded";
@@ -18,6 +19,21 @@ import CloseRounded from "@mui/icons-material/CloseRounded";
 import EventBusyRounded from "@mui/icons-material/EventBusyRounded";
 import DirectionsRounded from "@mui/icons-material/DirectionsRounded";
 import DownloadRounded from "@mui/icons-material/DownloadRounded";
+
+// Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
+// Never pass names, phones or emails here — only slot / step / booking-type info.
+function track(event, params = {}) {
+  try {
+    if (typeof window === "undefined") return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event, ...params });
+  } catch { /* analytics must never break booking */ }
+}
+
+// Contact details a client already typed, kept for 24h so a failed payment or a closed tab
+// doesn't mean retyping. Deliberately excludes the free-text concern and the chosen slot.
+const DRAFT_KEY = "cyt_noida_draft_v1";
+const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -142,13 +158,11 @@ async function fetchSlotsMatrix(type) {
   const times = Array.from(new Set(all.filter(s => dateSet.has(s.date)).map(s => s.slot)))
     .sort((a, b) => slotStartMinutes(a) - slotStartMinutes(b));
   const grid = {};
-  const codes = {}; // client number of whoever holds a booked slot (no names on the public page)
   all.forEach(s => {
     if (!dateSet.has(s.date)) return;
     grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : s.past ? "past" : (s.lastMinute ? "lastMinute" : "open");
-    if (s.booked && s.clientCode) codes[`${s.date}|${s.slot}`] = s.clientCode;
   });
-  return { dates, times, grid, codes };
+  return { dates, times, grid };
 }
 
 // Reusable date x time availability table — an open cell is a clickable
@@ -369,13 +383,25 @@ function shortTime(label) {
   return label.split(" - ")[0].replace(":00 ", " ");
 }
 
-function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header }) {
+// Quick time-of-day filter so a client can jump to "evenings" instead of scanning every row.
+const PERIODS = [
+  { key: "morning", label: "Morning", test: (m) => m < 12 * 60 },
+  { key: "afternoon", label: "Afternoon", test: (m) => m >= 12 * 60 && m < 17 * 60 },
+  { key: "evening", label: "Evening", test: (m) => m >= 17 * 60 },
+];
+
+function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new" }) {
   // Phones page through 5 days; tablets fit all 10 but share the compact
   // header (weekday + day circle) and short time labels.
   const compact = isMobile || isTablet;
   const [page, setPage] = useState(0);
-  if (loading) return <>{header}<SlotsSkeleton cols={isMobile ? MOBILE_PAGE_DAYS : 10} /></>;
-  if (!matrix.dates.length) return <>{header}<EmptySlots /></>;
+  const [period, setPeriod] = useState("");
+  // `header` is an element, or a function that receives the quick controls so a
+  // page can seat them on its own title lines instead of adding a row above the table.
+  const inlineQuick = typeof header === "function";
+  const renderHeader = (quick) => (inlineQuick ? header(quick) : header);
+  if (loading) return <>{renderHeader({})}<SlotsSkeleton cols={isMobile ? MOBILE_PAGE_DAYS : 10} /></>;
+  if (!matrix.dates.length) return <>{renderHeader({})}<EmptySlots /></>;
 
   const pageCount = isMobile ? Math.ceil(matrix.dates.length / MOBILE_PAGE_DAYS) : 1;
   const safePage = Math.min(page, pageCount - 1);
@@ -385,11 +411,52 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   const last = dateLabel(visibleDates[visibleDates.length - 1]);
   const rangeLabel = first.month === last.month ? `${first.day} – ${last.day} ${last.month}` : `${first.day} ${first.month} – ${last.day} ${last.month}`;
 
+  // Only offer periods that actually have rows; a stale choice (rows vanished on refresh) falls back to All.
+  const periodsPresent = PERIODS.filter(p => matrix.times.some(t => p.test(slotStartMinutes(t))));
+  const activePeriod = periodsPresent.find(p => p.key === period);
+  const visibleTimes = activePeriod ? matrix.times.filter(t => activePeriod.test(slotStartMinutes(t))) : matrix.times;
+
+  // Earliest instantly-bookable slot in the rows currently shown — same result as clicking that cell.
+  let nextSlot = null;
+  outer: for (const d of matrix.dates) {
+    for (const t of visibleTimes) {
+      if (matrix.grid[`${d}|${t}`] === "open") { nextSlot = { d, t }; break outer; }
+    }
+  }
+  const nextLbl = nextSlot && dateLabel(nextSlot.d);
+  const nextButton = nextSlot && (
+    <button
+      type="button"
+      className="na-next-btn"
+      onClick={() => {
+        if (isMobile) setPage(Math.floor(matrix.dates.indexOf(nextSlot.d) / MOBILE_PAGE_DAYS));
+        track("noida_next_available_click", { booking_type: trackAs, slot_date: nextSlot.d, slot_time: nextSlot.t });
+        matrix.onPick(nextSlot.d, nextSlot.t, false);
+      }}
+    >
+      <Ic I={CalendarMonthRounded} s={16} />
+      <span>Next available: <b>{nextSlot.d === today ? "Today" : nextLbl.weekday} {nextLbl.day} {nextLbl.month} · {shortTime(nextSlot.t)}</b></span>
+    </button>
+  );
+
+  const choosePeriod = (key) => {
+    setPeriod(key);
+    track("noida_time_filter", { booking_type: trackAs, period: key || "all" });
+  };
+  const filterChips = periodsPresent.length > 1 && (
+    <div className="na-chips" role="group" aria-label="Filter by time of day">
+      <button type="button" className={`na-chip ${!activePeriod ? "on" : ""}`} onClick={() => choosePeriod("")}>All</button>
+      {periodsPresent.map(p => (
+        <button key={p.key} type="button" className={`na-chip ${activePeriod?.key === p.key ? "on" : ""}`} onClick={() => choosePeriod(p.key)}>{p.label}</button>
+      ))}
+    </div>
+  );
+
   return (
     <>
       {isMobile ? (
         <div className="na-pager-row">
-          <div className="na-pager-head">{header}<div className="na-pager-range">{rangeLabel} · IST</div></div>
+          <div className="na-pager-head">{renderHeader({ next: nextButton, chips: filterChips })}<div className="na-pager-range">{rangeLabel} · IST</div></div>
           {pageCount > 1 && (
             <div className="na-pager-btns">
               <button type="button" className="na-pager-btn" aria-label="Earlier days" disabled={safePage === 0} onClick={() => setPage(safePage - 1)}>‹</button>
@@ -397,7 +464,8 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
             </div>
           )}
         </div>
-      ) : header}
+      ) : renderHeader({ next: nextButton, chips: filterChips })}
+    {!inlineQuick && (nextButton || filterChips) && <div className="na-quick-row">{nextButton}{filterChips}</div>}
     <div className="na-fullslots-scroll">
       <table className="na-fullslots-table">
         <thead>
@@ -418,7 +486,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
           </tr>
         </thead>
         <tbody>
-          {matrix.times.map((t, ri) => (
+          {visibleTimes.map((t, ri) => (
             <tr key={t}>
               <td className="na-time-col">{compact ? shortTime(t) : t.split(" - ")[0]}</td>
               {visibleDates.map((d, ci) => {
@@ -438,9 +506,12 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                     <td key={d} {...tdProps}>
                       <button
                         type="button"
-                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""}`}
+                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""} ${!isSelected && nextSlot && nextSlot.d === d && nextSlot.t === t ? "recommended" : ""}`}
                         title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : `Book ${t}`}
-                        onClick={() => matrix.onPick(d, t, isLM)}
+                        onClick={() => {
+                          track("noida_slot_click", { booking_type: trackAs, slot_date: d, slot_time: t, last_minute: isLM, recommended: !!(nextSlot && nextSlot.d === d && nextSlot.t === t) });
+                          matrix.onPick(d, t, isLM);
+                        }}
                       >
                         {isLM ? (isSelected ? <Ic I={CheckRounded} s={16} /> : "!") : <span className="na-wm">cyt<i className="na-wm-dot" aria-hidden="true" /></span>}
                       </button>
@@ -451,7 +522,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                 return (
                   <td key={d} {...tdProps}>
                     <span className={`na-slotcell ${state || "closed"}`} title={label} aria-label={label}>
-                      {state === "taken" ? <><span className="na-taken-stamp">Booked</span>{matrix.codes?.[`${d}|${t}`] && <span className="na-taken-code">{matrix.codes[`${d}|${t}`]}</span>}</> : state === "past" ? <span className="na-past-label">Passed</span> : null}
+                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : null}
                     </span>
                   </td>
                 );
@@ -496,7 +567,7 @@ export default function NoidaAppointment() {
   }, []);
   const tabletLandscape = tablet && landscape;
   // On phones and tablets a tap only selects a slot; Continue moves on.
-  const usePendingPick = isMobile || tablet;
+  const usePendingPick = true;
 
   // The site-wide cookie banner is fixed to the bottom of the screen and sits
   // above everything; lift the page's own bottom bars clear of it until it's dismissed.
@@ -573,6 +644,20 @@ export default function NoidaAppointment() {
     }, 6000);
     return () => clearInterval(iv);
   }, [bookingType, loadSlotsMatrix]);
+
+  // Impression + funnel events for GTM: how many people saw open slots, and which form step they reach.
+  const viewedRef = useRef("");
+  useEffect(() => {
+    if (phase !== "slots" || slotsMatrixLoading || !slotsMatrix.dates.length) return;
+    if (bookingType !== "new" && bookingType !== "followup") return;
+    if (viewedRef.current === bookingType) return;
+    viewedRef.current = bookingType;
+    const open = Object.values(slotsMatrix.grid).filter(v => v === "open" || v === "lastMinute").length;
+    track("noida_slots_view", { booking_type: bookingType, open_slots: open });
+  }, [phase, bookingType, slotsMatrix, slotsMatrixLoading]);
+  useEffect(() => {
+    if (phase === "form") track("noida_funnel_step", { booking_type: bookingType, step });
+  }, [phase, step, bookingType]);
 
   // A tab left open on the slots table would otherwise keep running the old
   // build after a deploy. Reload it, but only while idle on the New Client
@@ -662,6 +747,7 @@ export default function NoidaAppointment() {
   };
 
   const handlePickSlot = (date, slot, isLastMinute) => {
+    track("noida_slot_confirmed", { booking_type: bookingType, slot_date: date, slot_time: slot, last_minute: !!isLastMinute });
     setSlotNotice("");
     setPendingPick(null);
     resetLastMinute();
@@ -874,9 +960,38 @@ export default function NoidaAppointment() {
   const [error, setError] = useState("");
   // Shown above the slots table when a slot was lost while the client was booking it.
   const [slotNotice, setSlotNotice] = useState("");
+  // The slot the client was booking when it was taken — used to suggest the closest open ones.
+  const [lostSlot, setLostSlot] = useState(null);
+  const [draftRestored, setDraftRestored] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(null); // null | "razorpay"
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (!d || Date.now() - d.t > DRAFT_TTL_MS) { localStorage.removeItem(DRAFT_KEY); return; }
+      setForm(f => (f.name || f.phone || f.email ? f : { ...f, name: d.name || "", age: d.age || "", phone: d.phone || "", email: d.email || "" }));
+      if (d.name || d.phone || d.email) setDraftRestored(true);
+    } catch { /* storage blocked or corrupt — start blank */ }
+  }, []);
+  useEffect(() => {
+    if (!form.name && !form.phone && !form.email) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ name: form.name, age: form.age, phone: form.phone, email: form.email, t: Date.now() }));
+    } catch { /* ignore */ }
+  }, [form.name, form.age, form.phone, form.email]);
+  const clearDraft = () => {
+    try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+    setForm({ name: "", age: "", phone: "", email: "", concern: "" });
+    setDraftRestored(false);
+  };
+
+  // Soft hints while typing (the Continue button still does the real validation).
+  const phoneHint = form.phone && form.phone.length < 10 ? <div className="na-fnote">Enter all 10 digits ({form.phone.length}/10)</div> : null;
+  const emailHint = form.email && !/^\S+@\S+\.\S+$/.test(form.email.trim()) ? <div className="na-fnote">This email looks incomplete — please check it</div> : null;
 
   const handlePhoneChange = (v) => {
     const digits = v.replace(/\D/g, "").slice(0, 10);
@@ -969,11 +1084,15 @@ export default function NoidaAppointment() {
       });
       const data = await res.json();
       if (data.status) {
+        track("noida_booking_complete", { booking_type: bookingType, value: Number(totalAmount) || 0, currency: "INR" });
+        try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
         setStatus("success");
       } else if (data.paymentHandled && data.refunded !== undefined) {
         // Paid, but the slot went before the booking could be made — the server
         // has already refunded (or flagged it for staff). Send them back to
         // pick another slot with the explanation, instead of a dead-end error.
+        setLostSlot({ date: selectedDate, slot: selectedSlot });
+        track("noida_slot_taken", { booking_type: bookingType, stage: "after_payment" });
         setSlotNotice(data.message);
         setError("");
         setStatus(null);
@@ -1003,6 +1122,7 @@ export default function NoidaAppointment() {
   const handleConfirmCredit = () => finalizeBooking();
 
   const handleRazorpay = async () => {
+    track("noida_payment_start", { booking_type: bookingType, value: Number(totalAmount) || 0, currency: "INR" });
     setPaymentMethod("razorpay");
     setStatus("loading");
     setError("");
@@ -1026,6 +1146,8 @@ export default function NoidaAppointment() {
       if (!orderData.status) {
         if (orderRes.status === 409) {
           // Someone took the slot while this client was filling in the form — nothing was charged.
+          setLostSlot({ date: selectedDate, slot: selectedSlot });
+          track("noida_slot_taken", { booking_type: bookingType, stage: "before_payment" });
           setSlotNotice(orderData.message || "That slot was just booked. Please pick another.");
           setError("");
           setStatus(null);
@@ -1179,7 +1301,6 @@ export default function NoidaAppointment() {
         .na-wm-dot { display: inline-block; flex-shrink: 0; width: 6px; height: 6px; margin: 0 0 1px 2px; border-radius: 50%; background: #f5b301; }
         .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #64748b; text-transform: uppercase; }
         .na-slotcell.taken { flex-direction: column; gap: 2px; padding: 0 4px; }
-        .na-taken-code { display: block; white-space: nowrap; font-size: 9.5px; font-weight: 600; letter-spacing: .3px; color: #4338ca; font-variant-numeric: tabular-nums; line-height: 1; }
         .na-taken-stamp { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 500; letter-spacing: .1px; color: #b91c1c; white-space: nowrap; line-height: 1.1; }
         .na-slotcell.closed { background: repeating-linear-gradient(135deg, #f8fafc 0 6px, #eef2f6 6px 12px); border-color: #eef2f6; }
         .na-slotcell.past { background: #f8fafc; color: #e2e8f0; }
@@ -1193,6 +1314,33 @@ export default function NoidaAppointment() {
         .na-td-today button.na-slotcell.open { border-color: #86efac; }
         .na-foot-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
         .na-foot-link:hover { color: #166534; }
+        .na-hd { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 12px; row-gap: 2px; margin-bottom: 10px; }
+        .na-hd .na-fullslots-sub { margin: 0; }
+        .na-hd-r { justify-self: end; min-width: 0; }
+        .na-hd .na-next-btn { padding: 5px 11px; font-size: 12px; }
+        .na-hd .na-chip { padding: 4px 10px; font-size: 12px; }
+        .na-fnote { margin-top: 5px; font-size: 12px; font-weight: 600; color: #b45309; }
+        .na-draft-note { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 600; }
+        .na-linkbtn { background: none; border: none; padding: 0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-family: inherit; }
+        .na-alts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -4px 0 14px; }
+        .na-alts-k { font-size: 12.5px; font-weight: 700; color: #475569; }
+        .na-alt { padding: 7px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .na-alt:hover { background: #dcfce7; border-color: #4ade80; }
+        .na-quick-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; }
+        .na-chips { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+        .na-chip { padding: 7px 13px; border-radius: 999px; border: 1.5px solid #e2e8f0; background: #fff; color: #475569; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
+        .na-chip:hover { border-color: #94a3b8; }
+        .na-chip.on { background: #166534; border-color: #166534; color: #fff; }
+        button.na-slotcell.recommended:not(.selected) { box-shadow: 0 0 0 3px rgba(34,197,94,.28); animation: naRecPulse 2.2s ease-in-out infinite; }
+        @keyframes naRecPulse { 0%, 100% { box-shadow: 0 0 0 2px rgba(34,197,94,.22); } 50% { box-shadow: 0 0 0 5px rgba(34,197,94,.32); } }
+        .na-perks { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid #eef2f6; }
+        .na-perks span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #475569; }
+        .na-perks svg { color: #166534; }
+        .na-perks .na-perk-price { color: #0f172a; font-weight: 800; }
+        .na-help-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 12.5px; font-weight: 700; color: #166534; text-decoration: none; }
+        .na-help-link:hover { text-decoration: underline; }
+        .na-next-btn { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 8px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
+        .na-next-btn:hover { background: #dcfce7; border-color: #4ade80; }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
         .na-fullslots-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #64748b; font-weight: 600; }
         .na-fullslots-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
@@ -1314,6 +1462,7 @@ export default function NoidaAppointment() {
         .na-dn.today { background: #1a6b3a; color: #fff; }
         .na-mo { font-size: 9.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 1px; }
         .na-selbar { position: fixed; left: 0; right: 0; bottom: var(--na-ck, 0px); z-index: 50; display: flex; align-items: center; gap: 12px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #e2e8f0; box-shadow: 0 -8px 24px rgba(15,61,34,.10); }
+        @media (min-width: 641px) { .na-selbar { padding-left: max(16px, calc((100vw - 1100px) / 2 + 26px)); padding-right: max(16px, calc((100vw - 1100px) / 2 + 26px)); } }
         .na-selbar-info { flex: 1; min-width: 0; }
         .na-selbar-k { font-size: 10.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #64748b; }
         .na-selbar-v { font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 1px; }
@@ -1349,10 +1498,11 @@ export default function NoidaAppointment() {
         .na-tab .na-dn { width: 30px; height: 30px; border-radius: 15px; font-size: 15px; }
         .na-tab-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 14px; }
         .na-tab-legend { margin: 0; padding: 0; border: none; max-width: 300px; justify-content: flex-end; gap: 8px 16px; }
-        .na-tab-selcard { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 24px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); }
+        .na-tab-selcard { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 24px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); position: sticky; bottom: 10px; z-index: 5; }
         .na-tab-selv { font-size: 21px; font-weight: 800; color: #0f172a; margin-top: 3px; }
         .na-tab-cta { flex-shrink: 0; height: 56px; padding: 0 40px; border: none; border-radius: 14px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(22,101,52,.28); font-family: inherit; }
         .na-tab-cta:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+        .na-tab-cta-dock { position: sticky; bottom: 0; z-index: 2; margin: 0 -22px -22px; padding: 12px 22px 22px; background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 22%); border-radius: 0 0 22px 22px; }
         .na-tab-panel { flex-shrink: 0; width: 330px; box-sizing: border-box; padding: 22px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); display: flex; flex-direction: column; gap: 14px; }
         .na-tab-panel-title { font-size: 20px; font-weight: 800; color: #0f172a; }
         .na-tab-slotbox { padding: 16px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; }
@@ -1443,7 +1593,7 @@ export default function NoidaAppointment() {
         .na-succ-btn:hover { border-color: #1a6b3a; background: #e3f8ea; }
         .na-succ-hint { font-size: 12.5px; color: #64748b; margin: 14px 0 0 !important; }
         @media (prefers-reduced-motion: reduce) {
-          .na-fullslots-table td .na-slotcell, button.na-slotcell.selected, .na-selbar, .na-selbar-v, .na-tab-selv, .na-tab-slotbox, .na-tab-slotbox-v, .na-tab-slotbox-t, .na-tick-bg, .na-step-dot.done .na-step-circle svg { animation: none; }
+          .na-fullslots-table td .na-slotcell, button.na-slotcell.selected, button.na-slotcell.recommended, .na-selbar, .na-selbar-v, .na-tab-selv, .na-tab-slotbox, .na-tab-slotbox-v, .na-tab-slotbox-t, .na-tick-bg, .na-step-dot.done .na-step-circle svg { animation: none; }
           .na-tick-c, .na-tick-p { animation: none; stroke-dashoffset: 0; }
           .na-step-line::after { transition: none; }
         }
@@ -1480,7 +1630,7 @@ export default function NoidaAppointment() {
                     <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: rescheduleStatus ? 10 : 14 }}>
                       <div>
                         <label className="na-lbl">Phone Number *</label>
-                        <input className="na-inp" value={reschedulePhone} onChange={e => handleReschedulePhoneChange(e.target.value)} placeholder="10-digit mobile you booked with" type="tel" inputMode="numeric" maxLength={10} />
+                        <input className="na-inp" value={reschedulePhone} onChange={e => handleReschedulePhoneChange(e.target.value)} placeholder="10-digit mobile you booked with" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} />
                       </div>
                     </div>
 
@@ -1496,6 +1646,7 @@ export default function NoidaAppointment() {
 
                         <SlotsTable
                           matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }}
+                          trackAs="reschedule"
                           loading={rescheduleMatrixLoading}
                           isMobile={isMobile}
                           isTablet={tablet}
@@ -1531,7 +1682,7 @@ export default function NoidaAppointment() {
                 <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: lookupStatus ? 10 : 14 }}>
                   <div>
                     <label className="na-lbl">Phone Number *</label>
-                    <input className="na-inp" value={form.phone} onChange={e => handlePhoneChange(e.target.value)} placeholder="10-digit mobile you booked with before" type="tel" inputMode="numeric" maxLength={10} />
+                    <input className="na-inp" value={form.phone} onChange={e => handlePhoneChange(e.target.value)} placeholder="10-digit mobile you booked with before" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} />{phoneHint}
                   </div>
                 </div>
                 {lookupStatus === "checking" && <div className="na-lookup-box na-lookup-checking">Checking…</div>}
@@ -1553,7 +1704,7 @@ export default function NoidaAppointment() {
                   <div className="na-row">
                     <div>
                       <label className="na-lbl">Full Name *</label>
-                      <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" />
+                      <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" autoComplete="name" autoCapitalize="words" enterKeyHint="next" />
                     </div>
                     <div>
                       <label className="na-lbl">Age</label>
@@ -1565,7 +1716,7 @@ export default function NoidaAppointment() {
                   <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                     <div>
                       <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional, for confirmation)</span></label>
-                      <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+                      <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" autoComplete="email" inputMode="email" autoCapitalize="none" enterKeyHint="next" />{emailHint}
                     </div>
                   </div>
                 )}
@@ -1584,7 +1735,7 @@ export default function NoidaAppointment() {
             </div>
           </div>
         ) : phase === "slots" ? (
-          <div className={`na-fullslots-wrap ${isMobile && pendingPick ? "has-bar" : ""} ${tablet ? `na-tab ${landscape ? "land" : "port"}` : ""}`}>
+          <div className={`na-fullslots-wrap ${!tablet && pendingPick ? "has-bar" : ""} ${tablet ? `na-tab ${landscape ? "land" : "port"}` : ""}`}>
             <div className="na-tab-cols">
             <div className="na-fullslots-card na-tab-main">
               {slotNotice && (
@@ -1593,58 +1744,88 @@ export default function NoidaAppointment() {
                   <button type="button" aria-label="Dismiss" onClick={() => setSlotNotice("")} style={{ background: "none", border: "none", color: "inherit", fontSize: 18, lineHeight: 1, cursor: "pointer", padding: "0 4px", fontFamily: "inherit" }}><Ic I={CloseRounded} s={18} /></button>
                 </div>
               )}
+              {slotNotice && lostSlot && (() => {
+                const target = slotStartInstant(lostSlot.date, lostSlot.slot).getTime();
+                const alts = Object.keys(slotsMatrix.grid || {})
+                  .filter(k => slotsMatrix.grid[k] === "open" && k !== `${lostSlot.date}|${lostSlot.slot}`)
+                  .map(k => { const [d, t] = k.split("|"); return { d, t, diff: Math.abs(slotStartInstant(d, t).getTime() - target) }; })
+                  .sort((a, b) => a.diff - b.diff)
+                  .slice(0, 3);
+                if (!alts.length) return null;
+                return (
+                  <div className="na-alts" role="group" aria-label="Closest open slots">
+                    <span className="na-alts-k">Closest open slots:</span>
+                    {alts.map(a => {
+                      const l = dateLabel(a.d);
+                      return (
+                        <button key={a.d + a.t} type="button" className="na-alt" onClick={() => {
+                          track("noida_alt_slot_click", { booking_type: bookingType, slot_date: a.d, slot_time: a.t });
+                          setSlotNotice("");
+                          setPendingPick({ date: a.d, slot: a.t, isLM: false });
+                        }}>
+                          {l.weekday} {l.day} {l.month} · {shortTime(a.t)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
               <SlotsTable
                 matrix={{ ...slotsMatrix, onPick: usePendingPick ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
                 loading={slotsMatrixLoading}
                 isMobile={isMobile}
                 isTablet={tablet}
+                trackAs={bookingType}
                 selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
-                ) : tablet ? (
-                  <div className="na-tab-head">
-                    <div>
-                      <div className="na-fullslots-title" style={{ fontSize: 20 }}>Pick an open slot</div>
-                      <div className="na-fullslots-sub" style={{ marginBottom: 0 }}>{bookingType === "followup" ? "Follow-up" : "New client"} · next {MATRIX_DAYS} open days · times in IST</div>
-                    </div>
-                    <div className="na-fullslots-legend na-tab-legend">
-                      <span><i className="na-sw na-sw-open" /> Open</span>
-                      <span><i className="na-sw na-sw-lm" /> Starting soon</span>
-                      <span><i className="na-sw na-sw-taken" /> Booked</span>
-                      <span><i className="na-sw na-sw-past" /> Passed</span>
-                      <span><i className="na-sw-closed" /> Not open</span>
-                    </div>
+                ) : (q) => (
+                  <div className="na-hd">
+                    <div className="na-fullslots-title" style={tablet ? { fontSize: 20 } : undefined}>{tablet ? "Pick an open slot" : "Pick an open slot to start booking"}</div>
+                    <div className="na-hd-r">{q.next}</div>
+                    <div className="na-fullslots-sub">{bookingType === "followup" ? "Follow-up" : "New client"}{tablet ? ` · next ${MATRIX_DAYS} open days · times in IST` : ` availability — next ${MATRIX_DAYS} open days`}</div>
+                    <div className="na-hd-r">{q.chips}</div>
                   </div>
-                ) : (
-                  <>
-                    <div className="na-fullslots-title">Pick an open slot to start booking</div>
-                    <div className="na-fullslots-sub">{bookingType === "followup" ? "Follow-up" : "New client"} availability — next {MATRIX_DAYS} open days</div>
-                  </>
                 )}
               />
 
-              {!tablet && (
+              {(
                 <div className="na-fullslots-legend">
-                  <span><i className="na-sw na-sw-open" /> Open{isMobile ? "" : " — tap to book"}</span>
-                  <span><i className="na-sw na-sw-lm" /> Starting soon{isMobile ? "" : " — needs a quick OK from us"}</span>
+                  <span><i className="na-sw na-sw-open" /> Open{isMobile || tablet ? "" : " — tap to book"}</span>
+                  <span><i className="na-sw na-sw-lm" /> Starting soon{isMobile || tablet ? "" : " — needs a quick OK from us"}</span>
                   <span><i className="na-sw na-sw-taken" /> Booked</span>
                   <span><i className="na-sw na-sw-past" /> Passed</span>
                   <span><i className="na-sw-closed" /> Not open</span>
                 </div>
               )}
+
+              <div className="na-perks">
+                {(() => {
+                  const prices = [pricing?.individual_inperson, pricing?.individual_online, pricing?.individual_homevisit].map(Number).filter(n => n > 0);
+                  if (!prices.length || usingCredit) return null;
+                  return <span className="na-perk-price"><Ic I={CurrencyRupeeRounded} s={15} /> From ₹{Math.min(...prices)} per session{platformFee ? ` + ₹${platformFee} platform fee` : ""}</span>;
+                })()}
+                <span><Ic I={ScheduleRounded} s={15} /> 50–60 min session</span>
+                <span><Ic I={PlaceRounded} s={15} /> Sector 51, Noida</span>
+                <span><Ic I={LockRounded} s={15} /> Secure online payment</span>
+                <span><Ic I={CalendarMonthRounded} s={15} /> Easy rescheduling</span>
+              </div>
+              <a className="na-help-link" href={waLink("Hi, I need help choosing a slot at CYT Noida.")} target="_blank" rel="noopener noreferrer" onClick={() => track("noida_whatsapp_help_click", { booking_type: bookingType })}>
+                <Ic I={WhatsAppIcon} s={16} /> Not sure which slot? Chat with us on WhatsApp
+              </a>
             </div>
 
             {tablet && (() => {
               const lbl = pendingPick ? dateLabel(pendingPick.date) : null;
               const go = () => pendingPick && handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM);
-              const cta = pendingPick?.isLM ? "Send request" : "Continue";
+              const cta = pendingPick?.isLM ? "Send request" : "Continue →";
               if (!landscape) {
                 return (
                   <div className="na-tab-selcard">
                     <div>
                       <div className="na-selbar-k">Selected</div>
                       <div className="na-tab-selv" key={pendingPick ? pendingPick.date + pendingPick.slot : "none"}>{lbl ? `${lbl.weekday}, ${lbl.day} ${lbl.month} · ${pendingPick.slot}` : "Tap an open slot to continue"}</div>
-                      <div className="na-selbar-h">{pendingPick?.isLM ? "Starts within 15 min — the center confirms first" : "50–60 min session · Sector 51, Noida"}</div>
+                      <div className="na-selbar-h">{pendingPick?.isLM ? "Starts within 15 min — the center confirms first" : pendingPick ? "Tap Continue — next: your details & payment" : "50–60 min session · Sector 51, Noida"}</div>
                     </div>
                     <button type="button" className="na-tab-cta" disabled={!pendingPick} onClick={go}>{cta}</button>
                   </div>
@@ -1710,7 +1891,13 @@ export default function NoidaAppointment() {
                   )}
 
                   <div style={{ flexGrow: 1 }} />
-                  <button type="button" className="na-tab-cta" style={{ width: "100%" }} disabled={!pendingPick} onClick={go}>{cta}</button>
+                  {/* Sticks to the bottom of the screen: the panel is as tall as the table, so a plain bottom button sat below the fold. */}
+                  <div className="na-tab-cta-dock">
+                    <div className="na-selbar-h" style={{ textAlign: "center", margin: "0 0 8px" }}>
+                      {pendingPick ? (pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "Tap Continue — next: your details & payment") : "Pick an open slot to continue"}
+                    </div>
+                    <button type="button" className="na-tab-cta" style={{ width: "100%" }} disabled={!pendingPick} onClick={go}>{cta}</button>
+                  </div>
                 </div>
               );
             })()}
@@ -1766,7 +1953,7 @@ export default function NoidaAppointment() {
                             <div className="na-row" style={{ gridTemplateColumns: "1fr", marginBottom: lookupStatus ? 10 : 14 }}>
                               <div>
                                 <label className="na-lbl">Phone Number *</label>
-                                <input className="na-inp" value={form.phone} onChange={e => handlePhoneChange(e.target.value)} placeholder="10-digit mobile you booked with before" type="tel" inputMode="numeric" maxLength={10} />
+                                <input className="na-inp" value={form.phone} onChange={e => handlePhoneChange(e.target.value)} placeholder="10-digit mobile you booked with before" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} />{phoneHint}
                               </div>
                             </div>
                             {lookupStatus === "checking" && <div className="na-lookup-box na-lookup-checking">Checking…</div>}
@@ -1783,7 +1970,7 @@ export default function NoidaAppointment() {
                               <div className="na-row">
                                 <div>
                                   <label className="na-lbl">Full Name *</label>
-                                  <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" />
+                                  <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" autoComplete="name" autoCapitalize="words" enterKeyHint="next" />
                                 </div>
                                 <div>
                                   <label className="na-lbl">Age</label>
@@ -1795,17 +1982,23 @@ export default function NoidaAppointment() {
                               <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
                                 <div>
                                   <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
-                                  <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+                                  <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" autoComplete="email" inputMode="email" autoCapitalize="none" enterKeyHint="next" />{emailHint}
                                 </div>
                               </div>
                             )}
                           </>
                         ) : (
                           <>
+                            {draftRestored && (
+                              <div className="na-draft-note">
+                                <span>Welcome back — we've filled in your details from earlier.</span>
+                                <button type="button" className="na-linkbtn" onClick={clearDraft}>Not you? Clear</button>
+                              </div>
+                            )}
                             <div className="na-row">
                               <div>
                                 <label className="na-lbl">Full Name *</label>
-                                <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" />
+                                <input className="na-inp" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Priya Sharma" autoComplete="name" autoCapitalize="words" enterKeyHint="next" />
                               </div>
                               <div>
                                 <label className="na-lbl">Age</label>
@@ -1815,11 +2008,11 @@ export default function NoidaAppointment() {
                             <div className="na-row">
                               <div>
                                 <label className="na-lbl">Phone Number *</label>
-                                <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" type="tel" inputMode="numeric" maxLength={10} />
+                                <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} />{phoneHint}
                               </div>
                               <div>
                                 <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
-                                <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" />
+                                <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" autoComplete="email" inputMode="email" autoCapitalize="none" enterKeyHint="next" />{emailHint}
                               </div>
                             </div>
                           </>
@@ -2071,17 +2264,17 @@ export default function NoidaAppointment() {
           </div>
         </footer>
 
-        {isMobile && phase === "slots" && bookingType !== "reschedule" && pendingPick && (() => {
+        {!tablet && phase === "slots" && bookingType !== "reschedule" && pendingPick && (() => {
           const lbl = dateLabel(pendingPick.date);
           return (
             <div className="na-selbar" role="region" aria-label="Selected slot">
               <div className="na-selbar-info">
                 <div className="na-selbar-k">Selected</div>
                 <div className="na-selbar-v" key={pendingPick.date + pendingPick.slot}>{lbl.weekday}, {lbl.day} {lbl.month} · {shortTime(pendingPick.slot)}</div>
-                <div className="na-selbar-h">{pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "50–60 min session · Sector 51, Noida"}</div>
+                <div className="na-selbar-h">{pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "Tap Continue — next: your details & payment"}</div>
               </div>
               <button type="button" className="na-selbar-btn" onClick={() => handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM)}>
-                {pendingPick.isLM ? "Send request" : "Continue"}
+                {pendingPick.isLM ? "Send request" : "Continue →"}
               </button>
             </div>
           );
