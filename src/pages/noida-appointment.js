@@ -390,12 +390,60 @@ const PERIODS = [
   { key: "evening", label: "Evening", test: (m) => m >= 17 * 60 },
 ];
 
-function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new" }) {
-  // Phones page through 5 days; tablets fit all 10 but share the compact
-  // header (weekday + day circle) and short time labels.
+function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new", fit = false }) {
+  // Phones swipe sideways through all the days (wide columns, time column pinned); tablets fit all 10
+  // and share the compact header (weekday + day circle) and short time labels.
   const compact = isMobile || isTablet;
-  const [page, setPage] = useState(0);
+  const [swipe, setSwipe] = useState({ first: 0, last: 0 }); // first/last day column currently in view (phones)
   const [period, setPeriod] = useState("");
+  const scrollRef = useRef(null);
+  const measureSwipe = () => {
+    const el = scrollRef.current;
+    if (!el || !isMobile) return;
+    const ths = Array.from(el.querySelectorAll("thead th")).slice(1);
+    if (!ths.length) return;
+    const timeW = el.querySelector("thead th").offsetWidth;
+    const left = el.scrollLeft;
+    const right = left + el.clientWidth;
+    let first = ths.findIndex(t => t.offsetLeft + t.offsetWidth > left + timeW + 6);
+    if (first < 0) first = ths.length - 1;
+    let last = first;
+    ths.forEach((t, i) => { if (t.offsetLeft + 6 < right) last = i; });
+    setSwipe(sw => (sw.first === first && sw.last === last ? sw : { first, last }));
+  };
+  const scrollToDate = (d) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const th = el.querySelectorAll("thead th")[matrix.dates.indexOf(d) + 1];
+    if (th) el.scrollTo({ left: Math.max(0, th.offsetLeft - el.querySelector("thead th").offsetWidth), behavior: "smooth" });
+  };
+  const swipeBy = (dir) => {
+    const el = scrollRef.current;
+    const th = el && el.querySelector("thead th:nth-child(2)");
+    if (el) el.scrollBy({ left: dir * (th ? th.offsetWidth : 90) * 2, behavior: "smooth" });
+  };
+  useEffect(() => { measureSwipe(); }, [isMobile, loading, period, matrix.dates.length, matrix.times.length]);
+  // Fit mode: the parent gives the table a fixed-height box; pick the row height that makes every row fit inside it, no scrolling.
+  useEffect(() => {
+    if (!fit) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    const calc = () => {
+      const rows = el.querySelectorAll("tbody tr").length;
+      const table = el.querySelector("table");
+      if (!rows || !table) return;
+      const head = el.querySelector("thead");
+      const spacing = parseFloat(getComputedStyle(table).borderSpacing) || 5;
+      const avail = el.clientHeight - (head ? head.offsetHeight : 0) - spacing * (rows + 2);
+      const h = Math.floor(avail / rows);
+      el.style.setProperty("--na-cell-h", `${Math.max(22, Math.min(56, h))}px`);
+    };
+    calc();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [fit, loading, period, matrix.times.length, matrix.dates.length]);
   // `header` is an element, or a function that receives the quick controls so a
   // page can seat them on its own title lines instead of adding a row above the table.
   const inlineQuick = typeof header === "function";
@@ -403,12 +451,11 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   if (loading) return <>{renderHeader({})}<SlotsSkeleton cols={isMobile ? MOBILE_PAGE_DAYS : 10} /></>;
   if (!matrix.dates.length) return <>{renderHeader({})}<EmptySlots /></>;
 
-  const pageCount = isMobile ? Math.ceil(matrix.dates.length / MOBILE_PAGE_DAYS) : 1;
-  const safePage = Math.min(page, pageCount - 1);
-  const visibleDates = isMobile ? matrix.dates.slice(safePage * MOBILE_PAGE_DAYS, safePage * MOBILE_PAGE_DAYS + MOBILE_PAGE_DAYS) : matrix.dates;
+  const visibleDates = matrix.dates;
   const today = istTodayStr();
-  const first = dateLabel(visibleDates[0]);
-  const last = dateLabel(visibleDates[visibleDates.length - 1]);
+  const lastIdx = matrix.dates.length - 1;
+  const first = dateLabel(visibleDates[isMobile ? Math.min(swipe.first, lastIdx) : 0]);
+  const last = dateLabel(visibleDates[isMobile ? Math.min(Math.max(swipe.last, swipe.first), lastIdx) : lastIdx]);
   const rangeLabel = first.month === last.month ? `${first.day} – ${last.day} ${last.month}` : `${first.day} ${first.month} – ${last.day} ${last.month}`;
 
   // Only offer periods that actually have rows; a stale choice (rows vanished on refresh) falls back to All.
@@ -429,7 +476,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
       type="button"
       className="na-next-btn"
       onClick={() => {
-        if (isMobile) setPage(Math.floor(matrix.dates.indexOf(nextSlot.d) / MOBILE_PAGE_DAYS));
+        if (isMobile) scrollToDate(nextSlot.d);
         track("noida_next_available_click", { booking_type: trackAs, slot_date: nextSlot.d, slot_time: nextSlot.t });
         matrix.onPick(nextSlot.d, nextSlot.t, false);
       }}
@@ -456,17 +503,17 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
     <>
       {isMobile ? (
         <div className="na-pager-row">
-          <div className="na-pager-head">{renderHeader({ next: nextButton, chips: filterChips })}<div className="na-pager-range">{rangeLabel} · IST</div></div>
-          {pageCount > 1 && (
+          <div className="na-pager-head">{renderHeader({ next: nextButton, chips: filterChips })}<div className="na-pager-range">{rangeLabel} · IST{swipe.last < lastIdx ? " · swipe →" : ""}</div></div>
+          {matrix.dates.length > 3 && (
             <div className="na-pager-btns">
-              <button type="button" className="na-pager-btn" aria-label="Earlier days" disabled={safePage === 0} onClick={() => setPage(safePage - 1)}>‹</button>
-              <button type="button" className="na-pager-btn" aria-label="Later days" disabled={safePage >= pageCount - 1} onClick={() => setPage(safePage + 1)}>›</button>
+              <button type="button" className="na-pager-btn" aria-label="Earlier days" disabled={swipe.first <= 0} onClick={() => swipeBy(-1)}>‹</button>
+              <button type="button" className="na-pager-btn" aria-label="Later days" disabled={swipe.last >= lastIdx} onClick={() => swipeBy(1)}>›</button>
             </div>
           )}
         </div>
       ) : renderHeader({ next: nextButton, chips: filterChips })}
     {!inlineQuick && (nextButton || filterChips) && <div className="na-quick-row">{nextButton}{filterChips}</div>}
-    <div className="na-fullslots-scroll">
+    <div className={`na-fullslots-scroll ${fit ? "fit" : ""} ${isMobile ? "swipe" : ""}`} ref={scrollRef} onScroll={isMobile ? measureSwipe : undefined}>
       <table className="na-fullslots-table">
         <thead>
           <tr>
@@ -488,7 +535,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
         <tbody>
           {visibleTimes.map((t, ri) => (
             <tr key={t}>
-              <td className="na-time-col">{compact ? shortTime(t) : t.split(" - ")[0]}</td>
+              <td className="na-time-col">{compact && !isMobile ? shortTime(t) : t.split(" - ")[0]}</td>
               {visibleDates.map((d, ci) => {
                 const tdProps = { className: d === today ? "na-td-today" : undefined, style: { "--na-i": ri + ci } };
                 const state = matrix.grid[`${d}|${t}`];
@@ -1199,6 +1246,20 @@ export default function NoidaAppointment() {
   const formatLabel = format === "home-visit" ? "Home Visit" : format === "online" ? "Online" : "In-person";
   const modeLabel = sessionMode === "package" ? (selectedPackage?.name || "Package") : sessionMode === "couple" ? "Couple" : "Individual";
 
+  const tabsEl = (
+    <div className="na-topbar">
+      <div className="na-topbar-tabs">
+        <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
+        <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
+        <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
+      </div>
+    </div>
+  );
+  // The slots table is pinned to one screen (no scrolling) on tablet and desktop.
+  const fitSlots = phase === "slots" && bookingType !== "reschedule";
+  const fromPrices = [pricing?.individual_inperson, pricing?.individual_online, pricing?.individual_homevisit].map(Number).filter(n => n > 0);
+  const fromPriceText = fromPrices.length && !usingCredit ? `From ₹${Math.min(...fromPrices)} per session${platformFee ? ` + ₹${platformFee} platform fee` : ""}` : "";
+
   return (
     <>
       <Head>
@@ -1326,6 +1387,82 @@ export default function NoidaAppointment() {
         .na-alts-k { font-size: 12.5px; font-weight: 700; color: #475569; }
         .na-alt { padding: 7px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .na-alt:hover { background: #dcfce7; border-color: #4ade80; }
+        .na-perks .na-help-link { margin: 0; font-size: 12px; }
+        .na-selbar-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+        .na-selbar.inflow { position: static; animation: none; box-shadow: none; background: transparent; border-top: 1px solid #e2e8f0; padding: 10px 6px 0; margin-top: 8px; }
+        .na-selbar.inflow .na-selbar-btn { height: 46px; }
+
+        /* Tablet + desktop: the tabs sit in the card and the slots screen is exactly one viewport tall — no page or table scrolling. */
+        .na-page.na-fit .na-topbar { max-width: none; margin: 0; align-self: stretch; padding: 12px 22px 0; justify-content: flex-end; }
+        .na-page.na-fit .na-topbar-tabs { background: #f1f5f3; box-shadow: none; }
+        /* the card IS the page: edge to edge, full viewport height */
+        .na-page.na-fit { background: #fff; }
+        .na-page.na-fit .na-shell { max-width: none; width: 100%; margin: 0; border-radius: 0; box-shadow: none; min-height: calc(100vh - var(--na-ck, 0px)); min-height: calc(100dvh - var(--na-ck, 0px)); }
+        .na-page.na-fit.is-tablet .na-shell { margin: 0; }
+        .na-page.na-fit .na-shell:not(.fit-slots) { display: flex; flex-direction: column; }
+        .na-page.na-fit .na-shell:not(.fit-slots) > .na-centerwrap { flex: 1; display: flex; flex-direction: column; margin: 0; width: 100%; box-sizing: border-box; padding-bottom: 24px; }
+        .na-page.na-fit .na-shell:not(.fit-slots) > .na-centerwrap > .na-card { margin: auto; width: 100%; max-width: 700px; }
+        .na-page.na-fit .na-shell.fit-slots { height: calc(100vh - var(--na-ck, 0px)); height: calc(100dvh - var(--na-ck, 0px)); display: flex; flex-direction: column; }
+        .na-page.na-fit .na-shell.fit-slots > .na-fullslots-wrap { margin: 0; width: 100%; box-sizing: border-box; flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 2px 22px 14px; }
+        .na-page.na-fit .na-shell.fit-slots .na-tab-cols { flex: 1; min-height: 0; display: flex; gap: 16px; align-items: stretch; }
+        .na-page.na-fit .na-shell.fit-slots .na-tab-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 4px 6px 0; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll { flex: 1; min-height: 0; overflow: hidden; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.fit .na-slotcell { height: var(--na-cell-h, 36px); min-width: 0; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-table { table-layout: fixed; }
+        .na-page.na-fit .na-shell.fit-slots .na-skel-cell { height: 30px; }
+        /* phones: swipe sideways through the days — wide columns (~3.4 visible), time column pinned on the left */
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe { overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; scroll-padding-left: 82px; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .na-fullslots-scroll.swipe::-webkit-scrollbar { display: none; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-fullslots-table { table-layout: auto; width: max-content; min-width: 100%; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:not(:first-child), .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td:not(.na-time-col) { min-width: calc((100vw - 100px) / 3.2); }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe thead th:not(:first-child) { scroll-snap-align: start; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:first-child, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { position: sticky; left: 0; z-index: 3; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:first-child { background: #fff; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { box-shadow: 6px 0 8px -6px rgba(15, 61, 34, .22); }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:first-child, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { width: 78px; min-width: 78px; }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { font-size: 12.5px; font-weight: 800; padding: 0 4px; border-radius: 10px; letter-spacing: 0; }
+        @media (max-width: 640px) and (max-height: 700px) {
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-legend, .na-page.na-fit .na-shell.fit-slots .na-pager-range { display: none; }
+          .na-page.na-fit .na-selbar.inflow .na-selbar-h { display: none; }
+        }
+        @media (max-width: 640px) {
+          .na-page.na-fit .na-topbar { padding: 8px 10px 0; }
+          /* plain day headers on phones: no green block, small circle for today */
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-table th.na-th-today { background: transparent; }
+          .na-page.na-fit .na-shell.fit-slots .na-th-m { padding: 0 0 4px !important; }
+          .na-page.na-fit .na-shell.fit-slots .na-th-m .na-dn { width: 24px; height: 24px; border-radius: 12px; font-size: 13px; margin-top: 2px; }
+          .na-page.na-fit .na-shell.fit-slots .na-th-m .na-mo { font-size: 9px; }
+          .na-page.na-fit .na-topbar-tabs { width: 100%; }
+          .na-page.na-fit .na-shell.fit-slots > .na-fullslots-wrap { padding: 2px 8px 8px; }
+          .na-page.na-fit .na-shell.fit-slots .na-tab-main { padding: 2px 0 0; }
+          .na-page.na-fit .na-shell.fit-slots .na-pager-row { margin-bottom: 4px; }
+          .na-page.na-fit .na-shell.fit-slots .na-quick-row { gap: 6px 8px; margin-bottom: 6px; }
+          .na-page.na-fit .na-shell.fit-slots .na-next-btn { padding: 5px 11px; font-size: 12px; }
+          .na-page.na-fit .na-shell.fit-slots .na-chip { padding: 4px 10px; font-size: 12px; }
+          .na-page.na-fit .na-shell.fit-slots .na-perks { display: none; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-legend { margin-top: 4px; padding-top: 6px; gap: 3px 10px; }
+          .na-page.na-fit .na-selbar.inflow { padding: 6px 2px 0; margin-top: 4px; gap: 10px; }
+          .na-page.na-fit .na-selbar.inflow .na-selbar-k { display: none; }
+          .na-page.na-fit .na-selbar.inflow .na-selbar-v { font-size: 14px; }
+          .na-page.na-fit .na-selbar.inflow .na-selbar-btn { height: 42px; padding: 0 18px; font-size: 14px; }
+        }
+        .na-page.na-fit .na-shell.fit-slots .na-fullslots-legend { margin-top: 6px; padding-top: 8px; gap: 4px 14px; flex-shrink: 0; }
+        .na-page.na-fit .na-shell.fit-slots .na-perks { margin-top: 8px; padding: 7px 12px; gap: 4px 16px; flex-shrink: 0; }
+        .na-page.na-fit .na-shell.fit-slots .na-perks span { font-size: 11.5px; }
+        .na-page.na-fit .na-shell.fit-slots .na-tab-panel { min-height: 0; overflow-y: auto; }
+        .na-page.na-fit .na-shell.fit-slots .na-tab-selcard { position: static; padding: 12px 18px; flex-shrink: 0; }
+        @media (max-height: 820px) { .na-page.na-fit .na-shell.fit-slots .na-perks span:not(.na-perk-price) { display: none; } }
+        @media (max-height: 780px) {
+          .na-page.na-fit:not(.is-tablet) .na-topbar { padding: 8px 22px 0; }
+          .na-page.na-fit:not(.is-tablet) .na-topbar-tab { padding: 6px 16px; }
+          .na-page.na-fit:not(.is-tablet) .na-shell.fit-slots .na-hd { grid-template-columns: minmax(0, 1fr) auto auto; margin-bottom: 6px; }
+          .na-page.na-fit:not(.is-tablet) .na-shell.fit-slots .na-hd .na-fullslots-sub { display: none; }
+          .na-page.na-fit:not(.is-tablet) .na-shell.fit-slots .na-perks { display: none; }
+          .na-page.na-fit:not(.is-tablet) .na-shell.fit-slots .na-fullslots-legend { margin-top: 4px; padding-top: 6px; }
+          .na-page.na-fit:not(.is-tablet) .na-selbar.inflow { padding-top: 6px; margin-top: 4px; }
+          .na-page.na-fit:not(.is-tablet) .na-selbar.inflow .na-selbar-k { display: none; }
+          .na-page.na-fit:not(.is-tablet) .na-selbar.inflow .na-selbar-btn { height: 40px; }
+        }
         .na-quick-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; }
         .na-chips { display: inline-flex; gap: 6px; flex-wrap: wrap; }
         .na-chip { padding: 7px 13px; border-radius: 999px; border: 1.5px solid #e2e8f0; background: #fff; color: #475569; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
@@ -1599,17 +1736,10 @@ export default function NoidaAppointment() {
         }
       ` }} />
 
-      <div className={`na-page ${tablet ? "is-tablet" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
+      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit`} style={{ "--na-ck": `${cookieH}px` }}>
 
-        <div className="na-topbar">
-          <div className="na-topbar-tabs">
-            <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
-            <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
-            <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
-          </div>
-        </div>
-
-        <div className="na-shell">
+        <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
+        {tabsEl}
         {bookingType === "reschedule" ? (
           <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
             <div className="na-card">
@@ -1735,7 +1865,7 @@ export default function NoidaAppointment() {
             </div>
           </div>
         ) : phase === "slots" ? (
-          <div className={`na-fullslots-wrap ${!tablet && pendingPick ? "has-bar" : ""} ${tablet ? `na-tab ${landscape ? "land" : "port"}` : ""}`}>
+          <div className={`na-fullslots-wrap ${tablet ? `na-tab ${landscape ? "land" : "port"}` : ""}`}>
             <div className="na-tab-cols">
             <div className="na-fullslots-card na-tab-main">
               {slotNotice && (
@@ -1776,6 +1906,7 @@ export default function NoidaAppointment() {
                 isMobile={isMobile}
                 isTablet={tablet}
                 trackAs={bookingType}
+                fit
                 selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
@@ -1809,10 +1940,10 @@ export default function NoidaAppointment() {
                 <span><Ic I={PlaceRounded} s={15} /> Sector 51, Noida</span>
                 <span><Ic I={LockRounded} s={15} /> Secure online payment</span>
                 <span><Ic I={CalendarMonthRounded} s={15} /> Easy rescheduling</span>
-              </div>
-              <a className="na-help-link" href={waLink("Hi, I need help choosing a slot at CYT Noida.")} target="_blank" rel="noopener noreferrer" onClick={() => track("noida_whatsapp_help_click", { booking_type: bookingType })}>
+                <a className="na-help-link" href={waLink("Hi, I need help choosing a slot at CYT Noida.")} target="_blank" rel="noopener noreferrer" onClick={() => track("noida_whatsapp_help_click", { booking_type: bookingType })}>
                 <Ic I={WhatsAppIcon} s={16} /> Not sure which slot? Chat with us on WhatsApp
-              </a>
+                </a>
+              </div>
             </div>
 
             {tablet && (() => {
@@ -1902,6 +2033,23 @@ export default function NoidaAppointment() {
               );
             })()}
             </div>
+            {!tablet && (() => {
+              const lbl = pendingPick ? dateLabel(pendingPick.date) : null;
+              return (
+                <div className="na-selbar inflow" role="region" aria-label="Selected slot">
+                  <div className="na-selbar-info">
+                    <div className="na-selbar-k">Selected</div>
+                    <div className="na-selbar-v" key={pendingPick ? pendingPick.date + pendingPick.slot : "none"}>
+                      {lbl ? `${lbl.weekday}, ${lbl.day} ${lbl.month} · ${shortTime(pendingPick.slot)}` : "Pick an open slot to continue"}
+                    </div>
+                    <div className="na-selbar-h">{pendingPick?.isLM ? "Starts within 15 min — the center confirms first" : pendingPick ? "Tap Continue — next: your details & payment" : (fromPriceText ? `${fromPriceText} · 50–60 min · Sector 51, Noida` : "50–60 min session · Sector 51, Noida")}</div>
+                  </div>
+                  <button type="button" className="na-selbar-btn" disabled={!pendingPick} onClick={() => pendingPick && handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM)}>
+                    {pendingPick?.isLM ? "Send request" : "Continue →"}
+                  </button>
+                </div>
+              );
+            })()}
           </div>
         ) : (
           <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
@@ -2264,21 +2412,6 @@ export default function NoidaAppointment() {
           </div>
         </footer>
 
-        {!tablet && phase === "slots" && bookingType !== "reschedule" && pendingPick && (() => {
-          const lbl = dateLabel(pendingPick.date);
-          return (
-            <div className="na-selbar" role="region" aria-label="Selected slot">
-              <div className="na-selbar-info">
-                <div className="na-selbar-k">Selected</div>
-                <div className="na-selbar-v" key={pendingPick.date + pendingPick.slot}>{lbl.weekday}, {lbl.day} {lbl.month} · {shortTime(pendingPick.slot)}</div>
-                <div className="na-selbar-h">{pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "Tap Continue — next: your details & payment"}</div>
-              </div>
-              <button type="button" className="na-selbar-btn" onClick={() => handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM)}>
-                {pendingPick.isLM ? "Send request" : "Continue →"}
-              </button>
-            </div>
-          );
-        })()}
       </div>
     </>
   );
