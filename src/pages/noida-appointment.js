@@ -39,10 +39,10 @@ const LOCAL_BUSINESS_LD = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: "Choose Your Therapist LLP — CYT Noida",
-  url: "https://chooseyourtherapist.in/noida-appointment",
+  url: "https://www.chooseyourtherapist.in/noida-appointment",
   telephone: "+918077757951",
-  image: "https://chooseyourtherapist.in/og-noida-appointment.png",
-  description: "In-person therapy sessions at the Choose Your Therapist centre in Sector 51, Noida. Pick a date and time online.",
+  image: "https://www.chooseyourtherapist.in/og-noida-appointment-v2.png",
+  description: "Book therapy at the Choose Your Therapist centre in Sector 51, Noida — in-person, online or as a home visit. Pick a date and time online.",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
@@ -1299,23 +1299,22 @@ export default function NoidaAppointment() {
   return (
     <>
       <Head>
-        <title>Book an In-Person Appointment — Noida Therapy Center | Choose Your Therapist</title>
-        <meta name="description" content="Book your in-person therapy session at our Noida (Sector 51) center. Pick a date and time that works for you — instantly confirmed." />
-        <link rel="canonical" href="https://chooseyourtherapist.in/noida-appointment" />
+        <title>{"See Live Slots & Book Therapy in Noida — In-Person or Online"}</title>
+        <meta name="description" content="Book therapy your way: in-person at our Sector 51 Noida centre, online, or at home. See open slots live, pay securely, and get confirmed instantly." />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/noida-appointment" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_LD) }} />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Book an In-Person Appointment — Noida Therapy Center" />
-        <meta property="og:description" content="Pick a date and time for your in-person session at CYT Noida — instantly confirmed." />
-        <meta property="og:url" content="https://chooseyourtherapist.in/noida-appointment" />
-        <meta property="og:site_name" content="Choose Your Therapist" />
-        <meta property="og:image" content="https://chooseyourtherapist.in/og-noida-appointment.png" />
+        <meta property="og:title" content="Book therapy your way — in-person, online or at home" />
+        <meta property="og:description" content="Pick a slot that suits you. Sector 51 Noida centre · Online · Home visit. Confirmed instantly." />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/noida-appointment" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v2.png" />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Choose Your Therapist — book an in-person session at CYT Noida" />
+        <meta property="og:image:alt" content="Choose Your Therapist — pick a slot and book therapy in-person, online or at home in Noida" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Book an In-Person Appointment — Noida Therapy Center" />
-        <meta name="twitter:description" content="Pick a date and time for your in-person session at CYT Noida — instantly confirmed." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/og-noida-appointment.png" />
+        <meta name="twitter:title" content="Book therapy your way — in-person, online or at home" />
+        <meta name="twitter:description" content="Pick a slot that suits you. Sector 51 Noida centre · Online · Home visit. Confirmed instantly." />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v2.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -1324,6 +1323,7 @@ export default function NoidaAppointment() {
       <style dangerouslySetInnerHTML={{ __html: `
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; display: flow-root; }
 
+        .na-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .na-topbar { max-width: 1100px; margin: 0 auto; padding: 18px 20px 4px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
@@ -1772,6 +1772,7 @@ export default function NoidaAppointment() {
       ` }} />
 
       <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit`} style={{ "--na-ck": `${cookieH}px` }}>
+        <h1 className="na-sr">Book therapy in Noida — in-person, online or home visit</h1>
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
         {tabsEl}
