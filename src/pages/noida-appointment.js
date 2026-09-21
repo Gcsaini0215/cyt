@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Head from "next/head";
-import Script from "next/script";
 import { apiUrl } from "../utils/url";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import LockRounded from "@mui/icons-material/LockRounded";
@@ -34,6 +33,26 @@ function track(event, params = {}) {
 // doesn't mean retyping. Deliberately excludes the free-text concern and the chosen slot.
 const DRAFT_KEY = "cyt_noida_draft_v1";
 const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
+
+// Structured data so Google can show the centre (address, phone, map pin) next to the booking page.
+const LOCAL_BUSINESS_LD = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Choose Your Therapist LLP — CYT Noida",
+  url: "https://chooseyourtherapist.in/noida-appointment",
+  telephone: "+918077757951",
+  image: "https://chooseyourtherapist.in/og-noida-appointment.png",
+  description: "In-person therapy sessions at the Choose Your Therapist centre in Sector 51, Noida. Pick a date and time online.",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
+    addressLocality: "Noida",
+    addressRegion: "Uttar Pradesh",
+    postalCode: "201301",
+    addressCountry: "IN",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: 28.5821626, longitude: 77.3716335 },
+};
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -128,6 +147,17 @@ function hasNewlyBooked(prevGrid, nextGrid) {
   return Object.keys(nextGrid).some(
     (key) => nextGrid[key] === "taken" && (prevGrid[key] === "open" || prevGrid[key] === "lastMinute")
   );
+}
+
+// Razorpay's checkout script pulls in ~80 more requests, so it is fetched only when the client gets
+// to the payment step (or taps pay), not on every visit to the slots table.
+function loadRazorpay() {
+  if (typeof window === "undefined" || window.Razorpay || document.getElementById("rzp-checkout-js")) return;
+  const el = document.createElement("script");
+  el.id = "rzp-checkout-js";
+  el.src = "https://checkout.razorpay.com/v1/checkout.js";
+  el.async = true;
+  document.body.appendChild(el);
 }
 
 function waitForRazorpay(timeout = 12000) {
@@ -1120,6 +1150,11 @@ export default function NoidaAppointment() {
     packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
   });
 
+  // Warm the payment script up as soon as the payment step is showing.
+  useEffect(() => {
+    if (phase === "form" && step === 3) loadRazorpay();
+  }, [phase, step]);
+
   const finalizeBooking = async (paymentExtra = {}) => {
     setStatus("loading");
     setError("");
@@ -1169,6 +1204,7 @@ export default function NoidaAppointment() {
   const handleConfirmCredit = () => finalizeBooking();
 
   const handleRazorpay = async () => {
+    loadRazorpay();
     track("noida_payment_start", { booking_type: bookingType, value: Number(totalAmount) || 0, currency: "INR" });
     setPaymentMethod("razorpay");
     setStatus("loading");
@@ -1266,6 +1302,7 @@ export default function NoidaAppointment() {
         <title>Book an In-Person Appointment — Noida Therapy Center | Choose Your Therapist</title>
         <meta name="description" content="Book your in-person therapy session at our Noida (Sector 51) center. Pick a date and time that works for you — instantly confirmed." />
         <link rel="canonical" href="https://chooseyourtherapist.in/noida-appointment" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_LD) }} />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="Book an In-Person Appointment — Noida Therapy Center" />
         <meta property="og:description" content="Pick a date and time for your in-person session at CYT Noida — instantly confirmed." />
@@ -1283,8 +1320,6 @@ export default function NoidaAppointment() {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </Head>
-
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
       <style dangerouslySetInnerHTML={{ __html: `
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; display: flow-root; }
