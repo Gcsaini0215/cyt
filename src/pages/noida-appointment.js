@@ -631,33 +631,19 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   );
 }
 
-const WELCOME_SEEN_KEY = "cyt_na_welcome_seen_v1";
-
 export default function NoidaAppointment() {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
 
-  // First-visit-of-the-session prompt: "why are you here" (new / follow-up / reschedule),
-  // so a client doesn't have to work out the top tabs before doing anything. Shows once
-  // per browser session (sessionStorage, not localStorage — a client who closes the tab
-  // and comes back later gets asked again, but repeat tab-switches within a visit don't
-  // re-trigger it). Skipped entirely if they've already landed mid-flow (e.g. a shared
-  // link with a query param that pre-selects a tab) — nothing to ask at that point.
+  // "Why are you here" (new / follow-up / reschedule) prompt — triggered the moment a
+  // visitor taps an open slot on the (default) New Client grid without ever having said
+  // which they are, not on page load. Using the top tabs directly also counts as having
+  // said so, and stops it firing at all for the rest of this visit.
   const [showWelcome, setShowWelcome] = useState(false);
-  useEffect(() => {
-    try {
-      if (!sessionStorage.getItem(WELCOME_SEEN_KEY)) setShowWelcome(true);
-    } catch { /* private-mode storage access can throw; just skip the prompt */ }
-  }, []);
-  const dismissWelcome = (type) => {
-    try { sessionStorage.setItem(WELCOME_SEEN_KEY, "1"); } catch { /* ignore */ }
-    setShowWelcome(false);
-    if (type) switchTabRef.current?.(type);
-  };
-  // switchTab is defined further down (after several dependent pieces of state); the
-  // welcome prompt needs to call it from up here, so it's reached through a ref.
-  const switchTabRef = useRef(null);
+  const [intentConfirmed, setIntentConfirmed] = useState(false);
+  // dismissWelcome itself is defined further down, once switchTab/handlePickSlot/
+  // pendingPick all exist — it needs all three.
 
   // If this device already has a recognised phone number, find out whether it has an
   // upcoming booking — lets the slots table label that one cell as theirs (instead of
@@ -892,6 +878,13 @@ export default function NoidaAppointment() {
     setStep(bookingType === "followup" ? (skipSession ? 3 : 2) : 1);
     setError("");
     setStatus(null);
+  };
+  // The slot grid's own onPick (New Client tab): highlights the tapped cell as usual,
+  // and — the first time, before anything's told us why they're here — brings up the
+  // welcome popup right there instead of waiting for Continue.
+  const onOpenSlotPick = (date, slot, isLastMinute) => {
+    setPendingPick({ date, slot, isLM: isLastMinute });
+    if (!intentConfirmed) setShowWelcome(true);
   };
 
   const pollLastMinuteStatus = async (id) => {
@@ -1135,6 +1128,7 @@ export default function NoidaAppointment() {
   };
 
   const switchTab = (type) => {
+    setIntentConfirmed(true);
     setSlotNotice("");
     setPendingPick(null);
     resetLastMinute();
@@ -1152,7 +1146,22 @@ export default function NoidaAppointment() {
     setReschedulePhone(""); setRescheduleStatus(null); setRescheduleInfo(null);
     setRescheduleDate(""); setRescheduleSlot(""); setRescheduleDone(false); setRescheduleError("");
   };
-  switchTabRef.current = switchTab;
+
+  // The welcome popup's own dismiss handler — defined here (not near its state) because
+  // it needs switchTab and handlePickSlot above it, and pendingPick/bookingType from
+  // further up the component, all in scope.
+  const dismissWelcome = (type) => {
+    setShowWelcome(false);
+    if (!type) return; // ✕ — leave the slot picked (Continue still works below), just don't advance yet
+    setIntentConfirmed(true);
+    if (type === bookingType && pendingPick) {
+      // The slot they tapped to trigger this popup is still the one they want — go
+      // straight to it instead of resetting via switchTab, which would wipe the pick.
+      handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM);
+      return;
+    }
+    switchTab(type);
+  };
 
   const needsFullDetails = bookingType === "new" || lookupStatus === "not-found" || manualOverride;
   const effectiveName = bookingType === "followup" && lookupStatus === "found" && !manualOverride ? foundName : form.name;
@@ -2053,7 +2062,7 @@ export default function NoidaAppointment() {
                 );
               })()}
               <SlotsTable
-                matrix={{ ...slotsMatrix, mine: myUpcoming, onPick: usePendingPick ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
+                matrix={{ ...slotsMatrix, mine: myUpcoming, onPick: usePendingPick ? onOpenSlotPick : handlePickSlot }}
                 loading={slotsMatrixLoading}
                 isMobile={isMobile}
                 isTablet={tablet}
