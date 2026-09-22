@@ -37,6 +37,18 @@ function track(event, params = {}) {
 const DRAFT_KEY = "cyt_noida_draft_v1";
 const DRAFT_TTL_MS = 24 * 60 * 60 * 1000;
 
+// A phone number this device has confirmed belongs to a real client — either it matched
+// an existing booking, or they just successfully booked with it — kept indefinitely (no
+// TTL, unlike the short-lived form draft above) so a return visit weeks later still
+// recognises them, without asking them to type their number again just to find out.
+const KNOWN_PHONE_KEY = "cyt_noida_known_phone_v1";
+function saveKnownPhone(phone) {
+  try { if (/^\d{10}$/.test(phone)) localStorage.setItem(KNOWN_PHONE_KEY, phone); } catch { /* ignore */ }
+}
+function loadKnownPhone() {
+  try { const v = localStorage.getItem(KNOWN_PHONE_KEY) || ""; return /^\d{10}$/.test(v) ? v : ""; } catch { return ""; }
+}
+
 // Structured data so Google can show the centre (address, phone, map pin) next to the booking page.
 const LOCAL_BUSINESS_LD = {
   "@context": "https://schema.org",
@@ -598,11 +610,14 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                     </td>
                   );
                 }
-                const label = state === "taken" ? "Booked" : state === "past" ? "Time has passed" : "Not opened";
+                // "Booked" is deliberately anonymous for everyone else — but if this is the
+                // slot the current visitor themselves has, on their own device, say so.
+                const isMine = state === "taken" && matrix.mine && matrix.mine.date === d && matrix.mine.slot === t;
+                const label = isMine ? `Your booking${matrix.mine.name ? ` — ${matrix.mine.name.split(" ")[0]}` : ""}` : state === "taken" ? "Booked" : state === "past" ? "Time has passed" : "Not opened";
                 return (
                   <td key={d} {...tdProps}>
-                    <span className={`na-slotcell ${state || "closed"}`} title={label} aria-label={label}>
-                      {state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : null}
+                    <span className={`na-slotcell ${state || "closed"} ${isMine ? "mine" : ""}`} title={label} aria-label={label}>
+                      {isMine ? <span className="na-taken-stamp mine">You{matrix.mine.name ? ` · ${matrix.mine.name.split(" ")[0]}` : ""}</span> : state === "taken" ? <span className="na-taken-stamp">Booked</span> : state === "past" ? <span className="na-past-label">Passed</span> : null}
                     </span>
                   </td>
                 );
@@ -643,6 +658,20 @@ export default function NoidaAppointment() {
   // switchTab is defined further down (after several dependent pieces of state); the
   // welcome prompt needs to call it from up here, so it's reached through a ref.
   const switchTabRef = useRef(null);
+
+  // If this device already has a recognised phone number, find out whether it has an
+  // upcoming booking — lets the slots table label that one cell as theirs (instead of
+  // the anonymous "Booked" every other taken slot shows) without the public API ever
+  // revealing whose booking it is to anyone else.
+  const [myUpcoming, setMyUpcoming] = useState(null); // { name, date, slot, type } | null
+  useEffect(() => {
+    const phone = loadKnownPhone();
+    if (!phone) return;
+    fetch(`${apiUrl}/noida-appointments/upcoming?phone=${phone}`)
+      .then(r => r.json())
+      .then(data => { if (data?.status && data.data?.found) setMyUpcoming(data.data); })
+      .catch(() => { /* not critical — the table just won't highlight a cell */ });
+  }, []);
 
   // Phone layout: paged 5-day table and a bottom "Selected → Continue" bar
   // instead of a table that scrolls sideways. Desktop is unchanged.
@@ -927,6 +956,7 @@ export default function NoidaAppointment() {
       if (data?.status && data.data?.found) {
         setFoundName(data.data.name || "");
         setLookupStatus("found");
+        saveKnownPhone(phone);
       } else {
         setLookupStatus("not-found");
       }
@@ -1195,6 +1225,8 @@ export default function NoidaAppointment() {
       if (data.status) {
         track("noida_booking_complete", { booking_type: bookingType, value: Number(totalAmount) || 0, currency: "INR" });
         try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+        saveKnownPhone(form.phone);
+        setMyUpcoming({ name: effectiveName, date: selectedDate, slot: selectedSlot, type: bookingType });
         setStatus("success");
       } else if (data.paymentHandled && data.refunded !== undefined) {
         // Paid, but the slot went before the booking could be made — the server
@@ -1446,11 +1478,14 @@ export default function NoidaAppointment() {
         .na-past-label { font-size: 9px; font-weight: 700; letter-spacing: .4px; color: #64748b; text-transform: uppercase; }
         .na-slotcell.taken { flex-direction: column; gap: 2px; padding: 0 4px; }
         .na-taken-stamp { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 500; letter-spacing: .1px; color: #b91c1c; white-space: nowrap; line-height: 1.1; }
+        .na-slotcell.taken.mine { background: #eff6ff; border-color: #bfdbfe; }
+        .na-taken-stamp.mine { color: #1d4ed8; font-weight: 800; }
         .na-slotcell.closed { background: repeating-linear-gradient(135deg, #f8fafc 0 6px, #eef2f6 6px 12px); border-color: #eef2f6; }
         .na-slotcell.past { background: #f8fafc; color: #e2e8f0; }
         .na-sw-open { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
         .na-sw-lm { background: #fffbeb; border: 1.5px solid #fde68a; }
         .na-sw-taken { background: #fef2f2; border: 1.5px solid #fecaca; }
+        .na-sw-mine { background: #eff6ff; border: 1.5px solid #bfdbfe; }
         .na-sw-past { background: #f1f5f9; }
         .na-sw-closed { background: repeating-linear-gradient(135deg, #f8fafc 0 3px, #dbe2ea 3px 6px); border: 1px solid #e2e8f0; }
         .na-fullslots-table th.na-th-today { color: #166534; background: #e7f5ec; border-radius: 12px; }
@@ -2018,7 +2053,7 @@ export default function NoidaAppointment() {
                 );
               })()}
               <SlotsTable
-                matrix={{ ...slotsMatrix, onPick: usePendingPick ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
+                matrix={{ ...slotsMatrix, mine: myUpcoming, onPick: usePendingPick ? (d, s, lm) => setPendingPick({ date: d, slot: s, isLM: lm }) : handlePickSlot }}
                 loading={slotsMatrixLoading}
                 isMobile={isMobile}
                 isTablet={tablet}
@@ -2042,6 +2077,7 @@ export default function NoidaAppointment() {
                   <span><i className="na-sw na-sw-open" /> Open{isMobile || tablet ? "" : " — tap to book"}</span>
                   <span><i className="na-sw na-sw-lm" /> Starting soon{isMobile || tablet ? "" : " — needs a quick OK from us"}</span>
                   <span><i className="na-sw na-sw-taken" /> Booked</span>
+                  {myUpcoming && <span><i className="na-sw na-sw-mine" /> Your booking</span>}
                   <span><i className="na-sw na-sw-past" /> Passed</span>
                   <span><i className="na-sw-closed" /> Not open</span>
                 </div>
