@@ -41,8 +41,8 @@ const LOCAL_BUSINESS_LD = {
   name: "Choose Your Therapist LLP — CYT Noida",
   url: "https://www.chooseyourtherapist.in/noida-appointment",
   telephone: "+918077757951",
-  image: "https://www.chooseyourtherapist.in/og-noida-appointment-v2.png",
-  description: "Book therapy at the Choose Your Therapist centre in Sector 51, Noida — in-person, online or as a home visit. Pick a date and time online.",
+  image: "https://www.chooseyourtherapist.in/og-noida-appointment-v3.png",
+  description: "Book a psychologist at the Choose Your Therapist centre in Sector 51, Noida — in-person, online or as a home visit. Pick a date and time online.",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
@@ -1299,22 +1299,22 @@ export default function NoidaAppointment() {
   return (
     <>
       <Head>
-        <title>{"See Live Slots & Book Therapy in Noida — In-Person or Online"}</title>
-        <meta name="description" content="Book therapy your way: in-person at our Sector 51 Noida centre, online, or at home. See open slots live, pay securely, and get confirmed instantly." />
+        <title>{"Book a Psychologist in Noida: In-Person, Online or Home Visit"}</title>
+        <meta name="description" content="Book a psychologist your way: in-person at our Sector 51 Noida centre, online, or at home. See open slots live, pay securely, and get confirmed instantly." />
         <link rel="canonical" href="https://www.chooseyourtherapist.in/noida-appointment" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_LD) }} />
-        <meta property="og:title" content="Book therapy your way — in-person, online or at home" />
+        <meta property="og:title" content="Book a psychologist in Noida — in-person, online or at home" />
         <meta property="og:description" content="Pick a slot that suits you. Sector 51 Noida centre · Online · Home visit. Confirmed instantly." />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/noida-appointment" />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v2.png" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v3.png" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Choose Your Therapist — pick a slot and book therapy in-person, online or at home in Noida" />
+        <meta property="og:image:alt" content="Choose Your Therapist — pick a slot and book a psychologist in-person, online or at home in Noida" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Book therapy your way — in-person, online or at home" />
+        <meta name="twitter:title" content="Book a psychologist in Noida — in-person, online or at home" />
         <meta name="twitter:description" content="Pick a slot that suits you. Sector 51 Noida centre · Online · Home visit. Confirmed instantly." />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v2.png" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v3.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
