@@ -18,6 +18,9 @@ import CloseRounded from "@mui/icons-material/CloseRounded";
 import EventBusyRounded from "@mui/icons-material/EventBusyRounded";
 import DirectionsRounded from "@mui/icons-material/DirectionsRounded";
 import DownloadRounded from "@mui/icons-material/DownloadRounded";
+import PersonAddAlt1Rounded from "@mui/icons-material/PersonAddAlt1Rounded";
+import EventRepeatRounded from "@mui/icons-material/EventRepeatRounded";
+import UpdateRounded from "@mui/icons-material/UpdateRounded";
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
 // Never pass names, phones or emails here — only slot / step / booking-type info.
@@ -613,10 +616,33 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   );
 }
 
+const WELCOME_SEEN_KEY = "cyt_na_welcome_seen_v1";
+
 export default function NoidaAppointment() {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
+
+  // First-visit-of-the-session prompt: "why are you here" (new / follow-up / reschedule),
+  // so a client doesn't have to work out the top tabs before doing anything. Shows once
+  // per browser session (sessionStorage, not localStorage — a client who closes the tab
+  // and comes back later gets asked again, but repeat tab-switches within a visit don't
+  // re-trigger it). Skipped entirely if they've already landed mid-flow (e.g. a shared
+  // link with a query param that pre-selects a tab) — nothing to ask at that point.
+  const [showWelcome, setShowWelcome] = useState(false);
+  useEffect(() => {
+    try {
+      if (!sessionStorage.getItem(WELCOME_SEEN_KEY)) setShowWelcome(true);
+    } catch { /* private-mode storage access can throw; just skip the prompt */ }
+  }, []);
+  const dismissWelcome = (type) => {
+    try { sessionStorage.setItem(WELCOME_SEEN_KEY, "1"); } catch { /* ignore */ }
+    setShowWelcome(false);
+    if (type) switchTabRef.current?.(type);
+  };
+  // switchTab is defined further down (after several dependent pieces of state); the
+  // welcome prompt needs to call it from up here, so it's reached through a ref.
+  const switchTabRef = useRef(null);
 
   // Phone layout: paged 5-day table and a bottom "Selected → Continue" bar
   // instead of a table that scrolls sideways. Desktop is unchanged.
@@ -1096,6 +1122,7 @@ export default function NoidaAppointment() {
     setReschedulePhone(""); setRescheduleStatus(null); setRescheduleInfo(null);
     setRescheduleDate(""); setRescheduleSlot(""); setRescheduleDone(false); setRescheduleError("");
   };
+  switchTabRef.current = switchTab;
 
   const needsFullDetails = bookingType === "new" || lookupStatus === "not-found" || manualOverride;
   const effectiveName = bookingType === "followup" && lookupStatus === "found" && !manualOverride ? foundName : form.name;
@@ -1322,6 +1349,27 @@ export default function NoidaAppointment() {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; display: flow-root; }
+        .na-page.na-blurred { filter: blur(6px); pointer-events: none; user-select: none; }
+
+        .na-welcome-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15,23,20,.38); animation: naWelcomeFade .2s ease; }
+        @keyframes naWelcomeFade { from { opacity: 0; } to { opacity: 1; } }
+        .na-welcome-modal { position: relative; width: 100%; max-width: 460px; background: #fff; border-radius: 22px; box-shadow: 0 30px 70px rgba(15,61,34,.28); padding: 32px 28px 28px; font-family: 'Inter', sans-serif; animation: naWelcomePop .22s cubic-bezier(.2,.9,.3,1.2); }
+        @keyframes naWelcomePop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+        .na-welcome-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 50%; border: none; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .na-welcome-close:hover { background: #e2e8f0; color: #334155; }
+        .na-welcome-title { font-size: 21px; font-weight: 800; color: #0f172a; letter-spacing: -.3px; }
+        .na-welcome-sub { margin: 6px 0 22px; font-size: 13.5px; color: #64748b; line-height: 1.5; }
+        .na-welcome-options { display: flex; flex-direction: column; gap: 10px; }
+        .na-welcome-opt { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px 16px; border: 1.5px solid #e2e8f0; border-radius: 14px; background: #fff; cursor: pointer; font-family: inherit; transition: all .15s; }
+        .na-welcome-opt:hover { border-color: #1a6b3a; background: #f6fbf8; transform: translateY(-1px); }
+        .na-welcome-opt-icon { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: #f0fdf4; color: #166534; display: flex; align-items: center; justify-content: center; }
+        .na-welcome-opt-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+        .na-welcome-opt-label { font-size: 14.5px; font-weight: 800; color: #0f172a; }
+        .na-welcome-opt-sub { font-size: 12px; color: #64748b; }
+        @media (max-width: 480px) {
+          .na-welcome-modal { padding: 26px 20px 22px; border-radius: 18px; }
+          .na-welcome-title { font-size: 18px; }
+        }
 
         .na-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .na-topbar { max-width: 1100px; margin: 0 auto; padding: 18px 20px 4px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -1771,7 +1819,40 @@ export default function NoidaAppointment() {
         }
       ` }} />
 
-      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit`} style={{ "--na-ck": `${cookieH}px` }}>
+      {showWelcome && (
+        <div className="na-welcome-overlay" role="dialog" aria-modal="true" aria-label="What brings you here today?">
+          <div className="na-welcome-modal">
+            <button type="button" className="na-welcome-close" aria-label="Close" onClick={() => dismissWelcome(null)}><CloseRounded style={{ fontSize: 18 }} /></button>
+            <div className="na-welcome-title">What brings you here today?</div>
+            <p className="na-welcome-sub">Pick one and we'll take you straight there.</p>
+            <div className="na-welcome-options">
+              <button type="button" className="na-welcome-opt" onClick={() => dismissWelcome("new")}>
+                <span className="na-welcome-opt-icon"><PersonAddAlt1Rounded /></span>
+                <span className="na-welcome-opt-text">
+                  <span className="na-welcome-opt-label">New here</span>
+                  <span className="na-welcome-opt-sub">First time booking a session</span>
+                </span>
+              </button>
+              <button type="button" className="na-welcome-opt" onClick={() => dismissWelcome("followup")}>
+                <span className="na-welcome-opt-icon"><EventRepeatRounded /></span>
+                <span className="na-welcome-opt-text">
+                  <span className="na-welcome-opt-label">Follow-up</span>
+                  <span className="na-welcome-opt-sub">Already a client, booking my next session</span>
+                </span>
+              </button>
+              <button type="button" className="na-welcome-opt" onClick={() => dismissWelcome("reschedule")}>
+                <span className="na-welcome-opt-icon"><UpdateRounded /></span>
+                <span className="na-welcome-opt-text">
+                  <span className="na-welcome-opt-label">Reschedule</span>
+                  <span className="na-welcome-opt-sub">Change the time of an existing appointment</span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
         <h1 className="na-sr">Book therapy in Noida — in-person, online or home visit</h1>
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
