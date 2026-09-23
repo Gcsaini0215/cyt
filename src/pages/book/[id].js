@@ -106,22 +106,64 @@ function TherapistBar({ profile, selFmt, couponSave }) {
   );
 }
 
-// ── STEP PROGRESS BAR ────────────────────────────────────────────────────────
-function StepBar({ step, total }) {
+// ── THERAPIST HERO (slot-picking phase): photo, name, credentials at a glance ─
+function TherapistHero({ profile, nextLabel, fromFee }) {
+  const u = profile?.user || {};
+  const avatar = u.profile ? `${imagePath}/${u.profile}` : defaultProfile;
+  const langs = (() => {
+    const r = profile?.languages;
+    if (!r) return [];
+    return (Array.isArray(r) ? r : String(r).split(",")).map(s => String(s).trim()).filter(Boolean).slice(0, 3);
+  })();
+  const city = profile?.city || u.city;
+  const chips = [];
+  if (profile?.experience_years) chips.push({ icon: "feather-award", t: `${profile.experience_years} yrs experience` });
+  if (city) chips.push({ icon: "feather-map-pin", t: city });
+  if (langs.length) chips.push({ icon: "feather-globe", t: langs.join(", ") });
+  if (profile?.rci_number) chips.push({ icon: "feather-shield", t: "RCI verified" });
+
   return (
-    <div style={{ padding: "14px 20px 0", background: "#f8fafc" }}>
-      <div style={{ display: "flex", gap: 5 }}>
-        {Array.from({ length: total }, (_, i) => (
-          <div key={i} style={{
-            flex: 1, height: 4, borderRadius: 99,
-            background: i < step ? G : i === step ? GOLD : "#e2e8f0",
-            transition: "background .3s",
-          }} />
-        ))}
+    <div className="bk-hero">
+      <img className="bk-hero-img" src={avatar} alt={u.name || "Therapist"}
+        onError={e => { e.target.src = defaultProfile; }} />
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div className="bk-hero-eyebrow">Book a session with</div>
+        <div className="bk-hero-name">{u.name}</div>
+        <div className="bk-hero-role">{profile?.profile_type || "Mental Health Professional"}</div>
+        {chips.length > 0 && (
+          <div className="bk-chips">
+            {chips.map(c => (
+              <span key={c.t} className="bk-chip"><i className={c.icon}></i>{c.t}</span>
+            ))}
+          </div>
+        )}
       </div>
-      <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, marginTop: 6 }}>
-        Step {step + 1} of {total}
+      <div className="bk-hero-r">
+        {nextLabel && <div className="bk-next"><i className="feather-calendar"></i>Next available: {nextLabel}</div>}
+        {fromFee != null && <div className="bk-from">Sessions from <b>₹{fromFee.toLocaleString("en-IN")}</b></div>}
       </div>
+    </div>
+  );
+}
+
+// ── 3-STEP STEPPER (form phase) ──────────────────────────────────────────────
+function FormStepper({ step }) {
+  const labels = ["You", "Session", "Payment"];
+  return (
+    <div className="bk-stp">
+      {labels.map((l, i) => {
+        const n = i + 1;
+        const cls = n < step ? "done" : n === step ? "on" : "";
+        return (
+          <React.Fragment key={l}>
+            <div className={`bk-stp-it ${cls}`}>
+              <div className="bk-stp-dot">{n < step ? <i className="feather-check"></i> : n}</div>
+              <div className="bk-stp-lb">{l}</div>
+            </div>
+            {n < labels.length && <div className={`bk-stp-line ${n < step ? "done" : ""}`} />}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
@@ -167,13 +209,14 @@ export default function BookPage() {
   const [services, setServices] = React.useState([]);
   const [coupons,  setCoupons]  = React.useState([]);
 
-  const [step,     setStep]     = React.useState(0);
+  const [phase,    setPhase]    = React.useState("slots"); // "slots" | "form"
+  const [fstep,    setFstep]    = React.useState(1);       // form step: 1 You · 2 Session · 3 Payment
+  const [period,   setPeriod]   = React.useState("");      // "" | morning | afternoon | evening
   const [selSvc,   setSelSvc]   = React.useState(null);
   const [selFmt,   setSelFmt]   = React.useState(null);
   const [selDate,  setSelDate]  = React.useState(null);
   const [selSlot,  setSelSlot]  = React.useState(null);
   const [mode,     setMode]     = React.useState("video");
-  const [avSlots,  setAvSlots]  = React.useState([]);
   const [bookedSlots, setBookedSlots] = React.useState(() => new Set());
   const [bookFor,  setBookFor]  = React.useState("self");
   const [relation, setRelation] = React.useState("");
@@ -212,7 +255,11 @@ export default function BookPage() {
     fetchData(getTherapistProfile + id).then(res => {
       if (res?.status && res?.data) {
         setProfile(res.data);
-        getValidServices(res.data.fees || []).then(svcs => setServices(svcs));
+        getValidServices(res.data.fees || []).then(svcs => {
+          setServices(svcs);
+          // A single service has nothing to choose — preselect it (and its first format).
+          if (svcs.length === 1) { setSelSvc(svcs[0]); setSelFmt(svcs[0].formats?.[0] || null); }
+        });
       }
       setLoading(false);
     });
@@ -225,13 +272,13 @@ export default function BookPage() {
   }, []);
 
   // Slots already taken for this therapist — refreshed whenever the user
-  // lands on the date step so the picker stays reasonably current.
+  // returns to the slot grid so the picker stays reasonably current.
   React.useEffect(() => {
     if (!id) return;
     fetchData(BookedSlotsUrl + id)
       .then(r => { if (r?.status && Array.isArray(r.data)) setBookedSlots(new Set(r.data)); })
       .catch(() => {});
-  }, [id, step]);
+  }, [id, phase]);
 
   const slotIso = React.useCallback((date, val) => {
     if (!date || !val) return "";
@@ -241,14 +288,24 @@ export default function BookPage() {
     return d.toISOString();
   }, []);
 
-  React.useEffect(() => {
-    if (!selDate || !profile) { setAvSlots([]); return; }
-    const dn = DAYS[selDate.getDay()];
-    const av = (profile.availabilities || []).find(a => a.day === dn);
-    if (!av?.times?.length) { setAvSlots([]); return; }
-    setAvSlots(av.times.flatMap(t => buildSlots(t.open, t.close)));
-    setSelSlot(null);
-  }, [selDate, profile]);
+  // Slot grid model: one column per open day (max 10), one row per distinct start time.
+  const grid = React.useMemo(() => {
+    if (!profile) return { days: [], rows: [] };
+    const avail = profile.availabilities || [];
+    const days = [];
+    for (const d of days14) {
+      const av = avail.find(a => a.day === DAYS[d.getDay()]);
+      if (!av?.times?.length) continue;
+      const slots = av.times.flatMap(t => buildSlots(t.open, t.close));
+      if (!slots.length) continue;
+      days.push({ date: d, slots, vals: new Set(slots.map(s => s.val)) });
+    }
+    const shown = days.slice(0, 10);
+    const rowMap = new Map();
+    shown.forEach(dy => dy.slots.forEach(s => rowMap.set(s.val, s.label)));
+    const rows = [...rowMap.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([val, label]) => ({ val, label }));
+    return { days: shown, rows };
+  }, [profile, days14]);
 
   React.useEffect(() => {
     setCouponApplied(null); setCouponSave(0); setCouponErr(""); setCouponInput("");
@@ -335,16 +392,25 @@ export default function BookPage() {
   function confirmBooking() {
     // Hard gate: a guest cannot reach payment without verified contact details.
     if (!isLoggedIn && !emailVerified) {
-      setStep(2);
+      setFstep(1);
       setLErr("Please verify your email address to continue.");
       return;
     }
     if (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10)) {
-      setStep(2);
+      setFstep(1);
       setLErr("Please add your name and 10-digit WhatsApp number.");
       return;
     }
     doCheckout();
+  }
+
+  // Tapping an open cell in the slot grid starts the booking form.
+  function pickSlot(date, row) {
+    setSelDate(new Date(date));
+    setSelSlot({ val: row.val, label: row.label });
+    setFstep(1);
+    setPhase("form");
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   if (loading) return (
@@ -370,162 +436,111 @@ export default function BookPage() {
   const base  = selFmt?.fee || 0;
   const total = Math.max(0, base - couponSave);
 
-  // ── STEP 0: Choose Service ─────────────────────────────────────────────────
-  const Step0 = (
-    <div style={{ padding: "20px 20px 32px" }}>
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "0 0 4px" }}>
-        What kind of help do you need?
-      </h2>
-      <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
-        Choose the service you'd like to book.
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {services.map(svc => {
-          const on = selSvc?._id === svc._id;
-          return (
-            <div key={svc._id} onClick={() => { setSelSvc(svc); setSelFmt(svc.formats[0] || null); }} style={{
-              display: "flex", alignItems: "center", gap: 14,
-              padding: "16px 18px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
-              borderRadius: 8, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
-            }}>
-              <div style={{ width: 40, height: 40, borderRadius: 8, flexShrink: 0, background: on ? G : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <i className="feather-clipboard" style={{ fontSize: 17, color: on ? "#fff" : "#94a3b8" }}></i>
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "#132a1c" }}>{svc.name}</div>
-                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
-                  {svc.formats.length} format{svc.formats.length > 1 ? "s" : ""} · from ₹{Math.min(...svc.formats.map(f => f.fee)).toLocaleString("en-IN")}
-                </div>
-              </div>
-              {on && (
-                <div style={{ width: 22, height: 22, borderRadius: "50%", background: G, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+  // ── SLOT GRID (phase "slots"): dates across, times down — tap an open cell to start ──
+  const rowMins = r => { const [h, m] = r.val.split(":").map(Number); return h * 60 + m; };
+  const visibleRows = grid.rows.filter(r => {
+    if (!period) return true;
+    const mins = rowMins(r);
+    return period === "morning" ? mins < 720 : period === "afternoon" ? mins >= 720 && mins < 1020 : mins >= 1020;
+  });
+  const cellState = (dy, row) => {
+    if (!dy.vals.has(row.val)) return "off";
+    if (isToday(dy.date) && rowMins(row) <= nowMin) return "past";
+    if (bookedSlots.has(slotIso(dy.date, row.val))) return "booked";
+    return "open";
+  };
+  let nextLabel = "";
+  outer: for (const dy of grid.days) {
+    for (const row of grid.rows) {
+      if (cellState(dy, row) === "open") {
+        nextLabel = `${isToday(dy.date) ? "Today" : SDAYS[dy.date.getDay()]} ${dy.date.getDate()} ${MONS[dy.date.getMonth()]} · ${row.label}`;
+        break outer;
+      }
+    }
+  }
+  const allFees = services.flatMap(s => (s.formats || []).map(f => Number(f.fee))).filter(n => Number.isFinite(n) && n > 0);
+  const fromFee = allFees.length ? Math.min(...allFees) : null;
 
-      {selSvc && (
-        <div style={{ marginTop: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>Select format</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {selSvc.formats.map(fmt => {
-              const icons = { audio: "feather-phone", video: "feather-video", "in-person": "feather-map-pin" };
-              const on = selFmt?.type === fmt.type;
-              return (
-                <div key={fmt.type} onClick={() => setSelFmt(fmt)} style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  padding: "10px 16px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
-                  borderRadius: 8, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
-                }}>
-                  <i className={icons[fmt.type?.toLowerCase()] || "feather-calendar"} style={{ fontSize: 14, color: on ? G : "#94a3b8" }}></i>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#132a1c" }}>{fmt.type}</div>
-                    <div style={{ fontSize: 12, color: on ? GL : "#64748b", fontWeight: 600 }}>₹{Number(fmt.fee).toLocaleString("en-IN")}</div>
-                  </div>
-                </div>
-              );
-            })}
+  const SlotsScreen = (
+    <div>
+      <TherapistHero profile={profile} nextLabel={nextLabel} fromFee={fromFee} />
+      <div className="bk-panel">
+        <div className="bk-panel-hd">
+          <div>
+            <h2 className="bk-h2">Pick an open slot to start booking</h2>
+            <p className="bk-sub">
+              {grid.days.length
+                ? `${profile.user?.name?.split(" ")[0]}'s availability — next ${grid.days.length} open day${grid.days.length > 1 ? "s" : ""}`
+                : "No availability published yet"}
+            </p>
+          </div>
+          <div className="bk-periods">
+            {[["", "All"], ["morning", "Morning"], ["afternoon", "Afternoon"], ["evening", "Evening"]].map(([k, l]) => (
+              <button key={k || "all"} type="button" className={`bk-period ${period === k ? "on" : ""}`} onClick={() => setPeriod(k)}>{l}</button>
+            ))}
           </div>
         </div>
-      )}
 
-      <ContinueBtn disabled={!selSvc || !selFmt} onClick={() => setStep(1)} />
+        {grid.days.length === 0 ? (
+          <div className="bk-empty">
+            <i className="feather-calendar"></i>
+            <div>No open slots right now. Please check back soon or try another therapist.</div>
+          </div>
+        ) : visibleRows.length === 0 ? (
+          <div className="bk-empty">
+            <i className="feather-clock"></i>
+            <div>No slots in this part of the day. Try another time of day.</div>
+          </div>
+        ) : (
+          <div className="bk-scroll">
+            <div className="bk-grid" style={{ gridTemplateColumns: `76px repeat(${grid.days.length}, minmax(72px, 1fr))` }}>
+              <div className="bk-corner" />
+              {grid.days.map(dy => (
+                <div key={dy.date.toDateString()} className={`bk-dh ${isToday(dy.date) ? "today" : ""}`}>
+                  <div>{isToday(dy.date) ? "TODAY" : SDAYS[dy.date.getDay()].toUpperCase()}</div>
+                  <div>{dy.date.getDate()} {MONS[dy.date.getMonth()].toUpperCase()}</div>
+                </div>
+              ))}
+              {visibleRows.map(row => (
+                <React.Fragment key={row.val}>
+                  <div className="bk-time">{row.label}</div>
+                  {grid.days.map(dy => {
+                    const st = cellState(dy, row);
+                    return (
+                      <button key={dy.date.toDateString() + row.val} type="button"
+                        className={`bk-cell ${st}`} disabled={st !== "open"}
+                        aria-label={`${row.label}, ${dy.date.getDate()} ${MONS[dy.date.getMonth()]} — ${st}`}
+                        onClick={() => pickSlot(dy.date, row)}>
+                        {st === "open" ? "Book" : st === "booked" ? "Booked" : st === "past" ? "—" : ""}
+                      </button>
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="bk-legend">
+          <span><i className="bk-sw open"></i>Open — tap to book</span>
+          <span><i className="bk-sw booked"></i>Booked</span>
+          <span><i className="bk-sw past"></i>Passed</span>
+          <span><i className="bk-sw off"></i>Not open</span>
+        </div>
+        <div className="bk-trust">
+          <span><i className="feather-clock"></i>60 min session</span>
+          <span><i className="feather-shield"></i>Secure online payment</span>
+          <span><i className="feather-refresh-cw"></i>Easy rescheduling</span>
+          <span><i className="feather-lock"></i>100% confidential</span>
+        </div>
+      </div>
     </div>
   );
 
-  // ── STEP 1: Date & Time ────────────────────────────────────────────────────
+  // ── FORM STEP 1: You ───────────────────────────────────────────────────────
   const Step1 = (
-    <div style={{ padding: "20px 20px 32px" }}>
-      <BackBtn onClick={() => setStep(0)} />
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
-        Pick a date & time
-      </h2>
-      <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
-        Showing available slots for {profile.user?.name?.split(" ")[0]}.
-      </p>
-
-      <div style={{ overflowX: "auto", paddingBottom: 4, scrollbarWidth: "none" }}>
-        <div style={{ display: "flex", gap: 8, minWidth: "max-content" }}>
-          {days14.map((d, i) => {
-            const dn  = DAYS[d.getDay()];
-            const has = (profile.availabilities || []).some(a => a.day === dn && a.times?.length > 0);
-            const on  = selDate && d.toDateString() === selDate.toDateString();
-            return (
-              <div key={i} onClick={() => has && setSelDate(new Date(d))} style={{
-                flexShrink: 0, width: 58, padding: "10px 4px",
-                border: `1.5px solid ${on ? G : has ? "#e2e8f0" : "#f1f5f9"}`,
-                borderRadius: 8, textAlign: "center", cursor: has ? "pointer" : "not-allowed",
-                background: on ? G : "#fff", opacity: has ? 1 : 0.35, transition: "all .15s",
-              }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: on ? "rgba(255,255,255,.7)" : "#94a3b8", textTransform: "uppercase" }}>
-                  {SDAYS[d.getDay()]}
-                </div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: on ? "#fff" : "#132a1c", lineHeight: 1.2, marginTop: 2 }}>
-                  {d.getDate()}
-                </div>
-                <div style={{ fontSize: 9, fontWeight: 600, color: on ? "rgba(255,255,255,.6)" : "#94a3b8", marginTop: 1 }}>
-                  {MONS[d.getMonth()]}
-                </div>
-                {has && !on && <div style={{ width: 5, height: 5, borderRadius: "50%", background: GL, margin: "4px auto 0" }} />}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {selDate && (
-        <div style={{ marginTop: 24 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 12 }}>
-            Available times — {DAYS[selDate.getDay()]}, {selDate.getDate()} {MONS[selDate.getMonth()]}
-          </div>
-          {avSlots.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "32px 0", color: "#94a3b8" }}>
-              <i className="feather-calendar" style={{ fontSize: 32, display: "block", marginBottom: 10 }}></i>
-              No slots on this day. Try a different date.
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {avSlots.map(s => {
-                const [h, m] = s.val.split(":").map(Number);
-                const past   = isToday(selDate) && (h * 60 + m) <= nowMin;
-                const taken  = bookedSlots.has(slotIso(selDate, s.val));
-                const blocked = past || taken;
-                const on     = selSlot?.val === s.val && !blocked;
-                return (
-                  <div key={s.val} onClick={() => !blocked && setSelSlot(s)} style={{
-                    padding: "10px 18px", borderRadius: 8,
-                    border: `1.5px solid ${on ? G : blocked ? "#f1f5f9" : "#e2e8f0"}`,
-                    background: on ? G : blocked ? "#f8fafc" : "#fff",
-                    color: on ? "#fff" : blocked ? "#cbd5e1" : "#132a1c",
-                    fontSize: 14, fontWeight: 700,
-                    cursor: blocked ? "not-allowed" : "pointer",
-                    textDecoration: past ? "line-through" : "none",
-                    transition: "all .15s",
-                  }}>
-                    {s.label}
-                    {taken && !past && (
-                      <span style={{ display: "block", fontSize: 9, fontWeight: 700, color: "#94a3b8", marginTop: 1 }}>Booked</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      <ContinueBtn disabled={!selDate || !selSlot} onClick={() => setStep(2)} />
-    </div>
-  );
-
-  // ── STEP 2: Who + Notes ────────────────────────────────────────────────────
-  const Step2 = (
-    <div style={{ padding: "20px 20px 32px" }}>
-      <BackBtn onClick={() => setStep(1)} />
-      <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
+    <div style={{ padding: "8px 20px 32px" }}>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
         A few details
       </h2>
       <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
@@ -570,7 +585,7 @@ export default function BookPage() {
       )}
 
       {!isLoggedIn && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 4 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>Your contact details</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <input
@@ -661,32 +676,100 @@ export default function BookPage() {
         </div>
       )}
 
-      <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 8 }}>
-        Notes for therapist <span style={{ fontWeight: 400, textTransform: "none", fontSize: 11 }}>(optional)</span>
-      </div>
-      <textarea value={notes} onChange={e => setNotes(e.target.value)} maxLength={500}
-        placeholder="Briefly describe what you'd like to discuss…"
-        style={{
-          width: "100%", minHeight: 100, border: "1.5px solid #e2e8f0", borderRadius: 8,
-          padding: "12px 14px", fontSize: 14, color: "#132a1c", outline: "none",
-          resize: "vertical", lineHeight: 1.6, fontFamily: "inherit",
-        }} />
-      <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "right", marginTop: 4 }}>{notes.length}/500</div>
-
       <ContinueBtn
         disabled={
           (bookFor === "other" && !relation) ||
           (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10 || !(guestEmail || "").includes("@") || !emailVerified))
         }
-        onClick={() => setStep(3)}
+        onClick={() => setFstep(2)}
       />
+      <div style={{ textAlign: "center", marginTop: 10 }}><BackBtn onClick={() => setPhase("slots")} /></div>
+    </div>
+  );
+
+  // ── FORM STEP 2: Session (service + format + notes) ───────────────────────
+  const Step2 = (
+    <div style={{ padding: "8px 20px 32px" }}>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
+        What kind of help do you need?
+      </h2>
+      <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px" }}>
+        Choose the service you'd like to book.
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {services.map(svc => {
+          const on = selSvc?._id === svc._id;
+          return (
+            <div key={svc._id} onClick={() => { setSelSvc(svc); setSelFmt(svc.formats[0] || null); }} style={{
+              display: "flex", alignItems: "center", gap: 14,
+              padding: "16px 18px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
+              borderRadius: 8, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
+            }}>
+              <div style={{ width: 40, height: 40, borderRadius: 8, flexShrink: 0, background: on ? G : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <i className="feather-clipboard" style={{ fontSize: 17, color: on ? "#fff" : "#94a3b8" }}></i>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: "#132a1c" }}>{svc.name}</div>
+                <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
+                  {svc.formats.length} format{svc.formats.length > 1 ? "s" : ""} · from ₹{Math.min(...svc.formats.map(f => f.fee)).toLocaleString("en-IN")}
+                </div>
+              </div>
+              {on && (
+                <div style={{ width: 22, height: 22, borderRadius: "50%", background: G, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {selSvc && (
+        <div style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>Select format</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {selSvc.formats.map(fmt => {
+              const icons = { audio: "feather-phone", video: "feather-video", "in-person": "feather-map-pin" };
+              const on = selFmt?.type === fmt.type;
+              return (
+                <div key={fmt.type} onClick={() => setSelFmt(fmt)} style={{
+                  display: "flex", alignItems: "center", gap: 8,
+                  padding: "10px 16px", border: `1.5px solid ${on ? G : "#e2e8f0"}`,
+                  borderRadius: 8, cursor: "pointer", background: on ? GB : "#fff", transition: "all .15s",
+                }}>
+                  <i className={icons[fmt.type?.toLowerCase()] || "feather-calendar"} style={{ fontSize: 14, color: on ? G : "#94a3b8" }}></i>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#132a1c" }}>{fmt.type}</div>
+                    <div style={{ fontSize: 12, color: on ? GL : "#64748b", fontWeight: 600 }}>₹{Number(fmt.fee).toLocaleString("en-IN")}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", margin: "22px 0 8px" }}>
+        Notes for therapist <span style={{ fontWeight: 400, textTransform: "none", fontSize: 11 }}>(optional)</span>
+      </div>
+      <textarea value={notes} onChange={e => setNotes(e.target.value)} maxLength={500}
+        placeholder="Briefly describe what you'd like to discuss…"
+        style={{
+          width: "100%", minHeight: 90, border: "1.5px solid #e2e8f0", borderRadius: 8,
+          padding: "12px 14px", fontSize: 14, color: "#132a1c", outline: "none",
+          resize: "vertical", lineHeight: 1.6, fontFamily: "inherit",
+        }} />
+      <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "right", marginTop: 4 }}>{notes.length}/500</div>
+
+      <ContinueBtn disabled={!selSvc || !selFmt} onClick={() => setFstep(3)} />
+      <div style={{ textAlign: "center", marginTop: 10 }}><BackBtn onClick={() => setFstep(1)} /></div>
     </div>
   );
 
   // ── STEP 3: Summary + Coupon + Confirm ────────────────────────────────────
   const Step3 = (
     <div style={{ padding: "20px 20px 40px" }}>
-      <BackBtn onClick={() => setStep(2)} />
+      <BackBtn onClick={() => setFstep(2)} />
       <h2 style={{ fontSize: 22, fontWeight: 800, color: "#132a1c", margin: "10px 0 4px" }}>
         Booking summary
       </h2>
@@ -801,7 +884,7 @@ export default function BookPage() {
     </div>
   );
 
-  const SCREENS = [Step0, Step1, Step2, Step3];
+  const FORM_SCREENS = [Step1, Step2, Step3];
 
   // ══════════════════════════════════════════════════════════════════════════
   return (
@@ -817,31 +900,112 @@ export default function BookPage() {
         @keyframes _fd { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         input:focus, textarea:focus { border-color: ${G} !important; box-shadow: 0 0 0 3px rgba(15,61,36,.08) !important; outline: none !important; }
         ::-webkit-scrollbar { display: none; }
+
+        .bk-wrap { max-width: 560px; margin: 0 auto; padding: 24px 12px 80px; }
+        .bk-wrap.wide { max-width: 1040px; }
+        .bk-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 32px rgba(0,0,0,.07); border-top: 3px solid ${GOLD}; animation: _fd .3s ease; }
+
+        /* therapist hero */
+        .bk-hero { display: flex; gap: 18px; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-top: 3px solid ${GOLD}; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 24px rgba(0,0,0,.05); margin-bottom: 14px; }
+        .bk-hero-img { width: 92px; height: 92px; border-radius: 16px; object-fit: cover; object-position: top; border: 2px solid ${GOLD}; flex-shrink: 0; background: #f1f5f9; }
+        .bk-hero-eyebrow { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; }
+        .bk-hero-name { font-size: 22px; font-weight: 800; color: ${DARK}; line-height: 1.25; margin-top: 2px; }
+        .bk-hero-role { font-size: 13px; color: ${GL}; font-weight: 700; margin-top: 2px; }
+        .bk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .bk-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #475569; background: #f1f5f9; border-radius: 99px; padding: 5px 11px; }
+        .bk-chip i { font-size: 12px; color: ${GL}; }
+        .bk-hero-r { margin-left: auto; text-align: right; flex-shrink: 0; }
+        .bk-next { display: inline-flex; align-items: center; gap: 6px; background: ${GB}; border: 1px solid #bbf7d0; color: ${GL}; font-weight: 700; font-size: 12.5px; padding: 7px 14px; border-radius: 99px; }
+        .bk-from { font-size: 12px; color: #64748b; margin-top: 8px; }
+        .bk-from b { color: ${G}; font-size: 18px; font-weight: 800; }
+
+        /* slot panel */
+        .bk-panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px 16px 14px; box-shadow: 0 4px 24px rgba(0,0,0,.04); }
+        .bk-panel-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+        .bk-h2 { font-size: 18px; font-weight: 800; color: ${DARK}; margin: 0; }
+        .bk-sub { font-size: 13px; color: #64748b; margin: 3px 0 0; }
+        .bk-periods { display: flex; gap: 6px; flex-wrap: wrap; }
+        .bk-period { border: 1px solid #e2e8f0; background: #fff; color: #475569; font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 99px; cursor: pointer; }
+        .bk-period.on { background: ${G}; border-color: ${G}; color: #fff; }
+        .bk-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+        .bk-grid { display: grid; gap: 6px; min-width: max-content; width: 100%; }
+        .bk-corner { position: sticky; left: 0; background: #fff; z-index: 2; }
+        .bk-dh { text-align: center; font-size: 10.5px; font-weight: 800; color: #64748b; letter-spacing: .3px; padding: 6px 2px; border-radius: 8px; line-height: 1.35; }
+        .bk-dh.today { background: #e8f5ec; color: ${G}; }
+        .bk-time { position: sticky; left: 0; z-index: 2; background: #eef2ef; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; color: ${DARK}; min-height: 46px; padding: 0 6px; text-align: center; }
+        .bk-cell { min-height: 46px; border-radius: 8px; border: 1px solid transparent; font-size: 12.5px; font-weight: 700; font-family: inherit; }
+        .bk-cell.open { background: #f0fdf4; border-color: #86efac; color: ${GL}; cursor: pointer; transition: transform .12s, background .12s; }
+        .bk-cell.open:hover { background: #dcfce7; transform: translateY(-1px); }
+        .bk-cell.booked { background: #fef2f2; border-color: #fecaca; color: #b91c1c; cursor: not-allowed; font-size: 12px; }
+        .bk-cell.past { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; }
+        .bk-cell.off { background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 4px, #f1f5f9 4px, #f1f5f9 8px); cursor: default; }
+        .bk-empty { text-align: center; padding: 36px 12px; color: #94a3b8; font-size: 14px; }
+        .bk-empty i { font-size: 32px; display: block; margin-bottom: 10px; }
+        .bk-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 10px; font-size: 12px; color: #64748b; font-weight: 600; border-top: 1px solid #eef2f6; padding-top: 12px; }
+        .bk-legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .bk-sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; border: 1px solid transparent; }
+        .bk-sw.open { background: #f0fdf4; border-color: #86efac; }
+        .bk-sw.booked { background: #fef2f2; border-color: #fecaca; }
+        .bk-sw.past { background: #f1f5f9; }
+        .bk-sw.off { background: repeating-linear-gradient(45deg, #f8fafc, #f8fafc 3px, #e2e8f0 3px, #e2e8f0 6px); }
+        .bk-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; background: #f8fafc; border: 1px solid #eef2f6; border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #475569; font-weight: 700; }
+        .bk-trust span { display: inline-flex; align-items: center; gap: 6px; }
+        .bk-trust i { color: ${GL}; font-size: 13px; }
+
+        /* form phase */
+        .bk-slotchip { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: ${G}; font-weight: 800; font-size: 13px; padding: 10px 20px; }
+        .bk-slotchip button { background: none; border: none; color: ${G}; font-weight: 800; font-size: 12.5px; text-decoration: underline; cursor: pointer; padding: 0; }
+        .bk-stp { display: flex; align-items: flex-start; padding: 18px 26px 4px; }
+        .bk-stp-it { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 56px; }
+        .bk-stp-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #d5dbe3; color: #94a3b8; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .bk-stp-it.on .bk-stp-dot { border-color: ${G}; color: ${G}; box-shadow: 0 0 0 4px rgba(15,61,36,.1); }
+        .bk-stp-it.done .bk-stp-dot { background: ${G}; border-color: ${G}; color: #fff; }
+        .bk-stp-lb { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: #94a3b8; }
+        .bk-stp-it.on .bk-stp-lb, .bk-stp-it.done .bk-stp-lb { color: ${G}; }
+        .bk-stp-line { flex: 1; height: 2px; background: #e2e8f0; margin-top: 12px; }
+        .bk-stp-line.done { background: ${G}; }
+
+        @media (max-width: 640px) {
+          .bk-wrap { padding: 12px 8px 80px; }
+          .bk-hero { flex-wrap: wrap; padding: 14px; gap: 14px; }
+          .bk-hero-img { width: 68px; height: 68px; border-radius: 12px; }
+          .bk-hero-name { font-size: 18px; }
+          .bk-hero-r { margin-left: 0; text-align: left; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+          .bk-from { margin-top: 0; }
+          .bk-panel { padding: 14px 10px 12px; }
+          .bk-h2 { font-size: 16px; }
+          .bk-cell, .bk-time { min-height: 44px; }
+        }
       `}</style>
 
       <div id="__next" style={{ background: "#f4f6f8", minHeight: "100vh" }}>
         <MyNavbar />
 
-        <div style={{ maxWidth: 540, margin: "0 auto", padding: `24px 12px ${step === 3 ? "120px" : "80px"}` }}>
-          <div style={{
-            background: "#fff", borderRadius: 10, overflow: "hidden",
-            boxShadow: "0 4px 32px rgba(0,0,0,.07)",
-            borderTop: `3px solid ${GOLD}`,
-            animation: "_fd .3s ease",
-          }}>
-            <TherapistBar profile={profile} selFmt={selFmt} couponSave={couponSave} />
-            <StepBar step={step} total={4} />
-            <div key={step} style={{ animation: "_fd .22s ease" }}>
-              {SCREENS[step]}
+        {phase === "slots" ? (
+          <div className="bk-wrap wide">{SlotsScreen}</div>
+        ) : (
+          <div className="bk-wrap" style={{ paddingBottom: fstep === 3 ? 120 : 80 }}>
+            <div className="bk-card">
+              <TherapistBar profile={profile} selFmt={selFmt} couponSave={couponSave} />
+              <div className="bk-slotchip">
+                <span><i className="feather-calendar" style={{ marginRight: 8 }}></i>
+                  {selDate ? `${SDAYS[selDate.getDay()]}, ${selDate.getDate()} ${MONS[selDate.getMonth()]}` : ""} · {selSlot?.label}
+                </span>
+                <button type="button" onClick={() => setPhase("slots")}>Change</button>
+              </div>
+              <FormStepper step={fstep} />
+              <div key={fstep} style={{ animation: "_fd .22s ease" }}>
+                {FORM_SCREENS[fstep - 1]}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <Footer />
       </div>
 
-      {/* ══ STICKY CONFIRM BUTTON (step 4 only) ══ */}
-      {step === 3 && (
+      {/* ══ STICKY CONFIRM BUTTON (last step only) ══ */}
+      {phase === "form" && fstep === 3 && (
         <div style={{
           position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 90,
           background: "#fff", borderTop: "1px solid #e2e8f0",

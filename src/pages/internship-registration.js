@@ -874,19 +874,11 @@ export default function InternshipRegistration() {
           font-size: 14px; color: rgba(255,255,255,0.85); max-width: 600px;
           margin: 0 auto; line-height: 1.6; position: relative; z-index: 1;
         }
-        .intern-fee-teaser {
-          display: inline-flex; align-items: center; gap: 8px; margin-top: 18px;
-          background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3);
-          color: #4ade80; font-size: 12.5px; font-weight: 700; padding: 8px 18px;
-          border-radius: 50px; position: relative; z-index: 1;
-        }
         @media (max-width: 768px) {
           .intern-banner { padding: 24px 0 20px 0; }
           .intern-badge { display: none; }
           .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
-          .intern-subtitle { font-size: 12px; padding: 0 12px; }
-          .intern-fee-teaser { font-size: 11px; padding: 7px 14px; margin-top: 12px; text-align: left; }
-        }
+          .intern-subtitle { font-size: 12px; padding: 0 12px; }        }
       ` }} />
       <section className="intern-banner">
         <div className="container">
@@ -901,9 +893,6 @@ export default function InternshipRegistration() {
             <p className="intern-subtitle">
               A mentor-led, supervised internship at Choose Your Therapist — work alongside licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
             </p>
-            <div className="intern-fee-teaser">
-              <i className="feather-tag"></i> Program fees start at {fmtINR(Math.min(...Object.values(HOUR_PRICES)))} — pick your track &amp; duration in the form below
-            </div>
           </div>
         </div>
       </section>
