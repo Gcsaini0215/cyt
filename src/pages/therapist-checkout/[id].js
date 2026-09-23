@@ -5,7 +5,7 @@ import Head from "next/head";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
-import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile } from "../../utils/url";
+import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile, apiUrl } from "../../utils/url";
 import useUserStore from "../../store/userStore";
 import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
 
@@ -51,6 +51,8 @@ export default function TherapistCheckoutPage() {
   const [err,      setErr]      = useState("");
   const bookedRef = useRef(false);
   const bookingIdRef = useRef(null); // remember the created booking so retries don't re-book
+  const paidRef = useRef(false);     // set once Razorpay reports a successful payment
+  const [paidId, setPaidId] = useState(""); // payment id when money was taken but the booking couldn't be confirmed
 
   const token       = typeof window !== "undefined" ? getToken() : null;
   const isLoggedIn  = !!token;
@@ -117,7 +119,8 @@ export default function TherapistCheckoutPage() {
       therapist:    id,
       service:      q.service,
       format:       q.format,
-      amount:       Number(q.price  || 0),
+      // What the client actually pays — the coupon discount shown on the summary is applied here.
+      amount:       Math.max(0, Number(q.price || 0) - Number(q.discount || 0)),
       notes:        q.notes        || "",
       booking_date: q.booking_date || "",
       session_type: q.session_type || "",
@@ -149,7 +152,7 @@ export default function TherapistCheckoutPage() {
 
     // Already created this booking on a previous attempt — reuse it, don't re-book.
     if (bookingIdRef.current) {
-      await openRazorpay(bookingIdRef.current, Number(q.price || 0));
+      await openRazorpay(bookingIdRef.current, payload.amount);
       return;
     }
 
@@ -159,7 +162,7 @@ export default function TherapistCheckoutPage() {
 
       if (res?.status && res?.data?.id) {
         bookingIdRef.current = res.data.id;
-        await openRazorpay(res.data.id, Number(q.price || 0));
+        await openRazorpay(res.data.id, payload.amount);
       } else {
         setErr(res?.message || "Booking failed. Please go back and try again.");
         setStatus("error");
@@ -182,58 +185,73 @@ export default function TherapistCheckoutPage() {
       return;
     }
     try {
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      // The order is created by the backend — the same Razorpay account whose secret later
+      // verifies the signature — and its key id comes back with it, so the checkout can never
+      // open under a different key than the order was created with (that mismatch is what
+      // surfaces as "authentication failed").
+      const orderRes = await fetch(`${apiUrl}/create-razorpay-order`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ amount, bookingId }),
+        body:    JSON.stringify({ amount, booking_id: bookingId }),
       });
-      const { orderId, error } = await orderRes.json();
-      if (!orderId) {
-        setErr(error || "Payment init failed. Please try again.");
+      const orderData = await orderRes.json();
+      const orderId = orderData?.data?.id;
+      const keyId   = orderData?.key_id;
+      if (!orderData?.status || !orderId || !keyId) {
+        setErr(orderData?.message || "Could not start payment. Please try again.");
         setStatus("error");
         return;
       }
 
+      paidRef.current = false;
       const options = {
-        key:         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key:         keyId,
         amount:      Math.round(amount * 100),
         currency:    "INR",
         order_id:    orderId,
         name:        "Choose Your Therapist",
         description: "Therapy Session Booking",
         handler: async function(response) {
-          try {
-            const verifyRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/verify-razorpay-payment`,
-              {
+          paidRef.current = true;
+          const paymentId = response.razorpay_payment_id;
+          // Money has left the customer's account by now — so a hiccup while confirming must not
+          // read as a failed payment. Retry the confirmation, and if it still can't be confirmed,
+          // hand them the payment id instead of a dead end.
+          let lastMsg = "";
+          for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+              const verifyRes = await fetch(`${apiUrl}/verify-razorpay-payment`, {
                 method:  "POST",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify({
                   razorpay_order_id:   response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_payment_id: paymentId,
                   razorpay_signature:  response.razorpay_signature,
                   booking_id:          bookingId,
                 }),
+              });
+              const vd = await verifyRes.json();
+              if (vd.status) {
+                // Backend hands back a session token so a guest becomes a
+                // logged-in user — persist it so the success page (and
+                // "My Bookings") can actually load this booking.
+                if (vd.token && !getToken()) {
+                  setToken(vd.token);
+                }
+                setStatus("done");
+                router.replace(`/payment-success/${bookingId}?payment_id=${paymentId}`);
+                return;
               }
-            );
-            const vd = await verifyRes.json();
-            if (vd.status) {
-              // Backend hands back a session token so a guest becomes a
-              // logged-in user — persist it so the success page (and
-              // "My Bookings") can actually load this booking.
-              if (vd.token && !getToken()) {
-                setToken(vd.token);
-              }
-              setStatus("done");
-              router.replace(`/payment-success/${bookingId}?payment_id=${response.razorpay_payment_id}`);
-            } else {
-              setErr(vd.message || "Payment verification failed. Please contact support.");
-              setStatus("error");
+              lastMsg = vd.message || "";
+              if (verifyRes.status < 500) break; // a definite answer (e.g. bad signature) — retrying won't change it
+            } catch {
+              lastMsg = "";
             }
-          } catch {
-            setErr("Payment verification failed. Please contact support.");
-            setStatus("error");
+            await new Promise(r => setTimeout(r, 1500));
           }
+          setPaidId(paymentId);
+          setErr(`Your payment went through (ID: ${paymentId}) but we couldn't confirm the booking${lastMsg ? ` — ${lastMsg}` : ""}. Please WhatsApp us with this payment ID and we'll sort it out right away.`);
+          setStatus("error");
         },
         prefill: {
           name:    userInfo?.name  || "",
@@ -243,15 +261,24 @@ export default function TherapistCheckoutPage() {
         theme: { color: G },
         modal: {
           ondismiss: function() {
+            if (paidRef.current) return; // paid — the handler owns what happens next
             // user closed Razorpay — let them retry
             setStatus("error");
-            setErr("Payment was cancelled. You can go back and try again.");
+            setErr("Payment was cancelled. You can retry whenever you're ready.");
             bookedRef.current = false;
           },
         },
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (resp) => {
+        // Bank / UPI declined it. Razorpay's window lets them try another method; if they close
+        // it, this message plus the Retry button is what they land on.
+        const why = resp?.error?.description;
+        setErr(`Payment failed${why ? ` — ${why}` : ""}. Please retry or use a different payment method.`);
+        setStatus("error");
+        bookedRef.current = false;
+      });
       rzp.open();
     } catch {
       setErr("Payment failed to initialize. Please try again.");
@@ -385,15 +412,27 @@ export default function TherapistCheckoutPage() {
                     <i className="feather-alert-circle" style={{ fontSize: 16, color: "#dc2626", flexShrink: 0, marginTop: 1 }}></i>
                     <div style={{ fontSize: 13, color: "#dc2626", lineHeight: 1.5, fontWeight: 600 }}>{err}</div>
                   </div>
-                  {/* Retry button */}
-                  <button onClick={retry} style={{
-                    width: "100%", height: 50, borderRadius: 12, border: "none",
-                    background: G, color: "#fff", fontSize: 15, fontWeight: 800,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10,
-                  }}>
-                    <i className="feather-refresh-cw" style={{ fontSize: 15 }}></i>
-                    Retry Payment
-                  </button>
+                  {paidId ? (
+                    /* Already charged — never offer a second payment; route them to support instead */
+                    <a href={`https://wa.me/918077757951?text=${encodeURIComponent(`Hi, my payment went through but my booking wasn't confirmed. Payment ID: ${paidId}`)}`}
+                      target="_blank" rel="noopener noreferrer" style={{
+                      width: "100%", height: 50, borderRadius: 12, border: "none", textDecoration: "none",
+                      background: "#16a34a", color: "#fff", fontSize: 15, fontWeight: 800,
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10,
+                    }}>
+                      <i className="feather-message-circle" style={{ fontSize: 15 }}></i>
+                      WhatsApp us with payment ID
+                    </a>
+                  ) : (
+                    <button onClick={retry} style={{
+                      width: "100%", height: 50, borderRadius: 12, border: "none",
+                      background: G, color: "#fff", fontSize: 15, fontWeight: 800,
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 10,
+                    }}>
+                      <i className="feather-refresh-cw" style={{ fontSize: 15 }}></i>
+                      Retry Payment
+                    </button>
+                  )}
                   <button onClick={() => router.back()} style={{
                     width: "100%", height: 48, borderRadius: 12,
                     border: "1.5px solid #e2e8f0", background: "#fff", color: "#64748b",
