@@ -172,24 +172,50 @@ const EMPTY = {
   motivation: "", resumeFile: null, collegeId: null, passportPhoto: null, agreeTerms: false,
 };
 
-function validate(f) {
-  if (!f.name.trim() || f.name.trim().length < 3)         return "Enter your full name (min 3 chars)";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))       return "Enter a valid email address";
-  if (!/^\d{10}$/.test(f.phone))                           return "Enter a valid 10-digit phone number";
-  if (!f.city.trim())                                      return "Enter your city";
-  if (!f.college.trim())                                   return "Enter your college / university name";
-  if (!f.degree)                                           return "Select your degree";
-  if (!UG_DEGREES.has(f.degree) && !f.specialization)     return "Select your specialization";
-  if (!f.year)                                             return "Select your current year";
-  if (!f.internType || f.internType.length === 0)          return "Select at least one internship type";
-  if (!f.mode)                                             return "Select preferred mode";
-  if (!f.duration)                                         return "Select preferred duration";
-  if (!f.hours)                                            return "Select required hours";
-  if (!f.availableFrom)                                    return "Select your available start date";
-  if (!f.motivation.trim() || f.motivation.trim().length < 50)
-                                                           return "Write at least 50 characters for motivation";
-  if (!f.agreeTerms)                                       return "Please agree to the terms and conditions";
-  return null;
+// The form is a 4-step wizard; each step only checks its own fields, so a mistake is
+// caught right where it happened (inline, per field) instead of a single guessing-game
+// error banner discovered only once at the very end.
+const STEP_TITLES = ["Personal Details", "Academic Background", "Program Preferences", "About You"];
+const STEP_INTROS = [
+  "Let's start with the basics — how can we reach you?",
+  "Tell us a bit about where you're studying.",
+  "Pick your track, mode and how much time you can give.",
+  "Almost there — tell us why, and attach your documents.",
+];
+const STEP_FIELDS = {
+  1: ["name", "email", "phone", "city"],
+  2: ["college", "degree", "specialization", "year"],
+  3: ["internType", "mode", "duration", "hours", "availableFrom"],
+  4: ["motivation", "agreeTerms"],
+};
+
+function validateField(key, f) {
+  switch (key) {
+    case "name": return (!f.name.trim() || f.name.trim().length < 3) ? "Enter your full name (min 3 characters)" : "";
+    case "email": return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email) ? "Enter a valid email address" : "";
+    case "phone": return !/^\d{10}$/.test(f.phone) ? "Enter a valid 10-digit phone number" : "";
+    case "city": return !f.city.trim() ? "Enter your city" : "";
+    case "college": return !f.college.trim() ? "Enter your college / university name" : "";
+    case "degree": return !f.degree ? "Select your degree" : "";
+    case "specialization": return (!UG_DEGREES.has(f.degree) && !f.specialization) ? "Select your specialization" : "";
+    case "year": return !f.year ? "Select your current semester" : "";
+    case "internType": return (!f.internType || f.internType.length === 0) ? "Select at least one internship type" : "";
+    case "mode": return !f.mode ? "Select your preferred mode" : "";
+    case "duration": return !f.duration ? "Select your preferred duration" : "";
+    case "hours": return !f.hours ? "Select required hours" : "";
+    case "availableFrom": return !f.availableFrom ? "Select your available start date" : "";
+    case "motivation": return (!f.motivation.trim() || f.motivation.trim().length < 50) ? "Write at least 50 characters" : "";
+    case "agreeTerms": return !f.agreeTerms ? "Please agree to the terms and conditions" : "";
+    default: return "";
+  }
+}
+function validateStep(step, f) {
+  const errs = {};
+  (STEP_FIELDS[step] || []).forEach((k) => {
+    const msg = validateField(k, f);
+    if (msg) errs[k] = msg;
+  });
+  return errs;
 }
 
 function WelcomeModal({ onClose }) {
@@ -446,7 +472,7 @@ function QrPaymentModal({ amount, onClose, onSubmit, submitting }) {
   );
 }
 
-function CustomSelect({ value, onChange, options, placeholder }) {
+function CustomSelect({ value, onChange, options, placeholder, error }) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef(null);
 
@@ -459,7 +485,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button type="button" onClick={() => setOpen(p => !p)} style={{
-        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : "#cbd5c9"}`,
+        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : (error ? "#fca5a5" : "#cbd5c9")}`,
         borderRadius: 3, padding: "10px 13px", fontSize: 14, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
         textAlign: "left", fontFamily: "inherit", outline: "none",
@@ -506,6 +532,13 @@ function CustomSelect({ value, onChange, options, placeholder }) {
       )}
     </div>
   );
+}
+
+// Small inline error line shown right under a field, instead of one banner at the top
+// the applicant has to scroll up to read and then guess which field it meant.
+function FieldErr({ msg }) {
+  if (!msg) return null;
+  return <p style={{ color: "#dc2626", fontSize: 11.5, fontWeight: 600, margin: "5px 0 0", display: "flex", alignItems: "center", gap: 4 }}><i className="feather-alert-circle" style={{ fontSize: 11 }}></i>{msg}</p>;
 }
 
 function SuccessScreen({ name, internType, traineeSlug }) {
@@ -581,6 +614,8 @@ function loadDraft() {
 
 export default function InternshipRegistration() {
   const [form, setForm] = useState(EMPTY);
+  const [step, setStep] = useState(1); // 1..4 — which section of the wizard is showing
+  const [stepErrors, setStepErrors] = useState({}); // { fieldKey: message } for the CURRENT step only
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -589,6 +624,7 @@ export default function InternshipRegistration() {
   const [modalDomain, setModalDomain] = useState(null);
   const [welcomeModal, setWelcomeModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
+  const [autosaveState, setAutosaveState] = useState(""); // "" | "saving" | "saved" — a quiet reassurance while filling the form
   const [showQr, setShowQr] = useState(false);
   const [traineeSlug, setTraineeSlug] = useState(null);
 
@@ -606,14 +642,43 @@ export default function InternshipRegistration() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  // Continuous autosave — earlier this only ever wrote to localStorage once, on hitting
+  // Review. Now it quietly saves as they type (debounced) and shows a small "Saved" pill,
+  // so leaving mid-form and coming back later never feels risky.
+  useEffect(() => {
+    if (form === EMPTY) return;
+    if (!form.name && !form.email && !form.phone && !form.college) return; // nothing worth saving yet
+    setAutosaveState("saving");
+    const t = setTimeout(() => {
+      saveDraft(form);
+      setAutosaveState("saved");
+    }, 700);
+    return () => clearTimeout(t);
+  }, [form]);
+
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
-  const handleReview = (e) => {
+  const goBack = () => {
+    setStepErrors({});
+    setStep((s) => Math.max(1, s - 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    const err = validate(form);
-    if (err) { setError(err); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    const errs = validateStep(step, form);
+    if (Object.keys(errs).length) {
+      setStepErrors(errs);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    setStepErrors({});
     saveDraft(form);
+    if (step < 4) {
+      setStep((s) => s + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     setDraftSaved(true);
     setReviewing(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -703,6 +768,8 @@ export default function InternshipRegistration() {
   const fieldWrap = { marginBottom: 18 };
   const gridTwo   = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "0 18px", alignItems: "start" };
   const gridThree = { display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "0 18px", alignItems: "start" };
+  // A plain input's style, but with a red border once that field has failed validation.
+  const fieldStyle = (key) => stepErrors[key] ? { ...inputStyle, borderColor: "#fca5a5" } : inputStyle;
 
   return (
     <>
@@ -733,6 +800,17 @@ export default function InternshipRegistration() {
         input[type="date"] { -webkit-appearance: none; appearance: none; }
         @media (max-width: 640px) { input[type="date"] { font-size: 13px !important; padding: 10px 10px !important; min-height: unset !important; } }
         .req { color: #ef4444; }
+        .intern-stepper { display: flex; align-items: center; margin-bottom: 22px; }
+        .intern-step-dot-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .intern-step-dot { width: 26px; height: 26px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
+        .intern-step-dot-wrap.on .intern-step-dot { background: #0f3d24; color: #fff; }
+        .intern-step-dot-wrap.done .intern-step-dot { background: #228756; color: #fff; }
+        .intern-step-label { font-size: 11px; font-weight: 700; color: #94a3b8; white-space: nowrap; }
+        .intern-step-dot-wrap.on .intern-step-label { color: #0f3d24; }
+        .intern-step-dot-wrap.done .intern-step-label { color: #228756; }
+        .intern-step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 8px; min-width: 12px; transition: background .2s; }
+        .intern-step-line.done { background: #228756; }
+        @media (max-width: 640px) { .intern-step-dot { width: 24px; height: 24px; } .intern-step-line { margin: 0 4px; } }
         .section-card { background: #fff; border: 1px solid #dbe3df; border-radius: 4px; padding: 26px 28px; margin-bottom: 20px; }
         @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
         .submit-btn { background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; border: none; borderRadius: 3px; padding: 14px 40px; fontSize: 15px; fontWeight: 800; cursor: pointer; width: 100%; letterSpacing: 0.3px; transition: opacity 0.2s; }
@@ -796,11 +874,18 @@ export default function InternshipRegistration() {
           font-size: 14px; color: rgba(255,255,255,0.85); max-width: 600px;
           margin: 0 auto; line-height: 1.6; position: relative; z-index: 1;
         }
+        .intern-fee-teaser {
+          display: inline-flex; align-items: center; gap: 8px; margin-top: 18px;
+          background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3);
+          color: #4ade80; font-size: 12.5px; font-weight: 700; padding: 8px 18px;
+          border-radius: 50px; position: relative; z-index: 1;
+        }
         @media (max-width: 768px) {
           .intern-banner { padding: 24px 0 20px 0; }
           .intern-badge { display: none; }
           .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
           .intern-subtitle { font-size: 12px; padding: 0 12px; }
+          .intern-fee-teaser { font-size: 11px; padding: 7px 14px; margin-top: 12px; text-align: left; }
         }
       ` }} />
       <section className="intern-banner">
@@ -816,6 +901,9 @@ export default function InternshipRegistration() {
             <p className="intern-subtitle">
               A mentor-led, supervised internship at Choose Your Therapist — work alongside licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
             </p>
+            <div className="intern-fee-teaser">
+              <i className="feather-tag"></i> Program fees start at {fmtINR(Math.min(...Object.values(HOUR_PRICES)))} — pick your track &amp; duration in the form below
+            </div>
           </div>
         </div>
       </section>
@@ -960,17 +1048,36 @@ export default function InternshipRegistration() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleReview} noValidate>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
-                  <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>Applicant Details</h2>
+              <form onSubmit={handleFormSubmit} noValidate>
+                {/* ── Step progress ── */}
+                <div className="intern-stepper">
+                  {STEP_TITLES.map((title, i) => {
+                    const n = i + 1;
+                    return (
+                      <React.Fragment key={n}>
+                        <div className={`intern-step-dot-wrap ${step === n ? "on" : ""} ${step > n ? "done" : ""}`}>
+                          <span className="intern-step-dot">{step > n ? <i className="feather-check" style={{ fontSize: 11 }}></i> : n}</span>
+                          {!isMobile && <span className="intern-step-label">{title}</span>}
+                        </div>
+                        {n < STEP_TITLES.length && <span className={`intern-step-line ${step > n ? "done" : ""}`} />}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
+                  <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>{STEP_TITLES[step - 1]}</h2>
                   <Link href="/internship-modules"
                     style={{ color: "#228756", fontSize: 12.5, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3 }}>
                     See the modules
                   </Link>
                 </div>
-                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>
-                  Fill in the details below. Fields marked <span className="req">*</span> are required.
-                </p>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 6 }}>{STEP_INTROS[step - 1]}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, fontSize: 11.5, color: "#94a3b8", fontWeight: 700 }}>
+                  <span>Step {step} of 4</span>
+                  {autosaveState === "saving" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i className="feather-loader"></i> Saving…</span>}
+                  {autosaveState === "saved" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#228756" }}><i className="feather-check-circle"></i> Saved</span>}
+                </div>
 
                 {error && (
                   <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
@@ -979,6 +1086,7 @@ export default function InternshipRegistration() {
                 )}
 
                 {/* ── Section 1: Personal ── */}
+                {step === 1 && (
                 <div className="section-card">
                   <div style={sectionHead}>
                     <span style={sectionNum}>01</span>
@@ -988,23 +1096,27 @@ export default function InternshipRegistration() {
                   <div style={gridTwo}>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Full Name <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="text" placeholder="Full name" value={form.name} onChange={e => set("name", e.target.value)} />
+                      <input className="intern-input" style={fieldStyle("name")} type="text" placeholder="Full name" value={form.name} onChange={e => set("name", e.target.value)} />
+                      <FieldErr msg={stepErrors.name} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Email Address <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="email" placeholder="you@example.com"
+                      <input className="intern-input" style={fieldStyle("email")} type="email" placeholder="you@example.com"
                         value={form.email} onChange={e => set("email", e.target.value)} />
+                      <FieldErr msg={stepErrors.email} />
                     </div>
                   </div>
 
                   <div style={gridTwo}>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Phone Number <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="tel" placeholder="10-digit number" maxLength={10} value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} />
+                      <input className="intern-input" style={fieldStyle("phone")} type="tel" placeholder="10-digit number" maxLength={10} value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} />
+                      <FieldErr msg={stepErrors.phone} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>City <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="text" placeholder="City" value={form.city} onChange={e => set("city", e.target.value)} />
+                      <input className="intern-input" style={fieldStyle("city")} type="text" placeholder="City" value={form.city} onChange={e => set("city", e.target.value)} />
+                      <FieldErr msg={stepErrors.city} />
                     </div>
                   </div>
 
@@ -1019,8 +1131,10 @@ export default function InternshipRegistration() {
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* ── Section 2: Academic ── */}
+                {step === 2 && (
                 <div className="section-card">
                   <div style={sectionHead}>
                     <span style={sectionNum}>02</span>
@@ -1029,13 +1143,15 @@ export default function InternshipRegistration() {
 
                   <div style={fieldWrap}>
                     <label style={labelStyle}>College / University / Institute <span className="req">*</span></label>
-                    <input className="intern-input" style={inputStyle} type="text" placeholder="College / University name" value={form.college} onChange={e => set("college", e.target.value)} />
+                    <input className="intern-input" style={fieldStyle("college")} type="text" placeholder="College / University name" value={form.college} onChange={e => set("college", e.target.value)} />
+                    <FieldErr msg={stepErrors.college} />
                   </div>
 
                   <div style={gridThree}>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Degree <span className="req">*</span></label>
-                      <CustomSelect value={form.degree} onChange={v => set("degree", v)} placeholder="Select degree" options={DEGREES} />
+                      <CustomSelect value={form.degree} onChange={v => set("degree", v)} placeholder="Select degree" options={DEGREES} error={!!stepErrors.degree} />
+                      <FieldErr msg={stepErrors.degree} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>
@@ -1044,16 +1160,20 @@ export default function InternshipRegistration() {
                           ? <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500 }}>(optional)</span>
                           : <span className="req">*</span>}
                       </label>
-                      <CustomSelect value={form.specialization} onChange={v => set("specialization", v)} placeholder="Select specialization" options={SPECIALIZATIONS} />
+                      <CustomSelect value={form.specialization} onChange={v => set("specialization", v)} placeholder="Select specialization" options={SPECIALIZATIONS} error={!!stepErrors.specialization} />
+                      <FieldErr msg={stepErrors.specialization} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Current Semester <span className="req">*</span></label>
-                      <CustomSelect value={form.year} onChange={v => set("year", v)} placeholder="Select semester" options={YEARS} />
+                      <CustomSelect value={form.year} onChange={v => set("year", v)} placeholder="Select semester" options={YEARS} error={!!stepErrors.year} />
+                      <FieldErr msg={stepErrors.year} />
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* ── Section 3: Preferences ── */}
+                {step === 3 && (
                 <div className="section-card">
                   <div style={sectionHead}>
                     <span style={sectionNum}>03</span>
@@ -1159,6 +1279,7 @@ export default function InternshipRegistration() {
                         );
                       })}
                     </div>
+                    <FieldErr msg={stepErrors.internType} />
                   </div>
 
                   <div style={gridThree}>
@@ -1169,7 +1290,7 @@ export default function InternshipRegistration() {
                           <button type="button" key={m} onClick={() => set("mode", m)}
                             style={{
                               flex: 1, padding: "9px 8px", borderRadius: 3, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                              border: `1.5px solid ${form.mode === m ? "#228756" : "#cbd5c9"}`,
+                              border: `1.5px solid ${form.mode === m ? "#228756" : (stepErrors.mode ? "#fca5a5" : "#cbd5c9")}`,
                               background: form.mode === m ? "#f0fdf4" : "#fff",
                               color: form.mode === m ? "#166534" : "#64748b",
                               transition: "all 0.15s",
@@ -1178,22 +1299,25 @@ export default function InternshipRegistration() {
                           </button>
                         ))}
                       </div>
+                      <FieldErr msg={stepErrors.mode} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Duration <span className="req">*</span></label>
-                      <CustomSelect value={form.duration} placeholder="Select duration" options={DURS}
+                      <CustomSelect value={form.duration} placeholder="Select duration" options={DURS} error={!!stepErrors.duration}
                         onChange={v => {
                           const allowed = DURATION_HOURS[v] || [];
                           setForm(p => ({ ...p, duration: v, hours: allowed.includes(p.hours) ? p.hours : "" }));
                         }} />
+                      <FieldErr msg={stepErrors.duration} />
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Required Hours <span className="req">*</span></label>
                       {form.duration ? (
-                        <CustomSelect value={form.hours} onChange={v => set("hours", v)} placeholder="Select hours" options={DURATION_HOURS[form.duration] || HOURS} />
+                        <CustomSelect value={form.hours} onChange={v => set("hours", v)} placeholder="Select hours" options={DURATION_HOURS[form.duration] || HOURS} error={!!stepErrors.hours} />
                       ) : (
                         <div style={{ ...inputStyle, color: "#94a3b8", cursor: "not-allowed", background: "#f8fafc" }}>Select duration first</div>
                       )}
+                      <FieldErr msg={stepErrors.hours} />
                       {form.hours && HOUR_PRICES[form.hours] && (
                         <div style={{
                           marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -1212,12 +1336,15 @@ export default function InternshipRegistration() {
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Start From <span className="req">*</span></label>
-                      <input className="intern-input" style={inputStyle} type="date" value={form.availableFrom} onChange={e => set("availableFrom", e.target.value)} />
+                      <input className="intern-input" style={fieldStyle("availableFrom")} type="date" value={form.availableFrom} onChange={e => set("availableFrom", e.target.value)} />
+                      <FieldErr msg={stepErrors.availableFrom} />
                     </div>
                   </div>
                 </div>
+                )}
 
                 {/* ── Section 4: About ── */}
+                {step === 4 && (
                 <div className="section-card">
                   <div style={sectionHead}>
                     <span style={sectionNum}>04</span>
@@ -1229,11 +1356,18 @@ export default function InternshipRegistration() {
                       Why do you want to intern with us? <span className="req">*</span>
                       <span style={{ fontWeight: 500, color: "#94a3b8", marginLeft: 6 }}>(min 50 chars)</span>
                     </label>
-                    <textarea className="intern-input" style={{ ...inputStyle, resize: "vertical", minHeight: 110 }}
+                    <textarea className="intern-input" style={{ ...fieldStyle("motivation"), resize: "vertical", minHeight: 110 }}
                       placeholder="Tell us your motivation, goals, and what you hope to learn..."
                       maxLength={500} value={form.motivation}
                       onChange={e => set("motivation", e.target.value)} />
-                    <span style={{ fontSize: 11, color: "#94a3b8", display: "block", textAlign: "right", marginTop: 4 }}>{form.motivation.length}/500</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
+                      <FieldErr msg={stepErrors.motivation} />
+                      <span style={{ fontSize: 11, color: form.motivation.trim().length >= 50 ? "#228756" : "#94a3b8", fontWeight: form.motivation.trim().length >= 50 ? 700 : 400, marginLeft: "auto" }}>
+                        {form.motivation.trim().length < 50
+                          ? `${50 - form.motivation.trim().length} more characters to go`
+                          : `${form.motivation.length}/500`}
+                      </span>
+                    </div>
                   </div>
 
 
@@ -1289,6 +1423,7 @@ export default function InternshipRegistration() {
                       I confirm that all information provided is accurate and complete.
                     </span>
                   </label>
+                  <FieldErr msg={stepErrors.agreeTerms} />
 
                   <div style={{ marginTop: 14, background: "#f8fafc", border: "1px solid #dbe3df", borderRadius: 3, padding: "14px 16px" }}>
                     <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
@@ -1308,26 +1443,31 @@ export default function InternshipRegistration() {
                     </ul>
                   </div>
                 </div>
+                )}
 
-                <button type="submit" disabled={loading}
-                  style={{
-                    width: "100%", background: "linear-gradient(135deg, #1b5e20, #228756)",
-                    color: "#fff", border: "none", borderRadius: 3, padding: "15px 40px",
-                    fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer",
-                    opacity: loading ? 0.7 : 1, letterSpacing: "0.3px", display: "flex",
-                    alignItems: "center", justifyContent: "center", gap: 10,
-                  }}>
-                  {loading ? (
-                    <>
-                      <span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }}></span>
-                      Submitting Application...
-                    </>
-                  ) : (
-                    <>
-                      <i className="feather-save"></i> Save & Next
-                    </>
+                {/* ── Step footer: Back / Next (or Review on the last step) ── */}
+                <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+                  {step > 1 && (
+                    <button type="button" onClick={goBack}
+                      style={{ flex: 1, padding: "15px 20px", borderRadius: 3, border: "1.5px solid #cbd5c9", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                      <i className="feather-arrow-left"></i> Back
+                    </button>
                   )}
-                </button>
+                  <button type="submit" disabled={loading}
+                    style={{
+                      flex: 2, background: "linear-gradient(135deg, #1b5e20, #228756)",
+                      color: "#fff", border: "none", borderRadius: 3, padding: "15px 40px",
+                      fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer",
+                      opacity: loading ? 0.7 : 1, letterSpacing: "0.3px", display: "flex",
+                      alignItems: "center", justifyContent: "center", gap: 10,
+                    }}>
+                    {step < 4 ? (
+                      <>Next <i className="feather-arrow-right"></i></>
+                    ) : (
+                      <><i className="feather-eye"></i> Review Application</>
+                    )}
+                  </button>
+                </div>
                 <style dangerouslySetInnerHTML={{ __html: `@keyframes spin { to { transform: rotate(360deg); } }` }} />
               </form>
             )}
