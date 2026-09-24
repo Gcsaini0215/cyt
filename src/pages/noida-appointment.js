@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Head from "next/head";
+import { createPortal } from "react-dom";
 import { apiUrl } from "../utils/url";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import LockRounded from "@mui/icons-material/LockRounded";
@@ -435,7 +436,7 @@ const PERIODS = [
   { key: "evening", label: "Evening", test: (m) => m >= 17 * 60 },
 ];
 
-function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new", fit = false }) {
+function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new", fit = false, chipsHost = null }) {
   // Phones swipe sideways through all the days (wide columns, time column pinned); tablets fit all 10
   // and share the compact header (weekday + day circle) and short time labels.
   const compact = isMobile || isTablet;
@@ -508,29 +509,6 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   const activePeriod = periodsPresent.find(p => p.key === period);
   const visibleTimes = activePeriod ? matrix.times.filter(t => activePeriod.test(slotStartMinutes(t))) : matrix.times;
 
-  // Earliest instantly-bookable slot in the rows currently shown — same result as clicking that cell.
-  let nextSlot = null;
-  outer: for (const d of matrix.dates) {
-    for (const t of visibleTimes) {
-      if (matrix.grid[`${d}|${t}`] === "open") { nextSlot = { d, t }; break outer; }
-    }
-  }
-  const nextLbl = nextSlot && dateLabel(nextSlot.d);
-  const nextButton = nextSlot && (
-    <button
-      type="button"
-      className="na-next-btn"
-      onClick={() => {
-        if (isMobile) scrollToDate(nextSlot.d);
-        track("noida_next_available_click", { booking_type: trackAs, slot_date: nextSlot.d, slot_time: nextSlot.t });
-        matrix.onPick(nextSlot.d, nextSlot.t, false);
-      }}
-    >
-      <Ic I={CalendarMonthRounded} s={16} />
-      <span>Next available: <b>{nextSlot.d === today ? "Today" : nextLbl.weekday} {nextLbl.day} {nextLbl.month} · {shortTime(nextSlot.t)}</b></span>
-    </button>
-  );
-
   const choosePeriod = (key) => {
     setPeriod(key);
     track("noida_time_filter", { booking_type: trackAs, period: key || "all" });
@@ -548,7 +526,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
     <>
       {isMobile ? (
         <div className="na-pager-row">
-          <div className="na-pager-head">{renderHeader({ next: nextButton, chips: filterChips })}<div className="na-pager-range">{rangeLabel} · IST{swipe.last < lastIdx ? " · swipe →" : ""}</div></div>
+          <div className="na-pager-head">{renderHeader({ chips: chipsHost ? null : filterChips })}<div className="na-pager-range">{rangeLabel} · IST{swipe.last < lastIdx ? " · swipe →" : ""}</div></div>
           {matrix.dates.length > 3 && (
             <div className="na-pager-btns">
               <button type="button" className="na-pager-btn" aria-label="Earlier days" disabled={swipe.first <= 0} onClick={() => swipeBy(-1)}>‹</button>
@@ -556,8 +534,9 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
             </div>
           )}
         </div>
-      ) : renderHeader({ next: nextButton, chips: filterChips })}
-    {!inlineQuick && (nextButton || filterChips) && <div className="na-quick-row">{nextButton}{filterChips}</div>}
+      ) : renderHeader({ chips: chipsHost ? null : filterChips })}
+    {chipsHost && filterChips ? createPortal(filterChips, chipsHost) : null}
+    {!inlineQuick && !chipsHost && filterChips && <div className="na-quick-row">{filterChips}</div>}
     <div className={`na-fullslots-scroll ${fit ? "fit" : ""} ${isMobile ? "swipe" : ""}`} ref={scrollRef} onScroll={isMobile ? measureSwipe : undefined}>
       <table className="na-fullslots-table">
         <thead>
@@ -598,10 +577,10 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                     <td key={d} {...tdProps}>
                       <button
                         type="button"
-                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""} ${!isSelected && nextSlot && nextSlot.d === d && nextSlot.t === t ? "recommended" : ""}`}
+                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""} `}
                         title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : `Book ${t}`}
                         onClick={() => {
-                          track("noida_slot_click", { booking_type: trackAs, slot_date: d, slot_time: t, last_minute: isLM, recommended: !!(nextSlot && nextSlot.d === d && nextSlot.t === t) });
+                          track("noida_slot_click", { booking_type: trackAs, slot_date: d, slot_time: t, last_minute: isLM });
                           matrix.onPick(d, t, isLM);
                         }}
                       >
@@ -641,6 +620,7 @@ export default function NoidaAppointment() {
   // which they are, not on page load. Using the top tabs directly also counts as having
   // said so, and stops it firing at all for the rest of this visit.
   const [showWelcome, setShowWelcome] = useState(false);
+  const [chipsHost, setChipsHost] = useState(null); // slot under the tabs where the time-of-day chips render
   const [intentConfirmed, setIntentConfirmed] = useState(false);
   // dismissWelcome itself is defined further down, once switchTab/handlePickSlot/
   // pendingPick all exist — it needs all three.
@@ -1368,6 +1348,7 @@ export default function NoidaAppointment() {
         <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
         <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
       </div>
+      <div className="na-chips-host" ref={setChipsHost} />
     </div>
   );
   // The slots table is pinned to one screen (no scrolling) on tablet and desktop.
@@ -1438,6 +1419,9 @@ export default function NoidaAppointment() {
         .na-centre-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 8px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
         .na-centre-btn:hover { background: #f0fdf4; border-color: #86efac; }
         .na-centre-btn.wa { color: #15803d; }
+        .na-chips-host { flex: 1 1 100%; display: flex; justify-content: flex-end; }
+        .na-chips-host:empty { display: none; }
+        .na-chips-host .na-chip { padding: 5px 12px; font-size: 12.5px; }
         @media (min-width: 641px) and (max-width: 900px) {
           .na-centre { flex: 1 1 100%; }
           .na-centre-txt { flex: 1 1 0; }
@@ -1445,6 +1429,7 @@ export default function NoidaAppointment() {
         @media (max-width: 640px) {
           /* the phone topbar is a wrapping column — without nowrap its line grows to the text's max-content and pushes the buttons off-screen */
           .na-topbar { flex-wrap: nowrap; }
+          .na-chips-host { flex: 0 0 auto; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
           .na-centre { flex: 0 0 auto; width: 100%; gap: 10px; }
           .na-centre-txt { flex: 1 1 0; }
           .na-centre-actions { margin-left: 0; }
@@ -2104,15 +2089,15 @@ export default function NoidaAppointment() {
                 isTablet={tablet}
                 trackAs={bookingType}
                 fit
+                chipsHost={chipsHost}
                 selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
                 ) : (q) => (
                   <div className="na-hd">
                     <div className="na-fullslots-title" style={tablet ? { fontSize: 20 } : undefined}>{tablet ? "Pick an open slot" : "Pick an open slot to start booking"}</div>
-                    <div className="na-hd-r">{q.next}</div>
                     <div className="na-fullslots-sub">{bookingType === "followup" ? "Follow-up" : "New client"}{tablet ? ` · next ${MATRIX_DAYS} open days · times in IST` : ` availability — next ${MATRIX_DAYS} open days`}</div>
-                    <div className="na-hd-r">{q.chips}</div>
+                    {q.chips && <div className="na-hd-r">{q.chips}</div>}
                   </div>
                 )}
               />
