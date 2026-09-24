@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import { SubmitConsultationUrl, createTraineeUrl } from "../utils/url";
+import { SubmitConsultationUrl, createTraineeUrl, apiUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 
 export const PSYCH_TYPES = [
@@ -400,77 +400,28 @@ function ProgramModal({ domain, onClose }) {
   );
 }
 
-function QrPaymentModal({ amount, onClose, onSubmit, submitting }) {
-  const [txnId, setTxnId] = React.useState("");
-  const [txnErr, setTxnErr] = React.useState("");
-
-  React.useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape" && !submitting) onClose(); };
-    document.addEventListener("keydown", handler);
-    document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
-  }, [onClose, submitting]);
-
-  const upiId = "chooseyourtherapist@okhdfcbank";
-  const payeeName = encodeURIComponent("Choose Your Therapist");
-  const upiLink = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${encodeURIComponent("Internship Program Fee")}`;
-  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
-
-  const handleSubmitClick = () => {
-    if (!txnId.trim() || txnId.trim().length < 4) {
-      setTxnErr("Enter a valid transaction / UTR ID");
-      return;
-    }
-    setTxnErr("");
-    onSubmit(txnId.trim());
-  };
-
-  return (
-    <div onClick={() => !submitting && onClose()} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(15,23,42,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", backdropFilter: "blur(3px)" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 400, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 24px 60px rgba(0,0,0,0.18)", position: "relative" }}>
-        <button onClick={onClose} disabled={submitting} style={{ position: "absolute", top: 14, right: 14, background: "#f1f5f9", border: "none", width: 30, height: 30, borderRadius: 8, cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>
-          <i className="feather-x" style={{ fontSize: 15, color: "#64748b" }}></i>
-        </button>
-
-        <div style={{ padding: "28px 26px 26px", textAlign: "center" }}>
-          <h2 style={{ fontSize: 20, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Scan to Pay</h2>
-          <p style={{ color: "#64748b", fontSize: 13, marginBottom: 20 }}>Use any UPI app to pay your program fee</p>
-
-          <div style={{ background: "#f8fafc", padding: 16, borderRadius: 18, display: "inline-flex", border: "2px dashed #e2e8f0", marginBottom: 16 }}>
-            <img src={qrSrc} alt="UPI QR Code" style={{ width: 190, height: 190, display: "block" }} />
-          </div>
-
-          <div style={{ padding: "12px 16px", background: "#f0fdf4", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 22 }}>
-            <i className="feather-tag" style={{ fontSize: 14, color: "#166534" }}></i>
-            <span style={{ fontSize: 14, fontWeight: 900, color: "#166534" }}>Amount: {fmtINR(amount)}</span>
-          </div>
-
-          <div style={{ textAlign: "left" }}>
-            <label style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 6, display: "block" }}>
-              Transaction / UTR ID <span className="req">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. 234567891011"
-              value={txnId}
-              onChange={e => { setTxnId(e.target.value); setTxnErr(""); }}
-              style={{ width: "100%", background: "#fff", border: `1.5px solid ${txnErr ? "#fca5a5" : "#e2e8f0"}`, borderRadius: 10, padding: "11px 14px", fontSize: 14, color: "#1e293b", outline: "none", boxSizing: "border-box" }}
-            />
-            {txnErr && <p style={{ color: "#dc2626", fontSize: 11.5, margin: "5px 0 0", fontWeight: 600 }}>{txnErr}</p>}
-            <p style={{ fontSize: 11, color: "#94a3b8", margin: "6px 0 0" }}>Found in your UPI app's payment confirmation screen after paying.</p>
-          </div>
-
-          <button type="button" onClick={handleSubmitClick} disabled={submitting}
-            style={{ width: "100%", marginTop: 20, padding: "14px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-            {submitting
-              ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }}></span> Submitting...</>
-              : <><i className="feather-check-circle"></i> Submit Payment</>}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+// Razorpay's checkout script is only fetched when the applicant actually taps pay.
+function loadRazorpay() {
+  if (typeof window === "undefined" || window.Razorpay || document.getElementById("rzp-checkout-js")) return;
+  const el = document.createElement("script");
+  el.id = "rzp-checkout-js";
+  el.src = "https://checkout.razorpay.com/v1/checkout.js";
+  el.async = true;
+  document.body.appendChild(el);
 }
+
+function waitForRazorpay(timeout = 12000) {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== "undefined" && window.Razorpay) return resolve();
+    const t0 = Date.now();
+    const iv = setInterval(() => {
+      if (typeof window !== "undefined" && window.Razorpay) { clearInterval(iv); resolve(); }
+      else if (Date.now() - t0 > timeout) { clearInterval(iv); reject(new Error("Payment library failed to load. Please check your connection and retry.")); }
+    }, 150);
+  });
+}
+
+const WHATSAPP_NUMBER = "918077757951";
 
 function CustomSelect({ value, onChange, options, placeholder, error }) {
   const [open, setOpen] = React.useState(false);
@@ -625,7 +576,9 @@ export default function InternshipRegistration() {
   const [welcomeModal, setWelcomeModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [autosaveState, setAutosaveState] = useState(""); // "" | "saving" | "saved" — a quiet reassurance while filling the form
-  const [showQr, setShowQr] = useState(false);
+  const paidRef = React.useRef(false);      // set once Razorpay reports a successful payment
+  const paidRespRef = React.useRef(null);   // that payment's ids, kept so saving can be retried without paying twice
+  const [paidInfo, setPaidInfo] = useState(null); // { id } — money taken but the application couldn't be saved yet
   const [traineeSlug, setTraineeSlug] = useState(null);
 
   useEffect(() => {
@@ -684,76 +637,139 @@ export default function InternshipRegistration() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSubmit = async (transactionId) => {
+  const showError = (msg) => { setError(msg); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  // Step 1 — ask the backend for an order (it decides the amount from the chosen hours) and open Razorpay.
+  const handlePay = async () => {
     setError("");
     setLoading(true);
+    loadRazorpay();
     try {
-      const traineePayload = {
-        name:           form.name,
-        email:          form.email,
-        phone:          form.phone,
-        city:           form.city,
-        college:        form.college,
-        degree:         form.degree,
-        specialization: form.specialization,
-        internType:     form.internType,
-        mode:           form.mode,
-        duration:       form.duration,
-        hours:          form.hours,
-        programFee:     HOUR_PRICES[form.hours] || null,
-        transactionId:  transactionId,
-        availableFrom:  form.availableFrom,
-        motivation:     form.motivation,
-      };
-
-      const traineeFormData = new FormData();
-      traineeFormData.append("name", form.name);
-      traineeFormData.append("email", form.email);
-      traineeFormData.append("phone", form.phone);
-      traineeFormData.append("city", form.city);
-      traineeFormData.append("gender", form.gender);
-      traineeFormData.append("dob", form.dob);
-      traineeFormData.append("college", form.college);
-      traineeFormData.append("degree", form.degree);
-      traineeFormData.append("specialization", form.specialization);
-      traineeFormData.append("year", form.year);
-      form.internType.forEach((t) => traineeFormData.append("internType", t));
-      traineeFormData.append("mode", form.mode);
-      traineeFormData.append("duration", form.duration);
-      traineeFormData.append("hours", form.hours);
-      traineeFormData.append("programFee", HOUR_PRICES[form.hours] || "");
-      traineeFormData.append("transactionId", transactionId);
-      traineeFormData.append("availableFrom", form.availableFrom);
-      traineeFormData.append("motivation", form.motivation);
-      if (form.resumeFile) traineeFormData.append("resumeFile", form.resumeFile);
-      if (form.collegeId) traineeFormData.append("collegeId", form.collegeId);
-      if (form.passportPhoto) traineeFormData.append("passportPhoto", form.passportPhoto);
-
-      const [traineeResult] = await Promise.allSettled([
-        postFormData(createTraineeUrl, traineeFormData),
-        postData(SubmitConsultationUrl, {
-          name:    form.name,
-          email:   form.email,
-          phone:   form.phone,
-          message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Program Fee: ${HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—"} | Transaction ID: ${transactionId} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
-          type: "internship",
-        }),
-        fetch("/api/send-internship-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(traineePayload),
-        }),
-      ]);
-
-      if (traineeResult.status === "fulfilled" && traineeResult.value?.data?.slug) {
-        setTraineeSlug(traineeResult.value.data.slug);
+      const orderRes = await fetch(`${apiUrl}/trainees/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hours: form.hours }),
+      });
+      const od = await orderRes.json();
+      if (!od?.status || !od?.data?.orderId || !od?.data?.keyId) {
+        showError(od?.message || "Could not start payment. Please try again.");
+        setLoading(false);
+        return;
       }
-    } finally {
+      await waitForRazorpay();
+
+      paidRef.current = false;
+      const rzp = new window.Razorpay({
+        key: od.data.keyId,
+        amount: Math.round(od.data.amount * 100),
+        currency: "INR",
+        order_id: od.data.orderId,
+        name: "Choose Your Therapist",
+        description: "Supervision cum Internship Program",
+        handler: (response) => finalizeApplication(response),
+        prefill: { name: form.name, email: form.email, contact: form.phone },
+        theme: { color: "#1b5e20" },
+        modal: {
+          ondismiss: () => {
+            if (paidRef.current) return; // paid — finalizeApplication owns what happens next
+            setLoading(false);
+            showError("Payment was cancelled. Your details are saved — you can pay whenever you're ready.");
+          },
+        },
+      });
+      rzp.on("payment.failed", (resp) => {
+        const why = resp?.error?.description;
+        setLoading(false);
+        showError(`Payment failed${why ? ` — ${why}` : ""}. Please retry or use a different payment method.`);
+      });
+      rzp.open();
+    } catch (e) {
+      showError(e?.message || "Could not start payment. Please try again.");
       setLoading(false);
-      setShowQr(false);
-      setSubmitted(true);
-      try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
     }
+  };
+
+  // Step 2 — the payment went through: save the application with the payment proof (the backend
+  // re-verifies the signature and that the amount matches the chosen program). Retried, because
+  // the money has already been taken by now; if it still can't be saved the payment id is shown.
+  const finalizeApplication = async (payResp) => {
+    paidRef.current = true;
+    paidRespRef.current = payResp;
+    setPaidInfo(null);
+    setError("");
+    setLoading(true);
+    const paymentId = payResp.razorpay_payment_id;
+
+    const fd = new FormData();
+    fd.append("name", form.name);
+    fd.append("email", form.email);
+    fd.append("phone", form.phone);
+    fd.append("city", form.city);
+    fd.append("gender", form.gender);
+    fd.append("dob", form.dob);
+    fd.append("college", form.college);
+    fd.append("degree", form.degree);
+    fd.append("specialization", form.specialization);
+    fd.append("year", form.year);
+    form.internType.forEach((t) => fd.append("internType", t));
+    fd.append("mode", form.mode);
+    fd.append("duration", form.duration);
+    fd.append("hours", form.hours);
+    fd.append("programFee", HOUR_PRICES[form.hours] || "");
+    fd.append("transactionId", paymentId);
+    fd.append("razorpay_order_id", payResp.razorpay_order_id);
+    fd.append("razorpay_payment_id", paymentId);
+    fd.append("razorpay_signature", payResp.razorpay_signature);
+    fd.append("availableFrom", form.availableFrom);
+    fd.append("motivation", form.motivation);
+    if (form.resumeFile) fd.append("resumeFile", form.resumeFile);
+    if (form.collegeId) fd.append("collegeId", form.collegeId);
+    if (form.passportPhoto) fd.append("passportPhoto", form.passportPhoto);
+
+    let saved = null;
+    let lastMsg = "";
+    for (let attempt = 0; attempt < 3 && !saved; attempt++) {
+      try {
+        const r = await postFormData(createTraineeUrl, fd);
+        if (r?.status) saved = r;
+      } catch (e) {
+        lastMsg = e?.response?.data?.message || "";
+        if (e?.response?.status && e.response.status < 500) break; // a definite answer — retrying won't change it
+      }
+      if (!saved) await new Promise((res) => setTimeout(res, 1500));
+    }
+
+    if (!saved) {
+      setLoading(false);
+      setPaidInfo({ id: paymentId });
+      showError(`Your payment went through (ID: ${paymentId}) but we couldn't save your application${lastMsg ? ` — ${lastMsg}` : ""}. Nothing is lost — tap "Retry saving", or WhatsApp us this payment ID.`);
+      return;
+    }
+
+    if (saved?.data?.slug) setTraineeSlug(saved.data.slug);
+    // Notifications are best-effort — the application itself is already saved.
+    Promise.allSettled([
+      postData(SubmitConsultationUrl, {
+        name:    form.name,
+        email:   form.email,
+        phone:   form.phone,
+        message: `[INTERNSHIP APPLICATION]\nType: ${form.internType.join(", ")}\nCollege: ${form.college} | Degree: ${form.degree} (${form.year})\nSpecialization: ${form.specialization}\nCity: ${form.city}\nMode: ${form.mode} | Duration: ${form.duration} | Hours: ${form.hours} | Program Fee: ${HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : "—"} | Paid via Razorpay: ${paymentId} | Start: ${form.availableFrom}\nMotivation: ${form.motivation}`,
+        type: "internship",
+      }),
+      fetch("/api/send-internship-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name, email: form.email, phone: form.phone, city: form.city, college: form.college,
+          degree: form.degree, specialization: form.specialization, internType: form.internType, mode: form.mode,
+          duration: form.duration, hours: form.hours, programFee: HOUR_PRICES[form.hours] || null,
+          transactionId: paymentId, availableFrom: form.availableFrom, motivation: form.motivation,
+        }),
+      }),
+    ]);
+    setLoading(false);
+    setSubmitted(true);
+    try { localStorage.removeItem(DRAFT_KEY); } catch (_) {}
   };
 
   const inputStyle = {
@@ -941,6 +957,19 @@ export default function InternshipRegistration() {
                     <i className="feather-alert-circle"></i> {error}
                   </div>
                 )}
+                {paidInfo && (
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
+                    <button type="button" disabled={loading} onClick={() => finalizeApplication(paidRespRef.current)}
+                      style={{ flex: 1, minWidth: 160, padding: "12px", borderRadius: 3, border: "none", background: "#228756", color: "#fff", fontSize: 13, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
+                      {loading ? "Saving…" : "Retry saving application"}
+                    </button>
+                    <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi, I paid for the internship program but my application didn't save. Payment ID: ${paidInfo.id}`)}`}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ flex: 1, minWidth: 160, padding: "12px", borderRadius: 3, background: "#16a34a", color: "#fff", fontSize: 13, fontWeight: 800, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                      <i className="feather-message-circle"></i> WhatsApp us with payment ID
+                    </a>
+                  </div>
+                )}
 
                 {/* Personal */}
                 {[
@@ -1030,9 +1059,9 @@ export default function InternshipRegistration() {
                     style={{ flex: 1, minWidth: 120, padding: "14px", borderRadius: 3, border: "1.5px solid #cbd5c9", background: "#fff", color: "#374151", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                     <i className="feather-edit-2"></i> Edit Details
                   </button>
-                  <button type="button" onClick={() => setShowQr(true)} disabled={loading}
+                  <button type="button" onClick={handlePay} disabled={loading}
                     style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                    <i className="feather-credit-card"></i> Proceed to Payment
+                    {loading ? <><span style={{ width: 16, height: 16, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }}></span> Processing…</> : <><i className="feather-credit-card"></i> Pay {fmtINR(HOUR_PRICES[form.hours] || 0)} &amp; Submit</>}
                   </button>
                 </div>
               </div>
@@ -1470,14 +1499,6 @@ export default function InternshipRegistration() {
 
       {modalDomain && <ProgramModal domain={modalDomain} onClose={() => setModalDomain(null)} />}
       {welcomeModal && <WelcomeModal onClose={() => setWelcomeModal(false)} />}
-      {showQr && (
-        <QrPaymentModal
-          amount={HOUR_PRICES[form.hours] || 0}
-          submitting={loading}
-          onClose={() => !loading && setShowQr(false)}
-          onSubmit={(transactionId) => handleSubmit(transactionId)}
-        />
-      )}
     </>
   );
 }
