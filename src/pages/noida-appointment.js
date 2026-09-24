@@ -527,12 +527,6 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
       {isMobile ? (
         <div className="na-pager-row">
           <div className="na-pager-head">{renderHeader({ chips: chipsHost ? null : filterChips })}<div className="na-pager-range">{rangeLabel} · IST{swipe.last < lastIdx ? " · swipe →" : ""}</div></div>
-          {matrix.dates.length > 3 && (
-            <div className="na-pager-btns">
-              <button type="button" className="na-pager-btn" aria-label="Earlier days" disabled={swipe.first <= 0} onClick={() => swipeBy(-1)}>‹</button>
-              <button type="button" className="na-pager-btn" aria-label="Later days" disabled={swipe.last >= lastIdx} onClick={() => swipeBy(1)}>›</button>
-            </div>
-          )}
         </div>
       ) : renderHeader({ chips: chipsHost ? null : filterChips })}
     {chipsHost && filterChips ? createPortal(filterChips, chipsHost) : null}
@@ -1431,6 +1425,8 @@ export default function NoidaAppointment() {
           .na-topbar { flex-wrap: nowrap; }
           .na-chips-host { flex: 0 0 auto; justify-content: center; }
           .na-chips-host .na-chips { justify-content: center; flex-wrap: wrap; }
+          .na-quick-row { justify-content: center; }
+          .na-quick-row .na-chips { justify-content: center; }
           .na-centre { flex: 0 0 auto; width: 100%; gap: 10px; }
           .na-centre-txt { flex: 1 1 0; }
           .na-centre-actions { margin-left: 0; }
@@ -2090,7 +2086,7 @@ export default function NoidaAppointment() {
                 isTablet={tablet}
                 trackAs={bookingType}
                 fit
-                chipsHost={chipsHost}
+                chipsHost={isMobile ? null : chipsHost}
                 selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
