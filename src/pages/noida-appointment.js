@@ -774,6 +774,43 @@ export default function NoidaAppointment({ seoPricing = null }) {
   // On mobile a tap only selects a slot; the bottom bar's Continue moves on.
   const [pendingPick, setPendingPick] = useState(null); // { date, slot, isLM } | null
 
+  // Live-visitor heartbeat for the reception screen's "viewing now" counter. Sends a random per-tab id,
+  // the booking stage and the device class — nothing personal — while this tab is visible.
+  const presenceRef = useRef({ sid: "", stage: "browsing", device: "desktop" });
+  const stageNow = phase === "form" ? (step === 3 ? "payment" : "form") : "browsing";
+  const deviceNow = isMobile ? "mobile" : tablet ? "tablet" : "desktop";
+  const sendPresence = useCallback((leave = false) => {
+    const pr = presenceRef.current;
+    if (!leave && typeof document !== "undefined" && document.hidden) return;
+    if (!pr.sid) {
+      try { pr.sid = sessionStorage.getItem("cyt_na_sid") || ""; } catch { /* storage blocked */ }
+      if (!pr.sid) {
+        const raw = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+        pr.sid = raw.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
+        try { sessionStorage.setItem("cyt_na_sid", pr.sid); } catch { /* storage blocked */ }
+      }
+    }
+    fetch(`${apiUrl}/noida-appointments/presence`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sid: pr.sid, stage: pr.stage, device: pr.device, leave: leave || undefined }),
+      keepalive: true,
+    }).catch(() => {});
+  }, []);
+  useEffect(() => {
+    presenceRef.current.stage = stageNow;
+    presenceRef.current.device = deviceNow;
+    sendPresence(); // stage/device changed — tell the desk straight away
+  }, [stageNow, deviceNow, sendPresence]);
+  useEffect(() => {
+    const iv = setInterval(() => sendPresence(), 25000);
+    const onVis = () => { if (!document.hidden) sendPresence(); };
+    const onLeave = () => sendPresence(true);
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("pagehide", onLeave);
+    return () => { clearInterval(iv); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("pagehide", onLeave); };
+  }, [sendPresence]);
+
   // ── Pricing + packages, fetched once ─────────────────────────────────
   const [pricing, setPricing] = useState(null);
   // Optional therapist choice — the list is what the admin offered at CYT Noida (live therapists only).
