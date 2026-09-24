@@ -1352,6 +1352,17 @@ export default function NoidaAppointment() {
 
   const tabsEl = (
     <div className="na-topbar">
+      <div className="na-centre">
+        <div className="na-centre-mark" aria-hidden="true">cyt<span></span></div>
+        <div className="na-centre-txt">
+          <div className="na-centre-name">Choose Your Therapist Centre</div>
+          <div className="na-centre-addr"><Ic I={PlaceRounded} s={13} /> Gate 3, D-137, Block D, Sector 51, Noida</div>
+        </div>
+        <div className="na-centre-actions">
+          <a className="na-centre-btn" href={MAPS_URL} target="_blank" rel="noopener noreferrer" aria-label="Get directions to the centre"><Ic I={DirectionsRounded} s={16} /><span>Directions</span></a>
+          <a className="na-centre-btn wa" href={waLink("Hi, I have a question about booking at the Noida centre.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp"><Ic I={WhatsAppIcon} s={16} /><span>WhatsApp</span></a>
+        </div>
+      </div>
       <div className="na-topbar-tabs">
         <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
         <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
@@ -1417,6 +1428,31 @@ export default function NoidaAppointment() {
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
+        .na-centre { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 320px; }
+        .na-centre-mark { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid #d9e7de; color: #1a6b3a; font-weight: 900; font-size: 16px; letter-spacing: -.4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(15,61,34,.08); }
+        .na-centre-mark span { width: 5px; height: 5px; border-radius: 50%; background: #f5b400; margin: 6px 0 0 1px; }
+        .na-centre-txt { min-width: 0; flex: 0 1 auto; }
+        .na-centre-name { font-size: 14px; font-weight: 800; color: #0f2a1d; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .na-centre-addr { font-size: 12px; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .na-centre-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 4px; }
+        .na-centre-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 8px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+        .na-centre-btn:hover { background: #f0fdf4; border-color: #86efac; }
+        .na-centre-btn.wa { color: #15803d; }
+        @media (min-width: 641px) and (max-width: 900px) {
+          .na-centre { flex: 1 1 100%; }
+          .na-centre-txt { flex: 1 1 0; }
+        }
+        @media (max-width: 640px) {
+          /* the phone topbar is a wrapping column — without nowrap its line grows to the text's max-content and pushes the buttons off-screen */
+          .na-topbar { flex-wrap: nowrap; }
+          .na-centre { flex: 0 0 auto; width: 100%; gap: 10px; }
+          .na-centre-txt { flex: 1 1 0; }
+          .na-centre-actions { margin-left: 0; }
+          .na-centre-mark { width: 38px; height: 38px; font-size: 14px; border-radius: 10px; }
+          .na-centre-name { font-size: 13px; }
+          .na-centre-btn span { display: none; }
+          .na-centre-btn { padding: 7px 9px; }
+        }
         .na-shell { max-width: 1100px; margin: 8px auto 0; background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); overflow: hidden; overflow: clip; }
         .na-shell .na-fullslots-wrap, .na-shell .na-centerwrap { max-width: none; }
         .na-shell .na-fullslots-wrap { padding-top: 6px; padding-bottom: 16px; }
@@ -1520,7 +1556,7 @@ export default function NoidaAppointment() {
         .na-selbar.inflow .na-selbar-btn { height: 46px; }
 
         /* Tablet + desktop: the tabs sit in the card and the slots screen is exactly one viewport tall — no page or table scrolling. */
-        .na-page.na-fit .na-topbar { max-width: none; margin: 0; align-self: stretch; padding: 12px 22px 0; justify-content: flex-end; }
+        .na-page.na-fit .na-topbar { max-width: none; margin: 0; align-self: stretch; padding: 12px 22px 0; justify-content: space-between; }
         .na-page.na-fit .na-topbar-tabs { background: #f1f5f3; box-shadow: none; }
         /* the card IS the page: edge to edge, full viewport height */
         .na-page.na-fit { background: #fff; }
