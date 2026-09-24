@@ -152,7 +152,7 @@ function NoidaCentreCard({ pricing }) {
   const from = pricing?.individual_inperson;
   return (
     <div className="bk-noida">
-      <div className="bk-noida-mark" aria-hidden="true">cyt<span></span></div>
+      <div className="bk-noida-mark"><img src="/favicon.png" alt="Choose Your Therapist" width="64" height="64" /></div>
       <div className="bk-noida-body">
         <div className="bk-noida-eyebrow"><i className="feather-map-pin"></i> Our Noida centre · Sector 51</div>
         <div className="bk-noida-title">Prefer to visit us in person?</div>
@@ -987,8 +987,8 @@ export default function BookPage() {
 
         /* noida centre card */
         .bk-noida { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding: 18px 20px; border-radius: 12px; background: linear-gradient(135deg, ${G} 0%, #175c37 100%); border: 1px solid ${GOLD}; box-shadow: 0 6px 24px rgba(15,61,36,.18); color: #fff; }
-        .bk-noida-mark { flex-shrink: 0; width: 64px; height: 64px; border-radius: 16px; background: #fff; color: ${G}; font-weight: 900; font-size: 22px; letter-spacing: -.5px; display: flex; align-items: center; justify-content: center; }
-        .bk-noida-mark span { width: 7px; height: 7px; border-radius: 50%; background: ${GOLD}; margin: 8px 0 0 2px; }
+        .bk-noida-mark { flex-shrink: 0; width: 64px; height: 64px; border-radius: 16px; background: #fff; padding: 9px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
+        .bk-noida-mark img { width: 100%; height: 100%; object-fit: contain; display: block; }
         .bk-noida-body { flex: 1; min-width: 0; }
         .bk-noida-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: ${GOLD}; display: flex; align-items: center; gap: 6px; }
         .bk-noida-title { font-size: 18px; font-weight: 800; margin-top: 3px; }
@@ -1022,7 +1022,7 @@ export default function BookPage() {
           .bk-h2 { font-size: 16px; }
           .bk-cell, .bk-time { min-height: 44px; }
           .bk-noida { flex-wrap: wrap; padding: 16px; gap: 14px; }
-          .bk-noida-mark { width: 52px; height: 52px; font-size: 18px; border-radius: 13px; }
+          .bk-noida-mark { width: 52px; height: 52px; border-radius: 13px; padding: 7px; }
           .bk-noida-cta { width: 100%; justify-content: center; }
         }
       `}</style>

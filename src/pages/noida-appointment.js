@@ -1333,9 +1333,9 @@ export default function NoidaAppointment() {
   const tabsEl = (
     <div className="na-topbar">
       <div className="na-centre">
-        <div className="na-centre-mark" aria-hidden="true">cyt<span></span></div>
+        <div className="na-centre-mark"><img src="/favicon.png" alt="Choose Your Therapist" width="44" height="44" /></div>
         <div className="na-centre-txt">
-          <div className="na-centre-name">Choose Your Therapist Centre</div>
+          <div className="na-centre-name">Choose Your Therapist | Noida &amp; Delhi</div>
           <div className="na-centre-addr"><Ic I={PlaceRounded} s={13} /> Gate 3, D-137, Block D, Sector 51, Noida</div>
         </div>
         <div className="na-centre-actions">
@@ -1410,8 +1410,8 @@ export default function NoidaAppointment() {
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
         .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
         .na-centre { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 320px; }
-        .na-centre-mark { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid #d9e7de; color: #1a6b3a; font-weight: 900; font-size: 16px; letter-spacing: -.4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(15,61,34,.08); }
-        .na-centre-mark span { width: 5px; height: 5px; border-radius: 50%; background: #f5b400; margin: 6px 0 0 1px; }
+        .na-centre-mark { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid #d9e7de; padding: 6px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(15,61,34,.08); }
+        .na-centre-mark img { width: 100%; height: 100%; object-fit: contain; display: block; }
         .na-centre-txt { min-width: 0; flex: 0 1 auto; }
         .na-centre-name { font-size: 14px; font-weight: 800; color: #0f2a1d; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .na-centre-addr { font-size: 12px; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1429,12 +1429,13 @@ export default function NoidaAppointment() {
         @media (max-width: 640px) {
           /* the phone topbar is a wrapping column — without nowrap its line grows to the text's max-content and pushes the buttons off-screen */
           .na-topbar { flex-wrap: nowrap; }
-          .na-chips-host { flex: 0 0 auto; justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+          .na-chips-host { flex: 0 0 auto; justify-content: center; }
+          .na-chips-host .na-chips { justify-content: center; flex-wrap: wrap; }
           .na-centre { flex: 0 0 auto; width: 100%; gap: 10px; }
           .na-centre-txt { flex: 1 1 0; }
           .na-centre-actions { margin-left: 0; }
-          .na-centre-mark { width: 38px; height: 38px; font-size: 14px; border-radius: 10px; }
-          .na-centre-name { font-size: 13px; }
+          .na-centre-mark { width: 38px; height: 38px; border-radius: 10px; padding: 5px; }
+          .na-centre-name { font-size: 13px; white-space: normal; overflow: visible; text-overflow: clip; }
           .na-centre-btn span { display: none; }
           .na-centre-btn { padding: 7px 9px; }
         }
@@ -2134,6 +2135,7 @@ export default function NoidaAppointment() {
               const go = () => pendingPick && handlePickSlot(pendingPick.date, pendingPick.slot, pendingPick.isLM);
               const cta = pendingPick?.isLM ? "Send request" : "Continue →";
               if (!landscape) {
+                if (!pendingPick) return null; // nothing to continue with yet — the card appears once a slot is picked
                 return (
                   <div className="na-tab-selcard">
                     <div>
@@ -2206,17 +2208,19 @@ export default function NoidaAppointment() {
 
                   <div style={{ flexGrow: 1 }} />
                   {/* Sticks to the bottom of the screen: the panel is as tall as the table, so a plain bottom button sat below the fold. */}
-                  <div className="na-tab-cta-dock">
-                    <div className="na-selbar-h" style={{ textAlign: "center", margin: "0 0 8px" }}>
-                      {pendingPick ? (pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "Tap Continue — next: your details & payment") : "Pick an open slot to continue"}
+                  {pendingPick && (
+                    <div className="na-tab-cta-dock">
+                      <div className="na-selbar-h" style={{ textAlign: "center", margin: "0 0 8px" }}>
+                        {pendingPick.isLM ? "Starts within 15 min — the center confirms first" : "Tap Continue — next: your details & payment"}
+                      </div>
+                      <button type="button" className="na-tab-cta" style={{ width: "100%" }} onClick={go}>{cta}</button>
                     </div>
-                    <button type="button" className="na-tab-cta" style={{ width: "100%" }} disabled={!pendingPick} onClick={go}>{cta}</button>
-                  </div>
+                  )}
                 </div>
               );
             })()}
             </div>
-            {!tablet && (() => {
+            {!tablet && pendingPick && (() => {
               const lbl = pendingPick ? dateLabel(pendingPick.date) : null;
               return (
                 <div className="na-selbar inflow" role="region" aria-label="Selected slot">
