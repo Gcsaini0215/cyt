@@ -1552,8 +1552,8 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-skel { display: block; border-radius: 8px; background: linear-gradient(90deg, #e8eeeb 25%, #f6f8f7 37%, #e8eeeb 63%); background-size: 400% 100%; animation: naShimmer 1.4s ease infinite; }
         /* the site's bottom navigation reserves 75px of body padding up to 1200px wide; let the grey footer fill it */
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
-        .na-seo { background: #fff; padding: 44px 20px 8px; }
-        .na-seo-in { max-width: 860px; margin: 0 auto; color: #334155; font-size: 15px; line-height: 1.7; }
+        .na-seo { background: transparent; padding: 26px 14px 0; }
+        .na-seo-in { max-width: 980px; margin: 0 auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 34px rgba(15,61,34,.10); padding: 32px 36px 28px; color: #334155; font-size: 15px; line-height: 1.7; }
         .na-seo h2 { font-size: 24px; font-weight: 800; color: #0f2a1d; margin: 0 0 12px; line-height: 1.25; }
         .na-seo h3 { font-size: 18px; font-weight: 800; color: #0f2a1d; margin: 28px 0 10px; }
         .na-seo .na-seo-in p, .na-seo .na-seo-in li, .na-seo .na-seo-in address, .na-seo .na-seo-in summary { font-size: 15px; line-height: 1.7; color: #334155; font-family: inherit; }
@@ -1576,7 +1576,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-seo-faq details[open] summary { border-bottom: 1px solid #eef2f6; margin-bottom: 10px; }
         .na-seo-faq details p { margin: 0 0 14px; }
         .na-seo-links { margin-top: 22px !important; font-size: 14px; color: #64748b; }
-        @media (max-width: 640px) { .na-seo { padding: 30px 16px 4px; } .na-seo h2 { font-size: 20px; } .na-seo h3 { font-size: 16.5px; } .na-seo-in { font-size: 14.5px; } }
+        @media (max-width: 640px) { .na-seo { padding: 16px 8px 0; } .na-seo-in { padding: 22px 16px 18px; border-radius: 16px; } .na-seo h2 { font-size: 20px; } .na-seo h3 { font-size: 16.5px; } .na-seo-in { font-size: 14.5px; } }
         .na-foot { background: #e9edeb; margin-top: 44px; padding: 44px 20px 40px; }
         .na-foot-in { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; align-items: center; }
         .na-foot-in > :not(.na-foot-help) { grid-column: 1; }
@@ -1672,13 +1672,15 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-page.na-fit .na-topbar { max-width: none; margin: 0; align-self: stretch; padding: 12px 22px 0; justify-content: space-between; }
         .na-page.na-fit .na-topbar-tabs { background: #f1f5f3; box-shadow: none; }
         /* the card IS the page: edge to edge, full viewport height */
-        .na-page.na-fit { background: #fff; }
+        .na-page.na-fit { background: #f1f5f3; }
         .na-page.na-fit .na-shell { max-width: none; width: 100%; margin: 0; border-radius: 0; box-shadow: none; min-height: calc(100vh - var(--na-ck, 0px)); min-height: calc(100dvh - var(--na-ck, 0px)); }
         .na-page.na-fit.is-tablet .na-shell { margin: 0; }
         .na-page.na-fit .na-shell:not(.fit-slots) { display: flex; flex-direction: column; }
         .na-page.na-fit .na-shell:not(.fit-slots) > .na-centerwrap { flex: 1; display: flex; flex-direction: column; margin: 0; width: 100%; box-sizing: border-box; padding-bottom: 24px; }
         .na-page.na-fit .na-shell:not(.fit-slots) > .na-centerwrap > .na-card { margin: auto; width: 100%; max-width: 700px; }
         .na-page.na-fit .na-shell.fit-slots { height: calc(100vh - var(--na-ck, 0px)); height: calc(100dvh - var(--na-ck, 0px)); display: flex; flex-direction: column; }
+        .na-page.na-fit .na-shell.fit-slots, .na-page.na-fit.is-tablet .na-shell.fit-slots { width: calc(100% - 28px); max-width: 1480px; margin: 12px auto 0; border-radius: 20px; box-shadow: 0 10px 34px rgba(15,61,34,.12); height: calc(100vh - var(--na-ck, 0px) - 24px); height: calc(100dvh - var(--na-ck, 0px) - 24px); min-height: 0; }
+        @media (max-width: 640px) { .na-page.na-fit .na-shell.fit-slots, .na-page.na-fit.is-tablet .na-shell.fit-slots { width: calc(100% - 16px); margin-top: 8px; border-radius: 16px; height: calc(100vh - var(--na-ck, 0px) - 16px); height: calc(100dvh - var(--na-ck, 0px) - 16px); } }
         .na-page.na-fit .na-shell.fit-slots > .na-fullslots-wrap { margin: 0; width: 100%; box-sizing: border-box; flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 2px 22px 14px; }
         .na-page.na-fit .na-shell.fit-slots .na-tab-cols { flex: 1; min-height: 0; display: flex; gap: 16px; align-items: stretch; }
         .na-page.na-fit .na-shell.fit-slots .na-tab-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 4px 6px 0; }
