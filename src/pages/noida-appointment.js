@@ -526,11 +526,11 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
     <>
       {isMobile ? (
         <div className="na-pager-row">
-          <div className="na-pager-head">{renderHeader({ chips: chipsHost ? null : filterChips })}<div className="na-pager-range">{rangeLabel} · IST{swipe.last < lastIdx ? " · swipe →" : ""}</div></div>
+          <div className="na-pager-head"><div className="na-pager-line">{renderHeader({ chips: chipsHost ? null : filterChips })}{!chipsHost && filterChips}</div><div className="na-pager-range">{rangeLabel} · IST{swipe.last < lastIdx ? " · swipe →" : ""}</div></div>
         </div>
       ) : renderHeader({ chips: chipsHost ? null : filterChips })}
     {chipsHost && filterChips ? createPortal(filterChips, chipsHost) : null}
-    {!inlineQuick && !chipsHost && filterChips && <div className="na-quick-row">{filterChips}</div>}
+    {!inlineQuick && !chipsHost && !isMobile && filterChips && <div className="na-quick-row">{filterChips}</div>}
     <div className={`na-fullslots-scroll ${fit ? "fit" : ""} ${isMobile ? "swipe" : ""}`} ref={scrollRef} onScroll={isMobile ? measureSwipe : undefined}>
       <table className="na-fullslots-table">
         <thead>
@@ -1423,10 +1423,8 @@ export default function NoidaAppointment() {
         @media (max-width: 640px) {
           /* the phone topbar is a wrapping column — without nowrap its line grows to the text's max-content and pushes the buttons off-screen */
           .na-topbar { flex-wrap: nowrap; }
-          .na-chips-host { flex: 0 0 auto; justify-content: center; }
-          .na-chips-host .na-chips { justify-content: center; flex-wrap: wrap; }
-          .na-quick-row { justify-content: center; }
-          .na-quick-row .na-chips { justify-content: center; }
+          .na-chips-host { flex: 0 0 auto; justify-content: flex-end; }
+          .na-chips-host .na-chips { justify-content: flex-end; flex-wrap: wrap; }
           .na-centre { flex: 0 0 auto; width: 100%; gap: 10px; }
           .na-centre-txt { flex: 1 1 0; }
           .na-centre-actions { margin-left: 0; }
@@ -1735,6 +1733,16 @@ export default function NoidaAppointment() {
 
         .na-pager-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; padding: 0 2px; }
         .na-pager-range { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .na-pager-head { flex: 1; min-width: 0; }
+        .na-pager-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .na-pager-line .na-chips { flex-wrap: nowrap; gap: 4px; flex-shrink: 0; margin-left: auto; }
+        .na-page.na-fit .na-shell.fit-slots .na-pager-line .na-chip { padding: 5px 9px; font-size: 12px; }
+        .na-pager-line .na-fullslots-title { white-space: nowrap; flex-shrink: 0; }
+        .na-pager-line .na-chips { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+        @media (max-width: 380px) { .na-page.na-fit .na-shell.fit-slots .na-pager-line .na-chip { padding: 4px 6px; font-size: 11px; } .na-pager-line .na-chips { gap: 3px; } }
+        @media (max-width: 340px) { .na-page.na-fit .na-shell.fit-slots .na-pager-line .na-chip { padding: 4px 4px; font-size: 10px; } .na-pager-line .na-fullslots-title { font-size: 13px; } }
+        /* breathing room between the tabs above and the title/chips line */
+        @media (max-width: 640px) { .na-page .na-shell .na-pager-row { margin-top: 10px; } }
         .na-pager-btns { display: flex; gap: 6px; flex-shrink: 0; }
         .na-pager-btn { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #fff; color: #1a6b3a; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; font-family: inherit; }
         .na-pager-btn:disabled { color: #cbd5e1; background: #f8fafc; cursor: default; }
