@@ -1,13 +1,14 @@
 import React from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import Link from "next/link";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import {
   getTherapistProfile, imagePath, defaultProfile,
   ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, GetCouponsUrl,
-  BookedSlotsUrl,
+  BookedSlotsUrl, apiUrl,
 } from "../../utils/url";
 import { getValidServices } from "../../utils/helpers";
 import { getToken } from "../../utils/jwt";
@@ -146,6 +147,29 @@ function TherapistHero({ profile, nextLabel, fromFee }) {
   );
 }
 
+// ── CYT NOIDA CENTRE CARD: an in-person alternative that books through the centre's own funnel ──
+function NoidaCentreCard({ pricing }) {
+  const from = pricing?.individual_inperson;
+  return (
+    <div className="bk-noida">
+      <div className="bk-noida-mark" aria-hidden="true">cyt<span></span></div>
+      <div className="bk-noida-body">
+        <div className="bk-noida-eyebrow"><i className="feather-map-pin"></i> Our Noida centre · Sector 51</div>
+        <div className="bk-noida-title">Prefer to visit us in person?</div>
+        <div className="bk-noida-sub">Book a session at the Choose Your Therapist centre — pick any open slot, no need to choose a therapist. Also available online or as a home visit.</div>
+        <div className="bk-noida-tags">
+          {from ? <span><i className="feather-tag"></i>From ₹{Number(from).toLocaleString("en-IN")} per session</span> : null}
+          <span><i className="feather-clock"></i>50–60 min</span>
+          <span><i className="feather-check-circle"></i>Instant confirmation</span>
+        </div>
+      </div>
+      <Link href="/noida-appointment" className="bk-noida-cta">
+        Book at Noida centre <i className="feather-arrow-right"></i>
+      </Link>
+    </div>
+  );
+}
+
 // ── 3-STEP STEPPER (form phase) ──────────────────────────────────────────────
 function FormStepper({ step }) {
   const labels = ["You", "Session", "Payment"];
@@ -212,6 +236,7 @@ export default function BookPage() {
   const [phase,    setPhase]    = React.useState("slots"); // "slots" | "form"
   const [fstep,    setFstep]    = React.useState(1);       // form step: 1 You · 2 Session · 3 Payment
   const [period,   setPeriod]   = React.useState("");      // "" | morning | afternoon | evening
+  const [noidaPricing, setNoidaPricing] = React.useState(null); // Noida centre rates, for the alternative-booking card
   const [selSvc,   setSelSvc]   = React.useState(null);
   const [selFmt,   setSelFmt]   = React.useState(null);
   const [selDate,  setSelDate]  = React.useState(null);
@@ -264,6 +289,13 @@ export default function BookPage() {
       setLoading(false);
     });
   }, [id]);
+
+  React.useEffect(() => {
+    fetch(`${apiUrl}/noida-appointments/pricing`)
+      .then(r => r.json())
+      .then(d => setNoidaPricing(d?.status ? d.data : null))
+      .catch(() => {});
+  }, []);
 
   React.useEffect(() => {
     fetchData(GetCouponsUrl).then(r => {
@@ -534,6 +566,7 @@ export default function BookPage() {
           <span><i className="feather-lock"></i>100% confidential</span>
         </div>
       </div>
+      <NoidaCentreCard pricing={noidaPricing} />
     </div>
   );
 
@@ -952,6 +985,19 @@ export default function BookPage() {
         .bk-trust span { display: inline-flex; align-items: center; gap: 6px; }
         .bk-trust i { color: ${GL}; font-size: 13px; }
 
+        /* noida centre card */
+        .bk-noida { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding: 18px 20px; border-radius: 12px; background: linear-gradient(135deg, ${G} 0%, #175c37 100%); border: 1px solid ${GOLD}; box-shadow: 0 6px 24px rgba(15,61,36,.18); color: #fff; }
+        .bk-noida-mark { flex-shrink: 0; width: 64px; height: 64px; border-radius: 16px; background: #fff; color: ${G}; font-weight: 900; font-size: 22px; letter-spacing: -.5px; display: flex; align-items: center; justify-content: center; }
+        .bk-noida-mark span { width: 7px; height: 7px; border-radius: 50%; background: ${GOLD}; margin: 8px 0 0 2px; }
+        .bk-noida-body { flex: 1; min-width: 0; }
+        .bk-noida-eyebrow { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: ${GOLD}; display: flex; align-items: center; gap: 6px; }
+        .bk-noida-title { font-size: 18px; font-weight: 800; margin-top: 3px; }
+        .bk-noida-sub { font-size: 13px; color: rgba(255,255,255,.82); line-height: 1.55; margin-top: 4px; max-width: 560px; }
+        .bk-noida-tags { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 10px; font-size: 12px; font-weight: 700; color: #d9f2e2; }
+        .bk-noida-tags span { display: inline-flex; align-items: center; gap: 6px; }
+        .bk-noida-cta { flex-shrink: 0; background: ${GOLD}; color: ${DARK}; font-weight: 800; font-size: 14px; padding: 12px 20px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; transition: transform .12s, filter .12s; }
+        .bk-noida-cta:hover { transform: translateY(-1px); filter: brightness(1.05); color: ${DARK}; }
+
         /* form phase */
         .bk-slotchip { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: ${G}; font-weight: 800; font-size: 13px; padding: 10px 20px; }
         .bk-slotchip button { background: none; border: none; color: ${G}; font-weight: 800; font-size: 12.5px; text-decoration: underline; cursor: pointer; padding: 0; }
@@ -975,6 +1021,9 @@ export default function BookPage() {
           .bk-panel { padding: 14px 10px 12px; }
           .bk-h2 { font-size: 16px; }
           .bk-cell, .bk-time { min-height: 44px; }
+          .bk-noida { flex-wrap: wrap; padding: 16px; gap: 14px; }
+          .bk-noida-mark { width: 52px; height: 52px; font-size: 18px; border-radius: 13px; }
+          .bk-noida-cta { width: 100%; justify-content: center; }
         }
       `}</style>
 
