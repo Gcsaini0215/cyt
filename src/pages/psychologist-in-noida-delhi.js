@@ -393,7 +393,7 @@ export default function LocalLandingPage() {
                     </div>
 
                     <div className="mt--40">
-                      <a href="#consultation" className="rbt-btn btn-gradient">Schedule In-Person Visit</a>
+                      <a href="/noida-appointment" className="rbt-btn btn-gradient">Book an Appointment at Our Noida Centre</a>
                     </div>
                   </div>
                 </div>

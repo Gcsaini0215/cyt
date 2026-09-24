@@ -50,25 +50,125 @@ function loadKnownPhone() {
   try { const v = localStorage.getItem(KNOWN_PHONE_KEY) || ""; return /^\d{10}$/.test(v) ? v : ""; } catch { return ""; }
 }
 
-// Structured data so Google can show the centre (address, phone, map pin) next to the booking page.
-const LOCAL_BUSINESS_LD = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: "Choose Your Therapist LLP — CYT Noida",
-  url: "https://www.chooseyourtherapist.in/noida-appointment",
-  telephone: "+918077757951",
-  image: "https://www.chooseyourtherapist.in/og-noida-appointment-v3.png",
-  description: "Book a psychologist at the Choose Your Therapist centre in Sector 51, Noida — in-person, online or as a home visit. Pick a date and time online.",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
-    addressLocality: "Noida",
-    addressRegion: "Uttar Pradesh",
-    postalCode: "201301",
-    addressCountry: "IN",
-  },
-  geo: { "@type": "GeoCoordinates", latitude: 28.5821626, longitude: 77.3716335 },
-};
+// ── SEO / AI-search: everything below is derived from real page data (address, live prices) ──
+const SITE = "https://www.chooseyourtherapist.in";
+const PAGE_URL = `${SITE}/noida-appointment`;
+const CENTRE_ID = `${PAGE_URL}#centre`;
+const SEO_TITLE = "Psychologist in Noida – Book In-Person, Online or Home Visit";
+const SEO_DESC = "Book a psychologist in Noida at our Sector 51 centre — pick an open slot, pay securely, get confirmed instantly. Online sessions & home visits available.";
+
+const inr = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
+
+// Prices are read from the same admin-managed source the booking form uses, so the copy never goes stale.
+function priceLine(p) {
+  if (!p) return "";
+  const parts = [];
+  if (p.individual_inperson) parts.push(`individual in-person ${inr(p.individual_inperson)}`);
+  if (p.individual_online) parts.push(`individual online ${inr(p.individual_online)}`);
+  if (p.individual_homevisit) parts.push(`individual home visit ${inr(p.individual_homevisit)}`);
+  if (p.couple_inperson) parts.push(`couple in-person ${inr(p.couple_inperson)}`);
+  return parts.length ? `Session fees: ${parts.join(", ")}${p.platformFee ? `, plus a ${inr(p.platformFee)} platform fee` : ""}.` : "";
+}
+
+function seoFaq(p) {
+  const pkgs = Array.isArray(p?.packages) ? p.packages.filter(k => k?.name && k?.price && k?.sessionsCount) : [];
+  const fees = priceLine(p);
+  return [
+    { q: "Where is the Choose Your Therapist centre in Noida?", a: `Our Noida centre is at Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301. You can get directions on Google Maps from this page.` },
+    { q: "How much does a psychologist session cost in Noida?", a: fees ? `${fees} Live availability and the exact total for your choice are shown on this page before you pay.` : "Fees depend on the session type (individual or couple) and mode (in-person, online or home visit). The exact total for your choice is shown on this page before you pay." },
+    { q: "How long is a therapy session?", a: "A session runs 50–60 minutes." },
+    { q: "Can I book an online session or a home visit instead of visiting the centre?", a: "Yes. Every booking lets you choose in-person at the Sector 51 centre, an online session, or a home visit. Home-visit charges may increase with distance." },
+    { q: "How do I book an appointment with a psychologist in Noida?", a: "Open the booking page, tap any open slot, enter your details and pay securely with UPI, card or netbanking. Your appointment is confirmed instantly." },
+    { q: "I have already visited — how do I book a follow-up?", a: "Use the Follow-up tab on the booking page and enter the phone number you booked with. We recognise you, so you can pick a new slot straight away." },
+    { q: "Can I reschedule or cancel my appointment?", a: "Use the Reschedule tab on the booking page to move your session to another time. To cancel, message us on WhatsApp." },
+    ...(pkgs.length ? [{ q: "Do you offer therapy packages?", a: `Yes. Multi-session packages are available: ${pkgs.slice(0, 4).map(k => `${k.name} (${k.sessionsCount} sessions, ${inr(k.price)})`).join("; ")}. You can choose one in the booking flow.` }] : []),
+    { q: "Is my information kept confidential?", a: "Your details are used only to manage your booking and are handled as described in our Privacy Policy." },
+  ];
+}
+
+function buildSeoGraph(p) {
+  const prices = [p?.individual_inperson, p?.individual_online, p?.individual_homevisit, p?.couple_inperson, p?.couple_online, p?.couple_homevisit].map(Number).filter(n => n > 0);
+  const offer = (name, price) => price ? ({ "@type": "Offer", price: String(price), priceCurrency: "INR", itemOffered: { "@type": "MedicalTherapy", name } }) : null;
+  const offers = [
+    offer("Individual therapy session — in-person, Noida", p?.individual_inperson),
+    offer("Individual therapy session — online", p?.individual_online),
+    offer("Individual therapy session — home visit", p?.individual_homevisit),
+    offer("Couple therapy session — in-person, Noida", p?.couple_inperson),
+    offer("Couple therapy session — online", p?.couple_online),
+    offer("Couple therapy session — home visit", p?.couple_homevisit),
+  ].filter(Boolean);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["MedicalClinic", "LocalBusiness"],
+        "@id": CENTRE_ID,
+        name: "Choose Your Therapist — Noida Centre",
+        alternateName: ["CYT Noida", "Choose Your Therapist LLP"],
+        url: PAGE_URL,
+        telephone: "+918077757951",
+        email: "Chooseyourtherapist@gmail.com",
+        image: `${SITE}/og-noida-appointment-v3.png`,
+        logo: `${SITE}/favicon.png`,
+        description: "Psychologists and therapists at the Choose Your Therapist centre in Sector 51, Noida — individual and couple sessions in-person, online or as a home visit.",
+        medicalSpecialty: "Psychiatric",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
+          addressLocality: "Noida",
+          addressRegion: "Uttar Pradesh",
+          postalCode: "201301",
+          addressCountry: "IN",
+        },
+        geo: { "@type": "GeoCoordinates", latitude: 28.5821626, longitude: 77.3716335 },
+        hasMap: MAPS_URL,
+        areaServed: [
+          { "@type": "City", name: "Noida" },
+          { "@type": "AdministrativeArea", name: "Delhi NCR" },
+        ],
+        ...(prices.length ? { priceRange: `${inr(Math.min(...prices))}–${inr(Math.max(...prices))}` } : {}),
+        paymentAccepted: "UPI, Credit Card, Debit Card, Net Banking",
+        currenciesAccepted: "INR",
+        sameAs: [
+          "https://www.instagram.com/chooseyourtherapist",
+          "https://www.facebook.com/chooseyourtherapist",
+          "https://twitter.com/CYT_India",
+        ],
+        ...(offers.length ? { hasOfferCatalog: { "@type": "OfferCatalog", name: "Therapy sessions at CYT Noida", itemListElement: offers } } : {}),
+        potentialAction: {
+          "@type": "ReserveAction",
+          name: "Book a session",
+          target: { "@type": "EntryPoint", urlTemplate: PAGE_URL, actionPlatform: ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"] },
+          result: { "@type": "Reservation", name: "Therapy appointment at CYT Noida" },
+        },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${PAGE_URL}#webpage`,
+        url: PAGE_URL,
+        name: SEO_TITLE,
+        description: SEO_DESC,
+        inLanguage: "en-IN",
+        about: { "@id": CENTRE_ID },
+        breadcrumb: { "@id": `${PAGE_URL}#breadcrumb` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${PAGE_URL}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+          { "@type": "ListItem", position: 2, name: "Psychologist in Noida & Delhi", item: `${SITE}/psychologist-in-noida-delhi` },
+          { "@type": "ListItem", position: 3, name: "Book at the Noida centre", item: PAGE_URL },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${PAGE_URL}#faq`,
+        mainEntity: seoFaq(p).map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+      },
+    ],
+  };
+}
 
 const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -604,7 +704,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
   );
 }
 
-export default function NoidaAppointment() {
+export default function NoidaAppointment({ seoPricing = null }) {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
@@ -1353,21 +1453,29 @@ export default function NoidaAppointment() {
   return (
     <>
       <Head>
-        <title>{"Book a Psychologist in Noida: In-Person, Online or Home Visit"}</title>
-        <meta name="description" content="Book a psychologist your way: in-person at our Sector 51 Noida centre, online, or at home. See open slots live, pay securely, and get confirmed instantly." />
-        <link rel="canonical" href="https://www.chooseyourtherapist.in/noida-appointment" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(LOCAL_BUSINESS_LD) }} />
-        <meta property="og:title" content="Book a psychologist in Noida — in-person, online or at home" />
-        <meta property="og:description" content="Pick a slot that suits you. Sector 51 Noida centre · Online · Home visit. Confirmed instantly." />
-        <meta property="og:url" content="https://www.chooseyourtherapist.in/noida-appointment" />
+        <title>{SEO_TITLE}</title>
+        <meta name="description" content={SEO_DESC} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={PAGE_URL} />
+        <meta name="geo.region" content="IN-UP" />
+        <meta name="geo.placename" content="Noida" />
+        <meta name="geo.position" content="28.5821626;77.3716335" />
+        <meta name="ICBM" content="28.5821626, 77.3716335" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildSeoGraph(seoPricing)) }} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Choose Your Therapist" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:title" content={SEO_TITLE} />
+        <meta property="og:description" content={SEO_DESC} />
+        <meta property="og:url" content={PAGE_URL} />
         <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v3.png" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Choose Your Therapist — pick a slot and book a psychologist in-person, online or at home in Noida" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Book a psychologist in Noida — in-person, online or at home" />
-        <meta name="twitter:description" content="Pick a slot that suits you. Sector 51 Noida centre · Online · Home visit. Confirmed instantly." />
+        <meta name="twitter:title" content={SEO_TITLE} />
+        <meta name="twitter:description" content={SEO_DESC} />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v3.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -1444,6 +1552,31 @@ export default function NoidaAppointment() {
         .na-skel { display: block; border-radius: 8px; background: linear-gradient(90deg, #e8eeeb 25%, #f6f8f7 37%, #e8eeeb 63%); background-size: 400% 100%; animation: naShimmer 1.4s ease infinite; }
         /* the site's bottom navigation reserves 75px of body padding up to 1200px wide; let the grey footer fill it */
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
+        .na-seo { background: #fff; padding: 44px 20px 8px; }
+        .na-seo-in { max-width: 860px; margin: 0 auto; color: #334155; font-size: 15px; line-height: 1.7; }
+        .na-seo h2 { font-size: 24px; font-weight: 800; color: #0f2a1d; margin: 0 0 12px; line-height: 1.25; }
+        .na-seo h3 { font-size: 18px; font-weight: 800; color: #0f2a1d; margin: 28px 0 10px; }
+        .na-seo .na-seo-in p, .na-seo .na-seo-in li, .na-seo .na-seo-in address, .na-seo .na-seo-in summary { font-size: 15px; line-height: 1.7; color: #334155; font-family: inherit; }
+        .na-seo .na-seo-in summary { color: #0f2a1d; font-weight: 700; }
+        .na-seo .na-seo-in p { margin: 0 0 12px; }
+        .na-seo .na-seo-in .na-seo-note { font-size: 13px; color: #64748b; }
+        .na-seo .na-seo-in .na-seo-links { font-size: 14px; color: #64748b; }
+        .na-seo .na-seo-in table, .na-seo .na-seo-in td, .na-seo .na-seo-in th { font-size: 14px; color: #334155; }
+        .na-seo .na-seo-in th { color: #0f2a1d; }
+        .na-seo a { color: #166534; font-weight: 600; }
+        .na-seo-table-wrap { overflow-x: auto; }
+        .na-seo-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .na-seo-table th, .na-seo-table td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e2e8f0; }
+        .na-seo-table th { background: #f0f5f2; color: #0f2a1d; font-weight: 800; }
+        .na-seo-note { font-size: 13px; color: #64748b; margin-top: 10px !important; }
+        .na-seo-steps { margin: 0 0 12px; padding-left: 20px; } .na-seo-steps li { margin-bottom: 6px; }
+        .na-seo-addr { font-style: normal; background: #f6f9f7; border: 1px solid #e2eae5; border-radius: 10px; padding: 14px 16px; }
+        .na-seo-faq details { border: 1px solid #e2e8f0; border-radius: 10px; padding: 0 16px; margin-bottom: 8px; background: #fff; }
+        .na-seo-faq summary { cursor: pointer; padding: 13px 0; font-weight: 700; color: #0f2a1d; }
+        .na-seo-faq details[open] summary { border-bottom: 1px solid #eef2f6; margin-bottom: 10px; }
+        .na-seo-faq details p { margin: 0 0 14px; }
+        .na-seo-links { margin-top: 22px !important; font-size: 14px; color: #64748b; }
+        @media (max-width: 640px) { .na-seo { padding: 30px 16px 4px; } .na-seo h2 { font-size: 20px; } .na-seo h3 { font-size: 16.5px; } .na-seo-in { font-size: 14.5px; } }
         .na-foot { background: #e9edeb; margin-top: 44px; padding: 44px 20px 40px; }
         .na-foot-in { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; align-items: center; }
         .na-foot-in > :not(.na-foot-help) { grid-column: 1; }
@@ -1923,7 +2056,7 @@ export default function NoidaAppointment() {
       )}
 
       <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
-        <h1 className="na-sr">Book therapy in Noida — in-person, online or home visit</h1>
+        <h1 className="na-sr">Psychologist in Noida — book in-person, online or home visit at our Sector 51 centre</h1>
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
         {tabsEl}
@@ -2578,6 +2711,8 @@ export default function NoidaAppointment() {
 
         </div>
 
+        {fitSlots && <NoidaSeoContent pricing={seoPricing} />}
+
         <footer className="na-foot">
           <div className="na-foot-in">
             <div className="na-foot-help">
@@ -2606,4 +2741,98 @@ export default function NoidaAppointment() {
       </div>
     </>
   );
+}
+
+// Real, readable text for people, Google and AI assistants: what the centre is, what it costs, how booking works, FAQs.
+function NoidaSeoContent({ pricing }) {
+  const faq = seoFaq(pricing);
+  const rows = [
+    ["Individual", "In-person (Sector 51)", pricing?.individual_inperson],
+    ["Individual", "Online", pricing?.individual_online],
+    ["Individual", "Home visit", pricing?.individual_homevisit],
+    ["Couple", "In-person (Sector 51)", pricing?.couple_inperson],
+    ["Couple", "Online", pricing?.couple_online],
+    ["Couple", "Home visit", pricing?.couple_homevisit],
+  ].filter(r => Number(r[2]) > 0);
+  return (
+    <section className="na-seo" aria-labelledby="na-seo-h">
+      <div className="na-seo-in">
+        <h2 id="na-seo-h">Psychologist in Noida — Choose Your Therapist, Sector 51</h2>
+        <p>
+          Choose Your Therapist runs a therapy centre in Sector 51, Noida where you can book a psychologist for
+          individual or couple sessions — in person at the centre, online from home, or as a home visit. Open slots
+          are shown live above: pick one, pay securely, and your appointment is confirmed instantly. Sessions last
+          50–60 minutes and are open to anyone in Noida, Delhi NCR and beyond (online).
+        </p>
+
+        {rows.length > 0 && (
+          <>
+            <h3>Session fees in Noida</h3>
+            <div className="na-seo-table-wrap">
+              <table className="na-seo-table">
+                <thead><tr><th>Session</th><th>Mode</th><th>Fee</th></tr></thead>
+                <tbody>{rows.map(([a, b, c]) => <tr key={a + b}><td>{a}</td><td>{b}</td><td>{inr(c)}</td></tr>)}</tbody>
+              </table>
+            </div>
+            <p className="na-seo-note">{pricing?.platformFee ? `A ${inr(pricing.platformFee)} platform fee applies per booking. ` : ""}Multi-session packages are available while booking. Home-visit charges may increase with distance.</p>
+          </>
+        )}
+
+        <h3>How to book</h3>
+        <ol className="na-seo-steps">
+          <li><b>Pick a slot</b> — choose any open date and time in the table above.</li>
+          <li><b>Tell us about you</b> — name, phone and a line about what you'd like help with.</li>
+          <li><b>Choose your session</b> — individual or couple, in-person, online or home visit.</li>
+          <li><b>Pay securely</b> — UPI, card or netbanking; confirmation is instant.</li>
+        </ol>
+        <p>Already a client? Use the <b>Follow-up</b> tab. Need a different time? Use the <b>Reschedule</b> tab.</p>
+
+        <h3>Find the Noida centre</h3>
+        <address className="na-seo-addr">
+          Choose Your Therapist LLP<br />
+          Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301<br />
+          Phone / WhatsApp: <a href="tel:+918077757951">+91 80777 57951</a> · <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">Get directions on Google Maps</a>
+        </address>
+
+        <h3>Frequently asked questions</h3>
+        <div className="na-seo-faq">
+          {faq.map(f => (
+            <details key={f.q}>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
+
+        <p className="na-seo-links">
+          Explore more: <a href="/psychologist-in-noida-delhi">Psychologist in Noida &amp; Delhi</a> ·{" "}
+          <a href="/view-all-therapist">Browse all therapists</a> · <a href="/self-assessment">Free self-assessment</a> ·{" "}
+          <a href="/privacy-policy">Privacy policy</a>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// Static page, refreshed hourly: the fee table and FAQ answers are written into the HTML (not just fetched in the
+// browser) so search engines and AI assistants can read the current prices.
+export async function getStaticProps() {
+  let seoPricing = null;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(`${apiUrl}/noida-appointments/pricing`, { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await res.json();
+    if (data?.status && data.data) {
+      const d = data.data;
+      seoPricing = {
+        individual_inperson: d.individual_inperson ?? null, individual_online: d.individual_online ?? null, individual_homevisit: d.individual_homevisit ?? null,
+        couple_inperson: d.couple_inperson ?? null, couple_online: d.couple_online ?? null, couple_homevisit: d.couple_homevisit ?? null,
+        platformFee: d.platformFee ?? null,
+        packages: Array.isArray(d.packages) ? d.packages.map(k => ({ name: k.name, sessionsCount: k.sessionsCount, price: k.price })) : [],
+      };
+    }
+  } catch (e) { /* build/ISR must never fail because pricing was unreachable — the page still works, just without the fee table */ }
+  return { props: { seoPricing }, revalidate: 3600 };
 }
