@@ -135,7 +135,7 @@ export default function App() {
               </div>
 
               {/* Desktop Navigation */}
-              <div className="rbt-main-navigation d-none d-xl-block">
+              <div className="rbt-main-navigation d-none d-lg-block">
                 <nav className="mainmenu-nav">
                   <ul className="mainmenu">
                     <li><Link href="/">Home</Link></li>
@@ -161,7 +161,7 @@ export default function App() {
               {/* Header Right */}
               <div className="header-right">
                 <ul className="quick-access">
-                  <li className="account-access rbt-user-wrapper d-none d-xl-block">
+                  <li className="account-access rbt-user-wrapper d-none d-lg-block">
                     {userType === 1 || userType === 2 ? (
                       <Link
                         href={userType === 1 ? "/my-dashboard" : "/therapist-dashboard"}
@@ -209,14 +209,15 @@ export default function App() {
                     )}
                   </li>
                 </ul>
-                <div className="rbt-btn-wrapper d-none d-xl-block">
+                <div className="rbt-btn-wrapper d-none d-lg-block">
                   <Link className="nav-cta-btn" href="/therapist-registration">
-                    Are You a Therapist?
+                    <span className="nav-cta-full">Are You a Therapist?</span>
+                    <span className="nav-cta-short">For Therapists</span>
                   </Link>
                 </div>
 
                 {/* Mobile Menu Button - Moved to right corner */}
-                <div className="mobile-menu-bar d-flex d-xl-none" onClick={() => setShow(true)}>
+                <div className="mobile-menu-bar d-flex d-lg-none" onClick={() => setShow(true)}>
                   <div className="hamberger">
                     <button className="hamberger-button rbt-round-btn">
                       <i className="feather-menu"></i>
@@ -885,6 +886,26 @@ export default function App() {
           text-decoration: none !important; transition: filter .18s ease;
         }
         .nav-cta-btn:hover { filter: brightness(1.12); }
+        .nav-cta-short { display: none; }
+
+        /* ── Tablet landscape (iPad 1024–1194px): same desktop menu, compacted ── */
+        @media (min-width: 992px) and (max-width: 1199.98px) {
+          .rbt-header.rbt-header-10 { padding: 0 8px; }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper > .container-fluid { padding-left: 12px; padding-right: 12px; }
+          .rbt-header.rbt-header-10 .mainbar-row { gap: 8px; }
+          .rbt-header.rbt-header-10 .logo img { width: 120px !important; height: auto !important; }
+          .rbt-header.rbt-header-10 .rbt-main-navigation { margin-left: 4px !important; margin-right: 4px !important; }
+          .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu { gap: 14px; }
+          .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu > li > a { font-size: 14px !important; }
+          .nav-account-trigger { padding: 7px 12px; font-size: 13px; }
+          .nav-profile-pill { padding: 4px 10px 4px 4px; }
+          .nav-profile-av { width: 30px; height: 30px; }
+          .nav-profile-name { font-size: 13px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+          .rbt-header.rbt-header-10 .rbt-btn-wrapper { margin-left: 8px; }
+          .nav-cta-btn { padding: 8px 12px; font-size: 12.5px; }
+          .nav-cta-full { display: none; }
+          .nav-cta-short { display: inline; }
+        }
 
         /* Mobile Menu */
         .popup-mobile-menu {
