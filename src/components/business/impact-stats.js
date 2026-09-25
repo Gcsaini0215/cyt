@@ -26,8 +26,8 @@ const AnimatedNumber = ({ value, suffix = "", duration = 1800 }) => {
 const stats = [
   { value: "50", suffix: "+", label: "Verified psychologists across specializations" },
   { value: "500", suffix: "+", label: "Therapy sessions delivered on the platform" },
-  { value: "3", suffix: "", label: "Care tiers — self-guided, therapy, and clinical" },
-  { value: "24", suffix: "hr", label: "Typical response time for business inquiries" },
+  { value: "3", suffix: "", label: "Care tiers — workshops, therapy, and clinical" },
+  { value: "24", suffix: "hr", label: "Typical response time for corporate inquiries" },
 ];
 
 export default function ImpactStats() {
@@ -40,7 +40,7 @@ export default function ImpactStats() {
         <div className="row justify-content-center" style={{ marginBottom: '48px' }}>
           <div className="col-lg-7 text-center">
             <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 34px)', fontWeight: 900, color: '#fff', marginBottom: '12px' }}>
-              Why Organizations Choose Us
+              Why Companies Choose Us
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '16px', lineHeight: 1.7 }}>
               Real outcomes for real teams — mental health support that shows up in the numbers that matter.

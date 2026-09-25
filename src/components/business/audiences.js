@@ -1,24 +1,24 @@
-import { Briefcase, GraduationCap, Users2 } from "lucide-react";
+import { Briefcase, UserCog, HeartHandshake } from "lucide-react";
 
 const audiences = [
   {
     icon: Briefcase,
-    title: "Employers & HR Teams",
-    desc: "Offer therapy as an employee benefit — reduce burnout, absenteeism, and attrition while supporting your team's mental health.",
+    title: "Employees",
+    desc: "Private, company-paid therapy for work stress, anxiety, burnout, and personal challenges — booked in minutes, never shared with the employer.",
     color: "#228756",
     bg: "#f0fdf4"
   },
   {
-    icon: GraduationCap,
-    title: "Schools & Institutions",
-    desc: "Give students and staff confidential access to counselling psychologists and special educators for academic and emotional support.",
+    icon: UserCog,
+    title: "Managers & Leaders",
+    desc: "Guidance on spotting burnout early, handling difficult conversations, and supporting team members who are struggling.",
     color: "#0369a1",
     bg: "#f0f9ff"
   },
   {
-    icon: Users2,
-    title: "Hospitals & Wellness Partners",
-    desc: "Extend your care network with on-demand clinical psychologists for referrals, co-managed care, and psychometric assessments.",
+    icon: HeartHandshake,
+    title: "HR & People Teams",
+    desc: "A ready-to-run wellbeing benefit with workshops, critical-incident support, and anonymized reports — without building it in-house.",
     color: "#7c3aed",
     bg: "#faf5ff"
   }
@@ -31,11 +31,11 @@ export default function BusinessAudiences() {
         <div className="row justify-content-center" style={{ marginBottom: '56px' }}>
           <div className="col-lg-7 text-center">
             <h2 style={{ fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 900, color: '#1e293b', marginBottom: '14px' }}>
-              Built for Organizations That Care
+              One Program for Your Whole Workforce
             </h2>
             <p style={{ color: '#64748b', fontSize: '17px', lineHeight: 1.7 }}>
-              Whether you're a company, a school, or a healthcare partner — we tailor mental health
-              support to fit your people.
+              From individual employees to leadership and HR — everyone gets support designed for
+              the way they work.
             </p>
           </div>
         </div>

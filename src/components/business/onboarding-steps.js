@@ -5,25 +5,25 @@ const steps = [
     icon: ClipboardCheck,
     step: "01",
     title: "Discovery Call",
-    desc: "Share your organization's size, goals, and mental health needs on a short call with our team.",
+    desc: "Share your company's headcount, locations, and wellbeing goals on a short call with our team.",
   },
   {
     icon: Users,
     step: "02",
     title: "Plan & Matching",
-    desc: "We recommend a care mix — self-guided, therapy, or clinical — and match psychologists to your population.",
+    desc: "We recommend a program — workshops, therapy, or clinical — and match psychologists to your workforce.",
   },
   {
     icon: Rocket,
     step: "03",
     title: "Rollout",
-    desc: "Your employees, students, or members get access credentials and can start booking within days.",
+    desc: "We run a launch session with HR, and employees can start booking confidential sessions within days.",
   },
   {
     icon: LineChart,
     step: "04",
     title: "Ongoing Reporting",
-    desc: "Receive anonymized usage insights so you can track engagement without compromising confidentiality.",
+    desc: "HR receives anonymized usage insights to track engagement — never names or session content.",
   },
 ];
 
@@ -37,7 +37,7 @@ export default function OnboardingSteps() {
               How Onboarding Works
             </h2>
             <p style={{ color: '#64748b', fontSize: '17px', lineHeight: 1.7 }}>
-              From first conversation to full rollout — most organizations are live within days, not months.
+              From first conversation to full rollout — most companies are live within days, not months.
             </p>
           </div>
         </div>

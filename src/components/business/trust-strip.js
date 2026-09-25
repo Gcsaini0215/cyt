@@ -4,7 +4,7 @@ const points = [
   { icon: BadgeCheck, text: "Degree-verified psychologists" },
   { icon: FileCheck2, text: "RCI-registered Clinical Psychologists" },
   { icon: ShieldCheck, text: "Strict confidentiality standards" },
-  { icon: Globe2, text: "Online & in-person delivery" },
+  { icon: Globe2, text: "Online & on-site for teams" },
 ];
 
 export default function TrustStrip() {

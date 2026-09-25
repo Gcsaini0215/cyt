@@ -4,16 +4,16 @@ const tiers = [
   {
     icon: Sparkles,
     step: "01",
-    title: "Self-Guided Resources",
-    desc: "Curated articles, workshops, and free mental health resources employees and members can use anytime — no appointment needed.",
+    title: "Workshops & Self-Care",
+    desc: "Stress, burnout, and resilience workshops for teams, plus self-guided resources employees can use anytime — no appointment needed.",
     color: "#b45309",
     bg: "#fffbeb"
   },
   {
     icon: MessageCircle,
     step: "02",
-    title: "Counselling & Therapy",
-    desc: "Direct booking with verified Counselling and Clinical Psychologists for individual, couples, or family sessions — online or in-person.",
+    title: "1:1 Employee Therapy",
+    desc: "Employees book private sessions with verified Counselling and Clinical Psychologists — for themselves, their partner, or family — online or in-person.",
     color: "#228756",
     bg: "#f0fdf4"
   },
@@ -21,7 +21,7 @@ const tiers = [
     icon: Stethoscope,
     step: "03",
     title: "Specialized & Clinical Care",
-    desc: "Access to psychometric assessments, special educators, and referrals for complex conditions requiring clinical-level intervention.",
+    desc: "Psychometric assessments, clinical care for complex conditions, and critical-incident support when your workplace needs it most.",
     color: "#0369a1",
     bg: "#f0f9ff"
   }
@@ -37,7 +37,7 @@ export default function CareModel() {
               A Complete Care Model, In One Platform
             </h2>
             <p style={{ color: '#64748b', fontSize: '17px', lineHeight: 1.7 }}>
-              From everyday stress to complex clinical needs, your people get the right level of
+              From everyday work stress to complex clinical needs, your employees get the right level of
               support at every stage.
             </p>
           </div>

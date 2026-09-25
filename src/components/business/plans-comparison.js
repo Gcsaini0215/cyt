@@ -3,41 +3,41 @@ import { Check, Minus } from "lucide-react";
 const plans = [
   {
     name: "Starter",
-    desc: "Small teams getting started with mental health support.",
+    desc: "Startups and small teams starting an employee wellbeing benefit.",
     highlight: false,
     features: {
-      "Self-guided resources": true,
-      "Individual therapy sessions": true,
-      "Couples & family therapy": false,
+      "Wellbeing workshops & resources": true,
+      "1:1 employee therapy sessions": true,
+      "Therapy for employee families": false,
       "Clinical psychology & assessments": false,
       "Dedicated account manager": false,
-      "Usage analytics dashboard": false,
+      "Anonymized HR usage reports": false,
     }
   },
   {
     name: "Growth",
-    desc: "Growing organizations that want a complete care model.",
+    desc: "Growing companies that want a complete employee care model.",
     highlight: true,
     features: {
-      "Self-guided resources": true,
-      "Individual therapy sessions": true,
-      "Couples & family therapy": true,
+      "Wellbeing workshops & resources": true,
+      "1:1 employee therapy sessions": true,
+      "Therapy for employee families": true,
       "Clinical psychology & assessments": true,
       "Dedicated account manager": false,
-      "Usage analytics dashboard": true,
+      "Anonymized HR usage reports": true,
     }
   },
   {
     name: "Enterprise",
-    desc: "Large organizations and institutions needing full-scale support.",
+    desc: "Large enterprises with multiple offices and full-scale needs.",
     highlight: false,
     features: {
-      "Self-guided resources": true,
-      "Individual therapy sessions": true,
-      "Couples & family therapy": true,
+      "Wellbeing workshops & resources": true,
+      "1:1 employee therapy sessions": true,
+      "Therapy for employee families": true,
       "Clinical psychology & assessments": true,
       "Dedicated account manager": true,
-      "Usage analytics dashboard": true,
+      "Anonymized HR usage reports": true,
     }
   },
 ];
@@ -51,10 +51,10 @@ export default function PlansComparison() {
         <div className="row justify-content-center" style={{ marginBottom: '56px' }}>
           <div className="col-lg-7 text-center">
             <h2 style={{ fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 900, color: '#1e293b', marginBottom: '14px' }}>
-              Plans That Scale With Your Organization
+              Corporate Plans That Scale With Your Team
             </h2>
             <p style={{ color: '#64748b', fontSize: '17px', lineHeight: 1.7 }}>
-              Exact pricing depends on team size and usage — request a demo for a tailored quote.
+              Exact pricing depends on headcount and usage — request a demo for a tailored quote.
             </p>
           </div>
         </div>
