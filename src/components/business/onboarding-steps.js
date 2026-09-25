@@ -44,7 +44,7 @@ export default function OnboardingSteps() {
 
         <div className="row g-4" style={{ position: 'relative' }}>
           <div style={{
-            position: 'absolute', top: '48px', left: '12%', right: '12%', height: '2px',
+            position: 'absolute', top: '48px', left: '12%', right: '12%', width: 'auto', height: '2px', padding: 0, margin: 0,
             background: 'repeating-linear-gradient(90deg, #cbd5e1 0, #cbd5e1 8px, transparent 8px, transparent 16px)',
             zIndex: 0
           }} className="d-none d-lg-block" />

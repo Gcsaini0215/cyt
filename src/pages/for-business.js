@@ -15,7 +15,7 @@ import CorporateServices, { corporateServices } from "../components/business/cor
 
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/for-business`;
-const OG_IMAGE = `${SITE}/assets/img/gallery-banner-013639.jpg`;
+const OG_IMAGE = `${SITE}/assets/img/corporate-wellness-workshop.jpg`;
 const TITLE = "Corporate Wellness Program in India | Employee Mental Health & EAP";
 const DESCRIPTION = "Corporate wellness program for Indian companies: confidential employee counselling (EAP), burnout workshops & manager training by verified psychologists.";
 
@@ -68,21 +68,21 @@ const faqSchema = {
 
 export default function ForBusiness() {
   return (
-    <div id="__next">
+    <div id="__next" style={{ overflowX: 'clip' }}>
       <Head>
         <title>{TITLE}</title>
         <meta name="description" content={DESCRIPTION} />
         <meta name="keywords" content="corporate wellness program India, employee mental health, EAP India, employee assistance program, corporate counselling services, workplace mental health, employee wellness program, stress management workshop for employees, corporate mental health services Noida Delhi NCR" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <link rel="canonical" href={PAGE_URL} />
-        <link rel="preload" as="image" href="/assets/img/gallery-banner-013639.jpg" />
+        <link rel="preload" as="image" href="/assets/img/corporate-wellness-workshop.jpg" />
 
         <meta key="og:title" property="og:title" content={TITLE} />
         <meta key="og:description" property="og:description" content="Confidential employee counselling, workshops and manager training by verified psychologists. Get a corporate wellness proposal in 24 hours." />
         <meta key="og:url" property="og:url" content={PAGE_URL} />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:image" property="og:image" content={OG_IMAGE} />
-        <meta property="og:image:alt" content="Employees at a modern office supported by a corporate wellness program" />
+        <meta property="og:image:alt" content="Employees in a workplace wellbeing workshop as part of a corporate wellness program" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         <meta name="twitter:card" content="summary_large_image" />

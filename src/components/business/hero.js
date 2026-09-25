@@ -1,6 +1,6 @@
 import { Shield, Lock, Building2, EyeOff, BadgeCheck } from "lucide-react";
 
-const HERO_IMG = "/assets/img/gallery-banner-013639.jpg";
+const HERO_IMG = "/assets/img/corporate-wellness-workshop.jpg";
 
 export default function BusinessHero() {
   return (
@@ -38,9 +38,9 @@ export default function BusinessHero() {
             <div className="corp-hero-media">
               <img
                 src={HERO_IMG}
-                alt="Employees at a modern Indian office supported by a corporate wellness program"
-                width="1305"
-                height="600"
+                alt="Employees in a workplace wellbeing workshop as part of a corporate wellness program"
+                width="1200"
+                height="900"
                 fetchpriority="high"
                 decoding="async"
               />
@@ -48,7 +48,7 @@ export default function BusinessHero() {
                 <span className="corp-hero-card-icon"><EyeOff size={18} /></span>
                 <div>
                   <strong>100% confidential</strong>
-                  <small>HR never sees names or session notes</small>
+                  <small>A safe, private space every employee can trust</small>
                 </div>
               </div>
               <div className="corp-hero-card corp-hero-card--bottom">
@@ -102,7 +102,7 @@ export default function BusinessHero() {
         }
         .corp-hero-media { position: relative; padding: 18px 0 26px; }
         .corp-hero-media img {
-          display: block; width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; object-position: 62% center;
+          display: block; width: 100%; height: auto; aspect-ratio: 5 / 4; object-fit: cover; object-position: center;
           border-radius: 26px; border: 4px solid rgba(255,255,255,0.14);
           box-shadow: 0 30px 60px -20px rgba(0,0,0,0.45);
         }

@@ -63,7 +63,7 @@ export default function BusinessFaqs() {
         <div className="row justify-content-center">
           <div className="col-lg-9">
             {faqData.map((item, index) => (
-              <FAQ key={index} q={item.q} a={item.a} />
+              <FAQ key={index} q={item.q} a={item.a} hideIcon />
             ))}
           </div>
         </div>
