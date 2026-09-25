@@ -225,7 +225,7 @@ const HorTherapistCards = () => {
 {/* 
         <Box sx={{ textAlign: 'center', mt: 4 }}>
           <Typography variant="body2" sx={{ color: '#666' }}>
-            Showing {therapists.length} of 500+ therapists.
+            Showing {therapists.length} therapists.
             <Box
               component="button"
               sx={{

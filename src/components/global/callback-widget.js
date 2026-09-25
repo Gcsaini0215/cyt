@@ -134,7 +134,7 @@ export default function CallbackWidget() {
         .cb-success-sub { font-size:12px; color:#64748b; line-height:1.55; }
 
         @media(max-width:480px){
-          .cb-widget { top:38%; }
+          .cb-widget { top:auto; bottom:calc(92px + env(safe-area-inset-bottom, 0px)); align-items:flex-end; }
           .cb-card { width:248px; border-radius:16px 0 0 16px; }
           .cb-pill { padding:16px 9px; font-size:12px; gap:6px; animation:none; }
           .cb-pill-icon { width:22px; height:22px; }

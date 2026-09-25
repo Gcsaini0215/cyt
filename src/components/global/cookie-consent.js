@@ -41,9 +41,13 @@ export default function CookieConsent() {
         .ck-btn-x { background: transparent; border: none; color: rgba(255,255,255,0.4); padding: 6px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; line-height: 1; }
         .ck-btn-x:hover { color: rgba(255,255,255,0.8); }
         @media (max-width: 600px) {
-          .ck-wrap { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px 16px; }
-          .ck-msg { white-space: normal; font-size: 12px; }
-          .ck-btns { justify-content: flex-end; }
+          .ck-wrap { flex-direction: row; align-items: center; gap: 8px; padding: 8px 12px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+          .ck-text { gap: 8px; }
+          .ck-text i { display: none; }
+          .ck-msg { white-space: normal; font-size: 11.5px; line-height: 1.35; }
+          .ck-btns { gap: 6px; }
+          .ck-btn-ghost { padding: 7px 10px; }
+          .ck-btn-accept { padding: 7px 12px; }
         }
       `}</style>
 

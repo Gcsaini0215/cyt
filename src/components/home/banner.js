@@ -131,7 +131,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
             className="title"
             style={{
               fontSize: isMobile
-                ? "clamp(3.1rem, 10vw, 3.8rem)"
+                ? "clamp(2.4rem, 8.4vw, 3.1rem)"
                 : isTablet
                 ? "clamp(2.6rem, 5.5vw, 3.8rem)"
                 : "clamp(2.8rem, 5vw, 4.8rem)",
@@ -163,15 +163,22 @@ export default function Banner({ topTherapists = [], userCity = null }) {
             <strong>well-being.</strong>
           </p>
 
-          <div className="slider-btn">
+          <div className="slider-btn cyt-hero-ctas">
             <Link className="rbt-btn btn-gradient hover-icon-reverse" href="/view-all-therapist">
               <span className="icon-reverse-wrapper">
-                <span className="btn-text">Get Started</span>
+                <span className="btn-text">Find my therapist</span>
                 <span className="btn-icon"><i className="feather-arrow-right"></i></span>
                 <span className="btn-icon"><i className="feather-arrow-right"></i></span>
               </span>
             </Link>
+            <Link className="cyt-cta2" href="/noida-appointment">Book at our Noida centre</Link>
           </div>
+
+          <ul className="cyt-trust" aria-label="Why people choose us">
+            <li><Star sx={{ fontSize: 15, color: "#f4b53c" }} /> <b>4.9</b> on Google <span>(178 reviews)</span></li>
+            <li><VerifiedRounded sx={{ fontSize: 15, color: "#1c6b45" }} /> <b>5000+</b> sessions completed</li>
+            <li><i className="feather-shield" /> Verified therapists · Online &amp; in person</li>
+          </ul>
         </div>
 
         {/* ── visual ── */}
@@ -278,6 +285,28 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         .cyt-hero .description { color: #49594e; font-size: 17px; line-height: 1.65; max-width: 48ch; }
         .cyt-hero .rbt-new-badge { margin-bottom: 18px; }
         .cyt-hero .slider-btn { margin-top: 28px; }
+        .cyt-hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+        .cyt-cta2 {
+          display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px;
+          border-radius: 10px; border: 1.5px solid #1c6b45; color: #1c6b45; background: rgba(255, 255, 255, 0.7);
+          font-weight: 700; font-size: 15px; text-decoration: none; transition: background .2s, color .2s;
+        }
+        .cyt-cta2:hover { background: #1c6b45; color: #fff; }
+        .cyt-trust { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: #49594e; }
+        .cyt-trust li { display: inline-flex; align-items: center; gap: 5px; margin: 0; padding: 0; }
+        .cyt-trust li::before { content: none; }
+        .cyt-trust b { color: #142a1d; } .cyt-trust span { color: #7c8b81; }
+        .cyt-trust i { color: #1c6b45; font-size: 14px; }
+        @media (max-width: 600px) {
+          .cyt-hero-inner { gap: 20px; }
+          .cyt-hero .description { font-size: 15px; line-height: 1.55; margin-bottom: 0; }
+          .cyt-hero .slider-btn { margin-top: 16px; }
+          .cyt-hero-ctas { gap: 10px; }
+          .cyt-hero-ctas .rbt-btn { flex: 1 1 100%; justify-content: center; }
+          .cyt-cta2 { flex: 1 1 100%; min-height: 46px; }
+          .cyt-trust { margin-top: 14px; gap: 6px 14px; font-size: 12.5px; }
+        }
+        @media (min-width: 601px) and (max-width: 1023px) { .cyt-hero-inner { gap: 26px; } .cyt-hero .slider-btn { margin-top: 20px; } }
 
         .cyt-hero-visual { width: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
         .cyt-hero-visual::before {

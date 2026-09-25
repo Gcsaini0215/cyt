@@ -11,7 +11,7 @@ import { imagePath, defaultProfile } from "../utils/url";
 const LEAD_STRIP_MESSAGES = [
   { icon: "feather-heart", text: "Feeling anxious or low? Talk to a verified psychologist today.", href: "/view-all-therapist" },
   { icon: "feather-percent", text: "First session at just ₹500 — no waitlists, no judgment.", href: "/plans" },
-  { icon: "feather-check-circle", text: "500+ verified therapists across India, online & in-person.", href: "/view-all-therapist" },
+  { icon: "feather-check-circle", text: "Verified therapists across India, online & in-person.", href: "/view-all-therapist" },
   { icon: "feather-shield", text: "100% confidential sessions. Your privacy, our promise.", href: "/view-all-therapist" },
   { icon: "feather-phone", text: "Book in under 2 minutes — call +91-807-775-7951", href: "tel:+918077757951" },
   { icon: "feather-users", text: "Couples, teens, individuals — therapy for every stage of life.", href: "/view-all-therapist" },
