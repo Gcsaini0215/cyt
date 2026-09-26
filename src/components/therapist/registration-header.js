@@ -7,9 +7,10 @@ import VerifiedIcon from "@mui/icons-material/Verified";
 const styles = `
 .reg-banner {
   position: relative;
-  background-image: url('/images/bg-image-12dabd.jpg');
+  background-color: #111;
+  background-image: url('/assets/img/therapist-join-banner.jpg');
   background-size: cover;
-  background-position: center;
+  background-position: center 40%;
   background-attachment: scroll;
   padding: 60px 0 50px 0;
   overflow: hidden;
@@ -60,6 +61,7 @@ const styles = `
   color: #4ade80;
   display: inline-block;
   min-width: 280px;
+  min-height: 1.2em; /* keeps the line (and the heading) from collapsing while the words retype */
   text-align: left;
 }
 

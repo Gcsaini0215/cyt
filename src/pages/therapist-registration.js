@@ -22,6 +22,16 @@ const EXPERTISE = [
   "Internship / Training",
 ];
 const ID_CARD_TYPES = ["Aadhar Card", "PAN Card", "Voter ID", "Passport", "Driving License"];
+const PRESCRIBE = EXPERTISE[0]; // only offered to psychiatrists
+const MAX_FILE_MB = 5;
+const DRAFT_KEY = "cyt_therapist_reg_draft";
+
+// The form is split into three short steps; each validates only its own fields.
+const FORM_STEPS = [
+  { label: "Your details", icon: "feather-user" },
+  { label: "Your practice", icon: "feather-briefcase" },
+  { label: "Documents", icon: "feather-upload-cloud" },
+];
 
 const JOURNEY_STEPS = [
   { label: "Application", icon: "feather-edit-3" },
@@ -89,67 +99,45 @@ const EMPTY = {
   agreeTerms: false,
 };
 
-function validate(f) {
-  if (!f.name.trim() || f.name.trim().length < 3)          return "Enter your full name (min 3 chars)";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))          return "Enter a valid email address";
-  if (!/^\d{10}$/.test(f.phone))                             return "Enter a valid 10-digit phone number";
-  if (!f.profileType)                                        return "Select your profile type";
-  if (!f.mode)                                               return "Select your preferred service mode";
-  if (!f.checkedValues.length)                               return "Select at least one area of expertise";
-  if (!f.resumeFile)                                         return "Upload your resume";
-  if (!f.qualificationCertFile)                              return "Upload your highest qualification certificate";
-  if (!f.idCardType)                                         return "Select your ID card type";
-  if (!f.idCardFile)                                         return "Upload your ID card";
-  if (!f.agreeTerms)                                         return "Please agree to the terms and conditions";
+function validateStep(step, f) {
+  if (step === 1) {
+    const name = f.name.trim();
+    if (!name || name.length < 3)                            return "Enter your full name (min 3 characters)";
+    if (name.length > 30)                                    return "Name can be at most 30 characters";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))        return "Enter a valid email address";
+    if (!/^\d{10}$/.test(f.phone))                           return "Enter a valid 10-digit phone number";
+  }
+  if (step === 2) {
+    if (!f.profileType)                                      return "Select your profile type";
+    if (!f.mode)                                             return "Select your preferred service mode";
+    if (!f.checkedValues.length)                             return "Select at least one service you offer";
+  }
+  if (step === 3) {
+    if (!f.resumeFile)                                       return "Upload your resume";
+    if (!f.qualificationCertFile)                            return "Upload your highest qualification certificate";
+    if (!f.idCardType)                                       return "Select your ID card type";
+    if (!f.idCardFile)                                       return "Upload your ID card";
+    if (!f.agreeTerms)                                       return "Please agree to the terms and conditions";
+  }
   return null;
 }
 
-function CustomSelect({ value, onChange, options, placeholder }) {
-  const [open, setOpen] = React.useState(false);
-  const ref = React.useRef(null);
+function validate(f) {
+  return validateStep(1, f) || validateStep(2, f) || validateStep(3, f);
+}
 
+// small thumbnail for image uploads (object URL released when the file changes)
+function FileThumb({ file }) {
+  const [url, setUrl] = React.useState("");
   React.useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  return (
-    <div ref={ref} style={{ position: "relative" }}>
-      <button type="button" onClick={() => setOpen(p => !p)} style={{
-        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : "#cbd5c9"}`,
-        borderRadius: 3, padding: "10px 13px", fontSize: 14, cursor: "pointer",
-        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
-        textAlign: "left", fontFamily: "inherit", outline: "none",
-        boxShadow: open ? "0 0 0 3px rgba(34,135,86,0.08)" : "none",
-        transition: "border-color 0.2s, box-shadow 0.2s",
-      }}>
-        <span style={{ color: value ? "#1e293b" : "#94a3b8", fontWeight: value ? 500 : 400, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {value || placeholder}
-        </span>
-        <i className="feather-chevron-down" style={{ fontSize: 14, color: "#94a3b8", flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
-      </button>
-
-      {open && (
-        <div style={{
-          position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 300,
-          background: "#fff", border: "1.5px solid #cbd5c9", borderRadius: 3,
-          boxShadow: "0 8px 28px rgba(0,0,0,0.10)", overflow: "hidden", maxHeight: 220, overflowY: "auto",
-        }}>
-          {options.map((opt) => (
-            <div key={opt} onMouseDown={() => { onChange(opt); setOpen(false); }} style={{
-              padding: "9px 14px", cursor: "pointer", fontSize: 13,
-              fontWeight: value === opt ? 700 : 400,
-              color: value === opt ? "#228756" : "#374151",
-              background: value === opt ? "#f0fdf4" : "transparent",
-            }}>
-              {opt}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+    if (!file || !file.type?.startsWith("image/")) { setUrl(""); return undefined; }
+    const u = URL.createObjectURL(file);
+    setUrl(u);
+    return () => URL.revokeObjectURL(u);
+  }, [file]);
+  if (!url) return null;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={url} alt="" style={{ width: 54, height: 54, objectFit: "cover", borderRadius: 6, border: "1px solid #dbe3df" }} />;
 }
 
 const STAGE_INFO = {
@@ -314,6 +302,68 @@ export default function TherapistRegistration() {
   const [otpError, setOtpError] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMsg, setResendMsg] = useState("");
+  const [step, setStep] = useState(1);
+  const [fileErrors, setFileErrors] = useState({});
+  const [draftRestored, setDraftRestored] = useState(false);
+  const formTopRef = React.useRef(null);
+
+  // Restore a saved draft (text fields only — browsers can't keep picked files)
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (saved && (saved.name || saved.email || saved.phone)) {
+        setForm((f) => ({ ...f, ...saved }));
+        setDraftRestored(true);
+      }
+    } catch { /* storage blocked or bad JSON */ }
+  }, []);
+
+  // Keep the draft up to date while they type
+  useEffect(() => {
+    if (submitted) return;
+    const { name, email, phone, profileType, mode, checkedValues, idCardType } = form;
+    if (!name && !email && !phone) return;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ name, email, phone, profileType, mode, checkedValues, idCardType })); } catch { /* ignore */ }
+  }, [form, submitted]);
+
+  const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ } };
+  const startOver = () => { clearDraft(); setForm(EMPTY); setStep(1); setDraftRestored(false); setError(""); };
+
+  const scrollToForm = () => {
+    const el = formTopRef.current;
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 150, behavior: "smooth" });
+  };
+
+  // file picked (or photographed) — check the size straight away, not at submit
+  const pickFile = (key, file) => {
+    if (!file) { set(key, null); return; }
+    if (file.size > MAX_FILE_MB * 1024 * 1024) {
+      setFileErrors((e) => ({ ...e, [key]: `This file is ${(file.size / 1048576).toFixed(1)}MB — please upload one under ${MAX_FILE_MB}MB.` }));
+      return;
+    }
+    setFileErrors((e) => ({ ...e, [key]: "" }));
+    set(key, file);
+  };
+
+  const goNext = async () => {
+    setError("");
+    const err = validateStep(step, form);
+    if (err) { setError(err); scrollToForm(); return; }
+    if (step === 1) {
+      // tell them now (not after uploading documents) if this email is already registered
+      setLoading(true);
+      try {
+        await postData(checkTherapistEmailUrl, { email: form.email });
+      } catch (err2) {
+        const msg = err2.response?.data?.message || "";
+        if (err2.response?.status === 400 && msg) { setLoading(false); setError(msg); scrollToForm(); return; }
+      }
+      setLoading(false);
+    }
+    setStep((n) => Math.min(3, n + 1));
+    scrollToForm();
+  };
+  const goBack = () => { setError(""); setStep((n) => Math.max(1, n - 1)); scrollToForm(); };
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 992);
@@ -323,12 +373,16 @@ export default function TherapistRegistration() {
   }, []);
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+  const setProfileType = (v) => setForm(p => ({
+    ...p, profileType: v,
+    checkedValues: v === "Psychiatrist" ? p.checkedValues : p.checkedValues.filter(x => x !== PRESCRIBE),
+  }));
 
   const handleReview = async (e) => {
     e.preventDefault();
     setError("");
     const err = validate(form);
-    if (err) { setError(err); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+    if (err) { setError(err); scrollToForm(); return; }
 
     setLoading(true);
     try {
@@ -404,6 +458,7 @@ export default function TherapistRegistration() {
         setOtp("");
         setOtpStep(false);
         setSubmitted(true);
+        clearDraft();
       } else {
         setOtpError(response.message || "Invalid OTP");
       }
@@ -458,6 +513,49 @@ export default function TherapistRegistration() {
         .af-titlebar-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65) !important; margin: 0 0 4px; }
         .af-titlebar-title { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; color: #ffffff !important; }
         .af-titlebar-sub { font-size: 12px; color: rgba(255,255,255,0.7) !important; margin: 6px 0 0; }
+        .tr-steps { display: flex; gap: 8px; margin-bottom: 10px; }
+        .tr-step { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .tr-step-dot { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; background: #fff; border: 2px solid #cbd5c9; color: #94a3b8; }
+        .tr-step.on .tr-step-dot { border-color: #228756; color: #166534; background: #f0fdf4; box-shadow: 0 0 0 3px rgba(34,135,86,.12); }
+        .tr-step.done .tr-step-dot { background: #166534; border-color: #166534; color: #fff; }
+        .tr-step-label { font-size: 13px; font-weight: 700; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tr-step.on .tr-step-label, .tr-step.done .tr-step-label { color: #0f3d24; }
+        .tr-bar { height: 4px; border-radius: 999px; background: #e8efeb; margin-bottom: 22px; overflow: hidden; }
+        .tr-bar i { display: block; height: 100%; background: linear-gradient(90deg, #22a35a, #166534); border-radius: 999px; transition: width .35s ease; }
+        .tr-note { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
+        .tr-note button { margin-left: auto; background: none; border: none; color: #1d4ed8; font-weight: 800; text-decoration: underline; cursor: pointer; font-size: 13px; }
+        .tr-ready { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
+        .tr-ready p { margin: 0 0 8px; font-size: 13.5px; color: #14532d; font-weight: 600; line-height: 1.5; }
+        .tr-ready p i { margin-right: 6px; vertical-align: -1px; }
+        .tr-ready ul { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+        .tr-ready li { font-size: 13px; color: #166534; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .tr-ready li span { font-weight: 500; color: #4d7c5f; }
+        .tr-ready small { font-size: 12px; color: #4d7c5f; }
+        .tr-hint { font-size: 12px; color: #64748b; margin: 8px 0 0; display: flex; align-items: center; gap: 6px; }
+        .tr-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tr-chip { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 999px; border: 1.5px solid #cbd5c9; background: #fff; color: #334155; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+        .tr-chip:hover { border-color: #86efac; }
+        .tr-chip.on { border-color: #228756; background: #f0fdf4; color: #166534; font-weight: 700; }
+        .tr-chip.sm { padding: 7px 12px; font-size: 12.5px; }
+        .tr-chip i { font-size: 13px; }
+        .tr-upload { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border: 2px dashed #cbd5c9; border-radius: 12px; padding: 14px; background: #fafafa; }
+        .tr-upload.has { border-style: solid; border-color: #86efac; background: #f0fdf4; }
+        .tr-upload-name { flex: 1; min-width: 140px; display: flex; flex-direction: column; }
+        .tr-upload-name b { font-size: 13.5px; color: #1e293b; word-break: break-all; }
+        .tr-upload-name span { font-size: 11.5px; color: #64748b; }
+        .tr-btn-sm { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #166534; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; }
+        .tr-btn-sm.ghost { background: #fff; color: #166534; border: 1.5px solid #86efac; }
+        .tr-link { background: none; border: none; color: #dc2626; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+        .tr-file-err { margin: 6px 0 0; font-size: 12.5px; color: #dc2626; font-weight: 600; }
+        .tr-nav { display: flex; gap: 10px; margin-top: 4px; }
+        .tr-back { flex: 1; padding: 14px; border-radius: 10px; border: 1.5px solid #cbd5c9; background: #fff; color: #374151; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tr-next { flex: 2; padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .tr-next:disabled { opacity: .7; cursor: not-allowed; }
+        @media (max-width: 575px) {
+          .tr-step-label { font-size: 11px; }
+          .tr-step-dot { width: 24px; height: 24px; font-size: 11px; }
+          .tr-step { gap: 5px; }
+        }
         .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
       ` }} />
 
@@ -629,263 +727,251 @@ export default function TherapistRegistration() {
                 </div>
               </div>
             ) : (
-              /* ── MAIN FORM ── */
-              <form onSubmit={handleReview} noValidate>
-                <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Applicant Details</h2>
-                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>
-                  Fill in the details below. Fields marked <span className="req">*</span> are required.
-                </p>
+              /* ── MAIN FORM: 3 short steps ── */
+              <form ref={formTopRef} noValidate onSubmit={(e) => { e.preventDefault(); if (step < 3) goNext(); else handleReview(e); }}>
+
+                {/* step progress */}
+                <div className="tr-steps" aria-label={`Step ${step} of 3`}>
+                  {FORM_STEPS.map((st, i) => {
+                    const n = i + 1;
+                    const state = n < step ? "done" : n === step ? "on" : "";
+                    return (
+                      <div key={st.label} className={`tr-step ${state}`}>
+                        <span className="tr-step-dot">{n < step ? <i className="feather-check" /> : n}</span>
+                        <span className="tr-step-label">{st.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="tr-bar"><i style={{ width: `${(step / 3) * 100}%` }} /></div>
+
+                {draftRestored && step === 1 && (
+                  <div className="tr-note">
+                    <i className="feather-rotate-ccw" />
+                    <span>We restored the details you filled in last time.</span>
+                    <button type="button" onClick={startOver}>Start over</button>
+                  </div>
+                )}
 
                 {error && (
-                  <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
+                  <div role="alert" style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 18, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
                     <i className="feather-alert-circle"></i> {error}
                   </div>
                 )}
 
-                {/* ── Section 1: Personal ── */}
-                <div className="section-card">
-                  <div style={sectionHead}>
-                    <span style={sectionNum}>01</span>
-                    Personal Details
-                  </div>
-
-                  <div style={gridTwo}>
-                    <div style={fieldWrap}>
-                      <label style={labelStyle}>Full Name <span className="req">*</span></label>
-                      <input style={inputStyle} type="text" placeholder="Full name" value={form.name} onChange={e => set("name", e.target.value)} />
+                {/* ── Step 1: details ── */}
+                {step === 1 && (
+                  <>
+                    <div className="tr-ready">
+                      <p><i className="feather-clock" /> Takes about <b>5 minutes</b>. Keep these ready:</p>
+                      <ul>
+                        <li><i className="feather-file-text" /> Resume / CV <span>(PDF or DOC)</span></li>
+                        <li><i className="feather-award" /> Degree or diploma certificate</li>
+                        <li><i className="feather-credit-card" /> Aadhaar, PAN or another photo ID</li>
+                      </ul>
+                      <small>Your progress is saved on this device — you can come back and finish later.</small>
                     </div>
-                    <div style={fieldWrap}>
-                      <label style={labelStyle}>Email Address <span className="req">*</span></label>
-                      <input style={inputStyle} type="email" placeholder="you@example.com" value={form.email} onChange={e => set("email", e.target.value)} />
-                    </div>
-                  </div>
-                  <div style={fieldWrap}>
-                    <label style={labelStyle}>Phone Number <span className="req">*</span></label>
-                    <input style={{ ...inputStyle, maxWidth: isMobile ? "100%" : "calc(50% - 9px)" }} type="tel" placeholder="10-digit number" maxLength={10}
-                      value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, ""))} />
-                  </div>
-                </div>
 
-                {/* ── Section 2: Professional Profile ── */}
-                <div className="section-card">
-                  <div style={sectionHead}>
-                    <span style={sectionNum}>02</span>
-                    Professional Profile
-                  </div>
-
-                  <div style={fieldWrap}>
-                    <label style={labelStyle}>Profile Type <span className="req">*</span></label>
-                    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 8 }}>
-                      {PROFILE_TYPES.map(opt => {
-                        const checked = form.profileType === opt;
-                        return (
-                          <div key={opt} onClick={() => set("profileType", opt)} style={{
-                            border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
-                            borderRadius: 3, padding: "10px 8px", cursor: "pointer", textAlign: "center",
-                            background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s",
-                          }}>
-                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3 }}>{opt}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div style={fieldWrap}>
-                    <label style={labelStyle}>Preferred Service Mode <span className="req">*</span></label>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-                      {MODES.map(m => {
-                        const checked = form.mode === m.value;
-                        return (
-                          <div key={m.value} onClick={() => set("mode", m.value)} style={{
-                            border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
-                            borderRadius: 3, padding: "12px 8px", cursor: "pointer", textAlign: "center",
-                            background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s",
-                            display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-                          }}>
-                            <i className={m.icon} style={{ fontSize: 18, color: checked ? "#228756" : "#94a3b8" }}></i>
-                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569" }}>{m.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Section 3: Expertise ── */}
-                <div className="section-card">
-                  <div style={sectionHead}>
-                    <span style={sectionNum}>03</span>
-                    Areas of Expertise
-                  </div>
-                  <p style={{ fontSize: 13, color: "#64748b", marginTop: -8, marginBottom: 14 }}>Select all the services you are interested to offer.</p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {EXPERTISE.map((val) => {
-                      const checked = form.checkedValues.includes(val);
-                      return (
-                        <label key={val} style={{
-                          display: "flex", alignItems: "center", gap: 9, padding: "11px 14px",
-                          borderRadius: 3, cursor: "pointer", userSelect: "none",
-                          border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
-                          background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s",
-                        }}>
-                          <span style={{
-                            width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                            border: `2px solid ${checked ? "#228756" : "#cbd5e1"}`,
-                            background: checked ? "#228756" : "#fff",
-                            display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s",
-                          }}>
-                            {checked && <i className="feather-check" style={{ fontSize: 10, color: "#fff" }}></i>}
-                          </span>
-                          <input type="checkbox" checked={checked} style={{ display: "none" }}
-                            onChange={() => {
-                              const next = checked ? form.checkedValues.filter(v => v !== val) : [...form.checkedValues, val];
-                              set("checkedValues", next);
-                            }} />
-                          <span style={{ fontSize: 13, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#374151" }}>{val}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* ── Section 4: Verification Documents ── */}
-                <div className="section-card">
-                  <div style={sectionHead}>
-                    <span style={sectionNum}>04</span>
-                    Verification Documents
-                  </div>
-                  <p style={{ fontSize: 13, color: "#64748b", marginTop: -8, marginBottom: 18 }}>
-                    We verify every therapist before listing them publicly. Please upload clear, valid documents.
-                  </p>
-
-                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14, marginBottom: 18 }}>
-                    {[
-                      { id: "resumeInput", key: "resumeFile", label: "Resume / CV", hint: "PDF, DOC — max 5MB", accept: ".pdf,.doc,.docx", icon: "feather-file-text", color: "#228756", bg: "#f0fdf4" },
-                      { id: "qualCertInput", key: "qualificationCertFile", label: "Highest Qualification Certificate", hint: "Degree / diploma certificate — PDF, JPG, PNG — max 5MB", accept: ".pdf,.jpg,.jpeg,.png,.doc,.docx", icon: "feather-award", color: "#0ea5e9", bg: "#f0f9ff" },
-                    ].map(({ id, key, label, hint, accept, icon, color, bg }) => (
-                      <div key={id}>
-                        <label style={{ ...labelStyle, marginBottom: 8 }}>{label} <span className="req">*</span></label>
-                        <div
-                          onClick={() => document.getElementById(id).click()}
-                          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = color; }}
-                          onDragLeave={e => { e.currentTarget.style.borderColor = form[key] ? color : "#e2e8f0"; }}
-                          onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) set(key, f); e.currentTarget.style.borderColor = color; }}
-                          style={{
-                            border: `2px dashed ${form[key] ? color : "#cbd5c9"}`,
-                            borderRadius: 3, padding: "18px 12px", textAlign: "center",
-                            background: form[key] ? bg : "#fafafa", cursor: "pointer",
-                            transition: "all 0.2s", minHeight: 110,
-                            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
-                          }}>
-                          <input id={id} type="file" accept={accept} style={{ display: "none" }}
-                            onChange={e => set(key, e.target.files?.[0] || null)} />
-                          <i className={icon} style={{ fontSize: 24, color: form[key] ? color : "#94a3b8" }}></i>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: form[key] ? color : "#64748b", wordBreak: "break-all", padding: "0 4px" }}>
-                            {form[key] ? `✓ ${form[key].name}` : "Click or drag & drop"}
-                          </span>
-                          <span style={{ fontSize: 10, color: "#94a3b8" }}>{hint}</span>
+                    <div className="section-card">
+                      <div style={sectionHead}><span style={sectionNum}>01</span> Your details</div>
+                      <div style={gridTwo}>
+                        <div style={fieldWrap}>
+                          <label style={labelStyle} htmlFor="tr-name">Full Name <span className="req">*</span></label>
+                          <input id="tr-name" style={inputStyle} type="text" autoComplete="name" maxLength={30} placeholder="Full name" value={form.name} onChange={e => set("name", e.target.value)} />
                         </div>
-                        {form[key] && (
-                          <button type="button" onClick={() => set(key, null)}
-                            style={{ marginTop: 4, background: "none", border: "none", fontSize: 11, color: "#ef4444", cursor: "pointer", fontWeight: 600 }}>
-                            ✕ Remove
+                        <div style={fieldWrap}>
+                          <label style={labelStyle} htmlFor="tr-email">Email Address <span className="req">*</span></label>
+                          <input id="tr-email" style={inputStyle} type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={e => set("email", e.target.value.trim())} />
+                        </div>
+                      </div>
+                      <div style={{ ...fieldWrap, marginBottom: 0 }}>
+                        <label style={labelStyle} htmlFor="tr-phone">Phone Number <span className="req">*</span></label>
+                        <input id="tr-phone" style={{ ...inputStyle, maxWidth: isMobile ? "100%" : "calc(50% - 9px)" }} type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="10-digit number"
+                          value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "").slice(0, 10))} />
+                        <p className="tr-hint">We&rsquo;ll send your verification code to your email after you submit.</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* ── Step 2: practice ── */}
+                {step === 2 && (
+                  <div className="section-card">
+                    <div style={sectionHead}><span style={sectionNum}>02</span> Your practice</div>
+
+                    <div style={fieldWrap}>
+                      <label style={labelStyle}>Profile Type <span className="req">*</span></label>
+                      <div className="tr-chips" role="radiogroup" aria-label="Profile type">
+                        {PROFILE_TYPES.map(opt => (
+                          <button type="button" key={opt} role="radio" aria-checked={form.profileType === opt}
+                            className={`tr-chip ${form.profileType === opt ? "on" : ""}`} onClick={() => setProfileType(opt)}>
+                            {form.profileType === opt && <i className="feather-check" />} {opt}
                           </button>
-                        )}
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={fieldWrap}>
+                      <label style={labelStyle}>Preferred Service Mode <span className="req">*</span></label>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+                        {MODES.map(m => {
+                          const checked = form.mode === m.value;
+                          return (
+                            <button type="button" key={m.value} onClick={() => set("mode", m.value)} aria-pressed={checked} style={{
+                              border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`, borderRadius: 10, padding: "12px 8px", cursor: "pointer",
+                              background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s", fontFamily: "inherit",
+                              display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                            }}>
+                              <i className={m.icon} style={{ fontSize: 18, color: checked ? "#228756" : "#94a3b8" }}></i>
+                              <span style={{ fontSize: 12.5, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569" }}>{m.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div style={{ ...fieldWrap, marginBottom: 0 }}>
+                      <label style={labelStyle}>Services You Offer <span className="req">*</span></label>
+                      <p className="tr-hint" style={{ margin: "-2px 0 10px" }}>Tap all that apply.</p>
+                      <div className="tr-chips" role="group" aria-label="Services you offer">
+                        {EXPERTISE.filter(v => v !== PRESCRIBE || form.profileType === "Psychiatrist").map(val => {
+                          const on = form.checkedValues.includes(val);
+                          return (
+                            <button type="button" key={val} aria-pressed={on} className={`tr-chip ${on ? "on" : ""}`}
+                              onClick={() => set("checkedValues", on ? form.checkedValues.filter(v => v !== val) : [...form.checkedValues, val])}>
+                              {on && <i className="feather-check" />} {val === PRESCRIBE ? "Prescribe Medication" : val}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Step 3: documents ── */}
+                {step === 3 && (
+                  <div className="section-card">
+                    <div style={sectionHead}><span style={sectionNum}>03</span> Verification documents</div>
+                    <p style={{ fontSize: 13, color: "#64748b", marginTop: -8, marginBottom: 18 }}>
+                      We verify every therapist before listing them. Clear photos or PDFs work best — each file up to {MAX_FILE_MB}MB.
+                    </p>
+
+                    {[
+                      { key: "resumeFile", label: "Resume / CV", hint: "PDF or DOC", accept: ".pdf,.doc,.docx", icon: "feather-file-text", camera: false },
+                      { key: "qualificationCertFile", label: "Highest Qualification Certificate", hint: "PDF, JPG or PNG", accept: ".pdf,.jpg,.jpeg,.png,.doc,.docx", icon: "feather-award", camera: true },
+                    ].map(({ key, label, hint, accept, icon, camera }) => (
+                      <div key={key} style={fieldWrap}>
+                        <label style={labelStyle}>{label} <span className="req">*</span></label>
+                        <div className={`tr-upload ${form[key] ? "has" : ""}`}>
+                          {form[key] ? (
+                            <>
+                              <FileThumb file={form[key]} />
+                              {!form[key].type?.startsWith("image/") && <i className={icon} style={{ fontSize: 26, color: "#228756" }} />}
+                              <div className="tr-upload-name">
+                                <b>{form[key].name}</b>
+                                <span>{(form[key].size / 1048576).toFixed(1)}MB · ready</span>
+                              </div>
+                              <button type="button" className="tr-link" onClick={() => pickFile(key, null)}>Remove</button>
+                            </>
+                          ) : (
+                            <>
+                              <i className={icon} style={{ fontSize: 24, color: "#94a3b8" }} />
+                              <div className="tr-upload-name"><b>Choose a file</b><span>{hint}</span></div>
+                              <label className="tr-btn-sm">
+                                <input type="file" accept={accept} hidden onChange={e => { pickFile(key, e.target.files?.[0]); e.target.value = ""; }} />
+                                <i className="feather-upload" /> Upload
+                              </label>
+                              {camera && isMobile && (
+                                <label className="tr-btn-sm ghost">
+                                  <input type="file" accept="image/*" capture="environment" hidden onChange={e => { pickFile(key, e.target.files?.[0]); e.target.value = ""; }} />
+                                  <i className="feather-camera" /> Photo
+                                </label>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {fileErrors[key] && <p className="tr-file-err">{fileErrors[key]}</p>}
                       </div>
                     ))}
-                  </div>
 
-                  {/* ID card: type selector + upload */}
-                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "220px 1fr", gap: 14, alignItems: "start" }}>
                     <div style={fieldWrap}>
-                      <label style={labelStyle}>ID Card Type <span className="req">*</span></label>
-                      <CustomSelect value={form.idCardType} onChange={v => set("idCardType", v)} placeholder="e.g. Aadhar, PAN" options={ID_CARD_TYPES} />
-                      <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 8, lineHeight: 1.6 }}>
-                        Any government-issued photo ID such as Aadhar Card or PAN Card is accepted.
-                      </p>
-                    </div>
-                    <div>
-                      <label style={{ ...labelStyle, marginBottom: 8 }}>Upload ID Card <span className="req">*</span></label>
-                      <div
-                        onClick={() => document.getElementById("idCardInput").click()}
-                        onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = "#8b5cf6"; }}
-                        onDragLeave={e => { e.currentTarget.style.borderColor = form.idCardFile ? "#8b5cf6" : "#e2e8f0"; }}
-                        onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) set("idCardFile", f); e.currentTarget.style.borderColor = "#8b5cf6"; }}
-                        style={{
-                          border: `2px dashed ${form.idCardFile ? "#8b5cf6" : "#cbd5c9"}`,
-                          borderRadius: 3, padding: "18px 12px", textAlign: "center",
-                          background: form.idCardFile ? "#f5f3ff" : "#fafafa", cursor: "pointer",
-                          transition: "all 0.2s", minHeight: 78,
-                          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
-                        }}>
-                        <input id="idCardInput" type="file" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }}
-                          onChange={e => set("idCardFile", e.target.files?.[0] || null)} />
-                        <i className="feather-credit-card" style={{ fontSize: 22, color: form.idCardFile ? "#8b5cf6" : "#94a3b8" }}></i>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: form.idCardFile ? "#8b5cf6" : "#64748b", wordBreak: "break-all", padding: "0 4px" }}>
-                          {form.idCardFile ? `✓ ${form.idCardFile.name}` : "Click or drag & drop — JPG, PNG, PDF · max 5MB"}
-                        </span>
+                      <label style={labelStyle}>ID Card <span className="req">*</span></label>
+                      <div className="tr-chips" role="radiogroup" aria-label="ID card type" style={{ marginBottom: 10 }}>
+                        {ID_CARD_TYPES.map(t => (
+                          <button type="button" key={t} role="radio" aria-checked={form.idCardType === t}
+                            className={`tr-chip sm ${form.idCardType === t ? "on" : ""}`} onClick={() => set("idCardType", t)}>
+                            {form.idCardType === t && <i className="feather-check" />} {t}
+                          </button>
+                        ))}
                       </div>
-                      {form.idCardFile && (
-                        <button type="button" onClick={() => set("idCardFile", null)}
-                          style={{ marginTop: 4, background: "none", border: "none", fontSize: 11, color: "#ef4444", cursor: "pointer", fontWeight: 600 }}>
-                          ✕ Remove
-                        </button>
-                      )}
+                      <div className={`tr-upload ${form.idCardFile ? "has" : ""}`}>
+                        {form.idCardFile ? (
+                          <>
+                            <FileThumb file={form.idCardFile} />
+                            {!form.idCardFile.type?.startsWith("image/") && <i className="feather-credit-card" style={{ fontSize: 26, color: "#228756" }} />}
+                            <div className="tr-upload-name">
+                              <b>{form.idCardFile.name}</b>
+                              <span>{(form.idCardFile.size / 1048576).toFixed(1)}MB · ready</span>
+                            </div>
+                            <button type="button" className="tr-link" onClick={() => pickFile("idCardFile", null)}>Remove</button>
+                          </>
+                        ) : (
+                          <>
+                            <i className="feather-credit-card" style={{ fontSize: 24, color: "#94a3b8" }} />
+                            <div className="tr-upload-name"><b>{form.idCardType ? `Upload your ${form.idCardType}` : "Choose an ID type, then upload"}</b><span>JPG, PNG or PDF — never shown publicly</span></div>
+                            <label className="tr-btn-sm">
+                              <input type="file" accept=".jpg,.jpeg,.png,.pdf" hidden onChange={e => { pickFile("idCardFile", e.target.files?.[0]); e.target.value = ""; }} />
+                              <i className="feather-upload" /> Upload
+                            </label>
+                            {isMobile && (
+                              <label className="tr-btn-sm ghost">
+                                <input type="file" accept="image/*" capture="environment" hidden onChange={e => { pickFile("idCardFile", e.target.files?.[0]); e.target.value = ""; }} />
+                                <i className="feather-camera" /> Photo
+                              </label>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {fileErrors.idCardFile && <p className="tr-file-err">{fileErrors.idCardFile}</p>}
                     </div>
-                  </div>
 
-                  {/* Terms */}
-                  <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 20, padding: "14px 16px", borderRadius: 3, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#cbd5c9"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
-                    <input type="checkbox" checked={form.agreeTerms} onChange={e => set("agreeTerms", e.target.checked)} style={{ display: "none" }} />
-                    <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#228756" : "#cbd5e1"}`, background: form.agreeTerms ? "#228756" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
-                      {form.agreeTerms && <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>}
-                    </div>
-                    <span style={{ fontSize: 12, color: form.agreeTerms ? "#166534" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
-                      I agree to the{" "}
-                      <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700 }}>Terms &amp; Conditions</Link>{" "}
-                      and{" "}
-                      <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700 }}>Privacy Policy</Link>.
-                      I confirm that all information and documents provided are accurate, valid, and belong to me.
-                    </span>
-                  </label>
-
-                  <div style={{ marginTop: 14, background: "#f8fafc", border: "1px solid #dbe3df", borderRadius: 3, padding: "14px 16px" }}>
-                    <p style={{ fontSize: 11, fontWeight: 800, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
-                      <i className="feather-info" style={{ fontSize: 12 }}></i> Before You Submit
+                    {/* Terms */}
+                    <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 6, padding: "14px 16px", borderRadius: 10, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#cbd5c9"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
+                      <input type="checkbox" checked={form.agreeTerms} onChange={e => set("agreeTerms", e.target.checked)} style={{ position: "absolute", opacity: 0, width: 1, height: 1 }} />
+                      <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#228756" : "#cbd5e1"}`, background: form.agreeTerms ? "#228756" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                        {form.agreeTerms && <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>}
+                      </div>
+                      <span style={{ fontSize: 12.5, color: form.agreeTerms ? "#166534" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
+                        I agree to the{" "}
+                        <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700 }}>Terms &amp; Conditions</Link>{" "}
+                        and{" "}
+                        <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700 }}>Privacy Policy</Link>,
+                        and confirm that the information and documents are accurate and mine.
+                      </span>
+                    </label>
+                    <p className="tr-hint" style={{ marginTop: 12 }}>
+                      <i className="feather-info" /> Applications are reviewed within 1–2 business days. You&rsquo;ll hear back by email and phone.
                     </p>
-                    <ul style={{ margin: 0, padding: "0 0 0 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-                      {[
-                        "Applications are reviewed within 1–2 business days of submission.",
-                        "Keep your Resume, Qualification Certificate, and ID Card clear and valid — blurry or incomplete documents can delay approval.",
-                        "Your ID Card is used only for identity verification and is never shown on your public profile.",
-                        "You will be notified of approval on your registered email and phone number.",
-                      ].map((t, i) => (
-                        <li key={i} style={{ fontSize: 12, color: "#475569", lineHeight: 1.6 }}>{t}</li>
-                      ))}
-                    </ul>
                   </div>
-                </div>
+                )}
 
-                <button type="submit" disabled={loading}
-                  style={{
-                    width: "100%", background: "linear-gradient(135deg, #1b5e20, #228756)",
-                    color: "#fff", border: "none", borderRadius: 3, padding: "15px 40px",
-                    fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer",
-                    opacity: loading ? 0.7 : 1, letterSpacing: "0.3px", display: "flex",
-                    alignItems: "center", justifyContent: "center", gap: 10,
-                  }}>
-                  {loading ? (
-                    <>
-                      <span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span>
-                      Checking...
-                    </>
-                  ) : (
-                    <>
-                      <i className="feather-save"></i> Review Application
-                    </>
+                {/* ── navigation ── */}
+                <div className="tr-nav">
+                  {step > 1 && (
+                    <button type="button" className="tr-back" onClick={goBack}>
+                      <i className="feather-arrow-left" /> Back
+                    </button>
                   )}
-                </button>
+                  <button type="submit" className="tr-next" disabled={loading}>
+                    {loading ? (
+                      <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span> Checking…</>
+                    ) : step < 3 ? (
+                      <>Continue <i className="feather-arrow-right" /></>
+                    ) : (
+                      <><i className="feather-eye" /> Review Application</>
+                    )}
+                  </button>
+                </div>
 
                 <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
                   <Link href="/login" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>
