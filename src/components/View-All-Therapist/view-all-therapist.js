@@ -6,7 +6,7 @@ import {
   getTherapistProfiles,
 } from "../../utils/url";
 import { fetchById, fetchData } from "../../utils/actions";
-import ProfileCardVert from "../home/profile-card-vert.js";
+import ProfileCardRow from "../home/profile-card-row.js";
 import ConsultationConsentModal from "../global/consultation-consent-modal";
 import { ExpList, languageSpoken, services, stateList } from "../../utils/static-lists";
 import { getDecodedToken } from "../../utils/jwt";
@@ -17,13 +17,7 @@ const EMPTY_FILTER = {
   language_spoken: "", state: "", search: "", page: 1, pageSize: 1000,
 };
 
-const FEE_RANGES = [
-  { label: "Any Fees", value: "" },
-  { label: "Under ₹1000", value: "0-1000" },
-  { label: "₹1000 – ₹2000", value: "1000-2000" },
-  { label: "₹2000 – ₹3000", value: "2000-3000" },
-  { label: "Above ₹3000", value: "3000-Infinity" },
-];
+const FEE_STEP = 100;
 
 const getMinFee = (fees) => {
   if (!fees || !Array.isArray(fees)) return null;
@@ -95,8 +89,23 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
     setSearch(value);
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      setFilter(f => ({ ...f, search: value.length > 2 ? value : "" }));
+      setFilter(f => ({ ...f, search: value.trim().length >= 2 ? value.trim() : "" }));
     }, 300);
+  };
+
+  const applySearch = (value) => {
+    clearTimeout(timeoutRef.current);
+    const q = (value ?? search).trim();
+    setSearch(q);
+    setFilter(f => ({ ...f, search: q }));
+    setCurrentPage(1);
+    if (resultsRef.current) resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const clearSearch = () => {
+    clearTimeout(timeoutRef.current);
+    setSearch("");
+    setFilter(f => ({ ...f, search: "" }));
   };
 
   const handleChange = (e) => {
@@ -168,6 +177,16 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
     if (tokenData && tokenData.role !== 1) getFavrioutes();
   }, []);
 
+  // states with the most therapists — shown as one-tap chips under the search box
+  const popularStates = React.useMemo(() => {
+    const counts = {};
+    allData.forEach(t => {
+      const st = (t.state || "").trim();
+      if (st) counts[st] = (counts[st] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([st]) => st);
+  }, [allData]);
+
   const profileTypeOptions = React.useMemo(() => {
     const types = allData.map(i => i.profile_type).filter(Boolean);
     return [...new Set(types)].map(t => ({ label: t, value: t }));
@@ -176,6 +195,26 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
   // Computed synchronously (not in an effect) so the server-rendered HTML
   // already contains the correctly filtered/paginated list for crawlers —
   // an effect wouldn't run during SSR and would leave the initial markup empty.
+  const feeBounds = React.useMemo(() => {
+    const fees = allData.map((t) => getMinFee(t.fees)).filter((f) => f !== null && f > 0);
+    if (!fees.length) return null;
+    const min = Math.floor(Math.min(...fees) / FEE_STEP) * FEE_STEP;
+    const max = Math.ceil(Math.max(...fees) / FEE_STEP) * FEE_STEP;
+    return max > min ? { min, max } : null;
+  }, [allData]);
+  const [feeLo, feeHi] = React.useMemo(() => {
+    if (!feeBounds) return [0, 0];
+    if (!feeRange) return [feeBounds.min, feeBounds.max];
+    const [a, b] = feeRange.split("-").map(Number);
+    return [Math.max(feeBounds.min, a), Math.min(feeBounds.max, b)];
+  }, [feeRange, feeBounds]);
+  const setFees = (lo, hi) => {
+    if (!feeBounds) return;
+    setCurrentPage(1);
+    setFeeRange(lo <= feeBounds.min && hi >= feeBounds.max ? "" : `${lo}-${hi}`);
+  };
+  const feePct = (v) => (feeBounds ? ((v - feeBounds.min) / (feeBounds.max - feeBounds.min)) * 100 : 0);
+
   const filteredData = React.useMemo(() => {
     const base = filterTherapists(allData, filter);
     if (!feeRange) return base;
@@ -226,30 +265,65 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
           what suppressHydrationWarning was papering over. */}
       <style dangerouslySetInnerHTML={{ __html: `
         /* ── Banner ──────────────────────────────────── */
-        .vat-banner {
-          position: relative;
-          background-image: url('/images/bg-image-12dabd.jpg');
-          background-size: cover;
-          background-position: center;
-          overflow: visible;
-          padding: 60px 0 80px;
-        }
+        .vat-banner { position: relative; overflow: hidden; padding: 72px 0 64px; background: #111; }
+        /* the photo's speaker sits on the left — mirror it so she faces the copy from the right */
+        .vat-ban-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%; transform: scaleX(-1); }
         .vat-banner::before {
-          content:''; position:absolute; inset:0;
-          background: rgba(0,0,0,.5);
-          z-index:1;
+          content: ''; position: absolute; inset: 0; z-index: 1;
+          background: linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.62) 40%, rgba(0,0,0,.22) 72%, rgba(0,0,0,.08) 100%);
         }
-        .vat-ban-inner { position:relative; z-index:2; text-align:left; }
+        .vat-ban-inner { position: relative; z-index: 2; text-align: left; }
+        /* desktop: the banner runs 200px up behind the header (navbar.js) — start the photo below it so faces aren't hidden */
+        @media (min-width: 992px) { .vat-ban-img { top: 200px; height: calc(100% - 200px); } }
         .vat-ban-eyebrow {
-          display:inline-flex; align-items:center; gap:8px;
-          font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
-          color:#d4af37; margin-bottom:14px;
-          text-shadow: 0 2px 10px rgba(0,0,0,.6);
+          display: inline-flex; align-items: center; gap: 8px;
+          font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+          color: #f0cf6e; margin-bottom: 12px;
         }
-        .vat-ban-eyebrow::before { content:''; width:22px; height:2px; background:#d4af37; display:inline-block; }
-        .vat-ban-title { color:#fff; font-size:clamp(1.9rem,4.6vw,2.7rem); font-weight:800; margin:0 0 12px; line-height:1.2; letter-spacing:-.3px; text-shadow: 0 2px 14px rgba(0,0,0,.65); }
-        .vat-ban-title span { color:#d4af37; }
-        .vat-ban-sub { color:rgba(255,255,255,.92); font-size:clamp(.95rem,1.8vw,1.05rem); margin:0 0 0; max-width:520px; line-height:1.65; font-weight:500; padding:0; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+        .vat-ban-eyebrow::before { content: ''; width: 22px; height: 2px; background: #d4af37; display: inline-block; }
+        .vat-ban-title { color: #fff; font-size: clamp(20px, 5.2vw, 46px); font-weight: 800; margin: 0 0 10px; line-height: 1.15; letter-spacing: -.3px; white-space: nowrap; }
+        .vat-ban-sub { color: rgba(255,255,255,.9); font-size: clamp(15px, 1.4vw, 17px); margin: 0 0 22px; max-width: 540px; line-height: 1.6; font-weight: 500; padding: 0; }
+        .vat-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+        .vat-ban-search {
+          position: relative; display: flex; align-items: center; max-width: 620px;
+          background: #fff; border-radius: 14px; padding: 6px; box-shadow: 0 18px 40px -16px rgba(0,0,0,.55);
+        }
+        .vat-ban-search-icon { position: absolute; left: 20px; font-size: 18px; color: #64748b; pointer-events: none; }
+        .vat-ban-search input {
+          flex: 1; min-width: 0; height: 48px; border: none; outline: none; background: transparent;
+          padding: 0 40px 0 44px; font-size: 15.5px; color: #0f172a;
+        }
+        .vat-ban-search input::-webkit-search-cancel-button { display: none; }
+        .vat-ban-search:focus-within { box-shadow: 0 0 0 3px rgba(240,207,110,.55), 0 18px 40px -16px rgba(0,0,0,.55); }
+        .vat-ban-clear {
+          position: absolute; right: 124px; width: 30px; height: 30px; border-radius: 50%; border: none;
+          background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .vat-ban-go {
+          flex-shrink: 0; height: 48px; padding: 0 26px; border: none; border-radius: 10px;
+          background: linear-gradient(135deg, #1a6b3a, #0f3d24); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer;
+        }
+        .vat-ban-go:hover { filter: brightness(1.12); }
+        .vat-ban-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; max-width: 700px; }
+        .vat-ban-chips > span { font-size: 12.5px; font-weight: 700; color: rgba(255,255,255,.75); margin-right: 2px; }
+        .vat-ban-chips button {
+          display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 999px;
+          border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff;
+          font-size: 12.5px; font-weight: 600; cursor: pointer; backdrop-filter: blur(4px); transition: background .15s;
+        }
+        .vat-ban-chips button:hover, .vat-ban-chips button.on { background: #fff; color: #0f3d24; }
+        .vat-ban-chips button i { font-size: 12px; }
+        @media (max-width: 767px) {
+          .vat-banner { padding: 40px 0 36px; }
+          .vat-ban-img { object-position: 70% 10%; }
+          .vat-banner::before { background: linear-gradient(180deg, rgba(0,0,0,.66) 0%, rgba(0,0,0,.78) 100%); }
+          .vat-ban-search { padding: 5px; border-radius: 12px; }
+          .vat-ban-search input { height: 46px; font-size: 15px; padding-right: 36px; }
+          .vat-ban-go { height: 46px; padding: 0 16px; font-size: 14px; }
+          .vat-ban-clear { right: 92px; }
+          .vat-ban-chips { display: none; }
+        }
 
         /* ── Sticky filter bar (overlaps banner bottom) ─ */
         .vat-sticky-bar {
@@ -304,6 +378,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         }
 
         /* ── Results ─────────────────────────────────── */
+        .vat-list { display: flex; flex-direction: column; gap: 14px; }
         /* Footer.js forces <body> dark green site-wide; this section had no
            background of its own, so the therapist cards floated on that
            dark green instead of a page background. */
@@ -313,23 +388,31 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         .vat-results-title::before { content:''; position:absolute; left:0; top:3px; bottom:3px; width:4px; border-radius:2px; background:linear-gradient(180deg,#d4af37,#b8912a); }
         .vat-results-count { font-size:13.5px; color:#64748b; font-weight:600; margin-top:6px; padding-left:18px; }
         .vat-header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-        .vat-fee-filter { display:flex; align-items:center; gap:8px; }
-        .vat-fee-filter label { font-size:13px; font-weight:700; color:#0f3d24; }
-        .vat-fee-filter select {
-          appearance:none;
-          -webkit-appearance:none;
-          font-size:13.5px;
-          font-weight:600;
-          color:#132a1c;
-          background:#fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="%23134e2f" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 12px center;
-          border:1.5px solid #d9e3dc;
-          border-radius:8px;
-          padding:8px 32px 8px 12px;
-          cursor:pointer;
-          transition: border-color .2s ease;
+        .vat-fee-range { width: 280px; }
+        .vat-fee-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+        .vat-fee-head span { font-size: 13px; font-weight: 700; color: #0f3d24; }
+        .vat-fee-head b { font-size: 13.5px; font-weight: 800; color: #166534; }
+        .vat-fee-track { position: relative; height: 24px; }
+        .vat-fee-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 5px; margin-top: -2.5px; border-radius: 999px; background: #e2e8f0; }
+        .vat-fee-fill { position: absolute; top: 50%; height: 5px; margin-top: -2.5px; border-radius: 999px; background: linear-gradient(90deg, #22a35a, #166534); }
+        .vat-fee-track input[type=range] {
+          position: absolute; inset: 0; width: 100%; height: 24px; margin: 0; background: none; pointer-events: none;
+          -webkit-appearance: none; appearance: none; outline: none;
         }
-        .vat-fee-filter select:hover,
-        .vat-fee-filter select:focus { border-color:#d4af37; outline:none; }
+        .vat-fee-track input[type=range]::-webkit-slider-runnable-track { background: none; border: none; }
+        .vat-fee-track input[type=range]::-moz-range-track { background: none; border: none; }
+        .vat-fee-track input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none; appearance: none; pointer-events: auto; cursor: grab;
+          width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #166534;
+          box-shadow: 0 2px 8px rgba(15,61,36,.3); margin-top: 0;
+        }
+        .vat-fee-track input[type=range]::-moz-range-thumb {
+          pointer-events: auto; cursor: grab; width: 16px; height: 16px; border-radius: 50%;
+          background: #fff; border: 3px solid #166534; box-shadow: 0 2px 8px rgba(15,61,36,.3);
+        }
+        .vat-fee-track input[type=range]:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.1); }
+        .vat-fee-track input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(22,101,52,.25); }
+        @media (max-width: 575px) { .vat-fee-range { width: 100%; } .vat-header-right { width: 100%; } }
         .vat-reset { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:#ef4444; border:1px solid #fecaca; background:#fff5f5; padding:4px 12px; border-radius:4px; cursor:pointer; }
 
         /* loading skeleton */
@@ -376,7 +459,6 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         .vat-sheet { display:none; }
 
         @media(max-width:991px){
-          .vat-banner { padding:36px 0 66px; }
           .vat-sticky-bar { margin-top:-44px; padding:0 0 12px; }
           .vat-filter-card { padding:10px 14px; border-radius:14px; }
           .vat-desk-filters { display:none; }
@@ -437,8 +519,57 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         }
       ` }} />
 
-      {/* ── Banner: image only ────────────────────────── */}
-      <div className="vat-banner" />
+      {/* ── Banner: photo + search by name / state / city ── */}
+      <section className="vat-banner" aria-labelledby="vat-ban-title">
+        <img
+          className="vat-ban-img"
+          src="/assets/img/therapist-directory-banner.jpg"
+          alt="A client talking openly with a therapist in a calm, bright room"
+          width="1920"
+          height="900"
+          fetchPriority="high"
+          decoding="async"
+        />
+        <div className="container vat-ban-inner">
+          <span className="vat-ban-eyebrow">Verified therapists across India</span>
+          <h2 id="vat-ban-title" className="vat-ban-title">Find the right <span className="theme-gradient">therapist</span> for you</h2>
+          <p className="vat-ban-sub">Search by therapist name, state or city — online and in-person sessions.</p>
+
+          <form className="vat-ban-search" role="search" onSubmit={(e) => { e.preventDefault(); applySearch(); }}>
+            <i className="feather-search vat-ban-search-icon" aria-hidden="true" />
+            <label htmlFor="vat-search" className="vat-sr">Search therapists by name, state or city</label>
+            <input
+              id="vat-search"
+              type="search"
+              list="vat-search-states"
+              autoComplete="off"
+              placeholder="Name, state or city…"
+              value={search}
+              onChange={handleSearchChange}
+            />
+            {search && (
+              <button type="button" className="vat-ban-clear" onClick={clearSearch} aria-label="Clear search">
+                <i className="feather-x" />
+              </button>
+            )}
+            <button type="submit" className="vat-ban-go">Search</button>
+            <datalist id="vat-search-states">
+              {popularStates.map(st => <option key={st} value={st} />)}
+            </datalist>
+          </form>
+
+          {popularStates.length > 0 && (
+            <div className="vat-ban-chips" aria-label="Popular locations">
+              <span>Popular:</span>
+              {popularStates.slice(0, 5).map(st => (
+                <button key={st} type="button" className={filter.search === st ? "on" : ""} onClick={() => applySearch(st)}>
+                  <i className="feather-map-pin" aria-hidden="true" /> {st}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
 
       <ConsultationConsentModal open={consultOpen} onClose={() => setConsultOpen(false)} />
 
@@ -456,18 +587,27 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
               </div>
             </div>
             <div className="vat-header-right">
-              <div className="vat-fee-filter">
-                <label htmlFor="vat-fee-select">Fees</label>
-                <select
-                  id="vat-fee-select"
-                  value={feeRange}
-                  onChange={(e) => setFeeRange(e.target.value)}
-                >
-                  {FEE_RANGES.map((r) => (
-                    <option key={r.value} value={r.value}>{r.label}</option>
-                  ))}
-                </select>
-              </div>
+              {feeBounds && (
+                <div className="vat-fee-range" role="group" aria-label="Fees per session">
+                  <div className="vat-fee-head">
+                    <span>Fees</span>
+                    <b>₹{feeLo.toLocaleString("en-IN")} – ₹{feeHi.toLocaleString("en-IN")}{feeHi >= feeBounds.max ? "+" : ""}</b>
+                  </div>
+                  <div className="vat-fee-track">
+                    <div className="vat-fee-fill" style={{ left: `${feePct(feeLo)}%`, right: `${100 - feePct(feeHi)}%` }} />
+                    <input
+                      type="range" min={feeBounds.min} max={feeBounds.max} step={FEE_STEP} value={feeLo}
+                      aria-label="Minimum fee" aria-valuetext={`₹${feeLo}`}
+                      onChange={(e) => setFees(Math.min(Number(e.target.value), feeHi - FEE_STEP), feeHi)}
+                    />
+                    <input
+                      type="range" min={feeBounds.min} max={feeBounds.max} step={FEE_STEP} value={feeHi}
+                      aria-label="Maximum fee" aria-valuetext={`₹${feeHi}`}
+                      onChange={(e) => setFees(feeLo, Math.max(Number(e.target.value), feeLo + FEE_STEP))}
+                    />
+                  </div>
+                </div>
+              )}
               {hasFilter && (
                 <button className="vat-reset" onClick={resetFilters}>
                   <i className="feather-x" style={{ fontSize: 12 }}></i>
@@ -544,11 +684,9 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
               </button>
             </div>
           ) : (
-            <div className="row g-4">
+            <div className="vat-list">
               {data.map(item => (
-                <div key={item._id} className="col-lg-4 col-md-6 col-sm-6 col-12">
-                  <ProfileCardVert data={item} favrioutes={favrioutes} />
-                </div>
+                <ProfileCardRow key={item._id} data={item} favrioutes={favrioutes} />
               ))}
             </div>
           )}

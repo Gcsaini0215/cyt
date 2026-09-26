@@ -286,6 +286,22 @@ export default function HomePage() {
                 "closes": "23:59"
               },
               "hasMap": "https://maps.google.com/?q=28.5672,77.3650",
+              "areaServed": [
+                { "@type": "City", "name": "Noida" },
+                { "@type": "City", "name": "Greater Noida" },
+                { "@type": "City", "name": "Delhi" },
+                { "@type": "City", "name": "Ghaziabad" }
+              ],
+              "potentialAction": {
+                "@type": "ReserveAction",
+                "name": "Book a psychologist in Noida",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://www.chooseyourtherapist.in/noida-appointment",
+                  "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
+                },
+                "result": { "@type": "Reservation", "name": "Psychologist appointment in Noida (Sector 51)" }
+              },
               "aggregateRating": {
                 "@type": "AggregateRating",
                 "ratingValue": "4.8",

@@ -22,6 +22,8 @@ import DownloadRounded from "@mui/icons-material/DownloadRounded";
 import PersonAddAlt1Rounded from "@mui/icons-material/PersonAddAlt1Rounded";
 import EventRepeatRounded from "@mui/icons-material/EventRepeatRounded";
 import UpdateRounded from "@mui/icons-material/UpdateRounded";
+import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
+import { useRouter } from "next/router";
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
 // Never pass names, phones or emails here — only slot / step / booking-type info.
@@ -701,6 +703,112 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
       </table>
     </div>
     </>
+  );
+}
+
+
+// ── "Why are you leaving?" popup ────────────────────────────────────────
+// Shown once per visit when someone presses this page's back button, the browser/phone
+// back button, or (desktop) heads for the tab's close button. The reason is one tap; the
+// phone number is optional and only for a callback. Answers land in the admin
+// (CYT Noida → Needs attention → Exit feedback).
+const EXIT_REASONS = [
+  ["price_high", "Price is too high"],
+  ["no_suitable_slot", "No slot at a time that suits me"],
+  ["just_exploring", "Just checking — will book later"],
+  ["centre_far", "The centre is too far for me"],
+  ["unsure_what_to_book", "Not sure what to book"],
+  ["need_more_info", "I have questions before booking"],
+  ["payment_issue", "Payment didn't work"],
+  ["booking_confusing", "Booking felt confusing"],
+  ["other", "Something else"],
+];
+// Once someone has answered, don't ask again for the rest of their visit (this tab).
+// Skipping or choosing "Keep booking" only stops it for the current page load.
+const EXIT_ANSWERED_KEY = "cyt_na_exit_answered";
+function exitAlreadyAnswered() {
+  try { return sessionStorage.getItem(EXIT_ANSWERED_KEY) === "1"; } catch { return false; }
+}
+function markExitAnswered() {
+  try { sessionStorage.setItem(EXIT_ANSWERED_KEY, "1"); } catch { /* storage blocked */ }
+}
+
+function ExitFeedbackModal({ trigger, stage, defaultPhone, onSubmit, onStay, onSkip }) {
+  const [reason, setReason] = useState("");
+  const [otherText, setOtherText] = useState("");
+  const [phone, setPhone] = useState(defaultPhone || "");
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState("");
+  const leaving = trigger !== "exit_intent";
+
+  // put the most likely reason for where they are first
+  const reasons = stage === "payment"
+    ? [...EXIT_REASONS.filter(([k]) => k === "payment_issue"), ...EXIT_REASONS.filter(([k]) => k !== "payment_issue")]
+    : EXIT_REASONS;
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onStay(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onStay]);
+
+  const submit = async () => {
+    if (!reason) { setErr("Please pick a reason."); return; }
+    if (phone && !/^[0-9]{10}$/.test(phone)) { setErr("Enter a 10-digit number, or leave it empty."); return; }
+    setErr(""); setSending(true);
+    await onSubmit({ reason, otherText: reason === "other" ? otherText.trim() : "", phone });
+    setSending(false); setDone(true);
+  };
+
+  return (
+    <div className="na-exit-overlay" role="dialog" aria-modal="true" aria-labelledby="na-exit-title" onClick={(e) => { if (e.target === e.currentTarget) onStay(); }}>
+      <div className="na-exit-modal">
+        <button type="button" className="na-welcome-close" aria-label="Close and keep booking" onClick={onStay}><CloseRounded style={{ fontSize: 18 }} /></button>
+        {done ? (
+          <div className="na-exit-done">
+            <span className="na-exit-done-icon"><CheckRounded /></span>
+            <div className="na-exit-title">Thank you!</div>
+            <p className="na-exit-sub">{phone ? "Our team will call you shortly to help." : "Your answer helps us make booking better."}</p>
+          </div>
+        ) : (
+          <>
+            <div id="na-exit-title" className="na-exit-title">Before you go — what stopped you?</div>
+            <p className="na-exit-sub">One tap helps us improve. It takes 5 seconds.</p>
+
+            <div className="na-exit-reasons" role="radiogroup" aria-label="Reason for leaving">
+              {reasons.map(([key, label]) => (
+                <button key={key} type="button" role="radio" aria-checked={reason === key}
+                  className={`na-exit-reason ${reason === key ? "on" : ""}`}
+                  onClick={() => { setReason(key); setErr(""); }}>
+                  {reason === key && <CheckRounded style={{ fontSize: 15 }} />} {label}
+                </button>
+              ))}
+            </div>
+            {reason === "other" && (
+              <input className="na-exit-input" type="text" maxLength={300} autoFocus placeholder="Tell us briefly (optional)"
+                value={otherText} onChange={(e) => setOtherText(e.target.value)} aria-label="Other reason" />
+            )}
+
+            <label className="na-exit-label" htmlFor="na-exit-phone">Want a callback? <span>(optional)</span></label>
+            <input id="na-exit-phone" className="na-exit-input" type="tel" inputMode="numeric" autoComplete="tel-national"
+              placeholder="10-digit mobile number" value={phone}
+              onChange={(e) => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setErr(""); }} />
+            <p className="na-exit-hint">We'll call once to help you book — no spam.</p>
+
+            {err && <p className="na-exit-err" role="alert">{err}</p>}
+
+            <div className="na-exit-actions">
+              <button type="button" className="na-exit-btn primary" disabled={!reason || sending} onClick={submit}>
+                {sending ? "Sending…" : phone ? "Submit & request callback" : "Submit"}
+              </button>
+              <button type="button" className="na-exit-btn ghost" onClick={onStay}>Keep booking</button>
+            </div>
+            {leaving && <button type="button" className="na-exit-skip" onClick={onSkip}>Skip and leave</button>}
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -1457,6 +1565,117 @@ export default function NoidaAppointment({ seoPricing = null }) {
     }
   };
 
+  // ── Exit feedback: ask once per visit why they're leaving without booking ──
+  const router = useRouter();
+  const [exitAsk, setExitAsk] = useState(null); // null | "back_button" | "browser_back" | "exit_intent"
+  const exitGuardRef = useRef(false); // true while an extra history entry is waiting to catch the first Back press
+  const exitAskedRef = useRef(false); // already shown on this page load
+  const canAskRef = useRef(true);
+  canAskRef.current = status !== "success" && status !== "loading" && !rescheduleDone;
+
+  const leavePage = useCallback((trigger) => {
+    if (trigger === "browser_back") {
+      window.history.back();
+      // landed here directly (nothing to go back to) — send them home instead
+      setTimeout(() => { if (window.location.pathname.startsWith("/noida-appointment")) router.push("/"); }, 700);
+    } else {
+      router.push("/");
+    }
+  }, [router]);
+
+  const openExit = useCallback((trigger) => {
+    if (!canAskRef.current || exitAskedRef.current || exitAlreadyAnswered()) return false;
+    exitAskedRef.current = true;
+    setExitAsk(trigger);
+    track("noida_exit_prompt", { trigger });
+    return true;
+  }, []);
+
+  const handleBackButton = () => {
+    if (!openExit("back_button")) router.push("/");
+  };
+
+  // Browser / phone Back: add one same-URL history entry, so the first Back press stays on
+  // this page and opens the popup instead of leaving. Added as soon as the page opens; the
+  // first tap/click/keypress re-arms it if needed (Chrome's back button can skip entries a
+  // page added before the visitor interacted with it).
+  useEffect(() => {
+    if (exitAlreadyAnswered()) return undefined;
+    const arm = () => {
+      if (exitGuardRef.current || exitAskedRef.current || exitAlreadyAnswered()) return;
+      if (!window.history.state?.naExitGuard) {
+        window.history.pushState({ ...window.history.state, naExitGuard: true }, "", window.location.href);
+      }
+      exitGuardRef.current = true;
+    };
+    arm();
+    const armEvents = ["pointerdown", "keydown", "touchstart"];
+    armEvents.forEach((ev) => window.addEventListener(ev, arm, { once: true, passive: true }));
+
+    // Back landed on this same page (our extra entry was popped) — keep Next's router out of it…
+    router.beforePopState((state) => {
+      const samePage = (state?.as || "").split("?")[0] === window.location.pathname;
+      return !(exitGuardRef.current && samePage && !state?.naExitGuard);
+    });
+    // …and ask instead of leaving.
+    const onPop = (e) => {
+      if (!exitGuardRef.current || e.state?.naExitGuard) return;
+      exitGuardRef.current = false;
+      // nothing to ask (already booked / asked) — carry on to where they were going
+      if (!openExit("browser_back")) window.history.back();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => {
+      armEvents.forEach((ev) => window.removeEventListener(ev, arm));
+      window.removeEventListener("popstate", onPop);
+      router.beforePopState(() => true);
+    };
+  }, [router, openExit]);
+
+  // Desktop: mouse heading out of the top of the window (towards the tab's close button).
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches) return undefined;
+    const since = Date.now();
+    const onOut = (e) => {
+      if (e.relatedTarget || e.clientY > 0 || Date.now() - since < 8000) return;
+      openExit("exit_intent");
+    };
+    document.addEventListener("mouseout", onOut);
+    return () => document.removeEventListener("mouseout", onOut);
+  }, [openExit]);
+
+  const submitExit = async ({ reason, otherText, phone }) => {
+    markExitAnswered();
+    track("noida_exit_feedback", { trigger: exitAsk, reason, callback: !!phone });
+    try {
+      await fetch(`${apiUrl}/noida-appointments/exit-feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reason, otherText, phone, wantsCallback: !!phone,
+          stage: stageNow, bookingType, trigger: exitAsk, device: deviceNow,
+          slotDate: selectedDate || "", slotTime: selectedSlot || "",
+        }),
+        keepalive: true,
+      });
+    } catch { /* not critical — never block someone from leaving */ }
+    const trigger = exitAsk;
+    setTimeout(() => {
+      setExitAsk(null);
+      if (trigger !== "exit_intent") leavePage(trigger);
+    }, 1400);
+  };
+  const stayOnPage = useCallback(() => {
+    if (exitAsk) track("noida_exit_stay", { trigger: exitAsk });
+    setExitAsk(null);
+  }, [exitAsk]);
+  const skipExit = () => {
+    track("noida_exit_skip", { trigger: exitAsk });
+    const trigger = exitAsk;
+    setExitAsk(null);
+    leavePage(trigger);
+  };
+
   const pickedDateLabel = selectedDate ? dateLabel(selectedDate) : null;
   const formatLabel = format === "home-visit" ? "Home Visit" : format === "online" ? "Online" : "In-person";
   const modeLabel = sessionMode === "package" ? (selectedPackage?.name || "Package") : sessionMode === "couple" ? "Couple" : "Individual";
@@ -1464,6 +1683,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
   const tabsEl = (
     <div className="na-topbar">
       <div className="na-centre">
+        <button type="button" className="na-back" onClick={handleBackButton} aria-label="Back to homepage" title="Back to homepage"><ArrowBackRounded style={{ fontSize: 18 }} /></button>
         <div className="na-centre-mark"><img src="/favicon.png" alt="Choose Your Therapist" width="44" height="44" /></div>
         <div className="na-centre-txt">
           <div className="na-centre-name">Choose Your Therapist | Noida &amp; Delhi</div>
@@ -1543,6 +1763,43 @@ export default function NoidaAppointment({ seoPricing = null }) {
           .na-welcome-title { font-size: 18px; }
         }
 
+        .na-back { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: all .15s; }
+        .na-back:hover { background: #f0fdf4; border-color: #86efac; }
+        .na-back:focus-visible { outline: 2px solid #1a6b3a; outline-offset: 2px; }
+        @media (max-width: 640px) { .na-back { width: 30px; height: 30px; border-radius: 9px; } }
+
+        .na-exit-overlay { position: fixed; inset: 0; z-index: 210; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(15,23,20,.45); animation: naWelcomeFade .2s ease; }
+        .na-exit-modal { position: relative; width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow-y: auto; background: #fff; border-radius: 22px; box-shadow: 0 30px 70px rgba(15,61,34,.28); padding: 28px 26px 22px; font-family: 'Inter', sans-serif; animation: naWelcomePop .22s cubic-bezier(.2,.9,.3,1.2); }
+        .na-exit-title { font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -.3px; padding-right: 30px; }
+        .na-exit-sub { margin: 6px 0 16px; font-size: 13.5px; color: #64748b; line-height: 1.5; }
+        .na-exit-reasons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .na-exit-reason { display: inline-flex; align-items: center; gap: 4px; padding: 8px 13px; border-radius: 999px; border: 1.5px solid #e2e8f0; background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; transition: all .15s; text-align: left; }
+        .na-exit-reason:hover { border-color: #86efac; }
+        .na-exit-reason.on { border-color: #1a6b3a; background: #f0fdf4; color: #166534; }
+        .na-exit-label { display: block; margin: 8px 0 6px; font-size: 13px; font-weight: 800; color: #0f172a; }
+        .na-exit-label span { font-weight: 500; color: #94a3b8; }
+        .na-exit-input { width: 100%; height: 44px; box-sizing: border-box; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0 12px; font-family: inherit; font-size: 14px; color: #0f172a; outline: none; background: #f8fafc; margin-bottom: 6px; }
+        .na-exit-input:focus { border-color: #1a6b3a; background: #fff; }
+        .na-exit-hint { margin: 0 0 14px; font-size: 12px; color: #94a3b8; }
+        .na-exit-err { margin: -6px 0 12px; font-size: 12.5px; color: #dc2626; font-weight: 600; }
+        .na-exit-actions { display: flex; gap: 8px; }
+        .na-exit-btn { flex: 1; height: 46px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; transition: all .15s; }
+        .na-exit-btn.primary { border: none; background: #1a6b3a; color: #fff; }
+        .na-exit-btn.primary:disabled { background: #a7c4b2; cursor: not-allowed; }
+        .na-exit-btn.ghost { border: 1.5px solid #d5e3da; background: #fff; color: #1a6b3a; }
+        .na-exit-btn.ghost:hover { background: #f0fdf4; }
+        .na-exit-skip { display: block; margin: 12px auto 0; border: none; background: none; font-family: inherit; font-size: 12.5px; color: #94a3b8; text-decoration: underline; cursor: pointer; }
+        .na-exit-done { text-align: center; padding: 18px 0 10px; }
+        .na-exit-done-icon { width: 52px; height: 52px; border-radius: 50%; background: #f0fdf4; color: #166534; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .na-exit-done .na-exit-title { padding-right: 0; }
+        @media (max-width: 480px) {
+          .na-exit-overlay { align-items: flex-end; padding: 0; }
+          .na-exit-modal { max-width: none; border-radius: 20px 20px 0 0; padding: 24px 18px calc(18px + env(safe-area-inset-bottom)); max-height: 92vh; }
+          .na-exit-title { font-size: 18px; }
+          .na-exit-actions { flex-direction: column; }
+          .na-exit-btn { flex: none; width: 100%; }
+        }
+
         .na-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .na-topbar { max-width: 1100px; margin: 0 auto; padding: 18px 20px 4px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
@@ -1591,6 +1848,8 @@ export default function NoidaAppointment({ seoPricing = null }) {
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
         .na-seo { background: transparent; padding: 26px 14px 0; }
         .na-seo-in { max-width: 980px; margin: 0 auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 34px rgba(15,61,34,.10); padding: 32px 36px 28px; color: #334155; font-size: 15px; line-height: 1.7; }
+        /* desktop/tablet: same width as the slots card above (it is 100% - 28px, up to 1480px) */
+        @media (min-width: 641px) { .na-seo-in { max-width: 1480px; } }
         .na-seo h2 { font-size: 24px; font-weight: 800; color: #0f2a1d; margin: 0 0 12px; line-height: 1.25; }
         .na-seo h3 { font-size: 18px; font-weight: 800; color: #0f2a1d; margin: 28px 0 10px; }
         .na-seo .na-seo-in p, .na-seo .na-seo-in li, .na-seo .na-seo-in address, .na-seo .na-seo-in summary { font-size: 15px; line-height: 1.7; color: #334155; font-family: inherit; }
@@ -2094,7 +2353,18 @@ export default function NoidaAppointment({ seoPricing = null }) {
         </div>
       )}
 
-      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
+      {exitAsk && (
+        <ExitFeedbackModal
+          trigger={exitAsk}
+          stage={stageNow}
+          defaultPhone={/^[0-9]{10}$/.test(form.phone || "") ? form.phone : (loadKnownPhone() || "")}
+          onSubmit={submitExit}
+          onStay={stayOnPage}
+          onSkip={skipExit}
+        />
+      )}
+
+      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome || exitAsk ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
         <h1 className="na-sr">Psychologist in Noida — book in-person, online or home visit at our Sector 51 centre</h1>
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>

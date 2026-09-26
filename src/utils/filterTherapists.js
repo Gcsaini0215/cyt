@@ -13,7 +13,9 @@ export function filterTherapists(allData, filter) {
       (i.user?.name || "").toLowerCase().includes(q) ||
       (i.services || "").toLowerCase().includes(q) ||
       (i.language_spoken || "").toLowerCase().includes(q) ||
-      (i.state || "").toLowerCase().includes(q)
+      (i.state || "").toLowerCase().includes(q) ||
+      (i.office_address || "").toLowerCase().includes(q) ||
+      (i.experties || "").toLowerCase().includes(q)
     );
   }
   if (filter.profile_type) filtered = filtered.filter(i => i.profile_type === filter.profile_type);

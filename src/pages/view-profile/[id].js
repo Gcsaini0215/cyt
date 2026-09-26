@@ -381,7 +381,10 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
         <>
           <ProfileHeader pageData={profile} favrioutes={favrioutes} />
           <ProfileInfoTab pageData={profile} />
-          <ProfileReview profile={profile} />
+          {/* the site body is dark green — give the reviews their own white page background so the footer starts below them */}
+          <div style={{ background: "#fff" }}>
+            <ProfileReview profile={profile} />
+          </div>
         </>
       )}
       <Footer />

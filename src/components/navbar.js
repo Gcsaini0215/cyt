@@ -97,7 +97,7 @@ export default function App() {
   return (
     <>
       {/* Top Green Strip — running lead-gen ticker */}
-      <div className="top-strip">
+      <div className={`top-strip ${isSticky ? "is-stuck" : ""}`}>
         <div className="top-strip-desktop">
           <div className="marquee-track">
             {[0, 1].map((group) => (
@@ -761,27 +761,34 @@ export default function App() {
         }
         @media (max-width: 991px) { .rbt-header.rbt-header-10 { top: 0; } }
 
-        /* ── Floating rounded-card header (desktop only) ─────────────── */
+        /* ── Full-width header, stuck right under the top strip (desktop) ── */
         @media (min-width: 992px) {
           .rbt-header.rbt-header-10 {
-            top: calc(${GREEN_STRIP_HEIGHT}px + 12px);
-            background: transparent;
-            box-shadow: none;
-            border-bottom: none;
-            padding: 0 12px;
+            top: ${GREEN_STRIP_HEIGHT}px;
+            background: #fff;
+            border-bottom: 1px solid #e7efe9;
+            box-shadow: 0 6px 20px -12px rgba(15,61,36,.22);
+            padding: 0;
           }
           .rbt-header.rbt-header-10 .rbt-header-wrapper {
             background: #fff !important;
-            border: 1px solid #e7efe9 !important;
-            border-radius: 18px !important;
-            box-shadow: 0 18px 44px -18px rgba(15,61,36,.26), 0 4px 14px rgba(15,61,36,.06) !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
           }
-          .rbt-header.rbt-header-10.header-sticky .rbt-header-wrapper {
-            box-shadow: 0 14px 34px -16px rgba(15,61,36,.32), 0 3px 12px rgba(15,61,36,.08) !important;
+          /* once scrolled, the theme pins the header (position: fixed) — keep the strip
+             pinned above it and the header directly under the strip, full width */
+          .top-strip.is-stuck { position: fixed; top: 0; left: 0; right: 0; }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper.rbt-sticky {
+            top: ${GREEN_STRIP_HEIGHT}px !important;
+            border-bottom: 1px solid #e7efe9 !important;
+            box-shadow: 0 8px 24px -12px rgba(15,61,36,.30) !important;
+            animation: none;
           }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper.header-space-betwween { padding-left: 0; padding-right: 0; }
           .rbt-header.rbt-header-10 .rbt-header-wrapper > .container-fluid {
-            padding-left: 16px;
-            padding-right: 16px;
+            padding-left: clamp(20px, 3vw, 40px);
+            padding-right: clamp(20px, 3vw, 40px);
           }
 
           /* ── never let the header's contents overlap — at any width or
@@ -802,9 +809,9 @@ export default function App() {
             padding-left: 0 !important; padding-right: 0 !important; white-space: nowrap;
           }
 
-          /* page banners run up behind the floating card — zoom-safe: a fixed
+          /* page banners run up behind the header — zoom-safe: a fixed
              over-pull past any possible header height, with a matching pad, so
-             the gap under the card stays constant at every zoom level. */
+             the gap under the header stays constant at every zoom level. */
           .cyt-hero,
           .login-banner,
           .reg-banner,
@@ -816,11 +823,12 @@ export default function App() {
           .vat-banner,
           .intern-banner {
             margin-top: -200px !important;
-            padding-top: 228px !important;
+            padding-top: 216px !important;
           }
         }
         @media (min-width: 1440px) {
-          .rbt-header.rbt-header-10 { padding: 0 max(12px, calc((100vw - 1380px) / 2)); }
+          /* bar stays full width; its contents line up with a 1380px column */
+          .rbt-header.rbt-header-10 .rbt-header-wrapper > .container-fluid { padding-left: max(40px, calc((100vw - 1380px) / 2)); padding-right: max(40px, calc((100vw - 1380px) / 2)); }
         }
 
         /* ── Nav link accents (academic green) ────────── */

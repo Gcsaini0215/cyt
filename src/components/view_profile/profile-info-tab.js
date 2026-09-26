@@ -32,11 +32,14 @@ export default function ProfileInfoTab({ pageData }) {
   };
 
   const bioTextStyle = {
-    fontSize: 16,
-    lineHeight: 1.85,
+    fontSize: 15.5,
+    lineHeight: 1.8,
     color: "#374b40",
-    fontFamily: "'Georgia', 'Inter', serif",
+    fontFamily: "inherit",
     whiteSpace: "pre-line",
+    textAlign: "justify",
+    textJustify: "inter-word",
+    margin: 0,
   };
 
   const tagStyle = {
@@ -65,12 +68,12 @@ export default function ProfileInfoTab({ pageData }) {
             white-space: nowrap;
           }
           .pit-tab-btn:hover { color: #0f3d24; }
-          .pit-tab-btn.active { color: #0f3d24; border-bottom-color: #c9962c; }
+          .pit-tab-btn.active { color: #0f3d24; border-bottom-color: #166534; }
           .pit-tabbar { display: flex; overflow-x: auto; border-bottom: 1px solid #e3e8e4; margin-bottom: 28px; -ms-overflow-style: none; scrollbar-width: none; }
           .pit-tabbar::-webkit-scrollbar { display: none; }
           .pit-section-head {
-            font-family: Playfair Display, Georgia, serif; font-weight: 700; color: #122019;
-            font-size: 21px; margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1.5px solid #ecefec;
+            font-family: inherit; font-weight: 800; color: #122019;
+            font-size: 20px; margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1.5px solid #ecefec;
           }
           .pit-table-wrap { border-radius: 6px; overflow: hidden; box-shadow: 0 4px 20px rgba(15,61,36,0.08); }
           .pit-table-wrap + .pit-table-wrap { margin-top: 18px; }
@@ -92,6 +95,8 @@ export default function ProfileInfoTab({ pageData }) {
           @media (max-width: 768px) {
             .pit-section-card { padding: 20px 18px !important; }
             .pit-section-head { font-size: 18px !important; }
+            /* narrow lines: let justified text break long words instead of leaving wide gaps */
+            .pit-bio { -webkit-hyphens: auto; hyphens: auto; }
           }
         `}</style>
 
@@ -111,7 +116,7 @@ export default function ProfileInfoTab({ pageData }) {
               <div>
                 <div style={sectionCard} className="pit-section-card">
                   <h4 className="pit-section-head">About</h4>
-                  <p style={bioTextStyle}>{pageData.user.bio}</p>
+                  <p className="pit-bio" style={bioTextStyle}>{pageData.user.bio}</p>
                 </div>
 
                 <div style={sectionCard} className="pit-section-card">
