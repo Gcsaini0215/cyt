@@ -145,9 +145,6 @@ export default function App() {
                       <ul className="submenu">
                         <li><Link href="/therapy-booking">Therapy Booking</Link></li>
                         <li><Link href="/self-assessment">Self Assessment</Link></li>
-                        <li><Link href="/plans">Therapy Plan</Link></li>
-                        <li><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
-                        <li><Link href="/daily-journal">Daily Journal</Link></li>
                       <li><Link href="/psychologist-in-noida-delhi">Psychologist in Noida</Link></li>
                       </ul>
                     </li>
@@ -309,9 +306,6 @@ export default function App() {
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
                 <li><Link href="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
                 <li><Link href="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
-                <li><Link href="/plans" onClick={() => setShow(false)}>Therapy Plan</Link></li>
-                <li><Link href="/wellness-toolkit" onClick={() => setShow(false)}>Wellness Toolkit</Link></li>
-                <li><Link href="/daily-journal" onClick={() => setShow(false)}>Daily Journal</Link></li>
               </ul>
             </li>
           </ul>
