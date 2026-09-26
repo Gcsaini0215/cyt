@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import RegistrationHeader from "../components/therapist/registration-header";
@@ -7,22 +8,19 @@ import Footer from "../components/footer";
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 
+const MapPicker = dynamic(() => import("../components/therapist/map-picker"), { ssr: false });
+
 const PROFILE_TYPES = ["Counselling Psychologist", "Psychiatrist", "Clinical Psychologist", "Special Educator"];
 const MODES = [
   { label: "Virtual", value: "1", icon: "feather-video" },
   { label: "In-Person", value: "2", icon: "feather-map-pin" },
   { label: "Both", value: "3", icon: "feather-globe" },
 ];
-const EXPERTISE = [
-  "Prescribe Medication (Only for Psychiatrist)",
-  "Individual Counselling",
-  "Couple Counselling",
-  "Teen Counselling",
-  "Workshops / Events",
-  "Internship / Training",
-];
+const ABOUT_MIN = 50;
+const ABOUT_MAX = 250;
+const wordCount = (t) => (t || "").trim().split(/\s+/).filter(Boolean).length;
+const needsAddress = (mode) => mode === "2" || mode === "3";
 const ID_CARD_TYPES = ["Aadhar Card", "PAN Card", "Voter ID", "Passport", "Driving License"];
-const PRESCRIBE = EXPERTISE[0]; // only offered to psychiatrists
 const MAX_FILE_MB = 5;
 const DRAFT_KEY = "cyt_therapist_reg_draft";
 
@@ -94,7 +92,8 @@ function JourneySteps({ current, isMobile }) {
 const EMPTY = {
   name: "", email: "", phone: "",
   profileType: "", mode: "",
-  checkedValues: [],
+  about: "",
+  officeAddress: "", officePincode: "", officeCity: "", officeState: "", officeLat: null, officeLng: null,
   resumeFile: null, qualificationCertFile: null, idCardFile: null, idCardType: "",
   agreeTerms: false,
 };
@@ -110,7 +109,15 @@ function validateStep(step, f) {
   if (step === 2) {
     if (!f.profileType)                                      return "Select your profile type";
     if (!f.mode)                                             return "Select your preferred service mode";
-    if (!f.checkedValues.length)                             return "Select at least one service you offer";
+    const words = wordCount(f.about);
+    if (words < ABOUT_MIN)                                   return `Write at least ${ABOUT_MIN} words about yourself (${words} so far)`;
+    if (words > ABOUT_MAX)                                   return `Keep your About under ${ABOUT_MAX} words (${words} now)`;
+    if (needsAddress(f.mode)) {
+      if (f.officeAddress.trim().length < 10)                return "Enter the full address where you see clients";
+      if (!/^\d{6}$/.test(f.officePincode))                  return "Enter a valid 6-digit PIN code";
+      if (!f.officeCity.trim() || !f.officeState.trim())     return "Enter your city and state";
+      if (f.officeLat == null || f.officeLng == null)        return "Place your clinic's pin on the map";
+    }
   }
   if (step === 3) {
     if (!f.resumeFile)                                       return "Upload your resume";
@@ -321,9 +328,9 @@ export default function TherapistRegistration() {
   // Keep the draft up to date while they type
   useEffect(() => {
     if (submitted) return;
-    const { name, email, phone, profileType, mode, checkedValues, idCardType } = form;
+    const { name, email, phone, profileType, mode, about, officeAddress, officePincode, officeCity, officeState, officeLat, officeLng, idCardType } = form;
     if (!name && !email && !phone) return;
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ name, email, phone, profileType, mode, checkedValues, idCardType })); } catch { /* ignore */ }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ name, email, phone, profileType, mode, about, officeAddress, officePincode, officeCity, officeState, officeLat, officeLng, idCardType })); } catch { /* ignore */ }
   }, [form, submitted]);
 
   const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ } };
@@ -373,10 +380,32 @@ export default function TherapistRegistration() {
   }, []);
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
-  const setProfileType = (v) => setForm(p => ({
-    ...p, profileType: v,
-    checkedValues: v === "Psychiatrist" ? p.checkedValues : p.checkedValues.filter(x => x !== PRESCRIBE),
-  }));
+  const setProfileType = (v) => set("profileType", v);
+
+  // PIN code → city + state (India Post) and a map centre (OpenStreetMap search)
+  const [pinInfo, setPinInfo] = useState({ loading: false, msg: "", center: null });
+  useEffect(() => {
+    const pin = form.officePincode;
+    if (!/^\d{6}$/.test(pin) || !needsAddress(form.mode)) { setPinInfo((p) => ({ ...p, msg: "", loading: false })); return undefined; }
+    let alive = true;
+    setPinInfo((p) => ({ ...p, loading: true, msg: "" }));
+    fetch(`https://api.postalpincode.in/pincode/${pin}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!alive) return;
+        const po = d?.[0]?.PostOffice?.[0];
+        if (po) {
+          setForm((f) => ({ ...f, officeCity: f.officeCity || po.District || "", officeState: f.officeState || po.State || "" }));
+          setPinInfo((p) => ({ ...p, loading: false, msg: `${po.District}, ${po.State}` }));
+        } else setPinInfo((p) => ({ ...p, loading: false, msg: "We couldn't find this PIN — please check it." }));
+      })
+      .catch(() => alive && setPinInfo((p) => ({ ...p, loading: false })));
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&postalcode=${pin}`)
+      .then((r) => r.json())
+      .then((d) => { if (alive && d?.[0]) setPinInfo((p) => ({ ...p, center: { lat: +d[0].lat, lng: +d[0].lon } })); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [form.officePincode, form.mode]);
 
   const handleReview = async (e) => {
     e.preventDefault();
@@ -415,7 +444,14 @@ export default function TherapistRegistration() {
     data.append("email", form.email);
     data.append("type", form.profileType);
     data.append("mode", form.mode);
-    data.append("serve", form.checkedValues.join(", "));
+    data.append("about", form.about.trim());
+    if (needsAddress(form.mode)) {
+      data.append("officeAddress", form.officeAddress.trim());
+      data.append("officePincode", form.officePincode);
+      data.append("officeCity", form.officeCity.trim());
+      data.append("officeState", form.officeState.trim());
+      if (form.officeLat != null) { data.append("officeLat", String(form.officeLat)); data.append("officeLng", String(form.officeLng)); }
+    }
 
     try {
       const response = await postFormData(therapistRegistrationUrl, data);
@@ -548,6 +584,16 @@ export default function TherapistRegistration() {
         .tr-link { background: none; border: none; color: #dc2626; font-size: 12.5px; font-weight: 700; cursor: pointer; }
         .tr-file-err { margin: 6px 0 0; font-size: 12.5px; color: #dc2626; font-weight: 600; }
         .tr-nav { display: flex; gap: 10px; margin-top: 4px; }
+        .tr-addr { border: 1px solid #fde68a; background: #fffdf5; border-radius: 12px; padding: 16px; margin-top: 4px; }
+        .tr-addr-title { margin: 0 0 12px; font-size: 13.5px; font-weight: 800; color: #92400e; display: flex; align-items: center; gap: 7px; }
+        .tr-map { height: 280px; border-radius: 12px; border: 1.5px solid #cbd5c9; overflow: hidden; z-index: 0; background: #e8efeb; }
+        .tr-map-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+        .tr-map-status { font-size: 12.5px; color: #475569; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .tr-map-status i { color: #16a34a; }
+        .tr-words { text-align: right; font-size: 12px; font-weight: 700; color: #94a3b8; margin-top: 6px; }
+        .tr-words.ok { color: #16a34a; }
+        .tr-words.over { color: #dc2626; }
+        @media (max-width: 575px) { .tr-map { height: 240px; } }
         .tr-back { flex: 1; padding: 14px; border-radius: 10px; border: 1.5px solid #cbd5c9; background: #fff; color: #374151; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .tr-next { flex: 2; padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .tr-next:disabled { opacity: .7; cursor: not-allowed; }
@@ -666,9 +712,13 @@ export default function TherapistRegistration() {
                     ["Profile Type", form.profileType],
                     ["Service Mode", MODES.find(m => m.value === form.mode)?.label || "—"],
                   ]},
-                  { title: "Areas of Expertise", icon: "feather-check-square", color: "#8b5cf6", rows: [
-                    ["Selected Services", form.checkedValues.join(", ")],
+                  { title: "About You", icon: "feather-align-left", color: "#8b5cf6", rows: [
+                    [`About (${wordCount(form.about)} words)`, form.about.trim()],
                   ]},
+                  ...(needsAddress(form.mode) ? [{ title: "Practice Location", icon: "feather-map-pin", color: "#f59e0b", rows: [
+                    ["Address", `${form.officeAddress.trim()}, ${form.officeCity.trim()}, ${form.officeState.trim()} – ${form.officePincode}`],
+                    ["Map pin", form.officeLat != null ? `${form.officeLat}, ${form.officeLng}` : "—"],
+                  ]}] : []),
                 ].map((section, si) => (
                   <div key={si} className="section-card" style={{ marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, paddingBottom: 10, borderBottom: "1.5px solid #f1f5f9" }}>
@@ -681,7 +731,7 @@ export default function TherapistRegistration() {
                       {section.rows.map(([label, val], ri) => (
                         <div key={ri} style={section.rows.length === 1 ? { gridColumn: "1 / -1" } : undefined}>
                           <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>{label}</span>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", margin: "3px 0 0", wordBreak: "break-word", lineHeight: 1.5 }}>{val || "—"}</p>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: "#1e293b", margin: "3px 0 0", wordBreak: "break-word", lineHeight: 1.6, whiteSpace: "pre-line" }}>{val || "—"}</p>
                         </div>
                       ))}
                     </div>
@@ -830,21 +880,58 @@ export default function TherapistRegistration() {
                       </div>
                     </div>
 
-                    <div style={{ ...fieldWrap, marginBottom: 0 }}>
-                      <label style={labelStyle}>Services You Offer <span className="req">*</span></label>
-                      <p className="tr-hint" style={{ margin: "-2px 0 10px" }}>Tap all that apply.</p>
-                      <div className="tr-chips" role="group" aria-label="Services you offer">
-                        {EXPERTISE.filter(v => v !== PRESCRIBE || form.profileType === "Psychiatrist").map(val => {
-                          const on = form.checkedValues.includes(val);
-                          return (
-                            <button type="button" key={val} aria-pressed={on} className={`tr-chip ${on ? "on" : ""}`}
-                              onClick={() => set("checkedValues", on ? form.checkedValues.filter(v => v !== val) : [...form.checkedValues, val])}>
-                              {on && <i className="feather-check" />} {val === PRESCRIBE ? "Prescribe Medication" : val}
-                            </button>
-                          );
-                        })}
+                    {needsAddress(form.mode) && (
+                      <div className="tr-addr">
+                        <p className="tr-addr-title"><i className="feather-map-pin" /> Where do you see clients in person?</p>
+                        <div style={fieldWrap}>
+                          <label style={labelStyle} htmlFor="tr-addr">Full Address <span className="req">*</span></label>
+                          <textarea id="tr-addr" rows={2} style={{ ...inputStyle, resize: "vertical" }} autoComplete="street-address"
+                            placeholder="Clinic / building, street, area, landmark"
+                            value={form.officeAddress} onChange={e => set("officeAddress", e.target.value)} />
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "160px 1fr 1fr", gap: "0 12px" }}>
+                          <div style={{ ...fieldWrap, gridColumn: isMobile ? "1 / -1" : "auto" }}>
+                            <label style={labelStyle} htmlFor="tr-pin">PIN Code <span className="req">*</span></label>
+                            <input id="tr-pin" style={inputStyle} inputMode="numeric" autoComplete="postal-code" placeholder="6 digits"
+                              value={form.officePincode} onChange={e => set("officePincode", e.target.value.replace(/\D/g, "").slice(0, 6))} />
+                            {(pinInfo.loading || pinInfo.msg) && <p className="tr-hint">{pinInfo.loading ? "Looking up PIN…" : pinInfo.msg}</p>}
+                          </div>
+                          <div style={fieldWrap}>
+                            <label style={labelStyle} htmlFor="tr-city">City <span className="req">*</span></label>
+                            <input id="tr-city" style={inputStyle} autoComplete="address-level2" value={form.officeCity} onChange={e => set("officeCity", e.target.value)} />
+                          </div>
+                          <div style={fieldWrap}>
+                            <label style={labelStyle} htmlFor="tr-state">State <span className="req">*</span></label>
+                            <input id="tr-state" style={inputStyle} autoComplete="address-level1" value={form.officeState} onChange={e => set("officeState", e.target.value)} />
+                          </div>
+                        </div>
+                        <label style={labelStyle}>Pin Your Clinic on the Map <span className="req">*</span></label>
+                        <MapPicker
+                          value={form.officeLat != null ? { lat: form.officeLat, lng: form.officeLng } : null}
+                          center={pinInfo.center}
+                          onChange={({ lat, lng }) => setForm(f => ({ ...f, officeLat: lat, officeLng: lng }))}
+                        />
                       </div>
-                    </div>
+                    )}
+
+                    {(() => {
+                      const words = wordCount(form.about);
+                      const ok = words >= ABOUT_MIN && words <= ABOUT_MAX;
+                      return (
+                        <div style={{ ...fieldWrap, marginBottom: 0, marginTop: 18 }}>
+                          <label style={labelStyle} htmlFor="tr-about">About You <span className="req">*</span></label>
+                          <p className="tr-hint" style={{ margin: "-2px 0 8px" }}>
+                            This appears on your public profile — you can edit it anytime later. Mention your approach, who you work with and your experience.
+                          </p>
+                          <textarea id="tr-about" rows={7} style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
+                            placeholder="e.g. I'm a counselling psychologist with 5 years of experience helping adults with anxiety, stress and relationship concerns. My approach combines CBT with mindfulness…"
+                            value={form.about} onChange={e => set("about", e.target.value)} />
+                          <div className={`tr-words ${ok ? "ok" : words > ABOUT_MAX ? "over" : ""}`}>
+                            {words} / {ABOUT_MAX} words{words < ABOUT_MIN ? ` · at least ${ABOUT_MIN - words} more` : ""}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
 
