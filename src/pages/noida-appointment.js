@@ -823,7 +823,7 @@ function offerMatchesSlot(offer, dateStr, slotLabel) {
   const wd = new Date(Date.UTC(y, mo - 1, d)).getUTCDay();
   if (offer.days?.length && offer.days.length < 7 && !offer.days.includes(wd)) return false;
   const start = slotStartMinutes(slotLabel);
-  const hm = (v) => { const [h, m] = String(v || "").split(":").map(Number); return Number.isFinite(h) ? h * 60 + (m || 0) : null; };
+  const hm = (v) => { if (!v || !/^\d{1,2}:\d{2}$/.test(String(v))) return null; const [h, m] = String(v).split(":").map(Number); return h * 60 + m; };
   const f = hm(offer.timeFrom), t = hm(offer.timeTo);
   if (f != null && start < f) return false;
   if (t != null && start >= t) return false;
