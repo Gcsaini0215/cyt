@@ -67,6 +67,7 @@ function MyApp({ Component, pageProps }) {
     "/workshops",
     "/coupons",
     "/settings",
+    "/my-schedule",
     "/create-workshop",
     "/add-offline-client",
     "/therapist-blogs",

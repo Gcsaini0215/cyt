@@ -9,10 +9,12 @@ import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 
 const NAV_ITEMS = [
   { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
   { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", hasBadge: true },
+  { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
   { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices" },
   { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews" },
   { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications" },

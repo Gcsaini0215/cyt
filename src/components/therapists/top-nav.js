@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
@@ -23,6 +24,7 @@ const logo1 = "/cyt-emblem.png";
 const MOB_NAV = [
   { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Home" },
   { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badge: true },
+  { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "Schedule" },
   { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
 ];
 

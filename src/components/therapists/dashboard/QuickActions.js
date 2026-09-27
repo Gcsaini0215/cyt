@@ -11,7 +11,7 @@ export default function QuickActions() {
   const actions = [
     { title: "Create Event", desc: "Add a new workshop", icon: <AddBoxIcon />, to: "/workshops", color: "#0ea5e9" },
     { title: "Create Report", desc: "New session report", icon: <AssessmentIcon />, to: "/create-report", color: "#f59e0b" },
-    { title: "Update Slots", desc: "Manage availability", icon: <ScheduleIcon />, to: "/settings", color: "#8b5cf6" },
+    { title: "Update Slots", desc: "Manage availability", icon: <ScheduleIcon />, to: "/my-schedule?tab=availability", color: "#8b5cf6" },
     { title: "View Invoices", desc: "Billing & payments", icon: <ConfirmationNumberIcon />, to: "/clinic-patients", color: "#2ecc71" },
   ];
 

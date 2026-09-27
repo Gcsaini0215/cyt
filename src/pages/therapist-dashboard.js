@@ -460,7 +460,7 @@ function ProfileStrength({ pct, checks }) {
               {c.label}
             </Typography>
             {!c.done && (
-              <Link href="/settings" style={{ textDecoration: "none" }}>
+              <Link href={c.href || "/settings"} style={{ textDecoration: "none" }}>
                 <Typography sx={{ fontSize: "10.5px", fontWeight: 800, color: UI.green.main }}>Add</Typography>
               </Link>
             )}
@@ -866,8 +866,8 @@ export default function TherapistDashboard() {
     return [
       { label: "Basic info", done: !!(t?.user?.name && t?.user?.phone) },
       { label: "Profile photo", done: !!t?.user?.profile },
-      { label: "Availability set", done: (t?.availabilities?.length || 0) > 0 },
-      { label: "Fee configured", done: t?.fees?.some((f) => f.formats?.some((fmt) => fmt.fee)) },
+      { label: "Availability set", done: (t?.availabilities?.length || 0) > 0, href: "/my-schedule?tab=availability" },
+      { label: "Fee configured", done: t?.fees?.some((f) => f.formats?.some((fmt) => fmt.fee)), href: "/my-schedule?tab=fees" },
       { label: "Payment details", done: !!(paymentStore?.ac_number || paymentStore?.upi) },
     ];
   }, [therapistInfo, paymentStore]);

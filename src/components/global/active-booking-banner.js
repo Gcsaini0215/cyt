@@ -8,7 +8,7 @@ import useUserStore from "../../store/userStore";
 
 const HIDE_ROUTES = [
   "/therapist-dashboard", "/appointments", "/clinic-patients",
-  "/case-history", "/create-report", "/settings", "/therapist-checkout",
+  "/case-history", "/create-report", "/settings", "/my-schedule", "/therapist-checkout",
   "/payment-success", "/payment-pending", "/supervision-login", "/login", "/register",
 ];
 
