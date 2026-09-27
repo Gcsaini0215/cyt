@@ -538,7 +538,7 @@ const PERIODS = [
   { key: "evening", label: "Evening", test: (m) => m >= 17 * 60 },
 ];
 
-function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new", fit = false, chipsHost = null }) {
+function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, isTablet, header, trackAs = "new", fit = false, chipsHost = null, offerAt = null }) {
   // Phones swipe sideways through all the days (wide columns, time column pinned); tablets fit all 10
   // and share the compact header (weekday + day circle) and short time labels.
   const compact = isMobile || isTablet;
@@ -669,18 +669,20 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                 }
                 if (state === "open" || state === "lastMinute") {
                   const isLM = state === "lastMinute";
+                  const hasOffer = !isLM && offerAt && offerAt(d, t);
                   return (
                     <td key={d} {...tdProps}>
                       <button
                         type="button"
-                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""} `}
-                        title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : `Book ${t}`}
+                        className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""} ${hasOffer ? "offer" : ""}`}
+                        title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : hasOffer ? `Book ${t} — offer slot` : `Book ${t}`}
                         onClick={() => {
                           track("noida_slot_click", { booking_type: trackAs, slot_date: d, slot_time: t, last_minute: isLM });
                           matrix.onPick(d, t, isLM);
                         }}
                       >
                         {isLM ? (isSelected ? <Ic I={CheckRounded} s={16} /> : "!") : <span className="na-wm">cyt<i className="na-wm-dot" aria-hidden="true" /></span>}
+                        {hasOffer && <i className="na-offer-tag" aria-hidden="true">%</i>}
                       </button>
                     </td>
                   );
@@ -806,6 +808,105 @@ function ExitFeedbackModal({ trigger, stage, defaultPhone, onSubmit, onStay, onS
             </div>
             {leaving && <button type="button" className="na-exit-skip" onClick={onSkip}>Skip and leave</button>}
           </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Public offers (admin → Coupons → "show on booking page") ─────────────
+const OFFER_CODE_KEY = "cyt_na_offer_code";
+function offerMatchesSlot(offer, dateStr, slotLabel) {
+  if (!offer || offer.appliesTo === "package") return false;
+  const [y, mo, d] = String(dateStr || "").split("-").map(Number);
+  if (!y) return false;
+  const wd = new Date(Date.UTC(y, mo - 1, d)).getUTCDay();
+  if (offer.days?.length && offer.days.length < 7 && !offer.days.includes(wd)) return false;
+  const start = slotStartMinutes(slotLabel);
+  const hm = (v) => { const [h, m] = String(v || "").split(":").map(Number); return Number.isFinite(h) ? h * 60 + (m || 0) : null; };
+  const f = hm(offer.timeFrom), t = hm(offer.timeTo);
+  if (f != null && start < f) return false;
+  if (t != null && start >= t) return false;
+  return true;
+}
+
+function OfferClaimModal({ offer, prefill, onClose, onClaimed }) {
+  const [v, setV] = useState({ name: prefill.name || "", phone: prefill.phone || "", email: prefill.email || "", consent: true });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [done, setDone] = useState(null); // { code, emailed }
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setErr("");
+    if (v.name.trim().length < 2) return setErr("Please enter your name.");
+    if (!/^\d{10}$/.test(v.phone)) return setErr("Please enter a valid 10-digit phone number.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) return setErr("Please enter a valid email address.");
+    if (!v.consent) return setErr("Please agree to receive the code.");
+    setBusy(true);
+    try {
+      const data = await fetch(`${apiUrl}/noida-appointments/offers/${offer.id}/claim`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: v.name.trim(), phone: v.phone, email: v.email.trim(), consent: v.consent }),
+      }).then((r) => r.json());
+      if (data?.status) {
+        setDone(data.data);
+        track("noida_offer_claimed", { offer: offer.title });
+        onClaimed({ code: data.data.code, name: v.name.trim(), phone: v.phone, email: v.email.trim() });
+      } else setErr(data?.message || "Couldn't get your code. Please try again.");
+    } catch {
+      setErr("Couldn't get your code. Please try again.");
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="na-exit-overlay" role="dialog" aria-modal="true" aria-labelledby="na-offer-title" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="na-exit-modal">
+        <button type="button" className="na-welcome-close" aria-label="Close" onClick={onClose}><CloseRounded style={{ fontSize: 18 }} /></button>
+        {done ? (
+          <div className="na-exit-done">
+            <span className="na-exit-done-icon"><CheckRounded /></span>
+            <div className="na-exit-title">Here&rsquo;s your code</div>
+            <div className="na-offer-code">{done.code}</div>
+            <p className="na-exit-sub">
+              {done.emailed ? <>We&rsquo;ve also emailed it to <b>{v.email}</b> (check spam if you don&rsquo;t see it).</> : "Save this code — our email may take a few minutes."}
+              {" "}It&rsquo;s filled in for you at checkout.
+            </p>
+            <button type="button" className="na-exit-btn primary" style={{ width: "100%" }} onClick={onClose}>Pick a slot</button>
+          </div>
+        ) : (
+          <form onSubmit={submit} noValidate>
+            <div className="na-offer-pill">{offer.discount}</div>
+            <div id="na-offer-title" className="na-exit-title">{offer.title}</div>
+            <p className="na-exit-sub">
+              {offer.window ? <>For sessions on <b>{offer.window}</b>. </> : null}
+              Enter your details and we&rsquo;ll email you a personal code.
+            </p>
+            <label className="na-exit-label" htmlFor="na-of-name">Name</label>
+            <input id="na-of-name" className="na-exit-input" autoComplete="name" value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} />
+            <label className="na-exit-label" htmlFor="na-of-phone">Phone</label>
+            <input id="na-of-phone" className="na-exit-input" type="tel" inputMode="numeric" autoComplete="tel-national" placeholder="10-digit mobile number"
+              value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} />
+            <label className="na-exit-label" htmlFor="na-of-email">Email</label>
+            <input id="na-of-email" className="na-exit-input" type="email" autoComplete="email" placeholder="you@example.com"
+              value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} />
+            <label className="na-offer-consent">
+              <input type="checkbox" checked={v.consent} onChange={(e) => setV({ ...v, consent: e.target.checked })} />
+              <span>Send me this code and occasional offers from Choose Your Therapist.</span>
+            </label>
+            {err && <p className="na-exit-err" role="alert">{err}</p>}
+            <div className="na-exit-actions">
+              <button type="submit" className="na-exit-btn primary" disabled={busy}>{busy ? "Sending…" : "Email me the code"}</button>
+            </div>
+            <p className="na-exit-hint" style={{ marginTop: 10 }}>Works once, with this phone number{offer.validUntil ? ` · book by ${offer.validUntil}` : ""}.</p>
+          </form>
         )}
       </div>
     </div>
@@ -1042,6 +1143,14 @@ export default function NoidaAppointment({ seoPricing = null }) {
   const [couponOpen, setCouponOpen] = useState(false);
   const [couponBusy, setCouponBusy] = useState(false);
   const [couponError, setCouponError] = useState("");
+  const [offers, setOffers] = useState([]);
+  const [offerOpen, setOfferOpen] = useState(null); // offer being claimed
+  const [claimedCode, setClaimedCode] = useState("");
+  useEffect(() => {
+    fetch(`${apiUrl}/noida-appointments/offers`).then((r) => r.json()).then((d) => { if (d?.status) setOffers(d.data || []); }).catch(() => {});
+    try { const c = localStorage.getItem(OFFER_CODE_KEY); if (c) { setClaimedCode(c); setCouponInput(c); setCouponOpen(true); } } catch { /* storage blocked */ }
+  }, []);
+  const slotOffer = offers.find((o) => o.appliesTo !== "package") || null;
   const discountAmount = coupon?.discountAmount || 0;
   const totalAmount = baseAmount - discountAmount + platformFee;
 
@@ -1280,7 +1389,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
   useEffect(() => {
     setCoupon(null); setCouponError("");
     // eslint-disable-next-line
-  }, [sessionMode, selectedPackageId, customN, format, form.phone]);
+  }, [sessionMode, selectedPackageId, customN, format, form.phone, selectedDate, selectedSlot]);
 
   const applyCoupon = async () => {
     const code = couponInput.trim();
@@ -1290,7 +1399,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
       const data = await fetch(`${apiUrl}/noida-appointments/coupon/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, phone: form.phone.trim(), sessionMode, format, packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined }),
+        body: JSON.stringify({ code, phone: form.phone.trim(), sessionMode, format, packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, date: selectedDate, slot: selectedSlot }),
       }).then(r => r.json());
       if (data?.status) { setCoupon(data.data); setCouponOpen(false); }
       else setCouponError(data?.message || "That coupon isn't valid.");
@@ -1799,6 +1908,23 @@ export default function NoidaAppointment({ seoPricing = null }) {
           .na-exit-actions { flex-direction: column; }
           .na-exit-btn { flex: none; width: 100%; }
         }
+
+        .na-offerbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 20px 6px; padding: 9px 12px; border-radius: 12px; background: linear-gradient(90deg, #fff7ed, #fffbeb); border: 1px solid #fde68a; }
+        .na-offerbar-gift { font-size: 18px; }
+        .na-offerbar-txt { flex: 1; min-width: 180px; font-size: 13.5px; color: #78350f; }
+        .na-offerbar-txt b { color: #7c2d12; }
+        .na-offerbar-note { color: #92400e; }
+        .na-offerbar-btn { border: none; background: #c2410c; color: #fff; font-weight: 800; font-size: 13px; padding: 8px 14px; border-radius: 9px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .na-offerbar-btn:hover { background: #9a3412; }
+        button.na-slotcell.offer { position: relative; }
+        .na-offer-tag { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: #ea580c; color: #fff; font-size: 10px; font-weight: 900; font-style: normal; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff; pointer-events: none; }
+        .na-offer-tag.inline { position: static; display: inline-flex; vertical-align: -3px; box-shadow: none; }
+        .na-offer-pill { display: inline-block; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-weight: 800; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
+        .na-offer-code { font-size: 26px; font-weight: 900; letter-spacing: 2px; color: #166534; border: 2px dashed #16a34a; border-radius: 12px; padding: 12px; margin: 10px 0 12px; user-select: all; }
+        .na-offer-consent { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: #475569; margin: 6px 0 12px; cursor: pointer; }
+        .na-offer-consent input { margin-top: 2px; }
+        .na-coupon-hint { font-size: 12.5px; color: #c2410c; font-weight: 700; margin-top: 6px; }
+        @media (max-width: 640px) { .na-offerbar { margin: 4px 10px 6px; padding: 8px 10px; flex-wrap: nowrap; } .na-offerbar-txt { min-width: 0; font-size: 12.5px; line-height: 1.35; } .na-offerbar-note { display: none; } .na-offerbar-gift { display: none; } .na-offerbar-btn { padding: 8px 11px; font-size: 12.5px; } }
 
         .na-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .na-topbar { max-width: 1100px; margin: 0 auto; padding: 18px 20px 4px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -2353,6 +2479,19 @@ export default function NoidaAppointment({ seoPricing = null }) {
         </div>
       )}
 
+      {offerOpen && (
+        <OfferClaimModal
+          offer={offerOpen}
+          prefill={{ name: form.name, phone: form.phone, email: form.email }}
+          onClose={() => setOfferOpen(null)}
+          onClaimed={({ code, name, phone, email }) => {
+            setClaimedCode(code); setCouponInput(code); setCouponOpen(true);
+            try { localStorage.setItem(OFFER_CODE_KEY, code); } catch { /* ignore */ }
+            setForm((f) => ({ ...f, name: f.name || name, phone: f.phone || phone, email: f.email || email }));
+          }}
+        />
+      )}
+
       {exitAsk && (
         <ExitFeedbackModal
           trigger={exitAsk}
@@ -2369,6 +2508,13 @@ export default function NoidaAppointment({ seoPricing = null }) {
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
         {tabsEl}
+        {offers.length > 0 && bookingType !== "reschedule" && (
+          <div className="na-offerbar">
+            <span className="na-offerbar-gift" aria-hidden="true">🎁</span>
+            <span className="na-offerbar-txt"><b>{offers[0].title}</b>{offers[0].window ? <> · {offers[0].window}</> : null}{slotOffer && offers[0] === slotOffer ? <span className="na-offerbar-note"> · slots marked <i className="na-offer-tag inline">%</i></span> : null}</span>
+            <button type="button" className="na-offerbar-btn" onClick={() => { setOfferOpen(offers[0]); track("noida_offer_open", { offer: offers[0].title }); }}>{claimedCode ? "Show my code" : "Get code"}</button>
+          </div>
+        )}
         {bookingType === "reschedule" ? (
           <div className={`na-centerwrap ${tablet ? "na-tab" : ""}`}>
             <div className="na-card">
@@ -2537,6 +2683,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                 trackAs={bookingType}
                 fit
                 chipsHost={isMobile ? null : chipsHost}
+                offerAt={slotOffer ? (d, t) => offerMatchesSlot(slotOffer, d, t) : null}
                 selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
@@ -2933,6 +3080,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                                       <button type="button" className="na-coupon-btn" disabled={couponBusy || !couponInput.trim()} onClick={applyCoupon}>{couponBusy ? "Checking…" : "Apply"}</button>
                                     </div>
                                     {couponError && <div className="na-coupon-err">{couponError}</div>}
+                                    {!couponError && claimedCode && couponInput === claimedCode && <div className="na-coupon-hint">Your offer code is filled in — tap Apply.</div>}
                                   </>
                                 ) : (
                                   <button type="button" className="na-coupon-link" onClick={() => setCouponOpen(true)}>Have a coupon code?</button>
