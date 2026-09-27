@@ -1150,6 +1150,15 @@ export default function NoidaAppointment({ seoPricing = null }) {
     fetch(`${apiUrl}/noida-appointments/offers`).then((r) => r.json()).then((d) => { if (d?.status) setOffers(d.data || []); }).catch(() => {});
     try { const c = localStorage.getItem(OFFER_CODE_KEY); if (c) { setClaimedCode(c); setCouponInput(c); setCouponOpen(true); } } catch { /* storage blocked */ }
   }, []);
+  // arriving from the homepage offer badge / strip (?offer=1) opens the claim form straight away
+  const offerDeepLinked = useRef(false);
+  useEffect(() => {
+    if (offerDeepLinked.current || !offers.length) return;
+    offerDeepLinked.current = true;
+    try {
+      if (new URLSearchParams(window.location.search).get("offer") === "1" && !localStorage.getItem(OFFER_CODE_KEY)) setOfferOpen(offers[0]);
+    } catch { /* storage blocked */ }
+  }, [offers]);
   const slotOffer = offers.find((o) => o.appliesTo !== "package") || null;
   const discountAmount = coupon?.discountAmount || 0;
   const totalAmount = baseAmount - discountAmount + platformFee;

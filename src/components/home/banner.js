@@ -1,8 +1,9 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { apiUrl } from "../../utils/url";
 import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import PersonSearchIcon from "@mui/icons-material/PersonSearch";
@@ -150,6 +151,16 @@ export default function Banner({ topTherapists = [], userCity = null }) {
   const wallCols = [wallPool.filter((_, i) => i % 2 === 0), wallPool.filter((_, i) => i % 2 === 1)];
   const wallMoves = !prefersReducedMotion && wallPool.length >= 4;
 
+  // live Noida offer (admin → Coupons → "show on booking page"); nothing shows when none is running
+  const [offer, setOffer] = useState(null);
+  useEffect(() => {
+    fetch(`${apiUrl}/noida-appointments/offers`)
+      .then((r) => r.json())
+      .then((d) => { if (d?.status && d.data?.length) setOffer(d.data[0]); })
+      .catch(() => {});
+  }, []);
+  const offerHref = "/noida-appointment?offer=1";
+
   return (
     <section className="rbt-banner-area rbt-banner-1 variation-2 cyt-hero">
       <div className="cyt-hero-inner">
@@ -210,11 +221,12 @@ export default function Banner({ topTherapists = [], userCity = null }) {
             </Link>
             <Link
               className="cyt-cta2"
-              href="/noida-appointment"
+              href={offer ? offerHref : "/noida-appointment"}
               title="Book a psychologist in Noida, Sector 51 — in-person, online or home visit"
             >
               <i className="feather-map-pin" aria-hidden="true" style={{ marginRight: 6 }} />
               Book a Psychologist in Noida
+              {offer && <span className="cyt-cta2-badge">{offer.discount.replace(/ off$/i, "")} OFF</span>}
             </Link>
           </div>
 
@@ -264,6 +276,19 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           )}
         </div>
       </div>
+
+      {offer && (
+        <div className="cyt-offerstrip">
+          <Link className="cyt-offerstrip-in" href={offerHref}>
+            <span className="cyt-os-tag">🎁 Offer</span>
+            <span className="cyt-os-txt">
+              <b>{offer.title}</b>
+              <span className="cyt-os-meta"> · CYT Noida center{offer.window ? ` · ${offer.window}` : ""}</span>
+            </span>
+            <span className="cyt-os-btn">Get code <i className="feather-arrow-right" aria-hidden="true" /></span>
+          </Link>
+        </div>
+      )}
 
       <style jsx global>{`
         @keyframes wordCycle {
@@ -322,6 +347,40 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           font-weight: 700; font-size: 15px; text-decoration: none; transition: background .2s, color .2s;
         }
         .cyt-cta2:hover { background: #1c6b45; color: #fff; }
+        .cyt-cta2 { position: relative; }
+        .cyt-cta2-badge {
+          position: absolute; top: -10px; right: -8px; padding: 3px 8px; border-radius: 999px;
+          background: #c2410c; color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; line-height: 1.3;
+          box-shadow: 0 4px 10px -2px rgba(194, 65, 12, .45); animation: cytBadgePop 2.4s ease-in-out infinite;
+        }
+        @keyframes cytBadgePop { 0%, 80%, 100% { transform: scale(1); } 88% { transform: scale(1.12); } }
+
+        /* offer strip under the hero — only when admin has a public offer running */
+        .cyt-offerstrip { position: relative; z-index: 2; max-width: 1240px; margin: 34px auto 0; padding: 0 20px; }
+        .cyt-offerstrip-in {
+          display: flex; align-items: center; gap: 12px; padding: 11px 12px 11px 14px; border-radius: 14px; text-decoration: none;
+          background: linear-gradient(90deg, #fff7ed, #fffbeb); border: 1px solid #fde68a;
+          box-shadow: 0 10px 24px -14px rgba(146, 64, 14, .35); transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .cyt-offerstrip-in:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -14px rgba(146, 64, 14, .45); }
+        .cyt-os-tag { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #9a3412; background: #ffedd5; padding: 4px 10px; border-radius: 999px; }
+        .cyt-os-txt { flex: 1; min-width: 0; font-size: 14px; color: #78350f; line-height: 1.4; }
+        .cyt-os-txt b { color: #7c2d12; }
+        .cyt-os-meta { color: #92400e; }
+        .cyt-os-btn {
+          flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; background: #c2410c; color: #fff;
+          font-weight: 800; font-size: 13px; padding: 9px 14px; border-radius: 10px; white-space: nowrap;
+        }
+        .cyt-offerstrip-in:hover .cyt-os-btn { background: #9a3412; }
+        @media (min-width: 1024px) { .cyt-offerstrip { padding: 0 clamp(56px, 6vw, 96px); } }
+        @media (max-width: 600px) {
+          .cyt-offerstrip { margin-top: 18px; padding: 0 14px; }
+          .cyt-offerstrip-in { gap: 10px; padding: 10px; }
+          .cyt-os-tag { display: none; }
+          .cyt-os-txt { font-size: 12.5px; }
+          .cyt-os-meta { display: none; }
+          .cyt-os-btn { padding: 8px 11px; font-size: 12.5px; }
+        }
         .cyt-trust { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: #49594e; }
         .cyt-trust li { display: inline-flex; align-items: center; gap: 5px; margin: 0; padding: 0; }
         .cyt-trust li::before { content: none; }
@@ -334,6 +393,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
           .cyt-hero-ctas { gap: 10px; }
           .cyt-hero-ctas .rbt-btn { flex: 1 1 100%; justify-content: center; }
           .cyt-cta2 { flex: 1 1 100%; min-height: 46px; }
+          .cyt-cta2-badge { right: 10px; }
           .cyt-trust { margin-top: 14px; gap: 6px 14px; font-size: 12.5px; }
         }
         @media (min-width: 601px) and (max-width: 1023px) { .cyt-hero-inner { gap: 26px; } .cyt-hero .slider-btn { margin-top: 20px; } }
@@ -485,6 +545,7 @@ export default function Banner({ topTherapists = [], userCity = null }) {
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130, 204, 161, 0.18); }
 
         @media (prefers-reduced-motion: reduce) {
+          .cyt-cta2-badge, .cyt-offerstrip-in,
           .cyt-wall, .cyt-wall-track, .cyt-trow a, .cyt-swiper .swiper-slide, .cyt-pcard, .cyt-pphoto, .cyt-pbtns,
           .banner-word-1, .banner-word-2, .banner-word-3, .banner-word-4 { animation: none !important; transition: none !important; }
         }
