@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import MainLayout from "../components/therapists/main-layout";
-import Availability from "../components/therapists/settings/availability";
+import AvailabilityGrid from "../components/therapists/settings/availability-grid";
 import TherapistFees from "../components/therapists/settings/therapist-fees";
 import useTherapistStore from "../store/therapistStore";
 import { fetchData } from "../utils/actions";
@@ -331,8 +331,8 @@ export default function MySchedule() {
       {tab === "availability" && (
         <div className="ms-card">
           <h3>Weekly hours</h3>
-          <p className="ms-sub" style={{ marginTop: -6, marginBottom: 14 }}>Clients can book 60-minute sessions inside these hours. Changes show on your booking page right away.</p>
-          <Availability onSuccess={fetchTherapistInfo} />
+          <p className="ms-sub" style={{ marginTop: -6, marginBottom: 14 }}>Tap (or drag across) the hours you&rsquo;re available — each box is a 60-minute session clients can book. Tap a day or a time to select the whole column / row.</p>
+          <AvailabilityGrid onSuccess={fetchTherapistInfo} />
         </div>
       )}
 
