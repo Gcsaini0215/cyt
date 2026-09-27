@@ -11,6 +11,7 @@ import {
 } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
+import AvailabilityNudge from "../components/therapists/dashboard/AvailabilityNudge";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import { Box, Typography, Avatar, Skeleton, CircularProgress } from "@mui/material";
 
@@ -901,6 +902,7 @@ export default function TherapistDashboard() {
   return (
     <MainLayout>
       {showWelcome && <WelcomeOverlay name={firstName} leaving={welcLeaving} onDismiss={dismissWelcome} />}
+      <AvailabilityNudge therapistInfo={therapistInfo} blocked={showWelcome} />
 
       <Box sx={{ pb: 6 }}>
         {/* ══ LETTERHEAD ═══════════════════════════════════════ */}
