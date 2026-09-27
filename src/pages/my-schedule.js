@@ -9,15 +9,14 @@ import { fetchData } from "../utils/actions";
 import { getBookings } from "../utils/url";
 import { SESSION_STATUS } from "../utils/constant";
 
-/* My Schedule — one place for a therapist to see today's sessions, the week's booked / free
-   slots, and to set up weekly hours and fees (moved here from Settings). */
+/* My Schedule — laid out like the admin's CYT Noida desk:
+   Appointments (All bookings · Today · Week) and Setup (Availability · Fees). */
 
-const TABS = [
-  { id: "today", label: "Today", icon: "feather-sun" },
-  { id: "week", label: "Week", icon: "feather-calendar" },
-  { id: "availability", label: "Availability", icon: "feather-clock" },
-  { id: "fees", label: "Fees", icon: "feather-credit-card" },
+const GROUPS = [
+  { id: "appts", label: "Appointments", icon: "feather-calendar", views: [["bookings", "All bookings"], ["today", "Today"], ["week", "Week"]] },
+  { id: "setup", label: "Setup", icon: "feather-sliders", views: [["availability", "Availability"], ["fees", "Fees"]] },
 ];
+const VIEW_IDS = GROUPS.flatMap((g) => g.views.map(([id]) => id));
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const SDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -39,9 +38,11 @@ function toMinutes(t) {
 const timeLabel = (mins) => `${Math.floor(mins / 60) % 12 || 12}:${String(mins % 60).padStart(2, "0")} ${mins < 720 ? "AM" : "PM"}`;
 const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 const minsOf = (d) => d.getHours() * 60 + d.getMinutes();
+const inr = (n) => `₹${Math.round(Number(n) || 0).toLocaleString("en-IN")}`;
+const money = (b) => Number(b.transaction?.amount?.$numberDecimal ?? b.transaction?.amount ?? b.amount?.$numberDecimal ?? b.amount ?? 0) || 0;
 
-// session start minutes for a weekday, from the weekly availability
 function slotsFor(avail, date) {
   const av = (avail || []).find((a) => a.day === DAYS[date.getDay()]);
   if (!av?.times?.length) return [];
@@ -55,32 +56,45 @@ function slotsFor(avail, date) {
 }
 
 const clientName = (b) => b.cname || b.client?.name || "Client";
-const statusMeta = (s) => ({
+const STATUS = {
   [SESSION_STATUS.NEW]: ["Booked", "#1d4ed8", "#eff6ff"],
   [SESSION_STATUS.STARTED]: ["In session", "#b45309", "#fffbeb"],
   [SESSION_STATUS.COMPLETED]: ["Completed", "#15803d", "#f0fdf4"],
   [SESSION_STATUS.CANCELED]: ["Cancelled", "#b91c1c", "#fef2f2"],
-}[s] || [s || "Booked", "#475569", "#f1f5f9"]);
+};
+const statusMeta = (s) => STATUS[s] || [s || "Booked", "#475569", "#f1f5f9"];
+const dayTitle = (d, now) => sameDay(d, now) ? "Today" : sameDay(d, addDays(now, 1)) ? "Tomorrow" : sameDay(d, addDays(now, -1)) ? "Yesterday"
+  : `${SDAYS[d.getDay()]}, ${d.getDate()} ${MONS[d.getMonth()]}${d.getFullYear() !== now.getFullYear() ? ` ${d.getFullYear()}` : ""}`;
+
+function Chip({ meta }) {
+  return <span className="ms-chip" style={{ color: meta[1], background: meta[2] }}>{meta[0]}</span>;
+}
 
 export default function MySchedule() {
   const router = useRouter();
   const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
-  const [tab, setTab] = useState("today");
+  const [view, setView] = useState("bookings");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [picked, setPicked] = useState(null);
+  // All bookings
+  const [when, setWhen] = useState("upcoming"); // upcoming | past | all
+  const [q, setQ] = useState("");
+  const [showCancelled, setShowCancelled] = useState(false);
+  // Today (any day) + Week
+  const [day, setDay] = useState(() => startOfDay(new Date()));
   const [weekStart, setWeekStart] = useState(() => startOfDay(new Date()));
-  const [picked, setPicked] = useState(null); // booking shown in the details box
 
-  // tab from the URL (?tab=availability) so other pages can deep-link
   useEffect(() => {
     if (!router.isReady) return;
     const t = String(router.query.tab || "");
-    if (TABS.some((x) => x.id === t)) setTab(t);
+    if (VIEW_IDS.includes(t)) setView(t);
   }, [router.isReady, router.query.tab]);
   const go = (id) => {
-    setTab(id);
-    router.replace({ pathname: router.pathname, query: id === "today" ? {} : { tab: id } }, undefined, { shallow: true });
+    setView(id);
+    router.replace({ pathname: router.pathname, query: id === "bookings" ? {} : { tab: id } }, undefined, { shallow: true });
   };
+  const group = GROUPS.find((g) => g.views.some(([id]) => id === view)) || GROUPS[0];
 
   useEffect(() => { if (!therapistInfo?.user?.email) fetchTherapistInfo(); }, [therapistInfo?.user?.email, fetchTherapistInfo]);
 
@@ -88,7 +102,7 @@ export default function MySchedule() {
     try {
       const res = await fetchData(getBookings);
       if (res?.status) setBookings(res.data || []);
-    } catch { /* not logged in / offline — the layout handles auth */ }
+    } catch { /* not logged in / offline */ }
     setLoading(false);
   }, []);
   useEffect(() => {
@@ -100,34 +114,66 @@ export default function MySchedule() {
   const avail = useMemo(() => therapistInfo?.availabilities || [], [therapistInfo?.availabilities]);
   const hasHours = avail.some((a) => a.times?.length);
   const hasFees = (therapistInfo?.fees || []).some((f) => f?.formats?.some((x) => x?.fee));
-  const live = useMemo(() => bookings
-    .filter((b) => b.status !== SESSION_STATUS.CANCELED)
-    .map((b) => ({ ...b, at: new Date(b.booking_date) })), [bookings]);
-
+  const all = useMemo(() => bookings.map((b) => ({ ...b, at: new Date(b.booking_date) })), [bookings]);
+  const live = useMemo(() => all.filter((b) => b.status !== SESSION_STATUS.CANCELED), [all]);
   const now = new Date();
 
-  /* ── Today ── */
-  const today = useMemo(() => live.filter((b) => sameDay(b.at, now)).sort((a, b) => a.at - b.at), [live]); // eslint-disable-line react-hooks/exhaustive-deps
-  const nextUp = useMemo(() => live.filter((b) => b.at > now && b.status === SESSION_STATUS.NEW).sort((a, b) => a.at - b.at)[0] || null, [live]); // eslint-disable-line react-hooks/exhaustive-deps
-  const todayFree = useMemo(() => {
-    const taken = new Set(today.map((b) => minsOf(b.at)));
-    return slotsFor(avail, now).filter((m) => m > minsOf(now) && !taken.has(m));
-  }, [avail, today]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* ── stat cards ── */
+  const todayCount = live.filter((b) => sameDay(b.at, now)).length;
+  const next7 = live.filter((b) => b.at > now && b.at < addDays(startOfDay(now), 8)).length;
+  const doneMonth = all.filter((b) => b.status === SESSION_STATUS.COMPLETED && b.at.getMonth() === now.getMonth() && b.at.getFullYear() === now.getFullYear()).length;
+  const earned7 = all.filter((b) => b.status === SESSION_STATUS.COMPLETED && b.at > addDays(now, -7) && b.at <= now).reduce((s, b) => s + money(b), 0);
+
+  /* ── All bookings list ── */
+  const listed = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    return all
+      .filter((b) => showCancelled || b.status !== SESSION_STATUS.CANCELED)
+      .filter((b) => when === "all" ? true : when === "upcoming" ? b.at >= startOfDay(now) : b.at < startOfDay(now))
+      .filter((b) => !term || [clientName(b), b.client?.phone, b.client?.email, b.service].some((v) => String(v || "").toLowerCase().includes(term)))
+      .sort((a, b) => (when === "past" ? b.at - a.at : a.at - b.at));
+  }, [all, q, when, showCancelled]); // eslint-disable-line react-hooks/exhaustive-deps
+  const grouped = useMemo(() => {
+    const out = [];
+    listed.forEach((b) => {
+      const k = startOfDay(b.at).getTime();
+      let g = out[out.length - 1];
+      if (!g || g.k !== k) { g = { k, date: startOfDay(b.at), items: [] }; out.push(g); }
+      g.items.push(b);
+    });
+    return out;
+  }, [listed]);
+
+  const exportCsv = () => {
+    const rows = [["Date", "Time", "Client", "Phone", "Service", "Format", "Status", "Amount"]];
+    listed.forEach((b) => rows.push([
+      `${b.at.getDate()} ${MONS[b.at.getMonth()]} ${b.at.getFullYear()}`, timeLabel(minsOf(b.at)), clientName(b), b.client?.phone || "",
+      b.service || "", b.format || "", statusMeta(b.status)[0], money(b) || "",
+    ]));
+    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `my-bookings-${now.toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  /* ── Today (any day) ── */
+  const dayList = useMemo(() => all.filter((b) => sameDay(b.at, day)).sort((a, b) => a.at - b.at), [all, day]);
+  const dayCounts = Object.fromEntries(Object.keys(STATUS).map((s) => [s, dayList.filter((b) => b.status === s).length]));
+  const dayFree = useMemo(() => {
+    const taken = new Set(dayList.filter((b) => b.status !== SESSION_STATUS.CANCELED).map((b) => minsOf(b.at)));
+    return slotsFor(avail, day).filter((m) => !taken.has(m) && (!sameDay(day, now) || m > minsOf(now)));
+  }, [avail, day, dayList]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Week ── */
-  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart); d.setDate(d.getDate() + i); return d; }), [weekStart]);
+  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
   const rows = useMemo(() => {
     const set = new Set();
     days.forEach((d) => slotsFor(avail, d).forEach((m) => set.add(m)));
     live.forEach((b) => { if (days.some((d) => sameDay(d, b.at))) set.add(minsOf(b.at)); });
     return [...set].sort((a, b) => a - b);
   }, [days, avail, live]);
-  const weekBooked = live.filter((b) => b.at >= days[0] && b.at < new Date(days[6].getTime() + 864e5)).length;
-  const weekOpen = days.reduce((n, d) => n + slotsFor(avail, d).filter((m) => {
-    const at = new Date(d); at.setHours(Math.floor(m / 60), m % 60, 0, 0);
-    return at > now && !live.some((b) => b.at.getTime() === at.getTime());
-  }).length, 0);
-
   const cell = (d, m) => {
     const b = live.find((x) => sameDay(x.at, d) && minsOf(x.at) === m);
     if (b) return { kind: "booked", b };
@@ -136,154 +182,225 @@ export default function MySchedule() {
     return { kind: at <= now ? "past" : "free" };
   };
 
-  const fmtWhen = (d) => `${sameDay(d, now) ? "Today" : `${SDAYS[d.getDay()]} ${d.getDate()} ${MONS[d.getMonth()]}`}, ${timeLabel(minsOf(d))}`;
+  const fmtWhen = (d) => `${dayTitle(d, now)}, ${timeLabel(minsOf(d))}`;
+
+  const Row = ({ b }) => (
+    <button type="button" className="ms-row" onClick={() => setPicked(b)}>
+      <span className="ms-time">{timeLabel(minsOf(b.at))}</span>
+      <span className="ms-who"><b>{clientName(b)}</b><span>{[b.service, b.format].filter(Boolean).join(" · ")}</span></span>
+      {money(b) > 0 && <span className="ms-amt">{inr(money(b))}</span>}
+      <Chip meta={statusMeta(b.status)} />
+    </button>
+  );
 
   return (
     <MainLayout>
       <style dangerouslySetInnerHTML={{ __html: `
-        .ms-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-        .ms-title { font-size: 22px; font-weight: 800; color: #0f3d24; margin: 0; }
-        .ms-sub { font-size: 13px; color: #64748b; margin: 4px 0 0; }
-        .ms-tabs { display: flex; gap: 6px; background: #fff; border: 1px solid #e3ebe6; border-radius: 12px; padding: 5px; margin-bottom: 16px; overflow-x: auto; }
-        .ms-tab { display: inline-flex; align-items: center; gap: 7px; border: none; background: none; padding: 9px 16px; border-radius: 9px; font-size: 13.5px; font-weight: 700; color: #5b6b62; cursor: pointer; white-space: nowrap; font-family: inherit; }
-        .ms-tab.on { background: #0f3d24; color: #fff; }
-        .ms-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
-        .ms-card { background: #fff; border: 1px solid #e3ebe6; border-radius: 14px; padding: 18px; margin-bottom: 14px; }
-        .ms-card h3 { font-size: 15px; font-weight: 800; color: #122019; margin: 0 0 12px; }
-        .ms-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
-        .ms-stat { background: #fff; border: 1px solid #e3ebe6; border-radius: 12px; padding: 14px; }
-        .ms-stat b { display: block; font-size: 22px; font-weight: 800; color: #0f3d24; }
-        .ms-stat span { font-size: 12px; color: #64748b; font-weight: 600; }
-        .ms-next { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; background: linear-gradient(135deg, #0f3d24, #1a6b3a); color: #fff; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
-        .ms-next small { display: block; font-size: 11.5px; letter-spacing: .6px; text-transform: uppercase; opacity: .75; font-weight: 700; }
-        .ms-next b { font-size: 17px; }
-        .ms-next a { margin-left: auto; background: #fff; color: #0f3d24 !important; font-weight: 800; font-size: 13px; padding: 9px 16px; border-radius: 9px; text-decoration: none; }
+        .ms-page { font-family: inherit; }
+        .ms-title { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; color: #122019; margin: 0; }
+        .ms-title i { color: #1a6b3a; font-size: 22px; }
+        .ms-sub { font-size: 13.5px; color: #64748b; margin: 4px 0 18px; }
+        .ms-groups { display: flex; align-items: flex-end; gap: 22px; border-bottom: 1px solid #e3e8e5; margin-bottom: 14px; overflow-x: auto; }
+        .ms-group { display: inline-flex; align-items: center; gap: 8px; border: none; background: none; padding: 10px 2px; font-size: 14.5px; font-weight: 600; color: #8a978f; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
+        .ms-group.on { color: #1a6b3a; border-bottom-color: #1a6b3a; }
+        .ms-group .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
+        .ms-group-link { margin-left: auto; font-size: 13.5px; font-weight: 600; color: #8a978f; text-decoration: none; padding: 10px 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+        .ms-group-link:hover { color: #1a6b3a; }
+        .ms-subs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .ms-sub-tab { border: 1px solid #e3e8e5; background: #fff; border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 600; color: #334155; cursor: pointer; font-family: inherit; }
+        .ms-sub-tab.on { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+        .ms-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .ms-card-s { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 16px; min-height: 88px; }
+        .ms-card-s small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #8a978f; }
+        .ms-card-s b { display: block; font-size: 24px; font-weight: 800; color: #122019; margin-top: 6px; }
+        .ms-card-s span { font-size: 12px; color: #8a978f; }
+        .ms-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+        .ms-search { flex: 1 1 280px; max-width: 380px; position: relative; }
+        .ms-search i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .ms-search input { width: 100%; height: 42px; border: 1px solid #e3e8e5; border-radius: 10px; padding: 0 12px 0 38px; font-size: 14px; background: #fff; outline: none; box-sizing: border-box; font-family: inherit; }
+        .ms-search input:focus { border-color: #1a6b3a; }
+        .ms-seg { display: inline-flex; background: #eef1ef; border-radius: 10px; padding: 3px; }
+        .ms-seg button { border: none; background: none; padding: 8px 14px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: #8a978f; cursor: pointer; font-family: inherit; }
+        .ms-seg button.on { background: #fff; color: #1a6b3a; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+        .ms-btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #e3e8e5; background: #fff; border-radius: 10px; padding: 0 14px; height: 42px; font-size: 13.5px; font-weight: 600; color: #122019; cursor: pointer; font-family: inherit; }
+        .ms-btn.on { border-color: #1a6b3a; color: #1a6b3a; background: #f0fdf4; }
+        .ms-right { margin-left: auto; display: flex; gap: 8px; }
+        .ms-grp-title { font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #8a978f; margin: 16px 0 8px; }
         .ms-list { display: flex; flex-direction: column; gap: 8px; }
-        .ms-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #e8efeb; border-radius: 11px; cursor: pointer; background: #fff; text-align: left; font-family: inherit; width: 100%; }
-        .ms-row:hover { border-color: #bbf7d0; background: #fbfefc; }
-        .ms-time { width: 76px; flex-shrink: 0; font-weight: 800; color: #0f3d24; font-size: 14px; }
+        .ms-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #e3e8e5; border-radius: 12px; cursor: pointer; background: #fff; text-align: left; font-family: inherit; width: 100%; }
+        .ms-row:hover { border-color: #bbf7d0; }
+        .ms-time { width: 76px; flex-shrink: 0; font-weight: 700; color: #122019; font-size: 14px; }
         .ms-who { flex: 1; min-width: 0; }
         .ms-who b { display: block; font-size: 14px; color: #122019; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ms-who span { font-size: 12px; color: #64748b; }
-        .ms-pill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+        .ms-who span { font-size: 12.5px; color: #64748b; }
+        .ms-amt { font-size: 13.5px; font-weight: 700; color: #122019; }
+        .ms-chip { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+        .ms-empty { text-align: center; padding: 50px 10px; color: #8a978f; font-size: 13.5px; }
+        .ms-empty i { display: block; font-size: 30px; color: #94a3b8; margin-bottom: 10px; }
+        .ms-empty b { display: block; color: #122019; font-size: 15px; margin-bottom: 4px; }
+        .ms-empty button, .ms-empty a { margin-top: 12px; }
+        .ms-daybar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+        .ms-nav { display: inline-flex; border: 1px solid #e3e8e5; border-radius: 10px; overflow: hidden; background: #fff; }
+        .ms-nav button { border: none; background: none; padding: 0 12px; height: 40px; font-size: 13.5px; font-weight: 600; color: #122019; cursor: pointer; font-family: inherit; }
+        .ms-nav button + button { border-left: 1px solid #e3e8e5; }
+        .ms-daylabel { font-size: 16px; font-weight: 700; color: #122019; }
+        .ms-counts { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+        .ms-count { border: 1px solid #e3e8e5; background: #fff; border-radius: 10px; padding: 8px 12px; font-size: 12.5px; color: #8a978f; }
+        .ms-count b { font-size: 16px; margin-right: 5px; }
         .ms-free { display: flex; flex-wrap: wrap; gap: 6px; }
         .ms-free span { font-size: 12.5px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 5px 10px; border-radius: 999px; }
-        .ms-empty { text-align: center; padding: 26px 10px; color: #64748b; font-size: 13.5px; }
-        .ms-empty a { color: #166534; font-weight: 700; }
-        .ms-weekbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .ms-weekbar button { border: 1px solid #d5e3da; background: #fff; border-radius: 8px; padding: 7px 12px; font-weight: 700; font-size: 12.5px; color: #0f3d24; cursor: pointer; font-family: inherit; }
-        .ms-weekbar strong { font-size: 14px; color: #122019; margin: 0 6px; }
+        .ms-box { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 16px; margin-top: 14px; }
+        .ms-box h3 { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #8a978f; margin: 0 0 10px; }
         .ms-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-left: auto; }
         .ms-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
-        .ms-grid-wrap { overflow-x: auto; border: 1px solid #e3ebe6; border-radius: 12px; }
+        .ms-grid-wrap { overflow-x: auto; border: 1px solid #e3e8e5; border-radius: 12px; background: #fff; }
         .ms-grid { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 720px; }
-        .ms-grid th { position: sticky; top: 0; background: #f6faf7; font-size: 12px; font-weight: 800; color: #0f3d24; padding: 9px 6px; border-bottom: 1px solid #e3ebe6; text-align: center; }
-        .ms-grid th.today { background: #0f3d24; color: #fff; }
+        .ms-grid th { background: #f7f9f8; font-size: 12.5px; font-weight: 700; color: #122019; padding: 10px 6px; border-bottom: 1px solid #e3e8e5; text-align: center; }
+        .ms-grid th.today { background: #1a6b3a; color: #fff; }
         .ms-grid td { padding: 3px; border-bottom: 1px solid #f1f5f3; }
         .ms-grid td.t { font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; padding: 0 10px; width: 80px; }
-        .ms-c { height: 38px; border-radius: 7px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .ms-c { height: 38px; border-radius: 8px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .ms-c.free { background: #f0fdf4; color: #16a34a; border: 1px dashed #86efac; }
         .ms-c.booked { background: #1a6b3a; color: #fff; cursor: pointer; }
         .ms-c.past { background: #f8fafc; color: #cbd5e1; }
         .ms-c.off { background: repeating-linear-gradient(45deg, #fafafa, #fafafa 6px, #f3f4f6 6px, #f3f4f6 12px); }
-        .ms-detail { position: fixed; inset: 0; z-index: 1300; background: rgba(15,23,20,.4); display: flex; align-items: center; justify-content: center; padding: 16px; }
-        .ms-detail > div { background: #fff; border-radius: 16px; padding: 22px; width: 100%; max-width: 420px; box-shadow: 0 24px 60px rgba(15,61,34,.3); }
-        .ms-detail h4 { font-size: 18px; font-weight: 800; color: #122019; margin: 0 0 4px; }
-        .ms-kv { display: grid; grid-template-columns: 110px 1fr; gap: 8px 12px; font-size: 13.5px; margin: 14px 0 18px; }
-        .ms-kv span { color: #64748b; font-weight: 600; }
-        .ms-actions { display: flex; gap: 8px; }
-        .ms-actions a, .ms-actions button { flex: 1; text-align: center; padding: 11px; border-radius: 10px; font-weight: 800; font-size: 13.5px; text-decoration: none; cursor: pointer; font-family: inherit; }
-        .ms-actions a { background: #0f3d24; color: #fff !important; border: none; }
-        .ms-actions button { background: #fff; border: 1.5px solid #d5e3da; color: #334155; }
+        .ms-panel { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 18px; }
+        .ms-panel h3 { font-size: 16px; font-weight: 700; color: #122019; margin: 0 0 4px; }
+        .ms-panel p.ms-sub { margin: 0 0 14px; }
         .ms-setup { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; border-radius: 12px; padding: 12px 14px; font-size: 13.5px; margin-bottom: 14px; }
         .ms-setup button { background: none; border: none; color: #92400e; font-weight: 800; text-decoration: underline; cursor: pointer; padding: 0; font-family: inherit; font-size: 13.5px; }
+        .ms-detail { position: fixed; inset: 0; z-index: 1300; background: rgba(15,23,20,.4); display: flex; justify-content: flex-end; }
+        .ms-detail-in { background: #fff; width: 100%; max-width: 420px; height: 100%; overflow-y: auto; padding: 22px; box-shadow: -12px 0 40px rgba(15,61,34,.2); animation: msIn .2s ease; }
+        @keyframes msIn { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+        .ms-detail h4 { font-size: 20px; font-weight: 800; color: #122019; margin: 0 0 6px; }
+        .ms-kv { display: grid; grid-template-columns: 100px 1fr; gap: 10px 12px; font-size: 14px; margin: 18px 0 22px; }
+        .ms-kv span { color: #8a978f; font-weight: 600; }
+        .ms-actions { display: flex; gap: 8px; }
+        .ms-actions a, .ms-actions button { flex: 1; text-align: center; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; font-family: inherit; }
+        .ms-actions a { background: #1a6b3a; color: #fff !important; border: none; }
+        .ms-actions button { background: #fff; border: 1px solid #e3e8e5; color: #334155; }
+        @media (max-width: 640px) {
+          .ms-right { margin-left: 0; width: 100%; }
+          .ms-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+          .ms-card-s { padding: 12px; min-height: 0; }
+          .ms-card-s b { font-size: 20px; margin-top: 4px; }
+          .ms-group-link { display: none; }
+          .ms-right .ms-btn { flex: 1; justify-content: center; }
+          .ms-counts { margin-left: 0; }
+          .ms-amt { display: none; }
+          .ms-detail { align-items: flex-end; }
+          .ms-detail-in { height: auto; max-height: 85vh; border-radius: 18px 18px 0 0; max-width: none; }
+        }
       ` }} />
 
-      <div className="ms-head">
-        <div>
-          <h1 className="ms-title">My Schedule</h1>
-          <p className="ms-sub">Your sessions, free slots, weekly hours and fees — all in one place.</p>
+      <div className="ms-page">
+        <h1 className="ms-title"><i className="feather-calendar" /> My Schedule</h1>
+        <p className="ms-sub">Your bookings, today&rsquo;s sessions, weekly hours and fees.</p>
+
+        <div className="ms-groups" role="tablist" aria-label="My Schedule sections">
+          {GROUPS.map((g) => (
+            <button key={g.id} type="button" role="tab" aria-selected={g.id === group.id} className={`ms-group ${g.id === group.id ? "on" : ""}`} onClick={() => go(g.views[0][0])}>
+              <i className={g.icon} /> {g.label}
+              {g.id === "setup" && therapistInfo?.user?.email && (!hasHours || !hasFees) && <span className="dot" title="Needs setup" />}
+            </button>
+          ))}
+          <Link href="/appointments" className="ms-group-link"><i className="feather-play-circle" /> Start a session <i className="feather-external-link" style={{ fontSize: 12 }} /></Link>
         </div>
-      </div>
 
-      <div className="ms-tabs" role="tablist" aria-label="My Schedule">
-        {TABS.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} className={`ms-tab ${tab === t.id ? "on" : ""}`} onClick={() => go(t.id)}>
-            <i className={t.icon} /> {t.label}
-            {((t.id === "availability" && !hasHours) || (t.id === "fees" && !hasFees)) && therapistInfo?.user?.email && <span className="dot" title="Needs setup" />}
-          </button>
-        ))}
-      </div>
-
-      {(tab === "today" || tab === "week") && therapistInfo?.user?.email && !hasHours && (
-        <div className="ms-setup">
-          You haven&rsquo;t set your weekly hours yet, so clients can&rsquo;t book you.{" "}
-          <button type="button" onClick={() => go("availability")}>Set your availability →</button>
+        <div className="ms-subs" role="tablist" aria-label={group.label}>
+          {group.views.map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={view === id} className={`ms-sub-tab ${view === id ? "on" : ""}`} onClick={() => go(id)}>{label}</button>
+          ))}
         </div>
-      )}
 
-      {tab === "today" && (
-        <>
-          <div className="ms-stats">
-            <div className="ms-stat"><b>{today.length}</b><span>Sessions today</span></div>
-            <div className="ms-stat"><b>{today.filter((b) => b.status === SESSION_STATUS.COMPLETED).length}</b><span>Completed today</span></div>
-            <div className="ms-stat"><b>{todayFree.length}</b><span>Free slots left today</span></div>
-            <div className="ms-stat"><b>{live.filter((b) => b.at > now && b.status === SESSION_STATUS.NEW).length}</b><span>Upcoming (all)</span></div>
+        {group.id === "appts" && therapistInfo?.user?.email && !hasHours && (
+          <div className="ms-setup">
+            You haven&rsquo;t set your weekly hours yet, so clients can&rsquo;t book you.{" "}
+            <button type="button" onClick={() => go("availability")}>Set your availability →</button>
           </div>
+        )}
 
-          {nextUp && (
-            <div className="ms-next">
-              <div>
-                <small>Next session</small>
-                <b>{clientName(nextUp)} · {fmtWhen(nextUp.at)}</b>
-              </div>
-              <Link href="/appointments">Open in Appointments</Link>
+        {/* ── All bookings ── */}
+        {view === "bookings" && (
+          <>
+            <div className="ms-cards">
+              <div className="ms-card-s"><small>Today</small><b>{todayCount}</b><span>sessions</span></div>
+              <div className="ms-card-s"><small>Next 7 days</small><b>{next7}</b><span>appointments</span></div>
+              <div className="ms-card-s"><small>Completed</small><b>{doneMonth}</b><span>this month</span></div>
+              <div className="ms-card-s"><small>Last 7 days</small><b>{inr(earned7)}</b><span>earned</span></div>
             </div>
-          )}
 
-          <div className="ms-card">
-            <h3>Today&rsquo;s sessions</h3>
-            {loading ? <div className="ms-empty">Loading…</div> : today.length === 0 ? (
-              <div className="ms-empty">No sessions today.{todayFree.length ? " Your open slots are below." : ""}</div>
-            ) : (
-              <div className="ms-list">
-                {today.map((b) => {
-                  const [label, color, bg] = statusMeta(b.status);
-                  return (
-                    <button type="button" key={b._id} className="ms-row" onClick={() => setPicked(b)}>
-                      <span className="ms-time">{timeLabel(minsOf(b.at))}</span>
-                      <span className="ms-who"><b>{clientName(b)}</b><span>{[b.service, b.format].filter(Boolean).join(" · ")}</span></span>
-                      <span className="ms-pill" style={{ color, background: bg }}>{label}</span>
-                    </button>
-                  );
-                })}
+            <div className="ms-bar">
+              <label className="ms-search">
+                <i className="feather-search" aria-hidden="true" />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search client name, phone or service" aria-label="Search bookings" />
+              </label>
+              <div className="ms-seg" role="radiogroup" aria-label="Which bookings">
+                {[["upcoming", "Upcoming"], ["past", "Past"], ["all", "All"]].map(([id, l]) => (
+                  <button key={id} type="button" role="radio" aria-checked={when === id} className={when === id ? "on" : ""} onClick={() => setWhen(id)}>{l}</button>
+                ))}
               </div>
-            )}
-          </div>
+              <div className="ms-right">
+                <button type="button" className={`ms-btn ${showCancelled ? "on" : ""}`} onClick={() => setShowCancelled((v) => !v)}>
+                  <i className="feather-x-circle" /> {showCancelled ? "Hide cancelled" : "Show cancelled"}
+                </button>
+                <button type="button" className="ms-btn" onClick={exportCsv} disabled={!listed.length}><i className="feather-download" /> Export CSV</button>
+              </div>
+            </div>
 
-          <div className="ms-card">
-            <h3>Free slots left today</h3>
-            {todayFree.length ? (
-              <div className="ms-free">{todayFree.map((m) => <span key={m}>{timeLabel(m)}</span>)}</div>
-            ) : (
-              <div className="ms-empty" style={{ padding: 8 }}>No free slots left today. <button type="button" onClick={() => go("availability")} style={{ background: "none", border: "none", color: "#166534", fontWeight: 700, cursor: "pointer" }}>Edit hours</button></div>
-            )}
-          </div>
-        </>
-      )}
+            {loading ? <div className="ms-empty">Loading…</div> : grouped.length === 0 ? (
+              <div className="ms-empty">
+                <i className="feather-calendar" />
+                <b>{q ? "No bookings match your search" : when === "upcoming" ? "No upcoming appointments" : "No bookings yet"}</b>
+                New bookings from your profile will show up here.
+                {when === "upcoming" && !q && <div><button type="button" className="ms-btn" onClick={() => setWhen("past")}>See past appointments</button></div>}
+              </div>
+            ) : grouped.map((g) => (
+              <div key={g.k}>
+                <div className="ms-grp-title">{dayTitle(g.date, now)} · {g.items.length} session{g.items.length === 1 ? "" : "s"}</div>
+                <div className="ms-list">{g.items.map((b) => <Row key={b._id} b={b} />)}</div>
+              </div>
+            ))}
+          </>
+        )}
 
-      {tab === "week" && (
-        <>
-          <div className="ms-stats">
-            <div className="ms-stat"><b>{weekBooked}</b><span>Booked this week</span></div>
-            <div className="ms-stat"><b>{weekOpen}</b><span>Open slots left</span></div>
-          </div>
-          <div className="ms-card">
-            <div className="ms-weekbar">
-              <button type="button" onClick={() => setWeekStart((d) => { const x = new Date(d); x.setDate(x.getDate() - 7); return x; })} aria-label="Previous week">‹ Prev</button>
-              <strong>{days[0].getDate()} {MONS[days[0].getMonth()]} – {days[6].getDate()} {MONS[days[6].getMonth()]}</strong>
-              <button type="button" onClick={() => setWeekStart((d) => { const x = new Date(d); x.setDate(x.getDate() + 7); return x; })} aria-label="Next week">Next ›</button>
-              {!sameDay(days[0], now) && <button type="button" onClick={() => setWeekStart(startOfDay(new Date()))}>This week</button>}
+        {/* ── Today (any day) ── */}
+        {view === "today" && (
+          <>
+            <div className="ms-daybar">
+              <div className="ms-nav">
+                <button type="button" aria-label="Previous day" onClick={() => setDay((d) => addDays(d, -1))}><i className="feather-chevron-left" /></button>
+                <button type="button" onClick={() => setDay(startOfDay(new Date()))}>Today</button>
+                <button type="button" aria-label="Next day" onClick={() => setDay((d) => addDays(d, 1))}><i className="feather-chevron-right" /></button>
+              </div>
+              <span className="ms-daylabel">{DAYS[day.getDay()]}, {day.getDate()} {MONS[day.getMonth()]} {day.getFullYear()}</span>
+              <div className="ms-counts">
+                {Object.entries(STATUS).map(([s, meta]) => (
+                  <span key={s} className="ms-count"><b style={{ color: meta[1] }}>{dayCounts[s] || 0}</b>{meta[0].toLowerCase()}</span>
+                ))}
+              </div>
+            </div>
+            {dayList.length === 0 ? (
+              <div className="ms-empty" style={{ padding: "30px 10px" }}>No appointments on this day.</div>
+            ) : <div className="ms-list">{dayList.map((b) => <Row key={b._id} b={b} />)}</div>}
+            <div className="ms-box">
+              <h3>Free slots {sameDay(day, now) ? "left today" : "this day"}</h3>
+              {dayFree.length ? <div className="ms-free">{dayFree.map((m) => <span key={m}>{timeLabel(m)}</span>)}</div>
+                : <span style={{ fontSize: 13.5, color: "#8a978f" }}>{slotsFor(avail, day).length ? "Fully booked." : "You're not working this day."}</span>}
+            </div>
+          </>
+        )}
+
+        {/* ── Week ── */}
+        {view === "week" && (
+          <>
+            <div className="ms-daybar">
+              <div className="ms-nav">
+                <button type="button" aria-label="Previous week" onClick={() => setWeekStart((d) => addDays(d, -7))}><i className="feather-chevron-left" /></button>
+                <button type="button" onClick={() => setWeekStart(startOfDay(new Date()))}>This week</button>
+                <button type="button" aria-label="Next week" onClick={() => setWeekStart((d) => addDays(d, 7))}><i className="feather-chevron-right" /></button>
+              </div>
+              <span className="ms-daylabel">{days[0].getDate()} {MONS[days[0].getMonth()]} – {days[6].getDate()} {MONS[days[6].getMonth()]}</span>
               <div className="ms-legend">
                 <span><i style={{ background: "#1a6b3a" }} />Booked</span>
                 <span><i style={{ background: "#f0fdf4", border: "1px dashed #86efac" }} />Free</span>
@@ -291,7 +408,10 @@ export default function MySchedule() {
               </div>
             </div>
             {rows.length === 0 ? (
-              <div className="ms-empty">No hours set for these days. <button type="button" onClick={() => go("availability")} style={{ background: "none", border: "none", color: "#166534", fontWeight: 700, cursor: "pointer" }}>Set availability</button></div>
+              <div className="ms-empty">
+                <i className="feather-clock" /><b>No hours set for these days</b>
+                <div><button type="button" className="ms-btn" onClick={() => go("availability")}>Set availability</button></div>
+              </div>
             ) : (
               <div className="ms-grid-wrap">
                 <table className="ms-grid">
@@ -324,36 +444,38 @@ export default function MySchedule() {
                 </table>
               </div>
             )}
+          </>
+        )}
+
+        {/* ── Setup ── */}
+        {view === "availability" && (
+          <div className="ms-panel">
+            <h3>Weekly hours</h3>
+            <p className="ms-sub">Tap (or drag across) the hours you&rsquo;re available — each box is a 60-minute session clients can book. Tap a day or a time to select the whole column / row.</p>
+            <AvailabilityGrid onSuccess={fetchTherapistInfo} />
           </div>
-        </>
-      )}
-
-      {tab === "availability" && (
-        <div className="ms-card">
-          <h3>Weekly hours</h3>
-          <p className="ms-sub" style={{ marginTop: -6, marginBottom: 14 }}>Tap (or drag across) the hours you&rsquo;re available — each box is a 60-minute session clients can book. Tap a day or a time to select the whole column / row.</p>
-          <AvailabilityGrid onSuccess={fetchTherapistInfo} />
-        </div>
-      )}
-
-      {tab === "fees" && (
-        <div className="ms-card">
-          <h3>Session fees</h3>
-          <TherapistFees onSuccess={fetchTherapistInfo} />
-        </div>
-      )}
+        )}
+        {view === "fees" && (
+          <div className="ms-panel">
+            <h3>Session fees</h3>
+            <TherapistFees onSuccess={fetchTherapistInfo} />
+          </div>
+        )}
+      </div>
 
       {picked && (
         <div className="ms-detail" onClick={(e) => e.target === e.currentTarget && setPicked(null)} role="dialog" aria-modal="true" aria-label="Session details">
-          <div>
+          <div className="ms-detail-in">
             <h4>{clientName(picked)}</h4>
-            <span className="ms-pill" style={{ color: statusMeta(picked.status)[1], background: statusMeta(picked.status)[2] }}>{statusMeta(picked.status)[0]}</span>
+            <Chip meta={statusMeta(picked.status)} />
             <div className="ms-kv">
               <span>When</span><b>{fmtWhen(new Date(picked.booking_date))}</b>
               {picked.service && <><span>Service</span><b>{picked.service}</b></>}
               {picked.format && <><span>Format</span><b>{picked.format}</b></>}
+              {money(picked) > 0 && <><span>Amount</span><b>{inr(money(picked))}</b></>}
               {picked.client?.phone && <><span>Phone</span><a href={`tel:${picked.client.phone}`}>{picked.client.phone}</a></>}
-              {picked.notes && <><span>Notes</span><b style={{ fontWeight: 500 }}>{picked.notes}</b></>}
+              {picked.client?.email && <><span>Email</span><a href={`mailto:${picked.client.email}`} style={{ wordBreak: "break-all" }}>{picked.client.email}</a></>}
+              {picked.notes && <><span>Notes</span><span style={{ color: "#334155", fontWeight: 500 }}>{picked.notes}</span></>}
             </div>
             <div className="ms-actions">
               <Link href="/appointments">Open in Appointments</Link>
