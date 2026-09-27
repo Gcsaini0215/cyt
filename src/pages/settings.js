@@ -1,9 +1,7 @@
 import MainLayout from "../components/therapists/main-layout";
 import Profile from "../components/therapists/settings/profile";
-import Availability from "../components/therapists/settings/availability";
 import PaymentDetails from "../components/therapists/settings/payment-details";
 import React, { useState } from "react";
-import TherapistFees from "../components/therapists/settings/therapist-fees";
 import ServicesAndExperties from "../components/therapists/settings/services-and-experties";
 import useTherapistStore from "../store/therapistStore";
 import { useMediaQueryClient } from "../hooks/useMediaQueryClient";
@@ -32,8 +30,6 @@ export default function ProfileSettings() {
   const TABS = [
     { id: 0, label: "Profile" },
     { id: 2, label: "Offerings" },
-    { id: 3, label: "Availability" },
-    { id: 4, label: "Fees" },
     { id: 5, label: "Payments" },
   ];
 
@@ -130,11 +126,12 @@ export default function ProfileSettings() {
           ))}
         </div>
 
+        <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 12px" }}>
+          Looking for your weekly hours or fees? They&rsquo;ve moved to <Link href="/my-schedule?tab=availability" style={{ color: "#166534", fontWeight: 700 }}>My Schedule</Link>.
+        </p>
         <div className="stg-body tab-content">
           {tab === 0 && <Profile />}
           {tab === 2 && <ServicesAndExperties />}
-          {tab === 3 && <Availability />}
-          {tab === 4 && <TherapistFees />}
           {tab === 5 && <PaymentDetails />}
         </div>
       </div>
