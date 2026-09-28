@@ -340,7 +340,58 @@ async function fetchSlotsMatrix(type) {
 const MOBILE_PAGE_DAYS = 5;
 
 const WA_NUMBER = "918077757951";
-const waLink = (text) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+// Where this visit came from, for the reception screen's live "viewing now" breakdown. Worked out once
+// per tab and kept for the session, so moving around the page doesn't turn it into "direct".
+// Order: explicit link tags (?src= / ?ref= / utm_source, ad click ids) → in-app browsers → the referrer.
+const SOURCE_ALIASES = {
+  wa: "whatsapp", whatsapp: "whatsapp", ig: "instagram", insta: "instagram", instagram: "instagram",
+  fb: "facebook", facebook: "facebook", meta: "facebook", google: "google", gads: "google-ads", adwords: "google-ads",
+  yt: "youtube", youtube: "youtube", linkedin: "linkedin", li: "linkedin", twitter: "twitter", x: "twitter",
+  snapchat: "snapchat", telegram: "telegram", tg: "telegram", email: "email", mail: "email", newsletter: "email",
+  sms: "sms", qr: "qr", website: "website", site: "website",
+};
+function visitSource() {
+  if (typeof window === "undefined") return "direct";
+  try { const kept = sessionStorage.getItem("cyt_na_src"); if (kept) return kept; } catch { /* storage blocked */ }
+  let src = "direct";
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const tag = (q.get("src") || q.get("utm_source") || q.get("source") || "").trim().toLowerCase();
+    const ref = (q.get("ref") || q.get("referral") || "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 32);
+    const ua = navigator.userAgent || "";
+    let refHost = "";
+    try { refHost = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, "").toLowerCase() : ""; } catch { /* bad referrer */ }
+    if (ref) src = `ref:${ref}`;
+    else if (tag) src = SOURCE_ALIASES[tag] || (/^[a-z0-9_-]{1,32}$/.test(tag) ? `ref:${tag}` : "other");
+    else if (q.get("gclid") || q.get("gbraid") || q.get("wbraid")) src = "google-ads";
+    else if (q.get("fbclid")) src = /Instagram/i.test(ua) ? "instagram" : "facebook";
+    else if (q.get("igshid")) src = "instagram";
+    else if (/Instagram/i.test(ua)) src = "instagram";
+    else if (/FBAN|FBAV|FB_IAB/i.test(ua)) src = "facebook";
+    else if (/LinkedInApp/i.test(ua)) src = "linkedin";
+    else if (/Snapchat/i.test(ua)) src = "snapchat";
+    else if (/WhatsApp/i.test(ua)) src = "whatsapp";
+    else if (/Telegram/i.test(ua)) src = "telegram";
+    else if (refHost) {
+      if (/(^|\.)chooseyourtherapist\.in$/.test(refHost)) src = "website";
+      else if (/whatsapp\.com$|^wa\.me$/.test(refHost)) src = "whatsapp";
+      else if (/instagram\.com$/.test(refHost)) src = "instagram";
+      else if (/facebook\.com$|fb\.com$|^m\.me$/.test(refHost)) src = "facebook";
+      else if (/googleadservices\.com$|doubleclick\.net$/.test(refHost)) src = "google-ads";
+      else if (/(^|\.)google\.[a-z.]+$/.test(refHost)) src = "google";
+      else if (/youtube\.com$|youtu\.be$/.test(refHost)) src = "youtube";
+      else if (/linkedin\.com$|lnkd\.in$/.test(refHost)) src = "linkedin";
+      else if (/(^|\.)(t\.co|twitter\.com|x\.com)$/.test(refHost)) src = "twitter";
+      else if (/telegram\.(org|me)$|^t\.me$/.test(refHost)) src = "telegram";
+      else if (/mail\./.test(refHost)) src = "email";
+      else src = `site:${refHost.replace(/[^a-z0-9.-]/g, "").slice(0, 44)}`;
+    }
+  } catch { /* fall back to direct */ }
+  try { sessionStorage.setItem("cyt_na_src", src); } catch { /* storage blocked */ }
+  return src;
+}
+
+const waLink = (text) =>`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
 
 // One consistent icon style everywhere instead of emoji, which render
 // differently on every phone.
@@ -1010,13 +1061,14 @@ export default function NoidaAppointment({ seoPricing = null }) {
   const [pendingPick, setPendingPick] = useState(null); // { date, slot, isLM } | null
 
   // Live-visitor heartbeat for the reception screen's "viewing now" counter. Sends a random per-tab id,
-  // the booking stage and the device class — nothing personal — while this tab is visible.
-  const presenceRef = useRef({ sid: "", stage: "browsing", device: "desktop" });
+  // the booking stage, the device class and where the visit came from — nothing personal — while this tab is visible.
+  const presenceRef = useRef({ sid: "", stage: "browsing", device: "desktop", source: "" });
   const stageNow = phase === "form" ? (step === 3 ? "payment" : "form") : "browsing";
   const deviceNow = isMobile ? "mobile" : tablet ? "tablet" : "desktop";
   const sendPresence = useCallback((leave = false) => {
     const pr = presenceRef.current;
     if (!leave && typeof document !== "undefined" && document.hidden) return;
+    if (!pr.source) pr.source = visitSource();
     if (!pr.sid) {
       try { pr.sid = sessionStorage.getItem("cyt_na_sid") || ""; } catch { /* storage blocked */ }
       if (!pr.sid) {
@@ -1028,7 +1080,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
     fetch(`${apiUrl}/noida-appointments/presence`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sid: pr.sid, stage: pr.stage, device: pr.device, leave: leave || undefined }),
+      body: JSON.stringify({ sid: pr.sid, stage: pr.stage, device: pr.device, source: pr.source, leave: leave || undefined }),
       keepalive: true,
     }).catch(() => {});
   }, []);
