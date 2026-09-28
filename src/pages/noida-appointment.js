@@ -51,6 +51,20 @@ function saveKnownPhone(phone) {
 function loadKnownPhone() {
   try { const v = localStorage.getItem(KNOWN_PHONE_KEY) || ""; return /^\d{10}$/.test(v) ? v : ""; } catch { return ""; }
 }
+const KNOWN_NAME_KEY = "cyt_noida_known_name_v1";
+function saveKnownName(name) {
+  try { const n = String(name || "").trim(); if (n) localStorage.setItem(KNOWN_NAME_KEY, n.slice(0, 60)); } catch { /* ignore */ }
+}
+function loadKnownName() {
+  try { return localStorage.getItem(KNOWN_NAME_KEY) || ""; } catch { return ""; }
+}
+function forgetKnownClient() {
+  try { localStorage.removeItem(KNOWN_PHONE_KEY); localStorage.removeItem(KNOWN_NAME_KEY); } catch { /* ignore */ }
+}
+// A light tap on phones that support it (Android) — iOS Safari ignores it.
+function haptic(ms = 12) {
+  try { if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(ms); } catch { /* ignore */ }
+}
 
 // ── SEO / AI-search: everything below is derived from real page data (address, live prices) ──
 const SITE = "https://www.chooseyourtherapist.in";
@@ -678,6 +692,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                         title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : hasOffer ? `Book ${t} — offer slot` : `Book ${t}`}
                         onClick={() => {
                           track("noida_slot_click", { booking_type: trackAs, slot_date: d, slot_time: t, last_minute: isLM });
+                          haptic();
                           matrix.onPick(d, t, isLM);
                         }}
                       >
@@ -933,12 +948,21 @@ export default function NoidaAppointment({ seoPricing = null }) {
   // the anonymous "Booked" every other taken slot shows) without the public API ever
   // revealing whose booking it is to anyone else.
   const [myUpcoming, setMyUpcoming] = useState(null); // { name, date, slot, type } | null
+  // Someone who has booked (or been found) on this device before — greeted by name, and the
+  // Follow-up tab comes pre-filled with their number. "Not you?" forgets them.
+  const [returning, setReturning] = useState(null); // { phone, name } | null
   useEffect(() => {
     const phone = loadKnownPhone();
     if (!phone) return;
+    setReturning({ phone, name: loadKnownName() });
     fetch(`${apiUrl}/noida-appointments/upcoming?phone=${phone}`)
       .then(r => r.json())
-      .then(data => { if (data?.status && data.data?.found) setMyUpcoming(data.data); })
+      .then(data => {
+        if (data?.status && data.data?.found) {
+          setMyUpcoming(data.data);
+          if (data.data.name) setReturning(r => (r && !r.name ? { ...r, name: data.data.name } : r));
+        }
+      })
       .catch(() => { /* not critical — the table just won't highlight a cell */ });
   }, []);
 
@@ -960,7 +984,9 @@ export default function NoidaAppointment({ seoPricing = null }) {
   useEffect(() => {
     const mqT = window.matchMedia("(min-width: 641px) and (min-height: 600px) and (pointer: coarse)");
     const mqL = window.matchMedia("(orientation: landscape)");
-    const sync = () => { setTablet(mqT.matches); setLandscape(mqL.matches); };
+    const ua = navigator.userAgent || "";
+    const isIPad = /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const sync = () => { setTablet(mqT.matches || (isIPad && window.innerWidth >= 641)); setLandscape(mqL.matches); };
     sync();
     mqT.addEventListener("change", sync);
     mqL.addEventListener("change", sync);
@@ -1221,6 +1247,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
   // welcome popup right there instead of waiting for Continue.
   const onOpenSlotPick = (date, slot, isLastMinute) => {
     setPendingPick({ date, slot, isLM: isLastMinute });
+    haptic();
     if (!intentConfirmed) setShowWelcome(true);
   };
 
@@ -1287,6 +1314,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         setFoundName(data.data.name || "");
         setLookupStatus("found");
         saveKnownPhone(phone);
+        saveKnownName(data.data.name);
       } else {
         setLookupStatus("not-found");
       }
@@ -1477,11 +1505,20 @@ export default function NoidaAppointment({ seoPricing = null }) {
     setLookupStatus(null);
     setManualOverride(false);
     setCredit(null);
-    setForm({ name: "", age: "", phone: "", email: "", concern: "" });
+    const knownPhone = type === "followup" ? loadKnownPhone() : "";
+    setForm({ name: "", age: "", phone: knownPhone, email: "", concern: "" });
+    if (knownPhone) runLookup(knownPhone);
     setPaymentMethod(null);
     setSelectedDate(""); setSelectedSlot("");
     setReschedulePhone(""); setRescheduleStatus(null); setRescheduleInfo(null);
     setRescheduleDate(""); setRescheduleSlot(""); setRescheduleDone(false); setRescheduleError("");
+  };
+
+  const notMe = () => {
+    forgetKnownClient();
+    setReturning(null);
+    setMyUpcoming(null);
+    track("noida_returning_not_me", {});
   };
 
   // The welcome popup's own dismiss handler — defined here (not near its state) because
@@ -1572,6 +1609,8 @@ export default function NoidaAppointment({ seoPricing = null }) {
         track("noida_booking_complete", { booking_type: bookingType, value: Number(totalAmount) || 0, currency: "INR" });
         try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
         saveKnownPhone(form.phone);
+        saveKnownName(effectiveName);
+        setReturning({ phone: form.phone, name: effectiveName });
         setMyUpcoming({ name: effectiveName, date: selectedDate, slot: selectedSlot, type: bookingType });
         setStatus("success");
       } else if (data.paymentHandled && data.refunded !== undefined) {
@@ -2594,6 +2633,28 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-page.is-tablet .na-fullslots-legend { border-top-color: rgba(60,60,67,.12); }
         .na-page.is-tablet .na-shell .na-card { background: #fff; border-radius: 18px; padding: 24px 24px 26px; }
         .na-page.is-tablet .na-shell .na-card input, .na-page.is-tablet .na-shell .na-card textarea { background: #f2f2f7; border-color: transparent; }
+
+        /* returning client greeting */
+        .na-wb { display: flex; align-items: center; gap: 10px; margin: 8px 20px 4px; padding: 9px 10px 9px 14px; border-radius: 14px; background: #eef7f1; border: 1px solid #cfe9d8; }
+        .na-wb-hi { font-size: 18px; }
+        .na-wb-txt { flex: 1; min-width: 0; font-size: 13px; color: #1f3d2c; line-height: 1.4; }
+        .na-wb-txt b { color: #14532d; }
+        .na-wb-btn { flex-shrink: 0; border: none; background: #1a6b3a; color: #fff; font-family: inherit; font-weight: 700; font-size: 12.5px; padding: 8px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+        .na-wb-x { flex-shrink: 0; border: none; background: none; color: #64748b; font-family: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; padding: 4px; }
+        @media (max-width: 640px) { .na-wb { margin: 8px 10px 2px; flex-wrap: wrap; } .na-wb-hi { display: none; } .na-wb-txt { flex-basis: 100%; font-size: 12.5px; } .na-wb-btn { flex: 1; } }
+        .na-page.is-tablet .na-wb { background: #fff; border: none; }
+
+        /* tap feedback: a quick press-in on every tappable slot, the pop + tick on the chosen one */
+        button.na-slotcell { -webkit-tap-highlight-color: transparent; }
+        button.na-slotcell:active { transform: scale(.94) !important; transition: transform .08s ease; }
+        @keyframes naTick { 0% { opacity: 0; transform: translateY(3px) scale(.8); } 100% { opacity: 1; transform: none; } }
+        .na-page .na-shell .na-fullslots-table button.na-slotcell.selected::after { display: inline-block; animation: naTick .28s ease; }
+
+        /* app-style loading skeleton — rounded day cards and tiles, same shape as the real table */
+        .na-skel-head { width: 100%; max-width: 92px; height: 42px; border-radius: 12px; }
+        .na-skel-cell { border-radius: 12px; }
+        .na-skel-time { width: 42px; height: 11px; border-radius: 6px; }
+        @media (prefers-reduced-motion: reduce) { button.na-slotcell:active { transform: none !important; } .na-page .na-shell .na-fullslots-table button.na-slotcell.selected::after { animation: none; } }
       ` }} />
 
       {showWelcome && (
@@ -2658,6 +2719,17 @@ export default function NoidaAppointment({ seoPricing = null }) {
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
         {tabsEl}
+        {returning && phase === "slots" && bookingType === "new" && (
+          <div className="na-wb">
+            <span className="na-wb-hi" aria-hidden="true">👋</span>
+            <span className="na-wb-txt">
+              <b>Welcome back{returning.name ? `, ${returning.name.split(" ")[0]}` : ""}!</b>
+              {myUpcoming?.date ? <> Your next session: {(() => { const l = dateLabel(myUpcoming.date); return `${l.weekday} ${l.day} ${l.month}`; })()} · {String(myUpcoming.slot || "").split(" - ")[0]}</> : <> Booking your next session?</>}
+            </span>
+            <button type="button" className="na-wb-btn" onClick={() => { track("noida_returning_followup", {}); switchTab("followup"); }}>Book follow-up</button>
+            <button type="button" className="na-wb-x" onClick={notMe}>Not you?</button>
+          </div>
+        )}
         {offers.length > 0 && bookingType !== "reschedule" && (
           <div className="na-offerbar">
             <span className="na-offerbar-gift" aria-hidden="true">🎁</span>
