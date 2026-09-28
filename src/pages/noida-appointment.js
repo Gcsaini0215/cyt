@@ -1877,9 +1877,17 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-welcome-opt-label { font-size: 14.5px; font-weight: 800; color: #0f172a; }
         .na-welcome-opt-sub { font-size: 12px; color: #64748b; }
         @media (max-width: 480px) {
-          .na-welcome-modal { padding: 26px 20px 22px; border-radius: 18px; }
+          .na-welcome-overlay { align-items: flex-end; padding: 0; }
+          .na-welcome-modal { max-width: none; border-radius: 22px 22px 0 0; padding: 30px 18px calc(18px + env(safe-area-inset-bottom)); animation: naSheetUp .28s cubic-bezier(.2,.9,.3,1); }
           .na-welcome-title { font-size: 18px; }
         }
+        /* phones: sheets slide up from the bottom with a grab handle, like a native app */
+        @keyframes naSheetUp { from { transform: translateY(100%); } to { transform: none; } }
+        @media (max-width: 480px) {
+          .na-welcome-modal::before, .na-exit-modal::before { content: ""; position: absolute; top: 9px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 4px; background: #d8e0dc; }
+          .na-exit-modal { animation: naSheetUp .28s cubic-bezier(.2,.9,.3,1); }
+        }
+        @media (prefers-reduced-motion: reduce) { .na-welcome-modal, .na-exit-modal { animation: none !important; } }
 
         .na-back { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: all .15s; }
         .na-back:hover { background: #f0fdf4; border-color: #86efac; }
@@ -1926,7 +1934,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-offerbar-btn { border: none; background: #c2410c; color: #fff; font-weight: 800; font-size: 13px; padding: 8px 14px; border-radius: 9px; cursor: pointer; font-family: inherit; white-space: nowrap; }
         .na-offerbar-btn:hover { background: #9a3412; }
         button.na-slotcell.offer { position: relative; }
-        .na-offer-tag { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: #ea580c; color: #fff; font-size: 10px; font-weight: 900; font-style: normal; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff; pointer-events: none; }
+        .na-offer-tag { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 10px; font-weight: 900; font-style: normal; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff; pointer-events: none; }
         .na-offer-tag.inline { position: static; display: inline-flex; vertical-align: -3px; box-shadow: none; }
         .na-offer-pill { display: inline-block; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-weight: 800; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
         .na-offer-code { font-size: 26px; font-weight: 900; letter-spacing: 2px; color: #166534; border: 2px dashed #16a34a; border-radius: 12px; padding: 12px; margin: 10px 0 12px; user-select: all; }
@@ -2187,6 +2195,69 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-help-link:hover { text-decoration: underline; }
         .na-next-btn { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 8px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
         .na-next-btn:hover { background: #dcfce7; border-color: #4ade80; }
+        /* phones: compact app bar — no logo tile, name + address on one line each, slimmer tabs and offer bar */
+        @media (max-width: 640px) {
+          .na-page .na-centre-mark { display: none; }
+          .na-page .na-centre { gap: 10px; }
+          .na-page .na-centre-name { font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .na-page .na-centre-addr { font-size: 11.5px; }
+          .na-page .na-centre-btn { width: 36px; height: 36px; padding: 0; justify-content: center; border-radius: 11px; }
+          .na-page .na-topbar-tabs { padding: 3px; border-radius: 12px; }
+          .na-page .na-topbar .na-topbar-tab { height: 38px; font-size: 13px; border-radius: 9px; }
+          .na-page .na-offerbar { padding: 7px 8px 7px 12px; border-radius: 12px; }
+          .na-page .na-offerbar-txt { white-space: normal; overflow: visible; font-size: 12px; line-height: 1.4; }
+          .na-page .na-offerbar { align-items: center; }
+          .na-page .na-offerbar-btn { padding: 7px 11px; font-size: 12px; border-radius: 9px; }
+        }
+        /* ── phones: full-screen app layout — edge-to-edge sheet, green app bar, 4+ days per screen ── */
+        @media (max-width: 640px) {
+          .na-page.na-fit .na-shell.fit-slots, .na-page.na-fit.is-tablet .na-shell.fit-slots { width: 100%; margin: 0; border-radius: 0; box-shadow: none; height: calc(100vh - var(--na-ck, 0px)); height: calc(100dvh - var(--na-ck, 0px)); }
+          .na-page.na-fit .na-topbar { background: linear-gradient(160deg, #1f7a45, #145c32); padding: 10px 12px 12px !important; gap: 10px; }
+          .na-page .na-topbar .na-centre-name { color: #fff; }
+          .na-page .na-topbar .na-centre-addr { color: rgba(255,255,255,.78); }
+          .na-page .na-topbar .na-centre-addr svg { color: rgba(255,255,255,.78); }
+          .na-page .na-topbar .na-back, .na-page .na-topbar .na-centre-btn { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22); color: #fff; }
+          .na-page .na-topbar .na-topbar-tabs { background: rgba(0,0,0,.16) !important; box-shadow: none; }
+          .na-page .na-topbar .na-topbar-tab { color: rgba(255,255,255,.82); }
+          .na-page .na-topbar .na-topbar-tab.active { background: #fff; color: #145c32; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+          .na-page.na-fit .na-shell.fit-slots .na-offerbar { margin: 10px 10px 4px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:not(:first-child), .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td:not(.na-time-col) { min-width: calc((100vw - 74px) / 4.3) !important; width: calc((100vw - 74px) / 4.3); }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:first-child, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { width: 58px !important; min-width: 58px !important; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { font-size: 11px !important; padding: 0 2px !important; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-fullslots-table { border-spacing: 5px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell { border-radius: 11px; border-width: 1px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open::after { font-size: 11px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-taken-stamp { font-size: 10.5px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-offer-tag { width: 14px; height: 14px; font-size: 9px; top: -4px; right: -3px; }
+        }
+        /* ── phones: the slots table, dressed like an app — day cards on top, soft rounded tiles, quiet booked cells ── */
+        @media (max-width: 640px) {
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-fullslots-table { border-spacing: 6px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m { padding: 4px 0 !important; background: #fff; border: 1px solid #e6ece8; border-radius: 10px; line-height: 1.15; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m .na-wd { font-size: 9.5px; letter-spacing: .3px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m .na-dn { display: block !important; width: auto !important; height: auto !important; margin: 0; font-size: 13.5px; line-height: 1.15; text-align: center !important; background: none !important; color: #0f172a; border-radius: 0; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m .na-mo { font-size: 8.5px; font-weight: 700; color: #94a3b8; line-height: 1.1; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today { background: #1a6b3a !important; border-color: #1a6b3a; box-shadow: 0 4px 10px -5px rgba(26,107,58,.5); }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today .na-wd, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today .na-dn, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today .na-mo { color: #fff; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:first-child { background: #fff; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { background: #fff; color: #334155; font-size: 12px; box-shadow: -8px 0 0 #fff, 0 -6px 0 #fff, 6px 0 8px -7px rgba(15,61,34,.25); border-radius: 0; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell { border-radius: 14px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open { background: #f0fdf4; border-color: #c7eed5; color: #15803d; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open .na-wm { display: none; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open::after { content: "Available"; font-size: 12px; font-weight: 800; letter-spacing: .2px; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected::after { content: "✓ Selected"; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell:active { transform: scale(.95); }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-taken-stamp { color: #dc2626; font-size: 11.5px; font-weight: 600; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken.mine { background: #eef2ff; border-color: #c7d2fe; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-taken-stamp.mine { color: #4338ca; font-weight: 800; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.past { background: #fafbfb; border-color: #f1f4f2; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-past-label { color: #cbd5e1; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.closed { background: #fafbfb; border-color: #f1f4f2; }
+          .na-page .na-fullslots-legend span { font-size: 11px; }
+          .na-page .na-fullslots-legend .na-sw-past, .na-page .na-fullslots-legend .na-sw-closed { background: #fafbfb; border: 1px solid #eef1ef; }
+        }
         .na-fullslots-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f1f5f9; }
         .na-fullslots-legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: #64748b; font-weight: 600; }
         .na-fullslots-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
@@ -2453,6 +2524,76 @@ export default function NoidaAppointment({ seoPricing = null }) {
           .na-tick-c, .na-tick-p { animation: none; stroke-dashoffset: 0; }
           .na-step-line::after { transition: none; }
         }
+
+        /* ════ app look on tablet + desktop: "Available" tiles, red booked ════ */
+        @media (min-width: 641px) {
+          .na-page .na-shell .na-fullslots-table button.na-slotcell.open .na-wm { display: none; }
+          .na-page .na-shell .na-fullslots-table button.na-slotcell.open::after { content: "Available"; font-size: 13px; font-weight: 700; letter-spacing: .1px; }
+          .na-page .na-shell .na-fullslots-table button.na-slotcell.open.selected::after { content: "✓ Selected"; }
+          .na-page .na-shell .na-fullslots-table .na-slotcell { border-radius: 12px; }
+          .na-page .na-shell .na-fullslots-table .na-taken-stamp { color: #dc2626; font-weight: 600; }
+        }
+
+        /* ════ desktop (mouse): green app bar + date cards ════ */
+        @media (min-width: 641px) {
+          .na-page:not(.is-tablet) .na-topbar { background: linear-gradient(160deg, #1f7a45, #145c32); max-width: none; margin: 0; padding: 14px 22px 14px !important; }
+          .na-page:not(.is-tablet) .na-topbar .na-centre-name { color: #fff; }
+          .na-page:not(.is-tablet) .na-topbar .na-centre-addr, .na-page:not(.is-tablet) .na-topbar .na-centre-addr svg { color: rgba(255,255,255,.78); }
+          .na-page:not(.is-tablet) .na-topbar .na-centre-mark { background: rgba(255,255,255,.95); border-color: transparent; }
+          .na-page:not(.is-tablet) .na-topbar .na-back, .na-page:not(.is-tablet) .na-topbar .na-centre-btn { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.24); color: #fff; }
+          .na-page:not(.is-tablet) .na-topbar .na-back:hover, .na-page:not(.is-tablet) .na-topbar .na-centre-btn:hover { background: rgba(255,255,255,.24); }
+          .na-page:not(.is-tablet) .na-topbar .na-topbar-tabs { background: rgba(0,0,0,.16) !important; box-shadow: none; }
+          .na-page:not(.is-tablet) .na-topbar .na-topbar-tab { color: rgba(255,255,255,.85); }
+          .na-page:not(.is-tablet) .na-topbar .na-topbar-tab.active { background: #fff; color: #145c32; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+          .na-page:not(.is-tablet) .na-topbar .na-chip { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.26); color: #fff; }
+          .na-page:not(.is-tablet) .na-topbar .na-chip.on { background: #fff; border-color: #fff; color: #145c32; }
+          .na-page:not(.is-tablet) .na-shell.fit-slots .na-offerbar { margin-top: 12px; }
+          .na-page:not(.is-tablet) .na-shell .na-fullslots-table thead th:not(:first-child) { background: #fff; border: 1px solid #e6ece8; border-radius: 12px; padding: 6px 4px !important; color: #334155; }
+          .na-page:not(.is-tablet) .na-shell .na-fullslots-table thead th.na-th-today { background: #1a6b3a !important; border-color: #1a6b3a; color: #fff; box-shadow: 0 6px 14px -6px rgba(26,107,58,.5); }
+          .na-page:not(.is-tablet) .na-shell .na-fullslots-table td.na-time-col { background: #f4f7f5; }
+        }
+
+        /* ════ iPad: iOS app look — SF font, grouped grey background, translucent nav bar, iOS segmented control ════ */
+        .na-page.is-tablet, .na-page.is-tablet button, .na-page.is-tablet input, .na-page.is-tablet textarea, .na-page.is-tablet select {
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+        .na-page.is-tablet { background: #f2f2f7; }
+        .na-page.is-tablet .na-shell, .na-page.na-fit.is-tablet .na-shell.fit-slots { background: #f2f2f7; box-shadow: none; }
+        .na-page.is-tablet .na-topbar { background: rgba(249,249,251,.94); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: .5px solid rgba(60,60,67,.29); max-width: none; margin: 0; padding: 12px 20px 12px !important; position: sticky; top: 0; z-index: 20; }
+        .na-page.is-tablet .na-centre-mark { border: none; box-shadow: none; border-radius: 12px; background: #fff; }
+        .na-page.is-tablet .na-centre-name { font-size: 17px; font-weight: 600; color: #000; letter-spacing: -.2px; }
+        .na-page.is-tablet .na-centre-addr { font-size: 13px; color: #8e8e93; }
+        .na-page.is-tablet .na-back { border: none; background: transparent; color: #1a6b3a; width: 32px; }
+        .na-page.is-tablet .na-centre-btn { border: none; background: rgba(26,107,58,.1); color: #1a6b3a; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+        .na-page.is-tablet .na-topbar-tabs { background: rgba(118,118,128,.12) !important; box-shadow: none; padding: 2px; border-radius: 9px; gap: 0; }
+        .na-page.is-tablet .na-topbar .na-topbar-tab { height: 34px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: #000; letter-spacing: -.1px; }
+        .na-page.is-tablet .na-topbar .na-topbar-tab.active { background: #fff; color: #000; box-shadow: 0 3px 8px rgba(0,0,0,.12), 0 3px 1px rgba(0,0,0,.04); }
+        .na-page.is-tablet .na-chip { background: rgba(118,118,128,.12); border: none; color: #000; font-weight: 600; }
+        .na-page.is-tablet .na-chip.on { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-offerbar { border-radius: 14px; border: none; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+        .na-page.is-tablet .na-tab-main { background: #fff; border-radius: 18px; padding: 12px 12px 10px !important; }
+        .na-page.is-tablet .na-tab-panel, .na-page.is-tablet .na-tab-selcard { border-radius: 18px; box-shadow: none; }
+        .na-page.is-tablet .na-fullslots-title { font-size: 22px !important; font-weight: 700; color: #000; letter-spacing: -.3px; }
+        .na-page.is-tablet .na-fullslots-sub { color: #8e8e93; }
+        .na-page.is-tablet .na-fullslots-table th { color: #8e8e93; font-weight: 600; }
+        .na-page.is-tablet .na-fullslots-table th.na-th-today { background: transparent !important; }
+        .na-page.is-tablet .na-dn { color: #000; font-weight: 600; }
+        .na-page.is-tablet .na-dn.today { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-fullslots-table td.na-time-col { background: transparent; color: #8e8e93; font-weight: 600; }
+        .na-page.is-tablet .na-fullslots-table .na-slotcell { border: none; border-radius: 10px; }
+        .na-page.is-tablet .na-fullslots-table button.na-slotcell.open { background: rgba(52,199,89,.13); color: #1b7a3a; }
+        .na-page.is-tablet .na-fullslots-table button.na-slotcell.open.selected { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-fullslots-table button.na-slotcell.lastminute { background: rgba(255,149,0,.14); color: #b25000; }
+        .na-page.is-tablet .na-fullslots-table .na-slotcell.taken { background: rgba(255,59,48,.1); }
+        .na-page.is-tablet .na-fullslots-table .na-taken-stamp { color: #d70015; }
+        .na-page.is-tablet .na-fullslots-table .na-slotcell.past { background: rgba(118,118,128,.07); }
+        .na-page.is-tablet .na-fullslots-table .na-past-label { color: #aeaeb2; }
+        .na-page.is-tablet .na-fullslots-table .na-slotcell.closed { background: rgba(118,118,128,.05); }
+        .na-page.is-tablet .na-offer-tag { background: #ff3b30; }
+        .na-page.is-tablet .na-fullslots-legend { border-top-color: rgba(60,60,67,.12); }
+        .na-page.is-tablet .na-shell .na-card { background: #fff; border-radius: 18px; padding: 24px 24px 26px; }
+        .na-page.is-tablet .na-shell .na-card input, .na-page.is-tablet .na-shell .na-card textarea { background: #f2f2f7; border-color: transparent; }
       ` }} />
 
       {showWelcome && (
@@ -2707,7 +2848,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
 
               {(
                 <div className="na-fullslots-legend">
-                  <span><i className="na-sw na-sw-open" /> Open{isMobile || tablet ? "" : " — tap to book"}</span>
+                  <span><i className="na-sw na-sw-open" /> Available{isMobile || tablet ? "" : " — tap to book"}</span>
                   <span><i className="na-sw na-sw-lm" /> Starting soon{isMobile || tablet ? "" : " — needs a quick OK from us"}</span>
                   <span><i className="na-sw na-sw-taken" /> Booked</span>
                   {myUpcoming && <span><i className="na-sw na-sw-mine" /> Your booking</span>}
