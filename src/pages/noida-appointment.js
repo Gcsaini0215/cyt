@@ -2284,7 +2284,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open { background: #f0fdf4; border-color: #c7eed5; color: #15803d; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open .na-wm { display: none; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open::after { content: "Available"; font-size: 12px; font-weight: 800; letter-spacing: .2px; }
-          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected::after { content: "✓ Selected"; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected::after { content: "✓"; font-size: 20px; line-height: 1; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell:active { transform: scale(.95); }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; }
@@ -2599,17 +2599,19 @@ export default function NoidaAppointment({ seoPricing = null }) {
         }
         .na-page.is-tablet { background: #f2f2f7; }
         .na-page.is-tablet .na-shell, .na-page.na-fit.is-tablet .na-shell.fit-slots { background: #f2f2f7; box-shadow: none; }
-        .na-page.is-tablet .na-topbar { background: rgba(249,249,251,.94); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: .5px solid rgba(60,60,67,.29); max-width: none; margin: 0; padding: 12px 20px 12px !important; position: sticky; top: 0; z-index: 20; }
+        .na-page.is-tablet .na-topbar { background: linear-gradient(160deg, #1f7a45, #145c32); border-bottom: none; max-width: none; margin: 0; padding: 12px 20px 12px !important; position: sticky; top: 0; z-index: 20; }
         .na-page.is-tablet .na-centre-mark { border: none; box-shadow: none; border-radius: 12px; background: #fff; }
-        .na-page.is-tablet .na-centre-name { font-size: 17px; font-weight: 600; color: #000; letter-spacing: -.2px; }
-        .na-page.is-tablet .na-centre-addr { font-size: 13px; color: #8e8e93; }
-        .na-page.is-tablet .na-back { border: none; background: transparent; color: #1a6b3a; width: 32px; }
-        .na-page.is-tablet .na-centre-btn { border: none; background: rgba(26,107,58,.1); color: #1a6b3a; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
-        .na-page.is-tablet .na-topbar-tabs { background: rgba(118,118,128,.12) !important; box-shadow: none; padding: 2px; border-radius: 9px; gap: 0; }
-        .na-page.is-tablet .na-topbar .na-topbar-tab { height: 34px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: #000; letter-spacing: -.1px; }
-        .na-page.is-tablet .na-topbar .na-topbar-tab.active { background: #fff; color: #000; box-shadow: 0 3px 8px rgba(0,0,0,.12), 0 3px 1px rgba(0,0,0,.04); }
+        .na-page.is-tablet .na-centre-name { font-size: 17px; font-weight: 600; color: #fff; letter-spacing: -.2px; }
+        .na-page.is-tablet .na-centre-addr, .na-page.is-tablet .na-centre-addr svg { font-size: 13px; color: rgba(255,255,255,.78); }
+        .na-page.is-tablet .na-back { border: none; background: rgba(255,255,255,.14); color: #fff; width: 34px; }
+        .na-page.is-tablet .na-centre-btn { border: none; background: rgba(255,255,255,.16); color: #fff; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+        .na-page.is-tablet .na-topbar-tabs { background: rgba(0,0,0,.18) !important; box-shadow: none; padding: 2px; border-radius: 9px; gap: 0; }
+        .na-page.is-tablet .na-topbar .na-topbar-tab { height: 34px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.9); letter-spacing: -.1px; }
+        .na-page.is-tablet .na-topbar .na-topbar-tab.active { background: #fff; color: #145c32; box-shadow: 0 3px 8px rgba(0,0,0,.15), 0 3px 1px rgba(0,0,0,.04); }
         .na-page.is-tablet .na-chip { background: rgba(118,118,128,.12); border: none; color: #000; font-weight: 600; }
         .na-page.is-tablet .na-chip.on { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-topbar .na-chip { background: rgba(255,255,255,.14); color: #fff; }
+        .na-page.is-tablet .na-topbar .na-chip.on { background: #fff; color: #145c32; }
         .na-page.is-tablet .na-offerbar { border-radius: 14px; border: none; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
         .na-page.is-tablet .na-tab-main { background: #fff; border-radius: 18px; padding: 12px 12px 10px !important; }
         .na-page.is-tablet .na-tab-panel, .na-page.is-tablet .na-tab-selcard { border-radius: 18px; box-shadow: none; }
