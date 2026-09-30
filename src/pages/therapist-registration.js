@@ -431,7 +431,10 @@ export default function TherapistRegistration() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const submittingRef = React.useRef(false); // one registration per tap — a second one would email a second code
   const handleSubmit = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setError("");
     setLoading(true);
     const data = new FormData();
@@ -456,7 +459,7 @@ export default function TherapistRegistration() {
     try {
       const response = await postFormData(therapistRegistrationUrl, data);
       if (response.status) {
-        setRegisteredEmail(form.email);
+        setRegisteredEmail(form.email.trim().toLowerCase());
         setReviewing(false);
         setOtpStep(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -466,6 +469,7 @@ export default function TherapistRegistration() {
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
+    submittingRef.current = false;
     setLoading(false);
   };
 
@@ -476,31 +480,35 @@ export default function TherapistRegistration() {
     setOtpError("");
     setResendLoading(true);
     try {
-      await postData(resendTherapistOtpUrl, { email: registeredEmail });
-      setResendMsg("OTP resent successfully. Please check your email.");
+      await postData(resendTherapistOtpUrl, { email: registeredEmail.trim().toLowerCase() });
+      setOtp("");
+      setResendMsg("Code sent again — it's the same code as before, so any of our emails will work.");
     } catch (err) {
       setOtpError(err.response?.data?.message || "Failed to resend OTP. Please try again.");
     }
     setResendLoading(false);
   };
 
+  const verifyingRef = React.useRef(false); // a quick double tap must not send the code twice
+  const finishVerified = () => { setOtp(""); setOtpStep(false); setSubmitted(true); clearDraft(); };
   const verifyOtp = async () => {
+    if (verifyingRef.current) return;
     setOtpError("");
-    if (otp.length !== 6) return setOtpError("Please enter valid OTP");
+    setResendMsg("");
+    if (otp.length !== 6) return setOtpError("Please enter the 6-digit code from the email.");
+    verifyingRef.current = true;
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await postData(verifyOtpUrl, { email: registeredEmail, otp: otp.trim() });
-      if (response.status) {
-        setOtp("");
-        setOtpStep(false);
-        setSubmitted(true);
-        clearDraft();
-      } else {
-        setOtpError(response.message || "Invalid OTP");
-      }
+      const response = await postData(verifyOtpUrl, { email: registeredEmail.trim().toLowerCase(), otp: otp.trim() });
+      if (response.status) finishVerified();
+      else setOtpError(response.message || "That code didn't match. Please use the code from the most recent email.");
     } catch (err) {
-      setOtpError(err.response?.data?.message || "OTP verification failed. Please try again.");
+      const data = err.response?.data;
+      // already verified (e.g. the first tap went through) — just show the success screen
+      if (data?.code === "OTP_ALREADY_USED") finishVerified();
+      else setOtpError(data?.message || "OTP verification failed. Please try again.");
     }
+    verifyingRef.current = false;
     setLoading(false);
   };
 
