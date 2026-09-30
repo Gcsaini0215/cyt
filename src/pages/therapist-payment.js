@@ -68,6 +68,40 @@ const TERMS = [
   "For billing questions, contact hello@chooseyourtherapist.in.",
 ];
 
+const TERMS_VERSION = "2026-10";
+const SUB_TERMS = [
+  {
+    title: "1. Your subscription is for visibility",
+    points: [
+      "The subscription lists your profile on Choose Your Therapist so clients can find you. It is a visibility and listing service.",
+      "Choose Your Therapist does not promise, guarantee or claim any number of clients, enquiries, bookings, sessions or earnings.",
+      "How many clients reach you depends on your profile, your fees, your availability, your reviews, how quickly you respond, and demand for your speciality and location.",
+    ],
+  },
+  {
+    title: "2. What you need to do to get clients",
+    points: [
+      "Add a clear, professional photo — profiles without a real photo get far fewer clicks.",
+      "Write a detailed “About you” (150–250 words works best): who you help, the issues you work with, your approach, and what a first session looks like.",
+      "List your specialisations, languages, qualification and years of experience accurately.",
+      "Set realistic fees for each session type and keep your weekly availability updated every week — clients can only book open slots.",
+      "Reply to enquiries and booking requests quickly (within a few hours, and always within 24 hours).",
+      "Start sessions on time, be professional, and ask satisfied clients to leave a review — reviews move you up in search.",
+      "Share your CYT profile link on your WhatsApp, Instagram, LinkedIn and website to bring in more clients.",
+      "Keep your documents, qualifications and profile details up to date; review your profile at least once a month.",
+    ],
+  },
+  {
+    title: "3. Payment and listing",
+    points: [
+      "Fees are non-refundable once your profile goes live under the selected plan.",
+      "Plans do not auto-renew. Renew before expiry to stay listed.",
+      "Choose Your Therapist may pause or remove a listing that is incomplete, inaccurate, or breaks professional or platform guidelines, including client confidentiality.",
+      "Placement in search and the directory depends on profile quality and activity; it is not guaranteed by the plan.",
+    ],
+  },
+];
+
 const INSTRUCTIONS = [
   "Enter the email address you registered with.",
   "We'll verify that your application has been approved by our team.",
@@ -107,6 +141,8 @@ export default function TherapistPayment() {
   const [paying, setPaying] = useState(false);
   const [payErr, setPayErr] = useState("");
   const [paySuccess, setPaySuccess] = useState(null);
+  const [agreed, setAgreed] = useState(false);
+  useEffect(() => { setAgreed(false); }, [selectedPlan]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 900);
@@ -115,6 +151,7 @@ export default function TherapistPayment() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+  const [autoChecked, setAutoChecked] = useState(false);
   useEffect(() => {
     if (router.isReady && router.query.email) {
       setEmail(String(router.query.email));
@@ -135,7 +172,16 @@ export default function TherapistPayment() {
     setChecking(false);
   };
 
+  // coming from the approval email: check the status straight away
+  useEffect(() => {
+    if (!autoChecked && router.isReady && router.query.email && email === String(router.query.email)) {
+      setAutoChecked(true);
+      checkStatus();
+    }
+  }, [router.isReady, router.query.email, email, autoChecked]); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function openRazorpay(plan) {
+    if (!agreed) { setPayErr("Please read and accept the subscription terms first."); return; }
     setPayErr("");
     setPaying(true);
     try {
@@ -163,6 +209,8 @@ export default function TherapistPayment() {
             const verifyRes = await postData(verifyTherapistSubscriptionUrl, {
               email,
               plan: plan.id,
+              terms_accepted: true,
+              terms_version: TERMS_VERSION,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -218,6 +266,11 @@ export default function TherapistPayment() {
         .af-doc { border: 1px solid #dbe3df; border-radius: 4px; background: #fff; overflow: hidden; }
         .af-titlebar { background: ${G}; padding: 18px 24px; border-radius: 4px 4px 0 0; border-bottom: 3px solid ${GOLD}; }
         @keyframes tpspin { to { transform: rotate(360deg); } }
+        .sub-terms { border: 1.5px solid #fed7aa !important; }
+        .sub-terms-box { max-height: 340px; overflow-y: auto; border: 1px solid #eef0ee; border-radius: 8px; padding: 14px 16px 2px; background: #fcfdfc; margin-bottom: 14px; }
+        .sub-agree { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #cbd5c9; cursor: pointer; font-size: 13.5px; color: #1e293b; line-height: 1.55; margin: 0; }
+        .sub-agree.on { border-color: #86efac; background: #f0fdf4; }
+        .sub-agree input { width: 20px; height: 20px; margin-top: 1px; accent-color: ${G}; flex-shrink: 0; }
       ` }} />
 
       <MyNavbar />
@@ -383,6 +436,31 @@ export default function TherapistPayment() {
                     </div>
                   </SectionCard>
 
+                  {selectedPlan && (
+                    <div className="section-card sub-terms">
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                        <div style={{ width: 30, height: 30, borderRadius: 8, background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <i className="feather-file-text" style={{ fontSize: 14, color: "#c2410c" }}></i>
+                        </div>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: "#132a1c" }}>Please read before you pay</span>
+                      </div>
+                      <div className="sub-terms-box">
+                        {SUB_TERMS.map((sec) => (
+                          <div key={sec.title} style={{ marginBottom: 14 }}>
+                            <p style={{ fontSize: 13.5, fontWeight: 800, color: "#132a1c", margin: "0 0 6px" }}>{sec.title}</p>
+                            <ul style={{ margin: 0, padding: "0 0 0 18px", display: "flex", flexDirection: "column", gap: 6 }}>
+                              {sec.points.map((p, i) => <li key={i} style={{ fontSize: 13, color: "#374151", lineHeight: 1.6 }}>{p}</li>)}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                      <label className={`sub-agree ${agreed ? "on" : ""}`}>
+                        <input type="checkbox" checked={agreed} onChange={(e) => { setAgreed(e.target.checked); setPayErr(""); }} />
+                        <span>I have read and agree to these terms. I understand my subscription is for <b>profile visibility only</b> and Choose Your Therapist does <b>not guarantee any number of clients</b>.</span>
+                      </label>
+                    </div>
+                  )}
+
                   {payErr && (
                     <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600 }}>
                       <i className="feather-alert-circle" style={{ marginRight: 6 }}></i>{payErr}
@@ -391,19 +469,19 @@ export default function TherapistPayment() {
 
                   <button
                     type="button"
-                    disabled={!selectedPlan || paying}
+                    disabled={!selectedPlan || !agreed || paying}
                     onClick={() => openRazorpay(PLANS.find(p => p.id === selectedPlan))}
                     style={{
                       width: "100%", padding: "16px", borderRadius: 4, border: "none",
-                      background: selectedPlan ? GRAD : "#e2e8f0", color: selectedPlan ? "#fff" : "#94a3b8",
-                      fontSize: 15, fontWeight: 800, cursor: selectedPlan && !paying ? "pointer" : "not-allowed",
+                      background: selectedPlan && agreed ? GRAD : "#e2e8f0", color: selectedPlan && agreed ? "#fff" : "#94a3b8",
+                      fontSize: 15, fontWeight: 800, cursor: selectedPlan && agreed && !paying ? "pointer" : "not-allowed",
                       marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                     }}
                   >
                     {paying ? (
                       <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "tpspin 0.8s linear infinite" }}></span> Processing…</>
                     ) : (
-                      <><i className="feather-credit-card"></i> {profile.isLive ? "Upgrade Now" : "Pay Now"}{selectedPlan ? ` — ${fmtINR(PLANS.find(p => p.id === selectedPlan).amount)}` : ""}</>
+                      <><i className="feather-credit-card"></i> {selectedPlan && !agreed ? "Accept the terms to continue" : profile.isLive ? "Upgrade Now" : "Pay Now"}{selectedPlan ? ` — ${fmtINR(PLANS.find(p => p.id === selectedPlan).amount)}` : ""}</>
                     )}
                   </button>
                 </>
