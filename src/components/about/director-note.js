@@ -104,10 +104,11 @@ const styles = `
     margin-bottom: 8px;
   }
 
+  /* Same type as the About The Platform columns (.sq-col p), so the page
+     reads in one font. */
   .dn-note {
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: 17px;
-    line-height: 1.75;
+    font-size: 14.5px;
+    line-height: 1.85;
     color: #2b3d2a;
     margin: 0 0 22px;
   }

@@ -82,25 +82,21 @@ export default function ServiceQuality() {
             <div className="sq-col">
               <h3>What We Offer</h3>
               <p>
-                We work with individuals, couples, and families across every stage of life —
-                from students navigating academic pressure to professionals managing burnout,
-                from couples working through conflict to parents seeking guidance for their
-                children. Every person who comes to CYT is met with the same standard of care:
+                We work with individuals, couples, and families at every stage of life — from
+                students facing academic pressure to professionals managing burnout and parents
+                seeking guidance for their children. Every client is met with the same care:
                 confidential, non-judgmental, and genuinely attentive.
               </p>
               <p>
-                At the heart of CYT is a growing network of verified psychologists,
-                counsellors, and psychiatrists, each screened for their qualifications,
-                licenses, and clinical experience before they're allowed to see a single
-                client. Sessions are available online — by video or audio call, from anywhere
-                in the world — or in person at our clinical spaces in Noida and Delhi NCR.
+                Our network of verified psychologists, counsellors, and psychiatrists — each
+                screened for qualifications, licenses, and clinical experience — offers sessions
+                online by video or audio call, or in person at our clinical spaces in Noida and
+                Delhi NCR.
               </p>
               <p>
-                Beyond one-on-one therapy, CYT runs workshops and awareness programs, a
-                structured internship and supervision track for psychology students, and a
-                pro bono counselling initiative for those who cannot afford paid sessions.
-                Whether it's a first session or a long-term therapeutic relationship, our
-                goal stays the same — making the first step towards help the easiest one.
+                Beyond therapy, we run workshops, an internship and supervision track for
+                psychology students, and a pro bono counselling initiative for those who cannot
+                afford paid sessions.
               </p>
             </div>
           </div>
