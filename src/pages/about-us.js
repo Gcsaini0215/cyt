@@ -12,8 +12,9 @@ import { getTherapistProfiles } from "../utils/url";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
 // Self-hosted (not a third-party hotlink) so social/AI crawlers always get
-// it; 1200x630 share card made for this page (leadership + registrations).
-const OG_IMAGE = "https://www.chooseyourtherapist.in/images/og-about-us.jpg";
+// it; 1200x630 share card made for this page (Who We Are / What We Offer
+// + registration logos). Bump the filename on redesign — social apps cache by URL.
+const OG_IMAGE = "https://www.chooseyourtherapist.in/images/og-about-us-v2.jpg";
 
 // Organization schema — the most trusted signal for AI engines
 const organizationSchema = {
@@ -184,7 +185,7 @@ export default function AboutUs() {
         <meta property="og:image" content={OG_IMAGE} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="About Choose Your Therapist — founder Deepak Kumar, Head of Operations Shubham Kumar, and MCA, MSME, NHA and ABDM registrations" />
+        <meta property="og:image:alt" content="What Choose Your Therapist stands for — HFR registered under ABDM (HFR ID IN0510005384), MCA, MSME, NHA and ABDM registrations" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
 
@@ -194,7 +195,7 @@ export default function AboutUs() {
         <meta name="twitter:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
         <meta name="twitter:description" content="Learn about Choose Your Therapist and our mission for mental health accessibility in India." />
         <meta name="twitter:image" content={OG_IMAGE} />
-        <meta name="twitter:image:alt" content="About Choose Your Therapist — founder Deepak Kumar, Head of Operations Shubham Kumar, and MCA, MSME, NHA and ABDM registrations" />
+        <meta name="twitter:image:alt" content="What Choose Your Therapist stands for — HFR registered under ABDM (HFR ID IN0510005384), MCA, MSME, NHA and ABDM registrations" />
         <meta name="twitter:site" content="@CYT_India" />
 
         {/* Schema.org — Organization + AboutPage */}
