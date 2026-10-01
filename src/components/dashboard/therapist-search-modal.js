@@ -84,7 +84,7 @@ export default function TherapistSearchModal({ open, onClose }) {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .tsm-overlay {
           position: fixed; inset: 0; z-index: 1400;
           background: rgba(0,0,0,0.6);
@@ -129,7 +129,7 @@ export default function TherapistSearchModal({ open, onClose }) {
           .tsm-grid { grid-template-columns: 1fr; }
           .tsm-drawer { max-height: 88vh; }
         }
-      `}</style>
+      ` }} />
 
       <div className="tsm-overlay" onClick={e => { if (e.target === e.currentTarget) { if (selected) setSelected(null); else onClose(); } }}>
         <div className="tsm-drawer">

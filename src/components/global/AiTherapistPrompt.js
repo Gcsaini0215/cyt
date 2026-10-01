@@ -132,12 +132,12 @@ export default function AiTherapistPrompt() {
           </div>
         </div>
       </div>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

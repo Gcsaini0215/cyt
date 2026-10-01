@@ -602,7 +602,7 @@ export default function CallToAction() {
           </Typography>
         </Box>
 
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           @keyframes fadeInUp {
             from {
               opacity: 0;
@@ -613,7 +613,7 @@ export default function CallToAction() {
               transform: translateY(0);
             }
           }
-        `}</style>
+        ` }} />
       </div>
     </div>
   );

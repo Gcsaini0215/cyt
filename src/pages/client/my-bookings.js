@@ -39,7 +39,7 @@ export default function MyBookingsPage() {
   return (
     <UserLayout>
       <PageWrapper pageTitle={"My Bookings"} loading={loading}>
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .bk-card {
             background: #fff;
             border-radius: 18px;
@@ -77,7 +77,7 @@ export default function MyBookingsPage() {
             .bk-card { padding: 16px; }
             .bk-row { gap: 12px; }
           }
-        `}</style>
+        ` }} />
 
         {!loading && data.length === 0 && (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>

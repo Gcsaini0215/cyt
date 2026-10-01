@@ -89,7 +89,7 @@ export default function InternshipModules() {
         <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
       </Head>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .im-page { font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f6f8f5; }
         .im-page .serif { font-family: 'Source Serif 4', Georgia, serif; }
         .im-page .mono { font-family: 'IBM Plex Mono', monospace; }
@@ -195,7 +195,7 @@ export default function InternshipModules() {
           .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
           .intern-subtitle { font-size: 12px; padding: 0 12px; }
         }
-      `}</style>
+      ` }} />
 
       <div className="im-page">
         <MyNavbar />

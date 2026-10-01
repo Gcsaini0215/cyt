@@ -32,7 +32,7 @@ export default function HomeWorkshop() {
 
   return (
     <section style={{ background: "linear-gradient(135deg,#0f3d24,#175c37)", padding: "64px 0 72px", position: "relative", overflow: "hidden", borderTop: "3px solid #d4af37", borderBottom: "3px solid #d4af37" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         /* ── Decorative bg ───────────────────────────── */
         .wk-bg-dot {
           position:absolute; border-radius:50%;
@@ -112,7 +112,7 @@ export default function HomeWorkshop() {
         @media(max-width:767px){
           .wk-header { flex-direction:column; gap:12px; align-items:flex-start; }
         }
-      `}</style>
+      ` }} />
 
       {/* Decorative blobs */}
       <div className="wk-bg-dot" style={{ width:320, height:320, background:"rgba(212,175,55,.08)", filter:"blur(80px)", top:"-60px", right:"5%" }}></div>

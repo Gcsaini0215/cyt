@@ -481,9 +481,6 @@ export default function StatePsychologistPage({ config, therapists }) {
     "availableService": SERVICES.map(s => ({ "@type": "MedicalTherapy", "name": s.title, "description": s.desc })),
     "address": { "@type": "PostalAddress", "addressRegion": config.name, "addressCountry": "IN" },
     "geo": { "@type": "GeoCoordinates", "latitude": config.geo.lat, "longitude": config.geo.lng },
-    // Real, org-wide rating (matches the Organization schema on the homepage) —
-    // not a fabricated per-city number.
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "500", "bestRating": "5" },
     "parentOrganization": {
       "@type": "MedicalOrganization",
       "@id": "https://www.chooseyourtherapist.in#organization",

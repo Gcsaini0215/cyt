@@ -50,7 +50,7 @@ export default function ProfileCardRow({ data, favrioutes }) {
 
   return (
     <article className="pcr">
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .pcr {
           position: relative; display: grid; grid-template-columns: 124px minmax(0, 1fr) 210px; gap: 20px; align-items: center;
           background: #fff; border: 1px solid #e3ebe6; border-radius: 16px; padding: 16px;
@@ -103,7 +103,7 @@ export default function ProfileCardRow({ data, favrioutes }) {
           .pcr-fee { flex: 1; font-size: 15px; }
           .pcr-book, .pcr-view { padding: 9px 14px; font-size: 12.5px; }
         }
-      `}</style>
+      ` }} />
 
       <Link href={profileHref} className="pcr-photo" aria-label={`${name} — view profile`}>
         <ImageTag alt={name} src={`${imagePath}/${data.user?.profile}`} />

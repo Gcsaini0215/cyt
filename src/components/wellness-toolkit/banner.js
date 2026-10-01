@@ -99,7 +99,7 @@ export default function WellnessToolkitBanner() {
 
   return (
     <>
-      <style>{styles}</style>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="wellness-banner">
         <LocalLibraryIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
         <AutoFixHighIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />

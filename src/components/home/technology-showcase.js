@@ -257,7 +257,7 @@ export default function TechnologyShowcase() {
       </div>
 
       {/* Custom CSS */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 768px) {
           .rbt-technology-showcase-area {
             padding: 50px 0 !important;
@@ -281,7 +281,7 @@ export default function TechnologyShowcase() {
             padding: 20px !important;
           }
         }
-      `}</style>
+      ` }} />
     </section>
   );
 }

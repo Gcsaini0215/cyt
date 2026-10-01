@@ -30,7 +30,7 @@ export default function CookieConsent() {
 
   return (
     <div id="cyt-cookie-consent-bar" style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 99998, background: "#1a202c", color: "#fff", boxShadow: "0 -4px 20px rgba(0,0,0,0.25)", animation: "ckSlideUp 0.35s ease" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes ckSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .ck-wrap { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
         .ck-text { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
@@ -49,7 +49,7 @@ export default function CookieConsent() {
           .ck-btn-ghost { padding: 7px 10px; }
           .ck-btn-accept { padding: 7px 12px; }
         }
-      `}</style>
+      ` }} />
 
       {!customize ? (
         <div className="ck-wrap">

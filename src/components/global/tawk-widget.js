@@ -87,11 +87,11 @@ const TawkToWidget = () => {
         </Zoom>
       </Box>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         #tawk-chat-container {
           display: none !important;
         }
-      `}</style>
+      ` }} />
     </>
   );
 };

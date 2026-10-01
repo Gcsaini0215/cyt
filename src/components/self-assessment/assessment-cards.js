@@ -61,7 +61,7 @@ const assessments = [
 export default function AssessmentCards({ onSelectAssessment }) {
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .sa-section { background: #f8fafc; padding: 52px 0; }
         .sa-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; display: flex; align-items: center; gap: 20px; padding: 20px 24px; transition: box-shadow .2s, border-color .2s; cursor: pointer; }
         .sa-row:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); border-color: #cbd5e1; }
@@ -79,7 +79,7 @@ export default function AssessmentCards({ onSelectAssessment }) {
           .sa-meta { justify-content: flex-start; }
           .sa-btn { width: 100%; justify-content: center; }
         }
-      `}</style>
+      ` }} />
 
       <div className="sa-section">
         <div className="container">

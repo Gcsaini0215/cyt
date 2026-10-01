@@ -10,6 +10,19 @@ const nextConfig = {
     maxInactiveAge: 60000,
     pagesBufferLength: 5,
   },
+  // One host for SEO: the bare domain served every page a second time (200,
+  // not a redirect), so 301 it to www. Relies on nginx passing the original
+  // Host header through to Next.
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "chooseyourtherapist.in" }],
+        destination: "https://www.chooseyourtherapist.in/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

@@ -214,7 +214,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
         .ph-card { animation: fadeUp 0.45s ease forwards; }
         .book-btn { background: #0f3d24; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; }
@@ -263,7 +263,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         }
         .ph-sticky-book:active, .ph-sticky-chat:active { transform: scale(0.97); }
         @media (prefers-reduced-motion: reduce) { .ph-sticky { animation: none; transition: none; } }
-      `}</style>
+      ` }} />
 
       {/* ── LETTERHEAD BANNER ── */}
       <div style={{

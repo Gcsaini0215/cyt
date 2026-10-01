@@ -98,7 +98,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
 
   return (
     <div className={outerClass}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .rbt-card:hover .card-profile-img {
           transform: scale(1.08);
         }
@@ -179,7 +179,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           .rbt-card.tile .pch-bookmark { width: 28px !important; height: 28px !important; }
           .rbt-card.tile .pch-bookmark svg { font-size: 15px !important; }
         }
-      `}</style>
+      ` }} />
       <div
         className={`rbt-card variation-01 rbt-hover card-list-2 ${variant !== "row" ? variant : ""}`}
         style={{

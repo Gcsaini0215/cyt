@@ -53,7 +53,7 @@ export default function CallbackWidget() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes cbPulse  { 0%,100%{box-shadow:0 0 0 0 rgba(34,135,86,0.45)} 65%{box-shadow:0 0 0 12px rgba(34,135,86,0)} }
         @keyframes cbSlide  { from{opacity:0;transform:translateY(16px) scale(0.97)} to{opacity:1;transform:none} }
         @keyframes cbSpin   { to{transform:rotate(360deg)} }
@@ -139,7 +139,7 @@ export default function CallbackWidget() {
           .cb-pill { padding:16px 9px; font-size:12px; gap:6px; animation:none; }
           .cb-pill-icon { width:22px; height:22px; }
         }
-      `}</style>
+      ` }} />
 
       <div className="cb-widget">
         {open && (

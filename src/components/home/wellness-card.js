@@ -6,7 +6,7 @@ import { imagePath } from "../../utils/url";
 export default function WellnessCard({ data }) {
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .wc-card {
           display:flex; flex-direction:column;
           background:#fff; border-radius:18px;
@@ -88,7 +88,7 @@ export default function WellnessCard({ data }) {
         }
         .wc-cta i { font-size:11px; transition:transform .2s; }
         .wc-card:hover .wc-cta i { transform:translateX(3px); }
-      `}</style>
+      ` }} />
 
       <Link href={`/workshop-detail/${data._id}`} className="wc-card">
 

@@ -56,7 +56,7 @@ export default function DashAppointmentForm({ compact = false, therapist = null 
 
   return (
     <div style={{ marginTop: compact ? 16 : 48, marginBottom: compact ? 0 : 32 }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .da-inp { border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 13px; font-size: 14px; color: #0f172a; outline: none; width: 100%; box-sizing: border-box; background: #fff; font-family: inherit; transition: border-color 0.15s; }
         .da-inp:focus { border-color: #16a34a; }
         .da-lbl { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; display: block; margin-bottom: 5px; }
@@ -64,7 +64,7 @@ export default function DashAppointmentForm({ compact = false, therapist = null 
         .da-slot.active { background: #f0fdf4; border-color: #16a34a; color: #15803d; }
         .da-slot:hover:not(.active) { border-color: #94a3b8; }
         @media (max-width: 600px) { .da-time-grid { grid-template-columns: 1fr 1fr !important; } }
-      `}</style>
+      ` }} />
 
       {/* Section header — hidden in compact mode (card header shows instead) */}
       {!compact && (

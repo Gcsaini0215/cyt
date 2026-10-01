@@ -41,7 +41,7 @@ export default function Feedback({ therapists = [] }) {
 
   return (
     <div className="rbt-testimonial-area bg-color-white rbt-section-gap">
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .rv-swiper .swiper-wrapper { align-items: stretch; }
         .rv-swiper .swiper-slide  { height: auto; }
         .rv-card {
@@ -73,7 +73,7 @@ export default function Feedback({ therapists = [] }) {
         .rv-th-name a { color: #228756; text-decoration: none; }
         .rv-th-name a:hover { text-decoration: underline; }
         .rv-th-type { font-size: 10px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 1px; }
-      `}</style>
+      ` }} />
 
       <div className="container">
         {/* Header */}
@@ -148,7 +148,7 @@ export default function Feedback({ therapists = [] }) {
                   </div>
                   {/* Therapist photo */}
                   {item.therapistPhoto ? (
-                    <img src={item.therapistPhoto} alt={item.therapistName}
+                    <img src={item.therapistPhoto} alt={item.therapistName} loading="lazy" decoding="async"
                       style={{ width: 34, height: 34, borderRadius: 8, objectFit: "cover", objectPosition: "top", border: "1.5px solid #e8f5e9", flexShrink: 0 }} />
                   ) : (
                     <div style={{ width: 34, height: 34, borderRadius: 8, background: "#e8f5e9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>

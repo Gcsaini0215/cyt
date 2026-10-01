@@ -36,7 +36,7 @@ export default function ProfileSettings() {
   return (
     <MainLayout>
       <div className="stg-shell">
-        <style suppressHydrationWarning>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .stg-shell { background: #fff; border-radius: 6px; border-top: 3px solid #c9962c;
             box-shadow: 0 4px 20px rgba(15,61,36,0.08); overflow: hidden; margin-bottom: 32px; }
           .stg-head { padding: 22px 26px; display: flex; align-items: flex-start; justify-content: space-between;
@@ -95,7 +95,7 @@ export default function ProfileSettings() {
             .stg-body { padding: 16px; }
             .stg-title { font-size: 18px; }
           }
-        `}</style>
+        ` }} />
 
         <div className="stg-head">
           <div>

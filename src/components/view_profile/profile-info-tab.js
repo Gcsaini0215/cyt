@@ -60,7 +60,7 @@ export default function ProfileInfoTab({ pageData }) {
   return (
     <div className="rbt-advance-tab-area" style={{ paddingTop: 44, paddingBottom: 50, background: "#fff" }}>
       <div className="container">
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .pit-tab-btn {
             background: none; border: none; cursor: pointer; padding: 12px 4px; margin-right: 30px;
             font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
@@ -98,7 +98,7 @@ export default function ProfileInfoTab({ pageData }) {
             /* narrow lines: let justified text break long words instead of leaving wide gaps */
             .pit-bio { -webkit-hyphens: auto; hyphens: auto; }
           }
-        `}</style>
+        ` }} />
 
         <div className="row" style={{ gap: 0 }}>
           {/* ── MAIN COLUMN ── */}

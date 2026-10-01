@@ -60,7 +60,7 @@ export default function ActiveBookingBanner() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes abb-slide-up {
           from { opacity: 0; transform: translateY(16px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -138,7 +138,7 @@ export default function ActiveBookingBanner() {
         @media (max-width: 480px) {
           .abb-wrap { left: 12px; bottom: 16px; max-width: calc(100vw - 24px); width: calc(100vw - 24px); }
         }
-      `}</style>
+      ` }} />
 
       <div className="abb-wrap">
         <img

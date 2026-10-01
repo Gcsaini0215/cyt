@@ -69,7 +69,7 @@ export default function Specializations() {
 
   return (
     <section style={{ background: "#fff", padding: "64px 0 68px" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .sp-accent-bar { width:42px; height:4px; background:#228756; border-radius:2px; margin-bottom:12px; }
         .sp-title { font-size:clamp(1.6rem,3.5vw,2.3rem); font-weight:900; color:#1e293b; margin:0 0 6px; line-height:1.2; }
         .sp-sub { color:#64748b; font-size:15px; margin:0; }
@@ -164,7 +164,7 @@ export default function Specializations() {
           .sp-card-title { font-size:13.5px; }
           .sp-card-desc { font-size:11.5px; }
         }
-      `}</style>
+      ` }} />
 
       <div className="container">
 

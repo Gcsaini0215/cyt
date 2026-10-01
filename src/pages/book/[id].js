@@ -449,7 +449,7 @@ export default function BookPage() {
     <div id="__next" style={{ background: "#f8fafc", minHeight: "100vh" }}>
       <MyNavbar />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-        <style>{`@keyframes _sp{to{transform:rotate(360deg)}}`}</style>
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes _sp{to{transform:rotate(360deg)}}` }} />
         <div style={{ textAlign: "center" }}>
           <div style={{ width: 38, height: 38, border: `3px solid #e2e8f0`, borderTop: `3px solid ${GL}`, borderRadius: "50%", animation: "_sp .8s linear infinite", margin: "0 auto 12px" }} />
           <p style={{ color: "#64748b", fontSize: 14, margin: 0 }}>Loading…</p>
@@ -925,7 +925,7 @@ export default function BookPage() {
       <Head>
         <title>Book Session — {profile.user?.name} | Choose Your Therapist</title>
       </Head>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes _sp { to { transform: rotate(360deg); } }
         @keyframes _in { from { opacity: 0; } to { opacity: 1; } }
@@ -1025,7 +1025,7 @@ export default function BookPage() {
           .bk-noida-mark { width: 52px; height: 52px; border-radius: 13px; padding: 7px; }
           .bk-noida-cta { width: 100%; justify-content: center; }
         }
-      `}</style>
+      ` }} />
 
       <div id="__next" style={{ background: "#f4f6f8", minHeight: "100vh" }}>
         <MyNavbar />

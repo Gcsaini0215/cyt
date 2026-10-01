@@ -318,12 +318,12 @@ export default function TherapistCheckoutPage() {
       </Head>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes _sp    { to { transform: rotate(360deg); } }
         @keyframes _fd    { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
         @keyframes _blink { 0%,100%{opacity:1} 50%{opacity:.35} }
-      `}</style>
+      ` }} />
 
       <div id="__next" style={{ background: "#f4f6f8", minHeight: "100vh" }}>
         <MyNavbar />

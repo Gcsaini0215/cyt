@@ -405,7 +405,7 @@ export default function HowItWorks() {
           </Box>
         </Box>
 
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           @keyframes fadeInUp {
             from {
               opacity: 0;
@@ -416,7 +416,7 @@ export default function HowItWorks() {
               transform: translateY(0);
             }
           }
-        `}</style>
+        ` }} />
       </Container>
     </section>
   );

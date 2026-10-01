@@ -65,7 +65,7 @@ const missionStyles = `
 export default function MissionVision() {
   return (
     <>
-      <style>{missionStyles}</style>
+      <style dangerouslySetInnerHTML={{ __html: missionStyles }} />
       <Box sx={{ py: { xs: 8, md: 12 }, background: "#f9fffb" }}>
         <Container maxWidth="lg">
           <Grid container spacing={4}>

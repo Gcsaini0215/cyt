@@ -405,7 +405,7 @@ export default function TherapistCheckout({ profile }) {
 
   return (
     <div className="checkout_area bg-color-white" style={{ padding: isMobile ? "8px 0 110px" : "0 0 60px" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ck-label{display:block;font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
         .ck-input,.ck-select{border-radius:12px!important;height:50px!important;border:1.5px solid #e8edf2!important;background:#f8fafc!important;font-size:14.5px!important;width:100%!important;padding:0 14px!important;transition:border-color .2s,box-shadow .2s;margin-bottom:0!important;color:#1e293b!important}
         .ck-input:focus,.ck-select:focus{border-color:#228756!important;background:#fff!important;box-shadow:0 0 0 3px rgba(34,135,86,.08)!important;outline:none!important}
@@ -426,7 +426,7 @@ export default function TherapistCheckout({ profile }) {
         .ck-live-lbl{font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.4px;line-height:1}
         .ck-live-val{font-size:13.5px;color:#1e293b;font-weight:700;line-height:1.3;margin-top:2px;word-break:break-all}
         .ck-live-block{background:#f8fafc;border-radius:14px;padding:4px 12px;margin-bottom:16px}
-      `}</style>
+      ` }} />
 
       <div className="container">
 

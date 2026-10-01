@@ -174,7 +174,7 @@ export default function FreeResources() {
 
   return (
     <section style={{ background: "#fff", padding: "72px 0 80px", position: "relative", overflow: "hidden" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         /* subtle bg pattern */
         .fr-blob { position:absolute; border-radius:50%; pointer-events:none; z-index:0; }
 
@@ -256,7 +256,7 @@ export default function FreeResources() {
           .fr-card-title { font-size:12.5px; }
           .fr-card-desc { font-size:11px; }
         }
-      `}</style>
+      ` }} />
 
       {/* Soft blobs */}
       <div className="fr-blob" style={{ width:400, height:400, background:"rgba(34,135,86,.04)", filter:"blur(100px)", top:"-60px", right:"0%" }}></div>
@@ -659,7 +659,7 @@ export default function FreeResources() {
         </DialogContent>
       </Dialog>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes pulse-red {
           0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
           70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(239,68,68,0); }
@@ -669,7 +669,7 @@ export default function FreeResources() {
           0%, 100% { height: 10px; opacity: 0.5; }
           50% { height: 20px; opacity: 1; }
         }
-      `}</style>
+      ` }} />
     </section>
   );
 }

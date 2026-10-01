@@ -39,7 +39,7 @@ const PremiumLoader = () => {
         <p className="pl-quote">Growing towards healing...</p>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .pl-wrap {
           position: fixed;
           inset: 0;
@@ -159,7 +159,7 @@ const PremiumLoader = () => {
           0%,100% { opacity: 0.5; }
           50%     { opacity: 1; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 };

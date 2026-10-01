@@ -140,7 +140,7 @@ export default function State() {
       </div>
 
       {/* Premium CSS */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .state-section {
           padding: 50px 20px;
           background: #f9f9f9;
@@ -268,7 +268,7 @@ export default function State() {
             font-size: 2rem; /* larger text */
           }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

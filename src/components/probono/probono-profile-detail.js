@@ -22,7 +22,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ppd-banner {
           position: relative;
           background-image: url('https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg');
@@ -72,7 +72,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
         .ppd-role { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#228756; }
         .ppd-bio { font-size:15px; color:#3f4d47; line-height:1.85; }
         .ppd-stat-label { font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#94a3b8; }
-      `}</style>
+      ` }} />
 
       <section className="ppd-banner">
         <div className="container" style={{ textAlign: "center" }}>

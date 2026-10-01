@@ -102,7 +102,7 @@ export default function ProfileCard({ profiles }) {
         borderRadius: '50%', pointerEvents: 'none'
       }}></div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .pc-hero-title {
           font-size: clamp(2rem, 5.2vw, 4.5rem);
           font-weight: 900;
@@ -135,7 +135,7 @@ export default function ProfileCard({ profiles }) {
         @media (prefers-reduced-motion: reduce) {
           .tile-track { animation: none; overflow-x: auto; }
         }
-      `}</style>
+      ` }} />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="row">
           <div className="col-lg-12">

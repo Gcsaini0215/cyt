@@ -63,7 +63,7 @@ export default function AppointmentPage({ pics = [] }) {
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </Head>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes _ap_fd      { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
         @keyframes _ap_pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.35)} 60%{box-shadow:0 0 0 12px rgba(74,222,128,0)} }
@@ -79,7 +79,7 @@ export default function AppointmentPage({ pics = [] }) {
           .ap-title  { font-size: 22px !important; line-height: 1.3 !important; margin-bottom: 8px !important; }
           .ap-sub    { font-size: 13px !important; }
         }
-      `}</style>
+      ` }} />
 
       <MyNavbar />
 

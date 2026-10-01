@@ -46,7 +46,7 @@ export default function ClientTopNav() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ctn-bar {
           position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
           height: 56px; background: #1e293b;
@@ -151,7 +151,7 @@ export default function ClientTopNav() {
           .ctn-mob-item.active { color: #4ade80; }
           .ctn-mob-item i { font-size: 20px; }
         }
-      `}</style>
+      ` }} />
 
       {/* Top bar */}
       <div className="ctn-bar">

@@ -167,8 +167,8 @@ export default function HomePage() {
         {/* Local SEO Meta Tags - Fixed defaulting to Noida, India for Google sync */}
         <meta name="geo.region" content="IN-UP" />
         <meta name="geo.placename" content={userCity && userState ? `${userCity}, ${userState}, India` : "Sector 51, Noida, Uttar Pradesh, India"} />
-        <meta name="geo.position" content="28.5672;77.3650" />
-        <meta name="ICBM" content="28.5672, 77.3650" />
+        <meta name="geo.position" content="28.5821626;77.3742084" />
+        <meta name="ICBM" content="28.5821626, 77.3742084" />
 
         {/* Enhanced Schema.org Data */}
         <script type="application/ld+json">
@@ -276,8 +276,8 @@ export default function HomePage() {
               },
               "geo": {
                 "@type": "GeoCoordinates",
-                "latitude": 28.5672,
-                "longitude": 77.365
+                "latitude": 28.5821626,
+                "longitude": 77.3742084
               },
               "openingHoursSpecification": {
                 "@type": "OpeningHoursSpecification",
@@ -285,7 +285,7 @@ export default function HomePage() {
                 "opens": "00:00",
                 "closes": "23:59"
               },
-              "hasMap": "https://maps.google.com/?q=28.5672,77.3650",
+              "hasMap": "https://www.google.com/maps?cid=4421494166537850872",
               "areaServed": [
                 { "@type": "City", "name": "Noida" },
                 { "@type": "City", "name": "Greater Noida" },
@@ -301,12 +301,6 @@ export default function HomePage() {
                   "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
                 },
                 "result": { "@type": "Reservation", "name": "Psychologist appointment in Noida (Sector 51)" }
-              },
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "4.8",
-                "reviewCount": "500",
-                "bestRating": "5"
               }
             },
             {

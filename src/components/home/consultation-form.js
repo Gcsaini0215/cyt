@@ -272,7 +272,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
 
   return (
     <>
-      {mounted && <style>{formStyles}</style>}
+      {mounted && <style dangerouslySetInnerHTML={{ __html: formStyles }} />}
       <div style={{ width: "100%" }} className={variant === "whatsapp" ? "cf-whatsapp" : ""}>
 
         {showHeading && (

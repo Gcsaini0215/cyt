@@ -341,7 +341,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         /* ── New booking banner ─── */
         .nb-banner{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:5000;width:calc(100% - 32px);max-width:520px;animation:nbDrop .4s cubic-bezier(.34,1.56,.64,1);}
         @keyframes nbDrop{from{transform:translateX(-50%) translateY(-120px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
@@ -422,7 +422,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         .ap-detail-icon{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
         .ap-detail-lbl{font-size:10.5px;color:#8a978f;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
         .ap-detail-val{font-size:13.5px;font-weight:700;color:#122019;}
-      `}</style>
+      ` }} />
 
       {/* ── New booking banner ─────────────────────── */}
       {isRinging && (

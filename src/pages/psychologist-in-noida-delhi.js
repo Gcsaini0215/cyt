@@ -67,8 +67,8 @@ export default function LocalLandingPage() {
         {/* Local SEO Meta Tags */}
         <meta name="geo.region" content="IN-UP" />
         <meta name="geo.placename" content="Noida, Delhi" />
-        <meta name="geo.position" content="28.5672;77.3650" />
-        <meta name="ICBM" content="28.5672, 77.3650" />
+        <meta name="geo.position" content="28.5821626;77.3742084" />
+        <meta name="ICBM" content="28.5821626, 77.3742084" />
         
         {/* OpenGraph / Social Media Tags */}
         <meta key="og:type" property="og:type" content="website" />
@@ -113,10 +113,10 @@ export default function LocalLandingPage() {
               },
               "geo": {
                 "@type": "GeoCoordinates",
-                "latitude": 28.5672,
-                "longitude": 77.3650
+                "latitude": 28.5821626,
+                "longitude": 77.3742084
               },
-              "hasMap": "https://maps.google.com/?q=28.5672,77.3650",
+              "hasMap": "https://www.google.com/maps?cid=4421494166537850872",
               "medicalSpecialty": [
                 "Counselling Psychology",
                 "Clinical Psychology",
@@ -151,12 +151,6 @@ export default function LocalLandingPage() {
                 "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
                 "opens": "09:00",
                 "closes": "21:00"
-              },
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": "4.8",
-                "reviewCount": "300",
-                "bestRating": "5"
               },
               "parentOrganization": {
                 "@type": "MedicalOrganization",

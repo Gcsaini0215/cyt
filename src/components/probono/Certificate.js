@@ -12,13 +12,13 @@ export default function Certificate({ guide }) {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body { margin: 0; padding: 0; }
           .no-print { display: none !important; }
           .certificate-container { box-shadow: none; border: none; }
         }
-      `}</style>
+      ` }} />
 
       <Box sx={{ p: 3, mb: 3 }} className="no-print">
         <Button

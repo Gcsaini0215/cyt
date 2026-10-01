@@ -91,7 +91,7 @@ export default function PaymentSuccessPage() {
         <title>Booking Confirmed | Choose Your Therapist</title>
       </Head>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }
 
         @keyframes _tick {
@@ -236,7 +236,7 @@ export default function PaymentSuccessPage() {
           animation: _shimmer 1.2s infinite;
         }
         @keyframes _shimmer { to { background-position: -200% 0; } }
-      `}</style>
+      ` }} />
 
       <div className="ps-wrap" id="__next">
         <MyNavbar />

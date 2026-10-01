@@ -63,7 +63,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
   return (
     <div style={{ height: "100%" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .vtc-card {
           display: flex;
           flex-direction: row;
@@ -236,7 +236,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
           .vtc-btns { flex-direction: column; }
           .vtc-btn-out, .vtc-btn-fill { flex: none; font-size: 12px; padding: 8px 0; }
         }
-      `}</style>
+      ` }} />
 
       <div className="vtc-card">
 

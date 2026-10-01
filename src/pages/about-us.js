@@ -3,6 +3,7 @@ import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
 import DirectorNote from "../components/about/director-note";
 import ServiceQuality from "../components/about/service-quality";
+import VisitCentre, { GBP_URL } from "../components/about/visit-centre";
 import AboutFaqs, { aboutFaqData } from "../components/about/faqs";
 import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
@@ -60,8 +61,8 @@ const organizationSchema = {
   },
   "geo": {
     "@type": "GeoCoordinates",
-    "latitude": 28.5672,
-    "longitude": 77.365
+    "latitude": 28.5821626,
+    "longitude": 77.3742084
   },
   "telephone": "+91-8077757951",
   "email": "hello@chooseyourtherapist.in",
@@ -91,11 +92,28 @@ const organizationSchema = {
       { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "School Mental Health Programs" } }
     ]
   },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "reviewCount": "500",
-    "bestRating": "5"
+  // The Noida centre as a place — matches the Google Business Profile
+  // (same NAP, hours and map) so Google can tie the listing to this site.
+  "hasMap": GBP_URL,
+  "location": {
+    "@type": "MedicalClinic",
+    "name": "Choose Your Therapist LLP — Noida Centre",
+    "hasMap": GBP_URL,
+    "telephone": "+91-8077757951",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Gate No-3, D-137, near LPS GLOBAL SCHOOL, Block D, Sector 51",
+      "addressLocality": "Noida",
+      "addressRegion": "Uttar Pradesh",
+      "postalCode": "201301",
+      "addressCountry": "IN"
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "09:00",
+      "closes": "21:00"
+    }
   },
   "contactPoint": [
     {
@@ -116,7 +134,8 @@ const organizationSchema = {
     "https://www.instagram.com/chooseyourtherapist",
     "https://www.facebook.com/chooseyourtherapist",
     "https://twitter.com/CYT_India",
-    "https://www.linkedin.com/company/chooseyourtherapist"
+    "https://www.linkedin.com/company/chooseyourtherapist",
+    GBP_URL
   ]
 };
 
@@ -203,6 +222,11 @@ export default function AboutUs() {
         <meta name="geo.region" content="IN" />
         <meta name="geo.placename" content="India" />
         <link rel="canonical" href={PAGE_URL} />
+        {/* Hero background is the LCP element but lives in CSS, so the
+            browser finds it late — preload the right size per viewport
+            (media queries mirror banner.js). */}
+        <link rel="preload" as="image" href="/images/bg5-hero-800.webp" media="(max-width: 768px)" />
+        <link rel="preload" as="image" href="/images/bg5-hero.webp" media="(min-width: 769px)" />
 
         {/* Open Graph */}
         <meta key="og:type" property="og:type" content="website" />
@@ -235,6 +259,7 @@ export default function AboutUs() {
       <AboutUsBanner />
       <DirectorNote />
       <ServiceQuality />
+      <VisitCentre />
       <AboutFaqs />
       
       <Feedback therapists={therapists} />

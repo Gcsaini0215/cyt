@@ -37,7 +37,7 @@ const SkeletonLoader = () => (
         </div>
       </div>
     </div>
-    <style>{`
+    <style dangerouslySetInnerHTML={{ __html: `
       @keyframes shimmer {
         0% { background-position: -468px 0; }
         100% { background-position: 468px 0; }
@@ -54,7 +54,7 @@ const SkeletonLoader = () => (
       .skeleton-progress { height: 40px; width: 100%; border-radius: 8px; }
       .skeleton-banner { height: 160px; width: 100%; border-radius: 12px; }
       .skeleton-input { height: 50px; width: 100%; border-radius: 8px; }
-    `}</style>
+    ` }} />
   </div>
 );
 

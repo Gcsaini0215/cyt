@@ -82,7 +82,7 @@ export default function TherapyBooking({ pics = [] }) {
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </Head>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes _tb_fd      { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
         @keyframes _tb_pulse   { 0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.35)} 60%{box-shadow:0 0 0 12px rgba(74,222,128,0)} }
@@ -98,7 +98,7 @@ export default function TherapyBooking({ pics = [] }) {
           .tb-title { font-size: 22px !important; line-height: 1.3 !important; margin-bottom: 8px !important; }
           .tb-subtitle { font-size: 13px !important; padding: 0 4px !important; }
         }
-      `}</style>
+      ` }} />
 
       <div style={{ fontFamily: "'Inter', sans-serif" }}>
         <MyNavbar />

@@ -5,7 +5,7 @@ export default function CallToActionAbout() {
   return (
     <div className="elementor-widget-container">
       <div className="rbt-callto-action-area">
-        <style>{`
+        <style dangerouslySetInnerHTML={{ __html: `
           .rbt-call-to-action.custom-dark-green-bg {
             background: #1a4d32 !important;
             border-radius: 24px;
@@ -62,7 +62,7 @@ export default function CallToActionAbout() {
               margin-bottom: 25px;
             }
           }
-        `}</style>
+        ` }} />
         <div className="rbt-call-to-action custom-dark-green-bg">
           <div className="container">
             <div className="row align-items-center">

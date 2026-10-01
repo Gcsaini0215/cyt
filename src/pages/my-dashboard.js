@@ -43,7 +43,7 @@ export default function UserDashboard() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .db-feat {
           display: flex; flex-direction: column; gap: 14px;
           padding: 20px; border-radius: 14px;
@@ -136,7 +136,7 @@ export default function UserDashboard() {
           .db-fab { bottom: 72px; right: 16px; padding: 13px 20px; font-size: 13px; }
           .db-feat, .db-feat-soon { padding: 14px 10px; gap: 10px; }
         }
-      `}</style>
+      ` }} />
 
       <ClientTopNav />
 

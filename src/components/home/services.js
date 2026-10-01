@@ -74,7 +74,7 @@ export default function Services() {
 
 
           {/* Inline CSS */}
-          <style>{`
+          <style dangerouslySetInnerHTML={{ __html: `
             .premium-banner {
               background: linear-gradient(90deg, #22bb33, #1f7f25);
               border-radius: 12px;
@@ -157,7 +157,7 @@ export default function Services() {
               .icon-box i { font-size: 2.5rem; }
               .icon-box span { font-size: 1.15rem; }
             }
-          `}</style>
+          ` }} />
         </div>
       </div>
     </>

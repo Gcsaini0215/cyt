@@ -44,7 +44,7 @@ export default function TherapistCollage({ pics: picsProp = [] }) {
 
   return (
     <>
-      <style>{styles}</style>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section style={{ background: "#060f09", padding: "0" }}>
         {/* Collage grid */}
         <div style={{

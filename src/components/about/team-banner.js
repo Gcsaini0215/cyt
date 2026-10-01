@@ -80,7 +80,7 @@ const teamInfo = [
 export default function TeamBanner() {
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .team-section {
           padding: 60px 20px;
           background: #fff;
@@ -213,7 +213,7 @@ export default function TeamBanner() {
             object-fit: contain; /* Mobile: contain to avoid face cut */
           }
         }
-      `}</style>
+      ` }} />
 
       <div className="team-section">
         <div className="container">

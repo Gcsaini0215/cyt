@@ -43,7 +43,7 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes bp-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes bp-fade-in  { from { opacity: 0; } to { opacity: 1; } }
         @keyframes bp-pop-in   { from { opacity: 0; transform: scale(.94) translateY(12px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -129,7 +129,7 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
         @media (max-width: 380px) {
           .bp-wa-body { padding: 16px 16px 20px; }
         }
-      `}</style>
+      ` }} />
 
       {isMobile ? (
         /* ── Mobile: bottom sheet ── */

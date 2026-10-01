@@ -95,7 +95,7 @@ export default function Availability({ onSuccess }) {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .av-wrap { max-width: 680px; }
         .av-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
         .av-title { font-family: Georgia, "Times New Roman", serif; font-size:19px; font-weight:700; color:#122019; margin:0; }
@@ -184,7 +184,7 @@ export default function Availability({ onSuccess }) {
           .av-pill { width:38px; height:38px; font-size:10.5px; }
           .av-sel { min-width:100px; }
         }
-      `}</style>
+      ` }} />
 
       <div className="av-wrap">
         {/* Header */}

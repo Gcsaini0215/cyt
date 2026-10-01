@@ -47,7 +47,7 @@ export default function ChatWidget() {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .cw-fab {
           position: fixed; bottom: 20px; z-index: 1250;
           width: 52px; height: 52px; border-radius: 50%;
@@ -100,7 +100,7 @@ export default function ChatWidget() {
           .cw-fab   { left: 80px; }
           .cw-panel { left: 80px; }
         }
-      `}</style>
+      ` }} />
 
       {open && (
         <div className="cw-panel">

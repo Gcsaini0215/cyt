@@ -44,7 +44,7 @@ export default function ConsultOfferBar({ delay = 3000 }) {
 
   return (
     <>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @keyframes cob-slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .cob-wrap {
@@ -159,7 +159,7 @@ export default function ConsultOfferBar({ delay = 3000 }) {
         @media (max-width: 340px) {
           .cob-price-old { display: none; }
         }
-      `}</style>
+      ` }} />
 
       <div className="cob-wrap">
         <div className="cob-card">

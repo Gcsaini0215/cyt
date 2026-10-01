@@ -70,25 +70,12 @@ export default function App() {
       }
     }
 
-    // Google Tag Integration
-    const script1 = document.createElement("script");
-    script1.async = true;
-    script1.src = "https://www.googletagmanager.com/gtag/js?id=G-GFBR3SJQT3";
-    document.head.appendChild(script1);
-
-    const script2 = document.createElement("script");
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GFBR3SJQT3');
-    `;
-    document.head.appendChild(script2);
+    // GA4 (G-GFBR3SJQT3) is loaded by the GTM container in _document.js —
+    // injecting gtag.js here too downloaded it twice and double-counted
+    // page views.
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      document.head.removeChild(script1);
-      document.head.removeChild(script2);
     };
   }, [fetchTherapistInfo]);
 
@@ -128,7 +115,7 @@ export default function App() {
                 <div className="header-info">
                   <div className="logo d-flex align-items-center">
                     <Link href="/" style={{ cursor: "pointer" }}>
-                      <ImageTag alt="Education Logo Images" height={"55"} width={"165"} src="/assets/img/logo.png" />
+                      <ImageTag alt="Education Logo Images" height={"55"} width={"165"} src="/assets/img/logo-nav.webp" />
                     </Link>
                   </div>
                 </div>
@@ -219,7 +206,7 @@ export default function App() {
                 {/* Mobile Menu Button - Moved to right corner */}
                 <div className="mobile-menu-bar d-flex d-lg-none" onClick={() => setShow(true)}>
                   <div className="hamberger">
-                    <button className="hamberger-button rbt-round-btn">
+                    <button className="hamberger-button rbt-round-btn" aria-label="Open menu">
                       <i className="feather-menu"></i>
                     </button>
                   </div>
@@ -237,7 +224,7 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
               <div className="logo">
                 <Link href="/" onClick={() => setShow(false)}>
-                  <ImageTag alt="Logo" height={"45"} width={"135"} src="/assets/img/logo.png" />
+                  <ImageTag alt="Logo" height={"45"} width={"135"} src="/assets/img/logo-nav.webp" />
                 </Link>
               </div>
               <button className="close-menu" onClick={() => setShow(false)} style={{ background: '#f8fafc', width: '36px', height: '36px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f1f5f9' }}>

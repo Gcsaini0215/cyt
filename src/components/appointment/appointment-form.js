@@ -61,7 +61,7 @@ export default function AppointmentForm() {
 
   return (
     <section style={{ background: "#f8fafc", padding: "60px 20px 80px" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .apt-inp { border: 1.5px solid #e2e8f0; borderRadius: 8px; padding: 10px 13px; fontSize: 14px; color: #0f172a; outline: none; width: 100%; boxSizing: border-box; background: #fff; fontFamily: inherit; transition: border-color 0.15s; }
         .apt-inp:focus { border-color: #16a34a; }
         .apt-lbl { fontSize: 12px; fontWeight: 700; color: #475569; textTransform: uppercase; letterSpacing: 0.6px; display: block; marginBottom: 6px; }
@@ -69,7 +69,7 @@ export default function AppointmentForm() {
         .apt-slot.active { background: #f0fdf4; border-color: #16a34a; color: #15803d; }
         .apt-slot:hover { border-color: #94a3b8; }
         @media (max-width: 600px) { .apt-grid { grid-template-columns: 1fr 1fr !important; } }
-      `}</style>
+      ` }} />
 
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         {/* Form card */}

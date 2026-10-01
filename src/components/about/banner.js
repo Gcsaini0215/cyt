@@ -11,7 +11,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 const styles = `
 .ab-section {
   position: relative;
-  background-image: url('/images/bg5.jpg');
+  background-image: url('/images/bg5-hero.webp');
   background-size: cover;
   background-position: center 65%;
   background-attachment: scroll;
@@ -58,7 +58,7 @@ const styles = `
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .ab-section { padding: 28px 0 24px 0; }
+  .ab-section { padding: 28px 0 24px 0; background-image: url('/images/bg5-hero-800.webp'); }
   .ab-badge { display: none; }
   .ab-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
   .ab-subtitle { font-size: 13px; padding: 0 16px; }

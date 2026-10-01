@@ -63,7 +63,7 @@ export default function TherapistReupload() {
       <MyNavbar />
       <div style={{ background: "#fff" }}>
         <div className="container" style={{ padding: "48px 16px 64px", maxWidth: 620 }}>
-          <style>{`
+          <style dangerouslySetInnerHTML={{ __html: `
             .ru-card { border: 1px solid #dbe3df; border-radius: 16px; padding: 26px 24px; box-shadow: 0 10px 30px -14px rgba(15,61,36,.2); }
             .ru-card h1 { font-size: 22px; font-weight: 800; color: #0f3d24; margin: 0 0 6px; }
             .ru-sub { font-size: 14px; color: #64748b; margin: 0 0 18px; line-height: 1.6; }
@@ -77,7 +77,7 @@ export default function TherapistReupload() {
             .ru-go { width: 100%; margin-top: 8px; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg,#1b5e20,#228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
             .ru-go:disabled { opacity: .7; cursor: wait; }
             .ru-err { color: #dc2626; font-size: 13px; font-weight: 600; margin: 6px 0 0; }
-          `}</style>
+          ` }} />
 
           <div className="ru-card">
             {state === "loading" && <p className="ru-sub">Loading…</p>}

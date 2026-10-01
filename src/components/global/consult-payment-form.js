@@ -233,7 +233,7 @@ export default function ConsultPaymentForm() {
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
-      {mounted && <style>{formStyles}</style>}
+      {mounted && <style dangerouslySetInnerHTML={{ __html: formStyles }} />}
       <div style={{ width: "100%" }}>
 
         {message && (

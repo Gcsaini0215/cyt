@@ -239,13 +239,13 @@ export default function MentalHealthData() {
         </div>
       </div>
 
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .data-card:hover {
           transform: translateY(-10px);
           box-shadow: 0 20px 40px rgba(0,0,0,0.06) !important;
           border-color: #22875633 !important;
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

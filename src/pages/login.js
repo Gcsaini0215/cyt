@@ -177,7 +177,7 @@ export default function Login() {
         <meta name="twitter:description" content="Log in to your secure dashboard to manage your therapy sessions." />
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         input:focus {
           outline: none !important;
           box-shadow: none !important;
@@ -262,7 +262,7 @@ export default function Login() {
           border-color: #22bb33;
           box-shadow: 0 0 0 3px rgba(34, 187, 51, 0.1) !important;
         }
-      `}</style>
+      ` }} />
 
       <MyNavbar />
       <LoginHeader />

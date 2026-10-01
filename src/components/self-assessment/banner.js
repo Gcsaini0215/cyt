@@ -60,7 +60,7 @@ const styles = `
 export default function SelfAssessmentBanner() {
   return (
     <>
-      <style>{styles}</style>
+      <style dangerouslySetInnerHTML={{ __html: styles }} />
       <section className="sa-banner">
         <div className="container" style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
           <div className="sa-badge">

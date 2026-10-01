@@ -203,7 +203,7 @@ const interns = [
 export default function InternsSection() {
   return (
     <>
-      <style>{internStyles}</style>
+      <style dangerouslySetInnerHTML={{ __html: internStyles }} />
       <Box className="soothing-bg" sx={{ py: { xs: 8, md: 10 }, overflow: "hidden" }}>
         <Container maxWidth="lg">
           <Box 
