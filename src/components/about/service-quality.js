@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import Registrations from "./registrations";
 
 export default function ServiceQuality() {
@@ -20,6 +21,8 @@ export default function ServiceQuality() {
         .sq-col p { font-size: 14.5px; line-height: 1.85; color: rgba(255,255,255,.62); margin: 0 0 16px; }
         .sq-col p:last-child { margin-bottom: 0; }
         .sq-col p strong { color: rgba(255,255,255,.85); font-weight: 700; }
+        .sq-col p a { color: rgba(255,255,255,.88); text-decoration: underline; text-decoration-color: rgba(212,175,55,.55); text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
+        .sq-col p a:hover { color: #d4af37; text-decoration-color: #d4af37; }
 
         .sq-reg { margin: 0 0 18px; border: 1px solid rgba(212,175,55,.3); border-radius: 12px; background: rgba(212,175,55,.06); overflow: hidden; }
         .sq-reg-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; }
@@ -88,15 +91,16 @@ export default function ServiceQuality() {
                 confidential, non-judgmental, and genuinely attentive.
               </p>
               <p>
-                Our network of verified psychologists, counsellors, and psychiatrists — each
-                screened for qualifications, licenses, and clinical experience — offers sessions
-                online by video or audio call, or in person at our clinical spaces in Noida and
-                Delhi NCR.
+                Our network of <Link href="/view-all-therapist">verified psychologists, counsellors,
+                and psychiatrists</Link> — each screened for qualifications, licenses, and clinical
+                experience — offers sessions online by video or audio call, or in person at our
+                clinical spaces in <Link href="/psychologist-in-noida-delhi">Noida and Delhi NCR</Link>.
               </p>
               <p>
-                Beyond therapy, we run workshops, an internship and supervision track for
-                psychology students, and a pro bono counselling initiative for those who cannot
-                afford paid sessions.
+                Beyond therapy, we run <Link href="/allworkshop">workshops</Link>, an{" "}
+                <Link href="/internship-registration">internship and supervision track</Link> for
+                psychology students, and a <Link href="/probono-therapist">pro bono counselling
+                initiative</Link> for those who cannot afford paid sessions.
               </p>
             </div>
           </div>

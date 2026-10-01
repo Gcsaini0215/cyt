@@ -8,7 +8,7 @@ import Footer from "../components/footer";
 import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
 import { fetchData } from "../utils/actions";
-import { getTherapistProfiles } from "../utils/url";
+import { getTherapistProfiles, imagePath } from "../utils/url";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
 // Self-hosted (not a third-party hotlink) so social/AI crawlers always get
@@ -28,11 +28,13 @@ const organizationSchema = {
   "logo": {
     "@type": "ImageObject",
     "url": "https://www.chooseyourtherapist.in/logo.png",
-    "width": 250,
-    "height": 60
+    "width": 1651,
+    "height": 426
   },
   "image": OG_IMAGE,
-  "foundingDate": "2021",
+  "foundingDate": "2020",
+  "founder": { "@id": "https://www.chooseyourtherapist.in/about-us#deepak-kumar" },
+  "employee": [{ "@id": "https://www.chooseyourtherapist.in/about-us#shubham-kumar" }],
   "identifier": [
     { "@type": "PropertyValue", "propertyID": "HFR ID (ABDM, National Health Authority)", "value": "IN0510005384" },
     { "@type": "PropertyValue", "propertyID": "MCA LLP registration (Ministry of Corporate Affairs)", "value": "AAX 8113" }
@@ -118,6 +120,28 @@ const organizationSchema = {
   ]
 };
 
+// Leadership — same people (and photos) as the notes slider on the page.
+const peopleSchema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "https://www.chooseyourtherapist.in/about-us#deepak-kumar",
+    "name": "Deepak Kumar",
+    "jobTitle": "Founder & Director",
+    "image": `${imagePath}/2bbed01e-4c05-4d99-aa6a-7c1f2053cfa5_profile-picture.jpg`,
+    "worksFor": { "@id": "https://www.chooseyourtherapist.in#organization" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": "https://www.chooseyourtherapist.in/about-us#shubham-kumar",
+    "name": "Shubham Kumar",
+    "jobTitle": "Associate Psychologist & Head of Operations",
+    "image": "https://www.chooseyourtherapist.in/images/team/shubham-kumar.jpg",
+    "worksFor": { "@id": "https://www.chooseyourtherapist.in#organization" }
+  }
+];
+
 // AboutPage schema
 const aboutPageSchema = {
   "@context": "https://schema.org",
@@ -126,6 +150,9 @@ const aboutPageSchema = {
   "description": "Learn about Choose Your Therapist's mission to make mental health support accessible, professional, and personalized across India through a network of verified psychologists.",
   "url": PAGE_URL,
   "about": { "@id": "https://www.chooseyourtherapist.in#organization" },
+  "mainEntity": { "@id": "https://www.chooseyourtherapist.in#organization" },
+  "primaryImageOfPage": { "@type": "ImageObject", "url": OG_IMAGE, "width": 1200, "height": 630 },
+  "inLanguage": "en-IN",
   "breadcrumb": {
     "@type": "BreadcrumbList",
     "itemListElement": [
@@ -169,7 +196,7 @@ export default function AboutUs() {
     <div id="__next">
       <Head>
         <title>About Choose Your Therapist | India's Verified Psychologist Network</title>
-        <meta name="description" content="Choose Your Therapist (CYT) is a MCA & MSME registered mental health platform connecting people across India — Noida, Delhi NCR, and online nationwide — with verified, licensed psychologists, counsellors and psychiatrists for confidential online and in-person therapy." />
+        <meta name="description" content="Find the right therapist in India — verified psychologists for online therapy or in-person sessions in Noida. HFR (ABDM) & MCA registered, since 2020." />
         <meta name="keywords" content="about Choose Your Therapist, CYT India, mental health platform India, verified psychologist network India, online therapy India, therapist near me India, counselling psychologist India, clinical psychologist India, Noida psychologist, Delhi NCR therapist, pan India online counselling, MCA MSME registered mental health platform" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta name="author" content="Choose Your Therapist LLP" />
@@ -181,7 +208,7 @@ export default function AboutUs() {
         <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
-        <meta property="og:description" content="Learn how Choose Your Therapist connects people across India with verified, licensed psychologists for confidential online and in-person therapy — our story, our founder, and how we work." />
+        <meta property="og:description" content="Verified psychologists for online therapy across India and in-person sessions in Noida. HFR registered under ABDM (National Health Authority) and MCA registered, since 2020." />
         <meta property="og:image" content={OG_IMAGE} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -193,7 +220,7 @@ export default function AboutUs() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={PAGE_URL} />
         <meta name="twitter:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
-        <meta name="twitter:description" content="Learn about Choose Your Therapist and our mission for mental health accessibility in India." />
+        <meta name="twitter:description" content="Verified psychologists for online therapy across India and in-person sessions in Noida. HFR (ABDM) & MCA registered, since 2020." />
         <meta name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:image:alt" content="What Choose Your Therapist stands for — HFR registered under ABDM (HFR ID IN0510005384), MCA, MSME, NHA and ABDM registrations" />
         <meta name="twitter:site" content="@CYT_India" />
@@ -201,6 +228,7 @@ export default function AboutUs() {
         {/* Schema.org — Organization + AboutPage */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(peopleSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutFaqSchema) }} />
       </Head>
       <MyNavbar />

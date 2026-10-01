@@ -194,7 +194,7 @@ export default function DirectorNote() {
                   </figure>
 
                   <div className="dn-copy">
-                    <span className="dn-kicker">{p.kicker}</span>
+                    <h2 className="dn-kicker">{p.kicker}</h2>
                     <span className="dn-quote-mark">&ldquo;</span>
                     <p className="dn-note">{p.note}</p>
                     <div className="dn-sign-name">{p.name}</div>

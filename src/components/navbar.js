@@ -206,12 +206,15 @@ export default function App() {
                     )}
                   </li>
                 </ul>
-                <div className="rbt-btn-wrapper d-none d-lg-block">
-                  <Link className="nav-cta-btn" href="/therapist-registration">
-                    <span className="nav-cta-full">Are You a Therapist?</span>
-                    <span className="nav-cta-short">For Therapists</span>
-                  </Link>
-                </div>
+                {/* Recruiting CTA — pointless for a therapist who's already logged in. */}
+                {userType !== 2 && (
+                  <div className="rbt-btn-wrapper d-none d-lg-block">
+                    <Link className="nav-cta-btn" href="/therapist-registration">
+                      <span className="nav-cta-full">Are You a Therapist?</span>
+                      <span className="nav-cta-short">For Therapists</span>
+                    </Link>
+                  </div>
+                )}
 
                 {/* Mobile Menu Button - Moved to right corner */}
                 <div className="mobile-menu-bar d-flex d-lg-none" onClick={() => setShow(true)}>
