@@ -12,8 +12,8 @@ import { getTherapistProfiles } from "../utils/url";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
 // Self-hosted (not a third-party hotlink) so social/AI crawlers always get
-// it; same photo as this page's own hero banner.
-const OG_IMAGE = "https://www.chooseyourtherapist.in/images/bg5.jpg";
+// it; 1200x630 share card made for this page (leadership + registrations).
+const OG_IMAGE = "https://www.chooseyourtherapist.in/images/og-about-us.jpg";
 
 // Organization schema — the most trusted signal for AI engines
 const organizationSchema = {
@@ -182,9 +182,9 @@ export default function AboutUs() {
         <meta property="og:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
         <meta property="og:description" content="Learn how Choose Your Therapist connects people across India with verified, licensed psychologists for confidential online and in-person therapy — our story, our founder, and how we work." />
         <meta property="og:image" content={OG_IMAGE} />
-        <meta property="og:image:width" content="1440" />
-        <meta property="og:image:height" content="960" />
-        <meta property="og:image:alt" content="Choose Your Therapist — mental health support across India" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="About Choose Your Therapist — founder Deepak Kumar, Head of Operations Shubham Kumar, and MCA, MSME, NHA and ABDM registrations" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
 
@@ -194,7 +194,7 @@ export default function AboutUs() {
         <meta name="twitter:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
         <meta name="twitter:description" content="Learn about Choose Your Therapist and our mission for mental health accessibility in India." />
         <meta name="twitter:image" content={OG_IMAGE} />
-        <meta name="twitter:image:alt" content="Choose Your Therapist — mental health support across India" />
+        <meta name="twitter:image:alt" content="About Choose Your Therapist — founder Deepak Kumar, Head of Operations Shubham Kumar, and MCA, MSME, NHA and ABDM registrations" />
         <meta name="twitter:site" content="@CYT_India" />
 
         {/* Schema.org — Organization + AboutPage */}
