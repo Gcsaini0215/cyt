@@ -1,6 +1,5 @@
 import { Box, Container } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { TypeAnimation } from "react-type-animation";
 
 /**
  * About-Us hero — same full-bleed photo-banner recipe as login/register/
@@ -50,26 +49,7 @@ const styles = `
   margin-bottom: 12px;
   text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
-.ab-title-sub {
-  display: block;
-  font-size: 0.72em;
-  font-weight: 800;
-  color: rgba(255,255,255,0.92);
-  margin-top: 4px;
-}
-.ab-typed {
-  font-size: 18px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  margin: 0 0 12px;
-  min-height: 1.5em;
-}
-.ab-animated {
-  color: #4ade80;
-  display: inline-block;
-  min-width: 150px;
-  text-align: left;
-}
+.ab-accent { color: #4ade80; }
 .ab-subtitle {
   font-size: 14px;
   color: rgba(255,255,255,0.85);
@@ -82,8 +62,6 @@ const styles = `
   .ab-badge { display: none; }
   .ab-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
   .ab-subtitle { font-size: 13px; padding: 0 16px; }
-  .ab-typed { font-size: 15px; margin-bottom: 8px; }
-  .ab-animated { min-width: 0; display: inline; text-align: center; }
 }
 `;
 
@@ -102,24 +80,9 @@ export default function AboutUsBanner() {
               <FavoriteIcon sx={{ fontSize: 16 }} />
               <span>Our Story &amp; Vision</span>
             </div>
-            {/* Keyword line is plain text so crawlers get the full H1 from
-                the server HTML; the typed words only render client-side, so
-                they live in a separate decorative line below. */}
             <h1 className="ab-title">
-              Find the Right Therapist in India{" "}
-              <span className="ab-title-sub">— Online or In-Person in Noida</span>
+              Find the <span className="ab-accent">Right Therapist</span> in India — Online or In-Person in Noida
             </h1>
-            <p className="ab-typed">
-              Making mental health{" "}
-              <span className="ab-animated">
-                <TypeAnimation
-                  sequence={["Accessible", 2000, "Judgment-Free", 2000, "Human Again", 2000]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
-              </span>
-            </p>
             <p className="ab-subtitle">
               Founded in 2020, Choose Your Therapist connects individuals across India with
               verified psychologists — because everyone deserves to be heard.
