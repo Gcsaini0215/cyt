@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" width="900" height="320">
+  <title>MSME — Micro, Small &amp; Medium Enterprises</title>
+  <defs>
+    <mask id="slits">
+      <rect width="900" height="320" fill="#fff"/>
+      <!-- M: two vertical slits, open at the bottom -->
+      <rect x="92" y="52" width="16" height="190" fill="#000"/>
+      <rect x="160" y="52" width="16" height="190" fill="#000"/>
+      <!-- S: upper slit open right, lower slit open left -->
+      <rect x="292" y="84" width="150" height="16" fill="#000"/>
+      <rect x="238" y="150" width="152" height="16" fill="#000"/>
+      <!-- M -->
+      <rect x="512" y="52" width="16" height="190" fill="#000"/>
+      <rect x="580" y="52" width="16" height="190" fill="#000"/>
+      <!-- E: two slits open right -->
+      <rect x="718" y="84" width="150" height="16" fill="#000"/>
+      <rect x="718" y="150" width="150" height="16" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="#2e3192" mask="url(#slits)">
+    <!-- M: rounded top corners -->
+    <path d="M28 232V72a54 54 0 0 1 54-54h96a54 54 0 0 1 54 54v160z"/>
+    <!-- S: rounded top-left and bottom-right -->
+    <path d="M245 72a54 54 0 0 1 54-54h136v160a54 54 0 0 1-54 54H245z"/>
+    <!-- M -->
+    <path d="M448 232V72a54 54 0 0 1 54-54h96a54 54 0 0 1 54 54v160z"/>
+    <!-- E: rounded left corners -->
+    <path d="M668 72a54 54 0 0 1 54-54h133v214H722a54 54 0 0 1-54-54z"/>
+  </g>
+  <rect x="28" y="244" width="827" height="11" fill="#2e3192"/>
+  <text x="28" y="306" textLength="827" lengthAdjust="spacingAndGlyphs"
+        font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="42" fill="#2e3192">MICRO, SMALL &amp; MEDIUM ENTERPRISES</text>
+</svg>

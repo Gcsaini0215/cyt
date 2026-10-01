@@ -8,7 +8,7 @@ import { HelpCircle } from "lucide-react";
 export const aboutFaqData = [
   {
     q: "Is Choose Your Therapist a registered, licensed organization?",
-    a: "Yes. Choose Your Therapist is registered under the MCA (Ministry of Corporate Affairs) and MSME, and operates as Choose Your Therapist LLP. Every psychologist on our platform is independently verified before they're allowed to see a client."
+    a: "Yes. Choose Your Therapist is a registered health facility on the Health Facility Registry (HFR) under the Ayushman Bharat Digital Mission (ABDM), National Health Authority, Government of India (HFR ID: IN0510005384). It operates as Choose Your Therapist LLP, registered with the Ministry of Corporate Affairs (AAX 8113), and is MSME registered. Every psychologist on our platform is independently verified before they're allowed to see a client."
   },
   {
     q: "How does CYT verify its therapists?",

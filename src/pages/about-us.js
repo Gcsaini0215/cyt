@@ -32,6 +32,10 @@ const organizationSchema = {
   },
   "image": OG_IMAGE,
   "foundingDate": "2021",
+  "identifier": [
+    { "@type": "PropertyValue", "propertyID": "HFR ID (ABDM, National Health Authority)", "value": "IN0510005384" },
+    { "@type": "PropertyValue", "propertyID": "MCA LLP registration (Ministry of Corporate Affairs)", "value": "AAX 8113" }
+  ],
   "foundingLocation": {
     "@type": "Place",
     "address": {
