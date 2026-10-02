@@ -979,6 +979,14 @@ function OfferClaimModal({ offer, prefill, onClose, onClaimed }) {
   );
 }
 
+// "· last session on 28 Sep" after the sessions-left count (from the lookup), so a
+// returning client can see their package is counted right.
+function lastSessionTxt(cr) {
+  if (!cr?.lastUsedAt) return "";
+  const d = new Date(cr.lastUsedAt);
+  return isNaN(d) ? "" : ` · last session on ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}`;
+}
+
 export default function NoidaAppointment({ seoPricing = null }) {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
@@ -2871,7 +2879,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                   <div className="na-lookup-box na-lookup-found">
                     <span>
                       <Ic I={WavingHandRounded} /> Welcome back, {foundName}!
-                      {usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""} — no payment needed.`}
+                      {usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""}${lastSessionTxt(credit)} — no payment needed.`}
                     </span>
                     <button type="button" className="na-lookup-link" onClick={() => setManualOverride(true)}>Not you?</button>
                   </div>
@@ -3163,7 +3171,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                             {lookupStatus === "checking" && <div className="na-lookup-box na-lookup-checking">Checking…</div>}
                             {lookupStatus === "found" && !manualOverride && (
                               <div className="na-lookup-box na-lookup-found">
-                                <span><Ic I={WavingHandRounded} /> Welcome back, {foundName}!{usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""} — no payment needed.`}</span>
+                                <span><Ic I={WavingHandRounded} /> Welcome back, {foundName}!{usingCredit && ` You have ${credit.sessionsRemaining} session(s) left${credit.packageName ? ` on ${credit.packageName}` : ""}${lastSessionTxt(credit)} — no payment needed.`}</span>
                                 <button type="button" className="na-lookup-link" onClick={() => setManualOverride(true)}>Not you?</button>
                               </div>
                             )}
