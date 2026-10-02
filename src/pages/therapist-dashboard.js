@@ -524,8 +524,13 @@ function ReviewsBlock({ reviews }) {
 const SESSION_WINDOW_MS = 60 * 60 * 1000;
 
 /** Dashboard header — greeting, today at a glance, and the next session's Join. */
+// Time-of-day greeting. Needs a real clock: this page is pre-rendered at
+// build time, so computing it during SSR froze the build hour into the HTML
+// and the browser's hydration (e.g. "afternoon" vs "morning") mismatched.
+// Until the client clock is set, show a neutral greeting.
 function greetingFor(d) {
-  const h = Number((d || new Date()).toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" }));
+  if (!d) return "Welcome back";
+  const h = Number(d.toLocaleString("en-US", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kolkata" }));
   if (h < 12) return "Good morning";
   if (h < 17) return "Good afternoon";
   return "Good evening";
