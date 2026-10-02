@@ -5,12 +5,42 @@ import AppointmentsContent from "../components/therapists/appointment/appointmen
 import { toast } from "react-toastify";
 import { fetchById } from "../utils/actions";
 import { getBookings } from "../utils/url";
-import PageProgressBar from "../components/global/page-progress";
+
+// In-body placeholder shaped like the real page (title, stat tiles, cards) —
+// replaces the old full-screen loader that covered the nav on every visit.
+const skeletonStyles = `
+  .aps-blk{background:linear-gradient(90deg,#e3e9e5 0%,#f1f5f2 40%,#e3e9e5 80%);background-size:200% 100%;animation:apsShim 1.2s ease-in-out infinite;border-radius:6px;}
+  @keyframes apsShim{from{background-position:100% 0}to{background-position:-100% 0}}
+  .aps-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 16px;}
+  .aps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  @media (max-width:1100px){.aps-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:768px){.aps-stats{grid-template-columns:repeat(2,1fr);}.aps-grid{grid-template-columns:1fr;}}
+  @media (prefers-reduced-motion:reduce){.aps-blk{animation:none;}}
+`;
+
+function AppointmentsSkeleton() {
+  return (
+    <div className="content container-fluid pb-4" aria-busy="true" aria-label="Loading sessions">
+      <style dangerouslySetInnerHTML={{ __html: skeletonStyles }} />
+      <div className="aps-blk" style={{ width: 140, height: 22 }} />
+      <div className="aps-blk" style={{ width: 260, height: 12, marginTop: 8 }} />
+      <div className="aps-stats">
+        {[0, 1, 2, 3, 4].map((i) => <div key={i} className="aps-blk" style={{ height: 64 }} />)}
+      </div>
+      <div className="aps-blk" style={{ height: 38, marginBottom: 14 }} />
+      <div className="aps-grid">
+        {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="aps-blk" style={{ height: 150 }} />)}
+      </div>
+    </div>
+  );
+}
 
 export default function AppointmentsPage() {
   const [data, setData] = useState([]);
   const [statusList, setDataList] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // Start in the loading state so the first paint is the skeleton, not a
+  // flash of "No Bookings Yet" before the fetch begins.
+  const [loading, setLoading] = useState(true);
 
   const getData = useCallback(async () => {
     try {
@@ -29,13 +59,12 @@ export default function AppointmentsPage() {
 
   // Initial load
   useEffect(() => {
-    setLoading(true);
     getData().finally(() => setLoading(false));
   }, [getData]);
 
   return (
     <MainLayout>
-      {loading ? <PageProgressBar /> : data && data.length === 0 ? <div
+      {loading ? <AppointmentsSkeleton /> : data && data.length === 0 ? <div
         style={{
           background: "#fff", borderRadius: 6, borderTop: "3px solid #c9962c", border: "1px solid #ecefec",
           boxShadow: "0 4px 20px rgba(15,61,36,0.08)", paddingBottom: 44, paddingTop: 44,

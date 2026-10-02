@@ -36,6 +36,26 @@ export default function DashboardTopNav() {
   const router = useRouter();
   const pathname = router.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
+  // Profile menu: click toggles, hover opens; closing on mouse-leave waits a
+  // beat so moving the pointer down into the menu doesn't shut it.
+  const profileRef = useRef(null);
+  const closeTimer = useRef(null);
+  const openProfile = () => { clearTimeout(closeTimer.current); setProfileOpen(true); };
+  const closeProfileSoon = () => { clearTimeout(closeTimer.current); closeTimer.current = setTimeout(() => setProfileOpen(false), 250); };
+  useEffect(() => {
+    if (!profileOpen) return;
+    const onDown = (e) => { if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false); };
+    const onKey = (e) => { if (e.key === "Escape") setProfileOpen(false); };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [profileOpen]);
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
   const prevBookingsCount = useRef(null);
 
   // Blinkit-style floating bottom bar: tucked away at the top of the page,
@@ -175,7 +195,11 @@ export default function DashboardTopNav() {
           background: #fff; border: 1px solid #e4ece7;
           border-radius: 10px; min-width: 210px; z-index: 600;
           box-shadow: 0 18px 44px rgba(15,23,42,0.14); padding: 5px;
+          animation: tnDdIn .14s ease both;
         }
+        /* invisible bridge over the 6px gap, so the pointer never "leaves" */
+        .tn-prof-dd::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; height: 8px; }
+        @keyframes tnDdIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
         .tn-prof-dd-head { padding: 10px 12px 9px; border-bottom: 1px solid #eef2f0; margin-bottom: 5px; }
         .tn-prof-dd a, .tn-prof-dd button {
           display: flex; align-items: center; gap: 10px;
@@ -265,17 +289,24 @@ export default function DashboardTopNav() {
           </Link>
 
           <div
+            ref={profileRef}
             style={{ position: "relative", height: "100%", display: "flex", alignItems: "center" }}
-            onMouseEnter={() => setProfileOpen(true)}
-            onMouseLeave={() => setProfileOpen(false)}
+            onMouseEnter={openProfile}
+            onMouseLeave={closeProfileSoon}
           >
-            <button className="tn-prof-btn">
+            <button
+              type="button"
+              className="tn-prof-btn"
+              aria-haspopup="menu"
+              aria-expanded={profileOpen}
+              onClick={() => { clearTimeout(closeTimer.current); setProfileOpen((o) => !o); }}
+            >
               <img src={avatarSrc} alt={therapistInfo?.user?.name || "Therapist"} className="tn-prof-av" onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }} />
               <span className="tn-prof-name">{therapistInfo?.user?.name || "Therapist"}</span>
               <KeyboardArrowDownRoundedIcon className="tn-prof-chevron" />
             </button>
             {profileOpen && (
-              <div className="tn-prof-dd">
+              <div className="tn-prof-dd" role="menu" onClick={() => setProfileOpen(false)}>
                 <div className="tn-prof-dd-head">
                   <p style={{ color: "#0f172a", fontWeight: 700, fontSize: 13, margin: 0 }}>{therapistInfo?.user?.name}</p>
                   <p style={{ color: "#166534", fontSize: 10.5, margin: "2px 0 0", fontWeight: 600 }}>Therapist</p>

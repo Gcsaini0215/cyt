@@ -8,8 +8,9 @@ import {
   defaultProfile,
   imagePath,
   GetMyReviewsUrl,
+  SetDashboardSinceUrl,
 } from "../utils/url";
-import { fetchById } from "../utils/actions";
+import { fetchById, postData } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import AvailabilityNudge from "../components/therapists/dashboard/AvailabilityNudge";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
@@ -33,7 +34,6 @@ import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
-import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 
 /* ══════════════════════════════════════════════════════════════════
@@ -71,13 +71,6 @@ function getNum(v) {
     return parseFloat(v.$numberDecimal) || 0;
   const n = parseFloat(v);
   return Number.isFinite(n) ? n : 0;
-}
-function toStr(v) {
-  if (!v) return "";
-  if (Array.isArray(v))
-    return v.map((i) => i?.label || i?.value || String(i)).filter(Boolean).join(", ");
-  if (typeof v === "object") return v.label || v.value || "";
-  return String(v);
 }
 const inr = (v) => "₹" + Math.round(getNum(v)).toLocaleString("en-IN");
 
@@ -526,80 +519,171 @@ function ReviewsBlock({ reviews }) {
   );
 }
 
-/** Next-session hero strip. */
-function NextSessionStrip({ session }) {
-  if (!session) return null;
-  const until = timeUntil(session.date);
+// A session stays "next"/"upcoming" until an hour after its start time; older
+// bookings that were simply never marked Completed are history, not upcoming.
+const SESSION_WINDOW_MS = 60 * 60 * 1000;
+
+/** Dashboard header — greeting, today at a glance, and the next session's Join. */
+function greetingFor(d) {
+  const h = Number((d || new Date()).toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" }));
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+const HDR = {
+  bg: `radial-gradient(120% 140% at 100% 0%, rgba(74,222,128,.22) 0%, transparent 55%), linear-gradient(135deg, ${UI.green.d900} 0%, ${UI.green.d800} 55%, #17663a 100%)`,
+  gold: "#f2c94c",
+  soft: "rgba(255,255,255,.72)",
+  faint: "rgba(255,255,255,.5)",
+  glass: "rgba(255,255,255,.09)",
+  glassLine: "rgba(255,255,255,.16)",
+};
+
+function HeaderChip({ icon: Icon, label, value }) {
   return (
-    <Box
-      sx={{
-        borderRadius: `${UI.cardRadius}px`,
-        overflow: "hidden",
-        background: `linear-gradient(135deg, ${UI.green.d900}, ${UI.green.d800} 60%, #17663a)`,
-        boxShadow: UI.cardShadow,
-        display: "flex",
-        alignItems: "center",
-        gap: { xs: 1.5, md: 2 },
-        p: { xs: 1.75, md: 2.25 },
-        flexWrap: "wrap",
-      }}
-    >
-      <Avatar
-        src={session.imgSrc || defaultProfile}
-        alt={session.name}
-        sx={{ width: 46, height: 46, borderRadius: "10px", border: "2px solid rgba(255,255,255,.25)", flexShrink: 0 }}
-      />
-      <Box sx={{ flex: 1, minWidth: 140 }}>
-        <Typography sx={{ fontSize: "9.5px", fontWeight: 800, letterSpacing: "1px", color: "rgba(255,255,255,.55)", textTransform: "uppercase" }}>
-          Next session
-        </Typography>
-        <Typography sx={{ fontSize: { xs: "14px", md: "15px" }, fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>
-          {session.name}
-        </Typography>
-        <Typography sx={{ fontSize: "11.5px", color: "rgba(255,255,255,.7)", fontWeight: 600, mt: 0.2 }}>
-          {fmtShortDate(session.date)} · {fmtTime(session.date)}
-        </Typography>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0, background: HDR.glass, border: `1px solid ${HDR.glassLine}`, borderRadius: "12px", px: 1.25, py: 0.9, backdropFilter: "blur(6px)" }}>
+      <Box sx={{ width: 30, height: 30, borderRadius: "9px", background: "rgba(242,201,76,.16)", color: HDR.gold, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Icon sx={{ fontSize: 17 }} />
       </Box>
-      {until && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            background: "rgba(255,255,255,.12)",
-            border: "1px solid rgba(255,255,255,.18)",
-            borderRadius: "999px",
-            px: 1.4,
-            py: 0.6,
-            flexShrink: 0,
-          }}
-        >
-          <BoltRoundedIcon sx={{ fontSize: 13, color: UI.green.light }} />
-          <Typography sx={{ fontSize: "11.5px", fontWeight: 800, color: "#fff" }}>
-            {until === "Now" ? "Now" : `in ${until}`}
+      <Box sx={{ minWidth: 0 }}>
+        <Typography sx={{ fontSize: "10px", fontWeight: 700, color: HDR.faint, textTransform: "uppercase", letterSpacing: ".6px", lineHeight: 1.2, whiteSpace: "nowrap" }}>{label}</Typography>
+        <Typography sx={{ fontSize: "15px", fontWeight: 800, color: "#fff", lineHeight: 1.3, whiteSpace: "nowrap" }}>{value}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
+function SincePicker({ since, saving, onChange }) {
+  return since ? (
+    <>
+      <Typography sx={{ fontSize: "12px", color: HDR.soft, fontWeight: 600 }}>
+        Overview since {fmtShortDate(since)} {safeDate(since)?.getFullYear()}
+      </Typography>
+      <Box component="button" type="button" disabled={saving} onClick={() => onChange(null)}
+        sx={{ border: 0, background: "none", p: 0, fontSize: "12px", fontWeight: 700, color: HDR.gold, cursor: "pointer", textDecoration: "underline" }}>
+        Show all-time
+      </Box>
+    </>
+  ) : (
+    <Box component="button" type="button" disabled={saving} onClick={() => onChange("month")}
+      sx={{ border: `1px solid ${HDR.glassLine}`, background: HDR.glass, color: "#fff", borderRadius: "9px", px: 1.25, py: 0.7, fontSize: "12px", fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 0.5, "&:hover": { background: "rgba(255,255,255,.16)" } }}>
+      <RefreshRoundedIcon sx={{ fontSize: 15 }} /> Start fresh from this month
+    </Box>
+  );
+}
+
+function DashHeader({
+  name, firstName, avatarSrc, verified, profileId, clockTime,
+  todaySessions, todayRevenue, nextSession, refreshing, lastRefreshed, onRefresh,
+  loading, since, savingSince, onChangeSince,
+}) {
+  const until = nextSession ? timeUntil(nextSession.date) : "";
+  // Join goes gold from 10 min before start (and while the session runs).
+  const joinLive = !!nextSession && (until === "Now" || (/^\d+m$/.test(until) && parseInt(until, 10) <= 10));
+  const dateLabel = clockTime
+    ? clockTime.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" })
+    : "";
+  const todayLine = todaySessions > 0
+    ? `${todaySessions} session${todaySessions > 1 ? "s" : ""} today`
+    : "No sessions today";
+  const nextLine = nextSession
+    ? `Next: ${nextSession.name} · ${fmtShortDate(nextSession.date)}, ${fmtTime(nextSession.date)}`
+    : "";
+
+  return (
+    <Box sx={{ position: "relative", overflow: "hidden", background: HDR.bg, borderRadius: `${UI.cardRadius + 4}px`, boxShadow: "0 18px 40px -22px rgba(15,61,36,.55)", mb: { xs: 1.5, md: 2 }, p: { xs: 2, sm: 2.5, md: 3 }, color: "#fff" }}>
+      {/* soft decorative rings */}
+      <Box sx={{ position: "absolute", top: -70, right: -50, width: 220, height: 220, borderRadius: "50%", border: "1px solid rgba(255,255,255,.08)", pointerEvents: "none" }} />
+      <Box sx={{ position: "absolute", top: -30, right: 40, width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,.04)", pointerEvents: "none" }} />
+      <Box sx={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 3, background: `linear-gradient(90deg, transparent, ${HDR.gold}, transparent)`, opacity: 0.55, pointerEvents: "none" }} />
+
+      {/* row 1 — who + today, Join on the right (full width below on phones) */}
+      <Box sx={{ position: "relative", display: "flex", alignItems: { xs: "flex-start", sm: "center" }, gap: { xs: 1.5, md: 2 }, flexWrap: { xs: "wrap", sm: "nowrap" } }}>
+        <Box sx={{ position: "relative", width: { xs: 52, md: 62 }, height: { xs: 52, md: 62 }, flexShrink: 0 }}>
+          <Box component="img" src={avatarSrc} alt={name}
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }}
+            sx={{ width: "100%", height: "100%", borderRadius: "14px", objectFit: "cover", display: "block", border: "2px solid rgba(242,201,76,.7)" }} />
+          <Box sx={{ position: "absolute", bottom: -3, right: -3, width: 14, height: 14, borderRadius: "50%", background: UI.green.light, border: `2.5px solid ${UI.green.d900}` }} />
+        </Box>
+
+        <Box sx={{ minWidth: 0, flex: 1 }}>
+          <Typography sx={{ fontSize: "11.5px", fontWeight: 600, color: HDR.faint, mb: 0.3, letterSpacing: ".2px" }}>{dateLabel}</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.9, flexWrap: "wrap" }}>
+            <Typography component="h1" sx={{ fontSize: { xs: 19, sm: 21, md: 25 }, fontWeight: 800, color: "#fff", lineHeight: 1.2, m: 0 }}>
+              {greetingFor(clockTime)}, {firstName}
+            </Typography>
+            {verified && (
+              <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, background: "rgba(242,201,76,.16)", color: HDR.gold, border: "1px solid rgba(242,201,76,.35)", borderRadius: "999px", px: 0.9, py: 0.2, fontSize: "10.5px", fontWeight: 800 }}>
+                <CheckCircleRoundedIcon sx={{ fontSize: 13 }} /> Verified
+              </Box>
+            )}
+          </Box>
+          <Typography sx={{ fontSize: { xs: 12.5, md: 13.5 }, color: HDR.soft, fontWeight: 600, mt: 0.5 }}>
+            {loading ? "Loading your day…" : (
+              <>
+                {todayLine}
+                {nextLine && (
+                  <Box component="span" sx={{ display: { xs: "block", sm: "inline" } }}>
+                    <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}> · </Box>
+                    {nextLine}
+                  </Box>
+                )}
+              </>
+            )}
           </Typography>
         </Box>
-      )}
-      <Link href="/appointments" style={{ textDecoration: "none", flexShrink: 0 }}>
-        <Box
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 0.6,
-            background: "#fff",
-            color: UI.green.d800,
-            fontSize: "11.5px",
-            fontWeight: 800,
-            borderRadius: "8px",
-            px: 1.6,
-            py: 0.9,
-            "&:hover": { background: UI.green.bg },
-          }}
-        >
-          <VideocamRoundedIcon sx={{ fontSize: 15 }} />
-          Join
+
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: { xs: "stretch", sm: "flex-end" }, gap: 0.9, flexShrink: 0, width: { xs: "100%", sm: "auto" } }}>
+          <Link href="/appointments" style={{ textDecoration: "none" }}>
+            <Box sx={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 0.75,
+              borderRadius: "11px", px: 2.25, py: 1.15, fontSize: "13px", fontWeight: 800, whiteSpace: "nowrap",
+              transition: "transform .15s, background .2s",
+              "&:hover": { transform: "translateY(-1px)" },
+              ...(joinLive
+                ? { background: HDR.gold, color: UI.green.d900, boxShadow: "0 0 0 4px rgba(242,201,76,.25)" }
+                : { background: "#fff", color: UI.green.d800, boxShadow: "0 8px 18px -10px rgba(0,0,0,.45)" }),
+            }}>
+              {nextSession ? <VideocamRoundedIcon sx={{ fontSize: 18 }} /> : <EventAvailableRoundedIcon sx={{ fontSize: 18 }} />}
+              {nextSession ? (joinLive ? "Join session" : `Next in ${until}`) : "View schedule"}
+            </Box>
+          </Link>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "space-between", sm: "flex-end" }, gap: 1.5 }}>
+            <Box component="button" type="button" onClick={onRefresh} disabled={refreshing}
+              sx={{ border: 0, background: "none", p: 0, display: "inline-flex", alignItems: "center", gap: 0.5, fontSize: "11px", fontWeight: 600, color: HDR.faint, cursor: "pointer", "&:hover": { color: "#fff" } }}>
+              {refreshing ? <CircularProgress size={11} sx={{ color: HDR.faint }} /> : <RefreshRoundedIcon sx={{ fontSize: 14 }} />}
+              {lastRefreshed ? `Updated ${lastRefreshed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })}` : "Loading…"}
+            </Box>
+            {profileId && (
+              <Link href={`/view-profile/${profileId}`} target="_blank" style={{ textDecoration: "none" }}>
+                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, fontSize: "11px", fontWeight: 800, color: HDR.gold }}>
+                  Public profile <OpenInNewRoundedIcon sx={{ fontSize: 12 }} />
+                </Box>
+              </Link>
+            )}
+          </Box>
         </Box>
-      </Link>
+      </Box>
+
+      {/* row 2 — today at a glance (chips scroll sideways on phones) + overview period */}
+      <Box sx={{ position: "relative", mt: { xs: 1.75, md: 2.25 }, display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1, overflowX: "auto", flex: 1, minWidth: 0, scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
+          <HeaderChip icon={EventRepeatRoundedIcon} label="Today's sessions" value={loading ? "—" : todaySessions} />
+          <HeaderChip icon={PaymentsRoundedIcon} label="Today's earnings" value={loading ? "—" : `₹${Number(todayRevenue || 0).toLocaleString("en-IN")}`} />
+          <HeaderChip icon={ScheduleRoundedIcon} label="Next session" value={loading ? "—" : nextSession ? (until === "Now" ? "Now" : `in ${until}`) : "None"} />
+        </Box>
+        {!loading && (
+          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 1, flexShrink: 0 }}>
+            <SincePicker since={since} saving={savingSince} onChange={onChangeSince} />
+          </Box>
+        )}
+      </Box>
+      {!loading && (
+        <Box sx={{ position: "relative", display: { xs: "flex", md: "none" }, justifyContent: "flex-end", alignItems: "center", gap: 1, mt: 1.25 }}>
+          <SincePicker since={since} saving={savingSince} onChange={onChangeSince} />
+        </Box>
+      )}
     </Box>
   );
 }
@@ -664,7 +748,7 @@ export default function TherapistDashboard() {
 
   const [stats, setStats] = React.useState({
     totalEarnings: 0, monthEarnings: 0, upcoming: 0, totalClients: 0,
-    todayClients: 0, todayRevenue: 0, pendingCount: 0, completedCount: 0,
+    todayClients: 0, todaySessions: 0, todayRevenue: 0, pendingCount: 0, completedCount: 0,
     completionRate: 0, monthGrowth: null, monthGrowthUp: true,
   });
   const [weeklyData, setWeeklyData] = React.useState([]);
@@ -673,6 +757,9 @@ export default function TherapistDashboard() {
   const [nextSession, setNextSession] = React.useState(null);
   const [invoices, setInvoices] = React.useState([]);
   const [myReviews, setMyReviews] = React.useState([]);
+  // Overview "start fresh" date (server-side, per therapist); null = all-time.
+  const [since, setSince] = React.useState(null);
+  const [savingSince, setSavingSince] = React.useState(false);
 
   const { therapistInfo, paymentStore } = useTherapistStore();
 
@@ -699,9 +786,16 @@ export default function TherapistDashboard() {
       const reviewsData = reviewsRes.status === "fulfilled" ? reviewsRes.value : {};
 
       setMyReviews(reviewsData?.status ? reviewsData.data || [] : []);
-      const bookings = bookingsData?.status ? bookingsData.data || [] : [];
-      const workshops = workshopData?.status ? workshopData.data || [] : [];
       const dashData = dashResData?.status ? dashResData.data || {} : {};
+      // Overview only counts from the therapist's "start fresh" date, if set —
+      // records themselves are untouched (appointments page shows everything).
+      const sinceDate = safeDate(dashData.since);
+      setSince(dashData.since || null);
+      const inRange = (d) => !sinceDate || (d && d >= sinceDate);
+      const bookings = (bookingsData?.status ? bookingsData.data || [] : [])
+        .filter((b) => inRange(safeDate(b.booking_date)));
+      const workshops = (workshopData?.status ? workshopData.data || [] : [])
+        .filter((w) => inRange(safeDate(w.createdAt || w.created_at || w.date)));
 
       const now = new Date();
       const todayStr = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })).toDateString();
@@ -714,6 +808,7 @@ export default function TherapistDashboard() {
       let monthEarnings = 0, lastMonthEarnings = 0, todayRevenue = 0;
       let completedCount = 0, pendingCount = 0;
       const todayClientIds = new Set();
+      let todaySessions = 0;
 
       bookings.forEach((b) => {
         const bStatus = b.status || "New";
@@ -723,6 +818,7 @@ export default function TherapistDashboard() {
           if (bd >= monthStart) monthEarnings += amt;
           else if (bd >= lastMonthStart) lastMonthEarnings += amt;
           if (bd.toDateString() === todayStr) {
+            if (bStatus !== "Cancelled") todaySessions++;
             todayRevenue += amt;
             if (b.client?._id) todayClientIds.add(b.client._id.toString());
           }
@@ -754,6 +850,10 @@ export default function TherapistDashboard() {
 
       const upcomingList = bookings
         .filter((b) => b.status !== "Completed" && b.status !== "Cancelled")
+        .filter((b) => {
+          const d = safeDate(b.booking_date);
+          return d && d.getTime() >= now.getTime() - SESSION_WINDOW_MS;
+        })
         .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
         .map(toMap);
 
@@ -819,6 +919,7 @@ export default function TherapistDashboard() {
         upcoming: upcomingList.length,
         totalClients,
         todayClients: todayClientIds.size,
+        todaySessions,
         todayRevenue: Math.round(todayRevenue),
         pendingCount,
         completedCount,
@@ -848,6 +949,22 @@ export default function TherapistDashboard() {
     return () => clearInterval(iv);
   }, [load]);
 
+  const changeSince = React.useCallback(async (mode) => {
+    const msg = mode === "month"
+      ? "Start the overview fresh from the 1st of this month?\n\nOlder bookings stay in Appointments and Invoices — they just stop counting here."
+      : "Show all-time numbers in the overview again?";
+    if (!window.confirm(msg)) return;
+    setSavingSince(true);
+    try {
+      await postData(SetDashboardSinceUrl, { since: mode });
+      await load(true);
+    } catch (e) {
+      window.alert("Couldn't update the overview. Please try again.");
+    } finally {
+      setSavingSince(false);
+    }
+  }, [load]);
+
   const dismissWelcome = React.useCallback(() => {
     setWelcLeaving(true);
     setTimeout(() => {
@@ -875,20 +992,7 @@ export default function TherapistDashboard() {
   const completionPct = Math.round((profileChecks.filter((c) => c.done).length / profileChecks.length) * 100);
 
   const firstName = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
-  const todayLabel = clockTime
-    ? clockTime.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" })
-    : "";
-  const clockLabel = clockTime
-    ? clockTime.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })
-    : "";
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
-
-  const bannerChips = [
-    therapistInfo?.qualification && { icon: "feather-award", text: toStr(therapistInfo.qualification) },
-    therapistInfo?.year_of_exp && { icon: "feather-briefcase", text: `${toStr(therapistInfo.year_of_exp)} yrs exp` },
-    therapistInfo?.state && { icon: "feather-map-pin", text: toStr(therapistInfo.state) },
-    { icon: "feather-check-circle", text: `${stats.completedCount} sessions done` },
-  ].filter(Boolean);
 
   const statCards = [
     { icon: AccountBalanceWalletRoundedIcon, label: "Total Earnings", value: stats.totalEarnings, isCurrency: true, accent: "#16a34a", accentDark: "#0f3d24" },
@@ -905,87 +1009,25 @@ export default function TherapistDashboard() {
       <AvailabilityNudge therapistInfo={therapistInfo} blocked={showWelcome} />
 
       <Box sx={{ pb: 6 }}>
-        {/* ══ LETTERHEAD ═══════════════════════════════════════ */}
-        <Box
-          sx={{
-            background: "#fff",
-            border: UI.cardBorder,
-            borderRadius: `${UI.cardRadius}px`,
-            mb: { xs: 2, md: 3 },
-            overflow: "hidden",
-            boxShadow: UI.cardShadow,
-          }}
-        >
-          <Box
-            sx={{
-              background: `linear-gradient(135deg,${UI.green.d900},${UI.green.d800})`,
-              borderBottom: "3px solid #d4af37",
-              position: "relative",
-              p: { xs: "18px 16px", md: "22px 24px 20px" },
-            }}
-          >
-            <Box sx={{ position: "absolute", top: -40, right: -20, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-
-            {/* clock — hidden on xs to avoid crowding */}
-            <Box sx={{ position: "absolute", top: 14, right: 20, textAlign: "right", display: { xs: "none", sm: "block" } }}>
-              <Typography sx={{ fontSize: 9, color: "rgba(255,255,255,0.5)", fontWeight: 600, whiteSpace: "nowrap" }}>{todayLabel}</Typography>
-              <Typography sx={{ fontSize: 15, fontWeight: 800, color: "#fff", lineHeight: 1.2 }}>{clockLabel}</Typography>
-            </Box>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, md: 2 }, flexWrap: "wrap" }}>
-              <Box sx={{ position: "relative", width: { xs: 54, md: 64 }, height: { xs: 54, md: 64 }, flexShrink: 0 }}>
-                <Box
-                  component="img"
-                  src={avatarSrc}
-                  alt={firstName}
-                  onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }}
-                  sx={{ width: "100%", height: "100%", borderRadius: "8px", objectFit: "cover", border: "3px solid rgba(212,175,55,0.65)", display: "block" }}
-                />
-                <Box sx={{ position: "absolute", bottom: -2, right: -2, width: 13, height: 13, borderRadius: "50%", background: UI.green.light, border: `2.5px solid ${UI.green.d900}` }} />
-              </Box>
-              <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography sx={{ fontSize: { xs: 16, md: 19 }, fontWeight: 800, color: "#fff", lineHeight: 1.2, mb: 0.4 }}>
-                  {therapistInfo?.user?.name || firstName}
-                </Typography>
-                <Typography sx={{ fontSize: { xs: 10.5, md: 12 }, fontWeight: 600, color: "rgba(255,255,255,0.78)", textTransform: "uppercase", letterSpacing: "0.4px", mb: 1 }}>
-                  {therapistInfo?.profile_type || "Therapist"} · Choose Your Therapist
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "5px 14px" }}>
-                  {bannerChips.map((chip, i) => (
-                    <Box key={i} component="span" sx={{ display: "flex", alignItems: "center", gap: 0.5, fontSize: 11, color: "rgba(255,255,255,0.78)", fontWeight: 600 }}>
-                      <i className={chip.icon} style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }} />
-                      {chip.text}
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            </Box>
-
-            <Box sx={{ mt: 1.75, pt: 1.25, borderTop: "1px solid rgba(255,255,255,0.14)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                {refreshing ? (
-                  <CircularProgress size={11} sx={{ color: "rgba(255,255,255,0.6)" }} />
-                ) : (
-                  <RefreshRoundedIcon
-                    onClick={() => load(true)}
-                    sx={{ fontSize: 13, color: "rgba(255,255,255,0.55)", cursor: "pointer", "&:hover": { color: "#fff" } }}
-                  />
-                )}
-                <Typography sx={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>
-                  {lastRefreshed ? `Updated ${lastRefreshed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })}` : "Loading…"}
-                </Typography>
-              </Box>
-              {therapistInfo?._id && (
-                <Link href={`/view-profile/${therapistInfo._id}`} target="_blank" style={{ textDecoration: "none" }}>
-                  <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, fontSize: 11.5, fontWeight: 800, color: "#d4af37" }}>
-                    View Public Profile
-                    <OpenInNewRoundedIcon sx={{ fontSize: 12 }} />
-                  </Box>
-                </Link>
-              )}
-            </Box>
-          </Box>
-        </Box>
+        {/* ══ HEADER ═══════════════════════════════════════════ */}
+        <DashHeader
+          name={therapistInfo?.user?.name || firstName}
+          firstName={firstName}
+          avatarSrc={avatarSrc}
+          verified={therapistInfo?.verification_status === "approved" || !!therapistInfo?.user?.is_verified}
+          profileId={therapistInfo?._id}
+          clockTime={clockTime}
+          todaySessions={stats.todaySessions}
+          todayRevenue={stats.todayRevenue}
+          nextSession={nextSession}
+          refreshing={refreshing}
+          lastRefreshed={lastRefreshed}
+          onRefresh={() => load(true)}
+          loading={loading}
+          since={since}
+          savingSince={savingSince}
+          onChangeSince={changeSince}
+        />
 
         {/* ══ KPI ROW ══════════════════════════════════════════ */}
         <Box
@@ -1020,8 +1062,6 @@ export default function TherapistDashboard() {
         >
           {/* ── main column ── */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 }, minWidth: 0 }}>
-            {!loading && <NextSessionStrip session={nextSession} />}
-
             <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Revenue & sessions trend" disablePad>
               {mounted ? (
                 <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />

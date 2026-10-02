@@ -1,79 +1,74 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import InvoicesHeader from "../../components/therapists/invoices/invoices-header";
 import InvoicesContent from "../../components/therapists/invoices/invoices-content";
 import MainLayout from "../../components/therapists/main-layout";
 import { GetDashboardDataUrl, getBookings } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
-import { Box, LinearProgress } from "@mui/material";
+import { invoiceNumber, toAmount } from "../../utils/invoice-template";
+
+const PAID = /success|paid|completed/i;
+
+// One row per paid session booking (the backend has no separate invoice
+// records — an invoice is a booking with a successful transaction).
+function toRow(b) {
+  const tx = b.transaction || {};
+  return {
+    id: b._id,
+    number: invoiceNumber(b),
+    client_name: b.client?.name || b.cname || "Client",
+    client_phone: b.client?.phone || "",
+    service: b.service || "Therapy session",
+    format: b.format || "Online",
+    booking_date: b.booking_date ? new Date(b.booking_date) : null,
+    paid_on: tx.createdAt ? new Date(tx.createdAt) : null,
+    amount: toAmount(tx.amount ?? b.amount),
+    method: tx.payment_method || "",
+    txn_id: tx.transaction_id || "",
+    status: "Paid",
+    raw: b,
+  };
+}
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [since, setSince] = useState(null);
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = useCallback(async () => {
     try {
-      // We fetch both dashboard data (which might have recent invoices)
-      // and bookings to ensure we have a comprehensive list
-      const [dashRes, bookingsRes] = await Promise.all([
+      const [dashRes, bookingsRes] = await Promise.allSettled([
         fetchById(GetDashboardDataUrl),
-        fetchById(getBookings)
+        fetchById(getBookings),
       ]);
+      const dash = dashRes.status === "fulfilled" ? dashRes.value : null;
+      const bookings = bookingsRes.status === "fulfilled" && bookingsRes.value?.status ? bookingsRes.value.data || [] : [];
 
-      let allInvoices = [];
+      // Same "start fresh" date as the dashboard overview: older invoices are
+      // hidden here, not deleted.
+      const sinceDate = dash?.status && dash.data?.since ? new Date(dash.data.since) : null;
+      setSince(sinceDate);
 
-      // 1. Get from dashboard data if available
-      if (dashRes.status && dashRes.data?.recent_invoices) {
-        allInvoices = [...dashRes.data.recent_invoices];
-      }
-
-      // 2. Supplement from bookings if they have transaction info and aren't already included
-      if (bookingsRes.status && bookingsRes.data) {
-        const bookingInvoices = bookingsRes.data
-          .filter(b => b.transaction && b.transaction.status?.name === "Success")
-          .map(b => ({
-            id: b._id || b.id,
-            invoice_id: b.transaction?.transaction_id || b.id,
-            client_name: b.client?.name || "Client",
-            booking_date: b.booking_date,
-            amount: b.transaction?.amount || 0,
-            status: "Paid",
-            booking_id: b.id
-          }));
-
-        // Merge and avoid duplicates by ID
-        const existingIds = new Set(allInvoices.map(inv => inv.id));
-        bookingInvoices.forEach(inv => {
-          if (!existingIds.has(inv.id)) {
-            allInvoices.push(inv);
-          }
-        });
-      }
-
-      setInvoices(allInvoices);
+      const rows = bookings
+        .filter((b) => b.transaction && PAID.test(b.transaction.status?.name || ""))
+        .map(toRow)
+        .filter((r) => !sinceDate || (r.booking_date && r.booking_date >= sinceDate))
+        .sort((a, b) => (b.booking_date?.getTime() || 0) - (a.booking_date?.getTime() || 0));
+      setInvoices(rows);
     } catch (err) {
       console.error("Error fetching invoices:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [fetchInvoices]);
 
   return (
     <MainLayout>
-      <Box sx={{ p: { xs: 2, md: 4 } }}>
-        <InvoicesHeader />
-        
-        {loading ? (
-          <Box sx={{ width: '100%', mt: 4 }}>
-            <LinearProgress color="success" />
-          </Box>
-        ) : (
-          <InvoicesContent invoices={invoices} />
-        )}
-      </Box>
+      <InvoicesHeader invoices={invoices} loading={loading} since={since} />
+      <InvoicesContent invoices={invoices} loading={loading} />
     </MainLayout>
   );
 }

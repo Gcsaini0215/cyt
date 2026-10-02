@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Box, CircularProgress, useMediaQuery } from "@mui/material";
-import { FaPlay, FaStop, FaUser, FaNotesMedical, FaClock, FaTimes, FaPhone, FaFileInvoice } from "react-icons/fa";
+import { FaPlay, FaStop, FaUser, FaTimes, FaPhone, FaFileInvoice } from "react-icons/fa";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import DownloadIcon from "@mui/icons-material/Download";
 import PrintIcon from "@mui/icons-material/Print";
@@ -11,6 +11,8 @@ import { StartSessionUrl, EndSessionUrl, getBookings, deleteBookingUrl } from ".
 import VerifyOtpDialog from "../../global/verify-otp-dialog";
 import { SESSION_STATUS } from "../../../utils/constant";
 import { formatDateTime } from "../../../utils/time";
+import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
+import useTherapistStore from "../../../store/therapistStore";
 
 const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) => {
   const [appointments, setAppointments] = useState(initialAppointments || []);
@@ -28,9 +30,16 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const isMobile = useMediaQuery("(max-width:768px)");
+  const { therapistInfo } = useTherapistStore();
 
   const audioRef = useRef(null); // Notification sound
   const appointmentsRef = useRef(appointments);
+
+  // The parent re-fetches on Refresh / after a new booking — take its list,
+  // otherwise this copy goes stale and the Refresh button looks dead.
+  useEffect(() => {
+    setAppointments(initialAppointments || []);
+  }, [initialAppointments]);
 
   // Sync ref with state
   useEffect(() => {
@@ -84,14 +93,16 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     }
   };
 
-  // Live update using polling
+  // Live update using polling — skipped while the tab is in the background,
+  // and never overlapping a still-running request.
   useEffect(() => {
-    console.log("Starting appointment polling...");
+    let inFlight = false;
     const interval = setInterval(async () => {
+      if (inFlight || (typeof document !== "undefined" && document.hidden)) return;
+      inFlight = true;
       try {
         const response = await fetchData(getBookings);
-        console.log("Polling response:", response?.status, response?.data?.length);
-        
+
         if (response?.status && Array.isArray(response.data)) {
           const currentAppointments = appointmentsRef.current;
           const existingIds = new Set(currentAppointments.map(a => a._id));
@@ -101,7 +112,6 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           );
 
           if (newAppointments.length > 0) {
-            console.log("New bookings found:", newAppointments.length);
             setNewBookingCount(prev => prev + newAppointments.length);
             setIsRinging(true);
             
@@ -130,13 +140,12 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         }
       } catch (err) {
         console.error("Error polling appointments:", err);
+      } finally {
+        inFlight = false;
       }
-    }, 10000);
+    }, 15000);
 
-    return () => {
-      console.log("Stopping appointment polling...");
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [onRefresh]);
 
   /* ── helpers ──────────────────────────────────── */
@@ -197,7 +206,26 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     return () => clearTimeout(timer);
   }, [isRinging]);
 
-  const handleClose = () => setSelectedAppt(null);
+  // Details modal: play the exit animation, then unmount.
+  const [closing, setClosing] = useState(false);
+  const handleClose = () => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(() => { setSelectedAppt(null); setClosing(false); }, 180);
+  };
+  // Esc closes; the page behind doesn't scroll while the modal is open.
+  useEffect(() => {
+    if (!selectedAppt) return;
+    const onKey = (e) => { if (e.key === "Escape") handleClose(); };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAppt]);
   const handleOtpViewClose = () => setOtpView(false);
 
   const handleDelete = async (appt) => {
@@ -246,51 +274,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     setDetailTab("invoice");
   };
 
-  const printInvoice = (item) => {
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-    const doc = iframe.contentWindow.document;
-    doc.write(`
-      <html><head><title>Invoice - ${item.client?.name}</title>
-      <style>
-        body{font-family:sans-serif;margin:0;padding:0;color:#122019;}
-        .top{background:#0f3d24;height:12px;width:100%;}
-        .body{padding:40px;}
-        .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;}
-        .brand{color:#0f3d24;font-weight:900;font-size:22px;margin:0;}
-        .div{border-top:1px dashed #e2e8f0;margin:20px 0;}
-        .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
-        .lbl{font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin:0 0 4px;}
-        .val{font-weight:800;color:#122019;font-size:15px;margin:0;}
-        .box{background:#f8fafc;padding:20px;border-radius:12px;}
-        .row{display:flex;justify-content:space-between;margin-bottom:10px;color:#64748b;font-weight:600;}
-        .total{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:2px solid #e2e8f0;font-weight:900;font-size:18px;}
-        .ft{margin-top:40px;text-align:center;color:#94a3b8;font-size:11px;}
-      </style></head><body>
-      <div class="top"></div>
-      <div class="body">
-        <div class="hdr">
-          <div><h1 class="brand">Choose Your Therapist LLP</h1><p style="color:#64748b;font-size:13px;margin:4px 0 0">Professional Therapy Services</p></div>
-          <div style="text-align:right"><p class="lbl">Invoice #</p><p class="val">${item.transaction?.transaction_id?.slice(-8) || item._id?.slice(-8)}</p></div>
-        </div>
-        <div class="div"></div>
-        <div class="grid">
-          <div><p class="lbl">Billed To</p><p class="val">${item.client?.name}</p><p style="color:#64748b;font-size:12px;margin:2px 0 0">Booking ID: #${item._id?.slice(-8)}</p></div>
-          <div style="text-align:right"><p class="lbl">Invoice Date</p><p class="val">${formatDateTime(item.booking_date)}</p></div>
-        </div>
-        <div class="box">
-          <div class="row"><span>${item.service} (${item.format})</span><span style="color:#122019">₹${item.transaction?.amount}</span></div>
-          <div class="total"><span>Total Payable</span><span style="color:#0f3d24">₹${item.transaction?.amount}</span></div>
-        </div>
-        <div class="ft"><p>Thank you for choosing Choose Your Therapist LLP.<br/>Computer-generated invoice — no signature required.</p></div>
-      </div></body></html>
-    `);
-    doc.close();
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    setTimeout(() => document.body.removeChild(iframe), 1000);
-  };
+  // Shared A4 invoice (utils/invoice-template.js) — same layout as the Invoices page.
+  const printInvoice = (item) => printInvoiceDoc(item, therapistInfo);
 
   const handlePinChange = (e) => {
     let value = e.target.value.replace(/\D/g, "");
@@ -408,20 +393,42 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         @media(max-width:767px){.ap-grid{grid-template-columns:1fr 1fr;gap:10px;} .desk-view{display:none !important;} .ap-search input{width:100%;}}
         @media(max-width:480px){.ap-grid{grid-template-columns:1fr;}}
 
-        /* ── Right panel ─── */
-        .ap-overlay{position:fixed;inset:0;z-index:1299;background:rgba(15,32,25,.35);}
-        .ap-panel{position:fixed;top:56px;right:0;bottom:0;width:420px;max-width:100vw;background:#fff;z-index:1300;display:flex;flex-direction:column;box-shadow:-12px 0 40px rgba(15,61,36,.14);animation:panelIn .24s cubic-bezier(.4,0,.2,1);border-left:3px solid #c9962c;}
-        @keyframes panelIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-        @media(max-width:480px){.ap-panel{width:100%;top:56px;}}
+        /* ── Details modal (centered) ─── */
+        .ap-overlay{position:fixed;inset:0;z-index:1299;background:rgba(15,32,25,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:apFadeIn .2s ease both;}
+        .ap-panel{position:fixed;inset:0;margin:auto;width:min(580px,calc(100vw - 24px));height:fit-content;max-height:min(86vh,780px);background:#fff;z-index:1300;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border-top:3px solid #c9962c;box-shadow:0 30px 80px -20px rgba(15,61,36,.45),0 0 0 1px rgba(15,61,36,.06);animation:apModalIn .28s cubic-bezier(.2,.8,.2,1) both;}
+        .ap-overlay.is-closing{animation:apFadeOut .18s ease both;}
+        .ap-panel.is-closing{animation:apModalOut .18s ease both;}
+        @keyframes apFadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes apFadeOut{from{opacity:1}to{opacity:0}}
+        @keyframes apModalIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
+        @keyframes apModalOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(10px) scale(.97)}}
+        @media(max-width:480px){.ap-panel{width:calc(100vw - 16px);max-height:90vh;border-radius:12px;}}
+        @media(prefers-reduced-motion:reduce){.ap-overlay,.ap-panel,.ap-overlay.is-closing,.ap-panel.is-closing{animation:none;}}
         .ap-panel-hdr{padding:16px 18px;border-bottom:1px solid #ecefec;display:flex;align-items:center;gap:12px;flex-shrink:0;}
         .ap-panel-tabs{display:flex;gap:2px;padding:10px 18px 0;border-bottom:1px solid #ecefec;flex-shrink:0;}
         .ap-panel-tab{padding:8px 16px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#8a978f;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit;}
         .ap-panel-tab.on{color:#0f3d24;border-bottom-color:#c9962c;}
         .ap-panel-body{flex:1;overflow-y:auto;padding:18px;}
-        .ap-detail-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:6px;border:1px solid #ecefec;margin-bottom:9px;}
-        .ap-detail-icon{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .ap-detail-lbl{font-size:10.5px;color:#8a978f;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-        .ap-detail-val{font-size:13.5px;font-weight:700;color:#122019;}
+        .ap-info{border:1px solid #e6ebe8;border-radius:10px;background:#fff;overflow:hidden;}
+        .ap-info-who{display:flex;align-items:center;gap:14px;padding:16px 18px;background:linear-gradient(180deg,#fbfaf7,#fff);border-bottom:1px solid #eef2f0;}
+        .ap-info-av{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex-shrink:0;overflow:hidden;}
+        .ap-info-av img{width:100%;height:100%;object-fit:cover;}
+        .ap-info-name{font-weight:800;font-size:16px;color:#122019;line-height:1.25;}
+        .ap-info-contact{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;font-size:12.5px;color:#5b6b62;font-weight:600;}
+        .ap-info-contact a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
+        .ap-info-contact a:hover{color:#0f3d24;}
+        .ap-info-ref{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;font-weight:700;color:#122019;flex-shrink:0;}
+        .ap-info-ref span{display:block;font-family:inherit;font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a978f;font-weight:700;margin-bottom:2px;}
+        .ap-info-grid{display:grid;grid-template-columns:1fr 1fr;margin:0;}
+        .ap-info-grid>div{padding:12px 18px;border-bottom:1px solid #f0f3f1;}
+        .ap-info-grid>div:nth-child(odd){border-right:1px solid #f0f3f1;}
+        .ap-info-grid>div:nth-last-child(-n+2){border-bottom:0;}
+        .ap-info dt{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#8a978f;margin:0 0 3px;}
+        .ap-info dd{margin:0;font-size:13.5px;font-weight:700;color:#122019;}
+        .ap-info-pill{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 10px;text-transform:capitalize;}
+        .ap-info-notes{padding:14px 18px;border-top:1px solid #eef2f0;background:#fbfaf7;}
+        .ap-info-notes p{margin:0;font-size:13px;color:#374b40;line-height:1.6;}
+        @media(max-width:420px){.ap-info-who{flex-wrap:wrap;}.ap-info-ref{text-align:left;width:100%;}}
       ` }} />
 
       {/* ── New booking banner ─────────────────────── */}
@@ -657,28 +664,22 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
       </div>
 
-      {/* ── Right side panel ─────────────────────── */}
+      {/* ── Details modal ─────────────────────────── */}
       {selectedAppt && (() => {
         const item = selectedAppt;
         const cfg = getCfg(item.status);
         return (
           <>
-            <div className="ap-overlay" onClick={handleClose} />
-            <div className="ap-panel">
+            <div className={`ap-overlay${closing ? " is-closing" : ""}`} onClick={handleClose} />
+            <div className={`ap-panel${closing ? " is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={`Session details — ${item.client?.name || "client"}`}>
               {/* Header */}
               <div className="ap-panel-hdr">
-                <div style={{ width: 42, height: 42, borderRadius: 6, background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
-                  {item.client?.photo
-                    ? <img src={item.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }} />
-                    : initials(item.client?.name)}
+                {/* client identity lives in the card below — header is just the title */}
+                <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: "#122019" }}>Session details</div>
+                  <span style={{ fontSize: 10.5, fontWeight: 800, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "3px 10px" }}>{cfg.label}</span>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: "#122019", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {item.client?.name || "Unknown"}
-                  </div>
-                  <span style={{ fontSize: 10, fontWeight: 800, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "2px 9px" }}>{cfg.label}</span>
-                </div>
-                <button onClick={handleClose} style={{ width: 32, height: 32, borderRadius: 4, border: "1.5px solid #dbe3df", background: "#fbfaf7", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#5b6b62", flexShrink: 0 }}>
+                <button onClick={handleClose} aria-label="Close" style={{ width: 32, height: 32, borderRadius: 4, border: "1.5px solid #dbe3df", background: "#fbfaf7", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#5b6b62", flexShrink: 0 }}>
                   <FaTimes size={13} />
                 </button>
               </div>
@@ -695,66 +696,63 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
               {/* Body */}
               <div className="ap-panel-body">
-                {detailTab === "details" && (
+                {detailTab === "details" && (() => {
+                  const when = item.booking_date ? new Date(item.booking_date) : null;
+                  const ok = when && !isNaN(when.getTime());
+                  const dateTxt = ok ? when.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "—";
+                  const timeTxt = ok ? when.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" }) : "—";
+                  const payName = item.transaction?.status?.name || item.payment_status;
+                  const payColor = getPaymentStatusColor(payName);
+                  const amount = item.transaction?.amount ?? item.amount;
+                  return (
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    {/* Client info */}
-                    <div style={{ background: "#fbfaf7", border: "1px solid #ecefec", borderRadius: 6, padding: "14px 16px", marginBottom: 14, display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ width: 56, height: 56, borderRadius: 6, background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, flexShrink: 0 }}>
-                        {item.client?.photo
-                          ? <img src={item.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }} />
-                          : initials(item.client?.name)}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: 16, color: "#122019" }}>{item.client?.name || "Unknown"}</div>
-                        {item.client?.phone && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4, fontSize: 13, color: "#5b6b62", fontWeight: 600 }}>
-                            <FaPhone size={11} />{item.client.phone}
+                    {/* One card: who, then the session facts, then notes */}
+                    <div className="ap-info">
+                      <div className="ap-info-who">
+                        <div className="ap-info-av" style={{ background: cfg.bg, color: cfg.color }}>
+                          {item.client?.photo
+                            ? <img src={item.client.photo} alt="" />
+                            : initials(item.client?.name)}
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div className="ap-info-name">{item.client?.name || "Unknown"}</div>
+                          <div className="ap-info-contact">
+                            {item.client?.phone && <a href={`tel:${item.client.phone}`}><FaPhone size={10} /> {item.client.phone}</a>}
+                            {item.client?.email && <span>{item.client.email}</span>}
                           </div>
-                        )}
-                        <div style={{ fontSize: 11, color: "#8a978f", marginTop: 3 }}>ID: #{item._id?.slice(-8)}</div>
-                      </div>
-                    </div>
-
-                    <div className="ap-detail-row">
-                      <div className="ap-detail-icon" style={{ background: "#f0fdf4", color: "#0f3d24" }}><FaClock size={15} /></div>
-                      <div>
-                        <div className="ap-detail-lbl">Booking Date</div>
-                        <div className="ap-detail-val">{formatDateTime(item.booking_date)}</div>
-                      </div>
-                    </div>
-
-                    <div className="ap-detail-row">
-                      <div className="ap-detail-icon" style={{ background: "#e3f2fd", color: "#1976d2" }}><FaNotesMedical size={15} /></div>
-                      <div>
-                        <div className="ap-detail-lbl">Service</div>
-                        <div className="ap-detail-val">{item.service || "—"} · <span style={{ fontSize: 12, color: "#64748b" }}>{item.format || "Online"}</span></div>
-                      </div>
-                    </div>
-
-                    <div className="ap-detail-row">
-                      <div className="ap-detail-icon" style={{ background: "#fff3e0", color: "#ed6c02" }}>₹</div>
-                      <div>
-                        <div className="ap-detail-lbl">Amount</div>
-                        <div className="ap-detail-val">
-                          ₹{item.transaction?.amount || "—"}
-                          {item.transaction?.status?.name && (
-                            <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 800, color: getPaymentStatusColor(item.transaction.status.name), background: getPaymentStatusColor(item.transaction.status.name) + "15", borderRadius: 6, padding: "2px 8px" }}>
-                              {item.transaction.status.name}
-                            </span>
-                          )}
+                        </div>
+                        <div className="ap-info-ref">
+                          <span>Booking</span>
+                          #{item._id?.slice(-8)}
                         </div>
                       </div>
+
+                      <dl className="ap-info-grid">
+                        <div><dt>Date</dt><dd>{dateTxt}</dd></div>
+                        <div><dt>Time</dt><dd>{timeTxt}</dd></div>
+                        <div><dt>Service</dt><dd>{item.service || "—"}</dd></div>
+                        <div><dt>Mode</dt><dd>{item.format || "Online"}</dd></div>
+                        <div><dt>Amount</dt><dd>{amount != null && amount !== "" ? `₹${Number(amount?.$numberDecimal ?? amount).toLocaleString("en-IN")}` : "—"}</dd></div>
+                        <div>
+                          <dt>Payment</dt>
+                          <dd>
+                            {payName
+                              ? <span className="ap-info-pill" style={{ color: payColor, background: payColor + "14" }}>{payName}</span>
+                              : "—"}
+                          </dd>
+                        </div>
+                      </dl>
+
+                      {item.notes && (
+                        <div className="ap-info-notes">
+                          <dt>Notes</dt>
+                          <p>{item.notes}</p>
+                        </div>
+                      )}
                     </div>
 
-                    {item.notes && (
-                      <div style={{ background: "#fbfaf7", border: "1px solid #ecefec", borderRadius: 6, padding: "13px 14px", marginTop: 4 }}>
-                        <div style={{ fontSize: 10.5, color: "#8a978f", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".4px", marginBottom: 6 }}>Notes</div>
-                        <div style={{ fontSize: 13, color: "#374b40", lineHeight: 1.6 }}>{item.notes}</div>
-                      </div>
-                    )}
-
                     {/* Action buttons */}
-                    <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+                    <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
                       {item.status === SESSION_STATUS.NEW && (
                         <button className="ap-btn ap-btn-start" style={{ flex: 1, padding: "10px" }} onClick={() => handlePin(item)}>
                           <FaPlay size={12} /> Start Session
@@ -772,7 +770,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       </button>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
 
                 {detailTab === "invoice" && (
                   <div>

@@ -13,6 +13,7 @@ import { subscribeToNotifications } from "../utils/push-notifications";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import Head from "next/head";
+import { TherapistShell, THERAPIST_SHELL_ROUTES } from "@/components/therapists/main-layout";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -271,7 +272,15 @@ function MyApp({ Component, pageProps }) {
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
         <div className="main-wrapper" suppressHydrationWarning>
-          <Component {...pageProps} />
+          {/* Therapist portal pages share one persistent shell, so navigating
+              between them swaps only the page body (see main-layout.js). */}
+          {THERAPIST_SHELL_ROUTES.has(router.pathname) ? (
+            <TherapistShell>
+              <Component {...pageProps} />
+            </TherapistShell>
+          ) : (
+            <Component {...pageProps} />
+          )}
         </div>
       </div>
     </Providers>
