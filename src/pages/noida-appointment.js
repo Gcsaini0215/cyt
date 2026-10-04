@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Head from "next/head";
 import { createPortal } from "react-dom";
-import { apiUrl } from "../utils/url";
+import { apiUrl, imagePath } from "../utils/url";
+import { profilePath } from "../utils/therapist-slug";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import LockRounded from "@mui/icons-material/LockRounded";
 import ScheduleRounded from "@mui/icons-material/ScheduleRounded";
@@ -535,17 +536,140 @@ function TherapistPicker({ list, value, onChange, hint }) {
           <button key={t._id} type="button" role="radio" aria-checked={value === t._id} className={`na-th-card ${value === t._id ? "on" : ""}`} onClick={() => onChange(t._id)}>
             <span className="na-th-av" aria-hidden="true">
               {initials(t.name)}
-              {t.image && <img src={t.image} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
+              {t.image && <img src={thPhoto(t.image)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
             </span>
             <span className="na-th-body">
               <span className="na-th-name">{t.name}</span>
-              <span className="na-th-meta">{[t.profileType, t.experience ? `${t.experience} yrs` : ""].filter(Boolean).join(" · ") || t.qualification || "Therapist"}</span>
+              <span className="na-th-meta">{[t.profileType, expLabel(t.experience)].filter(Boolean).join(" · ") || t.qualification || "Therapist"}</span>
               {t.reviewCount > 0 && <span className="na-th-rate" aria-label={`Rated ${t.rating} out of 5 from ${t.reviewCount} reviews`}><span className="na-th-star" aria-hidden="true">★</span> {t.rating.toFixed(1)} <span className="na-th-cnt">({t.reviewCount})</span></span>}
             </span>
           </button>
         ))}
       </div>
       <div className="na-th-hint">{hint || "We'll do our best to match your choice."}</div>
+    </div>
+  );
+}
+
+// year_of_exp is free text ("1-2 Years", "5") — only add the unit when it's missing.
+const expLabel = (e) => (!e ? "" : /yr|year/i.test(e) ? String(e).replace(/years?/i, "yrs") : `${e} yrs`);
+const thPhoto = (img) => (!img ? "" : /^https?:/.test(img) ? img : `${imagePath}/${img}`);
+const thInitials = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+
+function ThAvatar({ t, size }) {
+  return (
+    <span className="na-team-av" style={{ width: size, height: size, fontSize: size * 0.34 }} aria-hidden="true">
+      {thInitials(t.name)}
+      {t.image && <img src={thPhoto(t.image)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
+    </span>
+  );
+}
+
+// New clients meet the CYT Noida team after picking a slot: a list of the psychologists
+// the admin offered, each opening a full profile. With therapist choice on they can pick
+// one (or "No preference"); with it off the list is just "who you'll see" and Continue.
+function TeamModal({ list, canChoose, slotLabel, onDone, onClose }) {
+  const [openId, setOpenId] = useState(null);
+  const [bioOpen, setBioOpen] = useState(false);
+  const [allSkills, setAllSkills] = useState(false);
+  const bodyRef = useRef(null);
+  const t = list.find(x => x._id === openId) || null;
+  const open = (id) => {
+    setOpenId(id); setBioOpen(false); setAllSkills(false);
+    if (bodyRef.current) bodyRef.current.scrollTop = 0;
+    if (id) track("noida_team_profile_view", { therapist_id: id });
+  };
+  const first = (n) => String(n || "").trim().split(/\s+/)[0];
+  const meta = (x) => [x.profileType, expLabel(x.experience)].filter(Boolean).join(" · ");
+
+  return (
+    <div className="na-welcome-overlay" role="dialog" aria-modal="true" aria-label={canChoose ? "Choose your psychologist" : "Meet your psychologists"} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="na-welcome-modal na-team-modal">
+        <button type="button" className="na-welcome-close" aria-label="Close" onClick={onClose}><CloseRounded style={{ fontSize: 18 }} /></button>
+        {!t ? (
+          <>
+            <div className="na-team-head">
+              <div className="na-welcome-title">{canChoose ? "Choose your psychologist" : "Meet your psychologists"}</div>
+              <p className="na-welcome-sub">
+                {canChoose ? "Tap a profile to know them better, or let us match you." : "Your session will be with one of our verified psychologists at CYT Noida."}
+              </p>
+              {slotLabel && <span className="na-team-slot"><Ic I={ScheduleRounded} s={14} /> {slotLabel}</span>}
+            </div>
+            <div className="na-team-body" ref={bodyRef}>
+              {canChoose && (
+                <button type="button" className="na-team-card na-team-any" onClick={() => onDone("")}>
+                  <span className="na-team-av na-team-av-any" style={{ width: 52, height: 52 }} aria-hidden="true"><Ic I={BoltRounded} s={22} /></span>
+                  <span className="na-team-info">
+                    <span className="na-team-name">No preference</span>
+                    <span className="na-team-meta">First available psychologist</span>
+                  </span>
+                  <span className="na-team-go" aria-hidden="true">›</span>
+                </button>
+              )}
+              {list.map(x => (
+                <button key={x._id} type="button" className="na-team-card" onClick={() => open(x._id)}>
+                  <ThAvatar t={x} size={52} />
+                  <span className="na-team-info">
+                    <span className="na-team-name">{x.name}</span>
+                    <span className="na-team-meta">{meta(x) || x.qualification || "Psychologist"}</span>
+                    <span className="na-team-sub">
+                      {x.reviewCount > 0 && <span className="na-team-rate"><span aria-hidden="true">★</span> {x.rating.toFixed(1)} ({x.reviewCount})</span>}
+                      {x.languages?.length > 0 && <span>{x.languages.slice(0, 3).join(", ")}</span>}
+                    </span>
+                  </span>
+                  <span className="na-team-view">View profile</span>
+                </button>
+              ))}
+            </div>
+            {!canChoose && (
+              <div className="na-team-foot">
+                <button type="button" className="na-team-cta" onClick={() => onDone("")}>Continue booking</button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <button type="button" className="na-team-back" onClick={() => open(null)}><Ic I={ArrowBackRounded} s={18} /> All psychologists</button>
+            <div className="na-team-body" ref={bodyRef}>
+              <div className="na-team-hero">
+                <ThAvatar t={t} size={84} />
+                <div className="na-team-hero-txt">
+                  <div className="na-team-hero-name">{t.name}</div>
+                  <div className="na-team-meta">{t.profileType || "Psychologist"}</div>
+                  {t.reviewCount > 0 && <div className="na-team-rate"><span aria-hidden="true">★</span> {t.rating.toFixed(1)} · {t.reviewCount} review{t.reviewCount > 1 ? "s" : ""}</div>}
+                </div>
+              </div>
+              <div className="na-team-facts">
+                {t.experience && <div><span>Experience</span><b>{expLabel(t.experience)}</b></div>}
+                {t.languages?.length > 0 && <div><span>Languages</span><b>{t.languages.join(", ")}</b></div>}
+                {t.qualification && <div className="wide"><span>Qualification</span><b>{t.qualification}</b></div>}
+              </div>
+              {t.bio && (
+                <div className="na-team-sec">
+                  <div className="na-team-sec-h">About</div>
+                  <p className={`na-team-bio ${bioOpen ? "open" : ""}`}>{t.bio}</p>
+                  {t.bio.length > 220 && <button type="button" className="na-team-more" onClick={() => setBioOpen(v => !v)}>{bioOpen ? "Show less" : "Read more"}</button>}
+                </div>
+              )}
+              {t.expertise?.length > 0 && (
+                <div className="na-team-sec">
+                  <div className="na-team-sec-h">Helps with</div>
+                  <div className="na-team-chips">
+                    {(allSkills ? t.expertise : t.expertise.slice(0, 8)).map(s => <span key={s}>{s}</span>)}
+                    {!allSkills && t.expertise.length > 8 && <button type="button" onClick={() => setAllSkills(true)}>+{t.expertise.length - 8} more</button>}
+                  </div>
+                </div>
+              )}
+              <a className="na-team-full" href={profilePath({ _id: t._id, name: t.name, profile_type: t.profileType, state: t.state })} target="_blank" rel="noopener noreferrer">See full profile &amp; reviews ↗</a>
+            </div>
+            <div className="na-team-foot">
+              {canChoose
+                ? <button type="button" className="na-team-cta" onClick={() => onDone(t._id)}>Book with {first(t.name)}</button>
+                : <button type="button" className="na-team-cta" onClick={() => onDone("")}>Continue booking</button>}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -1108,14 +1232,24 @@ export default function NoidaAppointment({ seoPricing = null }) {
 
   // ── Pricing + packages, fetched once ─────────────────────────────────
   const [pricing, setPricing] = useState(null);
-  // Optional therapist choice — the list is what the admin offered at CYT Noida (live therapists only).
+  // The CYT Noida team the admin offered (live therapists only). It's always shown to new
+  // clients; picking one is only allowed while the admin's "therapist choice" switch is on.
   const [therapists, setTherapists] = useState([]);
+  const [canChooseTherapist, setCanChooseTherapist] = useState(false);
   const [therapistId, setTherapistId] = useState("");
   const selectedTherapist = therapists.find(t => t._id === therapistId) || null;
+  const pickerList = canChooseTherapist ? therapists : [];
+  // A new client's slot pick waits here while the team modal is up; teamSeen stops it
+  // coming back on every re-pick in the same visit.
+  const [teamGate, setTeamGate] = useState(null);
+  const [teamSeen, setTeamSeen] = useState(false);
   useEffect(() => {
     fetch(`${apiUrl}/noida-appointments/therapists`)
       .then(r => r.json())
-      .then(data => setTherapists(data?.status ? (data.data || []) : []))
+      .then(data => {
+        setTherapists(data?.status ? (data.data || []) : []);
+        setCanChooseTherapist(!!data?.enabled);
+      })
       .catch(() => setTherapists([]));
   }, []);
   useEffect(() => { if (therapistId && therapists.length && !therapists.some(t => t._id === therapistId)) setTherapistId(""); }, [therapists, therapistId]);
@@ -1287,7 +1421,24 @@ export default function NoidaAppointment({ seoPricing = null }) {
     setLastMinutePolledAt(null);
   };
 
+  // New clients see the team first (once per visit) — see TeamModal.
   const handlePickSlot = (date, slot, isLastMinute) => {
+    if (bookingType === "new" && therapists.length > 0 && !teamSeen) {
+      track("noida_team_shown", { can_choose: canChooseTherapist, count: therapists.length });
+      setTeamGate({ date, slot, isLM: isLastMinute });
+      return;
+    }
+    goToForm(date, slot, isLastMinute);
+  };
+  const finishTeam = (id) => {
+    const gate = teamGate;
+    setTeamSeen(true);
+    setTeamGate(null);
+    if (canChooseTherapist) setTherapistId(id);
+    track("noida_team_done", { therapist_id: id || "any", can_choose: canChooseTherapist });
+    if (gate) goToForm(gate.date, gate.slot, gate.isLM);
+  };
+  const goToForm = (date, slot, isLastMinute) => {
     track("noida_slot_confirmed", { booking_type: bookingType, slot_date: date, slot_time: slot, last_minute: !!isLastMinute });
     setSlotNotice("");
     setPendingPick(null);
@@ -1960,7 +2111,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-page { font-family: 'Inter', sans-serif; background: #f4f6f5; min-height: 100vh; display: flow-root; }
         .na-page.na-blurred { filter: blur(6px); pointer-events: none; user-select: none; }
 
-        .na-welcome-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15,23,20,.38); animation: naWelcomeFade .2s ease; }
+        .na-welcome-overlay { position: fixed; inset: 0; z-index: 100000; /* above the cookie bar (99998), which otherwise hides the modal buttons on phones */ display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15,23,20,.38); animation: naWelcomeFade .2s ease; }
         @keyframes naWelcomeFade { from { opacity: 0; } to { opacity: 1; } }
         .na-welcome-modal { position: relative; width: 100%; max-width: 460px; background: #fff; border-radius: 22px; box-shadow: 0 30px 70px rgba(15,61,34,.28); padding: 32px 28px 28px; font-family: 'Inter', sans-serif; animation: naWelcomePop .22s cubic-bezier(.2,.9,.3,1.2); }
         @keyframes naWelcomePop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
@@ -1987,6 +2138,58 @@ export default function NoidaAppointment({ seoPricing = null }) {
           .na-exit-modal { animation: naSheetUp .28s cubic-bezier(.2,.9,.3,1); }
         }
         @media (prefers-reduced-motion: reduce) { .na-welcome-modal, .na-exit-modal { animation: none !important; } }
+
+        /* Team modal — new clients meet the Noida psychologists after picking a slot */
+        .na-team-modal { max-width: 520px; padding: 0; display: flex; flex-direction: column; max-height: min(86vh, 760px); overflow: hidden; }
+        .na-team-modal .na-welcome-close { z-index: 2; }
+        .na-team-head { padding: 28px 26px 12px; }
+        .na-team-head .na-welcome-sub { margin: 6px 0 0; }
+        .na-team-slot { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; padding: 5px 10px; border-radius: 999px; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 700; }
+        .na-team-body { flex: 1; overflow-y: auto; padding: 4px 26px 18px; overscroll-behavior: contain; }
+        .na-team-card { display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; padding: 12px 14px; margin-bottom: 9px; border: 1.5px solid #e2e8f0; border-radius: 16px; background: #fff; cursor: pointer; font-family: inherit; transition: border-color .15s, background .15s, transform .15s; }
+        .na-team-card:hover { border-color: #1a6b3a; background: #f6fbf8; }
+        .na-team-card:active { transform: scale(.985); }
+        .na-team-any { border-style: dashed; }
+        .na-team-av { position: relative; flex-shrink: 0; border-radius: 50%; overflow: hidden; background: #e7f5ec; color: #166534; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+        .na-team-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .na-team-av-any { background: #fef3c7; color: #b45309; }
+        .na-team-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .na-team-name { font-size: 15px; font-weight: 800; color: #0f172a; }
+        .na-team-meta { font-size: 12.5px; color: #475569; }
+        .na-team-sub { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11.5px; color: #64748b; }
+        .na-team-rate { color: #b45309; font-weight: 700; font-size: 12px; }
+        .na-team-view { flex-shrink: 0; font-size: 12px; font-weight: 700; color: #1a6b3a; padding: 6px 10px; border-radius: 999px; background: #f0fdf4; }
+        .na-team-go { flex-shrink: 0; font-size: 22px; color: #94a3b8; }
+        .na-team-back { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin: 18px 0 4px 20px; padding: 6px 10px; border: none; border-radius: 10px; background: #f1f5f9; color: #334155; font: 700 13px 'Inter', sans-serif; cursor: pointer; }
+        .na-team-hero { display: flex; align-items: center; gap: 16px; padding: 10px 0 14px; }
+        .na-team-hero-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .na-team-hero-name { font-size: 20px; font-weight: 800; color: #0f172a; letter-spacing: -.3px; }
+        .na-team-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .na-team-facts > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: #f6f8f7; }
+        .na-team-facts > div.wide { grid-column: 1 / -1; }
+        .na-team-facts span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #94a3b8; }
+        .na-team-facts b { font-size: 13.5px; font-weight: 600; color: #0f172a; }
+        .na-team-sec { margin-bottom: 14px; }
+        .na-team-sec-h { font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+        .na-team-bio { margin: 0; font-size: 13.5px; line-height: 1.6; color: #334155; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+        .na-team-bio.open { display: block; }
+        .na-team-more { margin-top: 4px; padding: 0; border: none; background: none; color: #1a6b3a; font: 700 13px 'Inter', sans-serif; cursor: pointer; }
+        .na-team-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .na-team-chips span, .na-team-chips button { padding: 5px 10px; border-radius: 999px; background: #f0fdf4; color: #166534; font: 600 12px 'Inter', sans-serif; border: 1px solid #dcfce7; }
+        .na-team-chips button { background: #fff; color: #1a6b3a; cursor: pointer; }
+        .na-team-full { display: inline-block; font-size: 13px; font-weight: 700; color: #1a6b3a; text-decoration: none; }
+        .na-team-full:hover { text-decoration: underline; }
+        .na-team-foot { padding: 12px 26px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid #eef2f0; background: #fff; }
+        .na-team-cta { width: 100%; padding: 14px; border: none; border-radius: 14px; background: #1a6b3a; color: #fff; font: 800 15px 'Inter', sans-serif; cursor: pointer; box-shadow: 0 8px 18px -10px rgba(26,107,58,.7); }
+        .na-team-cta:hover { background: #155a30; }
+        @media (max-width: 600px) {
+          .na-team-modal { max-width: none; padding: 0; max-height: 90vh; }
+          .na-team-head { padding: 26px 18px 10px; }
+          .na-team-body { padding: 4px 16px 16px; }
+          .na-team-back { margin-left: 14px; }
+          .na-team-foot { padding: 10px 16px calc(14px + env(safe-area-inset-bottom)); }
+          .na-team-view { padding: 5px 8px; font-size: 11.5px; }
+        }
 
         .na-back { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: all .15s; }
         .na-back:hover { background: #f0fdf4; border-color: #86efac; }
@@ -2752,6 +2955,20 @@ export default function NoidaAppointment({ seoPricing = null }) {
         </div>
       )}
 
+      {teamGate && (
+        <TeamModal
+          list={therapists}
+          canChoose={canChooseTherapist}
+          slotLabel={(() => {
+            const d = new Date(`${teamGate.date}T00:00:00`);
+            const day = isNaN(d) ? "" : d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+            return [day, shortTime(teamGate.slot)].filter(Boolean).join(" · ");
+          })()}
+          onDone={finishTeam}
+          onClose={() => setTeamGate(null)}
+        />
+      )}
+
       {offerOpen && (
         <OfferClaimModal
           offer={offerOpen}
@@ -2776,7 +2993,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         />
       )}
 
-      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome || exitAsk ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
+      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome || exitAsk || teamGate ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
         <h1 className="na-sr">Psychologist in Noida — book in-person, online or home visit at our Sector 51 centre</h1>
 
         <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
@@ -3063,9 +3280,9 @@ export default function NoidaAppointment({ seoPricing = null }) {
                           <button type="button" className={`na-tab-pill short ${format === "home-visit" ? "on" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</button>
                         </div>
                       </div>
-                      {therapists.length > 0 && (
+                      {pickerList.length > 0 && (
                         <div style={{ maxHeight: 240, overflowY: "auto" }}>
-                          <TherapistPicker list={therapists} value={therapistId} onChange={setTherapistId} />
+                          <TherapistPicker list={pickerList} value={therapistId} onChange={setTherapistId} />
                         </div>
                       )}
                       <div className="na-tab-price">
@@ -3138,7 +3355,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                 ) : (
                   <>
                     <div className="na-picked-banner">
-                      <span><Ic I={CalendarMonthRounded} /> {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}{selectedIsLastMinute && <> · <Ic I={BoltRounded} /> Last-minute</>}</span>
+                      <span><Ic I={CalendarMonthRounded} /> {pickedDateLabel ? `${pickedDateLabel.weekday}, ${pickedDateLabel.day} ${pickedDateLabel.month}` : selectedDate} · {selectedSlot}{selectedIsLastMinute && <> · <Ic I={BoltRounded} /> Last-minute</>}{canChooseTherapist && selectedTherapist && <> · with {selectedTherapist.name}</>}</span>
                       <button type="button" className="na-picked-change" onClick={() => { resetLastMinute(); setPhase("slots"); }}>Change</button>
                     </div>
 
@@ -3311,7 +3528,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                           <div className={`na-pill ${format === "home-visit" ? "active" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</div>
                         </div>
 
-                        <TherapistPicker list={therapists} value={therapistId} onChange={setTherapistId} />
+                        <TherapistPicker list={pickerList} value={therapistId} onChange={setTherapistId} />
 
                         {format === "home-visit" && (
                           <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
