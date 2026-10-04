@@ -20,6 +20,7 @@ import {
   InsertFavriouteTherapistUrl,
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 export default function ProfileCardHor({ pageData, favrioutes, showRecommended = false, showOnlyBookButton = false, variant = "row" }) {
 
@@ -193,7 +194,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
       >
         {/* Image + Badge */}
         <div className="rbt-card-img" style={{ position: "relative", overflow: "hidden" }}>
-          <Link href={`/view-profile/${pageData._id}`}>
+          <Link href={profilePath(pageData)}>
             <ImageTag
               alt={`${pageData.user?.name || "Therapist"} - ${pageData.profile_type || "Best Psychologist in India"}`}
               src={pageData.user?.profile ? `${imagePath}/${pageData.user.profile}` : defaultProfile}
@@ -281,7 +282,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                     textOverflow: "ellipsis",
                     maxWidth: "100%"
                   }}>
-                    <Link href={`/view-profile/${pageData._id}`} style={{ color: "inherit" }}>
+                    <Link href={profilePath(pageData)} style={{ color: "inherit" }}>
                       {pageData.user?.name || "Therapist"}
                     </Link>
                   </h4>
@@ -418,7 +419,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             >
               <Link
                 className="view-btn view-btn-border"
-                href={`/view-profile/${pageData._id}`}
+                href={profilePath(pageData)}
                 style={{
                   padding: isMobile ? "0 12px" : "0 10px",
                   fontSize: isMobile ? "13px" : "14px",

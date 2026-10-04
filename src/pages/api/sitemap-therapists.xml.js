@@ -1,3 +1,5 @@
+import { profilePath } from "../../utils/therapist-slug";
+
 const THERAPIST_API = "https://api.chooseyourtherapist.in/api/get-therapists-profile";
 const BASE_URL = "https://www.chooseyourtherapist.in";
 
@@ -14,7 +16,7 @@ export default async function handler(req, res) {
       .map(
         (t) => `
   <url>
-    <loc>${BASE_URL}/view-profile/${t._id}</loc>
+    <loc>${BASE_URL}${profilePath(t)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -10,6 +10,7 @@ import PersonSearchIcon from "@mui/icons-material/PersonSearch";
 import { Avatar } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { imagePath } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 function initialsOf(name) {
   if (!name) return "T";
@@ -60,7 +61,7 @@ function PortraitCard({ t, hidden = false }) {
         <span className="cyt-pinit">{initialsOf(name)}</span>
       )}
       {t.state && <span className="cyt-ppin">{t.state}</span>}
-      <Link className="cyt-plink" href={`/view-profile/${t._id}`} tabIndex={tab} aria-label={`View ${name}'s profile`} />
+      <Link className="cyt-plink" href={profilePath(t)} tabIndex={tab} aria-label={`View ${name}'s profile`} />
       <div className="cyt-pinfo">
         <div className="cyt-pname">
           <span>{name}</span>
@@ -73,7 +74,7 @@ function PortraitCard({ t, hidden = false }) {
           {exp && <><i className="cyt-pdot" /> {exp}</>}
         </div>
         <div className="cyt-pbtns">
-          <Link className="cyt-pv" href={`/view-profile/${t._id}`} tabIndex={tab}>View</Link>
+          <Link className="cyt-pv" href={profilePath(t)} tabIndex={tab}>View</Link>
           <Link className="cyt-pb" href={`/book/${t._id}`} tabIndex={tab}>Book</Link>
         </div>
       </div>
@@ -126,7 +127,7 @@ function TherapistCard({ t, className = "", style, hidden = false }) {
           </div>
         )}
         <div className="cyt-trow">
-          <Link className="cyt-v" href={`/view-profile/${t._id}`} tabIndex={hidden ? -1 : undefined}>View</Link>
+          <Link className="cyt-v" href={profilePath(t)} tabIndex={hidden ? -1 : undefined}>View</Link>
           <Link className="cyt-b" href={`/book/${t._id}`} tabIndex={hidden ? -1 : undefined}>Book</Link>
         </div>
       </div>

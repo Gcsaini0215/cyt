@@ -19,6 +19,7 @@ import Language from "@mui/icons-material/Language";
 import Work from "@mui/icons-material/Work";
 import Link from "next/link";
 import { imagePath } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 export default function ProfilePopup({ open, onClose, therapist }) {
   const theme = useTheme();
@@ -188,7 +189,7 @@ export default function ProfilePopup({ open, onClose, therapist }) {
         <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 2 }}>
           <Button
             component={Link}
-            href={`/view-profile/${therapist._id}`}
+            href={profilePath(therapist)}
             variant="outlined"
             fullWidth
             sx={{

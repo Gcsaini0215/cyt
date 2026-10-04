@@ -9,6 +9,7 @@ import { truncateString } from "../../utils/helpers";
 import { getDateDifference } from "../../utils/time";
 import WellNessCard from "./wellness-card";
 import { imagePath } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 export default function WorkshopDetail(props) {
   const { data, workshopByThisUser, moreWorkshop } = props;
@@ -70,7 +71,7 @@ export default function WorkshopDetail(props) {
                 </p>
                 <div className="rbt-author-meta mb--20">
                   <div className="rbt-avater">
-                    <Link href={`/view-profile/${data.post_by._id}`}>
+                    <Link href={profilePath(data.post_by)}>
                       <ImageTag
                         alt={data.post_by.name}
                         src={`${imagePath}/${data.post_by.user.profile}`}
@@ -79,7 +80,7 @@ export default function WorkshopDetail(props) {
                   </div>
                   <div className="rbt-author-info">
                     By &nbsp;
-                    <Link href={`/view-profile/${data.post_by._id}`}>
+                    <Link href={profilePath(data.post_by)}>
                       {data.post_by.user.name}
                     </Link>
                     &nbsp;|&nbsp;
@@ -167,7 +168,7 @@ export default function WorkshopDetail(props) {
                           <h5 className="title" style={{ lineHeight: 0.24 }}>
                             <Link
                               className="hover-flip-item-wrapper"
-                              href={`/view-profile/${data.post_by._id}`}
+                              href={profilePath(data.post_by)}
                             >
                               {data.post_by.user.name}
                             </Link>

@@ -8,9 +8,10 @@ import { fetchById, fetchData } from "../../utils/actions";
 import {
   GetFavoriteTherapistListUrl,
   getTherapistProfile,
-  imagePath,
-  frontendUrl
+  getTherapistProfiles,
+  imagePath
 } from "../../utils/url";
+import { therapistSlug, nameSlug, isObjectId } from "../../utils/therapist-slug";
 import ErrorPage from "../error-page";
 import PageProgressBar from "../../components/global/page-progress";
 import ProfileWorkshop from "../../components/view_profile/profile-workshop";
@@ -19,15 +20,76 @@ import SocialShare from "../../components/global/social-share";
 import { useRouter } from "next/router";
 import { getDecodedToken } from "../../utils/jwt";
 
+// URL slug <-> _id maps of the publicly listed therapists, cached per server
+// process so a profile view doesn't refetch the whole list every time.
+let slugCache = { at: 0, maps: null };
+const SLUG_TTL_MS = 10 * 60 * 1000;
+
+async function getSlugMaps(force = false) {
+  if (!force && slugCache.maps && Date.now() - slugCache.at < SLUG_TTL_MS) return slugCache.maps;
+  const res = await fetchData(getTherapistProfiles);
+  const list = (res?.data || [])
+    .filter((t) => t._id)
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const bySlug = {};  // "counselling-psychologist-teesta-joshi-uttar-pradesh" -> _id
+  const slugById = {}; // _id -> "counselling-psychologist-teesta-joshi-uttar-pradesh"
+  const byName = {};  // "teesta-joshi" -> [_id, ...]
+  // on a slug clash the oldest profile keeps it; the others stay on their _id URL
+  list.forEach((t) => {
+    const slug = therapistSlug(t);
+    if (slug && !bySlug[slug]) {
+      bySlug[slug] = t._id;
+      slugById[t._id] = slug;
+    }
+    const name = nameSlug(t);
+    if (name) (byName[name] = byName[name] || []).push(t._id);
+  });
+  slugCache = { at: Date.now(), maps: { bySlug, slugById, byName } };
+  return slugCache.maps;
+}
+
+// A slug that isn't current — an older URL format, or an old type/location after
+// the therapist changed it — still points at one therapist if their name is in
+// it and matches uniquely.
+function currentSlugFor(param, { slugById, byName }) {
+  const name = Object.keys(byName)
+    .filter((n) => `-${param}-`.includes(`-${n}-`))
+    .sort((a, b) => b.length - a.length)[0];
+  const ids = name ? byName[name] : [];
+  return ids.length === 1 ? slugById[ids[0]] : null;
+}
+
 export async function getServerSideProps(context) {
-  const { id } = context.params;
+  const param = context.params.id;
+  const query = context.resolvedUrl.includes("?") ? context.resolvedUrl.slice(context.resolvedUrl.indexOf("?")) : "";
+  const moved = (slug) => ({ redirect: { destination: `/view-profile/${slug}${query}`, statusCode: 301 } });
   try {
+    let id = param;
+    let slug = null;
+
+    if (!isObjectId(param)) {
+      let maps = await getSlugMaps();
+      if (!maps.bySlug[param]) maps = await getSlugMaps(true); // newly listed / just edited
+      if (!maps.bySlug[param]) {
+        const current = currentSlugFor(param, maps);
+        return current ? moved(current) : { notFound: true };
+      }
+      id = maps.bySlug[param];
+      slug = param;
+    }
+
     const res = await fetchData(getTherapistProfile + id);
     if (res && res.data && Object.keys(res.data).length > 0) {
+      if (!slug) {
+        // old /view-profile/<_id> link: send it (and its search ranking) to the name URL
+        const { slugById } = await getSlugMaps();
+        if (slugById[id]) return moved(slugById[id]);
+      }
       return {
         props: {
           initialProfile: res.data,
-          id: id
+          id,
+          urlKey: slug || id
         }
       };
     }
@@ -38,13 +100,14 @@ export async function getServerSideProps(context) {
   return {
     props: {
       initialProfile: null,
-      id: id,
+      id: param,
+      urlKey: param,
       error: true
     }
   };
 }
 
-export default function ViewProfile({ initialProfile, id, error: serverError }) {
+export default function ViewProfile({ initialProfile, id, urlKey, error: serverError }) {
   const router = useRouter();
   const [profile, setProfile] = useState(initialProfile);
   const [error, setError] = useState(serverError || false);
@@ -155,7 +218,8 @@ export default function ViewProfile({ initialProfile, id, error: serverError }) 
   const baseKeywords = `${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, verified therapist, ${profile?.state || profile?.user?.state || "India"}`;
   const seoKeywords = topReviewKeywords ? `${baseKeywords}, ${topReviewKeywords}` : baseKeywords;
 
-  const currentUrl = `${frontendUrl}/view-profile/${id}`;
+  // always the www host: the bare domain 301s to www, so it can't be the canonical
+  const currentUrl = `https://www.chooseyourtherapist.in/view-profile/${urlKey || id}`;
   const seoTitle = `${profileName} | ${profileType} | ${profileLocation.replace('in ', '')} | Choose Your Therapist`;
 
   // Parse specializations / expertise areas

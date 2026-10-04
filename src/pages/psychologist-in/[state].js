@@ -5,6 +5,7 @@ import Footer from "../../components/footer";
 import MyNavbar from "../../components/navbar";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 const ProfileCard = dynamic(() => import("../../components/home/profile-card"), { ssr: false });
 const ConsultationForm = dynamic(() => import("../../components/home/consultation-form"), { ssr: false });
@@ -535,7 +536,7 @@ export default function StatePsychologistPage({ config, therapists }) {
         "@type": "Person",
         "name": t.user?.name || t.name || "Verified Psychologist",
         "jobTitle": t.profile_type || "Psychologist",
-        "url": `https://www.chooseyourtherapist.in/view-profile/${t._id}`
+        "url": `https://www.chooseyourtherapist.in${profilePath(t)}`
       }
     }))
   } : null;

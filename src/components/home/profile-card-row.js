@@ -9,6 +9,7 @@ import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import { postData } from "../../utils/actions";
 import { imagePath, InsertFavriouteTherapistUrl, RemoveFavriouteTherapistUrl } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
+import { profilePath } from "../../utils/therapist-slug";
 
 function list(raw) {
   if (!raw) return [];
@@ -46,7 +47,7 @@ export default function ProfileCardRow({ data, favrioutes }) {
   const expertise = list(data.experties);
   const price = getMinMaxPrice(data.fees || []);
   const exp = expLabel(data.year_of_exp);
-  const profileHref = `/view-profile/${data._id}`;
+  const profileHref = profilePath(data);
 
   return (
     <article className="pcr">

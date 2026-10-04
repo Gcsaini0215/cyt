@@ -12,6 +12,7 @@ import {
 } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
 import StarIcon from "@mui/icons-material/Star";
+import { profilePath } from "../../utils/therapist-slug";
 
 const typeColors = {
   psychologist:  { bg: "#dbeafe", color: "#1d4ed8", border: "#bfdbfe" },
@@ -242,7 +243,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
         {/* ── Image column ──────────────────────── */}
         <div className="vtc-img-col">
-          <Link href={`/view-profile/${data._id}`} style={{ display: "block", height: "100%" }}>
+          <Link href={profilePath(data)} style={{ display: "block", height: "100%" }}>
             <ImageTag
               alt={data.user?.name || "Therapist"}
               className="vtc-img"
@@ -261,7 +262,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
           {/* Name + bookmark */}
           <div className="vtc-name-row">
-            <Link href={`/view-profile/${data._id}`} className="vtc-name">
+            <Link href={profilePath(data)} className="vtc-name">
               {data.user?.name || "Therapist"}
             </Link>
             {showBookmark && (
@@ -325,7 +326,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
 
           {/* Buttons */}
           <div className="vtc-btns">
-            <Link href={`/view-profile/${data._id}`} className="vtc-btn-out">
+            <Link href={profilePath(data)} className="vtc-btn-out">
               View Profile
             </Link>
             <Link href={`/book/${data._id}`} className="vtc-btn-fill">

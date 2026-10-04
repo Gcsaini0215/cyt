@@ -26,6 +26,7 @@ import { imagePath, InsertFavoriteTherapistUrl, RemoveFavoriteTherapistUrl, Book
 import { postData, fetchData } from "../../utils/actions";
 import { nextOpenSlot } from "../../utils/next-slot";
 import ShareModal from "../global/share-modal";
+import { profilePath } from "../../utils/therapist-slug";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
   const router = useRouter();
@@ -121,7 +122,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      setProfileUrl(`${window.location.origin}/view-profile/${pageData._id}`);
+      setProfileUrl(window.location.origin + profilePath(pageData));
     }
     const data = getDecodedToken();
     if (!data) return;

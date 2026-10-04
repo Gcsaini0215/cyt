@@ -4,6 +4,7 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import Link from "next/link";
 import { imagePath } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 const FALLBACK = [
   { reviewerName: "Priya Patel", rating: 5, text: "The platform connected me with a fantastic therapist who truly understood my needs. I feel supported every step of the way.", therapistName: "CYT Therapist", therapistType: "Psychologist", therapistId: null },
@@ -28,6 +29,8 @@ export default function Feedback({ therapists = [] }) {
             rating: r.rating || 5,
             text: r.description,
             therapistId: t._id,
+            therapistState: t.state,
+            therapistProfileType: t.profile_type,
             therapistName: t.user?.name || "Therapist",
             therapistType: t.profile_type || "Mental Health Professional",
             therapistPhoto: t.user?.profile ? `${imagePath}/${t.user.profile}` : null,
@@ -141,7 +144,7 @@ export default function Feedback({ therapists = [] }) {
                       <span style={{ fontSize: 10, color: "#94a3b8" }}>Session with</span>
                       <div className="rv-th-name" style={{ flex: 1 }}>
                         {item.therapistId
-                          ? <Link href={`/view-profile/${item.therapistId}`}>{item.therapistName}</Link>
+                          ? <Link href={profilePath({ _id: item.therapistId, name: item.therapistName, state: item.therapistState, profile_type: item.therapistProfileType })}>{item.therapistName}</Link>
                           : item.therapistName}
                       </div>
                     </div>

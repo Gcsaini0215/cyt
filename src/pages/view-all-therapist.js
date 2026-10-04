@@ -6,6 +6,7 @@ import MyNavbar from "../components/navbar";
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
 import { filterTherapists } from "../utils/filterTherapists";
+import { profilePath } from "../utils/therapist-slug";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/view-all-therapist";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
@@ -192,7 +193,7 @@ export default function ViewAllTherapistPage({ initialAllData, initialFilteredDa
     "itemListElement": initialFilteredData.slice(0, 30).map((t, i) => ({
       "@type": "ListItem",
       "position": i + 1,
-      "url": `https://www.chooseyourtherapist.in/view-profile/${t._id}`,
+      "url": `https://www.chooseyourtherapist.in${profilePath(t)}`,
       "name": `${t.user?.name || "Therapist"} — ${t.profile_type || "Therapist"}`,
     })),
   } : null;

@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import FormProgressBar from "../global/form-progressbar";
 import useUserStore from "../../store/userStore";
 import { getToken } from "../../utils/jwt";
+import { profilePath } from "../../utils/therapist-slug";
 
 export default function TherapistCheckout({ profile }) {
   const isMobile = useMediaQueryClient("sm");
@@ -149,7 +150,7 @@ export default function TherapistCheckout({ profile }) {
         theme: { color: "#228756" },
         modal: {
           ondismiss: function () {
-            router.push(`/view-profile/${profile._id}`);
+            router.push(profilePath(profile));
           }
         }
       };

@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { imagePath } from "../../utils/url";
+import { profilePath } from "../../utils/therapist-slug";
 
 export default function TherapistSwiper({ topTherapists = [] }) {
   const router = useRouter();
@@ -388,7 +389,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                 fullWidth
                 onClick={() => {
                   setIsProfileOpen(false);
-                  router.push(`/view-profile/${selectedTherapist._id}`);
+                  router.push(profilePath(selectedTherapist));
                 }}
                 sx={{
                   mt: 2,
