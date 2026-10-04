@@ -1253,6 +1253,17 @@ export default function NoidaAppointment({ seoPricing = null }) {
       .catch(() => setTherapists([]));
   }, []);
   useEffect(() => { if (therapistId && therapists.length && !therapists.some(t => t._id === therapistId)) setTherapistId(""); }, [therapists, therapistId]);
+  // Follow-up: the phone lookup says who this client last booked with — pre-select them
+  // (still changeable) as long as that therapist is still offered.
+  const [lastTherapistId, setLastTherapistId] = useState(null);
+  const lastTherapistRef = useRef(null);
+  const lastPickHint = bookingType === "followup" && therapistId && therapistId === lastTherapistId
+    ? "Selected: your psychologist from last time. Tap another to change." : undefined;
+  useEffect(() => {
+    if (bookingType === "followup" && canChooseTherapist && lastTherapistId && therapists.some(t => t._id === lastTherapistId)) {
+      setTherapistId(lastTherapistId);
+    }
+  }, [bookingType, canChooseTherapist, lastTherapistId, therapists]);
   useEffect(() => {
     fetch(`${apiUrl}/noida-appointments/pricing`)
       .then(r => r.json())
@@ -1489,7 +1500,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
           date: selectedDate, slot: selectedSlot, type: bookingType,
           sessionMode, format,
           address: format === "home-visit" ? address.trim() : undefined,
-          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: (canChooseTherapist && therapistId) || undefined,
         }),
       });
       const data = await res.json();
@@ -1521,6 +1532,12 @@ export default function NoidaAppointment({ seoPricing = null }) {
       const res = await fetch(`${apiUrl}/noida-appointments/lookup?phone=${phone}`);
       const data = await res.json();
       setCredit(data?.data?.credit?.available ? data.data.credit : null);
+      // a different phone: drop the therapist we pre-selected for the previous one
+      const last = (data?.status && data.data?.found && data.data.lastTherapistId) || null;
+      const prevLast = lastTherapistRef.current;
+      setTherapistId(t => (t && t === prevLast && t !== last ? "" : t));
+      lastTherapistRef.current = last;
+      setLastTherapistId(last);
       if (data?.status && data.data?.found) {
         setFoundName(data.data.name || "");
         setLookupStatus("found");
@@ -1798,7 +1815,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
     date: selectedDate, slot: selectedSlot, type: bookingType,
     sessionMode, format,
     address: format === "home-visit" ? address.trim() : "",
-    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
+    packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: (canChooseTherapist && therapistId) || undefined,
   });
 
   // Warm the payment script up as soon as the payment step is showing.
@@ -1870,7 +1887,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionMode, format,
-          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: therapistId || undefined,
+          packageId: sessionMode === "package" && selectedPackageId !== "custom" ? selectedPackageId : undefined, customSessions: sessionMode === "package" && isCustomPackage ? customN : undefined, couponCode: coupon?.code, therapistId: (canChooseTherapist && therapistId) || undefined,
           address: format === "home-visit" ? address.trim() : undefined,
           type: bookingType, phone: form.phone.trim(),
           // The whole booking goes with the order so the server can refuse a
@@ -3282,7 +3299,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                       </div>
                       {pickerList.length > 0 && (
                         <div style={{ maxHeight: 240, overflowY: "auto" }}>
-                          <TherapistPicker list={pickerList} value={therapistId} onChange={setTherapistId} />
+                          <TherapistPicker list={pickerList} value={therapistId} onChange={setTherapistId} hint={lastPickHint} />
                         </div>
                       )}
                       <div className="na-tab-price">
@@ -3528,7 +3545,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
                           <div className={`na-pill ${format === "home-visit" ? "active" : ""}`} onClick={() => setFormat("home-visit")}>Home Visit</div>
                         </div>
 
-                        <TherapistPicker list={pickerList} value={therapistId} onChange={setTherapistId} />
+                        <TherapistPicker list={pickerList} value={therapistId} onChange={setTherapistId} hint={lastPickHint} />
 
                         {format === "home-visit" && (
                           <div className="na-row" style={{ gridTemplateColumns: "1fr" }}>
