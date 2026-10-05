@@ -1559,7 +1559,9 @@ export default function NoidaAppointment({ seoPricing = null }) {
   // upcoming booking → pick new date/time from the same slots table.
   const [reschedulePhone, setReschedulePhone] = useState("");
   const [rescheduleStatus, setRescheduleStatus] = useState(null); // null | "checking" | "found" | "not-found"
-  const [rescheduleInfo, setRescheduleInfo] = useState(null); // { name, date, slot, type }
+  const [rescheduleInfo, setRescheduleInfo] = useState(null); // { name, date, slot, type, rescheduleLimit, reschedulesUsed, reschedulesLeft }
+  // one reschedule per session (server policy) — once used, the client is sent to WhatsApp
+  const rescheduleBlocked = !!rescheduleInfo && rescheduleInfo.rescheduleLimit != null && rescheduleInfo.reschedulesLeft === 0;
   const [rescheduleMatrix, setRescheduleMatrix] = useState({ dates: [], times: [], grid: {} });
   const [rescheduleMatrixLoading, setRescheduleMatrixLoading] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState("");
@@ -2719,6 +2721,9 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-rv + .na-rv { border-top: 1px solid #eef2f6; }
         .na-rv b { font-weight: 700; color: #0f172a; text-align: right; }
         .na-secure { text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; }
+        .na-resched-policy { margin: 10px 0 12px; padding: 10px 12px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; font-size: 12.5px; line-height: 1.5; }
+        .na-resched-policy.over { background: #fff7ed; border-color: #fed7aa; color: #9a3412; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; font-size: 13px; }
+        .na-resched-policy.over .na-wa-btn { margin: 0; }
 
         /* ── Tablet (touch, wider than a phone) ─────────────────────────── */
         .na-tab .na-tab-cols { display: flex; gap: 20px; align-items: stretch; }
@@ -3067,6 +3072,18 @@ export default function NoidaAppointment({ seoPricing = null }) {
                           <span><Ic I={CalendarMonthRounded} /> Currently: {rescheduleInfo.date} at {rescheduleInfo.slot}</span>
                         </div>
 
+                        {rescheduleBlocked ? (
+                          <div className="na-resched-policy over">
+                            <b>This session has already been rescheduled once.</b> Our policy allows one reschedule per session, so it can't be moved again online.
+                            <a className="na-wa-btn" href={waLink(`Hi, I'd like to change my CYT Noida appointment on ${rescheduleInfo.date} at ${rescheduleInfo.slot}.`)} target="_blank" rel="noopener noreferrer">
+                              <Ic I={WhatsAppIcon} s={18} /> WhatsApp us to change it
+                            </a>
+                          </div>
+                        ) : (
+                        <>
+                        {rescheduleInfo.rescheduleLimit != null && (
+                          <div className="na-resched-policy">You can reschedule this session <b>once</b> — pick your new time carefully. After that, changes go through WhatsApp.</div>
+                        )}
                         <SlotsTable
                           matrix={{ ...rescheduleMatrix, onPick: handleReschedulePickSlot }}
                           trackAs="reschedule"
@@ -3082,12 +3099,14 @@ export default function NoidaAppointment({ seoPricing = null }) {
                             <span>New time: {rescheduleDateLabel.weekday}, {rescheduleDateLabel.day} {rescheduleDateLabel.month} · {rescheduleSlot}</span>
                           </div>
                         )}
+                        </>
+                        )}
                       </>
                     )}
 
                     {rescheduleError && <div className="na-error" style={{ marginTop: 12 }}><Ic I={WarningAmberRounded} /> {rescheduleError}</div>}
 
-                    {rescheduleStatus === "found" && (
+                    {rescheduleStatus === "found" && !rescheduleBlocked && (
                       <button type="button" className="na-submit" style={{ marginTop: 10 }} disabled={rescheduleSubmitting || !rescheduleSlot} onClick={submitReschedule}>
                         {rescheduleSubmitting ? "Rescheduling…" : "Confirm New Time"}
                       </button>
@@ -3658,14 +3677,18 @@ export default function NoidaAppointment({ seoPricing = null }) {
                             </div>
                           </>
                         ) : usingCredit ? (
+                          <>
+                          <div className="na-resched-policy">Reschedule policy: you can reschedule this session once (Reschedule tab). Further changes via WhatsApp.</div>
                           <div className="na-btn-row">
                             <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
                             <button type="button" className="na-submit" data-busy={status === "loading" ? "1" : undefined} disabled={status === "loading"} onClick={handleConfirmCredit}>
                               {status === "loading" ? "Booking…" : "Confirm Booking"}
                             </button>
                           </div>
+                          </>
                         ) : (
                           <>
+                          <div className="na-resched-policy">Reschedule policy: each session can be rescheduled once (Reschedule tab){sessionMode === "package" ? " — that's one per session in your package" : ""}. Further changes via WhatsApp.</div>
                           <div className="na-secure">Secure checkout by Razorpay — UPI, cards &amp; netbanking</div>
                           <div className="na-btn-row">
                             <button type="button" className="na-btn-back" onClick={goBackFromPay}>Back</button>
