@@ -6,6 +6,15 @@ const nextConfig = {
   // Lets a verification build run in its own output folder (BUILD_DIR=.next-verify)
   // so it never fights the running `npm run dev` server over the shared .next folder.
   distDir: process.env.BUILD_DIR || '.next',
+  // therapist photos are uploaded full size (often 1000px+, ~150 KB); /_next/image serves
+  // small cached thumbnails of them (see utils/thumb.js)
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "api.chooseyourtherapist.in", pathname: "/uploads/**" },
+      { protocol: "http", hostname: "localhost", port: "4000", pathname: "/uploads/**" },
+    ],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
   onDemandEntries: {
     maxInactiveAge: 60000,
     pagesBufferLength: 5,

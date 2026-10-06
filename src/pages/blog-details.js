@@ -1151,7 +1151,7 @@ export default function BlogDetails({ initialBlog }) {
       </Container>
 
       <Footer />
-      <BookingPopup delay={5000} showHeading={false} showLocation={false} showSource={false} />
+      <BookingPopup showHeading={false} showLocation={false} showSource={false} />
     </Box>
   );
 }

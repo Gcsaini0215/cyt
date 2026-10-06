@@ -21,11 +21,66 @@ const BookingPopup = dynamic(() => import("../components/global/booking-popup"),
 
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
+import { getMinFee } from "../utils/therapist-directory";
+
+// Banner wall + "top therapists": priority-1 therapists first, then the most-reviewed.
+const isTop = (t) => t.priority === 1 || t.priority === "1";
+function pickBanner(all) {
+  const withReviews = all.filter((t) => (t.reviews?.length || 0) > 0 && !isTop(t))
+    .sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
+  return [...all.filter(isTop), ...withReviews].slice(0, 10);
+}
+function pickTop(all, userState) {
+  const rest = all.filter((t) => !isTop(t));
+  rest.sort((a, b) => {
+    const d = (b.reviews || []).length - (a.reviews || []).length;
+    if (d) return d;
+    // equal reviews: the visitor's own state first
+    if (userState) {
+      const u = userState.toLowerCase();
+      const alias = { "up": "uttar pradesh", "uttar pradesh": "up", "delhi": "ncr", "ncr": "delhi" };
+      const local = (t) => { const st = (t.state || "").toLowerCase(); return st.includes(u) || (alias[u] && st.includes(alias[u])); };
+      if (local(a) && !local(b)) return -1;
+      if (!local(a) && local(b)) return 1;
+    }
+    return 0;
+  });
+  return [...all.filter(isTop), ...rest].slice(0, 20);
+}
+// cards only need these — the full documents carry schedules, fee tables etc.
+const slimForHome = (t) => ({
+  ...t,
+  availabilities: undefined, completion_items: undefined, verification_checklist: undefined,
+  reviews: (t.reviews || []).map((r) => ({ rating: r.rating, name: r.name || "", description: r.description || "", createdAt: r.createdAt || null })),
+});
+const clean = (o) => JSON.parse(JSON.stringify(o));
+
+// The home page used to fetch every therapist in the browser, so the banner wall and the
+// therapist cards weren't in the HTML at all. Now they're rendered on the server and
+// refreshed every 10 minutes; the browser only re-sorts once it knows the visitor's state.
+export async function getStaticProps() {
+  try {
+    const res = await fetchData(getTherapistProfiles, { page: 1, pageSize: 1000 });
+    const all = res?.data || [];
+    const fees = all.map((t) => getMinFee(t.fees)).filter(Boolean);
+    return {
+      props: {
+        initialBanner: clean(pickBanner(all).map(slimForHome)),
+        initialTop: clean(pickTop(all, null).map(slimForHome)),
+        stats: { count: all.length, minFee: fees.length ? Math.min(...fees) : null },
+      },
+      revalidate: 600,
+    };
+  } catch (err) {
+    console.error("home getStaticProps:", err?.message);
+    return { props: { initialBanner: [], initialTop: [], stats: null }, revalidate: 60 };
+  }
+}
 
 
-export default function HomePage() {
-  const [topTherapists, setTopTherapists] = useState([]);
-  const [bannerTherapists, setBannerTherapists] = useState([]);
+export default function HomePage({ initialBanner = [], initialTop = [], stats = null }) {
+  const [topTherapists, setTopTherapists] = useState(initialTop);
+  const [bannerTherapists, setBannerTherapists] = useState(initialBanner);
   const [userState, setUserState] = useState(null);
   const [userCity, setUserCity] = useState(null);
   const [canonicalUrl, setCanonicalUrl] = useState("https://www.chooseyourtherapist.in/");
@@ -61,46 +116,10 @@ export default function HomePage() {
   const getTopTherapists = useCallback(async () => {
     try {
       const res = await fetchData(getTherapistProfiles);
-      const dataToProcess = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
-      
-      if (dataToProcess && dataToProcess.length > 0) {
-        const allTherapists = dataToProcess;
-        
-        // Priority 1 therapists for Banner — fill remaining slots with high-review therapists
-        const priorityTherapists = allTherapists.filter(therapist => therapist.priority === 1 || therapist.priority === "1");
-        const withReviews = allTherapists
-          .filter(t => (t.reviews?.length || 0) > 0 && t.priority !== 1 && t.priority !== "1")
-          .sort((a, b) => (b.reviews?.length || 0) - (a.reviews?.length || 0));
-        const bannerList = [...priorityTherapists, ...withReviews].slice(0, 10);
-        setBannerTherapists(bannerList);
-
-        // Final Sorted List for ProfileCard (Review & Location Based)
-        const nonPriorityTherapists = allTherapists.filter(therapist => therapist.priority !== 1 && therapist.priority !== "1");
-
-        let sortedNonPriority = [...nonPriorityTherapists];
-
-        // Primary Sort: Most Reviews First
-        sortedNonPriority.sort((a, b) => {
-          const aReviews = (a.reviews || []).length;
-          const bReviews = (b.reviews || []).length;
-          if (aReviews !== bReviews) return bReviews - aReviews;
-          
-          // Secondary Sort: Location (if reviews are equal)
-          if (userState) {
-            const userStateLower = userState.toLowerCase();
-            const stateAliases = { "up": "uttar pradesh", "uttar pradesh": "up", "delhi": "ncr", "ncr": "delhi" };
-            const aState = (a.state || "").toLowerCase();
-            const bState = (b.state || "").toLowerCase();
-            const isALocal = aState.includes(userStateLower) || (stateAliases[userStateLower] && aState.includes(stateAliases[userStateLower]));
-            const isBLocal = bState.includes(userStateLower) || (stateAliases[userStateLower] && bState.includes(stateAliases[userStateLower]));
-            if (isALocal && !isBLocal) return -1;
-            if (!isALocal && isBLocal) return 1;
-          }
-          return 0;
-        });
-        
-        const combinedTherapists = [...priorityTherapists, ...sortedNonPriority];
-        setTopTherapists(combinedTherapists.slice(0, 20));
+      const all = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+      if (all.length > 0) {
+        setBannerTherapists(pickBanner(all));
+        setTopTherapists(pickTop(all, userState));
       } else {
         console.warn("HomePage: No therapists found in response");
       }
@@ -109,8 +128,10 @@ export default function HomePage() {
     }
   }, [userState]);
 
+  // the server already sent the lists; fetch again only to put the visitor's own state first
+  // (or if the server couldn't reach the API)
   useEffect(() => {
-    getTopTherapists();
+    if (userState || initialTop.length === 0) getTopTherapists();
   }, [getTopTherapists]);
 
   const pageTitle = userCity 
@@ -127,7 +148,6 @@ export default function HomePage() {
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
-      <h1 data-seo-h1 style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>Best psychologists in India — online and in-person therapy with Choose Your Therapist</h1>
       {/* Comprehensive SEO Meta Tags */}
       <Head>
         {/* Favicon */}
@@ -535,7 +555,7 @@ export default function HomePage() {
       <main className="rbt-main-wrapper">
         <MyNavbar />
         {/* Homepage Sections */}
-        <Banner topTherapists={bannerTherapists} userCity={userCity} />
+        <Banner topTherapists={bannerTherapists} stats={stats} />
         <Specializations />
         <ProfileCard profiles={topTherapists} detectedState={userState} detectedCity={userCity} />
         <FreeResources />
@@ -552,7 +572,7 @@ export default function HomePage() {
         // Refresh location-based sorting if user accepts
         getTopTherapists();
       }} />
-      <BookingPopup delay={5000} showHeading={false} showLocation={false} showSource={false} />
+      <BookingPopup showHeading={false} showLocation={false} showSource={false} />
     </div>
   );
 }

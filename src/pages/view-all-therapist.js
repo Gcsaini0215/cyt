@@ -7,6 +7,7 @@ import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
 import { filterTherapists } from "../utils/filterTherapists";
 import { profilePath } from "../utils/therapist-slug";
+import { slimTherapist, feeBand, directoryFaqs, CONCERNS } from "../utils/therapist-directory";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/view-all-therapist";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
@@ -107,7 +108,14 @@ const serviceSchema = {
 const allSchemas = [medicalOrgSchema, collectionPageSchema, serviceSchema];
 
 function getDynamicMeta(query) {
-  const { profile_type, state, services } = query || {};
+  const { profile_type, state, services, concern } = query || {};
+  if (concern) {
+    const label = CONCERNS.find((c) => c.value === concern)?.label || concern;
+    return {
+      title: `Therapists for ${label}${state ? ` in ${state}` : ""} | Choose Your Therapist`,
+      description: `Find verified psychologists who help with ${label.toLowerCase()}${state ? ` in ${state}` : " across India"}. Compare expertise, languages and fees, and book online or in-person.`,
+    };
+  }
   if (profile_type && state) {
     return {
       title: `${profile_type}s in ${state} | Choose Your Therapist`,
@@ -139,10 +147,12 @@ function getDynamicMeta(query) {
 }
 
 export async function getServerSideProps(context) {
-  const { profile_type = "", services = "", year_of_exp = "", language_spoken = "", state = "", search = "" } = context.query;
+  const q = (k) => (typeof context.query[k] === "string" ? context.query[k] : "");
+  const [profile_type, services, year_of_exp, language_spoken, state, search, concern, mode, gender, sort, fee] =
+    ["profile_type", "services", "year_of_exp", "language_spoken", "state", "search", "concern", "mode", "gender", "sort", "fee"].map(q);
 
   const filter = {
-    profile_type, services, year_of_exp, language_spoken, state, search,
+    profile_type, services, year_of_exp, language_spoken, state, search, concern, mode, gender, sort, fee,
     page: 1, pageSize: 1000,
   };
 
@@ -153,11 +163,14 @@ export async function getServerSideProps(context) {
   let initialAllData = [];
   try {
     const res = await fetchData(getTherapistProfiles, { page: 1, pageSize: 1000 });
-    if (res?.data) initialAllData = res.data;
+    // only the fields the directory shows — the full documents made the HTML ~250 KB heavier
+    if (res?.data) initialAllData = res.data.map(slimTherapist);
   } catch (err) {
     console.error("Error in view-all-therapist getServerSideProps:", err);
   }
-  const initialFilteredData = filterTherapists(initialAllData, filter);
+  // just what the ItemList schema needs (not a second copy of the therapists)
+  const listed = filterTherapists(initialAllData, filter).slice(0, 30)
+    .map((t) => ({ path: profilePath(t), name: `${t.user?.name || "Therapist"} — ${t.profile_type || "Therapist"}` }));
 
   // Only state/profile_type produce a finite, meaningful set of indexable
   // combinations (mirrors the JustDial city x category pattern). Other
@@ -169,35 +182,45 @@ export async function getServerSideProps(context) {
   const canonical = seoParams.toString()
     ? `${PAGE_URL}?${seoParams.toString()}`
     : PAGE_URL;
-  const hasThinFilter = Boolean(services || year_of_exp || language_spoken || search);
+  const hasThinFilter = Boolean(services || year_of_exp || language_spoken || search || concern || mode || gender || sort || fee);
   const robots = hasThinFilter ? "noindex, follow" : "index, follow";
 
   return {
     props: {
       initialAllData,
-      initialFilteredData,
+      listed,
       initialFilters: filter,
       seo: { canonical, robots },
     },
   };
 }
 
-export default function ViewAllTherapistPage({ initialAllData, initialFilteredData, initialFilters, seo }) {
+export default function ViewAllTherapistPage({ initialAllData, listed, initialFilters, seo }) {
   const { title, description } = getDynamicMeta(initialFilters);
 
   // ItemList schema — lets Google see the actual therapists on this
   // combination of filters, not just the generic directory description.
-  const itemListSchema = initialFilteredData?.length > 0 ? {
+  const itemListSchema = listed?.length > 0 ? {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "itemListElement": initialFilteredData.slice(0, 30).map((t, i) => ({
+    "itemListElement": listed.map((t, i) => ({
       "@type": "ListItem",
       "position": i + 1,
-      "url": `https://www.chooseyourtherapist.in${profilePath(t)}`,
-      "name": `${t.user?.name || "Therapist"} — ${t.profile_type || "Therapist"}`,
+      "url": `https://www.chooseyourtherapist.in${t.path}`,
+      "name": t.name,
     })),
   } : null;
-  const pageSchemas = itemListSchema ? [...allSchemas, itemListSchema] : allSchemas;
+  // FAQPage — the same questions shown at the bottom of the directory
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": directoryFaqs(feeBand(initialAllData)).map((f) => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+    })),
+  };
+  const pageSchemas = [...allSchemas, ...(itemListSchema ? [itemListSchema] : []), faqSchema];
 
   return (
     <div id="__next">
@@ -207,6 +230,8 @@ export default function ViewAllTherapistPage({ initialAllData, initialFilteredDa
         <meta name="keywords" content="find psychologist India, verified therapists India, counselling psychologist near me, online therapy India, best psychologist India, therapist directory, clinical psychologist, mental health counseling, book therapist online" />
         <meta name="robots" content={seo.robots} />
         <link rel="canonical" href={seo.canonical} />
+        <link rel="preload" as="image" href="/assets/img/therapist-directory-banner-1600.webp"
+          imageSrcSet="/assets/img/therapist-directory-banner-800.webp 800w, /assets/img/therapist-directory-banner-1600.webp 1600w" imageSizes="100vw" />
 
         {/* Open Graph */}
         <meta property="og:title" content={title} />
@@ -235,7 +260,6 @@ export default function ViewAllTherapistPage({ initialAllData, initialFilteredDa
       </Head>
       <main className="">
         <MyNavbar />
-        <h1 data-seo-h1 style={{ position: "absolute", width: 1, height: 1, margin: -1, padding: 0, overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>Find verified psychologists and therapists in India</h1>
         <main className="rbt-main-wrapper">
           <ViewAllTherapist initialAllData={initialAllData} initialFilters={initialFilters} />
         </main>

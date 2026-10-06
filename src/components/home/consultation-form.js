@@ -257,6 +257,8 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
       const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {
         setShowSuccessPopup(true);
+        // the "Chat with CYT" popup never opens by itself again for someone who's sent their details
+        try { localStorage.setItem("cyt_lead_sent", String(Date.now())); } catch {}
         setFormData({ name: "", phone: "", email: "", age: "", concern: "", source: "", location: "" });
       } else {
         setMessage(response.message || "Failed to submit. Please try again.");

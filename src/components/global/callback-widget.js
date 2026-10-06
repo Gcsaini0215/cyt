@@ -133,11 +133,13 @@ export default function CallbackWidget() {
         .cb-success-title { font-size:15px; font-weight:800; color:#0f172a; margin-bottom:6px; }
         .cb-success-sub { font-size:12px; color:#64748b; line-height:1.55; }
 
-        @media(max-width:480px){
+        /* phones: the tall "Request Callback" side tab sat on top of cards and buttons —
+           just the phone icon here */
+        @media(max-width:767px){
           .cb-widget { top:auto; bottom:calc(92px + env(safe-area-inset-bottom, 0px)); align-items:flex-end; }
-          .cb-card { width:248px; border-radius:16px 0 0 16px; }
-          .cb-pill { padding:16px 9px; font-size:12px; gap:6px; animation:none; }
-          .cb-pill-icon { width:22px; height:22px; }
+          .cb-card { width:260px; border-radius:16px 0 0 16px; }
+          .cb-pill { writing-mode:horizontal-tb; font-size:0; gap:0; padding:9px 7px 9px 9px; animation:none; border-radius:12px 0 0 12px; }
+          .cb-pill-icon { width:28px; height:28px; }
         }
       ` }} />
 
@@ -190,7 +192,7 @@ export default function CallbackWidget() {
           </div>
         )}
 
-        <button className="cb-pill" onClick={() => setOpen(p => !p)}>
+        <button className="cb-pill" onClick={() => setOpen(p => !p)} aria-label={open ? "Close callback form" : "Request a callback"} aria-expanded={open}>
           <span className="cb-pill-icon"><PhoneIcon /></span>
           {open ? "Close" : "Request Callback"}
         </button>

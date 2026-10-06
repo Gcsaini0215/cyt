@@ -2,24 +2,28 @@ import React, { useEffect } from "react";
 import "swiper/css";
 import "swiper/css/pagination";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import ImageTag from "../utils/image-tag";
 import { getDecodedToken, getToken } from "../utils/jwt";
-import BottomNavigation from "./bottom-navigation";
 import useTherapistStore from "../store/therapistStore";
 import { imagePath, defaultProfile } from "../utils/url";
 
 const LEAD_STRIP_MESSAGES = [
   { icon: "feather-heart", text: "Feeling anxious or low? Talk to a verified psychologist today.", href: "/view-all-therapist" },
-  { icon: "feather-percent", text: "First session at just ₹500 — no waitlists, no judgment.", href: "/plans" },
+  { icon: "feather-percent", text: "Affordable sessions — no waitlists, no judgment.", href: "/view-all-therapist?sort=fee" },
   { icon: "feather-check-circle", text: "Verified therapists across India, online & in-person.", href: "/view-all-therapist" },
   { icon: "feather-shield", text: "100% confidential sessions. Your privacy, our promise.", href: "/view-all-therapist" },
   { icon: "feather-phone", text: "Book in under 2 minutes — call +91-807-775-7951", href: "tel:+918077757951" },
   { icon: "feather-users", text: "Couples, teens, individuals — therapy for every stage of life.", href: "/view-all-therapist" },
 ];
 
+const PHONE = "+918077757951";
+const WHATSAPP = "https://wa.me/918077757951";
+
 export default function App() {
+  const router = useRouter();
   const [show, setShow] = React.useState(false);
-  const [showChatbot, setShowChatbot] = React.useState(false);
+  const [stripIdx, setStripIdx] = React.useState(0);
   const [userType, setUserType] = React.useState(0);
   const [activeDropdown, setActiveDropdown] = React.useState("");
   const [isSticky, setIsSticky] = React.useState(false);
@@ -79,6 +83,18 @@ export default function App() {
     };
   }, [fetchTherapistInfo]);
 
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setStripIdx((i) => (i + 1) % LEAD_STRIP_MESSAGES.length), 4500);
+    return () => clearInterval(t);
+  }, []);
+
+  // current page highlighted in the menu
+  const path = router?.pathname || "";
+  const isActive = (href) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
+  const navCls = (href) => (isActive(href) ? "is-active" : undefined);
+  const close = () => setShow(false);
+
   const GREEN_STRIP_HEIGHT = 35; // desktop
 
   return (
@@ -86,23 +102,15 @@ export default function App() {
       {/* Top Green Strip — running lead-gen ticker */}
       <div className={`top-strip ${isSticky ? "is-stuck" : ""}`}>
         <div className="top-strip-desktop">
-          <div className="marquee-track">
-            {[0, 1].map((group) => (
-              <div className="marquee-content" key={group} aria-hidden={group === 1}>
-                {LEAD_STRIP_MESSAGES.map((m, i) =>
-                  m.href.startsWith("tel:") ? (
-                    <a key={i} href={m.href} className="marquee-item" tabIndex={group === 1 ? -1 : 0}>
-                      <i className={m.icon}></i> {m.text}
-                    </a>
-                  ) : (
-                    <Link key={i} href={m.href} className="marquee-item" tabIndex={group === 1 ? -1 : 0}>
-                      <i className={m.icon}></i> {m.text}
-                    </Link>
-                  )
-                )}
-              </div>
-            ))}
+          <div className="strip-rot" aria-live="off">
+            {LEAD_STRIP_MESSAGES.map((m, i) => {
+              const props = { key: i, className: `strip-item${i === stripIdx ? " on" : ""}`, tabIndex: i === stripIdx ? 0 : -1, "aria-hidden": i !== stripIdx };
+              return m.href.startsWith("tel:")
+                ? <a {...props} href={m.href}><i className={m.icon}></i> {m.text}</a>
+                : <Link {...props} href={m.href}><i className={m.icon}></i> {m.text}</Link>;
+            })}
           </div>
+          <a className="strip-call" href={`tel:${PHONE}`}><i className="feather-phone"></i> +91 80777 57951</a>
         </div>
       </div>
 
@@ -125,9 +133,9 @@ export default function App() {
               <div className="rbt-main-navigation d-none d-lg-block">
                 <nav className="mainmenu-nav">
                   <ul className="mainmenu">
-                    <li><Link href="/">Home</Link></li>
-                    <li><Link href="/view-all-therapist">Therapist Directory</Link></li>
-                    <li className="has-dropdown">
+                    <li className={navCls("/")}><Link href="/" aria-current={isActive("/") ? "page" : undefined}>Home</Link></li>
+                    <li className={navCls("/view-all-therapist")}><Link href="/view-all-therapist" aria-current={isActive("/view-all-therapist") ? "page" : undefined}>Therapist Directory</Link></li>
+                    <li className={`has-dropdown ${["/therapy-booking", "/self-assessment", "/psychologist-in-noida-delhi"].some(isActive) ? "is-active" : ""}`}>
                       <Link href="#">Services <i className="feather-chevron-down"></i></Link>
                       <ul className="submenu">
                         <li><Link href="/therapy-booking">Therapy Booking</Link></li>
@@ -135,9 +143,9 @@ export default function App() {
                       <li><Link href="/psychologist-in-noida-delhi">Psychologist in Noida</Link></li>
                       </ul>
                     </li>
-                    <li><Link href="/about-us">Our Story</Link></li>
-                    <li><Link href="/for-business">Corporate</Link></li>
-                    <li><Link href="/contact-us">Contact us</Link></li>
+                    <li className={navCls("/about-us")}><Link href="/about-us">Our Story</Link></li>
+                    <li className={navCls("/for-business")}><Link href="/for-business">Corporate</Link></li>
+                    <li className={navCls("/contact-us")}><Link href="/contact-us">Contact us</Link></li>
                   </ul>
                 </nav>
               </div>
@@ -187,20 +195,29 @@ export default function App() {
                             <Link href="/register" onClick={() => setShowAccountMenu(false)}>
                               <i className="feather-user-plus"></i> Create Account
                             </Link>
+                            <Link href="/therapist-registration" onClick={() => setShowAccountMenu(false)} className="nav-acc-sep">
+                              <i className="feather-briefcase"></i> Join as a therapist
+                            </Link>
                           </div>
                         )}
                       </div>
                     )}
                   </li>
                 </ul>
-                {/* Recruiting CTA — pointless for a therapist who's already logged in. */}
+                {/* Main CTA is for clients; therapists get a quieter link (and the Account menu).
+                    Neither makes sense for a therapist who's already logged in. */}
                 {userType !== 2 && (
-                  <div className="rbt-btn-wrapper d-none d-lg-block">
-                    <Link className="nav-cta-btn" href="/therapist-registration">
-                      <span className="nav-cta-full">Are You a Therapist?</span>
-                      <span className="nav-cta-short">For Therapists</span>
+                  <div className="rbt-btn-wrapper nav-ctas d-none d-lg-flex">
+                    <Link className="nav-for-ther" href="/therapist-registration">For therapists</Link>
+                    <Link className="nav-cta-btn" href="/view-all-therapist">
+                      <i className="feather-search" aria-hidden="true"></i> Find a Therapist
                     </Link>
                   </div>
+                )}
+
+                {/* phones: a one-tap way to book next to the menu button */}
+                {userType !== 2 && (
+                  <Link className="nav-mob-book d-lg-none" href="/view-all-therapist">Book</Link>
                 )}
 
                 {/* Mobile Menu Button - Moved to right corner */}
@@ -279,11 +296,12 @@ export default function App() {
               )}
             </li>
 
-            <li><Link href="/" onClick={() => setShow(false)}><i className="feather-home"></i> Home</Link></li>
-            <li><Link href="/view-all-therapist" onClick={() => setShow(false)}><i className="feather-users"></i> Directory</Link></li>
-            <li><Link href="/about-us" onClick={() => setShow(false)}><i className="feather-heart"></i> Our Story</Link></li>
-            <li><Link href="/for-business" onClick={() => setShow(false)}><i className="feather-briefcase"></i> Corporate</Link></li>
-            <li><Link href="/contact-us" onClick={() => setShow(false)}><i className="feather-mail"></i> Contact</Link></li>
+            <li className={navCls("/")}><Link href="/" onClick={close}><i className="feather-home"></i> Home</Link></li>
+            <li className={navCls("/view-all-therapist")}><Link href="/view-all-therapist" onClick={close}><i className="feather-users"></i> Therapist Directory</Link></li>
+            <li className={navCls("/noida-appointment")}><Link href="/noida-appointment" onClick={close}><i className="feather-map-pin"></i> Book in Noida</Link></li>
+            <li className={navCls("/about-us")}><Link href="/about-us" onClick={close}><i className="feather-heart"></i> Our Story</Link></li>
+            <li className={navCls("/for-business")}><Link href="/for-business" onClick={close}><i className="feather-briefcase"></i> Corporate</Link></li>
+            <li className={navCls("/contact-us")}><Link href="/contact-us" onClick={close}><i className="feather-mail"></i> Contact</Link></li>
             
             <li className={`has-dropdown ${activeDropdown === "services" ? "open" : ""}`}>
               <Link href="#" onClick={(e) => { e.preventDefault(); toggleDropdown("services"); }}>
@@ -294,403 +312,23 @@ export default function App() {
                 <i className={`feather-chevron-${activeDropdown === "services" ? "up" : "down"}`} style={{ color: '#94a3b8' }}></i>
               </Link>
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
-                <li><Link href="/therapy-booking" onClick={() => setShow(false)}>Therapy Booking</Link></li>
-                <li><Link href="/self-assessment" onClick={() => setShow(false)}>Self Assessment</Link></li>
+                <li><Link href="/therapy-booking" onClick={close}>Therapy Booking</Link></li>
+                <li><Link href="/self-assessment" onClick={close}>Self Assessment</Link></li>
+                <li><Link href="/psychologist-in-noida-delhi" onClick={close}>Psychologist in Noida</Link></li>
               </ul>
             </li>
           </ul>
 
-          <div className="mobile-footer-section" style={{ borderTop: 'none', background: 'transparent' }}>
+          <div className="mobile-menu-foot">
+            {userType !== 2 && <Link className="mm-cta" href="/view-all-therapist" onClick={close}><i className="feather-search"></i> Find a Therapist</Link>}
+            <div className="mm-contact">
+              <a href={`tel:${PHONE}`}><i className="feather-phone"></i> Call</a>
+              <a href={WHATSAPP} target="_blank" rel="noreferrer"><i className="feather-message-circle"></i> WhatsApp</a>
+            </div>
+            {userType !== 2 && <Link className="mm-ther" href="/therapist-registration" onClick={close}>Are you a therapist? Join us →</Link>}
           </div>
         </div>
       </div>
-
-      {/* FAQ Chatbot Widget */}
-      {showChatbot && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.5)",
-            zIndex: 10000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            animation: "fadeIn 0.3s ease"
-          }}
-          onClick={() => setShowChatbot(false)}
-        >
-          <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "12px",
-              width: "90%",
-              maxWidth: "450px",
-              height: "80%",
-              maxHeight: "650px",
-              display: "flex",
-              flexDirection: "column",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
-              animation: "slideUp 0.3s ease"
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div
-              style={{
-                backgroundColor: "#228756",
-                color: "#fff",
-                padding: "16px",
-                borderRadius: "12px 12px 0 0",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between"
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <div
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    backgroundColor: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginRight: "12px"
-                  }}
-                >
-                  <i className="feather-help-circle" style={{ color: "#228756", fontSize: "20px" }}></i>
-                </div>
-                <div>
-                  <div style={{ fontWeight: "bold", fontSize: "16px" }}>FAQ Assistant</div>
-                  <div style={{ fontSize: "12px", opacity: 0.9 }}>Get instant answers</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowChatbot(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#fff",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                  padding: "4px"
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            {/* FAQ Content */}
-            <div
-              style={{
-                flex: 1,
-                padding: "16px",
-                overflowY: "auto",
-                backgroundColor: "#f8f9fa"
-              }}
-            >
-              <div style={{ marginBottom: "16px", textAlign: "center" }}>
-                <div style={{
-                  backgroundColor: "#e3f2fd",
-                  padding: "12px",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  color: "#1565c0"
-                }}>
-                  👋 Hi! I'm here to help answer your questions about our therapy services. Click on any question below to get instant answers!
-                </div>
-              </div>
-
-              {/* FAQ Items */}
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const content = button.nextElementSibling;
-                    const arrow = button.querySelector('.arrow');
-                    if (content && arrow) {
-                      content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                      arrow.style.transform = content.style.display === 'block' ? 'rotate(90deg)' : 'rotate(0deg)';
-                    }
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span>How do I book a therapy session?</span>
-                  <span className="arrow" style={{ transition: "transform 0.2s", fontSize: "12px" }}>▶</span>
-                </button>
-                <div style={{
-                  display: "none",
-                  padding: "12px 16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "0 0 8px 8px",
-                  fontSize: "14px",
-                  lineHeight: "1.5"
-                }}>
-                  You can book a therapy session by browsing our therapist directory, selecting a therapist that matches your needs, and clicking "Book Appointment". You'll be guided through the process of choosing a date and time that works for you.
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const content = button.nextElementSibling;
-                    const arrow = button.querySelector('.arrow');
-                    if (content && arrow) {
-                      content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                      arrow.style.transform = content.style.display === 'block' ? 'rotate(90deg)' : 'rotate(0deg)';
-                    }
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span>What types of therapy do you offer?</span>
-                  <span className="arrow" style={{ transition: "transform 0.2s", fontSize: "12px" }}>▶</span>
-                </button>
-                <div style={{
-                  display: "none",
-                  padding: "12px 16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "0 0 8px 8px",
-                  fontSize: "14px",
-                  lineHeight: "1.5"
-                }}>
-                  We offer various types of therapy including Counselling Psychology, Clinical Psychology, and specialized support for stress management, anxiety, depression, relationship counseling, and adolescent guidance.
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const content = button.nextElementSibling;
-                    const arrow = button.querySelector('.arrow');
-                    if (content && arrow) {
-                      content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                      arrow.style.transform = content.style.display === 'block' ? 'rotate(90deg)' : 'rotate(0deg)';
-                    }
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span>Are your therapists verified?</span>
-                  <span className="arrow" style={{ transition: "transform 0.2s", fontSize: "12px" }}>▶</span>
-                </button>
-                <div style={{
-                  display: "none",
-                  padding: "12px 16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "0 0 8px 8px",
-                  fontSize: "14px",
-                  lineHeight: "1.5"
-                }}>
-                  Yes! All our therapists are verified professionals with proper qualifications and experience. We thoroughly vet each therapist before they join our platform to ensure quality and safety for our clients.
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const content = button.nextElementSibling;
-                    const arrow = button.querySelector('.arrow');
-                    if (content && arrow) {
-                      content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                      arrow.style.transform = content.style.display === 'block' ? 'rotate(90deg)' : 'rotate(0deg)';
-                    }
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span>What are your consultation fees?</span>
-                  <span className="arrow" style={{ transition: "transform 0.2s", fontSize: "12px" }}>▶</span>
-                </button>
-                <div style={{
-                  display: "none",
-                  padding: "12px 16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "0 0 8px 8px",
-                  fontSize: "14px",
-                  lineHeight: "1.5"
-                }}>
-                  Our therapy sessions are affordably priced starting from ₹500 per session. The exact fees vary depending on the therapist's experience and specialization. You can see the pricing for each therapist in their profile.
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const content = button.nextElementSibling;
-                    const arrow = button.querySelector('.arrow');
-                    if (content && arrow) {
-                      content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                      arrow.style.transform = content.style.display === 'block' ? 'rotate(90deg)' : 'rotate(0deg)';
-                    }
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span>Do you offer online therapy?</span>
-                  <span className="arrow" style={{ transition: "transform 0.2s", fontSize: "12px" }}>▶</span>
-                </button>
-                <div style={{
-                  display: "none",
-                  padding: "12px 16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "0 0 8px 8px",
-                  fontSize: "14px",
-                  lineHeight: "1.5"
-                }}>
-                  Yes! We offer both online and in-person therapy sessions. You can choose your preferred mode when booking an appointment. Online sessions are conducted through secure video calls.
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "12px" }}>
-                <button
-                  onClick={(e) => {
-                    const button = e.currentTarget;
-                    const content = button.nextElementSibling;
-                    const arrow = button.querySelector('.arrow');
-                    if (content && arrow) {
-                      content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                      arrow.style.transform = content.style.display === 'block' ? 'rotate(90deg)' : 'rotate(0deg)';
-                    }
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "12px 16px",
-                    textAlign: "left",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <span>How do I know which therapist is right for me?</span>
-                  <span className="arrow" style={{ transition: "transform 0.2s", fontSize: "12px" }}>▶</span>
-                </button>
-                <div style={{
-                  display: "none",
-                  padding: "12px 16px",
-                  backgroundColor: "#f8f9fa",
-                  borderRadius: "0 0 8px 8px",
-                  fontSize: "14px",
-                  lineHeight: "1.5"
-                }}>
-                  You can browse therapist profiles to see their specializations, experience, and reviews. We recommend considering your specific needs (anxiety, depression, relationships, etc.) and reading therapist profiles to find the best match.
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Button */}
-            <div
-              style={{
-                padding: "16px",
-                borderTop: "1px solid #e0e0e0",
-                backgroundColor: "#fff",
-                borderRadius: "0 0 12px 12px"
-              }}
-            >
-              <button
-                onClick={() => {
-                  window.location.href = 'tel:+918077757951';
-                  setShowChatbot(false);
-                }}
-                style={{
-                  width: "100%",
-                  backgroundColor: "#228756",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "12px",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px"
-                }}
-              >
-                <i className="feather-phone" style={{ fontSize: "16px" }}></i>
-                Call Support
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -720,19 +358,20 @@ export default function App() {
         }
         .top-strip-desktop::before { left: 0; background: linear-gradient(90deg,#f0cf6e,transparent); }
         .top-strip-desktop::after { right: 0; background: linear-gradient(-90deg,#d4af37,transparent); }
-        .marquee-track { display: flex; width: max-content; animation: cytMarquee 30s linear infinite; }
-        .top-strip-desktop:hover .marquee-track { animation-play-state: paused; }
-        .marquee-content { display: flex; align-items: center; flex-shrink: 0; }
-        .marquee-item {
-          display: flex; align-items: center; white-space: nowrap; padding: 0 22px;
-          color: inherit; text-decoration: none;
+        .top-strip-desktop::before, .top-strip-desktop::after { display: none; }
+        .strip-rot { position: relative; flex: 1; height: 100%; }
+        .strip-item {
+          position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 7px;
+          white-space: nowrap; color: inherit; text-decoration: none; font-weight: 600;
+          opacity: 0; transform: translateY(6px); transition: opacity .45s ease, transform .45s ease; pointer-events: none;
         }
-        .marquee-item:hover { color: #175c37; text-decoration: underline; }
-        .marquee-item::before { content: "•"; margin-right: 22px; color: rgba(0,0,0,.35); }
-        .marquee-item:first-child::before { content: none; }
-        .marquee-item i { color: #175c37; margin-right: 6px; }
-        @keyframes cytMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+        .strip-item.on { opacity: 1; transform: none; pointer-events: auto; }
+        .strip-item:hover { color: #14532d; text-decoration: underline; }
+        .strip-item i { color: #14532d; }
+        .strip-call { position: absolute; right: clamp(20px, 3vw, 40px); top: 0; bottom: 0; display: flex; align-items: center; gap: 6px; font-weight: 700; color: #14532d; text-decoration: none; z-index: 3; }
+        .strip-call:hover { text-decoration: underline; color: #14532d; }
+        @media (max-width: 1199px) { .strip-call { display: none; } }
+        @media (prefers-reduced-motion: reduce) { .strip-item { transition: none; } }
         @media (max-width: 991px) { .top-strip-desktop { display: none; } }
 
         .rbt-header.rbt-header-10 {
@@ -763,6 +402,10 @@ export default function App() {
           /* once scrolled, the theme pins the header (position: fixed) — keep the strip
              pinned above it and the header directly under the strip, full width */
           .top-strip.is-stuck { position: fixed; top: 0; left: 0; right: 0; }
+          /* scrolled: a slimmer bar leaves more room for the page */
+          .rbt-header.rbt-header-10 .rbt-header-wrapper.rbt-sticky { padding-top: 0 !important; padding-bottom: 0 !important; }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper.rbt-sticky .mainbar-row { height: 62px; min-height: 0; }
+          .rbt-header.rbt-header-10 .rbt-header-wrapper.rbt-sticky .logo img { height: 36px !important; width: auto !important; }
           .rbt-header.rbt-header-10 .rbt-header-wrapper.rbt-sticky {
             top: ${GREEN_STRIP_HEIGHT}px !important;
             border-bottom: 1px solid #e7efe9 !important;
@@ -816,7 +459,10 @@ export default function App() {
         }
 
         /* ── Nav link accents (academic green) ────────── */
-        .mainmenu-nav .mainmenu > li > a { color: #132a1c !important; font-weight: 600 !important; }
+        .mainmenu-nav .mainmenu > li > a { color: #132a1c !important; font-weight: 600 !important; position: relative; }
+        .mainmenu-nav .mainmenu > li.is-active > a { color: #1e7a4c !important; }
+        .mainmenu-nav .mainmenu > li.is-active > a::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% + 13px); height: 2.5px; border-radius: 2px; background: #d4a24c; }
+        .mainmenu-nav .mainmenu > li.has-dropdown.is-active > a::after { right: 16px; }
         .mainmenu-nav .mainmenu > li > a:hover,
         .mainmenu-nav .mainmenu > li.has-dropdown:hover > a { color: #166534 !important; }
         .mainmenu-nav .submenu a:hover { color: #166534 !important; }
@@ -866,19 +512,25 @@ export default function App() {
         }
         .nav-account-menu a:hover { background: #f0fdf4; color: #166534; }
         .nav-account-menu a i { font-size: 15px; color: #166534; flex-shrink: 0; }
+        .nav-account-menu a.nav-acc-sep { border-top: 1px solid #eef2f0; border-radius: 0 0 9px 9px; margin-top: 4px; padding-top: 12px; color: #475569; }
         @media (prefers-reduced-motion: reduce) { .nav-account-menu { animation: none; } }
 
-        /* ── "Are You a Therapist?" CTA ─────────────────── */
+        /* ── Header CTAs: "Find a Therapist" (clients) + a quiet "For therapists" link ── */
+        .nav-ctas { align-items: center; gap: 16px; }
+        .nav-for-ther { font-size: 13.5px; font-weight: 700; color: #475569 !important; white-space: nowrap; text-decoration: none !important; }
+        .nav-for-ther:hover { color: #1e7a4c !important; text-decoration: underline !important; }
         .nav-cta-btn {
-          display: inline-flex; align-items: center; justify-content: center;
-          padding: 10px 20px; border-radius: 6px;
-          background: linear-gradient(135deg,#0f3d24,#175c37);
-          border: 1px solid #d4af37; color: #fff !important;
-          font-weight: 700; font-size: 13.5px; white-space: nowrap;
-          text-decoration: none !important; transition: filter .18s ease;
+          display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+          padding: 11px 20px; border-radius: 10px; background: #1e7a4c; color: #fff !important;
+          font-weight: 800; font-size: 14px; white-space: nowrap;
+          text-decoration: none !important; box-shadow: 0 8px 18px -10px rgba(30,122,76,.8); transition: background .18s ease;
         }
-        .nav-cta-btn:hover { filter: brightness(1.12); }
-        .nav-cta-short { display: none; }
+        .nav-cta-btn:hover { background: #186640; }
+        .nav-mob-book {
+          display: inline-flex; align-items: center; height: 36px; padding: 0 14px; margin-right: 10px; border-radius: 10px;
+          background: #1e7a4c; color: #fff !important; font-size: 13.5px; font-weight: 800; text-decoration: none !important;
+        }
+        .header-right { display: flex; align-items: center; }
 
         /* ── Tablet landscape (iPad 1024–1194px): same desktop menu, compacted ── */
         @media (min-width: 992px) and (max-width: 1199.98px) {
@@ -894,9 +546,8 @@ export default function App() {
           .nav-profile-av { width: 30px; height: 30px; }
           .nav-profile-name { font-size: 13px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
           .rbt-header.rbt-header-10 .rbt-btn-wrapper { margin-left: 8px; }
-          .nav-cta-btn { padding: 8px 12px; font-size: 12.5px; }
-          .nav-cta-full { display: none; }
-          .nav-cta-short { display: inline; }
+          .nav-cta-btn { padding: 9px 13px; font-size: 13px; }
+          .nav-for-ther { display: none; }
         }
 
         /* Mobile Menu */
@@ -919,8 +570,8 @@ export default function App() {
         .popup-mobile-menu .inner-wrapper {
           position: absolute;
           top: 0;
-          left: -230px;
-          width: 230px !important;
+          left: -290px;
+          width: 290px !important; max-width: 86vw;
           height: 100%;
           background: #fff !important;
           transition: all 0.3s ease-in-out;
@@ -936,6 +587,12 @@ export default function App() {
         .mobile-menu li { margin-bottom: 15px; }
         .mobile-menu li a { text-decoration: none; color: #333; font-weight: 500; }
         .mobile-menu .submenu { padding-left: 15px; list-style: disc; }
+        .mobile-menu li.is-active > a { color: #1e7a4c !important; font-weight: 700 !important; }
+        .mobile-menu-foot { padding: 14px 18px calc(18px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 10px; }
+        .mm-cta { display: flex; align-items: center; justify-content: center; gap: 8px; height: 46px; border-radius: 12px; background: #1e7a4c; color: #fff !important; font-weight: 800; font-size: 15px; text-decoration: none !important; }
+        .mm-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .mm-contact a { display: flex; align-items: center; justify-content: center; gap: 6px; height: 42px; border-radius: 12px; border: 1.5px solid #dbe5df; color: #14532d !important; font-weight: 700; font-size: 14px; text-decoration: none !important; }
+        .mm-ther { text-align: center; font-size: 13px; font-weight: 600; color: #64748b !important; text-decoration: none !important; padding: 4px 0; }
 
         @keyframes fadeIn {
           from { opacity: 0; }

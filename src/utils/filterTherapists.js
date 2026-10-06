@@ -4,6 +4,8 @@
 // getServerSideProps (so the SSR'd HTML matches what a crawler should see
 // for a given filter combination) and client-side when the user changes a
 // filter without a page reload.
+import { split, sessionModes } from "./therapist-directory";
+
 export function filterTherapists(allData, filter) {
   let filtered = allData;
 
@@ -23,6 +25,10 @@ export function filterTherapists(allData, filter) {
   if (filter.year_of_exp) filtered = filtered.filter(i => (i.year_of_exp || "").trim() === filter.year_of_exp);
   if (filter.language_spoken) filtered = filtered.filter(i => i.language_spoken?.includes(filter.language_spoken));
   if (filter.state) filtered = filtered.filter(i => (i.state || "").toLowerCase() === filter.state.toLowerCase());
+  if (filter.concern) filtered = filtered.filter(i => split(i.experties).includes(filter.concern));
+  if (filter.mode === "online") filtered = filtered.filter(i => sessionModes(i).online);
+  if (filter.mode === "in-person") filtered = filtered.filter(i => sessionModes(i).inPerson);
+  if (filter.gender) filtered = filtered.filter(i => (i.user?.gender || "").toLowerCase() === filter.gender.toLowerCase());
 
   return filtered;
 }

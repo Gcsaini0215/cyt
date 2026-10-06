@@ -671,7 +671,7 @@ export default function BlogDetailsNew() {
           </Container>
 
           <Footer />
-          <BookingPopup delay={5000} />
+          <BookingPopup />
         </Box>
       </ThemeProvider>
     </CacheProvider>

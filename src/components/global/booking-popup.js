@@ -1,7 +1,25 @@
 import React, { useState, useEffect } from "react";
 import ConsultationForm from "../home/consultation-form";
 
-const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, showSource = true, onClose }) => {
+// Lead form ("Chat with CYT"). It no longer jumps up a few seconds after landing — that
+// covered the page before people had read anything. It opens by itself once per visit, when
+// someone has shown interest: scrolled ~40% of the page, stayed `delay` ms, or (desktop)
+// moves to leave the tab. Closed -> not again that day; details sent -> never again.
+// Anything on the site can open it on demand: window.dispatchEvent(new Event(OPEN_CHAT_EVENT)).
+export const OPEN_CHAT_EVENT = "cyt:open-chat";
+const DISMISS_KEY = "cyt_lead_dismissed";
+const SENT_KEY = "cyt_lead_sent";
+const SESSION_KEY = "cyt_lead_shown";
+const DAY = 24 * 3600 * 1000;
+
+const store = (fn) => { try { return fn(); } catch { return null; } };
+const mayAutoOpen = () => store(() => {
+  if (localStorage.getItem(SENT_KEY)) return false;
+  if (Date.now() - Number(localStorage.getItem(DISMISS_KEY) || 0) < DAY) return false;
+  return !sessionStorage.getItem(SESSION_KEY);
+}) !== false;
+
+const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, showSource = true, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -9,15 +27,36 @@ const BookingPopup = ({ delay = 10000, showHeading = true, showLocation = true, 
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener("resize", check);
-    const timer = setTimeout(() => setIsOpen(true), delay);
+    const openNow = () => setIsOpen(true);
+    window.addEventListener(OPEN_CHAT_EVENT, openNow);
+
+    let done = !mayAutoOpen();
+    const fire = () => {
+      if (done) return;
+      done = true;
+      store(() => sessionStorage.setItem(SESSION_KEY, "1"));
+      setIsOpen(true);
+    };
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (max > 0 && window.scrollY / max >= 0.4) fire();
+    };
+    const onLeave = (e) => { if (!e.relatedTarget && e.clientY <= 0) fire(); };
+    const timer = setTimeout(fire, delay);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("mouseout", onLeave);
     return () => {
       clearTimeout(timer);
       window.removeEventListener("resize", check);
+      window.removeEventListener(OPEN_CHAT_EVENT, openNow);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("mouseout", onLeave);
     };
   }, [delay]);
 
   const handleClose = () => {
     setIsOpen(false);
+    store(() => { if (!localStorage.getItem(SENT_KEY)) localStorage.setItem(DISMISS_KEY, String(Date.now())); });
     if (onClose) onClose();
   };
 
