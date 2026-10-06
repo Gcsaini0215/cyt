@@ -321,11 +321,13 @@ async function fetchSlotsMatrix(type) {
   const times = Array.from(new Set(all.filter(s => dateSet.has(s.date)).map(s => s.slot)))
     .sort((a, b) => slotStartMinutes(a) - slotStartMinutes(b));
   const grid = {};
+  const lastOne = {}; // shared slots (several clients an hour) down to their last place
   all.forEach(s => {
     if (!dateSet.has(s.date)) return;
     grid[`${s.date}|${s.slot}`] = s.booked ? "taken" : s.past ? "past" : (s.lastMinute ? "lastMinute" : "open");
+    if (!s.booked && !s.past && s.cap > 1 && s.left === 1) lastOne[`${s.date}|${s.slot}`] = true;
   });
-  return { dates, times, grid };
+  return { dates, times, grid, lastOne };
 }
 
 // Reusable date x time availability table — an open cell is a clickable
@@ -873,6 +875,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                       >
                         {isLM ? (isSelected ? <Ic I={CheckRounded} s={16} /> : "!") : <span className="na-wm">cyt<i className="na-wm-dot" aria-hidden="true" /></span>}
                         {hasOffer && <i className="na-offer-tag" aria-hidden="true">%</i>}
+                        {!isLM && matrix.lastOne?.[`${d}|${t}`] && <i className="na-left-tag">1 left</i>}
                       </button>
                     </td>
                   );
@@ -1111,7 +1114,7 @@ function lastSessionTxt(cr) {
   return isNaN(d) ? "" : ` · last session on ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}`;
 }
 
-export default function NoidaAppointment({ seoPricing = null }) {
+export default function NoidaAppointment({ seoPricing = null, seoReviews = null }) {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
@@ -2254,7 +2257,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
         .na-offerbar-note { color: #92400e; }
         .na-offerbar-btn { border: none; background: #c2410c; color: #fff; font-weight: 800; font-size: 13px; padding: 8px 14px; border-radius: 9px; cursor: pointer; font-family: inherit; white-space: nowrap; }
         .na-offerbar-btn:hover { background: #9a3412; }
-        button.na-slotcell.offer { position: relative; }
+        button.na-slotcell.offer, button.na-slotcell.open { position: relative; }
         .na-offer-tag { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 10px; font-weight: 900; font-style: normal; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff; pointer-events: none; }
         .na-offer-tag.inline { position: static; display: inline-flex; vertical-align: -3px; box-shadow: none; }
         .na-offer-pill { display: inline-block; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-weight: 800; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
@@ -2311,6 +2314,18 @@ export default function NoidaAppointment({ seoPricing = null }) {
         /* the site's bottom navigation reserves 75px of body padding up to 1200px wide; let the grey footer fill it */
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
         .na-seo { background: transparent; padding: 26px 14px 0; }
+        .na-left-tag { position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%); font-style: normal; font-size: 9px; font-weight: 800; color: #9a6f22; background: #fbf3e2; border-radius: 999px; padding: 0 5px; line-height: 14px; white-space: nowrap; pointer-events: none; }
+        .na-rv { margin: 22px 0 6px; }
+        .na-rv-sum { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; font-size: 13.5px; color: #64748b; }
+        .na-rv-sum b { font-size: 30px; font-weight: 800; color: #14532d; line-height: 1; }
+        .na-rv-stars { color: #d4a24c; letter-spacing: 1px; font-size: 16px; }
+        .na-rv-stars i { font-style: normal; color: #e2e8e4; }
+        .na-rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .na-rv-card { margin: 0; padding: 16px; border-radius: 16px; background: #f6faf7; border: 1px solid #e2ece5; display: flex; flex-direction: column; gap: 8px; }
+        .na-seo .na-rv-card blockquote { margin: 0; font-size: 14.5px; line-height: 1.6; color: #1f2937; }
+        .na-rv-card figcaption { font-size: 12.5px; color: #64748b; }
+        .na-rv-card figcaption b { color: #0b1712; }
+        .na-rv-more { margin-top: 12px; border: 1px solid #bfe0cc; background: #fff; color: #14532d; border-radius: 999px; padding: 8px 16px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
         .na-seo-in { max-width: 980px; margin: 0 auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 34px rgba(15,61,34,.10); padding: 32px 36px 28px; color: #334155; font-size: 15px; line-height: 1.7; }
         /* desktop/tablet: same width as the slots card above (it is 100% - 28px, up to 1480px) */
         @media (min-width: 641px) { .na-seo-in { max-width: 1480px; } }
@@ -3709,7 +3724,7 @@ export default function NoidaAppointment({ seoPricing = null }) {
 
         </div>
 
-        {fitSlots && <NoidaSeoContent pricing={seoPricing} />}
+        {fitSlots && <NoidaSeoContent pricing={seoPricing} reviews={seoReviews} />}
 
         <footer className="na-foot">
           <div className="na-foot-in">
@@ -3741,8 +3756,35 @@ export default function NoidaAppointment({ seoPricing = null }) {
   );
 }
 
+// What clients said after their session here — approved by the centre, newest first.
+function NoidaReviews({ data }) {
+  const [all, setAll] = useState(false);
+  const list = all ? data.reviews : data.reviews.slice(0, 6);
+  const stars = (n) => "★★★★★".slice(0, n);
+  return (
+    <div className="na-rv">
+      <h3>What clients say</h3>
+      <div className="na-rv-sum">
+        <b>{data.summary.average.toFixed(1)}</b>
+        <span className="na-rv-stars" aria-hidden="true">{stars(Math.round(data.summary.average))}<i>{"★★★★★".slice(Math.round(data.summary.average))}</i></span>
+        <span>from {data.summary.count} client review{data.summary.count === 1 ? "" : "s"} after their session at the centre</span>
+      </div>
+      <div className="na-rv-grid">
+        {list.map(r => (
+          <figure key={r.id} className="na-rv-card">
+            <div className="na-rv-stars" aria-label={`${r.rating} out of 5`}>{stars(r.rating)}<i>{"★★★★★".slice(r.rating)}</i></div>
+            {r.text && <blockquote>{r.text}</blockquote>}
+            <figcaption><b>{r.name}</b>{r.therapistName ? <span> · session with {r.therapistName}</span> : null}</figcaption>
+          </figure>
+        ))}
+      </div>
+      {data.reviews.length > 6 && !all && <button type="button" className="na-rv-more" onClick={() => setAll(true)}>Show all {data.reviews.length} reviews</button>}
+    </div>
+  );
+}
+
 // Real, readable text for people, Google and AI assistants: what the centre is, what it costs, how booking works, FAQs.
-function NoidaSeoContent({ pricing }) {
+function NoidaSeoContent({ pricing, reviews }) {
   const faq = seoFaq(pricing);
   const rows = [
     ["Individual", "In-person (Sector 51)", pricing?.individual_inperson],
@@ -3762,6 +3804,8 @@ function NoidaSeoContent({ pricing }) {
           are shown live above: pick one, pay securely, and your appointment is confirmed instantly. Sessions last
           50–60 minutes and are open to anyone in Noida, Delhi NCR and beyond (online).
         </p>
+
+        {reviews?.reviews?.length > 0 && <NoidaReviews data={reviews} />}
 
         {rows.length > 0 && (
           <>
@@ -3832,5 +3876,14 @@ export async function getStaticProps() {
       };
     }
   } catch (e) { /* build/ISR must never fail because pricing was unreachable — the page still works, just without the fee table */ }
-  return { props: { seoPricing }, revalidate: 3600 };
+  let seoReviews = null;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(`${apiUrl}/noida-reviews`, { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await res.json();
+    if (data?.status && data.data?.reviews?.length) seoReviews = data.data;
+  } catch (e) { /* reviews are optional — the page builds without them */ }
+  return { props: { seoPricing, seoReviews }, revalidate: 3600 };
 }
