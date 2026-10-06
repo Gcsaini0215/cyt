@@ -14,6 +14,7 @@ import { filterTherapists } from "../../utils/filterTherapists";
 import {
   split, getMinFee, sortTherapists, SORTS, CONCERNS, MODES, PLACE_LINKS, feeBand, directoryFaqs,
 } from "../../utils/therapist-directory";
+import { CONCERN_PAGES, concernPath } from "../../utils/concerns";
 
 const EMPTY_FILTER = {
   profile_type: "", services: "", year_of_exp: "", language_spoken: "", state: "", search: "",
@@ -512,10 +513,15 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
 
           {/* ── Browse + FAQ (also internal links for search engines) ── */}
           <section className="vat-browse" aria-labelledby="vat-browse-h">
-            <h2 id="vat-browse-h">Find a psychologist near you</h2>
+            <h2 id="vat-browse-h">Browse by place, concern or type</h2>
             <div className="vat-links">
               {PLACE_LINKS.map(([slug, label]) => (
                 <Link key={slug} href={`/psychologist-in/${slug}`}>Psychologists in {label}</Link>
+              ))}
+            </div>
+            <div className="vat-links types">
+              {CONCERN_PAGES.map((c) => (
+                <Link key={c.slug} href={concernPath(c)}>Therapy for {c.label.toLowerCase()}</Link>
               ))}
             </div>
             <div className="vat-links types">

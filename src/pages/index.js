@@ -10,7 +10,7 @@ const Blogs = dynamic(() => import("../components/home/blogs"), { ssr: false });
 const Faqs = dynamic(() => import("../components/home/faqs"), { ssr: false });
 const CallToAction = dynamic(() => import("../components/home/call-to-action"), { ssr: false });
 const Counter = dynamic(() => import("../components/home/counter"), { ssr: false });
-const ProfileCard = dynamic(() => import("../components/home/profile-card"), { ssr: false });
+import TopTherapists from "../components/home/top-therapists";
 const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
 const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
 const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
@@ -21,7 +21,8 @@ const BookingPopup = dynamic(() => import("../components/global/booking-popup"),
 
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
-import { getMinFee } from "../utils/therapist-directory";
+import { getMinFee, split } from "../utils/therapist-directory";
+import { concernStats } from "../utils/concerns";
 
 // Banner wall + "top therapists": priority-1 therapists first, then the most-reviewed.
 const isTop = (t) => t.priority === 1 || t.priority === "1";
@@ -54,6 +55,19 @@ const slimForHome = (t) => ({
   reviews: (t.reviews || []).map((r) => ({ rating: r.rating, name: r.name || "", description: r.description || "", createdAt: r.createdAt || null })),
 });
 const clean = (o) => JSON.parse(JSON.stringify(o));
+// "Meet our psychologists" cards: just what a card shows (~0.4 KB per therapist)
+const cardSlim = (t) => {
+  const fee = getMinFee(t.fees);
+  return {
+    _id: t._id,
+    user: { name: t.user?.name || "", profile: t.user?.profile || "" },
+    profile_type: t.profile_type || "", state: t.state || "", year_of_exp: t.year_of_exp || "",
+    language_spoken: t.language_spoken || "", session_formats: t.session_formats || "", priority: t.priority ?? null,
+    fees: fee ? [{ formats: [{ fee }] }] : [],
+    availabilities: (t.availabilities || []).map((a) => ({ day: a.day, times: (a.times || []).map((x) => ({ open: x.open })) })),
+    reviews: (t.reviews || []).map((r) => ({ rating: r.rating })),
+  };
+};
 
 // The home page used to fetch every therapist in the browser, so the banner wall and the
 // therapist cards weren't in the HTML at all. Now they're rendered on the server and
@@ -68,17 +82,19 @@ export async function getStaticProps() {
         initialBanner: clean(pickBanner(all).map(slimForHome)),
         initialTop: clean(pickTop(all, null).map(slimForHome)),
         stats: { count: all.length, minFee: fees.length ? Math.min(...fees) : null },
+        concerns: clean(concernStats(all, getMinFee, split)),
+        people: clean(all.map(cardSlim)),
       },
       revalidate: 600,
     };
   } catch (err) {
     console.error("home getStaticProps:", err?.message);
-    return { props: { initialBanner: [], initialTop: [], stats: null }, revalidate: 60 };
+    return { props: { initialBanner: [], initialTop: [], stats: null, concerns: null, people: [] }, revalidate: 60 };
   }
 }
 
 
-export default function HomePage({ initialBanner = [], initialTop = [], stats = null }) {
+export default function HomePage({ initialBanner = [], initialTop = [], stats = null, concerns = null, people = [] }) {
   const [topTherapists, setTopTherapists] = useState(initialTop);
   const [bannerTherapists, setBannerTherapists] = useState(initialBanner);
   const [userState, setUserState] = useState(null);
@@ -556,8 +572,8 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <MyNavbar />
         {/* Homepage Sections */}
         <Banner topTherapists={bannerTherapists} stats={stats} />
-        <Specializations />
-        <ProfileCard profiles={topTherapists} detectedState={userState} detectedCity={userCity} />
+        <Specializations stats={concerns} />
+        <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
         <FreeResources />
         <HomeWorkshop isWhite={false} />
         <FindByLocation />

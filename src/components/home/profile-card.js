@@ -187,7 +187,7 @@ export default function ProfileCard({ profiles }) {
                 padding: 0,
                 textAlign: 'left'
               }}>
-                Connec with the top-rated therapists and mental health experts near you. Start your journey towards healing with professional counseling tailored to your needs.
+                Connect with the top-rated therapists and mental health experts near you. Start your journey towards healing with professional counseling tailored to your needs.
               </p>
             </div>
           </div>
