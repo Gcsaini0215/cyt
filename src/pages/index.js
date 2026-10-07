@@ -14,14 +14,15 @@ import TopTherapists from "../components/home/top-therapists";
 const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
 import FeelBetter from "../components/home/feel-better";
 const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
-const FindByLocation = dynamic(() => import("../components/home/find-by-location"), { ssr: false });
+import FindByLocation from "../components/home/find-by-location";
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles } from "../utils/url";
-import { getMinFee, split } from "../utils/therapist-directory";
+import { getMinFee, split, sessionModes } from "../utils/therapist-directory";
+import { placeStats } from "../utils/places";
 import { concernStats } from "../utils/concerns";
 
 // Banner wall + "top therapists": priority-1 therapists first, then the most-reviewed.
@@ -84,17 +85,18 @@ export async function getStaticProps() {
         stats: { count: all.length, minFee: fees.length ? Math.min(...fees) : null },
         concerns: clean(concernStats(all, getMinFee, split)),
         people: clean(all.map(cardSlim)),
+        places: placeStats(all, getMinFee, sessionModes),
       },
       revalidate: 600,
     };
   } catch (err) {
     console.error("home getStaticProps:", err?.message);
-    return { props: { initialBanner: [], initialTop: [], stats: null, concerns: null, people: [] }, revalidate: 60 };
+    return { props: { initialBanner: [], initialTop: [], stats: null, concerns: null, people: [], places: {} }, revalidate: 60 };
   }
 }
 
 
-export default function HomePage({ initialBanner = [], initialTop = [], stats = null, concerns = null, people = [] }) {
+export default function HomePage({ initialBanner = [], initialTop = [], stats = null, concerns = null, people = [], places = {} }) {
   const [topTherapists, setTopTherapists] = useState(initialTop);
   const [bannerTherapists, setBannerTherapists] = useState(initialBanner);
   const [userState, setUserState] = useState(null);
@@ -576,7 +578,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
         <FeelBetter stats={concerns?.bySlug} />
         <HomeWorkshop isWhite={false} />
-        <FindByLocation />
+        <FindByLocation stats={places} total={stats?.count || 0} visitorState={userState} />
         <Feedback therapists={topTherapists} />
         <Blogs />
         <Faqs />

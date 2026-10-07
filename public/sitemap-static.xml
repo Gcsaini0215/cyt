@@ -271,6 +271,13 @@
     <priority>0.3</priority>
   </url>
 
+  <url>
+    <loc>https://www.chooseyourtherapist.in/psychologist-in</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- one page per concern (src/pages/therapy-for/[slug].js) -->
   <url>
     <loc>https://www.chooseyourtherapist.in/therapy-for/anxiety</loc>
