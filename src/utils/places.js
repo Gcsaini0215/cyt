@@ -457,3 +457,22 @@ export const NOIDA_CENTRE = {
   book: "/noida-appointment",
   page: "/psychologist-in-noida-delhi",
 };
+
+// photo for a place page tile (/assets/img/cities/w/<name>.webp); places without one get a styled tile
+export const PLACE_IMG = {
+  delhi: "delhi", "uttar-pradesh": "noida", mumbai: "mumbai", bangalore: "bangalore", hyderabad: "hyderabad",
+  chennai: "chennai", kolkata: "kolkata", jaipur: "jaipur", rajasthan: "rajasthan", gujarat: "gujarat",
+  uttarakhand: "uttarakhand", "andhra-pradesh": "andhra-pradesh", maharashtra: "maharashtra", "west-bengal": "west-bengal",
+  chandigarh: "chandigarh", pune: "pune", ahmedabad: "ahmedabad", lucknow: "lucknow",
+};
+
+// Wikimedia Commons photos with known authors (listed under the tiles). The older city photos
+// came without author details, so they're credited generally to Wikimedia Commons contributors.
+export const PHOTO_CREDITS = [
+  { what: "Open Hand Monument, Chandigarh", by: "ShashankSharma2511", license: "CC BY 3.0", file: "Open_Hand_Monument.JPG" },
+  { what: "Shaniwar Wada, Pune", by: "Samrudhi shelagaonkar", license: "CC BY-SA 4.0", file: "Shaniwar_wada_(pune).jpg" },
+  { what: "Sidi Saiyyed Mosque, Ahmedabad", by: "Bernard Gagnon", license: "CC BY-SA 3.0", file: "Sidi_Saiyyed_Mosque,_Ahmedabad.jpg" },
+  { what: "Rumi Darwaza, Lucknow", by: "Sapna2020", license: "CC BY-SA 4.0", file: "Rumi_Darwaza,_Lucknow.jpg" },
+  { what: "Cave 26, Ajanta (Maharashtra)", by: "Dey.sandip", license: "CC BY-SA 3.0", file: "Cave_26,_Ajanta.jpg" },
+  { what: "Howrah Bridge (West Bengal)", by: "Bernard Gagnon", license: "CC BY-SA 3.0", file: "Howrah_Bridge_02.jpg" },
+];

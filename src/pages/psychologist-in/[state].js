@@ -6,13 +6,13 @@ import MyNavbar from "../../components/navbar";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 import { profilePath } from "../../utils/therapist-slug";
-import { PLACES as STATE_CONFIG, PLACE_SERVICES as SERVICES, inPlace } from "../../utils/places";
+import { PLACES as STATE_CONFIG, PLACE_SERVICES as SERVICES, inPlace, PLACE_IMG } from "../../utils/places";
 import ProfileCardRow, { CARD_CSS } from "../../components/home/profile-card-row";
 import { slimTherapist, sortTherapists, getMinFee, sessionModes } from "../../utils/therapist-directory";
 
 const SHOW = 12;
 
-const ConsultationForm = dynamic(() => import("../../components/home/consultation-form"), { ssr: false });
+const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 // ─── Static generation: known state slugs are prebuilt; anything else is a
 // real 404 (not a soft-404 rendered client-side, which Google discounts).
@@ -174,171 +174,44 @@ export default function StatePsychologistPage({ config, therapists, stats = {} }
 
       <MyNavbar />
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <div style={{
-        background: "linear-gradient(135deg, #0b2418 0%, #14532d 55%, #1e7a4c 100%)",
-        padding: "64px 0 72px", position: "relative", overflow: "hidden"
-      }}>
-        {/* decorative circle */}
-        <div style={{
-          position: "absolute", top: "-80px", right: "-80px",
-          width: "400px", height: "400px", borderRadius: "50%",
-          background: "rgba(255,255,255,0.04)", pointerEvents: "none"
-        }} />
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <div className="row align-items-center g-5">
-            <div className="col-lg-7">
-              {/* breadcrumb */}
-              <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "20px", flexWrap: "wrap" }}>
-                <a href="/" style={{ color: "rgba(255,255,255,0.6)", fontSize: "13px", textDecoration: "none" }}>Home</a>
-                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px" }}>›</span>
-                <a href="/view-all-therapist" style={{ color: "rgba(255,255,255,0.6)", fontSize: "13px", textDecoration: "none" }}>Find a Psychologist</a>
-                <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px" }}>›</span>
-                <span style={{ color: "#ecc77d", fontSize: "13px", fontWeight: 700 }}>{config.name}</span>
-              </div>
-
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, marginBottom: "20px" }}>
-                Best Psychologist in{" "}
-                <span style={{ color: "#ecc77d" }}>{config.name}</span>
-              </h1>
-              <p style={{ fontSize: "1.6rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.7, marginBottom: "32px", maxWidth: "600px" }}>
-                {config.description}
-              </p>
-
-              {/* city pills */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "28px" }}>
-                {config.cities.map(city => (
-                  <span key={city} style={{
-                    padding: "6px 14px", borderRadius: "50px", fontSize: "13px", fontWeight: 600,
-                    background: "rgba(255,255,255,0.12)", color: "#fff",
-                    border: "1px solid rgba(255,255,255,0.2)"
-                  }}>{city}</span>
-                ))}
-              </div>
-
-              {/* trust stats */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "28px", marginBottom: "32px" }}>
-                {[
-                  stats.count > 0 ? { label: `Verified psychologists in ${config.name}`, value: stats.count } : { label: "Psychologists online, anywhere in India", value: stats.total || "50+" },
-                  stats.rating ? { label: `Avg. rating · ${stats.rating.count} reviews`, value: `${stats.rating.avg} ★` } : null,
-                  stats.minFee ? { label: "Starting from / session", value: `₹${stats.minFee.toLocaleString("en-IN")}` } : null,
-                  stats.inPerson > 0 ? { label: "Also see clients in person", value: stats.inPerson } : null,
-                ].filter(Boolean).map((s, i) => (
-                  <div key={i}>
-                    <div style={{ color: "#ecc77d", fontWeight: 800, fontSize: "22px", lineHeight: 1 }}>{s.value}</div>
-                    <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", fontWeight: 600, marginTop: "4px" }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
-                <a href="#therapists" style={{
-                  padding: "14px 28px", borderRadius: "50px",
-                  background: "#ecc77d", color: "#14532d",
-                  fontWeight: 800, fontSize: "15px", textDecoration: "none"
-                }}>
-                  See psychologists
-                </a>
-                <a href={dirHref} style={{
-                  padding: "14px 28px", borderRadius: "50px",
-                  background: "rgba(255,255,255,0.12)", color: "#fff",
-                  fontWeight: 700, fontSize: "15px", textDecoration: "none",
-                  border: "1px solid rgba(255,255,255,0.25)"
-                }}>
-                  Filter by concern & fees
-                </a>
-              </div>
-            </div>
-
-            {/* Lead capture form */}
-            <div className="col-lg-5">
-              <div style={{
-                background: "rgba(255,255,255,0.97)", borderRadius: "20px",
-                padding: "24px", boxShadow: "0 20px 50px rgba(0,0,0,0.25)",
-                border: "1px solid rgba(255,255,255,0.5)"
-              }}>
-                <h3 style={{ color: "#064e3b", fontWeight: 800, fontSize: "17px", marginBottom: "4px" }}>
-                  Book a Free Consultation
-                </h3>
-                <p style={{ color: "#64748b", fontSize: "13px", marginBottom: "18px" }}>
-                  For {config.name} residents — online, no commitment.
-                </p>
-                <ConsultationForm showHeading={false} showLocation={false} showSource={false} />
-              </div>
-            </div>
+      {/* ── Banner: the place's photo, real numbers, two actions ── */}
+      <section className="pl-banner" aria-labelledby="pl-h1">
+        <img className="pl-ban-img" alt=""
+          src={PLACE_IMG[config.slug] ? `/assets/img/cities/b/${PLACE_IMG[config.slug]}.webp` : "/assets/img/therapist-directory-banner-1600.webp"}
+          width="1200" height="520" fetchPriority="high" decoding="async" />
+        <div className="container pl-ban-inner">
+          <nav className="pl-crumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a> <span aria-hidden="true">›</span> <a href="/psychologist-in">Psychologists by city</a> <span aria-hidden="true">›</span> <span aria-current="page">{config.name}</span>
+          </nav>
+          <p className="pl-eyebrow">Verified psychologists · online &amp; in person</p>
+          <h1 id="pl-h1">Psychologist in <span>{config.name}</span></h1>
+          <p className="pl-sub">{config.description}</p>
+          <ul className="pl-facts">
+            {stats.count > 0
+              ? <li><b>{stats.count}</b> based {isCity ? "nearby" : "here"}</li>
+              : <li><b>{stats.total || "50+"}</b> online, anywhere in India</li>}
+            {stats.inPerson > 0 && <li><b>{stats.inPerson}</b> in person</li>}
+            {stats.rating && <li><b>{stats.rating.avg} ★</b> {stats.rating.count} reviews</li>}
+            {stats.minFee && <li>from <b>₹{stats.minFee.toLocaleString("en-IN")}</b></li>}
+          </ul>
+          <div className="pl-ctas">
+            <a href="#therapists" className="pl-btn gold">See psychologists</a>
+            <button type="button" className="pl-btn line" onClick={() => window.dispatchEvent(new Event("cyt:open-chat"))}>
+              <i className="feather-message-circle" aria-hidden="true" /> Talk to us
+            </button>
           </div>
         </div>
-      </div>
-
-      {/* ── Local intro — unique per-page content, not just a template ──────── */}
-      {config.localIntro && (
-        <div style={{ background: "#fff", padding: "56px 0 8px" }}>
-          <div className="container">
-            <div style={{ maxWidth: "800px", margin: "0 auto" }} className="clinic-details">
-              <h2 style={{ fontSize: "clamp(20px, 3vw, 26px)", fontWeight: 900, color: "#1e293b", marginBottom: "14px" }}>
-                Why Choose Online Therapy in {config.name}
-              </h2>
-              <p className="local-intro-text" style={{ color: "#475569", fontSize: "16px", lineHeight: 1.8, margin: 0 }}>
-                {config.localIntro}
-              </p>
-              {config.relatedRegion && (
-                <p style={{ color: "#64748b", fontSize: "14px", marginTop: "18px" }}>
-                  Looking further afield? See verified psychologists across all of{" "}
-                  <a href={`/psychologist-in/${config.relatedRegion.slug}`} style={{ color: "#166534", fontWeight: 700, textDecoration: "none" }}>
-                    {config.relatedRegion.name}
-                  </a>.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Services grid ─────────────────────────────────────────────────── */}
-      <div style={{ background: "#f8fafc", padding: "72px 0" }}>
-        <div className="container">
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 900, color: "#1e293b", marginBottom: "12px" }}>
-              Therapy Services Available in {config.name}
-            </h2>
-            <p style={{ color: "#64748b", fontSize: "17px" }}>
-              All services available online — book from anywhere in {config.name}
-            </p>
-          </div>
-          <div className="row g-4">
-            {SERVICES.map((s, i) => (
-              <div key={i} className="col-lg-4 col-md-6">
-                <div style={{
-                  background: "#fff", borderRadius: "16px", padding: "28px",
-                  border: "1px solid #f1f5f9", height: "100%",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
-                  transition: "all 0.2s"
-                }}>
-                  <div style={{
-                    width: "48px", height: "48px", borderRadius: "12px",
-                    background: `${s.color}15`, display: "flex",
-                    alignItems: "center", justifyContent: "center", marginBottom: "16px"
-                  }}>
-                    <i className={s.icon} style={{ color: s.color, fontSize: "20px" }} />
-                  </div>
-                  <h3 style={{ fontSize: "17px", fontWeight: 800, color: "#1e293b", marginBottom: "8px" }}>{s.title}</h3>
-                  <p style={{ fontSize: "14px", color: "#64748b", lineHeight: 1.6, margin: 0 }}>{s.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      </section>
 
       {/* ── Therapist cards (rendered on the server, so search engines see who practises here) ── */}
       <style dangerouslySetInnerHTML={{ __html: CARD_CSS + PLACE_CSS }} />
       <div id="therapists" className="pl-thers">
         <div className="container">
           <div className="pl-head">
-            <h2>{stats.count > 0 ? `Psychologists in ${config.name}` : `Talk to a psychologist online from ${config.name}`}</h2>
+            <h2>{stats.count > 0 ? `Psychologists ${isCity ? "near" : "in"} ${config.name}` : `Talk to a psychologist online from ${config.name}`}</h2>
             <p>
               {stats.count > 0
-                ? `${stats.count} verified psychologist${stats.count !== 1 ? "s" : ""} based in ${config.name}${stats.inPerson ? `, ${stats.inPerson} of them also in person` : ""} — and every one of our ${stats.total || ""} psychologists is available online.`
+                ? `${stats.count} verified psychologist${stats.count !== 1 ? "s" : ""} based ${isCity ? "near" : "in"} ${config.name}${stats.inPerson ? `, ${stats.inPerson} of them also in person` : ""} — and every one of our ${stats.total || ""} psychologists is available online.`
                 : `We don't have psychologists based in ${config.name} yet, but all ${stats.total || ""} of our verified psychologists see clients online — wherever you are in India.`}
             </p>
           </div>
@@ -357,23 +230,30 @@ export default function StatePsychologistPage({ config, therapists, stats = {} }
         </div>
       </div>
 
-      {/* ── FAQ ───────────────────────────────────────────────────────────── */}
-      <div style={{ background: "#f8fafc", padding: "72px 0" }}>
-        <div className="container">
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "clamp(22px, 4vw, 32px)", fontWeight: 900, color: "#1e293b", marginBottom: "12px" }}>
-              Common Questions About Therapy in {config.name}
-            </h2>
+      {/* ── Local intro (unique per page) ── */}
+      {config.localIntro && (
+        <section className="pl-intro">
+          <div className="container pl-narrow">
+            <h2>Therapy in {config.name}</h2>
+            <p className="local-intro-text">{config.localIntro}</p>
+            {config.cities?.length > 0 && <p className="pl-areas"><b>Areas:</b> {config.cities.join(" · ")}</p>}
+            {config.relatedRegion && (
+              <p className="pl-areas">More psychologists across <a href={`/psychologist-in/${config.relatedRegion.slug}`}>{config.relatedRegion.name}</a>.</p>
+            )}
           </div>
-          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-            {config.faqs.map((faq, i) => (
-              <FaqItem key={i} q={faq.q} a={faq.a} />
-            ))}
-          </div>
+        </section>
+      )}
+
+      {/* ── FAQ ── */}
+      <section className="pl-faqs">
+        <div className="container pl-narrow">
+          <h2>Common questions about therapy in {config.name}</h2>
+          {config.faqs.map((faq, i) => <FaqItem key={i} q={faq.q} a={faq.a} />)}
         </div>
-      </div>
+      </section>
 
       <Footer />
+      <BookingPopup delay={15000} showHeading={false} showLocation={false} showSource={false} />
     </div>
   );
 }
@@ -389,6 +269,48 @@ function FaqItem({ q, a }) {
 }
 
 const PLACE_CSS = `
+/* Footer.js forces <body> dark green — sections need their own backgrounds */
+.pl-banner { position: relative; overflow: hidden; padding: 56px 0 50px; background: #0b1712; }
+.pl-ban-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pl-banner::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(7,26,17,.9) 0%, rgba(7,26,17,.72) 45%, rgba(7,26,17,.35) 80%, rgba(7,26,17,.2) 100%); }
+@media (min-width: 992px) { .pl-ban-img { top: 200px; height: calc(100% - 200px); } }
+.pl-ban-inner { position: relative; z-index: 2; }
+.pl-crumbs { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 14px; }
+.pl-crumbs a { color: rgba(255,255,255,.85); font-weight: 600; text-decoration: none; }
+.pl-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ecc77d; }
+.pl-eyebrow::before { content: ""; width: 22px; height: 2px; background: #d4a24c; }
+.pl-banner h1 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -.02em; line-height: 1.12; }
+.pl-banner h1 span { color: #ecc77d; }
+.pl-sub { font-size: clamp(15px, 1.4vw, 17px); color: rgba(255,255,255,.88); line-height: 1.6; margin: 0 0 18px; padding: 0; max-width: 600px; }
+.pl-facts { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.pl-facts li { margin: 0; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.88); font-size: 13px; backdrop-filter: blur(4px); }
+.pl-facts li::before { content: none; }
+.pl-facts b { color: #fff; }
+.pl-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.pl-btn.gold { background: #ecc77d; color: #14532d !important; }
+.pl-btn.gold:hover { background: #f3d595; }
+.pl-btn.line { background: transparent; border: 1.5px solid rgba(255,255,255,.55); color: #fff !important; gap: 7px; cursor: pointer; font-family: inherit; }
+.pl-btn.line:hover { background: rgba(255,255,255,.12); }
+.pl-intro { background: #f7faf8; padding: 48px 0; }
+.pl-narrow { max-width: 820px; }
+.pl-intro h2, .pl-faqs h2 { font-size: clamp(20px, 3vw, 26px); font-weight: 800; color: #0b1712; margin: 0 0 12px; }
+.pl-intro p { color: #475569; font-size: 16px; line-height: 1.8; margin: 0 0 10px; padding: 0; }
+.pl-areas { font-size: 14px !important; color: #64748b !important; }
+.pl-areas a { color: #1e7a4c; font-weight: 700; }
+.pl-faqs { background: #fff; padding: 48px 0 64px; }
+@media (max-width: 767px) {
+  .pl-banner { padding: 26px 0 24px; }
+  .pl-banner::before { background: linear-gradient(180deg, rgba(7,26,17,.74), rgba(7,26,17,.86)); }
+  .pl-sub { display: none; }
+  .pl-banner h1 { font-size: 28px; }
+  .pl-eyebrow { font-size: 10px; letter-spacing: .6px; }
+  .pl-eyebrow::before { display: none; }
+  .pl-facts { margin-bottom: 16px; }
+  .pl-facts li { font-size: 12px; padding: 5px 10px; }
+  .pl-ctas .pl-btn { flex: 1; justify-content: center; }
+  .pl-thers { padding-top: 32px !important; }
+  .pl-intro, .pl-faqs { padding: 36px 0; }
+}
 .pl-thers { background: #fff; padding: 56px 0 60px; }
 .pl-head { text-align: center; max-width: 760px; margin: 0 auto 26px; }
 .pl-head h2 { font-size: clamp(22px, 4vw, 32px); font-weight: 800; color: #0b1712; margin: 0 0 10px; }

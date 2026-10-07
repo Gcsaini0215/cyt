@@ -448,6 +448,8 @@ export default function App() {
           section.tb-banner,
           section.ab-section,
           .vat-banner,
+          .ph-banner,
+          .pl-banner,
           .intern-banner {
             margin-top: -200px !important;
             padding-top: 216px !important;
