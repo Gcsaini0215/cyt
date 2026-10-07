@@ -104,10 +104,10 @@ export default function App() {
         <div className="top-strip-desktop">
           <div className="strip-rot" aria-live="off">
             {LEAD_STRIP_MESSAGES.map((m, i) => {
-              const props = { key: i, className: `strip-item${i === stripIdx ? " on" : ""}`, tabIndex: i === stripIdx ? 0 : -1, "aria-hidden": i !== stripIdx };
+              const props = { className: `strip-item${i === stripIdx ? " on" : ""}`, tabIndex: i === stripIdx ? 0 : -1, "aria-hidden": i !== stripIdx };
               return m.href.startsWith("tel:")
-                ? <a {...props} href={m.href}><i className={m.icon}></i> {m.text}</a>
-                : <Link {...props} href={m.href}><i className={m.icon}></i> {m.text}</Link>;
+                ? <a key={i} {...props} href={m.href}><i className={m.icon}></i> {m.text}</a>
+                : <Link key={i} {...props} href={m.href}><i className={m.icon}></i> {m.text}</Link>;
             })}
           </div>
           <a className="strip-call" href={`tel:${PHONE}`}><i className="feather-phone"></i> +91 80777 57951</a>
@@ -136,7 +136,7 @@ export default function App() {
                     <li className={navCls("/")}><Link href="/" aria-current={isActive("/") ? "page" : undefined}>Home</Link></li>
                     <li className={navCls("/view-all-therapist")}><Link href="/view-all-therapist" aria-current={isActive("/view-all-therapist") ? "page" : undefined}>Therapist Directory</Link></li>
                     <li className={`has-dropdown ${["/therapy-booking", "/self-assessment", "/psychologist-in-noida-delhi"].some(isActive) ? "is-active" : ""}`}>
-                      <Link href="#">Services <i className="feather-chevron-down"></i></Link>
+                      <a href="#" role="button" aria-haspopup="true" onClick={(e) => e.preventDefault()}>Services <i className="feather-chevron-down"></i></a>
                       <ul className="submenu">
                         <li><Link href="/therapy-booking">Therapy Booking</Link></li>
                         <li><Link href="/self-assessment">Self Assessment</Link></li>

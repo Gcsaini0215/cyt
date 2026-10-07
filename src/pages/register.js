@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { safeNext } from "../utils/safe-next";
 import { isValidMail } from "../utils/validators";
 import { registerUrl, verifyOtpUrl } from "../utils/url";
 import Footer from "../components/footer";
@@ -146,7 +147,7 @@ export default function Register() {
         setError("");
         setOtp("");
         setToken(response.token);
-        router.push("/my-dashboard");
+        router.push(safeNext(router.query.next) || "/my-dashboard");
       } else {
         setError(response.message || "Something went wrong");
       }
@@ -161,9 +162,14 @@ export default function Register() {
     const data = getDecodedToken();
     if (data) {
       if (data.role === 1) router.push("/therapist-dashboard");
-      else router.push("/my-dashboard");
+      else router.push(safeNext(router.query.next) || "/my-dashboard");
     }
   }, [router]);
+
+  // coming from the login page with an email that has no account yet: keep what they typed
+  useEffect(() => {
+    if (router.isReady && typeof router.query.email === "string" && !email) setEmail(router.query.email);
+  }, [router.isReady]);
 
   return (
     <div>
