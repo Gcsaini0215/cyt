@@ -135,6 +135,8 @@ export default function CallbackWidget() {
 
         /* phones: the tall "Request Callback" side tab sat on top of cards and buttons —
            just the phone icon here */
+        /* phones: no floating callback tab — the bottom action bar (WhatsApp / Call / Get matched) does this job */
+        @media(max-width:767px){ .cb-widget { display:none !important; } }
         @media(max-width:767px){
           .cb-widget { top:auto; bottom:calc(92px + env(safe-area-inset-bottom, 0px)); align-items:flex-end; }
           .cb-card { width:260px; border-radius:16px 0 0 16px; }
