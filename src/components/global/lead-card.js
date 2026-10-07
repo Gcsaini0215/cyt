@@ -124,7 +124,10 @@ const CSS = `
 .lc-topics button { height: 32px; padding: 0 11px; border-radius: 999px; border: 1px solid #dbe5df; background: #fff; color: #334155; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 .lc-topics button.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
 .lc-agree { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #64748b; line-height: 1.45; margin: 0 0 10px; }
-.lc-agree input { margin-top: 2px; accent-color: #1e7a4c; flex-shrink: 0; }
+/* the theme hides native checkboxes (position:absolute, full width) for its own styling — that
+   made this one 390px wide and pushed the page sideways on phones. Use a plain native checkbox. */
+.lc-agree input[type=checkbox] { position: static !important; opacity: 1 !important; visibility: visible !important; display: inline-block !important; -webkit-appearance: checkbox !important; appearance: checkbox !important; width: 16px !important; height: 16px !important; min-width: 16px; margin: 2px 0 0 !important; padding: 0 !important; accent-color: #1e7a4c; flex-shrink: 0; }
+.lc-agree { position: relative; overflow: hidden; }
 .lc-agree a { color: #1e7a4c; font-weight: 700; }
 .lc-err { color: #b91c1c; font-size: 13px; margin: 0 0 8px; padding: 0; }
 .lc-acts { display: flex; gap: 8px; flex-wrap: wrap; }
