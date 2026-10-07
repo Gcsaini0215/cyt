@@ -12,7 +12,7 @@ const CallToAction = dynamic(() => import("../components/home/call-to-action"), 
 const Counter = dynamic(() => import("../components/home/counter"), { ssr: false });
 import TopTherapists from "../components/home/top-therapists";
 const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr: false });
-const FreeResources = dynamic(() => import("../components/home/free-resources"), { ssr: false });
+import FeelBetter from "../components/home/feel-better";
 const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
 const FindByLocation = dynamic(() => import("../components/home/find-by-location"), { ssr: false });
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
@@ -574,7 +574,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <Banner topTherapists={bannerTherapists} stats={stats} />
         <Specializations stats={concerns} />
         <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
-        <FreeResources />
+        <FeelBetter stats={concerns?.bySlug} />
         <HomeWorkshop isWhite={false} />
         <FindByLocation />
         <Feedback therapists={topTherapists} />

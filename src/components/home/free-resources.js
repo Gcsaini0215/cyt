@@ -32,6 +32,20 @@ import {
 import { Dialog, DialogContent, Box, Typography, Stack, IconButton, Button, Grid, TextField } from "@mui/material";
 import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
+import { BreathingTool, SosTool, SoundsTool, QT_CSS, HELPLINE } from "../wellness/quick-tools";
+
+// Wellness Toolkit (/wellness-toolkit). Each tool has its own link (?tool=breathing …) for
+// sharing; nothing pops up when a tool closes — the "talk to someone" options sit inside it.
+const SITE = "https://www.chooseyourtherapist.in";
+// after a mood check-in: what might help next
+const MOOD_NEXT = {
+  Happy: { text: "Lovely! Save one thing that made today good.", tool: "gratitude" },
+  Sad: { text: "Sorry it's a low day. Writing down one small good thing can help a little.", tool: "gratitude", concern: "depression", label: "low mood" },
+  Anxious: { text: "Try one minute of slow breathing — it calms the body's alarm.", tool: "breathing", concern: "anxiety", label: "anxiety" },
+  Angry: { text: "Before you react, try a 4-7-8 breath to cool down.", tool: "breathing", concern: "anger", label: "anger" },
+  Tired: { text: "Some calming sound might help you rest.", tool: "sounds", concern: "stress", label: "stress & sleep" },
+  Calm: { text: "Nice. Notice what's helping — and keep doing it." },
+};
 
 export default function FreeResources() {
   const router = useRouter();
@@ -58,6 +72,7 @@ export default function FreeResources() {
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadLoading, setLeadLoading] = useState(false);
   const [sharedTool, setSharedTool] = useState(null);
+  const [lastMood, setLastMood] = useState(null);
 
   const journalPrompts = [
     "What are three things you are grateful for today?",
@@ -96,6 +111,12 @@ export default function FreeResources() {
     }
   }, [selectedTool, openModal]);
 
+  useEffect(() => {
+    if (!router.isReady || typeof router.query.tool !== "string") return;
+    const t = tools.find((x) => x.id === router.query.tool);
+    if (t) handleOpenModal(t);
+  }, [router.isReady]);
+
   const handleOpenModal = (tool) => {
     if (tool.title === "Daily Journal") {
       router.push("/daily-journal");
@@ -112,13 +133,13 @@ export default function FreeResources() {
     setSelectedMood(null);
     setPanicActive(false);
     setPanicTimer(30);
-    // Show lead popup after tool use
-    if (!leadSubmitted) setTimeout(() => setShowLeadPopup(true), 400);
+    setLastMood(null);
   };
+  const openTool = (id) => { const t = tools.find((x) => x.id === id); if (t) { setLastMood(null); setSelectedTool(t); } };
 
   const handleShare = (e, tool) => {
     e.stopPropagation();
-    const url = `https://chooseyourtherapist.in/wellness-toolkit`;
+    const url = `${SITE}/wellness-toolkit?tool=${tool.id}`;
     const text = `Try the "${tool.title}" tool on Choose Your Therapist — free mental health resources for everyone!`;
     if (navigator.share) {
       navigator.share({ title: tool.title, text, url });
@@ -161,15 +182,16 @@ export default function FreeResources() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const G = { color: "#1e7a4c", tagBg: "#eef6f1" };
   const tools = [
-    { title: "Panic Button",    desc: "Instant 30-second SOS grounding for acute anxiety.",              icon: <FiAlertCircle />, color: "#ef4444", tag: "SOS",         tagBg: "rgba(239,68,68,.15)" },
-    { title: "Daily Journal",   desc: "Science-backed prompts to help you process your day.",            icon: <FiBookOpen />,    color: "#0ea5e9", tag: "Journal",     tagBg: "rgba(14,165,233,.15)" },
-    { title: "Mood Tracker",    desc: "Visualise your emotions and identify patterns over time.",        icon: <FiBarChart2 />,   color: "#f59e0b", tag: "Tracker",     tagBg: "rgba(245,158,11,.15)" },
-    { title: "Breathing Guide", desc: "Interactive exercises to manage anxiety in real-time.",           icon: <FiWind />,        color: "#6366f1", tag: "Interactive", tagBg: "rgba(99,102,241,.15)" },
-    { title: "Coping Skills",   desc: "Instant grounding techniques for emotional regulation.",          icon: <FiShield />,      color: "#ec4899", tag: "Clinical",    tagBg: "rgba(236,72,153,.15)" },
-    { title: "Gratitude Jar",   desc: "Collect and revisit your daily moments of joy and thanks.",      icon: <FiHeart />,       color: "#f59e0b", tag: "Positive",    tagBg: "rgba(245,158,11,.15)" },
-    { title: "Focus Sounds",    desc: "Calming background loops for deep focus or better sleep.",       icon: <FiMusic />,       color: "#8b5cf6", tag: "Audio",       tagBg: "rgba(139,92,246,.15)" },
-    { title: "Couple Harmony",  desc: "A healthy argument guide for resolving conflicts with love.",    icon: <FiUsers />,       color: "#10b981", tag: "Couple",      tagBg: "rgba(16,185,129,.15)" },
+    { id: "panic",     title: "Panic Button",    desc: "A 30-second guided reset for a panic or anxiety attack.",      icon: <FiAlertCircle />, color: "#c2410c", tagBg: "#fff1e6", time: "30 sec" },
+    { id: "breathing", title: "Breathing Guide", desc: "Box or 4-7-8 breathing with a timer — calm the body fast.",    icon: <FiWind />,        ...G, time: "1–5 min" },
+    { id: "mood",      title: "Mood Tracker",    desc: "Check in with how you feel and spot patterns over time.",     icon: <FiBarChart2 />,   ...G, time: "30 sec" },
+    { id: "coping",    title: "Coping Skills",   desc: "Quick grounding and calming techniques for hard moments.",    icon: <FiShield />,      ...G, time: "2 min" },
+    { id: "journal",   title: "Daily Journal",   desc: "Gentle prompts to help you process your day.",                icon: <FiBookOpen />,    ...G, time: "5 min" },
+    { id: "gratitude", title: "Gratitude Jar",   desc: "Collect small good moments and revisit them on hard days.",   icon: <FiHeart />,       ...G, time: "1 min" },
+    { id: "sounds",    title: "Focus Sounds",    desc: "Rain, waves, wind or soft noise — with a sleep timer.",       icon: <FiMusic />,       ...G, time: "Any time" },
+    { id: "couple",    title: "Couple Harmony",  desc: "Turn a fight into a calm \"I feel… I need…\" conversation.", icon: <FiUsers />,       ...G, time: "3 min" },
   ];
 
   return (
@@ -188,6 +210,19 @@ export default function FreeResources() {
         .fr-title { font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:800; color:#132a1c; margin:0 0 8px; line-height:1.25; }
         .fr-title span { color:#166534; }
         .fr-sub { color:#64748b; font-size:14.5px; margin:0; line-height:1.6; }
+        .fr-private { display:inline-flex; align-items:center; gap:6px; margin:8px 0 0; padding:0; font-size:12.5px; font-weight:600; color:#1e7a4c; }
+        .fr-time { font-size:10.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; padding:3px 8px; border-radius:6px; }
+        .fr-card.sos { border-color:#fed7aa; background:#fffaf5; }
+        .fr-foot { display:flex; flex-direction:column; gap:10px; padding:14px 24px 18px; border-top:1px solid #eef2f0; background:#f8faf9; }
+        .fr-foot-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; }
+        .fr-foot a, .fr-foot button { font-size:13.5px; font-weight:800; color:#1e7a4c; background:none; border:none; padding:0; cursor:pointer; text-decoration:none; }
+        .fr-foot small { font-size:12px; color:#94a3b8; }
+        .fr-next { margin-top:18px; padding:14px 16px; border-radius:14px; background:#eef6f1; border:1px solid #d5e8dc; text-align:left; }
+        .fr-next p { margin:0 0 10px; padding:0; font-size:14px; color:#14532d; }
+        .fr-next div { display:flex; flex-wrap:wrap; gap:8px; }
+        .fr-next button, .fr-next a { height:38px; padding:0 14px; border-radius:10px; border:none; background:#1e7a4c; color:#fff; font-size:13.5px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; text-decoration:none; }
+        .fr-next a { background:#fff; color:#14532d; border:1.5px solid #cfdcd4; }
+        ${QT_CSS}
 
         /* grid */
         .fr-grid {
@@ -271,7 +306,8 @@ export default function FreeResources() {
             Free for Everyone
           </div>
           <h2 className="fr-title">Wellness <span>Toolkit</span></h2>
-          <p className="fr-sub">Interactive tools to support your mental health — anytime, anywhere, for free.</p>
+          <p className="fr-sub">Feeling overwhelmed right now? Try a 1-minute tool — free, no sign-up.</p>
+          <p className="fr-private"><FiShield size={13} /> Your check-ins, notes and journal stay on this device — we never see them.</p>
         </div>
 
         {/* Grid */}
@@ -279,7 +315,10 @@ export default function FreeResources() {
           {tools.map((tool, i) => (
             <div
               key={i}
-              className="fr-card"
+              className={`fr-card${tool.id === "panic" ? " sos" : ""}`}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleOpenModal(tool); } }}
               style={{ "--accent": tool.color }}
               onClick={() => handleOpenModal(tool)}
             >
@@ -287,20 +326,7 @@ export default function FreeResources() {
                 <div className="fr-icon-wrap" style={{ background: tool.tagBg, color: tool.color }}>
                   {tool.icon}
                 </div>
-                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                  <span className="fr-tag-pill" style={{ background: tool.tagBg, color: tool.color }}>
-                    {tool.tag}
-                  </span>
-                  <button
-                    onClick={(e) => handleShare(e, tool)}
-                    title="Share this tool"
-                    style={{ background:"none", border:"none", cursor:"pointer", color:"#94a3b8", padding:"4px", display:"flex", alignItems:"center", borderRadius:6, transition:"color .2s" }}
-                    onMouseEnter={e => e.currentTarget.style.color = tool.color}
-                    onMouseLeave={e => e.currentTarget.style.color = "#94a3b8"}
-                  >
-                    {sharedTool === tool.title ? <FiCheck size={14} style={{ color:"#22c55e" }} /> : <FiShare2 size={14} />}
-                  </button>
-                </div>
+                <span className="fr-time" style={{ background: tool.tagBg, color: tool.color }}>{tool.time}</span>
               </div>
               <h4 className="fr-card-title">{tool.title}</h4>
               <p className="fr-card-desc">{tool.desc}</p>
@@ -319,7 +345,7 @@ export default function FreeResources() {
         onClose={handleCloseModal}
         maxWidth="sm"
         fullWidth
-        sx={{ zIndex: 9999 }}
+        sx={{ zIndex: 100003 }}
         PaperProps={{ sx: { borderRadius: "10px", overflow: "hidden" } }}
       >
         <DialogContent sx={{ p: 0 }}>
@@ -343,39 +369,7 @@ export default function FreeResources() {
 
           <Box sx={{ p: 4 }}>
             {/* Panic Button */}
-            {selectedTool?.title === "Panic Button" && (
-              <Box sx={{ textAlign: "center", py: panicActive ? 2 : 4 }}>
-                {!panicActive ? (
-                  <>
-                    <Box sx={{ width: "100px", height: "100px", borderRadius: "50%", bgcolor: "rgba(239,68,68,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 30px", color: "#ef4444", fontSize: "40px", animation: "pulse-red 2s infinite" }}>
-                      <FiAlertCircle />
-                    </Box>
-                    <Typography variant="h5" sx={{ fontWeight: 900, mb: 2, color: "#1e293b" }}>Panic SOS Mode</Typography>
-                    <Typography sx={{ color: "#64748b", mb: 4, px: 2 }}>Click below to start a 30-second intensive grounding sequence to stop a panic attack.</Typography>
-                    <Button fullWidth onClick={() => { setPanicActive(true); setPanicTimer(30); }} sx={{ py: 2, borderRadius: "12px", bgcolor: "#ef4444", color: "white", fontWeight: 800, fontSize: "18px", "&:hover": { bgcolor: "#dc2626" } }}>
-                      START SOS SEQUENCE
-                    </Button>
-                  </>
-                ) : (
-                  <Box>
-                    <Typography variant="h2" sx={{ fontWeight: 900, color: "#ef4444", mb: 1 }}>{panicTimer}s</Typography>
-                    <Box sx={{ width: "100%", height: "8px", bgcolor: "#f1f5f9", borderRadius: "4px", mb: 4 }}>
-                      <Box sx={{ width: `${(panicTimer / 30) * 100}%`, height: "100%", bgcolor: "#ef4444", borderRadius: "4px", transition: "width 1s linear" }} />
-                    </Box>
-                    <Box sx={{ p: 3, bgcolor: "#fef2f2", borderRadius: "24px", border: "1px solid #fee2e2" }}>
-                      {panicTimer > 20 ? (
-                        <><FiActivity size={40} color="#ef4444" style={{ marginBottom: "15px" }} /><Typography variant="h6" sx={{ fontWeight: 800, color: "#991b1b", mb: 1 }}>LOOK AROUND</Typography><Typography sx={{ color: "#b91c1c" }}>Name 3 blue objects you see right now.</Typography></>
-                      ) : panicTimer > 10 ? (
-                        <><FiWind size={40} color="#ef4444" style={{ marginBottom: "15px" }} /><Typography variant="h6" sx={{ fontWeight: 800, color: "#991b1b", mb: 1 }}>SLOW BREATH</Typography><Typography sx={{ color: "#b91c1c" }}>Inhale deeply... Exhale slowly through your mouth.</Typography></>
-                      ) : (
-                        <><FiShield size={40} color="#ef4444" style={{ marginBottom: "15px" }} /><Typography variant="h6" sx={{ fontWeight: 800, color: "#991b1b", mb: 1 }}>FEEL YOUR FEET</Typography><Typography sx={{ color: "#b91c1c" }}>Press your feet hard against the floor. You are safe.</Typography></>
-                      )}
-                    </Box>
-                    <Button onClick={() => setPanicActive(false)} sx={{ mt: 3, color: "#94a3b8", fontWeight: 700 }}>Cancel SOS</Button>
-                  </Box>
-                )}
-              </Box>
-            )}
+            {selectedTool?.title === "Panic Button" && <SosTool />}
 
             {/* Mood Tracker */}
             {selectedTool?.title === "Mood Tracker" && (
@@ -411,13 +405,22 @@ export default function FreeResources() {
                     </Stack>
                   </Box>
                 )}
+                {lastMood && MOOD_NEXT[lastMood.l] && (
+                  <div className="fr-next" aria-live="polite">
+                    <p><b>Saved.</b> {MOOD_NEXT[lastMood.l].text}</p>
+                    <div>
+                      {MOOD_NEXT[lastMood.l].tool && <button type="button" onClick={() => openTool(MOOD_NEXT[lastMood.l].tool)}>Open {tools.find((x) => x.id === MOOD_NEXT[lastMood.l].tool)?.title}</button>}
+                      {MOOD_NEXT[lastMood.l].concern && <Link href={`/therapy-for/${MOOD_NEXT[lastMood.l].concern}`}>Psychologists for {MOOD_NEXT[lastMood.l].label}</Link>}
+                    </div>
+                  </div>
+                )}
                 <Button fullWidth disabled={!selectedMood} onClick={() => {
                   const newEntry = { ...selectedMood, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), date: new Date().toLocaleDateString() };
                   const updatedHistory = [newEntry, ...moodHistory].slice(0, 10);
                   setMoodHistory(updatedHistory);
                   localStorage.setItem("cyt_mood_history", JSON.stringify(updatedHistory));
                   setSelectedMood(null);
-                  setTimeout(handleCloseModal, 500);
+                  setLastMood(newEntry);
                 }} sx={{ mt: 4, py: 1.5, borderRadius: "12px", bgcolor: selectedMood ? selectedMood.color : "#f59e0b", color: "white", fontWeight: 800, transition: "all 0.3s", "&:hover": { opacity: 0.9 }, "&.Mui-disabled": { bgcolor: "#cbd5e1", color: "#94a3b8" } }}>
                   Save Check-in
                 </Button>
@@ -425,14 +428,7 @@ export default function FreeResources() {
             )}
 
             {/* Breathing Guide */}
-            {selectedTool?.title === "Breathing Guide" && (
-              <Box sx={{ textAlign: "center", py: 4 }}>
-                <Box sx={{ width: breathStage === "Inhale" ? "200px" : breathStage === "Hold" ? "200px" : "100px", height: breathStage === "Inhale" ? "200px" : breathStage === "Hold" ? "200px" : "100px", borderRadius: "50%", bgcolor: "rgba(99,102,241,0.1)", border: "2px solid #6366f1", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 40px", transition: "all 4s ease-in-out" }}>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: "#6366f1" }}>{breathStage}</Typography>
-                </Box>
-                <Typography sx={{ color: "#64748b" }}>Follow the circle to regulate your nervous system.</Typography>
-              </Box>
-            )}
+            {selectedTool?.title === "Breathing Guide" && <BreathingTool />}
 
             {/* Coping Skills */}
             {selectedTool?.title === "Coping Skills" && (
@@ -502,47 +498,7 @@ export default function FreeResources() {
             )}
 
             {/* Focus Sounds */}
-            {selectedTool?.title === "Focus Sounds" && (
-              <Box sx={{ textAlign: "center" }}>
-                <Typography sx={{ color: "#64748b", mb: 4 }}>Select a soundscape to help you focus or relax:</Typography>
-                <Grid container spacing={2}>
-                  {[
-                    { l: "Gentle Rain", i: <FiCloudRain />, c: "#3b82f6" },
-                    { l: "Deep White Noise", i: <FiZap />, c: "#64748b" },
-                    { l: "Golden Sunlight", i: <FiSun />, c: "#f59e0b" },
-                    { l: "Forest Calm", i: <FiWind />, c: "#228756" }
-                  ].map((sound, i) => (
-                    <Grid item xs={6} key={i}>
-                      <Box onClick={() => { setActiveSound(sound); setIsSoundPlaying(true); }} sx={{ p: 3, borderRadius: "20px", border: "2px solid", borderColor: activeSound?.l === sound.l ? sound.c : "#f1f5f9", bgcolor: activeSound?.l === sound.l ? `${sound.c}10` : "#f8fafc", cursor: "pointer", transition: "all 0.3s", "&:hover": { borderColor: sound.c, transform: "scale(1.02)" } }}>
-                        <Box sx={{ color: sound.c, fontSize: "32px", mb: 1 }}>{sound.i}</Box>
-                        <Typography sx={{ fontSize: "14px", fontWeight: 800, color: "#1e293b" }}>{sound.l}</Typography>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-                {activeSound && (
-                  <Box sx={{ mt: 5, p: 3, borderRadius: "24px", bgcolor: "#f1f5f9" }}>
-                    <Stack direction="row" alignItems="center" spacing={3}>
-                      <IconButton onClick={() => setIsSoundPlaying(!isSoundPlaying)} sx={{ bgcolor: "white", p: 2, boxShadow: "0 5px 15px rgba(0,0,0,0.05)" }}>
-                        {isSoundPlaying ? <FiPause color={activeSound.c} /> : <FiPlay color={activeSound.c} />}
-                      </IconButton>
-                      <Box sx={{ flexGrow: 1, textAlign: "left" }}>
-                        <Typography sx={{ fontSize: "12px", fontWeight: 700, color: activeSound.c, textTransform: "uppercase", mb: 0.5 }}>Now Playing</Typography>
-                        <Typography sx={{ fontWeight: 800, color: "#1e293b" }}>{activeSound.l}</Typography>
-                      </Box>
-                      <FiVolume2 color="#94a3b8" />
-                    </Stack>
-                    {isSoundPlaying && (
-                      <Stack direction="row" spacing={0.5} sx={{ mt: 3, justifyContent: "center", height: "20px", alignItems: "flex-end" }}>
-                        {[...Array(8)].map((_, i) => (
-                          <Box key={i} sx={{ width: "4px", height: "100%", bgcolor: activeSound.c, borderRadius: "4px", animation: `sound-wave 1s infinite ${i * 0.1}s` }} />
-                        ))}
-                      </Stack>
-                    )}
-                  </Box>
-                )}
-              </Box>
-            )}
+            {selectedTool?.title === "Focus Sounds" && <SoundsTool />}
 
             {/* Couple Harmony */}
             {selectedTool?.title === "Couple Harmony" && (
@@ -563,15 +519,22 @@ export default function FreeResources() {
                   </Stack>
                   <Button fullWidth variant="contained" disabled={!coupleIStatement.emotion || !coupleIStatement.event || !coupleIStatement.need} onClick={() => {
                     const text = `I feel ${coupleIStatement.emotion} when ${coupleIStatement.event} and I need ${coupleIStatement.need}.`;
-                    navigator.clipboard.writeText(text);
-                    alert("I-Statement copied to clipboard! Share it with your partner.");
+                    handleCopy(text);
                   }} sx={{ mt: 2, bgcolor: "#8b5cf6", color: "white", borderRadius: "10px", fontWeight: 800, py: 1, boxShadow: "none", "&:hover": { bgcolor: "#7c3aed", boxShadow: "none" } }}>
-                    Copy & Share Statement
+                    {copied ? "Copied — share it with your partner" : "Copy & Share Statement"}
                   </Button>
                 </Box>
               </Box>
             )}
           </Box>
+          <div className="fr-foot">
+            <div className="fr-foot-row">
+              <Link href="/view-all-therapist?help=1">Talk to a psychologist →</Link>
+              <button type="button" onClick={() => setShowLeadPopup(true)}>Get a free callback</button>
+              <button type="button" onClick={(e) => selectedTool && handleShare(e, selectedTool)}>{sharedTool === selectedTool?.title ? "Link copied" : "Share this tool"}</button>
+            </div>
+            <small>In a crisis? Call <a href={HELPLINE.tel}>{HELPLINE.name} {HELPLINE.number}</a> (free, 24×7).</small>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -581,7 +544,7 @@ export default function FreeResources() {
         onClose={() => setShowLeadPopup(false)}
         maxWidth="xs"
         fullWidth
-        sx={{ zIndex: 10000 }}
+        sx={{ zIndex: 100004 }}
         PaperProps={{ sx: { borderRadius: "10px", overflow: "hidden" } }}
       >
         <DialogContent sx={{ p: 0 }}>
