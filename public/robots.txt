@@ -12,6 +12,35 @@ Disallow: /settings
 Disallow: /not-authorized
 Disallow: /address-selection
 
+# AI assistants and AI search: public pages may be read and cited; private paths stay off-limits
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bingbot
+User-agent: CCBot
+Allow: /
+Disallow: /my-dashboard
+Disallow: /therapist-dashboard
+Disallow: /how-it-works
+Disallow: /protectedroute
+Disallow: /add-offline-client
+Disallow: /case-history
+Disallow: /clinic-patients
+Disallow: /create-report
+Disallow: /create-workshop
+Disallow: /settings
+Disallow: /not-authorized
+Disallow: /address-selection
+
+# Summary of the site for AI tools: https://www.chooseyourtherapist.in/llms.txt
+
 Sitemap: https://www.chooseyourtherapist.in/sitemap.xml
 Sitemap: https://www.chooseyourtherapist.in/sitemap-static.xml
 Sitemap: https://www.chooseyourtherapist.in/api/sitemap-therapists.xml

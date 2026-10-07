@@ -19,7 +19,9 @@ const mayAutoOpen = () => store(() => {
   return !sessionStorage.getItem(SESSION_KEY);
 }) !== false;
 
-const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, showSource = true, onClose }) => {
+// title / note: page-specific copy ("Looking for a psychologist in Bangalore?") — people fill a form
+// that speaks to what they came for far more than a generic one.
+const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, showSource = true, onClose, title = "Chat with CYT", note = "Share a few details and our team will message you on WhatsApp.", sourceTag = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -66,8 +68,8 @@ const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, 
     <div className="bp-wa-head">
       <span className="bp-wa-avatar">💬</span>
       <div className="bp-wa-titles">
-        <h5 className="bp-wa-title">Chat with CYT</h5>
-        <span className="bp-wa-sub">Typically replies within minutes</span>
+        <h5 className="bp-wa-title">{title}</h5>
+        <span className="bp-wa-sub">Our team usually replies within minutes</span>
       </div>
       <button className="bp-wa-close" onClick={handleClose} aria-label="Close">✕</button>
     </div>
@@ -75,8 +77,9 @@ const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, 
 
   const body = (showHeadingProp) => (
     <div className="bp-wa-body">
-      <p className="bp-wa-note">Share a few details and our team will message you on WhatsApp.</p>
-      <ConsultationForm showHeading={showHeadingProp} showLocation={showLocation} showSource={showSource} variant="whatsapp" />
+      <p className="bp-wa-note">{note}</p>
+      <ConsultationForm showHeading={showHeadingProp} showLocation={showLocation} showSource={showSource} variant="whatsapp"
+        sourceTag={sourceTag || (typeof window !== "undefined" ? `Popup · ${window.location.pathname}` : "")} />
     </div>
   );
 

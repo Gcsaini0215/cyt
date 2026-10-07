@@ -184,7 +184,9 @@ select.cf-input {
 .cf-whatsapp .cf-foot { color: #4b5b63; }
 `;
 
-export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true, variant = "default" }) {
+// sourceTag: where the lead came from ("Popup · /psychologist-in/bangalore"), sent when the visitor
+// didn't pick a source themselves — so every lead in the admin shows its page.
+export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true, variant = "default", sourceTag = "" }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"), { noSsr: true });
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => { setMounted(true); }, []);
@@ -252,7 +254,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
         email: formData.email.trim(),
         subject: "Free Consultation Request",
         concern: `Age: ${formData.age}\nConcern: ${formData.concern.trim()}`,
-        source: formData.source.trim()
+        source: formData.source.trim() || sourceTag || (typeof window !== "undefined" ? `Form · ${window.location.pathname}` : "")
       };
       const response = await postFormUrlEncoded(SubmitConsultationUrl, dataToSend);
       if (response.status) {

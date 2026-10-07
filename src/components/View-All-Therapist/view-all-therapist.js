@@ -15,6 +15,11 @@ import {
   split, getMinFee, sortTherapists, SORTS, CONCERNS, MODES, PLACE_LINKS, feeBand, directoryFaqs,
 } from "../../utils/therapist-directory";
 import { CONCERN_PAGES, concernPath } from "../../utils/concerns";
+import dynamic from "next/dynamic";
+import LeadCard from "../global/lead-card";
+import MobileActionBar from "../global/mobile-action-bar";
+
+const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
 const EMPTY_FILTER = {
   profile_type: "", services: "", year_of_exp: "", language_spoken: "", state: "", search: "",
@@ -511,6 +516,13 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
             </div>
           )}
 
+          {/* ── Lead capture: for people who scrolled the list and still can't decide ── */}
+          <div className="vat-lead">
+            <LeadCard tag="Directory" title="Still deciding? Let us suggest someone"
+              concern={filter.concern ? concernLabel(filter.concern) : ""}
+              waText={filter.concern ? `Hi, I'd like help finding a psychologist for ${concernLabel(filter.concern).toLowerCase()}.` : "Hi, I'd like help finding the right psychologist."} />
+          </div>
+
           {/* ── Browse + FAQ (also internal links for search engines) ── */}
           <section className="vat-browse" aria-labelledby="vat-browse-h">
             <h2 id="vat-browse-h">Browse by place, concern or type</h2>
@@ -561,6 +573,12 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
           </button>
         </div>
       </div>
+
+      <BookingPopup delay={30000} showHeading={false} showLocation={false} showSource={false}
+        title="Need help choosing a psychologist?"
+        note="Tell us what you're going through — our team will WhatsApp you with 2–3 psychologists who fit."
+        sourceTag="Popup · Directory" />
+      <MobileActionBar />
 
       {helperOpen && (
         <HelpMeChoose
@@ -742,6 +760,7 @@ const CSS = `
 .vat-more-btn:hover { background: #1e7a4c; color: #fff; }
 .vat-more span { font-size: 12.5px; color: #94a3b8; font-weight: 600; }
 
+.vat-lead { margin-top: 40px; }
 .vat-browse, .vat-faq { margin-top: 48px; }
 .vat-browse h2, .vat-faq h2 { font-size: 20px; font-weight: 800; color: #14532d; margin: 0 0 14px; }
 .vat-links { display: flex; flex-wrap: wrap; gap: 8px; }

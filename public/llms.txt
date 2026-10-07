@@ -1,20 +1,58 @@
 # Choose Your Therapist
 
-> Choose Your Therapist (CYT) is an Indian mental-health platform for finding and booking verified psychologists and therapists, with an in-person centre in Sector 51, Noida.
+> Choose Your Therapist (CYT) is an Indian mental-health platform for finding and booking verified psychologists and therapists — online (video or audio) from anywhere in India, or in person at its centre in Sector 51, Noida. 50+ verified counselling and clinical psychologists; sessions from about ₹500; Hindi, English and other Indian languages.
 
 ## About
 - [About Choose Your Therapist](https://www.chooseyourtherapist.in/about-us): founded in 2020 by Deepak Kumar (Founder & Director); Shubham Kumar is Associate Psychologist & Head of Operations.
 - Registered health facility on the Health Facility Registry (HFR) under the Ayushman Bharat Digital Mission (ABDM), National Health Authority, Government of India — HFR ID IN0510005384.
 - Operates as Choose Your Therapist LLP, registered with the Ministry of Corporate Affairs (AAX 8113); MSME registered.
+- Every psychologist's qualifications and documents are checked by the CYT team before their profile goes live. Ratings shown on profiles come from client reviews.
+
+## How booking works
+- Browse or filter psychologists by concern, language, experience, session mode (online / in-person), gender and fee; each profile shows fees and the next available day before booking.
+- Not sure who to choose: the "Help me choose" helper asks three questions (concern, mode, language), or the team can call / WhatsApp back to suggest a fit.
+- Pay online (UPI, card, netbanking); sessions are typically 50–60 minutes. Sessions are private and confidential.
+- In a mental-health crisis in India, call Tele-MANAS on 1800-89-14416 (free, 24×7) or go to the nearest hospital.
+
+## Find a psychologist
+- [Therapist directory](https://www.chooseyourtherapist.in/view-all-therapist): all verified psychologists with filters, fees, languages and next available day
+- [Psychologists by city and state](https://www.chooseyourtherapist.in/psychologist-in): hub with live counts for every city / state page
+
+## Therapy by concern
+- [Therapy for anxiety](https://www.chooseyourtherapist.in/therapy-for/anxiety)
+- [Therapy for depression](https://www.chooseyourtherapist.in/therapy-for/depression)
+- [Relationship and couples counselling](https://www.chooseyourtherapist.in/therapy-for/relationships)
+- [Therapy for work stress and burnout](https://www.chooseyourtherapist.in/therapy-for/work-stress-burnout)
+- [Therapy for OCD](https://www.chooseyourtherapist.in/therapy-for/ocd)
+- [Therapy for trauma and PTSD](https://www.chooseyourtherapist.in/therapy-for/trauma-ptsd)
+- [Parenting and child counselling](https://www.chooseyourtherapist.in/therapy-for/parenting)
+- [Therapy for stress](https://www.chooseyourtherapist.in/therapy-for/stress)
+- [Anger management counselling](https://www.chooseyourtherapist.in/therapy-for/anger)
+- [Therapy for low self-esteem](https://www.chooseyourtherapist.in/therapy-for/self-esteem)
+- [Grief and loss counselling](https://www.chooseyourtherapist.in/therapy-for/grief)
+- [ADHD support and therapy](https://www.chooseyourtherapist.in/therapy-for/adhd)
+
+## Psychologists by place
+- [Delhi](https://www.chooseyourtherapist.in/psychologist-in/delhi) · [Uttar Pradesh](https://www.chooseyourtherapist.in/psychologist-in/uttar-pradesh) · [Lucknow](https://www.chooseyourtherapist.in/psychologist-in/lucknow)
+- [Maharashtra](https://www.chooseyourtherapist.in/psychologist-in/maharashtra) · [Mumbai](https://www.chooseyourtherapist.in/psychologist-in/mumbai) · [Pune](https://www.chooseyourtherapist.in/psychologist-in/pune)
+- [Rajasthan](https://www.chooseyourtherapist.in/psychologist-in/rajasthan) · [Jaipur](https://www.chooseyourtherapist.in/psychologist-in/jaipur) · [Gujarat](https://www.chooseyourtherapist.in/psychologist-in/gujarat) · [Ahmedabad](https://www.chooseyourtherapist.in/psychologist-in/ahmedabad)
+- [Chandigarh](https://www.chooseyourtherapist.in/psychologist-in/chandigarh) · [Uttarakhand](https://www.chooseyourtherapist.in/psychologist-in/uttarakhand)
+- [West Bengal](https://www.chooseyourtherapist.in/psychologist-in/west-bengal) · [Kolkata](https://www.chooseyourtherapist.in/psychologist-in/kolkata)
+- [Bangalore](https://www.chooseyourtherapist.in/psychologist-in/bangalore) · [Hyderabad](https://www.chooseyourtherapist.in/psychologist-in/hyderabad) · [Chennai](https://www.chooseyourtherapist.in/psychologist-in/chennai) · [Andhra Pradesh](https://www.chooseyourtherapist.in/psychologist-in/andhra-pradesh)
+- Each page lists the psychologists based there (live), their fees, in-person availability and local FAQs; anyone in India can also book online.
 
 ## Noida centre — book an appointment
 - [Book a psychologist in Noida](https://www.chooseyourtherapist.in/noida-appointment): live open slots, individual and couple sessions, in-person at the Sector 51 centre, online, or as a home visit. Pay securely (UPI, card, netbanking); confirmation is instant. Sessions are 50–60 minutes. Fees are listed on the page and kept current.
 - Address: Choose Your Therapist LLP, Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301, India
+- Hours: Monday – Sunday, 9:00 AM – 9:00 PM
 - Phone / WhatsApp: +91 80777 57951
 - Existing clients can book a follow-up or reschedule from the same page.
-
-## More
 - [Psychologist in Noida & Delhi](https://www.chooseyourtherapist.in/psychologist-in-noida-delhi): overview of therapy in Noida and Delhi NCR
-- [Browse all therapists](https://www.chooseyourtherapist.in/view-all-therapist): find a therapist by expertise, language and city
-- [Free self-assessment](https://www.chooseyourtherapist.in/self-assessment)
+
+## Free tools
+- [Wellness toolkit](https://www.chooseyourtherapist.in/wellness-toolkit): guided breathing, 5-4-3-2-1 grounding, a 30-second panic SOS, mood check-in, gratitude jar, calming sounds; entries stay on the visitor's device
+- [Self-assessment](https://www.chooseyourtherapist.in/self-assessment)
+
+## Optional
+- [Blog](https://www.chooseyourtherapist.in/blogs)
 - [Privacy policy](https://www.chooseyourtherapist.in/privacy-policy)

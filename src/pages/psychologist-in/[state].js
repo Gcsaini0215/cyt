@@ -8,6 +8,10 @@ import { getTherapistProfiles } from "../../utils/url";
 import { profilePath } from "../../utils/therapist-slug";
 import { PLACES as STATE_CONFIG, PLACE_SERVICES as SERVICES, inPlace, PLACE_IMG } from "../../utils/places";
 import ProfileCardRow, { CARD_CSS } from "../../components/home/profile-card-row";
+import LeadCard from "../../components/global/lead-card";
+import MobileActionBar from "../../components/global/mobile-action-bar";
+import { CONCERN_PAGES, concernPath } from "../../utils/concerns";
+import { split as splitList } from "../../utils/therapist-directory";
 import { slimTherapist, sortTherapists, getMinFee, sessionModes } from "../../utils/therapist-directory";
 
 const SHOW = 12;
@@ -46,17 +50,32 @@ export async function getStaticProps({ params }) {
     minFee: fees.length ? Math.min(...fees) : null,
     rating: ratings.length ? { avg: Number((ratings.reduce((a, r) => a + r, 0) / ratings.length).toFixed(1)), count: ratings.length } : null,
     total,
+    languages: [...new Set(list.flatMap((t) => splitList(t.language_spoken)))].slice(0, 6),
   };
+  const updatedAt = new Date().toISOString();
 
   return {
     // the real list (no placeholder numbers), rendered on the server so search engines see it
-    props: { config, therapists: sortTherapists(list, "", null).slice(0, SHOW).map(slimTherapist), stats },
+    props: { config, therapists: sortTherapists(list, "", null).slice(0, SHOW).map(slimTherapist), stats, updatedAt },
     revalidate: 3600,
   };
 }
 
 // ─── Page component ──────────────────────────────────────────────────────────
-export default function StatePsychologistPage({ config, therapists, stats = {} }) {
+export default function StatePsychologistPage({ config, therapists, stats = {}, updatedAt = null }) {
+  const updatedLabel = updatedAt ? new Date(updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "";
+  const near = isCityPage(config) ? "near" : "in";
+  // short, factual statements — the kind search engines and AI assistants quote directly
+  const facts = [
+    stats.count > 0
+      ? `${stats.count} verified psychologist${stats.count !== 1 ? "s" : ""} based ${near} ${config.name}${stats.inPerson ? `; ${stats.inPerson === stats.count ? (stats.count === 1 ? "they also see" : "all also see") : `${stats.inPerson} also see`} clients in person` : ""}.`
+      : `No psychologists are based in ${config.name} yet; all ${stats.total || ""} Choose Your Therapist psychologists offer online sessions.`,
+    stats.minFee ? `Sessions start from ₹${stats.minFee.toLocaleString("en-IN")}; each psychologist's fee is shown on their profile before booking.` : null,
+    stats.rating ? `Average client rating ${stats.rating.avg}/5 from ${stats.rating.count} verified reviews.` : null,
+    stats.languages?.length ? `Languages: ${stats.languages.join(", ")}.` : null,
+    "Online video and audio sessions are available anywhere in India; in-person sessions at the CYT centre in Sector 51, Noida (Mon–Sun, 9 AM–9 PM).",
+    "Every psychologist's qualifications and documents are checked by the CYT team before their profile goes live.",
+  ].filter(Boolean);
   const [now, setNow] = React.useState(null);
   React.useEffect(() => { setNow(Date.now()); }, []);
   const isCity = Boolean(config.relatedRegion) || !/pradesh|delhi|maharashtra|rajasthan|gujarat|chandigarh|uttarakhand|bengal/i.test(config.slug);
@@ -114,7 +133,8 @@ export default function StatePsychologistPage({ config, therapists, stats = {} }
     "description": config.description,
     "isPartOf": { "@id": "https://www.chooseyourtherapist.in#organization" },
     "about": { "@id": `${PAGE_URL}#service` },
-    "speakable": { "@type": "SpeakableSpecification", "cssSelector": ["h1", ".local-intro-text"] }
+    "speakable": { "@type": "SpeakableSpecification", "cssSelector": ["h1", ".pl-facts-box", ".local-intro-text"] },
+    ...(updatedAt ? { "dateModified": updatedAt } : {})
   };
 
   // ItemList of the real, currently-displayed verified psychologists —
@@ -230,6 +250,27 @@ export default function StatePsychologistPage({ config, therapists, stats = {} }
         </div>
       </div>
 
+      {/* ── Lead capture ── */}
+      <div className="pl-lead">
+        <div className="container">
+          <LeadCard tag={`City · ${config.name}`} title={`Not sure who to pick in ${config.name}?`}
+            waText={`Hi, I'm looking for a psychologist in ${config.name}.`} />
+        </div>
+      </div>
+
+      {/* ── Quick facts (dated) ── */}
+      <section className="pl-factsec" aria-labelledby="pl-facts-h">
+        <div className="container pl-narrow">
+          <h2 id="pl-facts-h">Quick facts: psychologists {near} {config.name}</h2>
+          <ul className="pl-facts-box">{facts.map((x) => <li key={x}>{x}</li>)}</ul>
+          {updatedLabel && <p className="pl-updated">Updated {updatedLabel} from our live directory.</p>}
+          <h3>Help for common concerns</h3>
+          <div className="pl-concerns">
+            {CONCERN_PAGES.slice(0, 8).map((c) => <a key={c.slug} href={concernPath(c)}>{c.title}</a>)}
+          </div>
+        </div>
+      </section>
+
       {/* ── Local intro (unique per page) ── */}
       {config.localIntro && (
         <section className="pl-intro">
@@ -253,10 +294,16 @@ export default function StatePsychologistPage({ config, therapists, stats = {} }
       </section>
 
       <Footer />
-      <BookingPopup delay={15000} showHeading={false} showLocation={false} showSource={false} />
+      <BookingPopup delay={15000} showHeading={false} showLocation={false} showSource={false}
+        title={`Looking for a psychologist in ${config.name}?`}
+        note="Tell us a little — our team will WhatsApp you with psychologists who fit, usually within minutes."
+        sourceTag={`Popup · City · ${config.name}`} />
+      <MobileActionBar waText={`Hi, I'm looking for a psychologist in ${config.name}.`} />
     </div>
   );
 }
+
+const isCityPage = (config) => Boolean(config.relatedRegion) || !/pradesh|delhi|maharashtra|rajasthan|gujarat|chandigarh|uttarakhand|bengal/i.test(config.slug);
 
 // FAQ item: a native <details>, so the answer is in the HTML (crawlable) and works without JS
 function FaqItem({ q, a }) {
@@ -291,6 +338,17 @@ const PLACE_CSS = `
 .pl-btn.gold:hover { background: #f3d595; }
 .pl-btn.line { background: transparent; border: 1.5px solid rgba(255,255,255,.55); color: #fff !important; gap: 7px; cursor: pointer; font-family: inherit; }
 .pl-btn.line:hover { background: rgba(255,255,255,.12); }
+.pl-lead { background: #fff; padding: 0 0 48px; }
+.pl-factsec { background: #fff; padding: 0 0 44px; }
+.pl-factsec h2 { font-size: clamp(20px, 3vw, 24px); font-weight: 800; color: #0b1712; margin: 0 0 12px; }
+.pl-factsec h3 { font-size: 16px; font-weight: 800; color: #14532d; margin: 22px 0 10px; }
+.pl-facts-box { list-style: none; margin: 0; padding: 16px 18px; border-radius: 14px; background: #f7faf8; border: 1px solid #e3ebe6; display: flex; flex-direction: column; gap: 8px; }
+.pl-facts-box li { position: relative; margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.55; color: #334155; }
+.pl-facts-box li::before { content: ""; position: absolute; left: 3px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: #1e7a4c; }
+.pl-updated { font-size: 12.5px; color: #94a3b8; margin: 8px 0 0; padding: 0; }
+.pl-concerns { display: flex; flex-wrap: wrap; gap: 8px; }
+.pl-concerns a { height: 36px; display: inline-flex; align-items: center; padding: 0 14px; border-radius: 999px; border: 1px solid #dbe5df; color: #26463a; font-size: 13.5px; font-weight: 600; text-decoration: none; background: #fff; }
+.pl-concerns a:hover { border-color: #1e7a4c; color: #1e7a4c; }
 .pl-intro { background: #f7faf8; padding: 48px 0; }
 .pl-narrow { max-width: 820px; }
 .pl-intro h2, .pl-faqs h2 { font-size: clamp(20px, 3vw, 26px); font-weight: 800; color: #0b1712; margin: 0 0 12px; }

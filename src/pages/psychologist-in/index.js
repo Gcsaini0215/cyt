@@ -9,6 +9,11 @@ import { useRouter } from "next/router";
 import { PLACES, placePath, placeStats, isStateSlug, NOIDA_CENTRE, PLACE_IMG, PHOTO_CREDITS } from "../../utils/places";
 import { getMinFee, sessionModes } from "../../utils/therapist-directory";
 import { GBP_URL } from "../../components/about/visit-centre";
+import dynamic from "next/dynamic";
+import LeadCard from "../../components/global/lead-card";
+import MobileActionBar from "../../components/global/mobile-action-bar";
+
+const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 // /psychologist-in — hub for every city / state page, with real counts. Gives the place
 // pages one strong internal link source and a clear path for visitors outside those cities.
@@ -156,6 +161,10 @@ export default function PsychologistHub({ stats, total }) {
           <div className="ph-grid">{cities.map((x) => <PlaceTile key={x} slug={x} s={stats[x]} />)}</div>
           {!states.length && !cities.length && <p className="ph-note"><b>No city page for “{q.trim()}” yet</b> — but you can talk to any of our psychologists online.</p>}
           <p className="ph-note">Don't see your city? You can still book any psychologist online — <Link href="/view-all-therapist">browse everyone</Link>.</p>
+          <div className="ph-lead">
+            <LeadCard tag="Hub · Psychologists by city" title="Can't find your city? We'll match you with someone"
+              waText="Hi, I'm looking for a psychologist near me." />
+          </div>
           <details className="ph-credit">
             <summary>Photo credits</summary>
             <p>
@@ -172,6 +181,11 @@ export default function PsychologistHub({ stats, total }) {
         </section>
       </main>
       <Footer />
+      <BookingPopup delay={20000} showHeading={false} showLocation={false} showSource={false}
+        title="Looking for a psychologist near you?"
+        note="Tell us your city and what you're going through — our team will WhatsApp you with psychologists who fit."
+        sourceTag="Popup · Hub · Psychologists by city" />
+      <MobileActionBar waText="Hi, I'm looking for a psychologist near me." />
     </div>
   );
 }
@@ -243,6 +257,7 @@ const CSS = `
 .ph-info { position: absolute; left: 14px; right: 14px; bottom: 12px; display: flex; flex-direction: column; gap: 2px; color: #fff; }
 .ph-info b { font-size: 16px; font-weight: 800; }
 .ph-info small { font-size: 12.5px; color: rgba(255,255,255,.85); }
+.ph-lead { margin-top: 36px; }
 .ph-credit { margin: 18px 0 0; font-size: 11.5px; color: #94a3b8; }
 .ph-credit summary { cursor: pointer; font-weight: 700; color: #64748b; }
 .ph-credit p { margin: 6px 0 0; padding: 0; line-height: 1.6; }

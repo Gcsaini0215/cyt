@@ -15,6 +15,8 @@ const HomeWorkshop = dynamic(() => import("../components/home/workshops"), { ssr
 import FeelBetter from "../components/home/feel-better";
 const Feedback = dynamic(() => import("../components/home/feedback"), { ssr: false });
 import FindByLocation from "../components/home/find-by-location";
+import LeadCard from "../components/global/lead-card";
+import MobileActionBar from "../components/global/mobile-action-bar";
 const Brands = dynamic(() => import("../components/about/brands"), { ssr: false });
 const LocationConsent = dynamic(() => import("../components/home/location-consent"), { ssr: false });
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
@@ -577,6 +579,11 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <Specializations stats={concerns} />
         <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
         <FeelBetter stats={concerns?.bySlug} />
+        <section style={{ background: "#fff", padding: "8px 0 56px" }}>
+          <div className="container">
+            <LeadCard tag="Home" title="Not sure where to start? Talk to us" />
+          </div>
+        </section>
         <HomeWorkshop isWhite={false} />
         <FindByLocation stats={places} total={stats?.count || 0} visitorState={userState} />
         <Feedback therapists={topTherapists} />
@@ -590,7 +597,9 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         // Refresh location-based sorting if user accepts
         getTopTherapists();
       }} />
-      <BookingPopup showHeading={false} showLocation={false} showSource={false} />
+      <BookingPopup showHeading={false} showLocation={false} showSource={false}
+        title="Find the right psychologist" sourceTag="Popup · Home" />
+      <MobileActionBar />
     </div>
   );
 }

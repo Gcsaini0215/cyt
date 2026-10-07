@@ -8,7 +8,13 @@ import ProfileCardRow, { CARD_CSS } from "../../components/home/profile-card-row
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 import { CONCERN_PAGES, concernBySlug, concernPath } from "../../utils/concerns";
-import { slimTherapist, sortTherapists, split, getMinFee } from "../../utils/therapist-directory";
+import { slimTherapist, sortTherapists, split, getMinFee, sessionModes } from "../../utils/therapist-directory";
+import LeadCard from "../../components/global/lead-card";
+import MobileActionBar from "../../components/global/mobile-action-bar";
+import { PLACES, placePath } from "../../utils/places";
+
+// cities / states with the most psychologists, linked from every concern page
+const TOP_PLACES = ["delhi", "uttar-pradesh", "mumbai", "bangalore", "pune", "jaipur", "hyderabad", "chandigarh", "kolkata", "lucknow"];
 
 const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
@@ -32,18 +38,22 @@ export async function getStaticProps({ params }) {
     console.error("therapy-for getStaticProps:", err?.message);
   }
   const fees = list.map((t) => getMinFee(t.fees)).filter(Boolean);
+  const langs = [...new Set(list.flatMap((t) => split(t.language_spoken)))].slice(0, 6);
   return {
     props: {
       slug: c.slug,
       count: list.length,
       minFee: fees.length ? Math.min(...fees) : null,
+      inPerson: list.filter((t) => sessionModes(t).inPerson).length,
+      langs,
+      updatedAt: new Date().toISOString(),
       therapists: sortTherapists(list, "", null).slice(0, SHOW).map(slimTherapist),
     },
     revalidate: 600,
   };
 }
 
-export default function TherapyFor({ slug, count, minFee, therapists }) {
+export default function TherapyFor({ slug, count, minFee, therapists, inPerson = 0, langs = [], updatedAt = null }) {
   const c = concernBySlug(slug);
   const [now, setNow] = useState(null);
   useEffect(() => { setNow(Date.now()); }, []);
@@ -53,6 +63,15 @@ export default function TherapyFor({ slug, count, minFee, therapists }) {
   const title = `${c.title} — Verified Psychologists in India | Choose Your Therapist`;
   const description = `${c.intro.split(". ")[0]}. Talk to ${count ? `${count} verified psychologists` : "verified psychologists"} for ${label}${minFee ? `, from ₹${minFee}` : ""} — online or in person.`.slice(0, 300);
   const others = CONCERN_PAGES.filter((x) => x.slug !== c.slug);
+  const updatedLabel = updatedAt ? new Date(updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "";
+  // short, factual statements — the kind search engines and AI assistants quote directly
+  const facts = [
+    count ? `${count} verified psychologists on Choose Your Therapist list ${label} among their areas of expertise${inPerson ? `; ${inPerson} also see clients in person` : ""}.` : null,
+    minFee ? `Sessions start from ₹${minFee.toLocaleString("en-IN")}; every fee is shown on the psychologist's profile before booking.` : null,
+    langs.length ? `Sessions are available in ${langs.join(", ")}.` : null,
+    "Sessions are online (video or audio) from anywhere in India, or in person at the CYT centre in Sector 51, Noida.",
+    "In a crisis, call Tele-MANAS on 1800-89-14416 (free, 24×7) or go to the nearest hospital.",
+  ].filter(Boolean);
 
   const schemas = [
     {
@@ -64,6 +83,7 @@ export default function TherapyFor({ slug, count, minFee, therapists }) {
       "about": { "@type": "MedicalCondition", "name": c.label },
       "audience": { "@type": "PeopleAudience", "geographicArea": { "@type": "Country", "name": "India" } },
       "publisher": { "@type": "Organization", "name": "Choose Your Therapist", "url": SITE },
+      ...(updatedAt ? { "dateModified": updatedAt, "lastReviewed": updatedAt } : {}),
     },
     {
       "@context": "https://schema.org",
@@ -141,6 +161,12 @@ export default function TherapyFor({ slug, count, minFee, therapists }) {
           </div>
         </section>
 
+        <section className="container tf-qf" aria-labelledby="tf-fx">
+          <h2 id="tf-fx">Quick facts</h2>
+          <ul>{facts.map((x) => <li key={x}>{x}</li>)}</ul>
+          {updatedLabel && <p className="tf-updated">Updated {updatedLabel} from our live directory.</p>}
+        </section>
+
         {therapists.length > 0 && (
           <section className="container tf-thers" aria-labelledby="tf-th">
             <div className="tf-sec-head">
@@ -156,6 +182,11 @@ export default function TherapyFor({ slug, count, minFee, therapists }) {
           </section>
         )}
 
+        <div className="container tf-lead">
+          <LeadCard tag={`Concern · ${c.label}`} title={`Want help finding the right psychologist for ${label}?`}
+            concern={c.label} waText={`Hi, I'd like to talk to a psychologist about ${label}.`} />
+        </div>
+
         <section className="container tf-faq" aria-labelledby="tf-fq">
           <h2 id="tf-fq">Common questions</h2>
           {c.faqs.map((f, i) => (
@@ -164,6 +195,14 @@ export default function TherapyFor({ slug, count, minFee, therapists }) {
               <p>{f.a}</p>
             </details>
           ))}
+        </section>
+
+        <section className="container tf-others" aria-labelledby="tf-pl">
+          <h2 id="tf-pl">{c.title} near you</h2>
+          <div className="tf-chips">
+            {TOP_PLACES.filter((x) => PLACES[x]).map((x) => <Link key={x} href={placePath(x)}>Psychologist in {PLACES[x].name}</Link>)}
+            <Link href="/psychologist-in">All cities →</Link>
+          </div>
         </section>
 
         <section className="container tf-others" aria-labelledby="tf-ot">
@@ -179,7 +218,11 @@ export default function TherapyFor({ slug, count, minFee, therapists }) {
       </main>
 
       <Footer />
-      <BookingPopup showHeading={false} showLocation={false} showSource={false} />
+      <BookingPopup delay={20000} showHeading={false} showLocation={false} showSource={false}
+        title={`Talk to someone about ${label}`}
+        note="Tell us a little — our team will WhatsApp you with psychologists who work with this, usually within minutes."
+        sourceTag={`Popup · Concern · ${c.label}`} />
+      <MobileActionBar waText={`Hi, I'd like to talk to a psychologist about ${label}.`} />
     </div>
   );
 }
@@ -213,6 +256,13 @@ const CSS = `
 .tf-list li::before { content: ""; position: absolute; left: 4px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: #d4a24c; }
 .tf-list.check li::before { content: "✓"; width: auto; height: auto; background: none; top: 0; left: 2px; color: #1e7a4c; font-weight: 800; }
 
+.tf-qf { margin-top: 40px; }
+.tf-qf h2 { font-size: 20px; font-weight: 800; color: #14532d; margin: 0 0 12px; }
+.tf-qf ul { list-style: none; margin: 0; padding: 16px 18px; border-radius: 14px; background: #f7faf8; border: 1px solid #e3ebe6; display: flex; flex-direction: column; gap: 8px; }
+.tf-qf li { position: relative; margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.55; color: #334155; }
+.tf-qf li::before { content: ""; position: absolute; left: 3px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: #1e7a4c; }
+.tf-updated { font-size: 12.5px; color: #94a3b8; margin: 8px 0 0; padding: 0; }
+.tf-lead { margin-top: 44px; }
 .tf-thers { margin-top: 44px; }
 .tf-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .tf-sec-head a { color: #1e7a4c; font-weight: 800; font-size: 14px; text-decoration: none; }
