@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import PhoneIcon from "@mui/icons-material/Phone";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import MessageIcon from "@mui/icons-material/Message";
@@ -11,6 +10,8 @@ import CakeIcon from "@mui/icons-material/Cake";
 
 import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
+import PhoneField from "../global/phone-field";
+import { DEFAULT_COUNTRY, phoneError, fullPhone } from "../../utils/phone";
 
 const formStyles = `
 @media (max-width: 600px) {
@@ -206,6 +207,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
   const [messageType, setMessageType] = useState("");
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [code, setCode] = useState(DEFAULT_COUNTRY);
 
   useEffect(() => {
     let timer;
@@ -223,11 +225,8 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
   const validateForm = () => {
     const errors = [];
     if (!formData.name.trim()) errors.push("Name is required");
-    if (!formData.phone.trim()) {
-      errors.push("Phone number is required");
-    } else if (!/^[6-9]\d{9}$/.test(formData.phone.trim())) {
-      errors.push("Please enter a valid 10-digit phone number");
-    }
+    const badPhone = phoneError(code, formData.phone);
+    if (badPhone) errors.push(badPhone);
     if (!formData.email.trim()) {
       errors.push("Email is required");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
@@ -250,7 +249,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
     try {
       const dataToSend = {
         name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        phone: fullPhone(code, formData.phone),
         email: formData.email.trim(),
         subject: "Free Consultation Request",
         concern: `Age: ${formData.age}\nConcern: ${formData.concern.trim()}`,
@@ -298,7 +297,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
 
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
 
-          {/* Row 1: Name + Phone */}
+          {/* Row 1: Name + Age */}
           <div className="cf-row" style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <label className="cf-label">Full Name</label>
@@ -314,13 +313,13 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
                 <input type="text" name="age" placeholder="e.g. 25 yrs" value={formData.age} onChange={handleChange} className="cf-input" />
               </div>
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <label className="cf-label">Phone Number</label>
-              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <PhoneIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
-                <input type="tel" name="phone" placeholder="10-digit number" value={formData.phone} onChange={handleChange} required className="cf-input" />
-              </div>
-            </div>
+          </div>
+
+          {/* Phone gets its own row — the country code needs the width */}
+          <div style={{ marginBottom: "10px" }}>
+            <label className="cf-label">Phone Number</label>
+            <PhoneField code={code} onCode={setCode} value={formData.phone} required inputClassName="cf-input"
+              onChange={(v) => setFormData((prev) => ({ ...prev, phone: v }))} />
           </div>
 
           {/* Row 2: Email + Heard via */}

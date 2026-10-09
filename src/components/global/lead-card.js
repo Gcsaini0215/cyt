@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { postFormUrlEncoded } from "../../utils/actions";
 import { SubmitConsultationUrl } from "../../utils/url";
+import PhoneField from "./phone-field";
+import { DEFAULT_COUNTRY, phoneError, fullPhone, displayPhone } from "../../utils/phone";
 
 // Inline "get matched" form that sits inside a page (not only in a popup): name + phone +
 // optional concern, consent, and WhatsApp / call as one-tap alternatives. Every lead carries
@@ -22,7 +24,9 @@ export default function LeadCard({
   dark = false,
 }) {
   const [name, setName] = useState("");
+  const [code, setCode] = useState(DEFAULT_COUNTRY);
   const [phone, setPhone] = useState("");
+  const phoneId = React.useId();
   const [topic, setTopic] = useState(concern);
   const [agree, setAgree] = useState(false);
   const [state, setState] = useState("idle"); // idle | sending | done | error
@@ -32,14 +36,15 @@ export default function LeadCard({
     e.preventDefault();
     setError("");
     if (name.trim().length < 2) { setError("Please enter your name."); return; }
-    if (!/^[6-9]\d{9}$/.test(phone.trim())) { setError("Enter a valid 10-digit mobile number."); return; }
+    const badPhone = phoneError(code, phone);
+    if (badPhone) { setError(badPhone); return; }
     if (!agree) { setError("Please allow us to contact you."); return; }
     setState("sending");
     try {
       const path = typeof window !== "undefined" ? window.location.pathname : "";
       const res = await postFormUrlEncoded(SubmitConsultationUrl, {
         name: name.trim(),
-        phone: phone.trim(),
+        phone: fullPhone(code, phone),
         subject: "Callback request",
         concern: topic || "Not specified",
         source: `${tag} · ${path}`,
@@ -69,7 +74,7 @@ export default function LeadCard({
         <div className="lc-done" aria-live="polite">
           <span className="lc-tick" aria-hidden="true">✓</span>
           <b>Thank you, {name.split(" ")[0]}!</b>
-          <p>We'll reach you on {phone} soon. Want to talk now?</p>
+          <p>We'll reach you on {displayPhone(code, phone)} soon. Want to talk now?</p>
           <a className="lc-wa" href={waLink(waText)} target="_blank" rel="noreferrer"><i className="feather-message-circle" aria-hidden="true" /> WhatsApp us</a>
         </div>
       ) : (
@@ -78,9 +83,10 @@ export default function LeadCard({
             <label><span>Your name</span>
               <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="e.g. Priya" />
             </label>
-            <label><span>Mobile number</span>
-              <input value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} inputMode="numeric" autoComplete="tel-national" placeholder="10-digit number" />
-            </label>
+            <div className="lc-phone">
+              <label htmlFor={phoneId}><span>Mobile number</span></label>
+              <PhoneField id={phoneId} code={code} onCode={setCode} value={phone} onChange={setPhone} />
+            </div>
           </div>
           <div className="lc-topics" role="group" aria-label="What would you like help with? (optional)">
             {CONCERNS.map((c) => (
@@ -119,6 +125,8 @@ const CSS = `
 .lc-row label { display: flex; flex-direction: column; gap: 4px; margin: 0; }
 .lc-row label span { font-size: 11.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #64748b; }
 .lc-row input { height: 46px; border-radius: 11px; border: 1.5px solid #dbe5df; padding: 0 12px; font-size: 15px; color: #0b1712; background: #f8faf9; outline: none; width: 100%; box-shadow: none; }
+.lc-phone { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lc-row .lc-phone label { gap: 0; }
 .lc-row input:focus { border-color: #1e7a4c; background: #fff; box-shadow: 0 0 0 3px #dcefe3; }
 .lc-topics { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 10px; }
 .lc-topics button { height: 32px; padding: 0 11px; border-radius: 999px; border: 1px solid #dbe5df; background: #fff; color: #334155; font-size: 12.5px; font-weight: 600; cursor: pointer; }
