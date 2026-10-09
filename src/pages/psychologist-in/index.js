@@ -6,7 +6,7 @@ import Footer from "../../components/footer";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 import { useRouter } from "next/router";
-import { PLACES, placePath, placeStats, isStateSlug, NOIDA_CENTRE, PLACE_IMG, PHOTO_CREDITS } from "../../utils/places";
+import { PLACES, placePath, placeStats, isStateSlug, isAbroad, NOIDA_CENTRE, PLACE_IMG, PHOTO_CREDITS } from "../../utils/places";
 import { getMinFee, sessionModes } from "../../utils/therapist-directory";
 import { GBP_URL } from "../../components/about/visit-centre";
 import dynamic from "next/dynamic";
@@ -44,9 +44,9 @@ function PlaceTile({ slug, s }) {
         : <span className="ph-letter" aria-hidden="true">{p.name.slice(0, 1)}</span>}
       <span className="ph-scrim" aria-hidden="true" />
       <span className="ph-info">
-        <b>Psychologist in {p.name}</b>
+        <b>Psychologist in {p.name}{p.country ? `, ${p.country}` : ""}</b>
         <small>
-          {s?.count ? `${s.count} ${isStateSlug(slug) ? "based here" : "nearby"}${s.inPerson ? ` · ${s.inPerson} in person` : ""}` : "Online sessions"}
+          {s?.count ? `${s.count} ${isStateSlug(slug) || isAbroad(slug) ? "based here" : "nearby"}${s.inPerson ? ` · ${s.inPerson} in person` : ""}` : "Online sessions"}
           {s?.minFee ? ` · from ₹${s.minFee.toLocaleString("en-IN")}` : ""}
         </small>
       </span>
@@ -62,7 +62,8 @@ export default function PsychologistHub({ stats, total }) {
   const matches = (slug) => !query || PLACES[slug].name.toLowerCase().includes(query) || PLACES[slug].cities.some((c) => c.toLowerCase().includes(query));
   const slugs = Object.keys(PLACES);
   const states = slugs.filter(isStateSlug).filter(matches).sort((a, b) => (stats[b]?.count || 0) - (stats[a]?.count || 0));
-  const cities = slugs.filter((x) => !isStateSlug(x)).filter(matches).sort((a, b) => PLACES[a].name.localeCompare(PLACES[b].name));
+  const abroad = slugs.filter(isAbroad).filter(matches);
+  const cities = slugs.filter((x) => !isStateSlug(x) && !isAbroad(x)).filter(matches).sort((a, b) => PLACES[a].name.localeCompare(PLACES[b].name));
   const title = "Find a Psychologist Near You — Cities & States in India | Choose Your Therapist";
   const description = `Verified psychologists across India — in person at our Noida centre and online from anywhere. Browse ${slugs.length} cities and states${total ? `, ${total} psychologists` : ""}.`;
   const schemas = [
@@ -113,7 +114,7 @@ export default function PsychologistHub({ stats, total }) {
             <p className="ph-sub">Meet in person at our Noida centre, or talk online from anywhere — {total ? `all ${total} of our` : "all our"} verified psychologists offer video or audio sessions.</p>
             <form className="ph-search" role="search" onSubmit={(e) => {
               e.preventDefault();
-              const only = [...states, ...cities];
+              const only = [...states, ...cities, ...abroad];
               if (only.length === 1) router.push(placePath(only[0]));
               else if (query && !only.length) router.push(`/view-all-therapist?search=${encodeURIComponent(q.trim())}`);
               else document.getElementById("ph-states")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -159,7 +160,13 @@ export default function PsychologistHub({ stats, total }) {
         <section className="container ph-sec" aria-labelledby="ph-cities">
           <h2 id="ph-cities">By city</h2>
           <div className="ph-grid">{cities.map((x) => <PlaceTile key={x} slug={x} s={stats[x]} />)}</div>
-          {!states.length && !cities.length && <p className="ph-note"><b>No city page for “{q.trim()}” yet</b> — but you can talk to any of our psychologists online.</p>}
+          {!states.length && !cities.length && !abroad.length && <p className="ph-note"><b>No city page for “{q.trim()}” yet</b> — but you can talk to any of our psychologists online.</p>}
+          {abroad.length > 0 && (
+            <>
+              <h2 id="ph-abroad" className="ph-sub-h">Outside India</h2>
+              <div className="ph-grid">{abroad.map((x) => <PlaceTile key={x} slug={x} s={stats[x]} />)}</div>
+            </>
+          )}
           <p className="ph-note">Don't see your city? You can still book any psychologist online — <Link href="/view-all-therapist">browse everyone</Link>.</p>
           <div className="ph-lead">
             <LeadCard tag="Hub · Psychologists by city" title="Can't find your city? We'll match you with someone"
@@ -246,6 +253,7 @@ const CSS = `
 .ph-card.centre .ph-btn.ghost { color: #fff !important; }
 .ph-sec { margin-top: 40px; }
 .ph-sec h2 { font-size: 20px; font-weight: 800; color: #14532d; margin: 0 0 14px; }
+.ph-sec h2.ph-sub-h { margin-top: 28px; }
 .ph-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .ph-tile { position: relative; display: block; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: #dfeee5; text-decoration: none !important; box-shadow: 0 10px 24px -16px rgba(20,83,45,.5); }
 .ph-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }

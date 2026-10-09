@@ -406,6 +406,25 @@ export const PLACES = {
       { q: "Is online counselling available across Lucknow?", a: "Yes. Whether you're in Gomti Nagar, Hazratganj, Indira Nagar, or Alambagh, you can book a session online from anywhere in the city." },
       { q: "What does a therapy session cost for someone in Lucknow?", a: "Online sessions start from ₹500 on Choose Your Therapist. All pricing is transparent and shown on each therapist's profile." }
     ]
+  },
+  // ─── Outside India — places where a CYT psychologist is actually based ──
+  "riyadh": {
+    name: "Riyadh",
+    country: "Saudi Arabia",
+    abroad: true,
+    filterValues: ["riyadh", "saudi"],
+    cities: ["Olaya", "Al Malqa", "Al Nakheel", "Al Sahafa", "Al Yasmin", "Diplomatic Quarter", "Al Murabba"],
+    slug: "riyadh",
+    geo: { lat: 24.7136, lng: 46.6753, region: "SA-01" },
+    description: "Talk to a verified psychologist in Riyadh, Saudi Arabia — in Hindi or English, over video or audio. Support for anxiety, stress, relationship issues and life away from home, at times that suit the Gulf work week.",
+    localKeywords: "psychologist in Riyadh, Indian psychologist Riyadh, Hindi speaking therapist Riyadh, counsellor in Riyadh, online therapy Saudi Arabia, couples counselling Riyadh, mental health Riyadh",
+    localIntro: "For the large Indian and South Asian community in Riyadh, the hardest part of looking after your mental health is often finding someone who understands where you come from — the pull of family back home, long work weeks, and the quiet strain of living far from your usual support. Choose Your Therapist has a verified counselling psychologist based in Riyadh, and every psychologist on our platform offers private video or audio sessions, in Hindi or English, that you can book around the Saudi work week.",
+    faqs: [
+      { q: "Is there a Hindi-speaking psychologist in Riyadh?", a: "Yes. Choose Your Therapist has a verified counselling psychologist based in Riyadh who works in Hindi and English, and our psychologists in India also see clients in the Gulf online." },
+      { q: "Can I do online therapy from Saudi Arabia?", a: "Yes. Sessions are held over secure video or audio calls, so you can talk to a psychologist from home in Riyadh or anywhere in Saudi Arabia — only a stable internet connection is needed." },
+      { q: "Is couples counselling available in Riyadh?", a: "Yes. Couples and relationship counselling is available online, including with our Riyadh-based psychologist." },
+      { q: "How much does a therapy session cost from Riyadh?", a: "Each psychologist's fee is shown in Indian rupees on their profile before you book, so you know the cost upfront." }
+    ]
   }
 };
 
@@ -441,13 +460,15 @@ export function placeStats(all, getMinFee, sessionModes) {
 // states vs cities (cities point at their state via relatedRegion, or aren't a state slug)
 const STATE_SLUGS = ["uttar-pradesh", "delhi", "maharashtra", "rajasthan", "gujarat", "chandigarh", "uttarakhand", "west-bengal", "andhra-pradesh"];
 export const isStateSlug = (slug) => STATE_SLUGS.includes(slug);
+// places outside India (Riyadh…) — own section on the hub, "based here" wording, no "anywhere in India" copy
+export const isAbroad = (slug) => Boolean(PLACES[slug]?.abroad);
 
 // the visitor's state (ipapi "region") -> our place slug, if we have a page for it
 export const placeForRegion = (region) => {
   const r = String(region || "").toLowerCase();
   if (!r) return null;
   if (r.includes("delhi")) return "delhi";
-  return Object.keys(PLACES).find((slug) => isStateSlug(slug) && PLACES[slug].filterValues.some((v) => v.length > 3 && r.includes(v))) || null;
+  return Object.keys(PLACES).find((slug) => (isStateSlug(slug) || isAbroad(slug)) && PLACES[slug].filterValues.some((v) => v.length > 3 && r.includes(v))) || null;
 };
 
 export const NOIDA_CENTRE = {
@@ -463,7 +484,7 @@ export const PLACE_IMG = {
   delhi: "delhi", "uttar-pradesh": "noida", mumbai: "mumbai", bangalore: "bangalore", hyderabad: "hyderabad",
   chennai: "chennai", kolkata: "kolkata", jaipur: "jaipur", rajasthan: "rajasthan", gujarat: "gujarat",
   uttarakhand: "uttarakhand", "andhra-pradesh": "andhra-pradesh", maharashtra: "maharashtra", "west-bengal": "west-bengal",
-  chandigarh: "chandigarh", pune: "pune", ahmedabad: "ahmedabad", lucknow: "lucknow",
+  chandigarh: "chandigarh", pune: "pune", ahmedabad: "ahmedabad", lucknow: "lucknow", riyadh: "riyadh",
 };
 
 // Wikimedia Commons photos with known authors (listed under the tiles). The older city photos
@@ -474,5 +495,6 @@ export const PHOTO_CREDITS = [
   { what: "Sidi Saiyyed Mosque, Ahmedabad", by: "Bernard Gagnon", license: "CC BY-SA 3.0", file: "Sidi_Saiyyed_Mosque,_Ahmedabad.jpg" },
   { what: "Rumi Darwaza, Lucknow", by: "Sapna2020", license: "CC BY-SA 4.0", file: "Rumi_Darwaza,_Lucknow.jpg" },
   { what: "Cave 26, Ajanta (Maharashtra)", by: "Dey.sandip", license: "CC BY-SA 3.0", file: "Cave_26,_Ajanta.jpg" },
+  { what: "Riyadh skyline", by: "B.alotaby", license: "CC BY-SA 4.0", file: "Riyadh_Skyline.jpg" },
   { what: "Howrah Bridge (West Bengal)", by: "Bernard Gagnon", license: "CC BY-SA 3.0", file: "Howrah_Bridge_02.jpg" },
 ];

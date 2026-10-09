@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { PLACES, placePath, placeForRegion, isStateSlug, NOIDA_CENTRE } from "../../utils/places";
+import { PLACES, placePath, placeForRegion, isStateSlug, isAbroad, NOIDA_CENTRE } from "../../utils/places";
 import { GBP_URL } from "../about/visit-centre";
 
 // Home "Find a psychologist near you": the visitor's own state first (when we know it),
@@ -26,7 +26,7 @@ export default function FindByLocation({ stats = {}, total = 0, visitorState = n
   const n = near ? stats[near] : null;
   const slugs = Object.keys(PLACES);
   const tiled = new Set(TILES.map((t) => t.slug));
-  const ranked = [...slugs].filter((x) => !tiled.has(x)).sort((a, b) => (stats[b]?.count || 0) - (stats[a]?.count || 0) || PLACES[a].name.localeCompare(PLACES[b].name));
+  const ranked = [...slugs].filter((x) => !tiled.has(x)).sort((a, b) => isAbroad(b) - isAbroad(a) || (stats[b]?.count || 0) - (stats[a]?.count || 0) || PLACES[a].name.localeCompare(PLACES[b].name));
 
   return (
     <section className="fbl-section" aria-labelledby="fbl-h">
@@ -34,7 +34,7 @@ export default function FindByLocation({ stats = {}, total = 0, visitorState = n
       <div className="container">
         <div className="fbl-head">
           <h2 id="fbl-h">Find a psychologist near you</h2>
-          <p>Meet in person at our Noida centre, or talk online from anywhere in India.</p>
+          <p>Meet in person at our Noida centre, or talk online from anywhere in India — and abroad.</p>
         </div>
 
         <div className="fbl-cards">
@@ -92,9 +92,10 @@ export default function FindByLocation({ stats = {}, total = 0, visitorState = n
           {ranked.map((slug) => {
             const s = stats[slug];
             return (
-              <Link key={slug} href={placePath(slug)} className={`fbl-place${slug === near ? " on" : ""}`}>
-                <span>Psychologist in {PLACES[slug].name}</span>
-                <small>{s?.count ? `${s.count}${isStateSlug(slug) ? "" : " nearby"}` : "Online"}</small>
+              <Link key={slug} href={placePath(slug)} className={`fbl-place${slug === near ? " on" : ""}${isAbroad(slug) ? " abroad" : ""}`}>
+                {isAbroad(slug) && <i className="feather-globe" aria-hidden="true" />}
+                <span>Psychologist in {PLACES[slug].name}{isAbroad(slug) ? `, ${PLACES[slug].country}` : ""}</span>
+                <small>{s?.count ? `${s.count}${isStateSlug(slug) || isAbroad(slug) ? "" : " nearby"}` : "Online"}</small>
               </Link>
             );
           })}
@@ -148,6 +149,8 @@ const CSS = `
 .fbl-places { display: flex; flex-wrap: wrap; gap: 8px; }
 .fbl-place { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 8px 0 14px; border-radius: 999px; border: 1px solid #dbe5df; background: #fff; color: #26463a !important; font-size: 13.5px; font-weight: 600; text-decoration: none !important; white-space: nowrap; }
 .fbl-place small { font-size: 11px; font-weight: 800; color: #1e7a4c; background: #eef6f1; border-radius: 999px; padding: 2px 8px; }
+.fbl-place.abroad { border-color: #d4a24c; background: #fffaf0; }
+.fbl-place.abroad > i { color: #b7832f; font-size: 14px; margin-right: -2px; }
 .fbl-place:hover, .fbl-place.on { border-color: #1e7a4c; color: #1e7a4c !important; }
 .fbl-foot { margin-top: 16px; }
 .fbl-all { display: inline-flex; align-items: center; gap: 6px; color: #1e7a4c !important; font-weight: 800; font-size: 14.5px; text-decoration: none !important; }

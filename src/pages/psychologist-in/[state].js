@@ -73,12 +73,15 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
     stats.minFee ? `Sessions start from ₹${stats.minFee.toLocaleString("en-IN")}; each psychologist's fee is shown on their profile before booking.` : null,
     stats.rating ? `Average client rating ${stats.rating.avg}/5 from ${stats.rating.count} verified reviews.` : null,
     stats.languages?.length ? `Languages: ${stats.languages.join(", ")}.` : null,
-    "Online video and audio sessions are available anywhere in India; in-person sessions at the CYT centre in Sector 51, Noida (Mon–Sun, 9 AM–9 PM).",
+    config.abroad
+      ? `Online video and audio sessions are available from anywhere in ${config.country}; in-person sessions at the CYT centre in Sector 51, Noida (Mon–Sun, 9 AM–9 PM) for visits to India.`
+      : "Online video and audio sessions are available anywhere in India; in-person sessions at the CYT centre in Sector 51, Noida (Mon–Sun, 9 AM–9 PM).",
     "Every psychologist's qualifications and documents are checked by the CYT team before their profile goes live.",
   ].filter(Boolean);
   const [now, setNow] = React.useState(null);
   React.useEffect(() => { setNow(Date.now()); }, []);
-  const isCity = Boolean(config.relatedRegion) || !/pradesh|delhi|maharashtra|rajasthan|gujarat|chandigarh|uttarakhand|bengal/i.test(config.slug);
+  const isCity = isCityPage(config);
+  const where = config.abroad ? `anywhere in ${config.country}` : "anywhere in India";
   // therapists record their state, not their city — the directory search matches that
   const dirHref = `/view-all-therapist?search=${encodeURIComponent(config.filterValues[0])}`;
   const PAGE_URL = `https://www.chooseyourtherapist.in/psychologist-in/${config.slug}`;
@@ -95,7 +98,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
     "url": PAGE_URL,
     "provider": { "@type": "MedicalOrganization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist", "telephone": "+91-8077757951" },
     "areaServed": [
-      { "@type": isCity ? "City" : "State", "name": config.name },
+      { "@type": isCity || config.abroad ? "City" : "State", "name": config.name, ...(config.country ? { "containedInPlace": { "@type": "Country", "name": config.country } } : {}) },
       ...config.cities.map((c) => ({ "@type": "Place", "name": c })),
     ],
     "availableChannel": { "@type": "ServiceChannel", "serviceUrl": PAGE_URL, "name": "Online video / audio sessions" },
@@ -209,7 +212,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
           <ul className="pl-facts">
             {stats.count > 0
               ? <li><b>{stats.count}</b> based {isCity ? "nearby" : "here"}</li>
-              : <li><b>{stats.total || "50+"}</b> online, anywhere in India</li>}
+              : <li><b>{stats.total || "50+"}</b> online, {where}</li>}
             {stats.inPerson > 0 && <li><b>{stats.inPerson}</b> in person</li>}
             {stats.rating && <li><b>{stats.rating.avg} ★</b> {stats.rating.count} reviews</li>}
             {stats.minFee && <li>from <b>₹{stats.minFee.toLocaleString("en-IN")}</b></li>}
@@ -232,7 +235,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
             <p>
               {stats.count > 0
                 ? `${stats.count} verified psychologist${stats.count !== 1 ? "s" : ""} based ${isCity ? "near" : "in"} ${config.name}${stats.inPerson ? `, ${stats.inPerson} of them also in person` : ""} — and every one of our ${stats.total || ""} psychologists is available online.`
-                : `We don't have psychologists based in ${config.name} yet, but all ${stats.total || ""} of our verified psychologists see clients online — wherever you are in India.`}
+                : `We don't have psychologists based in ${config.name} yet, but all ${stats.total || ""} of our verified psychologists see clients online — ${where}.`}
             </p>
           </div>
           {therapists.length > 0 ? (
@@ -303,7 +306,8 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
   );
 }
 
-const isCityPage = (config) => Boolean(config.relatedRegion) || !/pradesh|delhi|maharashtra|rajasthan|gujarat|chandigarh|uttarakhand|bengal/i.test(config.slug);
+// abroad places read "based in Riyadh", not "near" (the psychologist really is there)
+const isCityPage = (config) => !config.abroad && (Boolean(config.relatedRegion) || !/pradesh|delhi|maharashtra|rajasthan|gujarat|chandigarh|uttarakhand|bengal/i.test(config.slug));
 
 // FAQ item: a native <details>, so the answer is in the HTML (crawlable) and works without JS
 function FaqItem({ q, a }) {
