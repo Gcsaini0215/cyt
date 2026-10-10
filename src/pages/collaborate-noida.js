@@ -36,6 +36,9 @@ const SPECIALITIES = [
   "Addiction", "Stress & burnout", "OCD", "Grief", "Autism / ADHD", "Sleep",
   "Women's health", "PCOS / hormonal", "Skin & hair", "Weight & diet",
 ];
+const PRACTICE_TYPES = [
+  ["clinic", "Private clinic"], ["hospital", "Hospital"], ["centre", "Therapy / wellness centre"], ["online", "Online only"], ["other", "Other"],
+];
 const LANGUAGES = ["Hindi", "English", "Punjabi", "Bengali", "Urdu", "Other"];
 const DAYS = [ // Monday first, as people think of a work week
   { d: 1, s: "Mon" }, { d: 2, s: "Tue" }, { d: 3, s: "Wed" }, { d: 4, s: "Thu" },
@@ -72,6 +75,7 @@ const FAQS = [
 
 const emptyForm = {
   name: "", phone: "", email: "", role: "", roleOther: "",
+  practiceType: "", practiceName: "", practiceLocation: "",
   qualification: "", registrationNo: "", experienceYears: "", specialisations: [], languages: ["Hindi", "English"],
   sessionFee: "", about: "", profileLink: "",
   availability: {}, flexibility: "some", agreedTerms: false,
@@ -193,6 +197,8 @@ export default function CollaborateNoida() {
     }
     if (s === 1) {
       if (!form.qualification.trim()) return "Please add your highest qualification.";
+      if (!form.practiceType) return "Please tell us where you practise at present.";
+      if (form.practiceType !== "online" && !form.practiceLocation.trim()) return "Please add the area / city where you practise now.";
     }
     if (s === 2) {
       if (!totalHours) return "Pick at least one day and hour that suits you.";
@@ -391,6 +397,23 @@ export default function CollaborateNoida() {
                     <label className="cn-f"><span>Highest qualification *</span>
                       <input value={form.qualification} onChange={(e) => set("qualification", e.target.value)} placeholder="M.Phil Clinical Psychology, AIIMS" maxLength={200} />
                     </label>
+                    <div className="cn-f"><span>Where do you practise at present? *</span>
+                      <div className="cn-chips">
+                        {PRACTICE_TYPES.map(([k, l]) => (
+                          <button type="button" key={k} className={`cn-chip sm ${form.practiceType === k ? "on" : ""}`} onClick={() => set("practiceType", k)}>{l}</button>
+                        ))}
+                      </div>
+                    </div>
+                    {form.practiceType && form.practiceType !== "online" && (
+                      <div className="cn-row">
+                        <label className="cn-f"><span>{form.practiceType === "hospital" ? "Hospital name" : form.practiceType === "clinic" ? "Clinic name" : "Name of the place"}</span>
+                          <input value={form.practiceName} onChange={(e) => set("practiceName", e.target.value)} placeholder={form.practiceType === "hospital" ? "e.g. Fortis Hospital" : "e.g. MindCare Clinic"} maxLength={120} />
+                        </label>
+                        <label className="cn-f"><span>Area / city *</span>
+                          <input value={form.practiceLocation} onChange={(e) => set("practiceLocation", e.target.value)} placeholder="e.g. Sector 62, Noida" maxLength={120} />
+                        </label>
+                      </div>
+                    )}
                     <div className="cn-row">
                       <label className="cn-f"><span>Registration no. (RCI / NMC / other)</span>
                         <input value={form.registrationNo} onChange={(e) => set("registrationNo", e.target.value)} placeholder="If applicable" maxLength={80} />
