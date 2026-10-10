@@ -7,90 +7,10 @@ import { isValidMail } from "../utils/validators";
 import { registerUrl, verifyOtpUrl } from "../utils/url";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
-import FormProgressBar from "../components/global/form-progressbar";
-import FormMessage from "../components/global/form-message";
+import PhotoHero from "../components/global/photo-hero";
+import OtpInput from "../components/global/otp-input";
 import { getDecodedToken, setToken } from "../utils/jwt";
 import { postData } from "../utils/actions";
-import { Box, Container, useMediaQuery } from "@mui/material";
-import { TypeAnimation } from "react-type-animation";
-import PersonIcon from "@mui/icons-material/Person";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-
-const bannerStyles = `
-.reg-client-banner {
-  position: relative;
-  background-image: url('/images/bg-image-12dabd.jpg');
-  background-size: cover;
-  background-position: center;
-  background-attachment: scroll;
-  padding: 60px 0 50px 0;
-  overflow: hidden;
-}
-.reg-client-banner::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 1;
-}
-.reg-client-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  padding: 8px 20px;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 24px;
-  border: 1px solid rgba(255,255,255,0.3);
-  backdrop-filter: blur(4px);
-}
-.reg-client-title {
-  font-size: 30px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1.3;
-  margin-bottom: 12px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-.reg-client-animated {
-  color: #4ade80;
-  display: inline-block;
-  min-width: 220px;
-  text-align: left;
-}
-.reg-client-subtitle {
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-.floating-icon {
-  position: absolute;
-  color: rgba(255,255,255,0.1);
-  z-index: 0;
-}
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
-}
-.float-1 { top: 20%; left: 10%; animation: float 6s ease-in-out infinite; }
-.float-2 { bottom: 20%; right: 10%; animation: float 8s ease-in-out infinite; }
-@media (max-width: 768px) {
-  .reg-client-banner { padding: 28px 0 24px 0; }
-  .reg-client-badge { display: none; }
-  .reg-client-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
-  .reg-client-animated { min-width: 100%; display: block; text-align: center; }
-  .reg-client-subtitle { font-size: 13px; padding: 0 16px; }
-  .floating-icon { display: none; }
-}
-`;
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -101,15 +21,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [otpView, setOtpView] = useState(false);
   const [success, setSuccess] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleSubmit = async () => {
     setError("");
@@ -135,10 +47,10 @@ export default function Register() {
     setLoading(false);
   };
 
-  const handleOtp = async () => {
+  const handleOtp = async (code = otp) => {
     setError("");
-    if (otp.length !== 6) return setError("Please enter valid OTP");
-    const value = { email, otp };
+    if (String(code).length !== 6) return setError("Please enter the 6-digit code");
+    const value = { email, otp: code };
     try {
       setLoading(true);
       const response = await postData(verifyOtpUrl, value);
@@ -189,180 +101,129 @@ export default function Register() {
         <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
 
-      {/* dangerouslySetInnerHTML, not a string child: React escapes text
-          children of <style> (' -> &#x27;) but browsers don't un-escape
-          inside <style>, so a string child both hydration-mismatches and
-          silently breaks any rule with a quote in it (the banner's
-          background-image url('...') included). */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        ${bannerStyles}
-        input:focus { outline: none !important; box-shadow: none !important; }
-        .form-control-custom {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 12px 15px;
-          width: 100%;
-          font-size: 14px;
-          box-sizing: border-box;
-          display: block;
-          transition: all 0.3s ease;
-        }
-        .form-control-custom:focus {
-          border-color: #22bb33;
-          box-shadow: 0 0 0 3px rgba(34,187,51,0.1) !important;
-        }
-      ` }} />
-
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <MyNavbar />
 
-      {/* Banner */}
-      <section className="reg-client-banner">
-        <PersonIcon className="floating-icon float-1" sx={{ fontSize: 100 }} />
-        <FavoriteIcon className="floating-icon float-2" sx={{ fontSize: 120 }} />
-        <Container maxWidth="lg">
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-            <div className="reg-client-badge">
-              <FavoriteIcon sx={{ fontSize: 18 }} />
-              <span>Your Well-being Matters</span>
-            </div>
-            <h1 className="reg-client-title">
-              Begin Your Journey to{" "}
-              <span className="reg-client-animated">
-                <TypeAnimation
-                  sequence={["Better Mental Health", 2000, "Inner Peace", 2000, "Healing & Growth", 2000]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                />
-              </span>
-            </h1>
-            <p className="reg-client-subtitle">
-              Connect with verified psychologists and psychiatrists across India. Book sessions, track your progress, and take control of your mental well-being.
-            </p>
-          </Box>
-        </Container>
-      </section>
+      <PhotoHero
+        images={["/assets/img/hero/in-therapy-session-1920.webp", "/assets/img/hero/in-consultation-1920.webp", "/assets/img/hero/in-calm-room-1920.webp"]}
+        pill={<><i className="feather-heart" aria-hidden="true" /> Your well-being matters</>}
+        title={<>Begin your journey to <span>feeling better</span></>}
+        lead="Create a free account to find verified psychologists, book sessions and keep everything in one place."
+        stats={[{ value: "Verified", label: "psychologists only" }, { value: "4.9 ★", label: "on Google" }, { value: "Free", label: "to sign up" }]}
+      />
 
-      {/* Form */}
-      <div style={{ background: '#f8fafc', padding: isMobile ? '24px 0' : '60px 0' }}>
-        <div className={isMobile ? "" : "container"}>
-          <div className="row justify-content-center" style={{ margin: 0 }}>
-            <div className="col-lg-5 col-md-8 col-12" style={{ padding: isMobile ? '0 12px' : undefined }}>
-              <div style={{ background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                {/* Green top bar */}
-                <div style={{ height: '4px', background: 'linear-gradient(90deg, #22bb33, #4ade80)' }} />
-
-                <div style={{ padding: isMobile ? '24px 16px 28px' : '32px 36px 36px' }}>
-                  <div style={{ marginBottom: '20px' }}>
-                    <h5 style={{ fontWeight: 800, fontSize: '22px', marginBottom: '4px' }}>
-                      {otpView ? 'Verify Your Email' : 'Create Your Account'}
-                    </h5>
-                    <p className="text-muted" style={{ fontSize: '13px', margin: 0 }}>
-                      {otpView
-                        ? `Enter the 6-digit code sent to ${email}`
-                        : 'Register to find and book verified therapists'}
-                    </p>
-                  </div>
-
-                  <FormMessage error={error} success={success} />
-
-                  {otpView ? (
-                    <div>
-                      {/* OTP input */}
-                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 16px', marginBottom: '16px' }}>
-                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', textAlign: 'center', margin: '0 0 12px' }}>Enter Verification Code</p>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="• • • • • •"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          maxLength={6}
-                          className="form-control-custom text-center"
-                          style={{ fontSize: isMobile ? '24px' : '30px', fontWeight: 800, letterSpacing: isMobile ? '10px' : '16px' }}
-                        />
-                      </div>
-
-                      <div className="form-submit-group">
-                        {loading ? <FormProgressBar /> : (
-                          <button onClick={handleOtp} className="rbt-btn btn-gradient radius-round w-100" style={{ minHeight: '50px' }}>
-                            Verify &amp; Continue
-                          </button>
-                        )}
-                      </div>
-
-                      <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '12px', textAlign: 'center' }}>
-                        Wrong email?{' '}
-                        <span
-                          onClick={() => { setOtpView(false); setOtp(""); setError(""); setSuccess(""); }}
-                          style={{ color: '#22bb33', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
-                        >
-                          Go back
-                        </span>
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="form-group mb-3">
-                        <input
-                          placeholder="Full Name"
-                          type="text"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="form-control-custom"
-                        />
-                      </div>
-                      <div className="form-group mb-3">
-                        <input
-                          placeholder="Email Address"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="form-control-custom"
-                        />
-                      </div>
-                      <div className="form-group mb-4">
-                        <input
-                          placeholder="Phone Number (10 digits)"
-                          type="text"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          className="form-control-custom"
-                        />
-                      </div>
-
-                      <div className="form-submit-group">
-                        {loading ? <FormProgressBar /> : (
-                          <button onClick={handleSubmit} className="rbt-btn btn-gradient radius-round w-100" style={{ minHeight: '50px' }}>
-                            Create Account
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ borderTop: '1px solid #f1f5f9', marginTop: '20px', paddingTop: '16px', textAlign: 'center' }}>
-                    <Link href="/login" style={{ fontSize: '13px', color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>
-                      Already have an account?{' '}
-                      <span style={{ color: '#22bb33' }}>Login here</span>
-                    </Link>
-                  </div>
-
-                  <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                    <Link href="/therapist-registration" style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'none' }}>
-                      Are you a therapist?{' '}
-                      <span style={{ color: '#22bb33', fontWeight: 600 }}>Join as a professional</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <main className="rg-page">
+        <div className="rg-shell phx-overlap">
+        {/* left: why sign up (desktop) / a slim strip under the form (phones) */}
+        <aside className="rg-side" aria-label="Why create an account">
+          <h2 className="rg-side-h">Your space to heal</h2>
+          <p className="rg-side-sub">One free account for everything on Choose Your Therapist.</p>
+          <ul>
+            {["Find verified psychologists near you or online", "Book, reschedule and pay in one place", "Your sessions, invoices and notes — private to you"]
+              .map((x) => <li key={x}><i className="feather-check" aria-hidden="true" /> {x}</li>)}
+          </ul>
+          <div className="rg-trust">
+            <span><i className="feather-lock" aria-hidden="true" /> Your details stay private</span>
+            <span><i className="feather-phone" aria-hidden="true" /> Need help? <a href="tel:+918077757951">+91 80777 57951</a></span>
           </div>
+        </aside>
+        <section className="rg-card" aria-labelledby="rg-h">
+          {otpView ? (
+            <>
+              <h2 id="rg-h">Check your inbox</h2>
+              <p className="rg-sub">We sent a 6-digit code to <b>{email}</b>. It may take a minute — check Spam or Promotions too.</p>
+              <div className="rg-otp">
+                <OtpInput autoFocus value={otp} onChange={setOtp} onComplete={(v) => handleOtp(v)} disabled={loading} />
+              </div>
+              {error && <p className="rg-err" role="alert">{error}</p>}
+              {success && !error && <p className="rg-ok" role="status">{success}</p>}
+              <button type="button" className="rg-btn" onClick={() => handleOtp()} disabled={loading}>
+                {loading ? "Checking…" : "Verify & continue"}
+              </button>
+              <button type="button" className="rg-ghost" disabled={loading}
+                onClick={() => { setOtpView(false); setOtp(""); setError(""); setSuccess(""); }}>
+                <i className="feather-edit-2" aria-hidden="true" /> Wrong email? Go back
+              </button>
+            </>
+          ) : (
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} noValidate>
+              <h2 id="rg-h">Create your account</h2>
+              <p className="rg-sub">Takes a minute — we'll send a code to confirm your email.</p>
+              <label className="rg-field"><span>Full name</span>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Riya Sharma" autoComplete="name" />
+              </label>
+              <label className="rg-field"><span>Email address</span>
+                <input type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+              </label>
+              <label className="rg-field"><span>Mobile number</span>
+                <div className="rg-phone"><em>+91</em>
+                  <input type="tel" inputMode="numeric" value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="98xxxxxxxx" autoComplete="tel-national" />
+                </div>
+              </label>
+              {error && <p className="rg-err" role="alert">{error}</p>}
+              <button type="submit" className="rg-btn" disabled={loading}>{loading ? "Creating…" : "Create account"}</button>
+            </form>
+          )}
+
+          <div className="rg-links">
+            <span>Already have an account? <Link href={`/login${router.query.next ? `?next=${encodeURIComponent(router.query.next)}` : ""}`}>Sign in</Link></span>
+            <span>Are you a therapist? <Link href="/therapist-registration">Join as a professional</Link></span>
+          </div>
+          <p className="rg-privacy"><i className="feather-shield" aria-hidden="true" /> We never share your details. <Link href="/privacy-policy">Privacy policy</Link></p>
+        </section>
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>
   );
 }
+
+const CSS = `
+body { background: #f4f7f5; }
+.rg-page { padding: 0 16px 56px; background: #f4f7f5; font-family: 'Inter', system-ui, sans-serif; }
+.rg-shell { max-width: 940px; margin-left: auto; margin-right: auto; display: grid; grid-template-columns: 1fr 1fr; border-radius: 24px; overflow: hidden; background: #fff; border: 1px solid #e3ebe6; box-shadow: 0 30px 60px -30px rgba(20,83,45,.35), 0 2px 8px rgba(20,83,45,.05); }
+.rg-side { position: relative; padding: 40px 38px; background: linear-gradient(170deg, #f6faf7 0%, #eef6f1 100%); border-right: 1px solid #e3ebe6; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.rg-side::after { content: ""; position: absolute; right: -90px; bottom: -90px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(30,122,76,.10), transparent 70%); pointer-events: none; }
+.rg-side .rg-side-h { font-size: 26px; font-weight: 800; margin: 6px 0 0; color: #0b1712; line-height: 1.2; letter-spacing: -.01em; }
+.rg-side-sub { margin: 0; padding: 0; color: #5b6b62; font-size: 15px; line-height: 1.6; }
+.rg-side ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.rg-side li { margin: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 15px; color: #26392f; line-height: 1.45; }
+.rg-side li::before { content: none; }
+.rg-side li i { width: 24px; height: 24px; border-radius: 50%; background: #dcf2e4; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.rg-trust { margin-top: auto; padding-top: 18px; border-top: 1px solid #dfe9e3; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5b6b62; }
+.rg-trust span { display: inline-flex; align-items: center; gap: 7px; }
+.rg-trust a { color: #1e7a4c; font-weight: 700; }
+.rg-card { padding: 34px 38px 26px; }
+.rg-card h2 { font-size: 24px; font-weight: 800; color: #0b1712; margin: 0 0 6px; letter-spacing: -.01em; }
+.rg-sub { margin: 0 0 20px; padding: 0; font-size: 14.5px; color: #64748b; line-height: 1.55; }
+.rg-sub b { color: #0b1712; word-break: break-all; }
+.rg-field { display: flex; flex-direction: column; gap: 6px; margin: 0 0 14px; }
+.rg-field > span { font-size: 13px; font-weight: 700; color: #334155; }
+.rg-field input { height: 50px; border-radius: 12px; border: 1.5px solid #dbe5df !important; background: #f8faf9 !important; padding: 0 14px !important; font-size: 16px; color: #0b1712; outline: none; box-shadow: none !important; width: 100%; }
+.rg-field input:focus { border-color: #1e7a4c !important; background: #fff !important; box-shadow: 0 0 0 3px #dcefe3 !important; }
+.rg-phone { display: flex; }
+.rg-phone em { font-style: normal; display: flex; align-items: center; padding: 0 12px; border: 1.5px solid #dbe5df; border-right: none; border-radius: 12px 0 0 12px; background: #f1f5f3; font-weight: 700; font-size: 14px; color: #64748b; }
+.rg-phone input { border-radius: 0 12px 12px 0 !important; }
+.rg-btn { width: 100%; height: 52px; border: none; border-radius: 12px; background: #1e7a4c; color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 4px; box-shadow: 0 10px 22px -12px rgba(30,122,76,.8); }
+.rg-btn:hover { background: #186640; }
+.rg-btn:disabled { opacity: .6; cursor: not-allowed; }
+.rg-ghost { width: 100%; height: 44px; margin-top: 10px; border-radius: 11px; border: 1.5px solid #dbe5df; background: #fff; color: #14532d; font-size: 13.5px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.rg-otp { margin: 0 0 14px; }
+.rg-err { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 13.5px; }
+.rg-ok { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: #eef6f1; border: 1px solid #cfe3d6; color: #14532d; font-size: 13.5px; }
+.rg-links { margin-top: 18px; display: flex; flex-direction: column; gap: 6px; align-items: center; font-size: 14px; color: #64748b; text-align: center; }
+.rg-links a { color: #1e7a4c; font-weight: 800; }
+.rg-privacy { margin: 18px 0 0; padding: 14px 0 0; border-top: 1px solid #eef2f0; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; color: #94a3b8; }
+.rg-privacy a { color: #64748b; font-weight: 700; }
+@media (max-width: 860px) {
+  .rg-page { padding: 0 12px 32px; }
+  .rg-shell { grid-template-columns: 1fr; border-radius: 20px; }
+  .rg-card { order: 1; padding: 22px 18px 18px; }
+  .rg-side { order: 2; padding: 20px 18px; gap: 10px; border-right: none; border-top: 1px solid #e3ebe6; }
+  .rg-side .rg-side-h { font-size: 20px; }
+  .rg-side-sub { display: none; }
+  .rg-side li { font-size: 14px; }
+  .rg-card h2 { font-size: 22px; }
+}
+`;

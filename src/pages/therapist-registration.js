@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import dynamic from "next/dynamic";
+import { createPortal } from "react-dom";
+import PackageModal, { PACKAGES, inr, perDay } from "../components/therapist/package-modal";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
-import RegistrationHeader from "../components/therapist/registration-header";
+import PhotoHero from "../components/global/photo-hero";
 import Footer from "../components/footer";
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
@@ -26,10 +28,13 @@ const DRAFT_KEY = "cyt_therapist_reg_draft";
 
 // The form is split into three short steps; each validates only its own fields.
 const FORM_STEPS = [
+  { label: "Package", icon: "feather-package" },
   { label: "Your details", icon: "feather-user" },
   { label: "Your practice", icon: "feather-briefcase" },
   { label: "Documents", icon: "feather-upload-cloud" },
 ];
+
+
 
 const JOURNEY_STEPS = [
   { label: "Application", icon: "feather-edit-3" },
@@ -42,7 +47,7 @@ const JOURNEY_STEPS = [
 function JourneySteps({ current, isMobile }) {
   const circleSize = isMobile ? 22 : 28;
   return (
-    <div style={{ background: "#fff", border: "1px solid #dbe3df", borderRadius: 4, borderTop: "3px solid #d4af37", padding: isMobile ? "10px 10px" : "12px 20px", marginBottom: 24 }}>
+    <div style={{ background: "#fff", border: "1px solid #e3ebe6", borderRadius: 16, padding: isMobile ? "12px 10px" : "16px 22px", marginBottom: 24, boxShadow: "0 24px 48px -28px rgba(20,83,45,.4), 0 2px 8px rgba(20,83,45,.05)" }}>
       <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center" }}>
         {JOURNEY_STEPS.map((s, i) => {
           const done = i < current;
@@ -96,17 +101,18 @@ const EMPTY = {
   officeAddress: "", officePincode: "", officeCity: "", officeState: "", officeLat: null, officeLng: null,
   resumeFile: null, qualificationCertFile: null, idCardFile: null, idCardType: "",
   agreeTerms: false,
+  preferredPlan: "", planTerms: false,
 };
 
 function validateStep(step, f) {
-  if (step === 1) {
+  if (step === 2) {
     const name = f.name.trim();
     if (!name || name.length < 3)                            return "Enter your full name (min 3 characters)";
     if (name.length > 30)                                    return "Name can be at most 30 characters";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))        return "Enter a valid email address";
     if (!/^\d{10}$/.test(f.phone))                           return "Enter a valid 10-digit phone number";
   }
-  if (step === 2) {
+  if (step === 3) {
     if (!f.profileType)                                      return "Select your profile type";
     if (!f.mode)                                             return "Select your preferred service mode";
     const words = wordCount(f.about);
@@ -119,18 +125,22 @@ function validateStep(step, f) {
       if (f.officeLat == null || f.officeLng == null)        return "Place your clinic's pin on the map";
     }
   }
-  if (step === 3) {
+  if (step === 4) {
     if (!f.resumeFile)                                       return "Upload your resume";
     if (!f.qualificationCertFile)                            return "Upload your highest qualification certificate";
     if (!f.idCardType)                                       return "Select your ID card type";
     if (!f.idCardFile)                                       return "Upload your ID card";
     if (!f.agreeTerms)                                       return "Please agree to the terms and conditions";
   }
+  if (step === 1) {
+    if (!f.preferredPlan)                                    return "Choose a package for your profile";
+    if (!f.planTerms)                                        return "Please confirm you have read the listing charge and the 70:30 split";
+  }
   return null;
 }
 
 function validate(f) {
-  return validateStep(1, f) || validateStep(2, f) || validateStep(3, f);
+  return validateStep(1, f) || validateStep(2, f) || validateStep(3, f) || validateStep(4, f);
 }
 
 // small thumbnail for image uploads (object URL released when the file changes)
@@ -155,12 +165,25 @@ const STAGE_INFO = {
 
 const STAGE_TO_STEP = { email_pending: 0, review: 1, approved: 2 };
 
-function StatusCheckBox({ isMobile, onResult }) {
+/* "Already applied? Check status" — a text link that opens a small centred modal */
+function StatusCheckLink({ onResult }) {
   const [open, setOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState(null);
   const [err, setErr] = React.useState("");
+  const [packagesOpen, setPackagesOpen] = React.useState(false);
+
+  const close = () => { setOpen(false); setResult(null); setErr(""); };
+
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") close(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [open]);
 
   const check = async () => {
     setErr(""); setResult(null);
@@ -176,73 +199,45 @@ function StatusCheckBox({ isMobile, onResult }) {
     setLoading(false);
   };
 
-  const boxStyle = {
-    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.25)",
-    borderRadius: 3, padding: "10px 12px", width: isMobile ? "100%" : 320, flexShrink: 0,
-  };
-
-  if (!open) {
-    return (
-      <button type="button" onClick={() => setOpen(true)} style={{
-        ...boxStyle, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-        color: "#fff", fontSize: 12.5, fontWeight: 700, justifyContent: isMobile ? "center" : "flex-start",
-      }}>
-        <i className="feather-search" style={{ fontSize: 13 }}></i> Already applied? Check status
-      </button>
-    );
-  }
+  const info = result ? (STAGE_INFO[result.stage] || STAGE_INFO.review) : null;
 
   return (
-    <div style={boxStyle}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 10.5, fontWeight: 800, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 0.6 }}>Check Application Status</span>
-        <button type="button" onClick={() => { setOpen(false); setResult(null); setErr(""); }} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-          <i className="feather-x" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}></i>
-        </button>
-      </div>
-      <input
-        type="email" value={email} placeholder="you@example.com"
-        onChange={e => { setEmail(e.target.value); setErr(""); setResult(null); }}
-        onKeyDown={e => e.key === "Enter" && check()}
-        style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.95)", border: "none", borderRadius: 3, padding: "8px 10px", fontSize: 12.5, outline: "none", fontFamily: "inherit", marginBottom: 8 }}
-      />
-      <button type="button" onClick={check} disabled={loading} style={{
-        width: "100%", background: "#d4af37", border: "none", borderRadius: 3, padding: "8px 12px",
-        color: "#0f3d24", fontWeight: 800, fontSize: 12, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1,
-      }}>
-        {loading ? "Checking…" : "Check Status"}
+    <>
+      <button type="button" className="trs-link" onClick={() => setOpen(true)}>
+        <i className="feather-search" aria-hidden="true" /> Already applied? <u>Check status</u>
       </button>
-
-      <Link href={email ? `/therapist-payment?email=${encodeURIComponent(email)}` : "/therapist-payment"} style={{
-        width: "100%", marginTop: 8, background: "transparent", border: "1.5px solid rgba(255,255,255,0.35)", borderRadius: 3, padding: "8px 12px",
-        color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-        textDecoration: "none", boxSizing: "border-box",
-      }}>
-        <i className="feather-credit-card" style={{ fontSize: 12 }}></i> Make Payment
-      </Link>
-
-      {err && (
-        <p style={{ fontSize: 11, color: "#fca5a5", margin: "8px 0 0", fontWeight: 600 }}>{err}</p>
-      )}
-
-      {result && (() => {
-        const info = STAGE_INFO[result.stage] || STAGE_INFO.review;
-        return (
-          <div style={{ marginTop: 10, background: "rgba(255,255,255,0.1)", border: `1px solid ${info.color}55`, borderRadius: 3, padding: "9px 10px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
-              <i className={info.icon} style={{ fontSize: 12, color: info.color }}></i>
-              <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>{info.label}</span>
+      {open && createPortal(
+        <div className="sc-bg" onClick={close}>
+          <div className="sc-modal" role="dialog" aria-modal="true" aria-labelledby="sc-title" onClick={(e) => e.stopPropagation()}>
+            <div className="sc-head">
+              <h3 id="sc-title">Check application status</h3>
+              <button type="button" className="sc-x" onClick={close} aria-label="Close"><i className="feather-x" /></button>
             </div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", margin: 0, lineHeight: 1.5 }}>{info.text}</p>
-            {result.appliedOn && (
-              <p style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", margin: "6px 0 0" }}>
-                Applied on {new Date(result.appliedOn).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-              </p>
+            <p className="sc-sub">Enter the email you applied with.</p>
+            <form onSubmit={(e) => { e.preventDefault(); check(); }} noValidate>
+              <input type="email" inputMode="email" autoComplete="email" autoFocus value={email} placeholder="you@example.com"
+                onChange={(e) => { setEmail(e.target.value); setErr(""); setResult(null); }} className="sc-input" />
+              {err && <p className="sc-err" role="alert">{err}</p>}
+              <button type="submit" className="sc-btn" disabled={loading}>{loading ? "Checking…" : "Check status"}</button>
+            </form>
+            {info && (
+              <div className="sc-result" style={{ borderColor: `${info.color}88`, background: `${info.color}14` }}>
+                <b><i className={info.icon} style={{ color: info.color }} /> {info.label}</b>
+                <p>{info.text}</p>
+                {result.appliedOn && (
+                  <small>Applied on {new Date(result.appliedOn).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</small>
+                )}
+              </div>
             )}
+            <button type="button" className="sc-pay" onClick={() => { setOpen(false); setPackagesOpen(true); }}>
+              <i className="feather-package" aria-hidden="true" /> Packages — subscribe, renew or see expiry
+            </button>
           </div>
-        );
-      })()}
-    </div>
+        </div>,
+        document.body
+      )}
+      {packagesOpen && <PackageModal initialEmail={email} onClose={() => setPackagesOpen(false)} />}
+    </>
   );
 }
 
@@ -328,9 +323,9 @@ export default function TherapistRegistration() {
   // Keep the draft up to date while they type
   useEffect(() => {
     if (submitted) return;
-    const { name, email, phone, profileType, mode, about, officeAddress, officePincode, officeCity, officeState, officeLat, officeLng, idCardType } = form;
+    const { name, email, phone, profileType, mode, about, officeAddress, officePincode, officeCity, officeState, officeLat, officeLng, idCardType, preferredPlan } = form;
     if (!name && !email && !phone) return;
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ name, email, phone, profileType, mode, about, officeAddress, officePincode, officeCity, officeState, officeLat, officeLng, idCardType })); } catch { /* ignore */ }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ name, email, phone, profileType, mode, about, officeAddress, officePincode, officeCity, officeState, officeLat, officeLng, idCardType, preferredPlan })); } catch { /* ignore */ }
   }, [form, submitted]);
 
   const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ } };
@@ -356,7 +351,7 @@ export default function TherapistRegistration() {
     setError("");
     const err = validateStep(step, form);
     if (err) { setError(err); scrollToForm(); return; }
-    if (step === 1) {
+    if (step === 2) {
       // tell them now (not after uploading documents) if this email is already registered
       setLoading(true);
       try {
@@ -367,7 +362,7 @@ export default function TherapistRegistration() {
       }
       setLoading(false);
     }
-    setStep((n) => Math.min(3, n + 1));
+    setStep((n) => Math.min(4, n + 1));
     scrollToForm();
   };
   const goBack = () => { setError(""); setStep((n) => Math.max(1, n - 1)); scrollToForm(); };
@@ -448,6 +443,10 @@ export default function TherapistRegistration() {
     data.append("type", form.profileType);
     data.append("mode", form.mode);
     data.append("about", form.about.trim());
+    if (form.preferredPlan && form.planTerms) {
+      data.append("preferredPlan", form.preferredPlan);
+      data.append("planTermsAccepted", "true");
+    }
     if (needsAddress(form.mode)) {
       data.append("officeAddress", form.officeAddress.trim());
       data.append("officePincode", form.officePincode);
@@ -568,13 +567,32 @@ export default function TherapistRegistration() {
         .tr-bar i { display: block; height: 100%; background: linear-gradient(90deg, #22a35a, #166534); border-radius: 999px; transition: width .35s ease; }
         .tr-note { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
         .tr-note button { margin-left: auto; background: none; border: none; color: #1d4ed8; font-weight: 800; text-decoration: underline; cursor: pointer; font-size: 13px; }
-        .tr-ready { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
-        .tr-ready p { margin: 0 0 8px; font-size: 13.5px; color: #14532d; font-weight: 600; line-height: 1.5; }
-        .tr-ready p i { margin-right: 6px; vertical-align: -1px; }
-        .tr-ready ul { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
-        .tr-ready li { font-size: 13px; color: #166534; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        .tr-ready li span { font-weight: 500; color: #4d7c5f; }
-        .tr-ready small { font-size: 12px; color: #4d7c5f; }
+        .pk-intro { margin: 0 0 16px; font-size: 13.5px; color: #475569; line-height: 1.6; }
+        .pk-intro b { color: #14532d; }
+        .pk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .pk-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; padding: 18px 16px 16px; border-radius: 14px; border: 1.5px solid #dbe5df; background: #fff; cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s, background .15s; }
+        .pk-card:hover { border-color: #9fcdb2; }
+        .pk-card.on { border-color: #1e7a4c; background: #f3faf6; box-shadow: 0 0 0 3px #dcefe3; }
+        .pk-tag { position: absolute; top: -10px; left: 14px; padding: 2px 9px; border-radius: 999px; background: #d4af37; color: #3a2d05; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; }
+        .pk-radio { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1; background: #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
+        .pk-card.on .pk-radio { border-color: #1e7a4c; background: #1e7a4c; }
+        .pk-label { font-size: 13px; font-weight: 700; color: #475569; }
+        .pk-price { font-size: 26px; font-weight: 900; color: #0f3d24; line-height: 1.15; }
+        .pk-day { display: inline-block; margin: 3px 0 2px; padding: 2px 8px; border-radius: 999px; background: #e8f5ee; color: #166534; font-size: 12px; font-weight: 800; }
+        .pk-per { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+        .pk-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+        .pk-card li { margin: 0; display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; color: #334155; line-height: 1.4; }
+        .pk-card li::before { content: none; }
+        .pk-card li i { color: #1e7a4c; font-size: 12px; margin-top: 2px; }
+        .pk-terms { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: #f8faf9; border: 1px solid #e3ebe6; font-size: 13px; color: #334155; }
+        .pk-terms > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #4b5d53; margin-bottom: 6px; }
+        .pk-terms ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; }
+        .pk-terms li { margin: 0; }
+        .pk-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid #cbd5c9; background: #fafafa; cursor: pointer; font-size: 13.5px; color: #334155; line-height: 1.55; }
+        .pk-check.on { border-color: #86efac; background: #f0fdf4; color: #166534; }
+        .pk-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: #1e7a4c; position: static; opacity: 1; }
+        @media (max-width: 1180px) and (min-width: 900px) { .pk-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) { .pk-grid { grid-template-columns: 1fr; gap: 14px; } }
         .tr-hint { font-size: 12px; color: #64748b; margin: 8px 0 0; display: flex; align-items: center; gap: 6px; }
         .tr-chips { display: flex; flex-wrap: wrap; gap: 8px; }
         .tr-chip { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 999px; border: 1.5px solid #cbd5c9; background: #fff; color: #334155; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
@@ -610,25 +628,80 @@ export default function TherapistRegistration() {
           .tr-step-dot { width: 24px; height: 24px; font-size: 11px; }
           .tr-step { gap: 5px; }
         }
+        .trs-shell { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 340px minmax(0, 1fr); border: 1px solid #e3ebe6; border-radius: 24px; overflow: clip; background: #fff; box-shadow: 0 30px 60px -30px rgba(20,83,45,.35), 0 2px 8px rgba(20,83,45,.05); }
+        .trs-side { background: linear-gradient(170deg, #f6faf7 0%, #eef6f1 100%); border-right: 1px solid #e3ebe6; }
+        .trs-side-in { position: sticky; top: 96px; padding: 32px 28px; display: flex; flex-direction: column; gap: 16px; }
+        .trs-h { font-size: 23px; font-weight: 800; color: #0b1712; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
+        .trs-sub { margin: 0; font-size: 14.5px; color: #5b6b62; line-height: 1.6; }
+        .trs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+        .trs-list li { margin: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; color: #26392f; line-height: 1.45; }
+        .trs-list li::before { content: none; }
+        .trs-list li i { width: 22px; height: 22px; border-radius: 50%; background: #dcf2e4; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+        .trs-box { display: flex; flex-direction: column; gap: 7px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #e3ebe6; font-size: 13.5px; color: #33463b; }
+        .trs-box b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #4b5d53; }
+        .trs-box span { display: flex; align-items: center; gap: 8px; }
+        .trs-box i { color: #1e7a4c; }
+        .trs-help { display: flex; flex-direction: column; gap: 6px; padding-top: 14px; border-top: 1px solid #dfe9e3; font-size: 13px; color: #5b6b62; }
+        .trs-help span { display: flex; align-items: center; gap: 7px; }
+        .trs-help a { color: #1e7a4c; font-weight: 700; }
+        .trs-main { min-width: 0; }
+        .trs-link { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 0; border: none; background: none; color: #1e7a4c; font-size: 14px; font-weight: 700; cursor: pointer; text-align: left; }
+        .trs-link u { text-underline-offset: 3px; }
+        .trs-link:hover { color: #14532d; }
+        .sc-bg { position: fixed; inset: 0; z-index: 100000; background: rgba(10,30,20,.35); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px; font-family: 'Inter', system-ui, sans-serif; }
+        .sc-modal { width: 100%; max-width: 420px; max-height: calc(100dvh - 32px); overflow-y: auto; background: #fff; border-radius: 20px; padding: 22px 22px 18px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.4); }
+        .sc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .sc-head h3 { margin: 0; font-size: 19px; font-weight: 800; color: #0b1712; }
+        .sc-x { width: 34px; height: 34px; border-radius: 10px; border: 1px solid #dbe5df; background: #fff; color: #0b1712; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+        .sc-sub { margin: 6px 0 14px; font-size: 14px; color: #64748b; }
+        .sc-input { width: 100%; height: 48px; border-radius: 12px; border: 1.5px solid #dbe5df !important; background: #f8faf9 !important; padding: 0 14px !important; font-size: 15px; outline: none; box-shadow: none !important; }
+        .sc-input:focus { border-color: #1e7a4c !important; background: #fff !important; box-shadow: 0 0 0 3px #dcefe3 !important; }
+        .sc-err { margin: 8px 0 0; font-size: 13px; color: #b91c1c; font-weight: 600; }
+        .sc-btn { width: 100%; height: 48px; margin-top: 10px; border: none; border-radius: 12px; background: #1e7a4c; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
+        .sc-btn:disabled { opacity: .6; cursor: wait; }
+        .sc-result { margin-top: 14px; padding: 12px 14px; border-radius: 12px; border: 1px solid; }
+        .sc-result b { display: flex; align-items: center; gap: 7px; font-size: 14.5px; color: #0b1712; }
+        .sc-result p { margin: 4px 0 0; font-size: 13.5px; color: #475569; line-height: 1.5; }
+        .sc-result small { display: block; margin-top: 6px; font-size: 12px; color: #64748b; }
+        .sc-pay { width: 100%; background: #fff; cursor: pointer; font-family: inherit; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 7px; height: 42px; border-radius: 11px; border: 1.5px solid #dbe5df; color: #14532d !important; font-size: 13.5px; font-weight: 700; text-decoration: none !important; }
+        .sc-pay:hover { background: #f0fdf4; }
+        @media (max-width: 1100px) { .trs-shell { grid-template-columns: 290px minmax(0, 1fr); } .trs-side-in { padding: 26px 22px; } }
+        /* iPad portrait & phones: form first, the info panel becomes a strip under it */
+        @media (max-width: 899px) {
+          .trs-shell { grid-template-columns: 1fr; border-radius: 20px; }
+          .trs-main { order: 1; }
+          .trs-side { order: 2; border-right: none; border-top: 1px solid #e3ebe6; }
+          .trs-side-in { position: static; padding: 20px 18px; gap: 12px; }
+          .trs-h { font-size: 19px; }
+          .trs-sub { display: none; }
+              }
         .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
       ` }} />
 
       <MyNavbar />
-      <RegistrationHeader />
+      <PhotoHero
+        images={["/assets/img/hero/in-consultation-1920.webp", "/assets/img/hero/in-therapy-session-1920.webp", "/assets/img/hero/in-calm-room-1920.webp"]}
+        pill={<><i className="feather-award" aria-hidden="true" /> Be a preferred therapist</>}
+        title={<>Build your practice — <span>list yourself on CYT</span></>}
+        lead="Reach clients looking for support, show your specialisations, and offer online or in-person sessions."
+        stats={[{ value: "5000+", label: "sessions booked" }, { value: "Verified", label: "profiles only" }, { value: "5 min", label: "to apply" }]}
+      />
 
       {/* Full-bleed white backdrop — Footer.js forces <body> dark site-wide,
           so without this the margins around the container (and the gap
           before Footer actually starts) would show that dark green through. */}
       <div style={{ background: "#fff" }}>
-      <div className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <JourneySteps current={checkedStage ? (STAGE_TO_STEP[checkedStage] ?? (submitted ? 1 : 0)) : (submitted ? 1 : 0)} isMobile={isMobile} />
-        </div>
+      <div className="container" style={{ padding: isMobile ? "0 16px 32px" : "0 24px 48px" }}>
+        {(checkedStage || submitted) && (
+          <div className="phx-overlap tr-journey-lift" style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <JourneySteps current={checkedStage ? (STAGE_TO_STEP[checkedStage] ?? (submitted ? 1 : 0)) : (submitted ? 1 : 0)} isMobile={isMobile} />
+          </div>
+        )}
         {submitted ? (
           <SuccessScreen name={form.name} email={registeredEmail} />
         ) : otpStep ? (
           /* ── OTP VERIFICATION ── */
-          <div style={{ maxWidth: 480, margin: "0 auto" }}>
+          <div className={checkedStage ? "" : "phx-overlap"} style={{ maxWidth: 480, margin: "0 auto" }}>
             <div className="af-doc">
               <div className="af-titlebar">
                 <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
@@ -680,26 +753,33 @@ export default function TherapistRegistration() {
             </div>
           </div>
         ) : (
-          <div style={{
-            maxWidth: 860, margin: "0 auto",
-            background: "#fff",
-            padding: isMobile ? "20px 16px 24px" : "32px 36px 36px",
-          }}>
-            <div className="af-doc" style={{ marginBottom: 24 }}>
-              <div className="af-titlebar" style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "flex-start", justifyContent: "space-between", gap: isMobile ? 14 : 20 }}>
-                <div>
-                  <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
-                  <h1 className="af-titlebar-title">Therapist Registration Form</h1>
-                  <p className="af-titlebar-sub">Join our network of verified mental health professionals</p>
-                </div>
-                <StatusCheckBox isMobile={isMobile} onResult={(data) => setCheckedStage(data?.stage || null)} />
+          <div className={`trs-shell ${checkedStage ? "" : "phx-overlap"}`}>
+          <aside className="trs-side" aria-label="Why join Choose Your Therapist">
+            <div className="trs-side-in">
+              <h2 className="trs-h">Grow your practice with CYT</h2>
+              <p className="trs-sub">Join verified psychologists and psychiatrists reaching clients across India.</p>
+              <StatusCheckLink onResult={(data) => setCheckedStage(data?.stage || null)} />
+              <ul className="trs-list">
+                {["A verified profile in our therapist directory", "Clients book you online or in person", "Bookings, reminders and payments handled for you"]
+                  .map((x) => <li key={x}><i className="feather-check" aria-hidden="true" /> {x}</li>)}
+              </ul>
+              <div className="trs-box">
+                <b>Keep these ready</b>
+                <span><i className="feather-file-text" aria-hidden="true" /> Resume / CV (PDF or DOC)</span>
+                <span><i className="feather-award" aria-hidden="true" /> Degree or diploma certificate</span>
+                <span><i className="feather-credit-card" aria-hidden="true" /> Aadhaar, PAN or another photo ID</span>
               </div>
-              <div className="af-notice">
-                <i className="feather-alert-circle" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
-                <span>Please read all instructions carefully before filling this form. Fields marked <strong>*</strong> are mandatory. Applications with incomplete or unclear documents may be rejected.</span>
+              <div className="trs-help">
+                <span><i className="feather-clock" aria-hidden="true" /> Takes about 5 minutes</span>
+                <span><i className="feather-save" aria-hidden="true" /> Progress is saved on this device — finish later anytime</span>
+                <span><i className="feather-phone" aria-hidden="true" /> Need help? <a href="tel:+918077757951">+91 80777 57951</a></span>
               </div>
             </div>
-
+          </aside>
+          <div className="trs-main" style={{
+            background: "#fff",
+            padding: isMobile ? "20px 16px 24px" : "30px 32px 34px",
+          }}>
             {reviewing ? (
               /* ── REVIEW SCREEN ── */
               <div>
@@ -722,6 +802,10 @@ export default function TherapistRegistration() {
                   ]},
                   { title: "About You", icon: "feather-align-left", color: "#8b5cf6", rows: [
                     [`About (${wordCount(form.about)} words)`, form.about.trim()],
+                  ]},
+                  { title: "Package", icon: "feather-package", color: "#1e7a4c", rows: [
+                    ["Chosen package", (() => { const pk = PACKAGES.find((x) => x.id === form.preferredPlan); return pk ? `${pk.label} — ${inr(pk.amount)} (pay after approval)` : "—"; })()],
+                    ["Listing & bookings", "Listing charge accepted · 70% of every booking to you, 30% to CYT"],
                   ]},
                   ...(needsAddress(form.mode) ? [{ title: "Practice Location", icon: "feather-map-pin", color: "#f59e0b", rows: [
                     ["Address", `${form.officeAddress.trim()}, ${form.officeCity.trim()}, ${form.officeState.trim()} – ${form.officePincode}`],
@@ -786,10 +870,10 @@ export default function TherapistRegistration() {
               </div>
             ) : (
               /* ── MAIN FORM: 3 short steps ── */
-              <form ref={formTopRef} noValidate onSubmit={(e) => { e.preventDefault(); if (step < 3) goNext(); else handleReview(e); }}>
+              <form ref={formTopRef} noValidate onSubmit={(e) => { e.preventDefault(); if (step < 4) goNext(); else handleReview(e); }}>
 
                 {/* step progress */}
-                <div className="tr-steps" aria-label={`Step ${step} of 3`}>
+                <div className="tr-steps" aria-label={`Step ${step} of 4`}>
                   {FORM_STEPS.map((st, i) => {
                     const n = i + 1;
                     const state = n < step ? "done" : n === step ? "on" : "";
@@ -818,20 +902,10 @@ export default function TherapistRegistration() {
                 )}
 
                 {/* ── Step 1: details ── */}
-                {step === 1 && (
+                {step === 2 && (
                   <>
-                    <div className="tr-ready">
-                      <p><i className="feather-clock" /> Takes about <b>5 minutes</b>. Keep these ready:</p>
-                      <ul>
-                        <li><i className="feather-file-text" /> Resume / CV <span>(PDF or DOC)</span></li>
-                        <li><i className="feather-award" /> Degree or diploma certificate</li>
-                        <li><i className="feather-credit-card" /> Aadhaar, PAN or another photo ID</li>
-                      </ul>
-                      <small>Your progress is saved on this device — you can come back and finish later.</small>
-                    </div>
-
                     <div className="section-card">
-                      <div style={sectionHead}><span style={sectionNum}>01</span> Your details</div>
+                      <div style={sectionHead}><span style={sectionNum}>02</span> Your details</div>
                       <div style={gridTwo}>
                         <div style={fieldWrap}>
                           <label style={labelStyle} htmlFor="tr-name">Full Name <span className="req">*</span></label>
@@ -853,9 +927,9 @@ export default function TherapistRegistration() {
                 )}
 
                 {/* ── Step 2: practice ── */}
-                {step === 2 && (
+                {step === 3 && (
                   <div className="section-card">
-                    <div style={sectionHead}><span style={sectionNum}>02</span> Your practice</div>
+                    <div style={sectionHead}><span style={sectionNum}>03</span> Your practice</div>
 
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Profile Type <span className="req">*</span></label>
@@ -944,9 +1018,9 @@ export default function TherapistRegistration() {
                 )}
 
                 {/* ── Step 3: documents ── */}
-                {step === 3 && (
+                {step === 4 && (
                   <div className="section-card">
-                    <div style={sectionHead}><span style={sectionNum}>03</span> Verification documents</div>
+                    <div style={sectionHead}><span style={sectionNum}>04</span> Verification documents</div>
                     <p style={{ fontSize: 13, color: "#64748b", marginTop: -8, marginBottom: 18 }}>
                       We verify every therapist before listing them. Clear photos or PDFs work best — each file up to {MAX_FILE_MB}MB.
                     </p>
@@ -1050,6 +1124,44 @@ export default function TherapistRegistration() {
                   </div>
                 )}
 
+                {/* ── Step 4: package ── */}
+                {step === 1 && (
+                  <div className="section-card">
+                    <div style={sectionHead}><span style={sectionNum}>01</span> Choose a package for your profile</div>
+                    <p className="pk-intro">Pick how long you&rsquo;d like your profile listed. <b>You pay only after your profile is approved</b> — nothing is charged now.</p>
+                    <div className="pk-grid" role="radiogroup" aria-label="Packages">
+                      {PACKAGES.map((pk) => {
+                        const on = form.preferredPlan === pk.id;
+                        return (
+                          <button type="button" key={pk.id} role="radio" aria-checked={on} className={`pk-card ${on ? "on" : ""}`} onClick={() => set("preferredPlan", pk.id)}>
+                            {pk.tag && <span className="pk-tag">{pk.tag}</span>}
+                            <span className="pk-radio">{on && <i className="feather-check" />}</span>
+                            <span className="pk-label">{pk.label}</span>
+                            <span className="pk-price">{inr(pk.amount)}</span>
+                            <span className="pk-day">{perDay(pk)}</span>
+                            <span className="pk-per">{pk.per}</span>
+                            <ul>{pk.points.map((pt) => <li key={pt}><i className="feather-check" /> {pt}</li>)}</ul>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="pk-terms">
+                      <b>How it works</b>
+                      <ul>
+                        <li><b>Listing charge:</b> the package above is a fee for listing your profile on Choose Your Therapist for the chosen period.</li>
+                        <li><b>70:30 on every booking:</b> for each session booked through CYT, <b>70%</b> of the session fee goes to you and <b>30%</b> to CYT.</li>
+                        <li>Packages are for listing and visibility. Bookings depend on your profile, availability and client demand.</li>
+                      </ul>
+                    </div>
+
+                    <label className={`pk-check ${form.planTerms ? "on" : ""}`}>
+                      <input type="checkbox" checked={form.planTerms} onChange={(e) => set("planTerms", e.target.checked)} />
+                      <span>Yes, I have read and agree to the <b>website listing charge</b> and the <b>70:30 split for every booking</b>.</span>
+                    </label>
+                  </div>
+                )}
+
                 {/* ── navigation ── */}
                 <div className="tr-nav">
                   {step > 1 && (
@@ -1060,7 +1172,7 @@ export default function TherapistRegistration() {
                   <button type="submit" className="tr-next" disabled={loading}>
                     {loading ? (
                       <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span> Checking…</>
-                    ) : step < 3 ? (
+                    ) : step < 4 ? (
                       <>Continue <i className="feather-arrow-right" /></>
                     ) : (
                       <><i className="feather-eye" /> Review Application</>
@@ -1075,6 +1187,7 @@ export default function TherapistRegistration() {
                 </div>
               </form>
             )}
+          </div>
           </div>
         )}
       </div>

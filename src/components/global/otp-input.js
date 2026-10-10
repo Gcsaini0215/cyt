@@ -6,20 +6,24 @@ const boxStyle = {
   width: "100%",
   minWidth: 0,
   flex: 1,
+  height: 56,
   textAlign: "center",
-  fontSize: 22,
-  fontWeight: 700,
-  padding: "12px 0",
-  background: "#fff",
-  border: "1px solid #e2e8f0",
-  borderRadius: 8,
+  fontSize: 24,
+  fontWeight: 800,
+  color: "#0b1712",
+  padding: 0,
+  background: "#f8faf9",
+  border: "1.5px solid #dbe5df",
+  borderRadius: 12,
   boxSizing: "border-box",
-  transition: "all 0.2s ease",
+  outline: "none",
+  transition: "border-color .15s ease, box-shadow .15s ease, background .15s ease",
 };
 
 const boxFocusStyle = {
-  borderColor: "#22bb33",
-  boxShadow: "0 0 0 3px rgba(34, 187, 51, 0.12)",
+  borderColor: "#1e7a4c",
+  background: "#fff",
+  boxShadow: "0 0 0 3px #dcefe3",
 };
 
 /**
@@ -27,7 +31,9 @@ const boxFocusStyle = {
  *  - auto-focus first box (autoFocus)
  *  - type to advance, Backspace to go back, Arrow keys to move
  *  - paste a full code into any box and it distributes across all boxes
- *  - digits only, mobile numeric keypad, browser one-time-code autofill
+ *  - autofill (iOS "From Mail", Android one-time-code) can drop the whole code into one
+ *    box — so boxes don't cap input at one character; extra digits flow into the next boxes
+ *  - digits only, mobile numeric keypad
  *
  * Props: value (string), onChange(str), onComplete(str), disabled, autoFocus
  */
@@ -39,6 +45,7 @@ export default function OtpInput({
   autoFocus = false,
 }) {
   const inputsRef = useRef([]);
+  const lastCompleted = useRef("");
 
   const digits = value.replace(/\D/g, "").slice(0, LEN).split("");
   while (digits.length < LEN) digits.push("");
@@ -52,7 +59,12 @@ export default function OtpInput({
   const emit = (arr) => {
     const next = arr.join("").replace(/\D/g, "").slice(0, LEN);
     onChange && onChange(next);
-    if (next.length === LEN) onComplete && onComplete(next);
+    // fire once per complete code (a paste + its change event must not submit twice)
+    if (next.length === LEN && next !== lastCompleted.current) {
+      lastCompleted.current = next;
+      onComplete && onComplete(next);
+    }
+    if (next.length < LEN) lastCompleted.current = "";
   };
 
   const focusAt = (i) => {
@@ -61,7 +73,7 @@ export default function OtpInput({
   };
 
   const handleChange = (i, e) => {
-    const raw = e.target.value.replace(/\D/g, "");
+    let raw = e.target.value.replace(/\D/g, "");
     const arr = [...digits];
 
     if (!raw) {
@@ -70,7 +82,15 @@ export default function OtpInput({
       return;
     }
 
-    // A single field can receive multiple chars (autofill / fast typing).
+    // typing over a filled box gives "old+new" — keep just the new digit
+    if (raw.length === 2 && digits[i] && raw.startsWith(digits[i])) raw = raw.slice(1);
+
+    // a whole code typed / autofilled into one box flows across the boxes
+    if (raw.length >= LEN) {
+      emit(raw.slice(0, LEN).split(""));
+      focusAt(LEN - 1);
+      return;
+    }
     let idx = i;
     for (const ch of raw.split("")) {
       if (idx >= LEN) break;
@@ -104,34 +124,28 @@ export default function OtpInput({
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const text = (e.clipboardData.getData("text") || "")
-      .replace(/\D/g, "")
-      .slice(0, LEN);
+    const text = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, LEN);
     if (!text) return;
     const arr = Array(LEN).fill("");
-    text.split("").forEach((ch, idx) => {
-      arr[idx] = ch;
-    });
+    text.split("").forEach((ch, idx) => { arr[idx] = ch; });
     emit(arr);
     focusAt(text.length);
   };
 
   return (
-    <div
-      style={{ display: "flex", gap: 8, justifyContent: "space-between" }}
-      onPaste={handlePaste}
-    >
+    <div style={{ display: "flex", gap: 8, justifyContent: "space-between" }} role="group" aria-label="6-digit code">
       {digits.map((d, i) => (
         <input
           key={i}
           ref={(el) => (inputsRef.current[i] = el)}
           type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
           autoComplete={i === 0 ? "one-time-code" : "off"}
-          maxLength={1}
+          maxLength={i === 0 ? LEN : 2}
           value={d}
           disabled={disabled}
-          aria-label={`OTP digit ${i + 1}`}
+          aria-label={`Digit ${i + 1} of ${LEN}`}
           onChange={(e) => handleChange(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
@@ -140,7 +154,8 @@ export default function OtpInput({
             Object.assign(e.target.style, boxFocusStyle);
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = "#e2e8f0";
+            e.target.style.borderColor = "#dbe5df";
+            e.target.style.background = "#f8faf9";
             e.target.style.boxShadow = "none";
           }}
           style={boxStyle}

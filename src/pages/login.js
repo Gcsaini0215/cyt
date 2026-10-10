@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
+import Footer from "../components/footer";
 import { isValidMail, sanitizeOtp } from "../utils/validators";
 import { apiErrorMessage } from "../utils/api-error";
 import { loginUrl, verifyOtpUrl } from "../utils/url";
@@ -12,6 +13,7 @@ import { safeNext } from "../utils/safe-next";
 import OtpInput from "../components/global/otp-input";
 import CanvasCaptcha from "../components/global/canvas-captcha";
 import { GBP_URL } from "../components/about/visit-centre";
+import PhotoHero from "../components/global/photo-hero";
 
 // Sign in with a one-time code sent by email (no passwords).
 // - ?next=/some/page brings people back to where they were after signing in.
@@ -157,11 +159,21 @@ export default function Login() {
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <MyNavbar />
 
+      <PhotoHero
+        images={["/assets/img/hero/in-calm-room-1920.webp", "/assets/img/hero/in-therapy-session-1920.webp", "/assets/img/hero/in-consultation-1920.webp"]}
+        pill={<><i className="feather-lock" aria-hidden="true" /> Secure sign-in</>}
+        title={isTher ? <>Sign in to <span>your practice</span></> : <>Sign in to <span>your safe space</span></>}
+        lead={isTher ? "Bookings, availability and payouts — all in one place." : "Your sessions, your psychologist and your invoices — all in one place."}
+        stats={isTher
+          ? [{ value: "5000+", label: "sessions on CYT" }, { value: "No password", label: "a one-time code" }, { value: "Weekly", label: "payouts" }]
+          : [{ value: "5000+", label: "sessions booked" }, { value: "4.9 ★", label: "on Google" }, { value: "No password", label: "a one-time code" }]}
+      />
+
       <main className="lg-page">
         <div className="lg-shell">
           {/* left: why sign in (desktop) / a slim strip (phones) */}
           <aside className="lg-side" aria-label="Why sign in">
-            <h1>{isTher ? "Your practice, in one place" : "Your safe space"}</h1>
+            <h2 className="lg-side-h">{isTher ? "Therapist sign-in" : "Client sign-in"}</h2>
             <p className="lg-side-sub">
               {isTher ? "Manage your profile, availability, bookings and payouts." : "Pick up where you left off with your psychologist."}
             </p>
@@ -254,15 +266,7 @@ export default function Login() {
         </div>
       </main>
 
-      <footer className="lg-foot">
-        <span>© {new Date().getFullYear()} Choose Your Therapist LLP</span>
-        <nav aria-label="Footer">
-          <Link href="/contact-us">Contact</Link>
-          <Link href="/privacy-policy">Privacy</Link>
-          <Link href="/terms-conditions">Terms</Link>
-          <a href="tel:+918077757951">+91 80777 57951</a>
-        </nav>
-      </footer>
+      <Footer />
     </>
   );
 }
@@ -271,20 +275,20 @@ const CSS = `
 body { background: #f4f7f5; }
 /* no floating callback tab on the sign-in page */
 .cb-widget { display: none !important; }
-.lg-page { min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; padding: 40px 16px 48px; background: radial-gradient(60% 50% at 80% 0%, rgba(30,122,76,.08), transparent 70%), #f4f7f5; }
+.lg-page { display: flex; justify-content: center; padding: 0 16px 56px; margin-top: -78px; position: relative; z-index: 3; background: linear-gradient(180deg, transparent 0, transparent 78px, #f4f7f5 78px); }
 .lg-shell { width: 100%; max-width: 940px; display: grid; grid-template-columns: 1fr 1fr; border-radius: 24px; overflow: hidden; background: #fff; box-shadow: 0 30px 60px -30px rgba(20,83,45,.35), 0 2px 8px rgba(20,83,45,.05); border: 1px solid #e3ebe6; }
 
-.lg-side { position: relative; padding: 40px 38px; background: linear-gradient(160deg, #14532d 0%, #0b2418 100%); color: #fff; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
-.lg-side::after { content: ""; position: absolute; right: -80px; bottom: -80px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(236,199,125,.22), transparent 70%); pointer-events: none; }
-.lg-side h1 { font-size: 28px; font-weight: 800; margin: 6px 0 0; color: #fff; line-height: 1.2; letter-spacing: -.01em; }
-.lg-side-sub { margin: 0; padding: 0; color: rgba(255,255,255,.78); font-size: 15px; line-height: 1.6; }
+.lg-side { position: relative; padding: 40px 38px; background: linear-gradient(170deg, #f6faf7 0%, #eef6f1 100%); color: #0b1712; border-right: 1px solid #e3ebe6; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.lg-side::after { content: ""; position: absolute; right: -90px; bottom: -90px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(30,122,76,.10), transparent 70%); pointer-events: none; }
+.lg-side .lg-side-h { font-size: 26px; font-weight: 800; margin: 6px 0 0; color: #0b1712; line-height: 1.2; letter-spacing: -.01em; }
+.lg-side-sub { margin: 0; padding: 0; color: #5b6b62; font-size: 15px; line-height: 1.6; }
 .lg-side ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.lg-side li { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #fff; }
+.lg-side li { margin: 0; display: flex; align-items: center; gap: 10px; font-size: 15px; color: #26392f; }
 .lg-side li::before { content: none; }
-.lg-side li i { width: 24px; height: 24px; border-radius: 50%; background: rgba(236,199,125,.18); color: #ecc77d; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
-.lg-trust { margin-top: auto; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.12); display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: rgba(255,255,255,.75); }
+.lg-side li i { width: 24px; height: 24px; border-radius: 50%; background: #dcf2e4; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.lg-trust { margin-top: auto; padding-top: 18px; border-top: 1px solid #dfe9e3; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5b6b62; }
 .lg-trust span { display: inline-flex; align-items: center; gap: 7px; }
-.lg-trust a { color: #ecc77d !important; font-weight: 700; text-decoration: none !important; }
+.lg-trust a { color: #b7791f !important; font-weight: 700; text-decoration: none !important; }
 
 .lg-card { padding: 34px 38px 28px; display: flex; flex-direction: column; }
 .lg-who { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 12px; background: #f1f5f3; margin-bottom: 24px; }
@@ -319,21 +323,17 @@ body { background: #f4f7f5; }
 .lg-privacy { margin: 22px 0 0; padding: 14px 0 0; border-top: 1px solid #eef2f0; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; color: #94a3b8; }
 .lg-privacy a { color: #64748b; font-weight: 700; }
 
-.lg-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; padding: 18px max(16px, calc((100vw - 940px) / 2)); background: #0b2418; color: rgba(255,255,255,.6); font-size: 13px; }
-.lg-foot nav { display: flex; flex-wrap: wrap; gap: 6px 18px; }
-.lg-foot a { color: rgba(255,255,255,.8) !important; text-decoration: none !important; }
 
 @media (max-width: 860px) {
-  .lg-page { align-items: flex-start; padding: 16px 12px 32px; }
+  .lg-page { padding: 0 12px 32px; margin-top: -48px; background: linear-gradient(180deg, transparent 0, transparent 48px, #f4f7f5 48px); }
   .lg-shell { grid-template-columns: 1fr; border-radius: 20px; }
   /* phones: the form comes first; the "why sign in" panel shrinks to a strip under it */
   .lg-card { order: 1; padding: 22px 18px 20px; }
-  .lg-side { order: 2; padding: 20px 18px; gap: 10px; }
-  .lg-side h1 { font-size: 20px; }
+  .lg-side { order: 2; padding: 20px 18px; gap: 10px; border-right: none; border-top: 1px solid #e3ebe6; }
+  .lg-side .lg-side-h { font-size: 20px; }
   .lg-side-sub { display: none; }
   .lg-side li { font-size: 14px; }
   .lg-who { margin-bottom: 18px; }
   .lg-card h2 { font-size: 22px; }
-  .lg-foot { justify-content: center; text-align: center; }
 }
 `;

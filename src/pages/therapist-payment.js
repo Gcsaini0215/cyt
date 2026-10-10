@@ -14,27 +14,29 @@ const GRAD = `linear-gradient(135deg, ${G}, #175c37)`;
 
 const PLANS = [
   {
-    id: "3_month", label: "3 Months", amount: 1999, months: 3,
+    id: "1_month", label: "Monthly", amount: 999, months: 1,
     tag: null,
     benefits: [
       "Profile listed & discoverable by clients",
       "Verified badge on your public profile",
-      "Booking & appointment management",
-      "Professional invoice generation",
+      "Booking, appointment & invoice tools",
+      "Renew month to month",
     ],
   },
   {
     id: "6_month", label: "6 Months", amount: 4999, months: 6,
     tag: "Most Popular",
     benefits: [
-      "Everything in the 3-month plan",
+      "Profile listed & discoverable by clients",
+      "Verified badge on your public profile",
+      "Booking, appointment & invoice tools",
       "Priority placement in directory search results",
       "Client records & session notes storage",
       "Priority email support",
     ],
   },
   {
-    id: "annual", label: "12 Months", amount: 9500, months: 12,
+    id: "annual", label: "12 Months", amount: 7300, months: 12, // ₹20 / day
     tag: "Best Value",
     benefits: [
       "Everything in the 6-month plan",
@@ -415,7 +417,10 @@ export default function TherapistPayment() {
                               }}>{plan.tag}</span>
                             )}
                             <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b", margin: "6px 0 4px" }}>{plan.label}</p>
-                            <p style={{ fontSize: 26, fontWeight: 900, color: G, margin: "0 0 14px" }}>{fmtINR(plan.amount)}</p>
+                            <p style={{ fontSize: 26, fontWeight: 900, color: G, margin: "0 0 4px" }}>{fmtINR(plan.amount)}</p>
+                            <p style={{ display: "inline-block", margin: "0 0 14px", padding: "2px 8px", borderRadius: 999, background: "#e8f5ee", color: "#166534", fontSize: 12, fontWeight: 800 }}>
+                              ≈ ₹{Math.round(plan.amount / ({ 1: 30, 6: 182, 12: 365 }[plan.months] || plan.months * 30))} / day
+                            </p>
                             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
                               {plan.benefits.map((b, i) => (
                                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
