@@ -168,6 +168,7 @@ export default function Footer() {
                   <li className="mb--12"><Link href="/login">Client Login</Link></li>
                   <li className="mb--12"><Link href="/register">Client Sign Up</Link></li>
                   <li className="mb--12"><Link href="/therapist-registration">Therapist Join Us</Link></li>
+                  <li className="mb--12"><Link href="/collaborate-noida">Collaboration for Noida</Link></li>
                   <li><Link href="/supervision-login">Trainee Login</Link></li>
                 </ul>
               </div>
