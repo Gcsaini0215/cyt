@@ -25,6 +25,16 @@ import EventRepeatRounded from "@mui/icons-material/EventRepeatRounded";
 import UpdateRounded from "@mui/icons-material/UpdateRounded";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import { useRouter } from "next/router";
+import VideocamRounded from "@mui/icons-material/VideocamRounded";
+import HomeRounded from "@mui/icons-material/HomeRounded";
+import PhoneRounded from "@mui/icons-material/PhoneRounded";
+import SelfImprovementRounded from "@mui/icons-material/SelfImprovementRounded";
+import CloudRounded from "@mui/icons-material/CloudRounded";
+import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
+import SchoolRounded from "@mui/icons-material/SchoolRounded";
+import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
+import Footer from "../components/footer";
+
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
 // Never pass names, phones or emails here — only slot / step / booking-type info.
@@ -71,8 +81,8 @@ function haptic(ms = 12) {
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/noida-appointment`;
 const CENTRE_ID = `${PAGE_URL}#centre`;
-const SEO_TITLE = "Psychologist in Noida, Sector 51 – Counselling Psychologist, Book Online";
-const SEO_DESC = "Book a counselling psychologist at our Noida centre in Sector 51 — pick an open slot, pay securely, get confirmed instantly. In-person, online or home visit.";
+const SEO_TITLE = "Psychologist in Noida | Counselling & Therapy, Sector 51 – CYT";
+const SEO_DESC = "Book a verified psychologist in Noida (Sector 51) for anxiety, stress, depression or couple counselling — in person, online or home visit. ★ 5.0 on Google.";
 
 const inr = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
 
@@ -125,7 +135,7 @@ function buildSeoGraph(p) {
         url: PAGE_URL,
         telephone: "+918077757951",
         email: "Chooseyourtherapist@gmail.com",
-        image: `${SITE}/og-noida-appointment-v3.png`,
+        image: `${SITE}/og-noida-appointment-v4.jpg`,
         logo: `${SITE}/favicon.png`,
         description: "Psychologists and therapists at the Choose Your Therapist centre in Sector 51, Noida — individual and couple sessions in-person, online or as a home visit.",
         medicalSpecialty: "Psychiatric",
@@ -402,6 +412,8 @@ const Ic = ({ I, s = 16 }) => <I aria-hidden="true" style={{ fontSize: s, vertic
 
 // Same shape as the real table, so nothing jumps when the slots arrive.
 const CENTER_ADDRESS = "Choose Your Therapist LLP, Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301";
+// photos behind the green bar — AI-generated for CYT with Canva (design "CYT Noida header photos"), public/assets/img/hero/noida-*
+const BAR_PHOTOS = ["/assets/img/hero/noida-client-talk-1920.webp", "/assets/img/hero/noida-couple-1920.webp", "/assets/img/hero/noida-online-session-1920.webp"];
 const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Choose+Your+Therapist+LLP+Sector+51+Noida";
 
 function slotEndInstant(dateStr, slotLabel) {
@@ -775,7 +787,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
       const spacing = parseFloat(getComputedStyle(table).borderSpacing) || 5;
       const avail = el.clientHeight - (head ? head.offsetHeight : 0) - spacing * (rows + 2);
       const h = Math.floor(avail / rows);
-      el.style.setProperty("--na-cell-h", `${Math.max(22, Math.min(56, h))}px`);
+      el.style.setProperty("--na-cell-h", `${Math.max(22, Math.min(68, h))}px`);
     };
     calc();
     if (typeof ResizeObserver === "undefined") return;
@@ -866,6 +878,7 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
                       <button
                         type="button"
                         className={`na-slotcell ${isLM ? "lastminute" : "open"} ${isSelected ? "selected" : ""} ${hasOffer ? "offer" : ""}`}
+                        data-t={t.split(" - ")[0]}
                         title={isSelected ? `Selected — ${t}` : isLM ? `Request ${t} — starting soon` : hasOffer ? `Book ${t} — offer slot` : `Book ${t}`}
                         onClick={() => {
                           track("noida_slot_click", { booking_type: trackAs, slot_date: d, slot_time: t, last_minute: isLM });
@@ -2070,28 +2083,80 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
   const formatLabel = format === "home-visit" ? "Home Visit" : format === "online" ? "Online" : "In-person";
   const modeLabel = sessionMode === "package" ? (selectedPackage?.name || "Package") : sessionMode === "couple" ? "Couple" : "Individual";
 
+  const [barPhoto, setBarPhoto] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const t = setInterval(() => setBarPhoto((i) => (i + 1) % BAR_PHOTOS.length), 6000);
+    return () => clearInterval(t);
+  }, []);
+  // the earliest open slot (not "starting soon") — one tap from the header starts booking it
+  const nextFree = (() => {
+    if (bookingType === "reschedule" || phase !== "slots") return null;
+    for (const d of slotsMatrix.dates || []) {
+      for (const t of slotsMatrix.times || []) if (slotsMatrix.grid?.[`${d}|${t}`] === "open") return { d, t };
+    }
+    return null;
+  })();
+  const nextFreeLabel = nextFree ? (() => {
+    const l = dateLabel(nextFree.d);
+    const tomorrow = new Date(`${istTodayStr()}T00:00:00`); tomorrow.setDate(tomorrow.getDate() + 1);
+    const tStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+    const day = nextFree.d === istTodayStr() ? "Today" : nextFree.d === tStr ? "Tomorrow" : `${l.weekday} ${l.day} ${l.month}`;
+    return `${day}, ${nextFree.t.split(" - ")[0]}`;
+  })() : "";
+  const headerOffer = offers.length > 0 && bookingType !== "reschedule" ? offers[0] : null;
   const tabsEl = (
     <div className="na-topbar">
+      <div className="na-topbar-bgs" aria-hidden="true">
+        {BAR_PHOTOS.map((src, i) => <div key={src} className={`na-topbar-bg ${i === barPhoto ? "on" : ""}`} style={{ "--na-bg": `url('${src}')`, "--na-bg-sm": `url('${src.replace(/-1920\.webp$/, "-900.webp")}')` }} />)}
+      </div>
       <div className="na-centre">
         <button type="button" className="na-back" onClick={handleBackButton} aria-label="Back to homepage" title="Back to homepage"><ArrowBackRounded style={{ fontSize: 18 }} /></button>
         <div className="na-centre-mark"><img src="/favicon.png" alt="Choose Your Therapist" width="44" height="44" /></div>
         <div className="na-centre-txt">
-          <div className="na-centre-name">Choose Your Therapist | Noida &amp; Delhi</div>
+          <div className="na-centre-name">
+            <span className="na-nm-full">CYT Noida Centre · Sector 51</span><span className="na-nm-short">CYT Noida</span>
+            <a className="na-rate" href={MAPS_URL} target="_blank" rel="noopener noreferrer" aria-label="Rated 5.0 on Google from 180+ reviews"><span aria-hidden="true">★</span> 5.0<span className="na-rate-more"> · 180+ Google reviews</span></a>
+          </div>
           <div className="na-centre-addr"><Ic I={PlaceRounded} s={13} /> Gate 3, D-137, Block D, Sector 51, Noida</div>
         </div>
         <div className="na-centre-actions">
           <a className="na-centre-btn" href={MAPS_URL} target="_blank" rel="noopener noreferrer" aria-label="Get directions to the centre"><Ic I={DirectionsRounded} s={16} /><span>Directions</span></a>
+          <a className="na-centre-btn" href="tel:+918077757951" aria-label="Call the Noida centre" onClick={() => track("noida_header_call", {})}><Ic I={PhoneRounded} s={16} /><span>Call</span></a>
           <a className="na-centre-btn wa" href={waLink("Hi, I have a question about booking at the Noida centre.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp"><Ic I={WhatsAppIcon} s={16} /><span>WhatsApp</span></a>
         </div>
       </div>
       <div className="na-topbar-tabs">
-        <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}>New Client</button>
-        <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}>Follow-up</button>
-        <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}>Reschedule</button>
+        <button type="button" className={`na-topbar-tab ${bookingType === "new" ? "active" : ""}`} onClick={() => switchTab("new")}><Ic I={PersonAddAlt1Rounded} s={16} /> New Client</button>
+        <button type="button" className={`na-topbar-tab ${bookingType === "followup" ? "active" : ""}`} onClick={() => switchTab("followup")}><Ic I={EventRepeatRounded} s={16} /> Follow-up</button>
+        <button type="button" className={`na-topbar-tab ${bookingType === "reschedule" ? "active" : ""}`} onClick={() => switchTab("reschedule")}><Ic I={UpdateRounded} s={16} /> Reschedule</button>
       </div>
-      <div className="na-chips-host" ref={setChipsHost} />
+      <div className="na-topbar-row2">
+        <h1 className="na-topbar-h1">Book a psychologist in Noida — in person, online or home visit</h1>
+        <div className="na-topbar-quick">
+          {headerOffer && (
+            <button type="button" className="na-hoffer" onClick={() => { setOfferOpen(headerOffer); track("noida_offer_open", { offer: headerOffer.title, from: "header" }); }}>
+              <span aria-hidden="true">🎁</span> <b>{headerOffer.title}</b><span className="na-hoffer-cta">{claimedCode ? "Show my code" : "Get code"}</span>
+            </button>
+          )}
+          {nextFree && (
+            <button type="button" className="na-nextfree" onClick={() => { track("noida_next_free_click", { booking_type: bookingType, slot_date: nextFree.d, slot_time: nextFree.t }); onOpenSlotPick(nextFree.d, nextFree.t, false); }}>
+              <span className="na-nextfree-dot" aria-hidden="true" /> Next available slot: <b>{nextFreeLabel}</b> <span className="na-nextfree-cta">Book →</span>
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
+  const shellRef = useRef(null);
+  const stepScrollReady = useRef(false);
+  useEffect(() => {
+    if (!stepScrollReady.current) { stepScrollReady.current = true; return; }
+    const el = shellRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 76;
+    if (Math.abs(window.scrollY - top) > 40) window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, [phase, step, bookingType]);
   // The slots table is pinned to one screen (no scrolling) on tablet and desktop.
   const fitSlots = phase === "slots" && bookingType !== "reschedule";
   const fromPrices = [pricing?.individual_inperson, pricing?.individual_online, pricing?.individual_homevisit].map(Number).filter(n => n > 0);
@@ -2115,15 +2180,17 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
         <meta property="og:title" content={SEO_TITLE} />
         <meta property="og:description" content={SEO_DESC} />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v3.png" />
-        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v4.jpg" />
+        <meta property="og:image:secure_url" content="https://www.chooseyourtherapist.in/og-noida-appointment-v4.jpg" />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Choose Your Therapist — pick a slot and book a psychologist in-person, online or at home in Noida" />
+        <meta property="og:image:alt" content="Psychologist in Noida — book a session at Choose Your Therapist, Sector 51: in person, online or home visit" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={SEO_TITLE} />
         <meta name="twitter:description" content={SEO_DESC} />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v3.png" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v4.jpg" />
+        <meta name="twitter:image:alt" content="Psychologist in Noida — book a session at Choose Your Therapist, Sector 51" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -2320,7 +2387,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
         .na-rv-sum b { font-size: 30px; font-weight: 800; color: #14532d; line-height: 1; }
         .na-rv-stars { color: #d4a24c; letter-spacing: 1px; font-size: 16px; }
         .na-rv-stars i { font-style: normal; color: #e2e8e4; }
-        .na-rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+        .na-rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 12px; }
         .na-rv-card { margin: 0; padding: 16px; border-radius: 16px; background: #f6faf7; border: 1px solid #e2ece5; display: flex; flex-direction: column; gap: 8px; }
         .na-seo .na-rv-card blockquote { margin: 0; font-size: 14.5px; line-height: 1.6; color: #1f2937; }
         .na-rv-card figcaption { font-size: 12.5px; color: #64748b; }
@@ -2957,6 +3024,202 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
         .na-skel-cell { border-radius: 12px; }
         .na-skel-time { width: 42px; height: 11px; border-radius: 6px; }
         @media (prefers-reduced-motion: reduce) { button.na-slotcell:active { transform: none !important; } .na-page .na-shell .na-fullslots-table button.na-slotcell.selected::after { animation: none; } }
+        /* ════ green bar with photos: banner images cross-fade under a green tint ════ */
+        .na-page .na-topbar { position: relative; overflow: hidden; }
+        .na-page .na-topbar > *:not(.na-topbar-bgs) { position: relative; z-index: 1; }
+        .na-topbar-bgs { display: none; }
+        .na-page:not(.is-tablet) .na-topbar-bgs { display: block; position: absolute; inset: 0; z-index: 0; }
+        .na-topbar-bg { position: absolute; inset: 0; background: var(--na-bg) center 30% / cover no-repeat; opacity: 0; transform: scale(1.04); transition: opacity 1.4s ease, transform 7s ease; }
+        .na-topbar-bg.on { opacity: 1; transform: scale(1); }
+        .na-topbar-bgs::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(4,22,12,.9) 0%, rgba(6,30,17,.78) 38%, rgba(8,34,20,.42) 68%, rgba(8,34,20,.3) 100%), linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.22)); }
+        @media (max-width: 640px) {
+          .na-topbar-bg { background-image: var(--na-bg-sm); background-position: 60% center; }
+          .na-topbar-bgs::after { background: linear-gradient(180deg, rgba(4,22,12,.8), rgba(6,28,16,.72)); }
+        }
+        @media (prefers-reduced-motion: reduce) { .na-topbar-bg { transition: none; transform: none; } }
+        .na-hd-price { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; padding: 4px 11px; border-radius: 999px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; vertical-align: 2px; white-space: nowrap; }
+
+        /* ════ desktop slots: quiet booked cells, a dot for open ones — the time shows on hover ════ */
+        @media (min-width: 641px) {
+          .na-page.na-hero .na-shell .na-fullslots-table button.na-slotcell.open::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.14); }
+          .na-page.na-hero .na-shell .na-fullslots-table button.na-slotcell.open:hover::after { content: "Book " attr(data-t); width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; font-size: 13px; font-weight: 800; }
+          .na-page.na-hero .na-shell .na-fullslots-table button.na-slotcell.open.selected::after { content: "✓ Selected"; width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; font-size: 13px; }
+          .na-page.na-hero .na-shell .na-fullslots-table .na-slotcell.taken:not(.mine) { background: #f8fafc; border-color: #eef2f6; }
+          .na-page.na-hero .na-shell .na-fullslots-table .na-slotcell.taken:not(.mine) .na-taken-stamp { color: #94a3b8; font-weight: 500; }
+          .na-page.na-hero .na-shell .na-fullslots-table .na-slotcell.past { background: transparent; border-color: transparent; }
+          .na-page.na-hero .na-shell .na-fullslots-table .na-past-label { color: #cbd5e1; }
+        }
+        .na-page.na-hero .na-sw-taken { background: #f8fafc; border-color: #e2e8f0; }
+
+        @media (max-width: 640px) {
+          .na-hd-price { display: none; }
+        }
+
+        /* ════ content under the booking card: readable width, cards, map ════ */
+        @media (min-width: 641px) { .na-page.na-hero .na-seo { padding: 28px 14px 36px; } }
+        @media (min-width: 641px) { .na-page.na-hero .na-seo-in { max-width: 1120px; padding: 38px 44px 30px; } }
+        .na-page.na-hero .na-seo .na-seo-in .na-seo-lead, .na-page.na-hero .na-seo .na-seo-in .na-seo-text, .na-page.na-hero .na-seo .na-seo-in .na-seo-note { max-width: 780px; }
+        .na-page.na-hero .na-seo h3 { margin-top: 34px; }
+        .na-card-ic { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: #f0fdf4; color: #166534; margin-bottom: 10px; }
+        .na-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+        .na-price-card { border: 1px solid #e2eae5; border-radius: 16px; padding: 18px 18px 8px; background: #fff; }
+        .na-price-mode { font-size: 17px; font-weight: 800; color: #0f2a1d; }
+        .na-price-sub { font-size: 13px; color: #64748b; margin-bottom: 8px; }
+        .na-price-card ul { list-style: none; margin: 0; padding: 0; }
+        .na-price-card li { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-top: 1px solid #f1f5f3; font-size: 14px; color: #475569; }
+        .na-price-card li b { font-size: 18px; font-weight: 800; color: #0f2a1d; }
+        .na-help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 14px; }
+        .na-help-card { border: 1px solid #e2eae5; border-radius: 16px; padding: 16px; background: #fbfdfc; }
+        .na-help-card b { display: block; font-size: 15px; font-weight: 800; color: #0f2a1d; margin-bottom: 4px; }
+        .na-page .na-seo .na-seo-in .na-help-card p { margin: 0; font-size: 13.5px; line-height: 1.55; color: #475569; }
+        .na-find { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; align-items: stretch; }
+        .na-find-info h4 { font-size: 15px; font-weight: 800; color: #0f2a1d; margin: 18px 0 6px; }
+        .na-find-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .na-page .na-seo a.na-find-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 11px; border: 1.5px solid #d5e3da; background: #fff; color: #1a6b3a; font-size: 14px; font-weight: 800; text-decoration: none; }
+        .na-page .na-seo a.na-find-btn.primary { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+        .na-find-map { min-height: 300px; border-radius: 16px; overflow: hidden; border: 1px solid #e2eae5; background: #eef2f0; }
+        .na-find-map iframe { display: block; width: 100%; height: 100%; min-height: 300px; border: 0; }
+        .na-steps4 { list-style: none; counter-reset: st; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 0 0 12px; padding: 0; }
+        .na-steps4 li { counter-increment: st; position: relative; padding: 16px 16px 14px 56px; border-radius: 14px; background: #f6f9f7; border: 1px solid #e2eae5; }
+        .na-steps4 li::before { content: counter(st); position: absolute; left: 16px; top: 16px; width: 28px; height: 28px; border-radius: 50%; background: #1a6b3a; color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+        .na-steps4 b { display: block; font-size: 14.5px; color: #0f2a1d; }
+        .na-steps4 span { font-size: 13.5px; color: #475569; line-height: 1.5; }
+        .na-page.na-hero .na-seo-faq { max-width: 860px; }
+        @media (max-width: 760px) {
+          .na-find { grid-template-columns: 1fr; }
+          .na-find-map, .na-find-map iframe { min-height: 240px; }
+        }
+        /* ════ edge to edge: the slots card and the content under it use the full screen width ════ */
+        @media (min-width: 641px) {
+          .na-page.na-hero.na-fit .na-shell.fit-slots, .na-page.na-hero.na-fit.is-tablet .na-shell.fit-slots { width: 100%; max-width: none; margin: 0; border-radius: 0; box-shadow: none; height: calc(100vh - var(--na-ck, 0px)); height: calc(100dvh - var(--na-ck, 0px)); }
+        }
+        .na-page.na-hero .na-seo, .na-page.na-hero .na-seo-in { max-width: none !important; }
+        .na-page.na-hero .na-seo { padding: 0 !important; background: #fff; border-top: 1px solid #e6ece8; }
+        .na-page.na-hero .na-seo-in { border-radius: 0 !important; box-shadow: none !important; margin: 0; padding: 40px 32px 34px !important; }
+        @media (max-width: 640px) { .na-page.na-hero .na-seo-in { padding: 26px 16px 22px !important; } }
+        /* ════ reviews: rating summary on the left, review cards on the right ════ */
+        .na-rvs { margin: 30px 0 6px; }
+        .na-rvs-body { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; align-items: start; }
+        .na-rvs-sum { padding: 20px; border-radius: 18px; background: linear-gradient(160deg, #f0fdf4, #e7f5ec); border: 1px solid #cdeedb; }
+        .na-rvs-score { display: flex; align-items: center; gap: 12px; }
+        .na-rvs-score b { font-size: 44px; font-weight: 900; line-height: 1; color: #14532d; letter-spacing: -1px; }
+        .na-rvs-stars { color: #f5a524; letter-spacing: 1.5px; font-size: 17px; }
+        .na-rvs-stars i { font-style: normal; color: #dfe6e2; }
+        .na-page .na-seo .na-seo-in .na-rvs-sum p { margin: 8px 0 16px; font-size: 13.5px; line-height: 1.5; color: #3f5a4a; }
+        .na-page .na-seo a.na-rvs-google { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fff; border: 1px solid #d9eadf; text-decoration: none; color: #0f2a1d; font-weight: 400; }
+        .na-page .na-seo a.na-rvs-google:hover { border-color: #86efac; }
+        .na-rvs-g { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; border: 1px solid #e2e8f0; font: 900 15px 'Inter', sans-serif; color: #4285f4; }
+        .na-rvs-google b { display: block; font-size: 13.5px; font-weight: 800; }
+        .na-rvs-google small { display: block; font-size: 11.5px; color: #64748b; }
+        .na-rvs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 12px; }
+        .na-rvs-card { margin: 0; padding: 18px; border-radius: 18px; background: #fff; border: 1px solid #e6ece8; box-shadow: 0 6px 18px -12px rgba(15,61,34,.25); display: flex; flex-direction: column; gap: 10px; }
+        .na-page .na-seo .na-rvs-card blockquote { margin: 0; flex: 1; font-size: 15px; line-height: 1.6; color: #1f2937; font-style: normal; }
+        .na-page .na-seo .na-rvs-card blockquote.muted { color: #64748b; font-size: 14px; }
+        .na-rvs-card figcaption { display: flex; align-items: center; gap: 10px; padding-top: 10px; border-top: 1px solid #f1f5f3; }
+        .na-rvs-av { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #1a6b3a; color: #fff; font-weight: 800; font-size: 14px; }
+        .na-rvs-card figcaption b { display: block; font-size: 14px; color: #0f2a1d; }
+        .na-rvs-card figcaption small { display: block; font-size: 12px; color: #64748b; }
+        .na-rvs-more { margin-top: 12px; border: 1px solid #bfe0cc; background: #fff; color: #14532d; border-radius: 999px; padding: 8px 16px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+        @media (max-width: 760px) { .na-rvs-body { grid-template-columns: 1fr; } }
+        .na-page .na-seo .na-rvs-card blockquote { border: 0; padding: 0; background: none; box-shadow: none; text-align: left; min-height: 0; }
+        .na-page .na-seo .na-rvs-card blockquote::before, .na-page .na-seo .na-rvs-card blockquote::after { content: none; display: none; }
+        .na-rvs-card figcaption, .na-rvs-card figcaption b, .na-rvs-card figcaption small { text-align: left; }
+        .na-rvs-card figcaption > span:last-child { min-width: 0; }
+        /* ════ pastel cards under the slots: each card its own soft colour, icon in the deeper shade ════ */
+        .na-page.na-hero .na-seo { background: linear-gradient(180deg, #fbfdfc 0%, #fff 320px); }
+        .na-pastel-1 { --pc-bg: #ecfdf3; --pc-bd: #c6f0d6; --pc-ic: #d1fae0; --pc-fg: #15803d; }
+        .na-pastel-2 { --pc-bg: #eef6ff; --pc-bd: #cfe3fb; --pc-ic: #dbeafe; --pc-fg: #1d4ed8; }
+        .na-pastel-3 { --pc-bg: #fff4ec; --pc-bd: #fbdcc4; --pc-ic: #ffe4cf; --pc-fg: #c2410c; }
+        .na-pastel-4 { --pc-bg: #f5f0ff; --pc-bd: #e0d4fb; --pc-ic: #ebe2ff; --pc-fg: #6d28d9; }
+        .na-pastel-5 { --pc-bg: #fff1f5; --pc-bd: #fbd0dd; --pc-ic: #ffe0ea; --pc-fg: #be185d; }
+        .na-pastel-6 { --pc-bg: #fffbea; --pc-bd: #f6e7a8; --pc-ic: #fdf2c4; --pc-fg: #a16207; }
+
+        .na-price-card, .na-help-card, .na-steps4 li {
+          background: linear-gradient(160deg, var(--pc-bg, #f6f9f7) 0%, #fff 78%); border-color: var(--pc-bd, #e2eae5);
+          box-shadow: 0 10px 26px -18px rgba(15,61,34,.35); transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .na-price-card:hover, .na-help-card:hover, .na-steps4 li:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(15,61,34,.4); }
+        .na-price-card .na-card-ic, .na-help-card .na-card-ic { background: var(--pc-ic, #f0fdf4); color: var(--pc-fg, #166534); width: 44px; height: 44px; border-radius: 14px; }
+        .na-price-card { padding: 20px 20px 10px; border-radius: 20px; }
+        .na-price-card .na-price-mode { color: var(--pc-fg, #0f2a1d); }
+        .na-price-card li { border-top-color: var(--pc-bd, #f1f5f3); }
+        .na-price-card li b { color: #0f172a; }
+        .na-help-card { border-radius: 20px; padding: 18px; }
+        .na-help-card b { color: #0f172a; }
+        .na-steps4 li { border-radius: 18px; }
+        .na-steps4 li::before { background: var(--pc-fg, #1a6b3a); box-shadow: 0 0 0 4px var(--pc-ic, #e7f5ec); }
+        .na-page.na-hero .na-seo .na-seo-in .na-seo-addr { background: linear-gradient(160deg, #ecfdf3, #fff 80%); border-color: #c6f0d6; border-radius: 16px; }
+        .na-find-map { border-radius: 20px; border-color: #cfe3fb; box-shadow: 0 10px 26px -18px rgba(29,78,216,.35); }
+        .na-page.na-hero .na-seo-faq details { border-radius: 14px; border-color: #e6ece8; background: #fff; transition: background .15s, border-color .15s; }
+        .na-page.na-hero .na-seo-faq details:hover { border-color: #c6f0d6; }
+        .na-page.na-hero .na-seo-faq details[open] { background: linear-gradient(160deg, #f5f0ff, #fff 70%); border-color: #e0d4fb; }
+        .na-page.na-hero .na-seo-faq summary { list-style: none; position: relative; padding-right: 30px; }
+        .na-page.na-hero .na-seo-faq summary::-webkit-details-marker { display: none; }
+        .na-page.na-hero .na-seo-faq summary::after { content: "+"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: #f1f5f3; color: #166534; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .na-page.na-hero .na-seo-faq details[open] summary::after { content: "–"; background: #ebe2ff; color: #6d28d9; }
+        .na-page.na-hero .na-seo-note { display: inline-block; padding: 8px 12px; border-radius: 10px; background: #fffbea; border: 1px solid #f6e7a8; color: #854d0e !important; }
+        @media (prefers-reduced-motion: reduce) { .na-price-card, .na-help-card, .na-steps4 li { transition: none; } .na-price-card:hover, .na-help-card:hover, .na-steps4 li:hover { transform: none; } }
+        /* ════ header: short name + Google rating, call button, tab icons, headline row with next-free slot / offer ════ */
+        .na-nm-short { display: none; }
+        .na-centre-name { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .na-centre-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .na-page .na-topbar a.na-rate { flex-shrink: 0; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); color: #fff; font-size: 11.5px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+        .na-page .na-topbar a.na-rate > span:first-child { color: #fcd34d; }
+        .na-page .na-topbar a.na-rate:hover { background: rgba(255,255,255,.26); }
+        .na-rate-more { font-weight: 600; opacity: .9; }
+        .na-topbar-tab { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .na-topbar-row2 { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .na-page .na-topbar .na-topbar-h1 { margin: 0; padding: 0; font-size: 19px; line-height: 1.3; font-weight: 800; color: #fff; letter-spacing: -.2px; text-shadow: 0 1px 8px rgba(0,0,0,.18); }
+        .na-topbar-quick { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .na-nextfree, .na-hoffer { display: inline-flex; align-items: center; gap: 6px; padding: 8px 8px 8px 12px; border-radius: 999px; border: none; cursor: pointer; font: 600 13px 'Inter', sans-serif; white-space: nowrap; transition: transform .15s, box-shadow .15s; }
+        .na-nextfree { background: #fff; color: #14532d; box-shadow: 0 6px 16px -8px rgba(0,0,0,.35); }
+        .na-nextfree b { font-weight: 800; }
+        .na-nextfree:hover, .na-hoffer:hover { transform: translateY(-1px); }
+        .na-nextfree-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.22); animation: naNfPulse 2s ease-in-out infinite; }
+        @keyframes naNfPulse { 50% { box-shadow: 0 0 0 6px rgba(34,197,94,.12); } }
+        .na-nextfree-cta { margin-left: 4px; padding: 4px 10px; border-radius: 999px; background: #1a6b3a; color: #fff; font-weight: 800; font-size: 12.5px; }
+        .na-hoffer { background: linear-gradient(90deg, #fef3c7, #fde68a); color: #7c2d12; box-shadow: 0 6px 16px -8px rgba(0,0,0,.3); }
+        .na-hoffer b { font-weight: 800; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+        .na-hoffer-cta { margin-left: 4px; padding: 4px 10px; border-radius: 999px; background: #c2410c; color: #fff; font-weight: 800; font-size: 12.5px; }
+        .na-chips-host { display: none !important; }
+        @media (prefers-reduced-motion: reduce) { .na-nextfree-dot { animation: none; } }
+        @media (max-width: 640px) {
+          .na-nm-full, .na-rate-more { display: none; }
+          .na-nm-short { display: inline; }
+          .na-page .na-topbar .na-topbar-h1 { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+          .na-topbar-row2:not(:has(button)) { display: none; }
+          .na-topbar-quick { width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+          .na-nextfree, .na-hoffer { font-size: 12.5px; padding: 6px 6px 6px 10px; }
+          .na-hoffer b { max-width: 120px; }
+          .na-topbar-tab svg { display: none; }
+        }
+        /* slots title row: title + price · availability note · time chips on one line */
+        @media (min-width: 641px) { .na-page.na-hero .na-shell .na-hd { grid-template-columns: minmax(0, 1fr) auto auto; } .na-page.na-hero .na-shell .na-hd .na-fullslots-sub { order: 3; } .na-page.na-hero .na-shell .na-hd .na-hd-r { order: 2; } }
+        /* phones: the swipe table dressed like desktop — green dot for open, quiet grey booked */
+        @media (max-width: 640px) {
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open { background: #f0fdf4; border-color: #bbf7d0; }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.14); }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected::after { content: attr(data-t); width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; color: #fff; font-size: 12px; font-weight: 800; line-height: 1.1; white-space: nowrap; letter-spacing: -.1px; }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken:not(.mine) { background: #f8fafc; border-color: #eef2f6; }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken:not(.mine) .na-taken-stamp { color: #94a3b8; font-weight: 500; }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.past { background: transparent; border-color: transparent; }
+        }
+        /* "Next free" in gold — stands out on the green bar; offer pill goes white so the two don't look alike */
+        .na-page .na-topbar .na-nextfree { background: linear-gradient(135deg, #fff7d6 0%, #fde68a 45%, #f5c542 100%); color: #5b3a05; border: 1px solid rgba(255,236,170,.9); box-shadow: 0 8px 20px -8px rgba(161,98,7,.55), inset 0 1px 0 rgba(255,255,255,.7); }
+        .na-page .na-topbar .na-nextfree b { color: #422a04; }
+        .na-page .na-topbar .na-nextfree-dot { background: #15803d; box-shadow: 0 0 0 3px rgba(21,128,61,.22); }
+        .na-page .na-topbar .na-nextfree-cta { background: #422a04; color: #fde68a; }
+        .na-page .na-topbar .na-hoffer { background: #fff; color: #7c2d12; }
+        @media (max-width: 640px) {
+          .na-page .na-topbar .na-topbar-quick { flex-direction: column; align-items: stretch; overflow: visible; gap: 6px; }
+          .na-page .na-topbar .na-nextfree, .na-page .na-topbar .na-hoffer { width: 100%; box-sizing: border-box; justify-content: flex-start; padding: 7px 7px 7px 12px; font-size: 13px; }
+          .na-page .na-topbar .na-nextfree-cta, .na-page .na-topbar .na-hoffer-cta { margin-left: auto; padding: 6px 14px; font-size: 13px; }
+          .na-page .na-topbar .na-hoffer b { max-width: none; flex: 0 1 auto; min-width: 0; }
+        }
+        .na-nextfree-dot { flex-shrink: 0; }
+        @media (max-width: 640px) { .na-page .na-topbar .na-nextfree { font-size: 12.5px; gap: 5px; white-space: nowrap; } .na-page .na-topbar .na-nextfree-cta { padding: 6px 12px; } }
+        @media (max-width: 360px) { .na-page .na-topbar .na-nextfree { font-size: 11.5px; } }
       ` }} />
 
       {showWelcome && (
@@ -3030,10 +3293,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
         />
       )}
 
-      <div className={`na-page ${tablet ? "is-tablet" : ""} na-fit ${showWelcome || exitAsk || teamGate ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
-        <h1 className="na-sr">Psychologist in Noida — book in-person, online or home visit at our Sector 51 centre</h1>
-
-        <div className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
+      <div className={`na-page na-hero ${tablet ? "is-tablet" : ""} na-fit ${showWelcome || exitAsk || teamGate ? "na-blurred" : ""}`} style={{ "--na-ck": `${cookieH}px` }}>
+        <div ref={shellRef} className={`na-shell ${fitSlots ? "fit-slots" : ""}`}>
         {tabsEl}
         {returning && phase === "slots" && bookingType === "new" && (
           <div className="na-wb">
@@ -3046,7 +3307,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
             <button type="button" className="na-wb-x" onClick={notMe}>Not you?</button>
           </div>
         )}
-        {offers.length > 0 && bookingType !== "reschedule" && (
+        {false && offers.length > 0 && bookingType !== "reschedule" && (
           <div className="na-offerbar">
             <span className="na-offerbar-gift" aria-hidden="true">🎁</span>
             <span className="na-offerbar-txt"><b>{offers[0].title}</b>{offers[0].window ? <> · {offers[0].window}</> : null}{slotOffer && offers[0] === slotOffer ? <span className="na-offerbar-note"> · slots marked <i className="na-offer-tag inline">%</i></span> : null}</span>
@@ -3234,14 +3495,14 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
                 isTablet={tablet}
                 trackAs={bookingType}
                 fit
-                chipsHost={isMobile ? null : chipsHost}
+                chipsHost={null}
                 offerAt={slotOffer ? (d, t) => offerMatchesSlot(slotOffer, d, t) : null}
                 selected={usePendingPick ? pendingPick : (selectedDate && selectedSlot ? { date: selectedDate, slot: selectedSlot } : null)}
                 header={isMobile ? (
                   <div className="na-fullslots-title">Pick a slot</div>
                 ) : (q) => (
                   <div className="na-hd">
-                    <div className="na-fullslots-title" style={tablet ? { fontSize: 20 } : undefined}>{tablet ? "Pick an open slot" : "Pick an open slot to start booking"}</div>
+                    <div className="na-fullslots-title" style={tablet ? { fontSize: 20 } : undefined}>{tablet ? "Pick an open slot" : "Pick an open slot to start booking"}{fromPriceText && !tablet && <span className="na-hd-price"><Ic I={CurrencyRupeeRounded} s={14} /> {fromPriceText.replace(/^From ₹/, "From ₹")}</span>}</div>
                     <div className="na-fullslots-sub">{bookingType === "followup" ? "Follow-up" : "New client"}{tablet ? ` · next ${MATRIX_DAYS} open days · times in IST` : ` availability — next ${MATRIX_DAYS} open days`}</div>
                     {q.chips && <div className="na-hd-r">{q.chips}</div>}
                   </div>
@@ -3725,6 +3986,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
         </div>
 
         {fitSlots && <NoidaSeoContent pricing={seoPricing} reviews={seoReviews} />}
+        <Footer />
 
         <footer className="na-foot">
           <div className="na-foot-in">
@@ -3760,45 +4022,62 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
 function NoidaReviews({ data }) {
   const [all, setAll] = useState(false);
   const list = all ? data.reviews : data.reviews.slice(0, 6);
-  const stars = (n) => "★★★★★".slice(0, n);
+  const avg = data.summary.average;
+  const stars = (n) => <>{"★★★★★".slice(0, n)}<i>{"★★★★★".slice(n)}</i></>;
   return (
-    <div className="na-rv">
+    <div className="na-rvs">
       <h3>What clients say</h3>
-      <div className="na-rv-sum">
-        <b>{data.summary.average.toFixed(1)}</b>
-        <span className="na-rv-stars" aria-hidden="true">{stars(Math.round(data.summary.average))}<i>{"★★★★★".slice(Math.round(data.summary.average))}</i></span>
-        <span>from {data.summary.count} client review{data.summary.count === 1 ? "" : "s"} after their session at the centre</span>
+      <div className="na-rvs-body">
+        <div className="na-rvs-sum">
+          <div className="na-rvs-score"><b>{avg.toFixed(1)}</b><span className="na-rvs-stars" aria-hidden="true">{stars(Math.round(avg))}</span></div>
+          <p>from {data.summary.count} client review{data.summary.count === 1 ? "" : "s"} after their session at the centre</p>
+          <a className="na-rvs-google" href={MAPS_URL} target="_blank" rel="noopener noreferrer">
+            <span className="na-rvs-g" aria-hidden="true">G</span>
+            <span><b>5.0 ★ on Google</b><small>180+ reviews · read them on Google Maps</small></span>
+          </a>
+        </div>
+        <div className="na-rvs-grid">
+          {list.map(r => (
+            <figure key={r.id} className="na-rvs-card">
+              <div className="na-rvs-stars" aria-label={`${r.rating} out of 5`}>{stars(r.rating)}</div>
+              {r.text
+                ? <blockquote>&ldquo;{r.text}&rdquo;</blockquote>
+                : <blockquote className="muted">Rated {r.rating} out of 5 after their session.</blockquote>}
+              <figcaption>
+                <span className="na-rvs-av" aria-hidden="true">{String(r.name || "?").trim().charAt(0).toUpperCase()}</span>
+                <span><b>{r.name}</b>{r.therapistName ? <small>Session with {r.therapistName}</small> : <small>Client at CYT Noida</small>}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </div>
-      <div className="na-rv-grid">
-        {list.map(r => (
-          <figure key={r.id} className="na-rv-card">
-            <div className="na-rv-stars" aria-label={`${r.rating} out of 5`}>{stars(r.rating)}<i>{"★★★★★".slice(r.rating)}</i></div>
-            {r.text && <blockquote>{r.text}</blockquote>}
-            <figcaption><b>{r.name}</b>{r.therapistName ? <span> · session with {r.therapistName}</span> : null}</figcaption>
-          </figure>
-        ))}
-      </div>
-      {data.reviews.length > 6 && !all && <button type="button" className="na-rv-more" onClick={() => setAll(true)}>Show all {data.reviews.length} reviews</button>}
+      {data.reviews.length > 6 && !all && <button type="button" className="na-rvs-more" onClick={() => setAll(true)}>Show all {data.reviews.length} reviews</button>}
     </div>
   );
 }
 
 // Real, readable text for people, Google and AI assistants: what the centre is, what it costs, how booking works, FAQs.
+const HELP_CARDS = [
+  { I: SelfImprovementRounded, t: "Anxiety & stress", d: "Overthinking, panic, work pressure, exam stress and trouble sleeping." },
+  { I: CloudRounded, t: "Depression & low mood", d: "Feeling stuck, low energy, loss of interest, grief and loneliness." },
+  { I: FavoriteRounded, t: "Relationships & couples", d: "Conflict, communication, trust, pre-marital and couple counselling." },
+  { I: SchoolRounded, t: "Teens & young adults", d: "Studies, self-esteem, career confusion, family and peer issues." },
+  { I: AutorenewRounded, t: "Life changes", d: "Breakups, a move, a new job, parenting and big decisions." },
+];
+const MAP_EMBED = "https://www.google.com/maps?q=Choose+Your+Therapist+LLP,+D-137,+Sector+51,+Noida&z=16&output=embed";
+
 function NoidaSeoContent({ pricing, reviews }) {
   const faq = seoFaq(pricing);
-  const rows = [
-    ["Individual", "In-person (Sector 51)", pricing?.individual_inperson],
-    ["Individual", "Online", pricing?.individual_online],
-    ["Individual", "Home visit", pricing?.individual_homevisit],
-    ["Couple", "In-person (Sector 51)", pricing?.couple_inperson],
-    ["Couple", "Online", pricing?.couple_online],
-    ["Couple", "Home visit", pricing?.couple_homevisit],
-  ].filter(r => Number(r[2]) > 0);
+  const cards = [
+    { I: PlaceRounded, mode: "In-person", sub: "At the Sector 51 centre", ind: pricing?.individual_inperson, cpl: pricing?.couple_inperson },
+    { I: VideocamRounded, mode: "Online", sub: "Video call from home", ind: pricing?.individual_online, cpl: pricing?.couple_online },
+    { I: HomeRounded, mode: "Home visit", sub: "We come to you", ind: pricing?.individual_homevisit, cpl: pricing?.couple_homevisit },
+  ].filter(c => Number(c.ind) > 0 || Number(c.cpl) > 0);
   return (
     <section className="na-seo" aria-labelledby="na-seo-h">
       <div className="na-seo-in">
         <h2 id="na-seo-h">Psychologist in Noida — Choose Your Therapist, Sector 51</h2>
-        <p>
+        <p className="na-seo-lead">
           Choose Your Therapist runs a therapy centre in Sector 51, Noida where you can book a psychologist for
           individual or couple sessions — in person at the centre, online from home, or as a home visit. Open slots
           are shown live above: pick one, pay securely, and your appointment is confirmed instantly. Sessions last
@@ -3807,51 +4086,70 @@ function NoidaSeoContent({ pricing, reviews }) {
 
         {reviews?.reviews?.length > 0 && <NoidaReviews data={reviews} />}
 
-        {rows.length > 0 && (
+        {cards.length > 0 && (
           <>
             <h3>Session fees in Noida</h3>
-            <div className="na-seo-table-wrap">
-              <table className="na-seo-table">
-                <thead><tr><th>Session</th><th>Mode</th><th>Fee</th></tr></thead>
-                <tbody>{rows.map(([a, b, c]) => <tr key={a + b}><td>{a}</td><td>{b}</td><td>{inr(c)}</td></tr>)}</tbody>
-              </table>
+            <div className="na-price-grid">
+              {cards.map((c, i) => (
+                <div key={c.mode} className={`na-price-card na-pastel-${[1, 2, 3][i % 3]}`}>
+                  <span className="na-card-ic"><Ic I={c.I} s={20} /></span>
+                  <div className="na-price-mode">{c.mode}</div>
+                  <div className="na-price-sub">{c.sub}</div>
+                  <ul>
+                    {Number(c.ind) > 0 && <li><span>Individual</span><b>{inr(c.ind)}</b></li>}
+                    {Number(c.cpl) > 0 && <li><span>Couple</span><b>{inr(c.cpl)}</b></li>}
+                  </ul>
+                </div>
+              ))}
             </div>
             <p className="na-seo-note">{pricing?.platformFee ? `A ${inr(pricing.platformFee)} platform fee applies per booking. ` : ""}Multi-session packages are available while booking. Home-visit charges may increase with distance.</p>
           </>
         )}
 
         <h3>What our Noida psychologists help with</h3>
-        <ul className="na-seo-steps">
-          <li><b>Anxiety &amp; stress</b> — overthinking, panic, work pressure, exam stress and trouble sleeping.</li>
-          <li><b>Depression &amp; low mood</b> — feeling stuck, low energy, loss of interest, grief and loneliness.</li>
-          <li><b>Relationships &amp; couples</b> — conflict, communication, trust, pre-marital and couple counselling.</li>
-          <li><b>Teens &amp; young adults</b> — studies, self-esteem, career confusion, family and peer issues.</li>
-          <li><b>Life changes</b> — breakups, a move, a new job, parenting and big decisions.</li>
-        </ul>
-        <p>Not sure where to start? Book an individual session — your psychologist will understand what you need in the first meeting and suggest a plan.</p>
-
-        <h3>Easy to reach from</h3>
-        <p>
-          The centre is in Block D, Sector 51, near LPS Global School — a short drive from Sectors 50, 52, 34, 61, 62, 71,
-          72, 76 and 78, Noida City Centre, Indirapuram, Vaishali and Greater Noida West. The nearest metro stations are
-          Sector 51 (Aqua Line) and Noida Sector 52 (Blue Line). Can't travel? Choose an online session or a home visit.
-        </p>
-
-        <h3>How to book</h3>
-        <ol className="na-seo-steps">
-          <li><b>Pick a slot</b> — choose any open date and time in the table above.</li>
-          <li><b>Tell us about you</b> — name, phone and a line about what you'd like help with.</li>
-          <li><b>Choose your session</b> — individual or couple, in-person, online or home visit.</li>
-          <li><b>Pay securely</b> — UPI, card or netbanking; confirmation is instant.</li>
-        </ol>
-        <p>Already a client? Use the <b>Follow-up</b> tab. Need a different time? Use the <b>Reschedule</b> tab.</p>
+        <div className="na-help-grid">
+          {HELP_CARDS.map((h, i) => (
+            <div key={h.t} className={`na-help-card na-pastel-${[4, 2, 5, 6, 1][i % 5]}`}>
+              <span className="na-card-ic"><Ic I={h.I} s={20} /></span>
+              <b>{h.t}</b>
+              <p>{h.d}</p>
+            </div>
+          ))}
+        </div>
+        <p className="na-seo-text">Not sure where to start? Book an individual session — your psychologist will understand what you need in the first meeting and suggest a plan.</p>
 
         <h3>Find the Noida centre</h3>
-        <address className="na-seo-addr">
-          Choose Your Therapist LLP<br />
-          Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301<br />
-          Phone / WhatsApp: <a href="tel:+918077757951">+91 80777 57951</a> · <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">Get directions on Google Maps</a>
-        </address>
+        <div className="na-find">
+          <div className="na-find-info">
+            <address className="na-seo-addr">
+              <b>Choose Your Therapist LLP</b><br />
+              Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301
+            </address>
+            <div className="na-find-btns">
+              <a className="na-find-btn primary" href={MAPS_URL} target="_blank" rel="noopener noreferrer"><Ic I={DirectionsRounded} s={17} /> Get directions</a>
+              <a className="na-find-btn" href="tel:+918077757951"><Ic I={PhoneRounded} s={17} /> Call</a>
+              <a className="na-find-btn" href={waLink("Hi, I have a question about the Noida centre.")} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={17} /> WhatsApp</a>
+            </div>
+            <h4>Easy to reach from</h4>
+            <p>
+              A short drive from Sectors 50, 52, 34, 61, 62, 71, 72, 76 and 78, Noida City Centre, Indirapuram, Vaishali
+              and Greater Noida West. Nearest metro: Sector 51 (Aqua Line) and Noida Sector 52 (Blue Line). Can&apos;t travel?
+              Choose an online session or a home visit.
+            </p>
+          </div>
+          <div className="na-find-map">
+            <iframe title="Map — Choose Your Therapist, Sector 51, Noida" src={MAP_EMBED} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+          </div>
+        </div>
+
+        <h3>How to book</h3>
+        <ol className="na-steps4">
+          <li className="na-pastel-1"><b>Pick a slot</b><span>Choose any open date and time above.</span></li>
+          <li className="na-pastel-2"><b>Tell us about you</b><span>Name, phone and a line about what you&apos;d like help with.</span></li>
+          <li className="na-pastel-4"><b>Choose your session</b><span>Individual or couple — in person, online or home visit.</span></li>
+          <li className="na-pastel-3"><b>Pay securely</b><span>UPI, card or netbanking; confirmation is instant.</span></li>
+        </ol>
+        <p className="na-seo-text">Already a client? Use the <b>Follow-up</b> tab. Need a different time? Use the <b>Reschedule</b> tab.</p>
 
         <h3>Frequently asked questions</h3>
         <div className="na-seo-faq">
