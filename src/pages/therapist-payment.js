@@ -191,7 +191,7 @@ export default function TherapistPayment() {
       const orderRes = await fetch(`${apiUrl}/therapist-subscription/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), plan: plan.id }),
+        body: JSON.stringify({ email: email.trim(), plan: plan.id, terms_version: TERMS_VERSION }),
       });
       const od = await orderRes.json().catch(() => ({}));
       if (!orderRes.ok || !od?.data?.orderId) {
