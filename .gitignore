@@ -28,3 +28,4 @@ yarn-error.log*
 
 # secrets — never commit (the server keeps its own .env; deploy restores it)
 .env
+.env.bak*
