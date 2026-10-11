@@ -159,7 +159,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
     ? `Best Psychologist in ${userCity} | Choose Your Therapist`
     : userState
       ? `Best Psychologist in ${userState} | Choose Your Therapist`
-      : "Best Psychologists in India | Choose Your Therapist";
+      : "Psychologist in Noida & Online Across India | Choose Your Therapist";
 
   const pageDescription = userCity 
     ? `Book online or in-person sessions with top-rated psychologists in ${userCity}, ${userState || ""}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
@@ -425,7 +425,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
                 ? `Best Psychologist in ${userCity} | Choose Your Therapist`
                 : userState
                   ? `Best Psychologist in ${userState} | Choose Your Therapist`
-                  : "Best Psychologists in India | Choose Your Therapist",
+                  : "Psychologist in Noida & Online Across India | Choose Your Therapist",
               "isPartOf": { "@id": "https://www.chooseyourtherapist.in#organization" },
               "about": { "@id": "https://www.chooseyourtherapist.in#organization" },
               "speakable": {
