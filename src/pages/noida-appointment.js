@@ -787,14 +787,14 @@ function SlotsTable({ matrix, loading, selected, disableLastMinute, isMobile, is
       const spacing = parseFloat(getComputedStyle(table).borderSpacing) || 5;
       const avail = el.clientHeight - (head ? head.offsetHeight : 0) - spacing * (rows + 2);
       const h = Math.floor(avail / rows);
-      el.style.setProperty("--na-cell-h", `${Math.max(22, Math.min(68, h))}px`);
+      el.style.setProperty("--na-cell-h", `${Math.max(22, Math.min(isTablet ? 120 : 68, h))}px`);
     };
     calc();
     if (typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver(calc);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [fit, loading, period, matrix.times.length, matrix.dates.length]);
+  }, [fit, loading, period, matrix.times.length, matrix.dates.length, isTablet]);
   // `header` is an element, or a function that receives the quick controls so a
   // page can seat them on its own title lines instead of adding a row above the table.
   const inlineQuick = typeof header === "function";
@@ -3220,6 +3220,11 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
         .na-nextfree-dot { flex-shrink: 0; }
         @media (max-width: 640px) { .na-page .na-topbar .na-nextfree { font-size: 12.5px; gap: 5px; white-space: nowrap; } .na-page .na-topbar .na-nextfree-cta { padding: 6px 12px; } }
         @media (max-width: 360px) { .na-page .na-topbar .na-nextfree { font-size: 11.5px; } }
+        /* iPad: same photo header as desktop, slots card nearly edge to edge */
+        .na-page.is-tablet .na-topbar-bgs { display: block; position: absolute; inset: 0; z-index: 0; }
+        .na-page.na-hero.is-tablet .na-shell, .na-page.na-hero.na-fit.is-tablet .na-shell.fit-slots { background: #eef2f0; }
+        .na-page.na-hero.na-fit.is-tablet .na-shell.fit-slots > .na-fullslots-wrap { padding: 10px 10px 10px; }
+        .na-page.na-hero.is-tablet .na-tab-main { border-radius: 16px; box-shadow: 0 6px 18px -12px rgba(15,61,34,.3); }
       ` }} />
 
       {showWelcome && (
