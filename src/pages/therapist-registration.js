@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import Head from "next/head";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
@@ -298,6 +299,16 @@ export default function TherapistRegistration() {
   const [submitted, setSubmitted] = useState(false);
   const [otpStep, setOtpStep] = useState(false);
   const [checkedStage, setCheckedStage] = useState(null);
+  const router = useRouter();
+  const [packagesFor, setPackagesFor] = useState(null); // email to open the packages modal with
+  useEffect(() => {
+    if (router.isReady && router.query.packages) setPackagesFor(typeof router.query.email === "string" ? router.query.email : "");
+  }, [router.isReady, router.query.packages, router.query.email]);
+  const closePackages = () => {
+    setPackagesFor(null);
+    // drop ?packages from the address bar so a refresh doesn't reopen it
+    if (router.query.packages) router.replace("/therapist-registration", undefined, { shallow: true });
+  };
   const [isMobile, setIsMobile] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -692,13 +703,15 @@ export default function TherapistRegistration() {
           before Footer actually starts) would show that dark green through. */}
       <div style={{ background: "#fff" }}>
       <div className="container" style={{ padding: isMobile ? "0 16px 32px" : "0 24px 48px" }}>
-        {(checkedStage || submitted) && (
+        {checkedStage && !submitted && (
           <div className="phx-overlap tr-journey-lift" style={{ maxWidth: 1100, margin: "0 auto" }}>
             <JourneySteps current={checkedStage ? (STAGE_TO_STEP[checkedStage] ?? (submitted ? 1 : 0)) : (submitted ? 1 : 0)} isMobile={isMobile} />
           </div>
         )}
         {submitted ? (
-          <SuccessScreen name={form.name} email={registeredEmail} />
+          <div className="phx-overlap" style={{ background: "#fff", borderRadius: 24, border: "1px solid #e3ebe6", boxShadow: "0 30px 60px -30px rgba(20,83,45,.35)", maxWidth: 1100, margin: "0 auto" }}>
+            <SuccessScreen name={form.name} email={registeredEmail} />
+          </div>
         ) : otpStep ? (
           /* ── OTP VERIFICATION ── */
           <div className={checkedStage ? "" : "phx-overlap"} style={{ maxWidth: 480, margin: "0 auto" }}>
@@ -1193,6 +1206,7 @@ export default function TherapistRegistration() {
       </div>
       </div>
 
+      {packagesFor !== null && <PackageModal initialEmail={packagesFor} onClose={closePackages} />}
       <Footer />
     </>
   );
