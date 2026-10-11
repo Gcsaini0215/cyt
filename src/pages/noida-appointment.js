@@ -3864,7 +3864,7 @@ function NoidaSeoContent({ pricing, reviews }) {
         </div>
 
         <p className="na-seo-links">
-          Explore more: <a href="/psychologist-in-noida-delhi">Free consultation — Noida &amp; Delhi NCR</a> ·{" "}
+          Explore more: <a href="/psychologist-in-noida-delhi">Find a therapist in Noida &amp; Delhi NCR</a> ·{" "}
           <a href="/view-all-therapist">Browse all therapists</a> · <a href="/self-assessment">Free self-assessment</a> ·{" "}
           <a href="/privacy-policy">Privacy policy</a>
         </p>

@@ -60,8 +60,8 @@ export default function LocalLandingPage() {
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       <Head>
-        <title>Free Consultation with a Psychologist – Noida & Delhi NCR | CYT</title>
-        <meta name="description" content="Not sure which therapist is right for you? Leave your number for a free consultation call — we match you with a verified psychologist in Noida, Delhi NCR or online." />
+        <title>Find the Right Therapist in Noida & Delhi NCR – Get a Call Back | CYT</title>
+        <meta name="description" content="Not sure which therapist is right for you? Share a few details and our team calls you back — we match you with a verified psychologist in Noida, Delhi NCR or online." />
         <meta name="keywords" content="Best Psychologist in Noida, Top Psychologist in Delhi, Mental Health Studio Noida, Anxiety Specialist Delhi NCR, Relationship Counseling Noida Sector 51, Psychologist near me Noida, Best Psychologist in Uttar Pradesh, clinical psychologist in Noida, therapist near me Delhi NCR, psychologist near Sector 50 Noida, therapy center near LPS Global School, counselor in Noida Sector 34" />
         
         {/* Local SEO Meta Tags */}
@@ -73,14 +73,14 @@ export default function LocalLandingPage() {
         {/* OpenGraph / Social Media Tags */}
         <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
-        <meta property="og:title" content="Free Consultation with a Psychologist – Noida & Delhi NCR" />
+        <meta property="og:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
         <meta property="og:description" content="Leave your number for a free call — we match you with a verified psychologist in Noida, Delhi NCR or online." />
         <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Consultation with a Psychologist – Noida & Delhi NCR" />
+        <meta name="twitter:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
         <meta name="twitter:description" content="Professional mental health support in Noida & Delhi. Book your session today." />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
 
@@ -165,7 +165,7 @@ export default function LocalLandingPage() {
             {
               "@context": "https://schema.org",
               "@type": "MedicalWebPage",
-              "name": "Free Consultation with a Psychologist – Noida & Delhi NCR",
+              "name": "Find the Right Therapist in Noida & Delhi NCR – Get a Call Back",
               "description": "Find and book verified psychologists and therapists in Noida and Delhi NCR for anxiety, depression, OCD, trauma, and relationship counselling.",
               "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
               "lastReviewed": "2026-06-01",
@@ -260,13 +260,13 @@ export default function LocalLandingPage() {
             <div className="row align-items-center">
               <div className="col-lg-7" style={{ textAlign: 'left' }}>
                 <h1 style={{ fontSize: '4.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: '24px', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
-                  Talk to a Psychologist — <br/> <span style={{ color: '#4ade80' }}>Free Consultation, Noida &amp; Delhi NCR</span>
+                  Find the Right Therapist <br/> <span style={{ color: '#4ade80' }}>in Noida &amp; Delhi NCR</span>
                 </h1>
                 <p style={{ fontSize: '1.8rem', color: 'rgba(255, 255, 255, 0.95)', marginBottom: '40px', maxWidth: '800px', fontWeight: 500, lineHeight: 1.6 }}>
                   Professional therapy for anxiety, depression, and relationships. Connect with top-rated psychologists in Noida, Delhi NCR, or via Online sessions.
                 </p>
                 <div className="hero-btns-container" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-                  <a href="#consultation" className="rbt-btn btn-gradient">Book Free Consultation</a>
+                  <a href="#consultation" className="rbt-btn btn-gradient">Get a Call Back</a>
                   <a href="/view-all-therapist" className="rbt-btn btn-white" style={{ border: 'none', background: '#ffffff', color: '#228756', fontWeight: '800' }}>Find Your Therapist</a>
                 </div>
               </div>
