@@ -60,8 +60,8 @@ export default function LocalLandingPage() {
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       <Head>
-        <title>Best Psychologist in Noida & Delhi | Top Rated Therapists Near Me</title>
-        <meta name="description" content="Connect with the best psychologists in Noida and Delhi at Choose Your Therapist. Verified mental health experts for anxiety, depression, and relationship therapy. Visit our Noida Studio or book online." />
+        <title>Psychologist in Noida | Counselling Psychologists & Therapists</title>
+        <meta name="description" content="Meet a verified counselling psychologist at our Noida centre in Sector 51 (near LPS Global School) or online — for anxiety, stress, depression, relationships and teens. Book in 2 minutes." />
         <meta name="keywords" content="Best Psychologist in Noida, Top Psychologist in Delhi, Mental Health Studio Noida, Anxiety Specialist Delhi NCR, Relationship Counseling Noida Sector 51, Psychologist near me Noida, Best Psychologist in Uttar Pradesh, clinical psychologist in Noida, therapist near me Delhi NCR, psychologist near Sector 50 Noida, therapy center near LPS Global School, counselor in Noida Sector 34" />
         
         {/* Local SEO Meta Tags */}
@@ -73,16 +73,16 @@ export default function LocalLandingPage() {
         {/* OpenGraph / Social Media Tags */}
         <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
-        <meta property="og:title" content="Best Psychologist in Noida & Delhi | Verified Experts" />
-        <meta property="og:description" content="Professional therapy at our Noida Studio or online. Connect with top-rated psychologists in Delhi NCR." />
-        <meta property="og:image" content="https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg" />
+        <meta property="og:title" content="Psychologist in Noida | Counselling Psychologists & Therapists" />
+        <meta property="og:description" content="Verified counselling psychologists at our Noida centre in Sector 51, or online. Book in 2 minutes." />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Best Psychologist in Noida & Delhi" />
+        <meta name="twitter:title" content="Psychologist in Noida | Choose Your Therapist" />
         <meta name="twitter:description" content="Professional mental health support in Noida & Delhi. Book your session today." />
-        <meta name="twitter:image" content="https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
 
         <link rel="canonical" href="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
 
@@ -165,7 +165,7 @@ export default function LocalLandingPage() {
             {
               "@context": "https://schema.org",
               "@type": "MedicalWebPage",
-              "name": "Best Psychologist in Noida & Delhi | Verified Mental Health Experts",
+              "name": "Psychologist in Noida | Counselling Psychologists & Therapists",
               "description": "Find and book verified psychologists and therapists in Noida and Delhi NCR for anxiety, depression, OCD, trauma, and relationship counselling.",
               "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
               "lastReviewed": "2026-06-01",
@@ -225,7 +225,7 @@ export default function LocalLandingPage() {
                   "name": "What is the cost of a therapy session in Noida & Delhi?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Therapy session costs at Choose Your Therapist range from ₹500 to ₹3000 per session, depending on the psychologist's experience and specialization. We offer transparent pricing, student-friendly rates, and subscription plans for regular therapy."
+                    "text": "Therapy session costs at Choose Your Therapist range from ₹500 to ₹3000 per session, depending on the psychologist's experience and specialization. We offer transparent pricing and student-friendly rates."
                   }
                 },
                 {
@@ -260,7 +260,7 @@ export default function LocalLandingPage() {
             <div className="row align-items-center">
               <div className="col-lg-7" style={{ textAlign: 'left' }}>
                 <h1 style={{ fontSize: '4.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: '24px', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
-                  Best Psychologist in <br/> Noida & Delhi | Verified <br/> <span style={{ color: '#4ade80' }}>Mental Health Experts</span>
+                  Psychologist &amp; Therapist <br/> in Noida — <span style={{ color: '#4ade80' }}>Sector 51 Centre &amp; Online</span>
                 </h1>
                 <p style={{ fontSize: '1.8rem', color: 'rgba(255, 255, 255, 0.95)', marginBottom: '40px', maxWidth: '800px', fontWeight: 500, lineHeight: 1.6 }}>
                   Professional therapy for anxiety, depression, and relationships. Connect with top-rated psychologists in Noida, Delhi NCR, or via Online sessions.
