@@ -161,7 +161,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
   return (
     <div style={{ overflowX: "hidden", width: "100%" }}>
       <Head>
-        <title>Best Psychologist in {config.name} | Verified Therapists | Choose Your Therapist</title>
+        <title>{`Best Psychologist in ${config.name} | Verified Therapists | Choose Your Therapist`}</title>
         <meta name="description" content={config.description} />
         <meta name="keywords" content={config.localKeywords} />
         <meta name="robots" content="index, follow" />

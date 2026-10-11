@@ -269,7 +269,7 @@ export default function BlogDetailsNew() {
       <ThemeProvider theme={blogTheme}>
         <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
           <Head>
-            <title>{blog.title} | Choose Your Therapist</title>
+            <title>{`${blog.title} | Choose Your Therapist`}</title>
             <meta name="description" content={blog.description} />
             <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
           </Head>

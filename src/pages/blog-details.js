@@ -661,7 +661,7 @@ export default function BlogDetails({ initialBlog }) {
   return (
     <Box sx={{ bgcolor: '#ffffff', minHeight: '100vh', overflowX: 'hidden', maxWidth: '100%' }}>
       <Head>
-        <title>{blog.title} | Choose Your Therapist</title>
+        <title>{`${blog.title} | Choose Your Therapist`}</title>
         <meta name="description" content={cleanDesc} />
         <meta name="keywords" content={blog.tags || blog.category} />
         <meta name="robots" content="index, follow" />

@@ -26,7 +26,7 @@ export default function WorkshopDetail(props) {
     <>
       {/* SEO Meta Tags */}
       <Head>
-        <title>{data.title} | Mind Matters Programs</title>
+        <title>{`${data.title} | Mind Matters Programs`}</title>
         <meta name="description" content={metaDescription} />
         <meta name="keywords" content={`Mindfulness, Therapy, Mental Health, ${data.title}`} />
         <meta property="og:title" content={data.title} />

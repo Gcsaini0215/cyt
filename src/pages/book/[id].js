@@ -923,7 +923,7 @@ export default function BookPage() {
   return (
     <>
       <Head>
-        <title>Book Session — {profile.user?.name} | Choose Your Therapist</title>
+        <title>{`Book Session — ${profile.user?.name || "Therapist"} | Choose Your Therapist`}</title>
       </Head>
       <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }

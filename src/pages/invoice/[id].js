@@ -149,7 +149,7 @@ export default function InvoiceViewPage() {
   return (
     <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', py: { xs: 3, md: 5 }, px: { xs: 1.5, sm: 2 } }}>
       <Head>
-        <title>Invoice - {log.name} | Choose Your Therapist</title>
+        <title>{`Invoice - ${log.name} | Choose Your Therapist`}</title>
         <style>
           {`
             @media print {
