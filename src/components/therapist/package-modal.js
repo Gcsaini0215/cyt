@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { checkTherapistStatusUrl, verifyTherapistSubscriptionUrl } from "../../utils/url";
+import { apiUrl, checkTherapistStatusUrl, verifyTherapistSubscriptionUrl } from "../../utils/url";
 import { postData } from "../../utils/actions";
 
 /* Listing packages for therapists. Same plans, prices and payment flow as /therapist-payment.
@@ -79,16 +79,18 @@ export default function PackageModal({ initialEmail = "", onClose }) {
     setPayErr(""); setPaying(true);
     try {
       if (!(await loadRazorpay())) throw new Error("Couldn't load the payment window. Check your connection.");
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      // the backend prices the order from the plan and creates it with the keys that verify it
+      const orderRes = await fetch(`${apiUrl}/therapist-subscription/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: chosen.amount, bookingId: `sub_${email.trim()}_${Date.now()}` }),
+        body: JSON.stringify({ email: email.trim(), plan: chosen.id }),
       });
-      const { orderId, error } = await orderRes.json();
-      if (!orderId) throw new Error(error || "Payment init failed. Please try again.");
+      const od = await orderRes.json().catch(() => ({}));
+      if (!orderRes.ok || !od?.data?.orderId) throw new Error(od?.message || "Payment init failed. Please try again.");
+      const { orderId, keyId, amount } = od.data;
       const rzp = new window.Razorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(chosen.amount * 100),
+        key: keyId,
+        amount: Math.round(amount * 100),
         currency: "INR",
         order_id: orderId,
         name: "Choose Your Therapist",

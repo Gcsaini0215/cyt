@@ -170,7 +170,7 @@ export default function ConsultPaymentForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: AMOUNT, bookingId: `consult_${Date.now()}` }),
       });
-      const { orderId, error } = await orderRes.json();
+      const { orderId, keyId, error } = await orderRes.json();
       if (!orderId) {
         setMessage(error || "Payment initialization failed. Please try again.");
         setLoading(false);
@@ -178,7 +178,7 @@ export default function ConsultPaymentForm() {
       }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // the key the order was made under
         amount: Math.round(AMOUNT * 100),
         currency: "INR",
         order_id: orderId,

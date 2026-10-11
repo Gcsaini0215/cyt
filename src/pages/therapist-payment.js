@@ -5,7 +5,7 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import { checkTherapistStatusUrl, verifyTherapistSubscriptionUrl, createRazorpayOrderUrl } from "../utils/url";
+import { apiUrl, checkTherapistStatusUrl, verifyTherapistSubscriptionUrl, createRazorpayOrderUrl } from "../utils/url";
 import { postData } from "../utils/actions";
 
 const G    = "#0f3d24";
@@ -187,21 +187,23 @@ export default function TherapistPayment() {
     setPayErr("");
     setPaying(true);
     try {
-      const orderRes = await fetch("/api/create-razorpay-order", {
+      // the backend prices the order from the plan and creates it with the keys that verify it
+      const orderRes = await fetch(`${apiUrl}/therapist-subscription/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: plan.amount, bookingId: `sub_${email}_${Date.now()}` }),
+        body: JSON.stringify({ email: email.trim(), plan: plan.id }),
       });
-      const { orderId, error } = await orderRes.json();
-      if (!orderId) {
-        setPayErr(error || "Payment init failed. Please try again.");
+      const od = await orderRes.json().catch(() => ({}));
+      if (!orderRes.ok || !od?.data?.orderId) {
+        setPayErr(od?.message || "Payment init failed. Please try again.");
         setPaying(false);
         return;
       }
+      const { orderId, keyId, amount } = od.data;
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(plan.amount * 100),
+        key: keyId,
+        amount: Math.round(amount * 100),
         currency: "INR",
         order_id: orderId,
         name: "Choose Your Therapist",

@@ -110,11 +110,11 @@ export default function TherapistCheckout({ profile }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, bookingId }),
       });
-      const { orderId, error } = await orderRes.json();
+      const { orderId, keyId, error } = await orderRes.json();
       if (!orderId) { setError(error || "Payment init failed. Try again."); return; }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // the key the order was made under
         amount: Math.round(amount * 100),
         currency: "INR",
         order_id: orderId,
