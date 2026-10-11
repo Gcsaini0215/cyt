@@ -154,17 +154,18 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
     if (userState || initialTop.length === 0) getTopTherapists();
   }, [getTopTherapists]);
 
-  const pageTitle = userCity 
-    ? `Best Psychologist in ${userCity}${userState ? `, ${userState}` : ""} | Online Therapy | CYT`
-    : userState 
-      ? `Best Psychologist in ${userState} | Online Therapy | CYT`
-      : "Best Psychologist in India | Online Therapy | CYT";
+  // full brand name in the title: people searching for "choose your therapist" didn't recognise "CYT"
+  const pageTitle = userCity
+    ? `Best Psychologist in ${userCity} | Choose Your Therapist`
+    : userState
+      ? `Best Psychologist in ${userState} | Choose Your Therapist`
+      : "Best Psychologists in India | Choose Your Therapist";
 
   const pageDescription = userCity 
     ? `Book online or in-person sessions with top-rated psychologists in ${userCity}, ${userState || ""}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
     : userState 
       ? `Book online or in-person sessions with top-rated psychologists in ${userState}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
-      : "Book online or in-person sessions with top-rated psychologists in India. Expert therapy for anxiety, depression, OCD, and relationship counseling.";
+      : "Talk to a verified psychologist online or at our Noida centre — for anxiety, stress, depression and relationships. Sessions from ₹400, 5,000+ booked. Book in 2 minutes.";
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
@@ -192,7 +193,9 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content={canonicalUrl} />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
@@ -201,7 +204,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content="https://i.postimg.cc/gj1yngrd/choose.png" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
         <meta name="twitter:site" content="@CYT_India" />
 
         {/* Local SEO Meta Tags - Fixed defaulting to Noida, India for Google sync */}
@@ -211,12 +214,12 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta name="ICBM" content="28.5821626, 77.3742084" />
 
         {/* Enhanced Schema.org Data */}
-        <script type="application/ld+json">
-          {JSON.stringify([
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([
             {
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "Choose Your Therapist",
+              "alternateName": ["CYT", "chooseyourtherapist.in"],
               "url": "https://www.chooseyourtherapist.in",
               "potentialAction": {
                 "@type": "SearchAction",
@@ -419,10 +422,10 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
               "@id": "https://www.chooseyourtherapist.in/#webpage",
               "url": "https://www.chooseyourtherapist.in/",
               "name": userCity
-                ? `Best Psychologist in ${userCity} | Online Therapy | CYT`
+                ? `Best Psychologist in ${userCity} | Choose Your Therapist`
                 : userState
-                  ? `Best Psychologist in ${userState} | Online Therapy | CYT`
-                  : "Best Psychologist in India | Online Therapy | CYT",
+                  ? `Best Psychologist in ${userState} | Choose Your Therapist`
+                  : "Best Psychologists in India | Choose Your Therapist",
               "isPartOf": { "@id": "https://www.chooseyourtherapist.in#organization" },
               "about": { "@id": "https://www.chooseyourtherapist.in#organization" },
               "speakable": {
@@ -494,12 +497,10 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
                 }
               ]
             }
-          ])}
-        </script>
+          ]) }} />
 
         {/* FAQPage Schema — helps AI search engines and Google surface homepage FAQ answers directly */}
-        <script type="application/ld+json">
-          {JSON.stringify({
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             "mainEntity": [
@@ -568,8 +569,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
                 }
               }
             ]
-          })}
-        </script>
+          }) }} />
       </Head>
 
       <main className="rbt-main-wrapper">

@@ -87,8 +87,7 @@ export default function LocalLandingPage() {
         <link rel="canonical" href="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
 
         {/* Schema.org — MedicalClinic + MedicalWebPage + FAQPage + BreadcrumbList */}
-        <script type="application/ld+json">
-          {JSON.stringify([
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([
             {
               "@context": "https://schema.org",
               "@type": "MedicalClinic",
@@ -239,8 +238,7 @@ export default function LocalLandingPage() {
                 }
               ]
             }
-          ])}
-        </script>
+          ]) }} />
       </Head>
 
       <main className="rbt-main-wrapper">
