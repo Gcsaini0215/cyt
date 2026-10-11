@@ -15,12 +15,12 @@ export default function AllWorkshop() {
         <meta property="og:description" content="Join our upcoming workshops and training sessions led by expert psychologists." />
         <meta property="og:url" content="https://chooseyourtherapist.in/allworkshop" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Workshops & Events | Mental Health Training | Choose Your Therapist" />
         <meta name="twitter:description" content="Explore upcoming events and training opportunities." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
       <main className="">
         <MyNavbar />

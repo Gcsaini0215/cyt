@@ -22,12 +22,12 @@ export default function Plans() {
         <meta property="og:description" content="Explore affordable therapy plans and pricing. Flexible options for individual counseling and specialized mental health support." />
         <meta property="og:url" content="https://chooseyourtherapist.in/plans" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Therapy Plans & Pricing | Affordable Counseling in India" />
         <meta name="twitter:description" content="Explore affordable therapy plans and pricing at Choose Your Therapist." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
       <MyNavbar />
       <PlansHeader planType={planType} setPlanType={setPlanType} />

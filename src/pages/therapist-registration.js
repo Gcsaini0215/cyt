@@ -537,22 +537,26 @@ export default function TherapistRegistration() {
   return (
     <>
       <Head>
-        <title>Therapist Registration | Join Our Network of Mental Health Experts | Choose Your Therapist</title>
+        <title>Join as a Therapist | List Your Practice on Choose Your Therapist</title>
         <meta name="robots" content="index, follow" />
-        <meta name="description" content="Are you a qualified psychologist or psychiatrist? Register with Choose Your Therapist to connect with clients across India and grow your professional practice on our secure platform." />
-        <meta name="keywords" content="Therapist Registration, Join Mental Health Network, Psychologist Jobs India, Online Therapy Practice" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/therapist-registration" />
+        <meta name="description" content="Psychologists, psychiatrists and counsellors: get a verified profile on Choose Your Therapist and get booked online or in person. Keep 70% of every booking. Plans from ₹999/month — apply in 5 minutes." />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/therapist-registration" />
 
-        <meta property="og:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
-        <meta property="og:description" content="Register with Choose Your Therapist to connect with clients across India and grow your professional practice." />
-        <meta property="og:url" content="https://chooseyourtherapist.in/therapist-registration" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/therapist-registration" />
+        <meta property="og:title" content="Grow your practice with Choose Your Therapist" />
+        <meta property="og:description" content="Get a verified profile, get booked online or in person, and keep 70% of every booking. Plans from ₹999/month. Apply in about 5 minutes." />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/images/og-therapist-registration.jpg" />
+        <meta property="og:image:secure_url" content="https://www.chooseyourtherapist.in/images/og-therapist-registration.jpg" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Indian psychologist in a session — Grow your practice with Choose Your Therapist" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Therapist Registration | Join Our Network of Mental Health Experts" />
-        <meta name="twitter:description" content="Register as a verified therapist and grow your practice with Choose Your Therapist." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:title" content="Grow your practice with Choose Your Therapist" />
+        <meta name="twitter:description" content="Get a verified profile, get booked online or in person, and keep 70% of every booking. Plans from ₹999/month." />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/images/og-therapist-registration.jpg" />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `

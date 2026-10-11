@@ -16,12 +16,12 @@ export default function EmergencySupport() {
         <meta property="og:description" content="Immediate help and crisis support resources for mental health emergencies." />
         <meta property="og:url" content="https://chooseyourtherapist.in/emergency-support" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist" />
         <meta name="twitter:description" content="Find immediate help for mental health crises." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
       </Head>
       <MyNavbar />
       <PageBreadCrumb title="Emergency Support" linkTitle="Get Help When You Need It Most" />
