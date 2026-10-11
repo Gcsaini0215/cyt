@@ -141,7 +141,6 @@ export default function Footer() {
                   <li className="mb--12"><Link href="/self-assessment">Self-Assessment</Link></li>
                   <li className="mb--12"><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
                   <li className="mb--12"><Link href="/daily-journal">Daily Journal</Link></li>
-                  <li className="mb--12"><Link href="/plans">Therapy Plans</Link></li>
                   <li><Link href="/allworkshop">Workshops</Link></li>
                 </ul>
               </div>

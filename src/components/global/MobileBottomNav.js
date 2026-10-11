@@ -92,12 +92,6 @@ export default function MobileBottomNav() {
           <span>Mind Matters</span>
         </Link>
       </li>
-      <li className={router.pathname === "/plans" ? "active" : ""}>
-        <Link href="/plans">
-          <i className="feather-gift"></i>
-          <span>Offers</span>
-        </Link>
-      </li>
       <li className={isLoggedIn ? (router.pathname.includes("/dashboard") || router.pathname.includes("/my-") ? "active" : "") : (router.pathname === "/login" ? "active" : "")}>
         <Link href={isLoggedIn ? "/my-dashboard" : "/login"}>
           <i className="feather-user"></i>

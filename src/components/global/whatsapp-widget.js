@@ -27,12 +27,6 @@ const WhatsAppWidget = () => {
       isExternal: false
     },
     {
-      label: "Pricing & Plans",
-      link: "/plans",
-      icon: "💰",
-      isExternal: false
-    },
-    {
       label: "Talk to an Expert",
       link: `https://wa.me/${whatsappNumber.replace('+', '')}?text=${encodeURIComponent("Hi! I'd like to talk to an expert.")}`,
       icon: "💬",
