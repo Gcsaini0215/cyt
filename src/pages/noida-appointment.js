@@ -71,8 +71,8 @@ function haptic(ms = 12) {
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/noida-appointment`;
 const CENTRE_ID = `${PAGE_URL}#centre`;
-const SEO_TITLE = "Psychologist in Noida – Book In-Person, Online or Home Visit";
-const SEO_DESC = "Book a psychologist in Noida at our Sector 51 centre — pick an open slot, pay securely, get confirmed instantly. Online sessions & home visits available.";
+const SEO_TITLE = "Psychologist in Noida, Sector 51 – Counselling Psychologist, Book Online";
+const SEO_DESC = "Book a counselling psychologist at our Noida centre in Sector 51 — pick an open slot, pay securely, get confirmed instantly. In-person, online or home visit.";
 
 const inr = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
 
@@ -3820,6 +3820,23 @@ function NoidaSeoContent({ pricing, reviews }) {
           </>
         )}
 
+        <h3>What our Noida psychologists help with</h3>
+        <ul className="na-seo-steps">
+          <li><b>Anxiety &amp; stress</b> — overthinking, panic, work pressure, exam stress and trouble sleeping.</li>
+          <li><b>Depression &amp; low mood</b> — feeling stuck, low energy, loss of interest, grief and loneliness.</li>
+          <li><b>Relationships &amp; couples</b> — conflict, communication, trust, pre-marital and couple counselling.</li>
+          <li><b>Teens &amp; young adults</b> — studies, self-esteem, career confusion, family and peer issues.</li>
+          <li><b>Life changes</b> — breakups, a move, a new job, parenting and big decisions.</li>
+        </ul>
+        <p>Not sure where to start? Book an individual session — your psychologist will understand what you need in the first meeting and suggest a plan.</p>
+
+        <h3>Easy to reach from</h3>
+        <p>
+          The centre is in Block D, Sector 51, near LPS Global School — a short drive from Sectors 50, 52, 34, 61, 62, 71,
+          72, 76 and 78, Noida City Centre, Indirapuram, Vaishali and Greater Noida West. The nearest metro stations are
+          Sector 51 (Aqua Line) and Noida Sector 52 (Blue Line). Can't travel? Choose an online session or a home visit.
+        </p>
+
         <h3>How to book</h3>
         <ol className="na-seo-steps">
           <li><b>Pick a slot</b> — choose any open date and time in the table above.</li>
@@ -3847,7 +3864,7 @@ function NoidaSeoContent({ pricing, reviews }) {
         </div>
 
         <p className="na-seo-links">
-          Explore more: <a href="/psychologist-in-noida-delhi">Psychologist in Noida &amp; Delhi</a> ·{" "}
+          Explore more: <a href="/psychologist-in-noida-delhi">Free consultation — Noida &amp; Delhi NCR</a> ·{" "}
           <a href="/view-all-therapist">Browse all therapists</a> · <a href="/self-assessment">Free self-assessment</a> ·{" "}
           <a href="/privacy-policy">Privacy policy</a>
         </p>

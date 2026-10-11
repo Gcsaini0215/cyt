@@ -12,7 +12,7 @@ import { GBP_URL } from "../about/visit-centre";
 // photo tile -> place page (count shown from that place's stats)
 const TILES = [
   { label: "Delhi NCR", img: "delhi", slug: "delhi" },
-  { label: "Noida", img: "noida", slug: "uttar-pradesh", href: "/psychologist-in-noida-delhi", note: "in-person centre" },
+  { label: "Noida", img: "noida", slug: "uttar-pradesh", href: "/noida-appointment", note: "in-person centre" },
   { label: "Mumbai", img: "mumbai", slug: "mumbai" },
   { label: "Bangalore", img: "bangalore", slug: "bangalore" },
   { label: "Hyderabad", img: "hyderabad", slug: "hyderabad" },

@@ -135,12 +135,12 @@ export default function App() {
                   <ul className="mainmenu">
                     <li className={navCls("/")}><Link href="/" aria-current={isActive("/") ? "page" : undefined}>Home</Link></li>
                     <li className={navCls("/view-all-therapist")}><Link href="/view-all-therapist" aria-current={isActive("/view-all-therapist") ? "page" : undefined}>Therapist Directory</Link></li>
-                    <li className={`has-dropdown ${["/therapy-booking", "/self-assessment", "/psychologist-in-noida-delhi"].some(isActive) ? "is-active" : ""}`}>
+                    <li className={`has-dropdown ${["/therapy-booking", "/self-assessment", "/noida-appointment"].some(isActive) ? "is-active" : ""}`}>
                       <a href="#" role="button" aria-haspopup="true" onClick={(e) => e.preventDefault()}>Services <i className="feather-chevron-down"></i></a>
                       <ul className="submenu">
                         <li><Link href="/therapy-booking">Therapy Booking</Link></li>
                         <li><Link href="/self-assessment">Self Assessment</Link></li>
-                      <li><Link href="/psychologist-in-noida-delhi">Psychologist in Noida</Link></li>
+                      <li><Link href="/noida-appointment">Psychologist in Noida</Link></li>
                       </ul>
                     </li>
                     <li className={navCls("/about-us")}><Link href="/about-us">Our Story</Link></li>
@@ -314,7 +314,7 @@ export default function App() {
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
                 <li><Link href="/therapy-booking" onClick={close}>Therapy Booking</Link></li>
                 <li><Link href="/self-assessment" onClick={close}>Self Assessment</Link></li>
-                <li><Link href="/psychologist-in-noida-delhi" onClick={close}>Psychologist in Noida</Link></li>
+                <li><Link href="/psychologist-in-noida-delhi" onClick={close}>Free Consultation (Noida &amp; Delhi)</Link></li>
               </ul>
             </li>
           </ul>
