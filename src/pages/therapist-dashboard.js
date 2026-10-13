@@ -14,6 +14,7 @@ import { fetchById, postData } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import AvailabilityNudge from "../components/therapists/dashboard/AvailabilityNudge";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
+import { TodayBar, KpiCard, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { Box, Typography, Avatar, Skeleton, CircularProgress } from "@mui/material";
 
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
@@ -755,6 +756,7 @@ export default function TherapistDashboard() {
     totalEarnings: 0, monthEarnings: 0, upcoming: 0, totalClients: 0,
     todayClients: 0, todaySessions: 0, todayRevenue: 0, pendingCount: 0, completedCount: 0,
     completionRate: 0, monthGrowth: null, monthGrowthUp: true,
+    monthSessions: 0, lastMonthSessions: 0, newClients: 0,
   });
   const [weeklyData, setWeeklyData] = React.useState([]);
   const [monthlyData, setMonthlyData] = React.useState([]);
@@ -811,7 +813,8 @@ export default function TherapistDashboard() {
       const totalClients = Number(dashData.client) || 0;
 
       let monthEarnings = 0, lastMonthEarnings = 0, todayRevenue = 0;
-      let completedCount = 0, pendingCount = 0;
+      let completedCount = 0, pendingCount = 0, monthSessions = 0, lastMonthSessions = 0;
+      const firstSeen = new Map(); // client id -> first booking date
       const todayClientIds = new Set();
       let todaySessions = 0;
 
@@ -822,6 +825,12 @@ export default function TherapistDashboard() {
         if (bd) {
           if (bd >= monthStart) monthEarnings += amt;
           else if (bd >= lastMonthStart) lastMonthEarnings += amt;
+          if (bStatus !== "Cancelled") {
+            if (bd >= monthStart) monthSessions++;
+            else if (bd >= lastMonthStart) lastMonthSessions++;
+          }
+          const cid = b.client?._id ? b.client._id.toString() : null;
+          if (cid && (!firstSeen.has(cid) || bd < firstSeen.get(cid))) firstSeen.set(cid, bd);
           if (bd.toDateString() === todayStr) {
             if (bStatus !== "Cancelled") todaySessions++;
             todayRevenue += amt;
@@ -910,7 +919,8 @@ export default function TherapistDashboard() {
           booking_date: fmtDate(b.booking_date),
           amount: b.transaction?.amount || b.amount,
           status: b.transaction?.status?.name || "Success",
-        }));
+        }))
+        .sort((a, b) => (a.status === "Success") - (b.status === "Success"));
 
       let monthGrowth = null;
       if (lastMonthEarnings > 0) {
@@ -931,6 +941,9 @@ export default function TherapistDashboard() {
         completionRate,
         monthGrowth,
         monthGrowthUp: monthEarnings >= lastMonthEarnings,
+        monthSessions,
+        lastMonthSessions,
+        newClients: [...firstSeen.values()].filter((d) => d >= monthStart).length,
       });
       setUpcomingSessions(upcomingList);
       setNextSession(upcomingList[0] || null);
@@ -999,6 +1012,28 @@ export default function TherapistDashboard() {
   const firstName = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
 
+  // rating, listing status and the to-do list for the new overview
+  const ratingAvg = myReviews.length ? (myReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / myReviews.length).toFixed(1) : "—";
+  const listing = (() => {
+    const t = therapistInfo;
+    if (!t) return null;
+    const exp = safeDate(t.subscription_expires_at);
+    const live = t.show_to_page === 1 || t.show_to_page === true;
+    if (exp) {
+      const days = Math.ceil((exp - Date.now()) / 86400000);
+      if (days < 0) return { label: "Listing expired", tone: "off", title: `Expired ${fmtShortDate(exp)}` };
+      return { label: `Listing · ${days} day${days === 1 ? "" : "s"} left`, tone: days <= 7 ? "warn" : "ok", title: `Active till ${fmtDate(exp)}` };
+    }
+    return live ? { label: "Free · live", tone: "ok", title: "Your profile is live" } : { label: "Not live yet", tone: "warn", title: "Choose a package to go live" };
+  })();
+  const sessionTrend = stats.lastMonthSessions > 0 ? `${Math.round(((stats.monthSessions - stats.lastMonthSessions) / stats.lastMonthSessions) * 100)}%` : undefined;
+  const todoItems = [
+    ...profileChecks.filter((c) => !c.done).map((c) => ({ label: `Add ${c.label.toLowerCase()}`, href: c.href || "/settings", cta: "Add", tone: "warn" })),
+    ...(listing && (listing.tone === "warn" || listing.tone === "off") ? [{ label: listing.tone === "off" ? "Your listing has expired — renew to stay visible" : listing.label === "Not live yet" ? "Choose a package to go live" : `Listing ends soon (${listing.label.replace("Listing · ", "")})`, href: "/therapist-registration?packages=1", cta: "Renew", tone: listing.tone === "off" ? "bad" : "warn" }] : []),
+    ...invoices.filter((i) => i.status && i.status !== "Success").slice(0, 2).map((i) => ({ label: `Payment pending · ${i.client_name}`, href: "/therapists/invoices", cta: "View", tone: "bad" })),
+    ...(myReviews.length === 0 ? [{ label: "Ask your clients for a review", href: `/view-profile/${therapistInfo?._id || ""}`, cta: "Profile" }] : []),
+  ];
+
   const statCards = [
     { icon: AccountBalanceWalletRoundedIcon, label: "Total Earnings", value: stats.totalEarnings, isCurrency: true, accent: "#16a34a", accentDark: "#0f3d24" },
     { icon: TrendingUpRoundedIcon, label: "This Month", value: stats.monthEarnings, isCurrency: true, accent: "#0ea5a3", accentDark: "#0f5c5a", trend: stats.monthGrowth, trendUp: stats.monthGrowthUp },
@@ -1014,140 +1049,95 @@ export default function TherapistDashboard() {
       <AvailabilityNudge therapistInfo={therapistInfo} blocked={showWelcome} />
 
       <Box sx={{ pb: 6 }}>
-        {/* ══ KPI ROW ══════════════════════════════════════════ */}
-        <Box
-          sx={{
-            display: "grid",
-            gap: { xs: 1, sm: 1.25, md: 1.5 },
-            gridTemplateColumns: {
-              xs: "repeat(2, 1fr)",
-              sm: "repeat(3, 1fr)",
-              lg: "repeat(6, 1fr)",
-            },
-            mb: { xs: 1.5, md: 2 },
-          }}
-        >
-          {statCards.map((s) => (
-            <StatCard key={s.label} {...s} loading={loading} />
-          ))}
-        </Box>
+        <style dangerouslySetInnerHTML={{ __html: OV_CSS }} />
+        <div className="ov">
+          {/* 1 — slim today bar */}
+          <TodayBar
+            firstName={firstName}
+            now={clockTime}
+            todaySessions={stats.todaySessions}
+            nextSession={nextSession}
+            loading={loading}
+            refreshing={refreshing}
+            lastRefreshed={lastRefreshed}
+            onRefresh={() => load(true)}
+            since={since}
+            savingSince={savingSince}
+            onChangeSince={changeSince}
+            listing={listing}
+          />
 
-        {/* ══ MAIN GRID ════════════════════════════════════════ */}
-        <Box
-          sx={{
-            display: "grid",
-            gap: { xs: 1.5, md: 2 },
-            alignItems: "start",
-            gridTemplateColumns: {
-              xs: "1fr",
-              md: "minmax(0, 1fr) 320px",
-              lg: "minmax(0, 1fr) 372px",
-            },
-          }}
-        >
-          {/* ── main column ── */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 }, minWidth: 0 }}>
-            <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Revenue & sessions trend" disablePad>
-              {mounted ? (
-                <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />
-              ) : (
-                <Box sx={{ p: 2 }}>
-                  <Skeleton variant="rounded" height={220} />
-                </Box>
-              )}
-            </DashCard>
+          {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
+          <div className="ov-top">
+            <NextSessionCard s={nextSession} loading={loading} />
+            <TodoCard items={todoItems} pct={completionPct} />
+            <div className="ov-kpis">
+              <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} />
+              <KpiCard label="Sessions · month" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} href="/appointments" tone="teal" loading={loading} />
+              <KpiCard label="New clients" value={stats.newClients} spark={weeklyData.map((d) => d.sessions)} href="/appointments" tone="violet" loading={loading} />
+              <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} />
+            </div>
+          </div>
 
-            <DashCard
-              icon={EventAvailableRoundedIcon}
-              title="Upcoming Sessions"
-              sub={`${upcomingSessions.length} scheduled`}
-              action={<CardLink href="/appointments" />}
-              disablePad
-            >
-              {loading ? (
-                <Box sx={{ p: 2 }}>
-                  {[1, 2, 3].map((i) => (
-                    <Box key={i} sx={{ display: "flex", gap: 1.5, alignItems: "center", py: 1 }}>
-                      <Skeleton variant="circular" width={36} height={36} />
-                      <Box sx={{ flex: 1 }}>
-                        <Skeleton width="45%" />
-                        <Skeleton width="30%" />
+          <Box sx={{ display: "grid", gap: "14px", alignItems: "start", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 300px", lg: "minmax(0, 1fr) 360px" } }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
+              {/* 4 — the week ahead */}
+              <WeekStrip sessions={upcomingSessions} now={clockTime} />
+
+              {/* 6 — performance, with this month vs last */}
+              <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Revenue & sessions trend" disablePad>
+                {stats.monthGrowth && (
+                  <div className="ov-compare">This month vs last: <b className={stats.monthGrowthUp ? "up" : "down"}>{stats.monthGrowth}</b> earnings · {stats.monthSessions} vs {stats.lastMonthSessions} sessions</div>
+                )}
+                {mounted ? (
+                  <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />
+                ) : (
+                  <Box sx={{ p: 2 }}><Skeleton variant="rounded" height={220} /></Box>
+                )}
+              </DashCard>
+
+              <DashCard icon={EventAvailableRoundedIcon} title="Upcoming Sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
+                {loading ? (
+                  <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={44} sx={{ mb: 1 }} />)}</Box>
+                ) : upcomingSessions.length ? (
+                  upcomingSessions.slice(0, 6).map((x, i, arr) => <SessionRow key={x.id} s={x} last={i === arr.length - 1} />)
+                ) : (
+                  <EmptyState icon={EventAvailableRoundedIcon} text="No upcoming sessions" />
+                )}
+              </DashCard>
+            </Box>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
+              {/* 7 — latest two reviews, pending payments first */}
+              <DashCard icon={StarRateRoundedIcon} title="Client Reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
+                <ReviewsBlock reviews={myReviews} />
+              </DashCard>
+
+              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub={`${invoices.length} shown`} action={<CardLink href="/therapists/invoices" />} disablePad>
+                {loading ? (
+                  <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
+                ) : invoices.length ? (
+                  invoices.map((inv, i, arr) => (
+                    <Box key={inv.id} sx={{ display: "flex", alignItems: "center", gap: 1.5, px: { xs: 1.75, md: 2.25 }, py: 1.35, borderBottom: i === arr.length - 1 ? "none" : `1px solid ${UI.line}` }}>
+                      <Avatar sx={{ width: 34, height: 34, borderRadius: "9px", background: UI.green.bg, color: UI.green.main, fontSize: "13px", fontWeight: 800, flexShrink: 0 }}>
+                        {inv.client_name?.charAt(0)?.toUpperCase()}
+                      </Avatar>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography sx={{ fontSize: "12.5px", fontWeight: 700, color: UI.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {inv.client_name}{inv.status && inv.status !== "Success" && <span className="ov-tag-pending">Pending</span>}
+                        </Typography>
+                        <Typography sx={{ fontSize: "10px", color: UI.faint, fontWeight: 600 }}>#{inv.invoice_id} · {inv.booking_date}</Typography>
                       </Box>
+                      <Typography sx={{ fontSize: "13px", fontWeight: 800, color: UI.text }}>{inr(inv.amount)}</Typography>
                     </Box>
-                  ))}
-                </Box>
-              ) : upcomingSessions.length ? (
-                upcomingSessions.slice(0, 6).map((s, i, arr) => (
-                  <SessionRow key={s.id} s={s} last={i === arr.length - 1} />
-                ))
-              ) : (
-                <EmptyState icon={EventAvailableRoundedIcon} text="No upcoming sessions" />
-              )}
-            </DashCard>
+                  ))
+                ) : (
+                  <EmptyState icon={PaymentsRoundedIcon} text="No invoices yet" />
+                )}
+              </DashCard>
+            </Box>
           </Box>
-
-          {/* ── side column ── */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 }, minWidth: 0 }}>
-            <DashCard icon={WorkspacePremiumRoundedIcon} title="Profile Strength" sub={completionPct < 100 ? "Finish to rank higher" : "All set"}>
-              <ProfileStrength pct={completionPct} checks={profileChecks} />
-            </DashCard>
-
-            <DashCard
-              icon={StarRateRoundedIcon}
-              title="Client Reviews"
-              action={myReviews.length > 3 ? <CardLink href="/therapists/reviews" /> : null}
-            >
-              <ReviewsBlock reviews={myReviews} />
-            </DashCard>
-
-            <DashCard
-              icon={PaymentsRoundedIcon}
-              title="Recent Invoices"
-              sub={`${invoices.length} shown`}
-              action={<CardLink href="/therapists/invoices" />}
-              disablePad
-            >
-              {loading ? (
-                <Box sx={{ p: 2 }}>
-                  {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} height={38} sx={{ mb: 1 }} />
-                  ))}
-                </Box>
-              ) : invoices.length ? (
-                invoices.map((inv, i, arr) => (
-                  <Box
-                    key={inv.id}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      px: { xs: 1.75, md: 2.25 },
-                      py: 1.35,
-                      borderBottom: i === arr.length - 1 ? "none" : `1px solid ${UI.line}`,
-                    }}
-                  >
-                    <Avatar sx={{ width: 34, height: 34, borderRadius: "9px", background: UI.green.bg, color: UI.green.main, fontSize: "13px", fontWeight: 800, flexShrink: 0 }}>
-                      {inv.client_name?.charAt(0)?.toUpperCase()}
-                    </Avatar>
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography sx={{ fontSize: "12.5px", fontWeight: 700, color: UI.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {inv.client_name}
-                      </Typography>
-                      <Typography sx={{ fontSize: "10px", color: UI.faint, fontWeight: 600 }}>
-                        #{inv.invoice_id} · {inv.booking_date}
-                      </Typography>
-                    </Box>
-                    <Typography sx={{ fontSize: "13px", fontWeight: 800, color: UI.text, flexShrink: 0 }}>
-                      {inr(inv.amount)}
-                    </Typography>
-                  </Box>
-                ))
-              ) : (
-                <EmptyState icon={PaymentsRoundedIcon} text="No invoices yet" />
-              )}
-            </DashCard>
-          </Box>
-        </Box>
+        </div>
       </Box>
     </MainLayout>
   );
