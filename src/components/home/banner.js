@@ -6,7 +6,8 @@ import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import { profilePath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
-import { getMinFee } from "../../utils/therapist-directory";
+import { getMinFee, nextAvailable } from "../../utils/therapist-directory";
+import { modesOf } from "../../utils/related-therapists";
 import { GBP_URL } from "../about/visit-centre";
 
 // quick concern picks under the search box -> the directory, pre-filtered
@@ -63,12 +64,25 @@ const photo = (t) => (t.user?.profile ? `${imagePath}/${t.user.profile}` : "");
 
 /* desktop wall: photo-first card — the photo fills the card, details sit on a soft gradient,
    View / Book slide up on hover or keyboard focus; the whole card opens the profile */
-function PortraitCard({ t, hidden = false }) {
+// two things this therapist helps with, in plain words ("Stress Management" -> "Stress")
+const focusTags = (t) => String(t?.experties || "").split(",").map((x) => x.trim()).filter(Boolean)
+  .filter((x) => !/\(|therapy|motivation|time management/i.test(x))
+  .map((x) => x.replace(/\s+management$/i, "").replace(/\s+and\s+/i, " & "))
+  .slice(0, 2);
+// shown instead of a rating when there are no reviews yet (better than a bare "New")
+const noRatingLine = (t) => {
+  const langs = langList(t.language_spoken).slice(0, 2);
+  return langs.length ? langs.join(" · ") : (modesOf(t) || "Verified");
+};
+
+function PortraitCard({ t, hidden = false, now = null }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const exp = expLabel(t.year_of_exp);
   const fee = feeLabel(t);
   const tab = hidden ? -1 : undefined;
+  const tags = focusTags(t);
+  const next = nextAvailable(t, now);
   return (
     <div className="cyt-pcard" aria-hidden={hidden || undefined}>
       {photo(t) ? (
@@ -85,10 +99,12 @@ function PortraitCard({ t, hidden = false }) {
           <VerifiedRounded sx={{ fontSize: 16, color: "#7dd3fc", flexShrink: 0 }} />
         </div>
         <div className="cyt-prole">{t.profile_type || "Mental Health Professional"}</div>
+        {tags.length > 0 && <div className="cyt-ptags">{tags.join(" · ")}</div>}
         <div className="cyt-pmeta">
-          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /> <b>{r.avg}</b> <span>({r.count})</span></> : <span className="cyt-new">New</span>}
+          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /> <b>{r.avg}</b> <span>({r.count})</span></> : <span className="cyt-pnorate">{noRatingLine(t)}</span>}
           {exp && <><i className="cyt-pdot" /> {exp}</>}
         </div>
+        {next && <div className="cyt-pnext"><i aria-hidden="true" /> {next.label}, {next.time}</div>}
         <div className="cyt-pbtns">
           <Link className="cyt-pv" href={profilePath(t)} tabIndex={tab}>View</Link>
           <Link className="cyt-pb" href={`/book/${t._id}`} tabIndex={tab}>Book</Link>
@@ -98,11 +114,13 @@ function PortraitCard({ t, hidden = false }) {
   );
 }
 
-function TherapistCard({ t }) {
+function TherapistCard({ t, now = null }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const langs = langList(t.language_spoken).slice(0, 2);
   const fee = feeLabel(t);
+  const tags = focusTags(t);
+  const next = nextAvailable(t, now);
   return (
     <div className="cyt-tcard">
       <div className="cyt-tphoto">
@@ -121,10 +139,12 @@ function TherapistCard({ t }) {
           {t.year_of_exp && <span className="cyt-texp">{expLabel(t.year_of_exp)}</span>}
         </div>
         <span className="cyt-ttag">{t.profile_type || "Mental Health Professional"}</span>
+        {tags.length > 0 && <div className="cyt-ttags">{tags.join(" · ")}</div>}
         <div className="cyt-trate">
           {r ? <><Star sx={{ fontSize: 14, color: "#d4a24c" }} /><span>{r.avg}</span><span className="cyt-tcnt">({r.count} reviews)</span></>
-            : <span className="cyt-new">New on CYT</span>}
+            : <span className="cyt-tnorate">{modesOf(t) || "Verified"}</span>}
         </div>
+        {next && <div className="cyt-tnext"><i aria-hidden="true" /> Next: {next.label}, {next.time}</div>}
         {langs.length > 0 && (
           <div className="cyt-tlangs">
             {langs.map((l) => <span key={l} className="cyt-tlang">{l}</span>)}
@@ -145,6 +165,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
   // Server order first (so server and browser HTML match), shuffled after mount —
   // same top-rated pool, different order each visit.
   const [ranked, setRanked] = useState(topTherapists);
+  // "next available" needs the visitor's clock — set after mount so server and browser HTML match
+  const [now, setNow] = useState(null);
+  useEffect(() => { setNow(Date.now()); }, []);
   useEffect(() => { setRanked(shuffled(topTherapists)); }, [topTherapists]);
 
   const strip = ranked.slice(0, 10); // phone / tablet carousel
@@ -245,7 +268,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
                 <div key={ci} className={`cyt-wall-col ${ci === 0 ? "up" : "down"}`}>
                   <div className="cyt-wall-track" style={{ animationDuration: `${Math.max(col.length, 3) * 7}s` }}>
                     {(wallMoves ? [...col, ...col] : col).map((t, i) => (
-                      <PortraitCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
+                      <PortraitCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} now={now} />
                     ))}
                   </div>
                 </div>
@@ -254,7 +277,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           )}
           {strip.length > 0 ? (
             <div className="cyt-strip" ref={stripRef} aria-label="Top-rated therapists">
-              {strip.map((t, i) => <TherapistCard key={t._id || i} t={t} />)}
+              {strip.map((t, i) => <TherapistCard key={t._id || i} t={t} now={now} />)}
             </div>
           ) : (
             <div className="cyt-cover-skeleton" />
@@ -338,6 +361,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-texp { font-size: 11px; color: #64748b; flex-shrink: 0; }
         .cyt-ttag { display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 700; color: #1e7a4c; background: #eef6f1; padding: 3px 9px; border-radius: 999px; }
         .cyt-trate { display: flex; align-items: center; gap: 3px; margin: 8px 0 8px; min-height: 18px; }
+        .cyt-ttags { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: #1e7a4c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cyt-tnorate { font-size: 12.5px; font-weight: 600; color: #475569; }
+        .cyt-tnext { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 4px 10px; border-radius: 999px; background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; font-size: 12px; font-weight: 700; }
         .cyt-trate span { font-size: 12.5px; font-weight: 800; color: #0b1712; }
         .cyt-trate .cyt-tcnt { font-weight: 500; color: #7c8b81; margin-left: 2px; }
         .cyt-tlangs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -434,6 +460,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-pname span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .cyt-prole { font-size: 12px; color: rgba(255,255,255,.82); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cyt-pmeta { display: flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 12px; color: rgba(255,255,255,.85); }
+        .cyt-ptags { margin-top: 3px; font-size: 12px; font-weight: 600; color: #bbf7d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cyt-pnorate { font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,.9); }
+        .cyt-pnext { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; padding: 3px 9px; border-radius: 999px; background: rgba(34,197,94,.22); border: 1px solid rgba(134,239,172,.5); color: #ecfdf5; font-size: 11.5px; font-weight: 700; }
+        .cyt-pnext i, .cyt-tnext i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
         .cyt-pmeta b { color: #fff; font-weight: 700; }
         .cyt-pmeta .cyt-new { background: rgba(236,199,125,.95); color: #14532d; }
         .cyt-pdot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 3px; display: inline-block; }
