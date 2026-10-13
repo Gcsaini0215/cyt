@@ -158,10 +158,15 @@ function TherapistCard({ t }) {
 // stats: { count, minFee } of the whole directory, worked out on the server
 export default function Banner({ topTherapists = [], stats = null }) {
   const ps = usePublicStats();
-  // Server order first (so server and browser HTML match), shuffled after mount —
+  // Server order first (so server and browser HTML match), re-ordered after mount —
   // same top-rated pool, different order each visit.
   const [ranked, setRanked] = useState(topTherapists);
-  useEffect(() => { setRanked(shuffled(topTherapists)); }, [topTherapists]);
+  useEffect(() => {
+    // strongest first: photo + reviews, then photo only, then the rest — shuffled within each group
+    const tier = (t) => (photo(t) ? 2 : 0) + (rating(t) ? 1 : 0);
+    const groups = [3, 2, 1, 0].map((k) => shuffled(topTherapists.filter((t) => tier(t) === k)));
+    setRanked(groups.flat());
+  }, [topTherapists]);
 
   const strip = ranked.slice(0, 10); // phone / tablet carousel
   /* desktop wall — two columns of cards drifting in opposite directions (CSS animation on a
@@ -344,7 +349,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-strip::-webkit-scrollbar { display: none; }
         .cyt-tcard { flex: 0 0 min(66%, 290px); scroll-snap-align: start; background: #fff; border: 1px solid #e8f0ea; border-radius: 20px; overflow: hidden; box-shadow: 0 18px 40px -18px rgba(18,66,42,.3), 0 3px 10px rgba(18,66,42,.05); }
         .cyt-tphoto { position: relative; height: 176px; background: linear-gradient(150deg, #c3e8d2, #82cca1); }
-        .cyt-tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+        .cyt-tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
         .cyt-tinit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #1e7a4c; }
         .cyt-tverif { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: #1d9bf0; color: #fff; display: flex; align-items: center; justify-content: center; }
         .cyt-tpin { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.94); color: #14532d; padding: 3px 10px; border-radius: 999px; }
@@ -423,8 +428,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-wall {
           position: relative; z-index: 1; width: 100%; max-width: 540px; height: 580px;
           grid-template-columns: 1fr 1fr; gap: 16px; overflow: hidden;
-          -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
-          mask-image: linear-gradient(180deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+          -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16%, #000 84%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0, #000 16%, #000 84%, transparent 100%);
           animation: cytCoverIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         @keyframes cytCoverIn { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
@@ -442,7 +447,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         /* ── photo-first portrait card (desktop wall) ── */
         .cyt-pcard { position: relative; flex-shrink: 0; height: 300px; border-radius: 22px; overflow: hidden; background: linear-gradient(150deg, #c3e8d2, #82cca1); box-shadow: 0 18px 36px -16px rgba(18,66,42,.38), 0 3px 8px rgba(18,66,42,.06); transition: transform .25s ease, box-shadow .25s ease; }
         .cyt-pcard:hover, .cyt-pcard:focus-within { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.45); }
-        .cyt-pphoto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; transition: transform .5s ease; }
+        .cyt-pphoto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; transition: transform .5s ease; }
         .cyt-pcard:hover .cyt-pphoto { transform: scale(1.04); }
         .cyt-pinit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #1e7a4c; }
         .cyt-ppin { position: absolute; top: 12px; left: 12px; z-index: 2; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.92); color: #14532d; padding: 3px 10px; border-radius: 999px; backdrop-filter: blur(4px); }
@@ -462,6 +467,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-pdot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 3px; display: inline-block; }
         .cyt-pbtns { display: flex; gap: 8px; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; transition: max-height .3s ease, opacity .25s ease, margin-top .3s ease; pointer-events: auto; }
         .cyt-pcard:hover .cyt-pbtns, .cyt-pcard:focus-within .cyt-pbtns { max-height: 44px; opacity: 1; margin-top: 10px; }
+        @media (hover: none) { .cyt-pbtns { max-height: 44px; opacity: 1; margin-top: 10px; } }
         .cyt-pbtns a { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; padding: 8px 4px; border-radius: 10px; text-decoration: none; }
         .cyt-pv { background: rgba(255,255,255,.16); color: #fff !important; border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(4px); }
         .cyt-pv:hover { background: rgba(255,255,255,.26); }
