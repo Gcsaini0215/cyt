@@ -575,6 +575,9 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
       <main className="rbt-main-wrapper home-wide">
         {/* every home section uses the banner's width and side gutters, so they all line up */}
         <style dangerouslySetInnerHTML={{ __html: `
+          @media (min-width: 601px) and (max-width: 1023px) {
+            .home-wide .container { max-width: none; width: 100%; padding-left: 40px; padding-right: 40px; box-sizing: border-box; }
+          }
           @media (min-width: 1024px) {
             .home-wide .container { max-width: 1380px; width: 100%; padding-left: clamp(40px, 4.5vw, 56px); padding-right: clamp(40px, 4.5vw, 56px); box-sizing: border-box; }
           }

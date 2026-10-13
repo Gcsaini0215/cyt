@@ -395,8 +395,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-tphoto { height: 160px; }
         }
         @media (min-width: 601px) and (max-width: 1023px) {
-          .cyt-hero { padding-bottom: 28px; }
-          .cyt-hero-inner { gap: 24px; }
+          .cyt-hero { padding-bottom: 28px; padding-left: 0 !important; padding-right: 0 !important; }
+          .cyt-hero-inner { gap: 24px; padding: 0 40px; align-items: stretch; box-sizing: border-box; }
+          /* iPad portrait: copy starts at the same 40px gutter as the sections below */
+          .cyt-hero-copy { max-width: none; }
           .cyt-hero .cyt-title { font-size: clamp(2.8rem, 5.6vw, 3.8rem); }
           .cyt-tcard { flex-basis: 280px; }
         }
