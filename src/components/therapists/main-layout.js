@@ -43,7 +43,8 @@ const ShellContext = React.createContext(false);
 // already has the right padding — no jump after hydration. 960px is where
 // the top nav turns into a bottom nav and the side nav hides.
 const shellStyles = `
-  .ts-area { background: #f8faf9; min-height: 100vh; padding-top: 38px; padding-left: 60px; }
+  .ts-area { background: #f4f6f5; min-height: 100vh; padding-top: var(--tn-h, 56px); padding-left: 68px; transition: padding-left .2s ease; }
+  html[data-tsn-wide] .ts-area { padding-left: 232px; }
   .ts-main { padding: 28px 40px; }
   .ts-inner { max-width: 1500px; margin: 0 auto; transition: opacity .18s ease; }
   .ts-inner.is-busy { opacity: .55; pointer-events: none; }
@@ -52,8 +53,9 @@ const shellStyles = `
      the screen */
   .ts-page { animation: tsIn .2s ease; }
   @keyframes tsIn { from { opacity: 0; } to { opacity: 1; } }
-  @media (max-width: 960px) { .ts-area { padding-left: 0; padding-bottom: 80px; } }
-  @media (max-width: 599px) { .ts-main { padding: 16px 10px; } }
+  @media (max-width: 1023px) { html[data-tsn-wide] .ts-area { padding-left: 68px; } .ts-main { padding: 22px 24px; } }
+  @media (max-width: 767px) { .ts-area, html[data-tsn-wide] .ts-area { padding-left: 0; padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); } }
+  @media (max-width: 599px) { .ts-main { padding: 14px 12px; } }
   @media (prefers-reduced-motion: reduce) { .ts-page { animation: none; } .ts-inner { transition: none; } }
 
   .ts-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 2000; pointer-events: none; overflow: hidden; }

@@ -140,6 +140,9 @@ function useCountUp(end, duration = 1200) {
   return count;
 }
 
+// to-do wording for each missing profile item
+const TODO_LABEL = { "Basic info": "Complete your basic info", "Profile photo": "Add a profile photo", "Availability set": "Set your availability", "Fee configured": "Set your session fees", "Payment details": "Add payout (bank / UPI) details" };
+
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -1028,7 +1031,7 @@ export default function TherapistDashboard() {
   })();
   const sessionTrend = stats.lastMonthSessions > 0 ? `${Math.round(((stats.monthSessions - stats.lastMonthSessions) / stats.lastMonthSessions) * 100)}%` : undefined;
   const todoItems = [
-    ...profileChecks.filter((c) => !c.done).map((c) => ({ label: `Add ${c.label.toLowerCase()}`, href: c.href || "/settings", cta: "Add", tone: "warn" })),
+    ...profileChecks.filter((c) => !c.done).map((c) => ({ label: TODO_LABEL[c.label] || c.label, href: c.href || "/settings", cta: "Add", tone: "warn" })),
     ...(listing && (listing.tone === "warn" || listing.tone === "off") ? [{ label: listing.tone === "off" ? "Your listing has expired — renew to stay visible" : listing.label === "Not live yet" ? "Choose a package to go live" : `Listing ends soon (${listing.label.replace("Listing · ", "")})`, href: "/therapist-registration?packages=1", cta: "Renew", tone: listing.tone === "off" ? "bad" : "warn" }] : []),
     ...invoices.filter((i) => i.status && i.status !== "Success").slice(0, 2).map((i) => ({ label: `Payment pending · ${i.client_name}`, href: "/therapists/invoices", cta: "View", tone: "bad" })),
     ...(myReviews.length === 0 ? [{ label: "Ask your clients for a review", href: `/view-profile/${therapistInfo?._id || ""}`, cta: "Profile" }] : []),
