@@ -126,6 +126,18 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
   const [loading, setLoading] = useState(!initialProfile && !serverError);
   const [favrioutes, setFavrioutes] = useState([]);
 
+  // Moving from one profile to another (e.g. a "Similar therapists" card) reuses this page
+  // component with new props — take the new therapist's data instead of keeping the old one.
+  useEffect(() => {
+    if (initialProfile) {
+      setProfile(initialProfile);
+      setError(false);
+      setLoading(false);
+    } else if (serverError) {
+      setError(true);
+    }
+  }, [initialProfile, serverError]);
+
   useEffect(() => {
     if (initialProfile) return;
     if (!router.isReady || !id) return;
@@ -443,11 +455,11 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
       <MyNavbar />
       {profile && (
         <>
-          <ProfileHeader pageData={profile} favrioutes={favrioutes} />
-          <ProfileInfoTab pageData={profile} />
+          <ProfileHeader key={`h-${profile._id}`} pageData={profile} favrioutes={favrioutes} />
+          <ProfileInfoTab key={`i-${profile._id}`} pageData={profile} />
           {/* the site body is dark green — give the reviews their own white page background so the footer starts below them */}
           <div style={{ background: "#fff" }}>
-            <ProfileReview profile={profile} />
+            <ProfileReview key={`r-${profile._id}`} profile={profile} />
             <section className="pr-about" aria-labelledby="pr-about-h">
               <style dangerouslySetInnerHTML={{ __html: PR_CSS }} />
               <h2 id="pr-about-h">{profileName} — {profileType} in {profileCity}</h2>
@@ -469,8 +481,8 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
             </section>
             <RelatedTherapists
               id="similar"
-              title="Similar psychologists"
-              subtitle={`Other verified psychologists${profileCity !== "India" ? ` in and around ${profileCity}` : ""} with similar expertise`}
+              title="Similar therapists"
+              subtitle={`Other verified therapists${profileCity !== "India" ? ` in and around ${profileCity}` : ""} with similar expertise`}
               items={related}
               moreHref="/view-all-therapist"
               moreLabel="All psychologists"
