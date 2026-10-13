@@ -95,11 +95,17 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
 
       {bio && <p className="pcr-bio">{bio}</p>}
       {expertise.length > 0 && (
-        <div className="pcr-specs" aria-label="Areas of expertise">
-          {expertise.slice(0, 4).map((s, i) => (
-            <span key={s} className={`pcr-spec${s === highlight ? " hit" : ""}${i >= 2 ? " lg" : ""}`}>{s}</span>
-          ))}
-          {expertise.length > 4 && <Link href={profileHref} className="pcr-spec more">+{expertise.length - 4} more</Link>}
+        /* every area of expertise, as green pills drifting left (the list is doubled so the loop is seamless) */
+        <div className="pcr-specs" aria-label={`Areas of expertise: ${expertise.join(", ")}`}>
+          <div className="pcr-marquee" style={{ animationDuration: `${Math.max(12, expertise.length * 3)}s` }}>
+            {[0, 1].map((copy) => (
+              <div key={copy} className="pcr-mq-set" aria-hidden={copy === 1 || undefined}>
+                {expertise.map((s) => (
+                  <span key={s} className={`pcr-spec${s === highlight ? " hit" : ""}`}>{s}</span>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -165,8 +171,18 @@ export const CARD_CSS = `
 .pcr-modes span.ip { background: #fbf3e2; color: #7a5413; }
 .pcr-modes i { font-size: 11.5px; }
 .pcr-bio { grid-area: bio; min-width: 0; margin: 0; font-size: 13.5px; line-height: 1.5; color: #475569; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 0; }
-.pcr-specs { grid-area: specs; min-width: 0; display: flex; flex-wrap: wrap; align-items: flex-start; align-content: flex-start; gap: 6px; margin-top: 2px; }
-.pcr-spec { font-size: 11.5px; font-weight: 600; color: #334155; background: #f4f6f5; border: 1px solid #e2e8e4; padding: 3px 9px; border-radius: 999px; }
+.pcr-specs { grid-area: specs; min-width: 0; overflow: hidden; margin-top: 2px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 92%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 92%, transparent 100%); }
+.pcr-marquee { display: flex; width: max-content; animation: pcrMarquee linear infinite; }
+.pcr-mq-set { display: flex; gap: 6px; padding-right: 6px; flex-shrink: 0; }
+.pcr-specs:hover .pcr-marquee, .pcr-specs:focus-within .pcr-marquee { animation-play-state: paused; }
+@keyframes pcrMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .pcr-specs { -webkit-mask-image: none; mask-image: none; }
+  .pcr-marquee { animation: none; width: auto; }
+  .pcr-mq-set { flex-wrap: wrap; }
+  .pcr-mq-set[aria-hidden] { display: none; }
+}
+.pcr-spec { flex-shrink: 0; white-space: nowrap; font-size: 11.5px; font-weight: 700; color: #166534; background: #ecfdf3; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 999px; }
 .pcr-spec.hit { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
 .pcr-spec.more { background: #fff; color: #1e7a4c; border-color: #cfe3d6; text-decoration: none; }
 
@@ -197,7 +213,6 @@ export const CARD_CSS = `
   .pcr-meta { font-size: 12px; gap: 3px 10px; }
   .pcr-bio { font-size: 13px; }
   .pcr-specs { margin-top: 0; }
-  .pcr-spec.lg { display: none; }
   .pcr-side { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 12px 0 0; border-left: none; border-top: 1px dashed #dfe8e2; }
   .pcr-fee { font-size: 15px; }
   .pcr-next { grid-column: 2; grid-row: 1; justify-content: flex-end; font-size: 12px; }
