@@ -165,30 +165,20 @@ export default function Faqs() {
     <div style={{ backgroundColor: '#f8faf9', padding: '56px 0 64px' }}>
       <div className="container">
 
-        {/* Header */}
-        <div className="row justify-content-center" style={{ marginBottom: '32px' }}>
-          <div className="col-lg-8 text-center">
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '8px',
-              fontSize: '11px', fontWeight: 800, letterSpacing: '1.2px', textTransform: 'uppercase',
-              color: '#166534', marginBottom: '12px'
-            }}>
-              <span style={{ width: '20px', height: '2px', background: '#d4af37', display: 'inline-block' }} />
-              Frequently Asked Questions
-              <span style={{ width: '20px', height: '2px', background: '#d4af37', display: 'inline-block' }} />
-            </div>
-            <h2 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: '#132a1c', marginBottom: '10px', lineHeight: 1.25 }}>
-              Everything You Want to Know About Therapy
-            </h2>
-            <p style={{ color: '#64748b', fontSize: '14.5px', lineHeight: 1.65, maxWidth: '560px', margin: '0 auto' }}>
-              Real answers to the questions most people are too hesitant to ask — about therapy, psychologists, costs, and what actually happens in a session.
-            </p>
-          </div>
+        {/* Header — left-aligned like the other home sections (gold bar, title, line) */}
+        <div style={{ marginBottom: '24px' }}>
+          <span style={{ display: 'block', width: '42px', height: '4px', borderRadius: '2px', background: '#d4a24c', marginBottom: '12px' }} />
+          <h2 style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.2rem)', fontWeight: 800, color: '#0b1712', margin: '0 0 6px', lineHeight: 1.2 }}>
+            Everything You Want to Know About Therapy
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: 1.6, margin: 0, padding: 0 }}>
+            Real answers to the questions most people are too hesitant to ask — about therapy, psychologists, costs, and what actually happens in a session.
+          </p>
         </div>
 
         {/* Category tabs */}
         <div style={{
-          display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px',
+          display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', gap: '8px',
           marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid #eef2f0'
         }}>
           {faqCategories.map((cat, i) => {
@@ -216,7 +206,7 @@ export default function Faqs() {
         </div>
 
         {/* Active category's FAQs */}
-        <div style={{ maxWidth: '820px', margin: '0 auto' }}>
+        <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
             <span style={{
               width: '22px', height: '22px', borderRadius: '4px', flexShrink: 0,
@@ -232,9 +222,12 @@ export default function Faqs() {
               · {category.faqs.length} questions
             </span>
           </div>
-          {category.faqs.map((item, index) => (
-            <FAQ key={`${active}-${index}`} q={item.q} a={item.a} />
-          ))}
+          <div className="faq-cols">
+            {category.faqs.map((item, index) => (
+              <FAQ key={`${active}-${index}`} q={item.q} a={item.a} />
+            ))}
+          </div>
+          <style dangerouslySetInnerHTML={{ __html: ".faq-cols { display: grid; grid-template-columns: 1fr; gap: 0 28px; align-items: start; } @media (min-width: 992px) { .faq-cols { grid-template-columns: 1fr 1fr; } }" }} />
         </div>
 
       </div>
