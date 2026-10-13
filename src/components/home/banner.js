@@ -6,7 +6,7 @@ import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import { profilePath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
-import { getMinFee, nextAvailable } from "../../utils/therapist-directory";
+import { getMinFee } from "../../utils/therapist-directory";
 import { modesOf } from "../../utils/related-therapists";
 import { GBP_URL } from "../about/visit-centre";
 
@@ -75,14 +75,13 @@ const noRatingLine = (t) => {
   return langs.length ? langs.join(" · ") : (modesOf(t) || "Verified");
 };
 
-function PortraitCard({ t, hidden = false, now = null }) {
+function PortraitCard({ t, hidden = false }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const exp = expLabel(t.year_of_exp);
   const fee = feeLabel(t);
   const tab = hidden ? -1 : undefined;
   const tags = focusTags(t);
-  const next = nextAvailable(t, now);
   return (
     <div className="cyt-pcard" aria-hidden={hidden || undefined}>
       {photo(t) ? (
@@ -104,7 +103,6 @@ function PortraitCard({ t, hidden = false, now = null }) {
           {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /> <b>{r.avg}</b> <span>({r.count})</span></> : <span className="cyt-pnorate">{noRatingLine(t)}</span>}
           {exp && <><i className="cyt-pdot" /> {exp}</>}
         </div>
-        {next && <div className="cyt-pnext"><i aria-hidden="true" /> {next.label}, {next.time}</div>}
         <div className="cyt-pbtns">
           <Link className="cyt-pv" href={profilePath(t)} tabIndex={tab}>View</Link>
           <Link className="cyt-pb" href={`/book/${t._id}`} tabIndex={tab}>Book</Link>
@@ -114,13 +112,12 @@ function PortraitCard({ t, hidden = false, now = null }) {
   );
 }
 
-function TherapistCard({ t, now = null }) {
+function TherapistCard({ t }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const langs = langList(t.language_spoken).slice(0, 2);
   const fee = feeLabel(t);
   const tags = focusTags(t);
-  const next = nextAvailable(t, now);
   return (
     <div className="cyt-tcard">
       <div className="cyt-tphoto">
@@ -144,7 +141,6 @@ function TherapistCard({ t, now = null }) {
           {r ? <><Star sx={{ fontSize: 14, color: "#d4a24c" }} /><span>{r.avg}</span><span className="cyt-tcnt">({r.count} reviews)</span></>
             : <span className="cyt-tnorate">{modesOf(t) || "Verified"}</span>}
         </div>
-        {next && <div className="cyt-tnext"><i aria-hidden="true" /> Next: {next.label}, {next.time}</div>}
         {langs.length > 0 && (
           <div className="cyt-tlangs">
             {langs.map((l) => <span key={l} className="cyt-tlang">{l}</span>)}
@@ -165,9 +161,6 @@ export default function Banner({ topTherapists = [], stats = null }) {
   // Server order first (so server and browser HTML match), shuffled after mount —
   // same top-rated pool, different order each visit.
   const [ranked, setRanked] = useState(topTherapists);
-  // "next available" needs the visitor's clock — set after mount so server and browser HTML match
-  const [now, setNow] = useState(null);
-  useEffect(() => { setNow(Date.now()); }, []);
   useEffect(() => { setRanked(shuffled(topTherapists)); }, [topTherapists]);
 
   const strip = ranked.slice(0, 10); // phone / tablet carousel
@@ -268,7 +261,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
                 <div key={ci} className={`cyt-wall-col ${ci === 0 ? "up" : "down"}`}>
                   <div className="cyt-wall-track" style={{ animationDuration: `${Math.max(col.length, 3) * 7}s` }}>
                     {(wallMoves ? [...col, ...col] : col).map((t, i) => (
-                      <PortraitCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} now={now} />
+                      <PortraitCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
                     ))}
                   </div>
                 </div>
@@ -277,7 +270,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           )}
           {strip.length > 0 ? (
             <div className="cyt-strip" ref={stripRef} aria-label="Top-rated therapists">
-              {strip.map((t, i) => <TherapistCard key={t._id || i} t={t} now={now} />)}
+              {strip.map((t, i) => <TherapistCard key={t._id || i} t={t} />)}
             </div>
           ) : (
             <div className="cyt-cover-skeleton" />

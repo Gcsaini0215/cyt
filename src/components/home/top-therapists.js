@@ -39,7 +39,6 @@ function Card({ t, now, hidden }) {
   const fee = getMinFee(t.fees);
   const langs = split(t.language_spoken).slice(0, 2);
   const modes = sessionModes(t);
-  const next = nextAvailable(t, now);
   const photo = t.user?.profile ? `${imagePath}/${t.user.profile}` : "";
   const href = profilePath(t);
   const tab = hidden ? -1 : undefined;
@@ -70,7 +69,6 @@ function Card({ t, now, hidden }) {
         </div>
         <div className="tt-row">
           <div className="tt-fee">{fee ? <>From <b>₹{fee.toLocaleString("en-IN")}</b></> : "Fees on request"}</div>
-          {next && <div className={`tt-next${next.days === 0 ? " today" : ""}`}><i aria-hidden="true" />{next.days === 0 ? "Today" : next.days === 1 ? "Tomorrow" : next.label} {next.time}</div>}
         </div>
         <div className="tt-acts">
           <Link href={href} className="tt-view" tabIndex={tab}>View</Link>
@@ -110,7 +108,8 @@ export default function TopTherapists({ people = [], visitorState = null, total 
   const nearLabel = visitorState ? (/delhi/i.test(visitorState) ? "Delhi" : visitorState) : "";
   const TABS = [
     { key: "top", label: "Top rated", n: lists.top.length },
-    { key: "today", label: "Available today", n: lists.today.length, hide: !now },
+    // "Available today" is off: therapists don't keep their weekly availability current
+    { key: "today", label: "Available today", n: lists.today.length, hide: true },
     { key: "near", label: `Near you · ${nearLabel}`, n: lists.near.length, hide: lists.near.length < 2 && tab !== "near" },
     { key: "inPerson", label: "In-person", n: lists.inPerson.length },
   ].filter((x) => !x.hide);
