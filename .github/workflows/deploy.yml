@@ -8,6 +8,12 @@ on:
     branches:
       - main
 
+# one deploy at a time: a second push used to delete the first one's half-built /root/cyt-new
+# and both failed. Later pushes now wait for the running deploy (they are not cancelled).
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
