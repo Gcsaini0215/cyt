@@ -58,7 +58,11 @@ const PHX_CSS = `
 .phx-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.04); transition: opacity 1.4s ease, transform 7s ease; }
 .phx-bg.on { opacity: 1; transform: scale(1); }
 .phx-bgs::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12,58,32,.94) 0%, rgba(20,86,48,.84) 42%, rgba(26,107,58,.35) 75%, rgba(26,107,58,.12) 100%); }
-.phx-in { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+.phx-in { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
+/* same width and gutters as the site's .container, so the banner text lines up with the page */
+@media (min-width: 601px) and (max-width: 1023px) { .phx-in { padding: 0 40px; } }
+@media (min-width: 1024px) { .phx-in { padding: 0 clamp(40px, 4.5vw, 56px); } }
+@media (min-width: 1300px) { .phx-in { padding: 0 40px; } }
 .phx-in > * { max-width: 600px; }
 .phx-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: 13px; font-weight: 700; color: #fff; }
 .phx-pill i, .phx-pill svg { font-size: 14px; }

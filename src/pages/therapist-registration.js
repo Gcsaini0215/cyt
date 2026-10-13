@@ -645,7 +645,7 @@ export default function TherapistRegistration() {
           .tr-step-dot { width: 24px; height: 24px; font-size: 11px; }
           .tr-step { gap: 5px; }
         }
-        .trs-shell { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 340px minmax(0, 1fr); border: 1px solid #e3ebe6; border-radius: 24px; overflow: clip; background: #fff; box-shadow: 0 30px 60px -30px rgba(20,83,45,.35), 0 2px 8px rgba(20,83,45,.05); }
+        .trs-shell { max-width: none; margin: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); border: 1px solid #e3ebe6; border-radius: 24px; overflow: clip; background: #fff; box-shadow: 0 30px 60px -30px rgba(20,83,45,.35), 0 2px 8px rgba(20,83,45,.05); }
         .trs-side { background: linear-gradient(170deg, #f6faf7 0%, #eef6f1 100%); border-right: 1px solid #e3ebe6; }
         .trs-side-in { position: sticky; top: 96px; padding: 32px 28px; display: flex; flex-direction: column; gap: 16px; }
         .trs-h { font-size: 23px; font-weight: 800; color: #0b1712; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
@@ -708,7 +708,7 @@ export default function TherapistRegistration() {
           so without this the margins around the container (and the gap
           before Footer actually starts) would show that dark green through. */}
       <div style={{ background: "#fff" }}>
-      <div className="container" style={{ padding: isMobile ? "0 16px 32px" : "0 24px 48px" }}>
+      <div className="container" style={{ paddingTop: 0, paddingBottom: isMobile ? 32 : 48 }}>
         {checkedStage && !submitted && (
           <div className="phx-overlap tr-journey-lift" style={{ maxWidth: 1100, margin: "0 auto" }}>
             <JourneySteps current={checkedStage ? (STAGE_TO_STEP[checkedStage] ?? (submitted ? 1 : 0)) : (submitted ? 1 : 0)} isMobile={isMobile} />
