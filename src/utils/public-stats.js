@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import { apiUrl } from "./url";
 
-export const STATS_FALLBACK = { sessions: { total: 100 }, google: { rating: 5.0, count: 183 } };
+export const STATS_FALLBACK = { sessions: { total: 5100 }, google: { rating: 5.0, count: 183 } };
 const KEY = "cyt_public_stats_v1";
 
 const valid = (d) => d && d.sessions && typeof d.sessions.total === "number" && d.google && typeof d.google.rating === "number";
