@@ -119,33 +119,29 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
       <MyNavbar />
 
       <main>
-        <section className="tf-hero">
-          <div className="container tf-hero-in">
+        {/* Banner like the city pages: the concern's photo full width under a dark tint */}
+        <section className="tf-banner" aria-labelledby="tf-h1">
+          <img className="tf-ban-img" alt=""
+            src={c.img ? `/images/concerns/${c.img}.webp` : "/assets/img/therapist-directory-banner-1600.webp"}
+            width="1200" height="520" fetchPriority="high" decoding="async" />
+          <div className="container tf-ban-inner">
             <nav className="tf-crumbs" aria-label="Breadcrumb">
               <Link href="/">Home</Link> <span aria-hidden="true">›</span>
               <Link href="/view-all-therapist">Find a therapist</Link> <span aria-hidden="true">›</span>
               <span aria-current="page">{c.label}</span>
             </nav>
-            <div className="tf-hero-grid">
-              <div>
-                <h1>{c.title}</h1>
-                <p className="tf-lead">{c.intro}</p>
-                <ul className="tf-facts">
-                  {count > 0 && <li><b>{count}</b> verified psychologists</li>}
-                  {minFee && <li>Sessions from <b>₹{minFee.toLocaleString("en-IN")}</b></li>}
-                  <li>Online &amp; in-person</li>
-                  <li>100% confidential</li>
-                </ul>
-                <div className="tf-ctas">
-                  <Link className="tf-btn" href={all}>See {count ? `all ${count} ` : ""}therapists for {label}</Link>
-                  <Link className="tf-btn ghost" href="/view-all-therapist?help=1"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
-                </div>
-              </div>
-              {c.img && (
-                <div className="tf-hero-img">
-                  <img src={`/images/concerns/${c.img}.webp`} alt="" width="560" height="340" fetchPriority="high" />
-                </div>
-              )}
+            <p className="tf-eyebrow">Verified psychologists · online &amp; in person</p>
+            <h1 id="tf-h1">Therapy for <span>{c.label}</span></h1>
+            <p className="tf-sub">{c.intro}</p>
+            <ul className="tf-facts">
+              {count > 0 && <li><b>{count}</b> verified psychologists</li>}
+              {minFee && <li>from <b>₹{minFee.toLocaleString("en-IN")}</b></li>}
+              <li>Online &amp; in-person</li>
+              <li>100% confidential</li>
+            </ul>
+            <div className="tf-ctas">
+              <Link className="tf-btn gold" href={all}>See {count ? `all ${count} ` : ""}therapists</Link>
+              <Link className="tf-btn line" href="/view-all-therapist?help=1"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
             </div>
           </div>
         </section>
@@ -182,7 +178,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
           </section>
         )}
 
-        <div className="container tf-lead">
+        <div className="container tf-leadwrap">
           <LeadCard tag={`Concern · ${c.label}`} title={`Want help finding the right psychologist for ${label}?`}
             concern={c.label} waText={`Hi, I'd like to talk to a psychologist about ${label}.`} />
         </div>
@@ -228,6 +224,41 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
 }
 
 const CSS = `
+/* banner — same look as /psychologist-in/<place> */
+.tf-banner { position: relative; overflow: hidden; padding: 56px 0 50px; background: #0b1712; }
+.tf-ban-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tf-banner::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(7,26,17,.9) 0%, rgba(7,26,17,.74) 45%, rgba(7,26,17,.38) 80%, rgba(7,26,17,.22) 100%); }
+.tf-ban-inner { position: relative; z-index: 2; }
+.tf-banner .tf-crumbs { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 14px; }
+.tf-banner .tf-crumbs a { color: rgba(255,255,255,.85); font-weight: 600; text-decoration: none; }
+.tf-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ecc77d; }
+.tf-eyebrow::before { content: ""; width: 22px; height: 2px; background: #d4a24c; }
+.tf-banner h1 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -.02em; line-height: 1.12; }
+.tf-banner h1 span { color: #ecc77d; }
+.tf-sub { font-size: clamp(15px, 1.4vw, 17px); color: rgba(255,255,255,.88); line-height: 1.6; margin: 0 0 18px; padding: 0; max-width: 620px; }
+.tf-banner .tf-facts { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tf-banner .tf-facts li { margin: 0; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.88); font-size: 13px; backdrop-filter: blur(4px); }
+.tf-banner .tf-facts li::before { content: none; }
+.tf-banner .tf-facts b { color: #fff; }
+.tf-banner .tf-ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.tf-banner .tf-btn { display: inline-flex; align-items: center; gap: 7px; height: 46px; padding: 0 22px; border-radius: 12px; font-weight: 800; font-size: 14.5px; text-decoration: none !important; }
+.tf-banner .tf-btn.gold { background: #ecc77d; color: #14532d !important; border: 0; }
+.tf-banner .tf-btn.gold:hover { background: #f3d595; }
+.tf-banner .tf-btn.line { background: transparent; border: 1.5px solid rgba(255,255,255,.55); color: #fff !important; }
+.tf-banner .tf-btn.line:hover { background: rgba(255,255,255,.12); }
+.tf-banner + .tf-cols { margin-top: 36px; }
+@media (max-width: 767px) {
+  .tf-banner { padding: 26px 0 24px; }
+  .tf-banner::before { background: linear-gradient(180deg, rgba(7,26,17,.74), rgba(7,26,17,.86)); }
+  .tf-sub { font-size: 14.5px; }
+  .tf-banner h1 { font-size: 28px; }
+  .tf-eyebrow { font-size: 10px; letter-spacing: .6px; }
+  .tf-eyebrow::before { display: none; }
+  .tf-banner .tf-facts li { font-size: 12px; padding: 5px 10px; }
+  .tf-banner .tf-ctas .tf-btn { flex: 1; justify-content: center; padding: 0 12px; font-size: 14px; white-space: nowrap; }
+  .tf-sub { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+}
+
 /* Footer.js forces <body> dark green — the page needs its own background */
 .tf-page main { background: #fff; padding-bottom: 56px; }
 .tf-hero { background: linear-gradient(180deg, #f3f9f5 0%, #fff 100%); padding: 28px 0 40px; border-bottom: 1px solid #edf3ef; }
@@ -262,7 +293,7 @@ const CSS = `
 .tf-qf li { position: relative; margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.55; color: #334155; }
 .tf-qf li::before { content: ""; position: absolute; left: 3px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: #1e7a4c; }
 .tf-updated { font-size: 12.5px; color: #94a3b8; margin: 8px 0 0; padding: 0; }
-.tf-lead { margin-top: 44px; }
+.tf-leadwrap { margin-top: 44px; }
 .tf-thers { margin-top: 44px; }
 .tf-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .tf-sec-head a { color: #1e7a4c; font-weight: 800; font-size: 14px; text-decoration: none; }
