@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ImageTag from "../../utils/image-tag";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
@@ -34,6 +34,16 @@ function bioLine(raw) {
 export default function ProfileCardRow({ data, favrioutes, highlight = "", now = null }) {
   const [bookmark, setBookmark] = useState(favrioutes?.includes(data._id) || false);
   const [showBookmark, setShowBookmark] = useState(true);
+  // expertise strip only drifts while this card is on screen
+  const specsRef = useRef(null);
+  const [specsOn, setSpecsOn] = useState(false);
+  useEffect(() => {
+    const el = specsRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    const io = new IntersectionObserver(([e]) => setSpecsOn(e.isIntersecting), { threshold: 0.6 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const token = getDecodedToken();
@@ -96,8 +106,8 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
       {bio && <p className="pcr-bio">{bio}</p>}
       {expertise.length > 0 && (
         /* every area of expertise, as green pills drifting left (the list is doubled so the loop is seamless) */
-        <div className="pcr-specs" aria-label={`Areas of expertise: ${expertise.join(", ")}`}>
-          <div className="pcr-marquee" style={{ animationDuration: `${Math.max(12, expertise.length * 3)}s` }}>
+        <div ref={specsRef} className={`pcr-specs${specsOn ? " on" : ""}`} aria-label={`Areas of expertise: ${expertise.join(", ")}`}>
+          <div className="pcr-marquee" style={{ animationDuration: `${Math.max(60, expertise.length * 12)}s` }}>
             {[0, 1].map((copy) => (
               <div key={copy} className="pcr-mq-set" aria-hidden={copy === 1 || undefined}>
                 {expertise.map((s) => (
@@ -172,9 +182,10 @@ export const CARD_CSS = `
 .pcr-modes i { font-size: 11.5px; }
 .pcr-bio { grid-area: bio; min-width: 0; margin: 0; font-size: 13.5px; line-height: 1.5; color: #475569; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 0; }
 .pcr-specs { grid-area: specs; min-width: 0; overflow: hidden; margin-top: 2px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 92%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 92%, transparent 100%); }
-.pcr-marquee { display: flex; width: max-content; animation: pcrMarquee linear infinite; }
+.pcr-marquee { display: flex; width: max-content; animation: pcrMarquee linear infinite; animation-play-state: paused; }
+.pcr-specs.on .pcr-marquee { animation-play-state: running; }
 .pcr-mq-set { display: flex; gap: 6px; padding-right: 6px; flex-shrink: 0; }
-.pcr-specs:hover .pcr-marquee, .pcr-specs:focus-within .pcr-marquee { animation-play-state: paused; }
+.pcr-specs.on:hover .pcr-marquee, .pcr-specs.on:focus-within .pcr-marquee { animation-play-state: paused; }
 @keyframes pcrMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) {
   .pcr-specs { -webkit-mask-image: none; mask-image: none; }
