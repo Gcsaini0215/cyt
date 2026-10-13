@@ -34,6 +34,7 @@ import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
 import SchoolRounded from "@mui/icons-material/SchoolRounded";
 import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import Footer from "../components/footer";
+import RelatedTherapists from "../components/global/related-therapists";
 
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
@@ -1127,7 +1128,7 @@ function lastSessionTxt(cr) {
   return isNaN(d) ? "" : ` · last session on ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}`;
 }
 
-export default function NoidaAppointment({ seoPricing = null, seoReviews = null }) {
+export default function NoidaAppointment({ seoPricing = null, seoReviews = null, seoTeam = [] }) {
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
@@ -3990,7 +3991,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null 
 
         </div>
 
-        {fitSlots && <NoidaSeoContent pricing={seoPricing} reviews={seoReviews} />}
+        {fitSlots && <NoidaSeoContent pricing={seoPricing} reviews={seoReviews} team={seoTeam} />}
         <Footer />
 
         <footer className="na-foot">
@@ -4071,7 +4072,7 @@ const HELP_CARDS = [
 ];
 const MAP_EMBED = "https://www.google.com/maps?q=Choose+Your+Therapist+LLP,+D-137,+Sector+51,+Noida&z=16&output=embed";
 
-function NoidaSeoContent({ pricing, reviews }) {
+function NoidaSeoContent({ pricing, reviews, team = [] }) {
   const faq = seoFaq(pricing);
   const cards = [
     { I: PlaceRounded, mode: "In-person", sub: "At the Sector 51 centre", ind: pricing?.individual_inperson, cpl: pricing?.couple_inperson },
@@ -4121,6 +4122,9 @@ function NoidaSeoContent({ pricing, reviews }) {
             </div>
           ))}
         </div>
+        {team.length > 0 && (
+          <RelatedTherapists id="na-team" title="Psychologists at the Noida centre" subtitle="Verified psychologists you can book at Sector 51 — tap a name to see their full profile and reviews." items={team} moreHref="/psychologist-in/uttar-pradesh" moreLabel="More in Uttar Pradesh" />
+        )}
         <p className="na-seo-text">Not sure where to start? Book an individual session — your psychologist will understand what you need in the first meeting and suggest a plan.</p>
 
         <h3>Find the Noida centre</h3>
@@ -4205,5 +4209,28 @@ export async function getStaticProps() {
     const data = await res.json();
     if (data?.status && data.data?.reviews?.length) seoReviews = data.data;
   } catch (e) { /* reviews are optional — the page builds without them */ }
-  return { props: { seoPricing, seoReviews }, revalidate: 3600 };
+  // the centre's psychologists, as profile cards (links to their profiles)
+  let seoTeam = [];
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(`${apiUrl}/noida-appointments/therapists`, { signal: ctrl.signal });
+    clearTimeout(t);
+    const data = await res.json();
+    if (data?.status && Array.isArray(data.data)) {
+      seoTeam = data.data.filter(x => x?._id && x.name).slice(0, 12).map(x => ({
+        id: String(x._id),
+        href: profilePath({ _id: x._id, name: x.name, profile_type: x.profileType, state: x.state }),
+        name: String(x.name).replace(/\s+/g, " ").trim(),
+        type: x.profileType || "Psychologist",
+        city: String(x.state || "").split(",")[0].trim(),
+        photo: x.image ? (String(x.image).startsWith("http") ? x.image : `${imagePath}/${x.image}`) : null,
+        fee: null,
+        rating: x.reviewCount > 0 ? { avg: Number(x.rating || 5).toFixed(1), count: x.reviewCount } : null,
+        modes: "",
+        tags: Array.isArray(x.expertise) ? x.expertise.slice(0, 3) : [],
+      }));
+    }
+  } catch (e) { /* optional */ }
+  return { props: { seoPricing, seoReviews, seoTeam }, revalidate: 3600 };
 }

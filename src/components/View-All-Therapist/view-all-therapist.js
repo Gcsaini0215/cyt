@@ -17,6 +17,8 @@ import {
 import { CONCERN_PAGES, concernPath } from "../../utils/concerns";
 import dynamic from "next/dynamic";
 import LeadCard from "../global/lead-card";
+import { profilePath } from "../../utils/therapist-slug";
+import { cleanName, cityOf } from "../../utils/related-therapists";
 import MobileActionBar from "../global/mobile-action-bar";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
@@ -523,6 +525,22 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
               waText={filter.concern ? `Hi, I'd like help finding a psychologist for ${concernLabel(filter.concern).toLowerCase()}.` : "Hi, I'd like help finding the right psychologist."} />
           </div>
 
+          {/* ── Every listed psychologist by name: the cards above load 18 at a time, so this
+               keeps a plain link to each profile in the page for people and search engines ── */}
+          {filteredData.length > 0 && (
+            <section className="vat-browse vat-az" aria-labelledby="vat-az-h">
+              <h2 id="vat-az-h">All {filteredData.length} psychologists, A–Z</h2>
+              <ul className="vat-az-list">
+                {[...filteredData].sort((a, b) => cleanName(a).localeCompare(cleanName(b))).map((t) => (
+                  <li key={t._id}>
+                    <Link href={profilePath(t)}>{cleanName(t) || "Therapist"}</Link>
+                    <span>{t.profile_type || "Psychologist"}{cityOf(t) ? ` · ${cityOf(t)}` : ""}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {/* ── Browse + FAQ (also internal links for search engines) ── */}
           <section className="vat-browse" aria-labelledby="vat-browse-h">
             <h2 id="vat-browse-h">Browse by place, concern or type</h2>
@@ -764,6 +782,11 @@ const CSS = `
 .vat-browse, .vat-faq { margin-top: 48px; }
 .vat-browse h2, .vat-faq h2 { font-size: 20px; font-weight: 800; color: #14532d; margin: 0 0 14px; }
 .vat-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.vat-az-list { list-style: none; margin: 0; padding: 0; columns: 3 240px; column-gap: 24px; }
+.vat-az-list li { break-inside: avoid; padding: 6px 0; border-bottom: 1px solid #eef2f0; font-size: 14px; }
+.vat-az-list a { font-weight: 700; color: #14532d; text-decoration: none; }
+.vat-az-list a:hover { text-decoration: underline; }
+.vat-az-list span { display: block; font-size: 12.5px; color: #64748b; }
 .vat-links + .vat-links { margin-top: 10px; }
 .vat-links a { font-size: 13px; font-weight: 600; color: #26463a; background: #fff; border: 1px solid #e0e9e3; border-radius: 999px; padding: 6px 13px; text-decoration: none; }
 .vat-links a:hover { border-color: #1e7a4c; color: #1e7a4c; }

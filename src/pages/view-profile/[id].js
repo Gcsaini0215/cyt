@@ -19,6 +19,11 @@ import ProfileReview from "../../components/view_profile/profile-review";
 import SocialShare from "../../components/global/social-share";
 import { useRouter } from "next/router";
 import { getDecodedToken } from "../../utils/jwt";
+import Link from "next/link";
+import RelatedTherapists from "../../components/global/related-therapists";
+import {
+  pickRelated, profileSeo, expertiseOf, languagesOf, minFeeOf, cityOf, concernLinksOf, placeLinkOf, modesOf, cleanName,
+} from "../../utils/related-therapists";
 
 // URL slug <-> _id maps of the publicly listed therapists, cached per server
 // process so a profile view doesn't refetch the whole list every time.
@@ -44,7 +49,7 @@ async function getSlugMaps(force = false) {
     const name = nameSlug(t);
     if (name) (byName[name] = byName[name] || []).push(t._id);
   });
-  slugCache = { at: Date.now(), maps: { bySlug, slugById, byName } };
+  slugCache = { at: Date.now(), maps: { bySlug, slugById, byName, list } };
   return slugCache.maps;
 }
 
@@ -85,11 +90,18 @@ export async function getServerSideProps(context) {
         const { slugById } = await getSlugMaps();
         if (slugById[id]) return moved(slugById[id]);
       }
+      // other profiles to link to: same city / expertise first
+      let related = [];
+      try {
+        const { list } = await getSlugMaps();
+        related = pickRelated(list, { exclude: id, city: cityOf(res.data), expertise: expertiseOf(res.data), limit: 6 });
+      } catch (e) { /* the page works without them */ }
       return {
         props: {
           initialProfile: res.data,
           id,
-          urlKey: slug || id
+          urlKey: slug || id,
+          related,
         }
       };
     }
@@ -107,7 +119,7 @@ export async function getServerSideProps(context) {
   };
 }
 
-export default function ViewProfile({ initialProfile, id, urlKey, error: serverError }) {
+export default function ViewProfile({ initialProfile, id, urlKey, related = [], error: serverError }) {
   const router = useRouter();
   const [profile, setProfile] = useState(initialProfile);
   const [error, setError] = useState(serverError || false);
@@ -177,9 +189,11 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
     return <ErrorPage />;
   }
 
-  const profileName = profile?.user?.name || "Expert Therapist";
+  const seo = profileSeo(profile || {});
+  const profileName = cleanName(profile) || "Expert Therapist";
   const profileType = profile?.profile_type || "Psychologist";
-  const profileLocation = profile?.user?.state ? `in ${profile.user.state}` : "in India";
+  const profileCity = cityOf(profile) || "India";
+  const profileLocation = `in ${profileCity}`;
 
   // Ensure absolute image URL for OG tags
   const profileImage = profile?.user?.profile
@@ -209,35 +223,23 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
   const rawBio = profile?.user?.bio ? profile.user.bio.replace(/<[^>]*>/g, '').trim() : "";
   const profileBio = rawBio || `Book a session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`;
 
-  // SEO description — include rating for click-through boost
-  const ratingSnippet = avgRating ? `⭐ ${avgRating}/5 · ${reviewCount} review${reviewCount > 1 ? "s" : ""} — ` : "";
-  const seoDescriptionRaw = ratingSnippet + profileBio;
-  const seoDescription = seoDescriptionRaw.length > 160 ? seoDescriptionRaw.substring(0, 157) + "..." : seoDescriptionRaw;
+  // SEO description: who, where, for what, how, from how much (+ rating) — built in utils/related-therapists
+  const seoDescription = seo.description;
 
   // Keywords — base + review-extracted
-  const baseKeywords = `${profileName}, ${profileType}, psychologist, therapist, mental health counseling, therapy, online therapy, verified therapist, ${profile?.state || profile?.user?.state || "India"}`;
+  const baseKeywords = `${profileName}, ${profileType} in ${profileCity}, psychologist in ${profileCity}, therapist, online therapy, verified therapist`;
   const seoKeywords = topReviewKeywords ? `${baseKeywords}, ${topReviewKeywords}` : baseKeywords;
 
   // always the www host: the bare domain 301s to www, so it can't be the canonical
   const currentUrl = `https://www.chooseyourtherapist.in/view-profile/${urlKey || id}`;
-  const seoTitle = `${profileName} | ${profileType} | ${profileLocation.replace('in ', '')} | Choose Your Therapist`;
+  const seoTitle = seo.title;
 
   // Parse specializations / expertise areas
-  const expertiseAreas = (() => {
-    const raw = profile?.service_experties;
-    if (!raw) return [];
-    if (Array.isArray(raw)) return raw.filter(Boolean);
-    if (typeof raw === "string") return raw.split(",").map(s => s.trim()).filter(Boolean);
-    return [];
-  })();
+  const expertiseAreas = expertiseOf(profile);
 
   // Languages
-  const languagesList = (() => {
-    const raw = profile?.languages;
-    if (!raw) return ["English", "Hindi"];
-    if (Array.isArray(raw)) return raw;
-    return raw.split(",").map(l => l.trim());
-  })();
+  const languagesList = languagesOf(profile).length ? languagesOf(profile) : ["English", "Hindi"];
+  const minFee = minFeeOf(profile);
 
   // Credentials / qualifications
   const credentialList = [];
@@ -295,7 +297,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
     "address": {
       "@type": "PostalAddress",
       "addressRegion": profile?.state || profile?.user?.state || "India",
-      "addressLocality": profile?.city || profile?.user?.city || undefined,
+      "addressLocality": profileCity !== "India" ? profileCity : undefined,
       "addressCountry": "IN"
     },
     ...(avgRating && {
@@ -335,12 +337,10 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
     "address": {
       "@type": "PostalAddress",
       "addressRegion": profile?.state || profile?.user?.state || "India",
-      "addressLocality": profile?.city || profile?.user?.city || undefined,
+      "addressLocality": profileCity !== "India" ? profileCity : undefined,
       "addressCountry": "IN"
     },
-    ...(profile?.fee_per_session && {
-      "priceRange": `₹${profile.fee_per_session} per session`
-    }),
+    ...(minFee && { "priceRange": `From ₹${minFee} per session` }),
     "openingHoursSpecification": {
       "@type": "OpeningHoursSpecification",
       "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -382,7 +382,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
     "name": seoTitle,
     "description": seoDescription,
     "url": currentUrl,
-    "dateModified": new Date().toISOString().split("T")[0],
+    "dateModified": new Date(profile?.updatedAt || profile?.user?.updatedAt || Date.now()).toISOString().split("T")[0],
     "mainEntity": { "@id": `${currentUrl}#psychologist` },
     "breadcrumb": { "@id": `${currentUrl}#breadcrumb` },
     "speakable": {
@@ -448,6 +448,33 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
           {/* the site body is dark green — give the reviews their own white page background so the footer starts below them */}
           <div style={{ background: "#fff" }}>
             <ProfileReview profile={profile} />
+            <section className="pr-about" aria-labelledby="pr-about-h">
+              <style dangerouslySetInnerHTML={{ __html: PR_CSS }} />
+              <h2 id="pr-about-h">{profileName} — {profileType} in {profileCity}</h2>
+              <p>
+                {profileName.split(" ")[0]} offers {(modesOf(profile) || "online").toLowerCase()} sessions
+                {languagesList.length ? ` in ${languagesList.join(", ")}` : ""}
+                {minFee ? `, with fees from ₹${minFee.toLocaleString("en-IN")} per session` : ""}. Book directly on Choose Your Therapist —
+                every psychologist here is verified.
+              </p>
+              {concernLinksOf(profile).length > 0 && (
+                <div className="pr-links">
+                  <span>Helps with:</span>
+                  {concernLinksOf(profile).map((c) => <Link key={c.href} href={c.href}>{c.label}</Link>)}
+                </div>
+              )}
+              {placeLinkOf(profile) && (
+                <p className="pr-place">More verified psychologists in <Link href={placeLinkOf(profile).href}>{placeLinkOf(profile).label}</Link> · <Link href="/view-all-therapist">Browse all psychologists</Link></p>
+              )}
+            </section>
+            <RelatedTherapists
+              id="similar"
+              title="Similar psychologists"
+              subtitle={`Other verified psychologists${profileCity !== "India" ? ` in and around ${profileCity}` : ""} with similar expertise`}
+              items={related}
+              moreHref="/view-all-therapist"
+              moreLabel="All psychologists"
+            />
           </div>
         </>
       )}
@@ -455,3 +482,14 @@ export default function ViewProfile({ initialProfile, id, urlKey, error: serverE
     </div>
   );
 }
+
+const PR_CSS = `
+.pr-about { max-width: 1180px; margin: 0 auto; padding: 30px 16px 6px; font-family: 'Inter', system-ui, sans-serif; }
+.pr-about h2 { margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #0f2a1d; }
+.pr-about p { margin: 0 0 12px; font-size: 15px; line-height: 1.65; color: #334155; max-width: 860px; }
+.pr-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 12px; }
+.pr-links span { font-size: 14px; font-weight: 700; color: #0f2a1d; }
+.pr-links a { padding: 6px 12px; border-radius: 999px; background: #ecfdf3; border: 1px solid #c6f0d6; color: #166534; font-size: 13.5px; font-weight: 700; text-decoration: none; }
+.pr-links a:hover { background: #dcfce7; }
+.pr-place a { color: #166534; font-weight: 700; }
+`;

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import RelatedTherapists from "../components/global/related-therapists";
+import { pickRelated, getListedTherapists } from "../utils/related-therapists";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -40,7 +42,7 @@ import MyNavbar from '../components/navbar';
 import Footer from '../components/footer';
 import SocialShare from '../components/global/social-share';
 import BookingPopup from '../components/global/booking-popup';
-import { getBlogUrl, baseApi, getBlogsUrl, frontendUrl, getFullBlogImagePath } from '../utils/url';
+import { getBlogUrl, baseApi, getBlogsUrl, frontendUrl, getFullBlogImagePath, getTherapistProfiles } from '../utils/url';
 import { fetchData } from '../utils/actions';
 import dompurify from "dompurify";
 
@@ -432,7 +434,7 @@ function cleanBlogContent(html) {
   return c.trim();
 }
 
-export default function BlogDetails({ initialBlog }) {
+export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   const router = useRouter();
   const { id } = router.query;
   const theme = useTheme();
@@ -1150,6 +1152,18 @@ export default function BlogDetails({ initialBlog }) {
         </Grid>
       </Container>
 
+      {blogTherapists.length > 0 && (
+        <Box sx={{ background: "#fff", borderTop: "1px solid #e6ece8" }}>
+          <RelatedTherapists
+            id="blog-therapists"
+            title="Talk to a psychologist about this"
+            subtitle="Verified psychologists on Choose Your Therapist who work with this — online or in person."
+            items={blogTherapists}
+            moreHref="/view-all-therapist"
+            moreLabel="Find your psychologist"
+          />
+        </Box>
+      )}
       <Footer />
       <BookingPopup showHeading={false} showLocation={false} showSource={false} />
     </Box>
@@ -1161,9 +1175,18 @@ export async function getServerSideProps(context) {
   try {
     const res = await fetchData(`${getBlogUrl}/${id}`);
     if (res && (res.status === 200 || res.status === true || res.data)) {
+      const blog = res.data || res;
+      // 3 psychologists whose expertise matches the post's topic — links from every post to profiles
+      let blogTherapists = [];
+      try {
+        const list = await getListedTherapists(() => fetchData(getTherapistProfiles));
+        const keywords = getTopicMatch(blog).flatMap((m) => [...m.keywords, m.service]).filter(Boolean);
+        blogTherapists = pickRelated(list, { keywords: keywords.length ? keywords : ["anxiety", "stress", "depression"], limit: 3 });
+      } catch (e) { /* the post works without them */ }
       return {
         props: {
-          initialBlog: res.data || res,
+          initialBlog: blog,
+          blogTherapists,
         },
       };
     }

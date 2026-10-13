@@ -15,12 +15,16 @@ import LocalFaqs from "../components/home/local-faqs";
 // Dynamic imports for performance
 const Banner = dynamic(() => import("../components/home/banner"), { ssr: true });
 const LocalPresence = dynamic(() => import("../components/home/local-presence"), { ssr: false });
-const ProfileCard = dynamic(() => import("../components/home/profile-card"), { ssr: false });
+import RelatedTherapists from "../components/global/related-therapists";
+import { pickRelated } from "../utils/related-therapists";
 const ProcessSteps = dynamic(() => import("../components/home/process-steps"), { ssr: false });
 const ConsultationForm = dynamic(() => import("../components/home/consultation-form"), { ssr: false });
 
-export default function LocalLandingPage() {
-  const [topTherapists, setTopTherapists] = useState([]);
+// Noida / Delhi NCR therapists: states are typed freely ("Noida, Uttar Pradesh", "UP", "New Delhi")
+const NCR_RE = /(noida|delhi|ghaziabad|gurgaon|gurugram|faridabad|uttar pradesh|(^|[^a-z])up([^a-z]|$)|ncr)/i;
+const inNcr = (t) => NCR_RE.test(String(t?.state || ""));
+
+export default function LocalLandingPage({ ncrCards = [] }) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -36,26 +40,7 @@ export default function LocalLandingPage() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const getTopTherapists = useCallback(async () => {
-    try {
-      const res = await fetchData(getTherapistProfiles);
-      const dataToProcess = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
-      
-      if (dataToProcess && dataToProcess.length > 0) {
-        // Filter therapists from Noida/Delhi (Uttar Pradesh & Delhi)
-        const filtered = dataToProcess.filter(t => 
-          (t.state && (t.state.toLowerCase() === "delhi" || t.state.toLowerCase() === "uttar pradesh" || t.state.toLowerCase() === "up"))
-        );
-        setTopTherapists(filtered.slice(0, 50));
-      }
-    } catch (error) {
-      console.error("Error fetching therapists:", error);
-    }
-  }, []);
 
-  useEffect(() => {
-    getTopTherapists();
-  }, [getTopTherapists]);
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
@@ -395,7 +380,14 @@ export default function LocalLandingPage() {
         </div>
 
         {/* Reusing shared sections but with local context provided by the page title/SEO */}
-        <ProfileCard profiles={topTherapists} />
+        <RelatedTherapists
+          id="ncr"
+          title="Psychologists in Noida & Delhi NCR"
+          subtitle="Verified psychologists near you — in person at our Noida centre or online. Tap a name for the full profile and reviews."
+          items={ncrCards}
+          moreHref="/view-all-therapist"
+          moreLabel="All psychologists"
+        />
 
         {/* SEO Section: Localized Services Grid */}
         <div className="rbt-service-area bg-color-white rbt-section-gap">
@@ -485,4 +477,17 @@ export default function LocalLandingPage() {
       `}</style>
     </div>
   );
+}
+
+// The Noida / Delhi NCR therapists are written into the page HTML (refreshed hourly) as
+// profile cards, so the links are there for search engines too.
+export async function getStaticProps() {
+  let ncrCards = [];
+  try {
+    const res = await fetchData(getTherapistProfiles);
+    const list = (res?.data || []).filter(inNcr);
+    // best-reviewed first, then the rest
+    ncrCards = pickRelated(list, { limit: 24 });
+  } catch (e) { /* the section is just left out */ }
+  return { props: { ncrCards }, revalidate: 3600 };
 }
