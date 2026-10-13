@@ -1,4 +1,5 @@
 import React from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Head from "next/head";
 import Link from "next/link";
 import MyNavbar from "../../components/navbar";
@@ -55,6 +56,7 @@ function PlaceTile({ slug, s }) {
 }
 
 export default function PsychologistHub({ stats, total }) {
+  const ps = usePublicStats();
   const router = useRouter();
   const [q, setQ] = React.useState("");
   const query = q.trim().toLowerCase();
@@ -136,7 +138,7 @@ export default function PsychologistHub({ stats, total }) {
             <span className="ph-tag">Our centre</span>
             <h2>{NOIDA_CENTRE.name}</h2>
             <p>{NOIDA_CENTRE.address}<br />{NOIDA_CENTRE.hours}</p>
-            <a href={GBP_URL} target="_blank" rel="noreferrer" className="ph-rate">★ 4.9 on Google · 178 reviews</a>
+            <a href={GBP_URL} target="_blank" rel="noreferrer" className="ph-rate">★ {ratingText(ps)} on Google · {reviewsText(ps)} reviews</a>
             <div className="ph-acts">
               <Link href={NOIDA_CENTRE.book} className="ph-btn">Book in person</Link>
               <Link href={NOIDA_CENTRE.page} className="ph-btn ghost">About the centre</Link>

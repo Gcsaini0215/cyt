@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../utils/public-stats";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import dynamic from "next/dynamic";
@@ -292,6 +293,7 @@ function SuccessScreen({ name, email }) {
 }
 
 export default function TherapistRegistration() {
+  const ps = usePublicStats();
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -699,7 +701,7 @@ export default function TherapistRegistration() {
         pill={<><i className="feather-award" aria-hidden="true" /> Be a preferred therapist</>}
         title={<>Build your practice — <span>list yourself on CYT</span></>}
         lead="Reach clients looking for support, show your specialisations, and offer online or in-person sessions."
-        stats={[{ value: "5000+", label: "sessions booked" }, { value: "Verified", label: "profiles only" }, { value: "5 min", label: "to apply" }]}
+        stats={[{ value: sessionsText(ps), label: "sessions booked" }, { value: "Verified", label: "profiles only" }, { value: "5 min", label: "to apply" }]}
       />
 
       {/* Full-bleed white backdrop — Footer.js forces <body> dark site-wide,

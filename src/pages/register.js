@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../utils/public-stats";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,6 +14,7 @@ import { getDecodedToken, setToken } from "../utils/jwt";
 import { postData } from "../utils/actions";
 
 export default function Register() {
+  const ps = usePublicStats();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -109,7 +111,7 @@ export default function Register() {
         pill={<><i className="feather-heart" aria-hidden="true" /> Your well-being matters</>}
         title={<>Begin your journey to <span>feeling better</span></>}
         lead="Create a free account to find verified psychologists, book sessions and keep everything in one place."
-        stats={[{ value: "Verified", label: "psychologists only" }, { value: "4.9 ★", label: "on Google" }, { value: "Free", label: "to sign up" }]}
+        stats={[{ value: "Verified", label: "psychologists only" }, { value: `${ratingText(ps)} ★`, label: "on Google" }, { value: "Free", label: "to sign up" }]}
       />
 
       <main className="rg-page">

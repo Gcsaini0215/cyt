@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Link from "next/link";
 import { apiUrl, imagePath } from "../../utils/url";
 import Star from "@mui/icons-material/Star";
@@ -140,6 +141,7 @@ function TherapistCard({ t }) {
 
 // stats: { count, minFee } of the whole directory, worked out on the server
 export default function Banner({ topTherapists = [], stats = null }) {
+  const ps = usePublicStats();
   // Server order first (so server and browser HTML match), shuffled after mount —
   // same top-rated pool, different order each visit.
   const [ranked, setRanked] = useState(topTherapists);
@@ -230,8 +232,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
           </div>
 
           <ul className="cyt-trust" aria-label="Why people choose us">
-            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <b>4.9</b> on Google <span>(178 reviews)</span></a></li>
-            <li><VerifiedRounded sx={{ fontSize: 15, color: "#1e7a4c" }} /> <b>5000+</b> sessions</li>
+            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <b>{ratingText(ps)}</b> on Google <span>({reviewsText(ps)} reviews)</span></a></li>
+            <li><VerifiedRounded sx={{ fontSize: 15, color: "#1e7a4c" }} /> <b>{sessionsText(ps)}</b> sessions</li>
             <li className="cyt-trust-x"><i className="feather-lock" /> 100% confidential</li>
           </ul>
         </div>

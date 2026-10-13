@@ -165,7 +165,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
     ? `Book online or in-person sessions with top-rated psychologists in ${userCity}, ${userState || ""}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
     : userState 
       ? `Book online or in-person sessions with top-rated psychologists in ${userState}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
-      : "Talk to a verified psychologist online or at our Noida centre — for anxiety, stress, depression and relationships. Sessions from ₹400, 5,000+ booked. Book in 2 minutes.";
+      : "Talk to a verified psychologist online or at our Noida centre — for anxiety, stress, depression and relationships. Sessions from ₹400. Book in 2 minutes.";
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>

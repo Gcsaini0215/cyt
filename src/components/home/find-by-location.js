@@ -1,4 +1,5 @@
 import React from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Link from "next/link";
 import { PLACES, placePath, placeForRegion, isStateSlug, isAbroad, NOIDA_CENTRE } from "../../utils/places";
 import { GBP_URL } from "../about/visit-centre";
@@ -22,6 +23,7 @@ const TILES = [
   { label: "Uttarakhand", img: "dehradun", slug: "uttarakhand" },
 ];
 export default function FindByLocation({ stats = {}, total = 0, visitorState = null }) {
+  const ps = usePublicStats();
   const near = placeForRegion(visitorState);
   const n = near ? stats[near] : null;
   const slugs = Object.keys(PLACES);
@@ -60,7 +62,7 @@ export default function FindByLocation({ stats = {}, total = 0, visitorState = n
             <span className="fbl-tag"><i className="feather-home" aria-hidden="true" /> Our centre</span>
             <h3>{NOIDA_CENTRE.name}</h3>
             <p>{NOIDA_CENTRE.address} · {NOIDA_CENTRE.hours}</p>
-            <a href={GBP_URL} target="_blank" rel="noreferrer" className="fbl-rate">★ 4.9 on Google · 178 reviews</a>
+            <a href={GBP_URL} target="_blank" rel="noreferrer" className="fbl-rate">★ {ratingText(ps)} on Google · {reviewsText(ps)} reviews</a>
             <div className="fbl-acts">
               <Link href={NOIDA_CENTRE.book} className="fbl-btn">Book in person</Link>
               <a href={GBP_URL} target="_blank" rel="noreferrer" className="fbl-btn ghost">Directions</a>

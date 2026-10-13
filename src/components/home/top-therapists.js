@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Link from "next/link";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import Star from "@mui/icons-material/Star";
@@ -81,6 +82,7 @@ function Card({ t, now, hidden }) {
 }
 
 export default function TopTherapists({ people = [], visitorState = null, total = 0 }) {
+  const ps = usePublicStats();
   const [now, setNow] = useState(null);
   useEffect(() => { setNow(Date.now()); }, []);
   const [tab, setTab] = useState("top");
@@ -178,8 +180,8 @@ export default function TopTherapists({ people = [], visitorState = null, total 
         <div className="tt-foot">
           <ul className="tt-trust">
             <li><b>{total || "50+"}</b> verified psychologists</li>
-            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <b>4.9</b> on Google</a></li>
-            <li><b>5000+</b> sessions</li>
+            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <b>{ratingText(ps)}</b> on Google</a></li>
+            <li><b>{sessionsText(ps)}</b> sessions</li>
             <li>100% confidential</li>
           </ul>
           <Link href="/view-all-therapist?help=1" className="tt-help"><i className="feather-compass" aria-hidden="true" /> Not sure who to pick? <b>Help me choose</b></Link>

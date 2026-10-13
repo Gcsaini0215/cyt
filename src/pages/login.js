@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../utils/public-stats";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -39,6 +40,7 @@ const inboxFor = (email) => {
 };
 
 export default function Login() {
+  const ps = usePublicStats();
   const router = useRouter();
   const [who, setWho] = useState("client"); // client | therapist — wording only, same sign-in
   const [email, setEmail] = useState("");
@@ -165,8 +167,8 @@ export default function Login() {
         title={isTher ? <>Sign in to <span>your practice</span></> : <>Sign in to <span>your safe space</span></>}
         lead={isTher ? "Bookings, availability and payouts — all in one place." : "Your sessions, your psychologist and your invoices — all in one place."}
         stats={isTher
-          ? [{ value: "5000+", label: "sessions on CYT" }, { value: "No password", label: "a one-time code" }, { value: "Weekly", label: "payouts" }]
-          : [{ value: "5000+", label: "sessions booked" }, { value: "4.9 ★", label: "on Google" }, { value: "No password", label: "a one-time code" }]}
+          ? [{ value: sessionsText(ps), label: "sessions on CYT" }, { value: "No password", label: "a one-time code" }, { value: "Weekly", label: "payouts" }]
+          : [{ value: sessionsText(ps), label: "sessions booked" }, { value: `${ratingText(ps)} ★`, label: "on Google" }, { value: "No password", label: "a one-time code" }]}
       />
 
       <main className="lg-page">
@@ -185,7 +187,7 @@ export default function Login() {
             </ul>
             <div className="lg-trust">
               <span><i className="feather-lock" aria-hidden="true" /> No password — a one-time code each time</span>
-              <a href={GBP_URL} target="_blank" rel="noreferrer">★ 4.9 on Google · 5000+ sessions</a>
+              <a href={GBP_URL} target="_blank" rel="noreferrer">★ {ratingText(ps)} on Google · {sessionsText(ps)} sessions</a>
             </div>
           </aside>
 

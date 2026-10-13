@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { usePublicStats, sessionsText, ratingText, reviewsText } from "../utils/public-stats";
 import Head from "next/head";
 import { createPortal } from "react-dom";
 import { apiUrl, imagePath } from "../utils/url";
@@ -1129,6 +1130,7 @@ function lastSessionTxt(cr) {
 }
 
 export default function NoidaAppointment({ seoPricing = null, seoReviews = null, seoTeam = [] }) {
+  const ps = usePublicStats();
   const [bookingType, setBookingType] = useState("new"); // "new" | "followup" | "reschedule"
   const [phase, setPhase] = useState("slots"); // "identify" | "slots" | "form" — meaningful for new/followup
   const [step, setStep] = useState(1);
@@ -2117,7 +2119,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         <div className="na-centre-txt">
           <div className="na-centre-name">
             <span className="na-nm-full">CYT Noida Centre · Sector 51</span><span className="na-nm-short">CYT Noida</span>
-            <a className="na-rate" href={MAPS_URL} target="_blank" rel="noopener noreferrer" aria-label="Rated 5.0 on Google from 180+ reviews"><span aria-hidden="true">★</span> 5.0<span className="na-rate-more"> · 180+ Google reviews</span></a>
+            <a className="na-rate" href={MAPS_URL} target="_blank" rel="noopener noreferrer" aria-label={`Rated ${ratingText(ps)} on Google from ${reviewsText(ps)} reviews`}><span aria-hidden="true">★</span> {ratingText(ps)}<span className="na-rate-more"> · {reviewsText(ps)} Google reviews</span></a>
           </div>
           <div className="na-centre-addr"><Ic I={PlaceRounded} s={13} /> Gate 3, D-137, Block D, Sector 51, Noida</div>
         </div>
@@ -4026,6 +4028,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
 
 // What clients said after their session here — approved by the centre, newest first.
 function NoidaReviews({ data }) {
+  const ps = usePublicStats();
   const [all, setAll] = useState(false);
   const list = all ? data.reviews : data.reviews.slice(0, 6);
   const avg = data.summary.average;
@@ -4039,7 +4042,7 @@ function NoidaReviews({ data }) {
           <p>from {data.summary.count} client review{data.summary.count === 1 ? "" : "s"} after their session at the centre</p>
           <a className="na-rvs-google" href={MAPS_URL} target="_blank" rel="noopener noreferrer">
             <span className="na-rvs-g" aria-hidden="true">G</span>
-            <span><b>5.0 ★ on Google</b><small>180+ reviews · read them on Google Maps</small></span>
+            <span><b>{ratingText(ps)} ★ on Google</b><small>{reviewsText(ps)} reviews · read them on Google Maps</small></span>
           </a>
         </div>
         <div className="na-rvs-grid">

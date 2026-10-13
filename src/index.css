@@ -937,3 +937,16 @@ button.vbox-link-btn:hover {
     transform: rotate(-1turn);
   }
 }
+
+/* ── Mobile, app-like (2026-10): no auto-zoom when a field is tapped, no sideways panning ──
+   iOS zooms into any input under 16px and then leaves the page zoomed; wide carousels/tab rows
+   could let the whole page drift left-right. overflow-x: clip (unlike hidden) keeps sticky headers. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body { max-width: 100%; overflow-x: clip; }
+@supports not (overflow: clip) { html, body { overflow-x: hidden; } }
+@media (max-width: 1024px) and (pointer: coarse) {
+  /* :not(#_) adds id-level weight so this also beats component rules like ".cf-input { font-size: 14px !important }" */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not(#_),
+  select:not(#_),
+  textarea:not(#_) { font-size: 16px !important; }
+}
