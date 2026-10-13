@@ -1014,26 +1014,6 @@ export default function TherapistDashboard() {
       <AvailabilityNudge therapistInfo={therapistInfo} blocked={showWelcome} />
 
       <Box sx={{ pb: 6 }}>
-        {/* ══ HEADER ═══════════════════════════════════════════ */}
-        <DashHeader
-          name={therapistInfo?.user?.name || firstName}
-          firstName={firstName}
-          avatarSrc={avatarSrc}
-          verified={therapistInfo?.verification_status === "approved" || !!therapistInfo?.user?.is_verified}
-          profileId={therapistInfo?._id}
-          clockTime={clockTime}
-          todaySessions={stats.todaySessions}
-          todayRevenue={stats.todayRevenue}
-          nextSession={nextSession}
-          refreshing={refreshing}
-          lastRefreshed={lastRefreshed}
-          onRefresh={() => load(true)}
-          loading={loading}
-          since={since}
-          savingSince={savingSince}
-          onChangeSince={changeSince}
-        />
-
         {/* ══ KPI ROW ══════════════════════════════════════════ */}
         <Box
           sx={{
