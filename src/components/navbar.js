@@ -539,7 +539,11 @@ export default function App() {
           .rbt-header.rbt-header-10 { padding: 0 8px; }
           .rbt-header.rbt-header-10 .rbt-header-wrapper > .container-fluid { padding-left: 12px; padding-right: 12px; }
           .rbt-header.rbt-header-10 .mainbar-row { gap: 8px; }
-          .rbt-header.rbt-header-10 .logo img { width: 120px !important; height: auto !important; }
+          .rbt-header.rbt-header-10 .logo img { width: auto !important; height: 36px !important; }
+          /* the theme pads the bar 15px top + bottom below 1200px — iPad landscape got a 111px header */
+          .rbt-header.rbt-header-10 .rbt-header-wrapper { padding-top: 0 !important; padding-bottom: 0 !important; }
+          .rbt-header.rbt-header-10 .mainbar-row, .rbt-header.rbt-header-10 .rbt-main-navigation { height: 64px; min-height: 0; }
+          .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu > li > a { height: 64px; }
           .rbt-header.rbt-header-10 .rbt-main-navigation { margin-left: 4px !important; margin-right: 4px !important; }
           .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu { gap: 14px; }
           .rbt-header.rbt-header-10 .mainmenu-nav .mainmenu > li > a { font-size: 14px !important; }

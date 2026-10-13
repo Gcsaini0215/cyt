@@ -296,7 +296,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         /* Desktop: the hero runs up behind the floating navbar. The zoom-safe over-pull +
            matching top padding live in navbar.js so every page's banner gets the same treatment. */
 
-        .cyt-hero-inner { position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 0 20px; display: flex; flex-direction: column; gap: 34px; align-items: center; }
+        .cyt-hero-inner { position: relative; z-index: 2; max-width: 1380px; margin: 0 auto; padding: 0 20px; display: flex; flex-direction: column; gap: 34px; align-items: center; }
         .cyt-hero-copy { width: 100%; max-width: 620px; }
         .cyt-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
@@ -419,8 +419,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero .cyt-wall-track { gap: 12px; }
           .cyt-hero .cyt-pcard { height: 260px; }
         }
+        @media (min-width: 1440px) { .cyt-hero .cyt-wall { max-width: 620px; } }
         @media (min-width: 1300px) {
-          .cyt-hero-inner { gap: 30px; }
+          /* line the copy up with the logo and the sections below (they use ~40px gutters) */
+          .cyt-hero-inner { gap: 30px; padding: 0 40px; }
           .cyt-hero-copy { flex: 0 0 54%; }
           .cyt-hero-visual::before { top: -10px; width: 470px; height: 470px; }
         }
@@ -466,8 +468,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-pmeta .cyt-new { background: rgba(236,199,125,.95); color: #14532d; }
         .cyt-pdot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 3px; display: inline-block; }
         .cyt-pbtns { display: flex; gap: 8px; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; transition: max-height .3s ease, opacity .25s ease, margin-top .3s ease; pointer-events: auto; }
-        .cyt-pcard:hover .cyt-pbtns, .cyt-pcard:focus-within .cyt-pbtns { max-height: 44px; opacity: 1; margin-top: 10px; }
-        @media (hover: none) { .cyt-pbtns { max-height: 44px; opacity: 1; margin-top: 10px; } }
+        /* View / Book are always shown — on touch there is no hover, and on desktop people missed them */
+        .cyt-pbtns { max-height: 44px; opacity: 1; margin-top: 10px; }
         .cyt-pbtns a { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; padding: 8px 4px; border-radius: 10px; text-decoration: none; }
         .cyt-pv { background: rgba(255,255,255,.16); color: #fff !important; border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(4px); }
         .cyt-pv:hover { background: rgba(255,255,255,.26); }
