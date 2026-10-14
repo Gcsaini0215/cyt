@@ -9,7 +9,6 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
-import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
 import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
@@ -24,7 +23,6 @@ export const CLIENT_NAV = [
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, mob: true },
   { to: "/view-all-therapist", label: "Find a Therapist", short: "Find", Icon: PersonSearchRoundedIcon, mob: true, external: true },
   { to: "/client/favrioute-therapits", label: "Saved Therapists", Icon: FavoriteRoundedIcon },
-  { to: "/client/my-workshop-bookings", label: "Workshops", Icon: EventNoteRoundedIcon },
   { to: "/my-settings", label: "Profile", Icon: ManageAccountsRoundedIcon, mob: true },
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");

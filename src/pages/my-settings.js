@@ -15,7 +15,9 @@ const STATES = stateList.filter((s) => s !== "Select");
 export default function ClientProfile() {
   const { setInfo } = useUserStore();
   const [data, setData] = useState(null);
-  const [f, setF] = useState({ name: "", nickname: "", phone: "", anumber: "", dob: "", gender: "", state: "" });
+  const [f, setF] = useState({ name: "", nickname: "", phone: "", anumber: "", dob: "", age: "", gender: "", state: "" });
+  const [dirty, setDirty] = useState(false);   // something changed since the last save
+  const [status, setStatus] = useState("");    // "", "saving", "saved", "error", "invalid"
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [saving, setSaving] = useState(false);
@@ -28,11 +30,11 @@ export default function ClientProfile() {
       if (!r?.status) { setMsg(["err", r?.message || "Couldn't load your profile"]); return; }
       const d = r.data || {};
       setData(d);
-      setF({ name: clean(d.name), nickname: clean(d.nickname), phone: clean(d.phone), anumber: clean(d.anumber), dob: clean(d.dob).slice(0, 10), gender: clean(d.gender), state: clean(d.state) === "Select" ? "" : clean(d.state) });
+      setF({ name: clean(d.name), nickname: clean(d.nickname), phone: clean(d.phone), anumber: clean(d.anumber), dob: clean(d.dob).slice(0, 10), age: clean(d.age), gender: clean(d.gender), state: clean(d.state) === "Select" ? "" : clean(d.state) });
     }).catch(() => setMsg(["err", "Couldn't load your profile — please refresh"]));
   }, []);
 
-  const set = (k, v) => { setF((p) => ({ ...p, [k]: v })); if (errs[k]) setErrs((e) => ({ ...e, [k]: "" })); setMsg(null); };
+  const set = (k, v) => { setF((p) => ({ ...p, [k]: v })); if (errs[k]) setErrs((e) => ({ ...e, [k]: "" })); setMsg(null); setDirty(true); };
   const pick = (e) => {
     const x = e.target.files?.[0];
     e.target.value = "";
@@ -41,16 +43,25 @@ export default function ClientProfile() {
     if (x.size > 2 * 1024 * 1024) { setMsg(["err", "Photo is larger than 2 MB — please choose a smaller one"]); return; }
     setFile(x);
     setPreview(URL.createObjectURL(x));
+    setDirty(true);
+  };
+
+  const validate = (v) => {
+    const e = {};
+    if (!v.name.trim()) e.name = "Please enter your name";
+    const d = v.phone.replace(/\D/g, "");
+    if (!d) e.phone = "Please enter your phone number";
+    else if (d.length < 10 || d.length > 13) e.phone = "Enter a valid 10-digit mobile number";
+    if (v.anumber && v.anumber.replace(/\D/g, "").length < 10) e.anumber = "Enter a valid number or leave it empty";
+    if (!v.dob && v.age && (Number(v.age) < 5 || Number(v.age) > 100)) e.age = "Enter an age between 5 and 100";
+    return e;
   };
 
   const save = async () => {
-    const e = {};
-    if (!f.name.trim()) e.name = "Please enter your name";
-    const d = f.phone.replace(/\D/g, "");
-    if (!d) e.phone = "Please enter your phone number";
-    else if (d.length < 10 || d.length > 13) e.phone = "Enter a valid 10-digit mobile number";
-    if (f.anumber && f.anumber.replace(/\D/g, "").length < 10) e.anumber = "Enter a valid number or leave it empty";
-    if (Object.keys(e).length) { setErrs(e); return; }
+    const e = validate(f);
+    if (Object.keys(e).length) { setErrs(e); setStatus("invalid"); return; }
+    setStatus("saving");
+    setDirty(false);
     const fd = new FormData();
     if (file) fd.append("file", file);
     fd.append("name", f.name.trim());
@@ -60,7 +71,7 @@ export default function ClientProfile() {
     fd.append("dob", f.dob);
     fd.append("state", f.state || "Select");
     fd.append("gender", f.gender);
-    fd.append("age", f.dob ? getAge(f.dob) : "");
+    fd.append("age", f.dob ? getAge(f.dob) : f.age);
     setSaving(true);
     try {
       const r = await postFormData(updateUserUrl, fd);
@@ -68,13 +79,32 @@ export default function ClientProfile() {
         setInfo("name", f.name.trim());
         if (r.data?.profile) { setInfo("profile", r.data.profile); setData((x) => ({ ...x, profile: r.data.profile })); }
         setFile(null);
-        setMsg(["ok", "Profile saved"]);
-      } else setMsg(["err", r?.message || "Something went wrong"]);
+        setStatus("saved");
+      } else { setStatus("error"); setMsg(["err", r?.message || "Couldn't save — check your connection"]); setDirty(true); }
     } catch (err) {
-      setMsg(["err", err?.response?.data?.message || "Couldn't save — please try again"]);
+      setStatus("error");
+      setMsg(["err", err?.response?.data?.message || "Couldn't save — check your connection"]);
+      setDirty(true);
     }
     setSaving(false);
   };
+
+  // autosave: a photo saves straight away, text about a second after you stop typing
+  const saveRef = useRef(save);
+  saveRef.current = save;
+  useEffect(() => {
+    if (!dirty || saving) return undefined;
+    const e = validate(f);
+    if (Object.keys(e).length) { setErrs(e); setStatus("invalid"); return undefined; }
+    const t = setTimeout(() => saveRef.current(), file ? 50 : 1100);
+    return () => clearTimeout(t);
+  }, [f, file, dirty, saving]); // eslint-disable-line react-hooks/exhaustive-deps
+  // don't lose edits on close
+  useEffect(() => {
+    const warn = (ev) => { if (dirty || saving) { ev.preventDefault(); ev.returnValue = ""; } };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty, saving]);
 
   const photo = preview || (clean(data?.profile) && !/^https?:/.test(data.profile) ? `${imagePath}/${data.profile}` : "");
 
@@ -82,8 +112,16 @@ export default function ClientProfile() {
     <ClientShell title="Profile">
       <style dangerouslySetInnerHTML={{ __html: CP_CSS }} />
       <div className="cp">
-        <h1>Profile</h1>
-        <p className="cp-sub">Your details help your therapist reach you. You log in with a one-time code sent to your email — there&apos;s no password.</p>
+        <div className="cp-top">
+          <h1>Profile</h1>
+          {status && (
+            <span className={`cp-status ${status}`} role="status">
+              {status === "saving" ? "Saving…" : status === "saved" ? "✓ All changes saved" : status === "invalid" ? "Fix the highlighted field to save" : "Couldn't save"}
+              {status === "error" && <button type="button" onClick={() => saveRef.current()}>Retry</button>}
+            </span>
+          )}
+        </div>
+        <p className="cp-sub">Changes save automatically. Details you gave while booking are already filled in. You log in with a one-time code sent to your email — there&apos;s no password.</p>
 
         {!data && !msg ? <div className="cp-skel" /> : (
           <div className="cp-card">
@@ -104,6 +142,10 @@ export default function ClientProfile() {
               <label className={errs.anumber ? "err" : ""}><span>Alternate number <small>optional</small></span><input type="tel" inputMode="tel" value={f.anumber} onChange={(e) => set("anumber", e.target.value)} />{errs.anumber && <em>{errs.anumber}</em>}</label>
               <label><span>Email</span><input value={clean(data?.email)} readOnly /><small className="hint">Contact support to change your login email.</small></label>
               <label><span>Date of birth <small>optional</small></span><input type="date" value={f.dob} max={new Date().toISOString().slice(0, 10)} onChange={(e) => set("dob", e.target.value)} /></label>
+              <label className={errs.age ? "err" : ""}><span>Age {f.dob ? <small>from your date of birth</small> : <small>optional</small>}</span>
+                <input type="number" inputMode="numeric" min={5} max={100} value={f.dob ? String(getAge(f.dob) || "") : f.age} readOnly={!!f.dob} onChange={(e) => set("age", e.target.value.replace(/\D/g, "").slice(0, 3))} />
+                {errs.age && <em>{errs.age}</em>}
+              </label>
               <label><span>Gender <small>optional</small></span>
                 <select value={f.gender} onChange={(e) => set("gender", e.target.value)}>
                   <option value="">Prefer not to say</option><option>Male</option><option>Female</option><option>Non-binary</option><option>Other</option>
@@ -116,10 +158,7 @@ export default function ClientProfile() {
               </label>
             </div>
 
-            <div className="cp-foot">
-              {msg && <span className={`cp-msg ${msg[0]}`} role="status">{msg[1]}</span>}
-              <button type="button" className="cp-btn primary" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save profile"}</button>
-            </div>
+            {msg && <div className="cp-foot"><span className={`cp-msg ${msg[0]}`} role="status">{msg[1]}</span></div>}
           </div>
         )}
       </div>
@@ -130,6 +169,10 @@ export default function ClientProfile() {
 const CP_CSS = `
 .cp { max-width: 860px; }
 .cp h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; font-family: inherit; }
+.cp-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.cp-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 5px 12px; background: #eef2f0; color: #475569; }
+.cp-status.saved { background: #e7f6ec; color: #166534; } .cp-status.invalid { background: #fef3c7; color: #92400e; } .cp-status.error { background: #fee2e2; color: #b91c1c; }
+.cp-status button { border: 0; background: #fff; color: #b91c1c; font-weight: 800; font-size: 12px; border-radius: 999px; padding: 2px 10px; cursor: pointer; font-family: inherit; }
 .cp-sub { margin: 4px 0 14px; font-size: 13.5px; color: #64748b; line-height: 1.5; }
 .cp-skel { height: 420px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: cpsk 1.3s infinite linear; }
 @keyframes cpsk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
