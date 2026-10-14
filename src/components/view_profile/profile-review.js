@@ -90,7 +90,7 @@ export default function ProfileReview({ profile: initialProfile }) {
   };
 
   return (
-    <div className="container pb--60">
+    <div className="container pb--60" id="write-review" style={{ scrollMarginTop: 90 }}>
       <div className="row">
         <div className="col-lg-10 offset-lg-1">
           <Dialog

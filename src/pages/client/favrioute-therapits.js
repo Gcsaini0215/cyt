@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import UserLayout from "../../components/dashboard/user-layout";
+import ClientShell from "../../components/client/client-shell";
 import FavTherapistCard from "../../components/dashboard/fav-therapist-card";
 import { fetchById, postData } from "../../utils/actions";
 import {
@@ -49,8 +49,8 @@ export default function FavriouteTherapistPage() {
   }, []);
 
   return (
-    <UserLayout>
-      <PageWrapper pageTitle={"Shortlist Therapist"} loading={loading}>
+    <ClientShell title="Saved Therapists">
+      <PageWrapper pageTitle={"Saved Therapists"} loading={loading}>
         <div className="row gy-5">
           {data && Object.keys(data).length > 0 ? (
            data.length>0 && data.map((item) => {
@@ -69,6 +69,6 @@ export default function FavriouteTherapistPage() {
           )}
         </div>
       </PageWrapper>
-    </UserLayout>
+    </ClientShell>
   );
 }

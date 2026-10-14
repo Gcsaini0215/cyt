@@ -1,218 +1,180 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import ClientTopNav from "../components/dashboard/client-top-nav";
+import ClientShell from "../components/client/client-shell";
+import SessionCard, { CSC_CSS, therapistLink, therapistName } from "../components/client/session-card";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
-import TherapistSearchModal from "../components/dashboard/therapist-search-modal";
-import { GetDashboardDataUrl } from "../utils/url";
+import useUserStore from "../store/userStore";
+import { GetDashboardDataUrl, getBookings, imagePath } from "../utils/url";
 import { fetchById } from "../utils/actions";
+import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
+import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
+import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
-const FEATURE_CARDS = [
-  { icon: "feather-search",     color: "#0f172a", bg: "#f1f5f9", label: "Find a Therapist",        desc: "Browse all verified therapists and find your match",          href: null,               tag: null, action: "therapist-search" },
-  { icon: "feather-clipboard",  color: "#7c3aed", bg: "#f5f3ff", label: "Self Assessment",        desc: "Understand your mental health with quick assessments",        href: "/self-assessment", tag: "Coming Soon" },
-  { icon: "feather-book-open",  color: "#0ea5e9", bg: "#f0f9ff", label: "Digital Journaling",     desc: "Write, reflect, and track your emotional journey",            href: "/my-journal",      tag: "Coming Soon" },
-  { icon: "feather-file-text",  color: "#f59e0b", bg: "#fffbeb", label: "Worksheets",             desc: "Therapeutic exercises and worksheets for self-growth",        href: "/worksheets",      tag: "Coming Soon" },
-  { icon: "feather-calendar",   color: "#16a34a", bg: "#f0fdf4", label: "Session History",        desc: "View your past appointments and session notes",               href: "/my-bookings",     tag: null },
-  { icon: "feather-sun",        color: "#f97316", bg: "#fff7ed", label: "Mood Tracker",           desc: "Log your daily mood and track emotional patterns",            href: "/mood-tracker",    tag: "Coming Soon" },
-  { icon: "feather-heart",      color: "#e11d48", bg: "#fff1f2", label: "My Therapist",           desc: "View your assigned therapist's profile and details",          href: "/my-therapists",   tag: "Coming Soon" },
-  { icon: "feather-video",      color: "#0891b2", bg: "#ecfeff", label: "Upcoming Sessions",      desc: "See your next booked therapy sessions",                       href: "/my-bookings",     tag: "Coming Soon" },
-  { icon: "feather-activity",   color: "#dc2626", bg: "#fef2f2", label: "My Reports",             desc: "Access your session reports and progress notes",              href: "/my-reports",      tag: "Coming Soon" },
-  { icon: "feather-headphones", color: "#6d28d9", bg: "#f5f3ff", label: "Meditation & Resources", desc: "Guided meditations and mental wellness resources",             href: "/resources",       tag: "Coming Soon" },
-  { icon: "feather-users",      color: "#059669", bg: "#ecfdf5", label: "Refer a Friend",         desc: "Share CYT with someone who needs support",                    href: "/refer",           tag: "Coming Soon" },
-];
+/* Client home: what's next, how to book, and the therapists you've seen. */
 
-export default function UserDashboard() {
-  const [data, setData]       = useState({});
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [therapistModalOpen, setTherapistModalOpen] = useState(false);
+const greeting = (d) => { const h = Number(d.toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" })); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
+
+export default function ClientHome() {
+  const { userInfo } = useUserStore();
+  const [bookings, setBookings] = useState(null);
+  const [requests, setRequests] = useState([]);
+  const [now, setNow] = useState(() => Date.now());
+  const [callback, setCallback] = useState(false);
 
   useEffect(() => {
-    fetchById(GetDashboardDataUrl)
-      .then(r => { if (r?.status) setData(r.data || {}); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    fetchById(getBookings).then((r) => setBookings(r?.status ? r.data || [] : [])).catch(() => setBookings([]));
+    fetchById(GetDashboardDataUrl).then((r) => {
+      if (r?.status) setRequests((r.data?.appointmentRequests || []).filter((a) => a.status === "confirmed" || a.status === "rescheduled"));
+    }).catch(() => {});
+    const t = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(t);
   }, []);
-
-  // close on Escape key
   useEffect(() => {
-    if (!modalOpen) return;
-    const onKey = (e) => { if (e.key === "Escape") setModalOpen(false); };
+    if (!callback) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setCallback(false); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [modalOpen]);
+  }, [callback]);
+
+  const { next, upcoming, therapists, doneCount } = useMemo(() => {
+    const list = (bookings || []).filter((b) => b.status !== "Cancelled");
+    const cutoff = now - 90 * 60000;
+    const live = list.filter((b) => b.status === "Started");
+    const ahead = list.filter((b) => b.status === "New" && new Date(b.booking_date).getTime() >= cutoff).sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
+    const all = [...live, ...ahead];
+    const seen = new Map();
+    (bookings || []).forEach((b) => { if (b.therapist?._id && !seen.has(b.therapist._id)) seen.set(b.therapist._id, b); });
+    return { next: all[0] || null, upcoming: all.slice(1, 4), therapists: [...seen.values()].slice(0, 6), doneCount: list.filter((b) => b.status === "Completed").length };
+  }, [bookings, now]);
+
+  const first = (userInfo?.name || "").trim().split(/\s+/)[0];
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        .db-feat {
-          display: flex; flex-direction: column; gap: 14px;
-          padding: 20px; border-radius: 14px;
-          border: 1px solid #e2e8f0; background: #fff;
-          text-decoration: none; transition: all 0.18s; cursor: pointer;
-          box-sizing: border-box;
-        }
-        .db-feat:hover {
-          border-color: #cbd5e1;
-          box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-          transform: translateY(-2px);
-        }
-        .db-feat-soon {
-          display: flex; flex-direction: column; gap: 14px;
-          padding: 20px; border-radius: 14px;
-          border: 1.5px solid #fecaca; background: #fff9f9;
-          text-decoration: none; transition: all 0.18s; cursor: not-allowed;
-          box-sizing: border-box; opacity: 0.72;
-        }
-        .db-shell {
-          min-height: calc(100vh - 56px);
-          background: #f8fafc;
-          padding: 24px 32px 100px;
-          box-sizing: border-box;
-        }
-        .db-feat-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 16px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        /* FAB button */
-        .db-fab {
-          position: fixed; bottom: 28px; right: 28px; z-index: 900;
-          display: flex; align-items: center; gap: 10px;
-          background: #16a34a; color: #fff;
-          border: none; border-radius: 50px;
-          padding: 14px 24px; font-size: 14px; font-weight: 700;
-          cursor: pointer; box-shadow: 0 8px 24px rgba(22,163,74,0.4);
-          transition: all 0.18s;
-        }
-        .db-fab:hover { background: #15803d; transform: translateY(-2px); box-shadow: 0 12px 28px rgba(22,163,74,0.45); }
-
-        /* Modal overlay */
-        .db-overlay {
-          position: fixed; inset: 0; z-index: 1300;
-          background: rgba(0,0,0,0.55);
-          display: flex; align-items: center; justify-content: center;
-          padding: 16px;
-          animation: db-fadein 0.18s ease;
-        }
-        @keyframes db-fadein { from { opacity: 0 } to { opacity: 1 } }
-
-        /* Modal panel */
-        .db-modal {
-          background: #fff; border-radius: 18px;
-          width: 100%; max-width: 480px;
-          max-height: 90vh; overflow-y: auto;
-          box-shadow: 0 24px 60px rgba(0,0,0,0.22);
-          animation: db-slidein 0.2s ease;
-        }
-        @keyframes db-slidein { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
-
-        .db-modal-head {
-          background: linear-gradient(135deg,#0f172a,#1e293b);
-          padding: 18px 22px;
-          display: flex; align-items: flex-start; justify-content: space-between;
-          border-radius: 18px 18px 0 0;
-          position: sticky; top: 0; z-index: 1;
-        }
-        .db-modal-close {
-          width: 30px; height: 30px; border-radius: 8px;
-          background: rgba(255,255,255,0.1); border: none;
-          color: #94a3b8; font-size: 18px; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          transition: all 0.15s; flex-shrink: 0; margin-top: 2px;
-        }
-        .db-modal-close:hover { background: rgba(255,255,255,0.18); color: #fff; }
-
-        /* Tablet */
-        @media (max-width: 1024px) {
-          .db-feat-grid { grid-template-columns: repeat(4, 1fr); }
-          .db-shell { padding: 20px 20px 100px; }
-        }
-        /* Mobile */
-        @media (max-width: 600px) {
-          .db-feat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-          .db-shell { padding: 14px 10px 90px; }
-          .db-fab { bottom: 72px; right: 16px; padding: 13px 20px; font-size: 13px; }
-          .db-feat, .db-feat-soon { padding: 14px 10px; gap: 10px; }
-        }
-      ` }} />
-
-      <ClientTopNav />
-
-      <div style={{ paddingTop: 56 }}>
-        <div className="db-shell">
-          <div className="db-feat-grid">
-            {FEATURE_CARDS.map(c => {
-              const inner = (
-                <>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 12, background: c.bg, display: "flex", alignItems: "center", justifyContent: "center", color: c.color, fontSize: 20, flexShrink: 0 }}>
-                      <i className={c.icon}></i>
-                    </div>
-                    {c.tag && (
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", background: "#f1f5f9", border: "1px solid #e2e8f0", borderRadius: 20, padding: "2px 9px" }}>{c.tag}</span>
-                    )}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", marginBottom: 4 }}>{c.label}</div>
-                    <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{c.desc}</div>
-                  </div>
-                </>
-              );
-              if (c.action === "therapist-search") {
-                return (
-                  <div key={c.label} className="db-feat" onClick={() => setTherapistModalOpen(true)}>
-                    {inner}
-                  </div>
-                );
-              }
-              if (c.tag === "Coming Soon") {
-                return (
-                  <div key={c.label} className="db-feat-soon">
-                    {inner}
-                  </div>
-                );
-              }
-              return (
-                <Link key={c.label} href={c.href} className="db-feat">
-                  {inner}
-                </Link>
-              );
-            })}
-          </div>
+    <ClientShell title="Home">
+      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + HOME_CSS }} />
+      <div className="ch">
+        <div className="ch-hello">
+          <h1>{greeting(new Date(now))}{first ? <>, <span>{first}</span></> : ""}</h1>
+          <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
         </div>
+
+        <div className="ch-grid">
+          <section className="ch-next">
+            <h2>Your next session</h2>
+            {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : (
+              <div className="ch-empty">
+                <EventAvailableRoundedIcon />
+                <b>No upcoming sessions</b>
+                <p>Book a session with a verified therapist — online or in person.</p>
+                <Link href="/view-all-therapist" className="csc-btn primary" style={{ flex: "none" }}>Find a therapist</Link>
+              </div>
+            )}
+          </section>
+
+          <aside className="ch-side">
+            <Link href="/view-all-therapist" className="ch-cta">
+              <PersonSearchRoundedIcon />
+              <div><b>Book a session</b><span>Browse verified therapists by concern, language and city</span></div>
+            </Link>
+            <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
+              <PhoneCallbackRoundedIcon />
+              <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
+            </button>
+            {requests.length > 0 && (
+              <div className="ch-card">
+                <h3>Appointment requests</h3>
+                {requests.slice(0, 3).map((r) => (
+                  <div key={r._id} className="ch-req">
+                    <b>{r.status === "rescheduled" ? "Rescheduled" : "Confirmed"}</b>
+                    <span>{r.confirmedTime || r.preferredTime || ""}{r.concern ? ` · ${r.concern}` : ""}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </aside>
+        </div>
+
+        {upcoming.length > 0 && (
+          <section className="ch-sec">
+            <div className="ch-sec-h"><h2>Also coming up</h2><Link href="/client/my-bookings">All sessions →</Link></div>
+            <div className="ch-cards">{upcoming.map((b) => <SessionCard key={b._id} b={b} now={now} compact />)}</div>
+          </section>
+        )}
+
+        {therapists.length > 0 && (
+          <section className="ch-sec">
+            <div className="ch-sec-h"><h2>Your therapists</h2></div>
+            <div className="ch-thers">
+              {therapists.map((b) => {
+                const p = b.therapist?.user?.profile;
+                const photo = p && p !== "null" && !/^https?:/.test(p) ? `${imagePath}/${p}` : "";
+                const name = therapistName(b);
+                return (
+                  <div key={b.therapist._id} className="ch-ther">
+                    <div className="csc-av">{photo ? <img src={photo} alt="" /> : name.replace(/^dr\.?\s*/i, "").charAt(0)}</div>
+                    <div className="ch-ther-txt"><b>{name}</b><span>{b.therapist?.profile_type || b.service || ""}</span></div>
+                    <Link href={therapistLink(b)} className="csc-btn soft">Book again</Link>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
 
-      {/* Floating Action Button */}
-      <button className="db-fab" onClick={() => setModalOpen(true)}>
-        <i className="feather-plus-circle" style={{ fontSize: 18 }}></i>
-        Request Appointment
-      </button>
-
-      {/* Therapist search modal */}
-      <TherapistSearchModal open={therapistModalOpen} onClose={() => setTherapistModalOpen(false)} />
-
-      {/* Appointment modal */}
-      {modalOpen && (
-        <div className="db-overlay" onClick={e => { if (e.target === e.currentTarget) setModalOpen(false); }}>
-          <div className="db-modal">
-            <div className="db-modal-head">
-              <div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: 4 }}>Book a Session</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Request Appointment</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>We'll confirm via WhatsApp</div>
-              </div>
-              <button className="db-modal-close" onClick={() => setModalOpen(false)}>
-                <i className="feather-x"></i>
-              </button>
+      {callback && (
+        <div className="ch-overlay" onClick={(e) => { if (e.target === e.currentTarget) setCallback(false); }}>
+          <div className="ch-modal" role="dialog" aria-modal="true" aria-label="Request a call back">
+            <div className="ch-modal-h">
+              <div><b>Request a call back</b><span>Tell us a little — our team will call to help you choose.</span></div>
+              <button type="button" onClick={() => setCallback(false)} aria-label="Close"><CloseRoundedIcon /></button>
             </div>
-            <div style={{ padding: "4px 20px 24px" }}>
-              <DashAppointmentForm compact />
-            </div>
+            <div className="ch-modal-b"><DashAppointmentForm compact /></div>
           </div>
         </div>
       )}
-    </>
+    </ClientShell>
   );
 }
+
+const HOME_CSS = `
+.ch-hello { margin-bottom: 18px; }
+.ch-hello h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
+.ch-hello h1 span { color: #166534; }
+.ch-hello p { margin: 4px 0 0; font-size: 14px; color: #64748b; }
+.ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.ch h2 { font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #166534; margin: 0 0 10px; font-family: inherit; }
+.ch-skel { height: 220px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: chsk 1.3s infinite linear; }
+@keyframes chsk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
+.ch-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 28px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ch-empty > svg { font-size: 34px; color: #16a34a; }
+.ch-empty b { font-size: 16px; } .ch-empty p { margin: 0 0 8px; font-size: 13.5px; color: #64748b; }
+.ch-side { display: flex; flex-direction: column; gap: 12px; padding-top: 27px; }
+.ch-cta { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 16px; text-decoration: none !important; color: #fff !important; border: 0; text-align: left; width: 100%; cursor: pointer; font-family: inherit;
+  background: linear-gradient(135deg, #0b3320, #166534); box-shadow: 0 12px 26px -16px rgba(4,30,16,.7); }
+.ch-cta > svg { font-size: 30px; color: #f5c542; flex-shrink: 0; }
+.ch-cta b { display: block; font-size: 15.5px; } .ch-cta span { display: block; font-size: 12.5px; opacity: .8; margin-top: 2px; line-height: 1.4; }
+.ch-cta.alt { background: #fff; color: #0f172a !important; border: 1px solid #e4ece7; box-shadow: none; }
+.ch-cta.alt > svg { color: #166534; } .ch-cta.alt span { color: #64748b; opacity: 1; }
+.ch-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; }
+.ch-card h3 { font-size: 14px; font-weight: 800; margin: 0 0 8px; font-family: inherit; }
+.ch-req { padding: 8px 0; border-top: 1px solid #eef2f0; } .ch-req:first-of-type { border-top: 0; }
+.ch-req b { display: block; font-size: 13px; color: #166534; } .ch-req span { font-size: 12.5px; color: #475569; }
+.ch-sec { margin-top: 22px; }
+.ch-sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.ch-sec-h a { font-size: 13px; font-weight: 700; color: #166534 !important; text-decoration: none !important; }
+.ch-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; }
+.ch-thers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 10px; }
+.ch-ther { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e4ece7; border-radius: 14px; padding: 12px; }
+.ch-ther-txt { flex: 1; min-width: 0; } .ch-ther-txt b { display: block; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-ther-txt span { display: block; font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ch-ther .csc-btn { height: 36px; flex: none; }
+.ch-overlay { position: fixed; inset: 0; z-index: 1400; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.ch-modal { background: #fff; border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.ch-modal-h { position: sticky; top: 0; z-index: 1; display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; padding: 16px 18px; background: linear-gradient(90deg, #0b3320, #166534); color: #fff; }
+.ch-modal-h b { display: block; font-size: 16px; } .ch-modal-h span { display: block; font-size: 12.5px; color: #bbf7d0; margin-top: 2px; }
+.ch-modal-h button { width: 34px; height: 34px; border-radius: 10px; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.ch-modal-b { padding: 6px 4px 10px; }
+@media (max-width: 1023px) { .ch-grid { grid-template-columns: 1fr; } .ch-side { padding-top: 0; } }
+`;

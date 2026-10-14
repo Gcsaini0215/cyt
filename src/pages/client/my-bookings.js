@@ -1,221 +1,96 @@
-import React, { useState } from "react";
-import UserLayout from "../../components/dashboard/user-layout";
-import { fetchById } from "../../utils/actions";
-import { getBookings, imagePath, defaultProfile } from "../../utils/url";
-import PageWrapper from "../../components/global/page-wrapper";
-import { toast } from "react-toastify";
-import { formatDateTime } from "../../utils/time";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { joinSession } from "../../utils/join-session";
-import { sessionWindow, opensAtText } from "../../utils/session-window";
+import ClientShell from "../../components/client/client-shell";
+import SessionCard, { CSC_CSS } from "../../components/client/session-card";
+import { fetchById } from "../../utils/actions";
+import { getBookings } from "../../utils/url";
 
-const statusColor = (status) => {
-  if (!status) return { bg: "#f1f5f9", color: "#64748b" };
-  const s = status.toLowerCase();
-  if (s === "new") return { bg: "#dbeafe", color: "#1d4ed8" };
-  if (s === "started") return { bg: "#fef9c3", color: "#854d0e" };
-  if (s === "completed") return { bg: "#dcfce7", color: "#166534" };
-  return { bg: "#f1f5f9", color: "#64748b" };
-};
+/* My Sessions: every booking with its progress — upcoming first, then past, then cancelled. */
 
-const paymentColor = (name) => {
-  if (!name) return { bg: "#f1f5f9", color: "#64748b" };
-  const s = name.toLowerCase();
-  if (s.includes("success") || s.includes("paid")) return { bg: "#dcfce7", color: "#166534" };
-  if (s.includes("pending")) return { bg: "#fef9c3", color: "#854d0e" };
-  if (s.includes("fail")) return { bg: "#fee2e2", color: "#991b1b" };
-  return { bg: "#f1f5f9", color: "#64748b" };
-};
+const TABS = [
+  { key: "upcoming", label: "Upcoming" },
+  { key: "past", label: "Past" },
+  { key: "cancelled", label: "Cancelled" },
+];
 
-export default function MyBookingsPage() {
-  const [data, setData] = React.useState([]);
-  const [loading, setLoading] = useState(true);
+export default function MySessions() {
+  const [data, setData] = useState(null);
+  const [tab, setTab] = useState("upcoming");
+  const [now, setNow] = useState(() => Date.now());
 
-  React.useEffect(() => {
-    fetchById(getBookings)
-      .then(res => { if (res.status) setData(res.data); else toast.error(res.message); })
-      .catch(err => toast.error(err.message))
-      .finally(() => setLoading(false));
+  useEffect(() => {
+    const load = () => fetchById(getBookings).then((r) => setData(r?.status ? r.data || [] : [])).catch(() => setData((d) => d || []));
+    load();
+    const t = setInterval(() => { setNow(Date.now()); if (!document.hidden) load(); }, 60000);
+    return () => clearInterval(t);
   }, []);
 
+  const groups = useMemo(() => {
+    const cutoff = now - 90 * 60000;
+    const list = data || [];
+    const upcoming = list.filter((b) => b.status === "Started" || (b.status === "New" && new Date(b.booking_date).getTime() >= cutoff))
+      .sort((a, b) => (a.status === "Started" ? -1 : b.status === "Started" ? 1 : new Date(a.booking_date) - new Date(b.booking_date)));
+    const past = list.filter((b) => b.status === "Completed" || (b.status === "New" && new Date(b.booking_date).getTime() < cutoff))
+      .sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date));
+    const cancelled = list.filter((b) => b.status === "Cancelled").sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date));
+    return { upcoming, past, cancelled };
+  }, [data, now]);
+
+  // open on Past when there's nothing upcoming
+  useEffect(() => {
+    if (data && !groups.upcoming.length && groups.past.length && tab === "upcoming") setTab("past");
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const shown = groups[tab] || [];
+
   return (
-    <UserLayout>
-      <PageWrapper pageTitle={"My Bookings"} loading={loading}>
-        <style dangerouslySetInnerHTML={{ __html: `
-          .bk-card {
-            background: #fff;
-            border-radius: 18px;
-            border: 1.5px solid #e8f5ee;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            padding: 24px;
-            margin-bottom: 20px;
-            transition: box-shadow 0.2s;
-          }
-          .bk-card:hover { box-shadow: 0 8px 32px rgba(34,135,86,0.1); }
-          .bk-badge {
-            display: inline-block;
-            border-radius: 20px;
-            padding: 3px 12px;
-            font-size: 12px;
-            font-weight: 700;
-          }
-          .bk-divider { border: none; border-top: 1.5px solid #f1f5f9; margin: 16px 0; }
-          .bk-row { display: flex; flex-wrap: wrap; gap: 16px; }
-          .bk-field { flex: 1; min-width: 140px; }
-          .bk-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-          .bk-value { font-size: 14px; font-weight: 600; color: #1e293b; }
-          .bk-pin {
-            font-size: 22px;
-            font-weight: 900;
-            color: #228756;
-            letter-spacing: 4px;
-            background: #f0fdf4;
-            border: 1.5px dashed #86efac;
-            border-radius: 10px;
-            padding: 6px 18px;
-            display: inline-block;
-          }
-          @media (max-width: 600px) {
-            .bk-card { padding: 16px; }
-            .bk-row { gap: 12px; }
-          }
-        ` }} />
+    <ClientShell title="My Sessions">
+      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + MS_CSS }} />
+      <div className="ms-head">
+        <div>
+          <h1>My Sessions</h1>
+          <p>Every booking and where it stands. Join opens 15 minutes before an online session.</p>
+        </div>
+        <Link href="/view-all-therapist" className="csc-btn primary" style={{ flex: "none" }}>Book a session</Link>
+      </div>
 
-        {!loading && data.length === 0 && (
-          <div style={{ textAlign: "center", padding: "60px 20px" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📅</div>
-            <h5 style={{ color: "#64748b", fontWeight: 600 }}>No Bookings Found</h5>
-            <p style={{ color: "#94a3b8", fontSize: 14 }}>You haven't booked any session yet.</p>
-            <Link href="/view-all-therapist" style={{
-              display: "inline-block", marginTop: 16,
-              background: "#228756", color: "#fff",
-              borderRadius: 10, padding: "10px 24px",
-              fontWeight: 700, fontSize: 14, textDecoration: "none"
-            }}>Find a Therapist</Link>
-          </div>
-        )}
+      <div className="ms-tabs" role="tablist" aria-label="Sessions">
+        {TABS.map((t) => (
+          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} className={tab === t.key ? "on" : ""} onClick={() => setTab(t.key)}>
+            {t.label}<i>{groups[t.key].length}</i>
+          </button>
+        ))}
+      </div>
 
-        {data.map((item) => {
-          const therapistImg = item.therapist?.user?.profile
-            ? `${imagePath}/${item.therapist.user.profile}`
-            : defaultProfile;
-          const sessStatus = statusColor(item.status);
-          const payStatus = paymentColor(item.transaction?.status?.name);
-
-          return (
-            <div className="bk-card" key={item._id}>
-              {/* Header — Therapist Info */}
-              <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-                <img
-                  src={therapistImg}
-                  alt={item.therapist?.user?.name}
-                  style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", border: "2px solid #228756", flexShrink: 0 }}
-                  onError={e => { e.target.src = defaultProfile; }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>
-                    {item.therapist?.user?.name}
-                  </div>
-                  <Link href={`/view-profile/${item.therapist?._id}`} target="_blank"
-                    style={{ fontSize: 12, color: "#228756", fontWeight: 600, textDecoration: "none" }}>
-                    {item.therapist?.profile_code} · View Profile
-                  </Link>
-                </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <span className="bk-badge" style={{ background: sessStatus.bg, color: sessStatus.color }}>
-                    {item.status || "New"}
-                  </span>
-                  <span className="bk-badge" style={{ background: payStatus.bg, color: payStatus.color }}>
-                    {item.transaction?.status?.name || "Pending"}
-                  </span>
-                </div>
-              </div>
-
-              <hr className="bk-divider" />
-
-              {/* Session Details */}
-              <div className="bk-row">
-                <div className="bk-field">
-                  <div className="bk-label">Service</div>
-                  <div className="bk-value">{item.service || "—"}</div>
-                  {item.format && <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{item.format}</div>}
-                </div>
-
-                <div className="bk-field">
-                  <div className="bk-label">Booked For</div>
-                  <div className="bk-value">{item.whom === "Self" ? "Self" : item.cname || "—"}</div>
-                  {item.whom !== "Self" && item.relation_with_client && (
-                    <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{item.relation_with_client}</div>
-                  )}
-                </div>
-
-                <div className="bk-field">
-                  <div className="bk-label">Booked At</div>
-                  <div className="bk-value">{formatDateTime(item.booking_date)}</div>
-                </div>
-
-                <div className="bk-field">
-                  <div className="bk-label">Amount Paid</div>
-                  <div className="bk-value" style={{ color: "#228756" }}>₹ {item.transaction?.amount || "—"}</div>
-                </div>
-              </div>
-
-              {/* Google Meet */}
-              {item.meet_link && (item.status === "New" || item.status === "Started") && !sessionWindow(item.booking_date).after && (
-                <>
-                  <hr className="bk-divider" />
-                  <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <div className="bk-label">Online session</div>
-                      <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>Join at your session time. The same Google Meet link is in your email and Google Calendar.</div>
-                    </div>
-                    {sessionWindow(item.booking_date).before ? (
-                      <span style={{ height: 42, padding: "0 16px", borderRadius: 10, background: "#f1f5f9", color: "#475569", fontWeight: 700, fontSize: 13.5, display: "inline-flex", alignItems: "center" }}>
-                        Join opens at {opensAtText(sessionWindow(item.booking_date).opens)}
-                      </span>
-                    ) : (
-                      <button type="button" onClick={() => joinSession(item._id, item.meet_link).catch((e) => toast.error(e.message))}
-                        style={{ height: 42, padding: "0 18px", borderRadius: 10, border: 0, background: "#166534", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
-                        Join Google Meet
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {/* Notes */}
-              {item.notes && (
-                <>
-                  <hr className="bk-divider" />
-                  <div className="bk-label">Notes</div>
-                  <div style={{ fontSize: 13, color: "#475569", marginTop: 4, lineHeight: 1.6 }}>{item.notes}</div>
-                </>
-              )}
-
-              {/* Session Times */}
-              {item.status !== "New" && (
-                <>
-                  <hr className="bk-divider" />
-                  <div className="bk-row">
-                    {item.session_started_at && (
-                      <div className="bk-field">
-                        <div className="bk-label">Session Started</div>
-                        <div className="bk-value">{formatDateTime(item.session_started_at)}</div>
-                      </div>
-                    )}
-                    {item.session_completed_at && (
-                      <div className="bk-field">
-                        <div className="bk-label">Session Completed</div>
-                        <div className="bk-value">{formatDateTime(item.session_completed_at)}</div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          );
-        })}
-      </PageWrapper>
-    </UserLayout>
+      {data === null ? (
+        <div className="ms-grid">{[1, 2].map((i) => <div key={i} className="ms-skel" />)}</div>
+      ) : shown.length ? (
+        <div className="ms-grid">{shown.map((b) => <SessionCard key={b._id} b={b} now={now} />)}</div>
+      ) : (
+        <div className="ms-empty">
+          <b>{tab === "upcoming" ? "No upcoming sessions" : tab === "past" ? "No past sessions yet" : "No cancelled sessions"}</b>
+          {tab === "upcoming" && <p>Find a therapist and book your first session — online or in person.</p>}
+          {tab === "upcoming" && <Link href="/view-all-therapist" className="csc-btn primary" style={{ flex: "none" }}>Find a therapist</Link>}
+        </div>
+      )}
+    </ClientShell>
   );
 }
+
+const MS_CSS = `
+.ms-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.ms-head h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; font-family: inherit; color: #0f172a; }
+.ms-head p { margin: 4px 0 0; font-size: 13.5px; color: #64748b; }
+.ms-tabs { position: sticky; top: var(--cls-h, 60px); z-index: 20; display: flex; gap: 6px; padding: 8px 0; margin-bottom: 8px; background: #f1f6f2; overflow-x: auto; scrollbar-width: none; }
+.ms-tabs::-webkit-scrollbar { display: none; }
+.ms-tabs button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 15px; border-radius: 999px; border: 1px solid #e4ece7; background: #fff; color: #64748b; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.ms-tabs button i { font-style: normal; font-size: 11px; font-weight: 800; background: #eef2f0; color: #64748b; border-radius: 999px; padding: 0 7px; line-height: 18px; }
+.ms-tabs button.on { background: #0f3d24; border-color: #0f3d24; color: #fff; }
+.ms-tabs button.on i { background: rgba(255,255,255,.2); color: #fff; }
+.ms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 14px; }
+.ms-skel { height: 260px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: mssk 1.3s infinite linear; }
+@keyframes mssk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
+.ms-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 32px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #64748b; }
+.ms-empty b { color: #0f172a; font-size: 16px; } .ms-empty p { margin: 0 0 8px; font-size: 13.5px; }
+@media (max-width: 767px) { .ms-head .csc-btn { width: 100%; } .ms-tabs { margin: 0 -16px 8px; padding: 8px 16px; } }
+`;

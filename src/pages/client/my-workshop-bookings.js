@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import UserLayout from "../../components/dashboard/user-layout";
+import ClientShell from "../../components/client/client-shell";
 import { fetchById } from "../../utils/actions";
 import { GetMyWorkshopBooking } from "../../utils/url";
 import PageWrapper from "../../components/global/page-wrapper";
@@ -39,8 +39,8 @@ export default function MyWorkshopBookingsPage() {
   }, []);
 
   return (
-    <UserLayout>
-      <PageWrapper pageTitle={"My Events"} loading={loading}>
+    <ClientShell title="Workshops">
+      <PageWrapper pageTitle={"Workshops"} loading={loading}>
         <div className="row gy-5">
           {data && data.length > 0 ? (
             <CreateTable columns={columns}>
@@ -97,6 +97,6 @@ export default function MyWorkshopBookingsPage() {
           )}
         </div>
       </PageWrapper>
-    </UserLayout>
+    </ClientShell>
   );
 }
