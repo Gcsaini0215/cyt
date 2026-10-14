@@ -438,8 +438,12 @@ const TN_CSS = `
   .tn-search-ic { display: grid !important; }
   .tn-who { flex: 1; max-width: none; padding: 2px 4px 2px 10px; }
   .tn-who b { font-size: 13.5px; }
-  .tn-who-type { display: none; }
+  /* phones: line 2 = profile type, led by a coloured live-status dot (no room for the status text) */
+  .tn-who-type { font-size: 11px; }
+  .tn-who-st { order: -1; font-size: 0; }
+  .tn-who-st::after { margin-right: 0; }
   .tn-who-type + .tn-who-st::before { content: none; }
+  .tn-who > span { gap: 5px; }
   .tn-logo img { width: 28px; height: 28px; }
   .tn-menu-btn { width: 38px; height: 38px; }
   .tn-search input::placeholder { text-overflow: ellipsis; }
