@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import useTherapistStore from "../../store/therapistStore";
 import DashboardTopNav from "./top-nav";
 import TherapistSideNav from "./side-nav";
-import ChatWidget from "./ChatWidget";
 import { checkProfileSet } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 
@@ -113,7 +112,6 @@ export function TherapistShell({ children }) {
       {busy && <div className="ts-progress" role="progressbar" aria-label="Loading page" />}
       <DashboardTopNav />
       <TherapistSideNav />
-      <ChatWidget />
       <div className="rbt-dashboard-area ts-area">
         <main className="ts-main">
           <div className={`container-fluid ts-inner${busy ? " is-busy" : ""}`}>
