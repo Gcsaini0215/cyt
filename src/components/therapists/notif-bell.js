@@ -13,7 +13,10 @@ import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
 import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import DoneAllRoundedIcon from "@mui/icons-material/DoneAllRounded";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
+import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
 import useNotifStore, { connectNotifications } from "../../store/notifStore";
+import { unlockSound, soundOn, setSoundOn, playChime } from "../../utils/notif-sound";
 
 // The portal bell: a dropdown of recent notifications next to it, and live pop-ups under it the
 // moment something happens (fed by store/notifStore's live stream — no refresh needed).
@@ -62,8 +65,22 @@ export default function NotifBell({ fallbackCount = 0, onOpenBell }) {
   const wrapRef = useRef(null);
   const { items, unread, loaded, toasts, markRead, dismissToast } = useNotifStore();
   const [, tick] = useState(0);
+  const [sound, setSound] = useState(true);
 
+  useEffect(() => { setSound(soundOn()); unlockSound(); }, []);
   useEffect(() => connectNotifications(), []);
+  const toggleSound = () => {
+    const on = !sound;
+    setSound(on);
+    setSoundOn(on);
+    if (on) playChime("normal", true); // a quick sample so they know what it sounds like
+  };
+  // opening the bell is a good moment to ask once for system notifications (alerts in other tabs)
+  const askSystem = () => {
+    try {
+      if ("Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {});
+    } catch (e) { /* not supported */ }
+  };
   // keep "x min ago" fresh while the panel is open
   useEffect(() => {
     if (!open) return undefined;
@@ -99,7 +116,7 @@ export default function NotifBell({ fallbackCount = 0, onOpenBell }) {
 
   return (
     <div className="nb-wrap" ref={wrapRef}>
-      <button type="button" className={`tn-icon-btn nb-bell${count ? " has" : ""}`} onClick={() => { setOpen((o) => !o); onOpenBell?.(); }}
+      <button type="button" className={`tn-icon-btn nb-bell${count ? " has" : ""}`} onClick={() => { setOpen((o) => !o); onOpenBell?.(); askSystem(); }}
         title="Notifications" aria-haspopup="dialog" aria-expanded={open} aria-label={`Notifications${count ? ` (${count} new)` : ""}`}>
         <NotificationsActiveRoundedIcon />
         {count > 0 && <span className="tn-notif-dot">{count > 99 ? "99+" : count}</span>}
@@ -109,7 +126,12 @@ export default function NotifBell({ fallbackCount = 0, onOpenBell }) {
         <div className="nb-panel" role="dialog" aria-label="Notifications">
           <div className="nb-head">
             <b>Notifications</b>
-            {unread > 0 && <button type="button" onClick={() => markRead()}><DoneAllRoundedIcon /> Mark all read</button>}
+            <span className="nb-head-acts">
+              <button type="button" className="nb-snd" onClick={toggleSound} title={sound ? "Sound on — tap to mute" : "Sound off — tap to turn on"} aria-label={sound ? "Mute notification sound" : "Turn on notification sound"} aria-pressed={sound}>
+                {sound ? <VolumeUpRoundedIcon /> : <VolumeOffRoundedIcon />}
+              </button>
+              {unread > 0 && <button type="button" onClick={() => markRead()}><DoneAllRoundedIcon /> Mark all read</button>}
+            </span>
           </div>
           <div className="nb-list">
             {!loaded && <div className="nb-empty">Loading…</div>}
@@ -141,7 +163,7 @@ export default function NotifBell({ fallbackCount = 0, onOpenBell }) {
           })}
         </div>
       )}
-      <style>{NB_CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: NB_CSS }} />
     </div>
   );
 }
@@ -157,6 +179,10 @@ const NB_CSS = `
 .nb-head button { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: #166534; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
 .nb-head button:hover { background: #f0fdf4; }
 .nb-head button svg { font-size: 16px; }
+.nb-head-acts { display: inline-flex; align-items: center; gap: 2px; }
+.nb-head .nb-snd { color: #475569; padding: 5px; }
+.nb-head .nb-snd svg { font-size: 19px; }
+.nb-head .nb-snd[aria-pressed="false"] { color: #b91c1c; }
 .nb-list { max-height: min(430px, 62vh); overflow-y: auto; }
 .nb-row { display: flex; align-items: flex-start; gap: 11px; width: 100%; padding: 11px 16px; border: 0; border-bottom: 1px solid #f1f5f9; background: #fff; text-align: left; cursor: pointer; font-family: inherit; position: relative; }
 .nb-row:hover { background: #f8fafc; }

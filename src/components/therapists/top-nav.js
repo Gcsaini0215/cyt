@@ -110,10 +110,11 @@ export default function DashboardTopNav() {
   const [popup, setPopup] = useState([]);
   useEffect(() => {
     const KEY = "cyt_known_booking_ids";
-    const check = async () => {
+    // force: skip the shared 15s cache (the live stream just said a booking came in)
+    const check = async (force) => {
       if (document.hidden) return;
       try {
-        const res = await fetchBookingsShared(15000);
+        const res = await fetchBookingsShared(force === true ? 0 : 15000);
         if (!res?.status || !Array.isArray(res.data)) return;
         let known = null;
         try { known = JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) { /* storage blocked */ }
@@ -137,8 +138,9 @@ export default function DashboardTopNav() {
     const onVisible = () => { if (!document.hidden) check(); };
     document.addEventListener("visibilitychange", onVisible);
     // the live notification stream saw a new booking → show it now, not at the next poll
-    window.addEventListener("cyt:check-bookings", check);
-    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("cyt:check-bookings", check); };
+    const onLive = () => check(true);
+    window.addEventListener("cyt:check-bookings", onLive);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("cyt:check-bookings", onLive); };
   }, [setNotificationCount]);
   const closePopup = useCallback(() => setPopup([]), []);
 

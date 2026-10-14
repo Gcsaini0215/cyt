@@ -2,6 +2,20 @@ import { create } from "zustand";
 import { fetchById, postData } from "../utils/actions";
 import { therapistNotifUrl, therapistNotifReadUrl, therapistNotifStreamUrl } from "../utils/url";
 import { getToken } from "../utils/jwt";
+import { playChime } from "../utils/notif-sound";
+
+const URGENT = new Set(["booking", "joined"]);
+
+// portal open in a background tab → also show a system notification (if the therapist allowed them)
+function systemNotify(list) {
+  try {
+    if (typeof window === "undefined" || !document.hidden || !("Notification" in window) || Notification.permission !== "granted") return;
+    list.slice(0, 3).forEach((n) => {
+      const sn = new Notification(n.title, { body: n.body || "", icon: "/favicon.ico", tag: n._id });
+      sn.onclick = () => { window.focus(); if (n.link) window.location.assign(n.link); sn.close(); };
+    });
+  } catch (e) { /* not supported here */ }
+}
 
 /* Therapist portal notifications (the bell). Saved on the server, so nothing is missed while the
    portal is closed, and pushed live over one EventSource per tab — a new booking, a client joining,
@@ -32,6 +46,8 @@ const useNotifStore = create((set, get) => ({
     const fresh = list.filter((n) => !n.read && new Date(n.createdAt).getTime() > seenAt);
     if (!fresh.length) return;
     writeToasted(Math.max(...fresh.map((n) => new Date(n.createdAt).getTime())));
+    playChime(fresh.some((n) => URGENT.has(n.type)) ? "urgent" : "normal");
+    systemNotify(fresh);
     // a new booking also opens the big booking popup and refreshes the dashboard
     if (fresh.some((n) => n.type === "booking") && typeof window !== "undefined") window.dispatchEvent(new Event("cyt:check-bookings"));
     // bookings already get the big booking popup — everything else pops up under the bell
