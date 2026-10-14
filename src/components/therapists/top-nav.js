@@ -11,6 +11,7 @@ import useCommsStore from "../../store/commsStore";
 import { useNavBadges, NavBadge, listingOf, shareProfile, NX_CSS } from "./nav-extras";
 import { profilePct } from "../../utils/profile-checks";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
@@ -18,7 +19,6 @@ import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
@@ -147,6 +147,7 @@ export default function DashboardTopNav() {
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
   const publicProfile = therapistInfo?._id ? `/view-profile/${therapistInfo._id}` : null;
   const listing = listingOf(therapistInfo);
+  const verified = therapistInfo?.verification_status === "approved";
   const pct = therapistInfo?.user?.email ? profilePct(therapistInfo) : null;
   const bellCount = (badges.bookings || 0) + (badges.inbox || 0);
   const moreCount = (badges.inbox || 0) + (badges.reviews || 0);
@@ -169,19 +170,31 @@ export default function DashboardTopNav() {
           {wide ? <MenuOpenRoundedIcon /> : <MenuRoundedIcon />}
         </button>
 
-        <Link href="/therapist-dashboard" className="tn-logo" title="Dashboard" aria-label="Dashboard">
-          <img src={logo1} alt="CYT" width={30} height={30} />
-        </Link>
-
         {/* who's signed in — name, what they are, and whether the profile is live */}
-        <Link href="/settings" className="tn-who" title="Your profile & settings">
-          <b>{therapistInfo?.user?.name || "Therapist Portal"}</b>
-          <span>
-            {therapistInfo?.profile_type && <em className="tn-who-type">{therapistInfo.profile_type}</em>}
-            {listing && <i className={`tn-who-st ${listing.tone}`}>{listing.label}</i>}
-          </span>
-          <small className="tn-who-brand">www.chooseyourtherapist.in</small>
-        </Link>
+        <div ref={profileRef} className="tn-prof" onMouseEnter={openProfile} onMouseLeave={closeProfileSoon}>
+          <button type="button" className="tn-who" aria-haspopup="menu" aria-expanded={profileOpen} title="Your profile"
+            onClick={() => { clearTimeout(closeTimer.current); setProfileOpen((o) => !o); }}>
+            <img src={avatarSrc} alt="" className="tn-who-av" onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }} />
+            <span className="tn-who-txt">
+              <b>
+                <span className="tn-who-name">{therapistInfo?.user?.name || "Therapist Portal"}</span>
+                {verified && <VerifiedRoundedIcon className="tn-who-tick" titleAccess="Verified therapist" />}
+              </b>
+              <span>
+                {therapistInfo?.profile_type && <em className="tn-who-type">{therapistInfo.profile_type}</em>}
+                {listing && <i className={`tn-who-st ${listing.tone}`}>{listing.label}</i>}
+              </span>
+              <small className="tn-who-brand">www.chooseyourtherapist.in</small>
+            </span>
+          </button>
+          {profileOpen && (
+            <div className="tn-prof-dd" role="menu" onClick={() => setProfileOpen(false)}>
+              {publicProfile && <a href={publicProfile} target="_blank" rel="noopener noreferrer"><OpenInNewRoundedIcon /> View public profile</a>}
+              <Link href="/settings"><PersonRoundedIcon /> Edit profile</Link>
+              <button type="button" onClick={handleLogout} className="logout-btn"><LogoutRoundedIcon /> Log out</button>
+            </div>
+          )}
+        </div>
 
         <div className="tn-search" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setQOpen(false); }}>
           <SearchRoundedIcon />
@@ -214,25 +227,9 @@ export default function DashboardTopNav() {
             {bellCount > 0 && <span className="tn-notif-dot">{bellCount > 99 ? "99+" : bellCount}</span>}
           </Link>
 
-          <div ref={profileRef} className="tn-prof" onMouseEnter={openProfile} onMouseLeave={closeProfileSoon}>
-            <button type="button" className="tn-prof-btn" aria-haspopup="menu" aria-expanded={profileOpen}
-              onClick={() => { clearTimeout(closeTimer.current); setProfileOpen((o) => !o); }}>
-              <img src={avatarSrc} alt="" className="tn-prof-av" onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }} />
-              <span className="tn-prof-name">{name}</span>
-              <KeyboardArrowDownRoundedIcon className="tn-prof-chevron" />
-            </button>
-            {profileOpen && (
-              <div className="tn-prof-dd" role="menu" onClick={() => setProfileOpen(false)}>
-                <div className="tn-prof-dd-head">
-                  <img src={avatarSrc} alt="" onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }} />
-                  <div><b>{name}</b><span>Therapist</span></div>
-                </div>
-                {publicProfile && <a href={publicProfile} target="_blank" rel="noopener noreferrer"><OpenInNewRoundedIcon /> View public profile</a>}
-                <Link href="/settings"><PersonRoundedIcon /> Edit profile</Link>
-                <button type="button" onClick={handleLogout} className="logout-btn"><LogoutRoundedIcon /> Log out</button>
-              </div>
-            )}
-          </div>
+          <Link href="/therapist-dashboard" className="tn-logo" title="Choose Your Therapist — dashboard" aria-label="Dashboard">
+            <img src={logo1} alt="Choose Your Therapist" width={32} height={32} />
+          </Link>
         </div>
       </header>
 
@@ -308,19 +305,23 @@ const TN_CSS = `
 .tn-menu-btn:hover { background: #e7f6ec; border-color: #c6e6d1; color: #166534; }
 .tn-menu-btn svg { font-size: 22px; }
 .tn-logo { display: flex; align-items: center; text-decoration: none !important; flex-shrink: 0; }
-.tn-logo img { width: 30px; height: 30px; object-fit: contain; display: block; }
-.tn-who { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; max-width: 300px; padding: 4px 10px 4px 12px; margin-left: -2px;
-  border-left: 1px solid #e4ece7; text-decoration: none !important; border-radius: 0 10px 10px 0; transition: background .14s; }
-.tn-who:hover { background: #f6f8f7; }
-.tn-who-brand { font-size: 9px; font-weight: 400; letter-spacing: .3px; color: #94a3b8; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tn-who { gap: 1px !important; }
-.tn-who b { font-size: 14px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-.tn-who > span { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.2; }
+.tn-logo img { width: 32px; height: 32px; object-fit: contain; display: block; }
+.tn-prof { position: relative; height: 100%; display: flex; align-items: center; min-width: 0; flex: 0 1 auto; }
+.tn-who { display: flex; align-items: center; gap: 10px; min-width: 0; max-width: 340px; padding: 4px 10px 4px 4px; border: 0; background: none;
+  border-radius: 12px; cursor: pointer; text-align: left; font-family: inherit; transition: background .14s; }
+.tn-who:hover, .tn-who[aria-expanded="true"] { background: #f6f8f7; }
+.tn-who-av { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; flex-shrink: 0; box-shadow: 0 0 0 1px #e4ece7; background: #f1f5f3; }
+.tn-who-txt { display: flex; flex-direction: column; justify-content: center; gap: 1px; min-width: 0; }
+.tn-who-txt > b { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1.2; }
+.tn-who-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tn-who-tick { font-size: 16px !important; color: #16a34a; flex-shrink: 0; }
+.tn-who-txt > span { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.2; }
 .tn-who-type { font-style: normal; font-size: 11px; font-weight: 400; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.tn-who-type + .tn-who-st::before { order: -2; content: "·"; color: #cbd5e1; margin-right: 6px; }
-.tn-who-st { font-style: normal; font-size: 11px; font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; flex-shrink: 0; }
-.tn-who-st::after { order: -1; content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 5px; }
+.tn-who-type + .tn-who-st::before { content: "·"; color: #cbd5e1; margin-right: 6px; }
+.tn-who-st { font-style: normal; font-size: 11px; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
 .tn-who-st.ok { color: #15803d; } .tn-who-st.warn { color: #b45309; } .tn-who-st.off { color: #b91c1c; }
+.tn-who-brand { font-size: 9px; font-weight: 400; letter-spacing: .3px; color: #94a3b8; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tn-logo { margin-left: 6px; padding-left: 10px; border-left: 1px solid #e4ece7; height: 32px; }
 .tn-search-ic, .tn-search-x { display: none !important; }
 .tn-prof-name, .tn-prof-chevron { display: none; }
 .tn-title-text { font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; }
@@ -350,7 +351,7 @@ const TN_CSS = `
 .tn-prof-av { width: 30px; height: 30px; border-radius: 9px; object-fit: cover; flex-shrink: 0; box-shadow: 0 0 0 1px #e4ece7; }
 .tn-prof-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tn-prof-chevron { font-size: 18px !important; opacity: .55; }
-.tn-prof-dd { position: absolute; top: calc(100% - 4px); right: 0; background: #fff; border: 1px solid #e4ece7; border-radius: 14px; min-width: 240px; z-index: 1300; box-shadow: 0 18px 44px rgba(15,23,42,.16); padding: 6px; animation: tnDdIn .14s ease both; }
+.tn-prof-dd { position: absolute; top: calc(100% - 4px); left: 0; background: #fff; border: 1px solid #e4ece7; border-radius: 14px; min-width: 240px; z-index: 1300; box-shadow: 0 18px 44px rgba(15,23,42,.16); padding: 6px; animation: tnDdIn .14s ease both; }
 .tn-prof-dd::before { content: ""; position: absolute; left: 0; right: 0; top: -10px; height: 10px; }
 @keyframes tnDdIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 .tn-prof-dd-head { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eef2f0; margin-bottom: 6px; }
@@ -436,14 +437,12 @@ const TN_CSS = `
   .tn-bar.msearch .tn-search-x { display: grid !important; place-items: center; width: 32px; height: 32px; border: 0; background: #f1f5f3; border-radius: 9px; color: #334155; cursor: pointer; flex-shrink: 0; }
   .tn-bar.msearch .tn-search-x svg { font-size: 18px; }
   .tn-search-ic { display: grid !important; }
-  .tn-who { flex: 1; max-width: none; padding: 2px 4px 2px 10px; }
-  .tn-who b { font-size: 13.5px; }
-  /* phones: line 2 = profile type, led by a coloured live-status dot (no room for the status text) */
-  .tn-who-type { font-size: 11px; }
-  .tn-who-st { order: -1; font-size: 0; }
-  .tn-who-st::after { margin-right: 0; }
-  .tn-who-type + .tn-who-st::before { content: none; }
-  .tn-who > span { gap: 5px; }
+  .tn-prof { flex: 1; }
+  .tn-who { flex: 1; max-width: none; gap: 8px; padding: 2px 4px 2px 2px; }
+  .tn-who-av { width: 36px; height: 36px; border-radius: 11px; }
+  .tn-who-txt > b { font-size: 13.5px; }
+  .tn-who-st { display: none; }
+  .tn-logo { margin-left: 2px; padding-left: 6px; }
   .tn-logo img { width: 28px; height: 28px; }
   .tn-menu-btn { width: 38px; height: 38px; }
   .tn-search input::placeholder { text-overflow: ellipsis; }
