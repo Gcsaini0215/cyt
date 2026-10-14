@@ -4,6 +4,7 @@ import MainLayout from "../components/therapists/main-layout";
 import {
   GetMyWorkshopBooking,
   GetDashboardDataUrl,
+  getAccountDetailsUrl,
   defaultProfile,
   imagePath,
   GetMyReviewsUrl,
@@ -773,7 +774,18 @@ export default function TherapistDashboard() {
   const [since, setSince] = React.useState(null);
   const [savingSince, setSavingSince] = React.useState(false);
 
-  const { therapistInfo, paymentStore } = useTherapistStore();
+  const { therapistInfo, paymentStore, setMultiplePaymentStore } = useTherapistStore();
+  // saved bank / UPI details: the store only fills them when Settings → Payments is opened,
+  // so load them here too (otherwise a refresh shows "Add payout details" even when saved)
+  const [payoutLoaded, setPayoutLoaded] = React.useState(false);
+  React.useEffect(() => {
+    let alive = true;
+    fetchById(getAccountDetailsUrl)
+      .then((r) => { if (alive && r?.data && Object.keys(r.data).length) setMultiplePaymentStore(r.data); })
+      .catch(() => {})
+      .finally(() => alive && setPayoutLoaded(true));
+    return () => { alive = false; };
+  }, [setMultiplePaymentStore]);
 
   React.useEffect(() => {
     setMounted(true);
@@ -1024,9 +1036,10 @@ export default function TherapistDashboard() {
       { label: "Profile photo", done: !!t?.user?.profile },
       { label: "Availability set", done: (t?.availabilities?.length || 0) > 0, href: "/my-schedule?tab=availability" },
       { label: "Fee configured", done: t?.fees?.some((f) => f.formats?.some((fmt) => fmt.fee)), href: "/my-schedule?tab=fees" },
-      { label: "Payment details", done: !!(paymentStore?.ac_number || paymentStore?.upi) },
+      // until the saved details have loaded, don't nag
+      { label: "Payment details", done: !payoutLoaded || !!(paymentStore?.ac_number || paymentStore?.upi), href: "/settings?tab=payments" },
     ];
-  }, [therapistInfo, paymentStore]);
+  }, [therapistInfo, paymentStore, payoutLoaded]);
   const completionPct = Math.round((profileChecks.filter((c) => c.done).length / profileChecks.length) * 100);
 
   const firstName = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
