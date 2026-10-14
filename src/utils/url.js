@@ -204,3 +204,11 @@ export const probonoRequestSentUrl     = `${apiUrl}/probono-interns`; // PATCH $
 export const probonoReviewUrl          = `${apiUrl}/probono-interns`; // POST/GET ${..}/{id}/review(s)
 export const createTraineeUrl          = `${apiUrl}/trainees`;
 export const getTraineeUrl             = `${apiUrl}/trainees`; // GET ${getTraineeUrl}/{slug}
+
+// therapist ↔ CYT team (announcements, requests, payouts, help, email preferences)
+export const commsInboxUrl     = `${apiUrl}/therapist-comms/inbox`;
+export const commsReadUrl      = (id) => `${apiUrl}/therapist-comms/announcements/${id}/read`;
+export const commsActionDoneUrl = (id) => `${apiUrl}/therapist-comms/actions/${id}/done`;
+export const commsPayoutsUrl   = `${apiUrl}/therapist-comms/payouts`;
+export const commsPrefsUrl     = `${apiUrl}/therapist-comms/prefs`;
+export const commsFeedbackUrl  = `${apiUrl}/therapist-comms/feedback`;

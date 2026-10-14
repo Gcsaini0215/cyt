@@ -7,6 +7,10 @@ import { defaultProfile, imagePath, getBookings } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import { toast } from "react-toastify";
 import { NAV_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
+import useCommsStore from "../../store/commsStore";
+import { useNavBadges, NavBadge, listingOf, shareProfile, NX_CSS } from "./nav-extras";
+import { profilePct } from "../../utils/profile-checks";
+import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
@@ -30,16 +34,16 @@ const WIDE_KEY = "cyt_tsn_wide";
 // phones: four favourites + "More" (opens the full menu)
 const MOB_NAV = [
   { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Home" },
-  { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Sessions", badge: true },
+  { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Sessions", badgeKey: "bookings" },
   { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "Schedule" },
-  { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings" },
+  { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings", badgeKey: "settings" },
 ];
 
 /* Top bar for the therapist portal: menu button (widens the rail on desktop / opens the
    full menu on phones & tablets), logo, a page search, and account controls. Phones also
    get an always-visible bottom bar. */
 export default function DashboardTopNav() {
-  const { therapistInfo, fetchTherapistInfo, notificationCount, setNotificationCount } = useTherapistStore();
+  const { therapistInfo, fetchTherapistInfo, setNotificationCount } = useTherapistStore();
   const router = useRouter();
   const pathname = router.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
@@ -52,6 +56,8 @@ export default function DashboardTopNav() {
   const searchRef = useRef(null);
   const closeTimer = useRef(null);
   const prevBookingsCount = useRef(null);
+  const badges = useNavBadges();
+  const { fetchInbox, fetchReviewsCount, markReviewsSeen } = useCommsStore();
 
   const openProfile = () => { clearTimeout(closeTimer.current); setProfileOpen(true); };
   const closeProfileSoon = () => { clearTimeout(closeTimer.current); closeTimer.current = setTimeout(() => setProfileOpen(false), 250); };
@@ -123,11 +129,26 @@ export default function DashboardTopNav() {
     return () => clearInterval(id);
   }, [setNotificationCount]);
 
+  // messages from the CYT team + new reviews (menu badges)
+  useEffect(() => {
+    fetchInbox();
+    fetchReviewsCount();
+    const a = setInterval(() => { if (!document.hidden) fetchInbox(); }, 60000);
+    const b = setInterval(() => { if (!document.hidden) fetchReviewsCount(); }, 300000);
+    return () => { clearInterval(a); clearInterval(b); };
+  }, [fetchInbox, fetchReviewsCount]);
+  const reviewsTotal = useCommsStore((st) => st.reviewsTotal);
+  useEffect(() => { if (pathname === "/therapists/reviews") markReviewsSeen(); }, [pathname, reviewsTotal, markReviewsSeen]);
+
   const handleLogout = () => { removeToken(); router.push("/login"); };
 
   const name = therapistInfo?.user?.name || "Therapist";
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
   const publicProfile = therapistInfo?._id ? `/view-profile/${therapistInfo._id}` : null;
+  const listing = listingOf(therapistInfo);
+  const pct = therapistInfo?.user?.email ? profilePct(therapistInfo) : null;
+  const bellCount = (badges.bookings || 0) + (badges.inbox || 0);
+  const moreCount = (badges.inbox || 0) + (badges.reviews || 0);
 
   // page search
   const results = q.trim() ? NAV_ITEMS.filter((i) => i.label.toLowerCase().includes(q.trim().toLowerCase())) : NAV_ITEMS;
@@ -140,7 +161,7 @@ export default function DashboardTopNav() {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: TN_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: TN_CSS + NX_CSS }} />
 
       <header className="tn-bar">
         <button type="button" className="tn-menu-btn" onClick={onMenu} aria-label="Menu" title="Menu">
@@ -174,9 +195,9 @@ export default function DashboardTopNav() {
           <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-icon-btn tn-hide-sm" title="Go to website" aria-label="Go to website">
             <LanguageRoundedIcon />
           </a>
-          <Link href="/appointments" className="tn-icon-btn" onClick={() => setNotificationCount(0)} title="New bookings" aria-label="New bookings">
+          <Link href="/therapists/notifications" className="tn-icon-btn" onClick={() => setNotificationCount(0)} title="Notifications" aria-label={`Notifications${bellCount ? ` (${bellCount} new)` : ""}`}>
             <NotificationsActiveRoundedIcon />
-            {notificationCount > 0 && <span className="tn-notif-dot">{notificationCount}</span>}
+            {bellCount > 0 && <span className="tn-notif-dot">{bellCount > 99 ? "99+" : bellCount}</span>}
           </Link>
 
           <div ref={profileRef} className="tn-prof" onMouseEnter={openProfile} onMouseLeave={closeProfileSoon}>
@@ -205,27 +226,37 @@ export default function DashboardTopNav() {
       {drawer && (
         <div className="tn-drawer-wrap" onClick={(e) => { if (e.target === e.currentTarget) setDrawer(false); }}>
           <aside className="tn-drawer" role="dialog" aria-modal="true" aria-label="Menu">
+            <span className="tn-sheet-grip" aria-hidden="true" />
             <div className="tn-drawer-head">
               <img src={avatarSrc} alt="" onError={(e) => { e.target.onerror = null; e.target.src = defaultProfile; }} />
-              <div><b>{name}</b><span>Therapist</span></div>
+              <div>
+                <b>{name}</b>
+                {listing ? <span className={`nx-tone ${listing.tone}`}>{listing.label}</span> : <span>Therapist</span>}
+              </div>
               <button type="button" onClick={() => setDrawer(false)} aria-label="Close menu"><CloseRoundedIcon /></button>
             </div>
+            {pct !== null && pct < 100 && (
+              <Link href="/settings" className="tn-drawer-pct">
+                <span>Your profile isn&apos;t complete</span><i><b style={{ width: `${pct}%` }} /></i><em>Finish →</em>
+              </Link>
+            )}
             <nav>
               {NAV_GROUPS.map((g) => (
                 <div key={g.title} className="tn-drawer-group">
                   <span>{g.title}</span>
                   {g.items.map((item) => (
-                    <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => item.badge && setNotificationCount(0)}>
-                      <item.Icon /> {item.label}
-                      {item.badge && notificationCount > 0 && <em>{notificationCount}</em>}
+                    <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => item.badgeKey === "bookings" && setNotificationCount(0)}>
+                      <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
+                      <span className="tn-dr-lbl">{item.label}</span>
                     </Link>
                   ))}
                 </div>
               ))}
             </nav>
             <div className="tn-drawer-foot">
-              {publicProfile && <a href={publicProfile} target="_blank" rel="noopener noreferrer"><OpenInNewRoundedIcon /> Public profile</a>}
-              <button type="button" onClick={handleLogout}><LogoutRoundedIcon /> Log out</button>
+              {publicProfile && <a href={publicProfile} target="_blank" rel="noopener noreferrer"><OpenInNewRoundedIcon /> Profile</a>}
+              {publicProfile && <button type="button" className="share" onClick={() => shareProfile(therapistInfo)}><IosShareRoundedIcon /> Share</button>}
+              <button type="button" className="out" onClick={handleLogout}><LogoutRoundedIcon /> Log out</button>
             </div>
           </aside>
         </div>
@@ -235,13 +266,14 @@ export default function DashboardTopNav() {
       <nav className="tn-mob-nav" aria-label="Quick menu">
         {MOB_NAV.map((item) => (
           <Link key={item.to} href={item.to} className={`tn-mob-item${isActive(item, pathname) ? " active" : ""}`}
-            onClick={() => item.badge && setNotificationCount(0)}>
-            {item.badge && notificationCount > 0 && <span className="tn-mob-badge">{notificationCount}</span>}
+            onClick={() => item.badgeKey === "bookings" && setNotificationCount(0)}>
+            <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
             <span className="tn-mob-ico"><item.Icon /></span>
             {item.label}
           </Link>
         ))}
         <button type="button" className={`tn-mob-item${drawer ? " active" : ""}`} onClick={() => setDrawer(true)}>
+          <NavBadge value={moreCount} className="tn-mob-badge" />
           <span className="tn-mob-ico"><AppsRoundedIcon /></span>
           More
         </button>
@@ -270,9 +302,9 @@ const TN_CSS = `
 .tn-search svg { font-size: 19px; flex-shrink: 0; }
 .tn-search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font-size: 14px; color: #0f172a; font-family: inherit; }
 .tn-search input::placeholder { color: #94a3b8; }
-.tn-search kbd { font: 700 10.5px inherit; color: #94a3b8; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 6px; white-space: nowrap; }
+.tn-search kbd { font-weight: 700; font-size: 10.5px; font-family: inherit; color: #94a3b8; background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 6px; white-space: nowrap; }
 .tn-search-dd { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff; border: 1px solid #e4ece7; border-radius: 12px; box-shadow: 0 18px 44px rgba(15,23,42,.14); padding: 6px; max-height: 60vh; overflow-y: auto; z-index: 1300; }
-.tn-search-dd button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; background: none; border-radius: 9px; text-align: left; font: 600 14px inherit; color: #334155; cursor: pointer; }
+.tn-search-dd button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px; border: 0; background: none; border-radius: 9px; text-align: left; font-weight: 600; font-size: 14px; font-family: inherit; color: #334155; cursor: pointer; }
 .tn-search-dd button svg { font-size: 18px; color: #64748b; }
 .tn-search-dd button.on { background: #f0fdf4; color: #166534; }
 .tn-search-dd button.on svg { color: #166534; }
@@ -312,6 +344,17 @@ const TN_CSS = `
 .tn-drawer-head div { flex: 1; min-width: 0; }
 .tn-drawer-head b { display: block; font-size: 15px; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tn-drawer-head span { font-size: 12.5px; font-weight: 700; color: #166534; }
+.tn-drawer-head .nx-tone { margin-top: 3px; }
+.tn-sheet-grip { display: none; }
+.tn-drawer-pct { display: flex; align-items: center; gap: 10px; margin: 10px 14px 2px; padding: 10px 12px; border-radius: 12px; background: #fffbeb; border: 1px solid #fde68a; text-decoration: none !important; color: #92400e; font-size: 12.5px; font-weight: 700; }
+.tn-drawer-pct span { white-space: nowrap; }
+.tn-drawer-pct i { flex: 1; height: 6px; border-radius: 6px; background: #fde68a; overflow: hidden; }
+.tn-drawer-pct i b { display: block; height: 100%; background: #d97706; border-radius: 6px; }
+.tn-drawer-pct em { font-style: normal; white-space: nowrap; }
+.tn-dr-ic { position: relative; display: inline-flex; }
+.tn-dr-lbl { flex: 1; min-width: 0; }
+.tn-drawer-group a .tn-dr-badge.nx-badge { position: absolute; top: -7px; right: -10px; min-width: 17px; height: 17px; font-size: 9.5px; padding: 0 4px; border: 2px solid #fff; }
+.tn-drawer-group a .tn-dr-badge.nx-dot { position: absolute; top: -2px; right: -3px; }
 .tn-drawer-head button { width: 40px; height: 40px; border-radius: 11px; border: 0; background: #f1f5f3; color: #334155; display: grid; place-items: center; cursor: pointer; }
 .tn-drawer nav { flex: 1; overflow-y: auto; padding: 8px 10px; }
 .tn-drawer-group { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
@@ -322,8 +365,27 @@ const TN_CSS = `
 .tn-drawer-group a.on svg { color: #166534; }
 .tn-drawer-group a em { margin-left: auto; font-style: normal; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; border-radius: 9px; padding: 1px 7px; }
 .tn-drawer-foot { display: flex; gap: 8px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #eef2f0; }
-.tn-drawer-foot a, .tn-drawer-foot button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; color: #334155; font: 700 13.5px inherit; text-decoration: none !important; cursor: pointer; }
-.tn-drawer-foot button { color: #dc2626; border-color: #fecaca; }
+.tn-drawer-foot a, .tn-drawer-foot button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; color: #334155; font-weight: 700; font-size: 13.5px; font-family: inherit; text-decoration: none !important; cursor: pointer; }
+.tn-drawer-foot button.out { color: #dc2626; border-color: #fecaca; }
+.tn-drawer-foot button.share { color: #166534; border-color: #cfe3d6; }
+.tn-drawer-foot svg { font-size: 18px; }
+
+/* phones: the menu is a bottom sheet with a grid of tiles */
+@media (max-width: 767px) {
+  .tn-drawer { top: auto; right: 0; width: 100%; max-height: 88vh; border-radius: 22px 22px 0 0; padding-top: 0;
+    animation: tnSheet .26s cubic-bezier(.2,.9,.3,1); box-shadow: 0 -20px 50px -20px rgba(0,0,0,.35); }
+  @keyframes tnSheet { from { transform: translateY(100%); } to { transform: none; } }
+  .tn-sheet-grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: #d6dfda; margin: 8px auto 0; }
+  .tn-drawer-head { padding: 10px 16px 12px; }
+  .tn-drawer nav { padding: 6px 12px; }
+  .tn-drawer-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 6px; }
+  .tn-drawer-group > span { grid-column: 1 / -1; padding: 8px 2px 0; }
+  .tn-drawer-group a { height: auto; min-height: 78px; flex-direction: column; justify-content: center; gap: 7px; padding: 10px 6px; border-radius: 14px;
+    background: #f6f8f7; font-size: 12.5px; text-align: center; line-height: 1.2; }
+  .tn-drawer-group a svg { font-size: 24px; color: #166534; }
+  .tn-drawer-group a.on { background: #e7f6ec; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
+  .tn-dr-lbl { flex: 0 0 auto; }
+}
 
 .tn-mob-nav { display: none; }
 @media (max-width: 1023px) {
@@ -343,12 +405,14 @@ const TN_CSS = `
     background: rgba(255,255,255,.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border-top: 1px solid #e4ece7; box-shadow: 0 -6px 20px -12px rgba(4,22,14,.2);
   }
-  .tn-mob-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none !important; color: #64748b; font: 700 10.5px inherit; padding: 4px 0; position: relative; border: 0; background: none; cursor: pointer; }
+  .tn-mob-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none !important; color: #64748b; font-weight: 700; font-size: 10.5px; font-family: inherit; padding: 4px 0; position: relative; border: 0; background: none; cursor: pointer; }
   .tn-mob-ico { width: 52px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background .18s; }
   .tn-mob-ico svg { font-size: 23px; }
   .tn-mob-item.active { color: #166534; }
   .tn-mob-item.active .tn-mob-ico { background: #e7f6ec; }
   .tn-mob-badge { position: absolute; top: 0; right: calc(50% - 26px); background: #ef4444; color: #fff; border-radius: 8px; padding: 1px 5px; font-size: 9.5px; font-weight: 800; border: 2px solid #fff; z-index: 1; }
+  .tn-mob-item .tn-mob-badge.nx-badge { margin: 0; height: auto; min-width: 0; line-height: 1.3; }
+  .tn-mob-item .tn-mob-badge.nx-dot { width: 11px; height: 11px; padding: 0; top: 3px; right: calc(50% - 20px); background: #f59e0b; border: 2px solid #fff; box-shadow: none; }
 }
 @media (prefers-reduced-motion: reduce) { .tn-drawer, .tn-drawer-wrap, .tn-prof-dd { animation: none; } }
 `;

@@ -3,28 +3,10 @@ import React from "react";
 /* Shared bits for the Settings page tabs: section cards, the sticky unsaved-changes bar,
    profile completeness and the page CSS (dashboard green theme). */
 
-export const toList = (v) =>
-  Array.isArray(v) ? v : typeof v === "string" && v.trim() ? v.split(",").map((s) => s.trim()).filter(Boolean) : [];
+import { toList, profileChecks } from "../../../utils/profile-checks";
+export { toList, profileChecks };
 
 export const langLabels = (v) => toList(v).map((o) => (typeof o === "object" && o ? o.label || o.value : o)).filter(Boolean);
-
-const hasText = (v) => typeof v === "string" ? v.trim() !== "" && v !== "null" && v !== "undefined" : v != null && v !== "";
-
-/* What a client-ready profile needs. `tab` is the settings tab that fixes it. */
-export function profileChecks(t) {
-  if (!t?.user) return [];
-  return [
-    { key: "photo", label: "Profile photo", done: hasText(t.user.profile), tab: "profile" },
-    { key: "bio", label: "About me", done: hasText(t.user.bio) && t.user.bio.trim().length >= 80, tab: "profile" },
-    { key: "qualification", label: "Qualification", done: hasText(t.qualification) && t.qualification !== "Other (Please specify)", tab: "profile" },
-    { key: "experience", label: "Experience", done: hasText(t.year_of_exp), tab: "profile" },
-    { key: "languages", label: "Languages", done: toList(t.language_spoken).length > 0, tab: "profile" },
-    { key: "formats", label: "Session formats", done: toList(t.session_formats).filter(Boolean).length > 0, tab: "profile" },
-    { key: "location", label: "Location", done: hasText(t.state), tab: "profile" },
-    { key: "services", label: "Services", done: hasText(t.services), tab: "offerings" },
-    { key: "expertise", label: "Expertise", done: hasText(t.experties), tab: "offerings" },
-  ];
-}
 
 export function Section({ title, sub, children, aside, id }) {
   return (
@@ -254,6 +236,19 @@ export const STG_CSS = `
 .stg-linkrow input { flex: 1; }
 .stg-kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px 12px; font-size: 13.5px; }
 .stg-kv dt { color: var(--mut); font-weight: 600; } .stg-kv dd { margin: 0; font-weight: 700; word-break: break-word; }
+
+/* email preference switches */
+.stg-prefs { list-style: none; margin: 0; padding: 0; }
+.stg-prefs li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid #eef2f0; margin: 0; }
+.stg-prefs li:first-child { border-top: 0; padding-top: 2px; }
+.stg-prefs b { display: block; font-size: 14px; font-weight: 700; }
+.stg-prefs small { display: block; font-size: 12.5px; color: var(--mut); margin-top: 1px; line-height: 1.4; }
+.stg-switch { position: relative; width: 46px; height: 28px; border-radius: 999px; border: 0; background: #cbd5d0; cursor: pointer; flex-shrink: 0; padding: 0; transition: background .18s ease; }
+.stg-switch i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .18s ease; }
+.stg-switch.on { background: var(--g); }
+.stg-switch.on i { transform: translateX(18px); }
+.stg-switch:disabled { opacity: .7; cursor: default; }
+.stg-switch.locked { opacity: .55; display: inline-block; }
 
 /* sticky save bar */
 .stg-savebar { position: sticky; bottom: 12px; z-index: 25; display: flex; align-items: center; justify-content: space-between; gap: 12px;

@@ -151,9 +151,14 @@ export function TodoCard({ items = [], pct }) {
       {items.length ? (
         <ul>
           {items.map((t) => (
-            <li key={t.label} className={t.tone || ""}>
+            <li key={t.key || t.label} className={t.tone || ""}>
               <span>{t.label}</span>
-              {t.href && <Link href={t.href}>{t.cta || "Do it"} →</Link>}
+              <span className="ov-todo-acts">
+                {t.href && (/^https?:/i.test(t.href)
+                  ? <a href={t.href} target="_blank" rel="noopener noreferrer">{t.cta || "Do it"} →</a>
+                  : <Link href={t.href}>{t.cta || "Do it"} →</Link>)}
+                {t.onDone && <button type="button" onClick={t.onDone} title="Mark as done">✓ Done</button>}
+              </span>
             </li>
           ))}
         </ul>
@@ -231,6 +236,9 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-todo li.warn { background: #fffbeb; border-color: #fde68a; }
 .ov-todo li.bad { background: #fef2f2; border-color: #fecaca; }
 .ov-todo li a { flex-shrink: 0; font-size: 12.5px; font-weight: 800; color: #166534; text-decoration: none; }
+.ov-todo-acts { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.ov-todo-acts button { border: 1px solid #cfe3d6; background: #fff; color: #166534; font-weight: 800; font-size: 12px; font-family: inherit; border-radius: 8px; padding: 4px 9px; cursor: pointer; }
+.ov-todo-acts button:hover { background: #e7f6ec; }
 .ov-pct { font-size: 12px; font-weight: 800; color: #166534; }
 .ov-bar { height: 6px; border-radius: 999px; background: #eef2f0; overflow: hidden; margin: -4px 0 12px; }
 .ov-bar i { display: block; height: 100%; background: linear-gradient(90deg, #22c55e, #166534); border-radius: 999px; }
