@@ -28,6 +28,7 @@ import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import { SESSION_STATUS } from "../../../utils/constant";
 import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
 import useTherapistStore from "../../../store/therapistStore";
+import { usePager, Pager } from "../pager";
 
 /* Therapist "Appointments": every booking with what the client told us at booking time
    (who the session is for, age, gender, concern, contact), grouped by day, with the
@@ -239,6 +240,13 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     return out;
   }, [shown, now]);
 
+  // pages over the whole ordered list; each page keeps its section headings (with full counts)
+  const ordered = useMemo(() => groups.flatMap((g) => g.items.map((r) => ({ ...r, gk: g.key }))), [groups]);
+  const pg = usePager(ordered, 12, `${filter}|${q}|${view}`);
+  const pageGroups = groups
+    .map((g) => ({ ...g, total: g.items.length, items: pg.items.filter((r) => r.gk === g.key) }))
+    .filter((g) => g.items.length);
+
   /* ── session actions ── */
   const markStarted = (id) => {
     setAppointments((prev) => prev.map((x) => (x._id === id ? { ...x, status: SESSION_STATUS.STARTED, session_started_at: x.session_started_at || new Date().toISOString() } : x)));
@@ -396,7 +404,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           <table className="apx-table">
             <thead><tr><th>When</th><th>Client</th><th>Age / gender</th><th>Service</th><th>Concern</th><th>Status</th><th /></tr></thead>
             <tbody>
-              {groups.flatMap((g) => g.items).map(({ a, d, p }) => {
+              {pg.items.map(({ a, d, p }) => {
                 const st = stOf(a.status);
                 return (
                   <tr key={a._id} onClick={() => open(a)}>
@@ -414,9 +422,9 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           </table>
         </div>
       ) : (
-        groups.map((g) => (
+        pageGroups.map((g) => (
           <section key={g.key} className={`apx-group${g.past ? " past" : ""}`}>
-            <h2 className={g.key === "live" ? "live" : ""}>{g.title}<span>{g.items.length}</span></h2>
+            <h2 className={g.key === "live" ? "live" : ""}>{g.title}<span>{g.total}</span></h2>
             <div className="apx-grid">
               {g.items.map(({ a, d, p }) => {
                 const st = stOf(a.status);
@@ -463,6 +471,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           </section>
         ))
       )}
+      {shown.length > 0 && <Pager pg={pg} noun="sessions" />}
 
       {selected && (() => {
         const a = selected;

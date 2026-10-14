@@ -6,6 +6,7 @@ import { fetchById } from "../../utils/actions";
 import { GetMyReviewsUrl } from "../../utils/url";
 import useTherapistStore from "../../store/therapistStore";
 import { profilePath } from "../../utils/therapist-slug";
+import { usePager, Pager } from "../../components/therapists/pager";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import StarBorderRoundedIcon from "@mui/icons-material/StarBorderRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
@@ -105,6 +106,8 @@ export default function Reviews() {
     return [...out].sort(by[sort]);
   }, [list, filter, q, sort]);
 
+  const pg = usePager(shown, 10, `${filter}|${q}|${sort}`);
+
   const profileUrl = therapistInfo?._id ? `${SITE}${profilePath(therapistInfo)}` : "";
   const askLink = profileUrl ? `${profileUrl}#write-review` : "";
   const share = async () => {
@@ -193,8 +196,11 @@ export default function Reviews() {
         )}
 
         {reviews && total > 0 && (shown.length ? (
-          <div className="rv-grid">
-            {shown.map((r) => <ReviewCard key={r._id} r={r} isNew={newIds.has(r._id)} />)}
+          <div data-pager-scope>
+            <div className="rv-grid">
+              {pg.items.map((r) => <ReviewCard key={r._id} r={r} isNew={newIds.has(r._id)} />)}
+            </div>
+            <Pager pg={pg} noun="reviews" />
           </div>
         ) : (
           <div className="pt-card pt-empty"><b>No reviews match</b>Try another filter or search.</div>

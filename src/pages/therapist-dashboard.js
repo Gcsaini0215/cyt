@@ -42,6 +42,7 @@ import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import { usePager, Pager } from "../components/therapists/pager";
 
 /* ══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — one green system, tweak here to restyle everything
@@ -479,6 +480,7 @@ function ProfileStrength({ pct, checks }) {
 
 /** Reviews summary + a couple of recent ones. */
 function ReviewsBlock({ reviews }) {
+  const pg = usePager(reviews, 2);
   if (!reviews.length) return <EmptyState icon={RateReviewRoundedIcon} text="No reviews yet" />;
   const avg = reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length;
   return (
@@ -501,7 +503,7 @@ function ReviewsBlock({ reviews }) {
           </Typography>
         </Box>
       </Box>
-      {reviews.slice(0, 2).map((r, i) => (
+      {pg.items.map((r, i) => (
         <Box key={r._id || i} sx={{ pt: 1.25, borderTop: `1px solid ${UI.line}` }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Typography sx={{ fontSize: "12px", fontWeight: 700, color: UI.text }}>{r.name || "Client"}</Typography>
@@ -527,6 +529,7 @@ function ReviewsBlock({ reviews }) {
           </Typography>
         </Box>
       ))}
+      {pg.pages > 1 && <Box sx={{ mx: -2, mb: -2, mt: 1.25 }}><Pager pg={pg} compact /></Box>}
     </Box>
   );
 }
@@ -776,6 +779,8 @@ export default function TherapistDashboard() {
   const [nextSession, setNextSession] = React.useState(null);
   const [invoices, setInvoices] = React.useState([]);
   const [myReviews, setMyReviews] = React.useState([]);
+  const upPg = usePager(upcomingSessions, 5);
+  const invPg = usePager(invoices, 5);
   // Overview "start fresh" date (server-side, per therapist); null = all-time.
   const [since, setSince] = React.useState(null);
   const [savingSince, setSavingSince] = React.useState(false);
@@ -809,7 +814,7 @@ export default function TherapistDashboard() {
       const othersP = Promise.allSettled([
         fetchById(GetMyWorkshopBooking),
         fetchById(GetDashboardDataUrl),
-        fetchById(GetMyReviewsUrl),
+        fetchById(`${GetMyReviewsUrl}?limit=200`), // all of them, so the average is right
       ]);
       const [bookingsRes] = await Promise.allSettled([bookingsP]);
       if (!isRefresh && bookingsRes.status === "fulfilled" && bookingsRes.value?.status) {
@@ -950,7 +955,7 @@ export default function TherapistDashboard() {
       const inv = bookings
         .filter((b) => b.transaction?.amount || b.amount)
         .sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date))
-        .slice(0, 6)
+        .slice(0, 30)
         .map((b) => ({
           id: b._id,
           invoice_id: b.transaction?.transaction_id?.slice(-8) || b._id?.slice(-8),
@@ -1166,7 +1171,10 @@ export default function TherapistDashboard() {
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={44} sx={{ mb: 1 }} />)}</Box>
                 ) : upcomingSessions.length ? (
-                  upcomingSessions.slice(0, 6).map((x, i, arr) => <SessionRow key={x.id} s={x} last={i === arr.length - 1} />)
+                  <>
+                    {upPg.items.map((x, i, arr) => <SessionRow key={x.id} s={x} last={i === arr.length - 1} />)}
+                    <Pager pg={upPg} compact />
+                  </>
                 ) : (
                   <EmptyState icon={EventAvailableRoundedIcon} text="No upcoming sessions" />
                 )}
@@ -1179,11 +1187,11 @@ export default function TherapistDashboard() {
                 <ReviewsBlock reviews={myReviews} />
               </DashCard>
 
-              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub={`${invoices.length} shown`} action={<CardLink href="/therapists/invoices" />} disablePad>
+              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub={`${invoices.length} latest`} action={<CardLink href="/therapists/invoices" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
                 ) : invoices.length ? (
-                  invoices.map((inv, i, arr) => (
+                  <>{invPg.items.map((inv, i, arr) => (
                     <Box key={inv.id} sx={{ display: "flex", alignItems: "center", gap: 1.5, px: { xs: 1.75, md: 2.25 }, py: 1.35, borderBottom: i === arr.length - 1 ? "none" : `1px solid ${UI.line}` }}>
                       <Avatar sx={{ width: 34, height: 34, borderRadius: "9px", background: UI.green.bg, color: UI.green.main, fontSize: "13px", fontWeight: 800, flexShrink: 0 }}>
                         {inv.client_name?.charAt(0)?.toUpperCase()}
@@ -1196,7 +1204,9 @@ export default function TherapistDashboard() {
                       </Box>
                       <Typography sx={{ fontSize: "13px", fontWeight: 800, color: UI.text }}>{inr(inv.amount)}</Typography>
                     </Box>
-                  ))
+                  ))}
+                  <Pager pg={invPg} compact />
+                  </>
                 ) : (
                   <EmptyState icon={PaymentsRoundedIcon} text="No invoices yet" />
                 )}

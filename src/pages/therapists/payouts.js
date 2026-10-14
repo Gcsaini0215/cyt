@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import MainLayout from "../../components/therapists/main-layout";
 import { PT_CSS } from "../../components/therapists/portal-ui";
+import { usePager, Pager } from "../../components/therapists/pager";
 import { fetchById } from "../../utils/actions";
 import { commsPayoutsUrl, getAccountDetailsUrl } from "../../utils/url";
 import AccountBalanceRoundedIcon from "@mui/icons-material/AccountBalanceRounded";
@@ -33,6 +34,7 @@ export default function Payouts() {
 
   const t = data?.totals || {};
   const list = data?.payouts || [];
+  const pg = usePager(list, 10);
   const hasBank = !!acct?.ac_number, hasUpi = !!acct?.upi;
 
   return (
@@ -60,8 +62,9 @@ export default function Payouts() {
           <div className="pt-card">
             <div className="pt-card-h"><h2>Payout history</h2><span className="pt-chip mut">{list.length}</span></div>
             {!data ? [1, 2, 3].map((i) => <div key={i} className="pt-skel" />) : list.length ? (
+              <>
               <ul className="po-list">
-                {list.map((p) => (
+                {pg.items.map((p) => (
                   <li key={p._id}>
                     <div className="po-amt">
                       <b>{inr(p.amount)}</b>
@@ -78,6 +81,8 @@ export default function Payouts() {
                   </li>
                 ))}
               </ul>
+              <Pager pg={pg} noun="payouts" scrollTo={false} />
+              </>
             ) : (
               <div className="pt-empty">
                 <b>No payouts recorded yet</b>

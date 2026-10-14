@@ -9,6 +9,7 @@ import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import { buildInvoiceHtml, printInvoice } from "../../../utils/invoice-template";
 import useTherapistStore from "../../../store/therapistStore";
+import { usePager, Pager } from "../pager";
 
 const PERIODS = [
   { key: "all", label: "All" },
@@ -200,6 +201,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
   const shownTotal = rows.reduce((s, r) => s + r.amount, 0);
   const download = (r, e) => { e?.stopPropagation(); printInvoice(r.raw, therapistInfo); };
 
+  const pg = usePager(rows, 15, `${q}|${period}`);
   const empty = !loading && rows.length === 0;
   const noneAtAll = invoices.length === 0;
 
@@ -249,7 +251,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
                 <tr><th>Invoice</th><th>Client</th><th>Session</th><th>Payment</th><th style={{ textAlign: "right" }}>Amount</th><th style={{ textAlign: "right" }}>Actions</th></tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
+                {pg.items.map((r) => (
                   <tr key={r.id} onClick={() => setSelected(r)}>
                     <td><div className="iv-no">{r.number}</div><div className="iv-sub">#{String(r.id).slice(-8).toUpperCase()}</div></td>
                     <td>
@@ -273,7 +275,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
             </table>
 
             <div className="iv-list">
-              {rows.map((r) => (
+              {pg.items.map((r) => (
                 <div key={r.id} className="iv-item" onClick={() => setSelected(r)}>
                   <div className="iv-av">{initials(r.client_name)}</div>
                   <div className="iv-item-main">
@@ -293,6 +295,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
                 </div>
               ))}
             </div>
+            <div style={{ padding: "0 16px 12px" }}><Pager pg={pg} noun="invoices" /></div>
           </>
         )}
       </div>
