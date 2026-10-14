@@ -293,7 +293,8 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-compare b.up { color: #15803d; } .ov-compare b.down { color: #b91c1c; }
 .ov-tag-pending { margin-left: 6px; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 5px; background: #fef2f2; color: #b91c1c; }
 
-@media (max-width: 1100px) { .ov-top { grid-template-columns: minmax(0, 1fr) 300px; } }
+/* same column widths as the cards grid below (MUI md 300px / lg 360px) so To-do lines up with Client Reviews */
+@media (max-width: 1199px) { .ov-top { grid-template-columns: minmax(0, 1fr) 300px; } }
 @media (max-width: 899px) {
   .ov-top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "next" "kpis" "todo"; }
   .ov-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
