@@ -178,7 +178,7 @@ export function TodoCard({ items = [], pct }) {
         <ul>
           {items.map((t) => (
             <li key={t.key || t.label} className={t.tone || ""}>
-              <span>{t.label}</span>
+              <span>{t.tone === "done" && <i className="ov-todo-ok" aria-hidden="true">✓</i>}{t.label}</span>
               <span className="ov-todo-acts">
                 {t.href && (/^https?:/i.test(t.href)
                   ? <a href={t.href} target="_blank" rel="noopener noreferrer">{t.cta || "Do it"} →</a>
@@ -194,6 +194,9 @@ export function TodoCard({ items = [], pct }) {
 }
 
 export const OV_CSS = `
+.ov-todo li.done { color: #166534; }
+.ov-todo li.done span:first-child { color: #166534; font-weight: 600; }
+.ov-todo-ok { display: inline-grid; place-items: center; width: 17px; height: 17px; margin-right: 7px; border-radius: 50%; background: #16a34a; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 800; vertical-align: -2px; }
 .ov { --ov-green: #16a34a; --ov-teal: #0d9488; --ov-violet: #6366f1; --ov-gold: #c9962c; --ov-amber: #d97706; font-family: inherit; }
 .ov-card { background: #fff; border: 1px solid #e6ece8; border-radius: 16px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -14px rgba(15,23,42,.12); padding: 16px 18px; min-width: 0; }
 .ov-card-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
@@ -277,6 +280,7 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-todo li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #f8fafc; border: 1px solid #eef2f6; font-size: 13.5px; color: #334155; }
 .ov-todo li.warn { background: #fffbeb; border-color: #fde68a; }
 .ov-todo li.bad { background: #fef2f2; border-color: #fecaca; }
+.ov-todo li.done { background: #f0fdf4; border-color: #bbf7d0; }
 .ov-todo li a { flex-shrink: 0; font-size: 12.5px; font-weight: 800; color: #166534; text-decoration: none; }
 .ov-todo-acts { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .ov-todo-acts button { border: 1px solid #cfe3d6; background: #fff; color: #166534; font-weight: 800; font-size: 12px; font-family: inherit; border-radius: 8px; padding: 4px 9px; cursor: pointer; }

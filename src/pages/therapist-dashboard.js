@@ -147,7 +147,7 @@ function useCountUp(end, duration = 1200) {
 }
 
 // to-do wording for each missing profile item
-const TODO_LABEL = { "Basic info": "Complete your basic info", "Profile photo": "Add a profile photo", "Availability set": "Set your availability", "Fee configured": "Set your session fees", "Payment details": "Add payout (bank / UPI) details" };
+const TODO_LABEL = { "Basic info": "Complete your basic info", "Profile photo": "Add a profile photo", "Availability set": "Set your availability", "Fee configured": "Set your session fees", "Payment details": "Add payout (bank / UPI) details", "Google Meet": "Connect Google Calendar for automatic Meet links" };
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -1037,6 +1037,12 @@ export default function TherapistDashboard() {
     return () => clearTimeout(t);
   }, [showWelcome, dismissWelcome]);
 
+  // Google Calendar / Meet connection: null until loaded (don't nag before we know)
+  const [gStatus, setGStatus] = React.useState(null);
+  React.useEffect(() => {
+    fetchById(googleStatusUrl).then((r) => setGStatus(r?.data || { configured: false })).catch(() => setGStatus({ configured: false }));
+  }, []);
+  const gConnected = !!gStatus?.connected;
   const profileChecks = React.useMemo(() => {
     const t = therapistInfo;
     return [
@@ -1046,8 +1052,10 @@ export default function TherapistDashboard() {
       { label: "Fee configured", done: t?.fees?.some((f) => f.formats?.some((fmt) => fmt.fee)), href: "/my-schedule?tab=fees" },
       // until the saved details have loaded, don't nag
       { label: "Payment details", done: !payoutLoaded || !!(paymentStore?.ac_number || paymentStore?.upi), href: "/settings?tab=payments" },
+      // counts towards the progress once Google is set up on the server; done when the calendar is connected
+      ...(gStatus?.configured || gConnected ? [{ label: "Google Meet", done: gConnected, href: "/settings?tab=account", cta: "Connect" }] : []),
     ];
-  }, [therapistInfo, paymentStore, payoutLoaded]);
+  }, [therapistInfo, paymentStore, payoutLoaded, gStatus, gConnected]);
   const completionPct = Math.round((profileChecks.filter((c) => c.done).length / profileChecks.length) * 100);
 
   const firstName = therapistInfo?.user?.name?.split(" ")[0] || "Therapist";
@@ -1062,10 +1070,6 @@ export default function TherapistDashboard() {
     window.addEventListener("cyt:new-booking", onNew);
     return () => window.removeEventListener("cyt:new-booking", onNew);
   }, [load]);
-  const [gNeed, setGNeed] = React.useState(false);
-  React.useEffect(() => {
-    fetchById(googleStatusUrl).then((r) => setGNeed(!!(r?.data?.configured && !r.data.connected))).catch(() => {});
-  }, []);
   const ratingAvg = myReviews.length ? (myReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / myReviews.length).toFixed(1) : "—";
   const listing = (() => {
     const t = therapistInfo;
@@ -1082,11 +1086,11 @@ export default function TherapistDashboard() {
   const sessionTrend = stats.lastMonthSessions > 0 ? `${Math.round(((stats.monthSessions - stats.lastMonthSessions) / stats.lastMonthSessions) * 100)}%` : undefined;
   const todoItems = [
     ...actionTodos,
-    ...(gNeed ? [{ key: "gmeet", label: "Connect Google for automatic Meet links", href: "/settings?tab=account", cta: "Connect", tone: "warn" }] : []),
-    ...profileChecks.filter((c) => !c.done).map((c) => ({ label: TODO_LABEL[c.label] || c.label, href: c.href || "/settings", cta: "Add", tone: "warn" })),
+    ...profileChecks.filter((c) => !c.done).map((c) => ({ label: TODO_LABEL[c.label] || c.label, href: c.href || "/settings", cta: c.cta || "Add", tone: "warn" })),
     ...(listing && (listing.tone === "warn" || listing.tone === "off") ? [{ label: listing.tone === "off" ? "Your listing has expired — renew to stay visible" : listing.label === "Not live yet" ? "Choose a package to go live" : `Listing ends soon (${listing.label.replace("Listing · ", "")})`, href: "/therapist-registration?packages=1", cta: "Renew", tone: listing.tone === "off" ? "bad" : "warn" }] : []),
     ...invoices.filter((i) => i.status && i.status !== "Success").slice(0, 2).map((i) => ({ label: `Payment pending · ${i.client_name}`, href: "/therapists/invoices", cta: "View", tone: "bad" })),
     ...(myReviews.length === 0 ? [{ label: "Ask your clients for a review", href: `/view-profile/${therapistInfo?._id || ""}`, cta: "Profile" }] : []),
+    ...(gConnected ? [{ key: "gmeet-ok", label: "Google Calendar connected — Meet links are created automatically", tone: "done" }] : []),
   ];
 
   const statCards = [
