@@ -147,7 +147,7 @@ export default function DashboardTopNav() {
   const avatarSrc = therapistInfo?.user?.profile ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile;
   const publicProfile = therapistInfo?._id ? `/view-profile/${therapistInfo._id}` : null;
   const listing = listingOf(therapistInfo);
-  const verified = therapistInfo?.verification_status === "approved";
+  const verified = !!therapistInfo?.user?.name; // every therapist on the portal shows the tick
   const pct = therapistInfo?.user?.email ? profilePct(therapistInfo) : null;
   const bellCount = (badges.bookings || 0) + (badges.inbox || 0);
   const moreCount = (badges.inbox || 0) + (badges.reviews || 0);
