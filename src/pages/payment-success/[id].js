@@ -68,7 +68,8 @@ export default function PaymentSuccessPage() {
     ? `${imagePath}/${booking.therapist.user.profile}` : defaultProfile;
   const service  = booking?.service  || "";
   const format   = booking?.format   || "";
-  const pin      = booking?.otp      || "";
+  const meetLink = booking?.meet_link || "";
+  const inPerson = /offline|in[- ]?person|clinic/i.test(`${format} ${booking?.session_type || ""}`);
   const amount   = booking?.amount   || "";
   const dateStr  = fmtDate(booking?.booking_date);
   const timeStr  = fmtTime(booking?.booking_date);
@@ -80,7 +81,6 @@ export default function PaymentSuccessPage() {
     { icon: "feather-video",      label: "Mode",     val: mode === "video" ? "Video Call" : mode === "audio" ? "Voice Call" : mode === "in-person" ? "In-Person" : mode },
     { icon: "feather-calendar",   label: "Date",     val: dateStr },
     { icon: "feather-clock",      label: "Time",     val: timeStr ? `${timeStr} IST` : null },
-    { icon: "feather-hash",       label: "Session PIN", val: pin  },
     { icon: "feather-credit-card",label: "Amount Paid", val: amount ? `₹${Number(amount).toLocaleString("en-IN")}` : null },
     { icon: "feather-file-text",  label: "Transaction", val: payment_id ? `${String(payment_id).slice(0,18)}…` : null },
   ].filter(r => r.val);
@@ -304,7 +304,7 @@ export default function PaymentSuccessPage() {
               </div>
             ) : (
               <div className="ps-rows">
-                {rows.filter(r => r.label !== "Session PIN").map(row => (
+                {rows.map(row => (
                   <div key={row.label} className="ps-row">
                     <div className="ps-icon"><i className={row.icon}></i></div>
                     <div>
@@ -316,19 +316,22 @@ export default function PaymentSuccessPage() {
               </div>
             )}
 
-            {/* ── PIN callout (if exists) ── */}
-            {!loading && pin && (
-              <div className="ps-pin">
+            {/* ── How to join ── */}
+            {!loading && booking && (
+              <div className="ps-pin" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#92400e", textTransform: "uppercase", letterSpacing: .5, marginBottom: 4 }}>
-                    Your Session PIN
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#166534", textTransform: "uppercase", letterSpacing: .5, marginBottom: 4 }}>
+                    {inPerson ? "Your in-person session" : "How to join"}
                   </div>
-                  <div className="ps-pin-num">{pin}</div>
-                  <div style={{ fontSize: 12, color: "#92400e", marginTop: 6, lineHeight: 1.5 }}>
-                    Share this with your therapist at the start of the session.
+                  <div style={{ fontSize: 13.5, color: "#14532d", lineHeight: 1.55 }}>
+                    {inPerson
+                      ? "Please reach the clinic a few minutes before your session time. The address and details are in your confirmation email."
+                      : meetLink
+                        ? <>Your Google Meet link is in your confirmation email and Google Calendar invite. Open <b>My Bookings</b> and tap <b>Join</b> — it opens 15 minutes before the session.</>
+                        : <>Open <b>My Bookings</b> at your session time and tap <b>Join</b> — it opens 15 minutes before the session. We&apos;ve also emailed your confirmation.</>}
                   </div>
                 </div>
-                <i className="feather-key" style={{ fontSize: 24, color: "#d97706", flexShrink: 0 }}></i>
+                <i className={inPerson ? "feather-map-pin" : "feather-video"} style={{ fontSize: 24, color: "#16a34a", flexShrink: 0 }}></i>
               </div>
             )}
 
