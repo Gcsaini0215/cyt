@@ -22,6 +22,8 @@ import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsAct
 import { postData, fetchData } from "../../../utils/actions";
 import { startSessionNowUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
 import { joinSession } from "../../../utils/join-session";
+import RescheduleDialog from "../reschedule-dialog";
+import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
 import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import { SESSION_STATUS } from "../../../utils/constant";
 import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
@@ -110,6 +112,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const [selected, setSelected] = useState(null);
   const [detailTab, setDetailTab] = useState("details");
   const [busyId, setBusyId] = useState("");
+  const [rescheduling, setRescheduling] = useState(null);
   const [endingId, setEndingId] = useState("");
   const [isRinging, setIsRinging] = useState(false);
   const [newCount, setNewCount] = useState(0);
@@ -572,6 +575,11 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
               {detailTab === "details" && (
                 <div className="apx-dr-foot">
                   <SessionButton a={a} big />
+                  {a.status === SESSION_STATUS.NEW && (
+                    <button type="button" className="apx-btn soft big" onClick={() => setRescheduling({ id: a._id, name: p.name, date: a.booking_date, meet: !!a.meet_link })}>
+                      <EventRepeatRoundedIcon /> Reschedule
+                    </button>
+                  )}
                   <button type="button" className="apx-btn soft big" onClick={() => setDetailTab("invoice")}><ReceiptLongRoundedIcon /> Invoice</button>
                 </div>
               )}
@@ -580,6 +588,13 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         );
       })()}
 
+      <RescheduleDialog booking={rescheduling} onClose={() => setRescheduling(null)}
+        onDone={(when, msg) => {
+          toast.success(msg || "Session rescheduled");
+          const id = rescheduling?.id;
+          setAppointments((prev) => prev.map((x) => (x._id === id ? { ...x, booking_date: when, therapist_joined_at: null, client_joined_at: null } : x)));
+          setSelected((s) => (s && s._id === id ? { ...s, booking_date: when } : s));
+        }} />
     </div>
   );
 };

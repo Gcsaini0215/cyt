@@ -100,7 +100,7 @@ export function KpiCard({ label, value, isCurrency, trend, trendUp, spark, href,
 }
 
 /* ── 3. next session ── */
-export function NextSessionCard({ s, loading, onJoin }) {
+export function NextSessionCard({ s, loading, onJoin, onReschedule }) {
   if (loading) return <div className="ov-next ov-card"><div className="ov-skel" /></div>;
   if (!s) {
     return (
@@ -132,7 +132,9 @@ export function NextSessionCard({ s, loading, onJoin }) {
           : s.meet && joinWin.before
             ? <span className="ov-btn ghost" style={{ cursor: "default" }}>Join opens {opensAtText(joinWin.opens)}</span>
             : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
-        <Link href="/appointments" className="ov-btn ghost">Reschedule</Link>
+        {onReschedule && s.status !== "Started"
+          ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
+          : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import { fetchBookingsShared } from "../utils/bookings-shared";
 import { joinSession } from "../utils/join-session";
 import { googleStatusUrl } from "../utils/url";
 import { toast } from "react-toastify";
+import RescheduleDialog from "../components/therapists/reschedule-dialog";
 import { Box, Typography, Avatar, Skeleton, CircularProgress } from "@mui/material";
 
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
@@ -817,7 +818,7 @@ export default function TherapistDashboard() {
           .filter((b) => b.status !== "Completed" && b.status !== "Cancelled")
           .filter((b) => { const d = safeDate(b.booking_date); return d && d.getTime() >= t0 - SESSION_WINDOW_MS; })
           .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
-          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: b.client?.photo || b.client?.profile, meet: b.meet_link || "" }));
+          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: b.client?.photo || b.client?.profile, meet: b.meet_link || "", status: b.status }));
         setUpcomingSessions(early);
         setNextSession(early[0] || null);
       }
@@ -897,6 +898,7 @@ export default function TherapistDashboard() {
         badge: b.format || b.mode || "Online",
         imgSrc: b.client?.photo || b.client?.profile,
         meet: b.meet_link || "",
+        status: b.status,
       });
 
       const upcomingList = bookings
@@ -1053,6 +1055,13 @@ export default function TherapistDashboard() {
 
   // rating, listing status and the to-do list for the new overview
   const actionTodos = useActionTodos(); // requests from the CYT team
+  const [rescheduling, setRescheduling] = React.useState(null);
+  // a new booking popped up in the top bar → refresh the numbers now
+  React.useEffect(() => {
+    const onNew = () => load(true);
+    window.addEventListener("cyt:new-booking", onNew);
+    return () => window.removeEventListener("cyt:new-booking", onNew);
+  }, [load]);
   const [gNeed, setGNeed] = React.useState(false);
   React.useEffect(() => {
     fetchById(googleStatusUrl).then((r) => setGNeed(!!(r?.data?.configured && !r.data.connected))).catch(() => {});
@@ -1113,12 +1122,15 @@ export default function TherapistDashboard() {
             listing={listing}
           />
 
+          <RescheduleDialog booking={rescheduling} onClose={() => setRescheduling(null)}
+            onDone={(_, msg) => { toast.success(msg || "Session rescheduled"); load(true); }} />
+
           {/* notice from the CYT team (newest unread) */}
           <TeamBanner />
 
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
           <div className="ov-top">
-            <NextSessionCard s={nextSession} loading={nextLoading} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} />
+            <NextSessionCard s={nextSession} loading={nextLoading} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} />
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">

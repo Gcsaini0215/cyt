@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath } from "../../utils/url";
 import { fetchBookingsShared } from "../../utils/bookings-shared";
-import { toast } from "react-toastify";
 import { NAV_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
+import NewBookingPopup from "./new-booking-popup";
 import { useNavBadges, NavBadge, listingOf, shareProfile, NX_CSS } from "./nav-extras";
 import { profilePct } from "../../utils/profile-checks";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
@@ -56,7 +56,6 @@ export default function DashboardTopNav() {
   const profileRef = useRef(null);
   const searchRef = useRef(null);
   const closeTimer = useRef(null);
-  const prevBookingsCount = useRef(null);
   const badges = useNavBadges();
   const { fetchInbox, fetchReviewsCount, markReviewsSeen } = useCommsStore();
 
@@ -107,28 +106,40 @@ export default function DashboardTopNav() {
 
   useEffect(() => { fetchTherapistInfo(); }, [fetchTherapistInfo]);
 
-  // new-booking alert
+  // new-booking alert on every portal page. Known booking ids are kept for the browser tab,
+  // so moving between pages doesn't miss (or repeat) an alert.
+  const [popup, setPopup] = useState([]);
   useEffect(() => {
+    const KEY = "cyt_known_booking_ids";
     const check = async () => {
+      if (document.hidden) return;
       try {
-        const res = await fetchBookingsShared(20000);
-        if (res?.status && res.data) {
-          const count = res.data.length;
-          if (prevBookingsCount.current !== null && count > prevBookingsCount.current) {
-            const n = count - prevBookingsCount.current;
-            setNotificationCount((useTherapistStore.getState?.().notificationCount || 0) + n);
-            toast.info(`🔔 You have ${n} new session booking${n > 1 ? "s" : ""}!`, { position: "top-right", autoClose: 5000 });
+        const res = await fetchBookingsShared(15000);
+        if (!res?.status || !Array.isArray(res.data)) return;
+        let known = null;
+        try { known = JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) { /* storage blocked */ }
+        const ids = res.data.map((b) => b._id);
+        if (Array.isArray(known)) {
+          const seen = new Set(known);
+          const fresh = res.data.filter((b) => !seen.has(b._id));
+          if (fresh.length) {
+            setNotificationCount((useTherapistStore.getState?.().notificationCount || 0) + fresh.length);
+            setPopup(fresh);
+            window.dispatchEvent(new CustomEvent("cyt:new-booking", { detail: { count: fresh.length } }));
           }
-          prevBookingsCount.current = count;
         }
+        try { sessionStorage.setItem(KEY, JSON.stringify(ids)); } catch (e) { /* ignore */ }
       } catch (err) {
         console.error("booking poll error:", err);
       }
     };
     check();
-    const id = setInterval(check, 30000);
-    return () => clearInterval(id);
+    const id = setInterval(check, 20000);
+    const onVisible = () => { if (!document.hidden) check(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
   }, [setNotificationCount]);
+  const closePopup = useCallback(() => setPopup([]), []);
 
   // messages from the CYT team + new reviews (menu badges)
   useEffect(() => {
@@ -232,6 +243,9 @@ export default function DashboardTopNav() {
           </Link>
         </div>
       </header>
+
+      {/* new booking — on every page except Appointments, which has its own alert */}
+      {pathname !== "/appointments" && <NewBookingPopup items={popup} onClose={closePopup} />}
 
       {/* full menu (phones / tablets) */}
       {drawer && (

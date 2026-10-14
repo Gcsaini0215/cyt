@@ -220,3 +220,4 @@ export const googleDisconnectUrl = `${apiUrl}/google/disconnect`;
 export const startSessionNowUrl  = `${apiUrl}/start-session-now`;
 export const joinSessionUrl      = (id) => `${apiUrl}/bookings/${id}/join`;
 export const googleTestUrl       = `${apiUrl}/google/test`;
+export const rescheduleSessionUrl = (id) => `${apiUrl}/bookings/${id}/reschedule`;
