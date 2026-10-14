@@ -22,6 +22,7 @@ import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsAct
 import { postData, fetchData } from "../../../utils/actions";
 import { startSessionNowUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
 import { joinSession } from "../../../utils/join-session";
+import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import { SESSION_STATUS } from "../../../utils/constant";
 import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
 import useTherapistStore from "../../../store/therapistStore";
@@ -297,6 +298,13 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 
   const SessionButton = ({ a, big }) => {
     const hasMeet = !!a.meet_link || isOnline(a.format);
+    const w = sessionWindow(a.booking_date, now);
+    if (a.status === SESSION_STATUS.NEW && w.before) {
+      return <button type="button" className={`apx-btn soft${big ? " big" : ""}`} disabled title={`Opens 15 minutes before the session`}>{hasMeet ? <VideocamRoundedIcon /> : <PlayArrowRoundedIcon />} {hasMeet ? "Join" : "Start"} at {opensAtText(w.opens)}</button>;
+    }
+    if (a.status === SESSION_STATUS.NEW && w.after) {
+      return <span className="apx-missed">Session time over</span>;
+    }
     if (a.status === SESSION_STATUS.NEW) {
       return hasMeet
         ? <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); join(a); }}><VideocamRoundedIcon /> Join<span className="apx-lg"> Meet</span></button>
@@ -305,7 +313,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     if (a.status === SESSION_STATUS.STARTED) {
       return (
         <>
-          {hasMeet && <button type="button" className={`apx-btn soft${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); join(a); }}><VideocamRoundedIcon /> Meet</button>}
+          {hasMeet && w.open && <button type="button" className={`apx-btn soft${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); join(a); }}><VideocamRoundedIcon /> Meet</button>}
           <button type="button" className={`apx-btn danger${big ? " big" : ""}`} disabled={endingId === a._id} onClick={(e) => { e.stopPropagation(); endSession(a); }}><StopRoundedIcon /> {endingId === a._id ? "Ending…" : <>End<span className="apx-lg"> session</span></>}</button>
         </>
       );
@@ -739,6 +747,7 @@ const APX_CSS = `
 .apx-ring button.x { width: 34px; padding: 0; background: rgba(255,255,255,.12); color: #fff; display: grid; place-items: center; }
 
 .apx-chips .apx-st-inline { display: none; }
+.apx-missed { display: inline-flex; align-items: center; height: 32px; padding: 0 10px; border-radius: 9px; background: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 700; }
 @media (max-width: 767px) {
   .hide-sm { display: none !important; }
   .apx-head h1 { font-size: 20px; }

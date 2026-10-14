@@ -1,3 +1,4 @@
+import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import React from "react";
 import Link from "next/link";
 
@@ -113,6 +114,7 @@ export function NextSessionCard({ s, loading, onJoin }) {
   }
   const mins = minutesUntil(s.date);
   const live = mins !== null && mins <= 10;
+  const joinWin = sessionWindow(s.date);
   const when = mins === null ? "" : mins <= 0 ? "Happening now" : mins < 60 ? `in ${mins} min` : mins < 1440 ? `in ${Math.floor(mins / 60)}h ${mins % 60}m` : fmtDay(s.date);
   return (
     <div className={`ov-next ov-card ${live ? "live" : ""}`}>
@@ -125,9 +127,11 @@ export function NextSessionCard({ s, loading, onJoin }) {
         </div>
       </div>
       <div className="ov-next-btns">
-        {s.meet && onJoin
+        {s.meet && onJoin && joinWin.open
           ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
-          : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
+          : s.meet && joinWin.before
+            ? <span className="ov-btn ghost" style={{ cursor: "default" }}>Join opens {opensAtText(joinWin.opens)}</span>
+            : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
         <Link href="/appointments" className="ov-btn ghost">Reschedule</Link>
       </div>
     </div>
