@@ -27,12 +27,17 @@ export function TodayBar({ firstName, now, todaySessions, nextSession, loading, 
   return (
     <div className="ov-today">
       <div className="ov-today-main">
-        <div className="ov-hello">{greeting(now)}, {firstName}</div>
+        <div className="ov-hello-row">
+          <div className="ov-hello">{greeting(now)}, {firstName}</div>
+          <button type="button" className="ov-refresh-ic" onClick={onRefresh} disabled={refreshing} title={lastRefreshed ? `Updated ${fmtTime(lastRefreshed)} · tap to refresh` : "Refresh"} aria-label="Refresh">
+            <span className={refreshing ? "spin" : ""}>↻</span>
+          </button>
+        </div>
         <div className="ov-today-line">
           {loading ? "Loading your day…" : (
             <>
               <b>{todaySessions || 0}</b> session{todaySessions === 1 ? "" : "s"} today
-              {nextSession && <> · Next: <b>{fmtTime(nextSession.date)}</b> with {nextSession.name}</>}
+              {nextSession && <span className="ov-next-inline"> · Next: <b>{fmtTime(nextSession.date)}</b> with {nextSession.name}</span>}
             </>
           )}
         </div>
@@ -49,6 +54,19 @@ export function TodayBar({ firstName, now, todaySessions, nextSession, loading, 
             <>All time · <button type="button" disabled={savingSince} onClick={() => onChangeSince("month")}>From this month</button></>
           )}
         </span>
+      </div>
+    </div>
+  );
+}
+
+/* phones: the "All time / From this month" switch sits right above the numbers it changes */
+export function KpiHead({ since, savingSince, onChangeSince }) {
+  return (
+    <div className="ov-kpi-head">
+      <b>Your numbers</b>
+      <div className="ov-seg" role="group" aria-label="Count from">
+        <button type="button" className={!since ? "on" : ""} disabled={savingSince} onClick={() => since && onChangeSince(null)}>All time</button>
+        <button type="button" className={since ? "on" : ""} disabled={savingSince} onClick={() => !since && onChangeSince("month")}>{since ? `Since ${fmtDay(since)}` : "This month"}</button>
       </div>
     </div>
   );
@@ -194,7 +212,14 @@ export const OV_CSS = `
 
 .ov-top { display: grid; gap: 14px; align-items: start; grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "next todo" "kpis todo"; grid-template-rows: auto 1fr; margin-bottom: 14px; }
 .ov-top > .ov-todo { align-self: stretch; }
-.ov-top > .ov-next { grid-area: next; } .ov-top > .ov-todo { grid-area: todo; } .ov-top > .ov-kpis { grid-area: kpis; }
+.ov-top > .ov-next { grid-area: next; } .ov-top > .ov-todo { grid-area: todo; } .ov-top > .ov-kpis { grid-area: kpis; } .ov-top > .ov-kpi-head { grid-area: kpihead; }
+.ov-hello-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ov-refresh-ic { display: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e4ece7; background: #fff; color: #166534; font-size: 17px; font-weight: 800; cursor: pointer; flex-shrink: 0; place-items: center; padding: 0; }
+.ov-refresh-ic .spin { display: inline-block; animation: ovSpin 1s linear infinite; }
+.ov-kpi-head { display: none; }
+.ov-seg { display: inline-flex; background: #eef2f0; border-radius: 999px; padding: 3px; gap: 2px; }
+.ov-seg button { border: 0; background: transparent; height: 30px; padding: 0 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: #64748b; font-family: inherit; cursor: pointer; white-space: nowrap; }
+.ov-seg button.on { background: #fff; color: #166534; box-shadow: 0 1px 3px rgba(15,23,42,.12); }
 .ov-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .ov-kpi { display: flex; flex-direction: column; gap: 4px; background: #fff; border: 1px solid #e6ece8; border-radius: 16px; padding: 14px 16px 10px; text-decoration: none; box-shadow: 0 1px 2px rgba(15,23,42,.04); transition: transform .15s, box-shadow .15s; min-width: 0; }
 a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(15,23,42,.3); }
@@ -252,6 +277,22 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
   .ov-top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "next" "kpis" "todo"; }
   .ov-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ov-today-side { width: 100%; }
+}
+/* phones: slim greeting, nothing repeated above the Next session card */
+@media (max-width: 767px) {
+  .ov-today { margin-bottom: 10px; }
+  .ov-today-main { width: 100%; }
+  .ov-hello { font-size: 19px; }
+  .ov-today-line { font-size: 13px; }
+  .ov-next-inline, .ov-today-side { display: none !important; }
+  .ov-refresh-ic { display: grid; }
+  .ov-top { grid-template-areas: "next" "kpihead" "kpis" "todo"; gap: 12px; }
+  .ov-kpi-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: -4px; }
+  .ov-kpi-head b { font-size: 15px; font-weight: 800; color: #0f172a; }
+  .ov-kpis { gap: 10px; }
+  .ov-kpi { padding: 12px 14px 8px; }
+  .ov-kpi-top { flex-wrap: wrap; row-gap: 4px; }
+  .ov-kpi-label { white-space: normal; }
 }
 @media (max-width: 560px) {
   .ov-week-row { grid-template-columns: repeat(7, 64px); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }

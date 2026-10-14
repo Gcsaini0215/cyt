@@ -14,7 +14,7 @@ import { fetchById, postData } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import AvailabilityNudge from "../components/therapists/dashboard/AvailabilityNudge";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
-import { TodayBar, KpiCard, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
+import { TodayBar, KpiCard, KpiHead, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
 import { Box, Typography, Avatar, Skeleton, CircularProgress } from "@mui/material";
@@ -1109,6 +1109,7 @@ export default function TherapistDashboard() {
           <div className="ov-top">
             <NextSessionCard s={nextSession} loading={nextLoading} />
             <TodoCard items={todoItems} pct={completionPct} />
+            <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">
               <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} />
               <KpiCard label="Sessions · month" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} href="/appointments" tone="teal" loading={loading} />
