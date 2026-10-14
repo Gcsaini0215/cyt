@@ -212,3 +212,10 @@ export const commsActionDoneUrl = (id) => `${apiUrl}/therapist-comms/actions/${i
 export const commsPayoutsUrl   = `${apiUrl}/therapist-comms/payouts`;
 export const commsPrefsUrl     = `${apiUrl}/therapist-comms/prefs`;
 export const commsFeedbackUrl  = `${apiUrl}/therapist-comms/feedback`;
+
+// Google Calendar / Meet + one-tap sessions
+export const googleStatusUrl     = `${apiUrl}/google/status`;
+export const googleConnectUrl    = `${apiUrl}/google/connect`;
+export const googleDisconnectUrl = `${apiUrl}/google/disconnect`;
+export const startSessionNowUrl  = `${apiUrl}/start-session-now`;
+export const joinSessionUrl      = (id) => `${apiUrl}/bookings/${id}/join`;

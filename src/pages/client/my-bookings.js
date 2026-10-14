@@ -6,6 +6,7 @@ import PageWrapper from "../../components/global/page-wrapper";
 import { toast } from "react-toastify";
 import { formatDateTime } from "../../utils/time";
 import Link from "next/link";
+import { joinSession } from "../../utils/join-session";
 
 const statusColor = (status) => {
   if (!status) return { bg: "#f1f5f9", color: "#64748b" };
@@ -158,18 +159,19 @@ export default function MyBookingsPage() {
                 </div>
               </div>
 
-              {/* PIN */}
-              {item.otp && (
+              {/* Google Meet */}
+              {item.meet_link && (item.status === "New" || item.status === "Started") && (
                 <>
                   <hr className="bk-divider" />
-                  <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-                    <div>
-                      <div className="bk-label">Session PIN</div>
-                      <div className="bk-pin">{item.otp}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 200 }}>
+                      <div className="bk-label">Online session</div>
+                      <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>Join at your session time. The same Google Meet link is in your email and Google Calendar.</div>
                     </div>
-                    <div style={{ fontSize: 12, color: "#64748b", maxWidth: 260 }}>
-                      Share this PIN with your therapist at the start of your session.
-                    </div>
+                    <button type="button" onClick={() => joinSession(item._id, item.meet_link).catch((e) => toast.error(e.message))}
+                      style={{ height: 42, padding: "0 18px", borderRadius: 10, border: 0, background: "#166534", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                      Join Google Meet
+                    </button>
                   </div>
                 </>
               )}

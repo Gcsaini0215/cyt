@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { removeToken } from "../../../utils/jwt";
-import { fetchById, putData } from "../../../utils/actions";
-import { commsPrefsUrl } from "../../../utils/url";
+import { fetchById, putData, postData } from "../../../utils/actions";
+import { commsPrefsUrl, googleStatusUrl, googleConnectUrl, googleDisconnectUrl } from "../../../utils/url";
 import { profilePath } from "../../../utils/therapist-slug";
 import useTherapistStore from "../../../store/therapistStore";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
@@ -18,6 +18,74 @@ const PREFS = [
   { key: "payout_email", label: "Payout sent", sub: "Amount and reference when we pay you" },
   { key: "reply_email", label: "Replies to your messages", sub: "When the team answers in Help & support" },
 ];
+
+const GOOGLE_MSG = {
+  connected: ["ok", "Google connected — online bookings now get their own Meet link."],
+  denied: ["err", "Google access wasn't allowed, so nothing was connected."],
+  expired: ["err", "That link expired — please tap Connect again."],
+  noscope: ["err", "Please tick the calendar permission on Google's screen and try again."],
+  error: ["err", "Couldn't connect Google — please try again."],
+};
+
+function GoogleMeet() {
+  const router = useRouter();
+  const [st, setSt] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const load = () => fetchById(googleStatusUrl).then((r) => setSt(r?.status ? r.data : { configured: false })).catch(() => setSt({ configured: false }));
+  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const g = router.query.google;
+    if (g && GOOGLE_MSG[g]) {
+      setMsg(GOOGLE_MSG[g]);
+      const { google, ...rest } = router.query;
+      router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
+    }
+  }, [router.query.google]); // eslint-disable-line react-hooks/exhaustive-deps
+  const connect = async () => {
+    setBusy(true);
+    try {
+      const r = await fetchById(googleConnectUrl);
+      if (r?.data?.url) { window.location.href = r.data.url; return; }
+      setMsg(["err", r?.message || "Couldn't start the Google connection"]);
+    } catch (e) { setMsg(["err", e?.response?.data?.message || "Couldn't start the Google connection"]); }
+    setBusy(false);
+  };
+  const disconnect = async () => {
+    if (!window.confirm("Disconnect Google? New online bookings won't get a Meet link until you connect again.")) return;
+    setBusy(true);
+    try { await postData(googleDisconnectUrl, {}); await load(); setMsg(["ok", "Google disconnected."]); } catch (e) { setMsg(["err", "Couldn't disconnect — try again."]); }
+    setBusy(false);
+  };
+  return (
+    <Section title="Google Calendar & Meet" sub="Connect your Google account and every online booking gets its own Google Meet link on your calendar — the client is invited automatically.">
+      {!st ? <div className="stg-empty">Checking…</div> : !st.configured ? (
+        <div className="stg-tip">Coming soon — Google Meet links for online sessions are being switched on.</div>
+      ) : st.connected ? (
+        <div className="stg-gconn">
+          <div className="stg-gconn-ic">G</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <b>Connected{st.email ? ` · ${st.email}` : ""}</b>
+            <small>{st.lastError ? `Last attempt failed: ${st.lastError}` : "New online bookings get a Meet link automatically."}</small>
+          </div>
+          <button type="button" className="stg-btn ghost" onClick={disconnect} disabled={busy}>Disconnect</button>
+        </div>
+      ) : (
+        <>
+          <ul className="stg-gsteps">
+            <li>Tap <b>Connect Google</b> and sign in with the Gmail you use for sessions.</li>
+            <li>Allow calendar access. If Google says the app isn&apos;t verified yet, tap <b>Advanced → Continue</b>.</li>
+            <li>Done — each paid online booking adds an event with a Meet link to your Google Calendar.</li>
+          </ul>
+          <button type="button" className="stg-btn primary" onClick={connect} disabled={busy} style={{ marginTop: 12 }}>
+            {busy ? "Opening Google…" : "Connect Google"}
+          </button>
+        </>
+      )}
+      {msg && <div role="status" style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: msg[0] === "ok" ? "#166534" : "#dc2626" }}>{msg[1]}</div>}
+    </Section>
+  );
+}
 
 function EmailPrefs() {
   const [prefs, setPrefs] = useState(null);
@@ -102,6 +170,8 @@ export default function Account() {
           {therapistInfo?.profile_type && (<><dt>Profile type</dt><dd>{therapistInfo.profile_type}</dd></>)}
         </dl>
       </Section>
+
+      <GoogleMeet />
 
       <EmailPrefs />
 

@@ -129,6 +129,27 @@ export default function PrivacyPolicy() {
                 <li>You understand that you may be referred to a licensed professional if your needs are beyond the scope of this service.</li>
               </Box>
             </Box>
+
+            {/* Section 6 - Google user data (therapists who connect Google Calendar) */}
+            <Box id="google-data" sx={{ mt: 4, pt: 3, borderTop: "1px solid #e2e8f0" }}>
+              <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#1e293b", mb: 2 }}>
+                6. Google Calendar data (for therapists)
+              </Typography>
+              <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.8, mb: 2 }}>
+                Therapists on Choose Your Therapist can choose to connect their Google account so that online sessions get a Google Meet link automatically. When a therapist connects Google:
+              </Typography>
+              <Box component="ul" sx={{ pl: 3, color: "#475569", fontSize: 14, lineHeight: 1.8, mb: 2 }}>
+                <li><b>What we access:</b> permission to create and update events on the therapist&apos;s Google Calendar (the <i>calendar.events</i> scope) and the email address of the connected Google account.</li>
+                <li><b>How we use it:</b> only to create one calendar event, with a Google Meet link, for each online session booked with that therapist on our platform, and to add the client as a guest so both receive the meeting link.</li>
+                <li><b>What we don&apos;t do:</b> we do not read, copy or store the therapist&apos;s other calendar events, and we do not use Google data for advertising or sell or share it with anyone.</li>
+                <li><b>Storage:</b> we store only the access token needed to create these events (encrypted) and the connected email address. Meet links are stored with the booking.</li>
+                <li><b>Disconnecting:</b> therapists can disconnect at any time from Settings → Account; we then revoke our access and delete the stored token. Access can also be removed from the Google Account permissions page.</li>
+              </Box>
+              <Typography sx={{ fontSize: 14, color: "#475569", lineHeight: 1.8 }}>
+                Choose Your Therapist&apos;s use and transfer of information received from Google APIs adheres to the{" "}
+                <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" style={{ color: "#166534", fontWeight: 700 }}>Google API Services User Data Policy</a>, including the Limited Use requirements.
+              </Typography>
+            </Box>
           </Box>
         </Container>
       </div>

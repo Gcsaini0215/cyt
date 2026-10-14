@@ -237,6 +237,14 @@ export const STG_CSS = `
 .stg-kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px 12px; font-size: 13.5px; }
 .stg-kv dt { color: var(--mut); font-weight: 600; } .stg-kv dd { margin: 0; font-weight: 700; word-break: break-word; }
 
+/* google connect */
+.stg-gconn { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid #cfe3d6; background: #f3fbf6; border-radius: 12px; }
+.stg-gconn-ic { width: 38px; height: 38px; border-radius: 10px; background: #fff; border: 1px solid #e4ece7; display: grid; place-items: center; font-weight: 800; font-size: 18px;
+  color: #4285f4; flex-shrink: 0; }
+.stg-gconn b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stg-gconn small { display: block; font-size: 12.5px; color: var(--mut); margin-top: 1px; }
+.stg-gsteps { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; color: #334155; line-height: 1.5; }
+
 /* email preference switches */
 .stg-prefs { list-style: none; margin: 0; padding: 0; }
 .stg-prefs li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid #eef2f0; margin: 0; }

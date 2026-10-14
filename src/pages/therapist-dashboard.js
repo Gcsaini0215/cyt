@@ -17,6 +17,9 @@ import PerformanceChart from "../components/therapists/dashboard/PerformanceChar
 import { TodayBar, KpiCard, KpiHead, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
+import { joinSession } from "../utils/join-session";
+import { googleStatusUrl } from "../utils/url";
+import { toast } from "react-toastify";
 import { Box, Typography, Avatar, Skeleton, CircularProgress } from "@mui/material";
 
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
@@ -814,7 +817,7 @@ export default function TherapistDashboard() {
           .filter((b) => b.status !== "Completed" && b.status !== "Cancelled")
           .filter((b) => { const d = safeDate(b.booking_date); return d && d.getTime() >= t0 - SESSION_WINDOW_MS; })
           .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
-          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: b.client?.photo || b.client?.profile }));
+          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: b.client?.photo || b.client?.profile, meet: b.meet_link || "" }));
         setUpcomingSessions(early);
         setNextSession(early[0] || null);
       }
@@ -893,6 +896,7 @@ export default function TherapistDashboard() {
         date: b.booking_date,
         badge: b.format || b.mode || "Online",
         imgSrc: b.client?.photo || b.client?.profile,
+        meet: b.meet_link || "",
       });
 
       const upcomingList = bookings
@@ -1049,6 +1053,10 @@ export default function TherapistDashboard() {
 
   // rating, listing status and the to-do list for the new overview
   const actionTodos = useActionTodos(); // requests from the CYT team
+  const [gNeed, setGNeed] = React.useState(false);
+  React.useEffect(() => {
+    fetchById(googleStatusUrl).then((r) => setGNeed(!!(r?.data?.configured && !r.data.connected))).catch(() => {});
+  }, []);
   const ratingAvg = myReviews.length ? (myReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / myReviews.length).toFixed(1) : "—";
   const listing = (() => {
     const t = therapistInfo;
@@ -1065,6 +1073,7 @@ export default function TherapistDashboard() {
   const sessionTrend = stats.lastMonthSessions > 0 ? `${Math.round(((stats.monthSessions - stats.lastMonthSessions) / stats.lastMonthSessions) * 100)}%` : undefined;
   const todoItems = [
     ...actionTodos,
+    ...(gNeed ? [{ key: "gmeet", label: "Connect Google for automatic Meet links", href: "/settings?tab=account", cta: "Connect", tone: "warn" }] : []),
     ...profileChecks.filter((c) => !c.done).map((c) => ({ label: TODO_LABEL[c.label] || c.label, href: c.href || "/settings", cta: "Add", tone: "warn" })),
     ...(listing && (listing.tone === "warn" || listing.tone === "off") ? [{ label: listing.tone === "off" ? "Your listing has expired — renew to stay visible" : listing.label === "Not live yet" ? "Choose a package to go live" : `Listing ends soon (${listing.label.replace("Listing · ", "")})`, href: "/therapist-registration?packages=1", cta: "Renew", tone: listing.tone === "off" ? "bad" : "warn" }] : []),
     ...invoices.filter((i) => i.status && i.status !== "Success").slice(0, 2).map((i) => ({ label: `Payment pending · ${i.client_name}`, href: "/therapists/invoices", cta: "View", tone: "bad" })),
@@ -1109,7 +1118,7 @@ export default function TherapistDashboard() {
 
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
           <div className="ov-top">
-            <NextSessionCard s={nextSession} loading={nextLoading} />
+            <NextSessionCard s={nextSession} loading={nextLoading} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} />
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">

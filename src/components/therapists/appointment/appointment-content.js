@@ -20,8 +20,8 @@ import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded
 import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import { postData, fetchData } from "../../../utils/actions";
-import { StartSessionUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
-import VerifyOtpDialog from "../../global/verify-otp-dialog";
+import { startSessionNowUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
+import { joinSession } from "../../../utils/join-session";
 import { SESSION_STATUS } from "../../../utils/constant";
 import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
 import useTherapistStore from "../../../store/therapistStore";
@@ -106,11 +106,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const [appointments, setAppointments] = useState(initialAppointments || []);
   const [selected, setSelected] = useState(null);
   const [detailTab, setDetailTab] = useState("details");
-  const [otpView, setOtpView] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [busyId, setBusyId] = useState("");
   const [endingId, setEndingId] = useState("");
-  const [pin, setPin] = useState("");
-  const [bookingId, setBookingId] = useState("");
   const [isRinging, setIsRinging] = useState(false);
   const [newCount, setNewCount] = useState(0);
   const [soundOn, setSoundOn] = useState(false);
@@ -237,24 +234,29 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   }, [shown, now]);
 
   /* ── session actions ── */
-  const handlePinChange = (e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6));
-  const askPin = (a) => { setBookingId(a._id); setPin(""); setOtpView(true); };
-  const verifyPin = async () => {
-    if (pin.length !== 6) { toast.error("Enter the 6-digit PIN the client received"); return; }
-    setLoading(true);
+  const markStarted = (id) => {
+    setAppointments((prev) => prev.map((x) => (x._id === id ? { ...x, status: SESSION_STATUS.STARTED, session_started_at: x.session_started_at || new Date().toISOString() } : x)));
+    setSelected((s) => (s && s._id === id ? { ...s, status: SESSION_STATUS.STARTED } : s));
+  };
+  // one tap — no PIN (unlocks 15 min before the slot)
+  const startNow = async (a) => {
+    setBusyId(a._id);
     try {
-      const r = await postData(StartSessionUrl, { pin, bookingId });
-      if (r.status) {
-        setOtpView(false);
-        setPin("");
-        toast.success(r.message || "Session started");
-        setAppointments((prev) => prev.map((x) => (x._id === bookingId ? { ...x, status: SESSION_STATUS.STARTED, session_started_at: new Date().toISOString() } : x)));
-        setSelected((s) => (s && s._id === bookingId ? { ...s, status: SESSION_STATUS.STARTED } : s));
-      } else toast.error(r.message || "Wrong PIN");
+      const r = await postData(startSessionNowUrl, { bookingId: a._id });
+      if (r.status) { toast.success(r.message || "Session started"); markStarted(a._id); }
+      else toast.error(r.message || "Couldn't start the session");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't start the session");
     }
-    setLoading(false);
+    setBusyId("");
+  };
+  // open the Google Meet; the session starts by itself once the client has joined too
+  const join = async (a) => {
+    try {
+      const d = await joinSession(a._id, a.meet_link);
+      if (d?.status === SESSION_STATUS.STARTED) markStarted(a._id);
+      else if (d) toast.info("Opened Meet — the session starts automatically when your client joins.");
+    } catch (e) { toast.error(e.message); }
   };
   const endSession = async (a) => {
     if (!window.confirm(`End the session with ${personOf(a).name}?`)) return;
@@ -285,11 +287,19 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const open = (a, tab = "details") => { setSelected(a); setDetailTab(tab); };
 
   const SessionButton = ({ a, big }) => {
+    const hasMeet = !!a.meet_link;
     if (a.status === SESSION_STATUS.NEW) {
-      return <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); askPin(a); }}><PlayArrowRoundedIcon /> Start<span className="apx-lg"> session</span></button>;
+      return hasMeet
+        ? <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); join(a); }}><VideocamRoundedIcon /> Join<span className="apx-lg"> Meet</span></button>
+        : <button type="button" className={`apx-btn primary${big ? " big" : ""}`} disabled={busyId === a._id} onClick={(e) => { e.stopPropagation(); startNow(a); }}><PlayArrowRoundedIcon /> {busyId === a._id ? "Starting…" : <>Start<span className="apx-lg"> session</span></>}</button>;
     }
     if (a.status === SESSION_STATUS.STARTED) {
-      return <button type="button" className={`apx-btn danger${big ? " big" : ""}`} disabled={endingId === a._id} onClick={(e) => { e.stopPropagation(); endSession(a); }}><StopRoundedIcon /> {endingId === a._id ? "Ending…" : <>End<span className="apx-lg"> session</span></>}</button>;
+      return (
+        <>
+          {hasMeet && <button type="button" className={`apx-btn soft${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); join(a); }}><VideocamRoundedIcon /> Meet</button>}
+          <button type="button" className={`apx-btn danger${big ? " big" : ""}`} disabled={endingId === a._id} onClick={(e) => { e.stopPropagation(); endSession(a); }}><StopRoundedIcon /> {endingId === a._id ? "Ending…" : <>End<span className="apx-lg"> session</span></>}</button>
+        </>
+      );
     }
     return null;
   };
@@ -506,6 +516,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                         {started && <div><dt>Started</dt><dd>{fmtTime(started)}</dd></div>}
                         {completed && <div><dt>Ended</dt><dd>{fmtTime(completed)}</dd></div>}
                         <div><dt>Booking ID</dt><dd className="mono">#{String(a._id).slice(-8)}</dd></div>
+                        {a.meet_link && <div style={{ gridColumn: "1 / -1" }}><dt>Google Meet</dt><dd><a href={a.meet_link} target="_blank" rel="noopener noreferrer" className="mono" style={{ color: "#166534" }}>{a.meet_link.replace("https://", "")}</a></dd></div>}
+                        {a.meet_link && a.status === SESSION_STATUS.NEW && <div style={{ gridColumn: "1 / -1" }}><dt>Joined</dt><dd>{a.client_joined_at ? "Client ✓" : "Client —"} · {a.therapist_joined_at ? "You ✓" : "You —"}</dd></div>}
                       </dl>
                     </section>
 
@@ -551,16 +563,6 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
         );
       })()}
 
-      <VerifyOtpDialog
-        open={otpView}
-        onClose={() => setOtpView(false)}
-        placeholder="6-digit PIN"
-        label="Client's session PIN"
-        value={pin}
-        handleChange={handlePinChange}
-        handleClick={verifyPin}
-        loading={loading}
-      />
     </div>
   );
 };
