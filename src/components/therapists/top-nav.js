@@ -377,14 +377,23 @@ const TN_CSS = `
   @keyframes tnSheet { from { transform: translateY(100%); } to { transform: none; } }
   .tn-sheet-grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: #d6dfda; margin: 8px auto 0; }
   .tn-drawer-head { padding: 10px 16px 12px; }
-  .tn-drawer nav { padding: 6px 12px; }
-  .tn-drawer-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 6px; }
-  .tn-drawer-group > span { grid-column: 1 / -1; padding: 8px 2px 0; }
-  .tn-drawer-group a { height: auto; min-height: 78px; flex-direction: column; justify-content: center; gap: 7px; padding: 10px 6px; border-radius: 14px;
-    background: #f6f8f7; font-size: 12.5px; text-align: center; line-height: 1.2; }
+  /* one compact launcher grid: every item, four per row, no half-empty group rows */
+  .tn-drawer nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 6px; padding: 14px 12px 16px; align-content: start; }
+  .tn-drawer-group { display: contents; }
+  .tn-drawer-group > span { display: none; }
+  .tn-drawer-group a { height: auto; flex-direction: column; justify-content: flex-start; align-items: center; gap: 6px; padding: 0; border-radius: 0;
+    background: none; font-size: 11.5px; font-weight: 700; color: #334155; text-align: center; line-height: 1.25; }
+  .tn-dr-ic { width: 52px; height: 52px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; transition: background .15s; }
   .tn-drawer-group a svg { font-size: 24px; color: #166534; }
-  .tn-drawer-group a.on { background: #e7f6ec; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
-  .tn-dr-lbl { flex: 0 0 auto; }
+  .tn-drawer-group a.on { background: none; color: #166534; }
+  .tn-drawer-group a.on .tn-dr-ic { background: #dff3e6; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
+  .tn-drawer-group a:active .tn-dr-ic { background: #e7f6ec; }
+  .tn-dr-lbl { flex: 0 0 auto; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .tn-drawer-group a .tn-dr-badge.nx-badge { top: -5px; right: -6px; }
+  .tn-drawer-group a .tn-dr-badge.nx-dot { top: 2px; right: 2px; }
+  .tn-drawer-pct { margin: 10px 14px 0; }
+  .tn-drawer-foot { padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .tn-drawer-foot a, .tn-drawer-foot button { height: 42px; font-size: 13px; }
 }
 
 .tn-mob-nav { display: none; }
