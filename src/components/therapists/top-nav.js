@@ -28,7 +28,6 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
-const logo1 = "/cyt-emblem.png";
 const WIDE_KEY = "cyt_tsn_wide";
 
 // phones: four favourites + "More" (opens the full menu)
@@ -238,9 +237,6 @@ export default function DashboardTopNav() {
             {bellCount > 0 && <span className="tn-notif-dot">{bellCount > 99 ? "99+" : bellCount}</span>}
           </Link>
 
-          <Link href="/therapist-dashboard" className="tn-logo" title="Choose Your Therapist — dashboard" aria-label="Dashboard">
-            <img src={logo1} alt="Choose Your Therapist" width={32} height={32} />
-          </Link>
         </div>
       </header>
 
