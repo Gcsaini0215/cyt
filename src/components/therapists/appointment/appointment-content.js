@@ -1,852 +1,782 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Box, CircularProgress, useMediaQuery } from "@mui/material";
-import { FaPlay, FaStop, FaUser, FaTimes, FaPhone, FaFileInvoice } from "react-icons/fa";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import DownloadIcon from "@mui/icons-material/Download";
-import PrintIcon from "@mui/icons-material/Print";
-import { Divider, Button } from "@mui/material";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { toast } from "react-toastify";
-import { postData, fetchData, deleteById } from "../../../utils/actions";
-import { StartSessionUrl, EndSessionUrl, getBookings, deleteBookingUrl } from "../../../utils/url";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import StopRoundedIcon from "@mui/icons-material/StopRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import CallRoundedIcon from "@mui/icons-material/CallRounded";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
+import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
+import PersonPinCircleRoundedIcon from "@mui/icons-material/PersonPinCircleRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import ViewAgendaRoundedIcon from "@mui/icons-material/ViewAgendaRounded";
+import TableRowsRoundedIcon from "@mui/icons-material/TableRowsRounded";
+import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
+import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
+import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
+import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
+import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
+import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
+import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
+import { postData, fetchData } from "../../../utils/actions";
+import { StartSessionUrl, EndSessionUrl, getBookings, imagePath } from "../../../utils/url";
 import VerifyOtpDialog from "../../global/verify-otp-dialog";
 import { SESSION_STATUS } from "../../../utils/constant";
-import { formatDateTime } from "../../../utils/time";
 import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
 import useTherapistStore from "../../../store/therapistStore";
 
+/* Therapist "Appointments": every booking with what the client told us at booking time
+   (who the session is for, age, gender, concern, contact), grouped by day, with the
+   Start (PIN) / End session flow, invoice and a live new-booking alert. */
+
+const TZ = "Asia/Kolkata";
+const ST = {
+  [SESSION_STATUS.NEW]: { key: "new", label: "Upcoming" },
+  [SESSION_STATUS.STARTED]: { key: "live", label: "In session" },
+  [SESSION_STATUS.COMPLETED]: { key: "done", label: "Completed" },
+  [SESSION_STATUS.CANCELED]: { key: "cancel", label: "Cancelled" },
+};
+const stOf = (s) => ST[s] || ST[SESSION_STATUS.NEW];
+
+const safeDate = (d) => { const x = d ? new Date(d) : null; return x && !isNaN(x) ? x : null; };
+const istKey = (d) => d.toLocaleDateString("en-CA", { timeZone: TZ });
+const fmtTime = (d) => d.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: TZ });
+const fmtDay = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: TZ });
+const fmtFull = (d) => d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: TZ });
+const num = (v) => Number(v?.$numberDecimal ?? v) || 0;
+const inr = (v) => `₹${num(v).toLocaleString("en-IN")}`;
+const initials = (name) => {
+  const p = String(name || "?").trim().split(/\s+/);
+  return ((p[0]?.[0] || "?") + (p[1]?.[0] || "")).toUpperCase();
+};
+const digits = (p) => String(p || "").replace(/\D/g, "");
+const waLink = (p) => { const d = digits(p); return d ? `https://wa.me/${d.length === 10 ? "91" + d : d}` : ""; };
+const cleanText = (v) => (v && v !== "null" && v !== "undefined" ? String(v).trim() : "");
+
+// uploaded photos only — the stock "default" avatar URL looks worse than initials
+const photoOf = (c) => {
+  const v = cleanText(c?.profile);
+  if (!v || /^https?:\/\//i.test(v)) return "";
+  return `${imagePath}/${v}`;
+};
+
+// who the session is for, as entered at booking time
+function personOf(a) {
+  const forOther = /other/i.test(a.whom || "") && cleanText(a.cname);
+  const age = Number(a.age) || (!forOther ? Number(a.client?.age) || null : null);
+  return {
+    name: forOther ? cleanText(a.cname) : cleanText(a.client?.name) || "Client",
+    age: age || null,
+    gender: !forOther ? cleanText(a.client?.gender) : "",
+    forOther: !!forOther,
+    relation: cleanText(a.relation_with_client),
+    bookedBy: cleanText(a.client?.name),
+    phone: cleanText(a.client?.phone),
+    email: cleanText(a.client?.email),
+    photo: !forOther ? photoOf(a.client) : "",
+  };
+}
+
+function dayLabel(d, now) {
+  const k = istKey(d);
+  if (k === istKey(now)) return "Today";
+  if (k === istKey(new Date(now.getTime() + 864e5))) return "Tomorrow";
+  if (k === istKey(new Date(now.getTime() - 864e5))) return "Yesterday";
+  return fmtDay(d);
+}
+
+function relTime(d, now) {
+  const m = Math.round((d - now) / 60000);
+  if (m > 0 && m < 60) return `in ${m} min`;
+  if (m >= 60 && m < 24 * 60) return `in ${Math.floor(m / 60)}h ${m % 60 ? `${m % 60}m` : ""}`.trim();
+  return "";
+}
+
+const FILTERS = [
+  { key: "all", label: "All" },
+  { key: "today", label: "Today" },
+  { key: "upcoming", label: "Upcoming" },
+  { key: "live", label: "In session" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
+];
+
 const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) => {
   const [appointments, setAppointments] = useState(initialAppointments || []);
-  const [selectedAppt, setSelectedAppt] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [detailTab, setDetailTab] = useState("details");
   const [otpView, setOtpView] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [sessionEnding, setSessionEnding] = useState(false);
+  const [endingId, setEndingId] = useState("");
   const [pin, setPin] = useState("");
   const [bookingId, setBookingId] = useState("");
-  const [visibleCount, setVisibleCount] = useState(6);
   const [isRinging, setIsRinging] = useState(false);
-  const [newBookingCount, setNewBookingCount] = useState(0);
-  const [userInteracted, setUserInteracted] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const isMobile = useMediaQuery("(max-width:768px)");
+  const [newCount, setNewCount] = useState(0);
+  const [soundOn, setSoundOn] = useState(false);
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [view, setView] = useState("cards");
+  const [refreshing, setRefreshing] = useState(false);
+  const [now, setNow] = useState(() => new Date());
   const { therapistInfo } = useTherapistStore();
+  const audioRef = useRef(null);
+  const listRef = useRef(appointments);
 
-  const audioRef = useRef(null); // Notification sound
-  const appointmentsRef = useRef(appointments);
+  useEffect(() => { setAppointments(initialAppointments || []); }, [initialAppointments]);
+  useEffect(() => { listRef.current = appointments; }, [appointments]);
+  useEffect(() => { const t = setInterval(() => setNow(new Date()), 60000); return () => clearInterval(t); }, []);
 
-  // The parent re-fetches on Refresh / after a new booking — take its list,
-  // otherwise this copy goes stale and the Refresh button looks dead.
-  useEffect(() => {
-    setAppointments(initialAppointments || []);
-  }, [initialAppointments]);
-
-  // Sync ref with state
-  useEffect(() => {
-    appointmentsRef.current = appointments;
-  }, [appointments]);
-
-  // Load notification sound and handle user interaction
+  // new-booking sound (browsers need one tap before audio may play)
   useEffect(() => {
     const audio = new Audio("/notification.mp3");
     audio.loop = true;
     audio.preload = "auto";
     audioRef.current = audio;
-
-    const handleInteraction = () => {
-      setUserInteracted(true);
-      // Try to play and immediately pause to "unlock" audio on mobile/modern browsers
-      audio.play().then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-      }).catch(() => {});
-      
-      window.removeEventListener("click", handleInteraction);
-      window.removeEventListener("touchstart", handleInteraction);
+    const unlock = () => {
+      setSoundOn(true);
+      audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+      window.removeEventListener("click", unlock);
+      window.removeEventListener("touchstart", unlock);
     };
-
-    window.addEventListener("click", handleInteraction);
-    window.addEventListener("touchstart", handleInteraction);
-
+    window.addEventListener("click", unlock);
+    window.addEventListener("touchstart", unlock);
     return () => {
-      window.removeEventListener("click", handleInteraction);
-      window.removeEventListener("touchstart", handleInteraction);
+      audio.pause();
+      window.removeEventListener("click", unlock);
+      window.removeEventListener("touchstart", unlock);
     };
   }, []);
 
-  const stopRinging = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+  const stopRinging = useCallback(() => {
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; }
     setIsRinging(false);
-    setNewBookingCount(0);
-  };
+    setNewCount(0);
+  }, []);
+  useEffect(() => {
+    if (!isRinging) return undefined;
+    const t = setTimeout(stopRinging, 60000);
+    return () => clearTimeout(t);
+  }, [isRinging, stopRinging]);
 
-  const playRinging = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(err => {
-        console.error("Autoplay blocked or audio error:", err);
-        // Show a message to user if audio is still blocked
-        toast.info("Please click anywhere on the page to enable booking alerts.");
-      });
-    }
-  };
-
-  // Live update using polling — skipped while the tab is in the background,
-  // and never overlapping a still-running request.
+  // poll for new bookings (paused in background tabs, never overlapping)
   useEffect(() => {
     let inFlight = false;
-    const interval = setInterval(async () => {
-      if (inFlight || (typeof document !== "undefined" && document.hidden)) return;
+    const iv = setInterval(async () => {
+      if (inFlight || document.hidden) return;
       inFlight = true;
       try {
-        const response = await fetchData(getBookings);
-
-        if (response?.status && Array.isArray(response.data)) {
-          const currentAppointments = appointmentsRef.current;
-          const existingIds = new Set(currentAppointments.map(a => a._id));
-          
-          const newAppointments = response.data.filter(
-            (appt) => !existingIds.has(appt._id)
-          );
-
-          if (newAppointments.length > 0) {
-            setNewBookingCount(prev => prev + newAppointments.length);
+        const r = await fetchData(getBookings);
+        if (r?.status && Array.isArray(r.data)) {
+          const known = new Set(listRef.current.map((a) => a._id));
+          const fresh = r.data.filter((a) => !known.has(a._id));
+          if (fresh.length) {
+            setNewCount((c) => c + fresh.length);
             setIsRinging(true);
-            
-            // Try to play sound
-            if (audioRef.current) {
-              audioRef.current.play().catch(err => {
-                console.warn("Autoplay blocked:", err);
-                setUserInteracted(false); // Trigger "Unlock Audio" UI
-              });
-            }
-
-            // Update local state with new items at the top
-            setAppointments((prev) => {
-              const updated = [...newAppointments, ...prev];
-              // Keep it unique just in case
-              return Array.from(new Map(updated.map(item => [item._id, item])).values());
-            });
-            
-            toast.success(`🔔 ${newAppointments.length} New Booking Received!`, {
-              position: "top-right",
-              autoClose: 10000,
-            });
-
+            audioRef.current?.play().catch(() => setSoundOn(false));
+            setAppointments((prev) => Array.from(new Map([...fresh, ...prev].map((x) => [x._id, x])).values()));
+            toast.success(`🔔 ${fresh.length} new booking${fresh.length > 1 ? "s" : ""}!`, { position: "top-right", autoClose: 10000 });
             if (onRefresh) onRefresh();
           }
         }
-      } catch (err) {
-        console.error("Error polling appointments:", err);
-      } finally {
-        inFlight = false;
-      }
+      } catch (e) { /* next tick retries */ }
+      inFlight = false;
     }, 15000);
-
-    return () => clearInterval(interval);
+    return () => clearInterval(iv);
   }, [onRefresh]);
 
-  /* ── helpers ──────────────────────────────────── */
-  const initials = (name) => {
-    if (!name) return "?";
-    const p = name.trim().split(" ");
-    return (p[0][0] + (p[1]?.[0] || "")).toUpperCase();
+  const refresh = async () => {
+    if (!onRefresh) return;
+    setRefreshing(true);
+    try { await onRefresh(); } finally { setRefreshing(false); }
   };
 
-  const ST_CFG = {
-    [SESSION_STATUS.NEW]:       { color: "#3b82f6", bg: "#eff6ff", label: "Pending"   },
-    [SESSION_STATUS.STARTED]:   { color: "#22c55e", bg: "#f0fdf4", label: "Active"    },
-    [SESSION_STATUS.COMPLETED]: { color: "#64748b", bg: "#f8fafc", label: "Completed" },
-    [SESSION_STATUS.CANCELED]:  { color: "#ef4444", bg: "#fff1f2", label: "Cancelled" },
-  };
-  const getCfg = (status) => ST_CFG[status] || ST_CFG[SESSION_STATUS.NEW];
+  /* ── counts, filtering, grouping ── */
+  const todayKey = istKey(now);
+  const rows = useMemo(() => appointments.map((a) => ({ a, d: safeDate(a.booking_date), p: personOf(a) })), [appointments]);
+  const isUpcoming = (r) => r.a.status === SESSION_STATUS.NEW && r.d && r.d.getTime() > now.getTime() - 60 * 60000;
+  const counts = useMemo(() => ({
+    all: rows.length,
+    today: rows.filter((r) => r.d && istKey(r.d) === todayKey && r.a.status !== SESSION_STATUS.CANCELED).length,
+    upcoming: rows.filter(isUpcoming).length,
+    live: rows.filter((r) => r.a.status === SESSION_STATUS.STARTED).length,
+    completed: rows.filter((r) => r.a.status === SESSION_STATUS.COMPLETED).length,
+    cancelled: rows.filter((r) => r.a.status === SESSION_STATUS.CANCELED).length,
+  }), [rows, todayKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [view, setView] = useState("grid");
+  const shown = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    const sd = digits(s);
+    return rows.filter((r) => {
+      if (s) {
+        const hay = [r.p.name, r.p.bookedBy, r.p.email, r.a.notes, r.a.service, r.a._id].join(" ").toLowerCase();
+        if (!hay.includes(s) && !(sd.length >= 4 && digits(r.p.phone).includes(sd))) return false;
+      }
+      switch (filter) {
+        case "today": return r.d && istKey(r.d) === todayKey && r.a.status !== SESSION_STATUS.CANCELED;
+        case "upcoming": return isUpcoming(r);
+        case "live": return r.a.status === SESSION_STATUS.STARTED;
+        case "completed": return r.a.status === SESSION_STATUS.COMPLETED;
+        case "cancelled": return r.a.status === SESSION_STATUS.CANCELED;
+        default: return true;
+      }
+    });
+  }, [rows, q, filter, todayKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* ── stats ─────────────────────────────────────── */
-  const now = new Date();
-  const todayStr = now.toDateString();
-  const stats = {
-    total:     appointments.length,
-    today:     appointments.filter(a => new Date(a.booking_date).toDateString() === todayStr).length,
-    upcoming:  appointments.filter(a => a.status === SESSION_STATUS.NEW && new Date(a.booking_date) > now).length,
-    active:    appointments.filter(a => a.status === SESSION_STATUS.STARTED).length,
-    completed: appointments.filter(a => a.status === SESSION_STATUS.COMPLETED).length,
-  };
+  // live first, then upcoming soonest-first, then past newest-first — in day groups
+  const groups = useMemo(() => {
+    const t = now.getTime();
+    const live = shown.filter((r) => r.a.status === SESSION_STATUS.STARTED);
+    const future = shown.filter((r) => r.a.status !== SESSION_STATUS.STARTED && r.d && r.d.getTime() >= t - 60 * 60000).sort((x, y) => x.d - y.d);
+    const past = shown.filter((r) => r.a.status !== SESSION_STATUS.STARTED && (!r.d || r.d.getTime() < t - 60 * 60000)).sort((x, y) => (y.d || 0) - (x.d || 0));
+    const out = [];
+    if (live.length) out.push({ key: "live", title: "In session now", items: live });
+    if (future.length) out.push({ key: "next", title: "Upcoming", items: future });
+    if (past.length) out.push({ key: "past", title: "Past", items: past, past: true });
+    return out;
+  }, [shown, now]);
 
-  /* ── filtered list ──────────────────────────────── */
-  const filteredAppointments = appointments.filter(appt => {
-    const q = searchTerm.toLowerCase();
-    const matchSearch = !q ||
-      (appt.client?.name || "").toLowerCase().includes(q) ||
-      appt._id?.toLowerCase().includes(q);
-
-    let matchFilter = true;
-    switch (filterStatus) {
-      case "today":    matchFilter = new Date(appt.booking_date).toDateString() === todayStr; break;
-      case "upcoming": matchFilter = appt.status === SESSION_STATUS.NEW && new Date(appt.booking_date) > now; break;
-      case "active":   matchFilter = appt.status === SESSION_STATUS.STARTED; break;
-      case "completed":matchFilter = appt.status === SESSION_STATUS.COMPLETED; break;
-      case "cancelled":matchFilter = appt.status === SESSION_STATUS.CANCELED; break;
-      default:         matchFilter = true;
+  /* ── session actions ── */
+  const handlePinChange = (e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6));
+  const askPin = (a) => { setBookingId(a._id); setPin(""); setOtpView(true); };
+  const verifyPin = async () => {
+    if (pin.length !== 6) { toast.error("Enter the 6-digit PIN the client received"); return; }
+    setLoading(true);
+    try {
+      const r = await postData(StartSessionUrl, { pin, bookingId });
+      if (r.status) {
+        setOtpView(false);
+        setPin("");
+        toast.success(r.message || "Session started");
+        setAppointments((prev) => prev.map((x) => (x._id === bookingId ? { ...x, status: SESSION_STATUS.STARTED, session_started_at: new Date().toISOString() } : x)));
+        setSelected((s) => (s && s._id === bookingId ? { ...s, status: SESSION_STATUS.STARTED } : s));
+      } else toast.error(r.message || "Wrong PIN");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Couldn't start the session");
     }
-    return matchSearch && matchFilter;
-  });
-
-  // Auto-stop ringing after 60 seconds to prevent annoyance
-  useEffect(() => {
-    let timer;
-    if (isRinging) {
-      timer = setTimeout(() => {
-        stopRinging();
-      }, 60000);
-    }
-    return () => clearTimeout(timer);
-  }, [isRinging]);
-
-  // Details modal: play the exit animation, then unmount.
-  const [closing, setClosing] = useState(false);
-  const handleClose = () => {
-    if (closing) return;
-    setClosing(true);
-    setTimeout(() => { setSelectedAppt(null); setClosing(false); }, 180);
+    setLoading(false);
   };
-  // Esc closes; the page behind doesn't scroll while the modal is open.
+  const endSession = async (a) => {
+    if (!window.confirm(`End the session with ${personOf(a).name}?`)) return;
+    setEndingId(a._id);
+    try {
+      const r = await postData(EndSessionUrl, { bookingId: a._id });
+      if (r.status) {
+        toast.success(r.message || "Session completed");
+        setAppointments((prev) => prev.map((x) => (x._id === a._id ? { ...x, status: SESSION_STATUS.COMPLETED, session_completed_at: new Date().toISOString() } : x)));
+        setSelected((s) => (s && s._id === a._id ? { ...s, status: SESSION_STATUS.COMPLETED } : s));
+      } else toast.error(r.message || "Couldn't end the session");
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Couldn't end the session");
+    }
+    setEndingId("");
+  };
+  const printInvoice = (a) => printInvoiceDoc(a, therapistInfo);
+
+  // details drawer: Esc closes, page behind doesn't scroll
   useEffect(() => {
-    if (!selectedAppt) return;
-    const onKey = (e) => { if (e.key === "Escape") handleClose(); };
-    const prevOverflow = document.body.style.overflow;
+    if (!selected) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setSelected(null); };
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAppt]);
-  const handleOtpViewClose = () => setOtpView(false);
+    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
+  }, [selected]);
+  const open = (a, tab = "details") => { setSelected(a); setDetailTab(tab); };
 
-  const handleDelete = async (appt) => {
-    if (!window.confirm(`Delete booking for ${appt.client?.name || "this client"}?`)) return;
-    try {
-      const res = await deleteById(`${deleteBookingUrl}/${appt._id}`);
-      if (res?.status) {
-        setAppointments(prev => prev.filter(a => a._id !== appt._id));
-        if (selectedAppt?._id === appt._id) setSelectedAppt(null);
-        toast.success("Booking deleted.");
-      } else {
-        toast.error(res?.message || "Delete failed.");
-      }
-    } catch(e) {
-      const msg = e?.response?.data?.message || e?.message || "Unknown error";
-      console.error("Delete error:", msg);
-      toast.error("Error: " + msg);
+  const SessionButton = ({ a, big }) => {
+    if (a.status === SESSION_STATUS.NEW) {
+      return <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); askPin(a); }}><PlayArrowRoundedIcon /> Start<span className="apx-lg"> session</span></button>;
     }
-  };
-
-  const getPaymentStatusColor = (status) => {
-    switch ((status || "").toLowerCase()) {
-      case "success":
-      case "completed":
-        return "#0f3d24";
-      case "pending":
-      case "processing":
-        return "#ed6c02";
-      case "failed":
-      case "canceled":
-        return "#d32f2f";
-      case "refunded":
-        return "#1976d2";
-      default:
-        return "#64748b";
+    if (a.status === SESSION_STATUS.STARTED) {
+      return <button type="button" className={`apx-btn danger${big ? " big" : ""}`} disabled={endingId === a._id} onClick={(e) => { e.stopPropagation(); endSession(a); }}><StopRoundedIcon /> {endingId === a._id ? "Ending…" : <>End<span className="apx-lg"> session</span></>}</button>;
     }
-  };
-
-  const handleView = (item) => {
-    setSelectedAppt(item);
-    setDetailTab("details");
-  };
-
-  const handleInvoice = (item) => {
-    setSelectedAppt(item);
-    setDetailTab("invoice");
-  };
-
-  // Shared A4 invoice (utils/invoice-template.js) — same layout as the Invoices page.
-  const printInvoice = (item) => printInvoiceDoc(item, therapistInfo);
-
-  const handlePinChange = (e) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length > 6) value = value.slice(0, 6);
-    setPin(value);
-  };
-
-  const handlePin = (item) => {
-    setOtpView(true);
-    setBookingId(item._id);
-  };
-
-  const handleVerifyOtp = async () => {
-    if (pin.length !== 6) {
-      toast.error("Please enter valid OTP");
-      return;
-    }
-    try {
-      setLoading(true);
-      const response = await postData(StartSessionUrl, { pin, bookingId });
-      if (response.status) {
-        setPin("");
-        setOtpView(false);
-        toast.success(response.message);
-        setAppointments(prev => prev.map(appt => appt._id === bookingId ? { ...appt, status: SESSION_STATUS.STARTED } : appt));
-      } else toast.error(response.message);
-    } catch (err) {
-      toast.error(err.response?.data?.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const endSession = async (item) => {
-    try {
-      setSessionEnding(true);
-      const response = await postData(EndSessionUrl, { bookingId: item._id });
-      if (response.status) {
-        toast.success(response.message);
-        setAppointments(prev => prev.map(appt => appt._id === item._id ? { ...appt, status: SESSION_STATUS.COMPLETED } : appt));
-      } else toast.error(response.message);
-    } catch (err) {
-      toast.error(err.response?.data?.message);
-    } finally {
-      setSessionEnding(false);
-    }
+    return null;
   };
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        /* ── New booking banner ─── */
-        .nb-banner{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:5000;width:calc(100% - 32px);max-width:520px;animation:nbDrop .4s cubic-bezier(.34,1.56,.64,1);}
-        @keyframes nbDrop{from{transform:translateX(-50%) translateY(-120px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-        .nb-inner{background:#0f3d24;border:1px solid #c9962c;border-radius:6px;padding:14px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(15,61,36,.35);position:relative;overflow:hidden;}
-        .nb-glow{position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:rgba(201,150,44,.12);border-radius:50%;filter:blur(16px);pointer-events:none;}
-        .nb-icon{width:40px;height:40px;background:rgba(255,255,255,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;}
-        .nb-text{flex:1;min-width:0;}
-        .nb-title{font-size:14px;font-weight:800;color:#fff;}
-        .nb-sub{font-size:12px;color:rgba(255,255,255,.72);margin-top:2px;}
-        .nb-view{background:rgba(201,150,44,.25);border:1px solid rgba(201,150,44,.5);color:#fff;font-size:12px;font-weight:700;padding:7px 15px;border-radius:4px;cursor:pointer;flex-shrink:0;font-family:inherit;}
-        .nb-cls{width:28px;height:28px;background:rgba(255,255,255,.1);border:none;border-radius:4px;color:rgba(255,255,255,.75);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+    <div className="apx">
+      <style dangerouslySetInnerHTML={{ __html: APX_CSS }} />
 
-        /* ── Stats ─── */
-        .ap-stat{background:#fff;border:1.5px solid #ecefec;border-radius:6px;padding:13px 15px;transition:all .18s;}
-        .ap-stat:hover{border-color:#c9962c;box-shadow:0 4px 14px rgba(15,61,36,.08);}
-
-        /* ── Filter tabs ─── */
-        .ap-tabs{display:flex;gap:4px;flex-wrap:wrap;}
-        .ap-tab{border:none;background:none;padding:7px 15px;border-radius:4px;font-size:12px;font-weight:600;color:#5b6b62;cursor:pointer;transition:all .15s;white-space:nowrap;}
-        .ap-tab.on{background:#0f3d24;color:#fff;}
-        .ap-tab:hover:not(.on){background:#f0fdf4;color:#0f3d24;}
-
-        /* ── Search ─── */
-        .ap-search{position:relative;}
-        .ap-search input{padding-left:34px;border-radius:4px;border:1.5px solid #dbe3df;font-size:13px;background:#fbfaf7;height:38px;outline:none;width:220px;transition:border-color .18s;}
-        .ap-search input:focus{border-color:#0f3d24;background:#fff;}
-        .ap-si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#8a978f;font-size:15px;}
-
-        /* ── View toggle ─── */
-        .ap-vt{display:flex;gap:2px;background:#fbfaf7;border:1px solid #ecefec;border-radius:4px;padding:3px;}
-        .ap-vt-b{border:none;background:none;border-radius:3px;padding:6px 12px;font-size:12px;font-weight:600;color:#5b6b62;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;}
-        .ap-vt-b.on{background:#fff;color:#0f3d24;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-
-        /* ── Grid cards ─── */
-        .ap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
-        .ap-card{background:#fff;border-radius:6px;padding:15px;border:1.5px solid #ecefec;border-top-width:3px;cursor:pointer;transition:all .17s;display:flex;flex-direction:column;gap:9px;}
-        .ap-card:hover{border-color:#c9962c;box-shadow:0 8px 22px rgba(15,61,36,.10);}
-        .ap-head{display:flex;align-items:center;gap:10px;}
-        .ap-av{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
-        .ap-info{flex:1;min-width:0;}
-        .ap-name{font-size:13.5px;font-weight:800;color:#122019;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .ap-svc{font-size:11px;color:#5b6b62;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .ap-badge{font-size:10px;font-weight:800;border-radius:20px;padding:3px 9px;white-space:nowrap;flex-shrink:0;}
-        .ap-meta{font-size:11.5px;color:#5b6b62;display:flex;align-items:center;gap:6px;background:#fbfaf7;padding:8px 10px;border-radius:4px;}
-        .ap-actions{display:flex;gap:6px;flex-wrap:wrap;}
-        .ap-btn{flex:1;min-width:70px;padding:7px 8px;border-radius:4px;border:1.5px solid #dbe3df;background:#fff;font-size:11.5px;font-weight:700;color:#374b40;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;font-family:inherit;}
-        .ap-btn:hover{background:#fbfaf7;border-color:#c9d1cb;}
-        .ap-btn-start{background:#0f3d24;color:#fff;border-color:transparent;}
-        .ap-btn-start:hover{background:#16512f;border-color:transparent;}
-        .ap-btn-end{background:#b91c1c;color:#fff;border-color:transparent;}
-        .ap-btn-end:hover{background:#991b1b;border-color:transparent;}
-        .ap-btn-done{background:#ecefec;color:#8a978f;border-color:transparent;cursor:not-allowed;}
-
-        /* ── List table ─── */
-        .ap-table thead th{background:#0f3d24 !important;color:#fff !important;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:12px 14px !important;border:none !important;white-space:nowrap;}
-        .ap-table td{padding:11px 14px;border-bottom:1px solid #ecefec;vertical-align:middle;font-size:13px;}
-        .ap-table tbody tr:hover td{background:#fbfaf7;cursor:pointer;}
-
-        /* ── Empty ─── */
-        .ap-empty{text-align:center;padding:52px 0;color:#8a978f;}
-        .ap-empty i{font-size:40px;display:block;margin-bottom:12px;}
-
-        /* ── Mobile ─── */
-        @media(max-width:767px){.ap-grid{grid-template-columns:1fr 1fr;gap:10px;} .desk-view{display:none !important;} .ap-search input{width:100%;}}
-        @media(max-width:480px){.ap-grid{grid-template-columns:1fr;}}
-
-        /* ── Details modal (centered) ─── */
-        .ap-overlay{position:fixed;inset:0;z-index:1299;background:rgba(15,32,25,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:apFadeIn .2s ease both;}
-        .ap-panel{position:fixed;inset:0;margin:auto;width:min(580px,calc(100vw - 24px));height:fit-content;max-height:min(86vh,780px);background:#fff;z-index:1300;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border-top:3px solid #c9962c;box-shadow:0 30px 80px -20px rgba(15,61,36,.45),0 0 0 1px rgba(15,61,36,.06);animation:apModalIn .28s cubic-bezier(.2,.8,.2,1) both;}
-        .ap-overlay.is-closing{animation:apFadeOut .18s ease both;}
-        .ap-panel.is-closing{animation:apModalOut .18s ease both;}
-        @keyframes apFadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes apFadeOut{from{opacity:1}to{opacity:0}}
-        @keyframes apModalIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}
-        @keyframes apModalOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(10px) scale(.97)}}
-        @media(max-width:480px){.ap-panel{width:calc(100vw - 16px);max-height:90vh;border-radius:12px;}}
-        @media(prefers-reduced-motion:reduce){.ap-overlay,.ap-panel,.ap-overlay.is-closing,.ap-panel.is-closing{animation:none;}}
-        .ap-panel-hdr{padding:16px 18px;border-bottom:1px solid #ecefec;display:flex;align-items:center;gap:12px;flex-shrink:0;}
-        .ap-panel-tabs{display:flex;gap:2px;padding:10px 18px 0;border-bottom:1px solid #ecefec;flex-shrink:0;}
-        .ap-panel-tab{padding:8px 16px;border:none;background:none;font-size:12px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:#8a978f;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit;}
-        .ap-panel-tab.on{color:#0f3d24;border-bottom-color:#c9962c;}
-        .ap-panel-body{flex:1;overflow-y:auto;padding:18px;}
-        .ap-info{border:1px solid #e6ebe8;border-radius:10px;background:#fff;overflow:hidden;}
-        .ap-info-who{display:flex;align-items:center;gap:14px;padding:16px 18px;background:linear-gradient(180deg,#fbfaf7,#fff);border-bottom:1px solid #eef2f0;}
-        .ap-info-av{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex-shrink:0;overflow:hidden;}
-        .ap-info-av img{width:100%;height:100%;object-fit:cover;}
-        .ap-info-name{font-weight:800;font-size:16px;color:#122019;line-height:1.25;}
-        .ap-info-contact{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px;font-size:12.5px;color:#5b6b62;font-weight:600;}
-        .ap-info-contact a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
-        .ap-info-contact a:hover{color:#0f3d24;}
-        .ap-info-ref{text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;font-weight:700;color:#122019;flex-shrink:0;}
-        .ap-info-ref span{display:block;font-family:inherit;font-size:9.5px;letter-spacing:.6px;text-transform:uppercase;color:#8a978f;font-weight:700;margin-bottom:2px;}
-        .ap-info-grid{display:grid;grid-template-columns:1fr 1fr;margin:0;}
-        .ap-info-grid>div{padding:12px 18px;border-bottom:1px solid #f0f3f1;}
-        .ap-info-grid>div:nth-child(odd){border-right:1px solid #f0f3f1;}
-        .ap-info-grid>div:nth-last-child(-n+2){border-bottom:0;}
-        .ap-info dt{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#8a978f;margin:0 0 3px;}
-        .ap-info dd{margin:0;font-size:13.5px;font-weight:700;color:#122019;}
-        .ap-info-pill{display:inline-block;font-size:11px;font-weight:800;border-radius:999px;padding:2px 10px;text-transform:capitalize;}
-        .ap-info-notes{padding:14px 18px;border-top:1px solid #eef2f0;background:#fbfaf7;}
-        .ap-info-notes p{margin:0;font-size:13px;color:#374b40;line-height:1.6;}
-        @media(max-width:420px){.ap-info-who{flex-wrap:wrap;}.ap-info-ref{text-align:left;width:100%;}}
-      ` }} />
-
-      {/* ── New booking banner ─────────────────────── */}
       {isRinging && (
-        <div className="nb-banner">
-          <div className="nb-inner">
-            <div className="nb-glow" />
-            <div className="nb-icon">🔔</div>
-            <div className="nb-text">
-              <div className="nb-title">{newBookingCount > 1 ? `${newBookingCount} New Bookings!` : "New Booking!"}</div>
-              <div className="nb-sub">A client just scheduled a session</div>
-            </div>
-            <button className="nb-view" onClick={stopRinging}>View →</button>
-            <button className="nb-cls" onClick={stopRinging}>✕</button>
-          </div>
+        <div className="apx-ring" role="alert">
+          <NotificationsActiveRoundedIcon />
+          <div><b>{newCount > 1 ? `${newCount} new bookings` : "New booking!"}</b><span>A client just booked a session with you</span></div>
+          <button type="button" onClick={() => { stopRinging(); setFilter("upcoming"); window.scrollTo({ top: 0, behavior: "smooth" }); }}>View</button>
+          <button type="button" className="x" onClick={stopRinging} aria-label="Dismiss"><CloseRoundedIcon /></button>
         </div>
       )}
 
-      {/* ── Audio unlock ──────────────────────────── */}
-      {!userInteracted && (
-        <div style={{ position: "fixed", bottom: 80, right: 16, zIndex: 1000, background: "#0f3d24", color: "#fff", padding: "10px 14px", borderRadius: 6, display: "flex", alignItems: "center", gap: 10, boxShadow: "0 8px 24px rgba(15,61,36,.3)", border: "1px solid rgba(255,255,255,.1)" }}>
-          <span style={{ fontSize: 12, fontWeight: 600 }}>Enable sound alerts</span>
-          <button onClick={() => setUserInteracted(true)} style={{ background: "#c9962c", color: "#0f3d24", border: "none", borderRadius: 4, padding: "5px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>
-            Activate
+      <div className="apx-head">
+        <div>
+          <h1>Appointments</h1>
+          <p>Every booking with what your client shared — tap one for full details.</p>
+        </div>
+        <div className="apx-head-acts">
+          {!soundOn && (
+            <button type="button" className="apx-btn soft" onClick={() => setSoundOn(true)} title="Play a sound when a new booking arrives">
+              <NotificationsActiveRoundedIcon /> Turn on alerts
+            </button>
+          )}
+          <div className="apx-seg hide-sm" role="group" aria-label="View">
+            <button type="button" className={view === "cards" ? "on" : ""} onClick={() => setView("cards")}><ViewAgendaRoundedIcon /> Cards</button>
+            <button type="button" className={view === "list" ? "on" : ""} onClick={() => setView("list")}><TableRowsRoundedIcon /> List</button>
+          </div>
+          <button type="button" className="apx-btn soft" onClick={refresh} disabled={refreshing} aria-label="Refresh">
+            <RefreshRoundedIcon className={refreshing ? "spin" : ""} /> <span className="hide-sm">Refresh</span>
           </button>
         </div>
-      )}
+      </div>
 
-      <div className="content container-fluid pb-4">
+      <div className="apx-stats">
+        {[
+          { k: "today", label: "Today", tone: "green", sub: "sessions today" },
+          { k: "upcoming", label: "Upcoming", tone: "teal", sub: "booked ahead" },
+          { k: "live", label: "In session", tone: "gold", sub: "running now" },
+          { k: "completed", label: "Completed", tone: "slate", sub: "all time" },
+        ].map((s) => (
+          <button key={s.k} type="button" className={`apx-stat ${s.tone}${filter === s.k ? " on" : ""}`} onClick={() => setFilter(filter === s.k ? "all" : s.k)}>
+            <span>{s.label}</span><b>{counts[s.k]}</b><small>{s.sub}</small>
+          </button>
+        ))}
+      </div>
 
-        {/* ── Header ─────────────────────────────── */}
-        <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-          <div>
-            <h4 className="fw-bold mb-0" style={{ color: "#122019", fontFamily: "Georgia, 'Times New Roman', serif" }}>Sessions</h4>
-            <p className="text-muted mb-0" style={{ fontSize: 12.5 }}>Manage your client sessions & bookings</p>
-          </div>
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <div className="ap-vt desk-view">
-              <button className={`ap-vt-b ${view === "grid" ? "on" : ""}`} onClick={() => setView("grid")}>
-                <i className="feather-grid" style={{ fontSize: 13 }}></i> Grid
-              </button>
-              <button className={`ap-vt-b ${view === "list" ? "on" : ""}`} onClick={() => setView("list")}>
-                <i className="feather-list" style={{ fontSize: 13 }}></i> List
-              </button>
-            </div>
-            <button onClick={onRefresh} className="ap-vt-b" style={{ border: "1.5px solid #dbe3df", background: "#fff", borderRadius: 4 }}>
-              <i className="feather-refresh-cw" style={{ fontSize: 13 }}></i> Refresh
+      <div className="apx-bar">
+        <div className="apx-filters" role="tablist" aria-label="Filter appointments">
+          {FILTERS.map((f) => (
+            <button key={f.key} type="button" role="tab" aria-selected={filter === f.key} className={filter === f.key ? "on" : ""} onClick={() => setFilter(f.key)}>
+              {f.label}<i>{counts[f.key]}</i>
             </button>
-          </div>
-        </div>
-
-        {/* ── Stats ──────────────────────────────── */}
-        <div className="row g-3 mb-4">
-          {[
-            { label: "Total",     val: stats.total,     icon: "feather-calendar" },
-            { label: "Today",     val: stats.today,     icon: "feather-sun" },
-            { label: "Upcoming",  val: stats.upcoming,  icon: "feather-clock" },
-            { label: "Completed", val: stats.completed, icon: "feather-check-circle" },
-          ].map(s => (
-            <div key={s.label} className="col-6 col-lg-3">
-              <div className="ap-stat">
-                <div className="d-flex align-items-center gap-3">
-                  <div style={{ width: 38, height: 38, borderRadius: 4, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", color: "#0f3d24", flexShrink: 0 }}>
-                    <i className={s.icon} style={{ fontSize: 17 }}></i>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 10, color: "#8a978f", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".5px" }}>{s.label}</div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: "#122019", lineHeight: 1.1 }}>{s.val}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           ))}
         </div>
+        <label className="apx-search">
+          <SearchRoundedIcon />
+          <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, phone, concern…" aria-label="Search appointments" />
+        </label>
+      </div>
 
-        {/* ── Filter + Search ─────────────────────── */}
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-          <div className="ap-tabs">
-            {[
-              { key: "all",       label: "All" },
-              { key: "today",     label: "Today" },
-              { key: "upcoming",  label: "Upcoming" },
-              { key: "active",    label: "Active" },
-              { key: "completed", label: "Completed" },
-              { key: "cancelled", label: "Cancelled" },
-            ].map(t => (
-              <button key={t.key} className={`ap-tab ${filterStatus === t.key ? "on" : ""}`}
-                onClick={() => setFilterStatus(t.key)}>
-                {t.label}
-                {filterStatus === t.key && <span style={{ opacity: .65, fontWeight: 400 }}> ({filteredAppointments.length})</span>}
-              </button>
-            ))}
-          </div>
-          <div className="ap-search">
-            <i className="feather-search ap-si"></i>
-            <input type="text" placeholder="Search client…" value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)} />
-          </div>
+      {!shown.length ? (
+        <div className="apx-empty">
+          <b>No appointments here</b>
+          <p>{q || filter !== "all" ? "Try another filter or search." : "New bookings will show up here."}</p>
+          {(q || filter !== "all") && <button type="button" className="apx-btn soft" onClick={() => { setQ(""); setFilter("all"); }}>Clear filters</button>}
         </div>
-
-        {/* ── Grid view ───────────────────────────── */}
-        {view === "grid" && (
-          filteredAppointments.length === 0 ? (
-            <div className="ap-empty">
-              <i className="feather-calendar"></i>
-              <p style={{ fontWeight: 700, margin: 0 }}>No sessions found</p>
-              <p style={{ fontSize: 13, marginTop: 4 }}>
-                {(searchTerm || filterStatus !== "all") && (
-                  <button onClick={() => { setSearchTerm(""); setFilterStatus("all"); }}
-                    style={{ background: "none", border: "none", color: "#0f3d24", fontWeight: 700, cursor: "pointer", fontSize: 13 }}>
-                    Clear filters
-                  </button>
-                )}
-              </p>
-            </div>
-          ) : (
-            <div className="ap-grid">
-              {filteredAppointments.map(appt => {
-                const cfg = getCfg(appt.status);
-                const isActive = appt.status === SESSION_STATUS.STARTED;
-                const isDone   = appt.status === SESSION_STATUS.COMPLETED || appt.status === SESSION_STATUS.CANCELED;
+      ) : view === "list" ? (
+        <div className="apx-table-wrap hide-sm">
+          <table className="apx-table">
+            <thead><tr><th>When</th><th>Client</th><th>Age / gender</th><th>Service</th><th>Concern</th><th>Status</th><th /></tr></thead>
+            <tbody>
+              {groups.flatMap((g) => g.items).map(({ a, d, p }) => {
+                const st = stOf(a.status);
                 return (
-                  <div key={appt._id} className="ap-card" style={{ borderTopColor: cfg.color }} onClick={() => handleView(appt)}>
-                    <div className="ap-head">
-                      <div className="ap-av" style={{ background: cfg.bg, color: cfg.color }}>
-                        {appt.client?.photo
-                          ? <img src={appt.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: 4, objectFit: "cover" }} />
-                          : initials(appt.client?.name)}
+                  <tr key={a._id} onClick={() => open(a)}>
+                    <td className="when">{d ? <><b>{fmtTime(d)}</b><span>{fmtDay(d)}</span></> : "—"}</td>
+                    <td><b>{p.name}</b>{p.forOther && <span className="sub">for {p.relation || "someone"} · by {p.bookedBy}</span>}</td>
+                    <td>{[p.age ? `${p.age} yrs` : "", p.gender].filter(Boolean).join(" · ") || "—"}</td>
+                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}</span></td>
+                    <td className="concern">{cleanText(a.notes) || "—"}</td>
+                    <td><span className={`apx-st ${st.key}`}>{st.label}</span></td>
+                    <td className="acts" onClick={(e) => e.stopPropagation()}><SessionButton a={a} /></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        groups.map((g) => (
+          <section key={g.key} className={`apx-group${g.past ? " past" : ""}`}>
+            <h2 className={g.key === "live" ? "live" : ""}>{g.title}<span>{g.items.length}</span></h2>
+            <div className="apx-grid">
+              {g.items.map(({ a, d, p }) => {
+                const st = stOf(a.status);
+                const soon = d && a.status === SESSION_STATUS.NEW ? relTime(d, now) : "";
+                const concern = cleanText(a.notes);
+                return (
+                  <article key={a._id} className={`apx-card ${st.key}`} onClick={() => open(a)} tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") open(a); }}>
+                    <div className="apx-time">
+                      <b>{d ? fmtTime(d) : "—"}</b>
+                      <span>{d ? dayLabel(d, now) : ""}</span>
+                      {soon && <em>{soon}</em>}
+                    </div>
+                    <div className="apx-main">
+                      <div className="apx-who">
+                        <div className="apx-av">{p.photo ? <img src={p.photo} alt="" /> : initials(p.name)}</div>
+                        <div className="apx-who-txt">
+                          <b>{p.name}</b>
+                          <span>
+                            {[p.age ? `${p.age} yrs` : "", p.gender].filter(Boolean).join(" · ") || "Age not shared"}
+                            {p.forOther && <> · <FamilyRestroomRoundedIcon /> {p.relation || "Family"}</>}
+                          </span>
+                        </div>
+                        <span className={`apx-st ${st.key}`}>{st.label}</span>
                       </div>
-                      <div className="ap-info">
-                        <div className="ap-name">{appt.client?.name || "Unknown"}</div>
-                        <div className="ap-svc">{appt.service || "—"} · {appt.format || "Online"}</div>
+                      <div className="apx-chips">
+                        <span className={`apx-st apx-st-inline ${st.key}`}>{st.label}</span>
+                        {a.service && <span>{a.service}</span>}
+                        <span>{/offline|in-person|person/i.test(a.format || "") ? <PersonPinCircleRoundedIcon /> : <VideocamRoundedIcon />}{a.format || "Online"}</span>
+                        {cleanText(a.session_type) && <span>{a.session_type}</span>}
+                        {p.forOther && p.bookedBy && <span className="by">Booked by {p.bookedBy}</span>}
                       </div>
-                      <span className="ap-badge" style={{ background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
+                      {concern && <p className="apx-concern"><PsychologyAltRoundedIcon /> {concern}</p>}
+                      <div className="apx-acts" onClick={(e) => e.stopPropagation()}>
+                        <SessionButton a={a} />
+                        {waLink(p.phone) && <a className="apx-btn icon wa" href={waLink(p.phone)} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp client" title="WhatsApp"><WhatsAppIcon /></a>}
+                        {p.phone && <a className="apx-btn icon" href={`tel:${p.phone}`} aria-label="Call client" title="Call"><CallRoundedIcon /></a>}
+                        <button type="button" className="apx-btn soft" onClick={() => open(a)}>Details</button>
+                      </div>
                     </div>
-
-                    <div className="ap-meta">
-                      <i className="feather-clock" style={{ flexShrink: 0, color: "#94a3b8", fontSize: 11 }}></i>
-                      {formatDateTime(appt.booking_date)}
-                      <span style={{ marginLeft: "auto", fontSize: 10, color: "#94a3b8" }}>#{appt._id?.slice(-6)}</span>
-                    </div>
-
-                    <div className="ap-actions" onClick={e => e.stopPropagation()}>
-                      <button className="ap-btn" onClick={() => handleView(appt)}>
-                        <FaUser size={11} /> Details
-                      </button>
-                      <button className="ap-btn" onClick={() => handleInvoice(appt)}>
-                        <FaFileInvoice size={11} /> Invoice
-                      </button>
-                      {!isDone && (
-                        isActive ? (
-                          sessionEnding
-                            ? <button className="ap-btn ap-btn-done" disabled><CircularProgress size={12} /></button>
-                            : <button className="ap-btn ap-btn-end" onClick={() => endSession(appt)}><FaStop size={11} /> End</button>
-                        ) : (
-                          <button className="ap-btn ap-btn-start" onClick={() => handlePin(appt)}><FaPlay size={11} /> Start</button>
-                        )
-                      )}
-                    </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>
-          )
-        )}
+          </section>
+        ))
+      )}
 
-        {/* ── List view (desktop) ──────────────────── */}
-        {view === "list" && (
-          <div className="desk-view card border-0 shadow-sm overflow-hidden">
-            <div className="table-responsive">
-              <table className="table mb-0 ap-table" style={{ tableLayout: "fixed", minWidth: 780 }}>
-                <thead>
-                  <tr>
-                    <th style={{ width: 36 }}>#</th>
-                    <th style={{ width: 180 }}>Client</th>
-                    <th style={{ width: 160 }}>Date & Time</th>
-                    <th style={{ width: 120 }}>Service</th>
-                    <th style={{ width: 80 }}>Format</th>
-                    <th style={{ width: 90 }} className="text-center">Status</th>
-                    <th style={{ width: 130 }} className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAppointments.length === 0 ? (
-                    <tr><td colSpan={7} className="text-center py-5 text-muted">No sessions found</td></tr>
-                  ) : filteredAppointments.map((appt, idx) => {
-                    const cfg = getCfg(appt.status);
-                    const isActive = appt.status === SESSION_STATUS.STARTED;
-                    const isDone   = appt.status === SESSION_STATUS.COMPLETED || appt.status === SESSION_STATUS.CANCELED;
-                    return (
-                      <tr key={appt._id} onClick={() => handleView(appt)}>
-                        <td style={{ color: "#94a3b8", fontSize: 12 }}>{idx + 1}</td>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                            <div style={{ width: 30, height: 30, borderRadius: "50%", background: cfg.bg, color: cfg.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, flexShrink: 0 }}>
-                              {appt.client?.photo
-                                ? <img src={appt.client.photo} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
-                                : initials(appt.client?.name)}
-                            </div>
-                            <div style={{ fontWeight: 700, fontSize: 13, color: "#122019" }}>{appt.client?.name || "Unknown"}</div>
-                          </div>
-                        </td>
-                        <td style={{ fontSize: 12, color: "#475569" }}>{formatDateTime(appt.booking_date)}</td>
-                        <td style={{ fontSize: 12, color: "#475569" }}>{appt.service || "—"}</td>
-                        <td>
-                          <span style={{ fontSize: 10, fontWeight: 700, background: appt.format === "Offline" ? "#f1f5f9" : "#f0fdf4", color: appt.format === "Offline" ? "#64748b" : "#0f3d24", borderRadius: 20, padding: "2px 8px" }}>
-                            {appt.format || "Online"}
-                          </span>
-                        </td>
-                        <td className="text-center">
-                          <span style={{ fontSize: 10, fontWeight: 800, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "3px 9px" }}>{cfg.label}</span>
-                        </td>
-                        <td className="text-center" onClick={e => e.stopPropagation()}>
-                          <div style={{ display: "flex", gap: 5, justifyContent: "center" }}>
-                            <button className="ap-btn" style={{ minWidth: 0, flex: "none", padding: "5px 8px" }} onClick={() => handleView(appt)}>
-                              <FaUser size={10} />
-                            </button>
-                            {!isDone && (
-                              isActive
-                                ? <button className="ap-btn ap-btn-end" style={{ minWidth: 0, flex: "none", padding: "5px 8px" }} onClick={() => endSession(appt)}><FaStop size={10} /></button>
-                                : <button className="ap-btn ap-btn-start" style={{ minWidth: 0, flex: "none", padding: "5px 8px" }} onClick={() => handlePin(appt)}><FaPlay size={10} /></button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-      </div>
-
-      {/* ── Details modal ─────────────────────────── */}
-      {selectedAppt && (() => {
-        const item = selectedAppt;
-        const cfg = getCfg(item.status);
+      {selected && (() => {
+        const a = selected;
+        const p = personOf(a);
+        const d = safeDate(a.booking_date);
+        const st = stOf(a.status);
+        const amount = a.transaction?.amount ?? a.amount;
+        const payName = a.transaction?.status?.name || a.payment_status || "";
+        const paidOk = /success|paid|complete/i.test(payName);
+        const paidAt = safeDate(a.transaction?.createdAt);
+        const started = safeDate(a.session_started_at);
+        const completed = safeDate(a.session_completed_at);
+        const file = cleanText(a.file);
         return (
           <>
-            <div className={`ap-overlay${closing ? " is-closing" : ""}`} onClick={handleClose} />
-            <div className={`ap-panel${closing ? " is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={`Session details — ${item.client?.name || "client"}`}>
-              {/* Header */}
-              <div className="ap-panel-hdr">
-                {/* client identity lives in the card below — header is just the title */}
-                <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: "#122019" }}>Session details</div>
-                  <span style={{ fontSize: 10.5, fontWeight: 800, background: cfg.bg, color: cfg.color, borderRadius: 20, padding: "3px 10px" }}>{cfg.label}</span>
+            <div className="apx-overlay" onClick={() => setSelected(null)} />
+            <aside className="apx-drawer" role="dialog" aria-modal="true" aria-label={`Appointment with ${p.name}`}>
+              <div className="apx-dr-head">
+                <div className="apx-av lg">{p.photo ? <img src={p.photo} alt="" /> : initials(p.name)}</div>
+                <div className="apx-dr-who">
+                  <b>{p.name}</b>
+                  <span>{[p.age ? `${p.age} yrs` : "", p.gender, a.service].filter(Boolean).join(" · ")}</span>
                 </div>
-                <button onClick={handleClose} aria-label="Close" style={{ width: 32, height: 32, borderRadius: 4, border: "1.5px solid #dbe3df", background: "#fbfaf7", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#5b6b62", flexShrink: 0 }}>
-                  <FaTimes size={13} />
-                </button>
+                <span className={`apx-st ${st.key}`}>{st.label}</span>
+                <button type="button" className="apx-x" onClick={() => setSelected(null)} aria-label="Close"><CloseRoundedIcon /></button>
+              </div>
+              <div className="apx-dr-tabs">
+                <button type="button" className={detailTab === "details" ? "on" : ""} onClick={() => setDetailTab("details")}>Details</button>
+                <button type="button" className={detailTab === "invoice" ? "on" : ""} onClick={() => setDetailTab("invoice")}>Invoice</button>
               </div>
 
-              {/* Tabs */}
-              <div className="ap-panel-tabs">
-                <button className={`ap-panel-tab ${detailTab === "details" ? "on" : ""}`} onClick={() => setDetailTab("details")}>
-                  <FaUser size={11} style={{ marginRight: 5 }} />Details
-                </button>
-                <button className={`ap-panel-tab ${detailTab === "invoice" ? "on" : ""}`} onClick={() => setDetailTab("invoice")}>
-                  <FaFileInvoice size={11} style={{ marginRight: 5 }} />Invoice
-                </button>
-              </div>
+              <div className="apx-dr-body">
+                {detailTab === "details" ? (
+                  <>
+                    <div className="apx-when">
+                      <div><span>Date</span><b>{d ? fmtFull(d) : "—"}</b></div>
+                      <div><span>Time</span><b>{d ? fmtTime(d) : "—"}</b></div>
+                      <div><span>Mode</span><b>{a.format || "Online"}</b></div>
+                    </div>
 
-              {/* Body */}
-              <div className="ap-panel-body">
-                {detailTab === "details" && (() => {
-                  const when = item.booking_date ? new Date(item.booking_date) : null;
-                  const ok = when && !isNaN(when.getTime());
-                  const dateTxt = ok ? when.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "—";
-                  const timeTxt = ok ? when.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" }) : "—";
-                  const payName = item.transaction?.status?.name || item.payment_status;
-                  const payColor = getPaymentStatusColor(payName);
-                  const amount = item.transaction?.amount ?? item.amount;
-                  return (
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    {/* One card: who, then the session facts, then notes */}
-                    <div className="ap-info">
-                      <div className="ap-info-who">
-                        <div className="ap-info-av" style={{ background: cfg.bg, color: cfg.color }}>
-                          {item.client?.photo
-                            ? <img src={item.client.photo} alt="" />
-                            : initials(item.client?.name)}
-                        </div>
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div className="ap-info-name">{item.client?.name || "Unknown"}</div>
-                          <div className="ap-info-contact">
-                            {item.client?.phone && <a href={`tel:${item.client.phone}`}><FaPhone size={10} /> {item.client.phone}</a>}
-                            {item.client?.email && <span>{item.client.email}</span>}
-                          </div>
-                        </div>
-                        <div className="ap-info-ref">
-                          <span>Booking</span>
-                          #{item._id?.slice(-8)}
-                        </div>
-                      </div>
-
-                      <dl className="ap-info-grid">
-                        <div><dt>Date</dt><dd>{dateTxt}</dd></div>
-                        <div><dt>Time</dt><dd>{timeTxt}</dd></div>
-                        <div><dt>Service</dt><dd>{item.service || "—"}</dd></div>
-                        <div><dt>Mode</dt><dd>{item.format || "Online"}</dd></div>
-                        <div><dt>Amount</dt><dd>{amount != null && amount !== "" ? `₹${Number(amount?.$numberDecimal ?? amount).toLocaleString("en-IN")}` : "—"}</dd></div>
-                        <div>
-                          <dt>Payment</dt>
-                          <dd>
-                            {payName
-                              ? <span className="ap-info-pill" style={{ color: payColor, background: payColor + "14" }}>{payName}</span>
-                              : "—"}
-                          </dd>
-                        </div>
+                    <section className="apx-sec">
+                      <h3>Client</h3>
+                      <dl>
+                        <div><dt>Name</dt><dd>{p.name}</dd></div>
+                        <div><dt>Age</dt><dd>{p.age ? `${p.age} years` : "Not shared"}</dd></div>
+                        {p.gender && <div><dt>Gender</dt><dd>{p.gender}</dd></div>}
+                        <div><dt>Session for</dt><dd>{p.forOther ? `Someone else${p.relation ? ` (${p.relation})` : ""}` : "Themselves"}</dd></div>
+                        {p.forOther && <div><dt>Booked by</dt><dd>{p.bookedBy || "—"}</dd></div>}
                       </dl>
+                      <div className="apx-contact">
+                        {p.phone && <a href={`tel:${p.phone}`} className="apx-btn soft"><CallRoundedIcon /> {p.phone}</a>}
+                        {waLink(p.phone) && <a href={waLink(p.phone)} target="_blank" rel="noopener noreferrer" className="apx-btn soft wa"><WhatsAppIcon /> WhatsApp</a>}
+                        {p.email && <a href={`mailto:${p.email}`} className="apx-btn soft"><MailOutlineRoundedIcon /> {p.email}</a>}
+                      </div>
+                    </section>
 
-                      {item.notes && (
-                        <div className="ap-info-notes">
-                          <dt>Notes</dt>
-                          <p>{item.notes}</p>
-                        </div>
+                    <section className="apx-sec">
+                      <h3>What they shared</h3>
+                      <p className="apx-note">{cleanText(a.notes) || "No concern was written at booking."}</p>
+                      {file && /^https?:\/\//i.test(file) && (
+                        <a href={file} target="_blank" rel="noopener noreferrer" className="apx-btn soft"><AttachFileRoundedIcon /> Attached file</a>
                       )}
+                    </section>
+
+                    <section className="apx-sec">
+                      <h3>Session</h3>
+                      <dl>
+                        <div><dt>Service</dt><dd>{a.service || "—"}</dd></div>
+                        {cleanText(a.session_type) && <div><dt>Session type</dt><dd>{a.session_type}</dd></div>}
+                        <div><dt>Status</dt><dd>{st.label}</dd></div>
+                        {started && <div><dt>Started</dt><dd>{fmtTime(started)}</dd></div>}
+                        {completed && <div><dt>Ended</dt><dd>{fmtTime(completed)}</dd></div>}
+                        <div><dt>Booking ID</dt><dd className="mono">#{String(a._id).slice(-8)}</dd></div>
+                      </dl>
+                    </section>
+
+                    <section className="apx-sec">
+                      <h3>Payment</h3>
+                      <dl>
+                        <div><dt>Amount</dt><dd>{amount != null && amount !== "" ? inr(amount) : "—"}</dd></div>
+                        <div><dt>Status</dt><dd><span className={`apx-pay ${paidOk ? "ok" : "warn"}`}>{payName || "—"}</span></dd></div>
+                        {a.transaction?.payment_method && <div><dt>Method</dt><dd>{a.transaction.payment_method}</dd></div>}
+                        {paidAt && <div><dt>Paid on</dt><dd>{fmtDay(paidAt)}, {fmtTime(paidAt)}</dd></div>}
+                        {a.transaction?.transaction_id && <div><dt>Transaction</dt><dd className="mono">{a.transaction.transaction_id}</dd></div>}
+                      </dl>
+                    </section>
+                  </>
+                ) : (
+                  <div className="apx-inv">
+                    <div className="apx-inv-top">
+                      <div><b>Choose Your Therapist</b><span>Session invoice</span></div>
+                      <div className="r"><span>Invoice</span><b className="mono">#{(a.transaction?.transaction_id || String(a._id)).slice(-8)}</b></div>
                     </div>
-
-                    {/* Action buttons */}
-                    <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-                      {item.status === SESSION_STATUS.NEW && (
-                        <button className="ap-btn ap-btn-start" style={{ flex: 1, padding: "10px" }} onClick={() => handlePin(item)}>
-                          <FaPlay size={12} /> Start Session
-                        </button>
-                      )}
-                      {item.status === SESSION_STATUS.STARTED && (
-                        sessionEnding
-                          ? <button className="ap-btn ap-btn-done" style={{ flex: 1, padding: "10px" }} disabled><CircularProgress size={14} /></button>
-                          : <button className="ap-btn ap-btn-end" style={{ flex: 1, padding: "10px" }} onClick={() => endSession(item)}>
-                              <FaStop size={12} /> End Session
-                            </button>
-                      )}
-                      <button className="ap-btn" style={{ flex: 1, padding: "10px" }} onClick={() => setDetailTab("invoice")}>
-                        <FaFileInvoice size={12} /> View Invoice
-                      </button>
-                    </div>
-                  </div>
-                  );
-                })()}
-
-                {detailTab === "invoice" && (
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 18, color: "#0f3d24", fontFamily: "Georgia, 'Times New Roman', serif" }}>ChooseYourTherapist</div>
-                        <div style={{ fontSize: 12, color: "#5b6b62", marginTop: 2 }}>Professional Therapy Services</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>Invoice</div>
-                        <div style={{ fontWeight: 800, color: "#122019", fontSize: 14 }}>#{item.transaction?.transaction_id?.slice(-8) || item._id?.slice(-8)}</div>
-                      </div>
-                    </div>
-
-                    <Divider sx={{ mb: 2.5, borderStyle: "dashed" }} />
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 20 }}>
-                      <div>
-                        <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 800, textTransform: "uppercase", marginBottom: 4 }}>Billed To</div>
-                        <div style={{ fontWeight: 800, color: "#122019" }}>{item.client?.name}</div>
-                        <div style={{ fontSize: 12, color: "#64748b" }}>Booking: #{item._id?.slice(-8)}</div>
-                      </div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 800, textTransform: "uppercase", marginBottom: 4 }}>Date</div>
-                        <div style={{ fontWeight: 700, color: "#122019", fontSize: 13 }}>{formatDateTime(item.booking_date)}</div>
-                        <span style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 800, background: getPaymentStatusColor(item.transaction?.status?.name) + "15", color: getPaymentStatusColor(item.transaction?.status?.name), borderRadius: 6, padding: "2px 9px" }}>
-                          {item.transaction?.status?.name || "PAID"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div style={{ background: "#fbfaf7", border: "1px solid #ecefec", borderRadius: 6, padding: "16px 18px", marginBottom: 20 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 13, color: "#5b6b62", fontWeight: 600 }}>
-                        <span>{item.service} ({item.format})</span>
-                        <span style={{ color: "#122019" }}>₹{item.transaction?.amount}</span>
-                      </div>
-                      <Divider sx={{ my: 1.5 }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16 }}>
-                        <span>Total</span>
-                        <span style={{ color: "#0f3d24" }}>₹{item.transaction?.amount}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <Button fullWidth variant="contained" startIcon={<DownloadIcon />}
-                        onClick={() => printInvoice(item)}
-                        sx={{ bgcolor: "#0f3d24", "&:hover": { bgcolor: "#16512f" }, borderRadius: "4px", boxShadow: "none", py: 1.5, textTransform: "none", fontWeight: 700 }}>
-                        Download PDF
-                      </Button>
-                      <Button fullWidth variant="outlined" startIcon={<PrintIcon />}
-                        onClick={() => printInvoice(item)}
-                        sx={{ borderColor: "#dbe3df", color: "#5b6b62", borderRadius: "4px", py: 1.5, textTransform: "none", fontWeight: 700, "&:hover": { borderColor: "#0f3d24", color: "#0f3d24", background: "#f0fdf4" } }}>
-                        Print
-                      </Button>
+                    <dl>
+                      <div><dt>Billed to</dt><dd>{p.bookedBy || p.name}</dd></div>
+                      <div><dt>Date</dt><dd>{d ? `${fmtDay(d)}, ${fmtTime(d)}` : "—"}</dd></div>
+                      <div><dt>{a.service || "Session"} · {a.format || "Online"}</dt><dd>{inr(amount)}</dd></div>
+                    </dl>
+                    <div className="apx-inv-total"><span>Total</span><b>{inr(amount)}</b></div>
+                    <div className="apx-inv-acts">
+                      <button type="button" className="apx-btn primary big" onClick={() => printInvoice(a)}><DownloadRoundedIcon /> Download PDF</button>
+                      <button type="button" className="apx-btn soft big" onClick={() => printInvoice(a)}><PrintRoundedIcon /> Print</button>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+
+              {detailTab === "details" && (
+                <div className="apx-dr-foot">
+                  <SessionButton a={a} big />
+                  <button type="button" className="apx-btn soft big" onClick={() => setDetailTab("invoice")}><ReceiptLongRoundedIcon /> Invoice</button>
+                </div>
+              )}
+            </aside>
           </>
         );
       })()}
 
       <VerifyOtpDialog
         open={otpView}
-        onClose={handleOtpViewClose}
-        placeholder="Enter Pin"
-        label="Pin"
+        onClose={() => setOtpView(false)}
+        placeholder="6-digit PIN"
+        label="Client's session PIN"
         value={pin}
         handleChange={handlePinChange}
-        handleClick={handleVerifyOtp}
+        handleClick={verifyPin}
         loading={loading}
       />
-    </>
+    </div>
   );
 };
 
 export default AppointmentsContent;
+
+const APX_CSS = `
+.apx { --g: #166534; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8; --gold: #c9962c;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); max-width: 1240px; margin: 0 auto; padding-bottom: 24px; }
+.apx *, .apx *::before, .apx *::after { box-sizing: border-box; }
+.apx svg { font-size: 18px; }
+.apx .spin { animation: apxSpin 1s linear infinite; } @keyframes apxSpin { to { transform: rotate(360deg); } }
+
+.apx-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.apx-head h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -.3px; font-family: inherit; color: var(--ink); }
+.apx-head p { font-size: 13.5px; color: var(--mut); margin: 3px 0 0; }
+.apx-head-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.apx-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 10px; border: 1px solid transparent;
+  font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none !important; white-space: nowrap; font-family: inherit; transition: background .15s, border-color .15s, color .15s; }
+.apx-btn.primary { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; box-shadow: 0 6px 14px -8px rgba(22,101,52,.7); }
+.apx-btn.primary:hover { filter: brightness(1.06); }
+.apx-btn.danger { background: #b91c1c; color: #fff !important; }
+.apx-btn.danger:hover { background: #991b1b; }
+.apx-btn.soft { background: #fff; color: var(--g) !important; border-color: #cfe3d6; }
+.apx-btn.soft:hover { background: var(--g-bg); }
+.apx-btn.icon { width: 38px; padding: 0; background: #f1f6f3; color: var(--g) !important; }
+.apx-btn.icon:hover { background: var(--g-bg); }
+.apx-btn.wa { color: #15803d !important; }
+.apx-btn.big { height: 44px; font-size: 14px; flex: 1; }
+.apx-btn:disabled { opacity: .6; cursor: default; }
+
+.apx-seg { display: inline-flex; background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 3px; gap: 2px; }
+.apx-seg button { display: inline-flex; align-items: center; gap: 5px; height: 32px; padding: 0 11px; border: 0; border-radius: 8px; background: none; color: var(--mut); font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.apx-seg button.on { background: var(--g-bg); color: var(--g); }
+.apx-seg svg { font-size: 16px; }
+
+.apx-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.apx-stat { text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 13px 15px 11px; border-radius: 16px; border: 1px solid var(--line); border-top: 3px solid; cursor: pointer; font-family: inherit; transition: transform .15s, box-shadow .15s; }
+.apx-stat:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -16px rgba(15,23,42,.35); }
+.apx-stat span { font-size: 12.5px; font-weight: 700; color: var(--mut); }
+.apx-stat b { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -.3px; }
+.apx-stat small { font-size: 11.5px; color: var(--faint); }
+.apx-stat.green { background: linear-gradient(165deg, #e6f7ec, #fff 62%); border-color: #cdebd7; border-top-color: #16a34a; } .apx-stat.green b { color: #166534; }
+.apx-stat.teal { background: linear-gradient(165deg, #e2f6f3, #fff 62%); border-color: #c8ebe5; border-top-color: #0d9488; } .apx-stat.teal b { color: #0f766e; }
+.apx-stat.gold { background: linear-gradient(165deg, #fbf3e2, #fff 62%); border-color: #eedfbd; border-top-color: #c9962c; } .apx-stat.gold b { color: #92651a; }
+.apx-stat.slate { background: linear-gradient(165deg, #eef2f6, #fff 62%); border-color: #dde4ec; border-top-color: #64748b; } .apx-stat.slate b { color: #334155; }
+.apx-stat.on { box-shadow: 0 0 0 2px #166534; }
+
+.apx-bar { position: sticky; top: var(--tn-h, 56px); z-index: 15; display: flex; gap: 10px; align-items: center; margin: 0 -4px 14px; padding: 8px 4px; background: #f1f6f2; }
+.apx-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; }
+.apx-filters::-webkit-scrollbar { display: none; }
+.apx-filters button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--mut); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.apx-filters button i { font-style: normal; font-size: 11px; font-weight: 800; background: #eef2f0; color: var(--mut); border-radius: 999px; padding: 0 7px; line-height: 18px; }
+.apx-filters button.on { background: var(--g-dk); border-color: var(--g-dk); color: #fff; }
+.apx-filters button.on i { background: rgba(255,255,255,.2); color: #fff; }
+.apx-search { display: flex; align-items: center; gap: 6px; height: 38px; width: 280px; flex-shrink: 0; background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 0 12px; color: var(--faint); margin: 0; }
+.apx-search:focus-within { border-color: #a7d7b8; box-shadow: 0 0 0 3px rgba(22,101,52,.1); }
+.apx-search input { border: 0 !important; outline: none; flex: 1; min-width: 0; height: 100%; font-size: 14px; background: transparent; color: var(--ink); font-family: inherit; padding: 0; box-shadow: none !important; }
+
+.apx-group { margin-bottom: 18px; }
+.apx-group h2 { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: var(--g); margin: 0 0 10px; font-family: inherit; }
+.apx-group h2 span { font-size: 11px; background: var(--g-bg); color: var(--g); border-radius: 999px; padding: 1px 8px; letter-spacing: 0; }
+.apx-group h2.live { color: #b45309; } .apx-group h2.live span { background: #fef3c7; color: #b45309; }
+.apx-group.past h2 { color: var(--mut); } .apx-group.past h2 span { background: #eef2f0; color: var(--mut); }
+.apx-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 1000px) { .apx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.apx-card { display: flex; background: #fff; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; cursor: pointer; transition: box-shadow .15s, transform .15s, border-color .15s; min-width: 0; }
+.apx-card:hover { box-shadow: 0 14px 30px -20px rgba(15,61,36,.45); border-color: #c6e2cf; transform: translateY(-1px); }
+.apx-card:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
+.apx-time { width: 96px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 12px 6px; text-align: center;
+  background: linear-gradient(180deg, #14532d, #166534); color: #fff; }
+.apx-time b { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.apx-time span { font-size: 11px; opacity: .8; }
+.apx-time em { font-style: normal; font-size: 10.5px; font-weight: 800; background: #f5c542; color: #3d2a00; border-radius: 999px; padding: 1px 7px; margin-top: 4px; white-space: nowrap; }
+.apx-card.live .apx-time { background: linear-gradient(180deg, #b45309, #d97706); }
+.apx-card.done .apx-time { background: linear-gradient(180deg, #475569, #64748b); }
+.apx-card.cancel .apx-time { background: linear-gradient(180deg, #991b1b, #b91c1c); }
+.apx-main { flex: 1; min-width: 0; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.apx-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.apx-av { width: 38px; height: 38px; border-radius: 12px; background: var(--g-bg); color: var(--g); display: grid; place-items: center; font-size: 13px; font-weight: 800; flex-shrink: 0; overflow: hidden; }
+.apx-av img { width: 100%; height: 100%; object-fit: cover; }
+.apx-av.lg { width: 48px; height: 48px; font-size: 16px; border-radius: 14px; }
+.apx-who-txt { flex: 1; min-width: 0; }
+.apx-who-txt b { display: block; font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apx-who-txt span { display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apx-who-txt span svg { font-size: 15px; color: var(--gold); }
+.apx-st { flex-shrink: 0; font-size: 11px; font-weight: 800; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.apx-st.new { background: #e0f2fe; color: #0369a1; } .apx-st.live { background: #fef3c7; color: #b45309; }
+.apx-st.done { background: #e7f6ec; color: #166534; } .apx-st.cancel { background: #fee2e2; color: #b91c1c; }
+.apx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.apx-chips span { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: #334155; background: #f3f6f4; border-radius: 8px; padding: 3px 8px; }
+.apx-chips span svg { font-size: 14px; color: var(--g); }
+.apx-chips span.by { background: #fbf3e2; color: #92651a; }
+.apx-concern { display: flex; gap: 6px; margin: 0; font-size: 13px; color: #475569; line-height: 1.45; background: #f8faf9; border-left: 3px solid #a7d7b8; border-radius: 0 8px 8px 0; padding: 6px 10px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.apx-concern svg { font-size: 15px; color: var(--g); vertical-align: -3px; margin-right: 2px; }
+.apx-acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.apx-acts .apx-btn.primary, .apx-acts .apx-btn.danger { flex: 1; min-width: 130px; }
+
+.apx-empty { text-align: center; background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 36px 16px; color: var(--mut); }
+.apx-empty b { display: block; font-size: 16px; color: var(--ink); margin-bottom: 4px; }
+.apx-empty p { margin: 0 0 12px; font-size: 13.5px; }
+
+.apx-table-wrap { background: #fff; border: 1px solid var(--line); border-radius: 16px; overflow-x: auto; }
+.apx-table { width: 100%; border-collapse: collapse; min-width: 880px; font-size: 13px; }
+.apx-table th { text-align: left; font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #fff; background: var(--g-dk); padding: 11px 14px; white-space: nowrap; }
+.apx-table td { padding: 11px 14px; border-top: 1px solid #eef2f0; vertical-align: middle; color: #334155; }
+.apx-table tr:hover td { background: #f6faf7; cursor: pointer; }
+.apx-table td b { display: block; color: var(--ink); font-weight: 700; }
+.apx-table td .sub, .apx-table td.when span { display: block; font-size: 11.5px; color: var(--faint); }
+.apx-table td.concern { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apx-table td.acts .apx-btn { height: 32px; font-size: 12px; }
+
+.apx-overlay { position: fixed; inset: 0; z-index: 1299; background: rgba(15,32,25,.45); animation: apxFade .18s ease; }
+@keyframes apxFade { from { opacity: 0; } to { opacity: 1; } }
+.apx-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); z-index: 1300; background: #f6f9f7; display: flex; flex-direction: column;
+  box-shadow: -24px 0 60px -24px rgba(4,30,16,.45); animation: apxSlide .26s cubic-bezier(.2,.9,.3,1); font-family: Inter, system-ui, sans-serif; }
+@keyframes apxSlide { from { transform: translateX(100%); } to { transform: none; } }
+.apx-dr-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: linear-gradient(90deg, #0b3320, #166534); color: #fff; }
+.apx-dr-head .apx-av { background: rgba(255,255,255,.16); color: #fff; }
+.apx-dr-who { flex: 1; min-width: 0; }
+.apx-dr-who b { display: block; font-size: 17px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apx-dr-who span { display: block; font-size: 12.5px; color: #bbf7d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apx-x { width: 36px; height: 36px; border-radius: 10px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.12); color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.apx-dr-tabs { display: flex; gap: 4px; padding: 8px 14px 0; background: #fff; border-bottom: 1px solid var(--line); }
+.apx-dr-tabs button { height: 40px; padding: 0 14px; border: 0; background: none; font-size: 13.5px; font-weight: 700; color: var(--mut); border-bottom: 2.5px solid transparent; cursor: pointer; font-family: inherit; }
+.apx-dr-tabs button.on { color: var(--g); border-bottom-color: var(--gold); }
+.apx-dr-body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; overscroll-behavior: contain; }
+.apx-when { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 8px; }
+.apx-when > div { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.apx-when span { display: block; font-size: 11px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: .4px; }
+.apx-when b { display: block; font-size: 13.5px; font-weight: 800; margin-top: 2px; }
+.apx-sec { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.apx-sec h3 { font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--g); margin: 0 0 8px; font-family: inherit; }
+.apx-sec dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin: 0; }
+.apx-sec dt { font-size: 11.5px; font-weight: 600; color: var(--faint); }
+.apx-sec dd { margin: 1px 0 0; font-size: 14px; font-weight: 700; color: var(--ink); word-break: break-word; }
+.apx-sec .mono, .apx .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
+.apx-contact { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.apx-contact .apx-btn { height: 36px; font-size: 12.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.apx-note { margin: 0 0 8px; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-wrap; background: #f8faf9; border-left: 3px solid #a7d7b8; border-radius: 0 10px 10px 0; padding: 10px 12px; }
+.apx-pay { font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 10px; }
+.apx-pay.ok { background: #e7f6ec; color: #166534; } .apx-pay.warn { background: #fef3c7; color: #b45309; }
+.apx-dr-foot { display: flex; gap: 8px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background: #fff; border-top: 1px solid var(--line); }
+.apx-inv { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.apx-inv-top { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px dashed #d6e0da; margin-bottom: 12px; }
+.apx-inv-top b { display: block; font-size: 15px; color: var(--g-dk); } .apx-inv-top span { display: block; font-size: 11.5px; color: var(--faint); }
+.apx-inv-top .r { text-align: right; }
+.apx-inv dl { margin: 0; display: grid; gap: 8px; }
+.apx-inv dl > div { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; }
+.apx-inv dt { color: var(--mut); } .apx-inv dd { margin: 0; font-weight: 700; }
+.apx-inv-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 16px; font-weight: 800; }
+.apx-inv-total b { color: var(--g); }
+.apx-inv-acts { display: flex; gap: 8px; margin-top: 16px; }
+
+.apx-ring { position: fixed; top: calc(var(--tn-h, 56px) + 10px); left: 50%; transform: translateX(-50%); z-index: 1400; width: min(520px, calc(100vw - 24px));
+  display: flex; align-items: center; gap: 12px; background: #0f3d24; color: #fff; border: 1px solid var(--gold); border-radius: 14px; padding: 12px 12px 12px 14px;
+  box-shadow: 0 16px 40px -14px rgba(4,30,16,.6); animation: apxDrop .35s cubic-bezier(.34,1.56,.64,1); font-family: Inter, system-ui, sans-serif; }
+@keyframes apxDrop { from { transform: translate(-50%, -30px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+.apx-ring > svg { font-size: 26px; color: #f5c542; flex-shrink: 0; }
+.apx-ring div { flex: 1; min-width: 0; } .apx-ring b { display: block; font-size: 14.5px; } .apx-ring span { display: block; font-size: 12px; opacity: .75; }
+.apx-ring button { height: 34px; padding: 0 14px; border-radius: 9px; border: 0; background: #f5c542; color: #3d2a00; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; }
+.apx-ring button.x { width: 34px; padding: 0; background: rgba(255,255,255,.12); color: #fff; display: grid; place-items: center; }
+
+.apx-chips .apx-st-inline { display: none; }
+@media (max-width: 767px) {
+  .hide-sm { display: none !important; }
+  .apx-head h1 { font-size: 20px; }
+  .apx-head p { font-size: 12.5px; }
+  .apx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .apx-stat { padding: 11px 12px 9px; } .apx-stat b { font-size: 22px; }
+  .apx-bar { flex-direction: column; align-items: stretch; margin: 0 -16px 12px; padding: 8px 16px; }
+  .apx-search { width: 100%; }
+  .apx-search input { font-size: 16px; }
+  .apx-time { width: 76px; } .apx-time b { font-size: 13.5px; }
+  .apx-main { padding: 10px 12px; }
+  .apx-acts .apx-btn.soft { flex: 1; }
+  .apx-sec dl { grid-template-columns: 1fr 1fr; }
+  .apx-when { grid-template-columns: 1fr 1fr; } .apx-when > div:first-child { grid-column: 1 / -1; }
+  .apx-ring { top: calc(var(--tn-h, 56px) + 6px); }
+}
+@media (prefers-reduced-motion: reduce) { .apx-drawer, .apx-overlay, .apx-ring, .apx .spin { animation: none; } }
+
+/* -- lighter, compact cards: colour only as an accent -- */
+.apx-card { border-radius: 14px; border-left: 3px solid #0369a1; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+.apx-card.live { border-left-color: #d97706; } .apx-card.done { border-left-color: #94a3b8; } .apx-card.cancel { border-left-color: #dc2626; }
+.apx-card:hover { box-shadow: 0 10px 24px -18px rgba(15,23,42,.35); border-color: #d6e3da; }
+.apx-time, .apx-card.live .apx-time, .apx-card.done .apx-time, .apx-card.cancel .apx-time {
+  width: 78px; background: #f6f8f7; color: #0f172a; border-right: 1px solid #edf1ee; padding: 10px 4px; }
+.apx-time b { font-size: 13.5px; }
+.apx-time span { font-size: 11px; color: #64748b; opacity: 1; }
+.apx-time em { background: #fef3c7; color: #92400e; font-size: 10px; }
+.apx-main { padding: 10px 12px; gap: 6px; }
+.apx-av { width: 32px; height: 32px; border-radius: 10px; font-size: 11.5px; background: #f1f5f3; color: #334155; }
+.apx-who-txt b { font-size: 14px; }
+.apx-who-txt span { font-size: 12px; }
+.apx-st { font-size: 10.5px; padding: 2px 8px; }
+.apx-chips span { font-size: 11px; padding: 2px 7px; background: #f4f6f5; }
+.apx-chips span svg { font-size: 13px; color: #64748b; }
+.apx-concern { font-size: 12.5px; background: none; border-left: 2px solid #e2e8f0; padding: 2px 0 2px 8px; color: #475569; }
+.apx-concern svg { color: #94a3b8; }
+.apx-acts .apx-btn { height: 32px; font-size: 12.5px; border-radius: 9px; }
+.apx-acts .apx-btn.icon { width: 32px; background: #f6f8f7; color: #475569 !important; }
+.apx-acts .apx-btn.icon.wa { color: #16a34a !important; }
+.apx-acts .apx-btn.primary { background: #166534; box-shadow: none; }
+.apx-acts .apx-btn.primary, .apx-acts .apx-btn.danger { min-width: 120px; }
+.apx-acts .apx-btn.soft { border-color: #e2e8f0; color: #334155 !important; }
+.apx-group h2 { font-size: 12px; color: #334155; }
+.apx-group h2 span { background: #eef2f0; color: #475569; }
+@media (max-width: 767px) {
+  .apx-time { width: 68px; }
+  .apx-acts { flex-wrap: nowrap; }
+  .apx-acts .apx-lg { display: none; }
+  .apx-acts .apx-btn.primary, .apx-acts .apx-btn.danger { flex: 1; min-width: 0; }
+  .apx-acts .apx-btn.soft { flex: 0 0 auto; padding: 0 12px; }
+}
+`;

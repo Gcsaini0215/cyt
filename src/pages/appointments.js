@@ -64,23 +64,21 @@ export default function AppointmentsPage() {
 
   return (
     <MainLayout>
-      {loading ? <AppointmentsSkeleton /> : data && data.length === 0 ? <div
-        style={{
-          background: "#fff", borderRadius: 6, borderTop: "3px solid #c9962c", border: "1px solid #ecefec",
-          boxShadow: "0 4px 20px rgba(15,61,36,0.08)", paddingBottom: 44, paddingTop: 44,
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
-        }}
-      >
-        <div style={{ width: 72, height: 72, borderRadius: 6, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, color: '#0f3d24' }}>
-          <i className="feather-calendar" style={{ fontSize: 34 }}></i>
+      {loading ? <AppointmentsSkeleton /> : data && data.length === 0 ? (
+        <div style={{ fontFamily: "Inter, system-ui, sans-serif", maxWidth: 1240, margin: "0 auto" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 14px", color: "#0f172a", fontFamily: "inherit" }}>Appointments</h1>
+          <div style={{ background: "linear-gradient(165deg, #e6f7ec, #fff 60%)", border: "1px solid #cdebd7", borderTop: "3px solid #16a34a", borderRadius: 16,
+            padding: "44px 20px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+            <div style={{ width: 64, height: 64, borderRadius: 18, background: "linear-gradient(135deg, #14532d, #16a34a)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, color: "#fff" }}>
+              <i className="feather-calendar" style={{ fontSize: 28 }}></i>
+            </div>
+            <h3 style={{ fontSize: 19, fontWeight: 800, color: "#0f172a", margin: "0 0 6px", fontFamily: "inherit" }}>No bookings yet</h3>
+            <p style={{ fontSize: 14, color: "#64748b", maxWidth: 380, margin: 0 }}>
+              Bookings show up here the moment a client schedules a session. Keep your hours and profile up to date so clients can book you.
+            </p>
+          </div>
         </div>
-        <h3 className="fw-bold mb-2" style={{ fontSize: 21, color: '#122019', fontFamily: "Georgia, 'Times New Roman', serif" }}>
-          No Bookings Yet
-        </h3>
-        <p className="mb-0" style={{ fontSize: 14, color: '#5b6b62', maxWidth: 380 }}>
-          Your bookings will appear here once clients start scheduling sessions with you. Keep your profile updated!
-        </p>
-      </div>
+      )
         : <AppointmentsContent appointments={data} statusList={statusList} onRefresh={getData} />}
     </MainLayout>
   );
