@@ -154,7 +154,7 @@ export default function DashboardTopNav() {
 
         <div className="tn-search" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setQOpen(false); }}>
           <SearchRoundedIcon />
-          <input ref={searchRef} type="search" value={q} placeholder="Search pages…" aria-label="Search pages — appointments, schedule, settings"
+          <input ref={searchRef} type="search" value={q} placeholder="Search pages…"
             aria-label="Search pages" onFocus={() => { setQOpen(true); setQIdx(0); }}
             onChange={(e) => { setQ(e.target.value); setQIdx(0); setQOpen(true); }} onKeyDown={onSearchKey} />
           <kbd>Ctrl K</kbd>
