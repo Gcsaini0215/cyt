@@ -8,6 +8,7 @@ import { fetchBookingsShared } from "../../utils/bookings-shared";
 import { NAV_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
 import NewBookingPopup from "./new-booking-popup";
+import NotifBell from "./notif-bell";
 import { useNavBadges, NavBadge, listingOf, shareProfile, NX_CSS } from "./nav-extras";
 import { profilePct } from "../../utils/profile-checks";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
@@ -17,7 +18,6 @@ import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import ManageAccountsRoundedIcon from "@mui/icons-material/ManageAccountsRounded";
-import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
@@ -136,7 +136,9 @@ export default function DashboardTopNav() {
     const id = setInterval(check, 20000);
     const onVisible = () => { if (!document.hidden) check(); };
     document.addEventListener("visibilitychange", onVisible);
-    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
+    // the live notification stream saw a new booking → show it now, not at the next poll
+    window.addEventListener("cyt:check-bookings", check);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("cyt:check-bookings", check); };
   }, [setNotificationCount]);
   const closePopup = useCallback(() => setPopup([]), []);
 
@@ -232,10 +234,7 @@ export default function DashboardTopNav() {
           <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-icon-btn tn-hide-sm" title="Go to website" aria-label="Go to website">
             <LanguageRoundedIcon />
           </a>
-          <Link href="/therapists/notifications" className="tn-icon-btn" onClick={() => setNotificationCount(0)} title="Notifications" aria-label={`Notifications${bellCount ? ` (${bellCount} new)` : ""}`}>
-            <NotificationsActiveRoundedIcon />
-            {bellCount > 0 && <span className="tn-notif-dot">{bellCount > 99 ? "99+" : bellCount}</span>}
-          </Link>
+          <NotifBell fallbackCount={bellCount} onOpenBell={() => setNotificationCount(0)} />
 
         </div>
       </header>

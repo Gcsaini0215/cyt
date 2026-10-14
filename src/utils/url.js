@@ -154,6 +154,10 @@ export const GetFavriouteTherapistListUrl = GetFavoriteTherapistListUrl;
 export const BookTherapistUrl = `${apiUrl}/book-therapist`;
 export const BookTherapistUrlAnonymously = `${apiUrl}/book-therapist-anonymously`;
 export const BookedSlotsUrl = `${apiUrl}/booked-slots/`;
+// therapist portal bell: saved notifications + live stream (SSE, token in ?token=)
+export const therapistNotifUrl = `${apiUrl}/therapist-notifications`;
+export const therapistNotifReadUrl = `${apiUrl}/therapist-notifications/read`;
+export const therapistNotifStreamUrl = `${apiUrl}/therapist-notifications/stream`;
 // client closed Razorpay without paying → free the slot right away (it's otherwise held 20 min)
 export const releaseSlotUrl = (bookingId) => `${apiUrl}/booking/${bookingId}/release-slot`;
 export const releaseBookingSlot = (bookingId) => {
