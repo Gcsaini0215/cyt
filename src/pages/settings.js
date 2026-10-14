@@ -1,201 +1,212 @@
 import MainLayout from "../components/therapists/main-layout";
 import Profile from "../components/therapists/settings/profile";
 import PaymentDetails from "../components/therapists/settings/payment-details";
-import React, { useState } from "react";
 import ServicesAndExperties from "../components/therapists/settings/services-and-experties";
+import Account from "../components/therapists/settings/account";
+import { STG_CSS, profileChecks, toList, langLabels } from "../components/therapists/settings/settings-ui";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
 import useTherapistStore from "../store/therapistStore";
-import { useMediaQueryClient } from "../hooks/useMediaQueryClient";
-import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
+import { Dialog, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageTag from "../utils/image-tag";
-import { defaultProfile, imagePath } from "../utils/url";
-import Link from "next/link";
+import { imagePath } from "../utils/url";
+import { profilePath } from "../utils/therapist-slug";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
+import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
+import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
+import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
+import WorkspacePremiumRoundedIcon from "@mui/icons-material/WorkspacePremiumRounded";
+import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
+import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
+import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
+import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
+
+const TABS = [
+  { id: "profile", label: "Profile", Icon: PersonRoundedIcon },
+  { id: "offerings", label: "Offerings", Icon: SpaRoundedIcon },
+  { id: "payments", label: "Payments", Icon: AccountBalanceWalletRoundedIcon },
+  { id: "account", label: "Account", Icon: ShieldRoundedIcon },
+];
+const LEAVE_MSG = "You have unsaved changes. Leave without saving?";
+
+const clean = (v) => (v == null || v === "null" || v === "undefined" ? "" : String(v));
+const minFee = (t) => {
+  const fees = (Array.isArray(t?.fees) ? t.fees : []).flatMap((f) => (f?.formats || []).map((x) => Number(x?.fee) || 0)).filter((n) => n > 0);
+  return fees.length ? Math.min(...fees) : 0;
+};
 
 export default function ProfileSettings() {
-  const isMobile = useMediaQueryClient("sm");
-  const { therapistInfo, fetchTherapistInfo, profileSet } = useTherapistStore();
-  const [tab, setTab] = React.useState(0);
+  const router = useRouter();
+  const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
+  const [tab, setTab] = useState("profile");
+  const [dirty, setDirty] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const dirtyRef = useRef(false);
+  dirtyRef.current = dirty;
 
-  const isEmpty = React.useCallback(() => {
-    return !therapistInfo?.user?.email;
-  }, [therapistInfo]);
+  const loaded = !!therapistInfo?.user?.email;
+  useEffect(() => { if (!loaded) fetchTherapistInfo(); }, [loaded, fetchTherapistInfo]);
 
-  React.useEffect(() => {
-    if (isEmpty()) {
-      fetchTherapistInfo();
+  // ?tab=payments etc.
+  useEffect(() => {
+    if (!router.isReady) return;
+    const q = String(router.query.tab || "");
+    if (TABS.some((t) => t.id === q)) setTab(q);
+  }, [router.isReady, router.query.tab]);
+
+  // warn before leaving the page with unsaved edits
+  useEffect(() => {
+    const onUnload = (e) => { if (dirtyRef.current) { e.preventDefault(); e.returnValue = ""; } };
+    const onRoute = (url) => {
+      if (!dirtyRef.current || url.startsWith("/settings")) return;
+      if (!window.confirm(LEAVE_MSG)) {
+        router.events.emit("routeChangeError");
+        throw "Route change aborted (unsaved settings)"; // eslint-disable-line no-throw-literal
+      }
+      fetchTherapistInfo(); // drop the unsaved edits from the shared store
+    };
+    window.addEventListener("beforeunload", onUnload);
+    router.events.on("routeChangeStart", onRoute);
+    return () => { window.removeEventListener("beforeunload", onUnload); router.events.off("routeChangeStart", onRoute); };
+  }, [router, fetchTherapistInfo]);
+
+  const onDirty = useCallback((d) => setDirty(d), []);
+
+  const goTab = (id) => {
+    if (id === tab) return;
+    if (dirtyRef.current) {
+      if (!window.confirm(LEAVE_MSG)) return;
+      if (tab === "profile") fetchTherapistInfo(); // restore the saved profile
     }
-  }, [fetchTherapistInfo, isEmpty]);
+    setDirty(false);
+    setTab(id);
+    router.replace({ pathname: "/settings", query: id === "profile" ? {} : { tab: id } }, undefined, { shallow: true, scroll: false });
+    if (typeof window !== "undefined" && window.scrollY > 200) window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  const TABS = [
-    { id: 0, label: "Profile" },
-    { id: 2, label: "Offerings" },
-    { id: 5, label: "Payments" },
-  ];
+  const checks = profileChecks(therapistInfo);
+  const done = checks.filter((c) => c.done).length;
+  const pct = checks.length ? Math.round((done / checks.length) * 100) : 0;
+  const missing = checks.filter((c) => !c.done);
+  const t = therapistInfo || {};
+  const name = clean(t.user?.name) || "Your name";
+  const photo = clean(t.user?.profile) ? `${imagePath}/${t.user.profile}` : "";
+  const publicPath = t._id ? profilePath(t) : "";
 
   return (
     <MainLayout>
-      <div className="stg-shell">
-        <style dangerouslySetInnerHTML={{ __html: `
-          .stg-shell { background: #fff; border-radius: 6px; border-top: 3px solid #c9962c;
-            box-shadow: 0 4px 20px rgba(15,61,36,0.08); overflow: hidden; margin-bottom: 32px; }
-          .stg-head { padding: 22px 26px; display: flex; align-items: flex-start; justify-content: space-between;
-            gap: 16px; border-bottom: 1px solid #ecefec; }
-          .stg-title { font-family: Georgia, "Times New Roman", serif; font-weight: 700; font-size: 22px;
-            color: #122019; margin: 0 0 4px; letter-spacing: -0.2px; }
-          .stg-sub { font-size: 12.5px; color: #8a978f; margin: 0; }
-          .stg-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-            padding: 3px 9px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; margin-left: 10px;
-            vertical-align: middle; }
-          .stg-badge.incomplete { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-          .stg-badge.complete { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-          .stg-preview-btn { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px;
-            border-radius: 4px; border: 1.5px solid #0f3d24; background: #fff; color: #0f3d24;
-            font-size: 12.5px; font-weight: 700; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-          .stg-preview-btn:hover { background: #0f3d24; color: #fff; }
-          .stg-preview-icon { width: 38px; height: 38px; border-radius: 4px; border: 1.5px solid #0f3d24;
-            background: #fff; color: #0f3d24; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-          .stg-tabbar { display: flex; overflow-x: auto; padding: 0 26px; gap: 26px; border-bottom: 1px solid #ecefec;
-            -ms-overflow-style: none; scrollbar-width: none; background: #fbfaf7; }
-          .stg-tabbar::-webkit-scrollbar { display: none; }
-          .stg-tab-btn { background: none; border: none; cursor: pointer; padding: 13px 2px; margin: 0;
-            font-size: 12.5px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-            color: #8a978f; border-bottom: 2.5px solid transparent; transition: color 0.2s, border-color 0.2s;
-            white-space: nowrap; }
-          .stg-tab-btn:hover { color: #0f3d24; }
-          .stg-tab-btn.active { color: #0f3d24; border-bottom-color: #c9962c; }
-
-          .stg-body { padding: 26px; }
-
-          /* ── Consistent field styling wherever the shared theme classes are used ── */
-          .stg-body .rbt-form-group { margin-bottom: 18px; }
-          .stg-body .rbt-form-group label {
-            font-size: 11px; font-weight: 700; color: #5b6b62; text-transform: uppercase;
-            letter-spacing: 0.6px; margin-bottom: 7px; display: block;
-          }
-          .stg-body .rbt-form-group input:not([type="file"]),
-          .stg-body .rbt-form-group select,
-          .stg-body .rbt-form-group textarea {
-            border: 1.5px solid #dbe3df !important; border-radius: 4px !important;
-            font-size: 14px; color: #122019; transition: border-color 0.2s, box-shadow 0.2s;
-          }
-          .stg-body .rbt-form-group input:not([type="file"]):focus,
-          .stg-body .rbt-form-group select:focus,
-          .stg-body .rbt-form-group textarea:focus {
-            border-color: #0f3d24 !important; box-shadow: 0 0 0 3px rgba(15,61,36,0.08); outline: none;
-          }
-          .stg-body .rbt-btn.btn-gradient { background: #0f3d24 !important; border-radius: 4px !important;
-            box-shadow: none !important; transition: background 0.2s, transform 0.2s; }
-          .stg-body .rbt-btn.btn-gradient:hover { background: #16512f !important; transform: translateY(-1px); }
-
-          @media (max-width: 767px) {
-            .stg-head { padding: 16px 16px; flex-direction: column; }
-            .stg-tabbar { padding: 0 16px; gap: 18px; }
-            .stg-body { padding: 16px; }
-            .stg-title { font-size: 18px; }
-          }
-        ` }} />
-
-        <div className="stg-head">
-          <div>
-            <h1 className="stg-title">
-              Settings
-              <span className={`stg-badge ${profileSet ? "complete" : "incomplete"}`}>
-                {profileSet ? "✓ Complete" : "Incomplete"}
-              </span>
-            </h1>
-            <p className="stg-sub">Manage how your public profile appears to clients.</p>
+      <Head><title>Settings | Choose Your Therapist</title></Head>
+      <style dangerouslySetInnerHTML={{ __html: STG_CSS }} />
+      <div className="stg">
+        <header className="stg-head">
+          {photo ? <ImageTag className="stg-ava" alt={name} src={photo} /> : <div className="stg-ava" aria-hidden="true">{name[0].toUpperCase()}</div>}
+          <div className="stg-head-main">
+            <h1>{loaded ? name : "Settings"}</h1>
+            <div className="stg-mail">{loaded ? [clean(t.profile_type), clean(t.user?.email)].filter(Boolean).join(" · ") : "Loading your profile…"}</div>
+            {loaded && (
+              <>
+                <div className="stg-prog">
+                  <div className="stg-prog-bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Profile completeness"><i style={{ width: `${pct}%` }} /></div>
+                  <span className={`stg-prog-txt${pct < 100 ? " warn" : ""}`}>{pct === 100 ? "Profile complete ✓" : `Profile ${pct}% complete`}</span>
+                </div>
+                {missing.length > 0 && (
+                  <div className="stg-missing">
+                    {missing.map((m) => (
+                      <button type="button" key={m.key} onClick={() => goTab(m.tab)} title={`Add ${m.label.toLowerCase()}`}>+ {m.label}</button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
-          {isMobile ? (
-            <button className="stg-preview-icon" onClick={() => setPreviewOpen(true)} title="Preview Profile">
-              <i className="feather-eye" style={{ fontSize: 18 }}></i>
-            </button>
-          ) : (
-            <button className="stg-preview-btn" onClick={() => setPreviewOpen(true)}>
-              <i className="feather-eye" style={{ fontSize: 14 }}></i> Preview Profile
-            </button>
-          )}
-        </div>
+          <div className="stg-head-act">
+            <button type="button" className="stg-btn outline" onClick={() => setPreviewOpen(true)} disabled={!loaded}><VisibilityRoundedIcon /> Preview</button>
+            {publicPath && <a className="stg-btn ghost" href={publicPath} target="_blank" rel="noopener noreferrer"><OpenInNewRoundedIcon /> Public profile</a>}
+          </div>
+        </header>
 
-        <div className="stg-tabbar">
-          {TABS.map(t => (
-            <button key={t.id} className={`stg-tab-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <nav className="stg-tabs" aria-label="Settings sections">
+          <div className="stg-tabs-in" role="tablist">
+            {TABS.map(({ id, label, Icon }) => (
+              <button key={id} type="button" role="tab" aria-selected={tab === id} className={`stg-tab${tab === id ? " active" : ""}`} onClick={() => goTab(id)}>
+                <Icon /> {label}
+                {tab === id && dirty && <span className="dot" title="Unsaved changes" />}
+              </button>
+            ))}
+          </div>
+        </nav>
 
-        <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 12px" }}>
-          Looking for your weekly hours or fees? They&rsquo;ve moved to <Link href="/my-schedule?tab=availability" style={{ color: "#166534", fontWeight: 700 }}>My Schedule</Link>.
-        </p>
-        <div className="stg-body tab-content">
-          {tab === 0 && <Profile />}
-          {tab === 2 && <ServicesAndExperties />}
-          {tab === 5 && <PaymentDetails />}
+        {tab === "profile" && (
+          <div className="stg-info">
+            <InfoRoundedIcon />
+            <span>Looking for your weekly hours or session fees? They live in <Link href="/my-schedule?tab=availability">My Schedule</Link>.</span>
+          </div>
+        )}
+        {tab !== "profile" && <div style={{ height: 6 }} />}
+
+        <div role="tabpanel">
+          {tab === "profile" && <Profile onDirty={onDirty} />}
+          {tab === "offerings" && <ServicesAndExperties onDirty={onDirty} />}
+          {tab === "payments" && <PaymentDetails onDirty={onDirty} />}
+          {tab === "account" && <Account />}
         </div>
       </div>
 
-
-      <Dialog 
-        open={previewOpen} 
-        onClose={() => setPreviewOpen(false)}
-        maxWidth="xs"
-        fullWidth
-        PaperProps={{
-          style: { borderRadius: '15px', overflow: 'hidden' }
-        }}
-      >
-        <DialogTitle className="d-flex justify-content-between align-items-center border-bottom">
-          <span>Profile Preview</span>
-          <IconButton onClick={() => setPreviewOpen(false)} size="small">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent className="p--0">
-          <div className="rbt-card variation-01 border-0">
-            <div className="rbt-card-img" style={{ maxHeight: "250px", overflow: "hidden" }}>
-              <ImageTag
-                alt="Card"
-                style={{ width: "100%", height: "auto" }}
-                src={`${imagePath}/${therapistInfo.user.profile}` || defaultProfile}
-              />
-            </div>
-            <div className="rbt-card-body p--30">
-              <h4 className="rbt-card-title" style={{ fontSize: "20px", marginBottom: "15px" }}>
-                {therapistInfo.user.name || "Your Name"}
-              </h4>
-              <ul className="rbt-meta mb--20" style={{ flexDirection: "column", gap: "8px" }}>
-                <li style={{ fontSize: 15 }}>
-                  <i className="feather-message-circle"></i>
-                  {therapistInfo.language_spoken.length > 0 
-                    ? therapistInfo.language_spoken.map(o => o.label).join(", ") 
-                    : "Language"}
-                </li>
-                <li style={{ fontSize: 15 }}>
-                  <i className="feather-award"></i>
-                  {therapistInfo.year_of_exp || "0"} Year Experience
-                </li>
-              </ul>
-              <div className="d-flex align-items-start gap-2 mb--15">
-                <i className="feather-user text-primary" style={{ marginTop: "4px" }}></i>
-                <span style={{ fontSize: 15 }}>{therapistInfo.qualification || "Qualification"}</span>
-              </div>
-              <div className="d-flex align-items-start gap-2 mb--30">
-                <i className="feather-heart text-danger" style={{ marginTop: "4px" }}></i>
-                <span style={{ fontSize: 14 }}>
-                  {therapistInfo.session_formats.length > 0 
-                    ? therapistInfo.session_formats.join(", ") 
-                    : "Session Formats Not Set"}
-                </span>
-              </div>
-              <Link className="rbt-btn btn-gradient w-100 text-center" href="#" onClick={(e) => e.preventDefault()}>
-                Book Appointment
-              </Link>
-            </div>
+      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="xs" fullWidth
+        PaperProps={{ style: { borderRadius: 18, margin: 16, width: "calc(100% - 32px)" } }}>
+        <div className="stg-pv" style={{ padding: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: "#94a3b8" }}>How clients see you</span>
+            <IconButton onClick={() => setPreviewOpen(false)} size="small" aria-label="Close preview"><CloseIcon fontSize="small" /></IconButton>
           </div>
-        </DialogContent>
+          <PreviewCard t={t} photo={photo} name={name} />
+          {publicPath && (
+            <a className="stg-btn primary" href={publicPath} target="_blank" rel="noopener noreferrer" style={{ width: "100%", marginTop: 16, color: "#fff", background: "#166534" }}>
+              Open full profile
+            </a>
+          )}
+        </div>
       </Dialog>
     </MainLayout>
+  );
+}
+
+function PreviewCard({ t, photo, name }) {
+  const langs = langLabels(t.language_spoken);
+  const formats = toList(t.session_formats).filter(Boolean);
+  const tags = toList(t.experties);
+  const city = clean(t.state).split(",")[0].trim();
+  const fee = minFee(t);
+  const Miss = ({ children }) => <span className="miss">{children}</span>;
+  return (
+    <div>
+      <div className="stg-pv-top">
+        {photo ? <ImageTag className="stg-pv-img" alt={name} src={photo} /> : <div className="stg-pv-img">{name[0].toUpperCase()}</div>}
+        <div style={{ minWidth: 0 }}>
+          <h3>{name}</h3>
+          {clean(t.profile_type) && <div className="t">{t.profile_type}</div>}
+          <div className="q">{clean(t.year_of_exp) ? `${t.year_of_exp} experience` : <Miss>Experience not added</Miss>}</div>
+        </div>
+      </div>
+      <ul>
+        <li><SchoolRoundedIcon /><span>{clean(t.qualification) || <Miss>Qualification not added</Miss>}</span></li>
+        <li><TranslateRoundedIcon /><span>{langs.length ? langs.join(", ") : <Miss>Languages not added</Miss>}</span></li>
+        <li><VideocamRoundedIcon /><span>{formats.length ? formats.join(" · ") : <Miss>Session formats not set</Miss>}</span></li>
+        <li><PlaceRoundedIcon /><span>{city || <Miss>Location not added</Miss>}</span></li>
+        {fee > 0 && <li><CurrencyRupeeRoundedIcon /><span>From ₹{fee.toLocaleString("en-IN")} / session</span></li>}
+        {clean(t.license_number) && <li><WorkspacePremiumRoundedIcon /><span>License {t.license_number}</span></li>}
+      </ul>
+      {tags.length > 0 && (
+        <div className="tags">{tags.slice(0, 5).map((x) => <span key={x}>{x}</span>)}{tags.length > 5 && <span>+{tags.length - 5}</span>}</div>
+      )}
+      <p className="bio">{clean(t.user?.bio) || <Miss>Add an “About me” so clients know how you work.</Miss>}</p>
+    </div>
   );
 }

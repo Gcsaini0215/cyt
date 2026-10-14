@@ -1,263 +1,217 @@
-import React, { useState } from "react";
-import {
-  getAccountDetailsUrl,
-  updateAccountDetailsUrl,
-} from "../../../utils/url";
+import React, { useEffect, useRef, useState } from "react";
+import { getAccountDetailsUrl, updateAccountDetailsUrl } from "../../../utils/url";
 import { fetchById, postData } from "../../../utils/actions";
 import useTherapistStore from "../../../store/therapistStore";
-import FormMessage from "../../global/form-message";
-import FormProgressBar from "../../global/form-progressbar";
-import { 
-  Box, 
-  Typography, 
-  Paper, 
-  Grid, 
-  Tabs, 
-  Tab,
-  Tooltip
-} from "@mui/material";
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import PersonIcon from '@mui/icons-material/Person';
-import PinIcon from '@mui/icons-material/Pin';
-import SecurityIcon from '@mui/icons-material/Security';
-import QrCodeIcon from '@mui/icons-material/QrCode';
-import InfoIcon from '@mui/icons-material/Info';
+import AccountBalanceRoundedIcon from "@mui/icons-material/AccountBalanceRounded";
+import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
+import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
+import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import { Section, Field, SaveBar, scrollToFirstError } from "./settings-ui";
 
-export default function PaymentDetails({ onSuccess }) {
-  const { paymentStore, setPaymentStore, setMultiplePaymentStore } =
-    useTherapistStore();
-  const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+const IFSC_RE = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+const UPI_RE = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\-]{1,64}$/;
+const mask = (v) => (v && v.length > 4 ? `•••• ${v.slice(-4)}` : v || "");
+const FIELDS = ["ac_name", "ac_number", "ifsc", "upi"];
+const pick = (o) => Object.fromEntries(FIELDS.map((k) => [k, (o?.[k] ?? "").toString()]));
+
+export default function PaymentDetails({ onDirty }) {
+  const { paymentStore, setPaymentStore, setMultiplePaymentStore } = useTherapistStore();
+  const [base, setBase] = useState(null); // last saved details
+  const [method, setMethod] = useState("bank");
+  const [confirmNo, setConfirmNo] = useState("");
+  const [showNo, setShowNo] = useState(false);
+  const [bank, setBank] = useState({ state: "", text: "" }); // IFSC lookup result
+  const [pageLoading, setPageLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [activeTab, setActiveTab] = useState(0); // 0 for Bank, 1 for UPI
+  const [fieldErrors, setFieldErrors] = useState({});
+  const lookupRef = useRef("");
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetchById(getAccountDetailsUrl);
+        const data = res?.data && Object.keys(res.data).length ? res.data : {};
+        if (!alive) return;
+        setMultiplePaymentStore(pick(data));
+        setBase(pick(data));
+        if (!data.ac_number && data.upi) setMethod("upi");
+      } catch (err) {
+        if (!alive) return;
+        setBase(pick(useTherapistStore.getState().paymentStore));
+        setError("Couldn't load your saved details — refresh to try again");
+      }
+      if (alive) setPageLoading(false);
+    })();
+    return () => { alive = false; };
+  }, [setMultiplePaymentStore]);
+
+  const cur = pick(paymentStore);
+  const acChanged = !!base && cur.ac_number !== base.ac_number;
+  const dirty = !!base && (FIELDS.some((k) => cur[k] !== base[k]) || (acChanged && confirmNo !== ""));
+  useEffect(() => { onDirty && onDirty(dirty); }, [dirty, onDirty]);
+  useEffect(() => { if (dirty) setSuccess(""); }, [dirty]);
+
+  // bank name from IFSC (public Razorpay IFSC API)
+  useEffect(() => {
+    const code = cur.ifsc.trim().toUpperCase();
+    if (!IFSC_RE.test(code)) { setBank({ state: "", text: "" }); return; }
+    lookupRef.current = code;
+    setBank({ state: "loading", text: "Checking IFSC…" });
+    const timer = setTimeout(async () => {
+      try {
+        const r = await fetch(`https://ifsc.razorpay.com/${code}`);
+        if (lookupRef.current !== code) return;
+        if (r.status === 404) { setBank({ state: "bad", text: "IFSC not found — please re-check" }); return; }
+        const j = await r.json();
+        setBank({ state: "ok", text: [j.BANK, j.BRANCH].filter(Boolean).join(" · ") });
+      } catch {
+        if (lookupRef.current === code) setBank({ state: "", text: "" });
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [cur.ifsc]);
+
+  const set = (k, v) => {
+    setPaymentStore(k, v);
+    if (fieldErrors[k]) setFieldErrors((p) => ({ ...p, [k]: "" }));
+    setError("");
+  };
+
+  const discard = () => {
+    if (!base) return;
+    setMultiplePaymentStore(base);
+    setConfirmNo("");
+    setFieldErrors({});
+    setError("");
   };
 
   const handleSubmit = async () => {
     setError("");
     setSuccess("");
-    
-    // Validation logic
-    if (activeTab === 0) {
-      if (paymentStore.ac_name.length < 3 || paymentStore.ac_number === "" || paymentStore.ifsc.length < 4) {
-        setError("Please complete all bank details");
-        return;
-      }
-    } else {
-      if (paymentStore.upi === "") {
-        setError("Please enter your UPI ID");
-        return;
-      }
+    const e = {};
+    const hasBank = cur.ac_name || cur.ac_number || cur.ifsc;
+    if (method === "bank" || hasBank) {
+      if (cur.ac_name.trim().length < 3) e.ac_name = "Enter the name exactly as on your bank account";
+      if (!/^\d{9,18}$/.test(cur.ac_number.trim())) e.ac_number = "Account number should be 9–18 digits";
+      else if (acChanged && confirmNo.trim() !== cur.ac_number.trim()) e.confirm = "Account numbers don't match";
+      if (!IFSC_RE.test(cur.ifsc.trim().toUpperCase())) e.ifsc = "IFSC is 11 characters, e.g. HDFC0001234";
     }
-
-    setLoading(true);
-    const reqData = {
-      upi: paymentStore.upi,
-      ac_name: paymentStore.ac_name,
-      ac_number: paymentStore.ac_number,
-      ifsc: paymentStore.ifsc,
-    };
-
+    if (method === "upi" || cur.upi) {
+      if (!UPI_RE.test(cur.upi.trim())) e.upi = "Enter a valid UPI ID, e.g. name@okaxis";
+    }
+    if (Object.keys(e).length) {
+      // fields of the other method stay hidden — switch to where the error is
+      if (method === "upi" && (e.ac_name || e.ac_number || e.ifsc || e.confirm) && !e.upi) setMethod("bank");
+      if (method === "bank" && e.upi && !(e.ac_name || e.ac_number || e.ifsc || e.confirm)) setMethod("upi");
+      setFieldErrors(e);
+      setError("Please fix the highlighted fields");
+      scrollToFirstError();
+      return;
+    }
+    const reqData = { ac_name: cur.ac_name.trim(), ac_number: cur.ac_number.trim(), ifsc: cur.ifsc.trim().toUpperCase(), upi: cur.upi.trim() };
+    setSaving(true);
     try {
       const response = await postData(updateAccountDetailsUrl, reqData);
       if (response.status) {
-        setSuccess(response.message);
-        setError("");
-        if (onSuccess) {
-          onSuccess();
-        }
+        setMultiplePaymentStore(reqData);
+        setBase(reqData);
+        setConfirmNo("");
+        setShowNo(false);
+        setSuccess(response.message || "Payment details saved");
+        setTimeout(() => setSuccess(""), 3500);
       } else {
-        setError("Something went wrong");
+        setError(response.message || "Something went wrong — please try again");
       }
-    } catch (error) {
-      setError(error?.response?.data?.message || "Something went wrong");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Couldn't save — check your connection and try again");
     }
-    setLoading(false);
+    setSaving(false);
   };
 
-  React.useEffect(() => {
-    if (!hasFetched && paymentStore.ac_name === "" && paymentStore.upi === "") {
-      const getData = async () => {
-        try {
-          setPageLoading(true);
-          const res = await fetchById(getAccountDetailsUrl);
-          if (res.data && Object.keys(res.data).length > 0) {
-            setMultiplePaymentStore(res.data);
-            // Auto switch to UPI tab if bank is empty but UPI exists
-            if (!res.data.ac_number && res.data.upi) {
-              setActiveTab(1);
-            }
-          }
-        } catch (err) {
-          setError(err.message);
-        }
-        setPageLoading(false);
-        setHasFetched(true);
-      };
-      getData();
-    }
-  }, [paymentStore.ac_name, paymentStore.upi, hasFetched]);
+  if (pageLoading) {
+    return <div className="stg-sec" style={{ height: 260, background: "linear-gradient(90deg,#eef2f0,#f7f9f8,#eef2f0)" }} />;
+  }
 
-  const inputStyle = {
-    height: 54,
-    borderRadius: 14,
-    paddingLeft: '45px',
-    border: '2px solid #e2e8f0',
-    fontSize: '16px',
-    fontWeight: '700',
-    background: '#fff',
-    color: '#1e293b',
-    width: '100%',
-    transition: 'all 0.2s ease'
-  };
-
-  const labelStyle = {
-    fontWeight: 800,
-    fontSize: '16px',
-    color: '#475569',
-    marginBottom: '10px',
-    display: 'block'
-  };
-
-  const iconStyle = {
-    position: 'absolute',
-    left: '15px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: '#94a3b8',
-    fontSize: '20px',
-    zIndex: 1
-  };
-
-  if (pageLoading) return <FormProgressBar />;
+  const savedBank = base?.ac_number ? `${base.ac_name || "Bank account"} · A/c ${mask(base.ac_number)} · ${base.ifsc}` : "";
+  const savedUpi = base?.upi || "";
 
   return (
-    <div className="rbt-dashboard-content-wrapper">
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          borderRadius: '24px', 
-          border: '1px solid #f1f5f9',
-          overflow: 'hidden',
-          background: '#fff'
-        }}
-      >
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 1 }}>
-          <Tabs 
-            value={activeTab} 
-            onChange={handleTabChange} 
-            variant="fullWidth"
-            sx={{
-              '& .MuiTab-root': {
-                py: 2.5,
-                fontSize: '15px',
-                fontWeight: 800,
-                color: '#64748b',
-                textTransform: 'none',
-                '&.Mui-selected': { color: '#2ecc71' }
-              },
-              '& .MuiTabs-indicator': { backgroundColor: '#2ecc71', height: 3 }
-            }}
-          >
-            <Tab icon={<AccountBalanceIcon sx={{ mb: '0 !important', mr: 1 }} />} iconPosition="start" label="Bank Account" />
-            <Tab icon={<QrCodeIcon sx={{ mb: '0 !important', mr: 1 }} />} iconPosition="start" label="UPI ID" />
-          </Tabs>
-        </Box>
-
-        <Box sx={{ p: { xs: 3, md: 4 } }}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" sx={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 1, fontSize: '14px', fontWeight: 600 }}>
-              <InfoIcon sx={{ color: "#1976d2", fontSize: 16 }} />
-              Choose your preferred method to receive payments securely.
-            </Typography>
-          </Box>
-
-          {activeTab === 0 ? (
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Box className="rbt-form-group mb--0">
-                  <label style={labelStyle}>Account Holder Name</label>
-                  <div style={{ position: 'relative' }}>
-                    <PersonIcon style={iconStyle} />
-                    <input
-                      type="text"
-                      placeholder="Enter full name"
-                      style={inputStyle}
-                      value={paymentStore.ac_name}
-                      onChange={(e) => setPaymentStore("ac_name", e.target.value)}
-                    />
-                  </div>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box className="rbt-form-group mb--0">
-                  <label style={labelStyle}>Account Number</label>
-                  <div style={{ position: 'relative' }}>
-                    <PinIcon style={iconStyle} />
-                    <input
-                      type="text"
-                      placeholder="Enter account number"
-                      style={inputStyle}
-                      value={paymentStore.ac_number}
-                      onChange={(e) => setPaymentStore("ac_number", e.target.value)}
-                    />
-                  </div>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Box className="rbt-form-group mb--0">
-                  <label style={labelStyle}>IFSC Code</label>
-                  <div style={{ position: 'relative' }}>
-                    <SecurityIcon style={iconStyle} />
-                    <input
-                      type="text"
-                      placeholder="Enter 11-digit IFSC"
-                      style={inputStyle}
-                      value={paymentStore.ifsc}
-                      onChange={(e) => setPaymentStore("ifsc", e.target.value)}
-                    />
-                  </div>
-                </Box>
-              </Grid>
-            </Grid>
-          ) : (
-            <Box className="rbt-form-group mb--0">
-              <label style={labelStyle}>UPI ID</label>
-              <div style={{ position: 'relative' }}>
-                <QrCodeIcon style={iconStyle} />
-                <input
-                  type="text"
-                  placeholder="e.g. name@okaxis"
-                  style={inputStyle}
-                  value={paymentStore.upi}
-                  onChange={(e) => setPaymentStore("upi", e.target.value)}
-                />
-              </div>
-              <Typography sx={{ mt: 2, fontSize: '13px', color: '#94a3b8', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <InfoIcon sx={{ fontSize: 14 }} /> Instant payouts will be sent to this ID.
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      </Paper>
-
-      <Box sx={{ mt: 4 }}>
-        <FormMessage error={error} success={success} />
-        {loading && <FormProgressBar />}
-        <div className="rbt-form-group">
-          <button
-            className="rbt-btn btn-gradient submit-btn"
-            onClick={handleSubmit}
-            style={{ padding: "0 40px", height: "52px", borderRadius: "12px", fontWeight: "600" }}
-          >
-            Save Payment Details
-          </button>
+    <div>
+      {(savedBank || savedUpi) && (
+        <div className="stg-saved">
+          <VerifiedRoundedIcon />
+          <div style={{ minWidth: 0 }}>
+            <b>Payouts are set up</b>
+            {savedBank && <small>{savedBank}</small>}
+            {savedUpi && <small>UPI · {savedUpi}</small>}
+          </div>
         </div>
-      </Box>
+      )}
+
+      <Section title="How should we pay you?" sub="Session earnings are sent here. Your details are only used for payouts.">
+        <div className="stg-cards two" role="radiogroup" aria-label="Payout method">
+          {[
+            { id: "bank", Icon: AccountBalanceRoundedIcon, t: "Bank account", s: savedBank ? "Saved" : "NEFT / IMPS transfer" },
+            { id: "upi", Icon: QrCode2RoundedIcon, t: "UPI ID", s: savedUpi ? "Saved" : "Instant payout to UPI" },
+          ].map(({ id, Icon, t, s }) => (
+            <button type="button" key={id} role="radio" aria-checked={method === id} className={`stg-card${method === id ? " on" : ""}`} onClick={() => setMethod(id)}>
+              <span className="stg-card-ic"><Icon /></span>
+              <span><b>{t}</b><small>{s}</small></span>
+              <span className="stg-card-tick" aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 18 }}>
+          {method === "bank" ? (
+            <div className="stg-grid">
+              <Field label="Account holder name" htmlFor="pd-name" error={fieldErrors.ac_name} full>
+                <input id="pd-name" type="text" autoComplete="name" placeholder="As printed on your passbook" value={cur.ac_name} onChange={(e) => set("ac_name", e.target.value)} />
+              </Field>
+              <Field label="Account number" htmlFor="pd-no" error={fieldErrors.ac_number}>
+                <div className="stg-inputwrap">
+                  <input id="pd-no" type="text" inputMode="numeric" autoComplete="off" placeholder="9–18 digits"
+                    style={showNo ? { paddingRight: 44 } : { paddingRight: 44, WebkitTextSecurity: "disc" }}
+                    value={cur.ac_number} onChange={(e) => set("ac_number", e.target.value.replace(/\D/g, ""))} />
+                  <button type="button" className="stg-eye" onClick={() => setShowNo((v) => !v)} aria-label={showNo ? "Hide account number" : "Show account number"}>
+                    {showNo ? <VisibilityOffRoundedIcon /> : <VisibilityRoundedIcon />}
+                  </button>
+                </div>
+              </Field>
+              {acChanged ? (
+                <Field label="Confirm account number" htmlFor="pd-no2" error={fieldErrors.confirm}>
+                  <input id="pd-no2" type="text" inputMode="numeric" autoComplete="off" placeholder="Type it again"
+                    value={confirmNo} onPaste={(e) => e.preventDefault()}
+                    onChange={(e) => { setConfirmNo(e.target.value.replace(/\D/g, "")); if (fieldErrors.confirm) setFieldErrors((p) => ({ ...p, confirm: "" })); }} />
+                </Field>
+              ) : <div className="stg-field" aria-hidden="true" />}
+              <Field label="IFSC code" htmlFor="pd-ifsc" error={fieldErrors.ifsc}
+                hint={bank.text ? <span className={`stg-bank${bank.state === "bad" ? " bad" : ""}`}>{bank.text}</span> : "11 characters, e.g. HDFC0001234"}>
+                <input id="pd-ifsc" type="text" autoCapitalize="characters" autoComplete="off" maxLength={11} placeholder="HDFC0001234"
+                  value={cur.ifsc} onChange={(e) => set("ifsc", e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} />
+              </Field>
+            </div>
+          ) : (
+            <div className="stg-grid">
+              <Field label="UPI ID" htmlFor="pd-upi" error={fieldErrors.upi} hint="The UPI ID linked to your bank, e.g. name@okaxis">
+                <input id="pd-upi" type="text" autoCapitalize="none" autoComplete="off" placeholder="name@okaxis" value={cur.upi} onChange={(e) => set("upi", e.target.value.trim())} />
+              </Field>
+            </div>
+          )}
+        </div>
+
+        <div className="stg-tip" style={{ marginTop: 16, display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <LockRoundedIcon style={{ fontSize: 17, color: "#166534", marginTop: 1 }} />
+          <span>Only Choose Your Therapist&apos;s accounts team can see these details. We&apos;ll never ask for your PIN or OTP.</span>
+        </div>
+      </Section>
+
+      <SaveBar dirty={dirty} saving={saving} onSave={handleSubmit} onDiscard={discard} error={error} success={success} label="Save details" />
     </div>
   );
 }

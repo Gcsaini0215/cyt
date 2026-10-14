@@ -943,6 +943,9 @@ button.vbox-link-btn:hover {
    could let the whole page drift left-right. overflow-x: clip (unlike hidden) keeps sticky headers. */
 html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 html, body { max-width: 100%; overflow-x: clip; }
+/* App.css gives body overflow-y: scroll; with html clipped that makes body its own (never-scrolling)
+   scroll box and every position: sticky inside the page stops sticking. Let the viewport scroll instead. */
+body { overflow-y: visible; }
 @supports not (overflow: clip) { html, body { overflow-x: hidden; } }
 @media (max-width: 1024px) and (pointer: coarse) {
   /* :not(#_) adds id-level weight so this also beats component rules like ".cf-input { font-size: 14px !important }" */

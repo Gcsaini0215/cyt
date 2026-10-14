@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   services,
   dailyLiftIssuesList,
@@ -6,294 +6,177 @@ import {
   diagnoseslist,
   relationshipIssuesList,
 } from "../../../utils/static-lists";
-
 import { updateServiceExpertiesUrl } from "../../../utils/url";
 import { postData } from "../../../utils/actions";
-import FormMessage from "../../global/form-message";
-import FormProgressBar from "../../global/form-progressbar";
 import useTherapistStore from "../../../store/therapistStore";
-import { Typography, Box, Chip, Tabs, Tab } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import PeopleIcon from "@mui/icons-material/People";
-import ChildCareIcon from "@mui/icons-material/ChildCare";
-import PsychologyIcon from "@mui/icons-material/Psychology";
-import GroupsIcon from "@mui/icons-material/Groups";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
+import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
+import PsychologyRoundedIcon from "@mui/icons-material/PsychologyRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import { Section, SaveBar, toList } from "./settings-ui";
 
-export default function ServicesAndExperties({ onSuccess }) {
+const SERVICE_META = {
+  "Individual Counselling": { Icon: PersonRoundedIcon, desc: "One-on-one sessions" },
+  "Couple Counselling": { Icon: PeopleRoundedIcon, desc: "Relationships & couples" },
+  "Teen Counselling": { Icon: ChildCareRoundedIcon, desc: "Youth & adolescents" },
+  "Diagnosis": { Icon: PsychologyRoundedIcon, desc: "Clinical assessment" },
+  "Workshops/Training": { Icon: GroupsRoundedIcon, desc: "Groups & workshops" },
+};
+
+const CATEGORIES = [
+  { title: "Daily life", list: dailyLiftIssuesList },
+  { title: "Therapy options", list: therapyoptionlist },
+  { title: "Diagnoses", list: diagnoseslist },
+  { title: "Relationships", list: relationshipIssuesList },
+];
+const ALL_EXPERTISE = [...new Set(CATEGORIES.flatMap((c) => c.list))];
+
+const same = (a, b) => a.length === b.length && [...a].sort().join("|") === [...b].sort().join("|");
+
+export default function ServicesAndExperties({ onDirty }) {
   const { therapistInfo, setInfo } = useTherapistStore();
-  const [loading, setLoading] = useState(false);
-  const [hasInitialized, setHasInitialized] = useState(false);
-  const [error, setError] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [base, setBase] = useState(null); // { services, expertise } as last saved
   const [selectedServices, setSelectedServices] = useState([]);
   const [selectedExpertise, setSelectedExpertise] = useState([]);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeCat, setActiveCat] = useState(0);
+  const [query, setQuery] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  React.useEffect(() => {
-    if (!hasInitialized && therapistInfo?.user?.email) {
-      if (therapistInfo.services) {
-        setSelectedServices(therapistInfo.services.split(",").map((item) => item.trim()));
-      }
-      if (therapistInfo.experties) {
-        setSelectedExpertise(therapistInfo.experties.split(",").map((item) => item.trim()));
-      }
-      setHasInitialized(true);
+  const loaded = !!therapistInfo?.user?.email;
+  useEffect(() => {
+    if (loaded && !base) {
+      const s = toList(therapistInfo.services), e = toList(therapistInfo.experties);
+      setBase({ services: s, expertise: e });
+      setSelectedServices(s);
+      setSelectedExpertise(e);
     }
-  }, [therapistInfo?.user?.email, therapistInfo.services, therapistInfo.experties, hasInitialized]);
+  }, [loaded, base, therapistInfo.services, therapistInfo.experties]);
 
-  const handleServiceChange = (service) => {
-    setSelectedServices((prev) =>
-      prev.includes(service)
-        ? prev.filter((s) => s !== service)
-        : [...prev, service]
-    );
+  const dirty = !!base && (!same(base.services, selectedServices) || !same(base.expertise, selectedExpertise));
+  useEffect(() => { onDirty && onDirty(dirty); }, [dirty, onDirty]);
+  useEffect(() => { if (dirty) setSuccess(""); }, [dirty]);
+
+  const toggle = (setter) => (item) => {
+    setError("");
+    setter((prev) => (prev.includes(item) ? prev.filter((x) => x !== item) : [...prev, item]));
   };
+  const toggleService = toggle(setSelectedServices);
+  const toggleExpertise = toggle(setSelectedExpertise);
 
-  const handleExpertiseChange = (expertise) => {
-    setSelectedExpertise((prev) =>
-      prev.includes(expertise)
-        ? prev.filter((e) => e !== expertise)
-        : [...prev, expertise]
-    );
+  const q = query.trim().toLowerCase();
+  const visible = useMemo(
+    () => (q ? ALL_EXPERTISE.filter((i) => i.toLowerCase().includes(q)) : CATEGORIES[activeCat].list),
+    [q, activeCat]
+  );
+
+  const discard = () => {
+    if (!base) return;
+    setSelectedServices(base.services);
+    setSelectedExpertise(base.expertise);
+    setError("");
   };
 
   const handleSubmit = async () => {
-    const reqData = {
-      services: selectedServices.join(", "),
-      experties: selectedExpertise.join(", "),
-    };
-
+    setError("");
+    setSuccess("");
+    if (!selectedServices.length) { setError("Pick at least one service"); return; }
+    if (!selectedExpertise.length) { setError("Pick at least one area of expertise"); return; }
+    const reqData = { services: selectedServices.join(", "), experties: selectedExpertise.join(", ") };
+    setSaving(true);
     try {
-      setError("");
-      setSuccess("");
-      setLoading(true);
       const response = await postData(updateServiceExpertiesUrl, reqData);
       if (response.status) {
-        setSuccess(response.message);
         setInfo("services", reqData.services);
         setInfo("experties", reqData.experties);
-        setError("");
-        if (onSuccess) {
-          onSuccess();
-        }
+        setBase({ services: [...selectedServices], expertise: [...selectedExpertise] });
+        setSuccess(response.message || "Offerings saved");
+        setTimeout(() => setSuccess(""), 3500);
       } else {
-        setError("Something went wrong");
+        setError(response.message || "Something went wrong — please try again");
       }
-    } catch (error) {
-      setError(error?.response?.data?.message || "Something went wrong");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Couldn't save — check your connection and try again");
     }
-    setLoading(false);
+    setSaving(false);
   };
-
-  const getServiceConfig = (service) => {
-    const base = { color: "#0f3d24", bg: "#f0fdf4" };
-    switch (service) {
-      case "Individual Counselling": return { icon: <PersonIcon sx={{ fontSize: 22 }} />, ...base, desc: "One-on-one personal sessions" };
-      case "Couple Counselling": return { icon: <PeopleIcon sx={{ fontSize: 22 }} />, ...base, desc: "Relationship & couples therapy" };
-      case "Teen Counselling": return { icon: <ChildCareIcon sx={{ fontSize: 22 }} />, ...base, desc: "Youth & adolescent support" };
-      case "Diagnosis": return { icon: <PsychologyIcon sx={{ fontSize: 22 }} />, ...base, desc: "Clinical assessment & diagnosis" };
-      case "Workshops/Training": return { icon: <GroupsIcon sx={{ fontSize: 22 }} />, ...base, desc: "Group sessions & workshops" };
-      default: return { icon: <CheckCircleIcon sx={{ fontSize: 22 }} />, color: "#5b6b62", bg: "#fbfaf7", desc: "" };
-    }
-  };
-
-  const categories = [
-    { title: "Daily Life Issues", list: dailyLiftIssuesList },
-    { title: "Therapy Options", list: therapyoptionlist },
-    { title: "Diagnoses", list: diagnoseslist },
-    { title: "Relationship Issues", list: relationshipIssuesList },
-  ];
 
   return (
-    <div className="rbt-dashboard-content-wrapper">
-      <div className="rbt-profile-row rbt-default-form row row--15">
-        <div className="col-12">
-          <Box sx={{ mb: 4 }}>
-            <Typography sx={{
-              fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 700, fontSize: 19,
-              color: '#122019', mb: 2, pb: 1.25, borderBottom: '1.5px solid #ecefec',
-            }}>
-              What services do you offer?
-            </Typography>
-            <div className="row g-3">
-              {services.map((service) => {
-                const isSelected = selectedServices.includes(service);
-                const config = getServiceConfig(service);
-                return (
-                  <div key={service} className="col-lg-4 col-md-6 col-12">
-                    <Box
-                      onClick={() => handleServiceChange(service)}
-                      sx={{
-                        p: "14px 16px",
-                        cursor: 'pointer',
-                        borderRadius: '6px',
-                        border: '1.5px solid',
-                        borderColor: isSelected ? config.color : '#dbe3df',
-                        background: isSelected ? config.bg : '#fff',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1.5,
-                        position: 'relative',
-                        '&:hover': {
-                          borderColor: config.color,
-                          background: config.bg,
-                        }
-                      }}
-                    >
-                      {/* Icon box */}
-                      <Box sx={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: '4px',
-                        background: isSelected ? config.color : config.bg,
-                        color: isSelected ? '#fff' : config.color,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        transition: 'all 0.2s'
-                      }}>
-                        {config.icon}
-                      </Box>
-
-                      {/* Text */}
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography sx={{ fontSize: '13.5px', fontWeight: 700, color: isSelected ? config.color : '#122019', lineHeight: 1.2 }}>
-                          {service}
-                        </Typography>
-                        <Typography sx={{ fontSize: '11px', color: '#8a978f', mt: 0.3, fontWeight: 500 }}>
-                          {config.desc}
-                        </Typography>
-                      </Box>
-
-                      {/* Checkmark */}
-                      {isSelected && (
-                        <CheckCircleIcon sx={{ color: '#c9962c', fontSize: 18, flexShrink: 0 }} />
-                      )}
-                    </Box>
-                  </div>
-                );
-              })}
-            </div>
-          </Box>
+    <div>
+      <Section title="Services you offer" sub="Pick everything you provide — clients filter by these.">
+        <div className="stg-cards" role="group" aria-label="Services">
+          {services.map((service) => {
+            const on = selectedServices.includes(service);
+            const { Icon, desc } = SERVICE_META[service] || { Icon: CheckRoundedIcon, desc: "" };
+            return (
+              <button type="button" key={service} className={`stg-card${on ? " on" : ""}`} aria-pressed={on} onClick={() => toggleService(service)}>
+                <span className="stg-card-ic"><Icon /></span>
+                <span><b>{service}</b>{desc && <small>{desc}</small>}</span>
+                <span className="stg-card-tick" aria-hidden="true" />
+              </button>
+            );
+          })}
         </div>
+      </Section>
 
-        <div className="col-12 mt--20">
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1, pb: 1.25, borderBottom: '1.5px solid #ecefec' }}>
-            <Typography sx={{ fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 700, fontSize: 19, color: '#122019' }}>
-              Your Area of Expertise
-            </Typography>
-            {selectedExpertise.length > 0 && (
-              <Chip
-                label={`${selectedExpertise.length} selected`}
-                size="small"
-                sx={{ background: '#0f3d24', color: '#fff', fontWeight: 700, fontSize: '11px', borderRadius: '4px' }}
-              />
-            )}
-          </Box>
-
-          {/* Category Tabs */}
-          <Box sx={{ borderBottom: '1px solid #ecefec', mb: 3 }}>
-            <Tabs
-              value={activeTab}
-              onChange={(_, val) => setActiveTab(val)}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                minHeight: '40px',
-                '& .MuiTab-root': {
-                  fontWeight: 700,
-                  fontSize: '11.5px',
-                  letterSpacing: '0.4px',
-                  textTransform: 'uppercase',
-                  color: '#8a978f',
-                  minHeight: '40px',
-                  px: 1.5,
-                },
-                '& .Mui-selected': { color: '#0f3d24 !important' },
-                '& .MuiTabs-indicator': { background: '#c9962c', height: '2.5px' }
-              }}
-            >
-              {categories.map((cat, idx) => {
-                const count = cat.list.filter(i => selectedExpertise.includes(i)).length;
-                return (
-                  <Tab
-                    key={cat.title}
-                    label={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                        {cat.title}
-                        {count > 0 && (
-                          <Box sx={{
-                            background: '#f0fdf4',
-                            color: '#0f3d24',
-                            border: '1px solid #c8ddd0',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: 800,
-                            px: 0.7,
-                            py: 0.1,
-                            lineHeight: 1.6
-                          }}>
-                            {count}
-                          </Box>
-                        )}
-                      </Box>
-                    }
-                  />
-                );
-              })}
-            </Tabs>
-          </Box>
-
-          {/* Chips for active tab */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, minHeight: 80 }}>
-            {categories[activeTab]?.list.map((item) => {
-              const isSelected = selectedExpertise.includes(item);
-              return (
-                <Chip
-                  key={item}
-                  label={item}
-                  onClick={() => handleExpertiseChange(item)}
-                  sx={{
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    fontSize: '12.5px',
-                    background: isSelected ? '#0f3d24' : '#fff',
-                    color: isSelected ? '#fff' : '#374b40',
-                    border: '1.5px solid',
-                    borderColor: isSelected ? '#0f3d24' : '#dbe3df',
-                    transition: 'all 0.2s',
-                    height: '32px',
-                    '& .MuiChip-label': { px: 1.4 },
-                    '&:hover': {
-                      background: isSelected ? '#16512f' : '#f0fdf4',
-                      borderColor: '#0f3d24',
-                      color: isSelected ? '#fff' : '#0f3d24'
-                    }
-                  }}
-                />
-              );
-            })}
-          </Box>
-        </div>
-
-        <div className="col-12 mt--30">
-          <FormMessage error={error} success={success} />
-          {loading && <FormProgressBar />}
-          <div className="rbt-form-group">
-            <button
-              className="rbt-btn btn-gradient submit-btn"
-              onClick={handleSubmit}
-              style={{ padding: "0 40px", height: "52px", borderRadius: "12px", fontWeight: "600" }}
-            >
-              Save Offerings
-            </button>
+      <Section
+        title="Areas of expertise"
+        sub="Shown as tags on your profile — they decide which concern pages list you."
+        aside={selectedExpertise.length > 0 && (
+          <button type="button" className="stg-link" onClick={() => { setError(""); setSelectedExpertise([]); }}>Clear all</button>
+        )}
+      >
+        <div className="stg-exp-tools">
+          <div className="stg-search stg-field">
+            <SearchRoundedIcon />
+            <input type="search" placeholder="Search e.g. anxiety, OCD, CBT" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search expertise" />
           </div>
         </div>
-      </div>
+
+        {!q && (
+          <div className="stg-cats" role="tablist" aria-label="Expertise categories">
+            {CATEGORIES.map((c, i) => {
+              const n = c.list.filter((x) => selectedExpertise.includes(x)).length;
+              return (
+                <button type="button" role="tab" aria-selected={activeCat === i} key={c.title}
+                  className={`stg-cat${activeCat === i ? " active" : ""}`} onClick={() => setActiveCat(i)}>
+                  {c.title}{n > 0 && <i>{n}</i>}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="stg-chips">
+          {visible.length ? visible.map((item) => {
+            const on = selectedExpertise.includes(item);
+            return (
+              <button type="button" key={item} className={`stg-chip${on ? " on" : ""}`} aria-pressed={on} onClick={() => toggleExpertise(item)}>
+                {item}
+              </button>
+            );
+          }) : <div className="stg-empty">No match for “{query}”.</div>}
+        </div>
+
+        <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid #eef2f0" }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#334155", marginBottom: 8 }}>
+            Selected · {selectedExpertise.length}
+          </div>
+          {selectedExpertise.length ? (
+            <div className="stg-picked">
+              {selectedExpertise.map((e) => (
+                <span key={e}>{e}<button type="button" aria-label={`Remove ${e}`} onClick={() => toggleExpertise(e)}>×</button></span>
+              ))}
+            </div>
+          ) : <div className="stg-empty">Nothing selected yet.</div>}
+        </div>
+      </Section>
+
+      <SaveBar dirty={dirty} saving={saving} onSave={handleSubmit} onDiscard={discard} error={error} success={success} label="Save offerings" />
     </div>
   );
 }
