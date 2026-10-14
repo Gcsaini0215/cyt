@@ -52,7 +52,13 @@ export default function ClientShell({ title, children }) {
   }, [menu]);
   useEffect(() => { setMenu(false); }, [router.pathname]);
 
-  const logout = () => { removeToken(); router.push("/login"); };
+  // ask first — a stray tap on a phone should never log anyone out
+  const logout = () => {
+    setMenu(false);
+    if (!window.confirm("Log out of your account?")) return;
+    removeToken();
+    router.push("/login");
+  };
   const name = userInfo?.name || "";
   const photo = userInfo?.profile && !/^https?:/.test(userInfo.profile) && !userInfo.profile.startsWith("blob:") ? `${imagePath}/${userInfo.profile}` : "";
   const initials = (name || "U").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
