@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { removeToken } from "../../../utils/jwt";
 import { fetchById, putData, postData } from "../../../utils/actions";
-import { commsPrefsUrl, googleStatusUrl, googleConnectUrl, googleDisconnectUrl } from "../../../utils/url";
+import { commsPrefsUrl, googleStatusUrl, googleConnectUrl, googleDisconnectUrl, googleTestUrl } from "../../../utils/url";
 import { profilePath } from "../../../utils/therapist-slug";
 import useTherapistStore from "../../../store/therapistStore";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
@@ -32,6 +32,16 @@ function GoogleMeet() {
   const [st, setSt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [test, setTest] = useState(null);
+  const makeTest = async () => {
+    setBusy(true); setTest(null); setMsg(null);
+    try {
+      const r = await postData(googleTestUrl, {});
+      if (r?.status && r.data?.link) setTest(r.data);
+      else setMsg(["err", r?.message || "Couldn't create a test meeting"]);
+    } catch (e) { setMsg(["err", e?.response?.data?.message || "Couldn't create a test meeting"]); }
+    setBusy(false);
+  };
   const load = () => fetchById(googleStatusUrl).then((r) => setSt(r?.status ? r.data : { configured: false })).catch(() => setSt({ configured: false }));
   useEffect(() => { load(); }, []);
   useEffect(() => {
@@ -62,6 +72,7 @@ function GoogleMeet() {
       {!st ? <div className="stg-empty">Checking…</div> : !st.configured ? (
         <div className="stg-tip">Coming soon — Google Meet links for online sessions are being switched on.</div>
       ) : st.connected ? (
+        <>
         <div className="stg-gconn">
           <div className="stg-gconn-ic">G</div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -70,6 +81,18 @@ function GoogleMeet() {
           </div>
           <button type="button" className="stg-btn ghost" onClick={disconnect} disabled={busy}>Disconnect</button>
         </div>
+        <div className="stg-gtest">
+          <button type="button" className="stg-btn outline" onClick={makeTest} disabled={busy}>{busy ? "Creating…" : "Create a test meeting"}</button>
+          <span>Adds a 15-minute test event with a Meet link to your Google Calendar (30 min from now) — no client is invited.</span>
+        </div>
+        {test && (
+          <div className="stg-gtest-ok">
+            <b>✓ It works — Google created a Meet link:</b>
+            <a href={test.link} target="_blank" rel="noopener noreferrer">{test.link.replace("https://", "")}</a>
+            {test.calendarLink && <a href={test.calendarLink} target="_blank" rel="noopener noreferrer" className="sub">Open in Google Calendar →</a>}
+          </div>
+        )}
+        </>
       ) : (
         <>
           <ul className="stg-gsteps">

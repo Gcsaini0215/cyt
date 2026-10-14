@@ -243,6 +243,12 @@ export const STG_CSS = `
   color: #4285f4; flex-shrink: 0; }
 .stg-gconn b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stg-gconn small { display: block; font-size: 12.5px; color: var(--mut); margin-top: 1px; }
+.stg-gtest { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.stg-gtest span { font-size: 12.5px; color: var(--mut); flex: 1; min-width: 200px; line-height: 1.45; }
+.stg-gtest-ok { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; display: flex; flex-direction: column; gap: 4px; }
+.stg-gtest-ok b { font-size: 13.5px; color: #166534; }
+.stg-gtest-ok a { font-size: 14px; font-weight: 700; color: #166534 !important; word-break: break-all; }
+.stg-gtest-ok a.sub { font-size: 12.5px; font-weight: 600; }
 .stg-gsteps { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; color: #334155; line-height: 1.5; }
 
 /* email preference switches */
