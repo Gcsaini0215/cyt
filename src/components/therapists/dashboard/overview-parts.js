@@ -28,7 +28,7 @@ export function TodayBar({ firstName, now, todaySessions, nextSession, loading, 
     <div className="ov-today">
       <div className="ov-today-main">
         <div className="ov-hello-row">
-          <div className="ov-hello">{greeting(now)}, {firstName}</div>
+          <div className="ov-hello">{greeting(now)}, <span className="ov-hello-name">{firstName}</span></div>
           <button type="button" className="ov-refresh-ic" onClick={onRefresh} disabled={refreshing} title={lastRefreshed ? `Updated ${fmtTime(lastRefreshed)} · tap to refresh` : "Refresh"} aria-label="Refresh">
             <span className={refreshing ? "spin" : ""}>↻</span>
           </button>
@@ -186,7 +186,7 @@ export function TodoCard({ items = [], pct }) {
 }
 
 export const OV_CSS = `
-.ov { --ov-green: #16a34a; --ov-teal: #0ea5a3; --ov-violet: #6366f1; --ov-amber: #d97706; font-family: inherit; }
+.ov { --ov-green: #16a34a; --ov-teal: #0d9488; --ov-violet: #6366f1; --ov-gold: #c9962c; --ov-amber: #d97706; font-family: inherit; }
 .ov-card { background: #fff; border: 1px solid #e6ece8; border-radius: 16px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -14px rgba(15,23,42,.12); padding: 16px 18px; min-width: 0; }
 .ov-card-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .ov-card-h b { font-size: 15px; font-weight: 800; color: #0f172a; }
@@ -194,6 +194,7 @@ export const OV_CSS = `
 
 .ov-today { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 14px; }
 .ov-hello { font-size: clamp(19px, 2.2vw, 24px); font-weight: 800; color: #0f172a; letter-spacing: -.2px; }
+.ov-hello-name { color: #166534; }
 .ov-today-line { font-size: 13.5px; color: #475569; margin-top: 2px; }
 .ov-today-line b { color: #0f172a; }
 .ov-today-side { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
@@ -226,6 +227,14 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .ov-kpi-label { font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .ov-kpi-val { font-size: clamp(20px, 2.2vw, 26px); font-weight: 800; color: #0f172a; letter-spacing: -.3px; }
+/* each number in its own theme colour */
+.ov-kpi { border-top: 3px solid transparent; }
+.ov-kpi.green { background: linear-gradient(165deg, #e6f7ec 0%, #ffffff 62%); border-color: #cdebd7; border-top-color: #16a34a; }
+.ov-kpi.teal { background: linear-gradient(165deg, #e2f6f3 0%, #ffffff 62%); border-color: #c8ebe5; border-top-color: #0d9488; }
+.ov-kpi.gold { background: linear-gradient(165deg, #fbf3e2 0%, #ffffff 62%); border-color: #eedfbd; border-top-color: #c9962c; }
+.ov-kpi.amber { background: linear-gradient(165deg, #fef3e2 0%, #ffffff 62%); border-color: #f5dfb8; border-top-color: #d97706; }
+.ov-kpi.green .ov-kpi-val { color: #166534; } .ov-kpi.teal .ov-kpi-val { color: #0f766e; }
+.ov-kpi.gold .ov-kpi-val { color: #92651a; } .ov-kpi.amber .ov-kpi-val { color: #b45309; }
 .ov-trend { font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
 .ov-trend.up { background: #ecfdf3; color: #15803d; } .ov-trend.down { background: #fef2f2; color: #b91c1c; }
 .ov-spark { width: 100%; height: 28px; display: block; }

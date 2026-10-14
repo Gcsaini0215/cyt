@@ -176,7 +176,8 @@ function DashCard({ icon: Icon, title, sub, action, disablePad = false, children
             gap: 1.5,
             px: { xs: 1.75, md: 2.25 },
             py: 1.5,
-            borderBottom: `1px solid ${UI.line}`,
+            borderBottom: "1px solid #e1efe5",
+            background: "linear-gradient(90deg, #eef8f1 0%, #ffffff 75%)",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.15, minWidth: 0 }}>
@@ -185,9 +186,10 @@ function DashCard({ icon: Icon, title, sub, action, disablePad = false, children
                 sx={{
                   width: 30,
                   height: 30,
-                  borderRadius: "8px",
-                  background: UI.green.bg,
-                  color: UI.green.main,
+                  borderRadius: "9px",
+                  background: "linear-gradient(135deg, #14532d, #16a34a)",
+                  color: "#fff",
+                  boxShadow: "0 4px 10px -4px rgba(22,101,52,.55)",
                   display: "grid",
                   placeItems: "center",
                   flexShrink: 0,
@@ -1113,7 +1115,7 @@ export default function TherapistDashboard() {
             <div className="ov-kpis">
               <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} />
               <KpiCard label="Sessions · month" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} href="/appointments" tone="teal" loading={loading} />
-              <KpiCard label="New clients" value={stats.newClients} spark={weeklyData.map((d) => d.sessions)} href="/appointments" tone="violet" loading={loading} />
+              <KpiCard label="New clients" value={stats.newClients} spark={weeklyData.map((d) => d.sessions)} href="/appointments" tone="gold" loading={loading} />
               <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} />
             </div>
           </div>

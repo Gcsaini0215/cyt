@@ -129,9 +129,9 @@ const RAIL_CSS = `
   transition: background .15s ease, color .15s ease;
 }
 .tsn-item svg { font-size: 21px; flex-shrink: 0; }
-.tsn-item:hover { background: #f4f7f5; color: #166534; }
-.tsn-item.active { background: #e7f6ec; color: #166534; }
-.tsn-item.active::before { content: ""; position: absolute; left: -10px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: #166534; }
+.tsn-item:hover { background: #e7f6ec; color: #166534; }
+.tsn-item.active { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; box-shadow: 0 6px 14px -6px rgba(22,101,52,.6); }
+.tsn-item.active::before { content: ""; position: absolute; left: -10px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: #c9962c; }
 .tsn-label { display: none; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .tsn-item .tsn-badge.nx-badge { position: absolute; top: 3px; right: 4px; min-width: 17px; height: 17px; padding: 0 4px; font-size: 9.5px; border: 1.5px solid #fff; }
 .tsn-item .tsn-badge.nx-dot { position: absolute; top: 9px; right: 11px; }
