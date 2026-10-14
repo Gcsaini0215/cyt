@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import MainLayout from "../components/therapists/main-layout";
 import {
-  getBookings,
   GetMyWorkshopBooking,
   GetDashboardDataUrl,
   defaultProfile,
@@ -16,6 +15,7 @@ import AvailabilityNudge from "../components/therapists/dashboard/AvailabilityNu
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import { TodayBar, KpiCard, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
+import { fetchBookingsShared } from "../utils/bookings-shared";
 import { Box, Typography, Avatar, Skeleton, CircularProgress } from "@mui/material";
 
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
@@ -752,6 +752,7 @@ export default function TherapistDashboard() {
   const [showWelcome, setShowWelcome] = React.useState(false);
   const [welcLeaving, setWelcLeaving] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [nextLoading, setNextLoading] = React.useState(true); // bookings arrive before the totals
   const [refreshing, setRefreshing] = React.useState(false);
   const [lastRefreshed, setLastRefreshed] = React.useState(null);
   const [clockTime, setClockTime] = React.useState(null);
@@ -785,12 +786,26 @@ export default function TherapistDashboard() {
   const load = React.useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      const [bookingsRes, workshopRes, dashRes, reviewsRes] = await Promise.allSettled([
-        fetchById(getBookings),
+      // bookings first: the Next session card and the week strip only need them
+      const bookingsP = fetchBookingsShared(isRefresh ? 0 : 15000);
+      const othersP = Promise.allSettled([
         fetchById(GetMyWorkshopBooking),
         fetchById(GetDashboardDataUrl),
         fetchById(GetMyReviewsUrl),
       ]);
+      const [bookingsRes] = await Promise.allSettled([bookingsP]);
+      if (!isRefresh && bookingsRes.status === "fulfilled" && bookingsRes.value?.status) {
+        const t0 = Date.now();
+        const early = (bookingsRes.value.data || [])
+          .filter((b) => b.status !== "Completed" && b.status !== "Cancelled")
+          .filter((b) => { const d = safeDate(b.booking_date); return d && d.getTime() >= t0 - SESSION_WINDOW_MS; })
+          .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
+          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: b.client?.photo || b.client?.profile }));
+        setUpcomingSessions(early);
+        setNextSession(early[0] || null);
+      }
+      setNextLoading(false);
+      const [workshopRes, dashRes, reviewsRes] = await othersP;
       const bookingsData = bookingsRes.status === "fulfilled" ? bookingsRes.value : {};
       const workshopData = workshopRes.status === "fulfilled" ? workshopRes.value : {};
       const dashResData = dashRes.status === "fulfilled" ? dashRes.value : {};
@@ -959,6 +974,7 @@ export default function TherapistDashboard() {
       console.error("Dashboard error:", e);
     } finally {
       setLoading(false);
+      setNextLoading(false);
       setRefreshing(false);
     }
   }, []);
@@ -1078,7 +1094,7 @@ export default function TherapistDashboard() {
 
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
           <div className="ov-top">
-            <NextSessionCard s={nextSession} loading={loading} />
+            <NextSessionCard s={nextSession} loading={nextLoading} />
             <TodoCard items={todoItems} pct={completionPct} />
             <div className="ov-kpis">
               <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} />

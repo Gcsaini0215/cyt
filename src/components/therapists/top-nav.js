@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
-import { defaultProfile, imagePath, getBookings } from "../../utils/url";
-import { fetchById } from "../../utils/actions";
+import { defaultProfile, imagePath } from "../../utils/url";
+import { fetchBookingsShared } from "../../utils/bookings-shared";
 import { toast } from "react-toastify";
 import { NAV_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
@@ -110,7 +110,7 @@ export default function DashboardTopNav() {
   useEffect(() => {
     const check = async () => {
       try {
-        const res = await fetchById(getBookings);
+        const res = await fetchBookingsShared(20000);
         if (res?.status && res.data) {
           const count = res.data.length;
           if (prevBookingsCount.current !== null && count > prevBookingsCount.current) {

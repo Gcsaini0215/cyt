@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
-import { fetchData } from "../../../utils/actions";
-import { getBookings } from "../../../utils/url";
+import { fetchBookingsShared } from "../../../utils/bookings-shared";
 import { getToken } from "../../../utils/jwt";
 
 /* Shown once per login on the therapist dashboard: "are your timings for this week right?"
@@ -39,7 +38,7 @@ export default function AvailabilityNudge({ therapistInfo, blocked }) {
     try { seen = localStorage.getItem(SEEN_KEY) || ""; } catch { /* storage blocked */ }
     if (seen === loginKey) return undefined;
     let alive = true;
-    fetchData(getBookings).then((r) => { if (alive && r?.status) setBookings(r.data || []); }).catch(() => {});
+    fetchBookingsShared().then((r) => { if (alive && r?.status) setBookings(r.data || []); }).catch(() => {});
     const t = setTimeout(() => alive && setOpen(true), 700);
     return () => { alive = false; clearTimeout(t); };
   }, [blocked, therapistInfo?.user?.email, loginKey]);
