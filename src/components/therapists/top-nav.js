@@ -51,6 +51,7 @@ export default function DashboardTopNav() {
   const [wide, setWide] = useState(false);
   const [q, setQ] = useState("");
   const [qOpen, setQOpen] = useState(false);
+  const [mSearch, setMSearch] = useState(false); // phones: search opens over the bar
   const [qIdx, setQIdx] = useState(0);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
@@ -82,10 +83,10 @@ export default function DashboardTopNav() {
   };
 
   // close menus on navigation / Esc / outside click
-  useEffect(() => { setDrawer(false); setProfileOpen(false); setQOpen(false); setQ(""); }, [pathname]);
+  useEffect(() => { setDrawer(false); setProfileOpen(false); setQOpen(false); setQ(""); setMSearch(false); }, [pathname]);
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") { setDrawer(false); setProfileOpen(false); setQOpen(false); }
+      if (e.key === "Escape") { setDrawer(false); setProfileOpen(false); setQOpen(false); setMSearch(false); }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); searchRef.current?.focus(); setQOpen(true); }
     };
     document.addEventListener("keydown", onKey);
@@ -163,14 +164,23 @@ export default function DashboardTopNav() {
     <>
       <style dangerouslySetInnerHTML={{ __html: TN_CSS + NX_CSS }} />
 
-      <header className="tn-bar">
+      <header className={`tn-bar${mSearch ? " msearch" : ""}`}>
         <button type="button" className="tn-menu-btn" onClick={onMenu} aria-label="Menu" title="Menu">
           {wide ? <MenuOpenRoundedIcon /> : <MenuRoundedIcon />}
         </button>
 
-        <Link href="/therapist-dashboard" className="tn-logo">
-          <img src={logo1} alt="CYT" width={28} height={28} />
-          <span className="tn-title-text">Therapist Portal</span>
+        <Link href="/therapist-dashboard" className="tn-logo" title="Dashboard" aria-label="Dashboard">
+          <img src={logo1} alt="CYT" width={30} height={30} />
+        </Link>
+
+        {/* who's signed in — name, what they are, and whether the profile is live */}
+        <Link href="/settings" className="tn-who" title="Your profile & settings">
+          <b>{therapistInfo?.user?.name || "Therapist Portal"}</b>
+          <span>
+            {therapistInfo?.profile_type && <em className="tn-who-type">{therapistInfo.profile_type}</em>}
+            {listing && <i className={`tn-who-st ${listing.tone}`}>{listing.label}</i>}
+          </span>
+          <small className="tn-who-brand">www.chooseyourtherapist.in</small>
         </Link>
 
         <div className="tn-search" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setQOpen(false); }}>
@@ -179,6 +189,7 @@ export default function DashboardTopNav() {
             aria-label="Search pages" onFocus={() => { setQOpen(true); setQIdx(0); }}
             onChange={(e) => { setQ(e.target.value); setQIdx(0); setQOpen(true); }} onKeyDown={onSearchKey} />
           <kbd>Ctrl K</kbd>
+          <button type="button" className="tn-search-x" onClick={() => { setMSearch(false); setQOpen(false); setQ(""); }} aria-label="Close search"><CloseRoundedIcon /></button>
           {qOpen && (
             <div className="tn-search-dd" role="listbox">
               {results.length ? results.map((item, i) => (
@@ -192,6 +203,9 @@ export default function DashboardTopNav() {
         </div>
 
         <div className="tn-right">
+          <button type="button" className="tn-icon-btn tn-search-ic" onClick={() => { setMSearch(true); setTimeout(() => searchRef.current?.focus(), 30); }} aria-label="Search pages" title="Search">
+            <SearchRoundedIcon />
+          </button>
           <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-icon-btn tn-hide-sm" title="Go to website" aria-label="Go to website">
             <LanguageRoundedIcon />
           </a>
@@ -290,11 +304,25 @@ const TN_CSS = `
   border-bottom: 1px solid #e4ece7; display: flex; align-items: center; gap: 12px; padding: 0 16px 0 14px;
   user-select: none;
 }
-.tn-menu-btn { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; background: transparent; border: none; cursor: pointer; display: grid; place-items: center; color: #475569; transition: background .14s, color .14s; }
-.tn-menu-btn:hover { background: #f1f5f3; color: #166534; }
-.tn-menu-btn svg { font-size: 23px; }
-.tn-logo { display: flex; align-items: center; gap: 9px; text-decoration: none !important; flex-shrink: 0; }
-.tn-logo img { width: 28px; height: 28px; object-fit: contain; display: block; }
+.tn-menu-btn { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; background: #f6f8f7; border: 1px solid #e4ece7; cursor: pointer; display: grid; place-items: center; color: #334155; transition: background .14s, color .14s, border-color .14s; }
+.tn-menu-btn:hover { background: #e7f6ec; border-color: #c6e6d1; color: #166534; }
+.tn-menu-btn svg { font-size: 22px; }
+.tn-logo { display: flex; align-items: center; text-decoration: none !important; flex-shrink: 0; }
+.tn-logo img { width: 30px; height: 30px; object-fit: contain; display: block; }
+.tn-who { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; max-width: 300px; padding: 4px 10px 4px 12px; margin-left: -2px;
+  border-left: 1px solid #e4ece7; text-decoration: none !important; border-radius: 0 10px 10px 0; transition: background .14s; }
+.tn-who:hover { background: #f6f8f7; }
+.tn-who-brand { font-size: 9px; font-weight: 400; letter-spacing: .3px; color: #94a3b8; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tn-who { gap: 1px !important; }
+.tn-who b { font-size: 14px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+.tn-who > span { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.2; }
+.tn-who-type { font-style: normal; font-size: 11px; font-weight: 400; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tn-who-type + .tn-who-st::before { order: -2; content: "·"; color: #cbd5e1; margin-right: 6px; }
+.tn-who-st { font-style: normal; font-size: 11px; font-weight: 500; white-space: nowrap; display: inline-flex; align-items: center; flex-shrink: 0; }
+.tn-who-st::after { order: -1; content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 5px; }
+.tn-who-st.ok { color: #15803d; } .tn-who-st.warn { color: #b45309; } .tn-who-st.off { color: #b91c1c; }
+.tn-search-ic, .tn-search-x { display: none !important; }
+.tn-prof-name, .tn-prof-chevron { display: none; }
 .tn-title-text { font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; }
 
 .tn-search { position: relative; flex: 1; min-width: 0; max-width: 460px; height: 40px; margin-left: 12px; background: #f1f5f3; border: 1px solid transparent; border-radius: 11px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; color: #94a3b8; transition: border-color .14s, background .14s; }
@@ -403,7 +431,17 @@ const TN_CSS = `
 @media (max-width: 767px) {
   .tn-bar { gap: 6px; padding: 0 8px; }
   .tn-title-text, .tn-prof-name, .tn-prof-chevron, .tn-hide-sm { display: none; }
-  .tn-search { margin-left: 4px; max-width: none; min-width: 0; padding: 0 8px 0 10px; }
+  .tn-search { display: none; }
+  .tn-bar.msearch .tn-search { display: flex; position: absolute; left: 8px; right: 8px; top: 8px; height: 40px; margin: 0; max-width: none; z-index: 3; background: #fff; border-color: #a7d7b8; box-shadow: 0 0 0 3px rgba(22,101,52,.08); }
+  .tn-bar.msearch .tn-search-x { display: grid !important; place-items: center; width: 32px; height: 32px; border: 0; background: #f1f5f3; border-radius: 9px; color: #334155; cursor: pointer; flex-shrink: 0; }
+  .tn-bar.msearch .tn-search-x svg { font-size: 18px; }
+  .tn-search-ic { display: grid !important; }
+  .tn-who { flex: 1; max-width: none; padding: 2px 4px 2px 10px; }
+  .tn-who b { font-size: 13.5px; }
+  .tn-who-type { display: none; }
+  .tn-who-type + .tn-who-st::before { content: none; }
+  .tn-logo img { width: 28px; height: 28px; }
+  .tn-menu-btn { width: 38px; height: 38px; }
   .tn-search input::placeholder { text-overflow: ellipsis; }
   .tn-right { gap: 0; }
   .tn-search input { font-size: 16px; }
