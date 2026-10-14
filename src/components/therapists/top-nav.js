@@ -479,13 +479,16 @@ const TN_CSS = `
 .tn-bar .tn-who-type + .tn-who-st::before { color: rgba(255,255,255,.35); }
 .tn-bar .tn-who-st.ok { color: #86efac; } .tn-bar .tn-who-st.warn { color: #fcd34d; } .tn-bar .tn-who-st.off { color: #fca5a5; }
 .tn-bar .tn-who-brand { color: rgba(255,255,255,.62); }
-.tn-bar .tn-search { background: rgba(255,255,255,.13); color: rgba(255,255,255,.75); border-color: rgba(255,255,255,.12); }
-.tn-bar .tn-search input { color: #fff; }
-.tn-bar .tn-search input::placeholder { color: rgba(255,255,255,.7); }
-.tn-bar .tn-search kbd { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.22); color: rgba(255,255,255,.85); }
-.tn-bar .tn-search:focus-within, .tn-bar.msearch .tn-search { background: #fff; color: #94a3b8; border-color: #a7d7b8; }
-.tn-bar .tn-search:focus-within input, .tn-bar.msearch .tn-search input { color: #0f172a; }
-.tn-bar .tn-search:focus-within input::placeholder, .tn-bar.msearch .tn-search input::placeholder { color: #94a3b8; }
+.tn-bar .tn-search { background: #fff; color: #64748b; border-color: #fff; box-shadow: 0 2px 8px -4px rgba(0,0,0,.35); }
+.tn-bar .tn-search input { color: #0f172a; }
+.tn-bar .tn-search input::placeholder { color: #94a3b8; }
+.tn-bar .tn-search:focus-within { border-color: #a7d7b8; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+/* desktop + iPad: search sits on the right, next to the icons */
+@media (min-width: 768px) {
+  .tn-bar .tn-search { margin-left: auto; flex: 0 1 360px; }
+  .tn-bar .tn-right { margin-left: 0; }
+}
+@media (min-width: 768px) and (max-width: 1023px) { .tn-bar .tn-search { flex-basis: 220px; } }
 .tn-bar .tn-icon-btn { color: rgba(255,255,255,.9); }
 .tn-bar .tn-icon-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
 .tn-bar .tn-notif-dot { border-color: #14532d; }
