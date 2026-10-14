@@ -5,7 +5,7 @@ import Head from "next/head";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
-import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile, apiUrl } from "../../utils/url";
+import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile, apiUrl, releaseBookingSlot } from "../../utils/url";
 import useUserStore from "../../store/userStore";
 import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
 
@@ -262,7 +262,8 @@ export default function TherapistCheckoutPage() {
         modal: {
           ondismiss: function() {
             if (paidRef.current) return; // paid — the handler owns what happens next
-            // user closed Razorpay — let them retry
+            // user closed Razorpay — free the slot at once, and let them retry
+            releaseBookingSlot(bookingId);
             setStatus("error");
             setErr("Payment was cancelled. You can retry whenever you're ready.");
             bookedRef.current = false;

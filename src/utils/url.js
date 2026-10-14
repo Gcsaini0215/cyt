@@ -154,6 +154,12 @@ export const GetFavriouteTherapistListUrl = GetFavoriteTherapistListUrl;
 export const BookTherapistUrl = `${apiUrl}/book-therapist`;
 export const BookTherapistUrlAnonymously = `${apiUrl}/book-therapist-anonymously`;
 export const BookedSlotsUrl = `${apiUrl}/booked-slots/`;
+// client closed Razorpay without paying → free the slot right away (it's otherwise held 20 min)
+export const releaseSlotUrl = (bookingId) => `${apiUrl}/booking/${bookingId}/release-slot`;
+export const releaseBookingSlot = (bookingId) => {
+  if (!bookingId) return;
+  fetch(releaseSlotUrl(bookingId), { method: "POST", keepalive: true }).catch(() => {});
+};
 export const sendGuestEmailOtpUrl = `${apiUrl}/send-guest-email-otp`;
 export const verifyGuestEmailOtpUrl = `${apiUrl}/verify-guest-email-otp`;
 export const pendingPaymentUrl = `${apiUrl}/get-payment`;

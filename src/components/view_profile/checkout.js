@@ -6,7 +6,7 @@ import { useMediaQueryClient } from "../../hooks/useMediaQueryClient";
 
 import FormMessage from "../global/form-message";
 import { postData } from "../../utils/actions";
-import { ApplyCouponUrl, BookTherapistUrl, verifyOtpUrl, imagePath } from "../../utils/url";
+import { ApplyCouponUrl, BookTherapistUrl, verifyOtpUrl, imagePath, releaseBookingSlot } from "../../utils/url";
 import { useRouter } from "next/router";
 import FormProgressBar from "../global/form-progressbar";
 import useUserStore from "../../store/userStore";
@@ -150,6 +150,7 @@ export default function TherapistCheckout({ profile }) {
         theme: { color: "#228756" },
         modal: {
           ondismiss: function () {
+            releaseBookingSlot(bookingId); // closed without paying — the slot is free again
             router.push(profilePath(profile));
           }
         }
