@@ -23,7 +23,7 @@ const useCommsStore = create((set, get) => ({
 
   fetchReviewsCount: async () => {
     try {
-      const r = await fetchById(GetMyReviewsUrl);
+      const r = await fetchById(`${GetMyReviewsUrl}?limit=1000`); // full count for the "new reviews" badge
       if (!r?.status) return;
       const total = (r.data || []).length;
       let seen = null;
