@@ -78,6 +78,8 @@ function personOf(a) {
   };
 }
 
+const isOnline = (f) => !/offline|in[- ]?person|clinic/i.test(String(f || ""));
+
 function dayLabel(d, now) {
   const k = istKey(d);
   if (k === istKey(now)) return "Today";
@@ -254,9 +256,16 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const join = async (a) => {
     try {
       const d = await joinSession(a._id, a.meet_link);
+      if (d?.meet_link && !a.meet_link) {
+        setAppointments((prev) => prev.map((x) => (x._id === a._id ? { ...x, meet_link: d.meet_link } : x)));
+        setSelected((s) => (s && s._id === a._id ? { ...s, meet_link: d.meet_link } : s));
+      }
       if (d?.status === SESSION_STATUS.STARTED) markStarted(a._id);
       else if (d) toast.info("Opened Meet — the session starts automatically when your client joins.");
-    } catch (e) { toast.error(e.message); }
+    } catch (e) {
+      toast.error(e.message, { autoClose: 7000 });
+      if (/connect your google/i.test(e.message)) setTimeout(() => { if (window.confirm("Open Settings to connect Google now?")) window.location.href = "/settings?tab=account"; }, 300);
+    }
   };
   const endSession = async (a) => {
     if (!window.confirm(`End the session with ${personOf(a).name}?`)) return;
@@ -287,7 +296,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const open = (a, tab = "details") => { setSelected(a); setDetailTab(tab); };
 
   const SessionButton = ({ a, big }) => {
-    const hasMeet = !!a.meet_link;
+    const hasMeet = !!a.meet_link || isOnline(a.format);
     if (a.status === SESSION_STATUS.NEW) {
       return hasMeet
         ? <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); join(a); }}><VideocamRoundedIcon /> Join<span className="apx-lg"> Meet</span></button>
