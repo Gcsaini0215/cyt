@@ -23,7 +23,6 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
-import LockResetRoundedIcon from "@mui/icons-material/LockResetRounded";
 
 const logo1 = "/cyt-emblem.png";
 const WIDE_KEY = "cyt_tsn_wide";
@@ -155,7 +154,7 @@ export default function DashboardTopNav() {
 
         <div className="tn-search" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setQOpen(false); }}>
           <SearchRoundedIcon />
-          <input ref={searchRef} type="search" value={q} placeholder="Go to… appointments, schedule, settings"
+          <input ref={searchRef} type="search" value={q} placeholder="Search pages…" aria-label="Search pages — appointments, schedule, settings"
             aria-label="Search pages" onFocus={() => { setQOpen(true); setQIdx(0); }}
             onChange={(e) => { setQ(e.target.value); setQIdx(0); setQOpen(true); }} onKeyDown={onSearchKey} />
           <kbd>Ctrl K</kbd>
@@ -195,7 +194,6 @@ export default function DashboardTopNav() {
                 </div>
                 {publicProfile && <a href={publicProfile} target="_blank" rel="noopener noreferrer"><OpenInNewRoundedIcon /> View public profile</a>}
                 <Link href="/settings"><PersonRoundedIcon /> Edit profile</Link>
-                <Link href="/therapists/change-password"><LockResetRoundedIcon /> Change password</Link>
                 <button type="button" onClick={handleLogout} className="logout-btn"><LogoutRoundedIcon /> Log out</button>
               </div>
             )}
@@ -267,7 +265,7 @@ const TN_CSS = `
 .tn-logo img { width: 28px; height: 28px; object-fit: contain; display: block; }
 .tn-title-text { font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; }
 
-.tn-search { position: relative; flex: 1; max-width: 460px; height: 40px; margin-left: 12px; background: #f1f5f3; border: 1px solid transparent; border-radius: 11px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; color: #94a3b8; transition: border-color .14s, background .14s; }
+.tn-search { position: relative; flex: 1; min-width: 0; max-width: 460px; height: 40px; margin-left: 12px; background: #f1f5f3; border: 1px solid transparent; border-radius: 11px; display: flex; align-items: center; gap: 8px; padding: 0 10px 0 12px; color: #94a3b8; transition: border-color .14s, background .14s; }
 .tn-search:focus-within { background: #fff; border-color: #a7d7b8; box-shadow: 0 0 0 3px rgba(22,101,52,.08); }
 .tn-search svg { font-size: 19px; flex-shrink: 0; }
 .tn-search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; font-size: 14px; color: #0f172a; font-family: inherit; }
@@ -334,7 +332,9 @@ const TN_CSS = `
 @media (max-width: 767px) {
   .tn-bar { gap: 6px; padding: 0 8px; }
   .tn-title-text, .tn-prof-name, .tn-prof-chevron, .tn-hide-sm { display: none; }
-  .tn-search { margin-left: 4px; max-width: none; }
+  .tn-search { margin-left: 4px; max-width: none; min-width: 0; padding: 0 8px 0 10px; }
+  .tn-search input::placeholder { text-overflow: ellipsis; }
+  .tn-right { gap: 0; }
   .tn-search input { font-size: 16px; }
   .tn-search input::placeholder { font-size: 14px; }
   .tn-mob-nav {

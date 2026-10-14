@@ -59,22 +59,24 @@ export function Field({ label, htmlFor, error, hint, children, full, right }) {
 /* Sticky bar at the bottom of a tab. Visible while there are unsaved changes, or briefly
    after a save to show the result. Sits above the phone bottom nav. */
 export function SaveBar({ dirty, saving, onSave, onDiscard, error, success, label = "Save changes" }) {
-  const show = dirty || saving || error || success;
+  const quiet = !dirty && !saving && !error && !success;
   return (
-    <div className={`stg-savebar${show ? " show" : ""}${error ? " err" : ""}${success && !dirty ? " ok" : ""}`} aria-live="polite">
+    <div className={`stg-savebar show${quiet ? " quiet" : ""}${error ? " err" : ""}${success && !dirty ? " ok" : ""}`} aria-live="polite">
       <span className="stg-savebar-msg">
-        {error ? error : saving ? "Saving…" : dirty ? <><span className="long">You have unsaved changes</span><span className="short">Unsaved changes</span></> : success || ""}
+        {error ? error : saving ? "Saving…" : dirty
+          ? <><span className="long">You have unsaved changes</span><span className="short">Unsaved changes</span></>
+          : success || <><span className="long">Edit any field above, then save</span><span className="short">No changes yet</span></>}
       </span>
       <div className="stg-savebar-btns">
         {dirty && !saving && onDiscard && (
           <button type="button" className="stg-btn ghost" onClick={onDiscard}>Discard</button>
         )}
-        {(dirty || saving || error) && (
+        {!success || dirty ? (
           <button type="button" className="stg-btn primary" onClick={onSave} disabled={saving}>
             {saving ? <span className="stg-spin" aria-hidden="true" /> : null}
             {saving ? "Saving" : label}
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -259,6 +261,9 @@ export const STG_CSS = `
   transform: translateY(16px); opacity: 0; pointer-events: none; transition: transform .2s ease, opacity .2s ease; min-height: 60px; }
 .stg-savebar.show { transform: none; opacity: 1; pointer-events: auto; }
 .stg-savebar.ok { background: var(--g); }
+.stg-savebar.quiet { background: #fff; color: var(--mut); border: 1px solid var(--line); box-shadow: 0 10px 28px -14px rgba(15,23,42,.25); }
+.stg-savebar.quiet .stg-btn.primary { background: var(--g); color: #fff !important; }
+.stg-savebar.quiet .stg-btn.primary:hover { background: var(--g-dk); }
 .stg-savebar.err { background: #b91c1c; }
 .stg-savebar-msg { font-size: 13.5px; font-weight: 600; min-width: 0; }
 .stg-savebar-btns { display: flex; gap: 8px; flex-shrink: 0; }
@@ -270,7 +275,8 @@ export const STG_CSS = `
 .stg-savebar .stg-spin { border-color: rgba(5,46,22,.3); border-top-color: #052e16; }
 
 /* the chat bubble would sit on top of the save bar */
-body:has(.stg-savebar.show) .cw-fab { opacity: 0; pointer-events: none; }
+body:has(.stg-savebar.show:not(.quiet)) .cw-fab { opacity: 0; pointer-events: none; }
+@media (max-width: 767px) { body:has(.stg-savebar) .cw-fab { display: none; } }
 .stg-savebar-msg .short { display: none; }
 
 /* preview card */
