@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -22,6 +22,7 @@ import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import ClientNotifications from "./client-notifications";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
@@ -44,6 +45,9 @@ export const HELP_NAV = [
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 const RAIL_KEY = "cyt_cls_rail_mini";
+// runs while the HTML is parsed, before the rail is painted
+const RAIL_SCRIPT = `try{if(localStorage.getItem("${"cyt_cls_rail_mini"}")==="1")document.documentElement.classList.add("cls-mini")}catch(e){}`;
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export default function ClientShell({ title, children }) {
   const router = useRouter();
@@ -52,16 +56,28 @@ export default function ClientShell({ title, children }) {
   const [menu, setMenu] = useState(false);
   const [more, setMore] = useState(false); // phones: the "More" sheet
   // ☰ flips the side menu: desktop full ↔ icons only (remembered), tablet icons ↔ full
+  // Desktop: the icons-only rail is a class on <html> (`cls-mini`), set by RAIL_SCRIPT while the
+  // page is still loading, so a refresh shows the right width at once (reading it in an effect made
+  // the rail open and then close). Tablet: `flip` opens the full menu over the page (not remembered).
   const [flip, setFlip] = useState(false);
-  useEffect(() => { try { setFlip(localStorage.getItem(RAIL_KEY) === "1"); } catch (e) { /* storage blocked */ } }, []);
+  useIsoLayoutEffect(() => {
+    // arriving from another page without a full load: apply the saved choice before paint
+    try {
+      const mini = localStorage.getItem(RAIL_KEY) === "1";
+      document.documentElement.classList.toggle("cls-mini", mini);
+    } catch (e) { /* storage blocked */ }
+  }, []);
   const toggleRail = () => {
     if (window.matchMedia("(max-width: 767px)").matches) { setMore(true); return; } // phones: the menu sheet
-    setFlip((f) => {
-      const n = !f;
-      // only the desktop choice is remembered; on a tablet the wide menu is a temporary overlay
-      if (window.matchMedia("(min-width: 1024px)").matches) { try { localStorage.setItem(RAIL_KEY, n ? "1" : "0"); } catch (e) { /* storage blocked */ } }
-      return n;
-    });
+    const html = document.documentElement;
+    html.classList.add("cls-anim"); // animate only when the user toggles, never on load
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      const mini = !html.classList.contains("cls-mini");
+      html.classList.toggle("cls-mini", mini);
+      try { localStorage.setItem(RAIL_KEY, mini ? "1" : "0"); } catch (e) { /* storage blocked */ }
+      return;
+    }
+    setFlip((f) => !f);
   };
   const menuRef = useRef(null);
 
@@ -117,6 +133,7 @@ export default function ClientShell({ title, children }) {
 
   return (
     <div className={`cls${flip ? " flip" : ""}`}>
+      <script dangerouslySetInnerHTML={{ __html: RAIL_SCRIPT }} />
       <Head><title>{title ? `${title} | Choose Your Therapist` : "My account | Choose Your Therapist"}</title></Head>
       <style dangerouslySetInnerHTML={{ __html: CLS_CSS }} />
       <header className="cls-bar">
@@ -124,6 +141,7 @@ export default function ClientShell({ title, children }) {
         <Link href="/my-dashboard" className="cls-logo" aria-label="Home"><img src="/cyt-emblem.png" alt="CYT" width={32} height={32} /></Link>
         <div className="cls-brand"><b>Choose Your Therapist</b><span>www.chooseyourtherapist.in</span></div>
         <div className="cls-right">
+          <ClientNotifications ready={ready} />
           <a href="/" className="cls-ic hide-sm" title="Go to website" aria-label="Go to website"><LanguageRoundedIcon /></a>
           <div className="cls-me" ref={menuRef}>
             <button type="button" className="cls-me-btn" onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu}>
@@ -208,7 +226,7 @@ const CLS_CSS = `
 :root { --cls-h: 60px; }
 .cls { --g: #166534; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); min-height: 100vh;
-  background: linear-gradient(180deg, #e9f3ec 0, #f1f6f2 320px, #f3f6f4 100%); }
+  background: #f1f3f5; } /* plain grey page, white cards */
 .cls *, .cls *::before, .cls *::after { box-sizing: border-box; }
 .cls svg { font-size: 20px; }
 .cls-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1200; height: var(--cls-h); display: flex; align-items: center; gap: 12px; padding: 0 16px;
@@ -262,10 +280,10 @@ const CLS_CSS = `
 }
 /* ☰ on desktop: icons-only rail */
 @media (min-width: 1024px) {
-  .cls.flip .cls-rail { width: 76px; padding: 12px 10px; }
-  .cls.flip .cls-item { justify-content: center; padding: 0; }
-  .cls.flip .cls-item span, .cls.flip .cls-item .cls-ext, .cls.flip .cls-rail-h { display: none; }
-  .cls.flip .cls-main { padding-left: 100px; max-width: 1348px; }
+  html.cls-mini .cls .cls-rail { width: 76px; padding: 12px 10px; }
+  html.cls-mini .cls .cls-item { justify-content: center; padding: 0; }
+  html.cls-mini .cls .cls-item span, html.cls-mini .cls .cls-item .cls-ext, html.cls-mini .cls .cls-rail-h { display: none; }
+  html.cls-mini .cls .cls-main { padding-left: 100px; max-width: 1348px; }
 }
 /* ☰ on a tablet: the full menu over the page */
 @media (min-width: 768px) and (max-width: 1023px) {
@@ -273,7 +291,7 @@ const CLS_CSS = `
   .cls.flip .cls-item { justify-content: flex-start; padding: 0 12px; }
   .cls.flip .cls-item span { display: inline; } .cls.flip .cls-item .cls-ext { display: block; } .cls.flip .cls-rail-h { display: block; }
 }
-.cls-rail, .cls-main { transition: width .2s ease, padding .2s ease; }
+html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, padding .2s ease; }
 @media (max-width: 767px) {
   .hide-sm { display: none !important; }
   .cls-bar { padding: 0 12px; }

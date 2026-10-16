@@ -4,6 +4,7 @@ import ClientShell from "../../components/client/client-shell";
 import SessionCard, { CSC_CSS } from "../../components/client/session-card";
 import { fetchById } from "../../utils/actions";
 import { getBookings } from "../../utils/url";
+import { CLIENT_BOOKINGS_EVENT } from "../../store/clientNotifStore";
 
 /* My Sessions: every booking with its progress — upcoming first, then past, then cancelled. */
 
@@ -21,8 +22,9 @@ export default function MySessions() {
   useEffect(() => {
     const load = () => fetchById(getBookings).then((r) => setData(r?.status ? r.data || [] : [])).catch(() => setData((d) => d || []));
     load();
+    window.addEventListener(CLIENT_BOOKINGS_EVENT, load); // live: a session was confirmed / started / moved / ended
     const t = setInterval(() => { setNow(Date.now()); if (!document.hidden) load(); }, 60000);
-    return () => clearInterval(t);
+    return () => { clearInterval(t); window.removeEventListener(CLIENT_BOOKINGS_EVENT, load); };
   }, []);
 
   const groups = useMemo(() => {

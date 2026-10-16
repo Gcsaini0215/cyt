@@ -159,6 +159,9 @@ export const BookedSlotsUrl = `${apiUrl}/booked-slots/`;
 export const therapistNotifUrl = `${apiUrl}/therapist-notifications`;
 export const therapistNotifReadUrl = `${apiUrl}/therapist-notifications/read`;
 export const therapistNotifStreamUrl = `${apiUrl}/therapist-notifications/stream`;
+export const clientNotifUrl = `${apiUrl}/client-notifications`;
+export const clientNotifReadUrl = `${apiUrl}/client-notifications/read`;
+export const clientNotifStreamUrl = `${apiUrl}/client-notifications/stream`;
 // client closed Razorpay without paying → free the slot right away (it's otherwise held 20 min)
 export const releaseSlotUrl = (bookingId) => `${apiUrl}/booking/${bookingId}/release-slot`;
 export const releaseBookingSlot = (bookingId) => {

@@ -8,6 +8,7 @@ import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
 import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
+import { CLIENT_BOOKINGS_EVENT } from "../store/clientNotifStore";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -46,14 +47,19 @@ export default function ClientHome() {
   const [skips, setSkips] = useState([]);
 
   useEffect(() => {
-    fetchById(getBookings).then((r) => setBookings(r?.status ? r.data || [] : [])).catch(() => setBookings([]));
-    fetchById(GetDashboardDataUrl).then((r) => {
-      if (r?.status) setRequests((r.data?.appointmentRequests || []).filter((a) => a.status === "confirmed" || a.status === "rescheduled"));
-    }).catch(() => {});
+    // also re-run live: the notification stream says when a session is confirmed / starts / moves / ends
+    const load = () => {
+      fetchById(getBookings).then((r) => { if (r?.status) setBookings(r.data || []); else setBookings((b) => b || []); }).catch(() => setBookings((b) => b || []));
+      fetchById(GetDashboardDataUrl).then((r) => {
+        if (r?.status) setRequests((r.data?.appointmentRequests || []).filter((a) => a.status === "confirmed" || a.status === "rescheduled"));
+      }).catch(() => {});
+    };
+    load();
+    window.addEventListener(CLIENT_BOOKINGS_EVENT, load);
     fetchById(MyReviewedTherapistsUrl).then((r) => setReviewed(r?.status ? r.data || [] : [])).catch(() => setReviewed([]));
     setSkips(readSkips());
     const t = setInterval(() => setNow(Date.now()), 30000);
-    return () => clearInterval(t);
+    return () => { clearInterval(t); window.removeEventListener(CLIENT_BOOKINGS_EVENT, load); };
   }, []);
   useEffect(() => {
     if (!callback) return undefined;
@@ -205,6 +211,7 @@ export default function ClientHome() {
 }
 
 const HOME_CSS = `
+
 .ch-hello { margin-bottom: 14px; }
 .ch-hello h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
 .ch-hello h1 span { color: #166534; }
