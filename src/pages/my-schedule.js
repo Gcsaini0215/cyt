@@ -9,14 +9,17 @@ import { fetchData } from "../utils/actions";
 import { getBookings } from "../utils/url";
 import { SESSION_STATUS } from "../utils/constant";
 
-/* My Schedule — laid out like the admin's CYT Noida desk:
-   Appointments (All bookings · Today · Week) and Setup (Availability · Fees). */
+/* My Schedule — four plain tabs (Bookings · Calendar · Hours · Fees) under a setup strip that
+   shows your hours and fee range with one-tap Edit. Old links (?tab=today / week / availability /
+   fees) still land in the right place. */
 
-const GROUPS = [
-  { id: "appts", label: "Appointments", icon: "feather-calendar", views: [["bookings", "All bookings"], ["today", "Today"], ["week", "Week"]] },
-  { id: "setup", label: "Setup", icon: "feather-sliders", views: [["availability", "Availability"], ["fees", "Fees"]] },
+const TABS = [
+  ["bookings", "Bookings", "feather-list"],
+  ["week", "Calendar", "feather-grid"],
+  ["availability", "Hours", "feather-clock"],
+  ["fees", "Fees", "feather-tag"],
 ];
-const VIEW_IDS = GROUPS.flatMap((g) => g.views.map(([id]) => id));
+const VIEW_IDS = [...TABS.map(([id]) => id), "today"];
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const SDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -78,23 +81,23 @@ export default function MySchedule() {
   const [loading, setLoading] = useState(true);
   const [picked, setPicked] = useState(null);
   // All bookings
-  const [when, setWhen] = useState("upcoming"); // upcoming | past | all
+  const [when, setWhen] = useState("upcoming"); // today | upcoming | past | all
   const [q, setQ] = useState("");
   const [showCancelled, setShowCancelled] = useState(false);
-  // Today (any day) + Week
-  const [day, setDay] = useState(() => startOfDay(new Date()));
+  // Today's free slots + Week
+  const day = useMemo(() => startOfDay(new Date()), []);
   const [weekStart, setWeekStart] = useState(() => startOfDay(new Date()));
 
   useEffect(() => {
     if (!router.isReady) return;
     const t = String(router.query.tab || "");
+    if (t === "today") { setView("bookings"); setWhen("today"); return; }
     if (VIEW_IDS.includes(t)) setView(t);
   }, [router.isReady, router.query.tab]);
   const go = (id) => {
     setView(id);
     router.replace({ pathname: router.pathname, query: id === "bookings" ? {} : { tab: id } }, undefined, { shallow: true });
   };
-  const group = GROUPS.find((g) => g.views.some(([id]) => id === view)) || GROUPS[0];
 
   useEffect(() => { if (!therapistInfo?.user?.email) fetchTherapistInfo(); }, [therapistInfo?.user?.email, fetchTherapistInfo]);
 
@@ -114,6 +117,23 @@ export default function MySchedule() {
   const avail = useMemo(() => therapistInfo?.availabilities || [], [therapistInfo?.availabilities]);
   const hasHours = avail.some((a) => a.times?.length);
   const hasFees = (therapistInfo?.fees || []).some((f) => f?.formats?.some((x) => x?.fee));
+  // setup strip: "Mon–Sat · 11:00 AM–8:00 PM" and the fee range
+  const hoursText = useMemo(() => {
+    const on = DAYS.map((d, i) => ({ i, a: avail.find((x) => x.day === d) })).filter((x) => x.a?.times?.length);
+    if (!on.length) return "";
+    const idx = on.map((x) => x.i);
+    const run = idx.every((v, k) => k === 0 || v === idx[k - 1] + 1);
+    const daysTxt = idx.length === 7 ? "Every day" : run && idx.length > 2 ? `${SDAYS[idx[0]]}–${SDAYS[idx[idx.length - 1]]}` : idx.map((i) => SDAYS[i]).join(", ");
+    const opens = on.flatMap((x) => x.a.times.map((t) => toMinutes(t.open))).filter((v) => v != null);
+    const closes = on.flatMap((x) => x.a.times.map((t) => toMinutes(t.close))).filter((v) => v != null);
+    return opens.length && closes.length ? `${daysTxt} · ${timeLabel(Math.min(...opens))}–${timeLabel(Math.max(...closes))}` : daysTxt;
+  }, [avail]);
+  const feeText = useMemo(() => {
+    const v = (therapistInfo?.fees || []).flatMap((f) => (f.formats || []).map((x) => Number(x?.fee)).filter((n) => n > 0));
+    if (!v.length) return "";
+    const lo = Math.min(...v), hi = Math.max(...v);
+    return lo === hi ? inr(lo) : `${inr(lo)} – ${inr(hi)}`;
+  }, [therapistInfo?.fees]);
   const all = useMemo(() => bookings.map((b) => ({ ...b, at: new Date(b.booking_date) })), [bookings]);
   const live = useMemo(() => all.filter((b) => b.status !== SESSION_STATUS.CANCELED), [all]);
   const now = new Date();
@@ -129,7 +149,7 @@ export default function MySchedule() {
     const term = q.trim().toLowerCase();
     return all
       .filter((b) => showCancelled || b.status !== SESSION_STATUS.CANCELED)
-      .filter((b) => when === "all" ? true : when === "upcoming" ? b.at >= startOfDay(now) : b.at < startOfDay(now))
+      .filter((b) => when === "all" ? true : when === "today" ? sameDay(b.at, now) : when === "upcoming" ? b.at >= startOfDay(now) : b.at < startOfDay(now))
       .filter((b) => !term || [clientName(b), b.client?.phone, b.client?.email, b.service].some((v) => String(v || "").toLowerCase().includes(term)))
       .sort((a, b) => (when === "past" ? b.at - a.at : a.at - b.at));
   }, [all, q, when, showCancelled]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -158,9 +178,8 @@ export default function MySchedule() {
     URL.revokeObjectURL(a.href);
   };
 
-  /* ── Today (any day) ── */
+  /* ── today's free slots (Bookings → Today) ── */
   const dayList = useMemo(() => all.filter((b) => sameDay(b.at, day)).sort((a, b) => a.at - b.at), [all, day]);
-  const dayCounts = Object.fromEntries(Object.keys(STATUS).map((s) => [s, dayList.filter((b) => b.status === s).length]));
   const dayFree = useMemo(() => {
     const taken = new Set(dayList.filter((b) => b.status !== SESSION_STATUS.CANCELED).map((b) => minsOf(b.at)));
     return slotsFor(avail, day).filter((m) => !taken.has(m) && (!sameDay(day, now) || m > minsOf(now)));
@@ -206,6 +225,19 @@ export default function MySchedule() {
         .ms-group .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
         .ms-group-link { margin-left: auto; font-size: 13.5px; font-weight: 600; color: #8a978f; text-decoration: none; padding: 10px 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
         .ms-group-link:hover { color: #1a6b3a; }
+        .ms-setup-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .ms-sum { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1px solid #e3e8e5; border-radius: 14px; padding: 12px 14px; cursor: pointer; font-family: inherit; min-width: 0; }
+        .ms-sum:hover { border-color: #bbf7d0; }
+        .ms-sum > i { width: 38px; height: 38px; border-radius: 11px; background: #ecfdf3; color: #166534; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
+        .ms-sum > span { flex: 1; min-width: 0; }
+        .ms-sum small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #8a978f; }
+        .ms-sum b { display: block; font-size: 14.5px; color: #122019; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ms-sum em { font-style: normal; font-size: 12.5px; font-weight: 800; color: #166534; flex-shrink: 0; }
+        .ms-sum.todo { background: #fffbeb; border-color: #fde68a; } .ms-sum.todo > i { background: #fef3c7; color: #b45309; } .ms-sum.todo em { color: #b45309; }
+        .ms-tabs { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+        .ms-tab { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid #e3e8e5; background: #fff; font-size: 14px; font-weight: 700; color: #475569; cursor: pointer; white-space: nowrap; font-family: inherit; position: relative; }
+        .ms-tab.on { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+        .ms-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
         .ms-subs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
         .ms-sub-tab { border: 1px solid #e3e8e5; background: #fff; border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 600; color: #334155; cursor: pointer; font-family: inherit; }
         .ms-sub-tab.on { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
@@ -285,6 +317,10 @@ export default function MySchedule() {
           .ms-card-s { padding: 12px; min-height: 0; }
           .ms-card-s b { font-size: 20px; margin-top: 4px; }
           .ms-group-link { display: none; }
+          .ms-setup-strip { grid-template-columns: 1fr; gap: 8px; }
+          .ms-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; overflow: visible; }
+          .ms-tab { justify-content: center; padding: 0 4px; gap: 5px; font-size: 12.5px; height: 38px; }
+          .ms-sub { margin-bottom: 12px; }
           .ms-right .ms-btn { flex: 1; justify-content: center; }
           .ms-counts { margin-left: 0; }
           .ms-amt { display: none; }
@@ -297,28 +333,28 @@ export default function MySchedule() {
         <h1 className="ms-title"><i className="feather-calendar" /> My Schedule</h1>
         <p className="ms-sub">Your bookings, today&rsquo;s sessions, weekly hours and fees.</p>
 
-        <div className="ms-groups" role="tablist" aria-label="My Schedule sections">
-          {GROUPS.map((g) => (
-            <button key={g.id} type="button" role="tab" aria-selected={g.id === group.id} className={`ms-group ${g.id === group.id ? "on" : ""}`} onClick={() => go(g.views[0][0])}>
-              <i className={g.icon} /> {g.label}
-              {g.id === "setup" && therapistInfo?.user?.email && (!hasHours || !hasFees) && <span className="dot" title="Needs setup" />}
+        <div className="ms-setup-strip">
+          <button type="button" className={`ms-sum ${hoursText ? "" : "todo"}`} onClick={() => go("availability")}>
+            <i className="feather-clock" />
+            <span><small>Weekly hours</small><b>{hoursText || "Not set — clients can't book you"}</b></span>
+            <em>{hoursText ? "Edit" : "Set now"}</em>
+          </button>
+          <button type="button" className={`ms-sum ${feeText ? "" : "todo"}`} onClick={() => go("fees")}>
+            <i className="feather-tag" />
+            <span><small>Session fees</small><b>{feeText || "Not set yet"}</b></span>
+            <em>{feeText ? "Edit" : "Set now"}</em>
+          </button>
+        </div>
+
+        <div className="ms-tabs" role="tablist" aria-label="My Schedule">
+          {TABS.map(([id, label, icon]) => (
+            <button key={id} type="button" role="tab" aria-selected={view === id} className={`ms-tab ${view === id ? "on" : ""}`} onClick={() => go(id)}>
+              <i className={icon} /> {label}
+              {((id === "availability" && !hasHours) || (id === "fees" && !hasFees)) && therapistInfo?.user?.email && <span className="dot" title="Needs setup" />}
             </button>
           ))}
-          <Link href="/appointments" className="ms-group-link"><i className="feather-play-circle" /> Start a session <i className="feather-external-link" style={{ fontSize: 12 }} /></Link>
+          <Link href="/appointments" className="ms-group-link"><i className="feather-play-circle" /> Start a session</Link>
         </div>
-
-        <div className="ms-subs" role="tablist" aria-label={group.label}>
-          {group.views.map(([id, label]) => (
-            <button key={id} type="button" role="tab" aria-selected={view === id} className={`ms-sub-tab ${view === id ? "on" : ""}`} onClick={() => go(id)}>{label}</button>
-          ))}
-        </div>
-
-        {group.id === "appts" && therapistInfo?.user?.email && !hasHours && (
-          <div className="ms-setup">
-            You haven&rsquo;t set your weekly hours yet, so clients can&rsquo;t book you.{" "}
-            <button type="button" onClick={() => go("availability")}>Set your availability →</button>
-          </div>
-        )}
 
         {/* ── All bookings ── */}
         {view === "bookings" && (
@@ -336,7 +372,7 @@ export default function MySchedule() {
                 <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search client name, phone or service" aria-label="Search bookings" />
               </label>
               <div className="ms-seg" role="radiogroup" aria-label="Which bookings">
-                {[["upcoming", "Upcoming"], ["past", "Past"], ["all", "All"]].map(([id, l]) => (
+                {[["today", "Today"], ["upcoming", "Upcoming"], ["past", "Past"], ["all", "All"]].map(([id, l]) => (
                   <button key={id} type="button" role="radio" aria-checked={when === id} className={when === id ? "on" : ""} onClick={() => setWhen(id)}>{l}</button>
                 ))}
               </div>
@@ -348,10 +384,17 @@ export default function MySchedule() {
               </div>
             </div>
 
+            {when === "today" && (
+              <div className="ms-box" style={{ marginTop: 0, marginBottom: 12 }}>
+                <h3>Free slots left today</h3>
+                {dayFree.length ? <div className="ms-free">{dayFree.map((m) => <span key={m}>{timeLabel(m)}</span>)}</div>
+                  : <span style={{ fontSize: 13.5, color: "#8a978f" }}>{slotsFor(avail, now).length ? "Fully booked for today." : "You're not working today."}</span>}
+              </div>
+            )}
             {loading ? <div className="ms-empty">Loading…</div> : grouped.length === 0 ? (
               <div className="ms-empty">
                 <i className="feather-calendar" />
-                <b>{q ? "No bookings match your search" : when === "upcoming" ? "No upcoming appointments" : "No bookings yet"}</b>
+                <b>{q ? "No bookings match your search" : when === "today" ? "No sessions today" : when === "upcoming" ? "No upcoming appointments" : "No bookings yet"}</b>
                 New bookings from your profile will show up here.
                 {when === "upcoming" && !q && <div><button type="button" className="ms-btn" onClick={() => setWhen("past")}>See past appointments</button></div>}
               </div>
@@ -361,33 +404,6 @@ export default function MySchedule() {
                 <div className="ms-list">{g.items.map((b) => <Row key={b._id} b={b} />)}</div>
               </div>
             ))}
-          </>
-        )}
-
-        {/* ── Today (any day) ── */}
-        {view === "today" && (
-          <>
-            <div className="ms-daybar">
-              <div className="ms-nav">
-                <button type="button" aria-label="Previous day" onClick={() => setDay((d) => addDays(d, -1))}><i className="feather-chevron-left" /></button>
-                <button type="button" onClick={() => setDay(startOfDay(new Date()))}>Today</button>
-                <button type="button" aria-label="Next day" onClick={() => setDay((d) => addDays(d, 1))}><i className="feather-chevron-right" /></button>
-              </div>
-              <span className="ms-daylabel">{DAYS[day.getDay()]}, {day.getDate()} {MONS[day.getMonth()]} {day.getFullYear()}</span>
-              <div className="ms-counts">
-                {Object.entries(STATUS).map(([s, meta]) => (
-                  <span key={s} className="ms-count"><b style={{ color: meta[1] }}>{dayCounts[s] || 0}</b>{meta[0].toLowerCase()}</span>
-                ))}
-              </div>
-            </div>
-            {dayList.length === 0 ? (
-              <div className="ms-empty" style={{ padding: "30px 10px" }}>No appointments on this day.</div>
-            ) : <div className="ms-list">{dayList.map((b) => <Row key={b._id} b={b} />)}</div>}
-            <div className="ms-box">
-              <h3>Free slots {sameDay(day, now) ? "left today" : "this day"}</h3>
-              {dayFree.length ? <div className="ms-free">{dayFree.map((m) => <span key={m}>{timeLabel(m)}</span>)}</div>
-                : <span style={{ fontSize: 13.5, color: "#8a978f" }}>{slotsFor(avail, day).length ? "Fully booked." : "You're not working this day."}</span>}
-            </div>
           </>
         )}
 
@@ -458,6 +474,7 @@ export default function MySchedule() {
         {view === "fees" && (
           <div className="ms-panel">
             <h3>Session fees</h3>
+            <p className="ms-sub">Switch on what you offer and type the fee — or set one fee for everything at the top. Clients see these on your profile as soon as you save.</p>
             <TherapistFees onSuccess={fetchTherapistInfo} />
           </div>
         )}

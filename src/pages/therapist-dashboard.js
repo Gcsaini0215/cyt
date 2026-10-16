@@ -837,7 +837,7 @@ export default function TherapistDashboard() {
           .filter((b) => b.status !== "Completed" && b.status !== "Cancelled")
           .filter((b) => { const d = safeDate(b.booking_date); return d && d.getTime() >= t0 - SESSION_WINDOW_MS; })
           .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
-          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: clientPhoto(b.client), meet: b.meet_link || "", status: b.status }));
+          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: clientPhoto(b.client), meet: b.meet_link || "", status: b.status, raw: b }));
         setUpcomingSessions(early);
         setNextSession(early[0] || null);
       }
@@ -918,6 +918,7 @@ export default function TherapistDashboard() {
         imgSrc: clientPhoto(b.client),
         meet: b.meet_link || "",
         status: b.status,
+        raw: b, // the full booking: the Next session card shows its details and receipt
       });
 
       const upcomingList = bookings
@@ -1153,7 +1154,7 @@ export default function TherapistDashboard() {
 
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
           <div className="ov-top">
-            <NextSessionCard s={nextSession} loading={nextLoading} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} />
+            <NextSessionCard s={nextSession} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} />
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">

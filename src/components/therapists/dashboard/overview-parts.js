@@ -1,6 +1,7 @@
 import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import React from "react";
 import Link from "next/link";
+import SessionTicket from "../../client/session-ticket";
 
 /* Pieces of the therapist dashboard Overview (2026-10 redesign): a slim "today" bar, KPI cards
    with sparklines, a big next-session card, a 7-day strip and a to-do card. Plain CSS (OV_CSS),
@@ -99,8 +100,18 @@ export function KpiCard({ label, value, isCurrency, trend, trendUp, spark, href,
   return href ? <Link href={href} className={`ov-kpi ${tone}`}>{body}</Link> : <div className={`ov-kpi ${tone}`}>{body}</div>;
 }
 
-/* ── 3. next session ── */
-export function NextSessionCard({ s, loading, onJoin, onReschedule }) {
+/* ── 3. next session: who / when / join on the left, the booking's details + receipt on the right ── */
+const modeLabel = (b) => {
+  const t = `${b?.session_type || ""} ${b?.format || ""}`.toLowerCase();
+  if (/person|offline|clinic/.test(t)) return "In-person";
+  if (/audio|voice/.test(t) && !/video/.test(t)) return "Voice call";
+  return "Video call";
+};
+const clean = (v) => (v && v !== "null" && v !== "undefined" ? String(v).trim() : "");
+const digits = (p) => String(p || "").replace(/\D/g, "");
+
+export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist }) {
+  const [receipt, setReceipt] = React.useState(false);
   if (loading) return <div className="ov-next ov-card"><div className="ov-skel" /></div>;
   if (!s) {
     return (
@@ -112,30 +123,61 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule }) {
       </div>
     );
   }
+  const b = s.raw || {};
   const mins = minutesUntil(s.date);
   const live = mins !== null && mins <= 10;
   const joinWin = sessionWindow(s.date);
   const when = mins === null ? "" : mins <= 0 ? "Happening now" : mins < 60 ? `in ${mins} min` : mins < 1440 ? `in ${Math.floor(mins / 60)}h ${mins % 60}m` : fmtDay(s.date);
+  const paid = Number(b.transaction?.amount?.$numberDecimal ?? b.transaction?.amount ?? b.amount?.$numberDecimal ?? b.amount) || 0;
+  const forOther = /other/i.test(b.whom || "") ? [clean(b.cname), clean(b.relation_with_client)].filter(Boolean).join(" · ") : "";
+  const about = [clean(b.age || b.client?.age) && `${clean(b.age || b.client?.age)} yrs`, clean(b.client?.gender)].filter(Boolean).join(" · ");
+  const phone = digits(b.client?.phone);
+  const notes = clean(b.notes);
+  const details = [
+    ["Service", clean(b.service) || "Session"],
+    ["Mode", modeLabel(b)],
+    paid ? ["Paid", inr(paid)] : null,
+    forOther ? ["Session for", forOther] : about ? ["Client", about] : null,
+  ].filter(Boolean);
   return (
     <div className={`ov-next ov-card ${live ? "live" : ""}`}>
       <div className="ov-next-k">{live ? "Starting now" : "Next session"} <span>{when}</span></div>
-      <div className="ov-next-row">
-        <div className="ov-next-av">{s.imgSrc ? <img src={s.imgSrc} alt="" /> : <b>{String(s.name || "?").charAt(0)}</b>}</div>
-        <div className="ov-next-info">
-          <div className="ov-next-name">{s.name}</div>
-          <div className="ov-next-sub">{fmtDay(s.date)} · {fmtTime(s.date)} · {s.badge || "Online"}</div>
+      <div className="ov-next-grid">
+        <div className="ov-next-left">
+          <div className="ov-next-row">
+            <div className="ov-next-av">{s.imgSrc ? <img src={s.imgSrc} alt="" /> : <b>{String(s.name || "C").charAt(0)}</b>}</div>
+            <div className="ov-next-info">
+              <div className="ov-next-name">{s.name}</div>
+              <div className="ov-next-sub">{fmtDay(s.date)} · {fmtTime(s.date)}</div>
+              {phone && (
+                <div className="ov-next-contact">
+                  <a href={`tel:${phone}`}>Call</a>
+                  <a href={`https://wa.me/${phone.length === 10 ? "91" + phone : phone}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="ov-next-btns">
+            {s.meet && onJoin && joinWin.open
+              ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
+              : s.meet && joinWin.before
+                ? <span className="ov-btn ghost" style={{ cursor: "default" }}>Join opens {opensAtText(joinWin.opens)}</span>
+                : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
+            {onReschedule && s.status !== "Started"
+              ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
+              : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
+          </div>
+        </div>
+
+        <div className="ov-next-right">
+          <dl className="ov-next-dl">
+            {details.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+          </dl>
+          {notes && <p className="ov-next-notes" title={notes}><b>Client&apos;s note:</b> {notes}</p>}
+          {b._id && <button type="button" className="ov-btn ghost sm" onClick={() => setReceipt(true)}>Invoice</button>}
         </div>
       </div>
-      <div className="ov-next-btns">
-        {s.meet && onJoin && joinWin.open
-          ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
-          : s.meet && joinWin.before
-            ? <span className="ov-btn ghost" style={{ cursor: "default" }}>Join opens {opensAtText(joinWin.opens)}</span>
-            : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
-        {onReschedule && s.status !== "Started"
-          ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
-          : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
-      </div>
+      {receipt && <SessionTicket b={b} therapist={therapist} onClose={() => setReceipt(false)} />}
     </div>
   );
 }
@@ -262,6 +304,19 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-next-name { font-size: 20px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ov-next-sub { font-size: 13.5px; color: #475569; margin: 2px 0 0; }
 .ov-next-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ov-next-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 22px; align-items: center; }
+.ov-next-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.ov-next-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-left: 20px; border-left: 1px dashed #cfe3d6; min-width: 0; }
+.ov-next-dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px; margin: 0; width: 100%; }
+.ov-next-dl div { min-width: 0; }
+.ov-next-dl dt { font-size: 10.5px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #64748b; }
+.ov-next-dl dd { margin: 2px 0 0; font-size: 13.5px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-next-notes { margin: 0; font-size: 12.5px; color: #475569; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ov-next-notes b { color: #0f172a; }
+.ov-next-contact { display: flex; gap: 10px; margin-top: 4px; }
+.ov-next-contact a { font-size: 12.5px; font-weight: 800; color: #166534; text-decoration: none; }
+.ov-next-contact a:hover { text-decoration: underline; }
+.ov-btn.sm { height: 34px; padding: 0 14px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .ov-btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border-radius: 11px; background: #166534; color: #fff !important; font-size: 13.5px; font-weight: 800; text-decoration: none; border: 1.5px solid #166534; }
 .ov-btn.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
 .ov-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
@@ -315,6 +370,11 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
   .ov-kpi { padding: 12px 14px 8px; }
   .ov-kpi-top { flex-wrap: wrap; row-gap: 4px; }
   .ov-kpi-label { white-space: normal; }
+}
+@media (max-width: 767px) {
+  .ov-next-grid { grid-template-columns: 1fr; }
+  .ov-next-right { padding-left: 0; border-left: 0; padding-top: 12px; border-top: 1px dashed #cfe3d6; }
+  .ov-next-right { align-items: stretch; } .ov-next-right .ov-btn.sm { height: 40px; }
 }
 @media (max-width: 560px) {
   .ov-week-row { grid-template-columns: repeat(7, 64px); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
