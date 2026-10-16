@@ -5,6 +5,7 @@ import SessionCard, { CSC_CSS } from "../../components/client/session-card";
 import { fetchById } from "../../utils/actions";
 import { getBookings } from "../../utils/url";
 import { CLIENT_BOOKINGS_EVENT } from "../../store/clientNotifStore";
+import { usePager, Pager } from "../../components/therapists/pager";
 
 /* My Sessions: every booking with its progress — upcoming first, then past, then cancelled. */
 
@@ -44,6 +45,7 @@ export default function MySessions() {
   }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const shown = groups[tab] || [];
+  const pg = usePager(shown, 6, tab);
 
   return (
     <ClientShell title="My Sessions">
@@ -67,7 +69,10 @@ export default function MySessions() {
       {data === null ? (
         <div className="ms-grid">{[1, 2].map((i) => <div key={i} className="ms-skel" />)}</div>
       ) : shown.length ? (
-        <div className="ms-grid">{shown.map((b) => <SessionCard key={b._id} b={b} now={now} />)}</div>
+        <div data-pager-scope>
+          <div className="ms-grid">{pg.items.map((b) => <SessionCard key={b._id} b={b} now={now} />)}</div>
+          <Pager pg={pg} noun="sessions" />
+        </div>
       ) : (
         <div className="ms-empty">
           <b>{tab === "upcoming" ? "No upcoming sessions" : tab === "past" ? "No past sessions yet" : "No cancelled sessions"}</b>

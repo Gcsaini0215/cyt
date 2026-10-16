@@ -6,6 +6,7 @@ import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
 import { getDecodedToken } from "../utils/jwt";
 import { getAllBlogs, blogCard } from "../utils/blog-cache";
+import { usePager, Pager } from "../components/therapists/pager";
 
 /* /blogs — calm banner with search + topics, a featured post, a grid of cards and a nudge to
    talk to someone. Clients reach it from their portal menu ("Reads for me"). */
@@ -176,6 +177,7 @@ export default function BlogsPage({ posts = [] }) {
   ];
   const featured = browsing ? shown[0] : null;
   const rest = featured ? shown.slice(1) : shown;
+  const pg = usePager(rest, 9, `${q}|${cat}`);
 
   return (
     <div id="__next">
@@ -239,8 +241,8 @@ export default function BlogsPage({ posts = [] }) {
           </div>
         </section>
 
-        <section className="bl-wrap bl-list">
-          {featured && (
+        <section className="bl-wrap bl-list" data-pager-scope>
+          {featured && pg.page === 1 && (
             <Link href={hrefOf(featured)} className="bl-feat">
               <span className="bl-feat-img"><img src={thumbOf(featured)} alt={featured.title} width="640" height="400" /></span>
               <span className="bl-feat-body">
@@ -258,7 +260,10 @@ export default function BlogsPage({ posts = [] }) {
             {!browsing && <button type="button" onClick={() => { setQ(""); setCat("All"); }}>Show all</button>}
           </div>
           {rest.length ? (
-            <div className="bl-grid">{rest.map((p) => <Card key={p.id} p={p} />)}</div>
+            <>
+              <div className="bl-grid">{pg.items.map((p) => <Card key={p.id} p={p} />)}</div>
+              <Pager pg={pg} noun="articles" />
+            </>
           ) : (
             <p className="bl-empty">{posts.length ? "Nothing matches that yet — try another word or topic." : "Articles are on their way. Please check back soon."}</p>
           )}

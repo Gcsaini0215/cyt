@@ -6,6 +6,7 @@ import { fetchById, postData } from "../../utils/actions";
 import { GetFavoriteTherapistUrl, RemoveFavoriteTherapistUrl, imagePath } from "../../utils/url";
 import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { cityOf, languagesOf, minFeeOf } from "../../utils/related-therapists";
+import { usePager, Pager } from "../../components/therapists/pager";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
@@ -22,6 +23,7 @@ const photoOf = (t) => {
 export default function SavedTherapists() {
   const [list, setList] = useState(null); // null = loading
   const [err, setErr] = useState("");
+  const pg = usePager(list || [], 9);
 
   const load = () => {
     setErr("");
@@ -63,8 +65,9 @@ export default function SavedTherapists() {
             <Link href="/client/find" className="sv-btn primary"><PersonSearchRoundedIcon /> Find a therapist</Link>
           </div>
         ) : (
+          <div data-pager-scope>
           <div className="sv-grid">
-            {list.map(({ _id, therapist: t }) => {
+            {pg.items.map(({ _id, therapist: t }) => {
               const photo = photoOf(t);
               const name = t.user?.name || "Therapist";
               const city = cityOf(t);
@@ -94,6 +97,8 @@ export default function SavedTherapists() {
                 </div>
               );
             })}
+          </div>
+          <Pager pg={pg} noun="therapists" />
           </div>
         )}
       </div>

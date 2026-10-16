@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import useClientNotifStore, { connectClientNotifications } from "../../store/clientNotifStore";
+import { usePager, Pager } from "../therapists/pager";
 import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
@@ -46,6 +47,7 @@ export default function ClientNotifications({ ready }) {
   const { items, unread, toasts, markRead, dismissToast } = useClientNotifStore();
   const [open, setOpen] = useState(false);
   const [perm, setPerm] = useState("granted");
+  const pg = usePager(items, 8);
   const ref = useRef(null);
 
   useEffect(() => { if (ready) return connectClientNotifications(); return undefined; }, [ready]);
@@ -93,10 +95,11 @@ export default function ClientNotifications({ ready }) {
               <button type="button" className="cn-allow" onClick={allow}>🔔 Get alerts even when this tab is in the background</button>
             )}
             <div className="cn-list">
-              {items.length ? items.map((n) => <Row key={n._id} n={n} onOpen={go} />) : (
+              {items.length ? pg.items.map((n) => <Row key={n._id} n={n} onOpen={go} />) : (
                 <p className="cn-empty">You&apos;re all caught up. Session updates show up here the moment they happen.</p>
               )}
             </div>
+            {pg.pages > 1 && <div className="cn-pager"><Pager pg={pg} compact /></div>}
           </div>
         )}
       </div>
@@ -143,6 +146,7 @@ const CN_CSS = `
 .cn-txt b { font-size: 13.5px; color: #0f172a; line-height: 1.3; }
 .cn-txt span { font-size: 12.5px; color: #475569; line-height: 1.4; }
 .cn-txt em { font-style: normal; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.cn-pager { display: flex; justify-content: center; padding: 6px; border-top: 1px solid #eef2f0; }
 .cn-empty { margin: 0; padding: 28px 18px; text-align: center; font-size: 13px; color: #64748b; }
 .cn-toasts { position: fixed; top: calc(var(--cls-h, 60px) + 10px); right: 14px; z-index: 1450; display: flex; flex-direction: column; gap: 8px; width: min(360px, calc(100vw - 24px)); }
 .cn-toast { display: flex; align-items: flex-start; background: #fff; border: 1px solid #e4ece7; border-left: 4px solid #22c55e; border-radius: 14px; box-shadow: 0 16px 36px -12px rgba(15,23,42,.35); animation: cnIn .25s ease; }
