@@ -20,7 +20,7 @@ import {
   InsertFavriouteTherapistUrl,
   RemoveFavriouteTherapistUrl,
 } from "../../utils/url";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 
 export default function ProfileCardHor({ pageData, favrioutes, showRecommended = false, showOnlyBookButton = false, variant = "row" }) {
 
@@ -393,7 +393,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
             >
               <Link
                 className="rbt-btn btn-gradient book-btn"
-                href={`/book/${pageData._id}`}
+                href={bookPath(pageData)}
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -439,7 +439,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
               </Link>
               <Link
                 className="rbt-btn btn-gradient book-btn"
-                href={`/book/${pageData._id}`}
+                href={bookPath(pageData)}
                 style={{
                   display: "flex",
                   justifyContent: "center",

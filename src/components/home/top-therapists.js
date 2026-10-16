@@ -4,7 +4,7 @@ import Link from "next/link";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import Star from "@mui/icons-material/Star";
 import { imagePath } from "../../utils/url";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
 import { split, getMinFee, sessionModes, nextAvailable } from "../../utils/therapist-directory";
 import { GBP_URL } from "../about/visit-centre";
@@ -72,7 +72,7 @@ function Card({ t, now, hidden }) {
         </div>
         <div className="tt-acts">
           <Link href={href} className="tt-view" tabIndex={tab}>View</Link>
-          <Link href={`/book/${t._id}`} className="tt-book" tabIndex={tab}>Book</Link>
+          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book</Link>
         </div>
       </div>
     </article>

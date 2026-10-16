@@ -4,7 +4,7 @@ import Link from "next/link";
 import { apiUrl, imagePath } from "../../utils/url";
 import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
 import { getMinFee } from "../../utils/therapist-directory";
 import { modesOf } from "../../utils/related-therapists";
@@ -105,7 +105,7 @@ function PortraitCard({ t, hidden = false }) {
         </div>
         <div className="cyt-pbtns">
           <Link className="cyt-pv" href={profilePath(t)} tabIndex={tab}>View</Link>
-          <Link className="cyt-pb" href={`/book/${t._id}`} tabIndex={tab}>Book</Link>
+          <Link className="cyt-pb" href={bookPath(t)} tabIndex={tab}>Book</Link>
         </div>
       </div>
     </div>
@@ -148,7 +148,7 @@ function TherapistCard({ t }) {
         )}
         <div className="cyt-trow">
           <Link className="cyt-v" href={profilePath(t)}>View</Link>
-          <Link className="cyt-b" href={`/book/${t._id}`}>Book</Link>
+          <Link className="cyt-b" href={bookPath(t)}>Book</Link>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import { postData } from "../../utils/actions";
 import { imagePath, InsertFavriouteTherapistUrl, RemoveFavriouteTherapistUrl } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
 import { split, getMinFee, sessionModes, nextAvailable } from "../../utils/therapist-directory";
 
@@ -130,7 +130,7 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
           </div>
         )}
         <div className="pcr-acts">
-          <Link href={`/book/${data._id}`} className="pcr-book">Book Now</Link>
+          <Link href={bookPath(data)} className="pcr-book">Book Now</Link>
           <Link href={profileHref} className="pcr-view">View Profile</Link>
         </div>
       </div>

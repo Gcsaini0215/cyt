@@ -1,6 +1,7 @@
-// Therapist profile URLs use profile type + name + location instead of the Mongo _id:
+// Therapist profile + booking URLs use profile type + name + location instead of the Mongo _id:
 //   /view-profile/counselling-psychologist-teesta-joshi-uttar-pradesh
-//   (old /view-profile/<_id> 301-redirects here)
+//   /book/counselling-psychologist-teesta-joshi-uttar-pradesh
+//   (old /view-profile/<_id> and /book/<_id> 301-redirect here)
 
 export const slugifyName = (name) =>
   (name || "")
@@ -30,4 +31,10 @@ export const therapistSlug = (t) => {
 export const profilePath = (t) => {
   if (!t) return "/view-profile";
   return `/view-profile/${therapistSlug(t) || t._id}`;
+};
+
+// Booking page for the same therapist: /book/<slug> (falls back to the _id).
+export const bookPath = (t) => {
+  if (!t) return "/view-all-therapist";
+  return `/book/${therapistSlug(t) || t._id}`;
 };

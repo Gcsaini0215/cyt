@@ -5,12 +5,13 @@ import LocationOn from "@mui/icons-material/LocationOn";
 import Verified from "@mui/icons-material/Verified";
 import { imagePath } from "../../utils/url";
 import { useRouter } from "next/router";
+import { bookPath } from "../../utils/therapist-slug";
 
 const TherapistCard = (props) => {
     const router = useRouter();
     const therapist = props.therapist;
 
-    const handleClick = () => router.push(`/book/${therapist._id}`);
+    const handleClick = () => router.push(bookPath(therapist));
 
 
     return (

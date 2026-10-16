@@ -1,13 +1,14 @@
 import Link from "next/link";
 import ImageTag from "../../utils/image-tag";
 import { imagePath } from "../../utils/url";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 
 export default function FavTherapistCard({ data, removeFav }) {
   return (
     <div className="swiper-slide swiper-slide-visible swiper-slide-fully-visible swiper-slide-active">
       <div className="rbt-card variation-01">
         <div className="rbt-card-img">
-          <Link href={`/view-profile/${data.therapist._id}`} style={{ cursor: "pointer" }} target="_blank">
+          <Link href={profilePath(data.therapist)} style={{ cursor: "pointer" }} target="_blank">
             <ImageTag
               alt={data.therapist.user.name}
               style={{ height: "250px" }}
@@ -56,7 +57,7 @@ export default function FavTherapistCard({ data, removeFav }) {
           </ul>
 
           <h4 className="rbt-card-title">
-            <Link href={`/view-profile/${data.therapist._id}`} style={{ cursor: "pointer" }} target="_blank">
+            <Link href={profilePath(data.therapist)} style={{ cursor: "pointer" }} target="_blank">
               {data.therapist.user.name}
             </Link>
           </h4>
@@ -86,7 +87,7 @@ export default function FavTherapistCard({ data, removeFav }) {
               justifyContent: "center",
             }}
           >
-            <Link className="rbt-btn btn-gradient book-btn" href={`/book/${data.therapist._id}`}>
+            <Link className="rbt-btn btn-gradient book-btn" href={bookPath(data.therapist)}>
               <span>&nbsp;&nbsp;Book Now&nbsp;&nbsp;</span>
             </Link>
           </div>

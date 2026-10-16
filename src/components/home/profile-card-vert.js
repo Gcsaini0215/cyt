@@ -12,7 +12,7 @@ import {
 } from "../../utils/url";
 import { getDecodedToken } from "../../utils/jwt";
 import StarIcon from "@mui/icons-material/Star";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 
 const typeColors = {
   psychologist:  { bg: "#dbeafe", color: "#1d4ed8", border: "#bfdbfe" },
@@ -329,7 +329,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
             <Link href={profilePath(data)} className="vtc-btn-out">
               View Profile
             </Link>
-            <Link href={`/book/${data._id}`} className="vtc-btn-fill">
+            <Link href={bookPath(data)} className="vtc-btn-fill">
               Book Now
             </Link>
           </div>

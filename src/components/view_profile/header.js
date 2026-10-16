@@ -26,7 +26,7 @@ import { imagePath, InsertFavoriteTherapistUrl, RemoveFavoriteTherapistUrl, Book
 import { postData, fetchData } from "../../utils/actions";
 import { nextOpenSlot } from "../../utils/next-slot";
 import ShareModal from "../global/share-modal";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
   const router = useRouter();
@@ -139,7 +139,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: "book_now_click", therapist_id: pageData._id });
     }
-    router.push(`/book/${pageData._id}`);
+    router.push(bookPath(pageData));
   };
 
   const addFavrioute = async (id) => {

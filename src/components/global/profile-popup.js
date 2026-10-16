@@ -19,7 +19,7 @@ import Language from "@mui/icons-material/Language";
 import Work from "@mui/icons-material/Work";
 import Link from "next/link";
 import { imagePath } from "../../utils/url";
-import { profilePath } from "../../utils/therapist-slug";
+import { profilePath, bookPath } from "../../utils/therapist-slug";
 
 export default function ProfilePopup({ open, onClose, therapist }) {
   const theme = useTheme();
@@ -207,7 +207,7 @@ export default function ProfilePopup({ open, onClose, therapist }) {
           </Button>
           <Button
             component={Link}
-            href={`/book/${therapist._id}`}
+            href={bookPath(therapist)}
             variant="contained"
             fullWidth
             sx={{

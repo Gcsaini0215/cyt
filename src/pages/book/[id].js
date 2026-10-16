@@ -12,6 +12,9 @@ import {
 } from "../../utils/url";
 import { getValidServices } from "../../utils/helpers";
 import { getToken } from "../../utils/jwt";
+import { isObjectId } from "../../utils/therapist-slug";
+import { getSlugMaps, currentSlugFor } from "../../utils/therapist-slug-maps";
+import { profileSeo, cleanName } from "../../utils/related-therapists";
 
 // ── constants ────────────────────────────────────────────────────────────────
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -224,9 +227,81 @@ function ContinueBtn({ label = "Continue", disabled, onClick, loading }) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-export default function BookPage() {
+// /book/<slug> like /view-profile/<slug>; old /book/<_id> links 301 here. The profile is
+// fetched on the server too so link previews (WhatsApp etc.) get the therapist's photo.
+export async function getServerSideProps(context) {
+  const param = context.params.id;
+  const query = context.resolvedUrl.includes("?") ? context.resolvedUrl.slice(context.resolvedUrl.indexOf("?")) : "";
+  const moved = (slug) => ({ redirect: { destination: `/book/${slug}${query}`, statusCode: 301 } });
+  let id = param;
+  let slug = null;
+  try {
+    if (!isObjectId(param)) {
+      let maps = await getSlugMaps();
+      if (!maps.bySlug[param]) maps = await getSlugMaps(true);
+      if (!maps.bySlug[param]) {
+        const current = currentSlugFor(param, maps);
+        return current ? moved(current) : { notFound: true };
+      }
+      id = maps.bySlug[param];
+      slug = param;
+    } else {
+      const { slugById } = await getSlugMaps();
+      if (slugById[id]) return moved(slugById[id]);
+    }
+    const res = await fetchData(getTherapistProfile + id);
+    if (res?.status && res?.data && Object.keys(res.data).length > 0) {
+      return { props: { initialProfile: res.data, id, urlKey: slug || id } };
+    }
+  } catch (err) {
+    console.error("book getServerSideProps:", err);
+  }
+  // unlisted / API hiccup: the page still loads the profile in the browser
+  return { props: { initialProfile: null, id, urlKey: slug || id } };
+}
+
+// Title, description, Open Graph + Twitter tags with the therapist's photo.
+function BookSeo({ profile, urlKey }) {
+  if (!profile) return null;
+  const seo = profileSeo(profile);
+  const name = cleanName(profile) || "Therapist";
+  const title = `Book a Session with ${name} – ${seo.type} | Choose Your Therapist`;
+  const description = seo.description;
+  const url = `https://www.chooseyourtherapist.in/book/${urlKey}`;
+  const photo = profile.user?.profile;
+  const image = photo
+    ? (photo.startsWith("http") ? photo : `${imagePath}/${photo}`)
+    : "https://i.postimg.cc/gj1yngrd/choose.png";
+  return (
+    <Head>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="robots" content="index, follow" />
+      <link rel="canonical" href={url} />
+
+      <meta key="og:type" property="og:type" content="website" />
+      <meta property="og:url" content={url} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
+      <meta property="og:image:secure_url" content={image} />
+      <meta property="og:image:alt" content={`${name} - ${seo.type}`} />
+      <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+      <meta key="og:locale" property="og:locale" content="en_IN" />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:url" content={url} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
+      <meta name="twitter:site" content="@chooseyourtherapist" />
+    </Head>
+  );
+}
+
+export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   const router = useRouter();
-  const { id } = router.query;
+  const id = ssrId || router.query.id;
 
   const [profile,  setProfile]  = React.useState(null);
   const [loading,  setLoading]  = React.useState(true);
@@ -277,18 +352,21 @@ export default function BookPage() {
 
   React.useEffect(() => {
     if (!id) return;
+    const apply = (data) => {
+      setProfile(data);
+      getValidServices(data.fees || []).then(svcs => {
+        setServices(svcs);
+        // A single service has nothing to choose — preselect it (and its first format).
+        if (svcs.length === 1) { setSelSvc(svcs[0]); setSelFmt(svcs[0].formats?.[0] || null); }
+      });
+    };
+    // already fetched on the server — don't load it twice
+    if (initialProfile && initialProfile._id === id) { apply(initialProfile); setLoading(false); return; }
     fetchData(getTherapistProfile + id).then(res => {
-      if (res?.status && res?.data) {
-        setProfile(res.data);
-        getValidServices(res.data.fees || []).then(svcs => {
-          setServices(svcs);
-          // A single service has nothing to choose — preselect it (and its first format).
-          if (svcs.length === 1) { setSelSvc(svcs[0]); setSelFmt(svcs[0].formats?.[0] || null); }
-        });
-      }
+      if (res?.status && res?.data) apply(res.data);
       setLoading(false);
     });
-  }, [id]);
+  }, [id, initialProfile]);
 
   React.useEffect(() => {
     fetch(`${apiUrl}/noida-appointments/pricing`)
@@ -447,6 +525,7 @@ export default function BookPage() {
 
   if (loading) return (
     <div id="__next" style={{ background: "#f8fafc", minHeight: "100vh" }}>
+      <BookSeo profile={initialProfile} urlKey={urlKey || id} />
       <MyNavbar />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
         <style dangerouslySetInnerHTML={{ __html: `@keyframes _sp{to{transform:rotate(360deg)}}` }} />
@@ -922,9 +1001,7 @@ export default function BookPage() {
   // ══════════════════════════════════════════════════════════════════════════
   return (
     <>
-      <Head>
-        <title>{`Book Session — ${profile.user?.name || "Therapist"} | Choose Your Therapist`}</title>
-      </Head>
+      <BookSeo profile={profile} urlKey={urlKey || id} />
       <style dangerouslySetInnerHTML={{ __html: `
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes _sp { to { transform: rotate(360deg); } }
