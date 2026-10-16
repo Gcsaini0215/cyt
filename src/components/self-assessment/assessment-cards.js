@@ -4,8 +4,8 @@ export const assessments = [
   { id: 1, icon: "feather-moon", title: "Depression Screening", short: "PHQ-9", description: "The 9-question check doctors and psychologists use worldwide for low mood and depression.", questions: 9, duration: "2–3 min", age: "Ages 13+", color: "#3b82f6", by: "Kroenke, Spitzer & Williams, 2001" },
   { id: 2, icon: "feather-wind", title: "Anxiety Screening", short: "GAD-7", description: "The standard 7-question check for worry, nervousness and restlessness.", questions: 7, duration: "2 min", age: "Ages 13+", color: "#f59e0b", by: "Spitzer et al., 2006" },
   { id: 3, icon: "feather-sunset", title: "Sleep Check", short: "Insomnia", description: "How much trouble falling asleep, staying asleep or waking early is affecting your days.", questions: 7, duration: "2 min", age: "Ages 18+", color: "#8b5cf6", by: "Standard insomnia symptoms" },
-  { id: 4, icon: "feather-shield", title: "Trauma & Stress Checklist", short: "PCL-5", description: "Screens for post-traumatic stress symptoms after a frightening or distressing event.", questions: 20, duration: "5–7 min", age: "Ages 18+", color: "#ef4444", by: "US National Center for PTSD" },
-  { id: 5, icon: "feather-user", title: "Personality Profile", short: "Big Five", description: "See where you sit on openness, conscientiousness, extraversion, agreeableness and emotional sensitivity.", questions: 50, duration: "8–10 min", age: "Ages 14+", color: "#16a34a", by: "Five-Factor model" },
+  { id: 4, icon: "feather-shield", title: "Trauma & Stress Checklist", short: "PCL-5", description: "Screens for post-traumatic stress symptoms after a frightening or distressing event.", questions: 20, duration: "5–7 min", age: "Ages 18+", color: "#ef4444", by: "Weathers et al., US National Center for PTSD, 2013" },
+  { id: 5, icon: "feather-user", title: "Personality Profile", short: "Big Five", description: "See where you sit on openness, conscientiousness, extraversion, agreeableness and emotional sensitivity.", questions: 50, duration: "8–10 min", age: "Ages 14+", color: "#16a34a", by: "IPIP-50, Goldberg 1992" },
 ];
 
 export default function AssessmentCards({ onSelectAssessment }) {

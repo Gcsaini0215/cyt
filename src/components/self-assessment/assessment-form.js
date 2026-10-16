@@ -28,16 +28,22 @@ export const TEST_META = {
   1: { key: "phq9", source: "PHQ-9 — Kroenke, Spitzer & Williams (2001), Journal of General Internal Medicine. Free to use." },
   2: { key: "gad7", source: "GAD-7 — Spitzer, Kroenke, Williams & Löwe (2006), Archives of Internal Medicine. Free to use." },
   3: { key: "sleep", source: "Built on the standard insomnia symptoms (trouble falling asleep, staying asleep, waking early, daytime impact) used in clinical sleep screening. A check-in, not a diagnostic scale." },
-  4: { key: "pcl5", source: "PCL-5 — Weathers et al. (2013), US National Center for PTSD. Public domain." },
-  5: { key: "bigfive", source: "Based on the Five-Factor (Big Five) model of personality — Costa & McCrae; Goldberg. A self-reflection tool, not a clinical test." },
+  4: { key: "pcl5", source: "PCL-5 — Weathers, Litz, Keane, Palmieri, Marx & Schnurr (2013), US National Center for PTSD. Public domain. Cut-point 31–33 suggests probable PTSD; only a clinician can diagnose it." },
+  5: { key: "bigfive", source: "IPIP Big-Five Factor Markers, 50 items — Goldberg (1992), International Personality Item Pool (ipip.ori.org). Public domain. A self-reflection tool, not a clinical test; scores are shown 0–100 within the scale, not compared with population norms." },
 };
-// Big Five statements worded the other way round (agreeing means LESS of that trait)
-const REVERSED = new Set([6, 7, 19, 20, 21, 22, 23]);
+// IPIP-50 statements keyed the other way (agreeing means LESS of that trait) — Goldberg's published key
+const REVERSED = new Set([
+  5, 15, 25, 35, 45, // Extraversion
+  1, 11, 21, 31, // Agreeableness
+  7, 17, 27, 37, // Conscientiousness
+  8, 18, // Neuroticism (the two calm/stable items)
+  9, 19, 29, // Openness / Intellect
+]);
 
 const assessmentQuestions = {
   1: {
     title: "Depression Screening (PHQ-9)",
-    description: "Over the last two weeks, how often have you been bothered by any of the following problems?",
+    description: "Over the last 2 weeks, how often have you been bothered by any of the following problems?",
     color: "#1976d2",
     questions: [
       "Little interest or pleasure in doing things",
@@ -45,10 +51,10 @@ const assessmentQuestions = {
       "Trouble falling or staying asleep, or sleeping too much",
       "Feeling tired or having little energy",
       "Poor appetite or overeating",
-      "Feeling bad about yourself or that you are a failure",
-      "Trouble concentrating on things",
-      "Moving or speaking slowly or being fidgety/restless",
-      "Thoughts that you would be better off dead"
+      "Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
+      "Trouble concentrating on things, such as reading the newspaper or watching television",
+      "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual",
+      "Thoughts that you would be better off dead or of hurting yourself in some way"
     ],
     options: [
       { label: "Not at all", value: 0 },
@@ -59,16 +65,16 @@ const assessmentQuestions = {
   },
   2: {
     title: "Anxiety Assessment (GAD-7)",
-    description: "Over the last two weeks, how often have you been bothered by anxiety or worry?",
+    description: "Over the last 2 weeks, how often have you been bothered by the following problems?",
     color: "#f57c00",
     questions: [
       "Feeling nervous, anxious, or on edge",
       "Not being able to stop or control worrying",
       "Worrying too much about different things",
       "Trouble relaxing",
-      "Being so restless that it's hard to sit still",
+      "Being so restless that it is hard to sit still",
       "Becoming easily annoyed or irritable",
-      "Feeling afraid as if something awful might happen"
+      "Feeling afraid, as if something awful might happen"
     ],
     options: [
       { label: "Not at all", value: 0 },
@@ -100,29 +106,29 @@ const assessmentQuestions = {
   },
   4: {
     title: "PTSD Checklist (PCL-5)",
-    description: "In the past month, how much have you been bothered by these problems?",
+    description: "Keep your worst stressful experience in mind. In the past month, how much were you bothered by:",
     color: "#dc2626",
     questions: [
-      "Repeated, disturbing, and unwanted memories of the stressful experience",
-      "Repeated, disturbing dreams related to the stressful experience",
-      "Suddenly acting or feeling as if the stressful experience were happening again",
-      "Feeling very upset when something reminded you of the stressful experience",
-      "Having strong physical reactions when something reminded you of the stressful experience",
-      "Avoiding memories, thoughts, or feelings related to the stressful experience",
-      "Avoiding external reminders of the stressful experience",
-      "Trouble remembering an important part of the stressful experience",
-      "Having strong negative beliefs about yourself, other people, or the world",
-      "Blaming yourself or someone else for the stressful experience",
-      "Having strong negative emotions such as fear, anger, guilt, or shame",
-      "Loss of interest in activities that you used to enjoy",
-      "Feeling distant or cut off from other people",
-      "Trouble experiencing positive emotions",
-      "Irritable behavior, angry outbursts, or acting aggressively",
-      "Taking too many risks or doing things that could cause you harm",
-      "Being 'superalert' or watchful or on guard",
-      "Feeling jumpy or easily startled",
-      "Having difficulty concentrating",
-      "Trouble falling or staying asleep"
+      "Repeated, disturbing, and unwanted memories of the stressful experience?",
+      "Repeated, disturbing dreams of the stressful experience?",
+      "Suddenly feeling or acting as if the stressful experience were actually happening again (as if you were actually back there reliving it)?",
+      "Feeling very upset when something reminded you of the stressful experience?",
+      "Having strong physical reactions when something reminded you of the stressful experience (for example, heart pounding, trouble breathing, sweating)?",
+      "Avoiding memories, thoughts, or feelings related to the stressful experience?",
+      "Avoiding external reminders of the stressful experience (for example, people, places, conversations, activities, objects, or situations)?",
+      "Trouble remembering important parts of the stressful experience?",
+      "Having strong negative beliefs about yourself, other people, or the world (for example, having thoughts such as: I am bad, there is something seriously wrong with me, no one can be trusted, the world is completely dangerous)?",
+      "Blaming yourself or someone else for the stressful experience or what happened after it?",
+      "Having strong negative feelings such as fear, horror, anger, guilt, or shame?",
+      "Loss of interest in activities that you used to enjoy?",
+      "Feeling distant or cut off from other people?",
+      "Trouble experiencing positive feelings (for example, being unable to feel happiness or have loving feelings for people close to you)?",
+      "Irritable behavior, angry outbursts, or acting aggressively?",
+      "Taking too many risks or doing things that could cause you harm?",
+      "Being \"superalert\" or watchful or on guard?",
+      "Feeling jumpy or easily startled?",
+      "Having difficulty concentrating?",
+      "Trouble falling or staying asleep?"
     ],
     options: [
       { label: "Not at all", value: 0 },
@@ -133,100 +139,101 @@ const assessmentQuestions = {
     ]
   },
   5: {
-    title: "Big Five Personality (OCEAN)",
-    description: "Rate how much you agree with each statement on a scale of 1 to 5",
+    title: "Big Five Personality (IPIP-50)",
+    description: "Describe yourself as you generally are now, not as you wish to be in the future — as you honestly see yourself compared with other people of your sex and roughly your age. How accurately does this describe you?",
     color: "#16a34a",
     hasDimensions: true,
+    // item k (0-based) belongs to factor k % 5: Extraversion, Agreeableness, Conscientiousness, Neuroticism (IPIP: Emotional Stability, flipped), Openness/Intellect
     dimensions: {
-      openness: { 
-        label: "Openness", 
-        color: "#3b82f6", 
-        items: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45],
-        definition: "Curiosity about ideas, creativity, and willingness to try new experiences. Higher scores indicate imaginative and open-minded tendencies."
-      },
-      conscientiousness: { 
-        label: "Conscientiousness", 
-        color: "#f59e0b", 
-        items: [1, 6, 11, 16, 21, 26, 31, 36, 41, 46],
-        definition: "Tendency to be organized, disciplined, and responsible. Higher scores reflect careful planning and goal-directed behavior."
-      },
-      extraversion: { 
-        label: "Extraversion", 
-        color: "#ec4899", 
-        items: [2, 7, 12, 17, 22, 27, 32, 37, 42, 47],
-        definition: "Sociability, assertiveness, and tendency to seek stimulation. Higher scores indicate outgoing and energetic nature."
-      },
-      agreeableness: { 
-        label: "Agreeableness", 
-        color: "#10b981", 
-        items: [3, 8, 13, 18, 23, 28, 33, 38, 43, 48],
-        definition: "Compassion, cooperativeness, and concern for others. Higher scores suggest empathy and collaborative approach."
-      },
-      neuroticism: { 
-        label: "Neuroticism", 
-        color: "#ef4444", 
+      openness: {
+        label: "Openness (Intellect / Imagination)",
+        color: "#3b82f6",
         items: [4, 9, 14, 19, 24, 29, 34, 39, 44, 49],
-        definition: "Emotional stability and tendency to experience negative emotions. Higher scores indicate sensitivity to stress and anxiety."
+        definition: "Curiosity about ideas, imagination and quickness to understand. Higher scores mean a more imaginative, idea-loving style."
+      },
+      conscientiousness: {
+        label: "Conscientiousness",
+        color: "#f59e0b",
+        items: [2, 7, 12, 17, 22, 27, 32, 37, 42, 47],
+        definition: "Being organised, prepared and dependable. Higher scores reflect careful planning and getting things done."
+      },
+      extraversion: {
+        label: "Extraversion",
+        color: "#ec4899",
+        items: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45],
+        definition: "Sociability and comfort with attention. Higher scores mean more outgoing and talkative."
+      },
+      agreeableness: {
+        label: "Agreeableness",
+        color: "#10b981",
+        items: [1, 6, 11, 16, 21, 26, 31, 36, 41, 46],
+        definition: "Warmth and concern for others. Higher scores suggest empathy and a cooperative style."
+      },
+      neuroticism: {
+        label: "Emotional sensitivity (Neuroticism)",
+        color: "#ef4444",
+        items: [3, 8, 13, 18, 23, 28, 33, 38, 43, 48],
+        definition: "How strongly stress, worry and mood changes affect you (the reverse of IPIP Emotional Stability). Higher scores mean feeling stress more easily."
       }
     },
     questions: [
-      "I am interested in abstract ideas", // Openness (0)
-      "I am always prepared", // Conscientiousness (1)
-      "I am the life of the party", // Extraversion (2)
-      "I am very cooperative", // Agreeableness (3)
-      "I get stressed out easily", // Neuroticism (4)
-      "I have a vivid imagination", // Openness (5)
-      "I tend to be disorganized", // Conscientiousness (6)
-      "I don't talk much", // Extraversion (7)
-      "I am concerned about others", // Agreeableness (8)
-      "I worry about things", // Neuroticism (9)
-      "I like to reflect and play with ideas", // Openness (10)
-      "I am careful and meticulous about details", // Conscientiousness (11)
-      "I am outgoing and sociable", // Extraversion (12)
-      "I sympathize with others' feelings", // Agreeableness (13)
-      "I am easily disturbed", // Neuroticism (14)
-      "I am original and come up with new ideas", // Openness (15)
-      "I am efficient and effective at my work", // Conscientiousness (16)
-      "I am talkative and assertive", // Extraversion (17)
-      "I respect others and their opinions", // Agreeableness (18)
-      "I am emotionally stable and calm", // Neuroticism (19)
-      "I prefer work that is routine and familiar", // Openness (20)
-      "I make a mess of things", // Conscientiousness (21) - reverse scored
-      "I am quiet", // Extraversion (22) - reverse scored
-      "I hold grudges", // Agreeableness (23) - reverse scored
-      "I am anxious about things", // Neuroticism (24)
-      "I like to use new technologies and apps", // Openness (25)
-      "I follow a schedule", // Conscientiousness (26)
-      "I initiate conversations", // Extraversion (27)
-      "I often help others without expecting anything in return", // Agreeableness (28)
-      "I feel overwhelmed by emotions", // Neuroticism (29)
-      "I enjoy exploring different philosophical concepts", // Openness (30)
-      "I complete tasks with accuracy", // Conscientiousness (31)
-      "I enjoy being the center of attention", // Extraversion (32)
-      "I prefer cooperation over competition", // Agreeableness (33)
-      "I become frustrated easily", // Neuroticism (34)
-      "I enjoy artistic or creative activities", // Openness (35)
-      "I keep my workspace organized and clean", // Conscientiousness (36)
-      "I feel energized by social interactions", // Extraversion (37)
-      "I find it easy to understand others' perspectives", // Agreeableness (38)
-      "I often feel self-doubt", // Neuroticism (39)
-      "I would describe myself as unconventional", // Openness (40)
-      "I plan ahead and set goals", // Conscientiousness (41)
-      "I prefer meeting new people", // Extraversion (42)
-      "I am generous with my time and resources", // Agreeableness (43)
-      "I experience mood swings", // Neuroticism (44)
-      "I explore different cultures and ideas", // Openness (45)
-      "I am detail-oriented in my work", // Conscientiousness (46)
-      "I seek out social events and gatherings", // Extraversion (47)
-      "I take others' feelings into consideration", // Agreeableness (48)
-      "I feel nervous in uncertain situations", // Neuroticism (49)
+      "Am the life of the party.",
+      "Feel little concern for others.",
+      "Am always prepared.",
+      "Get stressed out easily.",
+      "Have a rich vocabulary.",
+      "Don't talk a lot.",
+      "Am interested in people.",
+      "Leave my belongings around.",
+      "Am relaxed most of the time.",
+      "Have difficulty understanding abstract ideas.",
+      "Feel comfortable around people.",
+      "Insult people.",
+      "Pay attention to details.",
+      "Worry about things.",
+      "Have a vivid imagination.",
+      "Keep in the background.",
+      "Sympathize with others' feelings.",
+      "Make a mess of things.",
+      "Seldom feel blue.",
+      "Am not interested in abstract ideas.",
+      "Start conversations.",
+      "Am not interested in other people's problems.",
+      "Get chores done right away.",
+      "Am easily disturbed.",
+      "Have excellent ideas.",
+      "Have little to say.",
+      "Have a soft heart.",
+      "Often forget to put things back in their proper place.",
+      "Get upset easily.",
+      "Do not have a good imagination.",
+      "Talk to a lot of different people at parties.",
+      "Am not really interested in others.",
+      "Like order.",
+      "Change my mood a lot.",
+      "Am quick to understand things.",
+      "Don't like to draw attention to myself.",
+      "Take time out for others.",
+      "Shirk my duties.",
+      "Have frequent mood swings.",
+      "Use difficult words.",
+      "Don't mind being the center of attention.",
+      "Feel others' emotions.",
+      "Follow a schedule.",
+      "Get irritated easily.",
+      "Spend time reflecting on things.",
+      "Am quiet around strangers.",
+      "Make people feel at ease.",
+      "Am exacting in my work.",
+      "Often feel blue.",
+      "Am full of ideas."
     ],
     options: [
-      { label: "Strongly Disagree", value: 1 },
-      { label: "Disagree", value: 2 },
-      { label: "Neutral", value: 3 },
-      { label: "Agree", value: 4 },
-      { label: "Strongly Agree", value: 5 }
+      { label: "Very inaccurate", value: 1 },
+      { label: "Moderately inaccurate", value: 2 },
+      { label: "Neither accurate nor inaccurate", value: 3 },
+      { label: "Moderately accurate", value: 4 },
+      { label: "Very accurate", value: 5 }
     ]
   }
 };
@@ -319,9 +326,8 @@ export default function AssessmentForm({ assessmentId, onBack }) {
       if (totalScore <= 21) return band({ level: "Moderate sleep problem", color: "#f97316", description: "A moderate sleep problem. Therapy for insomnia (CBT-I) is very effective — a psychologist can help." });
       return band({ level: "Severe sleep problem", color: "#dc2626", description: "A severe sleep problem. Please speak with a doctor or psychologist about it." });
     }
-    // PCL-5, 0–80 (33 or more suggests probable PTSD)
-    if (totalScore < 20) return band({ level: "Few symptoms", color: "#16a34a", description: "Your answers show few trauma-related symptoms right now." });
-    if (totalScore < 33) return band({ level: "Some symptoms", color: "#f97316", description: "Your answers show some trauma-related symptoms. Talking to a psychologist can help you process what happened." });
+    // PCL-5, 0–80 — the National Center for PTSD's suggested cut-point is 31–33; 33 used here
+    if (totalScore < 33) return band({ level: "Below PTSD cut-off", color: totalScore >= 20 ? "#f97316" : "#16a34a", description: totalScore >= 20 ? "Your score is below the PTSD screening cut-off, but you are still carrying real stress from what happened. Talking to a psychologist can help you process it." : "Your score is below the PTSD screening cut-off." });
     return band({ level: "Probable PTSD", color: "#dc2626", description: "Your answers are in the range where PTSD is likely. Please speak with a trauma-informed psychologist — it is very treatable." });
   };
 
