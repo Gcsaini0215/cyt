@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto } from "../components/client/session-card";
 import { RebookCard, ReviewCard, ReferralCard, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
@@ -115,6 +116,7 @@ export default function ClientHome() {
               <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
               <TipLine now={now} />
             </div>
+            <PreSessionForms compact />
 
             {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
 

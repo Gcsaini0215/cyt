@@ -1,0 +1,108 @@
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { fetchById, postData } from "../../utils/actions";
+import { apiUrl } from "../../utils/url";
+
+/* Licensed questionnaires a psychologist wants filled before a session (and, once they've gone
+   through it with the client, the released score). `compact` = only what still needs doing. */
+
+const PENDING_KEY = "cyt_assess_pending";
+const when = (d) => (d ? new Date(d).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }) : "");
+
+// The client tapped "Book" for a licensed questionnaire: remember it until they're signed in, then tell the API
+export const rememberAssessmentIntent = (therapistId, tool) => {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify({ therapistId, tool, at: Date.now() })); } catch (e) { /* storage blocked */ }
+};
+export async function flushAssessmentIntent() {
+  let p = null;
+  try { p = JSON.parse(localStorage.getItem(PENDING_KEY) || "null"); } catch (e) { return null; }
+  if (!p?.therapistId || !p?.tool || Date.now() - (p.at || 0) > 14 * 864e5) { try { localStorage.removeItem(PENDING_KEY); } catch (e) { /* ignore */ } return null; }
+  try {
+    const r = await postData(`${apiUrl}/assessment-requests/intent`, { therapistId: p.therapistId, tool: p.tool });
+    localStorage.removeItem(PENDING_KEY);
+    return r?.data || null;
+  } catch (e) {
+    if (e?.response?.status >= 400 && e?.response?.status < 500) { try { localStorage.removeItem(PENDING_KEY); } catch (x) { /* ignore */ } }
+    return null;
+  }
+}
+
+export default function PreSessionForms({ compact = false }) {
+  const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState("");
+
+  const load = () => fetchById(`${apiUrl}/assessment-requests/mine`).then((r) => setRows(r?.data || [])).catch(() => setRows([]));
+  useEffect(() => { load(); }, []);
+
+  const done = async (id) => {
+    setBusy(id);
+    try { await postData(`${apiUrl}/assessment-requests/${id}/done`, {}); await load(); } catch (e) { /* stays as is */ }
+    setBusy("");
+  };
+
+  const list = (rows || []).filter((r) => !compact || r.status === "sent");
+  if (!list.length) return null;
+
+  return (
+    <section className={`psf${compact ? " compact" : ""}`} aria-labelledby="psf-h">
+      <style dangerouslySetInnerHTML={{ __html: PSF_CSS }} />
+      <h2 id="psf-h">{compact ? "Before your session" : "From your psychologist"}</h2>
+      <div className="psf-list">
+        {list.map((r) => (
+          <div key={r._id} className={`psf-row ${r.status}`}>
+            <div className="psf-top">
+              <div>
+                <b>{r.name}</b>
+                <span>{r.therapist}{r.booking_date ? ` · session ${when(r.booking_date)}` : ""}</span>
+              </div>
+              <span className="psf-chip">{r.status === "sent" ? "To fill" : r.status === "done" ? "Filled ✓" : "Result shared"}</span>
+            </div>
+
+            {r.status === "sent" && (
+              <>
+                {r.instructions && <p className="psf-ins">{r.instructions}</p>}
+                {r.formUrl ? (
+                  <div className="psf-acts">
+                    <a href={r.formUrl} target="_blank" rel="noopener noreferrer" className="psf-btn">Open the questionnaire ↗</a>
+                    <button type="button" className="psf-btn ghost" onClick={() => done(r._id)} disabled={busy === r._id}>{busy === r._id ? "Saving…" : "I've filled it"}</button>
+                  </div>
+                ) : <p className="psf-ins">{r.therapist} will take you through it at the start of your session — nothing to do now.</p>}
+                <p className="psf-small">🔒 Your score goes only to your psychologist, who will go through it with you in the session.</p>
+              </>
+            )}
+            {r.status === "done" && <p className="psf-ins">Thank you. {r.therapist} will go through your score with you in the session.</p>}
+            {r.status === "released" && (
+              <div className="psf-res">
+                <span>Score <b>{r.score}{r.max ? `/${r.max}` : ""}</b>{r.level ? ` · ${r.level}` : ""}</span>
+                {r.note && <p>“{r.note}” — {r.therapist}</p>}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {compact && <Link href="/client/check-ins" className="psf-more">All my check-ins →</Link>}
+    </section>
+  );
+}
+
+const PSF_CSS = `
+.psf { margin-bottom: 18px; }
+.psf h2 { margin: 0 0 10px; font-size: 17px; font-weight: 800; color: #0f172a; font-family: inherit; }
+.psf-list { display: flex; flex-direction: column; gap: 10px; }
+.psf-row { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; }
+.psf-row.sent { border-color: #fde68a; background: #fffdf5; }
+.psf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.psf-top b { display: block; font-size: 14.5px; color: #0f172a; } .psf-top span { display: block; font-size: 12.5px; color: #64748b; margin-top: 2px; }
+.psf-chip { flex-shrink: 0; font-size: 11.5px !important; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #e7f6ec; color: #166534 !important; margin: 0 !important; }
+.psf-row.sent .psf-chip { background: #fef3c7; color: #92400e !important; }
+.psf-ins { margin: 8px 0 0; font-size: 13.5px; color: #475569; line-height: 1.55; }
+.psf-small { margin: 8px 0 0; font-size: 12px; color: #64748b; }
+.psf-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.psf-btn { height: 40px; padding: 0 14px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; font-size: 13.5px; font-weight: 800; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; text-decoration: none !important; border: 0; cursor: pointer; font-family: inherit; }
+.psf-btn.ghost { background: #fff; color: #166534 !important; border: 1.5px solid #cfe3d6; }
+.psf-btn:disabled { opacity: .6; }
+.psf-res { margin-top: 8px; font-size: 13.5px; color: #334155; } .psf-res b { font-size: 17px; color: #0f172a; }
+.psf-res p { margin: 6px 0 0; font-size: 13px; color: #475569; font-style: italic; line-height: 1.55; }
+.psf-more { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 800; color: #166534 !important; }
+@media (max-width: 560px) { .psf-acts .psf-btn { flex: 1 1 100%; } }
+`;

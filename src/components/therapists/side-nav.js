@@ -22,6 +22,7 @@ import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 
 /* Every therapist-portal page, grouped. Items marked `hidden` are switched off for now
    (pages exist but aren't in the menu yet) — remove the flag to show them. `match` lists the route prefixes that count as
@@ -33,6 +34,7 @@ const ALL_GROUPS = [
       { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
       { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badgeKey: "bookings" },
       { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
+      { to: "/therapist-questionnaires", Icon: FactCheckRoundedIcon, label: "Questionnaires" },
       { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews", badgeKey: "reviews" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },

@@ -26,7 +26,7 @@ export default function Licences() {
     if (edit.details.trim().length < 4) { setMsg({ text: "Please add your licence or permission details.", err: true }); return; }
     setBusy(true); setMsg({ text: "", err: false });
     try {
-      const r = await postData(`${apiUrl}/assessment-licences`, { tool: edit.tool, details: edit.details.trim(), validTill: edit.validTill || null });
+      const r = await postData(`${apiUrl}/assessment-licences`, { tool: edit.tool, details: edit.details.trim(), validTill: edit.validTill || null, formUrl: (edit.formUrl || "").trim(), instructions: (edit.instructions || "").trim() });
       if (!r?.status) throw new Error(r?.message);
       setEdit(null);
       setMsg({ text: "Licence saved — clients asking for this questionnaire will now see you.", err: false });
@@ -68,16 +68,17 @@ export default function Licences() {
                     </div>
                     {!editing && (have ? (
                       <div className="lic-acts">
-                        <button type="button" className="lic-btn ghost" onClick={() => setEdit({ tool: t.key, details: have.details, validTill: toInput(have.validTill) })} disabled={busy}>Edit</button>
+                        <button type="button" className="lic-btn ghost" onClick={() => setEdit({ tool: t.key, details: have.details, validTill: toInput(have.validTill), formUrl: have.formUrl || "", instructions: have.instructions || "" })} disabled={busy}>Edit</button>
                         <button type="button" className="lic-btn danger" onClick={() => remove(t.key)} disabled={busy}>Remove</button>
                       </div>
                     ) : (
-                      <button type="button" className="lic-btn" onClick={() => setEdit({ tool: t.key, details: "", validTill: "" })} disabled={busy}>+ Add licence</button>
+                      <button type="button" className="lic-btn" onClick={() => setEdit({ tool: t.key, details: "", validTill: "", formUrl: "", instructions: "" })} disabled={busy}>+ Add licence</button>
                     ))}
                   </div>
                   {have && !editing && (
                     <p className={`lic-have${expired(have) ? " exp" : ""}`}>
                       {expired(have) ? "⚠ Expired" : "✓ Licensed"} · {have.details}{have.validTill ? ` · valid till ${fmtDate(have.validTill)}` : ""}
+                      <br />{have.formUrl ? <>Clients fill it at: <a href={have.formUrl} target="_blank" rel="noopener noreferrer">{have.formUrl}</a></> : <span className="lic-nolink">No online form link — clients will be told you&apos;ll take them through it in the session.</span>}
                     </p>
                   )}
                   {editing && (
@@ -86,6 +87,10 @@ export default function Licences() {
                       <textarea id={`lic-d-${t.key}`} rows={2} maxLength={400} placeholder="e.g. Licence no. / order no., issued by (Mapi, Pearson, Mind Garden, author permission…)" value={edit.details} onChange={(e) => setEdit({ ...edit, details: e.target.value })} />
                       <label htmlFor={`lic-v-${t.key}`}>Valid till <span>(leave empty if it doesn&apos;t expire)</span></label>
                       <input id={`lic-v-${t.key}`} type="date" value={edit.validTill} onChange={(e) => setEdit({ ...edit, validTill: e.target.value })} />
+                      <label htmlFor={`lic-f-${t.key}`}>Your licensed online form link <span>(sent to clients before their session)</span></label>
+                      <input id={`lic-f-${t.key}`} type="url" className="lic-url" placeholder="https://… (your licensed e-form, e.g. Q-global / ePROVIDE / your own licensed form)" value={edit.formUrl} onChange={(e) => setEdit({ ...edit, formUrl: e.target.value })} />
+                      <label htmlFor={`lic-i-${t.key}`}>Instructions for the client <span>(optional)</span></label>
+                      <textarea id={`lic-i-${t.key}`} rows={2} maxLength={300} placeholder="e.g. Use the code I send on WhatsApp. Takes about 5 minutes." value={edit.instructions} onChange={(e) => setEdit({ ...edit, instructions: e.target.value })} />
                       <div className="lic-acts">
                         <button type="button" className="lic-btn" onClick={save} disabled={busy}>{busy ? "Saving…" : "Save licence"}</button>
                         <button type="button" className="lic-btn ghost" onClick={() => setEdit(null)} disabled={busy}>Cancel</button>
@@ -123,7 +128,8 @@ const LIC_CSS = `
 .lic-form { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .lic-form label { font-size: 12.5px; font-weight: 700; color: #334155; } .lic-form label span { font-weight: 500; color: #94a3b8; }
 .lic-form textarea, .lic-form input { width: 100%; border: 1.5px solid #dfe7e2; border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 14px; }
-.lic-form input { max-width: 220px; }
+.lic-form input { max-width: 220px; } .lic-form input.lic-url { max-width: none; }
+.lic-have a { color: #166534 !important; text-decoration: underline; word-break: break-all; } .lic-nolink { color: #92400e; font-weight: 600; }
 .lic-form textarea:focus, .lic-form input:focus { outline: none; border-color: #16a34a; }
 .lic-form .lic-acts { margin-top: 4px; }
 `;

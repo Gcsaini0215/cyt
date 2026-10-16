@@ -5,6 +5,7 @@ import { fetchById } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { usePager, Pager } from "../../components/therapists/pager";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
+import PreSessionForms from "../../components/client/pre-session-forms";
 import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
 import TrendingDownRoundedIcon from "@mui/icons-material/TrendingDownRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
@@ -119,12 +120,14 @@ export default function CheckIns() {
           </div>
         )}
 
+        <PreSessionForms />
+
         {rows === null ? (
           <div className="ci-grid">{[0, 1, 2].map((i) => <div key={i} className="ci-skel" />)}</div>
         ) : rows.length === 0 ? (
           <div className="ci-empty">
             <PsychologyAltRoundedIcon />
-            <b>No check-ins yet</b>
+            <b>No self-checks yet</b>
             <p>A self-check takes 2–10 minutes. Do one now and again every couple of weeks — you&apos;ll see here how you&apos;re doing over time.</p>
             <div className="ci-try">
               {TESTS.filter((t) => !t.retired).map((t) => <Link key={t.key} href={startHref(t.key)}>{t.name}</Link>)}

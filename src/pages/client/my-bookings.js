@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import PreSessionForms from "../../components/client/pre-session-forms";
 import ClientShell from "../../components/client/client-shell";
 import SessionCard, { CSC_CSS } from "../../components/client/session-card";
 import { fetchById } from "../../utils/actions";
@@ -57,6 +58,7 @@ export default function MySessions() {
         </div>
         <Link href="/client/find" className="csc-btn primary" style={{ flex: "none" }}>Book a session</Link>
       </div>
+      <PreSessionForms compact />
 
       <div className="ms-tabs" role="tablist" aria-label="Sessions">
         {TABS.map((t) => (

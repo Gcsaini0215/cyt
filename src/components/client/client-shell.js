@@ -23,6 +23,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
+import { flushAssessmentIntent } from "./pre-session-forms";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 
@@ -101,6 +102,7 @@ export default function ClientShell({ title, children }) {
       return;
     }
     setReady(true);
+    flushAssessmentIntent(); // a licensed questionnaire picked before signing in / booking
   }, [router]);
   useEffect(() => {
     if (!menu) return undefined;
