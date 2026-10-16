@@ -12,7 +12,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 
 /* Client home cards that bring people back: book the next session, review the last one,
-   refer a friend. (Self-check / family / Noida centre are in the portal menu — client-shell.) */
+   refer a friend. (Self-check / family / meeting in person are in the portal menu — client-shell.) */
 
 const SITE = "https://www.chooseyourtherapist.in";
 const DAY = 24 * 60 * 60 * 1000;

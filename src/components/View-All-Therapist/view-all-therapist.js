@@ -399,7 +399,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
 
       {embedded ? (
         <div className="vat-emb-h">
-          <h1>Find a therapist</h1>
+          <h1>Find my therapist</h1>
           <button type="button" className="vat-emb-help" onClick={() => setHelperOpen(true)}>
             <i className="feather-compass" aria-hidden="true" /> Help me choose
           </button>

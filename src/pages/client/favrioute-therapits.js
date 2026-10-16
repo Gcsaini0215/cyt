@@ -45,10 +45,10 @@ export default function SavedTherapists() {
   };
 
   return (
-    <ClientShell title="Saved Therapists">
+    <ClientShell title="My Shortlist">
       <style dangerouslySetInnerHTML={{ __html: SV_CSS }} />
       <div className="sv">
-        <h1>Saved therapists</h1>
+        <h1>My shortlist</h1>
         <p className="sv-sub">Therapists you saved with the <FavoriteRoundedIcon /> — book a session or view their profile.</p>
 
         {err && <p className="sv-err" role="alert">{err}</p>}

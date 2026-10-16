@@ -105,7 +105,7 @@ export default function ClientHome() {
     .map((b) => b.therapist._id));
 
   return (
-    <ClientShell title="Home">
+    <ClientShell title="My Space">
       <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + HOME_CSS }} />
       <div className="ch">
         <div className="ch-grid">

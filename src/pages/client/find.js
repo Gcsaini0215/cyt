@@ -26,7 +26,7 @@ export async function getServerSideProps(context) {
 
 export default function ClientFind({ initialAllData, initialFilters }) {
   return (
-    <ClientShell title="Find a Therapist">
+    <ClientShell title="Find My Therapist">
       {/* the public /view-all-therapist is the page for search engines */}
       <Head><meta name="robots" content="noindex, follow" /></Head>
       <ViewAllTherapist initialAllData={initialAllData} initialFilters={initialFilters} embedded />

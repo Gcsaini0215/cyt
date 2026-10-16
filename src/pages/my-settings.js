@@ -130,11 +130,11 @@ export default function ClientProfile() {
   const photo = preview || (saved ? (/^https?:/.test(saved) ? saved : `${imagePath}/${saved}`) : "");
 
   return (
-    <ClientShell title="Profile">
+    <ClientShell title="About Me">
       <style dangerouslySetInnerHTML={{ __html: CP_CSS }} />
       <div className="cp">
         <div className="cp-top">
-          <h1>Profile</h1>
+          <h1>About me</h1>
           {status && (
             <span className={`cp-status ${status}`} role="status">
               {status === "saving" ? "Saving…" : status === "saved" ? "✓ All changes saved" : status === "invalid" ? "Fix the highlighted field to save" : "Couldn't save"}

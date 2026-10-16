@@ -29,19 +29,19 @@ import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
    phones. Sends logged-out visitors to /login and brings them back afterwards. */
 
 export const CLIENT_NAV = [
-  { to: "/my-dashboard", label: "Home", Icon: HomeRoundedIcon, mob: true },
+  { to: "/my-dashboard", label: "My Space", Icon: HomeRoundedIcon, mob: true },
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, mob: true },
-  { to: "/client/find", label: "Find a Therapist", short: "Find", Icon: PersonSearchRoundedIcon, mob: true },
-  { to: "/client/favrioute-therapits", label: "Saved Therapists", short: "Saved", Icon: FavoriteRoundedIcon, mob: true },
-  { to: "/my-settings", label: "Profile", Icon: ManageAccountsRoundedIcon }, // phones: in "More"
+  { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, mob: true },
+  { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, mob: true },
+  { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon }, // phones: in "More"
 ];
-// "More ways we can help" — public pages, so they open outside the portal (marked ↗)
+// "Just for you" — public pages, so they open outside the portal (marked ↗). Never say "centre".
 export const HELP_NAV = [
-  { to: "/self-assessment", label: "Self-check", Icon: PsychologyAltRoundedIcon },
-  { to: "/therapy-for/relationships", label: "Couples therapy", Icon: VolunteerActivismRoundedIcon },
-  { to: "/therapy-for/parenting", label: "Child & parenting", Icon: ChildCareRoundedIcon },
-  { to: "/noida-appointment", label: "Noida centre", Icon: StorefrontRoundedIcon },
-  { to: "/blogs", label: "Articles", Icon: MenuBookRoundedIcon },
+  { to: "/self-assessment", label: "How am I doing?", Icon: PsychologyAltRoundedIcon },
+  { to: "/therapy-for/relationships", label: "For us as a couple", Icon: VolunteerActivismRoundedIcon },
+  { to: "/therapy-for/parenting", label: "For my child", Icon: ChildCareRoundedIcon },
+  { to: "/noida-appointment", label: "Meet in person", Icon: StorefrontRoundedIcon },
+  { to: "/blogs", label: "Reads for me", Icon: MenuBookRoundedIcon },
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 const RAIL_KEY = "cyt_cls_rail_mini";
@@ -152,7 +152,7 @@ export default function ClientShell({ title, children }) {
             {menu && (
               <div className="cls-dd" role="menu">
                 <div className="cls-dd-head"><b>{name || "My account"}</b><span>{userInfo?.email || ""}</span></div>
-                <Link href="/my-settings"><ManageAccountsRoundedIcon /> Profile</Link>
+                <Link href="/my-settings"><ManageAccountsRoundedIcon /> About Me</Link>
                 <a href={WA_HELP} target="_blank" rel="noopener noreferrer"><SupportAgentRoundedIcon /> Help on WhatsApp</a>
                 <button type="button" className="out" onClick={logout}><LogoutRoundedIcon /> Log out</button>
               </div>
@@ -168,7 +168,7 @@ export default function ClientShell({ title, children }) {
           </Link>
         ))}
         <div className="cls-rail-group">
-          <span className="cls-rail-h">More ways we can help</span>
+          <span className="cls-rail-h">Just for you</span>
           {HELP_NAV.map(({ to, label, Icon }) => (
             <Link key={to} href={to} className="cls-item sub" title={label}>
               <Icon /><span>{label}</span><NorthEastRoundedIcon className="cls-ext" />
@@ -176,7 +176,7 @@ export default function ClientShell({ title, children }) {
           ))}
         </div>
         <div className="cls-rail-foot">
-          <a href={WA_HELP} target="_blank" rel="noopener noreferrer" className="cls-item"><SupportAgentRoundedIcon /><span>Help</span></a>
+          <a href={WA_HELP} target="_blank" rel="noopener noreferrer" className="cls-item"><SupportAgentRoundedIcon /><span>Talk to us</span></a>
           <button type="button" className="cls-item out" onClick={logout}><LogoutRoundedIcon /><span>Log out</span></button>
         </div>
       </nav>
@@ -201,15 +201,15 @@ export default function ClientShell({ title, children }) {
             <span className="cls-grip" aria-hidden="true" />
             <div className="cls-sheet-head">
               <span className="cls-av big">{photo ? <img src={photo} alt="" onError={() => setPhotoFailed(true)} /> : initials}</span>
-              <div><b>{name || "My account"}</b><span>{userInfo?.email || ""}</span></div>
+              <div><b>{name || "My account"}</b><span className="cls-room">My therapy room</span></div>
               <button type="button" onClick={() => setMore(false)} aria-label="Close"><CloseRoundedIcon /></button>
             </div>
             <div className="cls-tiles">
-              <Link href="/my-settings" className={active("/my-settings") ? "on" : ""}><span><ManageAccountsRoundedIcon /></span>Profile</Link>
+              <Link href="/my-settings" className={active("/my-settings") ? "on" : ""}><span><ManageAccountsRoundedIcon /></span>About Me</Link>
               {HELP_NAV.map(({ to, label, Icon }) => (
                 <Link key={to} href={to}><span><Icon /></span>{label}</Link>
               ))}
-              <a href={WA_HELP} target="_blank" rel="noopener noreferrer"><span><SupportAgentRoundedIcon /></span>Help</a>
+              <a href={WA_HELP} target="_blank" rel="noopener noreferrer"><span><SupportAgentRoundedIcon /></span>Talk to us</a>
               <a href="/"><span><LanguageRoundedIcon /></span>Website</a>
             </div>
             <div className="cls-sheet-foot">
@@ -312,8 +312,9 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: #d6dfda; margin: 8px auto 0; }
   .cls-sheet-head { display: flex; align-items: center; gap: 12px; padding: 10px 16px 12px; border-bottom: 1px solid #eef2f0; }
   .cls-sheet-head > div { flex: 1; min-width: 0; }
-  .cls-sheet-head b { display: block; font-size: 15px; } .cls-sheet-head span { display: block; font-size: 12px; color: var(--mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cls-sheet-head b { display: block; font-size: 15px; } .cls-sheet-head > div > span { display: block; font-size: 12px; color: var(--mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cls-sheet-head button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: #f1f5f4; color: #334155; display: grid; place-items: center; cursor: pointer; }
+  .cls-sheet-head > div > .cls-room { color: #b7791f; font-weight: 800; font-size: 12.5px; }
   .cls-av.big { width: 46px; height: 46px; border-radius: 14px; background: var(--g-bg); font-size: 16px; }
   .cls-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 6px; padding: 16px 12px 18px; }
   .cls-tiles a { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: #334155 !important; text-align: center; line-height: 1.25; text-decoration: none !important; }
