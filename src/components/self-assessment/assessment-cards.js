@@ -1,61 +1,11 @@
 import React from "react";
 
-const assessments = [
-  {
-    id: 1,
-    icon: "feather-moon",
-    title: "Depression Screening",
-    short: "PHQ-9",
-    description: "Assess your mood and emotional well-being with this clinically validated screening tool.",
-    questions: 9,
-    duration: "5–7 min",
-    age: "Ages 13+",
-    color: "#3b82f6",
-  },
-  {
-    id: 2,
-    icon: "feather-wind",
-    title: "Anxiety Assessment",
-    short: "GAD-7",
-    description: "Evaluate your anxiety levels and worry patterns with a globally recognised scale.",
-    questions: 7,
-    duration: "5–7 min",
-    age: "Ages 13+",
-    color: "#f59e0b",
-  },
-  {
-    id: 3,
-    icon: "feather-sunset",
-    title: "Sleep Quality Index",
-    short: "PSQI",
-    description: "Understand your sleep patterns and identify factors affecting your rest quality.",
-    questions: 19,
-    duration: "5–10 min",
-    age: "Ages 18+",
-    color: "#8b5cf6",
-  },
-  {
-    id: 4,
-    icon: "feather-shield",
-    title: "PTSD Checklist",
-    short: "PCL-5",
-    description: "Screen for post-traumatic stress symptoms using a DSM-5 evidence-based tool.",
-    questions: 20,
-    duration: "7–10 min",
-    age: "Ages 14+",
-    color: "#ef4444",
-  },
-  {
-    id: 5,
-    icon: "feather-user",
-    title: "Big Five Personality",
-    short: "OCEAN",
-    description: "Discover your personality across 5 major dimensions with deep personal insights.",
-    questions: 50,
-    duration: "8–12 min",
-    age: "Ages 14+",
-    color: "#16a34a",
-  },
+export const assessments = [
+  { id: 1, icon: "feather-moon", title: "Depression Screening", short: "PHQ-9", description: "The 9-question check doctors and psychologists use worldwide for low mood and depression.", questions: 9, duration: "2–3 min", age: "Ages 13+", color: "#3b82f6", by: "Kroenke, Spitzer & Williams, 2001" },
+  { id: 2, icon: "feather-wind", title: "Anxiety Screening", short: "GAD-7", description: "The standard 7-question check for worry, nervousness and restlessness.", questions: 7, duration: "2 min", age: "Ages 13+", color: "#f59e0b", by: "Spitzer et al., 2006" },
+  { id: 3, icon: "feather-sunset", title: "Sleep Check", short: "Insomnia", description: "How much trouble falling asleep, staying asleep or waking early is affecting your days.", questions: 7, duration: "2 min", age: "Ages 18+", color: "#8b5cf6", by: "Standard insomnia symptoms" },
+  { id: 4, icon: "feather-shield", title: "Trauma & Stress Checklist", short: "PCL-5", description: "Screens for post-traumatic stress symptoms after a frightening or distressing event.", questions: 20, duration: "5–7 min", age: "Ages 18+", color: "#ef4444", by: "US National Center for PTSD" },
+  { id: 5, icon: "feather-user", title: "Personality Profile", short: "Big Five", description: "See where you sit on openness, conscientiousness, extraversion, agreeableness and emotional sensitivity.", questions: 50, duration: "8–10 min", age: "Ages 14+", color: "#16a34a", by: "Five-Factor model" },
 ];
 
 export default function AssessmentCards({ onSelectAssessment }) {
@@ -69,6 +19,7 @@ export default function AssessmentCards({ onSelectAssessment }) {
         .sa-info { flex: 1; min-width: 0; }
         .sa-title { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 3px; }
         .sa-desc { font-size: 13px; color: #64748b; margin: 0; line-height: 1.5; }
+        .sa-by { font-size: 11.5px; color: #94a3b8; margin: 3px 0 0; font-weight: 600; }
         .sa-meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
         .sa-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 50px; white-space: nowrap; }
         .sa-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #fff; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: opacity .2s; }
@@ -94,7 +45,7 @@ export default function AssessmentCards({ onSelectAssessment }) {
               What Would You Like to Explore?
             </h2>
             <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-              Each assessment takes a few minutes and gives you clinically-grounded insights.
+              Standard screening questionnaires used by psychologists. Your results are saved privately to your account so you can see how you change over time.
             </p>
           </div>
 
@@ -114,6 +65,7 @@ export default function AssessmentCards({ onSelectAssessment }) {
                     <span style={{ fontSize: 11, fontWeight: 700, color: a.color, marginLeft: 8 }}>{a.short}</span>
                   </div>
                   <p className="sa-desc">{a.description}</p>
+                  <p className="sa-by">Developed by: {a.by}</p>
                 </div>
 
                 {/* Chips */}

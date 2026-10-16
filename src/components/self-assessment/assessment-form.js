@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { 
   Box, 
   Typography, 
@@ -18,6 +18,21 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SuggestedTherapists from "./suggested-therapists";
+import Link from "next/link";
+import { postData } from "../../utils/actions";
+import { apiUrl } from "../../utils/url";
+import { getDecodedToken } from "../../utils/jwt";
+
+// what each check is, who made it — shown under the result (and the key it is saved under)
+export const TEST_META = {
+  1: { key: "phq9", source: "PHQ-9 — Kroenke, Spitzer & Williams (2001), Journal of General Internal Medicine. Free to use." },
+  2: { key: "gad7", source: "GAD-7 — Spitzer, Kroenke, Williams & Löwe (2006), Archives of Internal Medicine. Free to use." },
+  3: { key: "sleep", source: "Built on the standard insomnia symptoms (trouble falling asleep, staying asleep, waking early, daytime impact) used in clinical sleep screening. A check-in, not a diagnostic scale." },
+  4: { key: "pcl5", source: "PCL-5 — Weathers et al. (2013), US National Center for PTSD. Public domain." },
+  5: { key: "bigfive", source: "Based on the Five-Factor (Big Five) model of personality — Costa & McCrae; Goldberg. A self-reflection tool, not a clinical test." },
+};
+// Big Five statements worded the other way round (agreeing means LESS of that trait)
+const REVERSED = new Set([6, 7, 19, 20, 21, 22, 23]);
 
 const assessmentQuestions = {
   1: {
@@ -63,35 +78,24 @@ const assessmentQuestions = {
     ]
   },
   3: {
-    title: "Sleep Quality Index (PSQI)",
-    description: "During the past month, how would you rate your sleep?",
+    title: "Sleep Check (insomnia symptoms)",
+    description: "Over the last 2 weeks, how much has each of these been a problem for you?",
     color: "#7c3aed",
     questions: [
-      "What time have you usually gone to bed?",
-      "How long (in minutes) has it usually taken you to fall asleep?",
-      "What time have you usually gotten up in the morning?",
-      "How many hours of actual sleep did you get?",
-      "Cannot get to sleep within 30 minutes",
-      "Wake up in the middle of the night or early morning",
-      "Have to get up to use the bathroom",
-      "Cannot breathe comfortably",
-      "Cough or snore loudly",
-      "Feel too cold or too hot",
-      "Have bad dreams or nightmares",
-      "Other reason(s)",
-      "How would you rate your sleep quality overall?",
-      "How often have you taken medicine to help you sleep?",
-      "How often have you had trouble staying awake while driving, eating meals, or engaging in social activity?",
-      "How much of a problem has this been?",
-      "Do you have a regular bedtime routine?",
-      "Do you exercise regularly?",
-      "How would you describe your sleep problems?"
+      "Difficulty falling asleep",
+      "Difficulty staying asleep (waking up during the night)",
+      "Waking up too early and not being able to get back to sleep",
+      "Feeling dissatisfied with your current sleep",
+      "Your sleep problem being noticeable to others (in how you look or act)",
+      "Feeling worried or distressed about your sleep",
+      "Sleep problems getting in the way of your day (energy, mood, focus, work)"
     ],
     options: [
-      { label: "Very Poor", value: 0 },
-      { label: "Fairly Poor", value: 1 },
-      { label: "Fairly Good", value: 2 },
-      { label: "Very Good", value: 3 }
+      { label: "Not at all", value: 0 },
+      { label: "A little", value: 1 },
+      { label: "Somewhat", value: 2 },
+      { label: "Quite a lot", value: 3 },
+      { label: "Very much", value: 4 }
     ]
   },
   4: {
@@ -236,12 +240,19 @@ export default function AssessmentForm({ assessmentId, onBack }) {
   const totalQuestions = assessment.questions.length;
   const progress = ((currentQuestion + 1) / totalQuestions) * 100;
 
+  const advanceRef = useRef(null);
+  const cardRef = useRef(null);
   const handleAnswerChange = (value) => {
-    setAnswers({
-      ...answers,
-      [currentQuestion]: value
-    });
+    setAnswers((a) => ({ ...a, [currentQuestion]: value }));
+    clearTimeout(advanceRef.current);
+    if (currentQuestion < totalQuestions - 1) advanceRef.current = setTimeout(() => setCurrentQuestion((q) => Math.min(q + 1, totalQuestions - 1)), 320);
   };
+  useEffect(() => () => clearTimeout(advanceRef.current), []);
+  // keep the question in view on phones
+  useEffect(() => {
+    const el = cardRef.current;
+    if (el && el.getBoundingClientRect().top < 70) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [currentQuestion]);
 
   const handleNext = () => {
     if (currentQuestion < totalQuestions - 1) {
@@ -252,14 +263,15 @@ export default function AssessmentForm({ assessmentId, onBack }) {
   };
 
   const handlePrevious = () => {
+    clearTimeout(advanceRef.current);
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
   };
 
   const handleSubmit = () => {
-    const totalScore = Object.values(answers).reduce((sum, val) => sum + (val || 0), 0);
     setSubmitted(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getResultInterpretation = () => {
@@ -272,8 +284,12 @@ export default function AssessmentForm({ assessmentId, onBack }) {
       
       Object.keys(dimensions).forEach(dim => {
         const itemIndices = dimensions[dim].items;
-        const sum = itemIndices.reduce((acc, idx) => acc + (answers[idx] || 0), 0);
-        const score = Math.round((sum / (itemIndices.length * 5)) * 100);
+        const sum = itemIndices.reduce((acc, idx) => {
+          const v = answers[idx] || 3;
+          return acc + (REVERSED.has(idx) ? 6 - v : v);
+        }, 0);
+        const n = itemIndices.length;
+        const score = Math.round(((sum - n) / (4 * n)) * 100);
         dimensionScores[dim] = Math.max(0, Math.min(100, score));
       });
       
@@ -282,67 +298,62 @@ export default function AssessmentForm({ assessmentId, onBack }) {
         dimensionScores,
         dimensions
       };
-    } else if (assessmentId === 1) {
-      if (totalScore >= 0 && totalScore <= 4) {
-        return {
-          level: "Minimal",
-          color: "#16a34a",
-          description: "Your responses indicate minimal depressive symptoms. Continue maintaining healthy habits and reach out if symptoms worsen."
-        };
-      } else if (totalScore <= 9) {
-        return {
-          level: "Mild",
-          color: "#eab308",
-          description: "You may be experiencing some mild depressive symptoms. Consider speaking with a mental health professional for support."
-        };
-      } else if (totalScore <= 14) {
-        return {
-          level: "Moderate",
-          color: "#f97316",
-          description: "You appear to have moderate depressive symptoms. It's recommended to consult with a therapist or counselor."
-        };
-      } else {
-        return {
-          level: "Severe",
-          color: "#dc2626",
-          description: "Your symptoms suggest moderate-severe depression. Please reach out to a mental health professional immediately."
-        };
-      }
-    } else {
-      if (totalScore >= 0 && totalScore <= 4) {
-        return {
-          level: "Minimal",
-          color: "#16a34a",
-          description: "Your responses indicate minimal anxiety symptoms. Great job managing your stress!"
-        };
-      } else if (totalScore <= 9) {
-        return {
-          level: "Mild",
-          color: "#eab308",
-          description: "You may be experiencing some mild anxiety. Consider relaxation techniques or speaking with a professional."
-        };
-      } else if (totalScore <= 14) {
-        return {
-          level: "Moderate",
-          color: "#f97316",
-          description: "You appear to have moderate anxiety symptoms. A therapist can provide helpful coping strategies."
-        };
-      } else {
-        return {
-          level: "Severe",
-          color: "#dc2626",
-          description: "Your symptoms suggest significant anxiety. Please consult with a mental health professional soon."
-        };
-      }
     }
+    const band = (b) => ({ ...b, score: totalScore });
+    if (assessmentId === 1) { // PHQ-9, 0–27
+      if (totalScore <= 4) return band({ level: "Minimal", color: "#16a34a", description: "Your answers suggest minimal depressive symptoms. Keep up what's helping, and check in again if things change." });
+      if (totalScore <= 9) return band({ level: "Mild", color: "#eab308", description: "Your answers suggest mild depressive symptoms. Small routines, sleep and support help — and talking to a psychologist is worth considering if it lasts." });
+      if (totalScore <= 14) return band({ level: "Moderate", color: "#f97316", description: "Your answers suggest moderate depressive symptoms. Speaking with a psychologist is recommended — therapy works well at this level." });
+      if (totalScore <= 19) return band({ level: "Moderately severe", color: "#ea580c", description: "Your answers suggest moderately severe depressive symptoms. Please speak with a psychologist or doctor soon." });
+      return band({ level: "Severe", color: "#dc2626", description: "Your answers suggest severe depressive symptoms. Please reach out to a mental-health professional as soon as you can." });
+    }
+    if (assessmentId === 2) { // GAD-7, 0–21
+      if (totalScore <= 4) return band({ level: "Minimal", color: "#16a34a", description: "Your answers suggest minimal anxiety. Keep using what works for you." });
+      if (totalScore <= 9) return band({ level: "Mild", color: "#eab308", description: "Your answers suggest mild anxiety. Breathing, grounding and regular routines help; a psychologist can teach more tools if it continues." });
+      if (totalScore <= 14) return band({ level: "Moderate", color: "#f97316", description: "Your answers suggest moderate anxiety. Speaking with a psychologist is recommended." });
+      return band({ level: "Severe", color: "#dc2626", description: "Your answers suggest severe anxiety. Please speak with a mental-health professional soon." });
+    }
+    if (assessmentId === 3) { // sleep, 0–28
+      if (totalScore <= 7) return band({ level: "No significant sleep problem", color: "#16a34a", description: "Your sleep doesn't look like a major problem right now." });
+      if (totalScore <= 14) return band({ level: "Some sleep difficulty", color: "#eab308", description: "Some sleep difficulty. A steady bedtime, less screen time at night and less caffeine late in the day often help." });
+      if (totalScore <= 21) return band({ level: "Moderate sleep problem", color: "#f97316", description: "A moderate sleep problem. Therapy for insomnia (CBT-I) is very effective — a psychologist can help." });
+      return band({ level: "Severe sleep problem", color: "#dc2626", description: "A severe sleep problem. Please speak with a doctor or psychologist about it." });
+    }
+    // PCL-5, 0–80 (33 or more suggests probable PTSD)
+    if (totalScore < 20) return band({ level: "Few symptoms", color: "#16a34a", description: "Your answers show few trauma-related symptoms right now." });
+    if (totalScore < 33) return band({ level: "Some symptoms", color: "#f97316", description: "Your answers show some trauma-related symptoms. Talking to a psychologist can help you process what happened." });
+    return band({ level: "Probable PTSD", color: "#dc2626", description: "Your answers are in the range where PTSD is likely. Please speak with a trauma-informed psychologist — it is very treatable." });
   };
+
+  // save the finished check to the client's history (score + band only — never the answers)
+  const [saved, setSaved] = useState(""); // "" | saving | ok | err
+  const savedRef = React.useRef(false);
+  const saveResult = () => {
+    const tok = getDecodedToken();
+    if (!tok || tok.role !== 0) return; // only clients keep a history
+    const r = getResultInterpretation();
+    const meta = TEST_META[assessmentId];
+    setSaved("saving");
+    postData(`${apiUrl}/assessments`, {
+      test: meta.key, title: assessment.title,
+      ...(r.isBigFive ? { dims: r.dimensionScores, level: "Profile" } : { score: r.score, level: r.level }),
+      flag: assessmentId === 1 && (answers[8] || 0) > 0,
+    }).then((x) => setSaved(x?.status ? "ok" : "err")).catch(() => setSaved("err"));
+  };
+  React.useEffect(() => {
+    if (!submitted || savedRef.current) return;
+    savedRef.current = true;
+    saveResult();
+  }, [submitted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (submitted) {
     const result = getResultInterpretation();
     const totalScore = Object.values(answers).reduce((sum, val) => sum + (val || 0), 0);
 
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <section className="saf saf-result">
+      <style dangerouslySetInnerHTML={{ __html: SAF_CSS }} />
+      <Container maxWidth="lg" sx={{ py: { xs: 2.5, sm: 4 } }}>
         <Paper 
           elevation={0}
           sx={{
@@ -433,7 +444,7 @@ export default function AssessmentForm({ assessmentId, onBack }) {
                   }}
                 />
                 <Typography variant="h5" sx={{ color: '#1e293b', mb: 1, fontSize: { xs: '18px', sm: '22px' }, fontWeight: 800 }}>
-                  Score: {totalScore} / {totalQuestions * 3}
+                  Score: {totalScore} / {totalQuestions * Math.max(...assessment.options.map((o) => o.value))}
                 </Typography>
                 <Typography variant="body1" sx={{ color: '#475569', mt: 1, fontSize: { xs: '13px', sm: '15px' }, lineHeight: 1.5 }}>
                   {result.description}
@@ -454,6 +465,24 @@ export default function AssessmentForm({ assessmentId, onBack }) {
             </Box>
           )}
 
+          <Box sx={{ textAlign: 'left', bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', p: 1.5, mb: 2 }}>
+            <Typography sx={{ fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
+              <b>About this check:</b> {TEST_META[assessmentId].source}
+            </Typography>
+            {saved === "saving" && <Typography sx={{ fontSize: '12.5px', color: '#64748b', fontWeight: 700, mt: 0.75 }}>Saving to your check-ins…</Typography>}
+            {saved === "err" && (
+              <Typography sx={{ fontSize: '12.5px', color: '#b91c1c', fontWeight: 700, mt: 0.75 }}>
+                Couldn&apos;t save this result to your check-ins.{' '}
+                <button type="button" onClick={saveResult} style={{ border: 0, background: 'none', color: '#166534', fontWeight: 800, textDecoration: 'underline', cursor: 'pointer', padding: 0, font: 'inherit' }}>Try again</button>
+              </Typography>
+            )}
+            {saved === "ok" && (
+              <Typography sx={{ fontSize: '12.5px', color: '#166534', fontWeight: 700, mt: 0.75 }}>
+                ✓ Saved privately to your account — <Link href="/client/check-ins" style={{ color: '#166534', textDecoration: 'underline' }}>see all your check-ins</Link>
+              </Typography>
+            )}
+          </Box>
+
           <SuggestedTherapists assessmentId={assessmentId} />
 
           <Typography variant="body1" sx={{ color: '#64748b', mb: 2, fontSize: { xs: '12px', sm: '13px' }, textAlign: 'center', lineHeight: 1.5 }}>
@@ -464,7 +493,7 @@ export default function AssessmentForm({ assessmentId, onBack }) {
             <Button
               fullWidth
               variant="contained"
-              onClick={() => window.location.href = '/therapy-booking'}
+              onClick={() => { window.location.href = '/view-all-therapist'; }}
               sx={{
                 bgcolor: '#228756',
                 py: 1.2,
@@ -493,129 +522,97 @@ export default function AssessmentForm({ assessmentId, onBack }) {
           </Box>
         </Paper>
       </Container>
+      </section>
     );
   }
 
   const isAnswered = answers[currentQuestion] !== undefined;
+  const answeredCount = Object.keys(answers).length;
+  const isLast = currentQuestion === totalQuestions - 1;
+  const c = assessment.color;
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-          <IconButton onClick={onBack} size="small" sx={{ color: '#64748b' }}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Chip 
-            label={`Question ${currentQuestion + 1} of ${totalQuestions}`}
-            sx={{
-              bgcolor: `${assessment.color}15`,
-              color: assessment.color,
-              fontWeight: 800,
-              fontSize: '14px',
-              py: 2.5,
-              px: 2
-            }}
-          />
-          <Box sx={{ width: 40 }} />
-        </Box>
-        <LinearProgress 
-          variant="determinate" 
-          value={progress}
-          sx={{
-            height: 8,
-            borderRadius: '4px',
-            bgcolor: '#e2e8f0',
-            '& .MuiLinearProgress-bar': {
-              bgcolor: assessment.color
-            }
-          }}
-        />
-      </Box>
+    <section className="saf" style={{ "--c": c }}>
+      <style dangerouslySetInnerHTML={{ __html: SAF_CSS }} />
+      <div className="saf-in">
+        <div className="saf-top">
+          <button type="button" className="saf-back" onClick={onBack} aria-label="Back to all checks"><ArrowBackIcon /></button>
+          <div className="saf-tt">
+            <b>{assessment.title}</b>
+            <span>Question {currentQuestion + 1} of {totalQuestions} · {answeredCount} answered</span>
+          </div>
+        </div>
+        <div className="saf-prog" role="progressbar" aria-valuemin={0} aria-valuemax={totalQuestions} aria-valuenow={currentQuestion + 1}>
+          <i style={{ width: `${progress}%` }} />
+        </div>
 
-      <Paper 
-        elevation={0}
-        sx={{
-          p: 4,
-          borderRadius: '16px',
-          border: '1px solid #e2e8f0'
-        }}
-      >
-        <Typography variant="h5" sx={{ fontWeight: 900, color: '#1e293b', mb: 4, fontSize: '20px', lineHeight: 1.4 }}>
-          {assessment.questions[currentQuestion]}
-        </Typography>
+        <div className="saf-card" ref={cardRef}>
+          <p className="saf-frame">{assessment.description}</p>
+          <h2 className="saf-q" key={currentQuestion}>{assessment.questions[currentQuestion]}</h2>
+          <div className="saf-opts" role="radiogroup" aria-label="Your answer">
+            {assessment.options.map((option, idx) => {
+              const on = answers[currentQuestion] === option.value;
+              return (
+                <button key={idx} type="button" role="radio" aria-checked={on} className={`saf-opt${on ? " on" : ""}`} onClick={() => handleAnswerChange(option.value)}>
+                  <span className="saf-dot" aria-hidden="true" />
+                  <span className="saf-lbl">{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
-        <RadioGroup
-          value={answers[currentQuestion] ?? ""}
-          onChange={(e) => handleAnswerChange(parseInt(e.target.value))}
-        >
-          {assessment.options.map((option, idx) => (
-            <FormControlLabel
-              key={idx}
-              value={option.value}
-              control={
-                <Radio sx={{
-                  color: '#cbd5e1',
-                  '&.Mui-checked': {
-                    color: assessment.color
-                  }
-                }}/>
-              }
-              label={option.label}
-              sx={{
-                mb: 2,
-                p: 2,
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                '& .MuiFormControlLabel-label': {
-                  fontSize: '17px',
-                  fontWeight: 600
-                },
-                '&:hover': {
-                  bgcolor: `${assessment.color}08`,
-                  borderColor: assessment.color
-                }
-              }}
-            />
-          ))}
-        </RadioGroup>
+          <div className="saf-nav">
+            <button type="button" className="saf-btn ghost" onClick={handlePrevious} disabled={currentQuestion === 0}>← Previous</button>
+            {(isLast || isAnswered) && (
+              <button type="button" className="saf-btn solid" onClick={handleNext} disabled={!isAnswered || (isLast && answeredCount < totalQuestions)}>
+                {isLast ? "See my result" : "Next →"}
+              </button>
+            )}
+          </div>
+          {isLast && answeredCount < totalQuestions && <p className="saf-miss">Please answer every question to see your result — tap Previous to go back.</p>}
+        </div>
 
-        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={handlePrevious}
-            disabled={currentQuestion === 0}
-            sx={{
-              color: '#228756',
-              borderColor: '#228756',
-              py: 1.8,
-              fontWeight: 800,
-              fontSize: '16px',
-              '&:hover': { borderColor: '#228756', bgcolor: '#f0fdf4' }
-            }}
-          >
-            Previous
-          </Button>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleNext}
-            disabled={!isAnswered}
-            sx={{
-              bgcolor: assessment.color,
-              py: 1.8,
-              fontWeight: 800,
-              fontSize: '16px',
-              '&:disabled': { bgcolor: '#cbd5e1' },
-              '&:hover': { bgcolor: assessment.color, opacity: 0.9 }
-            }}
-          >
-            {currentQuestion === totalQuestions - 1 ? "Submit" : "Next"}
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+        <p className="saf-priv">🔒 Answer honestly — there are no right or wrong answers. Only your score is saved, never your answers.</p>
+      </div>
+    </section>
   );
 }
+
+const SAF_CSS = `
+.saf { background: #f4f7f5; padding: 26px 0 48px; }
+.saf-in { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.saf-top { display: flex; align-items: center; gap: 12px; }
+.saf-back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid #e2e8f0; background: #fff; color: #334155; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.saf-back:hover { border-color: var(--c); color: var(--c); }
+.saf-tt { min-width: 0; }
+.saf-tt b { display: block; font-size: 16px; color: #0f172a; line-height: 1.3; }
+.saf-tt span { display: block; font-size: 12.5px; color: #64748b; font-weight: 600; margin-top: 1px; }
+.saf-prog { height: 8px; border-radius: 8px; background: #e2e8f0; overflow: hidden; margin: 14px 0 16px; }
+.saf-prog i { display: block; height: 100%; border-radius: 8px; background: var(--c); transition: width .3s ease; }
+.saf-card { background: #fff; border: 1px solid #e5ebe7; border-radius: 18px; padding: 22px; box-shadow: 0 10px 30px -22px rgba(15,23,42,.35); scroll-margin-top: 80px; }
+.saf-frame { margin: 0 0 8px; font-size: 13px; color: #64748b; font-weight: 600; line-height: 1.5; }
+.saf-q { margin: 0 0 18px; font-size: clamp(18px, 2.4vw, 22px); font-weight: 800; color: #0f172a; line-height: 1.4; font-family: inherit; animation: safIn .25s ease; }
+@keyframes safIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+.saf-opts { display: flex; flex-direction: column; gap: 10px; }
+.saf-opt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 12px 16px; border-radius: 14px; border: 1.5px solid #e2e8f0; background: #fff; text-align: left; cursor: pointer; font-family: inherit; transition: border-color .15s, background .15s, transform .1s; }
+.saf-opt:hover { border-color: var(--c); background: #fafcfb; }
+.saf-opt:active { transform: scale(.99); }
+.saf-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; flex-shrink: 0; display: grid; place-items: center; }
+.saf-lbl { font-size: 15.5px; font-weight: 700; color: #1e293b; }
+.saf-opt.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, #fff); }
+.saf-opt.on .saf-dot { border-color: var(--c); background: var(--c); box-shadow: inset 0 0 0 4px #fff; }
+.saf-nav { display: flex; gap: 10px; margin-top: 20px; }
+.saf-btn { flex: 1; height: 48px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; border: 1.5px solid transparent; }
+.saf-btn.ghost { background: #fff; border-color: #d5e3da; color: #166534; }
+.saf-btn.solid { background: var(--c); color: #fff; }
+.saf-btn:disabled { opacity: .45; cursor: not-allowed; }
+.saf-miss { margin: 10px 0 0; font-size: 12.5px; color: #b45309; font-weight: 600; }
+.saf-priv { margin: 14px 0 0; text-align: center; font-size: 12.5px; color: #64748b; }
+.saf-result { padding: 0 0 24px; }
+@media (max-width: 560px) {
+  .saf { padding: 16px 0 32px; }
+  .saf-card { padding: 16px; border-radius: 16px; }
+  .saf-opt { min-height: 50px; padding: 10px 14px; }
+  .saf-lbl { font-size: 15px; }
+}
+`;

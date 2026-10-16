@@ -24,6 +24,7 @@ import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
+import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
    phones. Sends logged-out visitors to /login and brings them back afterwards. */
@@ -37,12 +38,17 @@ export const CLIENT_NAV = [
 ];
 // "Just for you" — public pages, so they open outside the portal (marked ↗). Never say "centre".
 export const HELP_NAV = [
-  { to: "/self-assessment", label: "How am I doing?", Icon: PsychologyAltRoundedIcon },
   { to: "/therapy-for/relationships", label: "For us as a couple", Icon: VolunteerActivismRoundedIcon },
   { to: "/therapy-for/parenting", label: "For my child", Icon: ChildCareRoundedIcon },
   { to: "/noida-appointment", label: "Meet in person", Icon: StorefrontRoundedIcon },
   { to: "/blogs", label: "Reads for me", Icon: MenuBookRoundedIcon },
 ];
+// "How am I doing?" — a small drop-down in the side menu: the client's own history + the public self-checks
+export const CHECK_NAV = [
+  { to: "/client/check-ins", label: "My check-ins", Icon: InsightsRoundedIcon },
+  { to: "/self-assessment", label: "Take a self-check", Icon: PsychologyAltRoundedIcon, ext: true },
+];
+const TILES_PER_PAGE = 8;
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 const RAIL_KEY = "cyt_cls_rail_mini";
 // runs while the HTML is parsed, before the rail is painted
@@ -55,6 +61,8 @@ export default function ClientShell({ title, children }) {
   const [ready, setReady] = useState(false);
   const [menu, setMenu] = useState(false);
   const [more, setMore] = useState(false); // phones: the "More" sheet
+  const [checksOpen, setChecksOpen] = useState(false); // side menu: "How am I doing?" drop-down
+  const [sheetPage, setSheetPage] = useState(0);
   // ☰ flips the side menu: desktop full ↔ icons only (remembered), tablet icons ↔ full
   // Desktop: the icons-only rail is a class on <html> (`cls-mini`), set by RAIL_SCRIPT while the
   // page is still loading, so a refresh shows the right width at once (reading it in an effect made
@@ -130,6 +138,23 @@ export default function ClientShell({ title, children }) {
   useEffect(() => { setPhotoFailed(false); }, [pf]);
   const initials = (name || "U").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const active = (to) => router.pathname === to;
+  const onChecks = CHECK_NAV.some((c) => active(c.to));
+  useEffect(() => { if (onChecks) setChecksOpen(true); }, [onChecks]);
+  useEffect(() => { if (more) setSheetPage(0); }, [more]);
+
+  // phone "More" sheet: tiles in pages of 8 that slide sideways
+  const tiles = [
+    { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon },
+    ...CHECK_NAV,
+    ...HELP_NAV,
+    { href: WA_HELP, label: "Talk to us", Icon: SupportAgentRoundedIcon, blank: true },
+    { href: "/", label: "Website", Icon: LanguageRoundedIcon },
+  ];
+  const tilePages = [];
+  for (let i = 0; i < tiles.length; i += TILES_PER_PAGE) tilePages.push(tiles.slice(i, i + TILES_PER_PAGE));
+  const tilesRef = useRef(null);
+  const onTilesScroll = (e) => { const el = e.currentTarget; setSheetPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); };
+  const goTilePage = (i) => { const el = tilesRef.current; if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" }); };
 
   return (
     <div className={`cls${flip ? " flip" : ""}`}>
@@ -167,6 +192,20 @@ export default function ClientShell({ title, children }) {
             <Icon /><span>{label}</span>
           </Link>
         ))}
+        <div className={`cls-dd-group${checksOpen ? " open" : ""}`}>
+          <button type="button" className={`cls-item${onChecks && !checksOpen ? " on" : ""}`} onClick={() => setChecksOpen((o) => !o)} aria-expanded={checksOpen} title="How am I doing?">
+            <PsychologyAltRoundedIcon /><span>How am I doing?</span><KeyboardArrowDownRoundedIcon className="cls-chev" />
+          </button>
+          {checksOpen && (
+            <div className="cls-dd-kids">
+              {CHECK_NAV.map(({ to, label, Icon, ext }) => (
+                <Link key={to} href={to} className={`cls-item kid${active(to) ? " on" : ""}`} title={label} aria-current={active(to) ? "page" : undefined}>
+                  <Icon /><span>{label}</span>{ext && <NorthEastRoundedIcon className="cls-ext" />}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="cls-rail-group">
           <span className="cls-rail-h">Just for you</span>
           {HELP_NAV.map(({ to, label, Icon }) => (
@@ -189,7 +228,7 @@ export default function ClientShell({ title, children }) {
             <span className="cls-mob-ic"><Icon /></span>{short || label}
           </Link>
         ))}
-        <button type="button" className={`cls-mob-item${more || active("/my-settings") ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
+        <button type="button" className={`cls-mob-item${more || active("/my-settings") || onChecks ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
           <span className="cls-mob-ic"><AppsRoundedIcon /></span>More
         </button>
       </nav>
@@ -204,14 +243,24 @@ export default function ClientShell({ title, children }) {
               <div><b>{name || "My account"}</b><span className="cls-room">My therapy room</span></div>
               <button type="button" onClick={() => setMore(false)} aria-label="Close"><CloseRoundedIcon /></button>
             </div>
-            <div className="cls-tiles">
-              <Link href="/my-settings" className={active("/my-settings") ? "on" : ""}><span><ManageAccountsRoundedIcon /></span>About Me</Link>
-              {HELP_NAV.map(({ to, label, Icon }) => (
-                <Link key={to} href={to}><span><Icon /></span>{label}</Link>
+            <div className="cls-tiles-track" ref={tilesRef} onScroll={onTilesScroll}>
+              {tilePages.map((pageTiles, k) => (
+                <div key={k} className="cls-tiles">
+                  {pageTiles.map(({ to, href, label, Icon, blank }) => (to ? (
+                    <Link key={label} href={to} className={active(to) ? "on" : ""}><span><Icon /></span>{label}</Link>
+                  ) : (
+                    <a key={label} href={href} {...(blank ? { target: "_blank", rel: "noopener noreferrer" } : {})}><span><Icon /></span>{label}</a>
+                  )))}
+                </div>
               ))}
-              <a href={WA_HELP} target="_blank" rel="noopener noreferrer"><span><SupportAgentRoundedIcon /></span>Talk to us</a>
-              <a href="/"><span><LanguageRoundedIcon /></span>Website</a>
             </div>
+            {tilePages.length > 1 && (
+              <div className="cls-dots" role="tablist" aria-label="Menu pages">
+                {tilePages.map((_, k) => (
+                  <button key={k} type="button" role="tab" className={k === sheetPage ? "on" : ""} onClick={() => goTilePage(k)} aria-label={`Page ${k + 1}`} aria-selected={k === sheetPage} />
+                ))}
+              </div>
+            )}
             <div className="cls-sheet-foot">
               <button type="button" onClick={logout}><LogoutRoundedIcon /> Log out</button>
             </div>
@@ -256,6 +305,7 @@ const CLS_CSS = `
 .cls-dd .out { color: #dc2626 !important; }
 .cls-rail { position: fixed; top: var(--cls-h); left: 0; bottom: 0; width: 232px; background: #fff; border-right: 1px solid var(--line); padding: 14px 12px;
   display: flex; flex-direction: column; gap: 3px; z-index: 1100; overflow-y: auto; }
+.cls-rail > *, .cls-rail .cls-item { flex-shrink: 0; } /* the menu scrolls when the drop-down opens — items never squeeze */
 .cls-item { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border-radius: 12px; color: #475569 !important; font-size: 14.5px; font-weight: 700;
   text-decoration: none !important; border: 0; background: none; cursor: pointer; font-family: inherit; width: 100%; text-align: left; }
 .cls-item svg { color: #64748b; }
@@ -263,6 +313,13 @@ const CLS_CSS = `
 .cls-item.on { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; box-shadow: 0 6px 14px -6px rgba(22,101,52,.6); }
 .cls-item.on svg { color: #fff; }
 .cls-item.out { color: #dc2626 !important; } .cls-item.out svg { color: #dc2626; }
+.cls-dd-group { display: flex; flex-direction: column; gap: 2px; }
+.cls-chev { margin-left: auto; font-size: 19px !important; color: #94a3b8 !important; transition: transform .18s ease; }
+.cls-dd-group.open .cls-chev { transform: rotate(180deg); }
+.cls-dd-kids { display: flex; flex-direction: column; gap: 2px; margin-left: 14px; padding-left: 6px; border-left: 2px solid #e4ece7; }
+.cls-item.kid { height: 38px; font-size: 13.5px; font-weight: 600; padding: 0 10px; gap: 10px; white-space: nowrap; }
+.cls-item.kid svg { font-size: 18px; }
+.cls-item.kid.on { box-shadow: none; background: #e7f6ec; color: var(--g) !important; } .cls-item.kid.on svg { color: var(--g); }
 .cls-rail-group { margin-top: 14px; padding-top: 12px; border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 2px; }
 .cls-rail-h { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--faint); padding: 0 12px 6px; }
 .cls-item.sub { height: 40px; font-size: 13.5px; font-weight: 600; }
@@ -274,7 +331,9 @@ const CLS_CSS = `
 .cls-mob { display: none; }
 @media (max-width: 1023px) {
   .cls-rail { width: 76px; padding: 12px 10px; }
-  .cls-item { justify-content: center; padding: 0; } .cls-item span, .cls-item .cls-ext, .cls-rail-h { display: none; }
+  .cls-item { justify-content: center; padding: 0; } .cls-item span, .cls-item .cls-ext, .cls-rail-h, .cls-chev { display: none; }
+  .cls-dd-kids { margin-left: 0; padding-left: 0; border-left: 0; background: #f4f8f5; border-radius: 12px; }
+  .cls-item.kid { padding: 0; }
   .cls-rail-group { margin-top: 10px; padding-top: 10px; }
   .cls-main { padding: calc(var(--cls-h) + 20px) 24px 40px 100px; }
 }
@@ -282,14 +341,18 @@ const CLS_CSS = `
 @media (min-width: 1024px) {
   html.cls-mini .cls .cls-rail { width: 76px; padding: 12px 10px; }
   html.cls-mini .cls .cls-item { justify-content: center; padding: 0; }
-  html.cls-mini .cls .cls-item span, html.cls-mini .cls .cls-item .cls-ext, html.cls-mini .cls .cls-rail-h { display: none; }
+  html.cls-mini .cls .cls-item span, html.cls-mini .cls .cls-item .cls-ext, html.cls-mini .cls .cls-rail-h, html.cls-mini .cls .cls-chev { display: none; }
+  html.cls-mini .cls .cls-dd-kids { margin-left: 0; padding-left: 0; border-left: 0; background: #f4f8f5; border-radius: 12px; }
+  html.cls-mini .cls .cls-item.kid { padding: 0; }
   html.cls-mini .cls .cls-main { padding-left: 100px; max-width: 1348px; }
 }
 /* ☰ on a tablet: the full menu over the page */
 @media (min-width: 768px) and (max-width: 1023px) {
   .cls.flip .cls-rail { width: 232px; padding: 14px 12px; box-shadow: 18px 0 40px -20px rgba(4,30,16,.35); }
   .cls.flip .cls-item { justify-content: flex-start; padding: 0 12px; }
-  .cls.flip .cls-item span { display: inline; } .cls.flip .cls-item .cls-ext { display: block; } .cls.flip .cls-rail-h { display: block; }
+  .cls.flip .cls-item span { display: inline; } .cls.flip .cls-item .cls-ext, .cls.flip .cls-chev { display: block; } .cls.flip .cls-rail-h { display: block; }
+  .cls.flip .cls-dd-kids { margin-left: 14px; padding-left: 6px; border-left: 2px solid #e4ece7; background: none; }
+  .cls.flip .cls-item.kid { padding: 0 10px; }
 }
 html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, padding .2s ease; }
 @media (max-width: 767px) {
@@ -316,7 +379,12 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-sheet-head button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: #f1f5f4; color: #334155; display: grid; place-items: center; cursor: pointer; }
   .cls-sheet-head > div > .cls-room { color: #b7791f; font-weight: 800; font-size: 12.5px; }
   .cls-av.big { width: 46px; height: 46px; border-radius: 14px; background: var(--g-bg); font-size: 16px; }
-  .cls-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 6px; padding: 16px 12px 18px; }
+  .cls-tiles-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .cls-tiles-track::-webkit-scrollbar { display: none; }
+  .cls-tiles { flex: 0 0 100%; scroll-snap-align: start; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 16px 6px; padding: 16px 12px 14px; align-content: start; }
+  .cls-dots { display: flex; justify-content: center; gap: 6px; padding: 0 0 12px; }
+  .cls-dots button { width: 7px; height: 7px; padding: 0; border-radius: 7px; border: 0; background: #d6dfda; cursor: pointer; transition: width .2s ease, background .2s ease; }
+  .cls-dots button.on { width: 20px; background: #166534; }
   .cls-tiles a { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: #334155 !important; text-align: center; line-height: 1.25; text-decoration: none !important; }
   .cls-tiles a > span { width: 52px; height: 52px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; }
   .cls-tiles a svg { font-size: 24px; color: var(--g); }
