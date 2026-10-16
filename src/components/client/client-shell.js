@@ -21,6 +21,7 @@ import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
+import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
    phones. Sends logged-out visitors to /login and brings them back afterwards. */
@@ -38,6 +39,7 @@ export const HELP_NAV = [
   { to: "/therapy-for/relationships", label: "Couples therapy", Icon: VolunteerActivismRoundedIcon },
   { to: "/therapy-for/parenting", label: "Child & parenting", Icon: ChildCareRoundedIcon },
   { to: "/noida-appointment", label: "Noida centre", Icon: StorefrontRoundedIcon },
+  { to: "/blogs", label: "Articles", Icon: MenuBookRoundedIcon },
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import ClientShell from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto } from "../components/client/session-card";
 import { RebookCard, ReviewCard, ReferralCard, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { TipLine, JourneyStats, MoodCard, BreathCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
 import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl } from "../utils/url";
@@ -91,18 +92,27 @@ export default function ClientHome() {
   }, [bookings, now, reviewed, skips]);
 
   const first = (userInfo?.name || "").trim().split(/\s+/)[0];
+  // therapists already shown in "Recent sessions" (its last three past sessions)
+  const recentIds = new Set((bookings || [])
+    .filter((b) => b.status !== "Cancelled" && b.therapist?._id && (b.status === "Completed" || new Date(b.booking_date).getTime() < now - 90 * 60000))
+    .sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date))
+    .slice(0, 3)
+    .map((b) => b.therapist._id));
 
   return (
     <ClientShell title="Home">
-      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + HOME_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + HOME_CSS }} />
       <div className="ch">
-        <div className="ch-hello">
-          {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
-          <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
-        </div>
-
         <div className="ch-grid">
           <div className="ch-main">
+            <div className="ch-hello">
+              {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
+              <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
+              <TipLine now={now} />
+            </div>
+
+            {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
+
             <section className="ch-next">
               <h2>{next ? "Your next session" : last ? "Your next step" : "Your next session"}</h2>
               {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : last ? (
@@ -123,6 +133,10 @@ export default function ClientHome() {
                 <ReviewCard key={toReview._id} b={toReview} user={userInfo} now={now} onDone={markReviewed} onSkip={skipReview} />
               </section>
             )}
+
+            <div className="dw-pair">
+              <MoodCard now={now} bookHref={last ? bookAgainPath(last, nextSameSlot(last, now)) : "/client/find"} />
+            </div>
           </div>
 
           <aside className="ch-side">
@@ -131,11 +145,10 @@ export default function ClientHome() {
               <div><b>Book a session</b><span>Browse verified therapists by concern, language and city</span></div>
             </Link>
             <ReferralCard />
-            <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
-              <PhoneCallbackRoundedIcon />
-              <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
-            </button>
-            {therapists.length > 0 && (
+            {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
+            <BreathCard />
+            {/* only when Recent sessions doesn't already list every therapist */}
+            {therapists.length > 0 && !therapists.every((t) => recentIds.has(t.therapist._id)) && (
               <div className="ch-card">
                 <h3>Your therapists</h3>
                 {therapists.map((b) => {
@@ -151,6 +164,10 @@ export default function ClientHome() {
                 })}
               </div>
             )}
+            <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
+              <PhoneCallbackRoundedIcon />
+              <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
+            </button>
             {requests.length > 0 && (
               <div className="ch-card">
                 <h3>Appointment requests</h3>
@@ -193,7 +210,7 @@ export default function ClientHome() {
 }
 
 const HOME_CSS = `
-.ch-hello { margin-bottom: 18px; }
+.ch-hello { margin-bottom: 14px; }
 .ch-hello h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
 .ch-hello h1 span { color: #166534; }
 .ch-hello p { margin: 4px 0 0; font-size: 14px; color: #64748b; }
@@ -206,7 +223,7 @@ const HOME_CSS = `
 .ch-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 28px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .ch-empty > svg { font-size: 34px; color: #16a34a; }
 .ch-empty b { font-size: 16px; } .ch-empty p { margin: 0 0 8px; font-size: 13.5px; color: #64748b; }
-.ch-side { display: flex; flex-direction: column; gap: 12px; padding-top: 27px; }
+.ch-side { display: flex; flex-direction: column; gap: 12px; }
 .ch-cta { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 16px; text-decoration: none !important; color: #fff !important; border: 0; text-align: left; width: 100%; cursor: pointer; font-family: inherit;
   background: linear-gradient(135deg, #0b3320, #166534); box-shadow: 0 12px 26px -16px rgba(4,30,16,.7); }
 .ch-cta > svg { font-size: 30px; color: #f5c542; flex-shrink: 0; }
@@ -236,5 +253,5 @@ const HOME_CSS = `
 .ch-modal-h b { display: block; font-size: 16px; } .ch-modal-h span { display: block; font-size: 12.5px; color: #bbf7d0; margin-top: 2px; }
 .ch-modal-h button { width: 34px; height: 34px; border-radius: 10px; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .ch-modal-b { padding: 6px 4px 10px; }
-@media (max-width: 1023px) { .ch-grid { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "main" "side" "rest"; row-gap: 16px; } .ch-side { padding-top: 0; } }
+@media (max-width: 1023px) { .ch-grid { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "main" "side" "rest"; row-gap: 16px; } }
 `;

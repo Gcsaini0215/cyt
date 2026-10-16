@@ -9,9 +9,15 @@ export default async function handler(req, res) {
 
   try {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://api.chooseyourtherapist.in/api";
-    const blogRes = await fetch(`${apiBase}/get-blog/${id}`);
-    const json = await blogRes.json();
-    const blog = json.data || json;
+    // pages pass the blog's _id; /get-blog/:x looks up by slug, so try the id route first
+    let blog = null;
+    for (const path of [`get-blog-by-id/${encodeURIComponent(id)}`, `get-blog/${encodeURIComponent(id)}`]) {
+      const r = await fetch(`${apiBase}/${path}`);
+      if (!r.ok) continue;
+      const json = await r.json().catch(() => null);
+      const found = json?.data || null;
+      if (found?.image) { blog = found; break; }
+    }
 
     const img = blog?.image;
 
