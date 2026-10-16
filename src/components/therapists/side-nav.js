@@ -20,6 +20,8 @@ import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
+import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 
 /* Every therapist-portal page, grouped. Items marked `hidden` are switched off for now
    (pages exist but aren't in the menu yet) — remove the flag to show them. `match` lists the route prefixes that count as
@@ -62,6 +64,17 @@ const ALL_GROUPS = [
 ];
 export const NAV_GROUPS = ALL_GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => !i.hidden) })).filter((g) => g.items.length);
 export const NAV_ITEMS = NAV_GROUPS.flatMap((g) => g.items);
+
+// The phone / tablet menu also has shortcuts straight into My Schedule's setup tabs
+// (never highlighted as the current page — My Schedule itself is).
+const SETUP_SHORTCUTS = [
+  { to: "/my-schedule?tab=fees", Icon: CurrencyRupeeRoundedIcon, label: "Session fees", match: [] },
+  { to: "/my-schedule?tab=availability", Icon: ScheduleRoundedIcon, label: "Weekly hours", match: [] },
+];
+export const DRAWER_GROUPS = NAV_GROUPS.map((g) => {
+  const at = g.items.findIndex((i) => i.to === "/my-schedule");
+  return at < 0 ? g : { ...g, items: [...g.items.slice(0, at + 1), ...SETUP_SHORTCUTS, ...g.items.slice(at + 1)] };
+});
 export const isActive = (item, pathname) => (item.match || [item.to]).some((m) => pathname === m || pathname.startsWith(m.endsWith("/") ? m : `${m}/`));
 
 /* Desktop / iPad rail: icons only by default, or icons + labels when widened from the

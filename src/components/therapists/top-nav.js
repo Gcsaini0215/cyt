@@ -5,7 +5,7 @@ import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath } from "../../utils/url";
 import { fetchBookingsShared } from "../../utils/bookings-shared";
-import { NAV_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
+import { DRAWER_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
 import NewBookingPopup from "./new-booking-popup";
 import NotifBell from "./notif-bell";
@@ -47,6 +47,8 @@ export default function DashboardTopNav() {
   const pathname = router.pathname;
   const [profileOpen, setProfileOpen] = useState(false);
   const [drawer, setDrawer] = useState(false);
+  const [menuPage, setMenuPage] = useState(0); // phones: which page of the tile menu is showing
+  useEffect(() => { if (!drawer) setMenuPage(0); }, [drawer]);
   const [wide, setWide] = useState(false);
   const [q, setQ] = useState("");
   const [qOpen, setQOpen] = useState(false);
@@ -262,12 +264,36 @@ export default function DashboardTopNav() {
                 <span>Your profile isn&apos;t complete</span><i><b style={{ width: `${pct}%` }} /></i><em>Finish →</em>
               </Link>
             )}
+            {/* phones: tiles in pages of 8 (4 × 2) that slide sideways when there are more */}
+            {(() => {
+              const tiles = DRAWER_GROUPS.flatMap((g) => g.items);
+              const pages = Array.from({ length: Math.ceil(tiles.length / 8) }, (_, i) => tiles.slice(i * 8, i * 8 + 8));
+              return (
+                <div className="tn-pages-wrap">
+                  <div className="tn-pages" onScroll={(e) => setMenuPage(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
+                    {pages.map((items, pi) => (
+                      <div key={pi} className="tn-drawer-group tn-page">
+                        {items.map((item) => (
+                          <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
+                            <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
+                            <span className="tn-dr-lbl">{item.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                  {pages.length > 1 && (
+                    <div className="tn-dots" aria-hidden="true">{pages.map((_, i) => <i key={i} className={i === menuPage ? "on" : ""} />)}</div>
+                  )}
+                </div>
+              );
+            })()}
             <nav>
-              {NAV_GROUPS.map((g) => (
+              {DRAWER_GROUPS.map((g) => (
                 <div key={g.title} className="tn-drawer-group">
                   <span>{g.title}</span>
                   {g.items.map((item) => (
-                    <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => item.badgeKey === "bookings" && setNotificationCount(0)}>
+                    <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
                       <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
                       <span className="tn-dr-lbl">{item.label}</span>
                     </Link>
@@ -397,6 +423,7 @@ const TN_CSS = `
 .tn-drawer-group a .tn-dr-badge.nx-dot { position: absolute; top: -2px; right: -3px; }
 .tn-drawer-head button { width: 40px; height: 40px; border-radius: 11px; border: 0; background: #f1f5f3; color: #334155; display: grid; place-items: center; cursor: pointer; }
 .tn-drawer nav { flex: 1; overflow-y: auto; padding: 8px 10px; }
+.tn-pages-wrap { display: none; }
 .tn-drawer-group { display: flex; flex-direction: column; gap: 2px; margin-bottom: 8px; }
 .tn-drawer-group > span { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #94a3b8; padding: 10px 12px 4px; }
 .tn-drawer-group a { display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 12px; border-radius: 12px; color: #334155; font-size: 15px; font-weight: 700; text-decoration: none !important; }
@@ -417,8 +444,15 @@ const TN_CSS = `
   @keyframes tnSheet { from { transform: translateY(100%); } to { transform: none; } }
   .tn-sheet-grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: #d6dfda; margin: 8px auto 0; }
   .tn-drawer-head { padding: 10px 16px 12px; }
-  /* one compact launcher grid: every item, four per row, no half-empty group rows */
-  .tn-drawer nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 6px; padding: 14px 12px 16px; align-content: start; }
+  /* the tile pages replace the grouped list on phones */
+  .tn-drawer nav { display: none; }
+  .tn-pages-wrap { display: block; padding: 14px 0 10px; }
+  .tn-pages { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tn-pages::-webkit-scrollbar { display: none; }
+  .tn-pages .tn-page { flex: 0 0 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 6px; padding: 0 12px; align-content: start; scroll-snap-align: start; margin: 0; }
+  .tn-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+  .tn-dots i { width: 6px; height: 6px; border-radius: 999px; background: #d6dfda; transition: width .2s, background .2s; }
+  .tn-dots i.on { width: 18px; background: #166534; }
   .tn-drawer-group { display: contents; }
   .tn-drawer-group > span { display: none; }
   .tn-drawer-group a { height: auto; flex-direction: column; justify-content: flex-start; align-items: center; gap: 6px; padding: 0; border-radius: 0;
