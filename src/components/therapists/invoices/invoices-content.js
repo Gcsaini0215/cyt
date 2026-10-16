@@ -7,7 +7,7 @@ import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
-import { buildInvoiceHtml, printInvoice } from "../../../utils/invoice-template";
+import SessionTicket from "../../client/session-ticket";
 import useTherapistStore from "../../../store/therapistStore";
 import { usePager, Pager } from "../pager";
 
@@ -123,68 +123,6 @@ const styles = `
   @media (prefers-reduced-motion:reduce){ .iv-ovl,.iv-modal,.iv-sk{animation:none;} }
 `;
 
-// A4 at 96dpi
-const A4_W = 794, A4_H = 1123;
-
-function InvoicePreview({ row, therapist, onClose }) {
-  const [closing, setClosing] = useState(false);
-  const [scale, setScale] = useState(1);
-  const paperRef = useRef(null);
-  const html = useMemo(() => buildInvoiceHtml(row.raw, therapist), [row, therapist]);
-
-  const close = () => {
-    if (closing) return;
-    setClosing(true);
-    setTimeout(onClose, 180);
-  };
-
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") close(); };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Fit the A4 page to the modal width.
-  useEffect(() => {
-    const el = paperRef.current;
-    if (!el) return;
-    const fit = () => setScale(Math.min(1, (el.clientWidth - 24) / A4_W));
-    fit();
-    const ro = new ResizeObserver(fit);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <>
-      <div className={`iv-ovl${closing ? " is-closing" : ""}`} onClick={close} />
-      <div className={`iv-modal${closing ? " is-closing" : ""}`} role="dialog" aria-modal="true" aria-label={`Invoice ${row.number}`}>
-        <div className="iv-mhdr">
-          <div className="iv-mt">
-            <b>{row.number}</b>
-            <span>{row.client_name} · {fmtDate(row.booking_date)} · {inr(row.amount)}</span>
-          </div>
-          <button type="button" className="iv-btn primary" onClick={() => printInvoice(row.raw, therapist)}>
-            <DownloadRoundedIcon /> <span>Download PDF</span>
-          </button>
-          <button type="button" className="iv-btn" onClick={() => printInvoice(row.raw, therapist)}>
-            <PrintRoundedIcon /> <span>Print</span>
-          </button>
-          <button type="button" className="iv-close" onClick={close} aria-label="Close"><CloseRoundedIcon /></button>
-        </div>
-        <div className="iv-paper" ref={paperRef}>
-          <div className="iv-frame-wrap" style={{ width: A4_W * scale, height: A4_H * scale }}>
-            <iframe title={`Invoice ${row.number}`} srcDoc={html} width={A4_W} height={A4_H} style={{ transform: `scale(${scale})` }} />
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
 export default function InvoicesContent({ invoices = [], loading }) {
   const { therapistInfo } = useTherapistStore();
   const [q, setQ] = useState("");
@@ -199,7 +137,8 @@ export default function InvoicesContent({ invoices = [], loading }) {
     );
   }, [invoices, q, period]);
   const shownTotal = rows.reduce((s, r) => s + r.amount, 0);
-  const download = (r, e) => { e?.stopPropagation(); printInvoice(r.raw, therapistInfo); };
+  // opens the receipt, which has Download PDF / Share / Print
+  const download = (r, e) => { e?.stopPropagation(); setSelected(r); };
 
   const pg = usePager(rows, 15, `${q}|${period}`);
   const empty = !loading && rows.length === 0;
@@ -300,7 +239,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
         )}
       </div>
 
-      {selected && <InvoicePreview row={selected} therapist={therapistInfo} onClose={() => setSelected(null)} />}
+      {selected && <SessionTicket b={selected.raw} therapist={therapistInfo} onClose={() => setSelected(null)} />}
     </div>
   );
 }

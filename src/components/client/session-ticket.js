@@ -25,7 +25,7 @@ const modeOf = (b) => {
   return "Video call";
 };
 
-export default function SessionTicket({ b, onClose }) {
+export default function SessionTicket({ b, therapist: me = null, onClose }) {
   const ref = useRef(null);
   const [busy, setBusy] = useState("");
   const [msg, setMsg] = useState("");
@@ -39,7 +39,9 @@ export default function SessionTicket({ b, onClose }) {
   const tx = b.transaction || {};
   const paid = toAmount(tx.amount ?? b.amount);
   const ticketNo = invoiceNumber(b);
-  const therapist = b.therapist?.user?.name || "Your therapist";
+  // the therapist portal passes its own profile; the client portal uses the booking's
+  const therapist = me?.user?.name || b.therapist?.user?.name || "Your therapist";
+  const therapistType = me?.profile_type || b.therapist?.profile_type || "";
   const forOther = /other/i.test(b.whom || "") ? (b.cname || b.relation_with_client || "Someone else") : "";
   const fileName = `Session-${ticketNo}.pdf`;
   const booked = bookedAt(b);
@@ -114,7 +116,7 @@ export default function SessionTicket({ b, onClose }) {
             <div className="tk-who">
               <span className="l">Therapist</span>
               <b>{therapist}</b>
-              {b.therapist?.profile_type && <em>{b.therapist.profile_type}</em>}
+              {therapistType && <em>{therapistType}</em>}
             </div>
             <div className="tk-rows">
               <div className="tk-row"><span className="l">Session date</span><b>{day(b.booking_date)}</b></div>

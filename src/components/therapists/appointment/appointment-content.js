@@ -26,7 +26,7 @@ import RescheduleDialog from "../reschedule-dialog";
 import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
 import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import { SESSION_STATUS } from "../../../utils/constant";
-import { printInvoice as printInvoiceDoc } from "../../../utils/invoice-template";
+import SessionTicket from "../../client/session-ticket";
 import useTherapistStore from "../../../store/therapistStore";
 import { usePager, Pager } from "../pager";
 
@@ -51,8 +51,8 @@ const fmtFull = (d) => d.toLocaleDateString("en-IN", { weekday: "long", day: "nu
 const num = (v) => Number(v?.$numberDecimal ?? v) || 0;
 const inr = (v) => `₹${num(v).toLocaleString("en-IN")}`;
 const initials = (name) => {
-  const p = String(name || "?").trim().split(/\s+/);
-  return ((p[0]?.[0] || "?") + (p[1]?.[0] || "")).toUpperCase();
+  const p = String(name || "").trim().split(/\s+/);
+  return ((p[0]?.[0] || "C") + (p[1]?.[0] || "")).toUpperCase();
 };
 const digits = (p) => String(p || "").replace(/\D/g, "");
 const waLink = (p) => { const d = digits(p); return d ? `https://wa.me/${d.length === 10 ? "91" + d : d}` : ""; };
@@ -294,7 +294,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     }
     setEndingId("");
   };
-  const printInvoice = (a) => printInvoiceDoc(a, therapistInfo);
+  const [receipt, setReceipt] = useState(null); // booking whose receipt is open
+  const printInvoice = (a) => setReceipt(a);
 
   // details drawer: Esc closes, page behind doesn't scroll
   useEffect(() => {
@@ -604,6 +605,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           setAppointments((prev) => prev.map((x) => (x._id === id ? { ...x, booking_date: when, therapist_joined_at: null, client_joined_at: null } : x)));
           setSelected((s) => (s && s._id === id ? { ...s, booking_date: when } : s));
         }} />
+      {receipt && <SessionTicket b={receipt} therapist={therapistInfo} onClose={() => setReceipt(null)} />}
     </div>
   );
 };

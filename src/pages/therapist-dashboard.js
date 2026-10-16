@@ -47,6 +47,18 @@ import { usePager, Pager } from "../components/therapists/pager";
 /* ══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — one green system, tweak here to restyle everything
 ════════════════════════════════════════════════════════════════════ */
+// client photo: a full URL as is, an uploaded file name under /uploads/images, else none
+// (initials show instead — a bare file name or "null" used to break the image)
+const clientPhoto = (c) => {
+  const p = String(c?.photo || c?.profile || "").trim();
+  if (!p || /^(null|undefined)$/i.test(p)) return "";
+  return /^(https?:|data:)/.test(p) ? p : `${imagePath}/${p}`;
+};
+const initialsOf = (name) => {
+  const w = String(name || "").replace(/[^\p{L}\s]/gu, "").trim().split(/\s+/).filter(Boolean);
+  return ((w[0]?.[0] || "C") + (w[1]?.[0] || "")).toUpperCase();
+};
+
 const UI = {
   page: "#f8faf9",
   text: "#0f172a",
@@ -362,10 +374,12 @@ function SessionRow({ s, last }) {
         }}
       />
       <Avatar
-        src={s.imgSrc || defaultProfile}
+        src={s.imgSrc || undefined}
         alt={s.name}
-        sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, borderRadius: "9px", flexShrink: 0 }}
-      />
+        sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, borderRadius: "9px", flexShrink: 0, background: UI.green.bg, color: UI.green.main, fontSize: "13px", fontWeight: 800 }}
+      >
+        {initialsOf(s.name)}
+      </Avatar>
       <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography
           sx={{
@@ -823,7 +837,7 @@ export default function TherapistDashboard() {
           .filter((b) => b.status !== "Completed" && b.status !== "Cancelled")
           .filter((b) => { const d = safeDate(b.booking_date); return d && d.getTime() >= t0 - SESSION_WINDOW_MS; })
           .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date))
-          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: b.client?.photo || b.client?.profile, meet: b.meet_link || "", status: b.status }));
+          .map((b) => ({ id: b._id, name: b.client?.name || "Unknown", date: b.booking_date, badge: b.format || b.mode || "Online", imgSrc: clientPhoto(b.client), meet: b.meet_link || "", status: b.status }));
         setUpcomingSessions(early);
         setNextSession(early[0] || null);
       }
@@ -901,7 +915,7 @@ export default function TherapistDashboard() {
         name: b.client?.name || "Unknown",
         date: b.booking_date,
         badge: b.format || b.mode || "Online",
-        imgSrc: b.client?.photo || b.client?.profile,
+        imgSrc: clientPhoto(b.client),
         meet: b.meet_link || "",
         status: b.status,
       });
