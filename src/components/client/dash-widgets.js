@@ -226,11 +226,11 @@ export const DW_CSS = `
 .dw-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
 .dw-stat { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #e4ece7; border-radius: 14px; padding: 10px 12px; min-width: 0; }
 .dw-stat-ic { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; }
-.dw-stat-ic svg { font-size: 20px; }
+.dw-stat-ic svg { font-size: 20px; display: block; }
 .dw-stat-ic.g { background: #e7f6ec; color: #166534; } .dw-stat-ic.b { background: #e0f2fe; color: #0369a1; } .dw-stat-ic.r { background: #ffe4e6; color: #be123c; } .dw-stat-ic.y { background: #fef3c7; color: #b45309; }
 .dw-stat > div { min-width: 0; }
 .dw-stat b { display: block; font-size: 17px; font-weight: 800; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dw-stat span { display: block; font-size: 11.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dw-stat > div > span { display: block; font-size: 11.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .dw-pair { margin-top: 16px; }
 /* wide mood card (main column): faces on the left, the week on the right */
