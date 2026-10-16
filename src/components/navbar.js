@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import ImageTag from "../utils/image-tag";
 import { getDecodedToken, getToken } from "../utils/jwt";
 import useTherapistStore from "../store/therapistStore";
+import useUserStore from "../store/userStore";
 import { imagePath, defaultProfile } from "../utils/url";
 
 const LEAD_STRIP_MESSAGES = [
@@ -30,6 +31,14 @@ export default function App() {
   const [showAccountMenu, setShowAccountMenu] = React.useState(false);
   const accountMenuRef = React.useRef(null);
   const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
+  // signed-in client: their photo (or initials) and first name instead of "My Profile"
+  const { userInfo } = useUserStore();
+  const [clientPhotoFailed, setClientPhotoFailed] = React.useState(false);
+  const clientName = String(userInfo?.name || "").trim();
+  const clientFirst = clientName.split(/\s+/)[0] || "My account";
+  const clientInitials = (clientName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("") || "C").toUpperCase();
+  const cpf = String(userInfo?.profile || "").trim();
+  const clientPhoto = !cpf || /^(null|undefined)$/i.test(cpf) || clientPhotoFailed ? "" : /^https?:/.test(cpf) ? cpf : `${imagePath}/${cpf}`;
 
   const toggleDropdown = (name) => {
     setActiveDropdown(activeDropdown === name ? "" : name);
@@ -167,12 +176,14 @@ export default function App() {
                                 ? `${imagePath}/${therapistInfo.user.profile}`
                                 : defaultProfile}
                             />
+                          ) : clientPhoto ? (
+                            <img src={clientPhoto} alt="" onError={() => setClientPhotoFailed(true)} />
                           ) : (
-                            <i className="feather-user"></i>
+                            <b className="nav-profile-ini">{clientInitials}</b>
                           )}
                         </span>
                         <span className="nav-profile-name">
-                          {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist Profile")}
+                          {userType === 1 ? clientFirst : (therapistInfo.user.name || "Therapist Profile")}
                         </span>
                       </Link>
                     ) : (
@@ -267,25 +278,24 @@ export default function App() {
                     className="d-flex align-items-center gap-3"
                     style={{ border: 'none !important', padding: '0 !important', background: 'transparent !important', flexDirection: 'row !important' }}
                   >
-                    <ImageTag
-                      alt="Profile"
-                      style={{
-                        height: 44,
-                        width: 44,
-                        borderRadius: "14px",
-                        objectFit: "cover",
-                        border: "2px solid #fff",
-                        boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
-                      }}
-                      src={userType === 2 && therapistInfo.user.profile && therapistInfo.user.profile !== "null" 
-                        ? `${imagePath}/${therapistInfo.user.profile}` 
-                        : defaultProfile}
-                    />
-                    <div style={{ textAlign: 'left' }}>
-                      <span style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b', display: 'block' }}>
-                        {userType === 1 ? "My Profile" : (therapistInfo.user.name || "Therapist")}
+                    {userType === 1 ? (
+                      <span className="nav-mob-av">
+                        {clientPhoto ? <img src={clientPhoto} alt="" onError={() => setClientPhotoFailed(true)} /> : <b>{clientInitials}</b>}
                       </span>
-                      <span style={{ fontSize: '11px', color: '#2ecc71', fontWeight: '700' }}>ONLINE DASHBOARD</span>
+                    ) : (
+                      <ImageTag
+                        alt="Profile"
+                        style={{ height: 44, width: 44, borderRadius: "14px", objectFit: "cover", border: "2px solid #fff", boxShadow: "0 4px 10px rgba(0,0,0,0.05)" }}
+                        src={therapistInfo.user.profile && therapistInfo.user.profile !== "null" ? `${imagePath}/${therapistInfo.user.profile}` : defaultProfile}
+                      />
+                    )}
+                    <div style={{ textAlign: 'left', minWidth: 0 }}>
+                      <span style={{ fontWeight: 800, fontSize: '15px', color: '#1e293b', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {userType === 1 ? (clientName || "My account") : (therapistInfo.user.name || "Therapist")}
+                      </span>
+                      {userType === 1
+                        ? <span className="nav-mob-room">My therapy room →</span>
+                        : <span style={{ fontSize: '11px', color: '#2ecc71', fontWeight: '700' }}>ONLINE DASHBOARD</span>}
                     </div>
                   </Link>
                 </div>
@@ -484,7 +494,13 @@ export default function App() {
           color: #166534; font-size: 15px;
         }
         .nav-profile-av img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
-        .nav-profile-name { font-weight: 700; color: #132a1c; font-size: 14.5px; white-space: nowrap; }
+        .nav-profile-name { font-weight: 700; color: #132a1c; font-size: 14.5px; white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+        .nav-profile-ini { font-size: 12.5px; font-weight: 800; color: #166534; letter-spacing: .3px; }
+        .nav-mob-av { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
+          background: #eef5f1; border: 2px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+        .nav-mob-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .nav-mob-av b { font-size: 16px; font-weight: 800; color: #166534; }
+        .nav-mob-room { display: block; font-size: 12px; font-weight: 800; color: #b7791f; letter-spacing: .2px; margin-top: 1px; }
 
         /* ── Account dropdown (logged-out state) ─────────── */
         .nav-account-dropdown { position: relative; }
