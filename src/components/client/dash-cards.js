@@ -214,7 +214,7 @@ export const DC_CSS = `
 .dc-review { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .dc-review-h { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .dc-review-h b { display: block; font-size: 15px; font-weight: 800; }
-.dc-review-h span { display: block; font-size: 12.5px; color: #64748b; margin-top: 1px; }
+.dc-review-h > div > span { display: block; font-size: 12.5px; color: #64748b; margin-top: 1px; }
 .dc-stars { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
 .dc-stars button { border: 0; background: none; padding: 2px; cursor: pointer; color: #d6dde2; line-height: 0; }
 .dc-stars button svg { font-size: 36px; transition: transform .12s; }

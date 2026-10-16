@@ -8,7 +8,6 @@ import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
 import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
-import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
@@ -140,10 +139,6 @@ export default function ClientHome() {
           </div>
 
           <aside className="ch-side">
-            <Link href="/client/find" className="ch-cta">
-              <PersonSearchRoundedIcon />
-              <div><b>Book a session</b><span>Browse verified therapists by concern, language and city</span></div>
-            </Link>
             <ReferralCard />
             {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
             <BreathCard />

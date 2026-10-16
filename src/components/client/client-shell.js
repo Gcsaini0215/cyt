@@ -21,6 +21,7 @@ import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
@@ -42,6 +43,7 @@ export const HELP_NAV = [
   { to: "/blogs", label: "Articles", Icon: MenuBookRoundedIcon },
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
+const RAIL_KEY = "cyt_cls_rail_mini";
 
 export default function ClientShell({ title, children }) {
   const router = useRouter();
@@ -49,6 +51,18 @@ export default function ClientShell({ title, children }) {
   const [ready, setReady] = useState(false);
   const [menu, setMenu] = useState(false);
   const [more, setMore] = useState(false); // phones: the "More" sheet
+  // ☰ flips the side menu: desktop full ↔ icons only (remembered), tablet icons ↔ full
+  const [flip, setFlip] = useState(false);
+  useEffect(() => { try { setFlip(localStorage.getItem(RAIL_KEY) === "1"); } catch (e) { /* storage blocked */ } }, []);
+  const toggleRail = () => {
+    if (window.matchMedia("(max-width: 767px)").matches) { setMore(true); return; } // phones: the menu sheet
+    setFlip((f) => {
+      const n = !f;
+      // only the desktop choice is remembered; on a tablet the wide menu is a temporary overlay
+      if (window.matchMedia("(min-width: 1024px)").matches) { try { localStorage.setItem(RAIL_KEY, n ? "1" : "0"); } catch (e) { /* storage blocked */ } }
+      return n;
+    });
+  };
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -71,7 +85,11 @@ export default function ClientShell({ title, children }) {
     document.addEventListener("touchstart", close);
     return () => { document.removeEventListener("mousedown", close); document.removeEventListener("touchstart", close); };
   }, [menu]);
-  useEffect(() => { setMenu(false); setMore(false); }, [router.pathname]);
+  useEffect(() => {
+    setMenu(false); setMore(false);
+    // the tablet overlay closes when you pick a page
+    if (window.matchMedia("(max-width: 1023px)").matches) setFlip(false);
+  }, [router.pathname]);
   useEffect(() => {
     if (!more) return undefined;
     const onKey = (e) => { if (e.key === "Escape") setMore(false); };
@@ -98,10 +116,11 @@ export default function ClientShell({ title, children }) {
   const active = (to) => router.pathname === to;
 
   return (
-    <div className="cls">
+    <div className={`cls${flip ? " flip" : ""}`}>
       <Head><title>{title ? `${title} | Choose Your Therapist` : "My account | Choose Your Therapist"}</title></Head>
       <style dangerouslySetInnerHTML={{ __html: CLS_CSS }} />
       <header className="cls-bar">
+        <button type="button" className="cls-burger" onClick={toggleRail} aria-label={flip ? "Expand menu" : "Collapse menu"} title="Menu"><MenuRoundedIcon /></button>
         <Link href="/my-dashboard" className="cls-logo" aria-label="Home"><img src="/cyt-emblem.png" alt="CYT" width={32} height={32} /></Link>
         <div className="cls-brand"><b>Choose Your Therapist</b><span>www.chooseyourtherapist.in</span></div>
         <div className="cls-right">
@@ -194,6 +213,8 @@ const CLS_CSS = `
 .cls svg { font-size: 20px; }
 .cls-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1200; height: var(--cls-h); display: flex; align-items: center; gap: 12px; padding: 0 16px;
   background: linear-gradient(90deg, #0b3320 0%, #14532d 55%, #166534 100%); box-shadow: 0 6px 18px -10px rgba(4,30,16,.55); }
+.cls-burger { width: 40px; height: 40px; margin-left: -6px; border-radius: 11px; border: 0; background: transparent; color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
+.cls-burger:hover { background: rgba(255,255,255,.14); } .cls-burger svg { font-size: 24px; }
 .cls-logo img { width: 36px; height: 36px; background: #fff; border-radius: 11px; padding: 3px; display: block; }
 .cls-brand { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 .cls-brand b { color: #fff; font-size: 15px; font-weight: 800; white-space: nowrap; }
@@ -239,6 +260,20 @@ const CLS_CSS = `
   .cls-rail-group { margin-top: 10px; padding-top: 10px; }
   .cls-main { padding: calc(var(--cls-h) + 20px) 24px 40px 100px; }
 }
+/* ☰ on desktop: icons-only rail */
+@media (min-width: 1024px) {
+  .cls.flip .cls-rail { width: 76px; padding: 12px 10px; }
+  .cls.flip .cls-item { justify-content: center; padding: 0; }
+  .cls.flip .cls-item span, .cls.flip .cls-item .cls-ext, .cls.flip .cls-rail-h { display: none; }
+  .cls.flip .cls-main { padding-left: 100px; max-width: 1348px; }
+}
+/* ☰ on a tablet: the full menu over the page */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cls.flip .cls-rail { width: 232px; padding: 14px 12px; box-shadow: 18px 0 40px -20px rgba(4,30,16,.35); }
+  .cls.flip .cls-item { justify-content: flex-start; padding: 0 12px; }
+  .cls.flip .cls-item span { display: inline; } .cls.flip .cls-item .cls-ext { display: block; } .cls.flip .cls-rail-h { display: block; }
+}
+.cls-rail, .cls-main { transition: width .2s ease, padding .2s ease; }
 @media (max-width: 767px) {
   .hide-sm { display: none !important; }
   .cls-bar { padding: 0 12px; }
