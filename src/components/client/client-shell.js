@@ -14,16 +14,30 @@ import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
+import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
+import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 
-/* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar on phones.
-   Sends logged-out visitors to /login and brings them back afterwards. */
+/* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
+   phones. Sends logged-out visitors to /login and brings them back afterwards. */
 
 export const CLIENT_NAV = [
   { to: "/my-dashboard", label: "Home", Icon: HomeRoundedIcon, mob: true },
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, mob: true },
   { to: "/client/find", label: "Find a Therapist", short: "Find", Icon: PersonSearchRoundedIcon, mob: true },
   { to: "/client/favrioute-therapits", label: "Saved Therapists", short: "Saved", Icon: FavoriteRoundedIcon, mob: true },
-  { to: "/my-settings", label: "Profile", Icon: ManageAccountsRoundedIcon, mob: true },
+  { to: "/my-settings", label: "Profile", Icon: ManageAccountsRoundedIcon }, // phones: in "More"
+];
+// "More ways we can help" — public pages, so they open outside the portal (marked ↗)
+export const HELP_NAV = [
+  { to: "/self-assessment", label: "Self-check", Icon: PsychologyAltRoundedIcon },
+  { to: "/therapy-for/relationships", label: "Couples therapy", Icon: VolunteerActivismRoundedIcon },
+  { to: "/therapy-for/parenting", label: "Child & parenting", Icon: ChildCareRoundedIcon },
+  { to: "/noida-appointment", label: "Noida centre", Icon: StorefrontRoundedIcon },
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 
@@ -32,6 +46,7 @@ export default function ClientShell({ title, children }) {
   const { userInfo } = useUserStore();
   const [ready, setReady] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [more, setMore] = useState(false); // phones: the "More" sheet
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -54,18 +69,29 @@ export default function ClientShell({ title, children }) {
     document.addEventListener("touchstart", close);
     return () => { document.removeEventListener("mousedown", close); document.removeEventListener("touchstart", close); };
   }, [menu]);
-  useEffect(() => { setMenu(false); }, [router.pathname]);
+  useEffect(() => { setMenu(false); setMore(false); }, [router.pathname]);
+  useEffect(() => {
+    if (!more) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setMore(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [more]);
 
   // ask first — a stray tap on a phone should never log anyone out
   const logout = () => {
     setMenu(false);
+    setMore(false);
     if (!window.confirm("Log out of your account?")) return;
     removeToken();
     router.push("/login");
   };
   const name = userInfo?.name || "";
-  const pf = userInfo?.profile || "";
-  const photo = !pf || pf.startsWith("blob:") ? "" : /^https?:/.test(pf) ? pf : `${imagePath}/${pf}`;
+  // no photo, a "null" placeholder, or a file that won't load → initials (a broken <img> showed as "?")
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const pf = String(userInfo?.profile || "").trim();
+  const noPhoto = !pf || /^(null|undefined)$/i.test(pf) || pf.startsWith("blob:") || photoFailed;
+  const photo = noPhoto ? "" : /^https?:/.test(pf) ? pf : `${imagePath}/${pf}`;
+  useEffect(() => { setPhotoFailed(false); }, [pf]);
   const initials = (name || "U").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const active = (to) => router.pathname === to;
 
@@ -75,12 +101,12 @@ export default function ClientShell({ title, children }) {
       <style dangerouslySetInnerHTML={{ __html: CLS_CSS }} />
       <header className="cls-bar">
         <Link href="/my-dashboard" className="cls-logo" aria-label="Home"><img src="/cyt-emblem.png" alt="CYT" width={32} height={32} /></Link>
-        <div className="cls-brand"><b>Choose Your Therapist</b><span>Your space</span></div>
+        <div className="cls-brand"><b>Choose Your Therapist</b><span>www.chooseyourtherapist.in</span></div>
         <div className="cls-right">
           <a href="/" className="cls-ic hide-sm" title="Go to website" aria-label="Go to website"><LanguageRoundedIcon /></a>
           <div className="cls-me" ref={menuRef}>
             <button type="button" className="cls-me-btn" onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu}>
-              <span className="cls-av">{photo ? <img src={photo} alt="" /> : initials}</span>
+              <span className="cls-av">{photo ? <img src={photo} alt="" onError={() => setPhotoFailed(true)} /> : initials}</span>
               <span className="cls-me-name hide-sm">{name || "My account"}</span>
               <KeyboardArrowDownRoundedIcon className="hide-sm" />
             </button>
@@ -102,6 +128,14 @@ export default function ClientShell({ title, children }) {
             <Icon /><span>{label}</span>
           </Link>
         ))}
+        <div className="cls-rail-group">
+          <span className="cls-rail-h">More ways we can help</span>
+          {HELP_NAV.map(({ to, label, Icon }) => (
+            <Link key={to} href={to} className="cls-item sub" title={label}>
+              <Icon /><span>{label}</span><NorthEastRoundedIcon className="cls-ext" />
+            </Link>
+          ))}
+        </div>
         <div className="cls-rail-foot">
           <a href={WA_HELP} target="_blank" rel="noopener noreferrer" className="cls-item"><SupportAgentRoundedIcon /><span>Help</span></a>
           <button type="button" className="cls-item out" onClick={logout}><LogoutRoundedIcon /><span>Log out</span></button>
@@ -116,7 +150,35 @@ export default function ClientShell({ title, children }) {
             <span className="cls-mob-ic"><Icon /></span>{short || label}
           </Link>
         ))}
+        <button type="button" className={`cls-mob-item${more || active("/my-settings") ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
+          <span className="cls-mob-ic"><AppsRoundedIcon /></span>More
+        </button>
       </nav>
+
+      {/* phones: everything else, as a sheet of tiles (same pattern as the therapist portal) */}
+      {more && (
+        <div className="cls-sheet-wrap" onClick={(e) => { if (e.target === e.currentTarget) setMore(false); }}>
+          <div className="cls-sheet" role="dialog" aria-modal="true" aria-label="More">
+            <span className="cls-grip" aria-hidden="true" />
+            <div className="cls-sheet-head">
+              <span className="cls-av big">{photo ? <img src={photo} alt="" onError={() => setPhotoFailed(true)} /> : initials}</span>
+              <div><b>{name || "My account"}</b><span>{userInfo?.email || ""}</span></div>
+              <button type="button" onClick={() => setMore(false)} aria-label="Close"><CloseRoundedIcon /></button>
+            </div>
+            <div className="cls-tiles">
+              <Link href="/my-settings" className={active("/my-settings") ? "on" : ""}><span><ManageAccountsRoundedIcon /></span>Profile</Link>
+              {HELP_NAV.map(({ to, label, Icon }) => (
+                <Link key={to} href={to}><span><Icon /></span>{label}</Link>
+              ))}
+              <a href={WA_HELP} target="_blank" rel="noopener noreferrer"><span><SupportAgentRoundedIcon /></span>Help</a>
+              <a href="/"><span><LanguageRoundedIcon /></span>Website</a>
+            </div>
+            <div className="cls-sheet-foot">
+              <button type="button" onClick={logout}><LogoutRoundedIcon /> Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -160,12 +222,19 @@ const CLS_CSS = `
 .cls-item.on { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; box-shadow: 0 6px 14px -6px rgba(22,101,52,.6); }
 .cls-item.on svg { color: #fff; }
 .cls-item.out { color: #dc2626 !important; } .cls-item.out svg { color: #dc2626; }
+.cls-rail-group { margin-top: 14px; padding-top: 12px; border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 2px; }
+.cls-rail-h { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--faint); padding: 0 12px 6px; }
+.cls-item.sub { height: 40px; font-size: 13.5px; font-weight: 600; }
+.cls-item.sub svg { font-size: 19px; }
+.cls-item .cls-ext { margin-left: auto; font-size: 15px !important; color: #cbd5e1 !important; }
+.cls-item.sub:hover .cls-ext { color: var(--g) !important; }
 .cls-rail-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 3px; }
 .cls-main { padding: calc(var(--cls-h) + 24px) 32px 40px 264px; max-width: 1480px; }
 .cls-mob { display: none; }
 @media (max-width: 1023px) {
   .cls-rail { width: 76px; padding: 12px 10px; }
-  .cls-item { justify-content: center; padding: 0; } .cls-item span { display: none; }
+  .cls-item { justify-content: center; padding: 0; } .cls-item span, .cls-item .cls-ext, .cls-rail-h { display: none; }
+  .cls-rail-group { margin-top: 10px; padding-top: 10px; }
   .cls-main { padding: calc(var(--cls-h) + 20px) 24px 40px 100px; }
 }
 @media (max-width: 767px) {
@@ -181,5 +250,22 @@ const CLS_CSS = `
   .cls-mob-item.on { color: var(--g) !important; }
   .cls-mob-item.on .cls-mob-ic { background: #166534; box-shadow: 0 4px 12px -4px rgba(22,101,52,.55); }
   .cls-mob-item.on .cls-mob-ic svg { color: #fff; }
+  button.cls-mob-item { border: 0; background: none; font-family: inherit; cursor: pointer; }
+  .cls-sheet-wrap { position: fixed; inset: 0; z-index: 1400; background: rgba(15,23,42,.45); display: flex; align-items: flex-end; }
+  .cls-sheet { width: 100%; max-height: 88vh; overflow-y: auto; background: #fff; border-radius: 22px 22px 0 0; box-shadow: 0 -20px 50px -20px rgba(0,0,0,.35); animation: clsSheet .26s cubic-bezier(.2,.9,.3,1); }
+  @keyframes clsSheet { from { transform: translateY(100%); } to { transform: none; } }
+  .cls-grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: #d6dfda; margin: 8px auto 0; }
+  .cls-sheet-head { display: flex; align-items: center; gap: 12px; padding: 10px 16px 12px; border-bottom: 1px solid #eef2f0; }
+  .cls-sheet-head > div { flex: 1; min-width: 0; }
+  .cls-sheet-head b { display: block; font-size: 15px; } .cls-sheet-head span { display: block; font-size: 12px; color: var(--mut); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cls-sheet-head button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: #f1f5f4; color: #334155; display: grid; place-items: center; cursor: pointer; }
+  .cls-av.big { width: 46px; height: 46px; border-radius: 14px; background: var(--g-bg); font-size: 16px; }
+  .cls-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 6px; padding: 16px 12px 18px; }
+  .cls-tiles a { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: #334155 !important; text-align: center; line-height: 1.25; text-decoration: none !important; }
+  .cls-tiles a > span { width: 52px; height: 52px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; }
+  .cls-tiles a svg { font-size: 24px; color: var(--g); }
+  .cls-tiles a.on { color: var(--g) !important; } .cls-tiles a.on > span { background: #dff3e6; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
+  .cls-sheet-foot { padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #eef2f0; }
+  .cls-sheet-foot button { width: 100%; height: 44px; border-radius: 12px; border: 1.5px solid #fecaca; background: #fff; color: #dc2626; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-family: inherit; }
 }
 `;

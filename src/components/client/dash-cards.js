@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchById, postData } from "../../utils/actions";
-import { MyReferralUrl, SaveReviewUrl, apiUrl } from "../../utils/url";
+import { MyReferralUrl, SaveReviewUrl } from "../../utils/url";
 import { bookPath } from "../../utils/therapist-slug";
 import { fmtWhen, therapistName, therapistPhoto } from "./session-card";
 import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
@@ -10,13 +10,9 @@ import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
-import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
-import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
-import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
 /* Client home cards that bring people back: book the next session, review the last one,
-   refer a friend, and the other ways CYT can help (self-check, family, Noida centre). */
+   refer a friend. (Self-check / family / Noida centre are in the portal menu — client-shell.) */
 
 const SITE = "https://www.chooseyourtherapist.in";
 const DAY = 24 * 60 * 60 * 1000;
@@ -191,52 +187,6 @@ export function ReferralCard() {
   );
 }
 
-/* #6, #7, #8 — other ways we can help */
-const NCR = /delhi|noida|ghaziabad|gurgaon|gurugram|faridabad|uttar pradesh|haryana|ncr/i;
-
-export function HelpCards({ user, bookings }) {
-  const [pricing, setPricing] = useState(null);
-  const inPerson = (bookings || []).some((b) => /offline|in[- ]?person|clinic/i.test(`${b.format || ""} ${b.session_type || ""}`));
-  const state = String(user?.state || "");
-  const showNoida = inPerson || !state || state === "Select" || NCR.test(state);
-  useEffect(() => {
-    if (!showNoida) return;
-    fetch(`${apiUrl}/noida-appointments/pricing`).then((r) => r.json()).then((d) => setPricing(d?.status ? d.data : null)).catch(() => {});
-  }, [showNoida]);
-  const from = pricing?.individual_inperson;
-
-  return (
-    <div className={`dc-help${showNoida ? "" : " two"}`}>
-      <Link href="/self-assessment" className="dc-help-card">
-        <span className="dc-help-ic blue"><PsychologyAltRoundedIcon /></span>
-        <b>Take a 2-minute self-check</b>
-        <p>Short, standard check-ins for anxiety, low mood, sleep and stress — with therapists suggested for your results.</p>
-        <span className="dc-help-go">Start a self-check <ArrowForwardRoundedIcon /></span>
-      </Link>
-
-      <div className="dc-help-card">
-        <span className="dc-help-ic rose"><FamilyRestroomRoundedIcon /></span>
-        <b>For someone you care about</b>
-        <p>Book sessions for your partner, child or parent — you can manage them from your account.</p>
-        <div className="dc-chips">
-          <Link href="/therapy-for/relationships">Couples</Link>
-          <Link href="/therapy-for/parenting">Child &amp; parenting</Link>
-          <Link href="/client/find">A family member</Link>
-        </div>
-      </div>
-
-      {showNoida && (
-        <Link href="/noida-appointment" className="dc-help-card">
-          <span className="dc-help-ic green"><StorefrontRoundedIcon /></span>
-          <b>Visit our Noida centre</b>
-          <p>In-person sessions at Sector 51 — pick any open slot, no need to choose a therapist. Home visits too.</p>
-          <span className="dc-help-go">{from ? `From ₹${Number(from).toLocaleString("en-IN")} · ` : ""}Book a visit <ArrowForwardRoundedIcon /></span>
-        </Link>
-      )}
-    </div>
-  );
-}
-
 export const DC_CSS = `
 .dc-av { width: 44px; height: 44px; border-radius: 14px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; font-size: 17px; flex-shrink: 0; overflow: hidden; }
 .dc-av img { width: 100%; height: 100%; object-fit: cover; }
@@ -295,22 +245,8 @@ export const DC_CSS = `
 .dc-ref-stats b { display: block; font-size: 16px; color: #0f172a; }
 .dc-ref-note { margin: 0; font-size: 12px; color: #92400e; font-weight: 600; }
 
-.dc-help { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.dc-help-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; color: #0f172a !important; text-decoration: none !important; transition: border-color .15s, box-shadow .15s, transform .15s; min-width: 0; }
-a.dc-help-card:hover { border-color: #b7dcc4; box-shadow: 0 10px 24px -18px rgba(4,30,16,.5); transform: translateY(-1px); }
-.dc-help-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 4px; }
-.dc-help-ic svg { font-size: 24px; }
-.dc-help-ic.blue { background: #e0f2fe; color: #0369a1; } .dc-help-ic.rose { background: #ffe4e6; color: #be123c; } .dc-help-ic.green { background: #e7f6ec; color: #166534; }
-.dc-help-card b { font-size: 15.5px; font-weight: 800; }
-.dc-help-card p { margin: 0; font-size: 13px; color: #64748b; line-height: 1.5; flex: 1; }
-.dc-help-go { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 800; color: #166534; margin-top: 6px; }
-.dc-help-go svg { font-size: 17px; }
-.dc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.dc-chips a { font-size: 12.5px; font-weight: 700; color: #be123c !important; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 999px; padding: 5px 11px; text-decoration: none !important; }
-.dc-chips a:hover { background: #ffe4e6; }
 
 @media (max-width: 640px) {
-  .dc-help { grid-template-columns: 1fr; }
   .dc-rebook .dc-actions .dc-btn { flex: 1; }
   .dc-stars button svg { font-size: 34px; }
 }

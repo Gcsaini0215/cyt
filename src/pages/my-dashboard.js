@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ClientShell from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto } from "../components/client/session-card";
-import { RebookCard, ReviewCard, ReferralCard, HelpCards, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { RebookCard, ReviewCard, ReferralCard, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
 import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl } from "../utils/url";
@@ -15,7 +15,22 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 /* Client home: what's next, how to book, and the therapists you've seen — plus the cards that
    bring people back: book the next session, review the last one, refer a friend, more help. */
 
-const greeting = (d) => { const h = Number(d.toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" })); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
+// a kind line to open the client's day — a different one each day
+// [before the name, after the name, without a name]
+const CHEERS = [
+  ["Every small step counts, ", " 🌱", "Every small step counts 🌱"],
+  ["Showing up for yourself matters, ", "", "Showing up for yourself matters"],
+  ["", ", you're doing better than you think", "You're doing better than you think"],
+  ["Be gentle with yourself today, ", "", "Be gentle with yourself today"],
+  ["Progress, not perfection, ", " 💚", "Progress, not perfection 💚"],
+  ["Caring for your mind is strength, ", "", "Caring for your mind is strength"],
+  ["", ", one conversation can change a lot", "One conversation can change a lot"],
+];
+const cheerOf = (d, name) => {
+  const day = Math.floor((d.getTime() + 5.5 * 3600000) / 86400000); // IST calendar day
+  const [pre, post, plain] = CHEERS[day % CHEERS.length];
+  return name ? { pre, name, post } : { pre: plain, name: "", post: "" };
+};
 
 const SKIP_KEY = "cyt_review_skip"; // bookings the client said "Not now" to
 const readSkips = () => { try { return JSON.parse(localStorage.getItem(SKIP_KEY) || "[]"); } catch (e) { return []; } };
@@ -82,7 +97,7 @@ export default function ClientHome() {
       <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + HOME_CSS }} />
       <div className="ch">
         <div className="ch-hello">
-          <h1>{greeting(new Date(now))}{first ? <>, <span>{first}</span></> : ""}</h1>
+          {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
           <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
         </div>
 
@@ -157,12 +172,6 @@ export default function ClientHome() {
             </section>
           )}
 
-          {bookings !== null && (
-            <section className="ch-sec">
-              <div className="ch-sec-h"><h2>More ways we can help</h2></div>
-              <HelpCards user={userInfo} bookings={bookings} />
-            </section>
-          )}
           </div>
         </div>
 
