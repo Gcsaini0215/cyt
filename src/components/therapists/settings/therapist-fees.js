@@ -14,6 +14,10 @@ import EditIcon from "@mui/icons-material/Edit";
 
 const PRESETS = [500, 750, 1000, 1500, 2000, 2500];
 
+// Accounts that may set a fee below ₹100 (CYT's own test payments). Nothing in the UI mentions
+// it — everyone else keeps the "min ₹100" rule.
+const LOW_FEE_ACCOUNTS = ["dpk7697@gmail.com"];
+
 const FORMAT_CFG = [
   { label: "Audio Call",  icon: <MicIcon sx={{ fontSize: 18 }} />,      color: "#0f3d24", light: "#f0fdf4", border: "#c8ddd0" },
   { label: "Video Call",  icon: <VideocamIcon sx={{ fontSize: 18 }} />, color: "#0f3d24", light: "#f0fdf4", border: "#c8ddd0" },
@@ -28,7 +32,7 @@ function getCfg(name, index) {
   return { label: name || "Session", icon: null, color: "#64748b", light: "#f8fafc", border: "#e2e8f0" };
 }
 
-function FeeCard({ format, si, fi, setFee }) {
+function FeeCard({ format, si, fi, setFee, minFee = 100 }) {
   const cfg = getCfg(format.type || format.name, fi);
   const fee = format.fee;
   const hasfee = fee !== null && fee !== "" && fee !== undefined && fee !== 0;
@@ -37,7 +41,7 @@ function FeeCard({ format, si, fi, setFee }) {
 
   const applyFee = (val) => {
     const n = parseInt(val);
-    if (isNaN(n) || n < 100) { toast.error("Enter a valid fee (min ₹100)"); return; }
+    if (isNaN(n) || n < minFee) { toast.error("Enter a valid fee (min ₹100)"); return; }
     setFee(si, fi, String(n));
     setEditing(false);
     setCustom("");
@@ -151,6 +155,7 @@ function FeeCard({ format, si, fi, setFee }) {
 
 export default function Fees({ onSuccess }) {
   const { therapistInfo, setFee } = useTherapistStore();
+  const minFee = LOW_FEE_ACCOUNTS.includes(String(therapistInfo?.user?.email || "").toLowerCase().trim()) ? 1 : 100;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -186,7 +191,7 @@ export default function Fees({ onSuccess }) {
             <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 16, fontWeight: 700, color: "#122019", marginBottom: 12 }}>{feeItem.name}</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: 12 }}>
               {feeItem.formats.map((format, fi) => (
-                <FeeCard key={fi} format={format} si={si} fi={fi} setFee={setFee} />
+                <FeeCard key={fi} format={format} si={si} fi={fi} setFee={setFee} minFee={minFee} />
               ))}
             </div>
           </div>
