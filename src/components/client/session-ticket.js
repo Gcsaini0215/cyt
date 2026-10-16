@@ -5,8 +5,13 @@ import PrintRoundedIcon from "@mui/icons-material/PrintRounded";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 
-/* The client's receipt for one session, styled like a ticket: just the session details and
-   what was paid — no letterhead. Print prints only the ticket; Share / Download make a PDF. */
+/* A session receipt styled like a ticket: just the session details and what was paid — no
+   letterhead. Used by the client portal and the therapist portal (which passes `therapist`).
+
+   - On screen it fits the device (compact two-column layout on phones).
+   - Print / PDF always use a fixed, wide copy rendered off-screen, so the file looks the same
+     from any device. The PDF is made as soon as the popup opens: browsers only allow
+     navigator.share() straight after a tap, so Share must not wait for the PDF. */
 
 const TZ = "Asia/Kolkata";
 const day = (d) => new Date(d).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: TZ });
@@ -24,11 +29,90 @@ const modeOf = (b) => {
   if (/audio|voice|call/.test(s) && !/video/.test(s)) return "Voice call";
   return "Video call";
 };
+const SCALE = 3; // PDF sharpness (3× the on-screen pixels)
+
+function Ticket({ d, render = false, innerRef }) {
+  return (
+    <div className={`tk ${render ? "tk-render" : "tk-view"}`} ref={innerRef} aria-hidden={render || undefined}>
+      <div className="tk-main">
+        <div className="tk-brand">
+          <span><img src="/cyt-emblem.png" alt="" width="20" height="20" /> Session receipt</span>
+          <small>Choose Your Therapist</small>
+        </div>
+        <div className="tk-who">
+          <span className="l">{d.topLabel}</span>
+          <b>{d.topName}</b>
+          {d.topSub && <em>{d.topSub}</em>}
+        </div>
+        <div className="tk-rows">
+          <div className="tk-row"><span className="l">Session date</span><b>{d.date}</b></div>
+          <div className="tk-row"><span className="l">Session time</span><b>{d.time}</b></div>
+          <div className="tk-row"><span className="l">Mode</span><b>{d.mode}</b></div>
+          <div className="tk-row"><span className="l">Service</span><b>{d.service}</b></div>
+          <div className="tk-row"><span className="l">{d.otherLabel}</span><b>{d.otherName}</b></div>
+          {d.sessionFor && <div className="tk-row"><span className="l">Session for</span><b>{d.sessionFor}</b></div>}
+          {d.paidVia && <div className="tk-row"><span className="l">Paid via</span><b>{d.paidVia}</b></div>}
+          {d.booked && <div className="tk-row wide"><span className="l">Booked on</span><b>{d.booked}</b></div>}
+        </div>
+      </div>
+
+      <div className="tk-cut" aria-hidden="true" />
+
+      <div className="tk-stub">
+        <div className="tk-amtbox">
+          <span className="l">Amount paid</span>
+          <b className="tk-amt">{d.paid}</b>
+          {d.saved && <em className="tk-save">{d.saved}</em>}
+        </div>
+        <span className="tk-paid">Paid</span>
+        <div className="tk-nos">
+          <div className="tk-no"><span className="l">Receipt no.</span><b>{d.receiptNo}</b></div>
+          {d.paymentId && <div className="tk-no"><span className="l">Payment ID</span><b>{d.paymentId}</b></div>}
+        </div>
+        <div className="tk-web">www.chooseyourtherapist.in</div>
+      </div>
+    </div>
+  );
+}
 
 export default function SessionTicket({ b, therapist: me = null, onClose }) {
-  const ref = useRef(null);
-  const [busy, setBusy] = useState("");
+  const renderRef = useRef(null);
+  const [pdf, setPdf] = useState(null); // Blob, made when the popup opens
+  const [pdfErr, setPdfErr] = useState(false);
   const [msg, setMsg] = useState("");
+
+  const tx = b.transaction || {};
+  const paid = toAmount(tx.amount ?? b.amount);
+  const fee = Math.max(toAmount(b.amount), paid);
+  const receiptNo = invoiceNumber(b);
+  const booked = bookedAt(b);
+  const fileName = `Session-${receiptNo}.pdf`;
+  const inr = (n) => `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+  // the therapist portal passes its own profile; the client portal uses the booking's
+  const therapistName = me?.user?.name || b.therapist?.user?.name || "Therapist";
+  const therapistType = me?.profile_type || b.therapist?.profile_type || "";
+  const clientName = b.client?.name || "Client";
+  const sessionFor = /other/i.test(b.whom || "") ? (b.cname || b.relation_with_client || "") : "";
+  const isTherapist = !!me; // whoever is looking gets their own name on top
+  const d = {
+    therapist: therapistName,
+    topLabel: isTherapist ? "Therapist" : "Client",
+    topName: isTherapist ? therapistName : clientName,
+    topSub: isTherapist ? therapistType : "",
+    otherLabel: isTherapist ? "Client" : "Therapist",
+    otherName: isTherapist ? clientName : `${therapistName}${therapistType ? ` · ${therapistType}` : ""}`,
+    sessionFor,
+    date: day(b.booking_date),
+    time: `${time(b.booking_date)} IST`,
+    mode: modeOf(b),
+    service: b.service || "Therapy session",
+    paidVia: tx.payment_method || "",
+    booked: booked ? `${day(booked)}, ${time(booked)}` : "",
+    paid: inr(paid),
+    saved: fee > paid ? `Fee ${inr(fee)} · saved ${inr(fee - paid)}` : "",
+    receiptNo,
+    paymentId: tx.transaction_id ? String(tx.transaction_id) : "",
+  };
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -36,127 +120,88 @@ export default function SessionTicket({ b, therapist: me = null, onClose }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const tx = b.transaction || {};
-  const paid = toAmount(tx.amount ?? b.amount);
-  const ticketNo = invoiceNumber(b);
-  // the therapist portal passes its own profile; the client portal uses the booking's
-  const therapist = me?.user?.name || b.therapist?.user?.name || "Your therapist";
-  const therapistType = me?.profile_type || b.therapist?.profile_type || "";
-  const forOther = /other/i.test(b.whom || "") ? (b.cname || b.relation_with_client || "Someone else") : "";
-  const fileName = `Session-${ticketNo}.pdf`;
-  const booked = bookedAt(b);
-  const fee = Math.max(toAmount(b.amount), paid);
-
-  const makePdf = async () => {
-    const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
-    const canvas = await html2canvas(ref.current, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
-    const w = canvas.width / 2, h = canvas.height / 2; // CSS px
-    const pdf = new jsPDF({ orientation: w > h ? "landscape" : "portrait", unit: "px", format: [w + 32, h + 32], hotfixes: ["px_scaling"] });
-    pdf.setFillColor(255, 255, 255); pdf.rect(0, 0, w + 32, h + 32, "F");
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.9), "JPEG", 16, 16, w, h); // JPEG keeps the file ~10x smaller than PNG
-    return pdf.output("blob");
-  };
-
-  const download = async () => {
-    setBusy("download"); setMsg("");
-    try {
-      const url = URL.createObjectURL(await makePdf());
-      const a = document.createElement("a"); a.href = url; a.download = fileName; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-    } catch (e) { setMsg("Couldn't make the PDF — please try Print instead"); }
-    setBusy("");
-  };
-
-  const share = async () => {
-    setBusy("share"); setMsg("");
-    try {
-      const file = new File([await makePdf()], fileName, { type: "application/pdf" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: "Session receipt", text: `Session with ${therapist} — ${day(b.booking_date)}` });
-      } else {
-        const url = URL.createObjectURL(file);
-        const a = document.createElement("a"); a.href = url; a.download = fileName; a.click();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
-        setMsg("Sharing isn't supported here — the PDF was downloaded instead.");
+  // make the PDF from the wide off-screen copy as soon as the popup opens
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+        const el = renderRef.current;
+        const img = el?.querySelector("img");
+        if (img && !img.complete) await new Promise((r) => { img.onload = r; img.onerror = r; });
+        const canvas = await html2canvas(el, { scale: SCALE, backgroundColor: "#ffffff", useCORS: true, logging: false });
+        const w = canvas.width / SCALE, h = canvas.height / SCALE, m = 24;
+        const doc = new jsPDF({ orientation: "landscape", unit: "px", format: [w + m * 2, h + m * 2], hotfixes: ["px_scaling"], compress: true });
+        doc.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", m, m, w, h, undefined, "FAST");
+        if (alive) setPdf(doc.output("blob"));
+      } catch (e) {
+        if (alive) setPdfErr(true);
       }
-    } catch (e) {
-      if (e?.name !== "AbortError") setMsg("Couldn't share the PDF — try Download instead");
+    })();
+    return () => { alive = false; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const saveFile = (blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  const download = () => { setMsg(""); if (pdf) saveFile(pdf); };
+
+  // called straight from the tap, with the PDF already made
+  const share = () => {
+    setMsg("");
+    if (!pdf) return;
+    const file = new File([pdf], fileName, { type: "application/pdf" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: "Session receipt", text: `Session with ${d.therapist} — ${d.date}` })
+        .catch((e) => { if (e?.name !== "AbortError") { saveFile(pdf); setMsg("Couldn't open sharing — the PDF was downloaded instead."); } });
+    } else {
+      saveFile(pdf);
+      setMsg("Sharing files isn't supported in this browser — the PDF was downloaded instead.");
     }
-    setBusy("");
   };
 
-  // print just the ticket: copy it into a hidden frame with its own styles
+  // print the page itself with only the wide receipt visible (works on phones too)
   const print = () => {
-    const f = document.createElement("iframe");
-    f.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
-    document.body.appendChild(f);
-    const d = f.contentWindow.document;
-    d.open();
-    d.write(`<!doctype html><html><head><meta charset="utf-8"><title>${ticketNo}</title><base href="${window.location.origin}/">
-      <style>@page{size:A4 portrait;margin:18mm}body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}${TK_CSS}.tk{box-shadow:none}.tk-cut::before,.tk-cut::after{background:#fff}</style>
-      </head><body>${ref.current.outerHTML}</body></html>`);
-    d.close();
-    const go = () => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 1500); };
-    const img = d.querySelector("img");
-    if (img && !img.complete) { img.onload = go; img.onerror = go; } else setTimeout(go, 150);
+    setMsg("");
+    const root = document.createElement("div");
+    root.className = "tk-print-root";
+    root.appendChild(renderRef.current.cloneNode(true));
+    document.body.appendChild(root);
+    document.body.classList.add("tk-printing");
+    const done = () => { document.body.classList.remove("tk-printing"); root.remove(); window.removeEventListener("afterprint", done); };
+    window.addEventListener("afterprint", done);
+    setTimeout(() => { window.print(); setTimeout(done, 2000); }, 80);
   };
 
+  const ready = !!pdf;
   return (
     <div className="tk-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <style dangerouslySetInnerHTML={{ __html: TK_CSS + TK_UI_CSS }} />
       <div className="tk-modal" role="dialog" aria-modal="true" aria-label="Session receipt">
         <button type="button" className="tk-x" onClick={onClose} aria-label="Close"><CloseRoundedIcon /></button>
-
-        <div className="tk" ref={ref}>
-          <div className="tk-main">
-            <div className="tk-brand">
-              <span><img src="/cyt-emblem.png" alt="" width="20" height="20" /> Session receipt</span>
-              <small>Choose Your Therapist</small>
-            </div>
-            <div className="tk-who">
-              <span className="l">Therapist</span>
-              <b>{therapist}</b>
-              {therapistType && <em>{therapistType}</em>}
-            </div>
-            <div className="tk-rows">
-              <div className="tk-row"><span className="l">Session date</span><b>{day(b.booking_date)}</b></div>
-              <div className="tk-row"><span className="l">Session time</span><b>{time(b.booking_date)} IST</b></div>
-              <div className="tk-row"><span className="l">Mode</span><b>{modeOf(b)}</b></div>
-              <div className="tk-row"><span className="l">Service</span><b>{b.service || "Therapy session"}</b></div>
-              <div className="tk-row"><span className="l">Client</span><b>{forOther || b.client?.name || "Myself"}</b></div>
-              {booked && <div className="tk-row"><span className="l">Booked on</span><b>{day(booked)}, {time(booked)}</b></div>}
-              {tx.payment_method && <div className="tk-row"><span className="l">Paid via</span><b>{tx.payment_method}</b></div>}
-            </div>
-          </div>
-
-          <div className="tk-cut" aria-hidden="true" />
-
-          <div className="tk-stub">
-            <span className="l">Amount paid</span>
-            <b className="tk-amt">₹{paid.toLocaleString("en-IN", { maximumFractionDigits: 2 })}</b>
-            {fee > paid && <em className="tk-save">Fee ₹{fee.toLocaleString("en-IN")} · saved ₹{(fee - paid).toLocaleString("en-IN")}</em>}
-            <span className="tk-paid">Paid</span>
-            <div className="tk-no"><span className="l">Receipt no.</span><b>{ticketNo}</b></div>
-            {tx.transaction_id && <div className="tk-no"><span className="l">Payment ID</span><b>{String(tx.transaction_id)}</b></div>}
-            <div className="tk-web">www.chooseyourtherapist.in</div>
-          </div>
-        </div>
-
+        <Ticket d={d} />
         <div className="tk-acts">
           <button type="button" className="tk-btn" onClick={print}><PrintRoundedIcon /> Print</button>
-          <button type="button" className="tk-btn" onClick={download} disabled={!!busy}><FileDownloadRoundedIcon /> {busy === "download" ? "Making PDF…" : "Download PDF"}</button>
-          <button type="button" className="tk-btn primary" onClick={share} disabled={!!busy}><IosShareRoundedIcon /> {busy === "share" ? "Making PDF…" : "Share PDF"}</button>
+          <button type="button" className="tk-btn" onClick={download} disabled={!ready}><FileDownloadRoundedIcon /> {ready ? "Download" : "Preparing…"}</button>
+          <button type="button" className="tk-btn primary" onClick={share} disabled={!ready}><IosShareRoundedIcon /> {ready ? "Share PDF" : "Preparing…"}</button>
         </div>
-        {msg && <p className="tk-msg">{msg}</p>}
+        {(msg || pdfErr) && <p className="tk-msg">{msg || "Couldn't make the PDF here — please use Print and choose \"Save as PDF\"."}</p>}
       </div>
+      {/* wide copy for the PDF and for printing (kept off-screen) */}
+      <div className="tk-offscreen"><Ticket d={d} render innerRef={renderRef} /></div>
     </div>
   );
 }
 
-// the ticket itself (also copied into the print frame)
+// the receipt (wide layout = PDF / print; .tk-view adapts on phones)
 const TK_CSS = `
 .tk { display: flex; width: 100%; max-width: 640px; margin: 0 auto; color: #1f2937; font-family: Inter, "Segoe UI", Arial, sans-serif;
   background: #fff; border: 1px solid #d9dee3; border-radius: 10px; box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 10px 24px -14px rgba(15,23,42,.25); }
+.tk-render { width: 680px; max-width: none; box-shadow: none; }
 .tk * { box-sizing: border-box; }
 .tk-main { flex: 1; min-width: 0; padding: 20px 22px; }
 .tk-brand { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
@@ -176,31 +221,65 @@ const TK_CSS = `
   background-image: linear-gradient(#c4cad1 55%, transparent 0); background-size: 1.5px 10px; background-repeat: repeat-y; background-position: center; }
 .tk-cut::before, .tk-cut::after { content: ""; position: absolute; left: 50%; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: #eceef0; border: 1px solid #d9dee3; }
 .tk-cut::before { top: -11px; border-top-color: transparent; } .tk-cut::after { bottom: -11px; border-bottom-color: transparent; }
+.tk-render .tk-cut::before, .tk-render .tk-cut::after { background: #fff; }
 .tk-stub { width: 200px; flex-shrink: 0; padding: 20px 18px; display: flex; flex-direction: column; gap: 10px; }
 .tk-paid { align-self: flex-start; font-size: 11px !important; font-weight: 800 !important; letter-spacing: 2px !important; color: #15803d !important; border: 1.5px solid #15803d; border-radius: 4px; padding: 2px 8px; transform: rotate(-4deg); text-transform: uppercase; }
-.tk-amt { font-size: 26px; line-height: 1.1; letter-spacing: -.3px; margin-top: -4px; }
-.tk-save { font-style: normal; font-size: 11.5px; color: #4b5563; }
+.tk-amt { font-size: 26px; line-height: 1.1; letter-spacing: -.3px; margin-top: 2px; }
+.tk-save { display: block; font-style: normal; font-size: 11.5px; color: #4b5563; margin-top: 4px; }
+.tk-nos { display: flex; flex-direction: column; gap: 10px; }
 .tk-no b { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 11.5px; font-weight: 600; overflow-wrap: anywhere; margin-top: 2px; }
 .tk-web { margin-top: auto; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 10.5px; color: #6b7280; }
+
+/* phones: one compact card — details in two columns, amount + PAID on one line */
 @media (max-width: 560px) {
-  .tk { flex-direction: column; }
-  .tk-cut { width: auto; height: 20px; background-image: linear-gradient(90deg, #c4cad1 55%, transparent 0); background-size: 10px 1.5px; background-repeat: repeat-x; }
-  .tk-cut::before, .tk-cut::after { top: 50%; margin: -10px 0 0; }
-  .tk-cut::before { left: -11px; border-top-color: #d9dee3; border-left-color: transparent; }
-  .tk-cut::after { right: -11px; left: auto; bottom: auto; border-bottom-color: #d9dee3; border-right-color: transparent; }
-  .tk-stub { width: auto; }
+  .tk-view { flex-direction: column; }
+  .tk-view .tk-main { padding: 14px 16px 10px; }
+  .tk-view .tk-brand { padding-bottom: 10px; }
+  .tk-view .tk-brand small { display: none; }
+  .tk-view .tk-who { margin-top: 10px; }
+  .tk-view .tk-who b { font-size: 16px; }
+  .tk-view .tk-rows { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; margin-top: 10px; }
+  .tk-view .tk-row { flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 0; }
+  .tk-view .tk-row.wide { grid-column: 1 / -1; }
+  .tk-view .tk-row b { font-size: 12.5px; text-align: left; }
+  .tk-view .tk-cut { width: auto; height: 18px; background-image: linear-gradient(90deg, #c4cad1 55%, transparent 0); background-size: 10px 1.5px; background-repeat: repeat-x; }
+  .tk-view .tk-cut::before, .tk-view .tk-cut::after { top: 50%; margin: -10px 0 0; }
+  .tk-view .tk-cut::before { left: -11px; border-top-color: #d9dee3; border-left-color: transparent; }
+  .tk-view .tk-cut::after { right: -11px; left: auto; bottom: auto; border-bottom-color: #d9dee3; border-right-color: transparent; }
+  .tk-view .tk-stub { width: auto; padding: 10px 16px 14px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px 12px; }
+  .tk-view .tk-paid { align-self: center; }
+  .tk-view .tk-amt { font-size: 22px; }
+  .tk-view .tk-nos { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
+  .tk-view .tk-no b { font-size: 10.5px; }
+  .tk-view .tk-web { display: none; }
 }
 `;
 
-// the popup around it
+// the popup around it, plus print rules
 const TK_UI_CSS = `
 .tk-overlay { position: fixed; inset: 0; z-index: 1500; background: rgba(15,23,42,.55); display: flex; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; }
 .tk-modal { position: relative; margin: auto; width: 100%; max-width: 680px; background: #eceef0; border-radius: 22px; padding: 48px 18px 18px; }
 .tk-x { position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 10px; border: 0; background: #fff; color: #334155; display: grid; place-items: center; cursor: pointer; z-index: 2; }
-.tk-acts { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
-.tk-btn { flex: 1; min-width: 130px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 10px; border: 1px solid #d1d5db; background: #fff; color: #111827; font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; }
-.tk-btn svg { font-size: 19px; }
+.tk-acts { display: flex; gap: 8px; margin-top: 16px; }
+.tk-btn { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 8px; border-radius: 10px; border: 1px solid #d1d5db; background: #fff; color: #111827; font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.tk-btn svg { font-size: 19px; flex-shrink: 0; }
 .tk-btn.primary { background: #111827; color: #fff; border-color: #111827; }
-.tk-btn:disabled { opacity: .65; cursor: default; }
+.tk-btn:disabled { opacity: .6; cursor: default; }
 .tk-msg { margin: 10px 0 0; font-size: 12.5px; color: #92400e; font-weight: 600; text-align: center; }
+.tk-offscreen { position: fixed; left: -10000px; top: 0; pointer-events: none; }
+@media (max-width: 560px) {
+  .tk-overlay { padding: 10px; }
+  .tk-modal { padding: 44px 10px 10px; border-radius: 18px; }
+  .tk-x { top: 6px; right: 6px; }
+  .tk-acts { gap: 6px; margin-top: 10px; }
+  .tk-btn { height: 42px; font-size: 13px; gap: 4px; }
+  .tk-btn svg { font-size: 17px; }
+}
+.tk-print-root { display: none; }
+@media print {
+  @page { size: A4 portrait; margin: 14mm; }
+  body.tk-printing > *:not(.tk-print-root) { display: none !important; }
+  body.tk-printing .tk-print-root { display: block; }
+  body.tk-printing .tk-print-root .tk { width: 100%; max-width: 182mm; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 `;
