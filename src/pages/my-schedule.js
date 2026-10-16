@@ -319,7 +319,9 @@ export default function MySchedule() {
           .ms-group-link { display: none; }
           .ms-setup-strip { grid-template-columns: 1fr; gap: 8px; }
           .ms-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; overflow: visible; }
-          .ms-tab { justify-content: center; padding: 0 4px; gap: 5px; font-size: 12.5px; height: 38px; }
+          .ms-tab { flex-direction: column; justify-content: center; padding: 6px 2px; gap: 3px; font-size: 12.5px; height: 56px; border-radius: 14px; }
+          .ms-tab i { font-size: 17px; }
+          .ms-tab .dot { position: absolute; top: 7px; right: 10px; }
           .ms-sub { margin-bottom: 12px; }
           .ms-right .ms-btn { flex: 1; justify-content: center; }
           .ms-counts { margin-left: 0; }

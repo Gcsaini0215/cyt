@@ -79,6 +79,8 @@ const useNotifStore = create((set, get) => ({
   receive: (n) => {
     set((s) => (s.items.some((x) => x._id === n._id) ? s : { items: [n, ...s.items].slice(0, 60), unread: s.unread + (n.read ? 0 : 1) }));
     get()._toast([n]);
+    // something happened to a booking → open pages (Appointments) re-read it without a refresh
+    if (typeof window !== "undefined" && ["booking", "joined", "cancelled", "session"].includes(n.type)) window.dispatchEvent(new Event("cyt:therapist-bookings"));
   },
 
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t._id !== id) })),

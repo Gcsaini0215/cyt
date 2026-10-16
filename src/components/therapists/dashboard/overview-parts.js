@@ -161,11 +161,12 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
             {s.meet && onJoin && joinWin.open
               ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
               : s.meet && joinWin.before
-                ? <span className="ov-btn ghost" style={{ cursor: "default" }}>Join opens {opensAtText(joinWin.opens)}</span>
+                ? <span className="ov-btn ghost" style={{ cursor: "default" }}><span className="ov-hide-phone">Join opens&nbsp;</span><span className="ov-only-phone-inline">Opens&nbsp;</span>{opensAtText(joinWin.opens)}</span>
                 : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
             {onReschedule && s.status !== "Started"
               ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
               : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
+            {b._id && <button type="button" className="ov-btn ghost ov-only-phone" onClick={() => setReceipt(true)}>Invoice</button>}
           </div>
         </div>
 
@@ -316,6 +317,7 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-next-contact { display: flex; gap: 10px; margin-top: 4px; }
 .ov-next-contact a { font-size: 12.5px; font-weight: 800; color: #166534; text-decoration: none; }
 .ov-next-contact a:hover { text-decoration: underline; }
+.ov-only-phone, .ov-only-phone-inline { display: none; }
 .ov-btn.sm { height: 34px; padding: 0 14px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .ov-btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border-radius: 11px; background: #166534; color: #fff !important; font-size: 13.5px; font-weight: 800; text-decoration: none; border: 1.5px solid #166534; }
 .ov-btn.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
@@ -373,8 +375,11 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 }
 @media (max-width: 767px) {
   .ov-next-grid { grid-template-columns: 1fr; }
-  .ov-next-right { padding-left: 0; border-left: 0; padding-top: 12px; border-top: 1px dashed #cfe3d6; }
-  .ov-next-right { align-items: stretch; } .ov-next-right .ov-btn.sm { height: 40px; }
+  /* phones: keep the card short — who/when + one line of three buttons, no details panel */
+  .ov-next-right { display: none; }
+  .ov-only-phone { display: inline-flex; } .ov-only-phone-inline { display: inline; } .ov-hide-phone { display: none; }
+  .ov-next-btns { flex-wrap: nowrap; gap: 6px; }
+  .ov-next-btns .ov-btn { flex: 1 1 0; min-width: 0; padding: 0 8px; height: 40px; font-size: 12.5px; white-space: nowrap; }
 }
 @media (max-width: 560px) {
   .ov-week-row { grid-template-columns: repeat(7, 64px); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }

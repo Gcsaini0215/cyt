@@ -1088,7 +1088,8 @@ export default function TherapistDashboard() {
   React.useEffect(() => {
     const onNew = () => load(true);
     window.addEventListener("cyt:new-booking", onNew);
-    return () => window.removeEventListener("cyt:new-booking", onNew);
+    window.addEventListener("cyt:therapist-bookings", onNew); // client joined, cancelled, completed…
+    return () => { window.removeEventListener("cyt:new-booking", onNew); window.removeEventListener("cyt:therapist-bookings", onNew); };
   }, [load]);
   const ratingAvg = myReviews.length ? (myReviews.reduce((a, r) => a + (Number(r.rating) || 0), 0) / myReviews.length).toFixed(1) : "—";
   const listing = (() => {

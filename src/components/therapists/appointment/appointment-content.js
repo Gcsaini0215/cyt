@@ -9,7 +9,6 @@ import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import PersonPinCircleRoundedIcon from "@mui/icons-material/PersonPinCircleRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import ViewAgendaRoundedIcon from "@mui/icons-material/ViewAgendaRounded";
 import TableRowsRoundedIcon from "@mui/icons-material/TableRowsRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
@@ -121,7 +120,6 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
   const [view, setView] = useState("cards");
-  const [refreshing, setRefreshing] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const { therapistInfo } = useTherapistStore();
   const audioRef = useRef(null);
@@ -163,37 +161,37 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     return () => clearTimeout(t);
   }, [isRinging, stopRinging]);
 
-  // poll for new bookings (paused in background tabs, never overlapping)
+  // Keeps itself current — no Refresh button: the whole list is re-read when a live notification
+  // arrives (new booking, client joined, cancelled, completed), when the tab comes back into view,
+  // and every 15s while visible. New bookings ring; changed ones (status, time) just update.
   useEffect(() => {
     let inFlight = false;
-    const iv = setInterval(async () => {
-      if (inFlight || document.hidden) return;
+    const sync = async () => {
+      if (inFlight) return;
       inFlight = true;
       try {
         const r = await fetchData(getBookings);
         if (r?.status && Array.isArray(r.data)) {
           const known = new Set(listRef.current.map((a) => a._id));
           const fresh = r.data.filter((a) => !known.has(a._id));
-          if (fresh.length) {
+          setAppointments(r.data);
+          setSelected((s) => (s ? r.data.find((x) => x._id === s._id) || s : s)); // open drawer shows the latest too
+          if (fresh.length && known.size) {
             setNewCount((c) => c + fresh.length);
             setIsRinging(true);
             audioRef.current?.play().catch(() => setSoundOn(false));
-            setAppointments((prev) => Array.from(new Map([...fresh, ...prev].map((x) => [x._id, x])).values()));
             toast.success(`🔔 ${fresh.length} new booking${fresh.length > 1 ? "s" : ""}!`, { position: "top-right", autoClose: 10000 });
-            if (onRefresh) onRefresh();
           }
         }
       } catch (e) { /* next tick retries */ }
       inFlight = false;
-    }, 15000);
-    return () => clearInterval(iv);
-  }, [onRefresh]);
-
-  const refresh = async () => {
-    if (!onRefresh) return;
-    setRefreshing(true);
-    try { await onRefresh(); } finally { setRefreshing(false); }
-  };
+    };
+    const iv = setInterval(() => { if (!document.hidden) sync(); }, 15000);
+    const onVisible = () => { if (!document.hidden) sync(); };
+    window.addEventListener("cyt:therapist-bookings", sync);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(iv); window.removeEventListener("cyt:therapist-bookings", sync); document.removeEventListener("visibilitychange", onVisible); };
+  }, []);
 
   /* ── counts, filtering, grouping ── */
   const todayKey = istKey(now);
@@ -361,9 +359,6 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
             <button type="button" className={view === "cards" ? "on" : ""} onClick={() => setView("cards")}><ViewAgendaRoundedIcon /> Cards</button>
             <button type="button" className={view === "list" ? "on" : ""} onClick={() => setView("list")}><TableRowsRoundedIcon /> List</button>
           </div>
-          <button type="button" className="apx-btn soft" onClick={refresh} disabled={refreshing} aria-label="Refresh">
-            <RefreshRoundedIcon className={refreshing ? "spin" : ""} /> <span className="hide-sm">Refresh</span>
-          </button>
         </div>
       </div>
 
@@ -820,9 +815,13 @@ const APX_CSS = `
 .apx-group h2 span { background: #eef2f0; color: #475569; }
 @media (max-width: 767px) {
   .apx-time { width: 68px; }
-  .apx-acts { flex-wrap: nowrap; }
+  /* the session button (Join / Start / End / "Join at …") gets its own full-width line,
+     WhatsApp · Call · Details share the next one — a single line used to cut "Details" off */
+  .apx-acts { flex-wrap: wrap; }
   .apx-acts .apx-lg { display: none; }
   .apx-acts .apx-btn.primary, .apx-acts .apx-btn.danger { flex: 1; min-width: 0; }
-  .apx-acts .apx-btn.soft { flex: 0 0 auto; padding: 0 12px; }
+  .apx-acts .apx-btn.soft { flex: 1 1 auto; padding: 0 12px; white-space: nowrap; }
+  .apx-acts .apx-btn.icon { flex: 0 0 32px; }
+  .apx-acts > :first-child:not(.icon) { flex: 1 1 100%; justify-content: center; } /* after .soft so it wins */
 }
 `;
