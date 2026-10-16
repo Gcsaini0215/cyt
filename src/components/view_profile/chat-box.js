@@ -25,7 +25,7 @@ function OTPLogin({ onSuccess }) {
     if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) { setError("Valid email required"); return; }
     setError(""); setLoading(true);
     try {
-      const r = await postData(loginUrl, { email: email.trim().toLowerCase() });
+      const r = await postData(loginUrl, { email: email.trim().toLowerCase(), portal: "site" });
       if (r?.status) { setStep("otp"); setCooldown(60); }
       else setError(r?.message || "Failed to send OTP");
     } catch { setError("Network error. Try again."); }
@@ -51,7 +51,7 @@ function OTPLogin({ onSuccess }) {
     if (code.length !== 6) { setError("Enter 6-digit OTP"); return; }
     setError(""); setLoading(true);
     try {
-      const r = await postData(verifyOtpUrl, { email: email.trim().toLowerCase(), otp: code });
+      const r = await postData(verifyOtpUrl, { email: email.trim().toLowerCase(), otp: code, portal: "site" });
       if (r?.status && r?.token) {
         setToken(r.token);
         // fetch user to check if name exists

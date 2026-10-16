@@ -3,8 +3,11 @@ import ClientShell from "../components/client/client-shell";
 import { fetchById, postFormData } from "../utils/actions";
 import { getUserUrl, updateUserUrl, imagePath } from "../utils/url";
 import { stateList } from "../utils/static-lists";
+import { apiErrorMessage } from "../utils/api-error";
 import { getAge } from "../utils/time";
 import useUserStore from "../store/userStore";
+import { useRouter } from "next/router";
+import { removeToken } from "../utils/jwt";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 
 /* Client profile: photo, name, contact, a few optional details. Login is by email OTP, so no password. */
@@ -13,6 +16,14 @@ const clean = (v) => (v == null || v === "null" || v === "undefined" ? "" : Stri
 const STATES = stateList.filter((s) => s !== "Select");
 
 export default function ClientProfile() {
+  const router = useRouter();
+  // the server no longer accepts this login (expired / signed out elsewhere): log in again and come back here
+  const relogin = (err) => {
+    if (![401, 403].includes(err?.response?.status)) return false;
+    removeToken();
+    router.replace(`/login?next=${encodeURIComponent("/my-settings")}`);
+    return true;
+  };
   const { setInfo } = useUserStore();
   const [data, setData] = useState(null);
   const [f, setF] = useState({ name: "", nickname: "", phone: "", anumber: "", dob: "", age: "", gender: "", state: "" });
@@ -25,16 +36,20 @@ export default function ClientProfile() {
   const [errs, setErrs] = useState({});
   const fileRef = useRef(null);
 
-  useEffect(() => {
+  const [loadErr, setLoadErr] = useState("");
+  const load = () => {
+    setLoadErr("");
     fetchById(getUserUrl).then((r) => {
-      if (!r?.status) { setMsg(["err", r?.message || "Couldn't load your profile"]); return; }
+      if (!r?.status) { setLoadErr(r?.message || "Couldn't load your profile"); return; }
       const d = r.data || {};
       setData(d);
       setF({ name: clean(d.name), nickname: clean(d.nickname), phone: clean(d.phone), anumber: clean(d.anumber), dob: clean(d.dob).slice(0, 10), age: clean(d.age), gender: clean(d.gender), state: clean(d.state) === "Select" ? "" : clean(d.state) });
-    }).catch(() => setMsg(["err", "Couldn't load your profile — please refresh"]));
-  }, []);
+    }).catch((err) => relogin(err) || setLoadErr(apiErrorMessage(err, "Couldn't load your profile — please refresh")));
+  };
+  useEffect(load, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const set = (k, v) => { setF((p) => ({ ...p, [k]: v })); if (errs[k]) setErrs((e) => ({ ...e, [k]: "" })); setMsg(null); setDirty(true); };
+  // an edit after a failed save lets autosave try again
+  const set = (k, v) => { setF((p) => ({ ...p, [k]: v })); if (errs[k]) setErrs((e) => ({ ...e, [k]: "" })); setMsg(null); setDirty(true); setStatus((st) => (st === "error" ? "" : st)); };
   const pick = (e) => {
     const x = e.target.files?.[0];
     e.target.value = "";
@@ -42,8 +57,9 @@ export default function ClientProfile() {
     if (!/^image\//.test(x.type)) { setMsg(["err", "Please choose an image (JPG or PNG)"]); return; }
     if (x.size > 2 * 1024 * 1024) { setMsg(["err", "Photo is larger than 2 MB — please choose a smaller one"]); return; }
     setFile(x);
-    setPreview(URL.createObjectURL(x));
+    setPreview((old) => { if (old) URL.revokeObjectURL(old); return URL.createObjectURL(x); });
     setDirty(true);
+    setStatus((st) => (st === "error" ? "" : st));
   };
 
   const validate = (v) => {
@@ -82,23 +98,27 @@ export default function ClientProfile() {
         setStatus("saved");
       } else { setStatus("error"); setMsg(["err", r?.message || "Couldn't save — check your connection"]); setDirty(true); }
     } catch (err) {
+      if (relogin(err)) { setSaving(false); return; }
       setStatus("error");
-      setMsg(["err", err?.response?.data?.message || "Couldn't save — check your connection"]);
+      setMsg(["err", apiErrorMessage(err, "Couldn't save — check your connection")]);
       setDirty(true);
     }
     setSaving(false);
   };
 
-  // autosave: a photo saves straight away, text about a second after you stop typing
+  // autosave: a photo saves straight away, text about a second after you stop typing.
+  // After a failed save it waits for the next edit or Retry — no retry loop against the server.
   const saveRef = useRef(save);
   saveRef.current = save;
   useEffect(() => {
-    if (!dirty || saving) return undefined;
-    const e = validate(f);
-    if (Object.keys(e).length) { setErrs(e); setStatus("invalid"); return undefined; }
-    const t = setTimeout(() => saveRef.current(), file ? 50 : 1100);
+    if (!dirty || saving || status === "error") return undefined;
+    const t = setTimeout(() => {
+      const e = validate(f);
+      if (Object.keys(e).length) { setErrs(e); setStatus("invalid"); return; }
+      saveRef.current();
+    }, file ? 50 : 1100);
     return () => clearTimeout(t);
-  }, [f, file, dirty, saving]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [f, file, dirty, saving, status]); // eslint-disable-line react-hooks/exhaustive-deps
   // don't lose edits on close
   useEffect(() => {
     const warn = (ev) => { if (dirty || saving) { ev.preventDefault(); ev.returnValue = ""; } };
@@ -106,7 +126,8 @@ export default function ClientProfile() {
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty, saving]);
 
-  const photo = preview || (clean(data?.profile) && !/^https?:/.test(data.profile) ? `${imagePath}/${data.profile}` : "");
+  const saved = clean(data?.profile);
+  const photo = preview || (saved ? (/^https?:/.test(saved) ? saved : `${imagePath}/${saved}`) : "");
 
   return (
     <ClientShell title="Profile">
@@ -121,9 +142,14 @@ export default function ClientProfile() {
             </span>
           )}
         </div>
-        <p className="cp-sub">Changes save automatically. Details you gave while booking are already filled in. You log in with a one-time code sent to your email — there&apos;s no password.</p>
+        <p className="cp-sub">Changes save automatically, or tap Save changes. Details you gave while booking are already filled in. You log in with a one-time code sent to your email — there&apos;s no password.</p>
 
-        {!data && !msg ? <div className="cp-skel" /> : (
+        {loadErr ? (
+          <div className="cp-card cp-loaderr">
+            <span className="cp-msg err" role="alert">{loadErr}</span>
+            <button type="button" className="cp-btn soft" onClick={load}>Try again</button>
+          </div>
+        ) : !data ? <div className="cp-skel" /> : (
           <div className="cp-card">
             <div className="cp-photo">
               <div className="cp-av">{photo ? <img src={photo} alt="" /> : (f.name || "U").charAt(0).toUpperCase()}</div>
@@ -158,7 +184,12 @@ export default function ClientProfile() {
               </label>
             </div>
 
-            {msg && <div className="cp-foot"><span className={`cp-msg ${msg[0]}`} role="status">{msg[1]}</span></div>}
+            <div className="cp-foot">
+              {msg && <span className={`cp-msg ${msg[0]}`} role="status">{msg[1]}</span>}
+              <button type="button" className="cp-btn primary" disabled={saving || (!dirty && status !== "error")} onClick={() => saveRef.current()}>
+                {saving ? "Saving…" : dirty || status === "error" ? "Save changes" : "✓ Saved"}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -191,6 +222,7 @@ const CP_CSS = `
 .cp-grid input:focus, .cp-grid select:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .cp-grid label.err input { border-color: #ef4444; }
 .cp-grid em { font-style: normal; font-size: 12px; color: #dc2626; font-weight: 600; }
+.cp-loaderr { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .cp-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
 .cp-msg { font-size: 13px; font-weight: 600; } .cp-msg.ok { color: #166534; } .cp-msg.err { color: #dc2626; }
 .cp-btn { display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 18px; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; border: 1px solid transparent; font-family: inherit; }

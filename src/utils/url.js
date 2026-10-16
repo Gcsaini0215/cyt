@@ -136,10 +136,11 @@ export const ToggleMyVisibilityUrl = `${apiUrl}/toggle-my-visibility`;
 export const createBlogUrl = `${apiUrl}/create-blog`;
 export const getBlogsUrl = `${apiUrl}/get-blogs`;
 export const getBlogUrl = `${apiUrl}/get-blog-by-id`;
-export const InsertFavoriteTherapistUrl = `${apiUrl}/insert-favorite-therapist`;
-export const RemoveFavoriteTherapistUrl = `${apiUrl}/remove-favorite-therapist`;
-export const GetFavoriteTherapistUrl = `${apiUrl}/get-favorite-therapists`;
-export const GetFavoriteTherapistListUrl = `${apiUrl}/get-favorite-therapists-list`;
+// the backend routes are spelled "favrioute" (routes/favrioute.js) — keep these paths in step with it
+export const InsertFavoriteTherapistUrl = `${apiUrl}/insert-favrioute-therapist`;
+export const RemoveFavoriteTherapistUrl = `${apiUrl}/remove-favrioute-therapist`;
+export const GetFavoriteTherapistUrl = `${apiUrl}/get-favrioute-therapists`;
+export const GetFavoriteTherapistListUrl = `${apiUrl}/get-favrioute-therapists-list`;
 export const SubmitReviewUrl = `${apiUrl}/save-review`;
 export const GetReviewsUrl = `${apiUrl}/get-reviews`;
 export const GetMyReviewsUrl = `${apiUrl}/get-my-reviews`;
@@ -188,6 +189,9 @@ export const UpdateCoupansUrl = UpdateCouponsUrl;
 export const DeleteCoupansUrl = DeleteCouponsUrl;
 export const ToggleCoupanStatusUrl = ToggleCouponStatusUrl;
 export const ApplyCouponUrl = `${apiUrl}/coupon/apply`;
+export const MyReferralUrl = `${apiUrl}/my-referral`;
+export const MyReviewedTherapistsUrl = `${apiUrl}/my-reviewed-therapists`;
+export const SaveReviewUrl = `${apiUrl}/save-review`;
 export const UpdatePaymentStatusUrl = `${apiUrl}/update-payment-status`;
 
 // Chat — client side

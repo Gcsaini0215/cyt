@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SuggestedTherapists from "./suggested-therapists";
 
 const assessmentQuestions = {
   1: {
@@ -440,6 +441,20 @@ export default function AssessmentForm({ assessmentId, onBack }) {
               </CardContent>
             </Card>
           )}
+
+          {/* PHQ-9 item 9 (thoughts of being better off dead / self-harm): point to help right away */}
+          {assessmentId === 1 && answers[8] > 0 && (
+            <Box role="alert" sx={{ bgcolor: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: '12px', p: 2, mb: 2 }}>
+              <Typography sx={{ fontWeight: 800, color: '#b91c1c', fontSize: '15px' }}>You don&apos;t have to handle this alone</Typography>
+              <Typography sx={{ color: '#7f1d1d', fontSize: '13.5px', mt: 0.5, lineHeight: 1.5 }}>
+                If you are having thoughts of harming yourself, please talk to someone now — call Tele-MANAS on{' '}
+                <a href="tel:14416" style={{ color: '#b91c1c', fontWeight: 800 }}>14416</a> or{' '}
+                <a href="tel:18008914416" style={{ color: '#b91c1c', fontWeight: 800 }}>1800-89-14416</a> (free, 24×7), or go to your nearest hospital.
+              </Typography>
+            </Box>
+          )}
+
+          <SuggestedTherapists assessmentId={assessmentId} />
 
           <Typography variant="body1" sx={{ color: '#64748b', mb: 2, fontSize: { xs: '12px', sm: '13px' }, textAlign: 'center', lineHeight: 1.5 }}>
             💡 This assessment is for informational purposes only. For professional diagnosis, please consult a qualified mental health professional.

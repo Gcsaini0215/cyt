@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useUserStore from "../../store/userStore";
-import { getToken, removeToken } from "../../utils/jwt";
+import { isAuthenticated, removeToken, getDecodedToken } from "../../utils/jwt";
 import { imagePath } from "../../utils/url";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
@@ -21,8 +21,8 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 export const CLIENT_NAV = [
   { to: "/my-dashboard", label: "Home", Icon: HomeRoundedIcon, mob: true },
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, mob: true },
-  { to: "/view-all-therapist", label: "Find a Therapist", short: "Find", Icon: PersonSearchRoundedIcon, mob: true, external: true },
-  { to: "/client/favrioute-therapits", label: "Saved Therapists", Icon: FavoriteRoundedIcon },
+  { to: "/client/find", label: "Find a Therapist", short: "Find", Icon: PersonSearchRoundedIcon, mob: true },
+  { to: "/client/favrioute-therapits", label: "Saved Therapists", short: "Saved", Icon: FavoriteRoundedIcon, mob: true },
   { to: "/my-settings", label: "Profile", Icon: ManageAccountsRoundedIcon, mob: true },
 ];
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
@@ -35,8 +35,14 @@ export default function ClientShell({ title, children }) {
   const menuRef = useRef(null);
 
   useEffect(() => {
-    if (!getToken()) {
+    // isAuthenticated() also drops an expired token, before the page calls the API with it
+    if (!isAuthenticated()) {
       router.replace(`/login?next=${encodeURIComponent(router.asPath)}`);
+      return;
+    }
+    // a therapist account can't use the client pages (the API rejects it) — send it to its own dashboard
+    if (getDecodedToken()?.role === 1) {
+      router.replace("/therapist-dashboard");
       return;
     }
     setReady(true);
@@ -58,7 +64,8 @@ export default function ClientShell({ title, children }) {
     router.push("/login");
   };
   const name = userInfo?.name || "";
-  const photo = userInfo?.profile && !/^https?:/.test(userInfo.profile) && !userInfo.profile.startsWith("blob:") ? `${imagePath}/${userInfo.profile}` : "";
+  const pf = userInfo?.profile || "";
+  const photo = !pf || pf.startsWith("blob:") ? "" : /^https?:/.test(pf) ? pf : `${imagePath}/${pf}`;
   const initials = (name || "U").split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   const active = (to) => router.pathname === to;
 

@@ -8,8 +8,9 @@ import { fetchData, postData } from "../../utils/actions";
 import {
   getTherapistProfile, imagePath, defaultProfile,
   ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, GetCouponsUrl,
-  BookedSlotsUrl, apiUrl,
+  BookedSlotsUrl, apiUrl, MyReferralUrl,
 } from "../../utils/url";
+import { fetchById } from "../../utils/actions";
 import { getValidServices } from "../../utils/helpers";
 import { getToken } from "../../utils/jwt";
 import { isObjectId } from "../../utils/therapist-slug";
@@ -347,6 +348,23 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
 
   const days14     = React.useMemo(getNext14Days, []);
   const isLoggedIn = typeof window !== "undefined" && !!getToken();
+
+  // referral credit the signed-in client has earned ("Give ₹200, get ₹200"), spent here automatically
+  const [credit,    setCredit]    = React.useState(0);
+  const [useCredit, setUseCredit] = React.useState(true);
+  React.useEffect(() => {
+    if (!isLoggedIn) return;
+    fetchById(MyReferralUrl).then(r => { if (r?.status) setCredit(Number(r.data?.credit) || 0); }).catch(() => {});
+  }, [isLoggedIn]);
+
+  // ?for=other&relation=Spouse — "book for someone you care about" from the client dashboard
+  React.useEffect(() => {
+    if (!router.isReady) return;
+    if (router.query.for === "other") {
+      setBookFor("other");
+      if (RELATIONS.includes(router.query.relation)) setRelation(router.query.relation);
+    }
+  }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
   const nowMin     = new Date().getHours() * 60 + new Date().getMinutes();
   const isToday    = d => d?.toDateString() === new Date().toDateString();
 
@@ -356,8 +374,16 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       setProfile(data);
       getValidServices(data.fees || []).then(svcs => {
         setServices(svcs);
-        // A single service has nothing to choose — preselect it (and its first format).
-        if (svcs.length === 1) { setSelSvc(svcs[0]); setSelFmt(svcs[0].formats?.[0] || null); }
+        // "Book again" links carry the last service/format (?svc=&fmt=) — preselect them.
+        const q = router.query;
+        const want = q.svc && svcs.find(s => s.name === q.svc);
+        if (want) {
+          setSelSvc(want);
+          setSelFmt((want.formats || []).find(f => f.type === q.fmt) || want.formats?.[0] || null);
+        } else if (svcs.length === 1) {
+          // A single service has nothing to choose — preselect it (and its first format).
+          setSelSvc(svcs[0]); setSelFmt(svcs[0].formats?.[0] || null);
+        }
       });
     };
     // already fetched on the server — don't load it twice
@@ -366,7 +392,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       if (res?.status && res?.data) apply(res.data);
       setLoading(false);
     });
-  }, [id, initialProfile]);
+  }, [id, initialProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     fetch(`${apiUrl}/noida-appointments/pricing`)
@@ -417,6 +443,20 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     return { days: shown, rows };
   }, [profile, days14]);
 
+  // ?at=<ISO> (Book again: same time next week) — open straight on that slot if it's free
+  const atDone = React.useRef(false);
+  React.useEffect(() => {
+    const at = router.query.at;
+    if (atDone.current || !at || !grid.days.length || !selSvc) return;
+    atDone.current = true;
+    const t = new Date(at);
+    if (isNaN(t.getTime()) || t.getTime() <= Date.now()) return;
+    const val = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`;
+    const dy = grid.days.find(d => d.date.toDateString() === t.toDateString());
+    const row = grid.rows.find(r => r.val === val);
+    if (dy && row && dy.vals.has(val) && !bookedSlots.has(slotIso(dy.date, val))) pickSlot(dy.date, row);
+  }, [grid, selSvc, bookedSlots]); // eslint-disable-line react-hooks/exhaustive-deps
+
   React.useEffect(() => {
     setCouponApplied(null); setCouponSave(0); setCouponErr(""); setCouponInput("");
   }, [selSvc, selFmt]);
@@ -465,19 +505,34 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     if (!d && idx > 0) otpRefs.current[idx - 1]?.focus();
   }
 
-  async function applyCoupon(code) {
+  // silent: a referral code from a shared link — apply it if it works, say nothing if it doesn't
+  async function applyCoupon(code, silent = false) {
     const c = (code || couponInput).trim().toUpperCase();
     if (!c) return false;
-    setCouponLoad(true); setCouponErr("");
+    setCouponLoad(true); if (!silent) setCouponErr("");
     try {
-      const res = await postData(ApplyCouponUrl, { coupon_code: c, amount: selFmt?.fee || 0 });
+      const res = await postData(ApplyCouponUrl, {
+        therapist_id: id, code: c, apply_for: "Therapist", amount: selFmt?.fee || 0,
+        ...(!isLoggedIn && verifiedEmail ? { email: verifiedEmail } : {}),
+      });
       if (res?.status) {
-        setCouponApplied(res.data); setCouponSave(res.data.discount || 0);
+        setCouponApplied({ ...res.data, code: c }); setCouponSave(res.data.discount || 0);
         setCouponInput(c); setCouponManual(""); return true;
-      } else { setCouponErr(res?.message || "Invalid coupon."); return false; }
-    } catch(e) { setCouponErr(e?.response?.data?.message || "Invalid coupon."); return false; }
+      } else { if (!silent) setCouponErr(res?.message || "Invalid coupon."); return false; }
+    } catch(e) { if (!silent) setCouponErr(e?.response?.data?.message || "Invalid coupon."); return false; }
     finally { setCouponLoad(false); }
   }
+
+  // a friend's referral link (?refer=CODE, kept by _app) is applied on the summary step
+  const refTried = React.useRef(false);
+  React.useEffect(() => {
+    if (fstep !== 3 || phase !== "form" || couponApplied || refTried.current || !selFmt) return;
+    let ref = "";
+    try { ref = localStorage.getItem("cyt_ref") || ""; } catch (e) { /* storage blocked */ }
+    if (!ref) return;
+    refTried.current = true;
+    applyCoupon(ref, true);
+  }, [fstep, phase, selFmt, couponApplied]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function doCheckout() {
     if (!selSvc || !selFmt || !selDate || !selSlot) return;
@@ -491,6 +546,8 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       ...(bookFor === "other" ? { relation, client_age: age } : {}),
       ...(notes ? { notes } : {}),
       ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
+      ...(couponApplied?.referral ? { referral_code: couponApplied.code } : {}),
+      ...(creditUse > 0 ? { credit_used: String(creditUse) } : {}),
       ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
       ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
       ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
@@ -545,7 +602,8 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   );
 
   const base  = selFmt?.fee || 0;
-  const total = Math.max(0, base - couponSave);
+  const creditUse = isLoggedIn && useCredit ? Math.min(credit, Math.max(0, base - couponSave)) : 0;
+  const total = Math.max(0, base - couponSave - creditUse);
 
   // ── SLOT GRID (phase "slots"): dates across, times down — tap an open cell to start ──
   const rowMins = r => { const [h, m] = r.val.split(":").map(Number); return h * 60 + m; };
@@ -909,14 +967,20 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
 
       {/* Fee breakdown */}
       <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
-        <div style={{ display: "flex", padding: "12px 16px", borderBottom: couponSave > 0 ? "1px solid #e2e8f0" : "none" }}>
+        <div style={{ display: "flex", padding: "12px 16px", borderBottom: couponSave > 0 || creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
           <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>Session fee</span>
           <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{base.toLocaleString("en-IN")}</span>
         </div>
         {couponSave > 0 && (
-          <div style={{ display: "flex", padding: "12px 16px" }}>
-            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>Discount</span>
+          <div style={{ display: "flex", padding: "12px 16px", borderBottom: creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
+            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{couponApplied?.referral ? "Referral" : "Discount"}</span>
             <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 700 }}>−₹{couponSave.toLocaleString("en-IN")}</span>
+          </div>
+        )}
+        {creditUse > 0 && (
+          <div style={{ display: "flex", padding: "12px 16px" }}>
+            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>Your credit</span>
+            <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 700 }}>−₹{creditUse.toLocaleString("en-IN")}</span>
           </div>
         )}
       </div>
@@ -929,10 +993,21 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       }}>
         <div>
           <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</div>
-          {couponSave > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{couponSave.toLocaleString("en-IN")}</div>}
+          {couponSave + creditUse > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(couponSave + creditUse).toLocaleString("en-IN")}</div>}
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: G }}>₹{total.toLocaleString("en-IN")}</div>
       </div>
+
+      {/* Referral credit */}
+      {isLoggedIn && credit > 0 && (
+        <label style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", border: `1.5px solid ${useCredit ? G : "#e2e8f0"}`, borderRadius: 8, background: useCredit ? GB : "#fff", marginBottom: 16, cursor: "pointer" }}>
+          <input type="checkbox" checked={useCredit} onChange={e => setUseCredit(e.target.checked)} style={{ width: 18, height: 18, accentColor: G, flexShrink: 0 }} />
+          <span style={{ flex: 1 }}>
+            <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "#132a1c" }}>Use my referral credit</span>
+            <span style={{ display: "block", fontSize: 12, color: "#64748b", marginTop: 1 }}>₹{credit.toLocaleString("en-IN")} available from friends you referred</span>
+          </span>
+        </label>
+      )}
 
       {/* Coupon */}
       <div style={{ marginBottom: 20 }}>

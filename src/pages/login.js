@@ -91,7 +91,7 @@ export default function Login() {
     }
     try {
       setLoading(true);
-      const res = await postData(loginUrl, { email: mail });
+      const res = await postData(loginUrl, { email: mail, portal: "site" });
       if (res.status) {
         setNotice(isResend ? "We've sent a new code." : "");
         setOtp("");
@@ -123,7 +123,7 @@ export default function Login() {
     try {
       submittingRef.current = true;
       setLoading(true);
-      const res = await postData(verifyOtpUrl, { email: email.trim(), otp: code });
+      const res = await postData(verifyOtpUrl, { email: email.trim(), otp: code, portal: "site" });
       if (res.status) {
         setToken(res.token);
         writeFails(0);

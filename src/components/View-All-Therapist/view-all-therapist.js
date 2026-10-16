@@ -50,7 +50,9 @@ const headingFor = (f) => {
   return null;
 };
 
-export default function ViewAllTherapist({ initialAllData = [], initialFilters = null }) {
+// embedded: shown inside the client portal (/client/find) — a compact search header instead of the
+// banner, and none of the SEO / lead blocks at the bottom.
+export default function ViewAllTherapist({ initialAllData = [], initialFilters = null, embedded = false }) {
   const router = useRouter();
   const [allData, setAllData] = React.useState(initialAllData);
   const [filter, setFilter] = React.useState({ ...EMPTY_FILTER, ...(initialFilters || {}) });
@@ -136,7 +138,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
     const measure = () => {
       raf = 0;
       let bottom = 0;
-      document.querySelectorAll(".top-strip, .rbt-header, .rbt-header-wrapper").forEach((el) => {
+      document.querySelectorAll(".top-strip, .rbt-header, .rbt-header-wrapper, .cls-bar").forEach((el) => {
         const pos = getComputedStyle(el).position;
         if (pos !== "fixed" && pos !== "sticky") return;
         const r = el.getBoundingClientRect();
@@ -347,13 +349,63 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
     </div>
   );
 
+  const searchBlock = (
+    <>
+  <form className="vat-ban-search" role="search" onSubmit={(e) => { e.preventDefault(); applySearch(); }}>
+    <i className="feather-search vat-ban-search-icon" aria-hidden="true" />
+    <label htmlFor="vat-search" className="vat-sr">Search therapists by name, concern, state or city</label>
+    <input
+      id="vat-search"
+      type="search"
+      list="vat-search-states"
+      autoComplete="off"
+      placeholder="Name, concern, state or city…"
+      value={search}
+      onChange={handleSearchChange}
+    />
+    {search && (
+      <button type="button" className="vat-ban-clear" onClick={clearSearch} aria-label="Clear search">
+        <i className="feather-x" />
+      </button>
+    )}
+    <button type="submit" className="vat-ban-go">Search</button>
+    <datalist id="vat-search-states">
+      {popularStates.map((st) => <option key={st} value={st} />)}
+    </datalist>
+  </form>
+
+  <div className="vat-ban-row">
+    <button type="button" className="vat-help-btn" onClick={() => setHelperOpen(true)}>
+      <i className="feather-compass" aria-hidden="true" /> Not sure? <b>Help me choose</b>
+    </button>
+    {popularStates.length > 0 && (
+      <div className="vat-ban-chips" aria-label="Popular locations">
+        {popularStates.slice(0, 4).map((st) => (
+          <button key={st} type="button" className={filter.search === st ? "on" : ""} onClick={() => applySearch(st)}>
+            <i className="feather-map-pin" aria-hidden="true" /> {st}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+    </>
+  );
+
   return (
     <>
       {/* dangerouslySetInnerHTML, not a string child: React escapes quotes in <style> text
           children but browsers don't un-escape them, so a string child hydration-mismatches. */}
       <style dangerouslySetInnerHTML={{ __html: CSS + CARD_CSS }} />
 
-      {/* ── Banner: photo + search ── */}
+      {embedded ? (
+        <div className="vat-emb-h">
+          <h1>Find a therapist</h1>
+          <button type="button" className="vat-emb-help" onClick={() => setHelperOpen(true)}>
+            <i className="feather-compass" aria-hidden="true" /> Help me choose
+          </button>
+        </div>
+      ) : (
+      /* ── Banner: photo + search ── */
       <section className="vat-banner" aria-labelledby="vat-ban-title">
         <img
           className="vat-ban-img"
@@ -373,48 +425,27 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
           </h1>
           <p className="vat-ban-sub">Compare expertise, languages and fees — then book online or in-person.</p>
 
-          <form className="vat-ban-search" role="search" onSubmit={(e) => { e.preventDefault(); applySearch(); }}>
-            <i className="feather-search vat-ban-search-icon" aria-hidden="true" />
-            <label htmlFor="vat-search" className="vat-sr">Search therapists by name, concern, state or city</label>
-            <input
-              id="vat-search"
-              type="search"
-              list="vat-search-states"
-              autoComplete="off"
-              placeholder="Name, concern, state or city…"
-              value={search}
-              onChange={handleSearchChange}
-            />
-            {search && (
-              <button type="button" className="vat-ban-clear" onClick={clearSearch} aria-label="Clear search">
-                <i className="feather-x" />
-              </button>
-            )}
-            <button type="submit" className="vat-ban-go">Search</button>
-            <datalist id="vat-search-states">
-              {popularStates.map((st) => <option key={st} value={st} />)}
-            </datalist>
-          </form>
-
-          <div className="vat-ban-row">
-            <button type="button" className="vat-help-btn" onClick={() => setHelperOpen(true)}>
-              <i className="feather-compass" aria-hidden="true" /> Not sure? <b>Help me choose</b>
-            </button>
-            {popularStates.length > 0 && (
-              <div className="vat-ban-chips" aria-label="Popular locations">
-                {popularStates.slice(0, 4).map((st) => (
-                  <button key={st} type="button" className={filter.search === st ? "on" : ""} onClick={() => applySearch(st)}>
-                    <i className="feather-map-pin" aria-hidden="true" /> {st}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {searchBlock}
         </div>
       </section>
+      )}
 
       {/* ── Sticky filter + sort bar ── */}
-      <div className="vat-bar" ref={barRef}>
+      <div className={`vat-bar${embedded ? " emb" : ""}`} ref={barRef}>
+        {embedded ? (
+          <div className="vat-emb-bar">
+            <form className="vat-emb-search" role="search" onSubmit={(e) => { e.preventDefault(); applySearch(); }}>
+              <i className="feather-search" aria-hidden="true" />
+              <input type="search" autoComplete="off" placeholder="Search name, concern or city…" aria-label="Search therapists"
+                value={search} onChange={handleSearchChange} />
+              {search && <button type="button" onClick={clearSearch} aria-label="Clear search"><i className="feather-x" /></button>}
+            </form>
+            <button type="button" className={`vat-emb-filters${panelCount ? " on" : ""}`} onClick={() => setSheetOpen(true)}>
+              <i className="feather-sliders" aria-hidden="true" /> Filters{panelCount ? <span className="vat-badge">{panelCount}</span> : null}
+            </button>
+            {sortSelect("emb")}
+          </div>
+        ) : (
         <div className="container vat-bar-in">
           <div className="vat-bar-desk">
             <div className="vat-bar-sels">{selects("vat-sel")}</div>
@@ -430,6 +461,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
             </button>
           </div>
         </div>
+        )}
       </div>
 
       <ConsultationConsentModal open={consultOpen} onClose={() => setConsultOpen(false)} />
@@ -518,6 +550,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
             </div>
           )}
 
+          {!embedded && (<>
           {/* ── Lead capture: for people who scrolled the list and still can't decide ── */}
           <div className="vat-lead">
             <LeadCard tag="Directory" title="Still deciding? Let us suggest someone"
@@ -570,12 +603,13 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
               </details>
             ))}
           </section>
+          </>)}
         </div>
       </div>
 
       {/* ── Mobile filter sheet (filters apply live) ── */}
       <div className={`vat-sheet-overlay${sheetOpen ? " open" : ""}`} onClick={() => setSheetOpen(false)} aria-hidden="true" />
-      <div className={`vat-sheet${sheetOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Filters" aria-hidden={!sheetOpen}>
+      <div className={`vat-sheet${embedded ? " emb" : ""}${sheetOpen ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Filters" aria-hidden={!sheetOpen}>
         <div className="vat-sheet-head">
           <h3>Filters</h3>
           <button type="button" className="vat-x" onClick={() => setSheetOpen(false)} aria-label="Close filters"><i className="feather-x" /></button>
@@ -596,7 +630,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
         title="Need help choosing a psychologist?"
         note="Tell us what you're going through — our team will WhatsApp you with 2–3 psychologists who fit."
         sourceTag="Popup · Directory" />
-      <MobileActionBar />
+      {!embedded && <MobileActionBar />}
 
       {helperOpen && (
         <HelpMeChoose
@@ -707,6 +741,35 @@ const CSS = `
 .vat-ban-chips button i { font-size: 12px; }
 
 /* ── Sticky filter bar ── */
+/* inside the client portal (/client/find): title line + one compact sticky bar, filters in a drawer */
+.vat-emb-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.vat-emb-h h1 { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; margin: 0; color: #0f172a; letter-spacing: -.3px; font-family: inherit; }
+.vat-emb-help { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid #cfe9d8; background: #f0faf3; color: #166534; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.vat-bar.emb { border: 1px solid #e3ebe6; border-radius: 14px; padding: 8px; }
+.vat-emb-bar { display: flex; align-items: center; gap: 8px; }
+.vat-emb-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 10px 0 12px; border: 1.5px solid #dbe5df; border-radius: 11px; background: #f7faf8; }
+.vat-emb-search:focus-within { border-color: #1e7a4c; background: #fff; }
+.vat-emb-search > i { color: #64748b; font-size: 16px; }
+.vat-emb-search input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font-size: 14.5px; height: 100%; padding: 0; color: #0f172a; }
+.vat-emb-search button { border: 0; background: none; color: #64748b; cursor: pointer; padding: 4px; line-height: 0; }
+.vat-emb-filters { display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 14px; border-radius: 11px; border: 1.5px solid #cfdcd4; background: #fff; color: #14532d; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+.vat-emb-filters.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
+.vat-emb-filters .vat-badge { margin-left: 2px; }
+.vat-sort.emb span { display: none; }
+.vat-sort.emb select { height: 42px; border-radius: 11px; }
+.vat-emb-h ~ .vat-results-wrap > .container, .vat-bar.emb + * + .vat-results-wrap > .container { max-width: none; padding-left: 4px; padding-right: 4px; }
+.vat-bar.emb ~ .vat-results-wrap > .container { max-width: none; padding-left: 4px; padding-right: 4px; }
+@media (max-width: 640px) {
+  .vat-emb-bar { flex-wrap: wrap; }
+  .vat-emb-search { flex-basis: 100%; }
+  .vat-emb-filters { flex: 1; justify-content: center; }
+  .vat-sort.emb { flex: 1; } .vat-sort.emb select { width: 100%; }
+}
+@media (min-width: 768px) {
+  .vat-sheet.emb { left: auto; top: 0; width: 400px; max-height: none; border-radius: 18px 0 0 18px; transform: translateX(105%); }
+  .vat-sheet.emb.open { transform: none; }
+  .vat-sheet.emb .vat-sheet-body { flex: 1; }
+}
 .vat-bar { position: sticky; top: var(--vat-top, 0px); z-index: 900; background: #fff; border-bottom: 1px solid #e3ebe6; box-shadow: 0 8px 20px -16px rgba(20,83,45,.45); }
 .vat-bar-in { padding-top: 10px; padding-bottom: 10px; }
 .vat-bar-desk { display: flex; align-items: center; gap: 12px; }

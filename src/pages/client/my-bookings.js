@@ -51,7 +51,7 @@ export default function MySessions() {
           <h1>My Sessions</h1>
           <p>Every booking and where it stands. Join opens 15 minutes before an online session.</p>
         </div>
-        <Link href="/view-all-therapist" className="csc-btn primary" style={{ flex: "none" }}>Book a session</Link>
+        <Link href="/client/find" className="csc-btn primary" style={{ flex: "none" }}>Book a session</Link>
       </div>
 
       <div className="ms-tabs" role="tablist" aria-label="Sessions">
@@ -70,7 +70,7 @@ export default function MySessions() {
         <div className="ms-empty">
           <b>{tab === "upcoming" ? "No upcoming sessions" : tab === "past" ? "No past sessions yet" : "No cancelled sessions"}</b>
           {tab === "upcoming" && <p>Find a therapist and book your first session — online or in person.</p>}
-          {tab === "upcoming" && <Link href="/view-all-therapist" className="csc-btn primary" style={{ flex: "none" }}>Find a therapist</Link>}
+          {tab === "upcoming" && <Link href="/client/find" className="csc-btn primary" style={{ flex: "none" }}>Find a therapist</Link>}
         </div>
       )}
     </ClientShell>

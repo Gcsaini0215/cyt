@@ -119,8 +119,10 @@ export default function TherapistCheckoutPage() {
       therapist:    id,
       service:      q.service,
       format:       q.format,
-      // What the client actually pays — the coupon discount shown on the summary is applied here.
-      amount:       Math.max(0, Number(q.price || 0) - Number(q.discount || 0)),
+      // What the client actually pays — the coupon discount and referral credit shown on the summary.
+      amount:       Math.max(0, Number(q.price || 0) - Number(q.discount || 0) - Number(q.credit_used || 0)),
+      ...(q.referral_code ? { referral_code: q.referral_code } : {}),
+      ...(Number(q.credit_used) > 0 ? { credit_used: Number(q.credit_used) } : {}),
       notes:        q.notes        || "",
       booking_date: q.booking_date || "",
       session_type: q.session_type || "",
@@ -298,7 +300,8 @@ export default function TherapistCheckoutPage() {
   const q        = router.query;
   const price    = Number(q.price    || 0);
   const discount = Number(q.discount || 0);
-  const total    = Math.max(0, price - discount);
+  const credit   = Number(q.credit_used || 0);
+  const total    = Math.max(0, price - discount - credit);
   const avatar   = profile?.user?.profile
     ? `${imagePath}/${profile.user.profile}` : defaultProfile;
 
@@ -395,7 +398,12 @@ export default function TherapistCheckoutPage() {
                 <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</div>
                 {discount > 0 && (
                   <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>
-                    Coupon saves ₹{discount.toLocaleString("en-IN")}
+                    {q.referral_code ? "Referral" : "Coupon"} saves ₹{discount.toLocaleString("en-IN")}
+                  </div>
+                )}
+                {credit > 0 && (
+                  <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>
+                    Referral credit ₹{credit.toLocaleString("en-IN")} used
                   </div>
                 )}
               </div>

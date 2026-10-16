@@ -26,9 +26,10 @@ export const dayKey = (d) => new Date(d).toLocaleDateString("en-CA", { timeZone:
 export const isInPerson = (b) => /offline|in[- ]?person|clinic/i.test(`${b.format || ""} ${b.session_type || ""}`);
 export const isPaid = (b) => b.payment_status === "Paid" || /success|paid/i.test(b.transaction?.status?.name || "") || !!b.transaction;
 export const therapistName = (b) => b.therapist?.user?.name || "Your therapist";
-const therapistPhoto = (b) => {
+export const therapistPhoto = (b) => {
   const p = b.therapist?.user?.profile;
-  return p && p !== "null" && !/^https?:/.test(p) ? `${imagePath}/${p}` : "";
+  if (!p || p === "null") return "";
+  return /^https?:/.test(p) ? p : `${imagePath}/${p}`;
 };
 export const therapistLink = (b) => (b.therapist?._id ? profilePath({ _id: b.therapist._id, profile_type: b.therapist.profile_type, user: b.therapist.user, state: b.therapist.state }) : "/view-all-therapist");
 

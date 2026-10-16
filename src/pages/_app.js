@@ -18,6 +18,14 @@ import { TherapistShell, THERAPIST_SHELL_ROUTES } from "@/components/therapists/
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
 
+  // a friend's referral link (?refer=CODE) — remembered so the booking page can apply it later
+  useEffect(() => {
+    if (!router.isReady) return;
+    const ref = String(router.query.refer || "").trim().toUpperCase();
+    if (!/^[A-Z0-9]{4,20}$/.test(ref)) return;
+    try { localStorage.setItem("cyt_ref", ref); } catch (e) { /* storage blocked */ }
+  }, [router.isReady, router.query.refer]);
+
   useEffect(() => {
     // Global error handler to suppress external widget errors (like Tawk.to)
     const handleError = (event) => {
@@ -87,6 +95,7 @@ function MyApp({ Component, pageProps }) {
     "/my-workshop-bookings",
     "/my-settings",
     "/my-change-password",
+    "/client/", // My Sessions, Saved Therapists — same client portal
   ];
 
   const isClientDashboard = clientDashboardRoutes.some(route => router.pathname.startsWith(route));
