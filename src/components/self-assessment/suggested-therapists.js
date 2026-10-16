@@ -7,25 +7,16 @@ import { pickRelated } from "../../utils/related-therapists";
 /* Under a self-check result: three listed therapists who work with that concern, with
    View / Book links, so the next step is one tap away. */
 
-// assessment id -> what to look for in a therapist's expertise list
-const MATCH = {
-  1: { keywords: ["depression", "mood"], label: "low mood & depression" },
-  2: { keywords: ["anxiety", "panic", "stress"], label: "anxiety" },
-  3: { keywords: ["sleep", "insomnia", "stress"], label: "sleep & stress" },
-  4: { keywords: ["trauma", "ptsd", "abuse"], label: "trauma" },
-  5: { keywords: ["self esteem", "personality", "career"], label: "personal growth" },
-};
-
-export default function SuggestedTherapists({ assessmentId }) {
+export default function SuggestedTherapists({ keywords, label }) {
   const [list, setList] = useState(null);
-  const m = MATCH[assessmentId];
+  const m = keywords ? { keywords, label } : null;
 
   useEffect(() => {
     if (!m) return;
     fetchData(getTherapistProfiles)
       .then((r) => setList(pickRelated(r?.data || [], { keywords: m.keywords, limit: 3 })))
       .catch(() => setList([]));
-  }, [assessmentId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [label]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!m || (list && !list.length)) return null;
 

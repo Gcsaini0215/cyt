@@ -4,7 +4,7 @@ import Link from "next/link";
 /* Self-assessment banner: calm colours, what this is, and why it can be trusted. */
 
 const TRUST = [
-  ["feather-check-circle", "Standard screening tools", "PHQ-9, GAD-7, PCL-5 — used by psychologists worldwide"],
+  ["feather-check-circle", "Standard screening tools", "12 published questionnaires, word for word, with references"],
   ["feather-award", "Reviewed by psychologists", "Results explained by verified CYT psychologists"],
   ["feather-lock", "Private to you", "Only your score is saved, never your answers"],
   ["feather-shield", "Govt. registered platform", "Health Facility Registry · HFR ID IN0510005384"],

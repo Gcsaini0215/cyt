@@ -4,6 +4,7 @@ import ClientShell from "../../components/client/client-shell";
 import { fetchById } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { usePager, Pager } from "../../components/therapists/pager";
+import { FREE_TESTS } from "../../components/self-assessment/tests";
 import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
 import TrendingDownRoundedIcon from "@mui/icons-material/TrendingDownRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
@@ -14,27 +15,31 @@ import LockRoundedIcon from "@mui/icons-material/LockRounded";
 /* The client's self-check history (from /self-assessment): latest result per check with its trend,
    and every past result. Only scores and bands are stored — never the answers. */
 
+// every free check, plus the retired sleep check so old results still show
 const TESTS = [
-  { key: "phq9", id: 1, name: "Mood", full: "Depression Screening (PHQ-9)", max: 27 },
-  { key: "gad7", id: 2, name: "Worry", full: "Anxiety Screening (GAD-7)", max: 21 },
-  { key: "sleep", id: 3, name: "Sleep", full: "Sleep Check", max: 28 },
-  { key: "pcl5", id: 4, name: "Stress after a hard event", full: "Trauma & Stress Checklist (PCL-5)", max: 80 },
-  { key: "bigfive", id: 5, name: "Personality", full: "Personality Profile (Big Five)", max: null },
+  ...FREE_TESTS.map(({ key, name, full, short, max, better }) => ({ key, name, full: full.includes(short) ? full : `${full} (${short})`, max, better })),
+  { key: "sleep", name: "Sleep (old check)", full: "Sleep Check (retired)", max: 28, better: "low", retired: true },
 ];
 const TEST = Object.fromEntries(TESTS.map((t) => [t.key, t]));
-const DIMS = [["openness", "Openness"], ["conscientiousness", "Conscientiousness"], ["extraversion", "Extraversion"], ["agreeableness", "Agreeableness"], ["neuroticism", "Emotional sensitivity"]];
+// tests with several scores: [key, label, max]
+const DIMS = {
+  bigfive: [["openness", "Openness", 100], ["conscientiousness", "Conscientiousness", 100], ["extraversion", "Extraversion", 100], ["agreeableness", "Agreeableness", 100], ["neuroticism", "Emotional sensitivity", 100]],
+  dass21: [["depression", "Depression", 42], ["anxiety", "Anxiety", 42], ["stress", "Stress", 42]],
+  cbi: [["personal", "Personal burnout", 100], ["work", "Work-related burnout", 100]],
+};
 
 // band colour from the saved level text
 const toneOf = (level = "") => {
   const l = level.toLowerCase();
-  if (/moderately severe|severe|probable/.test(l)) return "red";
-  if (/moderate|some symptoms/.test(l)) return "orange";
-  if (/mild|some sleep/.test(l)) return "yellow";
-  if (/profile/.test(l)) return "blue";
+  if (/profile|high self-esteem/.test(l)) return "blue";
+  if (/low distress|low risk|no burnout|normal|below/.test(l)) return "green";
+  if (/severe|probable|dependence|very high|high burnout|^high$/.test(l)) return "red";
+  if (/moderate|medium|harmful|consistent with|possible depression|low self-esteem|high distress|some symptoms/.test(l)) return "orange";
+  if (/mild|risky|some sleep|^low$/.test(l)) return "yellow";
   return "green";
 };
 const fmt = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
-const startHref = (key) => `/self-assessment?start=${TEST[key]?.id || 1}`;
+const startHref = (key) => `/self-assessment?start=${key}`;
 
 function Spark({ rows, max }) {
   const pts = rows.slice(0, 8).reverse(); // oldest → newest
@@ -49,21 +54,22 @@ function Spark({ rows, max }) {
   );
 }
 
-function Trend({ now, before }) {
+function Trend({ now, before, better }) {
   if (before == null) return <span className="ci-trend flat">First check-in</span>;
   const d = now - before;
   if (d === 0) return <span className="ci-trend flat"><TrendingFlatRoundedIcon /> Same as last time</span>;
-  // lower = fewer symptoms = better
+  // most checks: lower = fewer symptoms = better; self-esteem: higher = better
+  const good = better === "high" ? d > 0 : d < 0;
   return d < 0
-    ? <span className="ci-trend good"><TrendingDownRoundedIcon /> {Math.abs(d)} lower than last time</span>
-    : <span className="ci-trend bad"><TrendingUpRoundedIcon /> {d} higher than last time</span>;
+    ? <span className={`ci-trend ${good ? "good" : "bad"}`}><TrendingDownRoundedIcon /> {Math.abs(d)} lower than last time</span>
+    : <span className={`ci-trend ${good ? "good" : "bad"}`}><TrendingUpRoundedIcon /> {d} higher than last time</span>;
 }
 
-function Bars({ dims }) {
+function Bars({ test, dims }) {
   return (
     <div className="ci-bars">
-      {DIMS.map(([k, label]) => (
-        <div key={k} className="ci-bar"><span>{label}</span><i><em style={{ width: `${dims?.[k] ?? 0}%` }} /></i><b>{dims?.[k] ?? "–"}</b></div>
+      {(DIMS[test] || []).map(([k, label, max]) => (
+        <div key={k} className="ci-bar"><span>{label}</span><i><em style={{ width: `${Math.round(((dims?.[k] ?? 0) / max) * 100)}%` }} /></i><b>{dims?.[k] ?? "–"}</b></div>
       ))}
     </div>
   );
@@ -86,10 +92,10 @@ export default function CheckIns() {
     return m;
   }, [rows]);
   const taken = TESTS.filter((t) => byTest[t.key]);
-  const notYet = TESTS.filter((t) => !byTest[t.key]);
+  const notYet = TESTS.filter((t) => !byTest[t.key] && !t.retired);
   const shown = useMemo(() => (rows || []).filter((r) => filter === "all" || r.test === filter), [rows, filter]);
   const pg = usePager(shown, 8, filter);
-  const flagged = byTest.phq9?.[0]?.flag;
+  const flagged = byTest.phq9?.[0]?.flag || byTest.epds?.[0]?.flag;
 
   return (
     <ClientShell title="My check-ins">
@@ -107,7 +113,7 @@ export default function CheckIns() {
 
         {flagged && (
           <div className="ci-care" role="note">
-            <b>You mentioned thoughts of being better off dead or hurting yourself in your last mood check-in.</b>
+            <b>You mentioned thoughts of being better off dead or hurting yourself in a recent check-in.</b>
             <span>You don&apos;t have to carry that alone. Talk to someone now: Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7), or book a session with a psychologist.</span>
             <Link href="/client/find" className="ci-btn ghost">Find a psychologist</Link>
           </div>
@@ -121,7 +127,7 @@ export default function CheckIns() {
             <b>No check-ins yet</b>
             <p>A self-check takes 2–10 minutes. Do one now and again every couple of weeks — you&apos;ll see here how you&apos;re doing over time.</p>
             <div className="ci-try">
-              {TESTS.map((t) => <Link key={t.key} href={startHref(t.key)}>{t.name}</Link>)}
+              {TESTS.filter((t) => !t.retired).map((t) => <Link key={t.key} href={startHref(t.key)}>{t.name}</Link>)}
             </div>
           </div>
         ) : (
@@ -142,12 +148,12 @@ export default function CheckIns() {
                           <span><b>{last.score}</b>/{t.max}</span>
                           <Spark rows={list} max={t.max} />
                         </div>
-                        <Trend now={last.score} before={list[1]?.score} />
+                        <Trend now={last.score} before={list[1]?.score} better={t.better} />
                       </>
-                    ) : <Bars dims={last.dims} />}
+                    ) : <Bars test={t.key} dims={last.dims} />}
                     <div className="ci-card-foot">
                       <span>Last: {fmt(last.createdAt)} · {list.length} time{list.length > 1 ? "s" : ""}</span>
-                      <Link href={startHref(t.key)} className="ci-btn ghost sm"><ReplayRoundedIcon /> Take again</Link>
+                      {!t.retired && <Link href={startHref(t.key)} className="ci-btn ghost sm"><ReplayRoundedIcon /> Take again</Link>}
                     </div>
                   </div>
                 );

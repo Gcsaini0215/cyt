@@ -3,7 +3,9 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import SelfAssessmentBanner from "../components/self-assessment/banner";
-import AssessmentCards, { assessments } from "../components/self-assessment/assessment-cards";
+import AssessmentCards from "../components/self-assessment/assessment-cards";
+import LicensedModal from "../components/self-assessment/licensed-modal";
+import { FREE_TESTS, testFromParam } from "../components/self-assessment/tests";
 import AssessmentForm from "../components/self-assessment/assessment-form";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
@@ -16,18 +18,14 @@ import { isAuthenticated } from "../utils/jwt";
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/self-assessment`;
 const TITLE = "Free Mental Health Self Assessment — PHQ-9, GAD-7, PCL-5 | CYT";
-const DESC = "Take free, standard mental-health self-checks used by psychologists — PHQ-9 (depression), GAD-7 (anxiety), sleep, PCL-5 (trauma) and a Big Five personality profile. Clear results, saved privately.";
+const DESC = "Free, published mental-health self-checks used by psychologists — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five — word for word, with references. Results saved privately.";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
 
 const SCHEMA = [
   {
     "@context": "https://schema.org", "@type": "WebPage", "@id": `${PAGE_URL}#page`, "url": PAGE_URL, "name": TITLE, "description": DESC, "inLanguage": "en-IN",
     "isPartOf": { "@type": "WebSite", "name": "Choose Your Therapist", "url": SITE },
-    "about": [
-      { "@type": "MedicalTest", "name": "PHQ-9 depression screening", "usedToDiagnose": { "@type": "MedicalCondition", "name": "Depression" } },
-      { "@type": "MedicalTest", "name": "GAD-7 anxiety screening", "usedToDiagnose": { "@type": "MedicalCondition", "name": "Generalized anxiety disorder" } },
-      { "@type": "MedicalTest", "name": "PCL-5 PTSD checklist", "usedToDiagnose": { "@type": "MedicalCondition", "name": "Post-traumatic stress disorder" } },
-    ],
+    "about": FREE_TESTS.map((t) => ({ "@type": "MedicalTest", "name": t.full, "description": t.blurb, "citation": t.ref })),
   },
   {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -40,25 +38,26 @@ const SCHEMA = [
 
 export default function SelfAssessment() {
   const router = useRouter();
-  const [selectedAssessment, setSelectedAssessment] = useState(null);
-  const [gate, setGate] = useState(null); // the check a logged-out visitor tried to start
+  const [selected, setSelected] = useState(null); // the free test being taken
+  const [gate, setGate] = useState(null); // the test a logged-out visitor tried to start
+  const [licensed, setLicensed] = useState(null); // a licensed test → psychologists who hold its licence
 
-  const open = (id) => {
-    setSelectedAssessment(id);
+  const open = (t) => {
+    setSelected(t);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  const handleSelectAssessment = (id) => {
-    if (!isAuthenticated()) { setGate(id); return; }
-    open(id);
+  const start = (t) => {
+    if (!isAuthenticated()) { setGate(t); return; }
+    open(t);
   };
 
   // back from login with ?start=<id>: open that check (and tidy the URL)
   useEffect(() => {
     if (!router.isReady) return;
-    const id = Number(router.query.start);
-    if (!id || !assessments.some((a) => a.id === id)) return;
+    const t = testFromParam(router.query.start);
+    if (!t) return;
     router.replace("/self-assessment", undefined, { shallow: true, scroll: false });
-    if (isAuthenticated()) open(id); else setGate(id);
+    if (isAuthenticated()) open(t); else setGate(t);
   }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -68,15 +67,15 @@ export default function SelfAssessment() {
     return () => window.removeEventListener("keydown", onKey);
   }, [gate]);
 
-  const gated = assessments.find((a) => a.id === gate);
-  const next = encodeURIComponent(`/self-assessment?start=${gate}`);
+  const gated = gate;
+  const next = encodeURIComponent(`/self-assessment?start=${gate?.key || ""}`);
 
   return (
     <div id="__next">
       <Head>
         <title>{TITLE}</title>
         <meta name="description" content={DESC} />
-        <meta name="keywords" content="mental health self assessment, PHQ-9 test online, GAD-7 anxiety test, depression test India, PCL-5 PTSD test, sleep check, Big Five personality test, psychologist India" />
+        <meta name="keywords" content="mental health self assessment, PHQ-9 test online, GAD-7 anxiety test, depression test India, PCL-5 PTSD test, DASS-21 test, K10, EPDS postnatal depression test, AUDIT alcohol test, adult ADHD test, burnout test, self-esteem test, Big Five personality test, psychologist India" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <link rel="canonical" href={PAGE_URL} />
 
@@ -98,18 +97,19 @@ export default function SelfAssessment() {
       <MyNavbar />
       <SelfAssessmentBanner />
 
-      {selectedAssessment ? (
-        <AssessmentForm assessmentId={selectedAssessment} onBack={() => setSelectedAssessment(null)} />
+      {selected ? (
+        <AssessmentForm key={selected.key} test={selected} onBack={() => setSelected(null)} />
       ) : (
-        <AssessmentCards onSelectAssessment={handleSelectAssessment} />
+        <AssessmentCards onStart={start} onLicensed={setLicensed} />
       )}
+      {licensed && <LicensedModal test={licensed} onClose={() => setLicensed(null)} />}
 
       {gated && (
         <div className="sag-wrap" onClick={(e) => { if (e.target === e.currentTarget) setGate(null); }}>
           <div className="sag" role="dialog" aria-modal="true" aria-labelledby="sag-h">
             <button type="button" className="sag-x" onClick={() => setGate(null)} aria-label="Close">×</button>
             <span className="sag-ic" aria-hidden="true">🔒</span>
-            <h2 id="sag-h">Log in to take the {gated.title}</h2>
+            <h2 id="sag-h">Log in to take the {gated.title} ({gated.short})</h2>
             <p>It takes a few seconds with just your email. We save your result privately so you can see how you&apos;re doing over time — and share it with your psychologist if you want to.</p>
             <ul>
               <li>✓ Only your score is saved, never your answers</li>

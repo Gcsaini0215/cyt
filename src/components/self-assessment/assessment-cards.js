@@ -1,91 +1,111 @@
-import React from "react";
+import React, { useState } from "react";
+import { FREE_TESTS, LICENSED_TESTS, CATEGORIES } from "./tests";
 
-export const assessments = [
-  { id: 1, icon: "feather-moon", title: "Depression Screening", short: "PHQ-9", description: "The 9-question check doctors and psychologists use worldwide for low mood and depression.", questions: 9, duration: "2–3 min", age: "Ages 13+", color: "#3b82f6", by: "Kroenke, Spitzer & Williams, 2001" },
-  { id: 2, icon: "feather-wind", title: "Anxiety Screening", short: "GAD-7", description: "The standard 7-question check for worry, nervousness and restlessness.", questions: 7, duration: "2 min", age: "Ages 13+", color: "#f59e0b", by: "Spitzer et al., 2006" },
-  { id: 3, icon: "feather-sunset", title: "Sleep Check", short: "Insomnia", description: "How much trouble falling asleep, staying asleep or waking early is affecting your days.", questions: 7, duration: "2 min", age: "Ages 18+", color: "#8b5cf6", by: "Standard insomnia symptoms" },
-  { id: 4, icon: "feather-shield", title: "Trauma & Stress Checklist", short: "PCL-5", description: "Screens for post-traumatic stress symptoms after a frightening or distressing event.", questions: 20, duration: "5–7 min", age: "Ages 18+", color: "#ef4444", by: "Weathers et al., US National Center for PTSD, 2013" },
-  { id: 5, icon: "feather-user", title: "Personality Profile", short: "Big Five", description: "See where you sit on openness, conscientiousness, extraversion, agreeableness and emotional sensitivity.", questions: 50, duration: "8–10 min", age: "Ages 14+", color: "#16a34a", by: "IPIP-50, Goldberg 1992" },
-];
+/* The list on /self-assessment: free checks (taken right here) by topic, and copyrighted ones that
+   are taken with a licensed psychologist. */
 
-export default function AssessmentCards({ onSelectAssessment }) {
+export default function AssessmentCards({ onStart, onLicensed }) {
+  const [cat, setCat] = useState("All");
+  const shown = FREE_TESTS.filter((t) => cat === "All" || t.category === cat);
+  const cats = CATEGORIES.filter((c) => c === "All" || FREE_TESTS.some((t) => t.category === c));
+
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        .sa-section { background: #f8fafc; padding: 52px 0; }
-        .sa-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; display: flex; align-items: center; gap: 20px; padding: 20px 24px; transition: box-shadow .2s, border-color .2s; cursor: pointer; }
-        .sa-row:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); border-color: #cbd5e1; }
-        .sa-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-        .sa-info { flex: 1; min-width: 0; }
-        .sa-title { font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 3px; }
-        .sa-desc { font-size: 13px; color: #64748b; margin: 0; line-height: 1.5; }
-        .sa-by { font-size: 11.5px; color: #94a3b8; margin: 3px 0 0; font-weight: 600; }
-        .sa-meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-        .sa-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 50px; white-space: nowrap; }
-        .sa-btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; color: #fff; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: opacity .2s; }
-        .sa-btn:hover { opacity: .85; }
-        @media (max-width: 767px) {
-          .sa-section { padding: 32px 0; }
-          .sa-row { flex-wrap: wrap; gap: 14px; padding: 16px; }
-          .sa-meta { justify-content: flex-start; }
-          .sa-btn { width: 100%; justify-content: center; }
-        }
-      ` }} />
-
-      <div className="sa-section">
-        <div className="container">
-
-          <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <span style={{
-              display: "inline-block", fontSize: 11, fontWeight: 800, color: "#16a34a",
-              letterSpacing: 1.4, textTransform: "uppercase", background: "#dcfce7",
-              padding: "5px 14px", borderRadius: 50, marginBottom: 12,
-            }}>Choose Your Assessment</span>
-            <h2 style={{ fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>
-              What Would You Like to Explore?
-            </h2>
-            <p style={{ fontSize: 14, color: "#64748b", margin: 0, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-              Standard screening questionnaires used by psychologists. Your results are saved privately to your account so you can see how you change over time.
-            </p>
+      <style dangerouslySetInnerHTML={{ __html: SAC_CSS }} />
+      <section className="sac" aria-labelledby="sac-h">
+        <div className="sac-in">
+          <div className="sac-head">
+            <span className="sac-kick">Free self-checks</span>
+            <h2 id="sac-h">What would you like to check?</h2>
+            <p>Published screening questionnaires, word for word, with their original scoring — the same ones psychologists use. Each shows its research reference.</p>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {assessments.map((a) => (
-              <div key={a.id} className="sa-row" onClick={() => onSelectAssessment(a.id)}>
-
-                {/* Icon */}
-                <div className="sa-icon" style={{ background: `${a.color}18`, color: a.color }}>
-                  <i className={a.icon}></i>
-                </div>
-
-                {/* Title + desc */}
-                <div className="sa-info">
-                  <div className="sa-title">
-                    {a.title}
-                    <span style={{ fontSize: 11, fontWeight: 700, color: a.color, marginLeft: 8 }}>{a.short}</span>
-                  </div>
-                  <p className="sa-desc">{a.description}</p>
-                  <p className="sa-by">Developed by: {a.by}</p>
-                </div>
-
-                {/* Chips */}
-                <div className="sa-meta">
-                  <span className="sa-chip" style={{ background: `${a.color}14`, color: a.color }}>{a.questions} Qs</span>
-                  <span className="sa-chip" style={{ background: "#f1f5f9", color: "#475569" }}>{a.duration}</span>
-                  <span className="sa-chip" style={{ background: "#f1f5f9", color: "#475569" }}>{a.age}</span>
-                </div>
-
-                {/* Button */}
-                <button className="sa-btn" style={{ background: a.color }} onClick={(e) => { e.stopPropagation(); onSelectAssessment(a.id); }}>
-                  Start <i className="feather-arrow-right" style={{ fontSize: 13 }}></i>
-                </button>
-
-              </div>
+          <div className="sac-cats" role="tablist" aria-label="Topics">
+            {cats.map((c) => (
+              <button key={c} type="button" role="tab" aria-selected={cat === c} className={cat === c ? "on" : ""} onClick={() => setCat(c)}>{c}</button>
             ))}
           </div>
 
+          <div className="sac-grid">
+            {shown.map((t) => (
+              <article key={t.key} className="sac-card" style={{ "--c": t.color }}>
+                <div className="sac-top">
+                  <span className="sac-ic"><i className={t.icon} aria-hidden="true" /></span>
+                  <div>
+                    <h3>{t.title}</h3>
+                    <span className="sac-short">{t.short}</span>
+                  </div>
+                </div>
+                <p className="sac-blurb">{t.blurb}</p>
+                <div className="sac-chips">
+                  <span>{t.questions.length} questions</span><span>{t.time}</span><span>{t.age}</span>
+                </div>
+                <p className="sac-by">Developed by: {t.by}</p>
+                <button type="button" className="sac-btn" onClick={() => onStart(t)}>Start <i className="feather-arrow-right" aria-hidden="true" /></button>
+              </article>
+            ))}
+          </div>
+
+          <div className="sac-head lic">
+            <span className="sac-kick gold">With a licensed psychologist</span>
+            <h2>Clinical questionnaires</h2>
+            <p>These are copyrighted, so they can&apos;t be filled in online here. A psychologist who holds the licence gives them to you in a session and explains your score with you.</p>
+          </div>
+          <div className="sac-grid">
+            {LICENSED_TESTS.map((t) => (
+              <article key={t.key} className="sac-card lic" style={{ "--c": t.color }}>
+                <div className="sac-top">
+                  <span className="sac-ic"><i className={t.icon} aria-hidden="true" /></span>
+                  <div>
+                    <h3>{t.title}</h3>
+                    <span className="sac-short">{t.short} · 🔒 licensed</span>
+                  </div>
+                </div>
+                <p className="sac-blurb">{t.measures}</p>
+                <p className="sac-by">{t.holder}</p>
+                <button type="button" className="sac-btn ghost" onClick={() => onLicensed(t)}>Take with a psychologist</button>
+              </article>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }
+
+const SAC_CSS = `
+.sac { background: #f6f8f7; padding: 44px 0 52px; }
+.sac-in { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.sac-head { text-align: center; max-width: 640px; margin: 0 auto 18px; }
+.sac-head.lic { margin-top: 44px; }
+.sac-kick { display: inline-block; font-size: 11px; font-weight: 800; color: #16a34a; letter-spacing: 1.2px; text-transform: uppercase; background: #dcfce7; padding: 5px 14px; border-radius: 999px; }
+.sac-kick.gold { color: #92400e; background: #fef3c7; }
+.sac-head h2 { margin: 10px 0 6px; font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: #0f172a; font-family: inherit; }
+.sac-head p { margin: 0; font-size: 14px; color: #64748b; line-height: 1.6; }
+.sac-cats { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; margin-bottom: 8px; scrollbar-width: none; justify-content: center; flex-wrap: wrap; }
+.sac-cats::-webkit-scrollbar { display: none; }
+.sac-cats button { flex-shrink: 0; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #dfe7e2; background: #fff; color: #475569; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+.sac-cats button.on { background: #166534; border-color: #166534; color: #fff; }
+.sac-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.sac-card { background: #fff; border: 1px solid #e3eae6; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: box-shadow .2s, border-color .2s; }
+.sac-card:hover { border-color: color-mix(in srgb, var(--c) 40%, #e3eae6); box-shadow: 0 12px 28px -20px rgba(15,23,42,.4); }
+.sac-top { display: flex; gap: 12px; align-items: center; }
+.sac-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-size: 19px; flex-shrink: 0; background: color-mix(in srgb, var(--c) 12%, #fff); color: var(--c); }
+.sac-card h3 { margin: 0; font-size: 15.5px; font-weight: 800; color: #0f172a; line-height: 1.3; font-family: inherit; }
+.sac-short { font-size: 12px; font-weight: 800; color: var(--c); }
+.sac-blurb { margin: 0; font-size: 13.5px; color: #475569; line-height: 1.55; }
+.sac-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sac-chips span { font-size: 11.5px; font-weight: 700; color: #475569; background: #f1f5f4; border-radius: 999px; padding: 3px 9px; }
+.sac-by { margin: 0; font-size: 11.5px; color: #94a3b8; font-weight: 600; line-height: 1.45; }
+.sac-btn { margin-top: auto; height: 42px; border-radius: 11px; border: 0; background: var(--c); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.sac-btn.ghost { background: #fff; color: #166534; border: 1.5px solid #cfe3d6; }
+.sac-btn.ghost:hover { background: #f0fdf4; }
+.sac-card.lic { background: #fffdf7; border-color: #f1e7cf; }
+@media (max-width: 991px) { .sac-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  .sac { padding: 28px 0 36px; }
+  .sac-in { padding: 0 16px; }
+  .sac-grid { grid-template-columns: 1fr; gap: 10px; }
+  .sac-cats { justify-content: flex-start; flex-wrap: nowrap; }
+}
+`;

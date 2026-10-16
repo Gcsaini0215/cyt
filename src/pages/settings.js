@@ -3,6 +3,7 @@ import Profile from "../components/therapists/settings/profile";
 import PaymentDetails from "../components/therapists/settings/payment-details";
 import ServicesAndExperties from "../components/therapists/settings/services-and-experties";
 import Account from "../components/therapists/settings/account";
+import Licences from "../components/therapists/settings/licences";
 import { STG_CSS, profileChecks, toList, langLabels } from "../components/therapists/settings/settings-ui";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
@@ -27,11 +28,13 @@ import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
+import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 
 const TABS = [
   { id: "profile", label: "Profile", Icon: PersonRoundedIcon },
   { id: "offerings", label: "Offerings", Icon: SpaRoundedIcon },
   { id: "payments", label: "Payments", Icon: AccountBalanceWalletRoundedIcon },
+  { id: "licences", label: "Licences", Icon: FactCheckRoundedIcon },
   { id: "account", label: "Account", Icon: ShieldRoundedIcon },
 ];
 const LEAVE_MSG = "You have unsaved changes. Leave without saving?";
@@ -155,6 +158,7 @@ export default function ProfileSettings() {
           {tab === "profile" && <Profile onDirty={onDirty} />}
           {tab === "offerings" && <ServicesAndExperties onDirty={onDirty} />}
           {tab === "payments" && <PaymentDetails onDirty={onDirty} />}
+          {tab === "licences" && <Licences />}
           {tab === "account" && <Account />}
         </div>
       </div>
