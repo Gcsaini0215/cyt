@@ -55,7 +55,7 @@ export default function PreSessionForms({ compact = false }) {
                 <b>{r.name}</b>
                 <span>{r.therapist}{r.booking_date ? ` · session ${when(r.booking_date)}` : ""}</span>
               </div>
-              <span className="psf-chip">{r.status === "sent" ? "To fill" : r.status === "done" ? "Filled ✓" : "Result shared"}</span>
+              <span className={`psf-chip${r.status === "sent" && !r.formUrl ? " live" : ""}`}>{r.status === "sent" ? (r.formUrl ? "To fill" : "In your session") : r.status === "done" ? "Filled ✓" : "Result shared"}</span>
             </div>
 
             {r.status === "sent" && (
@@ -66,8 +66,8 @@ export default function PreSessionForms({ compact = false }) {
                     <a href={r.formUrl} target="_blank" rel="noopener noreferrer" className="psf-btn">Open the questionnaire ↗</a>
                     <button type="button" className="psf-btn ghost" onClick={() => done(r._id)} disabled={busy === r._id}>{busy === r._id ? "Saving…" : "I've filled it"}</button>
                   </div>
-                ) : <p className="psf-ins">{r.therapist} will take you through it at the start of your session — nothing to do now.</p>}
-                <p className="psf-small">🔒 Your score goes only to your psychologist, who will go through it with you in the session.</p>
+                ) : <p className="psf-ins">Nothing to fill now — {r.therapist} will ask you these questions at the start of your session.</p>}
+                <p className="psf-small">Your answers and score are shared only with {r.therapist}, who will explain them to you in the session.</p>
               </>
             )}
             {r.status === "done" && <p className="psf-ins">Thank you. {r.therapist} will go through your score with you in the session.</p>}
@@ -95,6 +95,7 @@ const PSF_CSS = `
 .psf-top b { display: block; font-size: 14.5px; color: #0f172a; } .psf-top span { display: block; font-size: 12.5px; color: #64748b; margin-top: 2px; }
 .psf-chip { flex-shrink: 0; font-size: 11.5px !important; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #e7f6ec; color: #166534 !important; margin: 0 !important; }
 .psf-row.sent .psf-chip { background: #fef3c7; color: #92400e !important; }
+.psf-row.sent .psf-chip.live { background: #e0f2fe; color: #0369a1 !important; }
 .psf-ins { margin: 8px 0 0; font-size: 13.5px; color: #475569; line-height: 1.55; }
 .psf-small { margin: 8px 0 0; font-size: 12px; color: #64748b; }
 .psf-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
