@@ -53,6 +53,9 @@
 - [Wellness toolkit](https://www.chooseyourtherapist.in/wellness-toolkit): guided breathing, 5-4-3-2-1 grounding, a 30-second panic SOS, mood check-in, gratitude jar, calming sounds; entries stay on the visitor's device
 - [Self-assessment](https://www.chooseyourtherapist.in/self-assessment)
 
+## Blog
+- [Mental health blog](https://www.chooseyourtherapist.in/blogs): articles on anxiety, depression, OCD, stress, relationships, trauma, self-care and therapy in India, written or reviewed by verified psychologists
+- [Full article index](https://www.chooseyourtherapist.in/api/llms-blogs.txt): every article with its topic, date, summary and link (always current)
+
 ## Optional
-- [Blog](https://www.chooseyourtherapist.in/blogs)
 - [Privacy policy](https://www.chooseyourtherapist.in/privacy-policy)
