@@ -74,6 +74,7 @@ export default function AvailabilityGrid({ onSuccess }) {
   const [loading, setLoading] = useState(false);
   const drag = useRef(null); // { add: boolean } while painting with mouse / finger
   const lastTouch = useRef(0); // phones fire a mouse event after a touch — ignore it
+  const touch = useRef(null);   // phones: where a touch began, so a swipe scrolls and only a tap toggles
 
   useEffect(() => {
     if (!inited && therapistInfo?.user?.email) {
@@ -115,12 +116,20 @@ export default function AvailabilityGrid({ onSuccess }) {
     setCell(day, h, add);
   };
   const dragOver = (day, h) => { if (drag.current) setCell(day, h, drag.current.add); };
-  const onTouchMove = (e) => {
-    if (!drag.current) return;
+  // phones: swiping scrolls the table (all seven days); a tap that didn't move switches one box
+  const onCellTouchStart = (e) => {
+    lastTouch.current = Date.now();
     const t = e.touches[0];
-    const el = document.elementFromPoint(t.clientX, t.clientY);
-    const d = el?.dataset?.day, h = el?.dataset?.hour;
-    if (d && h) setCell(d, Number(h), drag.current.add);
+    touch.current = { x: t.clientX, y: t.clientY, moved: false };
+  };
+  const onTouchMove = (e) => {
+    const t = e.touches[0];
+    if (touch.current && (Math.abs(t.clientX - touch.current.x) > 8 || Math.abs(t.clientY - touch.current.y) > 8)) touch.current.moved = true;
+  };
+  const onCellTouchEnd = (e, day, h, on) => {
+    lastTouch.current = Date.now();
+    if (touch.current && !touch.current.moved) { e.preventDefault(); setCell(day, h, !on); }
+    touch.current = null;
   };
 
   const toggleDay = (day) => {
@@ -168,7 +177,7 @@ export default function AvailabilityGrid({ onSuccess }) {
         .avg-tools .danger { color: #b91c1c; border-color: #fecaca; }
         .avg-count { margin-left: auto; font-size: 13px; font-weight: 700; color: #475569; }
         .avg-note { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; border-radius: 10px; padding: 9px 12px; font-size: 12.5px; margin-bottom: 12px; }
-        .avg-wrap { overflow-x: auto; border: 1px solid #e3ebe6; border-radius: 12px; user-select: none; -webkit-user-select: none; touch-action: pan-y; }
+        .avg-wrap { overflow-x: auto; border: 1px solid #e3ebe6; border-radius: 12px; user-select: none; -webkit-user-select: none; touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; }
         .avg-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 620px; }
         .avg-table th { position: sticky; top: 0; z-index: 1; background: #f6faf7; padding: 8px 4px; border-bottom: 1px solid #e3ebe6; }
         .avg-day { width: 100%; border: none; background: none; cursor: pointer; font-family: inherit; font-size: 12.5px; font-weight: 800; color: #0f3d24; padding: 2px 0; }
@@ -176,6 +185,15 @@ export default function AvailabilityGrid({ onSuccess }) {
         .avg-time { border: none; background: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; padding: 0 10px; width: 100%; text-align: left; }
         .avg-table td { padding: 2px; border-bottom: 1px solid #f3f6f4; }
         .avg-table td.t { width: 78px; background: #fbfdfc; }
+        /* the time column stays put while the days slide */
+        .avg-table td.t, .avg-table thead th:first-child { position: sticky; left: 0; z-index: 2; box-shadow: 1px 0 0 #e3ebe6; }
+        .avg-table thead th:first-child { z-index: 3; background: #f6faf7; }
+        .avg-swipe { display: none; }
+        @media (max-width: 767px) {
+          .avg-swipe { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 12.5px; color: #64748b; font-weight: 600; }
+          .avg-table { min-width: 560px; }
+          .avg-table td.t { width: 64px; } .avg-time { padding: 0 6px; font-size: 11.5px; }
+        }
         .avg-cell { height: 34px; border-radius: 7px; border: 1.5px dashed #d8e4dc; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: transparent; transition: background .1s; }
         .avg-cell:hover { border-color: #86efac; }
         .avg-cell.on { background: #1a6b3a; border: 1.5px solid #1a6b3a; color: #fff; }
@@ -199,6 +217,7 @@ export default function AvailabilityGrid({ onSuccess }) {
         </div>
       )}
 
+      <p className="avg-swipe">↔ Swipe sideways to see all 7 days · tap a box to switch that hour on or off</p>
       <div className="avg-wrap" onTouchMove={onTouchMove}>
         <table className="avg-table">
           <thead>
@@ -230,7 +249,8 @@ export default function AvailabilityGrid({ onSuccess }) {
                         data-day={d} data-hour={h}
                         onMouseDown={(e) => { e.preventDefault(); if (Date.now() - lastTouch.current > 800) startDrag(d, h); }}
                         onMouseEnter={() => dragOver(d, h)}
-                        onTouchStart={() => { lastTouch.current = Date.now(); startDrag(d, h); }}
+                        onTouchStart={onCellTouchStart}
+                        onTouchEnd={(e) => onCellTouchEnd(e, d, h, on)}
                         onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); setCell(d, h, !on); } }}
                       >
                         {on ? "✓" : ""}
