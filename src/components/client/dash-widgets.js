@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { printInvoice } from "../../utils/invoice-template";
+import SessionTicket from "./session-ticket";
 import { fmtWhen, therapistName, therapistPhoto } from "./session-card";
 import { bookAgainPath, nextSameSlot } from "./dash-cards";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
@@ -183,6 +183,7 @@ export function BreathCard() {
 
 /* #4 — recent sessions */
 export function RecentSessions({ bookings, now }) {
+  const [ticket, setTicket] = useState(null);
   const past = (bookings || [])
     .filter((b) => b.status !== "Cancelled" && b.therapist?._id && (done(b) || new Date(b.booking_date).getTime() < now - 90 * 60000))
     .sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date))
@@ -200,13 +201,14 @@ export function RecentSessions({ bookings, now }) {
             <span className="dw-av">{photo ? <img src={photo} alt="" /> : name.charAt(0)}</span>
             <div className="dw-row-txt"><b>{name}</b><span>{fmtWhen(b.booking_date)}{amount ? ` · ₹${amount.toLocaleString("en-IN")}` : ""}</span></div>
             <button type="button" className="dw-ic" title="Invoice" aria-label="Download invoice"
-              onClick={() => printInvoice(b, b.therapist ? { user: b.therapist.user, profile_code: b.therapist.profile_code } : null)}>
+              onClick={() => setTicket(b)}>
               <ReceiptLongRoundedIcon />
             </button>
             <Link href={bookAgainPath(b, nextSameSlot(b, now))} className="dw-ic go" title="Book again" aria-label={`Book again with ${name}`}><ArrowForwardRoundedIcon /></Link>
           </div>
         );
       })}
+      {ticket && <SessionTicket b={ticket} onClose={() => setTicket(null)} />}
     </div>
   );
 }

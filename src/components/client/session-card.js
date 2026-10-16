@@ -5,7 +5,7 @@ import { imagePath } from "../../utils/url";
 import { profilePath } from "../../utils/therapist-slug";
 import { joinSession } from "../../utils/join-session";
 import { sessionWindow, opensAtText } from "../../utils/session-window";
-import { printInvoice } from "../../utils/invoice-template";
+import SessionTicket from "./session-ticket";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
@@ -75,6 +75,7 @@ export function BookingSteps({ state }) {
 }
 
 export default function SessionCard({ b, now, compact }) {
+  const [ticket, setTicket] = React.useState(false);
   const st = bookingState(b, now);
   const photo = therapistPhoto(b);
   const name = therapistName(b);
@@ -119,11 +120,12 @@ export default function SessionCard({ b, now, compact }) {
           <Link href={therapistLink(b)} className="csc-btn soft"><ReplayRoundedIcon /> Book again</Link>
         )}
         {!compact && amount > 0 && st.paid && (
-          <button type="button" className="csc-btn ghost" onClick={() => printInvoice(b, b.therapist ? { user: b.therapist.user, profile_code: b.therapist.profile_code } : null)}>
+          <button type="button" className="csc-btn ghost" onClick={() => setTicket(true)}>
             <ReceiptLongRoundedIcon /> Invoice
           </button>
         )}
       </div>
+      {ticket && <SessionTicket b={b} onClose={() => setTicket(false)} />}
     </article>
   );
 }
