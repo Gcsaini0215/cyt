@@ -104,7 +104,7 @@ export default function AssessmentReport() {
           <div className="rp-conf">Confidential · for the client and the treating psychologist only</div>
           <div className="rp-titlebar">
             <h1>{test.full}</h1>
-            <span className={`rp-status${released ? " ok" : ""}`}>{released ? "Approved by psychologist" : "Draft — not released"}</span>
+            {!released && <span className="rp-status">Draft — not released</span>}
           </div>
 
           {/* ── client box ── */}
