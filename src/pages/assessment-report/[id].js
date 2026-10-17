@@ -75,6 +75,7 @@ export default function AssessmentReport() {
     <div className="rp-page">
       <Head><title>{test ? `${test.short} report` : "Assessment report"} | Choose Your Therapist</title><meta name="robots" content="noindex" /></Head>
       <style dangerouslySetInnerHTML={{ __html: RP_CSS }} />
+      {rep && <style dangerouslySetInnerHTML={{ __html: pageCss(rep) }} />}
       <div className="rp-bar no-print">
         <Link href={isT ? "/therapist-questionnaires" : "/client/check-ins"}>← Back</Link>
         {rep && <button type="button" onClick={() => window.print()}>Print / Save PDF</button>}
@@ -331,6 +332,19 @@ export default function AssessmentReport() {
   );
 }
 
+// printed page margins: our own footer (report no. + release date + page x of y). Defining margin
+// boxes also stops the browser printing its own header / footer (page URL, date).
+const cssStr = (v) => `"${String(v || "").replace(/["\\\n]/g, " ")}"`;
+function pageCss(rep) {
+  const rel = rep.releasedAt ? `Released ${new Date(rep.releasedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })}` : "Draft — not released";
+  const box = "font-family: Inter, Arial, sans-serif; font-size: 8.5pt; color: #6b7280;";
+  return `@media print { @page {
+    @top-left { content: ""; } @top-center { content: ""; } @top-right { content: ""; }
+    @bottom-left { content: ${cssStr(`Choose Your Therapist · Report No. ${rep.reportNo} · ${rel}`)}; width: 78%; ${box} }
+    @bottom-right { content: "Page " counter(page) " of " counter(pages); width: 22%; ${box} }
+  } }`;
+}
+
 const RP_CSS = `
 .rp-page { min-height: 100vh; background: #eceeed; padding: 0 16px 40px; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1f2937; }
 .rp-page p { font-size: inherit; }
@@ -477,7 +491,7 @@ const RP_CSS = `
 .rp-signer-row b { display: block; font-size: 13px; color: #111827; margin-top: 1px; }
 .rp-signer-row img { display: block; max-height: 34px; max-width: 140px; object-fit: contain; margin-top: 2px; }
 .rp-signer a { font-size: 12px; font-weight: 700; color: #1d4ed8 !important; }
-@media (max-width: 700px) { .rp-signer-row { grid-template-columns: 1fr; } }
+@media screen and (max-width: 700px) { .rp-signer-row { grid-template-columns: 1fr; } }
 
 /* footer */
 .rp-foot { margin-top: 18px; border-top: 2px solid #14532d; padding-top: 10px; }
@@ -510,7 +524,7 @@ const RP_CSS = `
 .rp-foot { background: #f9fafb; border: 1px solid #e5e7eb; border-top: 2px solid #14532d; padding: 12px 14px; }
 .rp-use div { background: #fff; }
 
-@media (max-width: 700px) {
+@media screen and (max-width: 700px) {
   .rp-sheet { padding: 18px 16px; }
   .rp-doc { text-align: left; }
   .rp-client { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -537,5 +551,31 @@ const RP_CSS = `
   .rp-sheet, .rp-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
   .rp-items tr, .rp-sign, .rp-foot, .rp-result, .rp-client { break-inside: avoid; }
+  /* compact type + even columns on A4 */
+  .rp-sheet { font-size: 11px; }
+  .rp-head { display: grid !important; grid-template-columns: 1fr auto; align-items: center; padding-bottom: 10px; }
+  .rp-logo { width: 46px; height: 46px; } .rp-brand b { font-size: 16px; } .rp-brand span { font-size: 9.5px; }
+  .rp-doc { text-align: right; } .rp-doc b { font-size: 11px; } .rp-doc span { font-size: 9.5px; }
+  .rp-titlebar { padding: 10px 0 8px; } .rp-titlebar h1 { font-size: 16px; }
+  .rp-info { padding: 8px 12px; gap: 3px 20px; margin-bottom: 10px; }
+  .rp-info dl div { grid-template-columns: 92px 1fr; font-size: 10.5px; gap: 6px; }
+  .rp-sheet h2 { font-size: 10px; padding: 4px 8px; margin-bottom: 6px; }
+  .rp-sec { margin-bottom: 10px; }
+  .rp-lab, .rp-bands, .rp-prog, .rp-items table { font-size: 10.5px; }
+  .rp-lab th, .rp-items th, .rp-prog th { font-size: 9px; padding: 4px 6px; }
+  .rp-lab td, .rp-bands td, .rp-prog td, .rp-items td { padding: 3px 6px; }
+  .rp-lab td.m { white-space: nowrap; }
+  .rp-items td:nth-child(3) { width: 30%; } .rp-items td:last-child { width: 44px; }
+  .rp-result { padding: 8px 12px; margin-bottom: 10px; } .rp-result p { font-size: 11.5px; margin-top: 3px; line-height: 1.45; }
+  .rp-about { gap: 10px; } .rp-about p, .rp-sheet .rp-meta-line, .rp-intro { font-size: 10.5px; }
+  .rp-notes-grid { gap: 6px 12px; } .rp-notes-grid dd { font-size: 11px; }
+  .rp-end { margin: 12px 0 2px; }
+  .rp-sign { display: grid !important; grid-template-columns: 78px minmax(0, 1fr) 230px; gap: 16px; align-items: end; }
+  .rp-qr { grid-column: 1; } .rp-ref { grid-column: 2; } .rp-sig { grid-column: 3; }
+  .rp-qr img { width: 74px; height: 74px; } .rp-qr span { font-size: 8.5px; }
+  .rp-ref p { font-size: 9px; line-height: 1.4; }
+  .rp-sig-img { max-height: 46px; } .rp-sig .rp-sig-name { font-size: 12.5px; } .rp-sig > span { font-size: 10px; }
+  .rp-terms { gap: 10px; padding-top: 8px; } .rp-terms li { font-size: 9.5px; margin-bottom: 1px; }
+  .rp-foot { margin-top: 10px; padding: 8px 12px; } .rp-foot p, .rp-use div { font-size: 9.5px; }
 }
 `;
