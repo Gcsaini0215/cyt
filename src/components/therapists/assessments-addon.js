@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { setAssessmentsUpgrade } from "./nav-extras";
-import AddonWizard from "./addon-wizard";
+import SignaturePad from "./signature-pad";
 
-/* "Add-on & details" tab of the Assessments page: the yearly Clinical Assessments add-on (bought on
+/* "Add-on & details" tab of the Assessments page: the 6-month Clinical Assessments add-on (bought on
    Razorpay, priced by CYT in the admin panel), the details CYT verifies, and the fee split. */
 
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
@@ -25,14 +25,12 @@ export default function AssessmentsAddon({ onChange }) {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: "", err: false });
-  const [wizard, setWizard] = useState(false);
+  const [f, setF] = useState({ qual: "", reg: "", noReg: false, sig: "" });
+  const [saving, setSaving] = useState(false);
+  const [fmsg, setFmsg] = useState({ text: "", err: false });
 
-  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); if (r?.data?.assessments) setAssessmentsUpgrade(!r.data.assessments.active); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
-  useEffect(() => {
-    load();
-    // /therapist-questionnaires?buy=1 (from the dashboard To-do) opens the buy form straight away
-    try { if (new URLSearchParams(window.location.search).get("buy")) setWizard(true); } catch (e) { /* ignore */ }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); const d = r?.data; if (d) setF({ qual: d.assessments?.credential || d.profile?.qualification || "", reg: d.assessments?.regNo || d.profile?.licenseNumber || "", noReg: !!d.assessments?.noRegNo, sig: d.assessments?.signature || "" }); if (r?.data?.assessments) setAssessmentsUpgrade(!r.data.assessments.active); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buy = async () => {
     setBusy(true); setMsg({ text: "", err: false });
@@ -43,7 +41,7 @@ export default function AssessmentsAddon({ onChange }) {
       if (!(await loadRazorpay())) throw new Error("Couldn't load the payment window. Check your connection.");
       const rzp = new window.Razorpay({
         key: o.data.keyId, amount: Math.round(o.data.amount * 100), currency: "INR", order_id: o.data.orderId,
-        name: "Choose Your Therapist", description: "Clinical Assessments add-on — 1 year", theme: { color: "#0f3d24" },
+        name: "Choose Your Therapist", description: "Clinical Assessments add-on — 6 months", theme: { color: "#0f3d24" },
         handler: async (resp) => {
           try {
             const v = await postData(`${apiUrl}/therapist-addon/verify`, resp);
@@ -65,11 +63,24 @@ export default function AssessmentsAddon({ onChange }) {
   const hasId = (x) => !!(x && (x.regNo || (x.noRegNo && x.credential)));
   const listed = a && a.active && a.verified && hasId(a);
   const share = data?.therapistShare ?? 0.3;
+  const sent = !!(a && hasId(a) && a.signature);
+  const changed = !!(a && (f.qual.trim() !== (a.credential || "") || (f.noReg ? "" : f.reg.trim()) !== (a.regNo || "") || f.noReg !== !!a.noRegNo || f.sig !== (a.signature || "")));
+  const valid = f.qual.trim().length >= 2 && !!f.sig && (f.noReg || f.reg.trim().length >= 3);
+  const saveDetails = async () => {
+    if (!valid || saving) return;
+    setSaving(true); setFmsg({ text: "", err: false });
+    try {
+      const d = await postData(`${apiUrl}/therapist-addon/details`, { credential: f.qual.trim(), regNo: f.noReg ? "" : f.reg.trim(), noRegNo: f.noReg, signature: f.sig });
+      if (!d?.status) throw new Error(d?.message);
+      setFmsg({ text: d.message || "Saved — sent to CYT for verification.", err: false });
+      await load();
+    } catch (e) { setFmsg({ text: e?.response?.data?.message || e.message || "Couldn't save — please try again.", err: true }); }
+    setSaving(false);
+  };
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: AA_CSS }} />
-      {wizard && <AddonWizard onClose={() => setWizard(false)} onDone={load} />}
       <section className="pt-card aa-card" id="addon">
         <div className="aa-head">
           <h2>Clinical Assessments add-on</h2>
@@ -88,27 +99,42 @@ export default function AssessmentsAddon({ onChange }) {
                 <span>{!a.active ? "Clients can't add assessments to bookings with you yet." : listed ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : `Valid till ${fmtDate(a.till)} · clients will see you once CYT has verified your details${hasId(a) && a.signature ? "" : " — add them below"}`}</span>
               </div>
               <div className="aa-price">
-                {a.offer && <s>{inr(a.fee)}</s>} <strong>{a.price === 0 ? "Free" : inr(a.price)}</strong><small>/year</small>
+                {a.offer && <s>{inr(a.fee)}</s>} <strong>{a.price === 0 ? "Free" : inr(a.price)}</strong><small>/6 months</small>
                 {a.offer && a.offerLabel && <em>{a.offerLabel}</em>}
               </div>
               {a.active
-                ? <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : "Extend 1 year"}</button>
-                : <button type="button" className="aa-btn" onClick={() => setWizard(true)} disabled={busy}>{a.price === 0 ? "Activate free" : "Buy add-on"}</button>}
+                ? <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : "Extend 6 months"}</button>
+                : <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : a.price === 0 ? "Activate free" : "Buy add-on"}</button>}
             </div>
 
-            {(a.active || hasId(a)) && (
-              <div className="aa-sum">
-                <div className="aa-sum-items">
-                  <div><span>Qualification</span><b>{a.credential || data.profile?.qualification || "—"}</b></div>
-                  <div><span>RCI licence / reg. no.</span><b>{a.regNo || (a.noRegNo ? "Not registered" : "—")}</b></div>
-                  <div><span>Signature</span>{a.signature ? <img src={a.signature} alt="Your signature" /> : <b>—</b>}</div>
-                </div>
-                <div className="aa-sum-foot">
-                  <small className={a.verified ? "ok" : ""}>{!hasId(a) || !a.signature ? "Details not sent yet." : a.verified ? "✓ Verified by CYT" : "Sent — waiting for CYT to verify (usually within a working day)."}</small>
-                  <button type="button" className="aa-link" onClick={() => setWizard(true)}>{hasId(a) && a.signature ? "Edit details" : "Add details"}</button>
-                </div>
+            <div className="aa-form">
+              <div className="aa-form-h">
+                <b>Your details for reports</b>
+                <span className={`aa-st${a.verified && !changed ? " ok" : ""}`}>{!sent ? "Not sent yet" : changed ? "Unsaved changes" : a.verified ? "✓ Verified by CYT" : "Sent · waiting for CYT to verify"}</span>
               </div>
-            )}
+              <p className="aa-form-p">Printed on every report you release. CYT checks them before clients can book assessments with you — any change is checked again.</p>
+              <div className="aa-grid">
+                <label className="aa-fld">
+                  <span>Qualification</span>
+                  <input value={f.qual} maxLength={160} onChange={(e) => setF({ ...f, qual: e.target.value })} placeholder="e.g. M.Phil Clinical Psychology, AIIMS" disabled={saving} />
+                  {data.profile?.qualification && f.qual.trim() === data.profile.qualification && <small>from your profile</small>}
+                </label>
+                <label className="aa-fld">
+                  <span>RCI licence / registration no.</span>
+                  <input value={f.noReg ? "" : f.reg} maxLength={60} onChange={(e) => setF({ ...f, reg: e.target.value })} placeholder={f.noReg ? "Not registered" : "e.g. RCI CRR No. A12345"} disabled={saving || f.noReg} />
+                  <span className="aa-chk"><input type="checkbox" checked={f.noReg} onChange={(e) => setF({ ...f, noReg: e.target.checked })} disabled={saving} /> I don&apos;t have one</span>
+                </label>
+              </div>
+              <div className="aa-fld">
+                <span>Signature</span>
+                <SignaturePad value={f.sig} onChange={(v) => setF((x) => ({ ...x, sig: v }))} disabled={saving} />
+              </div>
+              {fmsg.text && <p className={`aa-msg${fmsg.err ? " err" : ""}`} role="status" style={{ margin: "10px 0 0" }}>{fmsg.text}</p>}
+              <div className="aa-form-foot">
+                {!valid && <small>Fill in your qualification, registration no. (or tick &quot;I don&apos;t have one&quot;) and signature.</small>}
+                <button type="button" className="aa-btn" onClick={saveDetails} disabled={saving || !valid || (!changed && sent)}>{saving ? "Saving…" : sent ? "Save changes" : "Save & send for verification"}</button>
+              </div>
+            </div>
             <p className="aa-note" style={{ marginTop: 12 }}>You earn {Math.round(share * 100)}% of the fee for every assessment a client books with you; CYT keeps {100 - Math.round(share * 100)}% for running, scoring and reporting it.</p>
           </>
         )}
@@ -134,6 +160,24 @@ const AA_CSS = `
 .aa-sum-foot small { font-size: 12.5px; font-weight: 700; color: #92400e; } .aa-sum-foot small.ok { color: #166534; }
 .aa-link { border: 0; background: none; padding: 0; font: inherit; font-size: 13px; font-weight: 800; color: #1d4ed8; cursor: pointer; text-decoration: underline; }
 @media (max-width: 600px) { .aa-sum-items { grid-template-columns: 1fr; } }
+.aa-form { margin-top: 12px; border: 1px solid #e3eae6; border-radius: 14px; padding: 14px 16px; }
+.aa-form-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.aa-form-h b { font-size: 15px; color: #0f172a; }
+.aa-st { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 2px 10px; background: #fef3c7; color: #92400e; } .aa-st.ok { background: #dcfce7; color: #166534; }
+.aa-form-p { margin: 4px 0 12px; font-size: 12.5px; color: #64748b; line-height: 1.5; }
+.aa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.aa-fld { display: flex; flex-direction: column; gap: 5px; margin: 0; }
+.aa-fld > span:not(.aa-chk) { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #64748b; }
+.aa-fld input:not([type="checkbox"]) { height: 42px; border: 1.5px solid #d5e3da; border-radius: 10px; padding: 0 11px; font: inherit; font-size: 14px; color: #0f172a; background: #fff; width: 100%; }
+.aa-fld input:not([type="checkbox"]):focus { outline: none; border-color: #16a34a; }
+.aa-fld input:disabled { background: #f8faf9; }
+.aa-fld small { font-size: 11.5px; color: #64748b; font-weight: 600; }
+.aa-chk { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: #334155; cursor: pointer; }
+.aa-chk input[type="checkbox"] { display: inline-block !important; position: static !important; opacity: 1 !important; visibility: visible !important; width: 16px; height: 16px; margin: 0; accent-color: #14532d; appearance: auto; -webkit-appearance: checkbox; flex: none; }
+.aa-form-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eef2f0; }
+.aa-form-foot small { flex: 1 1 220px; font-size: 12px; color: #92400e; font-weight: 600; }
+.aa-btn:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 600px) { .aa-grid { grid-template-columns: 1fr; } .aa-form-foot .aa-btn { width: 100%; } }
 .aa-msg { margin: 0 0 12px; font-size: 13.5px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 9px 12px; }
 .aa-msg.err { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
 .aa-skel { height: 220px; border-radius: 12px; background: #f1f5f4; }

@@ -517,7 +517,7 @@ export const validAnswers = (test, a) => Array.isArray(a) && a.length === test.q
   && a.every((v, i) => optionsFor(test, i).some((o) => o.value === v));
 
 // Clinical assessment (booked with a psychologist): fixed CYT fee per test, split 70% CYT / 30% therapist;
-// therapists offer them after buying the yearly add-on.
+// therapists offer them after buying the 6-month add-on.
 export const CLINICAL_FEE = 299;
 export const CLINICAL_THERAPIST_SHARE = 0.3;
 export const ADDON_PRICE = 499;

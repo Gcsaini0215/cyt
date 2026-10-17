@@ -70,7 +70,7 @@ export default function TherapistAssessments() {
         </div>
         {err && <p className="ta-msg err">{err}</p>}
 
-        {/* kept mounted so the plan loads (tab tag) and ?buy=1 still opens the buy form */}
+        {/* kept mounted so the plan loads (tab tag); ?buy=1 opens this tab */}
         <div hidden={tab !== "addon"}><AssessmentsAddon onChange={setAddon} /></div>
 
         {tab === "reports" && (
