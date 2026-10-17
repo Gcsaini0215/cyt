@@ -62,7 +62,7 @@ export default function AssessmentReport() {
       const normal = cl.bands.find((b) => NORMAL_RE.test(b.label)) || cl.bands[0];
       const cur = cl.bands.find((b) => b.current);
       return [{
-        name: test.full, result: cl.headline, score: cl.score != null ? `${cl.score} / ${cl.max}` : "—",
+        name: test.short, result: cl.headline, score: cl.score != null ? `${cl.score} / ${cl.max}` : "—",
         ref: normal ? `${normal.range} · ${normal.label}` : "—", out: !!(cur && normal && cur !== normal),
       }];
     })();
@@ -112,52 +112,44 @@ export default function AssessmentReport() {
               <div><dt>Client name</dt><dd>{rep.client.name}{rep.client.age || rep.client.gender ? ` (${[rep.client.age ? `${rep.client.age}Y` : "", rep.client.gender ? String(rep.client.gender).charAt(0).toUpperCase() : ""].filter(Boolean).join("/")})` : ""}</dd></div>
               <div><dt>Client ID</dt><dd>{rep.client.code}</dd></div>
               <div><dt>Referred by</dt><dd>{signer.name || rep.therapist}{signer.profileType ? `, ${signer.profileType}` : ""}</dd></div>
-              <div><dt>Assessment</dt><dd>{test.full}</dd></div>
+              <div><dt>Session</dt><dd>{fmt(rep.booking_date)}</dd></div>
             </dl>
             <dl>
               <div><dt>Assigned on</dt><dd>{fmt(rep.sentAt)}</dd></div>
               <div><dt>Completed on</dt><dd>{fmt(rep.doneAt)}</dd></div>
-              <div><dt>Report released on</dt><dd>{released ? fmt(rep.releasedAt) : "Not released"}</dd></div>
-              <div><dt>Mode | Report ID</dt><dd>Online self-report | {rep.reportNo}</dd></div>
+              <div><dt>Released on</dt><dd>{released ? fmt(rep.releasedAt) : "Not released"}</dd></div>
+              <div><dt>Mode</dt><dd>Online self-report</dd></div>
             </dl>
           </div>
 
-          {/* ── summary of findings (like a lab's "outside reference range" page) ── */}
-          <section className="rp-sec rp-summary">
-            <h2>Summary of findings</h2>
-            <table className="rp-lab">
-              <thead><tr><th>Test name</th><th>Result</th><th>Score</th><th>Reference</th></tr></thead>
+          {/* ── result: one lab-style table, then the interpretation ── */}
+          <section className="rp-sec">
+            <h2>Result</h2>
+            <table className="rp-lab rp-lab-res">
+              <thead><tr><th>Test</th><th>Method</th><th className="num">Score</th><th>Reference</th><th>Interpretation</th></tr></thead>
               <tbody>
-                {summaryRows.map((r) => <tr key={r.name} className={r.out ? "out" : ""}><td>{r.name}</td><td>{r.result}</td><td>{r.score}</td><td>{r.ref}</td></tr>)}
+                {summaryRows.map((r) => (
+                  <tr key={r.name} className={r.out ? "out" : ""}>
+                    <td className="t">{r.name}</td><td className="m">Self-report questionnaire</td><td className="num v">{r.score}</td><td className="m">{r.ref}</td>
+                    <td>{r.out && <span className="rp-mark" aria-label="Outside normal range">▲</span>}{r.result}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-            {(cl.alerts || []).map((t, k) => <p key={`sa${k}`} className="rp-flag">{t}</p>)}
-            <p className="rp-small">Rows in bold are outside the minimal / normal range. Detailed values, interpretation and the reference interval follow.</p>
-          </section>
+            <p className="rp-small">▲ outside the minimal / normal range defined in the manual.</p>
 
-          {/* ── test detail, lab style ── */}
-          <section className="rp-sec">
-            <table className="rp-lab rp-lab-main">
-              <thead><tr><th>Test name</th><th>Method</th><th>Score</th><th>Range</th></tr></thead>
-              <tbody><tr><td><b>{test.full}</b></td><td>Psychometric questionnaire</td><td><b>{cl.score != null ? cl.score : "Profile"}</b></td><td>{cl.max != null ? `0–${cl.max}` : test.key === "k10" ? "10–50" : "Subscales"}</td></tr></tbody>
-            </table>
-            {CLINICAL_META[test.key] && <p className="rp-meta-line"><b>Administration:</b> {CLINICAL_META[test.key].method}</p>}
-          </section>
-
-          {/* ── result ── */}
-          <section className="rp-result">
-            <div className="rp-level">
-              <div><small>Result</small><b>{cl.headline}</b></div>
+            <div className="rp-result">
+              <small>Interpretation</small>
+              {cl.interpretation.map((t, k) => <p key={k}>{t}</p>)}
+              {cl.details.map((t, k) => <p key={`d${k}`} className="rp-detail">{t}</p>)}
+              {cl.notes.map((t, k) => <p key={`n${k}`} className="rp-detail">{t}</p>)}
+              {(cl.alerts || []).map((t, k) => <p key={`a${k}`} className="rp-flag">{t}</p>)}
             </div>
-            {cl.interpretation.map((t, k) => <p key={k}>{t}</p>)}
-            {cl.details.map((t, k) => <p key={`d${k}`} className="rp-detail">{t}</p>)}
-            {cl.notes.map((t, k) => <p key={`n${k}`} className="rp-detail">{t}</p>)}
-            {(cl.alerts || []).map((t, k) => <p key={`a${k}`} className="rp-flag">{t}</p>)}
           </section>
 
           {(cl.bands.length > 0 || cl.action) && (
             <section className="rp-sec">
-              <h2>Interpretation per manual</h2>
+              <h2>Reference interval</h2>
               {cl.bandTitle && <p className="rp-bandtitle">{cl.bandTitle}</p>}
               {cl.bands.length > 0 && (
                 <table className="rp-bands">
@@ -166,14 +158,18 @@ export default function AssessmentReport() {
                   </tbody>
                 </table>
               )}
-              {cl.action && <p className="rp-action"><b>Recommended action (manual):</b> {cl.action}</p>}
+              {cl.action && <p className="rp-action"><b>Recommended action (manual)</b>{cl.action}</p>}
             </section>
           )}
 
           {CLINICAL_META[test.key] && (
-            <section className="rp-sec rp-signif">
-              <p><b>Clinical significance:</b> {CLINICAL_META[test.key].significance}</p>
-              <p><b>Specifications:</b> {CLINICAL_META[test.key].specs}</p>
+            <section className="rp-sec">
+              <h2>About this test</h2>
+              <div className="rp-about">
+                <div><b>Clinical significance</b><p>{CLINICAL_META[test.key].significance}</p></div>
+                <div><b>Specifications</b><p>{CLINICAL_META[test.key].specs}</p></div>
+              </div>
+              <p className="rp-meta-line"><b>Administration:</b> {CLINICAL_META[test.key].method}</p>
               <p className="rp-correlate">Please correlate with clinical findings.</p>
             </section>
           )}
@@ -230,15 +226,13 @@ export default function AssessmentReport() {
           {hasNotes && (
             <section className={`rp-sec rp-notes${isT ? " print-only" : ""}`}>
               <h2>Psychologist&apos;s notes</h2>
-              {rep.note && <div><b>Summary</b><p>{rep.note}</p></div>}
-              {shownNotes.observations && <div><b>Clinical observations</b><p>{shownNotes.observations}</p></div>}
-              {shownNotes.recommendations && <div><b>Recommendations / next steps</b><p>{shownNotes.recommendations}</p></div>}
-              {(shownNotes.followUp || shownNotes.referral) && (
-                <dl className="rp-notes-kv">
-                  {shownNotes.followUp && <div><dt>Follow-up</dt><dd>{shownNotes.followUp}</dd></div>}
-                  {shownNotes.referral && <div><dt>Referral</dt><dd>{shownNotes.referral}</dd></div>}
-                </dl>
-              )}
+              <dl className="rp-notes-grid">
+                {rep.note && <div className="wide"><dt>Summary</dt><dd>{rep.note}</dd></div>}
+                {shownNotes.observations && <div className="wide"><dt>Clinical observations</dt><dd>{shownNotes.observations}</dd></div>}
+                {shownNotes.recommendations && <div className="wide"><dt>Recommendations / next steps</dt><dd>{shownNotes.recommendations}</dd></div>}
+                {shownNotes.followUp && <div><dt>Follow-up</dt><dd>{shownNotes.followUp}</dd></div>}
+                {shownNotes.referral && <div><dt>Referral</dt><dd>{shownNotes.referral}</dd></div>}
+              </dl>
             </section>
           )}
 
@@ -247,13 +241,13 @@ export default function AssessmentReport() {
             <h2>Responses</h2>
             <p className="rp-intro">{test.intro}</p>
             <table>
-              <thead><tr><th>#</th><th>Item</th><th>Answer</th></tr></thead>
+              <thead><tr><th>#</th><th>Item</th><th>Answer</th><th className="num">Score</th></tr></thead>
               <tbody>
                 {test.questions.map((_, i) => {
                   const v = rep.answers?.[i];
                   const o = optionsFor(test, i).find((x) => x.value === v);
                   const hot = res.flag && ((test.key === "phq9" && i === 8) || (test.key === "epds" && i === 9)) && v > 0;
-                  return <tr key={i} className={hot ? "hot" : ""}><td>{i + 1}</td><td>{questionText(test, i)}</td><td>{o ? o.label : "—"}</td></tr>;
+                  return <tr key={i} className={hot ? "hot" : ""}><td>{i + 1}</td><td>{questionText(test, i)}</td><td>{o ? o.label : "—"}</td><td className="num">{v ?? "—"}</td></tr>;
                 })}
               </tbody>
             </table>
@@ -343,12 +337,27 @@ const RP_CSS = `
 .rp-lab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .rp-lab th { text-align: left; font-size: 10.5px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1.5px solid #111827; padding: 5px 8px; }
 .rp-lab td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; color: #1f2937; }
-.rp-lab tr.out td { font-weight: 800; color: #111827; }
+.rp-lab tr.out td { color: #111827; }
+.rp-lab td.t { font-weight: 700; } .rp-lab td.m { color: #4b5563; } .rp-lab tr.out td.v, .rp-lab tr.out td:last-child { font-weight: 800; }
+.rp-lab-res th:nth-child(1) { width: 30%; }
+.rp-lab .num, .rp-items .num { text-align: right; white-space: nowrap; }
+.rp-mark { color: #b45309; margin-right: 6px; font-size: 11px; }
+.rp-result small { display: block; font-size: 10px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #6b7280; margin-bottom: 2px; }
+.rp-sheet .rp-action { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid #14532d; background: #f7f9f8; font-size: 12.5px; color: #1f2937; line-height: 1.55; }
+.rp-sheet .rp-action b { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: #14532d; margin-bottom: 2px; }
+.rp-about { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.rp-about > div { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; }
+.rp-about b { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: #14532d; margin-bottom: 3px; }
+.rp-sheet .rp-about p { margin: 0; font-size: 12.5px; color: #374151; line-height: 1.55; }
+.rp-notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 0; }
+.rp-notes-grid > div.wide { grid-column: 1 / -1; }
+.rp-sheet .rp-notes-grid dt { margin: 0; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: #6b7280; }
+.rp-sheet .rp-notes-grid dd { margin: 3px 0 0; font-size: 13.5px; line-height: 1.6; color: #111827; white-space: pre-wrap; }
 .rp-lab-main td { font-size: 13px; }
 .rp-sheet .rp-small { margin: 6px 0 0; font-size: 11px; color: #6b7280; font-style: italic; }
 .rp-sheet .rp-meta-line { margin: 6px 0 0; font-size: 12px; color: #374151; }
 .rp-signif p { margin: 0 0 6px; font-size: 12.5px; color: #374151; line-height: 1.55; }
-.rp-sheet .rp-correlate { font-weight: 800; color: #111827; margin-top: 4px; }
+.rp-sheet .rp-correlate { font-weight: 800; color: #111827; margin: 6px 0 0; font-size: 12.5px; }
 .rp-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; border-top: 1px solid #d1d5db; padding-top: 12px; }
 .rp-terms > div { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; }
 .rp-terms > div > b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: #111827; margin-bottom: 4px; text-align: center; }
@@ -462,8 +471,8 @@ const RP_CSS = `
   .rp-client div:nth-last-child(-n+4) { border-bottom: 1px solid #e5e7eb; } .rp-client div:nth-last-child(-n+2) { border-bottom: 0; }
   .rp-edit-row, .rp-use, .rp-notes-kv { grid-template-columns: 1fr; }
   .rp-sign { flex-direction: column; align-items: stretch; }
-  .rp-info, .rp-terms { grid-template-columns: 1fr; } .rp-info dl div { grid-template-columns: 112px 1fr; }
-  .rp-lab th:nth-child(4), .rp-lab td:nth-child(4) { display: none; }
+  .rp-info, .rp-terms, .rp-about, .rp-notes-grid { grid-template-columns: 1fr; } .rp-info dl div { grid-template-columns: 112px 1fr; }
+  .rp-lab th:nth-child(2), .rp-lab td:nth-child(2), .rp-lab th:nth-child(4), .rp-lab td:nth-child(4) { display: none; }
   .rp-items td:last-child { width: auto; }
 }
 @media print {
@@ -475,7 +484,7 @@ const RP_CSS = `
   .rp-sheet p, .rp-sheet td, .rp-sheet dd { orphans: 3; widows: 3; }
   .rp-sheet h1, .rp-sheet h2 { break-after: avoid; page-break-after: avoid; }
   .rp-items thead { display: table-header-group; }
-  .rp-items tr, .rp-prog tr, .rp-bands tr, .rp-lab tr, .rp-info, .rp-terms, .rp-signif, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
+  .rp-items tr, .rp-prog tr, .rp-bands tr, .rp-lab tr, .rp-info, .rp-terms, .rp-about, .rp-notes-grid > div, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
   .rp-sign, .rp-foot, .rp-result, .rp-client { page-break-inside: avoid; }
   .rp-dot, .rp-bar-row em, .rp-result { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
