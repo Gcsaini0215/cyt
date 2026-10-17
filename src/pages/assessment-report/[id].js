@@ -196,8 +196,8 @@ export default function AssessmentReport() {
               <p className="rp-lic">{test.licence}</p>
             </div>
             <div className="rp-sig">
-              <div className="rp-sig-line">{released ? <span>Digitally approved · {fmt(rep.releasedAt, false)}</span> : <span>&nbsp;</span>}</div>
-              <b>{signer.name || rep.therapist}</b>
+              <div className="rp-sig-space">{released ? <span>Digitally approved · {fmt(rep.releasedAt, false)}</span> : null}</div>
+              <b className="rp-sig-name">{signer.name || rep.therapist}</b>
               <span>{signer.profileType || "Psychologist"}</span>
               <span>Reg. / Licence No.: {(isT ? regNo : signer.regNo) || "—"}</span>
             </div>
@@ -303,10 +303,11 @@ const RP_CSS = `
 .rp-sign { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-top: 10px; padding-top: 14px; border-top: 1px solid #d1d5db; }
 .rp-ref { flex: 1; min-width: 0; } .rp-ref b { font-size: 11px; color: #374151; text-transform: uppercase; letter-spacing: .5px; }
 .rp-ref p { margin: 3px 0 0; font-size: 11px; color: #6b7280; line-height: 1.5; } .rp-ref .rp-lic { font-style: italic; }
-.rp-sig { width: 250px; flex-shrink: 0; text-align: center; display: flex; flex-direction: column; gap: 1px; }
-.rp-sig-line { height: 56px; border-bottom: 1px solid #111827; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; margin-bottom: 6px; }
-.rp-sig-line span { font-size: 10.5px; color: #4b5563; font-style: italic; }
-.rp-sig b { font-size: 14px; color: #111827; } .rp-sig span { font-size: 11.5px; color: #4b5563; }
+.rp-sig { margin-left: auto; flex-shrink: 0; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.rp-sig-space { height: 46px; display: flex; align-items: flex-end; padding-bottom: 4px; }
+.rp-sig-space span { font-size: 10.5px; color: #4b5563; font-style: italic; }
+.rp-sig .rp-sig-name { display: inline-block; min-width: 160px; border-top: 1px solid #111827; padding-top: 5px; font-size: 14px; color: #111827; }
+.rp-sig > span { font-size: 11.5px; color: #4b5563; }
 
 /* footer */
 .rp-foot { margin-top: 18px; border-top: 2px solid #14532d; padding-top: 10px; }
@@ -326,14 +327,22 @@ const RP_CSS = `
   .rp-client div:nth-child(4n) { border-right: 1px solid #e5e7eb; } .rp-client div:nth-child(2n) { border-right: 0; }
   .rp-client div:nth-last-child(-n+4) { border-bottom: 1px solid #e5e7eb; } .rp-client div:nth-last-child(-n+2) { border-bottom: 0; }
   .rp-edit-row, .rp-use, .rp-notes-kv { grid-template-columns: 1fr; }
-  .rp-sign { flex-direction: column; align-items: stretch; } .rp-sig { width: 100%; }
+  .rp-sign { flex-direction: column; align-items: stretch; }
   .rp-items td:last-child { width: auto; }
 }
 @media print {
   @page { size: A4; margin: 14mm 12mm; }
+  /* everything above the report prints as plain blocks: flex / clipped wrappers make Chrome slice lines at page breaks */
+  html, body, #__next, #__next > div, .rp-page, .rp-sheet { display: block !important; overflow: visible !important; height: auto !important; min-height: 0 !important; max-height: none !important; }
+  html, body { background: #fff !important; }
   .rp-page { background: #fff; padding: 0; } .rp-sheet { box-shadow: none; border: 0; max-width: none; padding: 0; }
+  .rp-sheet p, .rp-sheet td, .rp-sheet dd { orphans: 3; widows: 3; }
+  .rp-sheet h1, .rp-sheet h2 { break-after: avoid; page-break-after: avoid; }
+  .rp-items thead { display: table-header-group; }
+  .rp-items tr, .rp-prog tr, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
+  .rp-sign, .rp-foot, .rp-result, .rp-client { page-break-inside: avoid; }
   .rp-dot, .rp-bar-row em, .rp-result { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .no-print, .cb-widget, .ck-wrap { display: none !important; } .print-only { display: block !important; }
+  .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
   .rp-items tr, .rp-sign, .rp-foot, .rp-result, .rp-client { break-inside: avoid; }
 }
 `;

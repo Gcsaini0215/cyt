@@ -66,7 +66,7 @@ function MyApp({ Component, pageProps }) {
 
   }, []);
 
-  const hideWidgetsOn = [
+  const hideWidgetsOn = ["/assessment-report", 
     "/therapist-dashboard",
     "/appointments",
     "/noida-appointment",
