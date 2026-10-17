@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import { fetchById, postData } from "../../../utils/actions";
-import { apiUrl } from "../../../utils/url";
-import { FREE_TESTS } from "../../self-assessment/tests";
-import { Section } from "./settings-ui";
+import { fetchById, postData } from "../../utils/actions";
+import { apiUrl } from "../../utils/url";
+import { FREE_TESTS } from "../self-assessment/tests";
+import { clearAssessmentsUpgrade } from "./nav-extras";
 
-/* Settings → Assessments: the yearly "Clinical Assessments" add-on (bought here on Razorpay, priced by
-   CYT) and what clients pay / the therapist earns for each assessment. */
+/* Top of the Assessments page: the yearly "Clinical Assessments" add-on (bought here on Razorpay,
+   priced by CYT in the admin panel) and what clients pay / the therapist earns for each assessment. */
 
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
@@ -22,13 +21,13 @@ function loadRazorpay() {
   });
 }
 
-export default function AssessmentsAddon() {
+export default function AssessmentsAddon({ onChange }) {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: "", err: false });
 
-  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => setData(r?.data || null)).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
-  useEffect(() => { load(); }, []);
+  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buy = async () => {
     setBusy(true); setMsg({ text: "", err: false });
@@ -63,10 +62,12 @@ export default function AssessmentsAddon() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: AA_CSS }} />
-      <Section
-        title="Clinical Assessments add-on"
-        sub="Let clients add a standard clinical assessment (PHQ-9, GAD-7, DASS-21, PCL-5 and more) when they book you. They answer it on CYT before the session, and you get an automatic report with their answers and score — the client sees it only after you release it."
-      >
+      <section className="pt-card aa-card" id="addon">
+        <div className="aa-head">
+          <span className="aa-kick">⭐ Upgrade</span>
+          <h2>Clinical Assessments add-on</h2>
+          <p>Let clients add a standard clinical assessment (PHQ-9, GAD-7, DASS-21, PCL-5 and more) when they book you. They answer it on CYT before the session, and you get an automatic report — the client sees it only after you release it.</p>
+        </div>
         {msg.text && <p className={`aa-msg${msg.err ? " err" : ""}`} role="status">{msg.text}</p>}
         {!data ? <div className="aa-skel" /> : (
           <>
@@ -97,15 +98,18 @@ export default function AssessmentsAddon() {
                 );
               })}
             </div>
-            <p className="aa-note">Reports for your clients are on the <Link href="/therapist-questionnaires">Assessments</Link> page.</p>
           </>
         )}
-      </Section>
+      </section>
     </>
   );
 }
 
 const AA_CSS = `
+.aa-card { margin-bottom: 14px; }
+.aa-head { margin-bottom: 12px; } .aa-head h2 { margin: 6px 0 4px; font-size: 17px; font-weight: 800; color: #0f172a; font-family: inherit; }
+.aa-head p { margin: 0; font-size: 13.5px; color: #64748b; line-height: 1.55; }
+.aa-kick { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #92400e; background: #fde68a; border-radius: 999px; padding: 3px 9px; }
 .aa-msg { margin: 0 0 12px; font-size: 13.5px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 9px 12px; }
 .aa-msg.err { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
 .aa-skel { height: 220px; border-radius: 12px; background: #f1f5f4; }

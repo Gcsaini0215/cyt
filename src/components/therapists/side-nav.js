@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useTherapistStore from "../../store/therapistStore";
-import { useNavBadges, NavBadge, listingOf, shareProfile, avatarOf, NX_CSS } from "./nav-extras";
+import { useNavBadges, NavBadge, NavTag, useAssessmentsUpgrade, listingOf, shareProfile, avatarOf, NX_CSS } from "./nav-extras";
 import { defaultProfile } from "../../utils/url";
 
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
@@ -34,7 +34,7 @@ const ALL_GROUPS = [
       { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
       { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badgeKey: "bookings" },
       { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
-      { to: "/therapist-questionnaires", Icon: FactCheckRoundedIcon, label: "Assessments", match: ["/therapist-questionnaires", "/assessment-report"] },
+      { to: "/therapist-questionnaires", Icon: FactCheckRoundedIcon, label: "Assessments", tag: "Upgrade", match: ["/therapist-questionnaires", "/assessment-report"] },
       { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews", badgeKey: "reviews" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },
@@ -85,6 +85,7 @@ export default function TherapistSideNav() {
   const router = useRouter();
   const pathname = router.pathname;
   const { therapistInfo } = useTherapistStore();
+  const upgrade = useAssessmentsUpgrade();
   const badges = useNavBadges();
   const listing = listingOf(therapistInfo);
   const name = therapistInfo?.user?.name || "";
@@ -115,7 +116,7 @@ export default function TherapistSideNav() {
                 <Link key={item.to} href={item.to} data-label={item.label} aria-label={item.label}
                   aria-current={active ? "page" : undefined} className={`tsn-item${active ? " active" : ""}`}>
                   <item.Icon />
-                  <span className="tsn-label">{item.label}</span>
+                  <span className="tsn-label">{item.label}<NavTag item={item} upgrade={upgrade} /></span>
                   <NavBadge value={badges[item.badgeKey]} className="tsn-badge" />
                 </Link>
               );

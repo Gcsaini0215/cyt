@@ -9,7 +9,7 @@ import { DRAWER_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
 import NewBookingPopup from "./new-booking-popup";
 import NotifBell from "./notif-bell";
-import { useNavBadges, NavBadge, listingOf, shareProfile, NX_CSS } from "./nav-extras";
+import { useNavBadges, NavBadge, NavTag, useAssessmentsUpgrade, listingOf, shareProfile, NX_CSS } from "./nav-extras";
 import { profilePct } from "../../utils/profile-checks";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
@@ -58,6 +58,7 @@ export default function DashboardTopNav() {
   const searchRef = useRef(null);
   const closeTimer = useRef(null);
   const badges = useNavBadges();
+  const upgrade = useAssessmentsUpgrade();
   const { fetchInbox, fetchReviewsCount, markReviewsSeen } = useCommsStore();
 
   const openProfile = () => { clearTimeout(closeTimer.current); setProfileOpen(true); };
@@ -276,7 +277,7 @@ export default function DashboardTopNav() {
                         {items.map((item) => (
                           <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
                             <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
-                            <span className="tn-dr-lbl">{item.label}</span>
+                            <span className="tn-dr-lbl">{item.label}<NavTag item={item} upgrade={upgrade} className="tn-dr-tag" /></span>
                           </Link>
                         ))}
                       </div>
@@ -295,7 +296,7 @@ export default function DashboardTopNav() {
                   {g.items.map((item) => (
                     <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
                       <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
-                      <span className="tn-dr-lbl">{item.label}</span>
+                      <span className="tn-dr-lbl">{item.label}<NavTag item={item} upgrade={upgrade} className="tn-dr-tag" /></span>
                     </Link>
                   ))}
                 </div>

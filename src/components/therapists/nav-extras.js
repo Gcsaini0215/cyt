@@ -4,7 +4,7 @@ import useTherapistStore from "../../store/therapistStore";
 import useCommsStore, { newReviewsCount } from "../../store/commsStore";
 import { profilePct } from "../../utils/profile-checks";
 import { profilePath } from "../../utils/therapist-slug";
-import { imagePath, defaultProfile } from "../../utils/url";
+import { imagePath, defaultProfile, apiUrl } from "../../utils/url";
 
 /* Shared by the side rail, the phone "More" sheet and the top bar: menu badges,
    the therapist's listing status and the "share my profile" action. */
@@ -12,6 +12,31 @@ import { imagePath, defaultProfile } from "../../utils/url";
 const SITE = "https://www.chooseyourtherapist.in";
 
 // badgeKey -> number (count) | "dot" | 0
+// "Upgrade" tag on the Assessments menu item while the Clinical Assessments add-on isn't active
+const UPG_KEY = "cyt_addon_upgrade";
+export function useAssessmentsUpgrade() {
+  const [show, setShow] = React.useState(false);
+  React.useEffect(() => {
+    try {
+      const c = JSON.parse(sessionStorage.getItem(UPG_KEY) || "null");
+      if (c && Date.now() - c.at < 10 * 60 * 1000) { setShow(c.show); return; }
+    } catch (e) { /* storage blocked */ }
+    const token = (() => { try { return localStorage.getItem("token"); } catch (e) { return null; } })();
+    if (!token) return;
+    fetch(`${apiUrl}/therapist-addon`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((j) => {
+        const v = j?.data?.assessments ? !j.data.assessments.active : false;
+        setShow(v);
+        try { sessionStorage.setItem(UPG_KEY, JSON.stringify({ show: v, at: Date.now() })); } catch (e) { /* ignore */ }
+      })
+      .catch(() => {});
+  }, []);
+  return show;
+}
+export const clearAssessmentsUpgrade = () => { try { sessionStorage.removeItem(UPG_KEY); } catch (e) { /* ignore */ } };
+export const NavTag = ({ item, upgrade, className = "" }) => (item.tag && upgrade ? <em className={`nx-tag ${className}`}>{item.tag}</em> : null);
+
 export function useNavBadges() {
   const { notificationCount, therapistInfo } = useTherapistStore();
   const unread = useCommsStore((s) => s.unread);
@@ -67,6 +92,8 @@ export async function shareProfile(t) {
 }
 
 export const NX_CSS = `
+.nx-tag { font-style: normal; font-size: 9.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #92400e; background: #fde68a; border-radius: 999px; padding: 1px 6px; margin-left: 6px; white-space: nowrap; }
+.nx-tag.tn-dr-tag { display: block; width: fit-content; margin: 3px auto 0; }
 .nx-badge { margin-left: auto; min-width: 19px; height: 19px; padding: 0 6px; border-radius: 10px; background: #ef4444; color: #fff;
   font-size: 10.5px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; line-height: 1; font-style: normal; }
 .nx-dot { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 0 2px #fff; flex-shrink: 0; }

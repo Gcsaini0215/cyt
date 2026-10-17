@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import MainLayout from "../components/therapists/main-layout";
 import { PT_CSS } from "../components/therapists/portal-ui";
+import AssessmentsAddon from "../components/therapists/assessments-addon";
 import { fetchById } from "../utils/actions";
 import { apiUrl } from "../utils/url";
 
@@ -18,12 +19,11 @@ export default function TherapistAssessments() {
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    Promise.all([fetchById(`${apiUrl}/assessment-requests/therapist`), fetchById(`${apiUrl}/therapist-addon`)])
-      .then(([r, a]) => { setRows(r?.data || []); setAddon(a?.data || null); })
+    fetchById(`${apiUrl}/assessment-requests/therapist`)
+      .then((r) => setRows(r?.data || []))
       .catch(() => { setRows([]); setErr("Couldn't load — please refresh"); });
   }, []);
 
-  const a = addon?.assessments;
   const share = Math.round((addon?.therapistShare ?? 0.3) * 100);
 
   return (
@@ -36,20 +36,10 @@ export default function TherapistAssessments() {
             <h1>Clinical assessments</h1>
             <p>Clients add a standard assessment (PHQ-9, GAD-7, DASS-21…) when they book you, answer it before the session, and you get an automatic report. You earn {share}% of each assessment fee.</p>
           </div>
-          <Link href="/settings?tab=assessments" className="pt-btn outline">Add-on &amp; prices</Link>
         </div>
         {err && <p className="ta-msg err">{err}</p>}
 
-        {a && !a.active && (
-          <div className="pt-card ta-up">
-            <div>
-              <b>Offer clinical assessments to your clients</b>
-              <span>Get the Clinical Assessments add-on for ₹{a.price}/year{a.offer ? ` (was ₹${a.fee})` : ""} — clients will then see “Add an assessment” when they book you.</span>
-            </div>
-            <Link href="/settings?tab=assessments" className="pt-btn primary">Get the add-on</Link>
-          </div>
-        )}
-        {a?.active && <p className="ta-ok">✓ Clinical Assessments add-on active till {new Date(a.till).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>}
+        <AssessmentsAddon onChange={setAddon} />
 
         <div className="pt-card">
           <div className="pt-card-h"><h2>From your clients</h2>{rows?.length > 0 && <span className="pt-chip mut">{rows.length}</span>}</div>
