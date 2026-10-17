@@ -26,8 +26,10 @@ export default function AssessmentsAddon({ onChange }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: "", err: false });
   const [reg, setReg] = useState("");
+  const [noReg, setNoReg] = useState(false);
+  const [cred, setCred] = useState("");
 
-  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); setReg(r?.data?.assessments?.regNo || ""); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
+  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); setReg(r?.data?.assessments?.regNo || ""); setNoReg(!!r?.data?.assessments?.noRegNo); setCred(r?.data?.assessments?.credential || ""); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buy = async () => {
@@ -59,13 +61,16 @@ export default function AssessmentsAddon({ onChange }) {
 
   const saveReg = async () => {
     setBusy(true); setMsg({ text: "", err: false });
-    try { const r = await postData(`${apiUrl}/therapist-addon/details`, { regNo: reg }); setMsg({ text: r?.message || "Saved.", err: !r?.status }); await load(); }
+    try { const r = await postData(`${apiUrl}/therapist-addon/details`, { regNo: noReg ? "" : reg.trim(), noRegNo: noReg, credential: cred.trim() }); setMsg({ text: r?.message || "Saved.", err: !r?.status }); await load(); }
     catch (e) { setMsg({ text: e?.response?.data?.message || "Couldn't save — please try again.", err: true }); }
     setBusy(false);
   };
 
   const a = data?.assessments;
-  const listed = a && a.active && a.verified && a.regNo;
+  const hasId = (x) => !!(x && (x.regNo || (x.noRegNo && x.credential)));
+  const listed = a && a.active && a.verified && hasId(a);
+  const changed = a && ((noReg ? "" : reg.trim()) !== (a.regNo || "") || noReg !== !!a.noRegNo || cred.trim() !== (a.credential || ""));
+  const ready = noReg ? cred.trim().length >= 5 : reg.trim().length >= 3;
   const share = data?.therapistShare ?? 0.3;
 
   return (
@@ -83,7 +88,7 @@ export default function AssessmentsAddon({ onChange }) {
             <div className={`aa-plan${a.active ? " on" : ""}`}>
               <div>
                 <b>{!a.active ? "Not active" : listed ? "Active · verified" : "Active · waiting for CYT verification"}</b>
-                <span>{!a.active ? "Clients can't add assessments to bookings with you yet." : listed ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : `Valid till ${fmtDate(a.till)} · clients will see you once CYT has verified your registration no.${a.regNo ? "" : " — add it below"}`}</span>
+                <span>{!a.active ? "Clients can't add assessments to bookings with you yet." : listed ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : `Valid till ${fmtDate(a.till)} · clients will see you once CYT has verified your registration no. (or qualification)${hasId(a) ? "" : " — add it below"}`}</span>
               </div>
               <div className="aa-price">
                 {a.offer && <s>{inr(a.fee)}</s>} <strong>{a.price === 0 ? "Free" : inr(a.price)}</strong><small>/year</small>
@@ -93,12 +98,28 @@ export default function AssessmentsAddon({ onChange }) {
             </div>
 
             <div className="aa-reg">
-              <label htmlFor="aa-reg">Registration / licence number <span>(e.g. RCI CRR No. — printed on your reports, checked by CYT)</span></label>
-              <div>
-                <input id="aa-reg" maxLength={60} value={reg} onChange={(e) => setReg(e.target.value)} placeholder="e.g. RCI CRR No. A12345" />
-                <button type="button" className="aa-btn ghost" onClick={saveReg} disabled={busy || reg.trim() === (a.regNo || "") || reg.trim().length < 3}>Save</button>
+              <b className="aa-reg-h">Registration no. <span>— printed on your assessment reports, verified by CYT</span></b>
+              {!noReg ? (
+                <>
+                  <label htmlFor="aa-reg">Registration / licence number</label>
+                  <div>
+                    <input id="aa-reg" maxLength={60} value={reg} onChange={(e) => setReg(e.target.value)} placeholder="e.g. RCI CRR No. A12345" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <label htmlFor="aa-cred">Highest qualification <span>(degree, institute, year — CYT checks your certificate)</span></label>
+                  <div>
+                    <input id="aa-cred" maxLength={160} value={cred} onChange={(e) => setCred(e.target.value)} placeholder="e.g. M.A. Clinical Psychology, University of Delhi, 2021" />
+                  </div>
+                </>
+              )}
+              <label className="aa-noreg"><input type="checkbox" checked={noReg} onChange={(e) => setNoReg(e.target.checked)} /> I don&apos;t have a registration / licence number</label>
+              <div className="aa-reg-foot">
+                <button type="button" className="aa-btn" onClick={saveReg} disabled={busy || !changed || !ready}>Save &amp; send for verification</button>
+                <small className={a.verified ? "ok" : ""}>{!hasId(a) ? "Not sent yet." : a.verified ? "✓ Verified by CYT" : "Sent — waiting for CYT to verify (usually within a working day)."}</small>
               </div>
-              <small className={a.verified ? "ok" : ""}>{!a.regNo ? "Not added yet." : a.verified ? "✓ Verified by CYT" : "Waiting for CYT to verify — usually within a working day."}</small>
+              {a.verified && changed && <p className="aa-note warn">Saving a change sends it for verification again; clients won&apos;t see you for assessments until it&apos;s re-verified.</p>}
             </div>
 
             <h3 className="aa-h3">What clients pay — and what you earn</h3>
@@ -143,8 +164,14 @@ const AA_CSS = `
 .aa-reg { margin-top: 12px; border: 1px dashed #d5e3da; border-radius: 12px; padding: 12px 14px; }
 .aa-reg label { display: block; font-size: 13px; font-weight: 800; color: #0f172a; } .aa-reg label span { font-weight: 500; color: #64748b; }
 .aa-reg > div { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
-.aa-reg input { flex: 1 1 220px; height: 42px; border: 1.5px solid #dfe7e2; border-radius: 10px; padding: 0 10px; font: inherit; font-size: 14px; }
-.aa-reg input:focus { outline: none; border-color: #16a34a; }
+.aa-reg input:not([type="checkbox"]) { flex: 1 1 220px; height: 42px; border: 1.5px solid #dfe7e2; border-radius: 10px; padding: 0 10px; font: inherit; font-size: 14px; }
+.aa-reg input:not([type="checkbox"]):focus { outline: none; border-color: #16a34a; }
+.aa-reg-h { display: block; font-size: 14px; color: #0f172a; margin-bottom: 10px; } .aa-reg-h span { font-weight: 500; color: #64748b; font-size: 12.5px; }
+.aa-reg label.aa-noreg { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; }
+.aa-reg label.aa-noreg input { width: 18px; height: 18px; margin: 0; accent-color: #166534; flex: none; appearance: auto; -webkit-appearance: checkbox; opacity: 1; position: static; }
+.aa-reg-foot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.aa-reg-foot small { margin-top: 0 !important; }
+.aa-note.warn { color: #92400e; margin-top: 8px; }
 .aa-reg small { display: block; margin-top: 6px; font-size: 12.5px; color: #92400e; font-weight: 700; } .aa-reg small.ok { color: #166534; }
 .aa-h3 { margin: 20px 0 4px; font-size: 15px; font-weight: 800; color: #0f172a; font-family: inherit; }
 .aa-note { margin: 0 0 10px; font-size: 13px; color: #64748b; line-height: 1.55; } .aa-note a { color: #166534 !important; font-weight: 800; }

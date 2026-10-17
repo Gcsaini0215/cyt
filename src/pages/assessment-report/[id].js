@@ -168,7 +168,7 @@ export default function AssessmentReport() {
                   </select>
                 </label>
                 <label>Referral (if any)<input maxLength={300} value={notes.referral} onChange={(e) => setNotes({ ...notes, referral: e.target.value })} placeholder="e.g. Psychiatrist for medication review" /></label>
-                <div className="rp-regno"><span>Registration / licence no.</span><b>{regNo || "Not added"}</b><Link href="/therapist-questionnaires#addon">{regNo ? "Change" : "Add"} on the Assessments page</Link></div>
+                <div className="rp-regno"><span>{regNo || !signer.credential ? "Registration / licence no." : "Qualification"}</span><b>{regNo || signer.credential || "Not added"}</b><Link href="/therapist-questionnaires#addon">{regNo || signer.credential ? "Change" : "Add"} on the Assessments page</Link></div>
               </div>
               <div className="rp-acts">
                 <button type="button" className="ghost" onClick={() => save(false)} disabled={busy}>Save draft</button>
@@ -218,10 +218,13 @@ export default function AssessmentReport() {
               <p className="rp-lic">{test.licence}</p>
             </div>
             <div className="rp-sig">
-              <div className="rp-sig-space">{released ? <span>Digitally approved · {fmt(rep.releasedAt, false)}</span> : null}</div>
+              <div className="rp-sig-space">
+                {signer.signature && <img src={signer.signature} alt={`Signature of ${signer.name || rep.therapist}`} className="rp-sig-img" />}
+                {released ? <span>Digitally approved · {fmt(rep.releasedAt, false)}</span> : null}
+              </div>
               <b className="rp-sig-name">{signer.name || rep.therapist}</b>
               <span>{signer.profileType || "Psychologist"}</span>
-              <span>Reg. / Licence No.: {(isT ? regNo : signer.regNo) || "—"}</span>
+              {(isT ? regNo : signer.regNo) ? <span>Reg. / Licence No.: {isT ? regNo : signer.regNo}</span> : signer.credential ? <span>{signer.credential}</span> : <span>Reg. / Licence No.: —</span>}
             </div>
           </section>
 
@@ -333,7 +336,8 @@ const RP_CSS = `
 .rp-ref { flex: 1; min-width: 0; } .rp-ref b { font-size: 11px; color: #374151; text-transform: uppercase; letter-spacing: .5px; }
 .rp-ref p { margin: 3px 0 0; font-size: 11px; color: #6b7280; line-height: 1.5; } .rp-ref .rp-lic { font-style: italic; }
 .rp-sig { margin-left: auto; flex-shrink: 0; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
-.rp-sig-space { height: 46px; display: flex; align-items: flex-end; padding-bottom: 4px; }
+.rp-sig-space { min-height: 46px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; padding-bottom: 4px; gap: 2px; }
+.rp-sig-img { display: block; max-height: 56px; max-width: 200px; object-fit: contain; }
 .rp-sig-space span { font-size: 10.5px; color: #4b5563; font-style: italic; }
 .rp-sig .rp-sig-name { display: inline-block; min-width: 160px; border-top: 1px solid #111827; padding-top: 5px; font-size: 14px; color: #111827; }
 .rp-sig > span { font-size: 11.5px; color: #4b5563; }
