@@ -46,7 +46,7 @@ export default function TherapistAssessments() {
     return c;
   }, [rows]);
   const shown = (rows || []).filter((r) => filter === "all" || r.status === filter);
-  const addonTag = !a ? "" : !a.active ? "Upgrade" : a.verified ? "" : "Pending";
+  const addonTag = !a ? "" : ({ details: "Upgrade", rejected: "Action needed", review: "In review", consent: "Sign consent", payment: "Pay to activate" })[a.step] || "";
 
   return (
     <MainLayout>
