@@ -76,7 +76,7 @@ export default function AssessmentForm({ test, onBack, clinical = null }) {
           <div className="sar">
             <span className="sar-kick">{test.full}</span>
             <div className="sar-level" style={{ "--lc": "#16a34a" }}><b>Submitted ✓</b></div>
-            <p className="sar-text">Thank you. Your answers have gone to {clinical.therapist}, who will go through the result with you in your session. Your report will appear in My check-ins after that.</p>
+            <p className="sar-text">{clinical.selfOnly ? "Thank you. Your report is being prepared — it opens in a moment." : `Thank you. Your answers have gone to ${clinical.therapist}, who will go through the result with you in your session. Your report will appear in My check-ins after that.`}</p>
             {result.flag && (
               <div className="sar-alert" role="alert">
                 <b>You don&apos;t have to handle this alone</b>
@@ -182,7 +182,7 @@ export default function AssessmentForm({ test, onBack, clinical = null }) {
             <button type="button" className="saf-btn ghost" onClick={() => { clearTimeout(advanceRef.current); setCurrent((q) => Math.max(0, q - 1)); }} disabled={current === 0}>← Previous</button>
             {(isLast || isAnswered) && (
               <button type="button" className="saf-btn solid" onClick={isLast ? submit : () => setCurrent(current + 1)} disabled={!isAnswered || sending || (isLast && answeredCount < total)}>
-                {isLast ? (clinical ? (sending ? "Submitting…" : `Submit to ${clinical.therapist.split(" ").slice(0, 2).join(" ")}`) : "See my result") : "Next →"}
+                {isLast ? (clinical ? (sending ? "Submitting…" : clinical.selfOnly ? "Submit & see my report" : `Submit to ${clinical.therapist.split(" ").slice(0, 2).join(" ")}`) : "See my result") : "Next →"}
               </button>
             )}
           </div>
@@ -190,7 +190,7 @@ export default function AssessmentForm({ test, onBack, clinical = null }) {
           {isLast && answeredCount < total && <p className="saf-miss">Please answer every question to see your result — tap Previous to go back.</p>}
         </div>
 
-        <p className="saf-priv">{clinical ? `Answer honestly — there are no right or wrong answers. Your answers are shared only with ${clinical.therapist}.` : "🔒 Answer honestly — there are no right or wrong answers. Only your score is saved, never your answers."}</p>
+        <p className="saf-priv">{clinical ? (clinical.selfOnly ? "Answer honestly — there are no right or wrong answers. Your answers and report are private to you." : `Answer honestly — there are no right or wrong answers. Your answers are shared only with ${clinical.therapist}.`) : "🔒 Answer honestly — there are no right or wrong answers. Only your score is saved, never your answers."}</p>
         <p className="saf-src">{test.short} · {test.by}</p>
       </div>
     </section>

@@ -35,18 +35,20 @@ export default function VerifyReport() {
           <div className="vr-bad"><b>✕ Not verified</b><span>{err}</span><span>If you were given a printed copy of this report, please confirm it with the issuing psychologist or write to hello@chooseyourtherapist.in.</span></div>
         ) : !r ? <div className="vr-skel" /> : (
           <>
-            <div className="vr-ok"><b>✓ Genuine report</b><span>This report was issued on Choose Your Therapist and approved by the psychologist below.</span></div>
+            <div className="vr-ok"><b>✓ Genuine report</b><span>{r.selfOnly ? "This computer-generated report was issued on Choose Your Therapist from the client's own answers. It was not reviewed by a psychologist." : "This report was issued on Choose Your Therapist and approved by the psychologist below."}</span></div>
             <dl className="vr-dl">
               <div><dt>Report No.</dt><dd>{r.reportNo}</dd></div>
               <div><dt>Assessment</dt><dd>{r.test}</dd></div>
               <div><dt>Client</dt><dd>{r.client}</dd></div>
               <div><dt>Result</dt><dd>{r.level}{r.score != null ? ` · ${r.score}/${r.max}` : ""}</dd></div>
               <div><dt>Completed on</dt><dd>{fmt(r.completedAt)}</dd></div>
-              <div><dt>Approved on</dt><dd>{fmt(r.releasedAt)}</dd></div>
+              <div><dt>{r.selfOnly ? "Issued on" : "Approved on"}</dt><dd>{fmt(r.releasedAt)}</dd></div>
+              {r.selfOnly ? <div><dt>Type</dt><dd>Assessment only · automatic report</dd></div> : <>
               <div><dt>Psychologist</dt><dd>{p.name}{p.profileType ? `, ${p.profileType}` : ""}</dd></div>
               {p.credential && <div><dt>Qualification</dt><dd>{p.credential}</dd></div>}
               <div><dt>Reg. / Licence No.</dt><dd>{p.regNo || (p.noRegNo ? "Not RCI-registered" : "—")}</dd></div>
               {p.verified && <div><dt>Credentials</dt><dd>✓ Verified by Choose Your Therapist{p.verifiedAt ? ` on ${new Date(p.verifiedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</dd></div>}
+              </>}
             </dl>
             <p className="vr-note">Compare these details with the printed report. This report is not valid for any medico-legal purpose.</p>
           </>

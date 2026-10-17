@@ -27,6 +27,8 @@ export default function ClientAssessment() {
   const submit = async (answers) => {
     try {
       const r = await postData(`${apiUrl}/assessment-requests/${id}/submit`, { answers });
+      // just the assessment: the automatic report is ready at once
+      if (r?.status && r?.data?.released) { router.push(`/assessment-report/${id}`); }
       return !!r?.status;
     } catch (e) { return false; }
   };
@@ -46,7 +48,7 @@ export default function ClientAssessment() {
             <Link href={req.status === "released" ? `/assessment-report/${req._id}` : "/client/check-ins"}>{req.status === "released" ? "View report" : "Go to My check-ins"}</Link>
           </div>
         ) : (
-          <AssessmentForm test={test} onBack={() => router.push("/client/check-ins")} clinical={{ therapist: req.therapist, onSubmit: submit }} />
+          <AssessmentForm test={test} onBack={() => router.push("/client/check-ins")} clinical={{ therapist: req.therapist, selfOnly: !!req.selfOnly, onSubmit: submit }} />
         )}
       </div>
     </ClientShell>

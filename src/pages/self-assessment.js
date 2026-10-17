@@ -38,6 +38,7 @@ const SCHEMA = [
 export default function SelfAssessment() {
   const router = useRouter();
   const [clinical, setClinical] = useState(null); // the test whose booking sheet is open
+  const [mode, setMode] = useState("self"); // self = just the assessment, with = with a psychologist
   const [prices, setPrices] = useState(null);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function SelfAssessment() {
     if (!router.isReady) return;
     const t = testFromParam(router.query.start);
     if (!t) return;
+    if (router.query.mode === "with") setMode("with");
     router.replace("/self-assessment", undefined, { shallow: true, scroll: false });
     setClinical(t);
   }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -79,7 +81,7 @@ export default function SelfAssessment() {
       <MyNavbar />
       <SelfAssessmentBanner />
       <AssessmentCards prices={prices} onBook={setClinical} />
-      {clinical && <ClinicalModal test={clinical} onClose={() => setClinical(null)} />}
+      {clinical && <ClinicalModal test={clinical} initialMode={mode} onClose={() => { setClinical(null); setMode("self"); }} />}
       <Footer />
     </div>
   );

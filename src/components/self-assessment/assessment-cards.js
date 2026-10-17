@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FREE_TESTS, CATEGORIES } from "./tests";
 
 /* The list on /self-assessment: the clinical assessments by topic, with their price (admin pricing).
-   Nothing is taken here — "Book this assessment" opens the psychologists who offer it (onBook). */
+   "Take this assessment" opens the sheet: just the assessment, or with a psychologist (onBook). */
 
 export default function AssessmentCards({ prices, onBook }) {
   const [cat, setCat] = useState("All");
@@ -18,7 +18,7 @@ export default function AssessmentCards({ prices, onBook }) {
           <div className="sac-head">
             <span className="sac-kick">Clinical assessments</span>
             <h2 id="sac-h">Which assessment do you need?</h2>
-            <p>Standard, published questionnaires with their original scoring — booked with a verified psychologist. You answer online before your session, get a professional report, and go through it together.</p>
+            <p>Standard, published questionnaires with their original scoring. Take one on its own and get an instant report — or with a verified psychologist, who adds their notes from your session to the report.</p>
           </div>
 
           <div className="sac-cats" role="tablist" aria-label="Topics">
@@ -44,9 +44,9 @@ export default function AssessmentCards({ prices, onBook }) {
                 <p className="sac-by">Developed by: {t.by}</p>
                 <div className="sac-foot">
                   <span className="sac-price">
-                    {prices?.[t.key] ? <>{prices[t.key].offer && <s>₹{prices[t.key].fee}</s>} <b>₹{prices[t.key].price}</b>{prices[t.key].offer && prices[t.key].offerLabel && <em>{prices[t.key].offerLabel}</em>}<small>+ session</small></> : <small>&nbsp;</small>}
+                    {prices?.[t.key] ? <>{prices[t.key].offer && <s>₹{prices[t.key].fee}</s>} <b>₹{prices[t.key].price}</b>{prices[t.key].offer && prices[t.key].offerLabel && <em>{prices[t.key].offerLabel}</em>}<small>assessment fee</small></> : <small>&nbsp;</small>}
                   </span>
-                  <button type="button" className="sac-btn" onClick={() => onBook(t)}>Book this assessment</button>
+                  <button type="button" className="sac-btn" onClick={() => onBook(t)}>Take this assessment</button>
                 </div>
               </article>
             ))}
@@ -55,10 +55,10 @@ export default function AssessmentCards({ prices, onBook }) {
           <div className="sac-clinical">
             <span className="sac-kick">How it works</span>
             <ol>
-              <li><b>Book</b> the assessment with a psychologist, together with a session.</li>
-              <li><b>Answer it online</b> before your session — it takes a few minutes.</li>
-              <li><b>Your psychologist gets an automatic report</b> with your answers and the published scoring.</li>
-              <li><b>Go through it together</b> in the session — then the report is yours to keep.</li>
+              <li><b>Just the assessment</b> — pay the assessment fee, answer it online and get your automatic report at once.</li>
+              <li><b>With a psychologist</b> — book it with a session and answer it online before the session.</li>
+              <li><b>Your psychologist goes through it with you</b> and adds a summary, observations, recommendations and a follow-up plan.</li>
+              <li><b>Signed report</b> — with their RCI / registration no., yours to keep.</li>
             </ol>
           </div>
         </div>
