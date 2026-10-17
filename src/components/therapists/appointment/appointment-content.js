@@ -28,6 +28,7 @@ import { SESSION_STATUS } from "../../../utils/constant";
 import SessionTicket from "../../client/session-ticket";
 import useTherapistStore from "../../../store/therapistStore";
 import { usePager, Pager } from "../pager";
+import { useAssessmentMap, AssessmentChips, sessionSplit } from "../booking-assessments";
 
 /* Therapist "Appointments": every booking with what the client told us at booking time
    (who the session is for, age, gender, concern, contact), grouped by day, with the
@@ -294,6 +295,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   };
   const [receipt, setReceipt] = useState(null); // booking whose receipt is open
   const printInvoice = (a) => setReceipt(a);
+  const amap = useAssessmentMap(); // clinical assessments booked with each session
 
   // details drawer: Esc closes, page behind doesn't scroll
   useEffect(() => {
@@ -407,7 +409,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <td className="when">{d ? <><b>{fmtTime(d)}</b><span>{fmtDay(d)}</span></> : "—"}</td>
                     <td><b>{p.name}</b>{p.forOther && <span className="sub">for {p.relation || "someone"} · by {p.bookedBy}</span>}</td>
                     <td>{[p.age ? `${p.age} yrs` : "", p.gender].filter(Boolean).join(" · ") || "—"}</td>
-                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}</span></td>
+                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}</span>{a.assessments?.length > 0 && <div style={{ marginTop: 4 }}><AssessmentChips b={a} map={amap} compact /></div>}</td>
                     <td className="concern">{cleanText(a.notes) || "—"}</td>
                     <td><span className={`apx-st ${st.key}`}>{st.label}</span></td>
                     <td className="acts" onClick={(e) => e.stopPropagation()}><SessionButton a={a} /></td>
@@ -452,6 +454,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                         {cleanText(a.session_type) && <span>{a.session_type}</span>}
                         {p.forOther && p.bookedBy && <span className="by">Booked by {p.bookedBy}</span>}
                       </div>
+                      {a.assessments?.length > 0 && <div className="apx-assess"><AssessmentChips b={a} map={amap} /></div>}
                       {concern && <p className="apx-concern"><PsychologyAltRoundedIcon /> {concern}</p>}
                       <div className="apx-acts" onClick={(e) => e.stopPropagation()}>
                         <SessionButton a={a} />
@@ -541,6 +544,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                         {started && <div><dt>Started</dt><dd>{fmtTime(started)}</dd></div>}
                         {completed && <div><dt>Ended</dt><dd>{fmtTime(completed)}</dd></div>}
                         <div><dt>Booking ID</dt><dd className="mono">#{String(a._id).slice(-8)}</dd></div>
+                        {a.assessments?.length > 0 && <div style={{ gridColumn: "1 / -1" }}><dt>Clinical assessment</dt><dd style={{ whiteSpace: "normal" }}><AssessmentChips b={a} map={amap} /></dd></div>}
                         {a.meet_link && <div style={{ gridColumn: "1 / -1" }}><dt>Google Meet</dt><dd><a href={a.meet_link} target="_blank" rel="noopener noreferrer" className="mono" style={{ color: "#166534" }}>{a.meet_link.replace("https://", "")}</a></dd></div>}
                         {a.meet_link && a.status === SESSION_STATUS.NEW && <div style={{ gridColumn: "1 / -1" }}><dt>Joined</dt><dd>{a.client_joined_at ? "Client ✓" : "Client —"} · {a.therapist_joined_at ? "You ✓" : "You —"}</dd></div>}
                       </dl>
@@ -550,6 +554,10 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       <h3>Payment</h3>
                       <dl>
                         <div><dt>Amount</dt><dd>{amount != null && amount !== "" ? inr(amount) : "—"}</dd></div>
+                        {a.assessments?.length > 0 && (() => { const sp = sessionSplit(a, amount); return <>
+                          <div><dt>Session fee</dt><dd>{inr(sp.session)}</dd></div>
+                          {sp.lines.map((l) => <div key={l.short}><dt>{l.short} assessment</dt><dd>{inr(l.fee)}</dd></div>)}
+                        </>; })()}
                         <div><dt>Status</dt><dd><span className={`apx-pay ${paidOk ? "ok" : "warn"}`}>{payName || "—"}</span></dd></div>
                         {a.transaction?.payment_method && <div><dt>Method</dt><dd>{a.transaction.payment_method}</dd></div>}
                         {paidAt && <div><dt>Paid on</dt><dd>{fmtDay(paidAt)}, {fmtTime(paidAt)}</dd></div>}
@@ -566,7 +574,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <dl>
                       <div><dt>Billed to</dt><dd>{p.bookedBy || p.name}</dd></div>
                       <div><dt>Date</dt><dd>{d ? `${fmtDay(d)}, ${fmtTime(d)}` : "—"}</dd></div>
-                      <div><dt>{a.service || "Session"} · {a.format || "Online"}</dt><dd>{inr(amount)}</dd></div>
+                      <div><dt>{a.service || "Session"} · {a.format || "Online"}</dt><dd>{inr(sessionSplit(a, amount).session)}</dd></div>
+                      {sessionSplit(a, amount).lines.map((l) => <div key={l.short}><dt>{l.short} clinical assessment</dt><dd>{inr(l.fee)}</dd></div>)}
                     </dl>
                     <div className="apx-inv-total"><span>Total</span><b>{inr(amount)}</b></div>
                     <div className="apx-inv-acts">
@@ -696,6 +705,7 @@ const APX_CSS = `
 .apx-chips span { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: #334155; background: #f3f6f4; border-radius: 8px; padding: 3px 8px; }
 .apx-chips span svg { font-size: 14px; color: var(--g); }
 .apx-chips span.by { background: #fbf3e2; color: #92651a; }
+.apx-assess { margin: 2px 0 6px; }
 .apx-concern { display: flex; gap: 6px; margin: 0; font-size: 13px; color: #475569; line-height: 1.45; background: #f8faf9; border-left: 3px solid #a7d7b8; border-radius: 0 8px 8px 0; padding: 6px 10px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .apx-concern svg { font-size: 15px; color: var(--g); vertical-align: -3px; margin-right: 2px; }

@@ -1,4 +1,5 @@
 import { sessionWindow, opensAtText } from "../../../utils/session-window";
+import { useAssessmentMap, bookingAssessments, AssessmentChips } from "../booking-assessments";
 import React from "react";
 import Link from "next/link";
 import SessionTicket from "../../client/session-ticket";
@@ -112,6 +113,7 @@ const digits = (p) => String(p || "").replace(/\D/g, "");
 
 export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist }) {
   const [receipt, setReceipt] = React.useState(false);
+  const amap = useAssessmentMap();
   if (loading) return <div className="ov-next ov-card"><div className="ov-skel" /></div>;
   if (!s) {
     return (
@@ -133,6 +135,8 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
   const about = [clean(b.age || b.client?.age) && `${clean(b.age || b.client?.age)} yrs`, clean(b.client?.gender)].filter(Boolean).join(" · ");
   const phone = digits(b.client?.phone);
   const notes = clean(b.notes);
+  const assess = bookingAssessments(b, amap);
+  const report = assess.find((x) => x.reportId);
   const details = [
     ["Service", clean(b.service) || "Session"],
     ["Mode", modeLabel(b)],
@@ -161,13 +165,20 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
             {s.meet && onJoin && joinWin.open
               ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
               : s.meet && joinWin.before
-                ? <span className="ov-btn ghost" style={{ cursor: "default" }}><span className="ov-hide-phone">Join opens&nbsp;</span><span className="ov-only-phone-inline">Opens&nbsp;</span>{opensAtText(joinWin.opens)}</span>
+                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}>Join opens at&nbsp;<b>{opensAtText(joinWin.opens)}</b></span>
                 : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
             {onReschedule && s.status !== "Started"
               ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
               : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
+            {report && <Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost ov-assess-btn">📋 {report.short} report{report.flag ? " ⚠" : ""}</Link>}
             {b._id && <button type="button" className="ov-btn ghost ov-only-phone" onClick={() => setReceipt(true)}>Invoice</button>}
           </div>
+          {assess.length > 0 && (
+            <div className="ov-next-assess">
+              <span>Clinical assessment</span>
+              <AssessmentChips b={b} map={amap} />
+            </div>
+          )}
         </div>
 
         <div className="ov-next-right">
@@ -305,6 +316,19 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-next-name { font-size: 20px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ov-next-sub { font-size: 13.5px; color: #475569; margin: 2px 0 0; }
 .ov-next-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ov-opens b { font-weight: 800; margin-left: 2px; }
+.ov-next-assess { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ov-next-assess > span:first-child { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #64748b; }
+/* tablets & desktops: a soft golden card */
+@media (min-width: 768px) {
+  .ov-next:not(.live):not(.empty) { background: linear-gradient(150deg, #fff6dc 0%, #fffaf0 55%, #fffdf8 100%); border-color: #f1dca6; box-shadow: 0 14px 30px -24px rgba(146,106,18,.55); }
+  .ov-next:not(.live):not(.empty) .ov-next-k { color: #9a6b0f; }
+  .ov-next:not(.live):not(.empty) .ov-next-k span { border-color: #f1dca6; color: #8a5d06; }
+  .ov-next:not(.live):not(.empty) .ov-next-av { background: #fdecc0; }
+  .ov-next:not(.live):not(.empty) .ov-next-av b { color: #8a5d06; }
+  .ov-next:not(.live):not(.empty) .ov-next-right { border-left-color: #ecd49a; }
+  .ov-next:not(.live):not(.empty) .ov-btn.ghost { border-color: #ecd49a; }
+}
 .ov-next-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 22px; align-items: center; }
 .ov-next-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .ov-next-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-left: 20px; border-left: 1px dashed #cfe3d6; min-width: 0; }
@@ -317,7 +341,7 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-next-contact { display: flex; gap: 10px; margin-top: 4px; }
 .ov-next-contact a { font-size: 12.5px; font-weight: 800; color: #166534; text-decoration: none; }
 .ov-next-contact a:hover { text-decoration: underline; }
-.ov-only-phone, .ov-only-phone-inline { display: none; }
+.ov-only-phone, .ov-only-phone-inline, .ov-btn.ov-only-phone { display: none; }
 .ov-btn.sm { height: 34px; padding: 0 14px; font-size: 13px; cursor: pointer; font-family: inherit; }
 .ov-btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border-radius: 11px; background: #166534; color: #fff !important; font-size: 13.5px; font-weight: 800; text-decoration: none; border: 1.5px solid #166534; }
 .ov-btn.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
@@ -377,9 +401,11 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
   .ov-next-grid { grid-template-columns: 1fr; }
   /* phones: keep the card short — who/when + one line of three buttons, no details panel */
   .ov-next-right { display: none; }
-  .ov-only-phone { display: inline-flex; } .ov-only-phone-inline { display: inline; } .ov-hide-phone { display: none; }
-  .ov-next-btns { flex-wrap: nowrap; gap: 6px; }
-  .ov-next-btns .ov-btn { flex: 1 1 0; min-width: 0; padding: 0 8px; height: 40px; font-size: 12.5px; white-space: nowrap; }
+  .ov-only-phone, .ov-btn.ov-only-phone { display: inline-flex; } .ov-only-phone-inline { display: inline; } .ov-hide-phone { display: none; }
+  /* phones: first action full width (its text never spills out), the rest two per row */
+  .ov-next-btns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .ov-next-btns > :first-child { grid-column: 1 / -1; }
+  .ov-next-btns .ov-btn { min-width: 0; padding: 0 8px; height: 40px; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 }
 @media (max-width: 560px) {
   .ov-week-row { grid-template-columns: repeat(7, 64px); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }

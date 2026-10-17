@@ -51,6 +51,8 @@ function Ticket({ d, render = false, innerRef }) {
           <div className="tk-row"><span className="l">Service</span><b>{d.service}</b></div>
           <div className="tk-row"><span className="l">{d.otherLabel}</span><b>{d.otherName}</b></div>
           {d.sessionFor && <div className="tk-row"><span className="l">Session for</span><b>{d.sessionFor}</b></div>}
+          {d.assess.length > 0 && <div className="tk-row"><span className="l">Session fee</span><b>{d.sessionFee}</b></div>}
+          {d.assess.map((x) => <div key={x.k} className="tk-row"><span className="l">{x.k} assessment</span><b>{x.v}</b></div>)}
           {d.paidVia && <div className="tk-row"><span className="l">Paid via</span><b>{d.paidVia}</b></div>}
           {d.booked && <div className="tk-row wide"><span className="l">Booked on</span><b>{d.booked}</b></div>}
         </div>
@@ -94,7 +96,12 @@ export default function SessionTicket({ b, therapist: me = null, onClose }) {
   const clientName = b.client?.name || "Client";
   const sessionFor = /other/i.test(b.whom || "") ? (b.cname || b.relation_with_client || "") : "";
   const isTherapist = !!me; // whoever is looking gets their own name on top
+  const SHORT = { phq9: "PHQ-9", gad7: "GAD-7", dass21: "DASS-21", k10: "K10", pcl5: "PCL-5", phq15: "PHQ-15", audit: "AUDIT", asrs: "ASRS", epds: "EPDS", cbi: "CBI", rses: "RSES", bigfive: "IPIP-50" };
+  const assessList = (Array.isArray(b.assessments) ? b.assessments : []).map((a) => ({ k: SHORT[a.tool] || a.tool, fee: Number(a.fee) || 0 }));
+  const assessTotal = assessList.reduce((n, a) => n + a.fee, 0);
   const d = {
+    assess: assessList.map((a) => ({ k: a.k, v: inr(a.fee) })),
+    sessionFee: inr(Math.max(0, paid - assessTotal)),
     therapist: therapistName,
     topLabel: isTherapist ? "Therapist" : "Client",
     topName: isTherapist ? therapistName : clientName,

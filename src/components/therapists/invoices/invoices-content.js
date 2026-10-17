@@ -8,6 +8,9 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import SessionTicket from "../../client/session-ticket";
+import { sessionSplit } from "../booking-assessments";
+
+const assessText = (r) => sessionSplit(r.raw, r.amount).lines.map((l) => `${l.short} ₹${l.fee}`).join(", ");
 import useTherapistStore from "../../../store/therapistStore";
 import { usePager, Pager } from "../pager";
 
@@ -35,9 +38,9 @@ function inPeriod(d, key) {
 }
 
 function downloadCsv(rows) {
-  const head = ["Invoice no", "Client", "Phone", "Service", "Mode", "Session date", "Paid on", "Method", "Transaction ID", "Amount (INR)", "Status"];
+  const head = ["Invoice no", "Client", "Phone", "Service", "Mode", "Session date", "Paid on", "Method", "Transaction ID", "Assessments", "Amount (INR)", "Status"];
   const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const lines = rows.map((r) => [r.number, r.client_name, r.client_phone, r.service, r.format, fmtDate(r.booking_date), fmtDate(r.paid_on), r.method, r.txn_id, r.amount, r.status].map(q).join(","));
+  const lines = rows.map((r) => [r.number, r.client_name, r.client_phone, r.service, r.format, fmtDate(r.booking_date), fmtDate(r.paid_on), r.method, r.txn_id, assessText(r), r.amount, r.status].map(q).join(","));
   const blob = new Blob(["﻿" + [head.map(q).join(","), ...lines].join("\r\n")], { type: "text/csv;charset=utf-8" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -47,6 +50,7 @@ function downloadCsv(rows) {
 }
 
 const styles = `
+.iv-as { color: #92400e !important; font-weight: 700; }
   .iv-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid #e4ece7;border-radius:12px;padding:10px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
   .iv-search{position:relative;flex:1 1 240px;min-width:0;}
   .iv-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:19px;color:#94a3b8;}
@@ -199,7 +203,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
                         <div style={{ minWidth: 0 }}><div style={{ fontWeight: 700 }}>{r.client_name}</div>{r.client_phone && <div className="iv-sub">{r.client_phone}</div>}</div>
                       </div>
                     </td>
-                    <td><div style={{ fontWeight: 600 }}>{fmtDate(r.booking_date)}</div><div className="iv-sub">{fmtTime(r.booking_date)} · {r.format}</div></td>
+                    <td><div style={{ fontWeight: 600 }}>{fmtDate(r.booking_date)}</div><div className="iv-sub">{fmtTime(r.booking_date)} · {r.format}</div>{assessText(r) && <div className="iv-sub iv-as">+ Assessment: {assessText(r)}</div>}</td>
                     <td><span className="iv-pill">{r.status}</span>{r.method && <div className="iv-sub" style={{ marginTop: 4 }}>{r.method}</div>}</td>
                     <td className="iv-amt">{inr(r.amount)}</td>
                     <td>
@@ -223,6 +227,7 @@ export default function InvoicesContent({ invoices = [], loading }) {
                       <div className="iv-amt">{inr(r.amount)}</div>
                     </div>
                     <div className="iv-sub">{r.number}</div>
+                    {assessText(r) && <div className="iv-sub iv-as">+ Assessment: {assessText(r)}</div>}
                     <div className="iv-item-meta">
                       <span className="iv-sub">{fmtDate(r.booking_date)} · {r.format}</span>
                       <span style={{ display: "flex", gap: 6, alignItems: "center" }}>
