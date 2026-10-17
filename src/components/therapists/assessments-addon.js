@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import Link from "next/link";
-import { setAssessmentsUpgrade } from "./nav-extras";
+import { setAssessmentsUpgrade, useAddonLive } from "./nav-extras";
 import SignaturePad from "./signature-pad";
 import { EducationList } from "../../utils/static-lists";
 
@@ -57,6 +57,7 @@ export default function AssessmentsAddon({ onChange }) {
     onChange && onChange(d || null);
   }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useAddonLive(() => { setEditing(false); load(); }); // admin approved / sent back → update without a refresh
 
   const buy = async () => {
     setBusy(true); setMsg({ text: "", err: false });

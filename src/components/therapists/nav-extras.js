@@ -2,6 +2,7 @@ import React from "react";
 import { toast } from "react-toastify";
 import useTherapistStore from "../../store/therapistStore";
 import useCommsStore, { newReviewsCount } from "../../store/commsStore";
+import useNotifStore from "../../store/notifStore";
 import { profilePct } from "../../utils/profile-checks";
 import { profilePath } from "../../utils/therapist-slug";
 import { imagePath, defaultProfile, apiUrl } from "../../utils/url";
@@ -37,6 +38,34 @@ export function useAssessmentsUpgrade() {
   }, []);
   return show;
 }
+// calls cb whenever a new Clinical Assessments notification arrives live (admin approved / sent back …)
+export function useAddonLive(cb) {
+  const latest = useNotifStore((s) => s.items.find((n) => n.type === "addon")?._id || "");
+  const seen = React.useRef(null);
+  const ref = React.useRef(cb);
+  ref.current = cb;
+  React.useEffect(() => {
+    if (seen.current === null) { seen.current = latest; return; } // first render: nothing new yet
+    if (latest && latest !== seen.current) { seen.current = latest; ref.current(); }
+  }, [latest]);
+}
+
+// where the therapist is in buying the add-on (details / rejected / review / consent / payment / active), kept live
+export function useAddonStep() {
+  const [step, setStep] = React.useState(null);
+  const load = React.useCallback(() => {
+    const token = (() => { try { return localStorage.getItem("token"); } catch (e) { return null; } })();
+    if (!token) return;
+    fetch(`${apiUrl}/therapist-addon`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => r.json())
+      .then((j) => setStep(j?.data?.assessments?.step || null))
+      .catch(() => {});
+  }, []);
+  React.useEffect(() => { load(); }, [load]);
+  useAddonLive(load);
+  return step;
+}
+
 export const clearAssessmentsUpgrade = () => { try { sessionStorage.removeItem(UPG_KEY); } catch (e) { /* ignore */ } };
 // the add-on page knows the real state — share it with the nav tag / dashboard To-do straight away
 export const setAssessmentsUpgrade = (show) => {

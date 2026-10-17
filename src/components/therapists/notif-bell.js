@@ -31,6 +31,7 @@ const KIND = {
   action: { Icon: AssignmentLateRoundedIcon, fg: "#9a3412", bg: "#ffedd5" },
   payout: { Icon: PaymentsRoundedIcon, fg: "#166534", bg: "#dcfce7" },
   reply: { Icon: ForumRoundedIcon, fg: "#6d28d9", bg: "#ede9fe" },
+  addon: { Icon: TaskAltRoundedIcon, fg: "#14532d", bg: "#dcfce7" },
 };
 const kindOf = (t) => KIND[t] || KIND.notice;
 
