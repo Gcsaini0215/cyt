@@ -7,6 +7,8 @@ import FileDownloadRoundedIcon from "@mui/icons-material/FileDownloadRounded";
 
 /* A session receipt styled like a ticket: just the session details and what was paid — no
    letterhead. Used by the client portal and the therapist portal (which passes `therapist`).
+   ReceiptModal is the same ticket for any payment (e.g. the therapist's Clinical Assessments add-on):
+   pass d = { brand, topLabel, topName, topSub, rows: [{ l, v, wide }], paid, saved, receiptNo, paymentId }.
 
    - On screen it fits the device (compact two-column layout on phones).
    - Print / PDF always use a fixed, wide copy rendered off-screen, so the file looks the same
@@ -36,7 +38,7 @@ function Ticket({ d, render = false, innerRef }) {
     <div className={`tk ${render ? "tk-render" : "tk-view"}`} ref={innerRef} aria-hidden={render || undefined}>
       <div className="tk-main">
         <div className="tk-brand">
-          <span><img src="/cyt-emblem.png" alt="" width="20" height="20" /> Session receipt</span>
+          <span><img src="/cyt-emblem.png" alt="" width="20" height="20" /> {d.brand || "Session receipt"}</span>
           <small>Choose Your Therapist</small>
         </div>
         <div className="tk-who">
@@ -45,16 +47,7 @@ function Ticket({ d, render = false, innerRef }) {
           {d.topSub && <em>{d.topSub}</em>}
         </div>
         <div className="tk-rows">
-          <div className="tk-row"><span className="l">Session date</span><b>{d.date}</b></div>
-          <div className="tk-row"><span className="l">Session time</span><b>{d.time}</b></div>
-          <div className="tk-row"><span className="l">Mode</span><b>{d.mode}</b></div>
-          <div className="tk-row"><span className="l">Service</span><b>{d.service}</b></div>
-          <div className="tk-row"><span className="l">{d.otherLabel}</span><b>{d.otherName}</b></div>
-          {d.sessionFor && <div className="tk-row"><span className="l">Session for</span><b>{d.sessionFor}</b></div>}
-          {d.assess.length > 0 && <div className="tk-row"><span className="l">Session fee</span><b>{d.sessionFee}</b></div>}
-          {d.assess.map((x) => <div key={x.k} className="tk-row"><span className="l">{x.k} assessment</span><b>{x.v}</b></div>)}
-          {d.paidVia && <div className="tk-row"><span className="l">Paid via</span><b>{d.paidVia}</b></div>}
-          {d.booked && <div className="tk-row wide"><span className="l">Booked on</span><b>{d.booked}</b></div>}
+          {d.rows.map((r) => <div key={r.l} className={`tk-row${r.wide ? " wide" : ""}`}><span className="l">{r.l}</span><b>{r.v}</b></div>)}
         </div>
       </div>
 
@@ -78,10 +71,6 @@ function Ticket({ d, render = false, innerRef }) {
 }
 
 export default function SessionTicket({ b, therapist: me = null, onClose }) {
-  const renderRef = useRef(null);
-  const [pdf, setPdf] = useState(null); // Blob, made when the popup opens
-  const [pdfErr, setPdfErr] = useState(false);
-  const [msg, setMsg] = useState("");
 
   const tx = b.transaction || {};
   const paid = toAmount(tx.amount ?? b.amount);
@@ -120,6 +109,27 @@ export default function SessionTicket({ b, therapist: me = null, onClose }) {
     receiptNo,
     paymentId: tx.transaction_id ? String(tx.transaction_id) : "",
   };
+  d.rows = [
+    { l: "Session date", v: d.date },
+    { l: "Session time", v: d.time },
+    { l: "Mode", v: d.mode },
+    { l: "Service", v: d.service },
+    { l: d.otherLabel, v: d.otherName },
+    ...(d.sessionFor ? [{ l: "Session for", v: d.sessionFor }] : []),
+    ...(d.assess.length ? [{ l: "Session fee", v: d.sessionFee }] : []),
+    ...d.assess.map((x) => ({ l: `${x.k} assessment`, v: x.v })),
+    ...(d.paidVia ? [{ l: "Paid via", v: d.paidVia }] : []),
+    ...(d.booked ? [{ l: "Booked on", v: d.booked, wide: true }] : []),
+  ];
+  return <ReceiptModal d={d} fileName={fileName} title="Session receipt" shareText={`Session with ${d.therapist} — ${d.date}`} onClose={onClose} />;
+}
+
+// the ticket in a popup, with Print / Download / Share PDF
+export function ReceiptModal({ d, fileName, title = "Receipt", shareText = "", onClose }) {
+  const renderRef = useRef(null);
+  const [pdf, setPdf] = useState(null); // Blob, made when the popup opens
+  const [pdfErr, setPdfErr] = useState(false);
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -163,7 +173,7 @@ export default function SessionTicket({ b, therapist: me = null, onClose }) {
     if (!pdf) return;
     const file = new File([pdf], fileName, { type: "application/pdf" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: "Session receipt", text: `Session with ${d.therapist} — ${d.date}` })
+      navigator.share({ files: [file], title, text: shareText })
         .catch((e) => { if (e?.name !== "AbortError") { saveFile(pdf); setMsg("Couldn't open sharing — the PDF was downloaded instead."); } });
     } else {
       saveFile(pdf);
@@ -188,7 +198,7 @@ export default function SessionTicket({ b, therapist: me = null, onClose }) {
   return (
     <div className="tk-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <style dangerouslySetInnerHTML={{ __html: TK_CSS + TK_UI_CSS }} />
-      <div className="tk-modal" role="dialog" aria-modal="true" aria-label="Session receipt">
+      <div className="tk-modal" role="dialog" aria-modal="true" aria-label={title}>
         <button type="button" className="tk-x" onClick={onClose} aria-label="Close"><CloseRoundedIcon /></button>
         <Ticket d={d} />
         <div className="tk-acts">

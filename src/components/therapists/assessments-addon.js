@@ -5,6 +5,8 @@ import Link from "next/link";
 import { setAssessmentsUpgrade, useAddonLive } from "./nav-extras";
 import SignaturePad from "./signature-pad";
 import { EducationList } from "../../utils/static-lists";
+import { ReceiptModal } from "../client/session-ticket";
+import useTherapistStore from "../../store/therapistStore";
 
 /* "Add-on & details" tab of the Assessments page: the 6-month Clinical Assessments add-on, bought in
    steps — 1 send details (qualification synced from Settings → Profile, RCI / reg. no., signature) → 2 CYT approves them (admin panel)
@@ -12,6 +14,21 @@ import { EducationList } from "../../utils/static-lists";
 
 const OTHER_EDU = "Other (Please specify)";
 const EDU = EducationList.filter((e) => e !== "Select" && e !== OTHER_EDU);
+const DAY = 864e5;
+const inr2 = (n) => `₹${Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+// ticket-style receipt for one add-on payment (same design as the client's session receipt)
+const receiptOf = (pay, me, profile) => ({
+  brand: "Payment receipt",
+  topLabel: "Therapist", topName: me?.user?.name || profile?.name || "Therapist", topSub: me?.profile_type || profile?.profileType || "",
+  rows: [
+    { l: "Item", v: "Clinical Assessments add-on" },
+    { l: "Plan", v: "6 months" },
+    ...(pay.from && pay.till ? [{ l: "Valid", v: `${fmtDate(pay.from)} – ${fmtDate(pay.till)}`, wide: true }] : []),
+    { l: "Paid via", v: "Razorpay" },
+    { l: "Paid on", v: new Date(pay.paidAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }), wide: true },
+  ],
+  paid: inr2(pay.amount), saved: "", receiptNo: pay.receiptNo, paymentId: pay.paymentId || "",
+});
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
 const STEPS = [["details", "Submit details"], ["review", "CYT approval"], ["consent", "Informed consent"], ["payment", "Payment"]];
@@ -48,6 +65,8 @@ export default function AssessmentsAddon({ onChange }) {
   const [editing, setEditing] = useState(false);
   const [agree, setAgree] = useState(false);
   const [cname, setCname] = useState("");
+  const [receipt, setReceipt] = useState(null);
+  const me = useTherapistStore((st) => st.therapistInfo);
 
   const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => {
     const d = r?.data;
@@ -73,7 +92,10 @@ export default function AssessmentsAddon({ onChange }) {
           try {
             const v = await postData(`${apiUrl}/therapist-addon/verify`, resp);
             setMsg({ text: v?.message || "Activated.", err: !v?.status });
+            const r = await fetchById(`${apiUrl}/therapist-addon`).catch(() => null);
             await load();
+            const paid = r?.data?.payments?.find((x) => x.paymentId === resp.razorpay_payment_id);
+            if (paid) setReceipt(paid);
           } catch (e) { setMsg({ text: e?.response?.data?.message || "Payment verification failed — contact hello@chooseyourtherapist.in with your payment ID.", err: true }); }
           setBusy(false);
         },
@@ -192,7 +214,22 @@ export default function AssessmentsAddon({ onChange }) {
             {/* done */}
             {step === "active" && (
               <div className="aa-box on">
-                <div><b>Active · clients can book assessments with you</b><span>Valid till {fmtDate(a.till)}</span></div>
+                <div>
+                  <b>Active · clients can book assessments with you</b>
+                  {(() => {
+                    const end = new Date(a.till).getTime();
+                    const start = a.termFrom ? new Date(a.termFrom).getTime() : (() => { const d = new Date(a.till); d.setMonth(d.getMonth() - (a.termMonths || 6)); return d.getTime(); })();
+                    const left = Math.max(0, Math.ceil((end - Date.now()) / DAY));
+                    const pct = Math.max(0, Math.min(100, ((end - Date.now()) / Math.max(DAY, end - start)) * 100));
+                    return (
+                      <div className={`aa-count${left <= 15 ? " low" : ""}`}>
+                        <div className="aa-count-top"><strong>{left}</strong> day{left === 1 ? "" : "s"} left <em>· ends {fmtDate(a.till)}</em></div>
+                        <span className="aa-count-bar"><span style={{ width: `${pct}%` }} /></span>
+                        <div className="aa-count-ends"><small>{fmtDate(start)}</small><small>{fmtDate(end)}</small></div>
+                      </div>
+                    );
+                  })()}
+                </div>
                 {price}
                 <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : `Extend ${a.termMonths || 6} months`}</button>
               </div>
@@ -257,6 +294,18 @@ export default function AssessmentsAddon({ onChange }) {
                 </div>
               </div>
             )}
+            {data.payments?.length > 0 && (
+              <div className="aa-pays">
+                <b className="aa-pays-h">Payments &amp; invoices</b>
+                {data.payments.map((pay) => (
+                  <div key={pay.orderId || pay.receiptNo} className="aa-pay">
+                    <div><b>{inr2(pay.amount)}</b><span>Paid {fmtDate(pay.paidAt)}{pay.from && pay.till ? ` · valid ${fmtDate(pay.from)} – ${fmtDate(pay.till)}` : ""}</span><small>{pay.receiptNo}</small></div>
+                    <button type="button" className="aa-inv" onClick={() => setReceipt(pay)}>Invoice</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {receipt && <ReceiptModal d={receiptOf(receipt, me, data.profile)} fileName={`Invoice-${receipt.receiptNo}.pdf`} title="Payment receipt" shareText="Clinical Assessments add-on — payment receipt" onClose={() => setReceipt(null)} />}
             {step !== "consent" && <p className="aa-note">You earn {Math.round(share * 100)}% of the fee for every assessment a client books with you; CYT keeps {100 - Math.round(share * 100)}% for running, scoring and reporting it.</p>}
           </>
         )}
@@ -320,6 +369,18 @@ const AA_CSS = `
 .aa-msg { margin: 0 0 12px; font-size: 13.5px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 9px 12px; }
 .aa-msg.err { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
 .aa-note { margin: 12px 0 0; font-size: 12.5px; color: #64748b; }
+.aa-count { margin-top: 8px; max-width: 420px; }
+.aa-count-top { font-size: 13px; color: #334155; } .aa-count-top strong { font-size: 20px; color: #14532d; } .aa-count-top em { font-style: normal; color: #64748b; }
+.aa-count-bar { display: block; height: 7px; border-radius: 99px; background: #e2ece5; overflow: hidden; margin-top: 6px; }
+.aa-count-bar span { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #16a34a, #14532d); transition: width .4s; }
+.aa-count.low .aa-count-top strong { color: #b45309; } .aa-count.low .aa-count-bar span { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.aa-count-ends { display: flex; justify-content: space-between; margin-top: 3px; } .aa-count-ends small { font-size: 11px; color: #94a3b8; font-weight: 600; }
+.aa-pays { margin-top: 12px; border: 1px solid #e3eae6; border-radius: 12px; padding: 12px 14px; }
+.aa-pays-h { display: block; font-size: 14px; color: #0f172a; margin-bottom: 6px; }
+.aa-pay { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid #eef2f0; }
+.aa-pay:first-of-type { border-top: 0; }
+.aa-pay b { font-size: 14.5px; color: #0f172a; margin-right: 8px; } .aa-pay span { font-size: 12.5px; color: #475569; } .aa-pay small { display: block; font-size: 11px; color: #94a3b8; font-family: Consolas, monospace; margin-top: 2px; }
+.aa-inv { border: 0; background: none; padding: 0; font: inherit; font-size: 13px; font-weight: 800; color: #1d4ed8; cursor: pointer; text-decoration: underline; white-space: nowrap; }
 .aa-skel { height: 220px; border-radius: 12px; background: #f1f5f4; }
 .aa-price { font-size: 13px; color: #64748b; } .aa-price strong { font-size: 22px; color: #0f172a; } .aa-price s { color: #94a3b8; }
 .aa-price em { display: block; font-style: normal; font-size: 11.5px; font-weight: 800; color: #b45309; }
