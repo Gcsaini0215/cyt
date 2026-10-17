@@ -15,8 +15,8 @@ import { apiUrl } from "../utils/url";
 
 const SITE = SITE_URL;
 const PAGE_URL = `${SITE}/self-assessment`;
-const TITLE = "Clinical Mental Health Assessments with a Psychologist | CYT";
-const DESC = "Book a standard clinical assessment with a verified psychologist — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five. Answer online, get a professional report and a session to go through it.";
+const TITLE = "Mental Health Screening Tests Online — PHQ-9, GAD-7, DASS-21 & More | CYT";
+const DESC = "Standard mental health screening tools — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five. For screening only, not a diagnosis. Take one online for an instant scored report, or with a verified psychologist.";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
 
 const SCHEMA = [
@@ -63,12 +63,12 @@ export default function SelfAssessment() {
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:title" content="Clinical assessments with a verified psychologist" />
+        <meta property="og:title" content="Mental health screening tests — for screening, not diagnosis" />
         <meta property="og:description" content={DESC} />
         <meta property="og:image" content={OG_IMAGE} />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Clinical assessments with a verified psychologist" />
+        <meta name="twitter:title" content="Mental health screening tests — for screening, not diagnosis" />
         <meta name="twitter:description" content={DESC} />
         <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SCHEMA) }} />

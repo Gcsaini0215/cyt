@@ -5,9 +5,9 @@ import Link from "next/link";
 
 const TRUST = [
   ["feather-check-circle", "Standard screening tools", "12 published questionnaires, word for word, with references"],
-  ["feather-award", "With a verified psychologist", "Your psychologist goes through the report with you"],
-  ["feather-lock", "Private to you", "Shared only with your psychologist"],
-  ["feather-shield", "Govt. registered platform", "Health Facility Registry · HFR ID IN0510005384"],
+  ["feather-award", "Verified psychologists", "Optional — they go through your report with you"],
+  ["feather-lock", "Private to you", "Only you — or your psychologist — can see it"],
+  ["feather-shield", "Registered health facility", "Health Facility Registry · HFR ID IN0510005384"],
 ];
 
 const styles = `
@@ -43,11 +43,12 @@ export default function SelfAssessmentBanner() {
       <section className="sab" aria-labelledby="sab-title">
         <span className="sab-blob a" /><span className="sab-blob b" />
         <div className="sab-in">
-          <span className="sab-eyebrow">🌿 Answer online · Professional report · Private</span>
-          <h1 id="sab-title">Clinical Mental Health Assessments <span>Know where you stand — with a psychologist</span></h1>
+          <span className="sab-eyebrow">🌿 Screening tools · Answer online · Private</span>
+          <h1 id="sab-title">Mental Health Screening Assessments <span>For screening only — not a diagnosis</span></h1>
           <p className="sab-sub">
-            Book a standard assessment for mood, anxiety, stress, trauma, ADHD, alcohol use, burnout and more. Answer it online,
-            and a verified psychologist goes through your report with you in a session.
+            Standard, published screening tools for mood, anxiety, stress, trauma, ADHD, alcohol use, burnout and more. They show how
+            strong your symptoms are right now — they do not diagnose any condition. Take one on its own for an instant report, or with a
+            verified psychologist who goes through it with you.
           </p>
           <div className="sab-trust">
             {TRUST.map(([icon, title, text]) => (
@@ -55,7 +56,7 @@ export default function SelfAssessmentBanner() {
             ))}
           </div>
           <p className="sab-note">
-            An assessment is a screening, not a diagnosis on its own. In a crisis in India call Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).{" "}
+            Only a qualified professional can make a diagnosis, after a full clinical assessment. In a crisis in India call Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).{" "}
             <Link href="/view-all-therapist">Talk to a psychologist →</Link>
           </p>
         </div>

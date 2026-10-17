@@ -96,6 +96,7 @@ export default function AssessmentPage({ slug }) {
             <span><i className="feather-clock" aria-hidden="true" /> {test.time}</span>
             <span><i className="feather-user" aria-hidden="true" /> {test.age}</span>
             <span><i className="feather-file-text" aria-hidden="true" /> Published scoring</span>
+            <span className="ap-screen"><i className="feather-info" aria-hidden="true" /> Screening only · not a diagnosis</span>
           </div>
           <p className="ap-by">Developed by: {test.by}</p>
         </div>
@@ -168,6 +169,7 @@ const AP_CSS = `
 .ap-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .ap-chips span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #334155; background: rgba(255,255,255,.8); border: 1px solid rgba(23,60,42,.08); border-radius: 999px; padding: 6px 12px; }
 .ap-chips i { color: #1f6b45; }
+.ap-chips .ap-screen { background: #fffbeb; border-color: #fde68a; color: #92400e; } .ap-chips .ap-screen i { color: #b45309; }
 .ap-by { margin: 12px 0 0; font-size: 12.5px; color: #5b6b62; font-weight: 600; }
 .ap-main { background: #f6f8f7; padding: 24px 0 44px; }
 .ap-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; align-items: start; }
