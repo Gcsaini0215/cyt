@@ -25,8 +25,9 @@ export default function AssessmentsAddon({ onChange }) {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: "", err: false });
+  const [reg, setReg] = useState("");
 
-  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
+  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); setReg(r?.data?.assessments?.regNo || ""); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buy = async () => {
@@ -56,7 +57,15 @@ export default function AssessmentsAddon({ onChange }) {
     }
   };
 
+  const saveReg = async () => {
+    setBusy(true); setMsg({ text: "", err: false });
+    try { const r = await postData(`${apiUrl}/therapist-addon/details`, { regNo: reg }); setMsg({ text: r?.message || "Saved.", err: !r?.status }); await load(); }
+    catch (e) { setMsg({ text: e?.response?.data?.message || "Couldn't save — please try again.", err: true }); }
+    setBusy(false);
+  };
+
   const a = data?.assessments;
+  const listed = a && a.active && a.verified && a.regNo;
   const share = data?.therapistShare ?? 0.3;
 
   return (
@@ -73,14 +82,23 @@ export default function AssessmentsAddon({ onChange }) {
           <>
             <div className={`aa-plan${a.active ? " on" : ""}`}>
               <div>
-                <b>{a.active ? "Active" : "Not active"}</b>
-                <span>{a.active ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : "Clients can't add assessments to bookings with you yet."}</span>
+                <b>{!a.active ? "Not active" : listed ? "Active · verified" : "Active · waiting for CYT verification"}</b>
+                <span>{!a.active ? "Clients can't add assessments to bookings with you yet." : listed ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : `Valid till ${fmtDate(a.till)} · clients will see you once CYT has verified your registration no.${a.regNo ? "" : " — add it below"}`}</span>
               </div>
               <div className="aa-price">
                 {a.offer && <s>{inr(a.fee)}</s>} <strong>{a.price === 0 ? "Free" : inr(a.price)}</strong><small>/year</small>
                 {a.offer && a.offerLabel && <em>{a.offerLabel}</em>}
               </div>
               <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : a.active ? "Extend 1 year" : a.price === 0 ? "Activate free" : "Buy add-on"}</button>
+            </div>
+
+            <div className="aa-reg">
+              <label htmlFor="aa-reg">Registration / licence number <span>(e.g. RCI CRR No. — printed on your reports, checked by CYT)</span></label>
+              <div>
+                <input id="aa-reg" maxLength={60} value={reg} onChange={(e) => setReg(e.target.value)} placeholder="e.g. RCI CRR No. A12345" />
+                <button type="button" className="aa-btn ghost" onClick={saveReg} disabled={busy || reg.trim() === (a.regNo || "") || reg.trim().length < 3}>Save</button>
+              </div>
+              <small className={a.verified ? "ok" : ""}>{!a.regNo ? "Not added yet." : a.verified ? "✓ Verified by CYT" : "Waiting for CYT to verify — usually within a working day."}</small>
             </div>
 
             <h3 className="aa-h3">What clients pay — and what you earn</h3>
@@ -121,6 +139,13 @@ const AA_CSS = `
 .aa-price em { display: block; font-style: normal; font-size: 11.5px; font-weight: 800; color: #b45309; }
 .aa-btn { height: 42px; padding: 0 18px; border-radius: 11px; border: 0; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; }
 .aa-btn:disabled { opacity: .6; }
+.aa-btn.ghost { background: #fff; color: #166534; border: 1.5px solid #cfe3d6; }
+.aa-reg { margin-top: 12px; border: 1px dashed #d5e3da; border-radius: 12px; padding: 12px 14px; }
+.aa-reg label { display: block; font-size: 13px; font-weight: 800; color: #0f172a; } .aa-reg label span { font-weight: 500; color: #64748b; }
+.aa-reg > div { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.aa-reg input { flex: 1 1 220px; height: 42px; border: 1.5px solid #dfe7e2; border-radius: 10px; padding: 0 10px; font: inherit; font-size: 14px; }
+.aa-reg input:focus { outline: none; border-color: #16a34a; }
+.aa-reg small { display: block; margin-top: 6px; font-size: 12.5px; color: #92400e; font-weight: 700; } .aa-reg small.ok { color: #166534; }
 .aa-h3 { margin: 20px 0 4px; font-size: 15px; font-weight: 800; color: #0f172a; font-family: inherit; }
 .aa-note { margin: 0 0 10px; font-size: 13px; color: #64748b; line-height: 1.55; } .aa-note a { color: #166534 !important; font-weight: 800; }
 .aa-table { border: 1px solid #e3eae6; border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
