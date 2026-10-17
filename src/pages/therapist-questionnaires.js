@@ -39,7 +39,6 @@ export default function TherapistAssessments() {
       .catch(() => { setRows([]); setErr("Couldn't load — please refresh"); });
   }, []);
 
-  const share = Math.round((addon?.therapistShare ?? 0.3) * 100);
   const a = addon?.assessments;
   const counts = useMemo(() => {
     const c = { all: rows?.length || 0, sent: 0, done: 0, released: 0 };
@@ -57,7 +56,7 @@ export default function TherapistAssessments() {
         <div className="pt-head">
           <div>
             <h1>Clinical assessments</h1>
-            <p>Clients add a standard assessment (PHQ-9, GAD-7, DASS-21…) when they book you, answer it before the session, and you get an automatic report. You earn {share}% of each assessment fee.</p>
+            <p>Clients add a standard assessment (PHQ-9, GAD-7, DASS-21…) when they book you, answer it before the session, and you get an automatic report to review and release.</p>
           </div>
         </div>
 
@@ -71,7 +70,7 @@ export default function TherapistAssessments() {
         </div>
         {err && <p className="ta-msg err">{err}</p>}
 
-        {/* kept mounted so the plan loads (share %, tab tag) and ?buy=1 still opens the buy form */}
+        {/* kept mounted so the plan loads (tab tag) and ?buy=1 still opens the buy form */}
         <div hidden={tab !== "addon"}><AssessmentsAddon onChange={setAddon} /></div>
 
         {tab === "reports" && (
@@ -171,6 +170,9 @@ const TA_CSS = `
 .ta-btn.pri { background: #14532d; color: #fff !important; }
 .ta-hint { font-size: 12.5px; color: #64748b; }
 .ta-link { border: 0; background: none; padding: 0; margin-top: 8px; font: inherit; font-weight: 800; color: #1d4ed8; cursor: pointer; }
+@media (max-width: 480px) {
+  .ta-tabs { gap: 0; } .ta-tabs button { padding: 10px 10px; font-size: 13.5px; gap: 5px; }
+}
 @media (max-width: 900px) {
   .ta-row { grid-template-columns: auto 1fr; row-gap: 10px; }
   .ta-score { grid-column: 1 / -1; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }

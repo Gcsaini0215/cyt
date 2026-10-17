@@ -31,10 +31,18 @@ export function useAssessmentsUpgrade() {
         try { sessionStorage.setItem(UPG_KEY, JSON.stringify({ show: v, at: Date.now() })); } catch (e) { /* ignore */ }
       })
       .catch(() => {});
+    const on = (e) => setShow(!!e.detail);
+    window.addEventListener("cyt:addon-upgrade", on);
+    return () => window.removeEventListener("cyt:addon-upgrade", on);
   }, []);
   return show;
 }
 export const clearAssessmentsUpgrade = () => { try { sessionStorage.removeItem(UPG_KEY); } catch (e) { /* ignore */ } };
+// the add-on page knows the real state — share it with the nav tag / dashboard To-do straight away
+export const setAssessmentsUpgrade = (show) => {
+  try { sessionStorage.setItem(UPG_KEY, JSON.stringify({ show: !!show, at: Date.now() })); } catch (e) { /* ignore */ }
+  try { window.dispatchEvent(new CustomEvent("cyt:addon-upgrade", { detail: !!show })); } catch (e) { /* ignore */ }
+};
 export const NavTag = ({ item, upgrade, className = "" }) => (item.tag && upgrade ? <em className={`nx-tag ${className}`}>{item.tag}</em> : null);
 
 export function useNavBadges() {

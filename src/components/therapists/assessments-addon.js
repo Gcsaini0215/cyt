@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
-import { clearAssessmentsUpgrade } from "./nav-extras";
+import { setAssessmentsUpgrade } from "./nav-extras";
 import AddonWizard from "./addon-wizard";
 
-/* Top of the Assessments page: the yearly "Clinical Assessments" add-on (bought here on Razorpay,
-   priced by CYT in the admin panel) and what clients pay / the therapist earns for each assessment. */
+/* "Add-on & details" tab of the Assessments page: the yearly Clinical Assessments add-on (bought on
+   Razorpay, priced by CYT in the admin panel), the details CYT verifies, and the fee split. */
 
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
@@ -27,7 +27,7 @@ export default function AssessmentsAddon({ onChange }) {
   const [msg, setMsg] = useState({ text: "", err: false });
   const [wizard, setWizard] = useState(false);
 
-  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
+  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); if (r?.data?.assessments) setAssessmentsUpgrade(!r.data.assessments.active); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
   useEffect(() => {
     load();
     // /therapist-questionnaires?buy=1 (from the dashboard To-do) opens the buy form straight away
@@ -72,9 +72,12 @@ export default function AssessmentsAddon({ onChange }) {
       {wizard && <AddonWizard onClose={() => setWizard(false)} onDone={load} />}
       <section className="pt-card aa-card" id="addon">
         <div className="aa-head">
-          <span className="aa-kick">⭐ Upgrade</span>
           <h2>Clinical Assessments add-on</h2>
-          <p>Let clients add a standard clinical assessment (PHQ-9, GAD-7, DASS-21, PCL-5 and more) when they book you. They answer it on CYT before the session, and you get an automatic report — the client sees it only after you release it.</p>
+          <ul className="aa-incl">
+            <li>12 standard tools — PHQ-9, GAD-7, DASS-21, PCL-5 and more</li>
+            <li>Scored, signed report for every client</li>
+            <li>Client sees it only after you release it</li>
+          </ul>
         </div>
         {msg.text && <p className={`aa-msg${msg.err ? " err" : ""}`} role="status">{msg.text}</p>}
         {!data ? <div className="aa-skel" /> : (
@@ -118,6 +121,9 @@ const AA_CSS = `
 .aa-card { margin-bottom: 14px; }
 .aa-head { margin-bottom: 12px; } .aa-head h2 { margin: 6px 0 4px; font-size: 17px; font-weight: 800; color: #0f172a; font-family: inherit; }
 .aa-head p { margin: 0; font-size: 13.5px; color: #64748b; line-height: 1.55; }
+.aa-incl { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.aa-incl li { margin: 0; font-size: 13px; color: #475569; padding-left: 18px; position: relative; }
+.aa-incl li::before { content: "✓"; position: absolute; left: 0; color: #16a34a; font-weight: 800; }
 .aa-kick { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #92400e; background: #fde68a; border-radius: 999px; padding: 3px 9px; }
 .aa-sum { margin-top: 12px; border: 1px solid #e3eae6; border-radius: 12px; padding: 12px 14px; }
 .aa-sum-items { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px; }
