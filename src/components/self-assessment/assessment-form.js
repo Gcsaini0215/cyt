@@ -10,11 +10,15 @@ import { getDecodedToken } from "../../utils/jwt";
 /* Takes one free self-check (definition from ./tests) one question at a time, then shows the
    published result, the reference, and saves score + band (never the answers) for clients. */
 
-export default function AssessmentForm({ test, onBack }) {
+export default function AssessmentForm({ test, onBack, clinical = null }) {
+  // clinical = { therapist, onSubmit(answers) → Promise<boolean> }: a booked clinical assessment —
+  // answers go to the psychologist; the client doesn't see the score here
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [saved, setSaved] = useState(""); // "" | saving | ok | err
+  const [sending, setSending] = useState(false);
+  const [sendErr, setSendErr] = useState("");
   const advanceRef = useRef(null);
   const cardRef = useRef(null);
   const savedRef = useRef(false);
@@ -39,6 +43,7 @@ export default function AssessmentForm({ test, onBack }) {
   const result = submitted ? test.score(answers) : null;
 
   const save = () => {
+    if (clinical) return;
     const tok = getDecodedToken();
     if (!tok || tok.role !== 0) return; // only clients keep a history
     setSaved("saving");
@@ -53,7 +58,37 @@ export default function AssessmentForm({ test, onBack }) {
     save();
   }, [submitted]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const submit = () => { setSubmitted(true); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const submit = async () => {
+    if (clinical) {
+      setSending(true); setSendErr("");
+      const ok = await clinical.onSubmit(test.questions.map((_, i) => answers[i]));
+      setSending(false);
+      if (!ok) { setSendErr("Couldn't submit — please check your connection and try again."); return; }
+    }
+    setSubmitted(true); window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  if (submitted && clinical) {
+    return (
+      <section className="saf" style={{ "--c": test.color }}>
+        <style dangerouslySetInnerHTML={{ __html: SAF_CSS }} />
+        <div className="saf-in">
+          <div className="sar">
+            <span className="sar-kick">{test.full}</span>
+            <div className="sar-level" style={{ "--lc": "#16a34a" }}><b>Submitted ✓</b></div>
+            <p className="sar-text">Thank you. Your answers have gone to {clinical.therapist}, who will go through the result with you in your session. Your report will appear in My check-ins after that.</p>
+            {result.flag && (
+              <div className="sar-alert" role="alert">
+                <b>You don&apos;t have to handle this alone</b>
+                <span>If you are having thoughts of harming yourself, please talk to someone now — call Tele-MANAS on <a href="tel:14416">14416</a> or <a href="tel:18008914416">1800-89-14416</a> (free, 24×7), or go to your nearest hospital.</span>
+              </div>
+            )}
+            <div className="saf-nav"><Link href="/client/check-ins" className="saf-btn solid">Go to My check-ins</Link></div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (submitted) {
     return (
@@ -146,15 +181,16 @@ export default function AssessmentForm({ test, onBack }) {
           <div className="saf-nav">
             <button type="button" className="saf-btn ghost" onClick={() => { clearTimeout(advanceRef.current); setCurrent((q) => Math.max(0, q - 1)); }} disabled={current === 0}>← Previous</button>
             {(isLast || isAnswered) && (
-              <button type="button" className="saf-btn solid" onClick={isLast ? submit : () => setCurrent(current + 1)} disabled={!isAnswered || (isLast && answeredCount < total)}>
-                {isLast ? "See my result" : "Next →"}
+              <button type="button" className="saf-btn solid" onClick={isLast ? submit : () => setCurrent(current + 1)} disabled={!isAnswered || sending || (isLast && answeredCount < total)}>
+                {isLast ? (clinical ? (sending ? "Submitting…" : `Submit to ${clinical.therapist.split(" ").slice(0, 2).join(" ")}`) : "See my result") : "Next →"}
               </button>
             )}
           </div>
+          {sendErr && <p className="saf-miss">{sendErr}</p>}
           {isLast && answeredCount < total && <p className="saf-miss">Please answer every question to see your result — tap Previous to go back.</p>}
         </div>
 
-        <p className="saf-priv">🔒 Answer honestly — there are no right or wrong answers. Only your score is saved, never your answers.</p>
+        <p className="saf-priv">{clinical ? `Answer honestly — there are no right or wrong answers. Your answers are shared only with ${clinical.therapist}.` : "🔒 Answer honestly — there are no right or wrong answers. Only your score is saved, never your answers."}</p>
         <p className="saf-src">{test.short} · {test.by}</p>
       </div>
     </section>

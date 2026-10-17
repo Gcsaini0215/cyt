@@ -105,9 +105,9 @@ export default function CheckIns() {
         <div className="ci-head">
           <div>
             <h1>My check-ins</h1>
-            <p className="ci-sub"><LockRoundedIcon /> Private to you. Only your score is saved — never your answers.</p>
+            <p className="ci-sub"><LockRoundedIcon /> Private to you — shared only with your psychologist.</p>
           </div>
-          <Link href="/self-assessment" className="ci-btn primary"><PsychologyAltRoundedIcon /> Take a self-check</Link>
+          <Link href="/self-assessment" className="ci-btn primary"><PsychologyAltRoundedIcon /> Book an assessment</Link>
         </div>
 
         {err && <p className="ci-err" role="alert">{err}</p>}
@@ -127,8 +127,8 @@ export default function CheckIns() {
         ) : rows.length === 0 ? (
           <div className="ci-empty">
             <PsychologyAltRoundedIcon />
-            <b>No self-checks yet</b>
-            <p>A self-check takes 2–10 minutes. Do one now and again every couple of weeks — you&apos;ll see here how you&apos;re doing over time.</p>
+            <b>No assessment results yet</b>
+            <p>Book an assessment with a psychologist — answer it online before your session, and your report shows up here after you&apos;ve gone through it together.</p>
             <div className="ci-try">
               {TESTS.filter((t) => !t.retired).map((t) => <Link key={t.key} href={startHref(t.key)}>{t.name}</Link>)}
             </div>
@@ -156,7 +156,7 @@ export default function CheckIns() {
                     ) : <Bars test={t.key} dims={last.dims} />}
                     <div className="ci-card-foot">
                       <span>Last: {fmt(last.createdAt)} · {list.length} time{list.length > 1 ? "s" : ""}</span>
-                      {!t.retired && <Link href={startHref(t.key)} className="ci-btn ghost sm"><ReplayRoundedIcon /> Take again</Link>}
+                      {!t.retired && <Link href={startHref(t.key)} className="ci-btn ghost sm"><ReplayRoundedIcon /> Book again</Link>}
                     </div>
                   </div>
                 );

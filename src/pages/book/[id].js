@@ -16,6 +16,7 @@ import { getToken } from "../../utils/jwt";
 import { isObjectId } from "../../utils/therapist-slug";
 import { getSlugMaps, currentSlugFor } from "../../utils/therapist-slug-maps";
 import { profileSeo, cleanName } from "../../utils/related-therapists";
+import { FREE_TESTS } from "../../components/self-assessment/tests";
 
 // ── constants ────────────────────────────────────────────────────────────────
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -323,6 +324,9 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   const [relation, setRelation] = React.useState("");
   const [age,      setAge]      = React.useState("");
   const [notes,    setNotes]    = React.useState("");
+  // clinical assessments added to this session (only with a therapist who has the add-on)
+  const [clinPrices, setClinPrices] = React.useState(null); // tool -> { price, fee, offer, offerLabel, active }
+  const [assess,   setAssess]   = React.useState([]);
 
   const [guestName,  setGuestName]  = React.useState("");
   const [guestPhone, setGuestPhone] = React.useState("");
@@ -534,6 +538,23 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     applyCoupon(ref, true);
   }, [fstep, phase, selFmt, couponApplied]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  React.useEffect(() => {
+    const uid = profile?.user?._id;
+    if (!uid) return;
+    let alive = true;
+    Promise.all([fetchData(`${apiUrl}/assessment-providers`), fetchData(`${apiUrl}/assessment-pricing`)])
+      .then(([prov, pr]) => {
+        if (!alive || !(prov?.data || []).map(String).includes(String(uid))) return;
+        const tests = pr?.data?.tests || {};
+        setClinPrices(tests);
+        const pre = String(router.query.assess || "").split(",").filter((k) => tests[k]?.active).slice(0, 3);
+        if (pre.length) setAssess(pre);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [profile?.user?._id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const toggleAssess = (k) => setAssess((a) => (a.includes(k) ? a.filter((x) => x !== k) : a.length >= 3 ? a : [...a, k]));
+
   function doCheckout() {
     if (!selSvc || !selFmt || !selDate || !selSlot) return;
     const dt = new Date(selDate);
@@ -548,6 +569,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
       ...(couponApplied?.referral ? { referral_code: couponApplied.code } : {}),
       ...(creditUse > 0 ? { credit_used: String(creditUse) } : {}),
+      ...(assessLines.length ? { assess: assessLines.map((l) => `${l.key}:${l.price}`).join(",") } : {}),
       ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
       ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
       ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
@@ -603,7 +625,9 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
 
   const base  = selFmt?.fee || 0;
   const creditUse = isLoggedIn && useCredit ? Math.min(credit, Math.max(0, base - couponSave)) : 0;
-  const total = Math.max(0, base - couponSave - creditUse);
+  const assessLines = clinPrices ? assess.filter((k) => clinPrices[k]?.active).map((k) => ({ key: k, short: FREE_TESTS.find((t) => t.key === k)?.short || k, price: clinPrices[k].price })) : [];
+  const assessFee = assessLines.reduce((n, l) => n + l.price, 0);
+  const total = Math.max(0, base - couponSave - creditUse) + assessFee;
 
   // ── SLOT GRID (phase "slots"): dates across, times down — tap an open cell to start ──
   const rowMins = r => { const [h, m] = r.val.split(":").map(Number); return h * 60 + m; };
@@ -965,6 +989,29 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         ))}
       </div>
 
+      {/* Clinical assessment add-on (therapist offers it) */}
+      {clinPrices && (
+        <div className="bk-clin">
+          <div className="bk-clin-h">
+            <b>Add a clinical assessment <span>(optional)</span></b>
+            <p>Answer a standard questionnaire online before your session — {profile.user?.name?.split(" ")[0] || "your psychologist"} gets an automatic report and goes through it with you. Up to 3.</p>
+          </div>
+          <div className="bk-clin-list">
+            {FREE_TESTS.filter((t) => clinPrices[t.key]?.active).map((t) => {
+              const p = clinPrices[t.key];
+              const on = assess.includes(t.key);
+              return (
+                <label key={t.key} className={`bk-clin-opt${on ? " on" : ""}`}>
+                  <input type="checkbox" checked={on} onChange={() => toggleAssess(t.key)} disabled={!on && assess.length >= 3} />
+                  <span className="bk-clin-name"><b>{t.short}</b>{t.title}</span>
+                  <span className="bk-clin-price">{p.offer && <s>₹{p.fee}</s>} ₹{p.price}{p.offer && p.offerLabel ? <em>{p.offerLabel}</em> : null}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Fee breakdown */}
       <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ display: "flex", padding: "12px 16px", borderBottom: couponSave > 0 || creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
@@ -978,11 +1025,17 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
           </div>
         )}
         {creditUse > 0 && (
-          <div style={{ display: "flex", padding: "12px 16px" }}>
+          <div style={{ display: "flex", padding: "12px 16px", borderBottom: assessLines.length ? "1px solid #e2e8f0" : "none" }}>
             <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>Your credit</span>
             <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 700 }}>−₹{creditUse.toLocaleString("en-IN")}</span>
           </div>
         )}
+        {assessLines.map((l, i) => (
+          <div key={l.key} style={{ display: "flex", padding: "12px 16px", borderTop: i === 0 && !(couponSave > 0 || creditUse > 0) ? "1px solid #e2e8f0" : "none", borderBottom: i < assessLines.length - 1 ? "1px solid #e2e8f0" : "none" }}>
+            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80, marginRight: 12 }}>{l.short} assessment</span>
+            <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{l.price.toLocaleString("en-IN")}</span>
+          </div>
+        ))}
       </div>
 
       {/* Total */}
@@ -1078,6 +1131,16 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     <>
       <BookSeo profile={profile} urlKey={urlKey || id} />
       <style dangerouslySetInnerHTML={{ __html: `
+        .bk-clin { border: 1.5px solid #d9eadf; background: linear-gradient(135deg, #f3fbf6, #fffdf6); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+        .bk-clin-h b { display: block; font-size: 14.5px; color: #132a1c; } .bk-clin-h b span { font-weight: 500; color: #64748b; font-size: 12.5px; }
+        .bk-clin-h p { margin: 4px 0 10px; font-size: 12.5px; color: #475569; line-height: 1.5; }
+        .bk-clin-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+        .bk-clin-opt { display: flex; align-items: center; gap: 10px; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 9px 12px; cursor: pointer; }
+        .bk-clin-opt.on { border-color: #16a34a; background: #f0fdf4; }
+        .bk-clin-opt input { width: 18px; height: 18px; accent-color: #166534; flex-shrink: 0; }
+        .bk-clin-name { flex: 1; min-width: 0; font-size: 13px; color: #334155; } .bk-clin-name b { color: #166534; margin-right: 6px; }
+        .bk-clin-price { font-size: 13.5px; font-weight: 800; color: #132a1c; white-space: nowrap; } .bk-clin-price s { color: #94a3b8; font-weight: 500; }
+        .bk-clin-price em { display: block; font-style: normal; font-size: 10.5px; color: #b45309; text-align: right; }
         *, *::before, *::after { box-sizing: border-box; }
         @keyframes _sp { to { transform: rotate(360deg); } }
         @keyframes _in { from { opacity: 0; } to { opacity: 1; } }

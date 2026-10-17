@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { FREE_TESTS, LICENSED_TESTS, CATEGORIES } from "./tests";
+import { FREE_TESTS, CATEGORIES } from "./tests";
 
-/* The list on /self-assessment: free checks (taken right here) by topic, and copyrighted ones that
-   are taken with a licensed psychologist. */
+/* The list on /self-assessment: the clinical assessments by topic, with their price (admin pricing).
+   Nothing is taken here — "Book this assessment" opens the psychologists who offer it (onBook). */
 
-export default function AssessmentCards({ onStart, onLicensed }) {
+export default function AssessmentCards({ prices, onBook }) {
   const [cat, setCat] = useState("All");
-  const shown = FREE_TESTS.filter((t) => cat === "All" || t.category === cat);
+  const bookable = (t) => !prices || prices[t.key]?.active !== false;
+  const shown = FREE_TESTS.filter((t) => bookable(t) && (cat === "All" || t.category === cat));
   const cats = CATEGORIES.filter((c) => c === "All" || FREE_TESTS.some((t) => t.category === c));
 
   return (
@@ -15,9 +16,9 @@ export default function AssessmentCards({ onStart, onLicensed }) {
       <section className="sac" aria-labelledby="sac-h">
         <div className="sac-in">
           <div className="sac-head">
-            <span className="sac-kick">Free self-checks</span>
-            <h2 id="sac-h">What would you like to check?</h2>
-            <p>Published screening questionnaires, word for word, with their original scoring — the same ones psychologists use. Each shows its research reference.</p>
+            <span className="sac-kick">Clinical assessments</span>
+            <h2 id="sac-h">Which assessment do you need?</h2>
+            <p>Standard, published questionnaires with their original scoring — booked with a verified psychologist. You answer online before your session, get a professional report, and go through it together.</p>
           </div>
 
           <div className="sac-cats" role="tablist" aria-label="Topics">
@@ -41,31 +42,24 @@ export default function AssessmentCards({ onStart, onLicensed }) {
                   <span>{t.questions.length} questions</span><span>{t.time}</span><span>{t.age}</span>
                 </div>
                 <p className="sac-by">Developed by: {t.by}</p>
-                <button type="button" className="sac-btn" onClick={() => onStart(t)}>Start <i className="feather-arrow-right" aria-hidden="true" /></button>
+                <div className="sac-foot">
+                  <span className="sac-price">
+                    {prices?.[t.key] ? <>{prices[t.key].offer && <s>₹{prices[t.key].fee}</s>} <b>₹{prices[t.key].price}</b>{prices[t.key].offer && prices[t.key].offerLabel && <em>{prices[t.key].offerLabel}</em>}<small>+ session</small></> : <small>&nbsp;</small>}
+                  </span>
+                  <button type="button" className="sac-btn" onClick={() => onBook(t)}>Book this assessment</button>
+                </div>
               </article>
             ))}
           </div>
 
-          <div className="sac-head lic">
-            <span className="sac-kick gold">With a licensed psychologist</span>
-            <h2>Clinical questionnaires</h2>
-            <p>These are copyrighted, so they can&apos;t be filled in online here. A psychologist who holds the licence gives them to you in a session and explains your score with you.</p>
-          </div>
-          <div className="sac-grid">
-            {LICENSED_TESTS.map((t) => (
-              <article key={t.key} className="sac-card lic" style={{ "--c": t.color }}>
-                <div className="sac-top">
-                  <span className="sac-ic"><i className={t.icon} aria-hidden="true" /></span>
-                  <div>
-                    <h3>{t.title}</h3>
-                    <span className="sac-short">{t.short} · 🔒 licensed</span>
-                  </div>
-                </div>
-                <p className="sac-blurb">{t.measures}</p>
-                <p className="sac-by">{t.holder}</p>
-                <button type="button" className="sac-btn ghost" onClick={() => onLicensed(t)}>Take with a psychologist</button>
-              </article>
-            ))}
+          <div className="sac-clinical">
+            <span className="sac-kick">How it works</span>
+            <ol>
+              <li><b>Book</b> the assessment with a psychologist, together with a session.</li>
+              <li><b>Answer it online</b> before your session — it takes a few minutes.</li>
+              <li><b>Your psychologist gets an automatic report</b> with your answers and the published scoring.</li>
+              <li><b>Go through it together</b> in the session — then the report is yours to keep.</li>
+            </ol>
           </div>
         </div>
       </section>
@@ -77,9 +71,7 @@ const SAC_CSS = `
 .sac { background: #f6f8f7; padding: 44px 0 52px; }
 .sac-in { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
 .sac-head { text-align: center; max-width: 640px; margin: 0 auto 18px; }
-.sac-head.lic { margin-top: 44px; }
 .sac-kick { display: inline-block; font-size: 11px; font-weight: 800; color: #16a34a; letter-spacing: 1.2px; text-transform: uppercase; background: #dcfce7; padding: 5px 14px; border-radius: 999px; }
-.sac-kick.gold { color: #92400e; background: #fef3c7; }
 .sac-head h2 { margin: 10px 0 6px; font-size: clamp(22px, 3vw, 30px); font-weight: 800; color: #0f172a; font-family: inherit; }
 .sac-head p { margin: 0; font-size: 14px; color: #64748b; line-height: 1.6; }
 .sac-cats { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; margin-bottom: 8px; scrollbar-width: none; justify-content: center; flex-wrap: wrap; }
@@ -97,10 +89,18 @@ const SAC_CSS = `
 .sac-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .sac-chips span { font-size: 11.5px; font-weight: 700; color: #475569; background: #f1f5f4; border-radius: 999px; padding: 3px 9px; }
 .sac-by { margin: 0; font-size: 11.5px; color: #94a3b8; font-weight: 600; line-height: 1.45; }
-.sac-btn { margin-top: auto; height: 42px; border-radius: 11px; border: 0; background: var(--c); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.sac-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
+.sac-price { font-size: 13px; color: #64748b; line-height: 1.2; } .sac-price b { font-size: 19px; color: #0f172a; } .sac-price s { color: #94a3b8; }
+.sac-price em { display: inline-block; margin-left: 4px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #b45309; background: #fef3c7; border-radius: 999px; padding: 1px 7px; vertical-align: 3px; }
+.sac-price small { display: block; font-size: 11px; }
+.sac-btn { padding: 0 14px; height: 42px; border-radius: 11px; border: 0; background: var(--c); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .sac-btn.ghost { background: #fff; color: #166534; border: 1.5px solid #cfe3d6; }
 .sac-btn.ghost:hover { background: #f0fdf4; }
-.sac-card.lic { background: #fffdf7; border-color: #f1e7cf; }
+.sac-clinical { margin-top: 36px; background: linear-gradient(135deg, #ecfdf3, #fffbeb); border: 1px solid #d9eadf; border-radius: 18px; padding: 22px 24px; }
+.sac-clinical h2 { margin: 10px 0 6px; font-size: clamp(19px, 2.4vw, 24px); font-weight: 800; color: #0f172a; font-family: inherit; }
+.sac-clinical ol { margin: 12px 0 0; padding-left: 20px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 28px; }
+.sac-clinical li { font-size: 14px; color: #475569; line-height: 1.55; } .sac-clinical li b { color: #14532d; }
+@media (max-width: 700px) { .sac-clinical ol { grid-template-columns: 1fr; } }
 @media (max-width: 991px) { .sac-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) {
   .sac { padding: 28px 0 36px; }

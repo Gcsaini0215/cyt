@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import SelfAssessmentBanner from "../components/self-assessment/banner";
 import AssessmentCards from "../components/self-assessment/assessment-cards";
-import LicensedModal from "../components/self-assessment/licensed-modal";
+import ClinicalModal from "../components/self-assessment/clinical-modal";
 import { FREE_TESTS, testFromParam } from "../components/self-assessment/tests";
-import AssessmentForm from "../components/self-assessment/assessment-form";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
-import { isAuthenticated } from "../utils/jwt";
+import { fetchData } from "../utils/actions";
+import { apiUrl } from "../utils/url";
 
-/* The cards are public (and indexed); taking a check needs an account, so the result can be
-   saved to the client's history. A logged-out visitor is sent to /login and comes back to
-   /self-assessment?start=<id>, which opens that check straight away. */
+/* Clinical assessments: every test is booked with a psychologist and paid for (fee set in the admin
+   panel). No questions are shown here — the client answers them after booking, and gets the report
+   once the psychologist has gone through it. ?start=<key> opens that test's booking sheet. */
 
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/self-assessment`;
-const TITLE = "Free Mental Health Self Assessment — PHQ-9, GAD-7, PCL-5 | CYT";
-const DESC = "Free, published mental-health self-checks used by psychologists — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five — word for word, with references. Results saved privately.";
+const TITLE = "Clinical Mental Health Assessments with a Psychologist | CYT";
+const DESC = "Book a standard clinical assessment with a verified psychologist — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five. Answer online, get a professional report and a session to go through it.";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
 
 const SCHEMA = [
@@ -31,51 +30,35 @@ const SCHEMA = [
     "@context": "https://schema.org", "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE },
-      { "@type": "ListItem", "position": 2, "name": "Self Assessment", "item": PAGE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Assessments", "item": PAGE_URL },
     ],
   },
 ];
 
 export default function SelfAssessment() {
   const router = useRouter();
-  const [selected, setSelected] = useState(null); // the free test being taken
-  const [gate, setGate] = useState(null); // the test a logged-out visitor tried to start
-  const [licensed, setLicensed] = useState(null); // a licensed test → psychologists who hold its licence
+  const [clinical, setClinical] = useState(null); // the test whose booking sheet is open
+  const [prices, setPrices] = useState(null);
 
-  const open = (t) => {
-    setSelected(t);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-  const start = (t) => {
-    if (!isAuthenticated()) { setGate(t); return; }
-    open(t);
-  };
+  useEffect(() => {
+    fetchData(`${apiUrl}/assessment-pricing`).then((r) => setPrices(r?.data?.tests || {})).catch(() => setPrices({}));
+  }, []);
 
-  // back from login with ?start=<id>: open that check (and tidy the URL)
+  // ?start=<key> (old links, client dashboard): open that test's booking sheet
   useEffect(() => {
     if (!router.isReady) return;
     const t = testFromParam(router.query.start);
     if (!t) return;
     router.replace("/self-assessment", undefined, { shallow: true, scroll: false });
-    if (isAuthenticated()) open(t); else setGate(t);
+    setClinical(t);
   }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!gate) return undefined;
-    const onKey = (e) => { if (e.key === "Escape") setGate(null); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [gate]);
-
-  const gated = gate;
-  const next = encodeURIComponent(`/self-assessment?start=${gate?.key || ""}`);
 
   return (
     <div id="__next">
       <Head>
         <title>{TITLE}</title>
         <meta name="description" content={DESC} />
-        <meta name="keywords" content="mental health self assessment, PHQ-9 test online, GAD-7 anxiety test, depression test India, PCL-5 PTSD test, DASS-21 test, K10, EPDS postnatal depression test, AUDIT alcohol test, adult ADHD test, burnout test, self-esteem test, Big Five personality test, psychologist India" />
+        <meta name="keywords" content="clinical assessment India, psychological assessment online, PHQ-9 assessment, GAD-7 anxiety assessment, DASS-21 test, adult ADHD assessment, postnatal depression assessment, burnout assessment, psychologist report" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         <link rel="canonical" href={PAGE_URL} />
 
@@ -83,61 +66,21 @@ export default function SelfAssessment() {
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:title" content="Free Mental Health Self Assessment — standard tools used by psychologists" />
+        <meta property="og:title" content="Clinical assessments with a verified psychologist" />
         <meta property="og:description" content={DESC} />
         <meta property="og:image" content={OG_IMAGE} />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Free Mental Health Self Assessment — standard tools used by psychologists" />
+        <meta name="twitter:title" content="Clinical assessments with a verified psychologist" />
         <meta name="twitter:description" content={DESC} />
         <meta name="twitter:image" content={OG_IMAGE} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(SCHEMA) }} />
       </Head>
-      <style dangerouslySetInnerHTML={{ __html: GATE_CSS }} />
       <MyNavbar />
       <SelfAssessmentBanner />
-
-      {selected ? (
-        <AssessmentForm key={selected.key} test={selected} onBack={() => setSelected(null)} />
-      ) : (
-        <AssessmentCards onStart={start} onLicensed={setLicensed} />
-      )}
-      {licensed && <LicensedModal test={licensed} onClose={() => setLicensed(null)} />}
-
-      {gated && (
-        <div className="sag-wrap" onClick={(e) => { if (e.target === e.currentTarget) setGate(null); }}>
-          <div className="sag" role="dialog" aria-modal="true" aria-labelledby="sag-h">
-            <button type="button" className="sag-x" onClick={() => setGate(null)} aria-label="Close">×</button>
-            <span className="sag-ic" aria-hidden="true">🔒</span>
-            <h2 id="sag-h">Log in to take the {gated.title} ({gated.short})</h2>
-            <p>It takes a few seconds with just your email. We save your result privately so you can see how you&apos;re doing over time — and share it with your psychologist if you want to.</p>
-            <ul>
-              <li>✓ Only your score is saved, never your answers</li>
-              <li>✓ Your history in <b>My therapy room → My check-ins</b></li>
-              <li>✓ Free, no payment needed</li>
-            </ul>
-            <Link href={`/login?next=${next}`} className="sag-btn">Log in to continue</Link>
-            <Link href={`/register?next=${next}`} className="sag-link">New here? Create a free account</Link>
-          </div>
-        </div>
-      )}
-
+      <AssessmentCards prices={prices} onBook={setClinical} />
+      {clinical && <ClinicalModal test={clinical} onClose={() => setClinical(null)} />}
       <Footer />
     </div>
   );
 }
-
-const GATE_CSS = `
-.sag-wrap { position: fixed; inset: 0; z-index: 2000; background: rgba(15,23,42,.5); display: grid; place-items: center; padding: 16px; animation: sagFade .18s ease; }
-@keyframes sagFade { from { opacity: 0; } to { opacity: 1; } }
-.sag { position: relative; width: min(440px, 100%); background: #fff; border-radius: 20px; padding: 26px 22px 20px; text-align: center; box-shadow: 0 30px 70px -20px rgba(0,0,0,.4); }
-.sag-x { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 10px; border: 0; background: #f1f5f4; color: #334155; font-size: 22px; line-height: 1; cursor: pointer; }
-.sag-ic { width: 54px; height: 54px; border-radius: 16px; background: #e7f6ec; display: grid; place-items: center; margin: 0 auto 10px; font-size: 24px; }
-.sag h2 { margin: 0; font-size: 20px; font-weight: 800; color: #173c2a; line-height: 1.3; font-family: inherit; }
-.sag p { margin: 8px 0 0; font-size: 14px; line-height: 1.6; color: #4b5b53; }
-.sag ul { list-style: none; margin: 14px 0 0; padding: 12px 14px; background: #f6faf7; border-radius: 12px; text-align: left; }
-.sag li { font-size: 13px; color: #1f6b45; font-weight: 600; padding: 3px 0; }
-.sag-btn { display: block; margin-top: 16px; height: 48px; line-height: 48px; border-radius: 12px; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; font-weight: 800; font-size: 15px; text-decoration: none !important; }
-.sag-link { display: block; margin-top: 10px; font-size: 13.5px; font-weight: 700; color: #1f6b45 !important; }
-@media (max-width: 560px) { .sag-wrap { place-items: end center; padding: 0; } .sag { width: 100%; border-radius: 22px 22px 0 0; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); } }
-`;

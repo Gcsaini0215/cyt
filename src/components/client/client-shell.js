@@ -23,7 +23,6 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
-import { flushAssessmentIntent } from "./pre-session-forms";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 
@@ -47,7 +46,7 @@ export const HELP_NAV = [
 // "How am I doing?" — a small drop-down in the side menu: the client's own history + the public self-checks
 export const CHECK_NAV = [
   { to: "/client/check-ins", label: "My check-ins", Icon: InsightsRoundedIcon },
-  { to: "/self-assessment", label: "Take a self-check", Icon: PsychologyAltRoundedIcon, ext: true },
+  { to: "/self-assessment", label: "Book an assessment", Icon: PsychologyAltRoundedIcon, ext: true },
 ];
 const TILES_PER_PAGE = 8;
 const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
@@ -102,7 +101,6 @@ export default function ClientShell({ title, children }) {
       return;
     }
     setReady(true);
-    flushAssessmentIntent(); // a licensed questionnaire picked before signing in / booking
   }, [router]);
   useEffect(() => {
     if (!menu) return undefined;

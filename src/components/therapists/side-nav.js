@@ -34,7 +34,7 @@ const ALL_GROUPS = [
       { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
       { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badgeKey: "bookings" },
       { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
-      { to: "/therapist-questionnaires", Icon: FactCheckRoundedIcon, label: "Questionnaires" },
+      { to: "/therapist-questionnaires", Icon: FactCheckRoundedIcon, label: "Assessments", match: ["/therapist-questionnaires", "/assessment-report"] },
       { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews", badgeKey: "reviews" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },

@@ -5,8 +5,8 @@ import Link from "next/link";
 
 const TRUST = [
   ["feather-check-circle", "Standard screening tools", "12 published questionnaires, word for word, with references"],
-  ["feather-award", "Reviewed by psychologists", "Results explained by verified CYT psychologists"],
-  ["feather-lock", "Private to you", "Only your score is saved, never your answers"],
+  ["feather-award", "With a verified psychologist", "Your psychologist goes through the report with you"],
+  ["feather-lock", "Private to you", "Shared only with your psychologist"],
   ["feather-shield", "Govt. registered platform", "Health Facility Registry · HFR ID IN0510005384"],
 ];
 
@@ -43,11 +43,11 @@ export default function SelfAssessmentBanner() {
       <section className="sab" aria-labelledby="sab-title">
         <span className="sab-blob a" /><span className="sab-blob b" />
         <div className="sab-in">
-          <span className="sab-eyebrow">🌿 Free · 2–10 minutes · Private</span>
-          <h1 id="sab-title">Mental Health Self Assessment <span>How am I doing, really?</span></h1>
+          <span className="sab-eyebrow">🌿 Answer online · Professional report · Private</span>
+          <h1 id="sab-title">Clinical Mental Health Assessments <span>Know where you stand — with a psychologist</span></h1>
           <p className="sab-sub">
-            Answer a few standard questions about your mood, worry, sleep or stress and get a clear, honest read on where you are —
-            what it means, and when talking to a psychologist could help.
+            Book a standard assessment for mood, anxiety, stress, trauma, ADHD, alcohol use, burnout and more. Answer it online,
+            and a verified psychologist goes through your report with you in a session.
           </p>
           <div className="sab-trust">
             {TRUST.map(([icon, title, text]) => (
@@ -55,7 +55,7 @@ export default function SelfAssessmentBanner() {
             ))}
           </div>
           <p className="sab-note">
-            A self-check is not a diagnosis. In a crisis in India call Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).{" "}
+            An assessment is a screening, not a diagnosis on its own. In a crisis in India call Tele-MANAS <a href="tel:14416">14416</a> (free, 24×7).{" "}
             <Link href="/view-all-therapist">Talk to a psychologist →</Link>
           </p>
         </div>

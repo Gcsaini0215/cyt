@@ -2,9 +2,11 @@
    the published scoring, and the reference + licence terms. Do not reword items — each tool is only
    valid (and, for several, only free to use) in its original wording.
 
-   FREE_TESTS     — free to reproduce (some ask for a citation / copyright line, shown with the test).
-   LICENSED_TESTS — copyrighted; we do not show their items. A client takes them with a psychologist
-                    who has shared their licence in Settings → Licences, and gets the score in session. */
+   Only tools that are free to use commercially are included (some ask for a citation / copyright line,
+   shown with the test). Copyrighted tools (ISI, PSS-10, BDI-II…) are deliberately left out.
+
+   The same file is copied to the backend (cyt_backend_api/helper/assessmentTests.js), which scores
+   clinical assessments on the server — keep the two identical. */
 
 const sum = (a, idx) => idx.reduce((t, i) => t + (Number(a[i]) || 0), 0);
 const range = (n) => Array.from({ length: n }, (_, i) => i);
@@ -500,31 +502,7 @@ export const FREE_TESTS = [
   },
 ];
 
-/* Copyrighted tools: the items are NOT shown on the site. Clients take them with a psychologist who
-   holds a licence; the score is shared in session. */
-export const LICENSED_TESTS = [
-  { key: "isi", short: "ISI", title: "Insomnia Severity Index", icon: "feather-sunset", color: "#8b5cf6", measures: "How severe sleep problems are and how much they affect your day.",
-    ref: "Bastien CH, Vallières A, Morin CM. Validation of the Insomnia Severity Index as an outcome measure for insomnia research. Sleep Med. 2001;2(4):297–307.", holder: "© Charles M. Morin — licensed through Mapi Research Trust (ePROVIDE)." },
-  { key: "psqi", short: "PSQI", title: "Pittsburgh Sleep Quality Index", icon: "feather-moon", color: "#6366f1", measures: "Sleep quality over the last month — timing, disturbances, daytime effects.",
-    ref: "Buysse DJ, Reynolds CF, Monk TH, Berman SR, Kupfer DJ. The Pittsburgh Sleep Quality Index. Psychiatry Res. 1989;28(2):193–213.", holder: "© University of Pittsburgh — permission required." },
-  { key: "who5", short: "WHO-5", title: "WHO-5 Well-Being Index", icon: "feather-star", color: "#16a34a", measures: "Overall wellbeing over the last two weeks.",
-    ref: "Topp CW, Østergaard SD, Søndergaard S, Bech P. The WHO-5 Well-Being Index: a systematic review of the literature. Psychother Psychosom. 2015;84(3):167–176.", holder: "© World Health Organization 2024 — CC BY-NC-SA 3.0 IGO; commercial use needs WHO permission." },
-  { key: "pss10", short: "PSS-10", title: "Perceived Stress Scale", icon: "feather-zap", color: "#f59e0b", measures: "How unpredictable, uncontrollable and overloaded life has felt in the last month.",
-    ref: "Cohen S, Kamarck T, Mermelstein R. A global measure of perceived stress. J Health Soc Behav. 1983;24(4):385–396.", holder: "Commercial use licensed through Mind Garden, Inc." },
-  { key: "ocir", short: "OCI-R", title: "Obsessive-Compulsive Inventory – Revised", icon: "feather-repeat", color: "#0ea5e9", measures: "Obsessions and compulsions — checking, washing, ordering, hoarding, neutralising.",
-    ref: "Foa EB, Huppert JD, Leiberg S, et al. The Obsessive-Compulsive Inventory: development and validation of a short version. Psychol Assess. 2002;14(4):485–496.", holder: "© American Psychological Association / the authors — permission required." },
-  { key: "spin", short: "SPIN", title: "Social Phobia Inventory", icon: "feather-users", color: "#ec4899", measures: "Fear and avoidance of social situations and their body symptoms.",
-    ref: "Connor KM, Davidson JRT, Churchill LE, Sherwood A, Foa E, Weisler RH. Psychometric properties of the Social Phobia Inventory (SPIN). Br J Psychiatry. 2000;176:379–386.", holder: "© Jonathan R.T. Davidson — licence required." },
-  { key: "sdq", short: "SDQ", title: "Strengths & Difficulties Questionnaire", icon: "feather-heart", color: "#14b8a6", measures: "A child's (2–17 yrs) emotions, behaviour, attention, friendships and kindness — parent/teacher/self versions.",
-    ref: "Goodman R. The Strengths and Difficulties Questionnaire: a research note. J Child Psychol Psychiatry. 1997;38(5):581–586.", holder: "© Robert Goodman — online and commercial use licensed through Youthinmind." },
-  { key: "bdi2", short: "BDI-II", title: "Beck Depression Inventory-II", icon: "feather-cloud", color: "#2563eb", measures: "Depression severity over the last two weeks, in detail.",
-    ref: "Beck AT, Steer RA, Brown GK. Manual for the Beck Depression Inventory-II. San Antonio, TX: Psychological Corporation; 1996.", holder: "© Pearson — sold to qualified professionals only." },
-  { key: "bai", short: "BAI", title: "Beck Anxiety Inventory", icon: "feather-wind", color: "#d97706", measures: "Anxiety severity, especially its body symptoms.",
-    ref: "Beck AT, Epstein N, Brown G, Steer RA. An inventory for measuring clinical anxiety: psychometric properties. J Consult Clin Psychol. 1988;56(6):893–897.", holder: "© Pearson — sold to qualified professionals only." },
-];
-
 export const TEST_BY_KEY = Object.fromEntries(FREE_TESTS.map((t) => [t.key, t]));
-export const LICENSED_BY_KEY = Object.fromEntries(LICENSED_TESTS.map((t) => [t.key, t]));
 // old links used numbers (?start=1)
 export const testFromParam = (p) => {
   const v = String(p || "");
@@ -533,3 +511,13 @@ export const testFromParam = (p) => {
 export const optionsFor = (test, i) => (typeof test.questions[i] === "object" ? test.questions[i].options : test.options);
 export const questionText = (test, i) => (typeof test.questions[i] === "object" ? test.questions[i].q : test.questions[i]);
 export const maxScore = (test) => test.max;
+
+// valid only if every item has one of its own answer values
+export const validAnswers = (test, a) => Array.isArray(a) && a.length === test.questions.length
+  && a.every((v, i) => optionsFor(test, i).some((o) => o.value === v));
+
+// Clinical assessment (booked with a psychologist): fixed CYT fee per test, split 70% CYT / 30% therapist;
+// therapists offer them after buying the yearly add-on.
+export const CLINICAL_FEE = 299;
+export const CLINICAL_THERAPIST_SHARE = 0.3;
+export const ADDON_PRICE = 499;

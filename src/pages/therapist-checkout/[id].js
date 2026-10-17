@@ -40,6 +40,10 @@ function waitForRazorpay(timeout = 12000) {
   });
 }
 
+// ?assess=phq9:199,gad7:299 — clinical assessments added on the booking page (the server re-prices them)
+const parseAssess = (v) => String(v || "").split(",").map((x) => x.split(":")).filter(([k, p]) => /^[a-z0-9]{2,12}$/.test(k || "") && Number(p) >= 0).slice(0, 3).map(([k, p]) => ({ key: k, price: Number(p) }));
+const ASSESS_SHORT = { phq9: "PHQ-9", gad7: "GAD-7", dass21: "DASS-21", k10: "K10", pcl5: "PCL-5", phq15: "PHQ-15", audit: "AUDIT", asrs: "ASRS", epds: "EPDS", cbi: "CBI", rses: "RSES", bigfive: "IPIP-50" };
+
 export default function TherapistCheckoutPage() {
   const router = useRouter();
   const { id } = router.query;
@@ -120,7 +124,8 @@ export default function TherapistCheckoutPage() {
       service:      q.service,
       format:       q.format,
       // What the client actually pays — the coupon discount and referral credit shown on the summary.
-      amount:       Math.max(0, Number(q.price || 0) - Number(q.discount || 0) - Number(q.credit_used || 0)),
+      amount:       Math.max(0, Number(q.price || 0) - Number(q.discount || 0) - Number(q.credit_used || 0)) + parseAssess(q.assess).reduce((n, a) => n + a.price, 0),
+      ...(parseAssess(q.assess).length ? { assessments: parseAssess(q.assess).map((a) => a.key) } : {}),
       ...(q.referral_code ? { referral_code: q.referral_code } : {}),
       ...(Number(q.credit_used) > 0 ? { credit_used: Number(q.credit_used) } : {}),
       notes:        q.notes        || "",
@@ -301,7 +306,8 @@ export default function TherapistCheckoutPage() {
   const price    = Number(q.price    || 0);
   const discount = Number(q.discount || 0);
   const credit   = Number(q.credit_used || 0);
-  const total    = Math.max(0, price - discount - credit);
+  const assessLines = parseAssess(q.assess);
+  const total    = Math.max(0, price - discount - credit) + assessLines.reduce((n, a) => n + a.price, 0);
   const avatar   = profile?.user?.profile
     ? `${imagePath}/${profile.user.profile}` : defaultProfile;
 
@@ -404,6 +410,11 @@ export default function TherapistCheckoutPage() {
                 {credit > 0 && (
                   <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>
                     Referral credit ₹{credit.toLocaleString("en-IN")} used
+                  </div>
+                )}
+                {assessLines.length > 0 && (
+                  <div style={{ fontSize: 11, color: "#475569", fontWeight: 600, marginTop: 2 }}>
+                    Session ₹{Math.max(0, price - discount - credit).toLocaleString("en-IN")} + {assessLines.map((a) => `${ASSESS_SHORT[a.key] || a.key} ₹${a.price}`).join(" + ")}
                   </div>
                 )}
               </div>
