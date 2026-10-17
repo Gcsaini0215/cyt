@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
-import AssessmentOptions from "../../components/self-assessment/assessment-options";
+import AssessmentOptions, { AssessmentProviders, useAssessmentData } from "../../components/self-assessment/assessment-options";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
 import { CLINICAL_META } from "../../components/self-assessment/clinical";
 import { ASSESSMENT_SLUGS, SITE, testBySlug, seoOf, faqOf, pathOf } from "../../components/self-assessment/seo";
@@ -28,6 +28,7 @@ export default function AssessmentPage({ slug }) {
   const faq = faqOf(test);
   const others = FREE_TESTS.filter((t) => t.key !== test.key);
   const mode = router.query.mode === "with" ? "with" : "self";
+  const { list, price } = useAssessmentData(test.key);
 
   const schema = [
     {
@@ -103,7 +104,7 @@ export default function AssessmentPage({ slug }) {
       <main className="ap-main">
         <div className="ap-in ap-grid">
           <div className="ap-left">
-            <AssessmentOptions test={test} initialMode={mode} />
+            <AssessmentOptions test={test} initialMode={mode} list={list} price={price} />
           </div>
           <aside className="ap-right">
             <section className="ap-card">
@@ -123,6 +124,7 @@ export default function AssessmentPage({ slug }) {
         </div>
 
         <div className="ap-in">
+          <AssessmentProviders test={test} list={list} />
           <section className="ap-faq" aria-labelledby="ap-faq-h">
             <h2 id="ap-faq-h">{test.short} — frequently asked questions</h2>
             {faq.map(([q, a], i) => (

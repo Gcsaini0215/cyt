@@ -20,12 +20,12 @@ function lines(text, maxChars) {
 
 function svgFor(test) {
   const h1 = ASSESSMENT_SEO[test.key]?.h1 || test.full;
-  const [l1, l2] = lines(h1, 26);
+  const [l1, l2] = lines(h1, 24);
   const sub = `${test.questions.length} questions · ${String(test.time).replace(/^~\s*/, "")} · ${test.age}`;
   const pills = ["Instant scored report", "With a verified psychologist", "Published scoring"];
   let x = 80;
   const pillSvg = pills.map((p) => {
-    const w = Math.round(p.length * 8.6 + 36);
+    const w = Math.round(p.length * 9.4 + 40);
     const out = `<rect x="${x}" y="500" width="${w}" height="38" rx="19" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
   <text x="${x + w / 2}" y="524" font-family="Arial, sans-serif" font-size="15" font-weight="700" fill="rgba(255,255,255,0.85)" text-anchor="middle">${esc(p)}</text>`;
     x += w + 14;
@@ -42,10 +42,10 @@ function svgFor(test) {
   <circle cx="1010" cy="130" r="290" fill="none" stroke="rgba(74,222,128,0.08)" stroke-width="1.5"/>
   <circle cx="1010" cy="130" r="205" fill="none" stroke="rgba(74,222,128,0.06)" stroke-width="1"/>
   <rect x="80" y="78" width="60" height="4" rx="2" fill="#4ade80"/>
-  <rect x="80" y="104" width="300" height="38" rx="19" fill="rgba(74,222,128,0.12)" stroke="rgba(74,222,128,0.3)" stroke-width="1"/>
-  <text x="230" y="129" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4ade80" text-anchor="middle" letter-spacing="1.6">CLINICAL ASSESSMENT · ONLINE</text>
-  <text x="80" y="236" font-family="Arial Black, Arial, sans-serif" font-size="66" font-weight="900" fill="#ffffff" letter-spacing="-1">${esc(l1)}</text>
-  ${l2 ? `<text x="80" y="314" font-family="Arial Black, Arial, sans-serif" font-size="66" font-weight="900" fill="#ffffff" letter-spacing="-1">${esc(l2)}</text>` : ""}
+  <rect x="80" y="104" width="360" height="38" rx="19" fill="rgba(74,222,128,0.12)" stroke="rgba(74,222,128,0.3)" stroke-width="1"/>
+  <text x="260" y="129" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4ade80" text-anchor="middle" letter-spacing="1.2">CLINICAL ASSESSMENT · ONLINE</text>
+  <text x="80" y="236" font-family="Arial Black, Arial, sans-serif" font-size="60" font-weight="900" fill="#ffffff" letter-spacing="-1">${esc(l1)}</text>
+  ${l2 ? `<text x="80" y="314" font-family="Arial Black, Arial, sans-serif" font-size="60" font-weight="900" fill="#ffffff" letter-spacing="-1">${esc(l2)}</text>` : ""}
   <text x="80" y="${l2 ? 378 : 300}" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#86efac">${esc(test.full)}</text>
   <text x="80" y="${l2 ? 428 : 350}" font-family="Arial, sans-serif" font-size="22" fill="rgba(255,255,255,0.68)">${esc(sub)}</text>
   ${pillSvg}

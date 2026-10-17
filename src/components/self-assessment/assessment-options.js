@@ -7,7 +7,8 @@ import { cardOf } from "../../utils/related-therapists";
 import { isAuthenticated, getDecodedToken } from "../../utils/jwt";
 import { pathOf } from "./seo";
 
-/* The two ways to take one assessment, on its page (/self-assessment/<slug>):
+/* The two ways to take one assessment, on its page (/self-assessment/<slug>) — the psychologists who
+   offer it are listed below the options (AssessmentProviders), so a long list has room:
    - Just the assessment: pay the assessment fee, answer it now, get the automatic report at once.
    - With a psychologist: booked with a session (/book/<slug>?assess=<key>); the psychologist adds
      their notes from the session to the report and signs it. Nobody offers it yet → our contacts. */
@@ -42,15 +43,10 @@ function loadRazorpay() {
   });
 }
 
-export default function AssessmentOptions({ test, initialMode = "self" }) {
-  const router = useRouter();
-  const [mode, setMode] = useState(initialMode === "with" ? "with" : "self");
+// the psychologists who offer this test (approved add-on) + its price — shared by the options and the list
+export function useAssessmentData(key) {
   const [list, setList] = useState(null);
   const [price, setPrice] = useState(null);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-
-  useEffect(() => { setMode(initialMode === "with" ? "with" : "self"); }, [initialMode]);
   useEffect(() => {
     let alive = true;
     Promise.all([fetchData(`${apiUrl}/assessment-providers`), fetchData(getTherapistProfiles), fetchData(`${apiUrl}/assessment-pricing`)])
@@ -59,11 +55,21 @@ export default function AssessmentOptions({ test, initialMode = "self" }) {
         const out = (prof?.data || []).filter((t) => t?._id && ids.has(String(t.user?._id || t.user))).map(cardOf);
         if (!alive) return;
         setList(out);
-        setPrice(pr?.data?.tests?.[test.key] || null);
+        setPrice(pr?.data?.tests?.[key] || null);
       })
       .catch(() => { if (alive) { setList([]); setPrice({ active: false }); } });
     return () => { alive = false; };
-  }, [test.key]);
+  }, [key]);
+  return { list, price };
+}
+
+export default function AssessmentOptions({ test, initialMode = "self", list = null, price = null }) {
+  const router = useRouter();
+  const [mode, setMode] = useState(initialMode === "with" ? "with" : "self");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  useEffect(() => { setMode(initialMode === "with" ? "with" : "self"); }, [initialMode]);
 
   const wa = `https://wa.me/${PHONE.slice(1)}?text=${encodeURIComponent(`Hi CYT team, I'd like a clinical assessment (${test.short}) with a psychologist.`)}`;
   const unavailable = price && price.active === false;
@@ -138,19 +144,13 @@ export default function AssessmentOptions({ test, initialMode = "self" }) {
               <p className="aop-sub">You answer before your session. After going through it with you, they add to the report — based on your session:</p>
               <ul className="aop-adds">{PSY_ADDS.map(([t, d]) => <li key={t}><b>{t}</b><span>{d}</span></li>)}</ul>
               {list === null ? <div className="aop-skel" /> : list.length > 0 ? (
-                <>
-                  <b className="aop-h3" style={{ marginTop: 14 }}>Psychologists who offer it</b>
-                  <div className="aop-list">
-                    {list.map((t) => (
-                      <div key={t.id} className="aop-t">
-                        <span className="aop-av">{t.photo ? <img src={t.photo} alt="" /> : t.name.charAt(0)}</span>
-                        <div className="aop-who"><b>{t.name}</b><span>{t.type}{t.city ? ` · ${t.city}` : ""}{t.fee ? ` · session from ₹${t.fee.toLocaleString("en-IN")}` : ""}</span></div>
-                        <Link href={t.href} className="aop-btn ghost">View</Link>
-                        <Link href={`${t.href.replace("/view-profile/", "/book/")}?assess=${test.key}`} className="aop-btn">Book</Link>
-                      </div>
-                    ))}
-                  </div>
-                </>
+                <div className="aop-sum">
+                  <span className="aop-stack" aria-hidden="true">
+                    {list.slice(0, 4).map((t) => <span key={t.id}>{t.photo ? <img src={t.photo} alt="" /> : t.name.charAt(0)}</span>)}
+                  </span>
+                  <span className="aop-sum-t"><b>{list.length} psychologist{list.length === 1 ? "" : "s"}</b> offer the {test.short}</span>
+                  <a href="#psychologists" className="aop-btn" onClick={(e) => { e.preventDefault(); document.getElementById("psychologists")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Choose a psychologist ↓</a>
+                </div>
               ) : (
                 <div className="aop-help">
                   <b>We&apos;ll connect you with a psychologist</b>
@@ -204,6 +204,10 @@ const AOP_CSS = `
 .aop-who span { display: block; font-size: 12px; color: #64748b; }
 .aop-btn { height: 36px; padding: 0 14px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #166534; color: #fff !important; text-decoration: none !important; border: 1.5px solid #166534; white-space: nowrap; }
 .aop-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.aop-sum { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #f3faf5; border: 1px solid #d9eadf; border-radius: 14px; padding: 10px 12px; }
+.aop-stack { display: inline-flex; } .aop-stack span { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; background: #e7f6ec; color: #166534; font-weight: 800; font-size: 13px; display: grid; place-items: center; overflow: hidden; }
+.aop-stack span:first-child { margin-left: 0; } .aop-stack img { width: 100%; height: 100%; object-fit: cover; }
+.aop-sum-t { flex: 1 1 160px; font-size: 13.5px; color: #334155; } .aop-sum-t b { color: #14532d; }
 .aop-help { margin-top: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
 .aop-help b { font-size: 15px; color: #14532d; } .aop-help > span { font-size: 13.5px; color: #166534; line-height: 1.55; }
 .aop-help-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
@@ -212,4 +216,105 @@ const AOP_CSS = `
   .aop-modes, .aop-adds { grid-template-columns: 1fr; }
   .aop-help-btns .aop-btn { flex: 1 1 100%; height: 44px; }
 }
+`;
+
+/* Every psychologist who offers the test: a full-width, searchable grid with "Show more", so it stays
+   tidy with 2 profiles or 200. */
+const STEP = 8;
+export function AssessmentProviders({ test, list }) {
+  const [q, setQ] = useState("");
+  const [mode, setMode] = useState("all");
+  const [shown, setShown] = useState(STEP);
+  if (!list || !list.length) return null;
+  const needle = q.trim().toLowerCase();
+  const rows = list.filter((t) => (!needle || `${t.name} ${t.city} ${t.type} ${(t.tags || []).join(" ")}`.toLowerCase().includes(needle))
+    && (mode === "all" || (mode === "online" ? /online/i.test(t.modes) : /in-person/i.test(t.modes))));
+  const many = list.length > 6;
+  return (
+    <section className="apv" id="psychologists" aria-labelledby="apv-h">
+      <style dangerouslySetInnerHTML={{ __html: APV_CSS }} />
+      <div className="apv-head">
+        <div>
+          <h2 id="apv-h">Psychologists who offer the {test.short}</h2>
+          <p>Verified by CYT for clinical assessments. Book a session with the {test.short} added — they go through your report with you and add their notes.</p>
+        </div>
+        {many && (
+          <div className="apv-tools">
+            <input type="search" value={q} onChange={(e) => { setQ(e.target.value); setShown(STEP); }} placeholder="Search by name, city or expertise" aria-label="Search psychologists" />
+            <div className="apv-chips" role="tablist" aria-label="Session type">
+              {[["all", "All"], ["online", "Online"], ["inperson", "In-person"]].map(([k, l]) => (
+                <button key={k} type="button" role="tab" aria-selected={mode === k} className={mode === k ? "on" : ""} onClick={() => { setMode(k); setShown(STEP); }}>{l}</button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {rows.length ? (
+        <div className="apv-grid">
+          {rows.slice(0, shown).map((t) => (
+            <article key={t.id} className="apv-card">
+              <div className="apv-top">
+                <span className="apv-av">{t.photo ? <img src={t.photo} alt={t.name} loading="lazy" /> : t.name.charAt(0)}</span>
+                <div className="apv-who">
+                  <b title={t.name}>{t.name}</b>
+                  <span>{t.type}</span>
+                  {t.rating && <em>★ {t.rating.avg} <small>({t.rating.count})</small></em>}
+                </div>
+              </div>
+              <div className="apv-meta">
+                {t.city && <span><i className="feather-map-pin" aria-hidden="true" /> {t.city}</span>}
+                {t.modes && <span><i className="feather-video" aria-hidden="true" /> {t.modes}</span>}
+              </div>
+              {t.tags?.length > 0 && <div className="apv-tags">{t.tags.map((x) => <span key={x}>{x}</span>)}</div>}
+              <div className="apv-foot">
+                <span className="apv-fee">{t.fee ? <>Session from <b>₹{t.fee.toLocaleString("en-IN")}</b></> : "\u00a0"}</span>
+                <div className="apv-btns">
+                  <Link href={t.href} className="apv-btn ghost">Profile</Link>
+                  <Link href={`${t.href.replace("/view-profile/", "/book/")}?assess=${test.key}`} className="apv-btn">Book</Link>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : <p className="apv-none">No psychologist matches — try another search.</p>}
+      {rows.length > shown && (
+        <div className="apv-more"><button type="button" onClick={() => setShown((n) => n + STEP)}>Show more ({rows.length - shown} more)</button></div>
+      )}
+    </section>
+  );
+}
+
+const APV_CSS = `
+.apv { margin-top: 26px; }
+.apv-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.apv-head h2 { margin: 0 0 4px; font-size: 19px; font-weight: 800; color: #0f172a; font-family: inherit; }
+.apv-head p { margin: 0; max-width: 620px; font-size: 13.5px; color: #64748b; line-height: 1.55; }
+.apv-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.apv-tools input { height: 40px; width: 260px; max-width: 100%; border: 1.5px solid #dfe7e2; border-radius: 11px; padding: 0 12px; font: inherit; font-size: 13.5px; background: #fff; }
+.apv-tools input:focus { outline: none; border-color: #16a34a; }
+.apv-chips { display: flex; gap: 6px; }
+.apv-chips button { height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid #dfe7e2; background: #fff; font: inherit; font-size: 13px; font-weight: 700; color: #475569; cursor: pointer; }
+.apv-chips button.on { background: #14532d; border-color: #14532d; color: #fff; }
+.apv-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.apv-card { background: #fff; border: 1px solid #e3eae6; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: box-shadow .2s, border-color .2s; }
+.apv-card:hover { border-color: #b9d7c4; box-shadow: 0 14px 30px -22px rgba(15,23,42,.45); }
+.apv-top { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.apv-av { width: 54px; height: 54px; border-radius: 14px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; font-size: 20px; overflow: hidden; flex-shrink: 0; }
+.apv-av img { width: 100%; height: 100%; object-fit: cover; }
+.apv-who { min-width: 0; } .apv-who b { display: block; font-size: 14.5px; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.apv-who span { display: block; font-size: 12px; color: #64748b; }
+.apv-who em { display: block; font-style: normal; font-size: 12px; font-weight: 800; color: #b45309; margin-top: 1px; } .apv-who em small { color: #94a3b8; font-weight: 600; }
+.apv-meta { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: #475569; } .apv-meta i { color: #1f6b45; }
+.apv-tags { display: flex; flex-wrap: wrap; gap: 5px; } .apv-tags span { font-size: 11px; font-weight: 700; color: #334155; background: #f1f5f4; border-radius: 999px; padding: 2px 8px; }
+.apv-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 8px; }
+.apv-fee { font-size: 12.5px; color: #64748b; } .apv-fee b { color: #0f172a; font-size: 14px; }
+.apv-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.apv-btn { height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #166534; color: #fff !important; text-decoration: none !important; border: 1.5px solid #166534; }
+.apv-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.apv-none { font-size: 14px; color: #64748b; }
+.apv-more { text-align: center; margin-top: 14px; }
+.apv-more button { height: 42px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #cfe3d6; background: #fff; color: #166534; font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; }
+@media (max-width: 1100px) { .apv-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 800px) { .apv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .apv-tools, .apv-tools input { width: 100%; } }
+@media (max-width: 520px) { .apv-grid { grid-template-columns: 1fr; } }
 `;
