@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import Link from "next/link";
 import { FREE_TESTS, CATEGORIES } from "./tests";
+import { pathOf } from "./seo";
 
 /* The list on /self-assessment: the clinical assessments by topic, with their price (admin pricing).
-   "Take this assessment" opens the sheet: just the assessment, or with a psychologist (onBook). */
+   Each card links to the test's own page: take it on its own, or with a psychologist. */
 
-export default function AssessmentCards({ prices, onBook }) {
+export default function AssessmentCards({ prices }) {
   const [cat, setCat] = useState("All");
   const bookable = (t) => !prices || prices[t.key]?.active !== false;
   const shown = FREE_TESTS.filter((t) => bookable(t) && (cat === "All" || t.category === cat));
@@ -33,7 +35,7 @@ export default function AssessmentCards({ prices, onBook }) {
                 <div className="sac-top">
                   <span className="sac-ic"><i className={t.icon} aria-hidden="true" /></span>
                   <div>
-                    <h3>{t.title}</h3>
+                    <h3><Link href={pathOf(t.key)} className="sac-title">{t.title}</Link></h3>
                     <span className="sac-short">{t.short}</span>
                   </div>
                 </div>
@@ -46,7 +48,7 @@ export default function AssessmentCards({ prices, onBook }) {
                   <span className="sac-price">
                     {prices?.[t.key] ? <>{prices[t.key].offer && <s>₹{prices[t.key].fee}</s>} <b>₹{prices[t.key].price}</b>{prices[t.key].offer && prices[t.key].offerLabel && <em>{prices[t.key].offerLabel}</em>}<small>assessment fee</small></> : <small>&nbsp;</small>}
                   </span>
-                  <button type="button" className="sac-btn" onClick={() => onBook(t)}>Take this assessment</button>
+                  <Link href={pathOf(t.key)} className="sac-btn" aria-label={`Take the ${t.short} assessment`}>Take this assessment</Link>
                 </div>
               </article>
             ))}
@@ -93,6 +95,9 @@ const SAC_CSS = `
 .sac-price { font-size: 13px; color: #64748b; line-height: 1.2; } .sac-price b { font-size: 19px; color: #0f172a; } .sac-price s { color: #94a3b8; }
 .sac-price em { display: inline-block; margin-left: 4px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #b45309; background: #fef3c7; border-radius: 999px; padding: 1px 7px; vertical-align: 3px; }
 .sac-price small { display: block; font-size: 11px; }
+.sac-title { color: inherit !important; text-decoration: none !important; }
+.sac-title:hover { color: var(--c) !important; }
+a.sac-btn { color: #fff !important; text-decoration: none !important; }
 .sac-btn { padding: 0 14px; height: 42px; border-radius: 11px; border: 0; background: var(--c); color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .sac-btn.ghost { background: #fff; color: #166534; border: 1.5px solid #cfe3d6; }
 .sac-btn.ghost:hover { background: #f0fdf4; }

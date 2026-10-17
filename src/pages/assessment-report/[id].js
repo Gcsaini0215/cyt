@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { TEST_BY_KEY, optionsFor, questionText } from "../../components/self-assessment/tests";
 import { clinicalOf, CLINICAL_META } from "../../components/self-assessment/clinical";
+import { pathOf } from "../../components/self-assessment/seo";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { isAuthenticated } from "../../utils/jwt";
@@ -310,7 +311,7 @@ export default function AssessmentReport() {
             <section className="rp-sec rp-next no-print">
               <b>Want a psychologist to go through it with you?</b>
               <span>In a session they explain your result and add a summary, clinical observations, recommendations, a follow-up plan and their signature to your report.</span>
-              <Link href={`/self-assessment?start=${rep.tool}&mode=with`}>Find a psychologist →</Link>
+              <Link href={`${pathOf(rep.tool)}?mode=with`}>Find a psychologist →</Link>
             </section>
           )}
 

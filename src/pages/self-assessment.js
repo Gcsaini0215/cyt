@@ -3,18 +3,17 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import SelfAssessmentBanner from "../components/self-assessment/banner";
 import AssessmentCards from "../components/self-assessment/assessment-cards";
-import ClinicalModal from "../components/self-assessment/clinical-modal";
 import { FREE_TESTS, testFromParam } from "../components/self-assessment/tests";
+import { pathOf, SITE as SITE_URL } from "../components/self-assessment/seo";
 import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
 import { fetchData } from "../utils/actions";
 import { apiUrl } from "../utils/url";
 
-/* Clinical assessments: every test is booked with a psychologist and paid for (fee set in the admin
-   panel). No questions are shown here — the client answers them after booking, and gets the report
-   once the psychologist has gone through it. ?start=<key> opens that test's booking sheet. */
+/* Clinical assessments: the list. Each test has its own page (/self-assessment/<slug>) where it is
+   taken on its own (instant report) or with a psychologist. Old ?start=<key> links go to that page. */
 
-const SITE = "https://www.chooseyourtherapist.in";
+const SITE = SITE_URL;
 const PAGE_URL = `${SITE}/self-assessment`;
 const TITLE = "Clinical Mental Health Assessments with a Psychologist | CYT";
 const DESC = "Book a standard clinical assessment with a verified psychologist — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five. Answer online, get a professional report and a session to go through it.";
@@ -24,7 +23,7 @@ const SCHEMA = [
   {
     "@context": "https://schema.org", "@type": "WebPage", "@id": `${PAGE_URL}#page`, "url": PAGE_URL, "name": TITLE, "description": DESC, "inLanguage": "en-IN",
     "isPartOf": { "@type": "WebSite", "name": "Choose Your Therapist", "url": SITE },
-    "about": FREE_TESTS.map((t) => ({ "@type": "MedicalTest", "name": t.full, "description": t.blurb, "citation": t.ref })),
+    "about": FREE_TESTS.map((t) => ({ "@type": "MedicalTest", "name": t.full, "description": t.blurb, "citation": t.ref, "url": `${SITE}${pathOf(t.key)}` })),
   },
   {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -37,22 +36,18 @@ const SCHEMA = [
 
 export default function SelfAssessment() {
   const router = useRouter();
-  const [clinical, setClinical] = useState(null); // the test whose booking sheet is open
-  const [mode, setMode] = useState("self"); // self = just the assessment, with = with a psychologist
   const [prices, setPrices] = useState(null);
 
   useEffect(() => {
     fetchData(`${apiUrl}/assessment-pricing`).then((r) => setPrices(r?.data?.tests || {})).catch(() => setPrices({}));
   }, []);
 
-  // ?start=<key> (old links, client dashboard): open that test's booking sheet
+  // ?start=<key> (old links, client dashboard, report page): go to that test's page
   useEffect(() => {
     if (!router.isReady) return;
     const t = testFromParam(router.query.start);
     if (!t) return;
-    if (router.query.mode === "with") setMode("with");
-    router.replace("/self-assessment", undefined, { shallow: true, scroll: false });
-    setClinical(t);
+    router.replace(`${pathOf(t.key)}${router.query.mode === "with" ? "?mode=with" : ""}`);
   }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -80,8 +75,7 @@ export default function SelfAssessment() {
       </Head>
       <MyNavbar />
       <SelfAssessmentBanner />
-      <AssessmentCards prices={prices} onBook={setClinical} />
-      {clinical && <ClinicalModal test={clinical} initialMode={mode} onClose={() => { setClinical(null); setMode("self"); }} />}
+      <AssessmentCards prices={prices} />
       <Footer />
     </div>
   );
