@@ -29,6 +29,7 @@ import SessionTicket from "../../client/session-ticket";
 import useTherapistStore from "../../../store/therapistStore";
 import { usePager, Pager } from "../pager";
 import { useAssessmentMap, AssessmentChips, sessionSplit } from "../booking-assessments";
+import { isInPerson, InPersonStartDialog } from "../inperson-start";
 
 /* Therapist "Appointments": every booking with what the client told us at booking time
    (who the session is for, age, gender, concern, contact), grouped by day, with the
@@ -294,6 +295,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
     setEndingId("");
   };
   const [receipt, setReceipt] = useState(null); // booking whose receipt is open
+  const [ipStart, setIpStart] = useState(null); // in-person booking being started with the client's code
   const printInvoice = (a) => setReceipt(a);
   const amap = useAssessmentMap(); // clinical assessments booked with each session
 
@@ -309,6 +311,14 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   const open = (a, tab = "details") => { setSelected(a); setDetailTab(tab); };
 
   const SessionButton = ({ a, big }) => {
+    // in person: Start emails the client a code; the session starts once it's entered (from 1 h before)
+    if (isInPerson(a) && a.status === SESSION_STATUS.NEW) {
+      const at = new Date(a.booking_date).getTime();
+      const t = now instanceof Date ? now.getTime() : Date.now();
+      if (t < at - 60 * 60 * 1000) return <button type="button" className={`apx-btn soft${big ? " big" : ""}`} disabled title="You can start from 1 hour before"><PlayArrowRoundedIcon /> Start at {opensAtText(new Date(at - 60 * 60 * 1000))}</button>;
+      if (t > at + 12 * 60 * 60 * 1000) return <span className="apx-missed">Session time over</span>;
+      return <button type="button" className={`apx-btn primary${big ? " big" : ""}`} onClick={(e) => { e.stopPropagation(); setIpStart(a); }}><PlayArrowRoundedIcon /> Start<span className="apx-lg"> session</span></button>;
+    }
     const hasMeet = !!a.meet_link || isOnline(a.format);
     const w = sessionWindow(a.booking_date, now);
     if (a.status === SESSION_STATUS.NEW && w.before) {
@@ -336,6 +346,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
   return (
     <div className="apx">
       <style dangerouslySetInnerHTML={{ __html: APX_CSS }} />
+      {ipStart && <InPersonStartDialog booking={ipStart} clientName={personOf(ipStart).name} onClose={() => setIpStart(null)} onStarted={() => { toast.success("Session started"); markStarted(ipStart._id); }} />}
 
       {isRinging && (
         <div className="apx-ring" role="alert">

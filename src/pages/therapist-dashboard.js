@@ -1156,7 +1156,7 @@ export default function TherapistDashboard() {
 
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
           <div className="ov-top">
-            <NextSessionCard s={nextSession} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} />
+            <NextSessionCard s={nextSession} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} onChanged={() => load(true)} />
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">

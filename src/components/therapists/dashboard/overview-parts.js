@@ -1,5 +1,8 @@
 import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import { useAssessmentMap, bookingAssessments, AssessmentChips } from "../booking-assessments";
+import { isInPerson, InPersonStartDialog } from "../inperson-start";
+import { postData } from "../../../utils/actions";
+import { EndSessionUrl } from "../../../utils/url";
 import React from "react";
 import Link from "next/link";
 import SessionTicket from "../../client/session-ticket";
@@ -111,8 +114,10 @@ const modeLabel = (b) => {
 const clean = (v) => (v && v !== "null" && v !== "undefined" ? String(v).trim() : "");
 const digits = (p) => String(p || "").replace(/\D/g, "");
 
-export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist }) {
+export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, onChanged }) {
   const [receipt, setReceipt] = React.useState(false);
+  const [starting, setStarting] = React.useState(false);
+  const [ending, setEnding] = React.useState(false);
   const amap = useAssessmentMap();
   if (loading) return <div className="ov-next ov-card"><div className="ov-skel" /></div>;
   if (!s) {
@@ -136,6 +141,16 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
   const phone = digits(b.client?.phone);
   const notes = clean(b.notes);
   const assess = bookingAssessments(b, amap);
+  const inPerson = isInPerson(b);
+  const started = s.status === "Started";
+  const at = new Date(s.date).getTime();
+  const canStartAt = at - 60 * 60 * 1000; // in person: start (with the client's code) from 1 h before
+  const endSession = async () => {
+    if (!window.confirm("End this session now?")) return;
+    setEnding(true);
+    try { await postData(EndSessionUrl, { bookingId: b._id }); onChanged && onChanged(); } catch (e) { window.alert(e?.response?.data?.message || "Couldn't end the session — please try again."); }
+    setEnding(false);
+  };
   const report = assess.find((x) => x.reportId);
   const details = [
     ["Service", clean(b.service) || "Session"],
@@ -145,7 +160,10 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
   ].filter(Boolean);
   return (
     <div className={`ov-next ov-card ${live ? "live" : ""}`}>
-      <div className="ov-next-k">{live ? "Starting now" : "Next session"} <span>{when}</span></div>
+      <div className="ov-next-top">
+        <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : "Next session"} <span>{started ? "started" : when}</span></div>
+        <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? "📍 In person" : "🎥 Video session"}</span>
+      </div>
       <div className="ov-next-grid">
         <div className="ov-next-left">
           <div className="ov-next-row">
@@ -162,7 +180,12 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
             </div>
           </div>
           <div className="ov-next-btns">
-            {s.meet && onJoin && joinWin.open
+            {inPerson ? (started
+              ? <button type="button" className="ov-btn gold" onClick={endSession} disabled={ending}>{ending ? "Ending…" : "End session"}</button>
+              : Date.now() < canStartAt
+                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}>Start from&nbsp;<b>{opensAtText(canStartAt)}</b></span>
+                : <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => setStarting(true)}>▶ Start session</button>)
+            : s.meet && onJoin && joinWin.open
               ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
               : s.meet && joinWin.before
                 ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}>Join opens at&nbsp;<b>{opensAtText(joinWin.opens)}</b></span>
@@ -190,6 +213,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist })
         </div>
       </div>
       {receipt && <SessionTicket b={b} therapist={therapist} onClose={() => setReceipt(false)} />}
+      {starting && <InPersonStartDialog booking={b} clientName={s.name} onClose={() => setStarting(false)} onStarted={() => onChanged && onChanged()} />}
     </div>
   );
 }
@@ -317,6 +341,11 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 .ov-next-sub { font-size: 13.5px; color: #475569; margin: 2px 0 0; }
 .ov-next-btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .ov-opens b { font-weight: 800; margin-left: 2px; }
+.ov-next-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.ov-mode { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; background: #fff; border: 1px solid #e2e8f0; color: #334155; white-space: nowrap; }
+.ov-mode.ip { border-color: #f1dca6; color: #8a5d06; }
+.ov-next .ov-btn:disabled { opacity: .6; cursor: default; }
+button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-next-assess { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ov-next-assess > span:first-child { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #64748b; }
 /* tablets & desktops: a soft golden card */
