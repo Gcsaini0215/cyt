@@ -469,6 +469,12 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-next.hero .ov-next-assess > span:first-child { color: #5b7d69; }
 .ov-next-rbtns { display: flex; gap: 8px; flex-wrap: wrap; }
 .ov-next.hero .ov-btn svg { font-size: 18px; margin-right: 6px; flex-shrink: 0; }
+/* every size: one strong main action, softer green for the rest */
+.ov-next.hero .ov-next-btns > :first-child { background: #14532d; border-color: #14532d; box-shadow: 0 8px 16px -10px rgba(20,83,45,.75); }
+.ov-next.hero .ov-next-btns > :first-child.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
+.ov-next.hero .ov-next-btns > :not(:first-child), .ov-next.hero .ov-next-rbtns .ov-btn { background: #2b7a4b; border-color: #2b7a4b; box-shadow: none; }
+.ov-next.hero .ov-next-btns > :first-child:hover { background: #0f3d22; border-color: #0f3d22; }
+.ov-next.hero .ov-next-btns > :not(:first-child):hover, .ov-next.hero .ov-next-rbtns .ov-btn:hover { background: #236640; border-color: #236640; }
 .ov-next.hero .ov-btn b { margin-left: 3px; }
 .ov-inv-link { border: 0; background: none; padding: 0; font: inherit; font-size: 12.5px; font-weight: 700; color: #1d4ed8; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .ov-inv-link:hover { color: #1e3a8a; }
