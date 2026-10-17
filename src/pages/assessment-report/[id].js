@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { TEST_BY_KEY, optionsFor, questionText } from "../../components/self-assessment/tests";
+import { clinicalOf } from "../../components/self-assessment/clinical";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { isAuthenticated } from "../../utils/jwt";
@@ -48,6 +49,7 @@ export default function AssessmentReport() {
 
   const test = rep && TEST_BY_KEY[rep.tool];
   const res = rep?.result || {};
+  const cl = rep ? clinicalOf(rep.tool, res, rep.answers) : null;
   const isT = rep?.viewer === "therapist";
   const released = rep?.status === "released";
   const signer = rep?.signer || {};
@@ -101,11 +103,31 @@ export default function AssessmentReport() {
           </dl>
 
           {/* ── result ── */}
-          <section className="rp-result" style={{ "--lc": res.color || "#16a34a" }}>
-            <div className="rp-level"><div><small>Result</small><b><i className="rp-dot" />{res.level}</b></div>{res.score != null && <span>Score <strong>{res.score}</strong> / {res.max}</span>}</div>
-            <p>{res.text}</p>
-            {isT && res.flag && <p className="rp-flag">⚠ Self-harm item answered above zero — please assess risk at the start of the session.</p>}
+          <section className="rp-result">
+            <div className="rp-level">
+              <div><small>Result</small><b>{cl.headline}</b></div>
+              {cl.score != null && <span>Total score <strong>{cl.score}</strong> / {cl.max}</span>}
+            </div>
+            {cl.interpretation.map((t, k) => <p key={k}>{t}</p>)}
+            {cl.details.map((t, k) => <p key={`d${k}`} className="rp-detail">{t}</p>)}
+            {cl.notes.map((t, k) => <p key={`n${k}`} className="rp-detail">{t}</p>)}
+            {(cl.alerts || []).map((t, k) => <p key={`a${k}`} className="rp-flag">{t}</p>)}
           </section>
+
+          {(cl.bands.length > 0 || cl.action) && (
+            <section className="rp-sec">
+              <h2>Interpretation per manual</h2>
+              {cl.bandTitle && <p className="rp-bandtitle">{cl.bandTitle}</p>}
+              {cl.bands.length > 0 && (
+                <table className="rp-bands">
+                  <tbody>
+                    {cl.bands.map((b) => <tr key={b.range + b.label} className={b.current ? "now" : ""}><td>{b.range}</td><td>{b.label}</td><td>{b.current ? "◀ this result" : ""}</td></tr>)}
+                  </tbody>
+                </table>
+              )}
+              {cl.action && <p className="rp-action"><b>Recommended action (manual):</b> {cl.action}</p>}
+            </section>
+          )}
 
           {Array.isArray(res.bars) && res.bars.length > 0 && (
             <section className="rp-sec">
@@ -265,6 +287,13 @@ const RP_CSS = `
 .rp-level .rp-dot { margin-right: 0; }
 .rp-result p { margin: 6px 0 0; font-size: 13.5px; line-height: 1.6; color: #374151; }
 .rp-result .rp-flag { color: #991b1b; font-weight: 700; }
+.rp-result .rp-detail { font-size: 12.5px; color: #4b5563; }
+.rp-sheet .rp-bandtitle { margin: 0 0 6px; font-size: 12px; color: #6b7280; font-style: italic; }
+.rp-bands { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 8px; }
+.rp-bands td { padding: 5px 8px; border-bottom: 1px solid #f0f1f1; color: #374151; }
+.rp-bands td:first-child { width: 90px; font-weight: 700; white-space: nowrap; } .rp-bands td:last-child { width: 110px; text-align: right; font-size: 11.5px; color: #14532d; font-weight: 700; }
+.rp-bands tr.now td { background: #f3f4f6; color: #111827; font-weight: 700; }
+.rp-sheet .rp-action { margin: 4px 0 0; font-size: 13px; color: #1f2937; line-height: 1.55; }
 .rp-sec { margin-bottom: 16px; }
 .rp-bar-row { margin-bottom: 8px; } .rp-bar-row > div { display: flex; justify-content: space-between; font-size: 13px; }
 .rp-bar-row span { font-weight: 700; color: #374151; display: inline-flex; align-items: center; }
@@ -339,7 +368,7 @@ const RP_CSS = `
   .rp-sheet p, .rp-sheet td, .rp-sheet dd { orphans: 3; widows: 3; }
   .rp-sheet h1, .rp-sheet h2 { break-after: avoid; page-break-after: avoid; }
   .rp-items thead { display: table-header-group; }
-  .rp-items tr, .rp-prog tr, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
+  .rp-items tr, .rp-prog tr, .rp-bands tr, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
   .rp-sign, .rp-foot, .rp-result, .rp-client { page-break-inside: avoid; }
   .rp-dot, .rp-bar-row em, .rp-result { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
