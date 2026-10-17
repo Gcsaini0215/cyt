@@ -15,6 +15,7 @@ import {
 import { fetchById, postData } from "../utils/actions";
 import useTherapistStore from "../store/therapistStore";
 import { useTimingsTodo } from "../components/therapists/dashboard/AvailabilityNudge";
+import { useAssessmentsUpgrade } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import { TodayBar, KpiCard, KpiHead, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
@@ -1086,6 +1087,7 @@ export default function TherapistDashboard() {
   // rating, listing status and the to-do list for the new overview
   const actionTodos = useActionTodos(); // requests from the CYT team
   const timingsTodo = useTimingsTodo(therapistInfo); // weekly "are your timings right?" (was a popup)
+  const addonUpgrade = useAssessmentsUpgrade(); // Clinical Assessments add-on not active yet
   const [rescheduling, setRescheduling] = React.useState(null);
   // a new booking popped up in the top bar → refresh the numbers now
   React.useEffect(() => {
@@ -1111,6 +1113,7 @@ export default function TherapistDashboard() {
   const todoItems = [
     ...actionTodos,
     ...(timingsTodo ? [timingsTodo] : []),
+    ...(addonUpgrade ? [{ key: "addon", label: "⭐ Offer clinical assessments to your clients (PHQ-9, GAD-7…) — earn on every report", href: "/therapist-questionnaires?buy=1", cta: "Get it" }] : []),
     ...profileChecks.filter((c) => !c.done).map((c) => ({ label: TODO_LABEL[c.label] || c.label, href: c.href || "/settings", cta: c.cta || "Add", tone: "warn" })),
     ...(listing && (listing.tone === "warn" || listing.tone === "off") ? [{ label: listing.tone === "off" ? "Your listing has expired — renew to stay visible" : listing.label === "Not live yet" ? "Choose a package to go live" : `Listing ends soon (${listing.label.replace("Listing · ", "")})`, href: "/therapist-registration?packages=1", cta: "Renew", tone: listing.tone === "off" ? "bad" : "warn" }] : []),
     ...invoices.filter((i) => i.status && i.status !== "Success").slice(0, 2).map((i) => ({ label: `Payment pending · ${i.client_name}`, href: "/therapists/invoices", cta: "View", tone: "bad" })),

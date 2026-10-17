@@ -273,7 +273,8 @@ export default function AssessmentReport() {
               </div>
               <b className="rp-sig-name">{signer.name || rep.therapist}</b>
               <span>{signer.profileType || "Psychologist"}</span>
-              {(isT ? regNo : signer.regNo) ? <span>Reg. / Licence No.: {isT ? regNo : signer.regNo}</span> : signer.credential ? <span>{signer.credential}</span> : <span>Reg. / Licence No.: —</span>}
+              {signer.credential && <span>{signer.credential}</span>}
+              {(isT ? regNo : signer.regNo) ? <span>RCI / Reg. No.: {isT ? regNo : signer.regNo}</span> : !signer.credential && <span>RCI / Reg. No.: —</span>}
             </div>
           </section>
 

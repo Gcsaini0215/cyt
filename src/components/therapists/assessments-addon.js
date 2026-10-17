@@ -3,6 +3,7 @@ import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { FREE_TESTS } from "../self-assessment/tests";
 import { clearAssessmentsUpgrade } from "./nav-extras";
+import AddonWizard from "./addon-wizard";
 
 /* Top of the Assessments page: the yearly "Clinical Assessments" add-on (bought here on Razorpay,
    priced by CYT in the admin panel) and what clients pay / the therapist earns for each assessment. */
@@ -25,12 +26,14 @@ export default function AssessmentsAddon({ onChange }) {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: "", err: false });
-  const [reg, setReg] = useState("");
-  const [noReg, setNoReg] = useState(false);
-  const [cred, setCred] = useState("");
+  const [wizard, setWizard] = useState(false);
 
-  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); setReg(r?.data?.assessments?.regNo || ""); setNoReg(!!r?.data?.assessments?.noRegNo); setCred(r?.data?.assessments?.credential || ""); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
-  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const load = () => fetchById(`${apiUrl}/therapist-addon`).then((r) => { setData(r?.data || null); clearAssessmentsUpgrade(); onChange && onChange(r?.data || null); }).catch(() => setMsg({ text: "Couldn't load — refresh to try again", err: true }));
+  useEffect(() => {
+    load();
+    // /therapist-questionnaires?buy=1 (from the dashboard To-do) opens the buy form straight away
+    try { if (new URLSearchParams(window.location.search).get("buy")) setWizard(true); } catch (e) { /* ignore */ }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buy = async () => {
     setBusy(true); setMsg({ text: "", err: false });
@@ -59,23 +62,15 @@ export default function AssessmentsAddon({ onChange }) {
     }
   };
 
-  const saveReg = async () => {
-    setBusy(true); setMsg({ text: "", err: false });
-    try { const r = await postData(`${apiUrl}/therapist-addon/details`, { regNo: noReg ? "" : reg.trim(), noRegNo: noReg, credential: cred.trim() }); setMsg({ text: r?.message || "Saved.", err: !r?.status }); await load(); }
-    catch (e) { setMsg({ text: e?.response?.data?.message || "Couldn't save — please try again.", err: true }); }
-    setBusy(false);
-  };
-
   const a = data?.assessments;
   const hasId = (x) => !!(x && (x.regNo || (x.noRegNo && x.credential)));
   const listed = a && a.active && a.verified && hasId(a);
-  const changed = a && ((noReg ? "" : reg.trim()) !== (a.regNo || "") || noReg !== !!a.noRegNo || cred.trim() !== (a.credential || ""));
-  const ready = noReg ? cred.trim().length >= 5 : reg.trim().length >= 3;
   const share = data?.therapistShare ?? 0.3;
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: AA_CSS }} />
+      {wizard && <AddonWizard onClose={() => setWizard(false)} onDone={load} />}
       <section className="pt-card aa-card" id="addon">
         <div className="aa-head">
           <span className="aa-kick">⭐ Upgrade</span>
@@ -88,39 +83,30 @@ export default function AssessmentsAddon({ onChange }) {
             <div className={`aa-plan${a.active ? " on" : ""}`}>
               <div>
                 <b>{!a.active ? "Not active" : listed ? "Active · verified" : "Active · waiting for CYT verification"}</b>
-                <span>{!a.active ? "Clients can't add assessments to bookings with you yet." : listed ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : `Valid till ${fmtDate(a.till)} · clients will see you once CYT has verified your registration no. (or qualification)${hasId(a) ? "" : " — add it below"}`}</span>
+                <span>{!a.active ? "Clients can't add assessments to bookings with you yet." : listed ? `Clients can add assessments when they book you · valid till ${fmtDate(a.till)}` : `Valid till ${fmtDate(a.till)} · clients will see you once CYT has verified your details${hasId(a) && a.signature ? "" : " — add them below"}`}</span>
               </div>
               <div className="aa-price">
                 {a.offer && <s>{inr(a.fee)}</s>} <strong>{a.price === 0 ? "Free" : inr(a.price)}</strong><small>/year</small>
                 {a.offer && a.offerLabel && <em>{a.offerLabel}</em>}
               </div>
-              <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : a.active ? "Extend 1 year" : a.price === 0 ? "Activate free" : "Buy add-on"}</button>
+              {a.active
+                ? <button type="button" className="aa-btn" onClick={buy} disabled={busy}>{busy ? "Please wait…" : "Extend 1 year"}</button>
+                : <button type="button" className="aa-btn" onClick={() => setWizard(true)} disabled={busy}>{a.price === 0 ? "Activate free" : "Buy add-on"}</button>}
             </div>
 
-            <div className="aa-reg">
-              <b className="aa-reg-h">Registration no. <span>— printed on your assessment reports, verified by CYT</span></b>
-              {!noReg ? (
-                <>
-                  <label htmlFor="aa-reg">Registration / licence number</label>
-                  <div>
-                    <input id="aa-reg" maxLength={60} value={reg} onChange={(e) => setReg(e.target.value)} placeholder="e.g. RCI CRR No. A12345" />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <label htmlFor="aa-cred">Highest qualification <span>(degree, institute, year — CYT checks your certificate)</span></label>
-                  <div>
-                    <input id="aa-cred" maxLength={160} value={cred} onChange={(e) => setCred(e.target.value)} placeholder="e.g. M.A. Clinical Psychology, University of Delhi, 2021" />
-                  </div>
-                </>
-              )}
-              <label className="aa-noreg"><input type="checkbox" checked={noReg} onChange={(e) => setNoReg(e.target.checked)} /> I don&apos;t have a registration / licence number</label>
-              <div className="aa-reg-foot">
-                <button type="button" className="aa-btn" onClick={saveReg} disabled={busy || !changed || !ready}>Save &amp; send for verification</button>
-                <small className={a.verified ? "ok" : ""}>{!hasId(a) ? "Not sent yet." : a.verified ? "✓ Verified by CYT" : "Sent — waiting for CYT to verify (usually within a working day)."}</small>
+            {(a.active || hasId(a)) && (
+              <div className="aa-sum">
+                <div className="aa-sum-items">
+                  <div><span>Qualification</span><b>{a.credential || data.profile?.qualification || "—"}</b></div>
+                  <div><span>RCI licence / reg. no.</span><b>{a.regNo || (a.noRegNo ? "Not registered" : "—")}</b></div>
+                  <div><span>Signature</span>{a.signature ? <img src={a.signature} alt="Your signature" /> : <b>—</b>}</div>
+                </div>
+                <div className="aa-sum-foot">
+                  <small className={a.verified ? "ok" : ""}>{!hasId(a) || !a.signature ? "Details not sent yet." : a.verified ? "✓ Verified by CYT" : "Sent — waiting for CYT to verify (usually within a working day)."}</small>
+                  <button type="button" className="aa-link" onClick={() => setWizard(true)}>{hasId(a) && a.signature ? "Edit details" : "Add details"}</button>
+                </div>
               </div>
-              {a.verified && changed && <p className="aa-note warn">Saving a change sends it for verification again; clients won&apos;t see you for assessments until it&apos;s re-verified.</p>}
-            </div>
+            )}
 
             <h3 className="aa-h3">What clients pay — and what you earn</h3>
             <p className="aa-note">Prices are set by CYT. You earn {Math.round(share * 100)}% of every assessment fee; CYT keeps {100 - Math.round(share * 100)}% for running the test, scoring it and building the report. Your session fee is unchanged.</p>
@@ -149,6 +135,15 @@ const AA_CSS = `
 .aa-head { margin-bottom: 12px; } .aa-head h2 { margin: 6px 0 4px; font-size: 17px; font-weight: 800; color: #0f172a; font-family: inherit; }
 .aa-head p { margin: 0; font-size: 13.5px; color: #64748b; line-height: 1.55; }
 .aa-kick { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #92400e; background: #fde68a; border-radius: 999px; padding: 3px 9px; }
+.aa-sum { margin-top: 12px; border: 1px solid #e3eae6; border-radius: 12px; padding: 12px 14px; }
+.aa-sum-items { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px; }
+.aa-sum-items span { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #64748b; }
+.aa-sum-items b { display: block; font-size: 13.5px; color: #0f172a; margin-top: 2px; word-break: break-word; }
+.aa-sum-items img { display: block; height: 40px; max-width: 160px; object-fit: contain; margin-top: 2px; }
+.aa-sum-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eef2f0; }
+.aa-sum-foot small { font-size: 12.5px; font-weight: 700; color: #92400e; } .aa-sum-foot small.ok { color: #166534; }
+.aa-link { border: 0; background: none; padding: 0; font: inherit; font-size: 13px; font-weight: 800; color: #1d4ed8; cursor: pointer; text-decoration: underline; }
+@media (max-width: 600px) { .aa-sum-items { grid-template-columns: 1fr; } }
 .aa-msg { margin: 0 0 12px; font-size: 13.5px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 9px 12px; }
 .aa-msg.err { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
 .aa-skel { height: 220px; border-radius: 12px; background: #f1f5f4; }
