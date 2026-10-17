@@ -22,7 +22,7 @@ function svgFor(test) {
   const h1 = ASSESSMENT_SEO[test.key]?.h1 || test.full;
   const [l1, l2] = lines(h1, 24);
   const sub = `${test.questions.length} questions · ${String(test.time).replace(/^~\s*/, "")} · ${test.age}`;
-  const pills = ["Instant scored report", "With a verified psychologist", "Published scoring"];
+  const pills = ["Instant scored report", "With a verified psychologist", "Screening, not a diagnosis"];
   let x = 80;
   const pillSvg = pills.map((p) => {
     const w = Math.round(p.length * 9.4 + 40);
@@ -43,7 +43,7 @@ function svgFor(test) {
   <circle cx="1010" cy="130" r="205" fill="none" stroke="rgba(74,222,128,0.06)" stroke-width="1"/>
   <rect x="80" y="78" width="60" height="4" rx="2" fill="#4ade80"/>
   <rect x="80" y="104" width="360" height="38" rx="19" fill="rgba(74,222,128,0.12)" stroke="rgba(74,222,128,0.3)" stroke-width="1"/>
-  <text x="260" y="129" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4ade80" text-anchor="middle" letter-spacing="1.2">CLINICAL ASSESSMENT · ONLINE</text>
+  <text x="260" y="129" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#4ade80" text-anchor="middle" letter-spacing="1.2">SCREENING TOOL · ONLINE</text>
   <text x="80" y="236" font-family="Arial Black, Arial, sans-serif" font-size="60" font-weight="900" fill="#ffffff" letter-spacing="-1">${esc(l1)}</text>
   ${l2 ? `<text x="80" y="314" font-family="Arial Black, Arial, sans-serif" font-size="60" font-weight="900" fill="#ffffff" letter-spacing="-1">${esc(l2)}</text>` : ""}
   <text x="80" y="${l2 ? 378 : 300}" font-family="Arial, sans-serif" font-size="26" font-weight="700" fill="#86efac">${esc(test.full)}</text>

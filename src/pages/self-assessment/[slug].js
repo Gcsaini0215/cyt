@@ -42,7 +42,7 @@ export default function AssessmentPage({ slug }) {
       "@context": "https://schema.org", "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE },
-        { "@type": "ListItem", "position": 2, "name": "Assessments", "item": `${SITE}/self-assessment` },
+        { "@type": "ListItem", "position": 2, "name": "Screening tools", "item": `${SITE}/self-assessment` },
         { "@type": "ListItem", "position": 3, "name": seo.h1, "item": seo.url },
       ],
     },
@@ -85,9 +85,9 @@ export default function AssessmentPage({ slug }) {
       <section className="ap-hero" style={{ "--c": test.color }}>
         <div className="ap-in">
           <nav className="ap-crumbs" aria-label="Breadcrumb">
-            <Link href="/">Home</Link><span>›</span><Link href="/self-assessment">Assessments</Link><span>›</span><b>{test.short}</b>
+            <Link href="/">Home</Link><span>›</span><Link href="/self-assessment">Screening tools</Link><span>›</span><b>{test.short}</b>
           </nav>
-          <span className="ap-kick"><i className={test.icon} aria-hidden="true" /> {test.category} · Clinical assessment</span>
+          <span className="ap-kick"><i className={test.icon} aria-hidden="true" /> {test.category} · Screening tool</span>
           <h1>{seo.h1}</h1>
           <p className="ap-full">{test.full}</p>
           <p className="ap-blurb">{test.blurb}</p>
@@ -138,7 +138,7 @@ export default function AssessmentPage({ slug }) {
           </section>
 
           <section className="ap-more" aria-labelledby="ap-more-h">
-            <h2 id="ap-more-h">Other clinical assessments</h2>
+            <h2 id="ap-more-h">Other screening tools</h2>
             <div className="ap-more-grid">
               {others.map((t) => (
                 <Link key={t.key} href={pathOf(t.key)} className="ap-more-a" style={{ "--c": t.color }}>
@@ -147,7 +147,7 @@ export default function AssessmentPage({ slug }) {
                 </Link>
               ))}
             </div>
-            <Link href="/self-assessment" className="ap-all">All assessments →</Link>
+            <Link href="/self-assessment" className="ap-all">All screening tools →</Link>
           </section>
         </div>
       </main>

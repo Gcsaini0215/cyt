@@ -71,7 +71,7 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
 
   useEffect(() => { setMode(initialMode === "with" ? "with" : "self"); }, [initialMode]);
 
-  const wa = `https://wa.me/${PHONE.slice(1)}?text=${encodeURIComponent(`Hi CYT team, I'd like a clinical assessment (${test.short}) with a psychologist.`)}`;
+  const wa = `https://wa.me/${PHONE.slice(1)}?text=${encodeURIComponent(`Hi CYT team, I'd like the ${test.short} screening with a psychologist.`)}`;
   const unavailable = price && price.active === false;
   const fee = price && price.price != null ? (price.price === 0 ? "Free" : inr(price.price)) : "";
 
@@ -79,7 +79,7 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
   const startSelf = async () => {
     setErr("");
     if (!isAuthenticated()) { router.push(`/login?next=${encodeURIComponent(`${pathOf(test.key)}?mode=self`)}`); return; }
-    if (Number(getDecodedToken()?.role) !== 0) { setErr("Please sign in with a client account to take an assessment."); return; }
+    if (Number(getDecodedToken()?.role) !== 0) { setErr("Please sign in with a client account to take a screening."); return; }
     setBusy(true);
     try {
       const o = await postData(`${apiUrl}/assessment-self/order`, { tool: test.key });
@@ -89,13 +89,13 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
       if (!(await loadRazorpay())) throw new Error("Couldn't load the payment window. Check your connection.");
       const rzp = new window.Razorpay({
         key: o.data.keyId, amount: Math.round(o.data.amount * 100), currency: "INR", order_id: o.data.orderId,
-        name: "Choose Your Therapist", description: `${test.short} assessment`, theme: { color: "#14532d" },
+        name: "Choose Your Therapist", description: `${test.short} screening`, theme: { color: "#14532d" },
         handler: async (resp) => {
           try {
             const v = await postData(`${apiUrl}/assessment-self/verify`, resp);
             if (!v?.data?.requestId) throw new Error(v?.message);
             go(v.data.requestId);
-          } catch (e) { setErr(e?.response?.data?.message || e.message || "Payment received but we couldn't open the assessment — please contact hello@chooseyourtherapist.in with your payment ID."); setBusy(false); }
+          } catch (e) { setErr(e?.response?.data?.message || e.message || "Payment received but we couldn't open the screening — please contact hello@chooseyourtherapist.in with your payment ID."); setBusy(false); }
         },
         modal: { ondismiss: () => setBusy(false) },
       });
@@ -110,12 +110,12 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
     <div className="aop" id="take">
       <style dangerouslySetInnerHTML={{ __html: AOP_CSS }} />
       <h2 className="aop-h">How would you like to take it?</h2>
-      {unavailable ? <p className="aop-off">This assessment can&apos;t be booked right now — please check back soon.</p> : (
+      {unavailable ? <p className="aop-off">This screening can&apos;t be booked right now — please check back soon.</p> : (
         <>
           <div className="aop-modes" role="radiogroup" aria-label="How would you like to take it?">
             <button type="button" role="radio" aria-checked={mode === "self"} className={mode === "self" ? "on" : ""} onClick={() => setMode("self")}>
               <i aria-hidden="true" />
-              <b>Just the assessment</b>
+              <b>Just the screening</b>
               <span>Take it now · instant automatic report</span>
               <em>{fee || " "}</em>
             </button>
@@ -134,7 +134,7 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
               <p className="aop-note">It&apos;s an automatic screening report from your own answers — not reviewed by a psychologist and not a diagnosis. You can book a psychologist any time to go through it with you.</p>
               {err && <p className="aop-err" role="alert">{err}</p>}
               <button type="button" className="aop-go" onClick={startSelf} disabled={busy || !price}>
-                {busy ? "Please wait…" : !price ? "Loading…" : price.price === 0 ? "Start the assessment" : `Pay ${fee} & start`}
+                {busy ? "Please wait…" : !price ? "Loading…" : price.price === 0 ? "Start the screening" : `Pay ${fee} & start`}
               </button>
               <p className="aop-small">{test.questions.length} questions · about {String(test.time || "").replace(/^~\s*/, "")} · secure payment</p>
             </div>
@@ -158,7 +158,7 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
                   <div className="aop-help-btns">
                     <a href={wa} target="_blank" rel="noopener noreferrer" className="aop-btn">WhatsApp us</a>
                     <a href={`tel:${PHONE}`} className="aop-btn ghost">Call +91 80777 57951</a>
-                    <a href={`mailto:${MAIL}?subject=${encodeURIComponent(`${test.short} clinical assessment`)}`} className="aop-btn ghost">Email us</a>
+                    <a href={`mailto:${MAIL}?subject=${encodeURIComponent(`${test.short} screening`)}`} className="aop-btn ghost">Email us</a>
                   </div>
                 </div>
               )}
@@ -191,7 +191,7 @@ const AOP_CSS = `
 .aop-adds b { display: block; font-size: 13px; color: #0f172a; } .aop-adds span { display: block; font-size: 11.5px; color: #64748b; margin-top: 1px; }
 .aop-note { margin: 0 0 12px; font-size: 12.5px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 10px; line-height: 1.5; }
 .aop-err { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: #b91c1c; }
-.aop-go { width: 100%; height: 50px; border-radius: 12px; border: 0; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; font-weight: 800; font-size: 15.5px; cursor: pointer; font-family: inherit; }
+.aop-go { width: 100%; height: 50px; border-radius: 12px; border: 0; background: #1f6b45; box-shadow: 0 10px 20px -12px rgba(31,107,69,.8); color: #fff; font-weight: 800; font-size: 15.5px; cursor: pointer; font-family: inherit; }
 .aop-go:disabled { opacity: .55; cursor: not-allowed; }
 .aop-small { margin: 6px 0 0; text-align: center; font-size: 12px; color: #64748b; }
 .aop-off { font-size: 14px; color: #92400e; font-weight: 700; }
@@ -236,7 +236,7 @@ export function AssessmentProviders({ test, list }) {
       <div className="apv-head">
         <div>
           <h2 id="apv-h">Psychologists who offer the {test.short}</h2>
-          <p>Verified by CYT for clinical assessments. Book a session with the {test.short} added — they go through your report with you and add their notes.</p>
+          <p>Verified by CYT to offer screenings. Book a session with the {test.short} added — they go through your report with you and add their notes.</p>
         </div>
         {many && (
           <div className="apv-tools">

@@ -37,7 +37,7 @@ export function seoOf(test) {
     h1: s.h1,
     title: `${s.h1} Online — Scored Report & Psychologist Review | CYT`,
     description: `Take the ${test.full} online: ${n} questions, about ${minutes(test)}. ${test.blurb} Get an instant scored report, or take it with a verified psychologist who adds clinical notes.`,
-    keywords: [...s.kw, `${test.short} report`, "clinical assessment online", "psychologist assessment India"].join(", "),
+    keywords: [...s.kw, `${test.short} report`, "mental health screening online", "screening test India"].join(", "),
     url: `${SITE}${pathOf(test.key)}`,
     image: `${SITE}/api/og-assessment?t=${test.key}`,
   };
