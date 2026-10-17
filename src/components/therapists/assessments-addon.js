@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
-import { FREE_TESTS } from "../self-assessment/tests";
 import { clearAssessmentsUpgrade } from "./nav-extras";
 import AddonWizard from "./addon-wizard";
 
@@ -107,22 +106,7 @@ export default function AssessmentsAddon({ onChange }) {
                 </div>
               </div>
             )}
-
-            <h3 className="aa-h3">What clients pay — and what you earn</h3>
-            <p className="aa-note">Prices are set by CYT. You earn {Math.round(share * 100)}% of every assessment fee; CYT keeps {100 - Math.round(share * 100)}% for running the test, scoring it and building the report. Your session fee is unchanged.</p>
-            <div className="aa-table">
-              {FREE_TESTS.map((t) => {
-                const p = data.tests?.[t.key];
-                if (!p || !p.active) return null;
-                return (
-                  <div key={t.key} className="aa-row">
-                    <span className="aa-name"><b>{t.short}</b>{t.title}</span>
-                    <span className="aa-pay">{p.offer && <s>{inr(p.fee)}</s>} {inr(p.price)}</span>
-                    <span className="aa-earn">You earn {inr(Math.round(p.price * share))}</span>
-                  </div>
-                );
-              })}
-            </div>
+            <p className="aa-note" style={{ marginTop: 12 }}>You earn {Math.round(share * 100)}% of the fee for every assessment a client books with you; CYT keeps {100 - Math.round(share * 100)}% for running, scoring and reporting it.</p>
           </>
         )}
       </section>
