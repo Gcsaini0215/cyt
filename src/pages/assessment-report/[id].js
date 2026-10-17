@@ -46,6 +46,11 @@ export default function AssessmentReport() {
     setBusy(false);
   };
 
+  const printReport = async () => {
+    try { if (document.fonts?.ready) await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 2500))]); } catch (e) { /* print anyway */ }
+    window.print();
+  };
+
   const test = rep && TEST_BY_KEY[rep.tool];
   const res = rep?.result || {};
   const cl = rep ? clinicalOf(rep.tool, res, rep.answers) : null;
@@ -73,12 +78,14 @@ export default function AssessmentReport() {
 
   return (
     <div className="rp-page">
-      <Head><title>{test ? `${test.short} report` : "Assessment report"} | Choose Your Therapist</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>{test ? `${test.short} report` : "Assessment report"} | Choose Your Therapist</title><meta name="robots" content="noindex" />
+        {[400, 600, 700].map((w) => <link key={w} rel="preload" href={`/fonts/inter/inter-${w}.woff2`} as="font" type="font/woff2" crossOrigin="anonymous" />)}
+      </Head>
       <style dangerouslySetInnerHTML={{ __html: RP_CSS }} />
       {rep && <style dangerouslySetInnerHTML={{ __html: pageCss(rep) }} />}
       <div className="rp-bar no-print">
         <Link href={isT ? "/therapist-questionnaires" : "/client/check-ins"}>← Back</Link>
-        {rep && <button type="button" onClick={() => window.print()}>Print / Save PDF</button>}
+        {rep && <button type="button" onClick={printReport}>Print / Save PDF</button>}
       </div>
 
       {err ? <div className="rp-sheet"><p className="rp-err">{err}</p></div> : !rep ? <div className="rp-sheet"><div className="rp-skel" /></div> : !test ? (
@@ -335,7 +342,7 @@ export default function AssessmentReport() {
 const cssStr = (v) => `"${String(v || "").replace(/["\\\n]/g, " ")}"`;
 function pageCss(rep) {
   const rel = rep.releasedAt ? `Released ${new Date(rep.releasedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })}` : "Draft — not released";
-  const box = "font-family: Inter, Arial, sans-serif; font-size: 8.5pt; color: #6b7280;";
+  const box = "font-family: 'CYT Report', Arial, sans-serif; font-size: 7.5pt; font-weight: 500; color: #4b5563;";
   return `@media print { @page {
     @top-left { content: ""; } @top-center { content: ""; } @top-right { content: ""; }
     @bottom-left { content: ${cssStr(`Choose Your Therapist · Report No. ${rep.reportNo} · ${rel}`)}; width: 78%; ${box} }
@@ -475,7 +482,7 @@ const RP_CSS = `
 .rp-sig { margin-left: auto; flex-shrink: 0; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
 .rp-sig-space { min-height: 46px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; padding-bottom: 4px; gap: 2px; }
 .rp-sig-img { display: block; max-height: 56px; max-width: 200px; object-fit: contain; }
-.rp-sig-space span { font-size: 10.5px; color: #4b5563; font-style: italic; }
+.rp-sig-space span { font-size: 10.5px; color: #4b5563; font-style: italic; padding-right: 3px; }
 .rp-sig .rp-sig-name { display: inline-block; min-width: 160px; border-top: 1px solid #111827; padding-top: 5px; font-size: 14px; color: #111827; }
 .rp-sig > span { font-size: 11.5px; color: #4b5563; }
 .rp-sig > span.rp-sig-ver { margin-top: 3px; font-size: 10.5px; color: #14532d; font-weight: 600; }
@@ -501,6 +508,18 @@ const RP_CSS = `
 .rp-use em { display: block; font-style: normal; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; color: #111827; }
 .rp-foot .rp-foot-id { margin: 6px 0 0; color: #9ca3af; font-size: 10px; text-align: center; }
 .print-only { display: none; }
+
+/* one typeface across the whole report. Static (non-variable) Inter files, self-hosted: Chrome turns
+   variable fonts into blurry Type 3 glyphs in printed PDFs, static ones stay real, sharp text. */
+@font-face { font-family: "CYT Report"; src: url("/fonts/inter/inter-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "CYT Report"; src: url("/fonts/inter/inter-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "CYT Report"; src: url("/fonts/inter/inter-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "CYT Report"; src: url("/fonts/inter/inter-greek-400.woff2") format("woff2"); font-weight: 400 900; font-style: normal; font-display: swap; unicode-range: U+0370-03FF; }
+@font-face { font-family: "CYT Report"; src: url("/fonts/inter/inter-700.woff2") format("woff2"); font-weight: 700 900; font-style: normal; font-display: swap; }
+.rp-page, .rp-page * { font-family: "CYT Report", Arial, Helvetica, sans-serif !important; }
+.rp-sheet { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-feature-settings: "kern" 1, "liga" 1; }
+.rp-lab, .rp-bands, .rp-prog, .rp-items, .rp-info dd, .rp-doc { font-variant-numeric: tabular-nums; }
+.rp-qr img { image-rendering: pixelated; }
 
 /* formal grey styling: section bars, table heads, zebra rows, boxed details */
 .rp-sheet h2 { background: #f3f4f6; border-left: 3px solid #14532d; border-bottom: 0; padding: 6px 10px; color: #111827; letter-spacing: 1.1px; margin-bottom: 10px; }
@@ -549,6 +568,24 @@ const RP_CSS = `
   .rp-sheet, .rp-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
   .rp-items tr, .rp-sign, .rp-foot, .rp-result, .rp-client { break-inside: avoid; }
+  /* print type scale (pt) — crisp at any zoom; weights the loaded font really has */
+  .rp-sheet { font-size: 9pt; line-height: 1.45; color: #1f2937; text-rendering: geometricPrecision; }
+  .rp-sheet [style*="font-weight: 800"], .rp-sheet b, .rp-sheet strong, .rp-sheet th, .rp-sheet h1, .rp-sheet h2, .rp-sheet dd { font-weight: 700 !important; }
+  .rp-sheet h1 { font-size: 14pt !important; letter-spacing: -.1pt; }
+  .rp-sheet h2 { font-size: 8pt !important; letter-spacing: .8pt !important; }
+  .rp-brand b { font-size: 13pt !important; } .rp-brand span, .rp-doc span { font-size: 7.5pt !important; color: #4b5563 !important; }
+  .rp-doc b { font-size: 8.5pt !important; letter-spacing: .9pt !important; }
+  .rp-conf { font-size: 6.5pt !important; color: #374151 !important; }
+  .rp-info dl div { font-size: 8.5pt !important; } .rp-info dt { color: #4b5563 !important; }
+  .rp-lab, .rp-bands, .rp-prog, .rp-items table { font-size: 8.5pt !important; }
+  .rp-lab th, .rp-items th, .rp-prog th { font-size: 7pt !important; color: #374151 !important; letter-spacing: .4pt !important; }
+  .rp-items td:first-child { color: #4b5563 !important; }
+  .rp-result p { font-size: 9pt !important; } .rp-result small, .rp-sheet .rp-action b, .rp-about b, .rp-terms > div > b, .rp-sheet .rp-notes-grid dt { font-size: 7pt !important; letter-spacing: .5pt !important; }
+  .rp-about p, .rp-sheet .rp-meta-line, .rp-intro, .rp-notes-grid dd, .rp-bar-row > div { font-size: 8.5pt !important; }
+  .rp-ref p, .rp-terms li, .rp-foot p, .rp-use div, .rp-qr span, .rp-sig-space span { font-size: 7.5pt !important; color: #374151 !important; }
+  .rp-sig .rp-sig-name { font-size: 10.5pt !important; } .rp-sig > span { font-size: 8pt !important; color: #374151 !important; }
+  .rp-end { font-size: 7pt !important; color: #4b5563 !important; }
+  .rp-foot-id { font-size: 7pt !important; color: #6b7280 !important; }
   /* compact type + even columns on A4 */
   .rp-sheet { font-size: 11px; }
   .rp-head { display: grid !important; grid-template-columns: 1fr auto; align-items: center; padding-bottom: 10px; }
