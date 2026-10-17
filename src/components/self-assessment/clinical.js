@@ -176,3 +176,68 @@ export function clinicalOf(tool, result = {}, answers = []) {
       return { headline: result?.level || "", score: s, max: result?.max ?? null, bandTitle: "", bands: [], interpretation: [], action: "", details: [], notes: [] };
   }
 }
+
+/* Lab-report style detail for each tool: how it was administered, what it measures (clinical
+   significance) and its published psychometric properties (the "specifications"). */
+export const CLINICAL_META = {
+  phq9: {
+    method: "Self-report questionnaire · 9 items · 0–3 frequency scale · last 2 weeks",
+    significance: "Measures the nine DSM criteria for a major depressive episode and grades depressive symptom severity. Used for screening, diagnosis support and monitoring response to treatment.",
+    specs: "Internal consistency α = 0.89; at a cut-point of 10, sensitivity 88% and specificity 88% for major depression (Kroenke et al., 2001).",
+  },
+  gad7: {
+    method: "Self-report questionnaire · 7 items · 0–3 frequency scale · last 2 weeks",
+    significance: "Measures the core symptoms of generalised anxiety disorder and grades anxiety severity; also a reasonable screen for panic, social anxiety and post-traumatic stress disorders.",
+    specs: "Internal consistency α = 0.92; test–retest ICC = 0.83; at a cut-point of 10, sensitivity 89% and specificity 82% for GAD (Spitzer et al., 2006).",
+  },
+  dass21: {
+    method: "Self-report questionnaire · 21 items · 0–3 severity/frequency scale · past week · subscale scores × 2",
+    significance: "Measures the negative emotional states of depression, anxiety and stress on three separate dimensional scales; distinguishes between them rather than giving a diagnosis.",
+    specs: "Internal consistency α = 0.94 (Depression), 0.87 (Anxiety), 0.91 (Stress) (Antony et al., 1998).",
+  },
+  k10: {
+    method: "Self-report questionnaire · 10 items · 1–5 frequency scale · last 30 days",
+    significance: "Measures non-specific psychological distress (anxiety and depressive symptoms); higher scores indicate a greater likelihood of a current anxiety or depressive disorder.",
+    specs: "Internal consistency α ≈ 0.93; strong discrimination between community cases and non-cases of DSM disorders (Kessler et al., 2002).",
+  },
+  pcl5: {
+    method: "Self-report questionnaire · 20 items · 0–4 severity scale · past month",
+    significance: "Measures the 20 DSM-5 symptoms of PTSD across intrusion, avoidance, negative alterations in cognition and mood, and arousal; used for screening, provisional diagnosis and monitoring change.",
+    specs: "Internal consistency α = 0.94; test–retest r = 0.82 (Blevins et al., 2015).",
+  },
+  phq15: {
+    method: "Self-report questionnaire · 15 items · 0–2 severity scale · past 4 weeks",
+    significance: "Measures the burden of common somatic symptoms; high scores are associated with functional impairment and higher health-care use, and should be read alongside medical assessment.",
+    specs: "Internal consistency α = 0.80 (Kroenke et al., 2002).",
+  },
+  audit: {
+    method: "Self-report questionnaire · 10 items · item-specific 0–4 scoring · past year",
+    significance: "Identifies hazardous and harmful alcohol use and possible alcohol dependence across three domains: consumption, dependence symptoms and alcohol-related harm.",
+    specs: "At a cut-point of 8, sensitivity 92% and specificity 94% for hazardous and harmful drinking (Saunders et al., 1993).",
+  },
+  asrs: {
+    method: "Self-report screener · 6 items (Part A) · 0–4 frequency scale · past 6 months",
+    significance: "Screens for symptoms consistent with adult ADHD (inattention and hyperactivity); a positive screen indicates the need for a full diagnostic assessment.",
+    specs: "Sensitivity 68.7%, specificity 99.5%, total classification accuracy 97.9% (Kessler et al., 2005).",
+  },
+  epds: {
+    method: "Self-report questionnaire · 10 items · 0–3 item-specific scoring · past 7 days",
+    significance: "Screens for depression during pregnancy and the postnatal period; it does not detect anxiety neuroses, phobias or personality disorders.",
+    specs: "At a cut-point of 12.5, sensitivity 86% and specificity 78% for depressive illness (Cox et al., 1987).",
+  },
+  cbi: {
+    method: "Self-report questionnaire · 13 items (personal and work-related scales) · 0–100 item scoring · mean scale score",
+    significance: "Measures physical and psychological fatigue and exhaustion, in general and attributed to work.",
+    specs: "Internal consistency α = 0.85–0.87 for the scales used (Kristensen et al., 2005).",
+  },
+  rses: {
+    method: "Self-report questionnaire · 10 items · 0–3 agreement scale · 5 reverse-scored items",
+    significance: "Measures global self-esteem — positive and negative feelings about the self.",
+    specs: "Internal consistency α = 0.77–0.88 across studies (Rosenberg, 1965; later validations).",
+  },
+  bigfive: {
+    method: "Self-report inventory · 50 items · 1–5 accuracy scale · 10 items per factor",
+    significance: "Describes personality across the five broad factors: extraversion, agreeableness, conscientiousness, emotional stability and intellect/imagination.",
+    specs: "Internal consistency α ≈ 0.79–0.87 across the five factors (IPIP, Goldberg 1992).",
+  },
+};

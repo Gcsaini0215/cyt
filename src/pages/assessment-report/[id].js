@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { TEST_BY_KEY, optionsFor, questionText } from "../../components/self-assessment/tests";
-import { clinicalOf } from "../../components/self-assessment/clinical";
+import { clinicalOf, CLINICAL_META } from "../../components/self-assessment/clinical";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { isAuthenticated } from "../../utils/jwt";
@@ -50,6 +50,22 @@ export default function AssessmentReport() {
   const test = rep && TEST_BY_KEY[rep.tool];
   const res = rep?.result || {};
   const cl = rep ? clinicalOf(rep.tool, res, rep.answers) : null;
+  // "Summary of findings": one row per score, flagged when outside the manual's normal / minimal band
+  const NORMAL_RE = /none|minimal|below|low-risk|low psychological|normal|low \/ no|no burnout/i;
+  const summaryRows = !rep || !test ? [] : (Array.isArray(res.bars) && res.bars.length && res.max == null)
+    ? res.bars.map((b) => ({
+      name: `${test.short} — ${b.label}`, result: b.band, score: `${b.value}${b.max === 100 ? "/100" : `/${b.max}`}`,
+      ref: test.key === "bigfive" ? "0–100 · no clinical cut-off" : test.key === "dass21" ? "Normal band per DASS manual" : "Below 50 = no burnout",
+      out: test.key !== "bigfive" && !NORMAL_RE.test(b.band),
+    }))
+    : (() => {
+      const normal = cl.bands.find((b) => NORMAL_RE.test(b.label)) || cl.bands[0];
+      const cur = cl.bands.find((b) => b.current);
+      return [{
+        name: test.full, result: cl.headline, score: cl.score != null ? `${cl.score} / ${cl.max}` : "—",
+        ref: normal ? `${normal.range} · ${normal.label}` : "—", out: !!(cur && normal && cur !== normal),
+      }];
+    })();
   const isT = rep?.viewer === "therapist";
   const released = rep?.status === "released";
   const signer = rep?.signer || {};
@@ -91,22 +107,47 @@ export default function AssessmentReport() {
           </div>
 
           {/* ── client box ── */}
-          <dl className="rp-client">
-            <div><dt>Client</dt><dd>{rep.client.name}</dd></div>
-            <div><dt>Age / Gender</dt><dd>{[rep.client.age ? `${rep.client.age} yrs` : "", rep.client.gender].filter(Boolean).join(" · ") || "—"}</dd></div>
-            <div><dt>Client ID</dt><dd>{rep.client.code}</dd></div>
-            <div><dt>Assessment</dt><dd>{test.short}</dd></div>
-            <div><dt>Completed</dt><dd>{fmt(rep.doneAt)}</dd></div>
-            <div><dt>Session</dt><dd>{fmt(rep.booking_date)}</dd></div>
-            <div><dt>Psychologist</dt><dd>{signer.name || rep.therapist}</dd></div>
-            <div><dt>Mode</dt><dd>Online, self-report</dd></div>
-          </dl>
+          <div className="rp-info">
+            <dl>
+              <div><dt>Client name</dt><dd>{rep.client.name}{rep.client.age || rep.client.gender ? ` (${[rep.client.age ? `${rep.client.age}Y` : "", rep.client.gender ? String(rep.client.gender).charAt(0).toUpperCase() : ""].filter(Boolean).join("/")})` : ""}</dd></div>
+              <div><dt>Client ID</dt><dd>{rep.client.code}</dd></div>
+              <div><dt>Referred by</dt><dd>{signer.name || rep.therapist}{signer.profileType ? `, ${signer.profileType}` : ""}</dd></div>
+              <div><dt>Assessment</dt><dd>{test.full}</dd></div>
+            </dl>
+            <dl>
+              <div><dt>Assigned on</dt><dd>{fmt(rep.sentAt)}</dd></div>
+              <div><dt>Completed on</dt><dd>{fmt(rep.doneAt)}</dd></div>
+              <div><dt>Report released on</dt><dd>{released ? fmt(rep.releasedAt) : "Not released"}</dd></div>
+              <div><dt>Mode | Report ID</dt><dd>Online self-report | {rep.reportNo}</dd></div>
+            </dl>
+          </div>
+
+          {/* ── summary of findings (like a lab's "outside reference range" page) ── */}
+          <section className="rp-sec rp-summary">
+            <h2>Summary of findings</h2>
+            <table className="rp-lab">
+              <thead><tr><th>Test name</th><th>Result</th><th>Score</th><th>Reference</th></tr></thead>
+              <tbody>
+                {summaryRows.map((r) => <tr key={r.name} className={r.out ? "out" : ""}><td>{r.name}</td><td>{r.result}</td><td>{r.score}</td><td>{r.ref}</td></tr>)}
+              </tbody>
+            </table>
+            {(cl.alerts || []).map((t, k) => <p key={`sa${k}`} className="rp-flag">{t}</p>)}
+            <p className="rp-small">Rows in bold are outside the minimal / normal range. Detailed values, interpretation and the reference interval follow.</p>
+          </section>
+
+          {/* ── test detail, lab style ── */}
+          <section className="rp-sec">
+            <table className="rp-lab rp-lab-main">
+              <thead><tr><th>Test name</th><th>Method</th><th>Score</th><th>Range</th></tr></thead>
+              <tbody><tr><td><b>{test.full}</b></td><td>Psychometric questionnaire</td><td><b>{cl.score != null ? cl.score : "Profile"}</b></td><td>{cl.max != null ? `0–${cl.max}` : test.key === "k10" ? "10–50" : "Subscales"}</td></tr></tbody>
+            </table>
+            {CLINICAL_META[test.key] && <p className="rp-meta-line"><b>Administration:</b> {CLINICAL_META[test.key].method}</p>}
+          </section>
 
           {/* ── result ── */}
           <section className="rp-result">
             <div className="rp-level">
               <div><small>Result</small><b>{cl.headline}</b></div>
-              {cl.score != null && <span>Total score <strong>{cl.score}</strong> / {cl.max}</span>}
             </div>
             {cl.interpretation.map((t, k) => <p key={k}>{t}</p>)}
             {cl.details.map((t, k) => <p key={`d${k}`} className="rp-detail">{t}</p>)}
@@ -126,6 +167,14 @@ export default function AssessmentReport() {
                 </table>
               )}
               {cl.action && <p className="rp-action"><b>Recommended action (manual):</b> {cl.action}</p>}
+            </section>
+          )}
+
+          {CLINICAL_META[test.key] && (
+            <section className="rp-sec rp-signif">
+              <p><b>Clinical significance:</b> {CLINICAL_META[test.key].significance}</p>
+              <p><b>Specifications:</b> {CLINICAL_META[test.key].specs}</p>
+              <p className="rp-correlate">Please correlate with clinical findings.</p>
             </section>
           )}
 
@@ -212,6 +261,12 @@ export default function AssessmentReport() {
 
           {/* ── signature ── */}
           <section className="rp-sign">
+            {rep.verifyQr && (
+              <div className="rp-qr">
+                <img src={rep.verifyQr} alt="QR code to verify this report" />
+                <span>Scan to verify this report</span>
+              </div>
+            )}
             <div className="rp-ref">
               <b>Reference</b>
               <p>{test.ref}</p>
@@ -229,6 +284,28 @@ export default function AssessmentReport() {
           </section>
 
           {/* ── how this document may be used ── */}
+          <section className="rp-sec rp-terms">
+            <div>
+              <b>Conditions of reporting</b>
+              <ul>
+                <li>Results are based on the client&apos;s own answers and are for interpretation by the treating psychologist.</li>
+                <li>It is presumed that the client named above completed the questionnaire personally.</li>
+                <li>Scores can change with time and circumstances; an unexpected result should be re-assessed.</li>
+                <li>Only qualified mental-health professionals should interpret scores and cut-offs.</li>
+                <li>This report is not valid for any medico-legal purpose.</li>
+              </ul>
+            </div>
+            <div>
+              <b>Explanations</b>
+              <ul>
+                <li><b>Score</b> — the total (or subscale) calculated with the questionnaire&apos;s published scoring.</li>
+                <li><b>Cut-point</b> — the score at or above which further clinical assessment is recommended.</li>
+                <li><b>Reference interval</b> — the score ranges and severity labels defined in the manual.</li>
+                <li><b>Assigned / Completed / Released</b> — when the assessment was sent, answered, and approved by the psychologist.</li>
+              </ul>
+            </div>
+          </section>
+
           <footer className="rp-foot">
             <b>About this document</b>
             <p>This report is generated automatically from the client&apos;s own answers, scored with the published scoring of the questionnaire, and approved by the psychologist named above before it is shared. It is meant only to track progress across therapy sessions and to assess the current level of symptoms.</p>
@@ -256,6 +333,29 @@ const RP_CSS = `
 .rp-sheet { max-width: 860px; margin: 0 auto; background: #fff; border: 1px solid #dfe3e1; box-shadow: 0 12px 32px -24px rgba(15,23,42,.45); padding: 30px 36px 26px; }
 .rp-skel { height: 400px; border-radius: 8px; background: #f1f3f2; }
 .rp-err { color: #b91c1c; font-weight: 700; }
+
+/* lab-style details */
+.rp-info { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6px 28px; padding: 10px 0 12px; border-bottom: 1px solid #d1d5db; margin-bottom: 14px; }
+.rp-info dl { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.rp-info dl div { display: grid; grid-template-columns: 128px 1fr; gap: 8px; font-size: 12.5px; }
+.rp-info dt { color: #6b7280; } .rp-info dt::after { content: " :"; }
+.rp-info dd { margin: 0; font-weight: 700; color: #111827; }
+.rp-lab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.rp-lab th { text-align: left; font-size: 10.5px; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1.5px solid #111827; padding: 5px 8px; }
+.rp-lab td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; color: #1f2937; }
+.rp-lab tr.out td { font-weight: 800; color: #111827; }
+.rp-lab-main td { font-size: 13px; }
+.rp-sheet .rp-small { margin: 6px 0 0; font-size: 11px; color: #6b7280; font-style: italic; }
+.rp-sheet .rp-meta-line { margin: 6px 0 0; font-size: 12px; color: #374151; }
+.rp-signif p { margin: 0 0 6px; font-size: 12.5px; color: #374151; line-height: 1.55; }
+.rp-sheet .rp-correlate { font-weight: 800; color: #111827; margin-top: 4px; }
+.rp-terms { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; border-top: 1px solid #d1d5db; padding-top: 12px; }
+.rp-terms > div { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; }
+.rp-terms > div > b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: #111827; margin-bottom: 4px; text-align: center; }
+.rp-terms ul { margin: 0; padding-left: 16px; } .rp-terms li { font-size: 11px; color: #4b5563; line-height: 1.5; margin-bottom: 2px; }
+.rp-qr { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
+.rp-qr img { width: 84px; height: 84px; display: block; }
+.rp-qr span { font-size: 10px; color: #6b7280; text-align: center; max-width: 100px; }
 
 /* header */
 .rp-head { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 2px solid #14532d; }
@@ -290,6 +390,7 @@ const RP_CSS = `
 .rp-level .rp-dot { margin-right: 0; }
 .rp-result p { margin: 6px 0 0; font-size: 13.5px; line-height: 1.6; color: #374151; }
 .rp-result .rp-flag { color: #991b1b; font-weight: 700; }
+.rp-sheet .rp-summary .rp-flag { margin: 8px 0 0; font-size: 12.5px; color: #991b1b; font-weight: 700; line-height: 1.5; }
 .rp-result .rp-detail { font-size: 12.5px; color: #4b5563; }
 .rp-sheet .rp-bandtitle { margin: 0 0 6px; font-size: 12px; color: #6b7280; font-style: italic; }
 .rp-bands { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 8px; }
@@ -361,6 +462,8 @@ const RP_CSS = `
   .rp-client div:nth-last-child(-n+4) { border-bottom: 1px solid #e5e7eb; } .rp-client div:nth-last-child(-n+2) { border-bottom: 0; }
   .rp-edit-row, .rp-use, .rp-notes-kv { grid-template-columns: 1fr; }
   .rp-sign { flex-direction: column; align-items: stretch; }
+  .rp-info, .rp-terms { grid-template-columns: 1fr; } .rp-info dl div { grid-template-columns: 112px 1fr; }
+  .rp-lab th:nth-child(4), .rp-lab td:nth-child(4) { display: none; }
   .rp-items td:last-child { width: auto; }
 }
 @media print {
@@ -372,7 +475,7 @@ const RP_CSS = `
   .rp-sheet p, .rp-sheet td, .rp-sheet dd { orphans: 3; widows: 3; }
   .rp-sheet h1, .rp-sheet h2 { break-after: avoid; page-break-after: avoid; }
   .rp-items thead { display: table-header-group; }
-  .rp-items tr, .rp-prog tr, .rp-bands tr, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
+  .rp-items tr, .rp-prog tr, .rp-bands tr, .rp-lab tr, .rp-info, .rp-terms, .rp-signif, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
   .rp-sign, .rp-foot, .rp-result, .rp-client { page-break-inside: avoid; }
   .rp-dot, .rp-bar-row em, .rp-result { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
