@@ -96,15 +96,17 @@ function Sparkline({ data = [], color }) {
     </svg>
   );
 }
-export function KpiCard({ label, value, isCurrency, trend, trendUp, spark, href, tone = "green", loading }) {
+export function KpiCard({ label, value, isCurrency, trend, trendUp, spark, href, tone = "green", loading, Icon, hint }) {
   const body = (
     <>
       <div className="ov-kpi-top">
+        {Icon && <span className="ov-kpi-ic"><Icon /></span>}
         <span className="ov-kpi-label">{label}</span>
         {trend && <span className={`ov-trend ${trendUp ? "up" : "down"}`}>{trendUp ? "▲" : "▼"} {trend}</span>}
       </div>
       <div className="ov-kpi-val">{loading ? "—" : isCurrency ? inr(value) : value}</div>
       <Sparkline data={spark} color={`var(--ov-${tone})`} />
+      {href && hint && <span className="ov-kpi-hint">{hint} →</span>}
     </>
   );
   return href ? <Link href={href} className={`ov-kpi ${tone}`}>{body}</Link> : <div className={`ov-kpi ${tone}`}>{body}</div>;
@@ -450,7 +452,7 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-next.hero .ov-next-k { color: #166534; }
 .ov-next.hero .ov-next-k span { background: #fff; border-color: #b2dbc1; color: #14532d; }
 .ov-next.hero .ov-mode { background: #fff; border-color: #b2dbc1; color: #14532d; }
-.ov-next.hero .ov-next-av { background: #fff; box-shadow: 0 0 0 2px #a7d7b8; width: 52px; height: 52px; }
+.ov-next.hero .ov-next-av { background: #fff; box-shadow: none; width: 52px; height: 52px; }
 .ov-next.hero .ov-next-av b { color: #166534; }
 .ov-next.hero .ov-next-name { color: #0f2e1d; }
 .ov-next.hero .ov-next-sub { color: #3d6b51; }
@@ -459,7 +461,7 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-next.hero .ov-btn.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
 .ov-next.hero .ov-btn.ghost { background: #166534; border-color: #166534; color: #fff !important; }
 .ov-next.hero .ov-btn.ghost:hover, .ov-next.hero .ov-btn:hover { background: #14532d; border-color: #14532d; }
-.ov-next.hero .ov-next-av.ini { border-radius: 50%; background: linear-gradient(135deg, #14532d, #1f7a47); box-shadow: 0 0 0 3px #fff, 0 6px 14px -6px rgba(20,83,45,.6); }
+.ov-next.hero .ov-next-av.ini { border-radius: 50%; background: linear-gradient(135deg, #14532d, #1f7a47); box-shadow: none; }
 .ov-next.hero .ov-next-av.ini b { color: #fff; font-size: 19px; font-weight: 800; letter-spacing: .5px; }
 .ov-next.hero .ov-next-left { gap: 12px; }
 .ov-next.hero .ov-next-right { border-left: 0; background: #fff; border: 1px solid #bfe1cb; border-radius: 14px; padding: 12px 14px; gap: 10px; }
@@ -508,5 +510,29 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
   .ov-next.hero .ov-next-btns > :only-child, .ov-next.hero .ov-next-btns > :last-child:nth-child(2) { grid-column: auto; }
   .ov-next.hero .ov-next-btns > :nth-child(2):last-child { grid-column: 1 / -1; }
   .ov-next.hero .ov-btn svg { font-size: 19px; }
+}
+/* ── KPI cards: clean white cards, tinted icon chip, one accent per card ── */
+.ov-kpis .ov-kpi { background: #fff; border: 1px solid #e3ebe6; border-top: 1px solid #e3ebe6; border-radius: 16px; padding: 14px 16px 12px; gap: 6px; box-shadow: 0 6px 18px -16px rgba(15,23,42,.35); position: relative; overflow: hidden; }
+.ov-kpis a.ov-kpi:hover { transform: translateY(-2px); border-color: #c9e3d3; box-shadow: 0 14px 28px -20px rgba(20,83,45,.45); }
+.ov-kpi-top { gap: 8px; justify-content: flex-start; }
+.ov-kpi-top .ov-trend { margin-left: auto; }
+.ov-kpi-ic { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; }
+.ov-kpi-ic svg { font-size: 18px; }
+.ov-kpis .ov-kpi-label { font-size: 12.5px; color: #475569; }
+.ov-kpis .ov-kpi-val { color: #0f172a; font-size: clamp(22px, 2.3vw, 28px); line-height: 1.1; }
+.ov-kpi-hint { font-size: 11.5px; font-weight: 700; color: #94a3b8; margin-top: -2px; transition: color .15s; }
+a.ov-kpi:hover .ov-kpi-hint { color: #166534; }
+.ov-kpi.green .ov-kpi-ic { background: #dcf3e4; color: #166534; }
+.ov-kpi.teal .ov-kpi-ic { background: #d7f1ec; color: #0f766e; }
+.ov-kpi.gold .ov-kpi-ic { background: #f8ecd0; color: #8a6116; }
+.ov-kpi.amber .ov-kpi-ic { background: #fde9cc; color: #b45309; }
+.ov-kpis .ov-kpi.green .ov-kpi-val, .ov-kpis .ov-kpi.teal .ov-kpi-val, .ov-kpis .ov-kpi.gold .ov-kpi-val, .ov-kpis .ov-kpi.amber .ov-kpi-val { color: #0f172a; }
+.ov-kpis .ov-kpi::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 0 3px 3px 0; }
+.ov-kpis .ov-kpi.green::before { background: #16a34a; } .ov-kpis .ov-kpi.teal::before { background: #0d9488; }
+.ov-kpis .ov-kpi.gold::before { background: #c9962c; } .ov-kpis .ov-kpi.amber::before { background: #d97706; }
+@media (max-width: 767px) {
+  .ov-kpis .ov-kpi { padding: 12px 12px 10px; }
+  .ov-kpi-ic { width: 28px; height: 28px; border-radius: 9px; } .ov-kpi-ic svg { font-size: 16px; }
+  .ov-kpi-hint { display: none; }
 }
 `;

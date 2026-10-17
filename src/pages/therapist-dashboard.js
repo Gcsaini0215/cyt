@@ -1,3 +1,5 @@
+import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
+import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import React from "react";
 import Link from "next/link";
 import MainLayout from "../components/therapists/main-layout";
@@ -1160,10 +1162,10 @@ export default function TherapistDashboard() {
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">
-              <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} />
-              <KpiCard label="Sessions · month" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} href="/appointments" tone="teal" loading={loading} />
-              <KpiCard label="New clients" value={stats.newClients} spark={weeklyData.map((d) => d.sessions)} href="/appointments" tone="gold" loading={loading} />
-              <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} />
+              <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} Icon={CurrencyRupeeRoundedIcon} hint="Invoices" />
+              <KpiCard label="Sessions · month" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} href="/appointments" tone="teal" loading={loading} Icon={EventAvailableRoundedIcon} hint="Sessions" />
+              <KpiCard label="New clients" value={stats.newClients} spark={weeklyData.map((d) => d.sessions)} href="/appointments" tone="gold" loading={loading} Icon={PersonAddAlt1RoundedIcon} hint="Clients" />
+              <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} Icon={StarRateRoundedIcon} hint="Reviews" />
             </div>
           </div>
 
