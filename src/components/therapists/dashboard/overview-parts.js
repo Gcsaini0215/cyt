@@ -159,7 +159,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
     forOther ? ["Session for", forOther] : about ? ["Client", about] : null,
   ].filter(Boolean);
   return (
-    <div className={`ov-next ov-card ${live ? "live" : ""}`}>
+    <div className={`ov-next ov-card hero ${live || started ? "live" : ""}`}>
       <div className="ov-next-top">
         <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : "Next session"} <span>{started ? "started" : when}</span></div>
         <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? "📍 In person" : "🎥 Video session"}</span>
@@ -167,14 +167,15 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
       <div className="ov-next-grid">
         <div className="ov-next-left">
           <div className="ov-next-row">
-            <div className="ov-next-av">{s.imgSrc ? <img src={s.imgSrc} alt="" /> : <b>{String(s.name || "C").charAt(0)}</b>}</div>
+            <div className={`ov-next-av${s.imgSrc ? "" : " ini"}`}>{s.imgSrc ? <img src={s.imgSrc} alt="" /> : <b>{String(s.name || "Client").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</b>}</div>
             <div className="ov-next-info">
               <div className="ov-next-name">{s.name}</div>
               <div className="ov-next-sub">{fmtDay(s.date)} · {fmtTime(s.date)}</div>
-              {phone && (
+              {(phone || b._id) && (
                 <div className="ov-next-contact">
-                  <a href={`tel:${phone}`}>Call</a>
-                  <a href={`https://wa.me/${phone.length === 10 ? "91" + phone : phone}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                  {phone && <a href={`tel:${phone}`}>Call</a>}
+                  {phone && <a href={`https://wa.me/${phone.length === 10 ? "91" + phone : phone}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>}
+                  {b._id && <button type="button" className="ov-inv-link" onClick={() => setReceipt(true)}>Invoice</button>}
                 </div>
               )}
             </div>
@@ -193,11 +194,10 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
             {onReschedule && s.status !== "Started"
               ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
               : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
-            {report && <Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost ov-assess-btn">📋 {report.short} report{report.flag ? " ⚠" : ""}</Link>}
-            {b._id && <button type="button" className="ov-btn ghost ov-only-phone" onClick={() => setReceipt(true)}>Invoice</button>}
+            {report && <Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost ov-assess-btn ov-only-phone">📋 {report.short} report{report.flag ? " ⚠" : ""}</Link>}
           </div>
           {assess.length > 0 && (
-            <div className="ov-next-assess">
+            <div className="ov-next-assess ov-phone-block">
               <span>Clinical assessment</span>
               <AssessmentChips b={b} map={amap} />
             </div>
@@ -209,7 +209,13 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
             {details.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
           </dl>
           {notes && <p className="ov-next-notes" title={notes}><b>Client&apos;s note:</b> {notes}</p>}
-          {b._id && <button type="button" className="ov-btn ghost sm" onClick={() => setReceipt(true)}>Invoice</button>}
+          {assess.length > 0 && (
+            <div className="ov-next-assess">
+              <span>Clinical assessment</span>
+              <AssessmentChips b={b} map={amap} compact />
+            </div>
+          )}
+          {report && <div className="ov-next-rbtns"><Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost sm">📋 {report.short} report{report.flag ? " ⚠" : ""}</Link></div>}
         </div>
       </div>
       {receipt && <SessionTicket b={b} therapist={therapist} onClose={() => setReceipt(false)} />}
@@ -348,16 +354,6 @@ a.ov-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba
 button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-next-assess { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ov-next-assess > span:first-child { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #64748b; }
-/* tablets & desktops: a soft golden card */
-@media (min-width: 768px) {
-  .ov-next:not(.live):not(.empty) { background: linear-gradient(150deg, #fff6dc 0%, #fffaf0 55%, #fffdf8 100%); border-color: #f1dca6; box-shadow: 0 14px 30px -24px rgba(146,106,18,.55); }
-  .ov-next:not(.live):not(.empty) .ov-next-k { color: #9a6b0f; }
-  .ov-next:not(.live):not(.empty) .ov-next-k span { border-color: #f1dca6; color: #8a5d06; }
-  .ov-next:not(.live):not(.empty) .ov-next-av { background: #fdecc0; }
-  .ov-next:not(.live):not(.empty) .ov-next-av b { color: #8a5d06; }
-  .ov-next:not(.live):not(.empty) .ov-next-right { border-left-color: #ecd49a; }
-  .ov-next:not(.live):not(.empty) .ov-btn.ghost { border-color: #ecd49a; }
-}
 .ov-next-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 22px; align-items: center; }
 .ov-next-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .ov-next-right { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-left: 20px; border-left: 1px dashed #cfe3d6; min-width: 0; }
@@ -442,4 +438,54 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
   .ov-btn { flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .ov-join.live, .ov-refresh .spin, .ov-skel { animation: none; } a.ov-kpi:hover { transform: none; } }
+/* ── Next session: the dashboard's hero card — solid pastel mint, compact left / right split ── */
+.ov-card.ov-next.hero { background: #cfe9d8; border: 1px solid #b2dbc1; box-shadow: 0 10px 26px -22px rgba(20,83,45,.55); gap: 10px; padding-top: 16px; padding-bottom: 16px; }
+.ov-card.ov-next.hero.live { border: 2px solid #16a34a; box-shadow: 0 0 0 4px rgba(22,163,74,.14), 0 10px 26px -20px rgba(20,83,45,.6); }
+.ov-next.hero .ov-next-k { color: #166534; }
+.ov-next.hero .ov-next-k span { background: #fff; border-color: #b2dbc1; color: #14532d; }
+.ov-next.hero .ov-mode { background: #fff; border-color: #b2dbc1; color: #14532d; }
+.ov-next.hero .ov-next-av { background: #fff; box-shadow: 0 0 0 2px #a7d7b8; width: 52px; height: 52px; }
+.ov-next.hero .ov-next-av b { color: #166534; }
+.ov-next.hero .ov-next-name { color: #0f2e1d; }
+.ov-next.hero .ov-next-sub { color: #3d6b51; }
+.ov-next.hero .ov-next-contact a { color: #166534; }
+.ov-next.hero .ov-btn { background: #166534; border-color: #166534; color: #fff !important; }
+.ov-next.hero .ov-btn.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
+.ov-next.hero .ov-btn.ghost { background: #166534; border-color: #166534; color: #fff !important; }
+.ov-next.hero .ov-btn.ghost:hover, .ov-next.hero .ov-btn:hover { background: #14532d; border-color: #14532d; }
+.ov-next.hero .ov-next-av.ini { border-radius: 50%; background: linear-gradient(135deg, #14532d, #1f7a47); box-shadow: 0 0 0 3px #fff, 0 6px 14px -6px rgba(20,83,45,.6); }
+.ov-next.hero .ov-next-av.ini b { color: #fff; font-size: 19px; font-weight: 800; letter-spacing: .5px; }
+.ov-next.hero .ov-next-left { gap: 12px; }
+.ov-next.hero .ov-next-right { border-left: 0; background: #fff; border: 1px solid #bfe1cb; border-radius: 14px; padding: 12px 14px; gap: 10px; }
+.ov-next.hero .ov-next-dl { gap: 8px 14px; }
+.ov-next.hero .ov-next-dl dt { color: #5b7d69; }
+.ov-next.hero .ov-next-dl dd { color: #0f2e1d; }
+.ov-next.hero .ov-next-assess > span:first-child { color: #5b7d69; }
+.ov-next-rbtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ov-inv-link { border: 0; background: none; padding: 0; font: inherit; font-size: 12.5px; font-weight: 700; color: #1d4ed8; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.ov-inv-link:hover { color: #1e3a8a; }
+.ov-card.ov-next.hero { padding: 14px 16px; gap: 8px; }
+.ov-next.hero .ov-next-grid { gap: 12px 18px; }
+.ov-next.hero .ov-next-row { gap: 12px; }
+.ov-next.hero .ov-next-av { width: 46px; height: 46px; }
+.ov-next.hero .ov-next-av.ini b { font-size: 16px; }
+.ov-next.hero .ov-next-name { font-size: 17px; }
+.ov-next.hero .ov-next-sub { font-size: 12.5px; }
+.ov-next.hero .ov-next-contact { gap: 12px; margin-top: 2px; }
+.ov-next.hero .ov-next-contact a { font-size: 12.5px; }
+.ov-next.hero .ov-next-left { gap: 10px; }
+.ov-next.hero .ov-btn { height: 36px; padding: 0 14px; font-size: 13px; border-radius: 9px; }
+.ov-next.hero .ov-btn.sm { height: 32px; font-size: 12.5px; }
+.ov-next.hero .ov-next-right { padding: 10px 12px; gap: 8px; border-radius: 12px; }
+.ov-next.hero .ov-next-dl { gap: 6px 14px; }
+.ov-next.hero .ov-next-dl dt { font-size: 10px; }
+.ov-next.hero .ov-next-dl dd { font-size: 13px; margin-top: 1px; }
+.ov-next.hero .ov-next-k { font-size: 11px; }
+.ov-next.hero .ov-mode { font-size: 11px; padding: 2px 9px; }
+.ov-phone-block { display: none; }
+@media (max-width: 767px) {
+  .ov-phone-block { display: flex; }
+  .ov-card.ov-next.hero { padding: 12px 14px; }
+  .ov-next.hero .ov-btn { height: 38px; }
+}
 `;
