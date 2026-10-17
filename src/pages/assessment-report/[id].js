@@ -287,9 +287,7 @@ export default function AssessmentReport() {
               </div>
               <b className="rp-sig-name">{signer.name || rep.therapist}</b>
               <span>{signer.profileType || "Psychologist"}</span>
-              {signer.credential && <span>{signer.credential}</span>}
-              <span>{signer.regNo ? `RCI / Reg. No.: ${signer.regNo}` : signer.noRegNo ? "Not RCI-registered · qualification verified" : "RCI / Reg. No.: —"}</span>
-              {signer.verified && <span className="rp-sig-ver">✓ Credentials verified by Choose Your Therapist{signer.verifiedAt ? ` on ${fmt(signer.verifiedAt, false)}` : ""}</span>}
+              {signer.regNo && <span>RCI / Reg. No.: {signer.regNo}</span>}
             </div>
           </section>
 
