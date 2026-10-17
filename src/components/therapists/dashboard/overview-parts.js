@@ -6,6 +6,12 @@ import { EndSessionUrl } from "../../../utils/url";
 import React from "react";
 import Link from "next/link";
 import SessionTicket from "../../client/session-ticket";
+import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import StopRoundedIcon from "@mui/icons-material/StopRounded";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
+import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 
 /* Pieces of the therapist dashboard Overview (2026-10 redesign): a slim "today" bar, KPI cards
    with sparklines, a big next-session card, a 7-day strip and a to-do card. Plain CSS (OV_CSS),
@@ -182,19 +188,19 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
           </div>
           <div className="ov-next-btns">
             {inPerson ? (started
-              ? <button type="button" className="ov-btn gold" onClick={endSession} disabled={ending}>{ending ? "Ending…" : "End session"}</button>
+              ? <button type="button" className="ov-btn gold" onClick={endSession} disabled={ending}><StopRoundedIcon />{ending ? "Ending…" : "End session"}</button>
               : Date.now() < canStartAt
-                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}>Start from&nbsp;<b>{opensAtText(canStartAt)}</b></span>
-                : <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => setStarting(true)}>▶ Start session</button>)
+                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}><ScheduleRoundedIcon />Start from&nbsp;<b>{opensAtText(canStartAt)}</b></span>
+                : <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => setStarting(true)}><PlayArrowRoundedIcon />Start session</button>)
             : s.meet && onJoin && joinWin.open
-              ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}>{live ? "Join Meet now" : "Join Meet"}</button>
+              ? <button type="button" className={`ov-btn ${live ? "gold" : ""}`} onClick={() => onJoin(s)}><VideocamRoundedIcon />{live ? "Join Meet now" : "Join Meet"}</button>
               : s.meet && joinWin.before
-                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}>Join opens at&nbsp;<b>{opensAtText(joinWin.opens)}</b></span>
+                ? <span className="ov-btn ghost ov-opens" style={{ cursor: "default" }}><ScheduleRoundedIcon />Join opens at&nbsp;<b>{opensAtText(joinWin.opens)}</b></span>
                 : <Link href="/appointments" className={`ov-btn ${live ? "gold" : ""}`}>{live ? "Start session" : "Open session"}</Link>}
             {onReschedule && s.status !== "Started"
-              ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}>Reschedule</button>
+              ? <button type="button" className="ov-btn ghost" onClick={() => onReschedule(s)}><EventRepeatRoundedIcon />Reschedule</button>
               : <Link href="/appointments" className="ov-btn ghost">Details</Link>}
-            {report && <Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost ov-assess-btn ov-only-phone">📋 {report.short} report{report.flag ? " ⚠" : ""}</Link>}
+            {report && <Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost ov-assess-btn ov-only-phone"><AssignmentRoundedIcon />{report.short} report{report.flag ? " ⚠" : ""}</Link>}
           </div>
           {assess.length > 0 && (
             <div className="ov-next-assess ov-phone-block">
@@ -215,7 +221,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
               <AssessmentChips b={b} map={amap} compact />
             </div>
           )}
-          {report && <div className="ov-next-rbtns"><Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost sm">📋 {report.short} report{report.flag ? " ⚠" : ""}</Link></div>}
+          {report && <div className="ov-next-rbtns"><Link href={`/assessment-report/${report.reportId}`} className="ov-btn ghost sm"><AssignmentRoundedIcon />{report.short} report{report.flag ? " ⚠" : ""}</Link></div>}
         </div>
       </div>
       {receipt && <SessionTicket b={b} therapist={therapist} onClose={() => setReceipt(false)} />}
@@ -462,6 +468,8 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-next.hero .ov-next-dl dd { color: #0f2e1d; }
 .ov-next.hero .ov-next-assess > span:first-child { color: #5b7d69; }
 .ov-next-rbtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.ov-next.hero .ov-btn svg { font-size: 18px; margin-right: 6px; flex-shrink: 0; }
+.ov-next.hero .ov-btn b { margin-left: 3px; }
 .ov-inv-link { border: 0; background: none; padding: 0; font: inherit; font-size: 12.5px; font-weight: 700; color: #1d4ed8; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .ov-inv-link:hover { color: #1e3a8a; }
 .ov-card.ov-next.hero { padding: 14px 16px; gap: 8px; }
@@ -486,6 +494,13 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 @media (max-width: 767px) {
   .ov-phone-block { display: flex; }
   .ov-card.ov-next.hero { padding: 12px 14px; }
-  .ov-next.hero .ov-btn { height: 38px; }
+  /* phones: one clear main action, then equal secondary actions */
+  .ov-next.hero .ov-next-btns { gap: 8px; }
+  .ov-next.hero .ov-next-btns > :first-child { height: 46px; font-size: 14.5px; border-radius: 12px; background: #14532d; border-color: #14532d; box-shadow: 0 8px 16px -10px rgba(20,83,45,.75); }
+  .ov-next.hero .ov-next-btns > :first-child.gold { background: #f5c542; border-color: #f5c542; color: #3d2a00 !important; }
+  .ov-next.hero .ov-next-btns > :not(:first-child) { height: 40px; font-size: 13px; border-radius: 11px; background: #2b7a4b; border-color: #2b7a4b; box-shadow: none; }
+  .ov-next.hero .ov-next-btns > :only-child, .ov-next.hero .ov-next-btns > :last-child:nth-child(2) { grid-column: auto; }
+  .ov-next.hero .ov-next-btns > :nth-child(2):last-child { grid-column: 1 / -1; }
+  .ov-next.hero .ov-btn svg { font-size: 19px; }
 }
 `;
