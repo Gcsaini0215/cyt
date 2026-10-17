@@ -44,7 +44,9 @@ export default function VerifyReport() {
               <div><dt>Completed on</dt><dd>{fmt(r.completedAt)}</dd></div>
               <div><dt>Approved on</dt><dd>{fmt(r.releasedAt)}</dd></div>
               <div><dt>Psychologist</dt><dd>{p.name}{p.profileType ? `, ${p.profileType}` : ""}</dd></div>
-              <div><dt>{p.regNo ? "Reg. / Licence No." : "Qualification"}</dt><dd>{p.regNo || p.credential || "—"}</dd></div>
+              {p.credential && <div><dt>Qualification</dt><dd>{p.credential}</dd></div>}
+              <div><dt>Reg. / Licence No.</dt><dd>{p.regNo || (p.noRegNo ? "Not RCI-registered" : "—")}</dd></div>
+              {p.verified && <div><dt>Credentials</dt><dd>✓ Verified by Choose Your Therapist{p.verifiedAt ? ` on ${new Date(p.verifiedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}` : ""}</dd></div>}
             </dl>
             <p className="vr-note">Compare these details with the printed report. This report is not valid for any medico-legal purpose.</p>
           </>

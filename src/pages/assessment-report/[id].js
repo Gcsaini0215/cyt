@@ -23,12 +23,11 @@ export default function AssessmentReport() {
   const [err, setErr] = useState("");
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState(EMPTY);
-  const [regNo, setRegNo] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: "", err: false });
 
   const load = () => fetchById(`${apiUrl}/assessment-requests/${id}/report`)
-    .then((r) => { const d = r.data; setRep(d); setNote(d?.note || ""); setNotes({ ...EMPTY, ...(d?.notes || {}) }); setRegNo(d?.regNo || d?.signer?.regNo || ""); })
+    .then((r) => { const d = r.data; setRep(d); setNote(d?.note || ""); setNotes({ ...EMPTY, ...(d?.notes || {}) }); })
     .catch((e) => setErr(e?.response?.data?.message || "Couldn't load the report."));
   useEffect(() => {
     if (!id) return;
@@ -101,6 +100,7 @@ export default function AssessmentReport() {
               <span>Date {fmt(rep.doneAt, false)}</span>
             </div>
           </header>
+          <div className="rp-conf">Confidential · for the client and the treating psychologist only</div>
           <div className="rp-titlebar">
             <h1>{test.full}</h1>
             <span className={`rp-status${released ? " ok" : ""}`}>{released ? "Approved by psychologist" : "Draft — not released"}</span>
@@ -213,7 +213,18 @@ export default function AssessmentReport() {
                   </select>
                 </label>
                 <label>Referral (if any)<input maxLength={300} value={notes.referral} onChange={(e) => setNotes({ ...notes, referral: e.target.value })} placeholder="e.g. Psychiatrist for medication review" /></label>
-                <div className="rp-regno"><span>{regNo || !signer.credential ? "Registration / licence no." : "Qualification"}</span><b>{regNo || signer.credential || "Not added"}</b><Link href="/therapist-questionnaires#addon">{regNo || signer.credential ? "Change" : "Add"} on the Assessments page</Link></div>
+              </div>
+              <div className={`rp-signer${signer.verified ? "" : " warn"}`}>
+                <div className="rp-signer-h">
+                  <b>Printed in the signature block</b>
+                  <span>{signer.verified ? `✓ Approved by CYT${signer.verifiedAt ? ` · ${fmt(signer.verifiedAt, false)}` : ""}` : "Not approved by CYT yet — your signature won't print until it is"}</span>
+                </div>
+                <div className="rp-signer-row">
+                  <div><span>Qualification</span><b>{signer.credential || "—"}</b></div>
+                  <div><span>RCI / Reg. No.</span><b>{signer.regNo || (signer.noRegNo ? "Not RCI-registered" : "—")}</b></div>
+                  <div><span>Signature</span>{signer.signature ? <img src={signer.signature} alt="" /> : <b>—</b>}</div>
+                </div>
+                <Link href="/therapist-questionnaires?buy=1">Change these on the Assessments page →</Link>
               </div>
               <div className="rp-acts">
                 <button type="button" className="ghost" onClick={() => save(false)} disabled={busy}>Save draft</button>
@@ -253,6 +264,8 @@ export default function AssessmentReport() {
             </table>
           </section>
 
+          <div className="rp-end"><span>End of report</span></div>
+
           {/* ── signature ── */}
           <section className="rp-sign">
             {rep.verifyQr && (
@@ -274,7 +287,8 @@ export default function AssessmentReport() {
               <b className="rp-sig-name">{signer.name || rep.therapist}</b>
               <span>{signer.profileType || "Psychologist"}</span>
               {signer.credential && <span>{signer.credential}</span>}
-              {(isT ? regNo : signer.regNo) ? <span>RCI / Reg. No.: {isT ? regNo : signer.regNo}</span> : !signer.credential && <span>RCI / Reg. No.: —</span>}
+              <span>{signer.regNo ? `RCI / Reg. No.: ${signer.regNo}` : signer.noRegNo ? "Not RCI-registered · qualification verified" : "RCI / Reg. No.: —"}</span>
+              {signer.verified && <span className="rp-sig-ver">✓ Credentials verified by Choose Your Therapist{signer.verifiedAt ? ` on ${fmt(signer.verifiedAt, false)}` : ""}</span>}
             </div>
           </section>
 
@@ -303,7 +317,7 @@ export default function AssessmentReport() {
 
           <footer className="rp-foot">
             <b>About this document</b>
-            <p>This report is generated automatically from the client&apos;s own answers, scored with the published scoring of the questionnaire, and approved by the psychologist named above before it is shared. It is meant only to track progress across therapy sessions and to assess the current level of symptoms.</p>
+            <p>This report is generated automatically from the client&apos;s own answers, scored with the published scoring of the questionnaire, and approved by the psychologist named above before it is shared.{signer.verified ? " The psychologist's qualification, registration details and signature were checked by Choose Your Therapist before they could issue reports." : ""} It is meant only to track progress across therapy sessions and to assess the current level of symptoms.</p>
             <div className="rp-use">
               <div><em>Can be used for</em><span>Tracking your progress between sessions · discussing results with your psychologist · comparing with later re-assessments</span></div>
               <div><em>Not valid for</em><span>Any legal or medico-legal purpose · court, police or insurance matters · employment, leave or fitness certificates · diagnosis or prescription</span></div>
@@ -439,7 +453,7 @@ const RP_CSS = `
 .rp-items table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .rp-items th { text-align: left; font-size: 10.5px; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; border-bottom: 1px solid #d1d5db; padding: 5px 8px; }
 .rp-items td { border-bottom: 1px solid #f0f1f1; padding: 5px 8px; vertical-align: top; color: #1f2937; }
-.rp-items td:first-child { color: #9ca3af; width: 26px; } .rp-items td:last-child { font-weight: 600; width: 34%; }
+.rp-items td:first-child { color: #9ca3af; width: 26px; } .rp-items td:nth-child(3) { width: 34%; } .rp-items td:last-child { font-weight: 700; width: 56px; }
 .rp-items tr.hot td { color: #991b1b; font-weight: 700; }
 
 /* signature */
@@ -452,6 +466,18 @@ const RP_CSS = `
 .rp-sig-space span { font-size: 10.5px; color: #4b5563; font-style: italic; }
 .rp-sig .rp-sig-name { display: inline-block; min-width: 160px; border-top: 1px solid #111827; padding-top: 5px; font-size: 14px; color: #111827; }
 .rp-sig > span { font-size: 11.5px; color: #4b5563; }
+.rp-sig > span.rp-sig-ver { margin-top: 3px; font-size: 10.5px; color: #14532d; font-weight: 600; }
+.rp-signer { margin: 12px 0 4px; border: 1px solid #d9e7de; background: #f7fbf8; border-radius: 8px; padding: 10px 12px; }
+.rp-signer.warn { border-color: #fde68a; background: #fffbeb; }
+.rp-signer-h { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.rp-signer-h b { font-size: 12.5px; color: #111827; } .rp-signer-h span { font-size: 12px; font-weight: 700; color: #14532d; }
+.rp-signer.warn .rp-signer-h span { color: #92400e; }
+.rp-signer-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 10px; margin: 8px 0 6px; }
+.rp-signer-row span { display: block; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+.rp-signer-row b { display: block; font-size: 13px; color: #111827; margin-top: 1px; }
+.rp-signer-row img { display: block; max-height: 34px; max-width: 140px; object-fit: contain; margin-top: 2px; }
+.rp-signer a { font-size: 12px; font-weight: 700; color: #1d4ed8 !important; }
+@media (max-width: 700px) { .rp-signer-row { grid-template-columns: 1fr; } }
 
 /* footer */
 .rp-foot { margin-top: 18px; border-top: 2px solid #14532d; padding-top: 10px; }
@@ -463,6 +489,26 @@ const RP_CSS = `
 .rp-use em { display: block; font-style: normal; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; color: #111827; }
 .rp-foot .rp-foot-id { margin: 6px 0 0; color: #9ca3af; font-size: 10px; text-align: center; }
 .print-only { display: none; }
+
+/* formal grey styling: section bars, table heads, zebra rows, boxed details */
+.rp-sheet h2 { background: #f3f4f6; border-left: 3px solid #14532d; border-bottom: 0; padding: 6px 10px; color: #111827; letter-spacing: 1.1px; margin-bottom: 10px; }
+.rp-edit h2 { background: none; border-left: 0; padding: 0; }
+.rp-conf { margin-top: 8px; background: #f3f4f6; color: #4b5563; text-align: center; font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; padding: 4px 8px; }
+.rp-info { background: #f9fafb; border: 1px solid #e5e7eb; padding: 12px 16px; }
+.rp-lab th, .rp-items th, .rp-prog th { background: #f3f4f6; color: #374151; border-bottom: 1px solid #d1d5db; padding: 7px 8px; }
+.rp-lab { border: 1px solid #e5e7eb; } .rp-prog, .rp-items table { border: 1px solid #e5e7eb; }
+.rp-lab tbody tr:nth-child(even) td, .rp-items tbody tr:nth-child(even) td, .rp-prog tbody tr:nth-child(even) td { background: #fafafa; }
+.rp-items tr.hot td { background: #fef2f2 !important; }
+.rp-bands { border: 1px solid #e5e7eb; } .rp-bands td:first-child { background: #f9fafb; }
+.rp-about > div, .rp-terms > div { border-radius: 0; padding: 0 12px 10px; }
+.rp-about b, .rp-terms > div > b { margin: 0 -12px 8px; padding: 6px 12px; background: #f3f4f6; border-bottom: 1px solid #e5e7eb; color: #111827; }
+.rp-terms > div > b { text-align: left; }
+.rp-notes-grid > div { background: #fafafa; border: 1px solid #eef0ef; padding: 8px 12px; }
+.rp-result { background: #f9fafb; }
+.rp-end { display: flex; align-items: center; gap: 12px; margin: 18px 0 4px; color: #6b7280; font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.rp-end::before, .rp-end::after { content: ""; flex: 1; border-top: 1px dashed #c7cbd1; }
+.rp-foot { background: #f9fafb; border: 1px solid #e5e7eb; border-top: 2px solid #14532d; padding: 12px 14px; }
+.rp-use div { background: #fff; }
 
 @media (max-width: 700px) {
   .rp-sheet { padding: 18px 16px; }
@@ -488,6 +534,7 @@ const RP_CSS = `
   .rp-items tr, .rp-prog tr, .rp-bands tr, .rp-lab tr, .rp-info, .rp-terms, .rp-about, .rp-notes-grid > div, .rp-notes > div, .rp-notes-kv, .rp-bar-row, .rp-head, .rp-titlebar, .rp-use div { break-inside: avoid; page-break-inside: avoid; }
   .rp-sign, .rp-foot, .rp-result, .rp-client { page-break-inside: avoid; }
   .rp-dot, .rp-bar-row em, .rp-result { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rp-sheet, .rp-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .no-print, #__next .cb-widget, #__next .ck-wrap, .cb-widget, .ck-wrap, #__next > .cb-widget { display: none !important; } .print-only { display: block !important; }
   .rp-items tr, .rp-sign, .rp-foot, .rp-result, .rp-client { break-inside: avoid; }
 }
