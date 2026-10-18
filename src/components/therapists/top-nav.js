@@ -5,11 +5,11 @@ import useTherapistStore from "../../store/therapistStore";
 import { removeToken } from "../../utils/jwt";
 import { defaultProfile, imagePath } from "../../utils/url";
 import { fetchBookingsShared } from "../../utils/bookings-shared";
-import { DRAWER_GROUPS, NAV_ITEMS, isActive } from "./side-nav";
+import { drawerGroupsFor, NAV_ITEMS, isActive } from "./side-nav";
 import useCommsStore from "../../store/commsStore";
 import NewBookingPopup from "./new-booking-popup";
 import NotifBell from "./notif-bell";
-import { useNavBadges, NavBadge, NavTag, useAssessmentsUpgrade, listingOf, shareProfile, NX_CSS } from "./nav-extras";
+import { useNavBadges, NavBadge, NavTag, useAssessmentsUpgrade, useOwnedUpgrades, listingOf, shareProfile, NX_CSS } from "./nav-extras";
 import { profilePct } from "../../utils/profile-checks";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
@@ -59,27 +59,35 @@ export default function DashboardTopNav() {
   const closeTimer = useRef(null);
   const badges = useNavBadges();
   const upgrade = useAssessmentsUpgrade();
+  const drawerGroups = drawerGroupsFor(useOwnedUpgrades()); // bought upgrades sit in their normal group
   const { fetchInbox, fetchReviewsCount, markReviewsSeen } = useCommsStore();
 
   const openProfile = () => { clearTimeout(closeTimer.current); setProfileOpen(true); };
   const closeProfileSoon = () => { clearTimeout(closeTimer.current); closeTimer.current = setTimeout(() => setProfileOpen(false), 250); };
 
-  // remembered rail width (desktop)
+  // remembered rail width (desktop). _document.js already set data-tsn-wide before first paint, so this only
+  // reads it back — it never removes and re-adds it on a page change (that made the rail close and re-open
+  // on every navigation). Only portal CSS reads the attribute, so it can stay on outside the portal too.
   useEffect(() => {
-    let on = false;
-    try { on = localStorage.getItem(WIDE_KEY) === "1"; } catch (e) { /* storage blocked */ }
+    let on = document.documentElement.hasAttribute("data-tsn-wide");
+    try { on = localStorage.getItem(WIDE_KEY) === "1"; } catch (e) { /* storage blocked: keep the attribute */ }
     setWide(on);
   }, []);
-  useEffect(() => {
-    if (wide) document.documentElement.setAttribute("data-tsn-wide", "");
-    else document.documentElement.removeAttribute("data-tsn-wide");
-    try { localStorage.setItem(WIDE_KEY, wide ? "1" : "0"); } catch (e) { /* ignore */ }
-  }, [wide]);
-  // leaving the portal: drop the attribute so other pages aren't affected
-  useEffect(() => () => document.documentElement.removeAttribute("data-tsn-wide"), []);
+  const animTimer = useRef(null);
+  const toggleWide = () => {
+    const next = !document.documentElement.hasAttribute("data-tsn-wide");
+    // slide only when the therapist presses the button, never on load or navigation
+    const html = document.documentElement;
+    html.classList.add("tsn-anim");
+    clearTimeout(animTimer.current);
+    animTimer.current = setTimeout(() => html.classList.remove("tsn-anim"), 320);
+    if (next) html.setAttribute("data-tsn-wide", ""); else html.removeAttribute("data-tsn-wide");
+    try { localStorage.setItem(WIDE_KEY, next ? "1" : "0"); } catch (e) { /* ignore */ }
+    setWide(next);
+  };
 
   const onMenu = () => {
-    if (window.matchMedia("(min-width: 1024px)").matches) setWide((w) => !w);
+    if (window.matchMedia("(min-width: 1024px)").matches) toggleWide();
     else setDrawer(true);
   };
 
@@ -265,17 +273,19 @@ export default function DashboardTopNav() {
                 <span>Your profile isn&apos;t complete</span><i><b style={{ width: `${pct}%` }} /></i><em>Finish →</em>
               </Link>
             )}
-            {/* phones: tiles in pages of 8 (4 × 2) that slide sideways when there are more */}
+            {/* phones: tiles in the sidebar's order, minus what the bottom bar already has, in pages of 12
+                (4 × 3) that slide sideways if there are more; Upgrade tiles are gold, Subscriptions comes last */}
             {(() => {
-              const tiles = DRAWER_GROUPS.flatMap((g) => g.items);
-              const pages = Array.from({ length: Math.ceil(tiles.length / 8) }, (_, i) => tiles.slice(i * 8, i * 8 + 8));
+              const inBar = new Set(MOB_NAV.map((m) => m.to));
+              const tiles = drawerGroups.flatMap((g) => g.items.filter((i) => !inBar.has(i.to)).map((i) => ({ ...i, up: !!g.upgrade })));
+              const pages = Array.from({ length: Math.ceil(tiles.length / 12) }, (_, i) => tiles.slice(i * 12, i * 12 + 12));
               return (
                 <div className="tn-pages-wrap">
                   <div className="tn-pages" onScroll={(e) => setMenuPage(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
                     {pages.map((items, pi) => (
                       <div key={pi} className="tn-drawer-group tn-page">
                         {items.map((item) => (
-                          <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
+                          <Link key={item.to} href={item.to} className={`${isActive(item, pathname) ? "on" : ""}${item.up ? " up" : ""}`} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
                             <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
                             <span className="tn-dr-lbl">{item.label}<NavTag item={item} upgrade={upgrade} className="tn-dr-tag" /></span>
                           </Link>
@@ -290,9 +300,9 @@ export default function DashboardTopNav() {
               );
             })()}
             <nav>
-              {DRAWER_GROUPS.map((g) => (
-                <div key={g.title} className="tn-drawer-group">
-                  <span>{g.title}</span>
+              {drawerGroups.map((g) => (
+                <div key={g.title} className={`tn-drawer-group${g.upgrade ? " up" : ""}`}>
+                  <span>{g.upgrade ? "✦ " : ""}{g.title}</span>
                   {g.items.map((item) => (
                     <Link key={item.to} href={item.to} className={isActive(item, pathname) ? "on" : ""} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
                       <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
@@ -431,6 +441,11 @@ const TN_CSS = `
 .tn-drawer-group a svg { font-size: 21px; color: #64748b; }
 .tn-drawer-group a.on { background: #e7f6ec; color: #166534; }
 .tn-drawer-group a.on svg { color: #166534; }
+/* Upgrade group (Assessments, Coupons) in gold, same as the desktop rail */
+.tn-drawer-group.up > span { color: #a37a16; }
+.tn-drawer-group.up a svg { color: #c9962c; }
+.tn-drawer-group.up a.on { background: #fdf6e3; color: #7a5a10; }
+.tn-drawer-group.up a.on svg { color: #a37a16; }
 .tn-drawer-group a em { margin-left: auto; font-style: normal; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; border-radius: 9px; padding: 1px 7px; }
 .tn-drawer-foot { display: flex; gap: 8px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #eef2f0; }
 .tn-drawer-foot a, .tn-drawer-foot button { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; color: #334155; font-weight: 700; font-size: 13.5px; font-family: inherit; text-decoration: none !important; cursor: pointer; }
@@ -463,6 +478,10 @@ const TN_CSS = `
   .tn-drawer-group a.on { background: none; color: #166534; }
   .tn-drawer-group a.on .tn-dr-ic { background: #dff3e6; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
   .tn-drawer-group a:active .tn-dr-ic { background: #e7f6ec; }
+  /* Upgrade tiles (Assessments, Coupons until bought) in gold, like the sidebar */
+  .tn-drawer-group a.up .tn-dr-ic { background: linear-gradient(145deg, #fff8e6, #fbefcc); box-shadow: inset 0 0 0 1px #ecd49a; }
+  .tn-drawer-group a.up svg { color: #a37a16; }
+  .tn-drawer-group a.up { color: #7a5a10; }
   .tn-dr-lbl { flex: 0 0 auto; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .tn-drawer-group a .tn-dr-badge.nx-badge { top: -5px; right: -6px; }
   .tn-drawer-group a .tn-dr-badge.nx-dot { top: 2px; right: 2px; }

@@ -186,6 +186,7 @@ export const DeleteCouponsUrl = `${apiUrl}/coupon/delete`;
 export const ToggleCouponStatusUrl = `${apiUrl}/coupon/status`;
 export const SuggestCouponUrl = `${apiUrl}/coupon/suggest`;
 export const PublicCouponsUrl = `${apiUrl}/coupon/public`; // + "/<therapist profile _id>"
+export const CouponsAddonUrl = `${apiUrl}/coupon/addon`; // Coupons upgrade: GET status, POST /order, POST /verify
 
 // Aliases for compatibility with old spelling
 export const GetCoupansUrl = GetCouponsUrl;

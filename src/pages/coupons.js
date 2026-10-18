@@ -4,10 +4,11 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import MainLayout from "../components/therapists/main-layout";
 import { PT_CSS } from "../components/therapists/portal-ui";
+import { setUpgradeOwned } from "../components/therapists/nav-extras";
 import useTherapistStore from "../store/therapistStore";
 import { deleteById, fetchById, postData } from "../utils/actions";
 import {
-  CreateCouponsUrl, DeleteCouponsUrl, GetCouponsUrl, SuggestCouponUrl, ToggleCouponStatusUrl, UpdateCouponsUrl,
+  CouponsAddonUrl, CreateCouponsUrl, DeleteCouponsUrl, GetCouponsUrl, SuggestCouponUrl, ToggleCouponStatusUrl, UpdateCouponsUrl,
 } from "../utils/url";
 import { CouponTicket, COUPON_TICKET_CSS, copyText, offerLabel, tillLabel } from "../components/global/coupon-ui";
 import LocalOfferRoundedIcon from "@mui/icons-material/LocalOfferRounded";
@@ -180,6 +181,87 @@ function CouponEditor({ initial, name, onClose, onSaved }) {
   );
 }
 
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
+
+const PERKS = [
+  ["Unlimited coupons", "% or ₹ off, your own dates and number of uses"],
+  ["Shown on your profile", "right next to Book a Session — clients see it first"],
+  ["Shareable booking link", "the code is applied for the client automatically"],
+  ["See what works", "paid bookings counted for every coupon"],
+];
+
+/* Coupons is a one-time upgrade (price set by CYT, default ₹399, lifetime). Until it's unlocked the
+   therapist's coupons are paused and new ones can't be made. */
+function CouponsUpgrade({ addon, onUnlocked, cardRef }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const price = Number(addon?.price ?? 399);
+
+  const buy = async () => {
+    setBusy(true); setMsg("");
+    try {
+      const o = await postData(`${CouponsAddonUrl}/order`, {});
+      if (o?.data?.free || o?.data?.unlocked) { toast.success(o.message || "Coupons unlocked"); await onUnlocked(); setBusy(false); return; }
+      if (!o?.data?.orderId) throw new Error(o?.message || "Couldn't start the payment.");
+      if (!(await loadRazorpay())) throw new Error("Couldn't load the payment window. Check your connection.");
+      const rzp = new window.Razorpay({
+        key: o.data.keyId, amount: Math.round(o.data.amount * 100), currency: "INR", order_id: o.data.orderId,
+        name: "Choose Your Therapist", description: "Coupons upgrade — one-time", theme: { color: "#0f3d24" },
+        handler: async (resp) => {
+          try {
+            const v = await postData(`${CouponsAddonUrl}/verify`, resp);
+            if (v?.status) { toast.success(v.message || "Coupons unlocked"); await onUnlocked(); }
+            else setMsg(v?.message || "We couldn't confirm the payment.");
+          } catch (e) { setMsg(errMsg(e, "Payment verification failed — contact hello@chooseyourtherapist.in with your payment ID.")); }
+          setBusy(false);
+        },
+        modal: { ondismiss: () => setBusy(false) },
+      });
+      rzp.open();
+    } catch (e) {
+      setMsg(errMsg(e, "Payment failed to start."));
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="cpu" ref={cardRef} aria-labelledby="cpu-h">
+      <div className="cpu-l">
+        <span className="cpu-badge">✦ Upgrade</span>
+        <h2 id="cpu-h">Unlock Coupons</h2>
+        <p>Give clients a reason to book you first — create offers that show right on your profile.</p>
+        <ul>
+          {PERKS.map(([b, s]) => <li key={b}><b>{b}</b> — {s}</li>)}
+        </ul>
+      </div>
+      <div className="cpu-r">
+        <div className="cpu-price">
+          <b>{price === 0 ? "Free" : `₹${price.toLocaleString("en-IN")}`}</b>
+          <span>one-time · yours for life</span>
+        </div>
+        {addon?.approved === false ? (
+          <p className="cpu-note">Available once your profile is approved.</p>
+        ) : (
+          <button type="button" className="cpu-btn" onClick={buy} disabled={busy}>
+            {busy ? "Opening payment…" : price === 0 ? "Unlock Coupons" : `Unlock for ₹${price.toLocaleString("en-IN")}`}
+          </button>
+        )}
+        <small>Secure payment by Razorpay · no renewals</small>
+        {msg && <div className="pt-err" role="alert" style={{ margin: "10px 0 0" }}>{msg}</div>}
+      </div>
+    </section>
+  );
+}
+
 export default function CouponsPage() {
   const router = useRouter();
   const therapistInfo = useTherapistStore((s) => s.therapistInfo);
@@ -187,6 +269,29 @@ export default function CouponsPage() {
   const [error, setError] = useState("");
   const [editor, setEditor] = useState(null); // null | {} (new) | coupon
   const [confirmDel, setConfirmDel] = useState(null);
+  const [addon, setAddon] = useState(null); // Coupons upgrade status
+  const upgradeRef = useRef(null);
+  const locked = !!addon && !addon.unlocked;
+
+  const loadAddon = useCallback(async () => {
+    try {
+      const r = await fetchById(CouponsAddonUrl);
+      // unlocked → Coupons moves out of the menu's gold Upgrade group into Money
+      if (r?.status) { setAddon(r.data); setUpgradeOwned("coupons", !!r.data?.unlocked); }
+    } catch (e) { /* page still works; the server enforces it */ }
+  }, []);
+  useEffect(() => { loadAddon(); }, [loadAddon]);
+
+  const showUpgrade = () => {
+    upgradeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    toast.info("Unlock Coupons to create and manage offers.");
+  };
+  const openEditor = (c) => (locked ? showUpgrade() : setEditor(c));
+  // the server said "locked" (e.g. an admin turned it off while the page was open)
+  const onLocked = (e) => {
+    if (e?.response?.status === 402) { setAddon((a) => ({ ...(a || {}), unlocked: false })); setEditor(null); showUpgrade(); return true; }
+    return false;
+  };
 
   const load = useCallback(async () => {
     try {
@@ -199,12 +304,12 @@ export default function CouponsPage() {
 
   // old /coupon/create and /coupon/update/<id> links land here as ?new=1 / ?edit=<id>
   useEffect(() => {
-    if (!router.isReady || !list) return;
+    if (!router.isReady || !list || !addon) return;
     const { new: isNew, edit } = router.query;
-    if (isNew) setEditor({});
-    else if (edit) { const c = list.find((x) => x._id === edit); if (c) setEditor(c); }
+    if (isNew) openEditor({});
+    else if (edit) { const c = list.find((x) => x._id === edit); if (c) openEditor(c); }
     if (isNew || edit) router.replace("/coupons", undefined, { shallow: true });
-  }, [router.isReady, list]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [router.isReady, list, addon]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const upsert = (c) => setList((p) => { const i = p.findIndex((x) => x._id === c._id); return i < 0 ? [c, ...p] : p.map((x) => (x._id === c._id ? c : x)); });
 
@@ -212,7 +317,7 @@ export default function CouponsPage() {
     try {
       const r = await fetchById(`${ToggleCouponStatusUrl}/${c._id}`);
       if (r?.status) { upsert(r.data); toast.success(r.message); } else toast.error(r?.message || "Couldn't change it.");
-    } catch (e) { toast.error(errMsg(e, "Couldn't change it.")); }
+    } catch (e) { if (!onLocked(e)) toast.error(errMsg(e, "Couldn't change it.")); }
   };
 
   const remove = async (c) => {
@@ -232,7 +337,7 @@ export default function CouponsPage() {
   };
   const copyCode = async (c) => { if (await copyText(c.code)) toast.success(`${c.code} copied`); };
 
-  const live = (list || []).filter((c) => c.state === "active");
+  const live = locked ? [] : (list || []).filter((c) => c.state === "active"); // locked = nothing works for clients
   const onProfile = live.filter((c) => c.show_on_profile !== false);
   const uses = (list || []).reduce((n, c) => n + (c.used_count || 0), 0);
 
@@ -244,12 +349,17 @@ export default function CouponsPage() {
         <div className="pt-head">
           <div>
             <h1>Coupons</h1>
-            <p>Make your own discount codes. Live coupons marked “show on profile” appear in the Offers section of your profile.</p>
+            <p>Make your own discount codes. Live coupons marked “show on profile” appear on your profile, right next to Book a Session.</p>
           </div>
-          <button className="pt-btn primary" onClick={() => setEditor({})}><AddRoundedIcon /> Create coupon</button>
+          {!locked && <button className="pt-btn primary" onClick={() => openEditor({})}><AddRoundedIcon /> Create coupon</button>}
         </div>
 
         {error && <div className="pt-err">{error}</div>}
+
+        {locked && <CouponsUpgrade addon={addon} cardRef={upgradeRef} onUnlocked={async () => { await Promise.all([loadAddon(), load()]); }} />}
+        {locked && list && list.length > 0 && (
+          <div className="cpu-paused">Your {list.length} coupon{list.length === 1 ? " is" : "s are"} paused — clients can't see or use {list.length === 1 ? "it" : "them"} until you unlock Coupons.</div>
+        )}
 
         {editor && (
           <CouponEditor key={editor._id || "new"} initial={editor} name={therapistInfo?.user?.name}
@@ -269,23 +379,23 @@ export default function CouponsPage() {
               {list.map((c) => {
                 const st = STATE[c.state] || STATE.active;
                 return (
-                  <div key={c._id} className={`cp-item${c.state === "active" ? "" : " dim"}`}>
+                  <div key={c._id} className={`cp-item${c.state === "active" && !locked ? "" : " dim"}`}>
                     <CouponTicket c={c} compact />
                     <div className="cp-meta">
-                      <span className={`pt-chip ${st.cls}`}>{st.label}</span>
+                      {locked ? <span className="pt-chip warn">Paused · locked</span> : <span className={`pt-chip ${st.cls}`}>{st.label}</span>}
                       {c.show_on_profile !== false ? <span className="pt-chip ok">On profile</span> : <span className="pt-chip mut">Private code</span>}
                       <span>{c.used_count || 0} of {c.max_usage} used</span>
                       <span>{tillLabel(c.valid_from)} – {tillLabel(c.valid_until)}</span>
                     </div>
                     <div className="cp-acts">
                       <label className="cp-sw sm" title={c.is_active ? "Pause" : "Make live"}>
-                        <input type="checkbox" checked={!!c.is_active} onChange={() => toggle(c)} />
+                        <input type="checkbox" checked={!!c.is_active && !locked} disabled={locked} onChange={() => toggle(c)} />
                         <span className="cp-sw-t" aria-hidden="true" />
-                        <span>{c.is_active ? "On" : "Off"}</span>
+                        <span>{c.is_active && !locked ? "On" : "Off"}</span>
                       </label>
                       <button className="cp-ib" onClick={() => copyCode(c)} aria-label="Copy code" title="Copy code"><ContentCopyRoundedIcon /></button>
                       <button className="cp-ib" onClick={() => share(c)} aria-label="Share booking link" title="Share booking link"><ShareRoundedIcon /></button>
-                      <button className="cp-ib" onClick={() => setEditor(c)} aria-label="Edit" title="Edit"><EditRoundedIcon /></button>
+                      <button className="cp-ib" onClick={() => openEditor(c)} aria-label="Edit" title={locked ? "Unlock Coupons to edit" : "Edit"}><EditRoundedIcon /></button>
                       <button className="cp-ib red" onClick={() => setConfirmDel(c)} aria-label="Delete" title="Delete"><DeleteOutlineRoundedIcon /></button>
                     </div>
                   </div>
@@ -297,7 +407,7 @@ export default function CouponsPage() {
               <LocalOfferRoundedIcon style={{ fontSize: 34, color: "#166534", marginBottom: 6 }} />
               <b>No coupons yet</b>
               Create a code like <i>20% off your first session</i>. It shows on your profile as an offer and clients apply it while booking.
-              <div style={{ marginTop: 12 }}><button className="pt-btn primary" onClick={() => setEditor({})}><AddRoundedIcon /> Create your first coupon</button></div>
+              {!locked && <div style={{ marginTop: 12 }}><button className="pt-btn primary" onClick={() => openEditor({})}><AddRoundedIcon /> Create your first coupon</button></div>}
             </div>
           )}
         </div>
@@ -322,6 +432,28 @@ export default function CouponsPage() {
 }
 
 const CP_CSS = `
+/* Coupons upgrade card (mint → gold, like the profile cards) */
+.cpu { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 22px; align-items: center; margin-bottom: 14px; padding: 22px 24px; border-radius: 18px;
+  background: linear-gradient(150deg, #f2faf3 0%, #fbf8e8 50%, #fbefcc 100%); border: 1px solid #eadfae; box-shadow: 0 8px 24px -14px rgba(176,134,30,.45); scroll-margin-top: 70px; }
+.cpu-badge { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #7a5a10; background: #fdf0c9; border: 1px solid #ecd49a; border-radius: 999px; padding: 3px 10px; }
+.cpu h2 { font-family: inherit; font-size: 22px; font-weight: 800; color: #0f2a1d; margin: 10px 0 4px; letter-spacing: -.2px; }
+.cpu-l > p { font-size: 14px; color: #4b5d52; margin: 0 0 12px; }
+.cpu ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.cpu li { position: relative; padding-left: 26px; font-size: 13.5px; color: #475569; line-height: 1.45; margin: 0; }
+.cpu li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: #166534; color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; }
+.cpu li b { color: #0f2a1d; }
+.cpu-r { background: #fff; border: 1px dashed #d9b85c; border-radius: 14px; padding: 16px; text-align: center; }
+.cpu-price b { display: block; font-size: 34px; font-weight: 900; color: #14532d; letter-spacing: -.5px; line-height: 1.1; }
+.cpu-price span { display: block; font-size: 12.5px; font-weight: 700; color: #8a6312; margin-top: 2px; }
+.cpu-btn { width: 100%; margin-top: 12px; height: 46px; border: 0; border-radius: 11px; cursor: pointer; font-family: inherit; font-size: 15px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, #1a6b3a, #0f3d24); box-shadow: 0 8px 18px -8px rgba(15,61,36,.7); transition: filter .15s; }
+.cpu-btn:hover { filter: brightness(1.1); }
+.cpu-btn:disabled { opacity: .7; cursor: default; }
+.cpu-r small { display: block; margin-top: 8px; font-size: 11.5px; color: #94a3b8; }
+.cpu-note { margin: 12px 0 0; font-size: 13px; font-weight: 700; color: #92400e; }
+.cpu-paused { margin: -4px 0 14px; padding: 10px 14px; border-radius: 12px; background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 13.5px; font-weight: 600; }
+.cp-sw input:disabled + .cp-sw-t { opacity: .5; cursor: not-allowed; }
+@media (max-width: 767px) { .cpu { grid-template-columns: 1fr; padding: 18px 16px; gap: 16px; } .cpu h2 { font-size: 20px; } }
 .cp-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .cp-item { border: 1px solid #e4ece7; border-radius: 14px; padding: 12px; background: #fbfdfc; min-width: 0; }
 .cp-item.dim .cpt { filter: grayscale(.85); opacity: .75; }

@@ -12,6 +12,13 @@ export default function Document() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />
+        {/* therapist portal: open the side menu wide before first paint if the therapist left it wide, so it
+            never animates closed→open on a page load (top-nav.js keeps it in sync). Only portal CSS reads it. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('cyt_tsn_wide')==='1')document.documentElement.setAttribute('data-tsn-wide','')}catch(e){}`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

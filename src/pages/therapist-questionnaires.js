@@ -9,7 +9,8 @@ import { apiUrl } from "../utils/url";
 
 /* Clinical assessments clients booked with their sessions. The client answers before the session,
    CYT scores it and builds the report; the therapist reads it, adds a note and releases it.
-   Two tabs: the client reports, and the add-on (plan + verification details). */
+   The add-on (plan + verification details) opens from the corner button, which shows the time left
+   while it's active. */
 
 const when = (d) => (d ? new Date(d).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }) : "—");
 const STATUS = { sent: ["Waiting for client", "wait"], done: ["To review", "todo"], released: ["Released", "ok"] };
@@ -29,11 +30,11 @@ export default function TherapistAssessments() {
   const [rows, setRows] = useState(null);
   const [addon, setAddon] = useState(null);
   const [err, setErr] = useState("");
-  const [tab, setTab] = useState("reports");
+  const [showAddon, setShowAddon] = useState(false); // add-on panel, opened from the corner button
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    try { if (new URLSearchParams(window.location.search).get("buy")) setTab("addon"); } catch (e) { /* ignore */ }
+    try { if (new URLSearchParams(window.location.search).get("buy")) setShowAddon(true); } catch (e) { /* ignore */ }
     fetchById(`${apiUrl}/assessment-requests/therapist`)
       .then((r) => setRows(r?.data || []))
       .catch(() => { setRows([]); setErr("Couldn't load — please refresh"); });
@@ -46,7 +47,10 @@ export default function TherapistAssessments() {
     return c;
   }, [rows]);
   const shown = (rows || []).filter((r) => filter === "all" || r.status === filter);
-  const addonTag = !a ? "" : ({ details: "Upgrade", rejected: "Action needed", review: "In review", consent: "Sign consent", payment: "Pay to activate" })[a.step] || "";
+  // corner button: time left while active, otherwise "Upgrade" (or where they are in the buying steps)
+  const daysLeft = a?.active && a.till ? Math.max(0, Math.ceil((new Date(a.till) - Date.now()) / 864e5)) : 0;
+  const left = daysLeft > 60 ? `${Math.round(daysLeft / 30)} months left` : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`;
+  const pending = !a || a.active ? "" : ({ rejected: "Action needed", review: "In review", consent: "Sign consent", payment: "Pay to activate" })[a.step] || "";
 
   return (
     <MainLayout>
@@ -58,22 +62,41 @@ export default function TherapistAssessments() {
             <h1>Clinical assessments</h1>
             <p>Clients add a standard assessment (PHQ-9, GAD-7, DASS-21…) when they book you, answer it before the session, and you get an automatic report to review and release.</p>
           </div>
-        </div>
-
-        <div className="ta-tabs" role="tablist">
-          <button type="button" role="tab" aria-selected={tab === "reports"} className={tab === "reports" ? "on" : ""} onClick={() => setTab("reports")}>
-            Client reports{counts.done > 0 ? <i className="hot">{counts.done}</i> : counts.all > 0 ? <i>{counts.all}</i> : null}
-          </button>
-          <button type="button" role="tab" aria-selected={tab === "addon"} className={tab === "addon" ? "on" : ""} onClick={() => setTab("addon")}>
-            Add-on &amp; details{addonTag && <i className={addonTag === "Upgrade" ? "up" : "pend"}>{addonTag}</i>}
-          </button>
+          {a && (a.active ? (
+            <button type="button" className={`ta-plan on${daysLeft <= 15 ? " soon" : ""}`} onClick={() => setShowAddon((v) => !v)} aria-expanded={showAddon}>
+              {/* ring = share of the term still left */}
+              <span className="ta-ring" style={{ "--p": `${Math.min(100, Math.round((daysLeft / ((a.termMonths || 6) * 30)) * 100))}%` }} aria-hidden="true">
+                <span><b>{daysLeft}</b><small>days</small></span>
+              </span>
+              <span className="ta-plan-txt">
+                <b>Add-on active</b>
+                <small>{daysLeft <= 15 ? `${left} · renew soon` : `till ${new Date(a.till).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`}</small>
+              </span>
+              <span className="ta-plan-go" aria-hidden="true">{showAddon ? "Close" : "Manage"} ›</span>
+            </button>
+          ) : (
+            <button type="button" className="ta-plan up" onClick={() => setShowAddon((v) => !v)} aria-expanded={showAddon}>
+              <span className="ta-plan-shine" aria-hidden="true" />
+              <span className="ta-plan-ic" aria-hidden="true">✦</span>
+              <span className="ta-plan-txt">
+                <b>Upgrade</b>
+                <small>{pending || (a.price != null ? `₹${Number(a.price).toLocaleString("en-IN")} · ${a.termMonths || 6} months` : "Clinical Assessments add-on")}</small>
+              </span>
+              <span className="ta-plan-go" aria-hidden="true">→</span>
+            </button>
+          ))}
         </div>
         {err && <p className="ta-msg err">{err}</p>}
 
-        {/* kept mounted so the plan loads (tab tag); ?buy=1 opens this tab */}
-        <div hidden={tab !== "addon"}><AssessmentsAddon onChange={setAddon} /></div>
+        {/* add-on plan + verification details: kept mounted so the corner button knows the plan; ?buy=1 opens it */}
+        <div className="ta-addon" hidden={!showAddon}>
+          <button type="button" className="ta-addon-x" onClick={() => setShowAddon(false)} aria-label="Close">×</button>
+          <AssessmentsAddon onChange={setAddon} />
+        </div>
 
-        {tab === "reports" && (
+        <h2 className="ta-h">Client reports{counts.done > 0 ? <i className="hot">{counts.done} to review</i> : counts.all > 0 ? <i>{counts.all}</i> : null}</h2>
+        {(
+
           <div className="pt-card">
             {rows === null ? <div className="pt-skel" /> : rows.length ? (
               <>
@@ -123,7 +146,7 @@ export default function TherapistAssessments() {
             ) : (
               <div className="pt-empty">
                 No assessments yet. When a client adds one to a booking with you, it shows up here.
-                {a && !a.active && <><br /><button type="button" className="ta-link" onClick={() => setTab("addon")}>Get the add-on →</button></>}
+                {a && !a.active && <><br /><button type="button" className="ta-link" onClick={() => { setShowAddon(true); window.scrollTo({ top: 0, behavior: "smooth" }); }}>Get the add-on →</button></>}
               </div>
             )}
           </div>
@@ -135,11 +158,43 @@ export default function TherapistAssessments() {
 
 const TA_CSS = `
 .ta-msg.err { margin: 0 0 12px; font-size: 13.5px; font-weight: 700; color: #b91c1c; }
-.ta-tabs { display: flex; gap: 4px; margin: 0 0 14px; border-bottom: 1px solid #e3eae6; overflow-x: auto; }
-.ta-tabs button { flex: none; display: inline-flex; align-items: center; gap: 7px; border: 0; background: none; padding: 10px 14px; font: inherit; font-size: 14.5px; font-weight: 700; color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; }
-.ta-tabs button.on { color: #14532d; border-bottom-color: #14532d; }
-.ta-tabs i { font-style: normal; font-size: 11.5px; font-weight: 800; background: #eef2f0; color: #334155; border-radius: 999px; padding: 1px 8px; }
-.ta-tabs i.hot { background: #14532d; color: #fff; } .ta-tabs i.up { background: #fde68a; color: #92400e; } .ta-tabs i.pend { background: #fef3c7; color: #92400e; }
+/* corner button: "Upgrade" (gold) or "Add-on active · N months left" */
+.ta-plan { position: relative; overflow: hidden; isolation: isolate; display: inline-flex; align-items: center; gap: 12px; min-height: 58px; padding: 8px 14px 8px 10px;
+  border-radius: 16px; cursor: pointer; font: inherit; text-align: left; flex-shrink: 0; transition: transform .15s, box-shadow .15s, filter .15s; }
+.ta-plan:hover { transform: translateY(-1px); }
+.ta-plan:focus-visible { outline: 2px solid #16a34a; outline-offset: 2px; }
+.ta-plan-txt b { display: block; font-size: 14.5px; font-weight: 800; line-height: 1.2; }
+.ta-plan-txt small { display: block; font-size: 12px; font-weight: 700; margin-top: 2px; white-space: nowrap; }
+.ta-plan-go { margin-left: auto; padding-left: 4px; font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+/* not upgraded: gold, with a light sweep */
+.ta-plan.up { border: 0; color: #fff; background: linear-gradient(135deg, #7a5410 0%, #b8891f 45%, #e2b54a 100%);
+  box-shadow: 0 10px 22px -10px rgba(176,134,30,.85), inset 0 1px 0 rgba(255,255,255,.35); }
+.ta-plan.up:hover { box-shadow: 0 14px 26px -10px rgba(176,134,30,.95), inset 0 1px 0 rgba(255,255,255,.35); filter: brightness(1.05); }
+.ta-plan.up .ta-plan-txt small { color: #fdf0c9; }
+.ta-plan-ic { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 17px; color: #a37a16; background: #fffaf0; box-shadow: 0 2px 6px rgba(120,80,0,.3); flex-shrink: 0; }
+.ta-plan.up .ta-plan-go { font-size: 18px; transition: transform .15s; } .ta-plan.up:hover .ta-plan-go { transform: translateX(3px); }
+.ta-plan-shine { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.35) 50%, transparent 65%);
+  background-size: 250% 100%; background-position: 150% 0; animation: taShine 4s ease-in-out 1s infinite; }
+@keyframes taShine { 0% { background-position: 150% 0; } 45%, 100% { background-position: -60% 0; } }
+/* upgraded: mint card with a ring of the time left */
+.ta-plan.on { border: 1px solid #e3d29c; color: #14532d; background: linear-gradient(150deg, #f2faf3, #fbf6e3); box-shadow: 0 6px 16px -10px rgba(22,101,52,.35); }
+.ta-plan.on:hover { box-shadow: 0 10px 20px -10px rgba(22,101,52,.45); }
+.ta-plan.on .ta-plan-txt small { color: #15803d; }
+.ta-plan.on .ta-plan-go { color: #166534; background: #fff; border: 1px solid #c5e8d2; border-radius: 999px; padding: 3px 10px; }
+.ta-ring { --p: 50%; width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center;
+  background: conic-gradient(#16a34a var(--p), #dfeee5 0); }
+.ta-ring > span { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.ta-ring b { font-size: 12.5px; font-weight: 900; color: #14532d; }
+.ta-ring small { font-size: 8px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 1px; }
+.ta-plan.soon { border-color: #fcd34d; background: linear-gradient(150deg, #fffbeb, #fef3c7); }
+.ta-plan.soon .ta-ring { background: conic-gradient(#d97706 var(--p), #fde9c4 0); }
+.ta-plan.soon .ta-plan-txt small { color: #b45309; }
+@media (prefers-reduced-motion: reduce) { .ta-plan-shine { animation: none; } .ta-plan:hover { transform: none; } }
+.ta-addon { position: relative; margin-bottom: 14px; }
+.ta-addon-x { position: absolute; top: 10px; right: 10px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 0; background: #eef2f0; color: #334155; font-size: 22px; line-height: 1; cursor: pointer; }
+.ta-h { display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 17px; font-weight: 800; color: #0f172a; margin: 4px 0 10px; }
+.ta-h i { font-style: normal; font-size: 11.5px; font-weight: 800; background: #eef2f0; color: #334155; border-radius: 999px; padding: 2px 9px; }
+.ta-h i.hot { background: #14532d; color: #fff; }
 .ta-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .ta-filters button { border: 1px solid #dfe7e2; background: #fff; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; }
 .ta-filters button span { color: #94a3b8; margin-left: 2px; }
@@ -170,8 +225,8 @@ const TA_CSS = `
 .ta-btn.pri { background: #14532d; color: #fff !important; }
 .ta-hint { font-size: 12.5px; color: #64748b; }
 .ta-link { border: 0; background: none; padding: 0; margin-top: 8px; font: inherit; font-weight: 800; color: #1d4ed8; cursor: pointer; }
-@media (max-width: 480px) {
-  .ta-tabs { gap: 0; } .ta-tabs button { padding: 10px 10px; font-size: 13.5px; gap: 5px; }
+@media (max-width: 600px) {
+  .ta-plan { width: 100%; justify-content: flex-start; }
 }
 @media (max-width: 900px) {
   .ta-row { grid-template-columns: auto 1fr; row-gap: 10px; }

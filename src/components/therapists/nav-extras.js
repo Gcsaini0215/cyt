@@ -71,7 +71,41 @@ export const clearAssessmentsUpgrade = () => { try { sessionStorage.removeItem(U
 export const setAssessmentsUpgrade = (show) => {
   try { sessionStorage.setItem(UPG_KEY, JSON.stringify({ show: !!show, at: Date.now() })); } catch (e) { /* ignore */ }
   try { window.dispatchEvent(new CustomEvent("cyt:addon-upgrade", { detail: !!show })); } catch (e) { /* ignore */ }
+  setUpgradeOwned("assessments", !show);
 };
+
+/* Upgrades the therapist has bought: { assessments, coupons }. The menu moves an owned upgrade out of the
+   gold "Upgrade" group into its normal group. Remembered on the device (and in memory across page changes)
+   so the item doesn't jump between groups on every page; refreshed from the server on each portal load. */
+const OWN_KEY = "cyt_upgrades_owned";
+let ownedCache = null;
+const readOwned = () => { try { return JSON.parse(localStorage.getItem(OWN_KEY) || "{}") || {}; } catch (e) { return {}; } };
+export const setUpgradeOwned = (key, value) => {
+  const next = { ...(ownedCache || readOwned()), [key]: !!value };
+  ownedCache = next;
+  try { localStorage.setItem(OWN_KEY, JSON.stringify(next)); } catch (e) { /* ignore */ }
+  try { window.dispatchEvent(new CustomEvent("cyt:upgrades", { detail: next })); } catch (e) { /* ignore */ }
+};
+let ownedFetched = false;
+export function useOwnedUpgrades() {
+  const [owned, setOwned] = React.useState(() => ownedCache || {}); // {} on the server and first paint
+  React.useEffect(() => {
+    if (!ownedCache) { ownedCache = readOwned(); setOwned(ownedCache); }
+    const on = (e) => setOwned(e.detail || {});
+    window.addEventListener("cyt:upgrades", on);
+    const token = (() => { try { return localStorage.getItem("token"); } catch (e) { return null; } })();
+    if (token && !ownedFetched) {
+      ownedFetched = true;
+      const get = (u) => fetch(u, { headers: { Authorization: `Bearer ${token}` } }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      Promise.all([get(`${apiUrl}/therapist-addon`), get(`${apiUrl}/coupon/addon`)]).then(([a, c]) => {
+        if (a?.data?.assessments) setUpgradeOwned("assessments", !!a.data.assessments.active);
+        if (c?.data) setUpgradeOwned("coupons", !!c.data.unlocked);
+      });
+    }
+    return () => window.removeEventListener("cyt:upgrades", on);
+  }, []);
+  return owned;
+}
 export const NavTag = ({ item, upgrade, className = "" }) => (item.tag && upgrade ? <em className={`nx-tag ${className}`}>{item.tag}</em> : null);
 
 export function useNavBadges() {
