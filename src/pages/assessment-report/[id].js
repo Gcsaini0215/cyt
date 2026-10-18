@@ -80,7 +80,7 @@ export default function AssessmentReport() {
 
   return (
     <div className="rp-page">
-      <Head><title>{test ? `${test.short} report` : "Assessment report"} | Choose Your Therapist</title><meta name="robots" content="noindex" />
+      <Head><title>{test ? `${test.short} screening report` : "Screening report"} | Choose Your Therapist</title><meta name="robots" content="noindex" />
         {[400, 600, 700].map((w) => <link key={w} rel="preload" href={`/fonts/inter/inter-${w}.woff2`} as="font" type="font/woff2" crossOrigin="anonymous" />)}
       </Head>
       <style dangerouslySetInnerHTML={{ __html: RP_CSS }} />
@@ -91,7 +91,7 @@ export default function AssessmentReport() {
       </div>
 
       {err ? <div className="rp-sheet"><p className="rp-err">{err}</p></div> : !rep ? <div className="rp-sheet"><div className="rp-skel" /></div> : !test ? (
-        <div className="rp-sheet"><p className="rp-err">This assessment is no longer available.</p></div>
+        <div className="rp-sheet"><p className="rp-err">This screening is no longer available.</p></div>
       ) : (
         <article className="rp-sheet">
           {/* ── header ── */}
@@ -105,7 +105,7 @@ export default function AssessmentReport() {
               </div>
             </div>
             <div className="rp-doc">
-              <b>Clinical Assessment Report</b>
+              <b>Screening Report</b>
               <span>Report No. {rep.reportNo}</span>
               <span>Date {fmt(rep.doneAt, false)}</span>
             </div>
@@ -121,7 +121,7 @@ export default function AssessmentReport() {
             <dl>
               <div><dt>Client name</dt><dd>{rep.client.name}{rep.client.age || rep.client.gender ? ` (${[rep.client.age ? `${rep.client.age}Y` : "", rep.client.gender ? String(rep.client.gender).charAt(0).toUpperCase() : ""].filter(Boolean).join("/")})` : ""}</dd></div>
               <div><dt>Client ID</dt><dd>{rep.client.code}</dd></div>
-              <div><dt>Referred by</dt><dd>{selfOnly ? "Self — assessment only" : `${signer.name || rep.therapist}${signer.profileType ? `, ${signer.profileType}` : ""}`}</dd></div>
+              <div><dt>Referred by</dt><dd>{selfOnly ? "Self — screening only" : `${signer.name || rep.therapist}${signer.profileType ? `, ${signer.profileType}` : ""}`}</dd></div>
               {!selfOnly && <div><dt>Session</dt><dd>{fmt(rep.booking_date)}</dd></div>}
             </dl>
             <dl>
@@ -331,18 +331,18 @@ export default function AssessmentReport() {
               <b>Explanations</b>
               <ul>
                 <li><b>Score</b> — the total (or subscale) calculated with the questionnaire&apos;s published scoring.</li>
-                <li><b>Cut-point</b> — the score at or above which further clinical assessment is recommended.</li>
+                <li><b>Cut-point</b> — the score at or above which further clinical evaluation is recommended.</li>
                 <li><b>Reference interval</b> — the score ranges and severity labels defined in the manual.</li>
-                <li><b>Assigned / Completed / Released</b> — when the assessment was sent, answered, and approved by the psychologist.</li>
+                <li><b>Assigned / Completed / Released</b> — when the screening was sent, answered, and approved by the psychologist.</li>
               </ul>
             </div>
           </section>
 
           <footer className="rp-foot">
             <b>About this document</b>
-            <p>This report is generated automatically from the client&apos;s own answers, scored with the published scoring of the questionnaire{selfOnly ? ". It was taken as an assessment only and has not been reviewed by a psychologist" : ", and approved by the psychologist named above before it is shared"}.{!selfOnly && signer.verified ? " The psychologist's qualification, registration details and signature were checked by Choose Your Therapist before they could issue reports." : ""} It is meant only to track progress across therapy sessions and to assess the current level of symptoms.</p>
+            <p>This report is generated automatically from the client&apos;s own answers, scored with the published scoring of the questionnaire{selfOnly ? ". It was taken as a screening only and has not been reviewed by a psychologist" : ", and approved by the psychologist named above before it is shared"}.{!selfOnly && signer.verified ? " The psychologist's qualification, registration details and signature were checked by Choose Your Therapist before they could issue reports." : ""} It is meant only to track progress across therapy sessions and to assess the current level of symptoms.</p>
             <div className="rp-use">
-              <div><em>Can be used for</em><span>Tracking your progress between sessions · discussing results with your psychologist · comparing with later re-assessments</span></div>
+              <div><em>Can be used for</em><span>Tracking your progress between sessions · discussing results with your psychologist · comparing with later screenings</span></div>
               <div><em>Not valid for</em><span>Any legal or medico-legal purpose · court, police or insurance matters · employment, leave or fitness certificates · diagnosis or prescription</span></div>
             </div>
             <p>A screening score is not a diagnosis. In a crisis in India call Tele-MANAS 14416 (free, 24×7) or go to the nearest hospital.</p>

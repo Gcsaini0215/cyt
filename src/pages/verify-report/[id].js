@@ -24,7 +24,7 @@ export default function VerifyReport() {
   const p = r?.psychologist || {};
   return (
     <div className="vr">
-      <Head><title>Verify assessment report | Choose Your Therapist</title><meta name="robots" content="noindex" /></Head>
+      <Head><title>Verify screening report | Choose Your Therapist</title><meta name="robots" content="noindex" /></Head>
       <style dangerouslySetInnerHTML={{ __html: VR_CSS }} />
       <div className="vr-card">
         <div className="vr-head">
@@ -38,12 +38,12 @@ export default function VerifyReport() {
             <div className="vr-ok"><b>✓ Genuine report</b><span>{r.selfOnly ? "This computer-generated report was issued on Choose Your Therapist from the client's own answers. It was not reviewed by a psychologist." : "This report was issued on Choose Your Therapist and approved by the psychologist below."}</span></div>
             <dl className="vr-dl">
               <div><dt>Report No.</dt><dd>{r.reportNo}</dd></div>
-              <div><dt>Assessment</dt><dd>{r.test}</dd></div>
+              <div><dt>Screening tool</dt><dd>{r.test}</dd></div>
               <div><dt>Client</dt><dd>{r.client}</dd></div>
               <div><dt>Result</dt><dd>{r.level}{r.score != null ? ` · ${r.score}/${r.max}` : ""}</dd></div>
               <div><dt>Completed on</dt><dd>{fmt(r.completedAt)}</dd></div>
               <div><dt>{r.selfOnly ? "Issued on" : "Approved on"}</dt><dd>{fmt(r.releasedAt)}</dd></div>
-              {r.selfOnly ? <div><dt>Type</dt><dd>Assessment only · automatic report</dd></div> : <>
+              {r.selfOnly ? <div><dt>Type</dt><dd>Screening only · automatic report</dd></div> : <>
               <div><dt>Psychologist</dt><dd>{p.name}{p.profileType ? `, ${p.profileType}` : ""}</dd></div>
               {p.credential && <div><dt>Qualification</dt><dd>{p.credential}</dd></div>}
               <div><dt>Reg. / Licence No.</dt><dd>{p.regNo || (p.noRegNo ? "Not RCI-registered" : "—")}</dd></div>

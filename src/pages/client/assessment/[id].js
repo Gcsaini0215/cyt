@@ -19,8 +19,8 @@ export default function ClientAssessment() {
   useEffect(() => {
     if (!id) return;
     fetchById(`${apiUrl}/assessment-requests/${id}/take`)
-      .then((r) => (r?.data ? setReq(r.data) : setErr("This assessment link isn't valid.")))
-      .catch((e) => setErr(e?.response?.data?.message || "Couldn't load the assessment — please refresh."));
+      .then((r) => (r?.data ? setReq(r.data) : setErr("This screening link isn't valid.")))
+      .catch((e) => setErr(e?.response?.data?.message || "Couldn't load the screening — please refresh."));
   }, [id]);
 
   const test = req && TEST_BY_KEY[req.tool];
@@ -34,16 +34,16 @@ export default function ClientAssessment() {
   };
 
   return (
-    <ClientShell title={test ? test.full : "Assessment"}>
+    <ClientShell title={test ? test.full : "Screening"}>
       <div className="cas">
         <style dangerouslySetInnerHTML={{ __html: CAS_CSS }} />
         {err ? (
           <div className="cas-box"><b>{err}</b><Link href="/client/check-ins">Go to My check-ins</Link></div>
         ) : !req ? <div className="cas-skel" /> : !test ? (
-          <div className="cas-box"><b>This assessment is no longer available.</b><Link href="/client/check-ins">Go to My check-ins</Link></div>
+          <div className="cas-box"><b>This screening is no longer available.</b><Link href="/client/check-ins">Go to My check-ins</Link></div>
         ) : req.status !== "sent" ? (
           <div className="cas-box">
-            <b>{req.status === "released" ? "Your report is ready." : "You've already submitted this assessment."}</b>
+            <b>{req.status === "released" ? "Your report is ready." : "You've already submitted this screening."}</b>
             <span>{req.status === "released" ? "" : `${req.therapist} will go through the result with you in your session.`}</span>
             <Link href={req.status === "released" ? `/assessment-report/${req._id}` : "/client/check-ins"}>{req.status === "released" ? "View report" : "Go to My check-ins"}</Link>
           </div>

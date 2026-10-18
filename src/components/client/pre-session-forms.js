@@ -20,21 +20,21 @@ export default function PreSessionForms({ compact = false }) {
   return (
     <section className={`psf${compact ? " compact" : ""}`} aria-labelledby="psf-h">
       <style dangerouslySetInnerHTML={{ __html: PSF_CSS }} />
-      <h2 id="psf-h">{compact ? "Before your session" : "Clinical assessments"}</h2>
+      <h2 id="psf-h">{compact ? "Before your session" : "Screening tools"}</h2>
       <div className="psf-list">
         {list.map((r) => (
           <div key={r._id} className={`psf-row ${r.status}`}>
             <div className="psf-top">
               <div>
                 <b>{r.name}</b>
-                <span>{r.selfOnly ? "Assessment only · automatic report" : `With ${r.therapist}`}{r.booking_date ? ` · session ${when(r.booking_date)}` : ""}</span>
+                <span>{r.selfOnly ? "Screening only · automatic report" : `With ${r.therapist}`}{r.booking_date ? ` · session ${when(r.booking_date)}` : ""}</span>
               </div>
               <span className="psf-chip">{r.status === "sent" ? "To complete" : r.status === "done" ? "Submitted ✓" : "Report ready"}</span>
             </div>
             {r.status === "sent" && (
               <>
                 <p className="psf-ins">{r.selfOnly ? "It takes a few minutes — your report is ready as soon as you submit." : `Please answer it before your session — it takes a few minutes. Your answers go only to ${r.therapist}, who will go through the result with you.`}</p>
-                <div className="psf-acts"><Link href={`/client/assessment/${r._id}`} className="psf-btn">Start the assessment</Link></div>
+                <div className="psf-acts"><Link href={`/client/assessment/${r._id}`} className="psf-btn">Start the screening</Link></div>
               </>
             )}
             {r.status === "done" && <p className="psf-ins">Thank you. {r.therapist} has your report and will go through it with you in the session.</p>}
