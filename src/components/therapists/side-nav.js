@@ -45,7 +45,7 @@ const ALL_GROUPS = [
     items: [
       { to: "/therapists/payouts", Icon: AccountBalanceWalletRoundedIcon, label: "Payouts" },
       { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices", hidden: true },
-      { to: "/coupons", Icon: LocalOfferRoundedIcon, label: "Coupons", hidden: true, match: ["/coupons", "/coupon/"] },
+      { to: "/coupons", Icon: LocalOfferRoundedIcon, label: "Coupons", match: ["/coupons", "/coupon/"] },
     ],
   },
   {

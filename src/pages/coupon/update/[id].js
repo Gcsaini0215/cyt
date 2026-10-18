@@ -1,42 +1,8 @@
-import MainLayout from "../../../components/therapists/main-layout";
-import { GetCoupansUrl } from "../../../utils/url";
-import { fetchById } from "../../../utils/actions";
-import ErrorPage from "../../error-page";
-import React,{ useState } from "react";
-import { useRouter } from "next/router";
-import UpdateCoupan from "../../../components/therapists/coupans/update";
+// Coupons are edited in a pop-up on /coupons now — keep old links working.
+export async function getServerSideProps({ params }) {
+  return { redirect: { destination: `/coupons?edit=${encodeURIComponent(params.id)}`, permanent: false } };
+}
 
-export default function UpdateCoupanPage() {
-      const router = useRouter();
-      const { id  } = router.query;
-       const [data, setData] = useState({});
-
-        React.useEffect(() => {
-          const getData = async () => {
-            try {
-              const res = await fetchById(`${GetCoupansUrl}/${id}`);
-              if (res.status) {
-                setData(res.data);
-              }
-            } catch (err) {
-              console.error(err);
-            }
-          };
-          if (id) {
-            getData();
-          }
-        }, [id]);
-
-  return (
-    <MainLayout>
-      <div className="rbt-dashboard-content bg-color-white rbt-shadow-box mb--60">
-        <div className="content">
-          <div className="section-title">
-            <h4 className="rbt-title-style-3">Update Coupan</h4>
-          </div>
-          {data && Object.keys(data).length>0 && <UpdateCoupan pageData={data}/>}
-        </div>
-      </div>
-    </MainLayout>
-  );
+export default function UpdateCouponRedirect() {
+  return null;
 }

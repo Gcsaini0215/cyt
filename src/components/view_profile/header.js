@@ -27,6 +27,7 @@ import { postData, fetchData } from "../../utils/actions";
 import { nextOpenSlot } from "../../utils/next-slot";
 import ShareModal from "../global/share-modal";
 import { profilePath, bookPath } from "../../utils/therapist-slug";
+import { useProfileOffers, OfferChip } from "./profile-offers";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
   const router = useRouter();
@@ -134,12 +135,16 @@ export default function ProfileHeader({ pageData, favrioutes }) {
     }
   }, [pageData, favrioutes]);
 
+  const offers = useProfileOffers(pageData?._id);
+
   const handleClick = () => {
     if (typeof window !== "undefined") {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: "book_now_click", therapist_id: pageData._id });
     }
-    router.push(bookPath(pageData));
+    // a live coupon is applied on the booking page (the offer card says "auto-applied")
+    const code = offers[0]?.code;
+    router.push(code ? `${bookPath(pageData)}?coupon=${encodeURIComponent(code)}` : bookPath(pageData));
   };
 
   const addFavrioute = async (id) => {
@@ -252,7 +257,19 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         @keyframes phStickyIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .ph-sticky-fee { flex: 1; min-width: 0; line-height: 1.2; }
         .ph-sticky-fee b { display: block; font-size: 14.5px; font-weight: 800; color: #0f3d24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ph-sticky-fee small { font-size: 11px; color: #64748b; font-weight: 600; }
+        .ph-sticky-fee small { display: block; font-size: 11px; color: #64748b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        @media (max-width: 400px) {
+          .ph-sticky { gap: 8px; padding-left: 10px; padding-right: 10px; }
+          .ph-sticky-fee b { font-size: 13.5px; }
+          .ph-sticky-fee small { font-size: 10.5px; }
+          .ph-sticky-chat { padding: 0 11px; font-size: 13px; }
+          .ph-sticky-book { padding: 0 15px; font-size: 13.5px; }
+        }
+        @media (max-width: 350px) {
+          .ph-sticky-chat { width: 46px; padding: 0; justify-content: center; }
+          .ph-sticky-chat svg { width: 18px; height: 18px; }
+          .ph-sticky-chat-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+        }
         .ph-sticky-chat {
           flex-shrink: 0; height: 46px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #0f3d24; background: #fff;
           color: #0f3d24; font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
@@ -263,22 +280,29 @@ export default function ProfileHeader({ pageData, favrioutes }) {
           box-shadow: 0 6px 16px -6px rgba(15,61,36,0.55);
         }
         .ph-sticky-book:active, .ph-sticky-chat:active { transform: scale(0.97); }
+        /* letterhead banner: warm sunlit calm-room photo with a soft green-to-gold wash (separates it from the
+           white navbar and keeps the white card readable) */
+        .ph-banner { position: relative; overflow: hidden;
+          background:
+            linear-gradient(180deg, rgba(11,47,28,.55) 0%, rgba(11,47,28,.28) 45%, rgba(60,42,8,.35) 100%),
+            #3b3324 url("/assets/img/hero/in-calm-room-1920.webp") center 58% / cover no-repeat; }
+        .ph-banner::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(212,161,47,.6), transparent); }
+        @media (max-width: 599px) {
+          .ph-banner { background:
+            linear-gradient(180deg, rgba(11,47,28,.5) 0%, rgba(11,47,28,.25) 50%, rgba(60,42,8,.35) 100%),
+            #3b3324 url("/assets/img/hero/in-calm-room-900.webp") 65% 60% / cover no-repeat; }
+        }
         @media (prefers-reduced-motion: reduce) { .ph-sticky { animation: none; transition: none; } }
       ` }} />
 
       {/* ── LETTERHEAD BANNER ── */}
-      <div style={{
-        background: "#111 url('/assets/img/profile-banner-calm-room.jpg') center 55% / cover no-repeat",
+      {/* warm calm-room photo (hero/in-calm-room) under a green-gold wash. Tried flat light pastel (melted into the white navbar) and flat dark green (too plain).
+          The old dark photo was: #111 url('/assets/img/profile-banner-calm-room.jpg') center 55% / cover */}
+      <div className="ph-banner" style={{
         paddingTop: isMobile ? 0 : 64,
         paddingBottom: isMobile ? 104 : 128,
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* black wash over the photo */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.7) 100%)",
-        }} />
+      }} aria-hidden="true">
+        
       </div>
 
       {/* ── FLOATING CREDENTIAL CARD ── */}
@@ -408,29 +432,27 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               ))}
             </div>
           )}
+          {isMobile && <OfferChip offers={offers} bookHref={bookPath(pageData)} compact />}
 
           {/* ── DESKTOP ACTION COLUMN ── */}
           {!isMobile && (
             <div style={{ flexShrink: 0, width: 208, display: "flex", flexDirection: "column", gap: 9, alignSelf: "center" }}>
-              {nextSlot && (
-                <div className="ph-next">
-                  <span className="ph-next-dot" aria-hidden="true" />
-                  <span>Next available<b>{nextSlot.label}</b></span>
-                </div>
+              {offers.length > 0 ? (
+                /* with a live coupon: the offer card carries the Book button (the code goes with it) */
+                <OfferChip offers={offers} bookHref={bookPath(pageData)} onBook={handleClick} />
+              ) : (
+                <>
+                  {nextSlot && (
+                    <div className="ph-next">
+                      <span className="ph-next-dot" aria-hidden="true" />
+                      <span>Next available<b>{nextSlot.label}</b></span>
+                    </div>
+                  )}
+                  <button onClick={handleClick} className="book-btn" style={{ width: "100%", padding: "13px 18px", borderRadius: 4, color: "#fff", fontWeight: 700, border: "none", cursor: "pointer", fontSize: 14, letterSpacing: "0.2px" }}>
+                    Book a Session
+                  </button>
+                </>
               )}
-              <button onClick={handleClick} className="book-btn" style={{ width: "100%", padding: "13px 18px", borderRadius: 4, color: "#fff", fontWeight: 700, border: "none", cursor: "pointer", fontSize: 14, letterSpacing: "0.2px" }}>
-                Book a Session
-              </button>
-              <button onClick={() => setChatOpen(true)} className="chat-btn" style={{ width: "100%", padding: "12px 18px", borderRadius: 4, fontWeight: 700, cursor: "pointer", fontSize: 13.5, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Chat Now
-              </button>
-              <button onClick={() => { if (!waitlistDone) setWaitlistOpen(true); }} disabled={waitlistDone} className="waitlist-btn" style={{ width: "100%", padding: "10px 18px", borderRadius: 4, fontWeight: 600, cursor: "pointer", fontSize: 13, display:"flex", alignItems:"center", justifyContent:"center", gap:7 }}>
-                {waitlistDone ? "✓ Added to Waitlist" : <>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Join Waitlist
-                </>}
-              </button>
               <div style={{ paddingTop: 4, borderTop: "1px solid #ecefec", marginTop: 2 }}>{shareRow}</div>
             </div>
           )}
@@ -447,10 +469,6 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               <div className="ph-sticky-fee"><b>{pageData.user?.name?.split(" ")[0] || "Therapist"}</b><small>{pageData.profile_type || "Therapist"}</small></div>
             );
           })()}
-          <button type="button" className="ph-sticky-chat" onClick={() => setChatOpen(true)}>
-            <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Chat
-          </button>
           <button type="button" className="ph-sticky-book" onClick={handleClick}>Book Session</button>
         </div>,
         document.body

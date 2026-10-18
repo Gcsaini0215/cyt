@@ -184,6 +184,8 @@ export const CreateCouponsUrl = `${apiUrl}/coupon/create`;
 export const UpdateCouponsUrl = `${apiUrl}/coupon/update`;
 export const DeleteCouponsUrl = `${apiUrl}/coupon/delete`;
 export const ToggleCouponStatusUrl = `${apiUrl}/coupon/status`;
+export const SuggestCouponUrl = `${apiUrl}/coupon/suggest`;
+export const PublicCouponsUrl = `${apiUrl}/coupon/public`; // + "/<therapist profile _id>"
 
 // Aliases for compatibility with old spelling
 export const GetCoupansUrl = GetCouponsUrl;

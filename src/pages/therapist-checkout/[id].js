@@ -126,7 +126,7 @@ export default function TherapistCheckoutPage() {
       // What the client actually pays — the coupon discount and referral credit shown on the summary.
       amount:       Math.max(0, Number(q.price || 0) - Number(q.discount || 0) - Number(q.credit_used || 0)) + parseAssess(q.assess).reduce((n, a) => n + a.price, 0),
       ...(parseAssess(q.assess).length ? { assessments: parseAssess(q.assess).map((a) => a.key) } : {}),
-      ...(q.referral_code ? { referral_code: q.referral_code } : {}),
+      ...(q.referral_code ? { referral_code: q.referral_code } : q.coupon ? { coupon: q.coupon } : {}),
       ...(Number(q.credit_used) > 0 ? { credit_used: Number(q.credit_used) } : {}),
       notes:        q.notes        || "",
       booking_date: q.booking_date || "",

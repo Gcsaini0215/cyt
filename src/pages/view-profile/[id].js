@@ -419,7 +419,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
           <ProfileHeader key={`h-${profile._id}`} pageData={profile} favrioutes={favrioutes} />
           <ProfileInfoTab key={`i-${profile._id}`} pageData={profile} />
           {/* the site body is dark green — give the reviews their own white page background so the footer starts below them */}
-          <div style={{ background: "#fff" }}>
+          <div className="vp-body" style={{ background: "#fff" }}>
             <ProfileReview key={`r-${profile._id}`} profile={profile} />
             <section className="pr-about" aria-labelledby="pr-about-h">
               <style dangerouslySetInnerHTML={{ __html: PR_CSS }} />
@@ -457,12 +457,20 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
 }
 
 const PR_CSS = `
-.pr-about { max-width: 1180px; margin: 0 auto; padding: 30px 16px 6px; font-family: 'Inter', system-ui, sans-serif; }
-.pr-about h2 { margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #0f2a1d; }
-.pr-about p { margin: 0 0 12px; font-size: 15px; line-height: 1.65; color: #334155; max-width: 860px; }
-.pr-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 12px; }
-.pr-links span { font-size: 14px; font-weight: 700; color: #0f2a1d; }
-.pr-links a { padding: 6px 12px; border-radius: 999px; background: #ecfdf3; border: 1px solid #c6f0d6; color: #166534; font-size: 13.5px; font-weight: 700; text-decoration: none; }
+/* one width for every block under the header card: max 1180, 32px / 14px sides (same as the card) */
+.pr-about { max-width: 1180px; margin: 0 auto; padding: 34px 32px 6px; font-family: inherit; }
+.pr-about h2 { margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #0f2a1d; letter-spacing: -.2px; }
+.pr-about p { margin: 0 0 12px; font-size: 15px; line-height: 1.7; color: #334155; max-width: 860px; }
+.pr-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 14px; }
+.pr-links span { font-size: 14px; font-weight: 700; color: #0f2a1d; margin-right: 2px; }
+.pr-links a { padding: 6px 13px; border-radius: 999px; background: #ecfdf3; border: 1px solid #bfe8cf; color: #166534; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background .15s; }
 .pr-links a:hover { background: #dcfce7; }
+.pr-place { font-size: 14px !important; color: #64748b !important; }
 .pr-place a { color: #166534; font-weight: 700; }
+.vp-body .rt { padding-left: 32px; padding-right: 32px; padding-bottom: 40px; }
+@media (max-width: 599px) {
+  .pr-about { padding: 28px 14px 4px; }
+  .pr-about h2 { font-size: 20px; }
+  .vp-body .rt { padding-left: 14px; padding-right: 14px; }
+}
 `;

@@ -7,7 +7,7 @@ import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import {
   getTherapistProfile, imagePath, defaultProfile,
-  ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, GetCouponsUrl,
+  ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, PublicCouponsUrl,
   BookedSlotsUrl, apiUrl, MyReferralUrl,
 } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
@@ -405,11 +405,13 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       .catch(() => {});
   }, []);
 
+  // this therapist's live offers (the ones shown in the pop-up on their profile)
   React.useEffect(() => {
-    fetchData(GetCouponsUrl).then(r => {
-      if (r?.status) setCoupons((r.data || []).filter(c => c.status));
+    if (!id) return;
+    fetchData(`${PublicCouponsUrl}/${id}`).then(r => {
+      if (r?.status) setCoupons(r.data || []);
     }).catch(() => {});
-  }, []);
+  }, [id]);
 
   // Slots already taken for this therapist — refreshed whenever the user
   // returns to the slot grid so the picker stays reasonably current.
@@ -527,10 +529,21 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     finally { setCouponLoad(false); }
   }
 
-  // a friend's referral link (?refer=CODE, kept by _app) is applied on the summary step
+  // the therapist's coupon from the profile offer / a shared link (?coupon=CODE), else a friend's
+  // referral link (?refer=CODE, kept by _app) — applied on the summary step
+  const linkCoupon = React.useRef("");
+  React.useEffect(() => {
+    if (router.isReady && router.query.coupon) linkCoupon.current = String(router.query.coupon).trim().toUpperCase().slice(0, 20);
+  }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
   const refTried = React.useRef(false);
   React.useEffect(() => {
     if (fstep !== 3 || phase !== "form" || couponApplied || refTried.current || !selFmt) return;
+    if (linkCoupon.current) {
+      refTried.current = true;
+      setCouponInput(linkCoupon.current);
+      applyCoupon(linkCoupon.current); // not silent: say so if the offer has ended
+      return;
+    }
     let ref = "";
     try { ref = localStorage.getItem("cyt_ref") || ""; } catch (e) { /* storage blocked */ }
     if (!ref) return;
@@ -1333,10 +1346,10 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#132a1c" }}>
                       {c.code}
                       <span style={{ marginLeft: 8, background: GB, color: G, borderRadius: 5, padding: "2px 8px", fontSize: 11, fontWeight: 700 }}>
-                        {c.discount_type === "percent" ? `${c.discount_value}% OFF` : `₹${c.discount_value} OFF`}
+                        {c.discount_type === "percentage" ? `${c.discount_value}% OFF` : `₹${c.discount_value} OFF`}
                       </span>
                     </div>
-                    {(c.name || c.description) && <div style={{ fontSize: 12, color: "#64748b", marginTop: 3 }}>{c.name || c.description}</div>}
+                    {c.title && <div style={{ fontSize: 12, color: "#64748b", marginTop: 3 }}>{c.title}</div>}
                   </div>
                   <span style={{ fontSize: 12, fontWeight: 700, color: G, flexShrink: 0, paddingTop: 2 }}>APPLY</span>
                 </div>
