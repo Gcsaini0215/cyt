@@ -31,7 +31,9 @@ import { useProfileOffers, OfferChip } from "./profile-offers";
 
 export default function ProfileHeader({ pageData, favrioutes }) {
   const router = useRouter();
+  // compact (phone-style) header up to 1023px — iPad portrait too; isTab bumps sizes on 600–1023px
   const [isMobile, setIsMobile] = React.useState(false);
+  const [isTab, setIsTab] = React.useState(false);
   const [bookmark, setBookmark] = React.useState(false);
   const [showBookmark, setShowBookmark] = React.useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
@@ -114,11 +116,13 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   }, [isMobile]);
 
   React.useEffect(() => {
-    const query = window.matchMedia("(max-width: 599px)");
-    setIsMobile(query.matches);
-    const handleChange = (e) => setIsMobile(e.matches);
-    query.addEventListener("change", handleChange);
-    return () => query.removeEventListener("change", handleChange);
+    const query = window.matchMedia("(max-width: 1023px)");
+    const phone = window.matchMedia("(max-width: 599px)");
+    const sync = () => { setIsMobile(query.matches); setIsTab(query.matches && !phone.matches); };
+    sync();
+    query.addEventListener("change", sync);
+    phone.addEventListener("change", sync);
+    return () => { query.removeEventListener("change", sync); phone.removeEventListener("change", sync); };
   }, []);
 
   React.useEffect(() => {
@@ -322,7 +326,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
           borderRadius: isMobile ? 14 : 16,
           border: "1px solid #e3ebe6",
           boxShadow: "0 14px 36px -12px rgba(15,61,36,0.22)",
-          padding: isMobile ? "16px 14px 16px" : "36px 44px",
+          padding: isMobile ? (isTab ? "22px 24px" : "16px 14px 16px") : "36px 44px",
           display: "flex",
           flexDirection: "row",
           flexWrap: isMobile ? "wrap" : "nowrap",
@@ -349,7 +353,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               <ImageTag
                 alt={pageData.user.name}
                 src={`${imagePath}/${pageData.user.profile}`}
-                style={{ objectFit: "cover", borderRadius: 5, width: isMobile ? 76 : 148, height: isMobile ? 76 : 148, display: "block" }}
+                style={{ objectFit: "cover", borderRadius: 5, width: isMobile ? (isTab ? 112 : 76) : 148, height: isMobile ? (isTab ? 112 : 76) : 148, display: "block" }}
               />
             </div>
             {/* Registration code seal */}
@@ -372,22 +376,26 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             {/* Name */}
             <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 9, justifyContent: "flex-start", flexWrap: "wrap", marginBottom: isMobile ? 2 : 4 }}>
               <h1 style={{
-                margin: 0, fontSize: isMobile ? 19 : 32, fontWeight: 800, color: "#122019", lineHeight: 1.2,
+                margin: 0, fontSize: isMobile ? (isTab ? 26 : 19) : 32, fontWeight: 800, color: "#122019", lineHeight: 1.2,
                 letterSpacing: "-0.3px", fontFamily: "'Playfair Display', Georgia, serif",
               }}>
-                {pageData.user.name}
+                {/* the blue tick sits with the last word, so a long name never leaves it alone on a new line */}
+                {(() => {
+                  const words = String(pageData.user.name || "").trim().split(/s+/);
+                  const last = words.pop() || "";
+                  return <>{words.length ? `${words.join(" ")} ` : ""}<span style={{ whiteSpace: "nowrap" }}>{last}<VerifiedRounded titleAccess="Verified therapist" sx={{ fontSize: isMobile ? (isTab ? 22 : 18) : 24, color: "#1d9bf0", ml: "6px", verticalAlign: "-0.12em" }} /></span></>;
+                })()}
               </h1>
-              <VerifiedRounded titleAccess="Verified therapist" sx={{ fontSize: isMobile ? 19 : 24, color: "#1d9bf0", flexShrink: 0 }} />
             </div>
 
             {/* Specialty */}
-            <p style={{ margin: isMobile ? "0 0 4px" : "0 0 6px", fontSize: isMobile ? 10.5 : 13.5, color: "#0f3d24", fontWeight: 700, textTransform: "uppercase", letterSpacing: isMobile ? "0.8px" : "1.2px" }}>
+            <p style={{ margin: isMobile ? "0 0 4px" : "0 0 6px", fontSize: isMobile ? (isTab ? 12.5 : 10.5) : 13.5, color: "#0f3d24", fontWeight: 700, textTransform: "uppercase", letterSpacing: isMobile ? "0.8px" : "1.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {pageData.profile_type || "Therapist"}
             </p>
 
             {/* Qualification */}
             {pageData.qualification && (
-              <p style={{ margin: isMobile ? "0 0 6px" : "0 0 12px", fontSize: isMobile ? 12 : 14.5, color: "#5b6b62", fontWeight: 500, lineHeight: 1.45, fontStyle: "italic",
+              <p style={{ margin: isMobile ? "0 0 6px" : "0 0 12px", fontSize: isMobile ? (isTab ? 14 : 12) : 14.5, color: "#5b6b62", fontWeight: 500, lineHeight: 1.45, fontStyle: "italic",
                 ...(isMobile ? { display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" } : {}) }}>
                 {pageData.qualification}
               </p>
@@ -400,20 +408,22 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               {reviewCount > 0 && <span style={{ fontSize: 11.5, color: "#8a978f" }}>({reviewCount} reviews)</span>}
             </div>
 
-            {/* Quick facts line — academic byline style */}
+            {/* Quick facts line — academic byline style, always one line (the last value gets "…") */}
             {credentialFacts.length > 0 && !isMobile && (
               <div style={{
-                display: "flex", flexWrap: "wrap", gap: isMobile ? "4px 10px" : "5px 16px",
-                justifyContent: isMobile ? "center" : "flex-start", marginBottom: isMobile ? 18 : 0,
-                fontSize: 12, color: "#5b6b62", borderTop: isMobile ? "none" : "1px solid #ecefec",
-                paddingTop: isMobile ? 0 : 12,
+                display: "flex", flexWrap: "nowrap", gap: 16, minWidth: 0, overflow: "hidden", whiteSpace: "nowrap",
+                fontSize: 12, color: "#5b6b62", borderTop: "1px solid #ecefec", paddingTop: 12,
               }}>
-                {credentialFacts.map((f, i) => (
-                  <span key={f.label} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    {i > 0 && !isMobile && <span style={{ color: "#c9d1cb" }}>·</span>}
-                    <strong style={{ color: "#122019", fontWeight: 700 }}>{f.label}:</strong> {f.value}
-                  </span>
-                ))}
+                {credentialFacts.map((f, i) => {
+                  const last = i === credentialFacts.length - 1;
+                  return (
+                    <span key={f.label} style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: last ? 1 : 0, minWidth: last ? 0 : "auto" }}>
+                      {i > 0 && <span style={{ color: "#c9d1cb" }}>·</span>}
+                      <strong style={{ color: "#122019", fontWeight: 700 }}>{f.label}:</strong>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{f.value}</span>
+                    </span>
+                  );
+                })}
               </div>
             )}
 
@@ -423,13 +433,17 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
           {/* mobile: experience · languages · location as one line under the photo row */}
           {isMobile && credentialFacts.length > 0 && (
-            <div style={{ flexBasis: "100%", display: "flex", flexWrap: "wrap", gap: "4px 12px", paddingTop: 10, borderTop: "1px solid #ecefec", fontSize: 12, color: "#475569" }}>
-              {credentialFacts.map((f) => (
-                <span key={f.label} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <i className={f.label === "Experience" ? "feather-briefcase" : f.label === "Languages" ? "feather-globe" : "feather-map-pin"} style={{ color: "#16a34a", fontSize: 12 }} aria-hidden="true" />
-                  <span className="na-sr" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>{f.label}: </span>{f.value}
-                </span>
-              ))}
+            <div style={{ flexBasis: "100%", minWidth: 0, display: "flex", flexWrap: "nowrap", gap: isTab ? 18 : 12, paddingTop: 10, borderTop: "1px solid #ecefec", fontSize: isTab ? 13.5 : 12, color: "#475569", whiteSpace: "nowrap", overflow: "hidden" }}>
+              {credentialFacts.map((f, i) => {
+                const last = i === credentialFacts.length - 1;
+                return (
+                  <span key={f.label} style={{ display: "inline-flex", alignItems: "center", gap: 4, flexShrink: last ? 1 : 0, minWidth: last ? 0 : "auto" }}>
+                    <i className={f.label === "Experience" ? "feather-briefcase" : f.label === "Languages" ? "feather-globe" : "feather-map-pin"} style={{ color: "#16a34a", fontSize: isTab ? 13.5 : 12, flexShrink: 0 }} aria-hidden="true" />
+                    <span className="na-sr" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0,0,0,0)" }}>{f.label}: </span>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{f.value}</span>
+                  </span>
+                );
+              })}
             </div>
           )}
           {isMobile && <OfferChip offers={offers} bookHref={bookPath(pageData)} compact />}
