@@ -381,7 +381,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               }}>
                 {/* the blue tick sits with the last word, so a long name never leaves it alone on a new line */}
                 {(() => {
-                  const words = String(pageData.user.name || "").trim().split(/s+/);
+                  const words = String(pageData.user.name || "").trim().split(/\s+/);
                   const last = words.pop() || "";
                   return <>{words.length ? `${words.join(" ")} ` : ""}<span style={{ whiteSpace: "nowrap" }}>{last}<VerifiedRounded titleAccess="Verified therapist" sx={{ fontSize: isMobile ? (isTab ? 22 : 18) : 24, color: "#1d9bf0", ml: "6px", verticalAlign: "-0.12em" }} /></span></>;
                 })()}
