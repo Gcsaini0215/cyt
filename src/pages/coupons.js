@@ -181,6 +181,46 @@ function CouponEditor({ initial, name, onClose, onSaved }) {
   );
 }
 
+// links go to the live site even when the page is opened locally
+const SITE = "https://www.chooseyourtherapist.in";
+
+/* Share box: the message is ready (offer, code, booking link with the code applied) and can be edited;
+   WhatsApp opens with it, Copy puts it on the clipboard, and phones also get the system share sheet. */
+function ShareCoupon({ code, initialText, onClose }) {
+  const [text, setText] = useState(initialText);
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => { setCanShare(typeof navigator !== "undefined" && !!navigator.share); }, []);
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const copy = async () => { if (await copyText(text)) toast.success("Message copied — paste it anywhere"); };
+  const more = async () => { try { await navigator.share({ text }); } catch (e) { /* closed the share sheet */ } };
+  return (
+    <div className="cp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="cp-modal cp-share" role="dialog" aria-modal="true" aria-labelledby="cp-share-h">
+        <div className="cp-share-h">
+          <h2 id="cp-share-h">Share <span>{code}</span></h2>
+          <button type="button" className="cp-x" onClick={onClose} aria-label="Close"><CloseRoundedIcon /></button>
+        </div>
+        <div className="cp-mb">
+          <label className="cp-l" htmlFor="cp-share-msg">Message <span>(you can edit it)</span></label>
+          <textarea id="cp-share-msg" className="cp-msg" rows={6} value={text} onChange={(e) => setText(e.target.value)} />
+          <div className="cp-share-btns">
+            <a className="cp-sbtn wa" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 12 0C5.4 0 .1 5.3.1 11.9c0 2.1.6 4.1 1.6 5.9L0 24l6.3-1.7a11.9 11.9 0 0 0 5.7 1.5c6.6 0 11.9-5.3 11.9-11.9 0-3.2-1.2-6.2-3.4-8.4zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4a9.8 9.8 0 0 1-1.5-5.2C2.2 6.5 6.6 2.1 12 2.1c2.6 0 5.1 1 6.9 2.9a9.7 9.7 0 0 1 2.9 6.9c0 5.4-4.4 9.9-9.8 9.9zm5.4-7.4c-.3-.1-1.8-.9-2-1s-.5-.1-.7.1-.8 1-1 1.2-.4.2-.7.1a8 8 0 0 1-4-3.5c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4s-1 1-1 2.4 1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3 1.8.8 2.5.8 3.4.7.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4l-.2-.1z" /></svg>
+              WhatsApp
+            </a>
+            <button type="button" className="cp-sbtn" onClick={copy}><ContentCopyRoundedIcon /> Copy message</button>
+            {canShare && <button type="button" className="cp-sbtn" onClick={more}><ShareRoundedIcon /> More apps</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve(true);
   return new Promise((resolve) => {
@@ -270,6 +310,7 @@ export default function CouponsPage() {
   const [editor, setEditor] = useState(null); // null | {} (new) | coupon
   const [confirmDel, setConfirmDel] = useState(null);
   const [addon, setAddon] = useState(null); // Coupons upgrade status
+  const [sharing, setSharing] = useState(null); // { code, text } while the share box is open
   const upgradeRef = useRef(null);
   const locked = !!addon && !addon.unlocked;
 
@@ -328,12 +369,18 @@ export default function CouponsPage() {
     setConfirmDel(null);
   };
 
-  const share = async (c) => {
+  // opens the share box: a ready message with the code + booking link (code auto-applied there)
+  const share = (c) => {
     if (!therapistInfo?._id) return toast.error("Your profile is still loading — try again in a second.");
-    const url = `${window.location.origin}/book/${therapistInfo._id}?coupon=${encodeURIComponent(c.code)}`;
-    const text = `${offerLabel(c)} on a session with me — use code ${c.code} while booking: ${url}`;
-    if (navigator.share) { try { await navigator.share({ text }); return; } catch (e) { if (e?.name === "AbortError") return; } }
-    if (await copyText(text)) toast.success("Booking link with the code copied");
+    const url = `${SITE}/book/${therapistInfo._id}?coupon=${encodeURIComponent(c.code)}`;
+    const name = therapistInfo?.user?.name || "me";
+    const text = [
+      `🎁 ${offerLabel(c)} on a therapy session with ${name}${c.title ? ` — ${c.title}` : ""}.`,
+      `Use code ${c.code} while booking${c.valid_until ? ` (valid till ${tillLabel(c.valid_until)})` : ""}.`,
+      "",
+      `Book here (the code is applied for you): ${url}`,
+    ].join("\n");
+    setSharing({ code: c.code, text });
   };
   const copyCode = async (c) => { if (await copyText(c.code)) toast.success(`${c.code} copied`); };
 
@@ -413,6 +460,8 @@ export default function CouponsPage() {
         </div>
       </div>
 
+      {sharing && <ShareCoupon key={sharing.code} code={sharing.code} initialText={sharing.text} onClose={() => setSharing(null)} />}
+
       {confirmDel && (
         <div className="cp-ov" onMouseDown={(e) => { if (e.target === e.currentTarget) setConfirmDel(null); }}>
           <div className="cp-modal sm" role="alertdialog" aria-modal="true">
@@ -469,7 +518,21 @@ const CP_CSS = `
 .cp-sw input:checked + .cp-sw-t { background: #166534; } .cp-sw input:checked + .cp-sw-t::after { transform: translateX(16px); }
 .cp-sw input:focus-visible + .cp-sw-t { outline: 2px solid #166534; outline-offset: 2px; }
 .cp-sw b { display: block; font-size: 14px; color: #0f172a; } .cp-sw small { display: block; font-size: 12.5px; color: #64748b; line-height: 1.45; margin-top: 2px; }
-.cp-sw.sm { margin: 0; align-items: center; font-size: 13px; font-weight: 700; color: #334155; }
+/* margin-right:auto keeps the On/Off switch on the left and the icons on the right (no crowding) */
+.cp-sw.sm { margin: 0 auto 0 0; padding-right: 12px; align-items: center; font-size: 13px; font-weight: 700; color: #334155; }
+.cp-share { max-width: 480px; }
+.cp-share-h { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eef2f0; }
+.cp-share-h h2 { font-family: inherit; font-size: 17px; font-weight: 800; color: #0f172a; margin: 0; }
+.cp-share-h h2 span { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 1px; color: #166534; }
+.cp-msg { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 11px; padding: 10px 12px; font-family: inherit; font-size: 14px; line-height: 1.5; color: #0f172a; resize: vertical; }
+.cp-msg:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.cp-share-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.cp-sbtn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 11px; border: 1.5px solid #cfe3d6; background: #fff;
+  color: #166534 !important; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
+.cp-sbtn svg { font-size: 18px; }
+.cp-sbtn:hover { background: #ecfdf3; }
+.cp-sbtn.wa { background: #25d366; border-color: #25d366; color: #fff !important; }
+.cp-sbtn.wa:hover { background: #1ebe5a; }
 .cp-ov { position: fixed; inset: 0; z-index: 1300; background: rgba(15, 23, 42, .5); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .cp-modal { width: 100%; max-width: 520px; max-height: calc(100vh - 32px); background: #fff; border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; font-family: Inter, system-ui, sans-serif; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
 .cp-modal.sm { max-width: 400px; }
