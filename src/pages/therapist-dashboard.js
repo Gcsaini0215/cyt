@@ -46,6 +46,7 @@ import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import RadioButtonUncheckedRoundedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import { usePager, Pager } from "../components/therapists/pager";
+import { earningOf } from "../utils/earning";
 
 /* ══════════════════════════════════════════════════════════════════
    DESIGN TOKENS — one green system, tweak here to restyle everything
@@ -889,7 +890,7 @@ export default function TherapistDashboard() {
       bookings.forEach((b) => {
         const bStatus = b.status || "New";
         const bd = safeDate(b.booking_date);
-        const amt = getNum(b.amount || b.transaction?.amount);
+        const amt = earningOf(b); // your 70% — CYT keeps 30%
         if (bd) {
           if (bd >= monthStart) monthEarnings += amt;
           else if (bd >= lastMonthStart) lastMonthEarnings += amt;
@@ -953,7 +954,7 @@ export default function TherapistDashboard() {
         if (d && d >= weekStart) {
           const k = DAY_NAMES[d.getDay()];
           weekMap[k].sessions++;
-          weekMap[k].revenue += getNum(b.transaction?.amount || b.amount);
+          weekMap[k].revenue += earningOf(b);
         }
       });
       const weeklyChart = Array.from({ length: 7 }, (_, i) => {
@@ -966,7 +967,7 @@ export default function TherapistDashboard() {
       const monthlyMap = new Map();
       for (let i = 5; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        monthlyMap.set(`${d.getFullYear()}-${d.getMonth()}`, { name: MONTH_NAMES[d.getMonth()], sessions: 0, revenue: 0 });
+        monthlyMap.set(`${d.getFullYear()}-${d.getMonth()}`, { name: MONTH_NAMES[d.getMonth()], sessions: 0, revenue: 0, clients: 0 });
       }
       bookings.forEach((b) => {
         const d = safeDate(b.booking_date);
@@ -975,9 +976,12 @@ export default function TherapistDashboard() {
         if (monthlyMap.has(key)) {
           const e = monthlyMap.get(key);
           e.sessions++;
-          e.revenue += getNum(b.transaction?.amount || b.amount);
+          e.revenue += earningOf(b);
         }
       });
+
+      // first-ever booking month of each client → new clients per month
+      firstSeen.forEach((d) => { const e = monthlyMap.get(`${d.getFullYear()}-${d.getMonth()}`); if (e) e.clients++; });
 
       const inv = bookings
         .filter((b) => b.transaction?.amount || b.amount)
@@ -988,7 +992,8 @@ export default function TherapistDashboard() {
           invoice_id: b.transaction?.transaction_id?.slice(-8) || b._id?.slice(-8),
           client_name: b.client?.name || "Unknown",
           booking_date: fmtDate(b.booking_date),
-          amount: b.transaction?.amount || b.amount,
+          amount: b.client_paid ?? (b.transaction?.amount || b.amount), // what the client paid
+          earn: earningOf(b), // your 70% of it
           status: b.transaction?.status?.name || "Success",
         }))
         .sort((a, b) => (a.status === "Success") - (b.status === "Success"));
@@ -1012,6 +1017,7 @@ export default function TherapistDashboard() {
         completionRate,
         monthGrowth,
         monthGrowthUp: monthEarnings >= lastMonthEarnings,
+        lastMonthEarnings: Math.round(lastMonthEarnings),
         monthSessions,
         lastMonthSessions,
         newClients: [...firstSeen.values()].filter((d) => d >= monthStart).length,
@@ -1169,15 +1175,16 @@ export default function TherapistDashboard() {
           <TeamBanner />
 
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
-          <div className="ov-top">
-            <NextSessionCard s={nextSession} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} onChanged={() => load(true)} />
+          {/* the Next session card shows only when a booking is coming up (no empty "No sessions booked yet" card) */}
+          <div className={`ov-top${!nextLoading && !nextSession ? " no-next" : ""}`}>
+            {(nextLoading || nextSession) && <NextSessionCard s={nextSession} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} onChanged={() => load(true)} />}
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">
-              <KpiCard label="Earnings · month" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} href="/therapists/invoices" tone="green" loading={loading} Icon={CurrencyRupeeRoundedIcon} hint="Invoices" />
-              <KpiCard label="Sessions · month" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} href="/appointments" tone="teal" loading={loading} Icon={EventAvailableRoundedIcon} hint="Sessions" />
-              <KpiCard label="New clients" value={stats.newClients} spark={weeklyData.map((d) => d.sessions)} href="/appointments" tone="gold" loading={loading} Icon={PersonAddAlt1RoundedIcon} hint="Clients" />
-              <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} Icon={StarRateRoundedIcon} hint="Reviews" />
+              <KpiCard label="Your earnings · month" short="Earnings" value={stats.monthEarnings} isCurrency trend={stats.monthGrowth} trendUp={stats.monthGrowthUp} spark={monthlyData.map((m) => m.revenue)} labels={monthlyData.map((m) => m.name)} caption="Your 70% · last 6 months" href="/therapists/payouts" tone="green" loading={loading} Icon={CurrencyRupeeRoundedIcon} hint="Your 70% · Payouts" />
+              <KpiCard label="Sessions · month" short="Sessions" value={stats.monthSessions} trend={sessionTrend} trendUp={stats.monthSessions >= stats.lastMonthSessions} spark={monthlyData.map((m) => m.sessions)} labels={monthlyData.map((m) => m.name)} caption="Sessions per month" href="/appointments" tone="teal" loading={loading} Icon={EventAvailableRoundedIcon} hint="Sessions" chart="bars" />
+              <KpiCard label="New clients" value={stats.newClients} spark={monthlyData.map((m) => m.clients || 0)} labels={monthlyData.map((m) => m.name)} caption="First-time clients per month" href="/appointments" tone="gold" loading={loading} Icon={PersonAddAlt1RoundedIcon} hint="Clients" />
+              <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} Icon={StarRateRoundedIcon} hint={myReviews.length ? "Reviews" : "Ask clients for a review"} chart="stars" rating={ratingAvg === "—" ? 0 : Number(ratingAvg)} count={myReviews.length} caption="Average client rating" />
             </div>
           </div>
 
@@ -1187,7 +1194,7 @@ export default function TherapistDashboard() {
               <WeekStrip sessions={upcomingSessions} now={clockTime} />
 
               {/* 6 — performance, with this month vs last */}
-              <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Revenue & sessions trend" disablePad>
+              <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Your earnings (70%) & sessions trend" disablePad>
                 {stats.monthGrowth && (
                   <div className="ov-compare">This month vs last: <b className={stats.monthGrowthUp ? "up" : "down"}>{stats.monthGrowth}</b> earnings · {stats.monthSessions} vs {stats.lastMonthSessions} sessions</div>
                 )}
@@ -1218,7 +1225,7 @@ export default function TherapistDashboard() {
                 <ReviewsBlock reviews={myReviews} />
               </DashCard>
 
-              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub={`${invoices.length} latest`} action={<CardLink href="/therapists/invoices" />} disablePad>
+              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub="Your 70% · of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
                 ) : invoices.length ? (
@@ -1233,7 +1240,10 @@ export default function TherapistDashboard() {
                         </Typography>
                         <Typography sx={{ fontSize: "10px", color: UI.faint, fontWeight: 600 }}>#{inv.invoice_id} · {inv.booking_date}</Typography>
                       </Box>
-                      <Typography sx={{ fontSize: "13px", fontWeight: 800, color: UI.text }}>{inr(inv.amount)}</Typography>
+                      <Box sx={{ textAlign: "right", flexShrink: 0 }}>
+                        <Typography sx={{ fontSize: "13px", fontWeight: 800, color: UI.green.main }}>{inr(inv.earn)}</Typography>
+                        <Typography sx={{ fontSize: "10px", color: UI.faint, fontWeight: 600 }}>of {inr(inv.amount)}</Typography>
+                      </Box>
                     </Box>
                   ))}
                   <Pager pg={invPg} compact />

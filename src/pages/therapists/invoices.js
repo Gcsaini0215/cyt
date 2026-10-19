@@ -5,6 +5,7 @@ import MainLayout from "../../components/therapists/main-layout";
 import { GetDashboardDataUrl, getBookings } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import { invoiceNumber, toAmount } from "../../utils/invoice-template";
+import { withNoidaCharges, hasNoidaInvoice } from "../../utils/noida-booking";
 
 const PAID = /success|paid|completed/i;
 
@@ -49,8 +50,8 @@ export default function Invoices() {
       setSince(sinceDate);
 
       const rows = bookings
-        .filter((b) => b.transaction && PAID.test(b.transaction.status?.name || ""))
-        .map(toRow)
+        .filter((b) => b.transaction && (b.source !== "noida" || hasNoidaInvoice(b)) && PAID.test(b.transaction.status?.name || ""))
+        .map((b) => toRow(withNoidaCharges(b))) // a CYT Noida session shows what the client paid CYT
         .filter((r) => !sinceDate || (r.booking_date && r.booking_date >= sinceDate))
         .sort((a, b) => (b.booking_date?.getTime() || 0) - (a.booking_date?.getTime() || 0));
       setInvoices(rows);

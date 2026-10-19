@@ -8,6 +8,7 @@ import useTherapistStore from "../store/therapistStore";
 import { fetchData } from "../utils/actions";
 import { getBookings } from "../utils/url";
 import { SESSION_STATUS } from "../utils/constant";
+import { earningOf } from "../utils/earning";
 
 /* My Schedule — four plain tabs (Bookings · Calendar · Hours · Fees) under a setup strip that
    shows your hours and fee range with one-tap Edit. Old links (?tab=today / week / availability /
@@ -44,7 +45,7 @@ const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); retur
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 const minsOf = (d) => d.getHours() * 60 + d.getMinutes();
 const inr = (n) => `₹${Math.round(Number(n) || 0).toLocaleString("en-IN")}`;
-const money = (b) => Number(b.transaction?.amount?.$numberDecimal ?? b.transaction?.amount ?? b.amount?.$numberDecimal ?? b.amount ?? 0) || 0;
+const money = (b) => earningOf(b); // your 70% of the session — CYT keeps 30%
 
 function slotsFor(avail, date) {
   const av = (avail || []).find((a) => a.day === DAYS[date.getDay()]);
@@ -111,7 +112,8 @@ export default function MySchedule() {
   useEffect(() => {
     loadBookings();
     const iv = setInterval(() => { if (!document.hidden) loadBookings(); }, 60000);
-    return () => clearInterval(iv);
+    window.addEventListener("cyt:therapist-bookings", loadBookings); // live: added / changed / removed bookings
+    return () => { clearInterval(iv); window.removeEventListener("cyt:therapist-bookings", loadBookings); };
   }, [loadBookings]);
 
   const avail = useMemo(() => therapistInfo?.availabilities || [], [therapistInfo?.availabilities]);
@@ -491,7 +493,7 @@ export default function MySchedule() {
               <span>When</span><b>{fmtWhen(new Date(picked.booking_date))}</b>
               {picked.service && <><span>Service</span><b>{picked.service}</b></>}
               {picked.format && <><span>Format</span><b>{picked.format}</b></>}
-              {money(picked) > 0 && <><span>Amount</span><b>{inr(money(picked))}</b></>}
+              {money(picked) > 0 && <><span>You earn</span><b>{inr(money(picked))}</b></>}
               {picked.client?.phone && <><span>Phone</span><a href={`tel:${picked.client.phone}`}>{picked.client.phone}</a></>}
               {picked.client?.email && <><span>Email</span><a href={`mailto:${picked.client.email}`} style={{ wordBreak: "break-all" }}>{picked.client.email}</a></>}
               {picked.notes && <><span>Notes</span><span style={{ color: "#334155", fontWeight: 500 }}>{picked.notes}</span></>}

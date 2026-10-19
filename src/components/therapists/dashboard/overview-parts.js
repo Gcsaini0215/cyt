@@ -12,6 +12,7 @@ import StopRoundedIcon from "@mui/icons-material/StopRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
+import { earningOf } from "../../../utils/earning";
 
 /* Pieces of the therapist dashboard Overview (2026-10 redesign): a slim "today" bar, KPI cards
    with sparklines, a big next-session card, a 7-day strip and a to-do card. Plain CSS (OV_CSS),
@@ -85,27 +86,81 @@ export function KpiHead({ since, savingSince, onChangeSince }) {
 }
 
 /* ── 2. KPI card with a sparkline ── */
-function Sparkline({ data = [], color }) {
+// area sparkline: soft gradient fill under the line, a dot on the latest point
+function Sparkline({ data = [], color, labels, fmt = (v) => v }) {
+  const id = `ovg${React.useId().replace(/:/g, "")}`; // same on the server and in the browser
   const pts = data.map(Number).filter((n) => Number.isFinite(n));
   if (pts.length < 2) return null;
   const max = Math.max(...pts, 1), w = 100, h = 28;
-  const d = pts.map((v, i) => `${(i / (pts.length - 1)) * w},${h - (v / max) * (h - 4) - 2}`).join(" ");
+  const xy = pts.map((v, i) => [(i / (pts.length - 1)) * w, h - (v / max) * (h - 5) - 2.5]);
+  const line = xy.map(([x, y]) => `${x},${y}`).join(" ");
+  const [lx, ly] = xy[xy.length - 1];
   return (
-    <svg className="ov-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
-      <polyline points={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-    </svg>
+    <div className="ov-spark-wrap">
+      <div className="ov-spark-box">
+      <svg className="ov-spark" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity=".28" />
+            <stop offset="100%" stopColor={color} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <polygon points={`0,${h} ${line} ${w},${h}`} fill={`url(#${id})`} />
+        <polyline points={line} fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <i className="ov-spark-dot" style={{ left: `${lx}%`, top: `${(ly / h) * 100}%`, background: color }} />
+      <em className="ov-spark-val" style={{ top: `${(ly / h) * 100}%` }}>{fmt(pts[pts.length - 1])}</em>
+      </div>
+      {labels?.length === pts.length && <div className="ov-axis">{labels.map((l, i) => <span key={i} className={i === labels.length - 1 ? "on" : ""}>{l}</span>)}</div>}
+    </div>
   );
 }
-export function KpiCard({ label, value, isCurrency, trend, trendUp, spark, href, tone = "green", loading, Icon, hint }) {
+// mini bars (e.g. sessions per month); the latest bar is solid
+function MiniBars({ data = [], color, labels }) {
+  const pts = data.map(Number).filter((n) => Number.isFinite(n));
+  if (!pts.length) return null;
+  const max = Math.max(...pts, 1);
+  return (
+    <div className="ov-bars-wrap" aria-hidden="true">
+      <div className="ov-bars">
+        {pts.map((v, i) => (
+          <span key={i} className="ov-mbar">
+            <em>{v || ""}</em>
+            <span className="ov-mbar-track"><i style={{ height: `${Math.max(6, (v / max) * 100)}%`, background: color, opacity: i === pts.length - 1 ? 1 : 0.32 }} /></span>
+          </span>
+        ))}
+      </div>
+      {labels?.length === pts.length && <div className="ov-axis bars">{labels.map((l, i) => <span key={i} className={i === labels.length - 1 ? "on" : ""}>{l}</span>)}</div>}
+    </div>
+  );
+}
+// five stars filled to the average rating
+function Stars({ value = 0, count = 0 }) {
+  const v = Math.max(0, Math.min(5, Number(value) || 0));
+  return (
+    <div className="ov-stars-wrap" aria-hidden="true">
+      <div className="ov-stars">
+        {[0, 1, 2, 3, 4].map((i) => <span key={i}><i style={{ width: `${Math.max(0, Math.min(1, v - i)) * 100}%` }}>★</i>★</span>)}
+      </div>
+      <div className="ov-axis stars"><span className="on">{count ? `${v.toFixed(1)} out of 5 · ${count} review${count === 1 ? "" : "s"}` : "No reviews yet — ask your clients after a session"}</span></div>
+    </div>
+  );
+}
+// chart: "area" (default) | "bars" | "stars" (stars uses `rating` + `count`); labels = one per point (e.g. months);
+// caption = what the graph shows ("Last 6 months")
+export function KpiCard({ label, short, value, isCurrency, trend, trendUp, spark, href, tone = "green", loading, Icon, hint, chart = "area", rating, count, labels, caption }) {
   const body = (
     <>
       <div className="ov-kpi-top">
         {Icon && <span className="ov-kpi-ic"><Icon /></span>}
-        <span className="ov-kpi-label">{label}</span>
+        <span className="ov-kpi-label"><span className="full">{label}</span><span className="short">{short || label}</span></span>
         {trend && <span className={`ov-trend ${trendUp ? "up" : "down"}`}>{trendUp ? "▲" : "▼"} {trend}</span>}
       </div>
       <div className="ov-kpi-val">{loading ? "—" : isCurrency ? inr(value) : value}</div>
-      <Sparkline data={spark} color={`var(--ov-${tone})`} />
+      {caption && <span className="ov-kpi-cap">{caption}</span>}
+      {chart === "stars" ? <Stars value={rating} count={count} />
+        : chart === "bars" ? <MiniBars data={spark} color={`var(--ov-${tone})`} labels={labels} />
+        : <Sparkline data={spark} color={`var(--ov-${tone})`} labels={labels} fmt={isCurrency ? inr : (v) => v} />}
       {href && hint && <span className="ov-kpi-hint">{hint} →</span>}
     </>
   );
@@ -163,7 +218,7 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
   const details = [
     ["Service", clean(b.service) || "Session"],
     ["Mode", modeLabel(b)],
-    paid ? ["Paid", inr(paid)] : null,
+    paid ? ["You earn", `${inr(earningOf(b))} · client paid ${inr(paid)}`] : null,
     forOther ? ["Session for", forOther] : about ? ["Client", about] : null,
   ].filter(Boolean);
   return (
@@ -259,6 +314,7 @@ export function WeekStrip({ sessions = [], now }) {
 
 /* ── 5. to-do ── */
 export function TodoCard({ items = [], pct }) {
+  const [all, setAll] = React.useState(false); // phones show the first 3
   return (
     <div className="ov-card ov-todo">
       <div className="ov-card-h">
@@ -267,7 +323,8 @@ export function TodoCard({ items = [], pct }) {
       </div>
       {typeof pct === "number" && <div className="ov-bar"><i style={{ width: `${pct}%` }} /></div>}
       {items.length ? (
-        <ul>
+        <>
+        <ul className={all ? "all" : ""}>
           {items.map((t) => (
             <li key={t.key || t.label} className={t.tone || ""}>
               <span>{t.tone === "done" && <i className="ov-todo-ok" aria-hidden="true">✓</i>}{t.label}</span>
@@ -280,6 +337,8 @@ export function TodoCard({ items = [], pct }) {
             </li>
           ))}
         </ul>
+        {items.length > 3 && <button type="button" className="ov-todo-more" onClick={() => setAll((x) => !x)}>{all ? "Show less" : `Show ${items.length - 3} more`}</button>}
+        </>
       ) : <p className="ov-allset">✓ All set — nothing pending.</p>}
     </div>
   );
@@ -316,6 +375,42 @@ export const OV_CSS = `
 
 .ov-top { display: grid; gap: 14px; align-items: start; grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "next todo" "kpis todo"; grid-template-rows: auto 1fr; margin-bottom: 14px; }
 .ov-top > .ov-todo { align-self: stretch; }
+.ov-top.no-next { grid-template-areas: "kpis todo"; grid-template-rows: auto; }
+.ov-spark-box { position: relative; }
+.ov-spark-dot { position: absolute; width: 7px; height: 7px; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #fff, 0 0 0 4px rgba(15,23,42,.08); }
+.ov-bars { display: flex; align-items: flex-end; gap: 5px; height: 28px; }
+.ov-mbar { flex: 1; height: 100%; display: flex; flex-direction: column; min-width: 0; }
+.ov-mbar-track { flex: 1; position: relative; min-height: 0; }
+.ov-mbar-track i { position: absolute; left: 0; right: 0; bottom: 0; border-radius: 4px 4px 2px 2px; min-height: 3px; }
+.ov-mbar em { display: none; font-style: normal; font-size: 11px; font-weight: 800; color: #475569; text-align: center; line-height: 1; margin-bottom: 3px; }
+.ov-spark-val, .ov-axis, .ov-kpi-cap { display: none; }
+.ov-kpi-label .short { display: none; }
+.ov-stars { display: flex; gap: 3px; font-size: 20px; line-height: 1; color: #f1e3c4; }
+.ov-stars span { position: relative; display: inline-block; }
+.ov-stars i { position: absolute; left: 0; top: 0; overflow: hidden; color: #f59e0b; font-style: normal; white-space: nowrap; }
+/* without the Next session card (desktop): the four KPIs go 2 × 2 and the To-do list scrolls within the same height,
+   so no empty space opens up beside it */
+@media (min-width: 900px) {
+  .ov-top.no-next .ov-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ov-top.no-next > .ov-todo { height: 0; min-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+  .ov-top.no-next > .ov-todo ul { overflow-y: auto; min-height: 0; flex: 1; padding-right: 2px; scrollbar-width: thin; }
+  /* the bigger cards: the chart is the feature — taller, filling the card, and it says what it shows */
+  .ov-top.no-next .ov-kpi-cap { display: block; font-size: 11.5px; font-weight: 700; color: #94a3b8; letter-spacing: .3px; text-transform: uppercase; margin-top: -2px; }
+  .ov-top.no-next .ov-spark-val { display: block; position: absolute; right: 0; transform: translateY(-160%); font-style: normal; font-size: 11.5px; font-weight: 800; color: #0f172a; background: #fff; border: 1px solid rgba(15,23,42,.1); border-radius: 7px; padding: 1px 6px; white-space: nowrap; box-shadow: 0 2px 6px -2px rgba(15,23,42,.15); }
+  .ov-top.no-next .ov-axis { display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; font-weight: 600; color: #94a3b8; }
+  .ov-top.no-next .ov-axis.bars { gap: 8px; } .ov-top.no-next .ov-axis.bars span { flex: 1; text-align: center; }
+  .ov-top.no-next .ov-axis span.on { color: #334155; font-weight: 800; }
+  .ov-top.no-next .ov-axis.stars { justify-content: flex-start; margin-top: 2px; }
+  .ov-top.no-next .ov-axis.stars span.on { color: #64748b; font-weight: 600; }
+  .ov-top.no-next .ov-mbar em { display: block; }
+  .ov-top.no-next .ov-kpi > .ov-bars-wrap, .ov-top.no-next .ov-kpi > .ov-stars-wrap { margin-top: auto; }
+  .ov-top.no-next .ov-kpi { padding: 16px 18px 12px; gap: 6px; }
+  .ov-top.no-next .ov-kpi-val { font-size: 30px; }
+  .ov-top.no-next .ov-spark { height: 64px; }
+  .ov-top.no-next .ov-bars { height: 64px; gap: 8px; }
+  .ov-top.no-next .ov-stars { font-size: 34px; gap: 6px; margin: 6px 0 4px; }
+  .ov-top.no-next .ov-kpi > .ov-spark-wrap, .ov-top.no-next .ov-kpi > .ov-bars, .ov-top.no-next .ov-kpi > .ov-stars { margin-top: auto; }
+}
 .ov-top > .ov-next { grid-area: next; } .ov-top > .ov-todo { grid-area: todo; } .ov-top > .ov-kpis { grid-area: kpis; } .ov-top > .ov-kpi-head { grid-area: kpihead; }
 .ov-hello-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ov-refresh-ic { display: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #e4ece7; background: #fff; color: #166534; font-size: 17px; font-weight: 800; cursor: pointer; flex-shrink: 0; place-items: center; padding: 0; }
@@ -391,11 +486,12 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 .ov-day.today { border-color: #166534; box-shadow: inset 0 0 0 1px #166534; }
 
 .ov-todo ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.ov-todo li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #f8fafc; border: 1px solid #eef2f6; font-size: 13.5px; color: #334155; }
+.ov-todo li { margin: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #f8fafc; border: 1px solid #eef2f6; font-size: 13.5px; color: #334155; }
 .ov-todo li.warn { background: #fffbeb; border-color: #fde68a; }
 .ov-todo li.bad { background: #fef2f2; border-color: #fecaca; }
 .ov-todo li.done { background: #f0fdf4; border-color: #bbf7d0; }
 .ov-todo li a { flex-shrink: 0; font-size: 12.5px; font-weight: 800; color: #166534; text-decoration: none; }
+.ov-todo-more { display: none; width: 100%; margin-top: 8px; border: 1px dashed #cbd5e1; background: #fff; color: #166534; font-size: 13px; font-weight: 800; border-radius: 10px; padding: 8px; cursor: pointer; font-family: inherit; }
 .ov-todo-acts { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .ov-todo-acts button { border: 1px solid #cfe3d6; background: #fff; color: #166534; font-weight: 800; font-size: 12px; font-family: inherit; border-radius: 8px; padding: 4px 9px; cursor: pointer; }
 .ov-todo-acts button:hover { background: #e7f6ec; }
@@ -411,6 +507,7 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
 @media (max-width: 1199px) { .ov-top { grid-template-columns: minmax(0, 1fr) 300px; } }
 @media (max-width: 899px) {
   .ov-top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "next" "kpis" "todo"; }
+  .ov-top.no-next { grid-template-areas: "kpis" "todo"; }
   .ov-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ov-today-side { width: 100%; }
 }
@@ -423,6 +520,7 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
   .ov-next-inline, .ov-today-side { display: none !important; }
   .ov-refresh-ic { display: grid; }
   .ov-top { grid-template-areas: "next" "kpihead" "kpis" "todo"; gap: 12px; }
+  .ov-top.no-next { grid-template-areas: "kpihead" "kpis" "todo"; }
   .ov-kpi-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: -4px; }
   .ov-kpi-head b { font-size: 15px; font-weight: 800; color: #0f172a; }
   .ov-kpis { gap: 10px; }
@@ -444,6 +542,32 @@ button.ov-btn { cursor: pointer; font-family: inherit; }
   .ov-week-row { grid-template-columns: repeat(7, 64px); overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
   .ov-next-name { font-size: 17px; }
   .ov-btn { flex: 1; }
+}
+/* ── phones: tidy KPI cards (labelled mini graphs) and a short To-do ── */
+@media (max-width: 767px) {
+  .ov-kpis { grid-auto-rows: 1fr; }
+  .ov-kpi { padding: 12px 12px 10px !important; gap: 4px; }
+  .ov-kpi-top { flex-wrap: nowrap !important; gap: 6px; }
+  .ov-kpi-top { align-items: flex-start !important; }
+  .ov-kpi-ic { display: none !important; }
+  .ov-kpi-label .full { display: none; } .ov-kpi-label .short { display: inline; }
+  .ov-kpi-label { white-space: normal !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; font-size: 12px; line-height: 1.3; }
+  .ov-trend { font-size: 10.5px !important; padding: 1px 6px !important; flex-shrink: 0; }
+  .ov-kpi-val { font-size: 22px !important; line-height: 1.15; }
+  .ov-kpi-cap { display: block; font-size: 9.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: #94a3b8; line-height: 1.35; }
+
+  .ov-kpi > .ov-spark-wrap, .ov-kpi > .ov-bars-wrap, .ov-kpi > .ov-stars-wrap { margin-top: auto; }
+  .ov-spark { height: 40px; }
+  .ov-bars { height: 40px; gap: 4px; }
+  .ov-axis { display: flex; justify-content: space-between; margin-top: 8px; font-size: 10px; font-weight: 600; color: #94a3b8; }
+  .ov-axis span:not(:first-child):not(:last-child) { display: none; }
+  .ov-axis span.on { color: #334155; font-weight: 800; }
+  .ov-axis.stars span { display: block !important; font-size: 10.5px; line-height: 1.35; white-space: normal; color: #64748b; font-weight: 600; }
+  .ov-stars { font-size: 19px; gap: 2px; }
+  .ov-kpi-hint { display: none; }
+  .ov-todo ul:not(.all) li:nth-child(n+4) { display: none; }
+  .ov-todo-more { display: block; }
+  .ov-todo li { padding: 10px 12px; font-size: 13.5px; }
 }
 @media (prefers-reduced-motion: reduce) { .ov-join.live, .ov-refresh .spin, .ov-skel { animation: none; } a.ov-kpi:hover { transform: none; } }
 /* ── Next session: the dashboard's hero card — solid pastel mint, compact left / right split ── */

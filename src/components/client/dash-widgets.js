@@ -12,6 +12,7 @@ import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import TipsAndUpdatesRoundedIcon from "@mui/icons-material/TipsAndUpdatesRounded";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
+import { withNoidaCharges, hasNoidaInvoice } from "../../utils/noida-booking";
 
 /* Small everyday widgets for the client home: tip of the day, journey stats, mood check-in,
    a one-minute breathing exercise and recent sessions. */
@@ -192,7 +193,8 @@ export function RecentSessions({ bookings, now }) {
   return (
     <div className="ch-card dw-recent">
       <div className="dw-recent-h"><h3>Recent sessions</h3><Link href="/client/my-bookings">All →</Link></div>
-      {past.map((b) => {
+      {past.map((raw) => {
+        const b = withNoidaCharges(raw);
         const photo = therapistPhoto(b);
         const name = therapistName(b);
         const amount = Number(b.transaction?.amount ?? b.amount?.$numberDecimal ?? b.amount) || 0;
@@ -200,10 +202,12 @@ export function RecentSessions({ bookings, now }) {
           <div key={b._id} className="dw-row">
             <span className="dw-av">{photo ? <img src={photo} alt="" /> : name.charAt(0)}</span>
             <div className="dw-row-txt"><b>{name}</b><span>{fmtWhen(b.booking_date)}{amount ? ` · ₹${amount.toLocaleString("en-IN")}` : ""}</span></div>
+            {(b.source !== "noida" || hasNoidaInvoice(b)) && (
             <button type="button" className="dw-ic" title="Invoice" aria-label="Download invoice"
               onClick={() => setTicket(b)}>
               <ReceiptLongRoundedIcon />
             </button>
+            )}
             <Link href={bookAgainPath(b, nextSameSlot(b, now))} className="dw-ic go" title="Book again" aria-label={`Book again with ${name}`}><ArrowForwardRoundedIcon /></Link>
           </div>
         );

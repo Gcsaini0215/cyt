@@ -1801,6 +1801,9 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
       setError("Please enter a valid 10-digit phone number."); return;
     }
     if (!effectiveName?.trim()) { setError("Name is required."); return; }
+    if (bookingType === "new" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((form.email || "").trim())) {
+      setError("Please enter your email — it's your login to see this booking."); return;
+    }
     setStep(skipSession ? 3 : 2);
   };
   const goBackFromPay = () => {
@@ -3760,7 +3763,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
                                 <input className="na-inp" value={form.phone} onChange={e => set("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit mobile" type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={10} />{phoneHint}
                               </div>
                               <div>
-                                <label className="na-lbl">Email <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(optional)</span></label>
+                                <label className="na-lbl">Email * <span style={{ fontWeight: 400, textTransform: "none", color: "#64748b" }}>(your login to see this booking)</span></label>
                                 <input className="na-inp" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" type="email" autoComplete="email" inputMode="email" autoCapitalize="none" enterKeyHint="next" />{emailHint}
                               </div>
                             </div>

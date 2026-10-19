@@ -12,6 +12,7 @@ import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
+import { withNoidaCharges } from "../../utils/noida-booking";
 
 /* One booking as the client sees it: who/when, a step tracker (Booked → Paid → Confirmed →
    Join → Done → Review) and the one action that matters right now. */
@@ -74,7 +75,8 @@ export function BookingSteps({ state }) {
   );
 }
 
-export default function SessionCard({ b, now, compact }) {
+export default function SessionCard({ b: raw, now, compact }) {
+  const b = withNoidaCharges(raw); // a CYT Noida session shows what the client paid
   const [ticket, setTicket] = React.useState(false);
   const st = bookingState(b, now);
   const photo = therapistPhoto(b);
@@ -117,7 +119,7 @@ export default function SessionCard({ b, now, compact }) {
       <div className="csc-acts">
         {action}
         {(st.done || st.cancelled || st.w?.after) && (
-          <Link href={therapistLink(b)} className="csc-btn soft"><ReplayRoundedIcon /> Book again</Link>
+          <Link href={b.source === "noida" ? "/noida-appointment" : therapistLink(b)} className="csc-btn soft"><ReplayRoundedIcon /> Book again</Link>
         )}
         {!compact && amount > 0 && st.paid && (
           <button type="button" className="csc-btn ghost" onClick={() => setTicket(true)}>

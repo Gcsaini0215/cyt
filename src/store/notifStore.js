@@ -80,7 +80,7 @@ const useNotifStore = create((set, get) => ({
     set((s) => (s.items.some((x) => x._id === n._id) ? s : { items: [n, ...s.items].slice(0, 60), unread: s.unread + (n.read ? 0 : 1) }));
     get()._toast([n]);
     // something happened to a booking → open pages (Appointments) re-read it without a refresh
-    if (typeof window !== "undefined" && ["booking", "joined", "cancelled", "session"].includes(n.type)) window.dispatchEvent(new Event("cyt:therapist-bookings"));
+    if (typeof window !== "undefined" && ["booking", "joined", "cancelled", "session", "payout"].includes(n.type)) window.dispatchEvent(new Event("cyt:therapist-bookings"));
   },
 
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t._id !== id) })),
@@ -118,6 +118,8 @@ function open() {
     useNotifStore.getState().fetch({ toast: true });
   });
   es.addEventListener("notif", (e) => { try { useNotifStore.getState().receive(JSON.parse(e.data)); } catch (err) { /* bad frame */ } });
+  // a booking was added / changed / removed (e.g. by the CYT Noida desk) → open pages re-read their list now
+  es.addEventListener("bookings", () => { window.dispatchEvent(new Event("cyt:therapist-bookings")); });
   // read on another tab / device → keep this badge in step
   es.addEventListener("read", () => { useNotifStore.getState().fetch(); });
   es.onerror = () => {

@@ -26,6 +26,7 @@ import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
 import { sessionWindow, opensAtText } from "../../../utils/session-window";
 import { SESSION_STATUS } from "../../../utils/constant";
 import SessionTicket from "../../client/session-ticket";
+import { withNoidaCharges, hasNoidaInvoice } from "../../../utils/noida-booking";
 import useTherapistStore from "../../../store/therapistStore";
 import { usePager, Pager } from "../pager";
 import { useAssessmentMap, AssessmentChips, sessionSplit } from "../booking-assessments";
@@ -177,7 +178,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
           const known = new Set(listRef.current.map((a) => a._id));
           const fresh = r.data.filter((a) => !known.has(a._id));
           setAppointments(r.data);
-          setSelected((s) => (s ? r.data.find((x) => x._id === s._id) || s : s)); // open drawer shows the latest too
+          setSelected((s) => (s ? r.data.find((x) => x._id === s._id) || null : s)); // open drawer shows the latest too (closes if the booking was removed)
           if (fresh.length && known.size) {
             setNewCount((c) => c + fresh.length);
             setIsRinging(true);
@@ -420,7 +421,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <td className="when">{d ? <><b>{fmtTime(d)}</b><span>{fmtDay(d)}</span></> : "—"}</td>
                     <td><b>{p.name}</b>{p.forOther && <span className="sub">for {p.relation || "someone"} · by {p.bookedBy}</span>}</td>
                     <td>{[p.age ? `${p.age} yrs` : "", p.gender].filter(Boolean).join(" · ") || "—"}</td>
-                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}</span>{a.assessments?.length > 0 && <div style={{ marginTop: 4 }}><AssessmentChips b={a} map={amap} compact /></div>}</td>
+                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}{a.source === "noida" ? " · CYT Noida" : ""}</span>{a.assessments?.length > 0 && <div style={{ marginTop: 4 }}><AssessmentChips b={a} map={amap} compact /></div>}</td>
                     <td className="concern">{cleanText(a.notes) || "—"}</td>
                     <td><span className={`apx-st ${st.key}`}>{st.label}</span></td>
                     <td className="acts" onClick={(e) => e.stopPropagation()}><SessionButton a={a} /></td>
@@ -460,6 +461,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       </div>
                       <div className="apx-chips">
                         <span className={`apx-st apx-st-inline ${st.key}`}>{st.label}</span>
+                        {a.source === "noida" && <span style={{ background: "#fdf3dc", color: "#8a5a00", fontWeight: 700, border: "1px solid #f1d58f" }}>CYT Noida</span>}
                         {a.service && <span>{a.service}</span>}
                         <span>{/offline|in-person|person/i.test(a.format || "") ? <PersonPinCircleRoundedIcon /> : <VideocamRoundedIcon />}{a.format || "Online"}</span>
                         {cleanText(a.session_type) && <span>{a.session_type}</span>}
@@ -484,7 +486,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
       {shown.length > 0 && <Pager pg={pg} noun="sessions" />}
 
       {selected && (() => {
-        const a = selected;
+        const a = withNoidaCharges(selected);
         const p = personOf(a);
         const d = safeDate(a.booking_date);
         const st = stOf(a.status);
@@ -510,7 +512,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
               </div>
               <div className="apx-dr-tabs">
                 <button type="button" className={detailTab === "details" ? "on" : ""} onClick={() => setDetailTab("details")}>Details</button>
-                <button type="button" className={detailTab === "invoice" ? "on" : ""} onClick={() => setDetailTab("invoice")}>Invoice</button>
+                {(a.source !== "noida" || hasNoidaInvoice(a)) && <button type="button" className={detailTab === "invoice" ? "on" : ""} onClick={() => setDetailTab("invoice")}>Invoice</button>}
               </div>
 
               <div className="apx-dr-body">
@@ -520,6 +522,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       <div><span>Date</span><b>{d ? fmtFull(d) : "—"}</b></div>
                       <div><span>Time</span><b>{d ? fmtTime(d) : "—"}</b></div>
                       <div><span>Mode</span><b>{a.format || "Online"}</b></div>
+                      {a.source === "noida" && <div><span>Where</span><b>CYT Noida Centre, Sector 51</b></div>}
                     </div>
 
                     <section className="apx-sec">
@@ -564,7 +567,12 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <section className="apx-sec">
                       <h3>Payment</h3>
                       <dl>
-                        <div><dt>Amount</dt><dd>{amount != null && amount !== "" ? inr(amount) : "—"}</dd></div>
+                        <div><dt>{a.source === "noida" ? "Client paid" : "Amount"}</dt><dd>{amount != null && amount !== "" ? inr(amount) : "—"}</dd></div>
+                        {a.therapist_share != null && a.status !== SESSION_STATUS.CANCELED && <div><dt>You earn ({a.share_pct || 70}%)</dt><dd style={{ color: "#166534", fontWeight: 800 }}>{inr(a.therapist_share)}</dd></div>}
+                        {a.platform_share != null && a.status !== SESSION_STATUS.CANCELED && <div><dt>CYT ({100 - (a.share_pct || 70)}%)</dt><dd>{inr(a.platform_share)}</dd></div>}
+                        {a.source === "noida" && num(a.noida_fee) > 0 && <div><dt>Session fee</dt><dd>{inr(num(amount) - num(a.noida_fee))}</dd></div>}
+                        {a.source === "noida" && num(a.noida_fee) > 0 && <div><dt>Platform fee</dt><dd>{inr(a.noida_fee)}</dd></div>}
+                        {a.source === "noida" && num(a.noida_discount) > 0 && <div><dt>Discount</dt><dd>− {inr(a.noida_discount)}</dd></div>}
                         {a.assessments?.length > 0 && (() => { const sp = sessionSplit(a, amount); return <>
                           <div><dt>Session fee</dt><dd>{inr(sp.session)}</dd></div>
                           {sp.lines.map((l) => <div key={l.short}><dt>{l.short} assessment</dt><dd>{inr(l.fee)}</dd></div>)}
@@ -574,6 +582,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                         {paidAt && <div><dt>Paid on</dt><dd>{fmtDay(paidAt)}, {fmtTime(paidAt)}</dd></div>}
                         {a.transaction?.transaction_id && <div><dt>Transaction</dt><dd className="mono">{a.transaction.transaction_id}</dd></div>}
                       </dl>
+                      {a.source === "noida" && <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "#64748b", lineHeight: 1.5 }}>Booked at the CYT Noida centre — the client paid CYT; your 70% comes to you as a payout once the session is done. To change the time, ask the Noida desk.</p>}
                     </section>
                   </>
                 ) : (
@@ -600,12 +609,12 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
               {detailTab === "details" && (
                 <div className="apx-dr-foot">
                   <SessionButton a={a} big />
-                  {a.status === SESSION_STATUS.NEW && (
+                  {a.status === SESSION_STATUS.NEW && a.source !== "noida" && (
                     <button type="button" className="apx-btn soft big" onClick={() => setRescheduling({ id: a._id, name: p.name, date: a.booking_date, meet: !!a.meet_link })}>
                       <EventRepeatRoundedIcon /> Reschedule
                     </button>
                   )}
-                  <button type="button" className="apx-btn soft big" onClick={() => setDetailTab("invoice")}><ReceiptLongRoundedIcon /> Invoice</button>
+                  {(a.source !== "noida" || hasNoidaInvoice(a)) && <button type="button" className="apx-btn soft big" onClick={() => setDetailTab("invoice")}><ReceiptLongRoundedIcon /> Invoice</button>}
                 </div>
               )}
             </aside>

@@ -59,7 +59,7 @@ export default function PerformanceChart({ weeklyData = [], monthlyData = [] }) 
         <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
           <Box>
             <Typography sx={{ fontSize: "9px", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px", mb: 0.3 }}>
-              {period === 0 ? "Week Revenue" : "6-Mo Revenue"}
+              {period === 0 ? "Your 70% · week" : "Your 70% · 6 mo"}
             </Typography>
             <Typography sx={{ fontSize: { xs: "18px", md: "22px" }, fontWeight: 900, color: "#1b5e20", lineHeight: 1, letterSpacing: "-0.5px" }}>
               ₹{totalRev.toLocaleString("en-IN")}
@@ -101,7 +101,7 @@ export default function PerformanceChart({ weeklyData = [], monthlyData = [] }) 
           {/* metric chips */}
           <Box sx={{ display: "flex", gap: 0.6 }}>
             {[
-              { key: "revenue",  label: "Revenue",  color: "#166534", bg: "#f0fdf4" },
+              { key: "revenue",  label: "Earnings",  color: "#166534", bg: "#f0fdf4" },
               { key: "sessions", label: "Sessions", color: "#0ea5e9", bg: "#f0f9ff" },
             ].map(m => (
               <Chip key={m.key} label={m.label} size="small" onClick={() => setMetric(m.key)}

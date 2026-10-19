@@ -29,12 +29,22 @@ export default function Payouts() {
       else { setData({ payouts: [], totals: {} }); setError("Couldn't load your payouts — please refresh in a moment."); }
       setAcct(a.status === "fulfilled" && a.value?.data ? a.value.data : {});
     })();
-    return () => { alive = false; };
+    // live: a payout initiated / paid / changed by the accounts team (or a session completed) shows at once
+    const refresh = () => {
+      fetchById(commsPayoutsUrl).then((r) => { if (alive && r?.status) { setData(r.data); setError(""); } }).catch(() => {});
+    };
+    const onVisible = () => { if (!document.hidden) refresh(); };
+    window.addEventListener("cyt:therapist-bookings", refresh);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { alive = false; window.removeEventListener("cyt:therapist-bookings", refresh); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
 
   const t = data?.totals || {};
   const list = data?.payouts || [];
-  const pg = usePager(list, 10);
+  const pg = usePager(list, 5);
+  const earnings = data?.earnings || [];
+  const epg = usePager(earnings, 8);
+  const pct = t.pct || 70;
   const hasBank = !!acct?.ac_number, hasUpi = !!acct?.upi;
 
   return (
@@ -45,7 +55,7 @@ export default function Payouts() {
         <div className="pt-head">
           <div>
             <h1>Payouts</h1>
-            <p>Money the CYT accounts team has sent you for your sessions, with reference numbers.</p>
+            <p>Your {pct}% of every session a client pays for (CYT keeps {100 - pct}%), and the payouts sent to you.</p>
           </div>
           <Link href="/therapists/help?kind=question" className="pt-btn outline">Question about a payout?</Link>
         </div>
@@ -53,12 +63,48 @@ export default function Payouts() {
         {error && <div className="pt-err">{error}</div>}
 
         <div className="pt-stats">
+          <div className="pt-stat"><small>Earned · your {pct}%</small><b>{data ? inr(t.earned) : "—"}</b><span>From completed sessions</span></div>
+          <div className="pt-stat"><small>Waiting for payout</small><b>{data ? inr(t.awaiting) : "—"}</b><span>Sessions done, payout not started</span></div>
           <div className="pt-stat"><small>Paid out · all time</small><b>{data ? inr(t.paid) : "—"}</b><span>{t.lastPaidAt ? `Last payout ${day(t.lastPaidAt)}` : "No payouts yet"}</span></div>
           <div className="pt-stat"><small>This financial year</small><b>{data ? inr(t.thisYear) : "—"}</b><span>Since 1 April</span></div>
           <div className="pt-stat"><small>Being processed</small><b>{data ? inr(t.pending) : "—"}</b><span>Recorded, not yet sent</span></div>
         </div>
 
         <div className="po-grid">
+          <div>
+          <div className="pt-card" style={{ marginBottom: 14 }}>
+            <div className="pt-card-h"><h2>Earnings by session</h2><span className="pt-chip mut">{earnings.length}</span></div>
+            {!data ? [1, 2, 3].map((i) => <div key={i} className="pt-skel" />) : earnings.length ? (
+              <>
+              <div className="po-tbl-wrap">
+                <table className="po-tbl">
+                  <thead><tr><th>Session</th><th>Client</th><th className="r">Client paid</th><th className="r">CYT {100 - pct}%</th><th className="r">You earn</th><th>Payout</th></tr></thead>
+                  <tbody>
+                    {epg.items.map((e) => {
+                      const st = e.payout ? (e.payout.status === "paid" ? ["ok", "Paid"] : ["warn", "Processing"]) : e.status === "Completed" ? ["due", "Waiting"] : ["mut", "Session upcoming"];
+                      return (
+                        <tr key={e._id}>
+                          <td><b>{day(e.sessionAt)}</b><small>{e.source === "noida" ? "CYT Noida" : e.format || "Online"}</small></td>
+                          <td>{e.client}<small>{e.service}</small></td>
+                          <td className="r">{inr(e.paid)}</td>
+                          <td className="r mut">− {inr(e.platform)}</td>
+                          <td className="r"><b className="earn">{inr(e.share)}</b></td>
+                          <td><span className={`pt-chip ${st[0]}`}>{st[1]}</span>{e.payout?.at && <small>{shortDay(e.payout.at)}</small>}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              {epg.pages > 1 ? <Pager pg={epg} noun="sessions" scrollTo={false} /> : <div className="po-count">Showing all {epg.total} session{epg.total === 1 ? "" : "s"}</div>}
+              </>
+            ) : (
+              <div className="pt-empty">
+                <b>No paid sessions yet</b>
+                When a client pays for a session with you, it shows here with your {pct}% share.
+              </div>
+            )}
+          </div>
           <div className="pt-card">
             <div className="pt-card-h"><h2>Payout history</h2><span className="pt-chip mut">{list.length}</span></div>
             {!data ? [1, 2, 3].map((i) => <div key={i} className="pt-skel" />) : list.length ? (
@@ -81,7 +127,7 @@ export default function Payouts() {
                   </li>
                 ))}
               </ul>
-              <Pager pg={pg} noun="payouts" scrollTo={false} />
+              {pg.pages > 1 ? <Pager pg={pg} noun="payouts" scrollTo={false} /> : <div className="po-count">Showing all {pg.total} payout{pg.total === 1 ? "" : "s"}</div>}
               </>
             ) : (
               <div className="pt-empty">
@@ -89,6 +135,7 @@ export default function Payouts() {
                 When the accounts team sends you a payout, it appears here with the amount, the sessions it covers and the bank / UPI reference.
               </div>
             )}
+          </div>
           </div>
 
           <div>
@@ -128,6 +175,17 @@ const PO_CSS = `
 .po-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; color: #64748b; margin-top: 4px; }
 .po-ref { font-variant-numeric: tabular-nums; color: #334155; font-weight: 600; }
 .po-note { font-size: 12.5px; color: #475569; margin: 6px 0 0; background: #f8faf9; border-radius: 8px; padding: 6px 10px; line-height: 1.5; }
+@media (min-width: 768px) { .pt .pt-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.po-tbl-wrap { overflow-x: auto; margin: 0 -2px; }
+.po-tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+.po-tbl th { text-align: left; font-size: 11.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: #64748b; padding: 8px 8px; border-bottom: 1px solid #e5ebe7; white-space: nowrap; }
+.po-tbl td { padding: 10px 8px; border-bottom: 1px solid #eef2f0; vertical-align: top; color: #1f2937; }
+.po-tbl td small { display: block; font-size: 12px; color: #64748b; margin-top: 2px; }
+.po-tbl .r { text-align: right; white-space: nowrap; }
+.po-tbl .mut { color: #94a3b8; }
+.po-tbl b.earn { color: #166534; font-size: 14.5px; }
+.pt-chip.due { background: #fef3c7; color: #92400e; }
+.po-count { font-size: 12.5px; color: #64748b; padding-top: 10px; border-top: 1px solid #eef2f0; margin-top: 4px; }
 .po-acct { display: grid; gap: 10px; }
 .po-acct > div { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #f6f8f7; }
 .po-acct svg { color: #166534; font-size: 22px; flex-shrink: 0; }
