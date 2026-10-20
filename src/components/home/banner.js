@@ -339,7 +339,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
         .cyt-hero .cyt-title { color: #0b1712; font-size: clamp(2.8rem, 5vw, 4.6rem); line-height: 1.12; margin: 0 0 12px; letter-spacing: -.02em; font-weight: 800; }
         .cyt-hl { color: #1e7a4c; position: relative; white-space: nowrap; }
-        .cyt-hl::after { content: ""; position: absolute; left: 2%; right: 2%; bottom: .04em; height: .14em; border-radius: 999px; background: #ecc77d; opacity: .75; z-index: -1; }
+        /* hand-drawn gold swoosh under the key word */
+        .cyt-hl::after { content: ""; position: absolute; left: -2%; right: -2%; bottom: -.1em; height: .3em; background: url("data:image/svg+xml,%3Csvg xmlns='http:%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 17 C 60 7, 140 4, 296 11' fill='none' stroke='%23e0ab45' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 21 C 110 14, 190 13, 270 17' fill='none' stroke='%23e0ab45' stroke-width='3' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E") no-repeat center / 100% 100%; z-index: -1; pointer-events: none; }
         .cyt-hero .description { color: #475569; font-size: 17px; line-height: 1.6; max-width: 46ch; margin: 0 0 20px; }
 
         .cyt-hsearch { position: relative; display: flex; align-items: center; max-width: 580px; background: #fff; border: 1.5px solid #dbe5df; border-radius: 14px; padding: 5px; box-shadow: 0 16px 36px -22px rgba(20,83,45,.55); }
