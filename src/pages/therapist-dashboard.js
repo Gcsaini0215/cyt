@@ -66,10 +66,21 @@ const initialsOf = (name) => {
 };
 
 const DASH_CSS = `
-.ov-motivate { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; margin-bottom: 14px; }
-/* every block on the page is spaced 14px apart, like the rows above */
-.ov-main-grid, .ov .pi { margin-bottom: 14px; }
-.ov-motivate > * { min-width: 0; }
+/* one column system for the whole page: a wide left area + a right column of 360px (300px on small laptops),
+   the same as the Next session / To-do row above — so every right-hand card lines up */
+.ov-motivate, .ov-main-grid, .ov-insight-grid { display: grid; gap: 14px; align-items: stretch; margin-bottom: 14px; }
+.ov-motivate { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 360px; }
+.ov-main-grid, .ov-insight-grid { grid-template-columns: minmax(0, 1fr) 360px; }
+.ov-motivate > *, .ov-main-grid > *, .ov-insight-grid > * { min-width: 0; }
+/* equal heights: each column's last card takes up the spare space, so no gaps under short columns */
+.ov-main-grid > div { display: flex; flex-direction: column; gap: 14px; }
+.ov-main-grid > div > :last-child { flex: 1 1 auto; }
+.ov-insight-grid > * { height: 100%; box-sizing: border-box; }
+.ov-insight-grid .gp-dm { display: flex; flex-direction: column; }
+.ov-insight-grid .gp-dm .gp-gap { margin-top: auto; }
+.ov-insight-grid .gp-dm .gp-heat { margin-bottom: 4px; }
+.ov .pi { margin-bottom: 14px; }
+.ov-sec-h { margin: 12px 0 10px; font-size: 17px; font-weight: 800; color: #13261c; }
 .ov-motivate .gp-card { display: flex; flex-direction: column; }
 .ov-motivate .gp-goal-body, .ov-motivate .gp-goal-set { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .ov-motivate .gp-goal-body { flex-direction: row; align-items: center; }
@@ -80,10 +91,17 @@ const DASH_CSS = `
 .ov-motivate .gp-checks li { padding: 6px 8px; font-size: 11.5px; gap: 6px; line-height: 1.3; }
 .ov-motivate .gp-checks li i { width: 16px; height: 16px; font-size: 10px; }
 .ov-motivate .gp-checks li em { display: none; }
-.ov-sec-h { margin: 12px 0 10px; font-size: 17px; font-weight: 800; color: #13261c; }
-.ov-insight-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: start; }
-@media (max-width: 1100px) { .ov-motivate { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ov-motivate > :last-child { grid-column: 1 / -1; } }
-@media (max-width: 900px) { .ov-insight-grid { grid-template-columns: 1fr; } }
+@media (min-width: 900px) and (max-width: 1199px) {
+  .ov-motivate { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 300px; }
+  .ov-main-grid, .ov-insight-grid { grid-template-columns: minmax(0, 1fr) 300px; }
+  .ov-motivate .gp-checks { grid-template-columns: 1fr; }
+}
+@media (max-width: 899px) {
+  .ov-main-grid, .ov-insight-grid { grid-template-columns: 1fr; }
+  .ov-motivate { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ov-motivate > :last-child { grid-column: 1 / -1; }
+  .ov-main-grid > div > :last-child { flex: none; }
+}
 @media (max-width: 640px) { .ov-motivate { grid-template-columns: 1fr; } }
 `;
 
@@ -1220,8 +1238,8 @@ export default function TherapistDashboard() {
             <GrowthBadge />
           </div>
 
-          <Box className="ov-main-grid" sx={{ display: "grid", gap: "14px", alignItems: "start", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 300px", lg: "minmax(0, 1fr) 360px" } }}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
+          <div className="ov-main-grid">
+            <div>
               {/* 4 — the week ahead */}
               <WeekStrip sessions={upcomingSessions} now={clockTime} />
 
@@ -1240,9 +1258,9 @@ export default function TherapistDashboard() {
 
               {/* past clients to bring back — one tap WhatsApp / email */}
               <GrowthFollowups therapistName={therapistInfo?.user?.name || ""} />
-            </Box>
+            </div>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
+            <div>
               {/* 7 — latest two reviews, pending payments first */}
               <DashCard icon={StarRateRoundedIcon} title="Client Reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
                 <ReviewsBlock reviews={myReviews} />
@@ -1275,8 +1293,8 @@ export default function TherapistDashboard() {
                   <EmptyState icon={PaymentsRoundedIcon} text="No invoices yet" />
                 )}
               </DashCard>
-            </Box>
-          </Box>
+            </div>
+          </div>
 
           {/* ── insights: how the profile and the practice are doing ── */}
           <h2 className="ov-sec-h">Insights</h2>
