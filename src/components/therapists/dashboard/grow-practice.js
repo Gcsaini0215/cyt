@@ -84,18 +84,45 @@ function BadgeCard({ badge, top }) {
   );
 }
 
+// ready-to-send messages; {name} = client's first name. The therapist can still edit before sending.
+const TEMPLATES = [
+  { key: "checkin", label: "Check-in", text: "Hi {name}, it's been a few weeks since our last session — I hope you're doing well. If you'd like to check in or continue where we left off, I'd be glad to see you again. Take care!" },
+  { key: "slots", label: "Slots open", text: "Hi {name}, I have a few slots open this week and thought of you. If you'd like to book a session, you can pick a time that suits you from my profile. Looking forward to it!" },
+  { key: "progress", label: "Keep progress going", text: "Hi {name}, you've put in real work in our sessions. Regular sessions help keep that progress going — would you like to schedule your next one? I'm here whenever you're ready." },
+  { key: "thanks", label: "Thank you", text: "Hi {name}, thank you for trusting me with our sessions. I hope the things we worked on are helping. If anything comes up or you'd like to talk again, I'm just a message away." },
+  { key: "tip", label: "Self-care tip", text: "Hi {name}, a small reminder from me: take five slow breaths, drink some water, and do one kind thing for yourself today. If you'd like to talk things through, you can book a session any time." },
+  { key: "festival", label: "Festival wishes", text: "Hi {name}, wishing you and your family a peaceful and happy festive season. Remember to take a little time for yourself too. If you'd ever like to talk, I'm here." },
+];
+const fill = (text, name) => text.replace(/\{name\}/g, firstName(name));
+
 function FollowupCard({ list, therapistName, onChanged }) {
+  const due = list.filter((f) => f.due);
+  const [tab, setTab] = useState(due.length ? "due" : "all");
+  const [q, setQ] = useState("");
   const [open, setOpen] = useState(null);
+  const [tpl, setTpl] = useState("checkin");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [more, setMore] = useState(false);
-  const shown = more ? list : list.slice(0, 4);
-  const template = (f) => `Hi ${firstName(f.name)}, it's been a few weeks since our last session — I hope you're doing well. If you'd like to check in or continue where we left off, I have slots open this week. Take care!`;
-  const wa = (f) => {
+  const base = tab === "due" ? due : list;
+  const filtered = q.trim() ? base.filter((f) => f.name.toLowerCase().includes(q.trim().toLowerCase())) : base;
+  const shown = more || q.trim() ? filtered : filtered.slice(0, 5);
+  const statusOf = (f) => {
+    if (f.upcoming > 0) return <span className="gp-st up">Booked {f.nextAt ? fmtDay(f.nextAt) : ""}</span>;
+    if (f.due) return <span className="gp-st due">Due · {f.daysSince} days</span>;
+    if (f.lastSessionAt) return <span className="gp-st">Last session {fmtDay(f.lastSessionAt)}</span>;
+    return <span className="gp-st">No session yet</span>;
+  };
+  const wa = (f, text) => {
     const phone = f.phone.length === 10 ? `91${f.phone}` : f.phone;
-    const text = `${template(f)}\n— ${therapistName}`;
     postData(`${apiUrl}/therapist-growth/followups/${f.clientId}/nudged`, { channel: "whatsapp" }).catch(() => {});
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(`${text}\n— ${therapistName}`)}`, "_blank", "noopener");
+  };
+  const openMail = (f) => {
+    if (open === f.clientId) { setOpen(null); return; }
+    setOpen(f.clientId);
+    setTpl("checkin");
+    setMsg(fill(TEMPLATES[0].text, f.name));
   };
   const send = async (f) => {
     setBusy(true);
@@ -107,10 +134,17 @@ function FollowupCard({ list, therapistName, onChanged }) {
   };
   return (
     <div className="gp-card gp-fu">
-      <div className="gp-h"><b>Clients to follow up</b><span>{list.length}</span></div>
-      <p className="gp-sub">No session for 2+ weeks and nothing booked. A friendly note often brings them back.</p>
-      {list.length === 0 ? (
-        <p className="gp-empty">You&apos;re all caught up — no past clients waiting for a follow-up.</p>
+      <div className="gp-h"><b>Your clients</b><span>{list.length}</span></div>
+      <p className="gp-sub">Stay in touch — a friendly note often brings clients back. &quot;Due&quot; = no session for 2+ weeks and nothing booked.</p>
+      <div className="gp-fu-bar">
+        <div className="gp-tabs" role="tablist">
+          <button type="button" role="tab" aria-selected={tab === "due"} className={tab === "due" ? "on" : ""} onClick={() => { setTab("due"); setMore(false); }}>Due for follow-up <i>{due.length}</i></button>
+          <button type="button" role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : ""} onClick={() => { setTab("all"); setMore(false); }}>All clients <i>{list.length}</i></button>
+        </div>
+        {list.length > 5 && <input className="gp-search" type="search" placeholder="Search a client…" value={q} onChange={(e) => setQ(e.target.value)} />}
+      </div>
+      {shown.length === 0 ? (
+        <p className="gp-empty">{tab === "due" ? "You're all caught up — no client is due for a follow-up." : q ? "No client by that name." : "No clients yet."}</p>
       ) : (
         <ul className="gp-fu-list">
           {shown.map((f) => (
@@ -119,17 +153,22 @@ function FollowupCard({ list, therapistName, onChanged }) {
                 <span className="gp-av">{f.photo ? <img src={/^https?:/.test(f.photo) ? f.photo : `${imagePath}/${f.photo}`} alt="" /> : firstName(f.name).charAt(0).toUpperCase()}</span>
                 <span className="gp-fu-i">
                   <b>{f.name}</b>
-                  <span>Last session {fmtDay(f.lastSessionAt)} · {f.daysSince} days ago · {f.sessions} session{f.sessions === 1 ? "" : "s"}{f.nudgedAt ? ` · nudged ${fmtDay(f.nudgedAt)}` : ""}</span>
+                  <span>{statusOf(f)} · {f.sessions} session{f.sessions === 1 ? "" : "s"}{f.nudgedAt ? ` · messaged ${fmtDay(f.nudgedAt)}` : ""}</span>
                 </span>
                 <span className="gp-fu-btns">
-                  {f.phone && <button type="button" className="wa" onClick={() => wa(f)}>WhatsApp</button>}
-                  {f.hasEmail && <button type="button" disabled={!f.canEmail} title={f.canEmail ? "" : "Emailed in the last 7 days"} onClick={() => { setOpen(open === f.clientId ? null : f.clientId); setMsg(template(f)); }}>Email</button>}
+                  {f.phone && <button type="button" className="wa" onClick={() => wa(f, open === f.clientId ? msg : fill(TEMPLATES[0].text, f.name))}>WhatsApp</button>}
+                  {f.hasEmail && <button type="button" className={open === f.clientId ? "on" : ""} disabled={!f.canEmail} title={f.canEmail ? "" : "Emailed in the last 7 days"} onClick={() => openMail(f)}>Email</button>}
                 </span>
               </div>
               {open === f.clientId && (
                 <div className="gp-fu-mail">
+                  <div className="gp-tpls" aria-label="Message templates">
+                    {TEMPLATES.map((t) => (
+                      <button key={t.key} type="button" className={tpl === t.key ? "on" : ""} onClick={() => { setTpl(t.key); setMsg(fill(t.text, f.name)); }}>{t.label}</button>
+                    ))}
+                  </div>
                   <textarea rows={4} maxLength={1200} value={msg} onChange={(e) => setMsg(e.target.value)} />
-                  <div><small>Sent by CYT from your name, with a button to book you.</small>
+                  <div><small>Sent by CYT from your name, with a button to book you. Edit it as you like.</small>
                     <button type="button" disabled={busy || msg.trim().length < 10} onClick={() => send(f)}>{busy ? "Sending…" : "Send email"}</button></div>
                 </div>
               )}
@@ -137,7 +176,7 @@ function FollowupCard({ list, therapistName, onChanged }) {
           ))}
         </ul>
       )}
-      {list.length > 4 && <button type="button" className="gp-more" onClick={() => setMore(!more)}>{more ? "Show fewer" : `Show all ${list.length}`}</button>}
+      {!q.trim() && filtered.length > 5 && <button type="button" className="gp-more" onClick={() => setMore(!more)}>{more ? "Show fewer" : `Show all ${filtered.length}`}</button>}
     </div>
   );
 }
@@ -277,6 +316,20 @@ const CSS = `
 .gp-fu-mail small { font-size: 11.5px; color: #7c8b81; }
 .gp-fu-mail button { flex-shrink: 0; white-space: nowrap; height: 34px; padding: 0 14px; border: none; border-radius: 9px; background: #14532d; color: #fff; font-weight: 800; font-size: 13px; cursor: pointer; }
 .gp-fu-mail button:disabled { opacity: .5; }
+.gp-fu-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.gp-tabs { display: inline-flex; gap: 4px; padding: 3px; border-radius: 12px; background: #f1f5f2; }
+.gp-tabs button { border: none; background: transparent; padding: 6px 12px; border-radius: 9px; font-size: 12.5px; font-weight: 800; color: #4b5d53; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.gp-tabs button i { font-style: normal; font-size: 11px; background: #e3ebe6; color: #26463a; border-radius: 999px; padding: 0 7px; }
+.gp-tabs button.on { background: #fff; color: #14532d; box-shadow: 0 1px 3px rgba(16,24,40,.12); }
+.gp-tabs button.on i { background: #ecc77d; color: #3d2a00; }
+.gp-search { height: 34px; border: 1px solid #dbe5df; border-radius: 10px; padding: 0 12px; font-size: 13px; min-width: 0; width: 200px; }
+.gp-st { font-weight: 700; color: #6b7c72; }
+.gp-st.due { color: #b45309; }
+.gp-st.up { color: #166534; }
+.gp-fu-btns button.on { background: #14532d; border-color: #14532d; color: #fff; }
+.gp-tpls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.gp-tpls button { border: 1px solid #e6d7b8; background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 12px; font-weight: 700; color: #6b4a0f; cursor: pointer; }
+.gp-tpls button.on { background: #fbf1dc; border-color: #d4a24c; color: #3d2a00; }
 .gp-more { margin-top: 8px; border: none; background: none; color: #1e7a4c; font-weight: 800; font-size: 13px; cursor: pointer; padding: 0; }
 
 .gp-heat { display: flex; flex-direction: column; gap: 4px; }
@@ -300,5 +353,7 @@ const CSS = `
   .gp-fu-row { flex-wrap: wrap; }
   .gp-fu-btns { width: 100%; }
   .gp-fu-btns button { flex: 1; }
+  .gp-search { width: 100%; }
+  .gp-tabs { width: 100%; } .gp-tabs button { flex: 1; justify-content: center; }
 }
 `;
