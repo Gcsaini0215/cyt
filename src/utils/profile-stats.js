@@ -52,12 +52,13 @@ function send(path, body) {
   return fetch(`${apiUrl}${path}`, { method: "POST", headers, body: JSON.stringify(body), keepalive: true }).catch(() => {});
 }
 
-// one view per profile per browser every 30 minutes
+// a view per profile visit (a quick refresh within 2 minutes isn't another view);
+// the server counts at most 3 views a day from the same browser
 export function trackProfileView(therapistId) {
   if (!therapistId) return;
   const key = `cyt_pv_${therapistId}`;
   const last = Number(store(() => sessionStorage.getItem(key), 0)) || 0;
-  if (Date.now() - last < 30 * 60000) return;
+  if (Date.now() - last < 2 * 60000) return;
   store(() => sessionStorage.setItem(key, String(Date.now())));
   send("/profile-stats/event", { t: therapistId, type: "view", vid: visitorId(), src: sourceOf() });
 }

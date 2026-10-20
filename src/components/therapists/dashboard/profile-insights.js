@@ -67,14 +67,29 @@ function Ring({ value }) {
   );
 }
 
-// one request for the compact card and the full card
+// one request for the compact card and the full card, refreshed every 30 s while the tab is visible
+// (live numbers: new views, visitors and clicks appear without reloading the page)
 let insightsCache = null;
+let insightsTimer = null;
+const insightsSubs = new Set();
+const fetchInsights = () => fetchById(`${apiUrl}/profile-stats/me`).then((r) => (r?.status && r.data?.totals ? r.data : null)).catch(() => null);
+function refreshInsights() {
+  if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+  fetchInsights().then((x) => { if (x) { insightsCache = Promise.resolve(x); insightsSubs.forEach((f) => f(x)); } });
+}
 function useInsights() {
   const [d, setD] = useState(null);
   const [err, setErr] = useState(false);
   useEffect(() => {
-    if (!insightsCache) insightsCache = fetchById(`${apiUrl}/profile-stats/me`).then((r) => (r?.status && r.data?.totals ? r.data : null)).catch(() => null);
+    const onData = (x) => setD(x);
+    insightsSubs.add(onData);
+    if (!insightsCache) insightsCache = fetchInsights();
     insightsCache.then((x) => (x ? setD(x) : setErr(true)));
+    if (!insightsTimer) insightsTimer = setInterval(refreshInsights, 30000);
+    return () => {
+      insightsSubs.delete(onData);
+      if (!insightsSubs.size && insightsTimer) { clearInterval(insightsTimer); insightsTimer = null; insightsCache = null; }
+    };
   }, []);
   return [d, err];
 }
