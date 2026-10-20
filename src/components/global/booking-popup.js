@@ -5,14 +5,16 @@ import ConsultationForm from "../home/consultation-form";
 // `delay` ms (default 12 s: long enough to read the top of the page — waiting 25 s+ cost leads), or sooner
 // when someone shows interest or is about to go: scrolled ~30% of the page, (desktop) moves to leave the tab,
 // or (phones, which have no "leaving" signal) scrolls back up fast after reading.
-// It comes back on every page load (a refresh, another page, a later visit) — closing it only hides it for the
-// page in view. Once someone has sent their details it never opens by itself again.
+// It opens by itself once per visit: after it has shown, moving to other pages (or refreshing) in the same tab
+// won't bring it back; opening the website again later will. Once someone has sent their details it never
+// opens by itself again.
 // Anything on the site can open it on demand: window.dispatchEvent(new Event(OPEN_CHAT_EVENT)).
 export const OPEN_CHAT_EVENT = "cyt:open-chat";
 const SENT_KEY = "cyt_lead_sent";
+const SHOWN_KEY = "cyt_lead_shown"; // sessionStorage: already shown this visit
 
 const store = (fn) => { try { return fn(); } catch { return null; } };
-const mayAutoOpen = () => store(() => !localStorage.getItem(SENT_KEY)) !== false;
+const mayAutoOpen = () => store(() => !localStorage.getItem(SENT_KEY) && !sessionStorage.getItem(SHOWN_KEY)) !== false;
 
 // title / note: page-specific copy ("Looking for a psychologist in Bangalore?") — people fill a form
 // that speaks to what they came for far more than a generic one.
@@ -31,6 +33,7 @@ const BookingPopup = ({ delay = 12000, scrollAt = 0.3, forTherapist = false, sho
     const fire = () => {
       if (done) return;
       done = true;
+      store(() => sessionStorage.setItem(SHOWN_KEY, "1"));
       setIsOpen(true);
     };
     // phones: a quick flick back up after reading a while is the usual "I'm leaving" gesture

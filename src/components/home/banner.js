@@ -230,8 +230,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
             <i className="feather-search" aria-hidden="true" />
             <label htmlFor="cyt-hq" className="cyt-sr">Search by concern, name or city</label>
             <input id="cyt-hq" name="search" type="search" autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)}
-              placeholder="Anxiety, a therapist's name, your city…" />
-            <button type="submit">Find therapist</button>
+              placeholder="Anxiety, therapist name, city…" />
+            <button type="submit" aria-label="Find therapist"><span className="cyt-hs-txt">Find therapist</span><i className="feather-arrow-right cyt-hs-ico" aria-hidden="true" /></button>
           </form>
 
           <div className="cyt-hchips" aria-label="Popular concerns">
@@ -244,7 +244,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
           <div className="cyt-hero-ctas">
             <Link className="cyt-cta2" href={offer ? "/noida-appointment?offer=1" : "/noida-appointment"}
               title="Book a psychologist in Noida, Sector 51 — in-person, online or home visit">
-              <i className="feather-map-pin" aria-hidden="true" /> Book a Psychologist in Noida
+              <i className="feather-map-pin" aria-hidden="true" /> <span className="cyt-cta2-txt">Book a Psychologist in Noida<small>In-person · Sector 51 · online too</small></span>
+              <i className="feather-arrow-right cyt-cta2-go" aria-hidden="true" />
               {offer && <span className="cyt-cta2-badge">{offer.discount.replace(/ off$/i, "")} OFF</span>}
             </Link>
             <button type="button" className="cyt-wa" onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}>
@@ -315,6 +316,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-hsearch input::-webkit-search-cancel-button { display: none; }
         .cyt-hsearch button { flex-shrink: 0; height: 46px; padding: 0 22px; border: none; border-radius: 10px; background: #1e7a4c; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px -10px rgba(30,122,76,.8); }
         .cyt-hsearch button:hover { background: #186640; }
+        .cyt-hs-ico, .cyt-cta2-go { display: none; }
+        .cyt-cta2-txt small { display: none; }
 
         .cyt-hchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
         .cyt-hchips a { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.8); border: 1px solid #dbe5df; color: #26463a !important; font-size: 13.5px; font-weight: 600; text-decoration: none !important; white-space: nowrap; transition: border-color .15s, background .15s; }
@@ -373,24 +376,42 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }
 
         @media (max-width: 600px) {
-          .cyt-hero { padding: 14px 0 16px !important; }
-          .cyt-hero-inner { gap: 18px; padding: 0 16px; }
-          .cyt-eyebrow { font-size: 11.5px; padding: 5px 11px 5px 9px; margin-bottom: 10px; }
-          .cyt-hero .cyt-title { font-size: clamp(2.3rem, 8.6vw, 2.9rem); margin-bottom: 14px; }
+          .cyt-hero { padding: 10px 0 12px !important; }
+          .cyt-hero-inner { gap: 14px; padding: 0 16px; }
+          /* copy as a column so the trust line can sit right under the headline */
+          .cyt-hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
+          .cyt-hero-copy > * { order: 3; }
+          .cyt-hero-copy > .cyt-eyebrow { order: 0; }
+          .cyt-hero-copy > .cyt-title { order: 1; }
+          .cyt-hero-copy > .cyt-trust { order: 2; margin: 0 0 12px; }
+          .cyt-hsearch, .cyt-hchips, .cyt-hero-ctas { width: 100%; box-sizing: border-box; }
+          .cyt-hchips { width: calc(100% + 32px); }
+          .cyt-eyebrow { font-size: 11.5px; padding: 5px 11px 5px 9px; margin-bottom: 8px; }
+          .cyt-hero .cyt-title { font-size: clamp(2.05rem, 7.8vw, 2.6rem); line-height: 1.1; margin-bottom: 8px; }
           .cyt-hero .description { display: none; }
           .cyt-hsearch { border-radius: 12px; }
           .cyt-hsearch input { height: 44px; font-size: 15px; padding-left: 38px; }
           .cyt-hsearch > i { left: 15px; }
-          .cyt-hsearch button { height: 44px; padding: 0 14px; font-size: 14px; }
+          /* icon-only search button so the placeholder isn't cut off */
+          .cyt-hsearch button { height: 44px; width: 44px; padding: 0; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
+          .cyt-hs-txt { display: none; }
+          .cyt-hs-ico { display: inline; }
+          /* WhatsApp help already lives in the bottom action bar */
+          .cyt-wa { display: none !important; }
           /* one swipeable row of chips instead of three wrapped ones */
           .cyt-hchips { flex-wrap: nowrap; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 2px; scrollbar-width: none; }
           .cyt-hchips::-webkit-scrollbar { display: none; }
           .cyt-hchips a { height: 32px; font-size: 13px; padding: 0 12px; }
           .cyt-hero-ctas { margin-top: 14px; gap: 6px; }
-          .cyt-cta2 { flex: 1 1 100%; min-height: 44px; font-size: 14.5px; }
-          .cyt-cta2-badge { right: 10px; }
-          .cyt-wa { font-size: 13px; }
-          .cyt-trust { margin-top: 10px; gap: 6px 14px; font-size: 12.5px; }
+          /* Noida booking as a filled card, not an outline button */
+          .cyt-cta2 { flex: 1 1 100%; justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 16px; font-size: 15px; text-align: left; border: none; color: #fff !important; background: linear-gradient(120deg, #14532d, #1e7a4c 60%, #2f9a63); box-shadow: 0 12px 26px -14px rgba(20,83,45,.8); }
+          .cyt-cta2:hover { background: linear-gradient(120deg, #14532d, #1e7a4c); }
+          .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,.16); display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #ecc77d; }
+          .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; }
+          .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #cfe9da; }
+          .cyt-cta2-go { display: inline; margin-left: auto; font-size: 18px; }
+          .cyt-cta2-badge { top: -9px; right: 12px; background: #ecc77d; color: #4a3208; box-shadow: 0 4px 10px -2px rgba(122,84,19,.45); }
+          .cyt-trust { gap: 6px 14px; font-size: 12.5px; }
           .cyt-trust-x { display: none !important; }
           .cyt-tphoto { height: 160px; }
         }
