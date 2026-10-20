@@ -7,6 +7,8 @@ import MyNavbar from "../components/navbar";
 import { getDecodedToken } from "../utils/jwt";
 import { getAllBlogs, blogCard } from "../utils/blog-cache";
 import { usePager, Pager } from "../components/therapists/pager";
+import dynamic from "next/dynamic";
+const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 /* /blogs — calm banner with search + topics, a featured post, a grid of cards and a nudge to
    talk to someone. Clients reach it from their portal menu ("Reads for me"). */
@@ -300,6 +302,8 @@ export default function BlogsPage({ posts = [] }) {
           </div>
         </section>
       </main>
+      <BookingPopup showHeading={false} showLocation={false} showSource={false}
+        title="Want to talk to someone?" note="Share a few details and our team will help you find the right psychologist on WhatsApp." sourceTag="Popup · Blogs" />
       <Footer />
     </div>
   );

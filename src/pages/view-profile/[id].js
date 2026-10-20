@@ -24,6 +24,8 @@ import RelatedTherapists from "../../components/global/related-therapists";
 import {
   pickRelated, profileSeo, expertiseOf, languagesOf, minFeeOf, cityOf, concernLinksOf, placeLinkOf, modesOf, cleanName,
 } from "../../utils/related-therapists";
+import dynamic from "next/dynamic";
+const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 export async function getServerSideProps(context) {
   const param = context.params.id;
@@ -451,6 +453,8 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
           </div>
         </>
       )}
+      <BookingPopup delay={40000} scrollAt={0.75} showHeading={false} showLocation={false} showSource={false}
+        title="Need help choosing?" note="Not sure this psychologist is the right fit? Our team will guide you on WhatsApp." sourceTag="Popup · Profile" />
       <Footer />
     </div>
   );

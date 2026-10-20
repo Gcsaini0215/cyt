@@ -10,6 +10,8 @@ import Feedback from "../components/home/feedback";
 import MyNavbar from "../components/navbar";
 import { fetchData } from "../utils/actions";
 import { getTherapistProfiles, imagePath } from "../utils/url";
+import dynamic from "next/dynamic";
+const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
 // Self-hosted (not a third-party hotlink) so social/AI crawlers always get
@@ -264,6 +266,8 @@ export default function AboutUs() {
       
       <Feedback therapists={therapists} />
 
+      <BookingPopup showHeading={false} showLocation={false} showSource={false}
+        title="Find the right psychologist" sourceTag="Popup · About us" />
       <Footer />
     </div>
   );

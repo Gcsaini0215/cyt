@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import ConsultationForm from "../home/consultation-form";
 
-// Lead form ("Chat with CYT"). It no longer jumps up a few seconds after landing — that
-// covered the page before people had read anything. It opens by itself once per visit, when
-// someone has shown interest: scrolled ~40% of the page, stayed `delay` ms, or (desktop)
-// moves to leave the tab. Closed -> not again that day; details sent -> never again.
+// Lead form ("Chat with CYT") — the site's main lead source. It opens by itself once per visit, after
+// `delay` ms (default 12 s: long enough to read the top of the page — waiting 25 s+ cost leads), or sooner
+// when someone shows interest or is about to go: scrolled ~30% of the page, (desktop) moves to leave the tab,
+// or (phones, which have no "leaving" signal) scrolls back up fast after reading.
+// Closed -> not again that day; details sent -> never again.
 // Anything on the site can open it on demand: window.dispatchEvent(new Event(OPEN_CHAT_EVENT)).
 export const OPEN_CHAT_EVENT = "cyt:open-chat";
 const DISMISS_KEY = "cyt_lead_dismissed";
@@ -21,7 +22,7 @@ const mayAutoOpen = () => store(() => {
 
 // title / note: page-specific copy ("Looking for a psychologist in Bangalore?") — people fill a form
 // that speaks to what they came for far more than a generic one.
-const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, showSource = true, onClose, title = "Chat with CYT", note = "Share a few details and our team will message you on WhatsApp.", sourceTag = "" }) => {
+const BookingPopup = ({ delay = 12000, scrollAt = 0.3, showHeading = true, showLocation = true, showSource = true, onClose, title = "Chat with CYT", note = "Share a few details and our team will message you on WhatsApp.", sourceTag = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -39,9 +40,16 @@ const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, 
       store(() => sessionStorage.setItem(SESSION_KEY, "1"));
       setIsOpen(true);
     };
+    // phones: a quick flick back up after reading a while is the usual "I'm leaving" gesture
+    let lastY = window.scrollY, lastT = Date.now(), deepest = 0;
     const onScroll = () => {
+      const y = window.scrollY, t = Date.now();
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (max > 0 && window.scrollY / max >= 0.4) fire();
+      if (max > 0 && y / max >= scrollAt) fire();
+      deepest = Math.max(deepest, y);
+      const up = lastY - y, dt = Math.max(1, t - lastT);
+      if (window.innerWidth < 768 && deepest > 500 && up > 0 && up / dt > 1.8) fire(); // >1.8 px/ms upward
+      lastY = y; lastT = t;
     };
     const onLeave = (e) => { if (!e.relatedTarget && e.clientY <= 0) fire(); };
     const timer = setTimeout(fire, delay);
@@ -54,7 +62,7 @@ const BookingPopup = ({ delay = 25000, showHeading = true, showLocation = true, 
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("mouseout", onLeave);
     };
-  }, [delay]);
+  }, [delay, scrollAt]);
 
   const handleClose = () => {
     setIsOpen(false);

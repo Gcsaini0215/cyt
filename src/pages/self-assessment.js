@@ -9,6 +9,8 @@ import Footer from "../components/footer";
 import MyNavbar from "../components/navbar";
 import { fetchData } from "../utils/actions";
 import { apiUrl } from "../utils/url";
+import dynamic from "next/dynamic";
+const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 /* Clinical assessments: the list. Each test has its own page (/self-assessment/<slug>) where it is
    taken on its own (instant report) or with a psychologist. Old ?start=<key> links go to that page. */
@@ -76,6 +78,8 @@ export default function SelfAssessment() {
       <MyNavbar />
       <SelfAssessmentBanner />
       <AssessmentCards prices={prices} />
+      <BookingPopup delay={20000} showHeading={false} showLocation={false} showSource={false}
+        title="Want to discuss your results?" note="Share a few details and a psychologist from our team will reach out on WhatsApp." sourceTag="Popup · Self-assessment" />
       <Footer />
     </div>
   );

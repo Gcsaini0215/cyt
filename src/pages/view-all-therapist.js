@@ -8,6 +8,8 @@ import { getTherapistProfiles } from "../utils/url";
 import { filterTherapists } from "../utils/filterTherapists";
 import { profilePath } from "../utils/therapist-slug";
 import { slimTherapist, feeBand, directoryFaqs, CONCERNS } from "../utils/therapist-directory";
+import dynamic from "next/dynamic";
+const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/view-all-therapist";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
@@ -263,7 +265,10 @@ export default function ViewAllTherapistPage({ initialAllData, listed, initialFi
         <main className="rbt-main-wrapper">
           <ViewAllTherapist initialAllData={initialAllData} initialFilters={initialFilters} />
         </main>
-        <Footer />
+        {/* lead capture: people comparing profiles often want a recommendation */}
+      <BookingPopup showHeading={false} showLocation={false} showSource={false}
+        title="Not sure whom to choose?" note="Tell us what you're going through — our team will suggest the right psychologist on WhatsApp." sourceTag="Popup · Directory" />
+      <Footer />
       </main>
     </div>
   );

@@ -6,6 +6,8 @@ import ServiceDetails from "../../components/services/service-details";
 import React from "react";
 import { useRouter } from "next/router";
 import NotFoundPage from "../notfound";
+import dynamic from "next/dynamic";
+const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 const serviceContent = [
   {
@@ -82,6 +84,8 @@ export default function Services() {
           </>
         )}
       </div>
+      <BookingPopup showHeading={false} showLocation={false} showSource={false}
+        title="Find the right psychologist" sourceTag="Popup · Services" />
       <Footer />
     </div>
   ) : (
