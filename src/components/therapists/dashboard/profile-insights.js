@@ -67,13 +67,54 @@ function Ring({ value }) {
   );
 }
 
-export default function ProfileInsights() {
+// one request for the compact card and the full card
+let insightsCache = null;
+function useInsights() {
   const [d, setD] = useState(null);
   const [err, setErr] = useState(false);
-
   useEffect(() => {
-    fetchById(`${apiUrl}/profile-stats/me`).then((r) => (r?.status && r.data?.totals ? setD(r.data) : setErr(true))).catch(() => setErr(true));
+    if (!insightsCache) insightsCache = fetchById(`${apiUrl}/profile-stats/me`).then((r) => (r?.status && r.data?.totals ? r.data : null)).catch(() => null);
+    insightsCache.then((x) => (x ? setD(x) : setErr(true)));
   }, []);
+  return [d, err];
+}
+
+/* compact "people are finding you" card for the dashboard's motivation row */
+export function ProfileViewsSpot() {
+  const [d, err] = useInsights();
+  if (err || !d) return null;
+  const t = d.totals;
+  const tr = pctChange(t.views, t.prevViews);
+  const days = (d.daily || []).slice(-14);
+  const max = Math.max(1, ...days.map((x) => x.views));
+  return (
+    <a href="#profile-insights" className="pvs">
+      <style dangerouslySetInnerHTML={{ __html: SPOT_CSS }} />
+      <span className="pvs-k"><i className="feather-eye" aria-hidden="true" /> Profile views · 30 days</span>
+      <span className="pvs-v"><b>{t.views.toLocaleString("en-IN")}</b>{tr && <span className={`pi-trend ${tr.up ? "up" : "down"}`}>{tr.up ? "▲" : "▼"} {tr.text}</span>}</span>
+      <span className="pvs-s">{t.visitors.toLocaleString("en-IN")} different people looked at your profile{d.actions?.book ? ` · ${d.actions.book} tapped Book` : ""}</span>
+      {days.length > 0 && <span className="pvs-bars" aria-hidden="true">{days.map((x) => <i key={x.day} style={{ height: `${Math.max(8, (x.views / max) * 100)}%` }} />)}</span>}
+      <span className="pvs-go">See full insights ↓</span>
+    </a>
+  );
+}
+
+const SPOT_CSS = `
+.pvs { display: flex; flex-direction: column; gap: 4px; height: 100%; box-sizing: border-box; padding: 16px 18px; border-radius: 18px; background: linear-gradient(135deg, #e8f5ec, #fff 70%); border: 1px solid #cfe3d6; text-decoration: none !important; color: inherit !important; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.pvs-k { font-size: 12.5px; font-weight: 800; color: #1e7a4c; display: inline-flex; align-items: center; gap: 6px; }
+.pvs-v { display: flex; align-items: center; gap: 8px; }
+.pvs-v b { font-size: 30px; font-weight: 900; color: #13261c; line-height: 1.1; }
+.pvs .pi-trend { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 1px 7px; }
+.pvs .pi-trend.up { color: #166534; background: #dcfce7; } .pvs .pi-trend.down { color: #b91c1c; background: #fee2e2; }
+.pvs-s { font-size: 12.5px; color: #4b5d53; line-height: 1.45; }
+.pvs-bars { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 6px; }
+.pvs-bars i { flex: 1; border-radius: 3px 3px 0 0; background: #8cc7a3; }
+.pvs-bars i:last-child { background: #1e7a4c; }
+.pvs-go { margin-top: auto; padding-top: 6px; font-size: 12.5px; font-weight: 800; color: #14532d; }
+`;
+
+export default function ProfileInsights() {
+  const [d, err] = useInsights();
 
   const sources = useMemo(() => {
     if (!d?.sources) return [];

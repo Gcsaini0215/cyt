@@ -17,8 +17,8 @@ import useTherapistStore from "../store/therapistStore";
 import { useTimingsTodo } from "../components/therapists/dashboard/AvailabilityNudge";
 import { useAddonStep } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
-import ProfileInsights from "../components/therapists/dashboard/profile-insights";
-import GrowPractice from "../components/therapists/dashboard/grow-practice";
+import ProfileInsights, { ProfileViewsSpot } from "../components/therapists/dashboard/profile-insights";
+import { GrowthStyles, GrowthGoal, GrowthBadge, GrowthFollowups, GrowthDemand } from "../components/therapists/dashboard/grow-practice";
 import { TodayBar, KpiCard, KpiHead, NextSessionSlider, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
@@ -64,6 +64,26 @@ const initialsOf = (name) => {
   const w = String(name || "").replace(/[^\p{L}\s]/gu, "").trim().split(/\s+/).filter(Boolean);
   return ((w[0]?.[0] || "C") + (w[1]?.[0] || "")).toUpperCase();
 };
+
+const DASH_CSS = `
+.ov-motivate { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+.ov-motivate > * { min-width: 0; }
+.ov-motivate .gp-card { display: flex; flex-direction: column; }
+.ov-motivate .gp-goal-body, .ov-motivate .gp-goal-set { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.ov-motivate .gp-goal-body { flex-direction: row; align-items: center; }
+.ov-motivate .gp-badge-top { margin-bottom: 8px; }
+.ov-motivate .gp-badge-top p { font-size: 12.5px; }
+.ov-motivate .gp-medal { width: 36px; height: 36px; font-size: 18px; }
+.ov-motivate .gp-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ov-motivate .gp-checks li { padding: 6px 8px; font-size: 11.5px; gap: 6px; line-height: 1.3; }
+.ov-motivate .gp-checks li i { width: 16px; height: 16px; font-size: 10px; }
+.ov-motivate .gp-checks li em { display: none; }
+.ov-sec-h { margin: 10px 0 -2px; font-size: 17px; font-weight: 800; color: #13261c; }
+.ov-insight-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .ov-motivate { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ov-motivate > :last-child { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .ov-insight-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .ov-motivate { grid-template-columns: 1fr; } }
+`;
 
 const UI = {
   page: "#f8faf9",
@@ -1152,7 +1172,7 @@ export default function TherapistDashboard() {
       {showWelcome && <WelcomeOverlay name={firstName} leaving={welcLeaving} onDismiss={dismissWelcome} />}
 
       <Box sx={{ pb: 6 }}>
-        <style dangerouslySetInnerHTML={{ __html: OV_CSS }} />
+        <style dangerouslySetInnerHTML={{ __html: OV_CSS + DASH_CSS }} />
         <div className="ov">
           {/* 1 — slim today bar */}
           <TodayBar
@@ -1190,28 +1210,18 @@ export default function TherapistDashboard() {
             </div>
           </div>
 
-          {/* how the public profile is doing — views, visitors, sources, profile strength */}
-          <ProfileInsights />
-
-          {/* earnings goal, Top-therapist badge, past clients to follow up, when clients book */}
-          <GrowPractice monthEarnings={stats.monthEarnings} monthSessions={stats.monthSessions} therapistName={therapistInfo?.user?.name || ""} />
+          <GrowthStyles />
+          {/* motivation row — goal progress, people finding the profile, the Top-therapist badge */}
+          <div className="ov-motivate">
+            <GrowthGoal monthEarnings={stats.monthEarnings} monthSessions={stats.monthSessions} />
+            <ProfileViewsSpot />
+            <GrowthBadge />
+          </div>
 
           <Box sx={{ display: "grid", gap: "14px", alignItems: "start", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 300px", lg: "minmax(0, 1fr) 360px" } }}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
               {/* 4 — the week ahead */}
               <WeekStrip sessions={upcomingSessions} now={clockTime} />
-
-              {/* 6 — performance, with this month vs last */}
-              <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Your earnings (70%) & sessions trend" disablePad>
-                {stats.monthGrowth && (
-                  <div className="ov-compare">This month vs last: <b className={stats.monthGrowthUp ? "up" : "down"}>{stats.monthGrowth}</b> earnings · {stats.monthSessions} vs {stats.lastMonthSessions} sessions</div>
-                )}
-                {mounted ? (
-                  <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />
-                ) : (
-                  <Box sx={{ p: 2 }}><Skeleton variant="rounded" height={220} /></Box>
-                )}
-              </DashCard>
 
               <DashCard icon={EventAvailableRoundedIcon} title="Upcoming Sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
                 {loading ? (
@@ -1225,6 +1235,9 @@ export default function TherapistDashboard() {
                   <EmptyState icon={EventAvailableRoundedIcon} text="No upcoming sessions" />
                 )}
               </DashCard>
+
+              {/* past clients to bring back — one tap WhatsApp / email */}
+              <GrowthFollowups therapistName={therapistInfo?.user?.name || ""} />
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>
@@ -1262,6 +1275,23 @@ export default function TherapistDashboard() {
               </DashCard>
             </Box>
           </Box>
+
+          {/* ── insights: how the profile and the practice are doing ── */}
+          <h2 className="ov-sec-h">Insights</h2>
+          <ProfileInsights />
+          <div className="ov-insight-grid">
+            <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Your earnings (70%) & sessions trend" disablePad>
+              {stats.monthGrowth && (
+                <div className="ov-compare">This month vs last: <b className={stats.monthGrowthUp ? "up" : "down"}>{stats.monthGrowth}</b> earnings · {stats.monthSessions} vs {stats.lastMonthSessions} sessions</div>
+              )}
+              {mounted ? (
+                <PerformanceChart weeklyData={weeklyData} monthlyData={monthlyData} />
+              ) : (
+                <Box sx={{ p: 2 }}><Skeleton variant="rounded" height={220} /></Box>
+              )}
+            </DashCard>
+            <GrowthDemand />
+          </div>
         </div>
       </Box>
     </MainLayout>

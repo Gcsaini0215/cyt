@@ -173,29 +173,47 @@ function DemandCard({ demand }) {
   );
 }
 
-export default function GrowPractice({ monthEarnings = 0, monthSessions = 0, therapistName = "" }) {
+// one request shared by every growth card on the page; reload() refetches after a change
+let growthCache = null;
+const growthSubs = new Set();
+const fetchGrowth = () => fetchById(`${apiUrl}/therapist-growth/me`).then((r) => (r?.status && r.data?.demand ? r.data : null)).catch(() => null);
+export function useGrowth() {
   const [d, setD] = useState(null);
-  const load = () => fetchById(`${apiUrl}/therapist-growth/me`).then((r) => { if (r?.status && r.data?.demand) setD(r.data); }).catch(() => {});
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    growthSubs.add(setD);
+    if (!growthCache) growthCache = fetchGrowth();
+    growthCache.then((x) => setD(x));
+    return () => { growthSubs.delete(setD); };
+  }, []);
+  const set = (x) => { growthCache = Promise.resolve(x); growthSubs.forEach((f) => f(x)); };
+  const reload = () => { growthCache = fetchGrowth(); growthCache.then((x) => growthSubs.forEach((f) => f(x))); };
+  return [d, set, reload];
+}
+
+export function GrowthStyles() { return <style dangerouslySetInnerHTML={{ __html: CSS }} />; }
+
+export function GrowthGoal({ monthEarnings = 0, monthSessions = 0 }) {
+  const [d, set] = useGrowth();
   if (!d) return null;
   const saveGoal = async (amount) => {
     try {
       const r = await putData(`${apiUrl}/therapist-growth/goal`, { amount });
-      if (r?.status) { setD((x) => ({ ...x, goal: r.data.goal })); toast.success("Goal saved"); } else toast.error(r?.message || "Couldn't save");
+      if (r?.status) { set({ ...d, goal: r.data.goal }); toast.success("Goal saved"); } else toast.error(r?.message || "Couldn't save");
     } catch (e) { toast.error(e?.response?.data?.message || "Couldn't save"); }
   };
-  return (
-    <section className="gp" aria-labelledby="gp-title">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      <h2 id="gp-title" className="gp-title">Grow your practice</h2>
-      <div className="gp-grid">
-        <GoalCard goal={d.goal} earned={monthEarnings} sessions={monthSessions} onSave={saveGoal} />
-        <BadgeCard badge={d.badge} top={d.topTherapist} />
-        <FollowupCard list={d.followups || []} therapistName={therapistName} onChanged={load} />
-        <DemandCard demand={d.demand} />
-      </div>
-    </section>
-  );
+  return <GoalCard goal={d.goal} earned={monthEarnings} sessions={monthSessions} onSave={saveGoal} />;
+}
+export function GrowthBadge() {
+  const [d] = useGrowth();
+  return d ? <BadgeCard badge={d.badge} top={d.topTherapist} /> : null;
+}
+export function GrowthFollowups({ therapistName = "" }) {
+  const [d, , reload] = useGrowth();
+  return d ? <FollowupCard list={d.followups || []} therapistName={therapistName} onChanged={reload} /> : null;
+}
+export function GrowthDemand() {
+  const [d] = useGrowth();
+  return d ? <DemandCard demand={d.demand} /> : null;
 }
 
 const CSS = `
