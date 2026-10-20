@@ -273,7 +273,8 @@ function MyApp({ Component, pageProps }) {
       </Head>
       {!shouldHideWidgets && (
         <>
-          <CallbackWidget />
+          {/* home: the side tab sat on the hero headline — the hero has its own search, Noida card and lead popup */}
+          {router.pathname !== "/" && <CallbackWidget />}
           <ActiveBookingBanner />
         </>
       )}
