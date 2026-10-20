@@ -414,9 +414,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trow .cyt-b { background: #1e7a4c; color: #fff !important; }
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }
 
-        @media (max-width: 600px) {
-          .cyt-hero { padding: 10px 0 12px !important; }
-          .cyt-hero-inner { gap: 14px; padding: 0 16px; }
+        /* ── phone + iPad portrait: one column — headline, trust line, search, chips, Noida card, cards ── */
+        @media (max-width: 1023px) {
           /* copy as a column so the trust line can sit right under the headline */
           .cyt-hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
           .cyt-hero-copy > * { order: 3; }
@@ -424,10 +423,25 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero-copy > .cyt-title { order: 1; }
           .cyt-hero-copy > .cyt-trust { order: 2; margin: 0 0 12px; }
           .cyt-hsearch, .cyt-hchips, .cyt-hero-ctas { width: 100%; box-sizing: border-box; }
+          .cyt-hero .description { display: none; }
+          /* WhatsApp help already lives in the bottom action bar */
+          .cyt-wa { display: none !important; }
+          /* Noida booking as a soft white card with a gold accent — stands out without a block of green */
+          .cyt-cta2:hover { background: #fffcf5; color: #0b1712 !important; }
+          .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #fbf3e2; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #b07a1c; }
+          .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; color: #14532d; }
+          .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #64748b; }
+          .cyt-cta2-go { display: inline; margin-left: auto; font-size: 18px; color: #1e7a4c; }
+          .cyt-cta2-badge { top: -9px; right: 12px; background: #c2410c; color: #fff; }
+          .cyt-cta2 { flex: 1 1 100%; justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 14px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #d4a24c; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
+          .cyt-trust-x { display: none !important; }
+        }
+        @media (max-width: 600px) {
+          .cyt-hero { padding: 10px 0 12px !important; }
+          .cyt-hero-inner { gap: 14px; padding: 0 16px; }
           .cyt-hchips { width: calc(100% + 32px); }
           .cyt-eyebrow { font-size: 11.5px; padding: 5px 11px 5px 9px; margin-bottom: 8px; }
           .cyt-hero .cyt-title { font-size: clamp(2.05rem, 7.8vw, 2.6rem); line-height: 1.1; margin-bottom: 8px; }
-          .cyt-hero .description { display: none; }
           .cyt-hsearch { border-radius: 12px; }
           .cyt-hsearch input { height: 44px; font-size: 15px; padding-left: 38px; }
           .cyt-hsearch > i { left: 15px; }
@@ -435,32 +449,35 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hsearch button { height: 44px; width: 44px; padding: 0; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
           .cyt-hs-txt { display: none; }
           .cyt-hs-ico { display: inline; }
-          /* WhatsApp help already lives in the bottom action bar */
-          .cyt-wa { display: none !important; }
           /* one swipeable row of chips instead of three wrapped ones */
           .cyt-hchips { flex-wrap: nowrap; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 2px; scrollbar-width: none; }
           .cyt-hchips::-webkit-scrollbar { display: none; }
           .cyt-hchips a { height: 32px; font-size: 13px; padding: 0 12px; }
           .cyt-hero-ctas { margin-top: 14px; gap: 6px; }
-          /* Noida booking as a filled card, not an outline button */
-          /* Noida booking as a soft white card with a gold accent — stands out without a block of green */
-          .cyt-cta2 { flex: 1 1 100%; justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 14px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #d4a24c; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
-          .cyt-cta2:hover { background: #fffcf5; color: #0b1712 !important; }
-          .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #fbf3e2; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #b07a1c; }
-          .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; color: #14532d; }
-          .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #64748b; }
-          .cyt-cta2-go { display: inline; margin-left: auto; font-size: 18px; color: #1e7a4c; }
-          .cyt-cta2-badge { top: -9px; right: 12px; background: #c2410c; color: #fff; }
           .cyt-trust { gap: 6px 14px; font-size: 12.5px; }
-          .cyt-trust-x { display: none !important; }
           .cyt-tphoto { height: 160px; }
         }
         @media (min-width: 601px) and (max-width: 1023px) {
-          .cyt-hero { padding-bottom: 28px; padding-left: 0 !important; padding-right: 0 !important; }
-          .cyt-hero-inner { gap: 24px; padding: 0 40px; align-items: stretch; box-sizing: border-box; }
-          /* iPad portrait: copy starts at the same 40px gutter as the sections below */
+          .cyt-hero { padding: 22px 0 24px !important; }
+          .cyt-hero-inner { gap: 22px; padding: 0 40px; align-items: stretch; box-sizing: border-box; }
+          /* iPad portrait: copy uses the full width (no empty space beside the headline),
+             starting at the same 40px gutter as the sections below */
           .cyt-hero-copy { max-width: none; }
-          .cyt-hero .cyt-title { font-size: clamp(2.8rem, 5.6vw, 3.8rem); }
+          .cyt-eyebrow { margin-bottom: 12px; }
+          .cyt-hero .cyt-hero-copy .cyt-title { font-size: clamp(3.8rem, 6.5vw, 6.4rem); line-height: 1.08; margin-bottom: 14px; }
+          .cyt-trust { font-size: 14.5px; gap: 8px 22px; }
+          .cyt-hero-copy > .cyt-trust { margin-bottom: 18px; }
+          .cyt-hsearch { max-width: none; }
+          .cyt-hsearch input { height: 50px; font-size: 16px; }
+          .cyt-hsearch button { height: 50px; padding: 0 26px; }
+          /* one swipeable row of chips, like on phones */
+          .cyt-hchips { flex-wrap: nowrap; overflow-x: auto; margin: 14px -40px 0; padding: 0 40px 2px; width: calc(100% + 80px); scrollbar-width: none; }
+          .cyt-hchips::-webkit-scrollbar { display: none; }
+          .cyt-hchips a { height: 38px; font-size: 14.5px; padding: 0 16px; }
+          .cyt-hero-ctas { margin-top: 18px; }
+          .cyt-cta2 { min-height: 64px; font-size: 16.5px; padding: 10px 18px 10px 12px; }
+          .cyt-cta2 > i.feather-map-pin { width: 42px; height: 42px; font-size: 19px; }
+          .cyt-cta2-txt small { font-size: 13px; }
           .cyt-tcard { flex-basis: 280px; }
         }
 
