@@ -5,6 +5,8 @@ import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import { SubmitConsultationUrl, createTraineeUrl, apiUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
+import PhotoHero from "../components/global/photo-hero";
+import { RegistrationsRow } from "../components/about/registrations";
 
 export const PSYCH_TYPES = [
   "Clinical Psychology", "Counselling Psychology", "Industrial & Organizational Psychology",
@@ -42,8 +44,6 @@ const SPECIALIZATIONS = [
   "Cognitive Psychology", "Rehabilitation Psychology", "Other",
 ];
 const YEARS   = ["1st Semester", "2nd Semester", "3rd Semester", "4th Semester", "5th Semester", "6th Semester", "7th Semester", "8th Semester", "9th Semester", "10th Semester"];
-const DURS    = ["1 Month", "2 Months", "3 Months"];
-const HOURS   = ["30 hrs", "40 hrs", "60 hrs", "80 hrs", "100 hrs", "120 hrs", "240 hrs"];
 
 /* Required Hours options are constrained by the chosen Duration —
    picking a duration first narrows down the hours (and fee) choices. */
@@ -65,6 +65,12 @@ const HOUR_PRICES = {
   "240 hrs": 8499,
 };
 function fmtINR(n) { return `₹${n.toLocaleString("en-IN")}`; }
+// every plan as a card: hours, duration, fee, per-hour — the lowest per-hour plan is marked "Best value"
+const PLANS = Object.entries(DURATION_HOURS).flatMap(([duration, hrs]) => hrs.map((h) => ({
+  duration, hours: h, fee: HOUR_PRICES[h], perHour: Math.round(HOUR_PRICES[h] / parseInt(h, 10)),
+})));
+const BEST_PLAN = PLANS.reduce((a, b) => (b.perHour < a.perHour ? b : a)).hours;
+const MIN_FEE = Math.min(...PLANS.map((x) => x.fee));
 const MODES   = ["Online", "Offline"];
 
 export const PROGRAM_DATA = {
@@ -175,17 +181,17 @@ const EMPTY = {
 // The form is a 4-step wizard; each step only checks its own fields, so a mistake is
 // caught right where it happened (inline, per field) instead of a single guessing-game
 // error banner discovered only once at the very end.
-const STEP_TITLES = ["Personal Details", "Academic Background", "Program Preferences", "About You"];
+const STEP_TITLES = ["Program & Fee", "Personal Details", "Academic Background", "Documents"];
 const STEP_INTROS = [
-  "Let's start with the basics — how can we reach you?",
+  "Pick your track, how you'd like to intern and a plan — the fee is shown with each plan.",
+  "How can we reach you?",
   "Tell us a bit about where you're studying.",
-  "Pick your track, mode and how much time you can give.",
-  "Almost there — tell us why, and attach your documents.",
+  "Almost there — tell us why, and attach your documents. You pay on the next screen.",
 ];
 const STEP_FIELDS = {
-  1: ["name", "email", "phone", "city"],
-  2: ["college", "degree", "specialization", "year"],
-  3: ["internType", "mode", "duration", "hours", "availableFrom"],
+  1: ["internType", "mode", "hours", "availableFrom"],
+  2: ["name", "email", "phone", "city"],
+  3: ["college", "degree", "specialization", "year"],
   4: ["motivation", "agreeTerms"],
 };
 
@@ -202,7 +208,7 @@ function validateField(key, f) {
     case "internType": return (!f.internType || f.internType.length === 0) ? "Select at least one internship type" : "";
     case "mode": return !f.mode ? "Select your preferred mode" : "";
     case "duration": return !f.duration ? "Select your preferred duration" : "";
-    case "hours": return !f.hours ? "Select required hours" : "";
+    case "hours": return !f.hours ? "Choose a plan" : "";
     case "availableFrom": return !f.availableFrom ? "Select your available start date" : "";
     case "motivation": return (!f.motivation.trim() || f.motivation.trim().length < 50) ? "Write at least 50 characters" : "";
     case "agreeTerms": return !f.agreeTerms ? "Please agree to the terms and conditions" : "";
@@ -216,122 +222,6 @@ function validateStep(step, f) {
     if (msg) errs[k] = msg;
   });
   return errs;
-}
-
-function WelcomeModal({ onClose }) {
-  const [mob, setMob] = React.useState(false);
-
-  React.useEffect(() => {
-    const check = () => setMob(window.innerWidth < 640);
-    check();
-    window.addEventListener("resize", check);
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("resize", check);
-      document.removeEventListener("keydown", handler);
-      document.body.style.overflow = "";
-    };
-  }, [onClose]);
-
-  const points = [
-    { icon: "feather-users", title: "Learn From Professionals", desc: "A qualified supervisor guides every step — reviewing your cases, reports, and skill development." },
-    { icon: "feather-trending-up", title: "Accelerated Growth", desc: "Real feedback on real work builds confidence and clinical judgment 3x faster." },
-    { icon: "feather-file-text", title: "Documented & Verifiable", desc: "Certificate and LOR backed by supervised proof of work — not just attendance." },
-  ];
-
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(5,10,20,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: mob ? "12px" : "20px", backdropFilter: "blur(6px)" }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: "#0f172a", borderRadius: mob ? 16 : 22,
-        width: "100%", maxWidth: mob ? "100%" : 820,
-        maxHeight: mob ? "92vh" : "88vh",
-        display: "flex", flexDirection: "column",
-        overflow: "hidden", boxShadow: "0 32px 80px rgba(0,0,0,0.5)", position: "relative",
-      }}>
-
-        {/* Close */}
-        <button onClick={onClose} style={{ position: "absolute", top: 12, right: 12, zIndex: 10, background: "rgba(255,255,255,0.1)", border: "none", width: 32, height: 32, borderRadius: 9, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <i className="feather-x" style={{ fontSize: 15, color: "#fff" }}></i>
-        </button>
-
-        <div style={{ display: "flex", flex: 1, overflow: "hidden", flexDirection: mob ? "column" : "row" }}>
-
-          {/* Image Panel — full width banner on mobile, side panel on desktop */}
-          {mob ? (
-            <div style={{ position: "relative", height: 130, flexShrink: 0 }}>
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80"
-                alt="Supervised internship"
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(15,23,42,0.5) 0%, rgba(15,23,42,0.85) 100%)" }} />
-              <div style={{ position: "absolute", bottom: 14, left: 16, right: 48 }}>
-                <p style={{ color: "#fff", fontSize: 12, fontWeight: 600, lineHeight: 1.5, margin: 0, fontStyle: "italic", opacity: 0.9 }}>
-                  "Supervision is the compass that turns learning into mastery."
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div style={{ width: "38%", flexShrink: 0, position: "relative", display: "flex" }}>
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80"
-                alt="Supervised internship"
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-              />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(15,23,42,0.55) 0%, rgba(15,23,42,0.8) 100%)" }} />
-              <div style={{ position: "absolute", bottom: 28, left: 20, right: 20 }}>
-                <i className="feather-message-square" style={{ fontSize: 20, color: "#4ade80", display: "block", marginBottom: 10 }}></i>
-                <p style={{ color: "#fff", fontSize: 13, fontWeight: 600, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>
-                  "Supervision is the compass that turns learning into mastery."
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Content */}
-          <div style={{ flex: 1, overflowY: "auto", padding: mob ? "18px 16px 16px" : "32px 28px 28px", WebkitOverflowScrolling: "touch" }}>
-            <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "1.5px", textTransform: "uppercase", color: "#4ade80", background: "rgba(74,222,128,0.12)", border: "1px solid rgba(74,222,128,0.25)", padding: "3px 10px", borderRadius: 20, display: "inline-block", marginBottom: 10 }}>
-              Before You Apply — Read This
-            </span>
-
-            <h2 style={{ color: "#fff", fontSize: mob ? 17 : 20, fontWeight: 900, lineHeight: 1.3, marginBottom: 6 }}>
-              What is a Supervised Internship?
-            </h2>
-            {!mob && (
-              <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, lineHeight: 1.7, marginBottom: 20 }}>
-                A supervised internship is not just a certificate program — it's a structured, mentor-led journey where every task you do is guided, reviewed, and validated by a professional.
-              </p>
-            )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: mob ? 10 : 16, marginBottom: mob ? 16 : 26, marginTop: mob ? 10 : 0 }}>
-              {points.map((p, i) => (
-                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <div style={{ width: mob ? 30 : 36, height: mob ? 30 : 36, borderRadius: 9, background: "rgba(74,222,128,0.1)", border: "1px solid rgba(74,222,128,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <i className={p.icon} style={{ fontSize: mob ? 13 : 15, color: "#4ade80" }}></i>
-                  </div>
-                  <div>
-                    <p style={{ color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, margin: "0 0 2px" }}>{p.title}</p>
-                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: mob ? 11 : 12, lineHeight: 1.5, margin: 0 }}>{p.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={onClose} style={{ flex: 1, padding: mob ? "11px" : "12px", borderRadius: 10, background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", border: "none", fontSize: mob ? 13 : 13, fontWeight: 800, cursor: "pointer" }}>
-                Apply Now <i className="feather-arrow-right" style={{ marginLeft: 4 }}></i>
-              </button>
-              <button onClick={onClose} style={{ padding: mob ? "11px 14px" : "12px 18px", borderRadius: 10, background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.12)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
-                Got it
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function ProgramModal({ domain, onClose }) {
@@ -385,6 +275,23 @@ function ProgramModal({ domain, onClose }) {
               </ul>
             </div>
           ))}
+
+          {/* Fee */}
+          <div style={{ marginBottom: 20, border: "1.5px solid #ecdcb6", borderRadius: 14, overflow: "hidden" }}>
+            <div style={{ background: "#fbf3e0", padding: "11px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#5b4a2a" }}><i className="feather-tag" style={{ marginRight: 6 }}></i>Program fee</span>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: "#8a5a0b" }}>Same for every track · paid online</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 8, padding: 12 }}>
+              {PLANS.map((pl) => (
+                <div key={pl.hours} style={{ border: `1.5px solid ${pl.hours === BEST_PLAN ? "#d4a24c" : "#eef2ef"}`, borderRadius: 10, padding: "8px 10px", background: "#fff" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b" }}>{pl.hours} · {pl.duration}</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#0f3d24" }}>{fmtINR(pl.fee)}</div>
+                  <div style={{ fontSize: 11, color: pl.hours === BEST_PLAN ? "#8a5a0b" : "#94a3b8", fontWeight: 700 }}>{pl.hours === BEST_PLAN ? "Best value · " : ""}≈ ₹{pl.perHour}/hr</div>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Outcome */}
           <div style={{ background: "#1e293b", borderRadius: 14, padding: "16px 20px", display: "flex", alignItems: "center", gap: 14 }}>
@@ -573,7 +480,6 @@ export default function InternshipRegistration() {
   const [reviewing, setReviewing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [modalDomain, setModalDomain] = useState(null);
-  const [welcomeModal, setWelcomeModal] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
   const [autosaveState, setAutosaveState] = useState(""); // "" | "saving" | "saved" — a quiet reassurance while filling the form
   const paidRef = React.useRef(false);      // set once Razorpay reports a successful payment
@@ -584,8 +490,6 @@ export default function InternshipRegistration() {
   useEffect(() => {
     const draft = loadDraft();
     if (draft) setForm(p => ({ ...p, ...draft }));
-    const t = setTimeout(() => setWelcomeModal(true), 2500);
-    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -843,114 +747,121 @@ export default function InternshipRegistration() {
         .af-titlebar-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65) !important; margin: 0 0 4px; }
         .af-titlebar-title { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; color: #ffffff !important; }
         .af-titlebar-sub { font-size: 12px; color: rgba(255,255,255,0.7) !important; margin: 6px 0 0; }
+        .trs-shell { display: grid; grid-template-columns: 340px minmax(0, 1fr); border: 1px solid #e3ebe6; border-radius: 24px; overflow: clip; background: #fff; box-shadow: 0 30px 60px -30px rgba(20,83,45,.35), 0 2px 8px rgba(20,83,45,.05); }
+        .trs-side { background: linear-gradient(170deg, #f6faf7 0%, #eef6f1 100%); border-right: 1px solid #e3ebe6; }
+        .trs-side-in { position: sticky; top: 96px; padding: 32px 28px; display: flex; flex-direction: column; gap: 16px; }
+        .trs-h { font-size: 23px; font-weight: 800; color: #0b1712; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
+        .trs-sub { margin: 0; font-size: 14.5px; color: #5b6b62; line-height: 1.6; }
+        .trs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+        .trs-list li { margin: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; color: #26392f; line-height: 1.45; }
+        .trs-list li::before { content: none; }
+        .trs-list li i { width: 22px; height: 22px; border-radius: 50%; background: #dcf2e4; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+        .trs-box { display: flex; flex-direction: column; gap: 7px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #e3ebe6; font-size: 13.5px; color: #33463b; }
+        .trs-box b { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #4b5d53; }
+        .trs-box span { display: flex; align-items: center; gap: 8px; }
+        .trs-box i { color: #1e7a4c; }
+        .ir-fees { background: #fffaf0; border-color: #efe2bf; }
+        .ir-fees b { color: #8a5a0b; }
+        .ir-fee-row { flex-wrap: wrap; gap: 4px 6px !important; }
+        .ir-fee-row em { font-style: normal; font-size: 12px; font-weight: 800; color: #5b4a2a; min-width: 62px; }
+        .ir-fee-row i { font-style: normal; font-size: 12px; font-weight: 700; color: #14532d !important; background: #fff; border: 1px solid #efe2bf; border-radius: 999px; padding: 1px 8px; }
+        .ir-fees small { font-size: 11.5px; color: #8a7342; }
+        .trs-help { display: flex; flex-direction: column; gap: 6px; padding-top: 14px; border-top: 1px solid #dfe9e3; font-size: 13px; color: #5b6b62; }
+        .trs-help span { display: flex; align-items: center; gap: 7px; }
+        .trs-help a { color: #1e7a4c; font-weight: 700; }
+        .trs-main { min-width: 0; }
+        .ir-live { width: 7px; height: 7px; border-radius: 50%; background: #22a35a; box-shadow: 0 0 0 3px rgba(34,163,90,.2); display: inline-block; }
+        .ir-plans { display: flex; flex-direction: column; gap: 12px; }
+        .ir-plan-d { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
+        .ir-plan-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .ir-plan { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #dbe3df; background: #fff; cursor: pointer; text-align: left; font-family: inherit; transition: border-color .15s, background .15s; }
+        .ir-plan:hover { border-color: #86c6a0; }
+        .ir-plan.on { border-color: #1e7a4c; background: #f0fdf4; box-shadow: 0 0 0 3px rgba(30,122,76,.12); }
+        .ir-plan.best { border-color: #d4a24c; }
+        .ir-plan.best.on { border-color: #1e7a4c; }
+        .ir-plan em { position: absolute; top: -9px; left: 12px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #3d2a00; background: #ecc77d; border-radius: 999px; padding: 1px 8px; }
+        .ir-plan-h { font-size: 12.5px; font-weight: 700; color: #475569; }
+        .ir-plan b { font-size: 20px; font-weight: 900; color: #0f3d24; line-height: 1.2; }
+        .ir-plan small { font-size: 11.5px; color: #8a948f; font-weight: 600; }
+        .ir-plan-tick { position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #cbd5d0; display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-size: 11px; font-weight: 900; color: #fff; }
+        .ir-plan.on .ir-plan-tick { background: #1e7a4c; border-color: #1e7a4c; }
+        @media (max-width: 1100px) { .trs-shell { grid-template-columns: 290px minmax(0, 1fr); } .trs-side-in { padding: 26px 22px; } }
+        /* iPad portrait & phones: form first, the info panel under it */
+        @media (max-width: 899px) {
+          .trs-shell { grid-template-columns: 1fr; border-radius: 20px; }
+          .trs-main { order: 1; }
+          .trs-side { order: 2; border-right: none; border-top: 1px solid #e3ebe6; }
+          .trs-side-in { position: static; padding: 20px 18px; gap: 12px; }
+          .trs-h { font-size: 19px; }
+        }
+        @media (max-width: 575px) { .ir-plan-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ir-plan b { font-size: 18px; } }
         .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
         select.intern-input, .intern-input { border-radius: 3px !important; }
       ` }} />
 
       <MyNavbar />
 
-      {/* ── HERO BANNER (matches login page banner style) ── */}
-      {/* dangerouslySetInnerHTML, not a string child: React escapes text
-          children of <style> (' -> &#x27;) but browsers don't un-escape
-          inside <style>, so a string child can both hydration-mismatch and
-          silently break any rule with a quote in it. */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .intern-banner {
-          position: relative;
-          background-image: url(/images/bg-image-12dabd.jpg);
-          background-size: cover;
-          background-position: center;
-          background-attachment: scroll;
-          padding: 70px 0 70px 0;
-          overflow: hidden;
-          margin-top: 0px;
-        }
-        .intern-banner::before {
-          content: no-open-quote;
-          position: absolute; inset: 0;
-          background: rgba(0, 0, 0, 0.6);
-          z-index: 1;
-        }
-        .intern-badge {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: rgba(255,255,255,0.15); color: #ffffff;
-          padding: 8px 20px; border-radius: 50px;
-          font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
-          margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);
-          backdrop-filter: blur(4px); position: relative; z-index: 1;
-        }
-        .intern-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; animation: internPulse 2s infinite; }
-        @keyframes internPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.5)} }
-        .intern-title {
-          font-size: 30px; font-weight: 900; color: #ffffff; line-height: 1.3;
-          margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-          position: relative; z-index: 1;
-        }
-        .intern-subtitle {
-          font-size: 14px; color: rgba(255,255,255,0.85); max-width: 600px;
-          margin: 0 auto; line-height: 1.6; position: relative; z-index: 1;
-        }
-        @media (max-width: 768px) {
-          .intern-banner { padding: 24px 0 20px 0; }
-          .intern-badge { display: none; }
-          .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
-          .intern-subtitle { font-size: 12px; padding: 0 12px; }        }
-      ` }} />
-      <section className="intern-banner">
-        <div className="container">
-          <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-            <div className="intern-badge">
-              <span className="intern-badge-dot"></span>
-              Applications Open
-            </div>
-            <h1 className="intern-title">
-              Supervision <span style={{ color: "#4ade80" }}>cum Internship</span> Program
-            </h1>
-            <p className="intern-subtitle">
-              A mentor-led, supervised internship at Choose Your Therapist — work alongside licensed therapists, contribute to real projects, and build skills that matter in the mental health space.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PhotoHero
+        pill={<><span className="ir-live" aria-hidden="true" /> Applications open</>}
+        title={<>Supervision <span>cum Internship</span> Program</>}
+        lead="A mentor-led internship at Choose Your Therapist — work alongside verified psychologists on real projects and earn a certificate and LOR."
+        stats={[{ value: `From ${fmtINR(MIN_FEE)}`, label: "program fee" }, { value: "30–240 hrs", label: "supervised" }, { value: "Certificate", label: "+ LOR" }]}
+      />
 
       {/* ── MAIN CONTENT ── */}
       {/* Full-bleed white backdrop — Footer.js forces <body> dark site-wide,
           so without this the margins around the container would show that
           dark green through. */}
       <div style={{ background: "#fff" }}>
-      <div id="apply-form" className="container" style={{ padding: isMobile ? "32px 16px" : "48px 24px" }}>
+      <div id="apply-form" className="container" style={{ paddingTop: 0, paddingBottom: isMobile ? 32 : 48 }}>
         {submitted ? (
-          <SuccessScreen name={form.name} internType={form.internType} traineeSlug={traineeSlug} />
-        ) : (
-        <div style={{
-          maxWidth: 860, margin: "0 auto",
-          background: "#fff",
-          padding: isMobile ? "20px 16px 24px" : "32px 36px 36px",
-        }}>
-          <div className="af-doc" style={{ marginBottom: 24 }}>
-            <div className="af-titlebar">
-              <p className="af-titlebar-eyebrow">Choose Your Therapist</p>
-              <h1 className="af-titlebar-title">Application Form</h1>
-              <p className="af-titlebar-sub">Supervision cum Internship Program</p>
-            </div>
-            <div className="af-notice">
-              <i className="feather-alert-circle" style={{ fontSize: 14, marginTop: 1, flexShrink: 0 }}></i>
-              <span>Please read all instructions carefully before filling this form. Fields marked <strong>*</strong> are mandatory. Incomplete or inaccurate applications may be rejected.</span>
-            </div>
+          <div className="phx-overlap" style={{ background: "#fff", borderRadius: 24, border: "1px solid #e3ebe6", padding: isMobile ? 16 : 32 }}>
+            <SuccessScreen name={form.name} internType={form.internType} traineeSlug={traineeSlug} />
           </div>
-          <div>
+        ) : (
+        <div className="trs-shell phx-overlap">
+          <aside className="trs-side" aria-label="About the internship">
+            <div className="trs-side-in">
+              <h2 className="trs-h">Learn under real supervision</h2>
+              <p className="trs-sub">Not just a certificate — every task you do is guided, reviewed and signed off by a professional.</p>
+              <ul className="trs-list">
+                {["Supervised by verified psychologists", "Real cases, reports and feedback", "Certificate + LOR when you complete your hours"]
+                  .map((x) => <li key={x}><i className="feather-check" aria-hidden="true" /> {x}</li>)}
+              </ul>
+              <div className="trs-box ir-fees">
+                <b>Program fee</b>
+                {Object.entries(DURATION_HOURS).map(([d, hrs]) => (
+                  <span key={d} className="ir-fee-row"><em>{d}</em>{hrs.map((h) => <i key={h}>{h.replace(" hrs", "h")} · {fmtINR(HOUR_PRICES[h])}</i>)}</span>
+                ))}
+                <small>Same fee for every track · pay online when you submit</small>
+              </div>
+              <div className="trs-box">
+                <b>Keep these ready</b>
+                <span><i className="feather-file-text" aria-hidden="true" /> CV / Resume (PDF or DOC)</span>
+                <span><i className="feather-credit-card" aria-hidden="true" /> College ID card</span>
+                <span><i className="feather-camera" aria-hidden="true" /> Passport-size photo</span>
+              </div>
+              <div className="trs-help">
+                <span><i className="feather-clock" aria-hidden="true" /> Takes about 5 minutes</span>
+                <span><i className="feather-save" aria-hidden="true" /> Progress is saved on this device — finish later anytime</span>
+                <span><i className="feather-phone" aria-hidden="true" /> Need help? <a href="tel:+918077757951">+91 80777 57951</a></span>
+              </div>
+              <RegistrationsRow />
+            </div>
+          </aside>
+          <div className="trs-main" style={{ padding: isMobile ? "20px 16px 24px" : "30px 32px 34px" }}>
             {reviewing ? (
               /* ── REVIEW SCREEN ── */
               <div>
                 <div style={{ marginBottom: 4 }}>
-                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Review Your Application</h2>
+                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Review &amp; pay</h2>
                   {draftSaved && (
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
                       <i className="feather-save" style={{ fontSize: 11 }}></i> Draft Saved
                     </span>
                   )}
                 </div>
-                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Please review all details before submitting.</p>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Check your details, then pay the program fee to submit your application.</p>
 
                 {error && (
                   <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
@@ -1092,7 +1003,7 @@ export default function InternshipRegistration() {
                 </div>
                 <p style={{ color: "#64748b", fontSize: 13, marginBottom: 6 }}>{STEP_INTROS[step - 1]}</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, fontSize: 11.5, color: "#94a3b8", fontWeight: 700 }}>
-                  <span>Step {step} of 4</span>
+                  <span>Step {step} of 4 · then review &amp; pay</span>
                   {autosaveState === "saving" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i className="feather-loader"></i> Saving…</span>}
                   {autosaveState === "saved" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#228756" }}><i className="feather-check-circle"></i> Saved</span>}
                 </div>
@@ -1103,11 +1014,11 @@ export default function InternshipRegistration() {
                   </div>
                 )}
 
-                {/* ── Section 1: Personal ── */}
-                {step === 1 && (
+                {/* ── Section 2: Personal ── */}
+                {step === 2 && (
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <span style={sectionNum}>01</span>
+                    <span style={sectionNum}>02</span>
                     Personal Details
                   </div>
 
@@ -1151,11 +1062,11 @@ export default function InternshipRegistration() {
                 </div>
                 )}
 
-                {/* ── Section 2: Academic ── */}
-                {step === 2 && (
+                {/* ── Section 3: Academic ── */}
+                {step === 3 && (
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <span style={sectionNum}>02</span>
+                    <span style={sectionNum}>03</span>
                     Academic Qualification
                   </div>
 
@@ -1190,12 +1101,12 @@ export default function InternshipRegistration() {
                 </div>
                 )}
 
-                {/* ── Section 3: Preferences ── */}
-                {step === 3 && (
+                {/* ── Section 1: Program & fee ── */}
+                {step === 1 && (
                 <div className="section-card">
                   <div style={sectionHead}>
-                    <span style={sectionNum}>03</span>
-                    Program Preferences
+                    <span style={sectionNum}>01</span>
+                    Program &amp; Fee
                   </div>
 
                   <div style={fieldWrap}>
@@ -1300,7 +1211,36 @@ export default function InternshipRegistration() {
                     <FieldErr msg={stepErrors.internType} />
                   </div>
 
-                  <div style={gridThree}>
+                  <div style={fieldWrap}>
+                    <label style={labelStyle}>Choose your plan <span className="req">*</span></label>
+                    <div className="ir-plans">
+                      {Object.entries(DURATION_HOURS).map(([d, hrs]) => (
+                        <div key={d} className="ir-plan-group">
+                          <span className="ir-plan-d">{d}</span>
+                          <div className="ir-plan-row">
+                            {hrs.map((h) => {
+                              const pl = PLANS.find((x) => x.hours === h);
+                              const on = form.hours === h;
+                              return (
+                                <button type="button" key={h} className={`ir-plan${on ? " on" : ""}${h === BEST_PLAN ? " best" : ""}`}
+                                  onClick={() => setForm((p) => ({ ...p, duration: d, hours: h }))} aria-pressed={on}>
+                                  {h === BEST_PLAN && <em>Best value</em>}
+                                  <span className="ir-plan-h">{h}</span>
+                                  <b>{fmtINR(pl.fee)}</b>
+                                  <small>≈ ₹{pl.perHour}/hr</small>
+                                  <i className="ir-plan-tick" aria-hidden="true">{on ? "✓" : ""}</i>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <FieldErr msg={stepErrors.hours} />
+                    <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0" }}>The fee is the same for every track. You pay online (UPI, card or net banking) when you submit — your seat is confirmed straight away.</p>
+                  </div>
+
+                  <div style={gridTwo}>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Preferred Mode <span className="req">*</span></label>
                       <div style={{ display: "flex", gap: 10 }}>
@@ -1318,39 +1258,6 @@ export default function InternshipRegistration() {
                         ))}
                       </div>
                       <FieldErr msg={stepErrors.mode} />
-                    </div>
-                    <div style={fieldWrap}>
-                      <label style={labelStyle}>Duration <span className="req">*</span></label>
-                      <CustomSelect value={form.duration} placeholder="Select duration" options={DURS} error={!!stepErrors.duration}
-                        onChange={v => {
-                          const allowed = DURATION_HOURS[v] || [];
-                          setForm(p => ({ ...p, duration: v, hours: allowed.includes(p.hours) ? p.hours : "" }));
-                        }} />
-                      <FieldErr msg={stepErrors.duration} />
-                    </div>
-                    <div style={fieldWrap}>
-                      <label style={labelStyle}>Required Hours <span className="req">*</span></label>
-                      {form.duration ? (
-                        <CustomSelect value={form.hours} onChange={v => set("hours", v)} placeholder="Select hours" options={DURATION_HOURS[form.duration] || HOURS} error={!!stepErrors.hours} />
-                      ) : (
-                        <div style={{ ...inputStyle, color: "#94a3b8", cursor: "not-allowed", background: "#f8fafc" }}>Select duration first</div>
-                      )}
-                      <FieldErr msg={stepErrors.hours} />
-                      {form.hours && HOUR_PRICES[form.hours] && (
-                        <div style={{
-                          marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between",
-                          background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 9,
-                          padding: "7px 12px",
-                        }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: "#166534" }}>Program Fee</span>
-                          <span style={{ fontSize: 14, fontWeight: 900, color: "#166534" }}>
-                            {fmtINR(HOUR_PRICES[form.hours])}
-                            {form.hours === "240 hrs" && (
-                              <span style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", marginLeft: 6 }}>Best Value</span>
-                            )}
-                          </span>
-                        </div>
-                      )}
                     </div>
                     <div style={fieldWrap}>
                       <label style={labelStyle}>Start From <span className="req">*</span></label>
@@ -1451,8 +1358,7 @@ export default function InternshipRegistration() {
                       {[
                         "Applications are reviewed within 3–5 business days of submission.",
                         "Keep your uploaded Resume, College ID, and Photo clear and valid — incomplete documents can delay review.",
-                        "The Program Fee is collected via UPI at the time of application to confirm your slot.",
-                        "Double-check your Transaction / UTR ID before submitting — an incorrect ID can delay payment verification.",
+                        "The Program Fee is paid online (UPI, card or net banking) on the next screen — your seat is confirmed as soon as the payment goes through.",
                         "Selected applicants will be contacted on their registered email and phone number.",
                         "The Certificate of Internship and Letter of Recommendation are issued only after completing the required hours.",
                       ].map((t, i) => (
@@ -1482,7 +1388,7 @@ export default function InternshipRegistration() {
                     {step < 4 ? (
                       <>Next <i className="feather-arrow-right"></i></>
                     ) : (
-                      <><i className="feather-eye"></i> Review Application</>
+                      <><i className="feather-eye"></i> Review &amp; pay {form.hours && HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : ""}</>
                     )}
                   </button>
                 </div>
@@ -1498,7 +1404,6 @@ export default function InternshipRegistration() {
       <Footer />
 
       {modalDomain && <ProgramModal domain={modalDomain} onClose={() => setModalDomain(null)} />}
-      {welcomeModal && <WelcomeModal onClose={() => setWelcomeModal(false)} />}
     </>
   );
 }
