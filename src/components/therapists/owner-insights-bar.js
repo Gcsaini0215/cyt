@@ -12,7 +12,7 @@ export default function OwnerInsightsBar({ ownerUserId }) {
   useEffect(() => {
     const me = getDecodedToken();
     if (!me || me.role !== 1 || !ownerUserId || String(me.userId) !== String(ownerUserId)) return;
-    fetchById(`${apiUrl}/profile-stats/me`).then((r) => { if (r?.status) setData(r.data); }).catch(() => {});
+    fetchById(`${apiUrl}/profile-stats/me`).then((r) => { if (r?.status && r.data?.totals) setData(r.data); }).catch(() => {});
   }, [ownerUserId]);
 
   if (!data) return null;

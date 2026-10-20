@@ -72,7 +72,7 @@ export default function ProfileInsights() {
   const [err, setErr] = useState(false);
 
   useEffect(() => {
-    fetchById(`${apiUrl}/profile-stats/me`).then((r) => (r?.status ? setD(r.data) : setErr(true))).catch(() => setErr(true));
+    fetchById(`${apiUrl}/profile-stats/me`).then((r) => (r?.status && r.data?.totals ? setD(r.data) : setErr(true))).catch(() => setErr(true));
   }, []);
 
   const sources = useMemo(() => {

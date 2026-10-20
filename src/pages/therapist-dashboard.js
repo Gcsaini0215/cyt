@@ -18,7 +18,7 @@ import { useTimingsTodo } from "../components/therapists/dashboard/AvailabilityN
 import { useAddonStep } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import ProfileInsights from "../components/therapists/dashboard/profile-insights";
-import { TodayBar, KpiCard, KpiHead, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
+import { TodayBar, KpiCard, KpiHead, NextSessionSlider, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
 import { joinSession } from "../utils/join-session";
@@ -1178,7 +1178,7 @@ export default function TherapistDashboard() {
           {/* 2–5 — next session + to-do, then four KPIs (phones: next → KPIs → to-do) */}
           {/* the Next session card shows only when a booking is coming up (no empty "No sessions booked yet" card) */}
           <div className={`ov-top${!nextLoading && !nextSession ? " no-next" : ""}`}>
-            {(nextLoading || nextSession) && <NextSessionCard s={nextSession} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} onChanged={() => load(true)} />}
+            {(nextLoading || nextSession) && <NextSessionSlider sessions={upcomingSessions} loading={nextLoading} therapist={therapistInfo} onJoin={(x) => joinSession(x.id, x.meet).catch((e) => toast.error(e.message))} onReschedule={(x) => setRescheduling(x)} onChanged={() => load(true)} />}
             <TodoCard items={todoItems} pct={completionPct} />
             <KpiHead since={since} savingSince={savingSince} onChangeSince={changeSince} />
             <div className="ov-kpis">
