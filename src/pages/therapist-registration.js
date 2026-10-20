@@ -9,6 +9,7 @@ import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import PhotoHero from "../components/global/photo-hero";
 import Footer from "../components/footer";
+import { RegistrationsRow } from "../components/about/registrations";
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
@@ -794,6 +795,7 @@ export default function TherapistRegistration() {
                 <span><i className="feather-save" aria-hidden="true" /> Progress is saved on this device — finish later anytime</span>
                 <span><i className="feather-phone" aria-hidden="true" /> Need help? <a href="tel:+918077757951">+91 80777 57951</a></span>
               </div>
+              <RegistrationsRow />
             </div>
           </aside>
           <div className="trs-main" style={{

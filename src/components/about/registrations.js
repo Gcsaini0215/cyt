@@ -152,3 +152,31 @@ export function RegistrationsGrid() {
     </>
   );
 }
+
+const rowStyles = `
+  .rgr { margin-top: 16px; }
+  .rgr-label { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #8a5a0b; }
+  .rgr-label::after { content: ""; flex: 1; height: 1px; background: #ecdcb6; }
+  .rgr-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .rgr-card { display: flex; align-items: center; justify-content: center; height: 52px; padding: 6px; box-sizing: border-box; background: #fff; border: 1px solid #ece4cf; border-radius: 10px; }
+  .rgr-card img { max-width: 100%; max-height: 38px; width: auto; height: auto; object-fit: contain; }
+`;
+
+// compact one-row version for narrow spots (therapist registration sidebar)
+export function RegistrationsRow() {
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: rowStyles }} />
+      <div className="rgr">
+        <p className="rgr-label">Registered with</p>
+        <div className="rgr-grid">
+          {REGISTRATIONS.map((r) => (
+            <div className="rgr-card" key={r.src} title={r.alt}>
+              <img src={r.src} alt={r.alt} width={r.w} height={r.h} loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
