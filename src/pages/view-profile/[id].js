@@ -25,7 +25,7 @@ import {
   pickRelated, profileSeo, expertiseOf, languagesOf, minFeeOf, cityOf, concernLinksOf, placeLinkOf, modesOf, cleanName,
 } from "../../utils/related-therapists";
 import dynamic from "next/dynamic";
-import { trackProfileView, trackProfileAction } from "../../utils/profile-stats";
+import { trackProfileView, trackProfileAction, startProfilePresence } from "../../utils/profile-stats";
 import OwnerInsightsBar from "../../components/therapists/owner-insights-bar";
 const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
@@ -147,6 +147,8 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
   useEffect(() => {
     if (profile?._id) trackProfileView(String(profile._id));
   }, [profile?._id]);
+  // "viewing now" on the therapist's dashboard
+  useEffect(() => (profile?._id ? startProfilePresence(String(profile._id)) : undefined), [profile?._id]);
   useEffect(() => {
     const tid = profile?._id ? String(profile._id) : "";
     if (!tid) return undefined;

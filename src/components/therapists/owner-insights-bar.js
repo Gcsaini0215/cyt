@@ -3,11 +3,13 @@ import Link from "next/link";
 import { getDecodedToken } from "../../utils/jwt";
 import { fetchById } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
+import { useLiveNow, LiveBadge, LIVE_CSS } from "./dashboard/profile-insights";
 
 /* Shown only to the therapist looking at their own public profile (visitors never see it):
    last-30-day views, profile strength and the next thing to improve. */
 export default function OwnerInsightsBar({ ownerUserId }) {
   const [data, setData] = useState(null);
+  const liveNow = useLiveNow(data?.liveNow || 0, !!data);
 
   useEffect(() => {
     const me = getDecodedToken();
@@ -20,10 +22,11 @@ export default function OwnerInsightsBar({ ownerUserId }) {
   const score = data.strength?.score ?? 0;
   return (
     <div className="oib" role="note">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS + LIVE_CSS }} />
       <div className="oib-in">
         <span className="oib-eye"><i className="feather-eye" aria-hidden="true" /> Only you can see this</span>
         <span className="oib-n"><b>{data.totals?.views || 0}</b> profile views · last 30 days</span>
+        <LiveBadge n={liveNow} />
         <span className="oib-s">
           <span className="oib-bar"><i style={{ width: `${score}%` }} /></span>
           Profile strength <b>{score}%</b>

@@ -79,9 +79,41 @@ function useInsights() {
   return [d, err];
 }
 
+/* people on the profile right now — polled every 20 s while the dashboard tab is visible */
+export function useLiveNow(initial = 0, enabled = true) {
+  const [n, setN] = useState(initial);
+  useEffect(() => { setN(initial); }, [initial]);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let alive = true;
+    const tick = () => {
+      if (document.visibilityState !== "visible") return;
+      fetchById(`${apiUrl}/profile-stats/live`).then((r) => { if (alive && r?.status) setN(Number(r.data?.liveNow) || 0); }).catch(() => {});
+    };
+    const t = setInterval(tick, 20000);
+    const onVis = () => { if (document.visibilityState === "visible") tick(); };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { alive = false; clearInterval(t); document.removeEventListener("visibilitychange", onVis); };
+  }, [enabled]);
+  return n;
+}
+
+export function LiveBadge({ n }) {
+  if (!n) return null;
+  return <span className="pi-live" title="People on your profile right now"><i aria-hidden="true" />{n} viewing now</span>;
+}
+
+export const LIVE_CSS = `
+.pi-live { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: #b91c1c; background: #fee2e2; border-radius: 999px; padding: 2px 9px 2px 8px; white-space: nowrap; }
+.pi-live i { width: 7px; height: 7px; border-radius: 50%; background: #dc2626; box-shadow: 0 0 0 0 rgba(220,38,38,.6); animation: piLive 1.6s infinite; }
+@keyframes piLive { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.55); } 70% { box-shadow: 0 0 0 7px rgba(220,38,38,0); } 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); } }
+@media (prefers-reduced-motion: reduce) { .pi-live i { animation: none; } }
+`;
+
 /* compact "people are finding you" card for the dashboard's motivation row */
 export function ProfileViewsSpot() {
   const [d, err] = useInsights();
+  const liveNow = useLiveNow(d?.liveNow || 0, !!d);
   if (err || !d) return null;
   const t = d.totals;
   const tr = pctChange(t.views, t.prevViews);
@@ -89,9 +121,9 @@ export function ProfileViewsSpot() {
   const max = Math.max(1, ...days.map((x) => x.views));
   return (
     <a href="#profile-insights" className="pvs">
-      <style dangerouslySetInnerHTML={{ __html: SPOT_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: SPOT_CSS + LIVE_CSS }} />
       <span className="pvs-k"><i className="feather-eye" aria-hidden="true" /> Profile views · 30 days</span>
-      <span className="pvs-v"><b>{t.views.toLocaleString("en-IN")}</b>{tr && <span className={`pi-trend ${tr.up ? "up" : "down"}`}>{tr.up ? "▲" : "▼"} {tr.text}</span>}</span>
+      <span className="pvs-v"><b>{t.views.toLocaleString("en-IN")}</b>{tr && <span className={`pi-trend ${tr.up ? "up" : "down"}`}>{tr.up ? "▲" : "▼"} {tr.text}</span>}<LiveBadge n={liveNow} /></span>
       <span className="pvs-s">{t.visitors.toLocaleString("en-IN")} different people looked at your profile{d.actions?.book ? ` · ${d.actions.book} tapped Book` : ""}</span>
       {days.length > 0 && <span className="pvs-bars" aria-hidden="true">{days.map((x) => <i key={x.day} style={{ height: `${Math.max(8, (x.views / max) * 100)}%` }} />)}</span>}
       <span className="pvs-go">See full insights ↓</span>
@@ -115,6 +147,7 @@ const SPOT_CSS = `
 
 export default function ProfileInsights() {
   const [d, err] = useInsights();
+  const liveNow = useLiveNow(d?.liveNow || 0, !!d);
 
   const sources = useMemo(() => {
     if (!d?.sources) return [];
@@ -133,7 +166,7 @@ export default function ProfileInsights() {
 
   return (
     <section id="profile-insights" className="pi" aria-labelledby="pi-title">
-      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSS + LIVE_CSS }} />
       <div className="pi-head">
         <div>
           <h2 id="pi-title">Profile insights</h2>
@@ -153,7 +186,7 @@ export default function ProfileInsights() {
         <div className="pi-kpi">
           <span>Profile views</span>
           <b>{t.views.toLocaleString("en-IN")}</b>
-          <Trend t={pctChange(t.views, t.prevViews)} />
+          <span className="pi-kpi-row"><Trend t={pctChange(t.views, t.prevViews)} /><LiveBadge n={liveNow} /></span>
         </div>
         <div className="pi-kpi">
           <span>Different visitors</span>
@@ -250,6 +283,7 @@ const CSS = `
 .pi-kpi { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: #f6faf7; border: 1px solid #e8efea; }
 .pi-kpi > span { font-size: 12px; font-weight: 700; color: #5b6b62; }
 .pi-kpi > b { font-size: 24px; font-weight: 900; color: #13261c; line-height: 1.15; }
+.pi-kpi-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .pi-kpi.lock > b { color: #b9c5bd; letter-spacing: 2px; }
 .pi-trend { align-self: flex-start; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 1px 7px; }
 .pi-trend.up { color: #166534; background: #dcfce7; }

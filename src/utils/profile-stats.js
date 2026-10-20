@@ -79,3 +79,24 @@ export function trackImpressions(ids) {
   store(() => sessionStorage.setItem("cyt_imp", JSON.stringify([...seen].slice(-400))));
   send("/profile-stats/impressions", { ids: fresh.slice(0, 80) });
 }
+
+// live "viewing now": ping every 20 s while the profile is open and the tab is visible; say goodbye on leave
+export function startProfilePresence(therapistId) {
+  if (!therapistId) return () => {};
+  const vid = visitorId();
+  if (!vid) return () => {};
+  let timer = null;
+  const ping = (leave = false) => send("/profile-stats/presence", { t: therapistId, vid, ...(leave ? { leave: true } : {}) });
+  const startTimer = () => { if (!timer) { ping(); timer = setInterval(() => ping(), 20000); } };
+  const stopTimer = (leave) => { if (timer) { clearInterval(timer); timer = null; } if (leave) ping(true); };
+  const onVis = () => (document.visibilityState === "visible" ? startTimer() : stopTimer(true));
+  const onHide = () => stopTimer(true);
+  if (document.visibilityState === "visible") startTimer();
+  document.addEventListener("visibilitychange", onVis);
+  window.addEventListener("pagehide", onHide);
+  return () => {
+    document.removeEventListener("visibilitychange", onVis);
+    window.removeEventListener("pagehide", onHide);
+    stopTimer(true);
+  };
+}
