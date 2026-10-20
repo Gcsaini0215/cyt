@@ -187,7 +187,8 @@ select.cf-input {
 
 // sourceTag: where the lead came from ("Popup · /psychologist-in/bangalore"), sent when the visitor
 // didn't pick a source themselves — so every lead in the admin shows its page.
-export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true, variant = "default", sourceTag = "" }) {
+// forTherapist: the same lead form for a therapist who wants help joining (no age; a question instead of a concern)
+export default function ConsultationForm({ showHeading = true, showLocation = true, showSource = true, variant = "default", sourceTag = "", forTherapist = false }) {
   const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"), { noSsr: true });
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => { setMounted(true); }, []);
@@ -306,13 +307,13 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
                 <input type="text" name="name" placeholder="Your name" value={formData.name} onChange={handleChange} required className="cf-input" />
               </div>
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
+            {!forTherapist && <div style={{ flex: 1, minWidth: 0 }}>
               <label className="cf-label">Age</label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <CakeIcon style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
                 <input type="text" name="age" placeholder="e.g. 25 yrs" value={formData.age} onChange={handleChange} className="cf-input" />
               </div>
-            </div>
+            </div>}
           </div>
 
           {/* Phone gets its own row — the country code needs the width */}
@@ -351,12 +352,12 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
 
           {/* Row 3: Concern full width */}
           <div style={{ marginBottom: "10px" }}>
-            <label className="cf-label">Your Concern</label>
+            <label className="cf-label">{forTherapist ? "Your question" : "Your Concern"}</label>
             <div style={{ position: "relative" }}>
               <MessageIcon style={{ position: "absolute", left: 11, top: 13, color: "#94a3b8", fontSize: 16, zIndex: 1, pointerEvents: "none" }} />
               <textarea
                 name="concern"
-                placeholder="Briefly describe what you're going through..."
+                placeholder={forTherapist ? "e.g. RCI-registered clinical psychologist in Delhi — need help with registration" : "Briefly describe what you're going through..."}
                 value={formData.concern}
                 onChange={handleChange}
                 className="cf-textarea"
@@ -380,7 +381,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
           </div>
 
           <button type="submit" disabled={loading || !consent} className="cf-submit">
-            {loading ? "Submitting..." : "Talk to a Therapist →"}
+            {loading ? "Submitting..." : (forTherapist ? "Get a call back" : "Talk to a Therapist") + " →"}
           </button>
 
           <p className="cf-foot">

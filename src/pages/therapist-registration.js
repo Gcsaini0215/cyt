@@ -9,6 +9,7 @@ import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import PhotoHero from "../components/global/photo-hero";
 import Footer from "../components/footer";
+const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 
@@ -1213,6 +1214,9 @@ export default function TherapistRegistration() {
       </div>
 
       {packagesFor !== null && <PackageModal initialEmail={packagesFor} onClose={closePackages} />}
+      {/* therapists who stall on the form can ask for a call back */}
+      <BookingPopup delay={20000} scrollAt={0.5} forTherapist showHeading={false} showLocation={false} showSource={false}
+        title="Need help joining CYT?" note="Share your details — our team will call or WhatsApp you and help you get listed." sourceTag="Popup · Therapist registration" />
       <Footer />
     </>
   );

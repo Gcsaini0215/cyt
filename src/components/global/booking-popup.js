@@ -22,7 +22,7 @@ const mayAutoOpen = () => store(() => {
 
 // title / note: page-specific copy ("Looking for a psychologist in Bangalore?") — people fill a form
 // that speaks to what they came for far more than a generic one.
-const BookingPopup = ({ delay = 12000, scrollAt = 0.3, showHeading = true, showLocation = true, showSource = true, onClose, title = "Chat with CYT", note = "Share a few details and our team will message you on WhatsApp.", sourceTag = "" }) => {
+const BookingPopup = ({ delay = 12000, scrollAt = 0.3, forTherapist = false, showHeading = true, showLocation = true, showSource = true, onClose, title = "Chat with CYT", note = "Share a few details and our team will message you on WhatsApp.", sourceTag = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -86,7 +86,7 @@ const BookingPopup = ({ delay = 12000, scrollAt = 0.3, showHeading = true, showL
   const body = (showHeadingProp) => (
     <div className="bp-wa-body">
       <p className="bp-wa-note">{note}</p>
-      <ConsultationForm showHeading={showHeadingProp} showLocation={showLocation} showSource={showSource} variant="whatsapp"
+      <ConsultationForm showHeading={showHeadingProp} showLocation={showLocation} showSource={showSource} variant="whatsapp" forTherapist={forTherapist}
         sourceTag={sourceTag || (typeof window !== "undefined" ? `Popup · ${window.location.pathname}` : "")} />
     </div>
   );
