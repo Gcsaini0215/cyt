@@ -849,7 +849,7 @@ export default function TherapistDashboard() {
   const [invoices, setInvoices] = React.useState([]);
   const [myReviews, setMyReviews] = React.useState([]);
   const upPg = usePager(upcomingSessions, 5);
-  const invPg = usePager(invoices, 5);
+  const invPg = usePager(invoices, 9);
   // Overview "start fresh" date (server-side, per therapist); null = all-time.
   const [since, setSince] = React.useState(null);
   const [savingSince, setSavingSince] = React.useState(false);
