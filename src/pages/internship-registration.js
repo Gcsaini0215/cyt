@@ -66,10 +66,10 @@ const HOUR_PRICES = {
 };
 function fmtINR(n) { return `₹${n.toLocaleString("en-IN")}`; }
 // every plan as a card: hours, duration, fee, per-hour — the lowest per-hour plan is marked "Best value"
-const PLANS = Object.entries(DURATION_HOURS).flatMap(([duration, hrs]) => hrs.map((h) => ({
+export const PLANS = Object.entries(DURATION_HOURS).flatMap(([duration, hrs]) => hrs.map((h) => ({
   duration, hours: h, fee: HOUR_PRICES[h], perHour: Math.round(HOUR_PRICES[h] / parseInt(h, 10)),
 })));
-const BEST_PLAN = PLANS.reduce((a, b) => (b.perHour < a.perHour ? b : a)).hours;
+export const BEST_PLAN = PLANS.reduce((a, b) => (b.perHour < a.perHour ? b : a)).hours;
 const MODES   = ["Online", "Offline"];
 
 export const PROGRAM_DATA = {

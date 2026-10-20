@@ -4,7 +4,7 @@ import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import PhotoHero from "../components/global/photo-hero";
-import { PROGRAM_DATA, GENERAL_TYPES } from "./internship-registration";
+import { PROGRAM_DATA, GENERAL_TYPES, PLANS, BEST_PLAN } from "./internship-registration";
 
 /* /internship-modules — the curriculum of every internship track, module by module.
    Light banner like the registration pages; a sticky track list beside the course cards on wide screens. */
@@ -21,6 +21,31 @@ const GROUPS = [
   { key: "psych", title: "Psychology tracks", sub: "Hands-on, mentor-led exposure to counselling psychology practice.", types: PSYCH_TRACKS },
   { key: "general", title: "General support tracks", sub: "Research, content, operations and outreach roles that keep a mental health platform running.", types: GENERAL_TYPES },
 ];
+
+const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+// the plans whose hours fall inside a track's range ("30–240 hrs")
+const plansFor = (hoursText) => {
+  const m = String(hoursText || "").match(/(\d+)\D+(\d+)/);
+  if (!m) return PLANS;
+  const lo = Number(m[1]), hi = Number(m[2]);
+  const inRange = PLANS.filter((p) => { const h = parseInt(p.hours, 10); return h >= lo && h <= hi; });
+  return inRange.length ? inRange : PLANS;
+};
+
+function FeeGrid({ plans, compact }) {
+  return (
+    <div className={`imf-grid${compact ? " compact" : ""}`}>
+      {plans.map((p) => (
+        <div key={p.hours} className={`imf${p.hours === BEST_PLAN ? " best" : ""}`}>
+          {p.hours === BEST_PLAN && <em>Best value</em>}
+          <span>{p.hours} · {p.duration}</span>
+          <b>{inr(p.fee)}</b>
+          <small>≈ ₹{p.perHour}/hr</small>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 const slugify = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 const split = (d) => { const [duration, hours] = String(d || "").split(" | "); return { duration, hours }; };
@@ -43,6 +68,7 @@ function CourseCard({ name, data, defaultOpen }) {
         <span><i className="feather-calendar" aria-hidden="true" /> {duration}</span>
         <span><i className="feather-clock" aria-hidden="true" /> {hours}</span>
         <span><i className="feather-layers" aria-hidden="true" /> {data.modules.length} modules</span>
+        <span className="imc-from"><i className="feather-tag" aria-hidden="true" /> from {inr(Math.min(...plansFor(hours).map((p) => p.fee)))}</span>
       </div>
       {open && (
         <div className="imc-body">
@@ -57,6 +83,10 @@ function CourseCard({ name, data, defaultOpen }) {
               </li>
             ))}
           </ol>
+          <div className="imc-fee">
+            <b><i className="feather-tag" aria-hidden="true" /> Fee for this track</b>
+            <FeeGrid plans={plansFor(hours)} compact />
+          </div>
           <div className="imc-award"><i className="feather-award" aria-hidden="true" /> <span>On completion: <b>{data.outcome}</b></span></div>
         </div>
       )}
@@ -85,7 +115,7 @@ export default function InternshipModules() {
       />
 
       <div className="im-bg">
-        <div className="im-wrap phx-overlap">
+        <div className="im-wrap">
           <aside className="im-side" aria-label="Tracks">
             <div className="im-side-in">
               <b className="im-side-h">Tracks</b>
@@ -101,12 +131,27 @@ export default function InternshipModules() {
                   ))}
                 </div>
               ))}
+              <div className="im-side-fee">
+                <span>Program fee</span>
+                <b>{inr(Math.min(...PLANS.map((p) => p.fee)))} – {inr(Math.max(...PLANS.map((p) => p.fee)))}</b>
+                <a href="#im-fees-h">See fee by hours</a>
+              </div>
               <Link href="/internship-registration#apply-form" className="im-side-cta">Apply now <i className="feather-arrow-right" aria-hidden="true" /></Link>
             </div>
           </aside>
 
           <main className="im-main">
             <Link href="/internship-registration" className="im-back"><i className="feather-arrow-left" aria-hidden="true" /> Back to application</Link>
+
+            <section className="im-fees" aria-labelledby="im-fees-h">
+              <div className="im-fees-h">
+                <div>
+                  <h2 id="im-fees-h">Program fee</h2>
+                  <p>The same for every track — pick the hours that suit you. Paid online when you apply.</p>
+                </div>
+              </div>
+              <FeeGrid plans={PLANS} />
+            </section>
             {GROUPS.map((g, gi) => (
               <section key={g.key} className="im-group" aria-labelledby={`g-${g.key}`}>
                 <div className="im-group-h">
@@ -138,9 +183,29 @@ export default function InternshipModules() {
 }
 
 const CSS = `
-.im-bg { background: #fff; padding-bottom: 56px; }
-.im-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
+.im-bg { background: #fff; padding: 32px 0 56px; }
+.im-wrap { max-width: 1140px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
 .im-side { position: sticky; top: 96px; }
+.im-side-fee { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; border-radius: 14px; background: #fffaf0; border: 1px solid #efe2bf; }
+.im-side-fee span { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #8a5a0b; }
+.im-side-fee b { font-size: 17px; color: #0f3d24; }
+.im-side-fee a { font-size: 12.5px; font-weight: 800; color: #14532d !important; }
+.im-fees { padding: 20px; border-radius: 20px; background: linear-gradient(135deg, #fffaf0, #fff 70%); border: 1px solid #efe2bf; display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 96px; }
+.im-fees-h h2 { margin: 0; font-size: 22px; font-weight: 800; color: #0b1712; }
+.im-fees-h p { margin: 2px 0 0; padding: 0; font-size: 14px; color: #5b6b62; }
+.imf-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.imf-grid.compact { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.imf { position: relative; display: flex; flex-direction: column; gap: 1px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 1.5px solid #ece4cf; }
+.imf.best { border-color: #d4a24c; }
+.imf em { position: absolute; top: -9px; left: 12px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #3d2a00; background: #ecc77d; border-radius: 999px; padding: 1px 8px; }
+.imf span { font-size: 12.5px; font-weight: 700; color: #5b6b62; }
+.imf b { font-size: 21px; font-weight: 900; color: #0f3d24; line-height: 1.2; }
+.imf small { font-size: 11.5px; font-weight: 600; color: #8a948f; }
+.imf-grid.compact .imf b { font-size: 17px; }
+.imc-fee { margin-top: 14px; padding: 14px; border-radius: 14px; background: #fffdf7; border: 1px solid #efe2bf; display: flex; flex-direction: column; gap: 10px; }
+.imc-fee > b { font-size: 13.5px; color: #5b4a2a; display: inline-flex; align-items: center; gap: 6px; }
+.imc-from { background: #fbf1dc !important; color: #6b4a0f !important; }
+.imc-from i { color: #b07a1c !important; }
 .im-side-in { background: #fff; border: 1px solid #e3ebe6; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 24px 48px -32px rgba(20,83,45,.4); }
 .im-side-h { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #8a5a0b; }
 .im-side-g { display: flex; flex-direction: column; gap: 4px; }
@@ -192,6 +257,7 @@ const CSS = `
 .im-cta span { font-size: 14px; color: #d4ecdd; }
 .im-cta a { display: inline-flex; align-items: center; gap: 6px; height: 46px; padding: 0 20px; border-radius: 12px; background: #ecc77d; color: #14532d !important; font-weight: 800; font-size: 14.5px; text-decoration: none !important; }
 
+@media (max-width: 1100px) { .imf-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 960px) {
   .im-wrap { grid-template-columns: 1fr; }
   .im-side { position: static; order: 2; }
@@ -199,6 +265,9 @@ const CSS = `
   .imc-mods { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
+  .im-bg { padding-top: 20px; }
+  .imf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .im-fees { padding: 16px; }
   .imc-head { padding: 16px 14px; gap: 12px; }
   .imc-ic { width: 40px; height: 40px; font-size: 18px; }
   .imc-t b { font-size: 16.5px; }
