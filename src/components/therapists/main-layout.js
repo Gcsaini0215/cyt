@@ -35,6 +35,7 @@ export const THERAPIST_SHELL_ROUTES = new Set([
   "/therapists/reviews",
   "/therapists/change-password",
   "/my-plans",
+  "/social-posts",
 ]);
 
 const ShellContext = React.createContext(false);
