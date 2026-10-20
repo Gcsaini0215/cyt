@@ -568,8 +568,8 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       <h3>Payment</h3>
                       <dl>
                         <div><dt>{a.source === "noida" ? "Client paid" : "Amount"}</dt><dd>{amount != null && amount !== "" ? inr(amount) : "—"}</dd></div>
-                        {a.therapist_share != null && a.status !== SESSION_STATUS.CANCELED && <div><dt>You earn ({a.share_pct || 70}%)</dt><dd style={{ color: "#166534", fontWeight: 800 }}>{inr(a.therapist_share)}</dd></div>}
-                        {a.platform_share != null && a.status !== SESSION_STATUS.CANCELED && <div><dt>CYT ({100 - (a.share_pct || 70)}%)</dt><dd>{inr(a.platform_share)}</dd></div>}
+                        {a.therapist_share != null && a.status !== SESSION_STATUS.CANCELED && !a.noida_legacy && <div><dt>You earn ({a.share_pct || 70}%)</dt><dd style={{ color: "#166534", fontWeight: 800 }}>{inr(a.therapist_share)}</dd></div>}
+                        {a.platform_share != null && a.status !== SESSION_STATUS.CANCELED && !a.noida_legacy && <div><dt>CYT ({100 - (a.share_pct || 70)}%)</dt><dd>{inr(a.platform_share)}</dd></div>}
                         {a.source === "noida" && num(a.noida_fee) > 0 && <div><dt>Session fee</dt><dd>{inr(num(amount) - num(a.noida_fee))}</dd></div>}
                         {a.source === "noida" && num(a.noida_fee) > 0 && <div><dt>Platform fee</dt><dd>{inr(a.noida_fee)}</dd></div>}
                         {a.source === "noida" && num(a.noida_discount) > 0 && <div><dt>Discount</dt><dd>− {inr(a.noida_discount)}</dd></div>}
@@ -582,7 +582,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                         {paidAt && <div><dt>Paid on</dt><dd>{fmtDay(paidAt)}, {fmtTime(paidAt)}</dd></div>}
                         {a.transaction?.transaction_id && <div><dt>Transaction</dt><dd className="mono">{a.transaction.transaction_id}</dd></div>}
                       </dl>
-                      {a.source === "noida" && <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "#64748b", lineHeight: 1.5 }}>Booked at the CYT Noida centre — the client paid CYT; your 70% comes to you as a payout once the session is done. To change the time, ask the Noida desk.</p>}
+                      {a.source === "noida" && <p style={{ margin: "10px 0 0", fontSize: 12.5, color: "#64748b", lineHeight: 1.5 }}>{a.noida_legacy ? "An earlier CYT Noida session, kept here as a record — it was settled before payouts." : "Booked at the CYT Noida centre — the client paid CYT; your 70% comes to you as a payout once the session is done. To change the time, ask the Noida desk."}</p>}
                     </section>
                   </>
                 ) : (
