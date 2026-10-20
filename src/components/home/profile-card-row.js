@@ -83,7 +83,7 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
           <span>{name}</span>
           <VerifiedRounded sx={{ fontSize: 18, color: "#1d9bf0", flexShrink: 0 }} />
         </Link>
-        {data.profile_type && <div className="pcr-role">{data.profile_type}</div>}
+        {data.profile_type && <div className="pcr-role">{data.profile_type}{data.top_therapist && <span className="pcr-top" title="CYT Top therapist — highly rated and active">★ Top therapist</span>}</div>}
         <div className="pcr-meta">
           {avg && (
             <span className="pcr-rate">
@@ -170,6 +170,7 @@ export const CARD_CSS = `
 .pcr-name { display: inline-flex; align-items: center; gap: 6px; font-size: 18.5px; font-weight: 800; color: #0b1712; text-decoration: none; line-height: 1.25; width: fit-content; max-width: 100%; }
 .pcr-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pcr-name:hover { color: #1e7a4c; }
+.pcr-top { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: linear-gradient(135deg, #f0cf7a, #c48a1c); color: #3d2a00; font-size: 11px; font-weight: 800; vertical-align: 1px; }
 .pcr-role { font-size: 13.5px; font-weight: 700; color: #1e7a4c; }
 .pcr-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 13px; color: #475569; font-weight: 500; }
 .pcr-meta span { display: inline-flex; align-items: center; gap: 5px; }

@@ -18,6 +18,7 @@ import { useTimingsTodo } from "../components/therapists/dashboard/AvailabilityN
 import { useAddonStep } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
 import ProfileInsights from "../components/therapists/dashboard/profile-insights";
+import GrowPractice from "../components/therapists/dashboard/grow-practice";
 import { TodayBar, KpiCard, KpiHead, NextSessionSlider, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
@@ -1191,6 +1192,9 @@ export default function TherapistDashboard() {
 
           {/* how the public profile is doing — views, visitors, sources, profile strength */}
           <ProfileInsights />
+
+          {/* earnings goal, Top-therapist badge, past clients to follow up, when clients book */}
+          <GrowPractice monthEarnings={stats.monthEarnings} monthSessions={stats.monthSessions} therapistName={therapistInfo?.user?.name || ""} />
 
           <Box sx={{ display: "grid", gap: "14px", alignItems: "start", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 300px", lg: "minmax(0, 1fr) 360px" } }}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>

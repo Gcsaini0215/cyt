@@ -391,6 +391,8 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             {/* Specialty */}
             <p style={{ margin: isMobile ? "0 0 4px" : "0 0 6px", fontSize: isMobile ? (isTab ? 12.5 : 10.5) : 13.5, color: "#0f3d24", fontWeight: 700, textTransform: "uppercase", letterSpacing: isMobile ? "0.8px" : "1.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {pageData.profile_type || "Therapist"}
+              {/* earned badge (rating 4.5+, 3+ reviews, active) — inline so the header doesn't grow */}
+              {pageData.top_therapist && <span title="CYT Top therapist — highly rated and active" style={{ display: "inline-block", marginLeft: 8, padding: "1px 8px", borderRadius: 999, background: "linear-gradient(135deg, #f0cf7a, #c48a1c)", color: "#3d2a00", fontSize: isMobile ? 9.5 : 11, letterSpacing: ".4px", verticalAlign: "1px" }}>★ Top therapist</span>}
             </p>
 
             {/* Qualification */}
