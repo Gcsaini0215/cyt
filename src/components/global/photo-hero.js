@@ -34,6 +34,7 @@ const PHX_CSS = `
 .phx-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(104,182,136,.7), rgba(104,182,136,0)); }
 .phx-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(232,190,110,.55), rgba(232,190,110,0)); }
 .phx-blob.c { width: 220px; height: 220px; right: 24%; bottom: -80px; background: radial-gradient(circle, rgba(234,178,110,.65), rgba(234,178,110,0)); }
+@media (max-width: 767px) { .phx { background: linear-gradient(135deg, #e3f2e8 0%, #f8f1de 52%, #e6f3ea 100%); } .phx-blob { opacity: .4; } }
 .phx-in { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
 /* same width and gutters as the site's .container, so the banner text lines up with the page */
 @media (min-width: 601px) and (max-width: 1023px) { .phx-in { padding: 0 40px; } }

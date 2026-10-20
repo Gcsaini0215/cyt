@@ -318,6 +318,7 @@ const BL_CSS = `
 .bl-blob.b { width: 260px; height: 260px; left: -80px; bottom: -120px; background: radial-gradient(circle, rgba(232,190,110,.55), rgba(232,190,110,0)); }
 .bl-blob.c { width: 180px; height: 180px; right: 22%; bottom: -70px; background: radial-gradient(circle, rgba(234,178,110,.65), rgba(234,178,110,0)); }
 .bl-hero-in { position: relative; z-index: 1; }
+@media (max-width: 767px) { .bl-hero { background: linear-gradient(135deg, #e3f2e8 0%, #f8f1de 52%, #e6f3ea 100%); } .bl-blob { opacity: .4; } }
 .bl-crumbs { display: flex; gap: 8px; align-items: center; font-size: 13px; color: #5b6b62; margin-bottom: 18px; }
 .bl-crumbs a { color: #166534 !important; font-weight: 700; text-decoration: none !important; }
 .bl-crumbs b { color: #334155; }

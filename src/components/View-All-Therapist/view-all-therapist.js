@@ -705,6 +705,7 @@ const CSS = `
 .vat-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(104,182,136,.7), rgba(104,182,136,0)); }
 .vat-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(232,190,110,.55), rgba(232,190,110,0)); }
 .vat-blob.c { width: 220px; height: 220px; right: 24%; bottom: -80px; background: radial-gradient(circle, rgba(234,178,110,.65), rgba(234,178,110,0)); }
+@media (max-width: 767px) { .vat-banner { background: linear-gradient(135deg, #e3f2e8 0%, #f8f1de 52%, #e6f3ea 100%); } .vat-blob { opacity: .4; } }
 /* the photo's speaker sits on the left — mirror it so she faces the copy from the right */
 .vat-ban-inner { position: relative; z-index: 2; text-align: left; }
 /* desktop: centred, like Our Story — no empty right half */

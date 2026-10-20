@@ -48,6 +48,7 @@ const styles = `
   margin-bottom: 12px;
 }
 .ab-accent { color: #a86e0e; }
+@media (max-width: 767px) { .ab-section { background: linear-gradient(135deg, #e3f2e8 0%, #f8f1de 52%, #e6f3ea 100%); } .ab-section::before, .ab-section::after { opacity: .4; } }
 .ab-subtitle {
   font-size: 16px;
   color: #475569;
