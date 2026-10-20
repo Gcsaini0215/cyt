@@ -3226,6 +3226,44 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-nextfree-dot { flex-shrink: 0; }
         @media (max-width: 640px) { .na-page .na-topbar .na-nextfree { font-size: 12.5px; gap: 5px; white-space: nowrap; } .na-page .na-topbar .na-nextfree-cta { padding: 6px 12px; } }
         @media (max-width: 360px) { .na-page .na-topbar .na-nextfree { font-size: 11.5px; } }
+        /* light banner, same feel as the Blogs hero: soft mint → cream → lavender with blurred colour blobs.
+           Overrides the older dark-photo / green rules for every screen size (hence the !important). */
+        .na-page .na-topbar { background: linear-gradient(135deg, #cfe9d8 0%, #f3e4c6 55%, #dcd9f4 100%) !important; border-bottom: 1px solid #d3e3d9 !important; }
+        .na-page .na-topbar .na-topbar-bgs { display: block !important; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+          background:
+            radial-gradient(circle at 92% -10%, rgba(134,200,160,.75) 0, rgba(134,200,160,0) 280px),
+            radial-gradient(circle at 4% 120%, rgba(176,168,236,.6) 0, rgba(176,168,236,0) 240px),
+            radial-gradient(circle at 70% 130%, rgba(242,196,134,.7) 0, rgba(242,196,134,0) 190px); }
+        .na-page .na-topbar .na-topbar-bg, .na-page .na-topbar .na-topbar-bgs::after { display: none !important; }
+        .na-page .na-topbar .na-centre-name { color: #173c2a !important; }
+        .na-page .na-topbar .na-centre-addr, .na-page .na-topbar .na-centre-addr svg { color: #4b6b57 !important; }
+        .na-page .na-topbar .na-centre-mark { background: #fff !important; border: 1px solid #d9e7de !important; box-shadow: 0 2px 8px rgba(15,61,34,.08) !important; }
+        .na-page .na-topbar .na-back, .na-page .na-topbar .na-centre-btn { background: #fff !important; border: 1px solid #d5e3da !important; color: #1a6b3a !important; box-shadow: 0 1px 3px rgba(15,61,34,.06); }
+        .na-page .na-topbar .na-back:hover, .na-page .na-topbar .na-centre-btn:hover { background: #f0f8f3 !important; }
+        .na-page .na-topbar a.na-rate { background: #fff !important; border-color: #f1e3c4 !important; color: #5b3a05 !important; }
+        /* (doubled .na-page outranks the older dark-banner rules, which also use !important) */
+        .na-page.na-page .na-topbar .na-topbar-tabs { background: #fff !important; box-shadow: 0 4px 16px rgba(15,61,34,.1) !important; border: 1px solid #dbe7df; }
+        .na-page.na-page .na-topbar .na-topbar-tab { color: #1f3d2c !important; font-weight: 700; }
+        .na-page.na-page .na-topbar .na-topbar-tab:hover:not(.active) { background: #f0f8f3 !important; color: #14532d !important; }
+        .na-page.na-page .na-topbar .na-topbar-tab.active { background: #1a6b3a !important; color: #fff !important; }
+        .na-page .na-topbar .na-topbar-tab.active { background: #1a6b3a !important; color: #fff !important; box-shadow: 0 3px 8px rgba(26,107,58,.25) !important; }
+        .na-page .na-topbar .na-topbar-h1 { color: #173c2a !important; text-shadow: none !important; }
+        .na-page .na-topbar .na-hoffer { background: #fff !important; color: #7c2d12 !important; border: 1px solid #fde2c4 !important; box-shadow: 0 4px 12px -6px rgba(124,45,18,.25) !important; }
+        .na-page .na-topbar .na-chip { background: #fff !important; border-color: #d5e3da !important; color: #1a6b3a !important; }
+        .na-page .na-topbar .na-chip.on { background: #1a6b3a !important; border-color: #1a6b3a !important; color: #fff !important; }
+        /* a slimmer banner on desktop + iPad: tighter padding and gaps, smaller pills */
+        @media (min-width: 641px) {
+          .na-page .na-topbar { padding-top: 10px !important; padding-bottom: 10px !important; row-gap: 8px !important; }
+          .na-page .na-topbar .na-topbar-h1 { font-size: 17px; }
+          .na-page .na-topbar .na-centre-mark { width: 38px; height: 38px; padding: 5px; border-radius: 10px; }
+          .na-page .na-topbar .na-topbar-tab { padding-top: 6px; padding-bottom: 6px; }
+          .na-page .na-topbar .na-nextfree, .na-page .na-topbar .na-hoffer { padding: 5px 5px 5px 12px; font-size: 12.5px; }
+          .na-page .na-topbar .na-nextfree-cta, .na-page .na-topbar .na-hoffer-cta { padding: 4px 10px; font-size: 12px; }
+        }
+        /* iPad: the heading line leaves the banner (still on the page for search engines, like on phones) */
+        @media (min-width: 641px) and (max-width: 1199px) {
+          .na-page .na-topbar .na-topbar-h1 { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+        }
         /* iPad: same photo header as desktop, slots card nearly edge to edge */
         .na-page.is-tablet .na-topbar-bgs { display: block; position: absolute; inset: 0; z-index: 0; }
         .na-page.na-hero.is-tablet .na-shell, .na-page.na-hero.na-fit.is-tablet .na-shell.fit-slots { background: #eef2f0; }
