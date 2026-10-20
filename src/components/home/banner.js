@@ -112,15 +112,36 @@ function PortraitCard({ t, hidden = false }) {
   );
 }
 
+// every area of expertise the therapist saved on their profile, as it was written
+const expertiseOf = (t) => String(t?.experties || "").split(",").map((x) => x.trim()).filter(Boolean);
+
+// five stars filled to the average (rounded to the nearest half)
+function Stars({ avg = 0 }) {
+  const v = Math.round(avg * 2) / 2;
+  return (
+    <span className="cyt-tstars" aria-hidden="true">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <span key={i} className="cyt-tstar">
+          <Star sx={{ fontSize: 14, color: "#dbe3dd" }} />
+          {v >= i - 0.5 && <span className="cyt-tstar-on" style={{ width: v >= i ? "100%" : "50%" }}><Star sx={{ fontSize: 14, color: "#e3a83a" }} /></span>}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function TherapistCard({ t }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const langs = langList(t.language_spoken).slice(0, 2);
   const fee = feeLabel(t);
-  const tags = focusTags(t);
+  const exp = expLabel(t.year_of_exp);
+  const skills = expertiseOf(t);
+  const href = profilePath(t);
   return (
     <div className="cyt-tcard">
-      <div className="cyt-tphoto">
+      {/* photo and name both open the profile */}
+      <Link className="cyt-tphoto" href={href} aria-label={`View ${name}'s profile`}>
         {photo(t) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
@@ -129,25 +150,37 @@ function TherapistCard({ t }) {
         )}
         <span className="cyt-tverif" title="Verified"><VerifiedRounded sx={{ fontSize: 15 }} /></span>
         {fee && <span className="cyt-tpin">{fee}</span>}
-      </div>
+      </Link>
       <div className="cyt-tbody">
-        <div className="cyt-tname-row">
-          <span className="cyt-tname">{name}</span>
-          {t.year_of_exp && <span className="cyt-texp">{expLabel(t.year_of_exp)}</span>}
+        <Link className="cyt-tname" href={href}>{name}</Link>
+        <div className="cyt-trole">
+          <span>{t.profile_type || "Mental Health Professional"}</span>
         </div>
-        <span className="cyt-ttag">{t.profile_type || "Mental Health Professional"}</span>
-        {tags.length > 0 && <div className="cyt-ttags">{tags.join(" · ")}</div>}
         <div className="cyt-trate">
-          {r ? <><Star sx={{ fontSize: 14, color: "#d4a24c" }} /><span>{r.avg}</span><span className="cyt-tcnt">({r.count} reviews)</span></>
-            : <span className="cyt-tnorate">{modesOf(t) || "Verified"}</span>}
+          <Stars avg={r ? Number(r.avg) : 0} />
+          {r ? <><b>{r.avg}</b><span className="cyt-tcnt">({r.count})</span></>
+            : <span className="cyt-tcnt">New</span>}
+          {exp && <><i className="cyt-tdot" /><span className="cyt-tcnt">{exp}</span></>}
         </div>
+        {skills.length > 0 && (
+          /* expertise pills drifting left, same as the directory cards (list doubled for a seamless loop) */
+          <div className="cyt-tskills" aria-label={`Areas of expertise: ${skills.join(", ")}`}>
+            <div className="cyt-tmq" style={{ animationDuration: `${Math.max(18, skills.length * 5)}s` }}>
+              {[0, 1].map((copy) => (
+                <div key={copy} className="cyt-tmq-set" aria-hidden={copy === 1 || undefined}>
+                  {skills.map((x) => <span key={x} className="cyt-tskill">{x}</span>)}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {langs.length > 0 && (
           <div className="cyt-tlangs">
             {langs.map((l) => <span key={l} className="cyt-tlang">{l}</span>)}
           </div>
         )}
         <div className="cyt-trow">
-          <Link className="cyt-v" href={profilePath(t)}>View</Link>
+          <Link className="cyt-v" href={href}>View</Link>
           <Link className="cyt-b" href={bookPath(t)}>Book</Link>
         </div>
       </div>
@@ -351,22 +384,28 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-strip { position: relative; z-index: 1; width: 100%; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 22px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .cyt-strip::-webkit-scrollbar { display: none; }
         .cyt-tcard { flex: 0 0 min(66%, 290px); scroll-snap-align: start; background: #fff; border: 1px solid #e8f0ea; border-radius: 20px; overflow: hidden; box-shadow: 0 18px 40px -18px rgba(18,66,42,.3), 0 3px 10px rgba(18,66,42,.05); }
-        .cyt-tphoto { position: relative; height: 176px; background: linear-gradient(150deg, #c3e8d2, #82cca1); }
+        .cyt-tphoto { display: block; position: relative; height: 176px; background: linear-gradient(150deg, #c3e8d2, #82cca1); }
         .cyt-tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
         .cyt-tinit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #1e7a4c; }
         .cyt-tverif { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: #1d9bf0; color: #fff; display: flex; align-items: center; justify-content: center; }
         .cyt-tpin { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.94); color: #14532d; padding: 3px 10px; border-radius: 999px; }
         .cyt-tbody { padding: 13px 15px 15px; }
-        .cyt-tname-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
-        .cyt-tname { font-weight: 800; font-size: 15px; color: #0b1712; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cyt-texp { font-size: 11px; color: #64748b; flex-shrink: 0; }
-        .cyt-ttag { display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 700; color: #1e7a4c; background: #eef6f1; padding: 3px 9px; border-radius: 999px; }
-        .cyt-trate { display: flex; align-items: center; gap: 3px; margin: 8px 0 8px; min-height: 18px; }
-        .cyt-ttags { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: #1e7a4c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cyt-tnorate { font-size: 12.5px; font-weight: 600; color: #475569; }
-        .cyt-tnext { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 4px 10px; border-radius: 999px; background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; font-size: 12px; font-weight: 700; }
-        .cyt-trate span { font-size: 12.5px; font-weight: 800; color: #0b1712; }
-        .cyt-trate .cyt-tcnt { font-weight: 500; color: #7c8b81; margin-left: 2px; }
+        .cyt-tname { display: block; font-weight: 800; font-size: 15.5px; line-height: 1.3; color: #0b1712 !important; text-decoration: none !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cyt-trole { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12px; font-weight: 600; color: #1e7a4c; white-space: nowrap; overflow: hidden; }
+        .cyt-trole span { overflow: hidden; text-overflow: ellipsis; }
+        .cyt-tdot { width: 3px; height: 3px; border-radius: 50%; background: #9fb3a6; flex-shrink: 0; }
+        .cyt-trate { display: flex; align-items: center; gap: 5px; margin: 7px 0 9px; min-height: 18px; font-size: 12.5px; }
+        .cyt-trate b { font-weight: 800; color: #0b1712; }
+        .cyt-tcnt { font-weight: 500; color: #7c8b81; }
+        .cyt-tstars { display: inline-flex; }
+        .cyt-tstar { position: relative; display: inline-flex; width: 14px; height: 14px; }
+        .cyt-tstar-on { position: absolute; left: 0; top: 0; overflow: hidden; display: inline-flex; }
+        .cyt-tskills { overflow: hidden; margin: 0 -15px 10px; padding: 0 15px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 90%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 90%, transparent 100%); }
+        .cyt-tmq { display: flex; width: max-content; animation: cytTmq linear infinite; }
+        .cyt-tmq-set { display: flex; gap: 6px; padding-right: 6px; flex-shrink: 0; }
+        .cyt-tskill { flex-shrink: 0; white-space: nowrap; font-size: 11px; font-weight: 700; color: #166534; background: #ecfdf3; border: 1px solid #bbf7d0; padding: 3px 9px; border-radius: 999px; }
+        @keyframes cytTmq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) { .cyt-tmq { animation: none; } }
         .cyt-tlangs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
         .cyt-tlang { font-size: 10.5px; color: #475569; background: #f1f5f3; padding: 3px 8px; border-radius: 999px; }
         .cyt-trow { display: flex; gap: 8px; }
@@ -404,13 +443,14 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hchips a { height: 32px; font-size: 13px; padding: 0 12px; }
           .cyt-hero-ctas { margin-top: 14px; gap: 6px; }
           /* Noida booking as a filled card, not an outline button */
-          .cyt-cta2 { flex: 1 1 100%; justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 16px; font-size: 15px; text-align: left; border: none; color: #fff !important; background: linear-gradient(120deg, #14532d, #1e7a4c 60%, #2f9a63); box-shadow: 0 12px 26px -14px rgba(20,83,45,.8); }
-          .cyt-cta2:hover { background: linear-gradient(120deg, #14532d, #1e7a4c); }
-          .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,.16); display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #ecc77d; }
-          .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; }
-          .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #cfe9da; }
-          .cyt-cta2-go { display: inline; margin-left: auto; font-size: 18px; }
-          .cyt-cta2-badge { top: -9px; right: 12px; background: #ecc77d; color: #4a3208; box-shadow: 0 4px 10px -2px rgba(122,84,19,.45); }
+          /* Noida booking as a soft white card with a gold accent — stands out without a block of green */
+          .cyt-cta2 { flex: 1 1 100%; justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 14px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #d4a24c; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
+          .cyt-cta2:hover { background: #fffcf5; color: #0b1712 !important; }
+          .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #fbf3e2; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #b07a1c; }
+          .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; color: #14532d; }
+          .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #64748b; }
+          .cyt-cta2-go { display: inline; margin-left: auto; font-size: 18px; color: #1e7a4c; }
+          .cyt-cta2-badge { top: -9px; right: 12px; background: #c2410c; color: #fff; }
           .cyt-trust { gap: 6px 14px; font-size: 12.5px; }
           .cyt-trust-x { display: none !important; }
           .cyt-tphoto { height: 160px; }
