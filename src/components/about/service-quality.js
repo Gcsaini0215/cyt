@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import Registrations from "./registrations";
 
 export default function ServiceQuality() {
   return (
@@ -105,7 +104,6 @@ export default function ServiceQuality() {
             </div>
           </div>
 
-          <Registrations />
         </div>
       </section>
     </>

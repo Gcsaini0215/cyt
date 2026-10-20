@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Head from "next/head";
 import AboutUsBanner from "../components/about/banner";
+import { RegistrationsGrid } from "../components/about/registrations";
 import DirectorNote from "../components/about/director-note";
 import ServiceQuality from "../components/about/service-quality";
 import VisitCentre, { GBP_URL } from "../components/about/visit-centre";
@@ -259,6 +260,7 @@ export default function AboutUs() {
       </Head>
       <MyNavbar />
       <AboutUsBanner />
+      <RegistrationsGrid />
       <DirectorNote />
       <ServiceQuality />
       <VisitCentre />

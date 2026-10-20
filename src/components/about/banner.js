@@ -11,7 +11,7 @@ const styles = `
 .ab-section {
   position: relative;
   background: linear-gradient(135deg, #c3e3cd 0%, #f0dfb4 52%, #cfe6d3 100%);
-  padding: 60px 0 50px 0;
+  padding: 60px 0 112px 0;
   overflow: hidden;
 }
 /* gentle shapes, same as the /blogs banner */
@@ -57,7 +57,7 @@ const styles = `
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .ab-section { padding: 28px 0 24px 0; }
+  .ab-section { padding: 28px 0 64px 0; }
   .ab-badge { display: none; }
   .ab-title { font-size: 24px; line-height: 1.3; margin-bottom: 8px; }
   .ab-subtitle { font-size: 14px; padding: 0 16px; }

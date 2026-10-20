@@ -97,3 +97,58 @@ export default function Registrations() {
     </>
   );
 }
+
+// what each registration is, shown under its logo in the grid
+const CAPTIONS = ["Ministry of Corporate Affairs", "MSME registered", "National Health Authority", "ABDM · HFR ID IN0510005384"];
+
+const gridStyles = `
+  /* full-width band: see-through over the banner, clean white below it (the page behind is dark) */
+  .rgg-band { position: relative; z-index: 2; margin-top: -92px; background: linear-gradient(180deg, transparent 0, transparent 92px, #fff 92px); }
+  .rgg { max-width: 1080px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; text-align: center; }
+  .rgg-label {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+    color: #8a5a0b; margin: 0 0 14px;
+  }
+  .rgg-label::before, .rgg-label::after { content: ""; width: 28px; height: 2px; background: #d4a24c; display: inline-block; }
+  .rgg-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .rgg-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    height: 132px; padding: 16px 14px 12px; box-sizing: border-box;
+    background: #fff; border: 1px solid #ece4cf; border-radius: 16px;
+    box-shadow: 0 18px 36px -22px rgba(20,83,45,.45), 0 2px 6px rgba(20,83,45,.05);
+  }
+  .rgg-card img { max-width: 150px; max-height: 64px; width: auto; height: auto; object-fit: contain; }
+  .rgg-card span { font-size: 12px; font-weight: 700; color: #4b5d53; line-height: 1.3; }
+  @media (max-width: 767px) {
+    .rgg-band { margin-top: -44px; background: linear-gradient(180deg, transparent 0, transparent 44px, #fff 44px); }
+    .rgg { padding: 0 12px; }
+    .rgg-label { font-size: 10.5px; margin-bottom: 8px; }
+    .rgg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    .rgg-card { height: 62px; padding: 8px 6px; border-radius: 12px; }
+    .rgg-card img { max-width: 100%; max-height: 42px; }
+    .rgg-card span { display: none; }
+  }
+`;
+
+// Our Story: the four registrations as a grid, half over the bottom of the banner
+export function RegistrationsGrid() {
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: gridStyles }} />
+      <div className="rgg-band">
+      <div className="rgg">
+        <p className="rgg-label">Registered with</p>
+        <div className="rgg-grid">
+          {REGISTRATIONS.map((r, i) => (
+            <div className="rgg-card" key={r.src}>
+              <img src={r.src} alt={r.alt} width={r.w} height={r.h} loading="lazy" />
+              <span>{CAPTIONS[i]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      </div>
+    </>
+  );
+}
