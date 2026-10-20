@@ -230,8 +230,8 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
 
   // a few more posts to read next (light list — never the 2 MB feed)
   useEffect(() => {
-    fetch("/api/blog-latest?n=5").then((r) => r.json())
-      .then((d) => { if (d?.data) setMore(d.data.filter((p) => String(p.id) !== String(id)).slice(0, 3)); })
+    fetch("/api/blog-latest?n=10").then((r) => r.json())
+      .then((d) => { if (d?.data) setMore(d.data.filter((p) => String(p.id) !== String(id)).slice(0, 9)); })
       .catch(() => {});
   }, [id]);
 
@@ -457,7 +457,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
               <Link href="/blogs">All articles <i className="feather-arrow-right" aria-hidden="true" /></Link>
             </div>
             <div className="bd-next-grid">
-              {more.map((p) => (
+              {more.slice(0, 3).map((p) => (
                 <Link key={p.id} href={`/blog-details?id=${p.id}`} className="bd-card">
                   <span className="bd-card-img">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -518,7 +518,7 @@ const CSS = `
 .bd-dot { width: 4px; height: 4px; border-radius: 50%; background: #9fb3a6; }
 
 .bd-cover { max-width: 1108px; margin: -64px auto 0; padding: 0 16px; position: relative; z-index: 1; }
-.bd-cover img { display: block; width: 100%; aspect-ratio: 12 / 5; object-fit: cover; border-radius: 22px; background: #e7f0ea; box-shadow: 0 30px 60px -36px rgba(20,60,40,.55); }
+.bd-cover img { display: block; width: 100%; aspect-ratio: 3 / 1; object-fit: cover; border-radius: 22px; background: #e7f0ea; box-shadow: 0 30px 60px -36px rgba(20,60,40,.55); }
 
 .bd-wrap { max-width: 1108px; margin: 0 auto; padding: 36px 16px 56px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; box-sizing: border-box; }
 .bd-main { min-width: 0; max-width: 720px; }
@@ -576,12 +576,16 @@ const CSS = `
 .bd-page .bd-disc { margin: 26px 0 0; padding: 14px 16px; border-radius: 12px; background: #f7f9f8; font-size: 13px; line-height: 1.6; color: #6b7c72; }
 .bd-disc b { color: #4b5d53; }
 
-.bd-side { position: sticky; top: 100px; align-self: start; display: flex; flex-direction: column; gap: 18px; }
+.bd-side { align-self: start; display: flex; flex-direction: column; gap: 18px; }
+/* desktop: the read-next list is in the side column, so the bottom row isn't needed */
+@media (min-width: 1100px) { .bd-next { display: none; } }
 .bd-side-more { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 18px; border: 1px solid #edf1ee; background: #fff; }
 .bd-side-more > b { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a948f; }
-.bd-side-item { display: flex; gap: 12px; align-items: center; text-decoration: none !important; }
-.bd-side-item img { width: 72px; height: 56px; object-fit: cover; border-radius: 10px; flex-shrink: 0; background: #e7f0ea; }
-.bd-side-item span { display: flex; flex-direction: column; gap: 2px; font-size: 14px; font-weight: 700; line-height: 1.35; color: #13261c; }
+.bd-side-item { display: flex; flex-direction: column; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid #f0f3f1; text-decoration: none !important; }
+.bd-side-item:last-child { border-bottom: none; padding-bottom: 0; }
+.bd-side-item img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; background: #e7f0ea; transition: opacity .15s; }
+.bd-side-item:hover img { opacity: .9; }
+.bd-side-item span { display: flex; flex-direction: column; gap: 3px; font-size: 15px; font-weight: 700; line-height: 1.35; color: #13261c; }
 .bd-side-item em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #a86e0e; }
 .bd-side-item:hover span { color: #1e7a4c; }
 
