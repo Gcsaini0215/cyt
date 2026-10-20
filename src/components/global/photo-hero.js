@@ -44,7 +44,7 @@ const PHX_CSS = `
 .phx-pill i, .phx-pill svg { font-size: 14px; }
 .phx .phx-title { color: #173c2a; font-size: clamp(26px, 3.2vw, 38px); line-height: 1.15; margin: 10px 0 8px; padding: 0; font-weight: 800; letter-spacing: -0.02em; }
 .phx .phx-title span { color: #a86e0e; }
-.phx-lead { font-size: 16px; line-height: 1.55; color: #3f4f47; margin: 0 0 14px; padding: 0; max-width: 680px; }
+.phx-lead { font-size: 16px; line-height: 1.55; color: #3f4f47; margin: 0 0 14px; padding: 0; max-width: 780px; }
 .phx-stats { display: flex; flex-wrap: wrap; gap: 8px; }
 .phx-stats div { display: inline-flex; align-items: baseline; gap: 6px; background: rgba(255,255,255,.78); border: 1px solid #d3e3d9; border-radius: 999px; padding: 6px 14px; box-shadow: 0 8px 20px -14px rgba(20,83,45,.35); }
 .phx-stats b { font-size: 15px; font-weight: 900; color: #14532d; line-height: 1.2; }
@@ -54,7 +54,7 @@ const PHX_CSS = `
 /* desktop: centred, like Our Story — no empty right half */
 @media (min-width: 1024px) {
   .phx-in { text-align: center; }
-  .phx-in > * { margin-left: auto; margin-right: auto; }
+  .phx-in > *, .phx .phx-in > .phx-title, .phx .phx-in > .phx-lead { margin-left: auto; margin-right: auto; }
   .phx-stats { justify-content: center; }
 }
 @media (max-width: 640px) {
