@@ -1,35 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-/* Photo banner shared by the sign-in, sign-up, therapist-registration and collaboration pages:
-   calm, relatable photos that slowly cross-fade under a green gradient, the copy on the left,
-   and room underneath so the page's form card can overlap the bottom edge (give that card the
+/* Banner shared by the sign-in, sign-up and therapist-registration pages — the same soothing light
+   look as /blogs: soft sage → cream → lavender with gentle shapes, the copy on the left, and room
+   underneath so the page's form card can overlap the bottom edge (give that card the
    "phx-overlap" class).
 
-   Props: images ([url] — or a single image), interval (ms), pill, title, lead (nodes),
-          stats ([{ value, label }]). A "-1920.webp" image is swapped for its "-900.webp" twin on phones.
-
-   Photos in /assets/img/hero (in-*.webp) were AI-generated for CYT with Canva (design "CYT banner photos"). */
-export default function PhotoHero({ images, image, interval = 6000, pill, title, lead, stats = [] }) {
-  const list = images?.length ? images : [image];
-  const [at, setAt] = useState(0);
-
-  useEffect(() => {
-    if (list.length < 2) return undefined;
-    // people who ask for less motion get a still banner
-    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
-    const t = setInterval(() => setAt((i) => (i + 1) % list.length), interval);
-    return () => clearInterval(t);
-  }, [list.length, interval]);
-
+   Props: pill, title, lead (nodes), stats ([{ value, label }]).
+   images / image / interval are still accepted from older callers but no longer shown (the photo
+   slideshow was replaced by the light banner, 2026-10-21). */
+// eslint-disable-next-line no-unused-vars
+export default function PhotoHero({ images, image, interval, pill, title, lead, stats = [] }) {
   return (
     <section className="phx">
       <style dangerouslySetInnerHTML={{ __html: PHX_CSS }} />
-      <div className="phx-bgs" aria-hidden="true">
-        {list.map((src, i) => (
-          <div key={src} className={`phx-bg ${i === at ? "on" : ""}`}
-            style={{ backgroundImage: `url('${src}')`, "--phx-sm": `url('${src.replace(/-1920\.webp$/, "-900.webp")}')` }} />
-        ))}
-      </div>
+      <span className="phx-blob a" aria-hidden="true" /><span className="phx-blob b" aria-hidden="true" /><span className="phx-blob c" aria-hidden="true" />
       <div className="phx-in">
         {pill && <span className="phx-pill">{pill}</span>}
         <h1 className="phx-title">{title}</h1>
@@ -39,57 +23,43 @@ export default function PhotoHero({ images, image, interval = 6000, pill, title,
             {stats.map((s) => <div key={s.label}><b>{s.value}</b><span>{s.label}</span></div>)}
           </div>
         )}
-        {list.length > 1 && (
-          <div className="phx-dots" role="tablist" aria-label="Banner photos">
-            {list.map((src, i) => (
-              <button key={src} type="button" role="tab" aria-selected={i === at} aria-label={`Photo ${i + 1}`}
-                className={i === at ? "on" : ""} onClick={() => setAt(i)} />
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );
 }
 
 const PHX_CSS = `
-.phx { position: relative; overflow: hidden; color: #fff; padding: 72px 0 104px; background: #1a4d30; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-.phx-bgs { position: absolute; inset: 0; }
-.phx-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transform: scale(1.04); transition: opacity 1.4s ease, transform 7s ease; }
-.phx-bg.on { opacity: 1; transform: scale(1); }
-.phx-bgs::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(12,58,32,.94) 0%, rgba(20,86,48,.84) 42%, rgba(26,107,58,.35) 75%, rgba(26,107,58,.12) 100%); }
+.phx { position: relative; overflow: hidden; color: #173c2a; padding: 56px 0 104px; background: linear-gradient(135deg, #d9eee1 0%, #f3ead9 55%, #e4e2f6 100%); font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+.phx-blob { position: absolute; border-radius: 50%; filter: blur(2px); pointer-events: none; }
+.phx-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(140,200,165,.6), rgba(140,200,165,0)); }
+.phx-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(184,176,236,.5), rgba(184,176,236,0)); }
+.phx-blob.c { width: 220px; height: 220px; right: 24%; bottom: -80px; background: radial-gradient(circle, rgba(240,200,150,.55), rgba(240,200,150,0)); }
 .phx-in { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
 /* same width and gutters as the site's .container, so the banner text lines up with the page */
 @media (min-width: 601px) and (max-width: 1023px) { .phx-in { padding: 0 40px; } }
 @media (min-width: 1024px) { .phx-in { padding: 0 clamp(40px, 4.5vw, 56px); } }
 @media (min-width: 1300px) { .phx-in { padding: 0 40px; } }
-.phx-in > * { max-width: 600px; }
-.phx-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.2); font-size: 13px; font-weight: 700; color: #fff; }
+.phx-in > * { max-width: 640px; }
+.phx-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.75); border: 1px solid #d3e6da; font-size: 13px; font-weight: 700; color: #166534; box-shadow: 0 6px 16px -10px rgba(20,83,45,.35); }
 .phx-pill i, .phx-pill svg { font-size: 14px; }
-.phx .phx-title { color: #fff; font-size: clamp(28px, 4.6vw, 44px); line-height: 1.12; margin: 14px 0 12px; padding: 0; font-weight: 800; letter-spacing: -0.02em; }
-.phx .phx-title span { color: #bbf7d0; }
-.phx-lead { font-size: 17px; line-height: 1.6; color: #dcfce7; margin: 0 0 22px; padding: 0; }
+.phx .phx-title { color: #173c2a; font-size: clamp(28px, 4.6vw, 46px); line-height: 1.12; margin: 14px 0 12px; padding: 0; font-weight: 800; letter-spacing: -0.02em; }
+.phx .phx-title span { color: #2f8a5b; }
+.phx-lead { font-size: 17px; line-height: 1.6; color: #475569; margin: 0 0 22px; padding: 0; }
 .phx-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.phx-stats div { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 14px; padding: 12px; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-.phx-stats b { display: block; font-size: 22px; font-weight: 900; color: #fff; line-height: 1.2; }
-.phx-stats span { font-size: 12.5px; color: #d1fae5; line-height: 1.35; display: block; }
-.phx-dots { display: flex; gap: 6px; margin-top: 18px; }
-.phx-dots button { width: 8px; height: 8px; padding: 0; border: none; border-radius: 99px; background: rgba(255,255,255,.4); cursor: pointer; transition: width .3s, background .3s; }
-.phx-dots button.on { width: 22px; background: #fff; }
+.phx-stats div { background: rgba(255,255,255,.72); border: 1px solid #dfeae3; border-radius: 14px; padding: 12px; box-shadow: 0 8px 20px -14px rgba(20,83,45,.35); }
+.phx-stats b { display: block; font-size: 22px; font-weight: 900; color: #14532d; line-height: 1.2; }
+.phx-stats span { font-size: 12.5px; color: #5b6b62; line-height: 1.35; display: block; }
 /* the page's form card pulls up over the banner's bottom edge */
 .phx-overlap { position: relative; z-index: 2; margin-top: -64px; }
-@media (prefers-reduced-motion: reduce) { .phx-bg { transition: none; transform: none; } }
 @media (max-width: 640px) {
-  .phx { padding: 40px 0 84px; }
-  .phx-bg { background-position: 65% center; background-image: var(--phx-sm) !important; }
-  .phx-bgs::after { background: linear-gradient(180deg, rgba(12,58,32,.9) 0%, rgba(20,86,48,.86) 60%, rgba(26,107,58,.78) 100%); }
+  .phx { padding: 32px 0 84px; }
   .phx .phx-title { font-size: 27px; margin: 12px 0 8px; }
   .phx-lead { font-size: 15px; margin-bottom: 16px; }
   .phx-stats { gap: 6px; }
   .phx-stats div { padding: 9px 8px; border-radius: 12px; }
   .phx-stats b { font-size: 17px; }
   .phx-stats span { font-size: 11px; }
-  .phx-dots { margin-top: 14px; }
   .phx-overlap { margin-top: -56px; }
+  .phx-blob.a { width: 260px; height: 260px; right: -90px; top: -90px; }
 }
 `;

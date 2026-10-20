@@ -405,19 +405,9 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
           </button>
         </div>
       ) : (
-      /* ── Banner: photo + search ── */
+      /* ── Banner: soothing light background (same as /blogs) + search ── */
       <section className="vat-banner" aria-labelledby="vat-ban-title">
-        <img
-          className="vat-ban-img"
-          src="/assets/img/therapist-directory-banner-1600.webp"
-          srcSet="/assets/img/therapist-directory-banner-800.webp 800w, /assets/img/therapist-directory-banner-1600.webp 1600w"
-          sizes="100vw"
-          alt=""
-          width="1600"
-          height="750"
-          fetchPriority="high"
-          decoding="async"
-        />
+        <span className="vat-blob a" aria-hidden="true" /><span className="vat-blob b" aria-hidden="true" /><span className="vat-blob c" aria-hidden="true" />
         <div className="container vat-ban-inner">
           <p className="vat-ban-eyebrow">Verified psychologists &amp; therapists across India</p>
           <h1 id="vat-ban-title" className="vat-ban-title">
@@ -710,34 +700,35 @@ function HelpMeChoose({ allData, concerns, langs, onClose, onApply, onCall }) {
 
 const CSS = `
 /* ── Banner ── */
-.vat-banner { position: relative; overflow: hidden; padding: 64px 0 52px; background: #0b1712; }
+.vat-banner { position: relative; overflow: hidden; padding: 64px 0 52px; background: linear-gradient(135deg, #d9eee1 0%, #f3ead9 55%, #e4e2f6 100%); }
+.vat-blob { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
+.vat-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(140,200,165,.6), rgba(140,200,165,0)); }
+.vat-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(184,176,236,.5), rgba(184,176,236,0)); }
+.vat-blob.c { width: 220px; height: 220px; right: 24%; bottom: -80px; background: radial-gradient(circle, rgba(240,200,150,.55), rgba(240,200,150,0)); }
 /* the photo's speaker sits on the left — mirror it so she faces the copy from the right */
-.vat-ban-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 30%; transform: scaleX(-1); }
-.vat-banner::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(7,26,17,.86) 0%, rgba(7,26,17,.64) 40%, rgba(7,26,17,.22) 72%, rgba(7,26,17,.06) 100%); }
 .vat-ban-inner { position: relative; z-index: 2; text-align: left; }
 /* desktop: the banner runs 200px up behind the header (navbar.js) — start the photo below it */
-@media (min-width: 992px) { .vat-ban-img { top: 200px; height: calc(100% - 200px); } }
-.vat-ban-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ecc77d; margin: 0 0 12px; padding: 0; }
+.vat-ban-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #9a6a12; margin: 0 0 12px; padding: 0; }
 .vat-ban-eyebrow::before { content: ''; width: 22px; height: 2px; background: #d4a24c; display: inline-block; }
-.vat-ban-title { color: #fff; font-size: clamp(26px, 4.2vw, 46px); font-weight: 800; margin: 0 0 10px; line-height: 1.15; letter-spacing: -.3px; max-width: 760px; }
-.vat-gold { color: #ecc77d; }
-.vat-ban-sub { color: rgba(255,255,255,.9); font-size: clamp(15px, 1.4vw, 17px); margin: 0 0 22px; max-width: 540px; line-height: 1.6; font-weight: 500; padding: 0; }
+.vat-ban-title { color: #173c2a; font-size: clamp(26px, 4.2vw, 46px); font-weight: 800; margin: 0 0 10px; line-height: 1.15; letter-spacing: -.3px; max-width: 760px; }
+.vat-gold { color: #2f8a5b; }
+.vat-ban-sub { color: #475569; font-size: clamp(15px, 1.4vw, 17px); margin: 0 0 22px; max-width: 540px; line-height: 1.6; font-weight: 500; padding: 0; }
 .vat-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-.vat-ban-search { position: relative; display: flex; align-items: center; max-width: 620px; background: #fff; border-radius: 14px; padding: 6px; box-shadow: 0 18px 40px -16px rgba(0,0,0,.55); }
+.vat-ban-search { position: relative; display: flex; align-items: center; max-width: 620px; background: #fff; border-radius: 14px; padding: 6px; border: 1.5px solid #dbe5df; box-shadow: 0 16px 36px -22px rgba(20,83,45,.55); }
 .vat-ban-search-icon { position: absolute; left: 20px; font-size: 18px; color: #64748b; pointer-events: none; }
 .vat-ban-search input { flex: 1; min-width: 0; height: 48px; border: none; outline: none; background: transparent; padding: 0 40px 0 44px; font-size: 15.5px; color: #0f172a; }
 .vat-ban-search input::-webkit-search-cancel-button { display: none; }
-.vat-ban-search:focus-within { box-shadow: 0 0 0 3px rgba(236,199,125,.6), 0 18px 40px -16px rgba(0,0,0,.55); }
+.vat-ban-search:focus-within { border-color: #1e7a4c; box-shadow: 0 0 0 3px #dcefe3, 0 16px 36px -22px rgba(20,83,45,.55); }
 .vat-ban-clear { position: absolute; right: 124px; width: 30px; height: 30px; border-radius: 50%; border: none; background: #f1f5f9; color: #64748b; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .vat-ban-go { flex-shrink: 0; height: 48px; padding: 0 26px; border: none; border-radius: 10px; background: #1e7a4c; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
 .vat-ban-go:hover { background: #186640; }
 .vat-ban-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin-top: 16px; }
-.vat-help-btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(236,199,125,.7); background: rgba(212,162,76,.18); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; backdrop-filter: blur(4px); }
-.vat-help-btn b { color: #ecc77d; font-weight: 800; }
-.vat-help-btn:hover { background: rgba(212,162,76,.32); }
+.vat-help-btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #ecd3a3; background: #fffaf0; color: #5b4a2a; font-size: 13px; font-weight: 600; cursor: pointer; }
+.vat-help-btn b { color: #9a6a12; font-weight: 800; }
+.vat-help-btn:hover { background: #fdf1d8; }
 .vat-ban-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.vat-ban-chips button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.12); color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; backdrop-filter: blur(4px); transition: background .15s; }
-.vat-ban-chips button:hover, .vat-ban-chips button.on { background: #fff; color: #14532d; }
+.vat-ban-chips button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 999px; border: 1px solid #dbe5df; background: rgba(255,255,255,.8); color: #26463a; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background .15s; }
+.vat-ban-chips button:hover, .vat-ban-chips button.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
 .vat-ban-chips button i { font-size: 12px; }
 
 /* ── Sticky filter bar ── */
@@ -915,8 +906,6 @@ const CSS = `
 }
 @media (max-width: 767px) {
   .vat-banner { padding: 26px 0 22px; }
-  .vat-ban-img { object-position: 70% 10%; }
-  .vat-banner::before { background: linear-gradient(180deg, rgba(7,26,17,.7) 0%, rgba(7,26,17,.82) 100%); }
   .vat-ban-eyebrow { font-size: 9.5px; letter-spacing: .6px; margin-bottom: 8px; }
   .vat-ban-eyebrow::before { display: none; }
   .vat-ban-title { font-size: 25px; margin-bottom: 14px; }

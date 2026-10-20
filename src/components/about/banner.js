@@ -2,35 +2,34 @@ import { Box, Container } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 
 /**
- * About-Us hero — same full-bleed photo-banner recipe as login/register/
- * contact-us, with its own image (a calm, open road rather than the
- * lifestyle photo reused everywhere else) and copy.
+ * About-Us hero — the soothing light banner shared with /blogs, login,
+ * register and therapist-registration (sage → cream → lavender, soft shapes).
  * Keeps the `ab-section` class so navbar.js runs it up behind the floating
  * desktop navbar, same as every other hero on the site.
  */
 const styles = `
 .ab-section {
   position: relative;
-  background-image: url('/images/bg5-hero.webp');
-  background-size: cover;
-  background-position: center 65%;
-  background-attachment: scroll;
+  background: linear-gradient(135deg, #d9eee1 0%, #f3ead9 55%, #e4e2f6 100%);
   padding: 60px 0 50px 0;
   overflow: hidden;
 }
-.ab-section::before {
+/* gentle shapes, same as the /blogs banner */
+.ab-section::before, .ab-section::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(10, 20, 12, 0.66);
-  z-index: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
 }
+.ab-section::before { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(140,200,165,.6), rgba(140,200,165,0)); }
+.ab-section::after { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(184,176,236,.5), rgba(184,176,236,0)); }
 .ab-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
+  background: rgba(255,255,255,0.75);
+  color: #166534;
   padding: 8px 20px;
   border-radius: 50px;
   font-weight: 700;
@@ -38,30 +37,29 @@ const styles = `
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 20px;
-  border: 1px solid rgba(255,255,255,0.3);
-  backdrop-filter: blur(4px);
+  border: 1px solid #d3e6da;
+  box-shadow: 0 6px 16px -10px rgba(20,83,45,.35);
 }
 .ab-title {
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 900;
-  color: #fff;
-  line-height: 1.3;
+  color: #173c2a;
+  line-height: 1.25;
   margin-bottom: 12px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
-.ab-accent { color: #4ade80; }
+.ab-accent { color: #2f8a5b; }
 .ab-subtitle {
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
-  max-width: 600px;
+  font-size: 16px;
+  color: #475569;
+  max-width: 640px;
   margin: 0 auto;
   line-height: 1.6;
 }
 @media (max-width: 768px) {
-  .ab-section { padding: 28px 0 24px 0; background-image: url('/images/bg5-hero-800.webp'); }
+  .ab-section { padding: 28px 0 24px 0; }
   .ab-badge { display: none; }
-  .ab-title { font-size: 22px; line-height: 1.3; margin-bottom: 8px; }
-  .ab-subtitle { font-size: 13px; padding: 0 16px; }
+  .ab-title { font-size: 24px; line-height: 1.3; margin-bottom: 8px; }
+  .ab-subtitle { font-size: 14px; padding: 0 16px; }
 }
 `;
 
