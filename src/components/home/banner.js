@@ -252,11 +252,11 @@ export default function Banner({ topTherapists = [], stats = null }) {
           </p>
 
           <h1 className="title cyt-title">
-            Find the right <span className="cyt-hl">therapist</span><br /> &amp; start healing.
+            Talk to a verified <span className="cyt-hl">psychologist</span><br /> online, anywhere in India.
           </h1>
 
           <p className="description">
-            Talk to a verified psychologist — online or in person, in Hindi, English and more.
+            For anxiety, stress, low mood or relationships — in Hindi, English and more, by video or at our Noida centre.
           </p>
 
           <form className="cyt-hsearch" action="/view-all-therapist" method="get" role="search">
