@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import FAQ from "./faq";
-import { Brain, Heart, Users, BookOpen, Shield, IndianRupee } from "lucide-react";
+import { Brain, Heart, Users, BookOpen, Shield, IndianRupee, Plus, MessageCircle } from "lucide-react";
 
 const faqCategories = [
   {
@@ -157,80 +156,137 @@ const faqCategories = [
   }
 ];
 
+// same event the "Chat with CYT" lead form listens for (components/global/booking-popup.js)
+const OPEN_CHAT_EVENT = "cyt:open-chat";
+
+/* Home FAQ. Desktop: topics down the left (with a "still have a question?" nudge), answers on
+   the right. iPad / phones: topics as one swipeable row above the answers.
+   Answers stay in the page when closed (only collapsed), so search engines still read them. */
 export default function Faqs() {
   const [active, setActive] = useState(0);
+  const [open, setOpen] = useState(0); // first question of a topic starts open
   const category = faqCategories[active];
+  const pick = (i) => { setActive(i); setOpen(0); };
 
   return (
-    <div style={{ backgroundColor: '#f8faf9', padding: '56px 0 64px' }}>
+    <section className="hfq" aria-labelledby="hfq-title">
       <div className="container">
-
-        {/* Header — left-aligned like the other home sections (gold bar, title, line) */}
-        <div style={{ marginBottom: '24px' }}>
-          <span style={{ display: 'block', width: '42px', height: '4px', borderRadius: '2px', background: '#d4a24c', marginBottom: '12px' }} />
-          <h2 style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.2rem)', fontWeight: 800, color: '#0b1712', margin: '0 0 6px', lineHeight: 1.2 }}>
-            Everything You Want to Know About Therapy
-          </h2>
-          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: 1.6, margin: 0, padding: 0 }}>
-            Real answers to the questions most people are too hesitant to ask — about therapy, psychologists, costs, and what actually happens in a session.
-          </p>
+        <div className="hfq-head">
+          <span className="hfq-bar" aria-hidden="true" />
+          <h2 id="hfq-title" className="hfq-title">Everything you want to know <span>about therapy</span></h2>
+          <p className="hfq-sub">Real answers to the questions most people are too hesitant to ask — about therapy, psychologists, costs and what actually happens in a session.</p>
         </div>
 
-        {/* Category tabs */}
-        <div style={{
-          display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', gap: '8px',
-          marginBottom: '28px', paddingBottom: '24px', borderBottom: '1px solid #eef2f0'
-        }}>
-          {faqCategories.map((cat, i) => {
-            const Icon = cat.icon;
-            const isActive = i === active;
-            return (
-              <button
-                key={i}
-                onClick={() => setActive(i)}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '7px',
-                  padding: '9px 16px', borderRadius: '6px',
-                  border: `1.5px solid ${isActive ? '#166534' : '#dbe3df'}`,
-                  background: isActive ? '#166534' : '#fff',
-                  color: isActive ? '#fff' : '#475569',
-                  fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <Icon size={15} color={isActive ? '#fff' : cat.color} />
-                {cat.label}
+        <div className="hfq-wrap">
+          <aside className="hfq-side">
+            <div className="hfq-tabs" role="tablist" aria-label="FAQ topics">
+              {faqCategories.map((cat, i) => {
+                const Icon = cat.icon;
+                const on = i === active;
+                return (
+                  <button key={cat.label} type="button" role="tab" aria-selected={on} className={`hfq-tab${on ? " on" : ""}`} onClick={() => pick(i)}>
+                    <span className="hfq-ico" style={on ? undefined : { color: cat.color, background: cat.bg }}><Icon size={16} /></span>
+                    <span className="hfq-tab-l">{cat.label}</span>
+                    <span className="hfq-n">{cat.faqs.length}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="hfq-help">
+              <b>Still have a question?</b>
+              <span>Our team replies on WhatsApp — usually within minutes.</span>
+              <button type="button" onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}>
+                <MessageCircle size={16} /> Ask us
               </button>
-            );
-          })}
-        </div>
+            </div>
+          </aside>
 
-        {/* Active category's FAQs */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <span style={{
-              width: '22px', height: '22px', borderRadius: '4px', flexShrink: 0,
-              background: '#166534', color: '#fff', fontSize: '10px', fontWeight: 800,
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              {String(active + 1).padStart(2, '0')}
-            </span>
-            <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#132a1c', margin: 0 }}>
-              {category.label}
-            </h3>
-            <span style={{ fontSize: '12.5px', color: '#94a3b8', fontWeight: 600 }}>
-              · {category.faqs.length} questions
-            </span>
+          <div className="hfq-list" role="tabpanel" aria-label={category.label}>
+            {category.faqs.map((item, i) => {
+              const isOpen = open === i;
+              const id = `hfq-${active}-${i}`;
+              return (
+                <div key={id} className={`hfq-item${isOpen ? " open" : ""}`}>
+                  <button type="button" className="hfq-q" aria-expanded={isOpen} aria-controls={id} onClick={() => setOpen(isOpen ? -1 : i)}>
+                    <span className="hfq-num">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="hfq-q-t">{item.q}</span>
+                    <span className="hfq-plus" aria-hidden="true"><Plus size={16} /></span>
+                  </button>
+                  <div id={id} className="hfq-a" role="region">
+                    <p>{item.a}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="faq-cols">
-            {category.faqs.map((item, index) => (
-              <FAQ key={`${active}-${index}`} q={item.q} a={item.a} />
-            ))}
-          </div>
-          <style dangerouslySetInnerHTML={{ __html: ".faq-cols { display: grid; grid-template-columns: 1fr; gap: 0 28px; align-items: start; } @media (min-width: 992px) { .faq-cols { grid-template-columns: 1fr 1fr; } }" }} />
         </div>
-
       </div>
-    </div>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    </section>
   );
 }
+
+const CSS = `
+.hfq { background: #fff; padding: 64px 0 72px; }
+.hfq-head { margin-bottom: 26px; max-width: 760px; }
+.hfq-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #d4a24c; margin-bottom: 12px; }
+.hfq .hfq-title { font-size: clamp(24px, 3vw, 34px); font-weight: 800; color: #0b1712; margin: 0 0 6px; line-height: 1.2; }
+.hfq-title span { color: #a86e0e; }
+.hfq .hfq-sub { color: #64748b; font-size: 15px; line-height: 1.6; margin: 0; padding: 0; }
+
+.hfq-wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px; align-items: start; }
+.hfq-side { position: sticky; top: 110px; display: flex; flex-direction: column; gap: 14px; }
+.hfq-tabs { display: flex; flex-direction: column; gap: 6px; }
+.hfq-tab { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid transparent; background: transparent; text-align: left; cursor: pointer; color: #26463a; font-size: 14.5px; font-weight: 700; transition: background .15s, border-color .15s; }
+.hfq-tab:hover { background: #f4f8f5; }
+.hfq-tab.on { background: #14532d; color: #fff; }
+.hfq-ico { flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; }
+.hfq-tab.on .hfq-ico { background: rgba(255,255,255,.16); color: #ecc77d; }
+.hfq-tab-l { flex: 1; min-width: 0; }
+.hfq-n { flex-shrink: 0; min-width: 24px; height: 22px; padding: 0 7px; border-radius: 999px; background: #eef4f0; color: #4b5d53; font-size: 11.5px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+.hfq-tab.on .hfq-n { background: #ecc77d; color: #14532d; }
+.hfq-help { display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 16px; background: linear-gradient(135deg, #f1f8f3, #fbf4e3); border: 1px solid #e8e1cc; }
+.hfq-help b { font-size: 15px; color: #13261c; }
+.hfq-help span { font-size: 13px; line-height: 1.5; color: #5b6560; }
+.hfq-help button { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; height: 38px; padding: 0 16px; border-radius: 10px; border: none; background: #1e7a4c; color: #fff; font-size: 13.5px; font-weight: 800; cursor: pointer; }
+.hfq-help button:hover { background: #186640; }
+
+.hfq-list { display: flex; flex-direction: column; gap: 10px; }
+.hfq-item { background: #fff; border: 1px solid #e6ece8; border-radius: 14px; transition: border-color .2s, box-shadow .2s; }
+.hfq-item.open { border-color: #cfe3d6; box-shadow: 0 14px 30px -24px rgba(20,83,45,.55); }
+.hfq-q { display: flex; align-items: center; gap: 12px; width: 100%; padding: 15px 16px; border: none; background: transparent; text-align: left; cursor: pointer; }
+.hfq-num { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #a86e0e; min-width: 20px; }
+.hfq-q-t { flex: 1; min-width: 0; font-size: 15.5px; font-weight: 700; line-height: 1.4; color: #13261c; }
+.hfq-plus { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #eef6f1; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; transition: transform .25s ease, background .2s; }
+.hfq-item.open .hfq-plus { transform: rotate(45deg); background: #1e7a4c; color: #fff; }
+.hfq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+.hfq-item.open .hfq-a { grid-template-rows: 1fr; }
+.hfq-a > p { overflow: hidden; margin: 0; padding: 0 16px 0 48px; font-size: 14.5px; line-height: 1.7; color: #475569; }
+.hfq-item.open .hfq-a > p { padding-bottom: 16px; }
+
+/* iPad + phones: topics as one swipeable row above the answers */
+@media (max-width: 1023px) {
+  .hfq { padding: 48px 0 56px; }
+  .hfq-wrap { grid-template-columns: 1fr; gap: 16px; }
+  .hfq-side { position: static; }
+  .hfq-tabs { flex-direction: row; overflow-x: auto; margin: 0 -40px; padding: 2px 40px 4px; scrollbar-width: none; }
+  .hfq-tabs::-webkit-scrollbar { display: none; }
+  .hfq-tab { width: auto; flex-shrink: 0; padding: 8px 12px 8px 8px; border: 1px solid #e3ebe6; background: #fff; white-space: nowrap; border-radius: 999px; font-size: 13.5px; }
+  .hfq-ico { width: 26px; height: 26px; border-radius: 50%; }
+  .hfq-n { display: none; }
+  .hfq-help { order: 2; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+  .hfq-help span { flex: 1 1 200px; }
+  .hfq-wrap > .hfq-list { order: 1; }
+  .hfq-side { display: contents; }
+  .hfq-tabs { order: 0; }
+}
+@media (max-width: 600px) {
+  .hfq-tabs { margin: 0 -16px; padding: 2px 16px 4px; }
+  .hfq-q { padding: 13px 12px; gap: 10px; }
+  .hfq-q-t { font-size: 14.5px; }
+  .hfq-a > p { padding: 0 12px 0 42px; font-size: 14px; }
+  .hfq-help { flex-direction: column; align-items: flex-start; }
+  .hfq-help span { flex: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hfq-a, .hfq-plus { transition: none; } }
+`;
