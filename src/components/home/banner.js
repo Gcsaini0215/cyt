@@ -520,15 +520,6 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-ph:focus-visible { outline: 3px solid #ecc77d; outline-offset: 2px; }
         .cyt-ph-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; transition: transform .5s ease; }
         .cyt-ph:hover .cyt-ph-img { transform: scale(1.04); }
-        /* brand duotone — dark-green shadows, cream highlights; the real photo on hover / focus.
-           cream card + greyscale photo (multiply) gives cream-to-black, then a dark green layer
-           (lighten) lifts the blacks to green. */
-        .cyt-ph:has(.cyt-ph-img) { background: #f4ecd6; }
-        .cyt-ph-img { z-index: 0; filter: grayscale(1) contrast(1.08) brightness(1.04); mix-blend-mode: multiply; transition: transform .5s ease, filter .45s ease; }
-        .cyt-ph:has(.cyt-ph-img)::before { content: ""; position: absolute; inset: 0; z-index: 1; background: #155e3a; mix-blend-mode: lighten; pointer-events: none; transition: opacity .45s ease; }
-        .cyt-ph:hover .cyt-ph-img, .cyt-ph:focus-visible .cyt-ph-img { filter: none; mix-blend-mode: normal; }
-        .cyt-ph:hover::before, .cyt-ph:focus-visible::before { opacity: 0; }
-        .cyt-ph-fee, .cyt-ph-info { z-index: 2; }
         .cyt-ph-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #1e7a4c; }
         .cyt-ph-fee { position: absolute; top: 12px; left: 12px; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.94); color: #14532d; padding: 3px 10px; border-radius: 999px; }
         /* a short shade, only behind the text — the face above stays clear */
