@@ -3,7 +3,11 @@ import Head from "next/head";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
+import PhotoHero from "../components/global/photo-hero";
 import { PROGRAM_DATA, GENERAL_TYPES } from "./internship-registration";
+
+/* /internship-modules — the curriculum of every internship track, module by module.
+   Light banner like the registration pages; a sticky track list beside the course cards on wide screens. */
 
 const COURSE_CODES = {
   "Counselling Psychology": "CYT-CN102",
@@ -12,254 +16,195 @@ const COURSE_CODES = {
   "Administrative / Operations": "CYT-AO106",
   "Social Media & Outreach": "CYT-SO107",
 };
+const PSYCH_TRACKS = ["Counselling Psychology"];
+const GROUPS = [
+  { key: "psych", title: "Psychology tracks", sub: "Hands-on, mentor-led exposure to counselling psychology practice.", types: PSYCH_TRACKS },
+  { key: "general", title: "General support tracks", sub: "Research, content, operations and outreach roles that keep a mental health platform running.", types: GENERAL_TYPES },
+];
 
-function slugify(name) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-}
+const slugify = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const split = (d) => { const [duration, hours] = String(d || "").split(" | "); return { duration, hours }; };
 
 function CourseCard({ name, data, defaultOpen }) {
   const [open, setOpen] = useState(!!defaultOpen);
-  const [duration, hours] = data.duration.split(" | ");
-  const id = slugify(name);
-
+  const { duration, hours } = split(data.duration);
   return (
-    <div id={id} className="im-course">
-      <button type="button" className="im-course-head" onClick={() => setOpen((v) => !v)}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="im-code mono">{COURSE_CODES[name]}</div>
-          <h3 className="im-course-title serif">{name}</h3>
-          <p className="im-course-tagline">{data.tagline}</p>
-        </div>
-        <span className="im-chev" style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+    <article id={slugify(name)} className={`imc${open ? " open" : ""}`} style={{ "--c": data.color || "#1e7a4c" }}>
+      <button type="button" className="imc-head" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        <span className="imc-ic"><i className={data.icon || "feather-book-open"} aria-hidden="true" /></span>
+        <span className="imc-t">
+          <small>{COURSE_CODES[name] || "CYT"}</small>
+          <b>{name}</b>
+          <em>{data.tagline}</em>
+        </span>
+        <span className="imc-chev" aria-hidden="true">{open ? "−" : "+"}</span>
       </button>
-
-      <div className="im-meta">
-        <div><div className="im-meta-k">Duration</div><div className="im-meta-v">{duration}</div></div>
-        <div><div className="im-meta-k">Hours</div><div className="im-meta-v">{hours}</div></div>
-        <div><div className="im-meta-k">Modules</div><div className="im-meta-v">{data.modules.length}</div></div>
+      <div className="imc-meta">
+        <span><i className="feather-calendar" aria-hidden="true" /> {duration}</span>
+        <span><i className="feather-clock" aria-hidden="true" /> {hours}</span>
+        <span><i className="feather-layers" aria-hidden="true" /> {data.modules.length} modules</span>
       </div>
-
       {open && (
-        <div className="im-syllabus">
-          {data.modules.map((mod, i) => (
-            <div className="im-mod" key={i}>
-              <div className="im-mod-num mono">{String(i + 1).padStart(2, "0")}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p className="im-mod-title">{mod.title.replace(/^Module \d+\s*—\s*/, "")}</p>
-                <ul>
-                  {mod.activities.map((act, j) => <li key={j}>{act}</li>)}
-                </ul>
-              </div>
-            </div>
-          ))}
-          <div className="im-award">🎓 <span>Upon completion: <b>{data.outcome}</b></span></div>
+        <div className="imc-body">
+          <ol className="imc-mods">
+            {data.modules.map((mod, i) => (
+              <li key={i}>
+                <span className="imc-n">{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <b>{mod.title.replace(/^Module \d+\s*[:—-]\s*/, "")}</b>
+                  <ul>{mod.activities.map((act, j) => <li key={j}>{act}</li>)}</ul>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="imc-award"><i className="feather-award" aria-hidden="true" /> <span>On completion: <b>{data.outcome}</b></span></div>
         </div>
       )}
-    </div>
-  );
-}
-
-function CourseGroup({ num, title, subtitle, types, accentClass, defaultOpenName }) {
-  return (
-    <div className="im-group">
-      <div className="im-group-head">
-        <span className="im-group-num serif">{num}.</span>
-        <span className={`im-group-title serif ${accentClass}`}>{title}</span>
-      </div>
-      <p className="im-group-sub">{subtitle}</p>
-      {types.map((name) => (
-        <CourseCard key={name} name={name} data={PROGRAM_DATA[name]} defaultOpen={name === defaultOpenName} />
-      ))}
-    </div>
+    </article>
   );
 }
 
 export default function InternshipModules() {
-  const psychTypes = ["Counselling Psychology"];
-  const allTypes = [...psychTypes, ...GENERAL_TYPES];
+  const all = GROUPS.flatMap((g) => g.types).filter((t) => PROGRAM_DATA[t]);
+  const totalModules = all.reduce((a, t) => a + PROGRAM_DATA[t].modules.length, 0);
 
   return (
     <>
       <Head>
-        <title>Internship Modules & Curriculum | Choose Your Therapist</title>
+        <title>Internship Modules &amp; Curriculum | Choose Your Therapist</title>
         <meta name="description" content="See the full module-by-module curriculum for every track in the Choose Your Therapist Supervision cum Internship Program." />
         <link rel="canonical" href="https://chooseyourtherapist.in/internship-modules" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,600;0,700;1,500&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
       </Head>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <MyNavbar />
+      <PhotoHero
+        pill={<><i className="feather-book-open" aria-hidden="true" /> Course curriculum</>}
+        title={<>Internship modules &amp; <span>curriculum</span></>}
+        lead="Every track in the Supervision cum Internship Program, module by module — open a track to see exactly what you'll learn."
+        stats={[{ value: `${all.length}`, label: "tracks" }, { value: `${totalModules}`, label: "modules" }, { value: "Certificate", label: "+ LOR" }]}
+      />
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        .im-page { font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f6f8f5; }
-        .im-page .serif { font-family: 'Source Serif 4', Georgia, serif; }
-        .im-page .mono { font-family: 'IBM Plex Mono', monospace; }
-
-        .im-wrap { max-width: 760px; margin: 0 auto; padding: 40px 20px 20px; }
-
-        .im-toc { padding: 0 0 30px; border-bottom: 1px solid #d8e0da; margin-bottom: 6px; }
-        .im-toc-label { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #a67c29; margin-bottom: 16px; }
-        .im-toc-row { display: flex; align-items: baseline; gap: 8px; padding: 7px 0; text-decoration: none; color: inherit; }
-        .im-toc-code { font-size: 11px; color: #4b5d53; flex-shrink: 0; width: 76px; }
-        .im-toc-name { font-size: 14.5px; font-weight: 600; flex-shrink: 0; color: #132a1c; }
-        .im-toc-dots { flex: 1; border-bottom: 1px dotted #d8e0da; margin-bottom: 5px; min-width: 20px; }
-        .im-toc-hrs { font-size: 11px; color: #4b5d53; flex-shrink: 0; }
-
-        .im-group { padding: 32px 0 6px; }
-        .im-group-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
-        .im-group-num { font-size: 12px; color: #4b5d53; }
-        .im-group-title { font-size: 20px; font-weight: 700; }
-        .im-group-title.accent-green { color: #1b5e20; }
-        .im-group-title.accent-navy { color: #1e3a5f; }
-        .im-group-sub { font-size: 13.5px; color: #4b5d53; margin: 2px 0 24px; max-width: 58ch; }
-
-        .im-course { border: 1px solid #d8e0da; border-radius: 4px; background: #fff; margin-bottom: 18px; overflow: hidden; }
-        .im-course-head { width: 100%; display: flex; align-items: flex-start; gap: 16px; padding: 20px 22px; background: none; border: none; cursor: pointer; text-align: left; font: inherit; color: inherit; }
-        .im-code { font-size: 11px; color: #a67c29; font-weight: 500; margin-bottom: 5px; letter-spacing: .03em; }
-        .im-course-title { font-size: 17px; font-weight: 700; margin: 0 0 6px; color: #132a1c; }
-        .im-course-tagline { font-size: 12.5px; color: #4b5d53; font-style: italic; max-width: 56ch; margin: 0; }
-        .im-chev { flex-shrink: 0; margin-top: 4px; font-size: 13px; color: #4b5d53; transition: transform .2s ease; }
-
-        .im-meta { display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid #d8e0da; border-bottom: 1px solid #d8e0da; }
-        .im-meta > div { padding: 11px 22px; border-right: 1px solid #d8e0da; }
-        .im-meta > div:last-child { border-right: none; }
-        .im-meta-k { font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #4b5d53; margin-bottom: 3px; }
-        .im-meta-v { font-size: 12px; font-weight: 600; color: #132a1c; }
-
-        .im-syllabus { padding: 22px 22px 26px; }
-        .im-mod { display: flex; gap: 16px; margin-bottom: 20px; }
-        .im-mod:last-of-type { margin-bottom: 16px; }
-        .im-mod-num { font-size: 11px; color: #a67c29; flex-shrink: 0; width: 26px; padding-top: 2px; text-align: right; }
-        .im-mod-title { font-size: 13.5px; font-weight: 700; margin: 0 0 8px; color: #132a1c; }
-        .im-mod ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
-        .im-mod li { font-size: 12.5px; color: #4b5d53; line-height: 1.55; padding-left: 14px; position: relative; }
-        .im-mod li::before { content: "—"; position: absolute; left: 0; color: #d8e0da; }
-
-        .im-award { display: flex; align-items: center; gap: 10px; margin-top: 6px; padding-top: 18px; border-top: 1px dashed #d8e0da; font-size: 12px; color: #4b5d53; }
-        .im-award b { color: #132a1c; font-weight: 700; }
-
-        .im-enroll { margin-top: 30px; padding: 34px 30px; border-radius: 6px; text-align: center; background: linear-gradient(135deg,#e8f3ea,#fff); border: 1px solid #d8e0da; }
-        .im-enroll h3 { font-size: 19px; font-weight: 700; margin: 0 0 8px; color: #132a1c; }
-        .im-enroll p { font-size: 13px; color: #4b5d53; max-width: 46ch; margin: 0 auto 20px; }
-        .im-enroll a { display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px; border-radius: 3px; background: #1b5e20; color: #fff; font-weight: 700; font-size: 13.5px; text-decoration: none; }
-
-        @media (max-width: 600px) {
-          .im-meta { grid-template-columns: 1fr; }
-          .im-meta > div { border-right: none; border-bottom: 1px solid #d8e0da; }
-          .im-meta > div:last-child { border-bottom: none; }
-        }
-
-        /* ── HERO BANNER — same treatment as the application page ── */
-        .intern-banner {
-          position: relative;
-          background-image: url(https://i.postimg.cc/5yf8k8ts/bg-image-12dabd.jpg);
-          background-size: cover;
-          background-position: center;
-          background-attachment: scroll;
-          padding: 70px 0 70px 0;
-          overflow: hidden;
-          margin-top: 0px;
-        }
-        .intern-banner::before {
-          content: no-open-quote;
-          position: absolute; inset: 0;
-          background: rgba(0, 0, 0, 0.6);
-          z-index: 1;
-        }
-        .intern-back {
-          display: inline-flex; align-items: center; gap: 6px;
-          color: rgba(255,255,255,.75); font-size: 12.5px; font-weight: 700;
-          text-decoration: none; margin-bottom: 18px; position: relative; z-index: 1;
-        }
-        .intern-badge {
-          display: inline-flex; align-items: center; gap: 8px;
-          background: rgba(255,255,255,0.15); color: #ffffff;
-          padding: 8px 20px; border-radius: 50px;
-          font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;
-          margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);
-          backdrop-filter: blur(4px); position: relative; z-index: 1;
-        }
-        .intern-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; display: inline-block; animation: internPulse 2s infinite; }
-        @keyframes internPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.5)} }
-        .intern-title {
-          font-size: 30px; font-weight: 900; color: #ffffff; line-height: 1.3;
-          margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-          position: relative; z-index: 1;
-        }
-        .intern-subtitle {
-          font-size: 14px; color: rgba(255,255,255,0.85); max-width: 600px;
-          margin: 0 auto; line-height: 1.6; position: relative; z-index: 1;
-        }
-        @media (max-width: 768px) {
-          .intern-banner { padding: 24px 0 20px 0; }
-          .intern-badge { display: none; }
-          .intern-title { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
-          .intern-subtitle { font-size: 12px; padding: 0 12px; }
-        }
-      ` }} />
-
-      <div className="im-page">
-        <MyNavbar />
-
-        <section className="intern-banner">
-          <div className="container">
-            <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
-              <Link href="/internship-registration" className="intern-back">
-                <i className="feather-arrow-left"></i> Back to application
-              </Link>
-              <div className="intern-badge">
-                <span className="intern-badge-dot"></span>
-                Course Curriculum
-              </div>
-              <h1 className="intern-title">
-                Internship Modules &amp; <span style={{ color: "#4ade80" }}>Curriculum</span>
-              </h1>
-              <p className="intern-subtitle">
-                Every track in the Supervision cum Internship Program, broken down module by module — tap a track to see exactly what you'll learn.
-              </p>
+      <div className="im-bg">
+        <div className="im-wrap phx-overlap">
+          <aside className="im-side" aria-label="Tracks">
+            <div className="im-side-in">
+              <b className="im-side-h">Tracks</b>
+              {GROUPS.map((g) => (
+                <div key={g.key} className="im-side-g">
+                  <span>{g.title}</span>
+                  {g.types.filter((t) => PROGRAM_DATA[t]).map((t) => (
+                    <a key={t} href={`#${slugify(t)}`} style={{ "--c": PROGRAM_DATA[t].color || "#1e7a4c" }}>
+                      <i aria-hidden="true" />
+                      <span>{t}</span>
+                      <small>{split(PROGRAM_DATA[t].duration).hours}</small>
+                    </a>
+                  ))}
+                </div>
+              ))}
+              <Link href="/internship-registration#apply-form" className="im-side-cta">Apply now <i className="feather-arrow-right" aria-hidden="true" /></Link>
             </div>
-          </div>
-        </section>
+          </aside>
 
-        <div className="im-wrap">
-          <nav className="im-toc">
-            <div className="im-toc-label">Table of Contents</div>
-            {allTypes.map((name) => (
-              <a key={name} className="im-toc-row" href={`#${slugify(name)}`}>
-                <span className="im-toc-code mono">{COURSE_CODES[name]}</span>
-                <span className="im-toc-name serif">{name}</span>
-                <span className="im-toc-dots"></span>
-                <span className="im-toc-hrs mono">{PROGRAM_DATA[name].duration.split(" | ")[1]}</span>
-              </a>
+          <main className="im-main">
+            <Link href="/internship-registration" className="im-back"><i className="feather-arrow-left" aria-hidden="true" /> Back to application</Link>
+            {GROUPS.map((g, gi) => (
+              <section key={g.key} className="im-group" aria-labelledby={`g-${g.key}`}>
+                <div className="im-group-h">
+                  <span className="im-group-n">{String(gi + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h2 id={`g-${g.key}`}>{g.title}</h2>
+                    <p>{g.sub}</p>
+                  </div>
+                </div>
+                {g.types.filter((t) => PROGRAM_DATA[t]).map((t, i) => (
+                  <CourseCard key={t} name={t} data={PROGRAM_DATA[t]} defaultOpen={gi === 0 && i === 0} />
+                ))}
+              </section>
             ))}
-          </nav>
 
-          <CourseGroup
-            num="I"
-            title="Psychology-Related Tracks"
-            subtitle="Hands-on, mentor-led exposure to counselling psychology practice."
-            types={psychTypes}
-            accentClass="accent-green"
-            defaultOpenName="Counselling Psychology"
-          />
-          <CourseGroup
-            num="II"
-            title="General Support Tracks"
-            subtitle="Research, content, operations, and outreach roles that keep a mental health platform running."
-            types={GENERAL_TYPES}
-            accentClass="accent-navy"
-          />
-
-          <div className="im-enroll">
-            <h3 className="serif">Ready to enrol?</h3>
-            <p>Pick your track — you can select more than one on the application form.</p>
-            <Link href="/internship-registration#apply-form">
-              Go to Application Form <i className="feather-arrow-right"></i>
-            </Link>
-          </div>
+            <div className="im-cta">
+              <div>
+                <b>Ready to apply?</b>
+                <span>Pick one or more tracks on the application form — it takes about 5 minutes.</span>
+              </div>
+              <Link href="/internship-registration#apply-form">Go to application <i className="feather-arrow-right" aria-hidden="true" /></Link>
+            </div>
+          </main>
         </div>
-
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 }
+
+const CSS = `
+.im-bg { background: #fff; padding-bottom: 56px; }
+.im-wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 24px; align-items: start; }
+.im-side { position: sticky; top: 96px; }
+.im-side-in { background: #fff; border: 1px solid #e3ebe6; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 24px 48px -32px rgba(20,83,45,.4); }
+.im-side-h { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #8a5a0b; }
+.im-side-g { display: flex; flex-direction: column; gap: 4px; }
+.im-side-g > span { font-size: 11.5px; font-weight: 800; color: #8a948f; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.im-side-g a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; text-decoration: none !important; color: #13261c !important; font-size: 14px; font-weight: 700; transition: background .15s; }
+.im-side-g a:hover { background: #f4f8f5; }
+.im-side-g a i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+.im-side-g a span { flex: 1; min-width: 0; }
+.im-side-g a small { font-size: 11.5px; color: #8a948f; font-weight: 600; white-space: nowrap; }
+.im-side-cta { display: flex; align-items: center; justify-content: center; gap: 6px; height: 44px; border-radius: 12px; background: #14532d; color: #fff !important; font-weight: 800; font-size: 14px; text-decoration: none !important; }
+.im-side-cta:hover { background: #0f3d22; }
+
+.im-main { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.im-back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: #fff; border: 1px solid #e3ebe6; color: #14532d !important; font-size: 13px; font-weight: 700; text-decoration: none !important; box-shadow: 0 8px 20px -14px rgba(20,83,45,.5); }
+.im-group { margin-top: 18px; display: flex; flex-direction: column; gap: 14px; }
+.im-group-h { display: flex; gap: 14px; align-items: flex-start; }
+.im-group-n { flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px; background: #14532d; color: #ecc77d; font-weight: 900; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+.im-group-h h2 { margin: 0; font-size: 22px; font-weight: 800; color: #0b1712; }
+.im-group-h p { margin: 2px 0 0; padding: 0; font-size: 14px; color: #5b6b62; }
+
+.imc { background: #fff; border: 1px solid #e3ebe6; border-radius: 18px; overflow: hidden; transition: box-shadow .2s, border-color .2s; }
+.imc.open { border-color: color-mix(in srgb, var(--c) 35%, #e3ebe6); box-shadow: 0 20px 44px -30px rgba(20,83,45,.5); }
+.imc-head { width: 100%; display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px; border: none; background: none; cursor: pointer; text-align: left; font: inherit; color: inherit; }
+.imc-ic { flex-shrink: 0; width: 46px; height: 46px; border-radius: 14px; background: color-mix(in srgb, var(--c) 14%, #fff); color: var(--c); display: inline-flex; align-items: center; justify-content: center; font-size: 20px; }
+.imc-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.imc-t small { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; color: #a86e0e; }
+.imc-t b { font-size: 18px; font-weight: 800; color: #0b1712; }
+.imc-t em { font-style: normal; font-size: 13.5px; color: #5b6b62; line-height: 1.5; }
+.imc-chev { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: #f1f5f2; color: #14532d; font-size: 20px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+.imc.open .imc-chev { background: #14532d; color: #fff; }
+.imc-meta { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px 16px 80px; }
+.imc-meta span { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #26463a; background: #f4f8f5; border-radius: 999px; padding: 4px 11px; }
+.imc-meta i { color: var(--c); }
+.imc-body { border-top: 1px solid #eef2ef; padding: 18px 20px 20px; background: #fcfdfc; }
+.imc-mods { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.imc-mods > li { margin: 0; display: flex; gap: 12px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #eef2ef; }
+.imc-mods > li::before { content: none; }
+.imc-n { flex-shrink: 0; width: 30px; height: 30px; border-radius: 9px; background: var(--c); color: #fff; font-size: 12px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; }
+.imc-mods b { display: block; font-size: 14.5px; color: #13261c; margin: 4px 0 6px; line-height: 1.35; }
+.imc-mods ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.imc-mods ul li { margin: 0; position: relative; padding-left: 14px; font-size: 13px; line-height: 1.5; color: #4b5d53; }
+.imc-mods ul li::before { content: ""; position: absolute; left: 0; top: 8px; width: 5px; height: 5px; border-radius: 50%; background: color-mix(in srgb, var(--c) 60%, #fff); }
+.imc-award { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #fff8e8; border: 1px solid #f0d9a4; font-size: 13.5px; color: #5b4a2a; }
+.imc-award i { color: #b07a1c; font-size: 18px; }
+.imc-award b { color: #13261c; }
+
+.im-cta { margin-top: 26px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 24px; border-radius: 20px; background: linear-gradient(135deg, #14532d, #1e7a4c); color: #fff; }
+.im-cta b { display: block; font-size: 19px; }
+.im-cta span { font-size: 14px; color: #d4ecdd; }
+.im-cta a { display: inline-flex; align-items: center; gap: 6px; height: 46px; padding: 0 20px; border-radius: 12px; background: #ecc77d; color: #14532d !important; font-weight: 800; font-size: 14.5px; text-decoration: none !important; }
+
+@media (max-width: 960px) {
+  .im-wrap { grid-template-columns: 1fr; }
+  .im-side { position: static; order: 2; }
+  .im-main { order: 1; }
+  .imc-mods { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .imc-head { padding: 16px 14px; gap: 12px; }
+  .imc-ic { width: 40px; height: 40px; font-size: 18px; }
+  .imc-t b { font-size: 16.5px; }
+  .imc-meta { padding: 0 14px 14px; }
+  .imc-body { padding: 14px; }
+  .im-group-h h2 { font-size: 19px; }
+  .im-cta a { width: 100%; justify-content: center; }
+}
+`;
