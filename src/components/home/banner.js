@@ -7,7 +7,6 @@ import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
 import { getMinFee } from "../../utils/therapist-directory";
-import { modesOf } from "../../utils/related-therapists";
 import { GBP_URL } from "../about/visit-centre";
 
 // quick concern picks under the search box -> the directory, pre-filtered
@@ -62,56 +61,6 @@ const feeLabel = (t) => {
 
 const photo = (t) => (t.user?.profile ? `${imagePath}/${t.user.profile}` : "");
 
-/* desktop wall: photo-first card — the photo fills the card, details sit on a soft gradient,
-   View / Book slide up on hover or keyboard focus; the whole card opens the profile */
-// two things this therapist helps with, in plain words ("Stress Management" -> "Stress")
-const focusTags = (t) => String(t?.experties || "").split(",").map((x) => x.trim()).filter(Boolean)
-  .filter((x) => !/\(|therapy|motivation|time management/i.test(x))
-  .map((x) => x.replace(/\s+management$/i, "").replace(/\s+and\s+/i, " & "))
-  .slice(0, 2);
-// shown instead of a rating when there are no reviews yet (better than a bare "New")
-const noRatingLine = (t) => {
-  const langs = langList(t.language_spoken).slice(0, 2);
-  return langs.length ? langs.join(" · ") : (modesOf(t) || "Verified");
-};
-
-function PortraitCard({ t, hidden = false }) {
-  const r = rating(t);
-  const name = t.user?.name || "Therapist";
-  const exp = expLabel(t.year_of_exp);
-  const fee = feeLabel(t);
-  const tab = hidden ? -1 : undefined;
-  const tags = focusTags(t);
-  return (
-    <div className="cyt-pcard" aria-hidden={hidden || undefined}>
-      {photo(t) ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="cyt-pphoto" src={thumb(photo(t), 256)} srcSet={thumbSet(photo(t), 256, 640)} alt={name} loading="lazy" decoding="async" />
-      ) : (
-        <span className="cyt-pinit">{initialsOf(name)}</span>
-      )}
-      {fee && <span className="cyt-ppin">{fee}</span>}
-      <Link className="cyt-plink" href={profilePath(t)} tabIndex={tab} aria-label={`View ${name}'s profile`} />
-      <div className="cyt-pinfo">
-        <div className="cyt-pname">
-          <span>{name}</span>
-          <VerifiedRounded sx={{ fontSize: 16, color: "#7dd3fc", flexShrink: 0 }} />
-        </div>
-        <div className="cyt-prole">{t.profile_type || "Mental Health Professional"}</div>
-        {tags.length > 0 && <div className="cyt-ptags">{tags.join(" · ")}</div>}
-        <div className="cyt-pmeta">
-          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /> <b>{r.avg}</b> <span>({r.count})</span></> : <span className="cyt-pnorate">{noRatingLine(t)}</span>}
-          {exp && <><i className="cyt-pdot" /> {exp}</>}
-        </div>
-        <div className="cyt-pbtns">
-          <Link className="cyt-pv" href={profilePath(t)} tabIndex={tab}>View</Link>
-          <Link className="cyt-pb" href={bookPath(t)} tabIndex={tab}>Book</Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // every area of expertise the therapist saved on their profile, as it was written
 const expertiseOf = (t) => String(t?.experties || "").split(",").map((x) => x.trim()).filter(Boolean);
 
@@ -130,7 +79,7 @@ function Stars({ avg = 0 }) {
   );
 }
 
-function TherapistCard({ t }) {
+function TherapistCard({ t, hidden = false }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const langs = langList(t.language_spoken).slice(0, 2);
@@ -138,10 +87,11 @@ function TherapistCard({ t }) {
   const exp = expLabel(t.year_of_exp);
   const skills = expertiseOf(t);
   const href = profilePath(t);
+  const tab = hidden ? -1 : undefined; // the wall's second (loop) copy is skipped by keyboard + screen readers
   return (
-    <div className="cyt-tcard">
+    <div className="cyt-tcard" aria-hidden={hidden || undefined}>
       {/* photo and name both open the profile */}
-      <Link className="cyt-tphoto" href={href} aria-label={`View ${name}'s profile`}>
+      <Link className="cyt-tphoto" href={href} tabIndex={tab} aria-label={`View ${name}'s profile`}>
         {photo(t) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
@@ -152,7 +102,7 @@ function TherapistCard({ t }) {
         {fee && <span className="cyt-tpin">{fee}</span>}
       </Link>
       <div className="cyt-tbody">
-        <Link className="cyt-tname" href={href}>{name}</Link>
+        <Link className="cyt-tname" href={href} tabIndex={tab}>{name}</Link>
         <div className="cyt-trole">
           <span>{t.profile_type || "Mental Health Professional"}</span>
         </div>
@@ -180,8 +130,8 @@ function TherapistCard({ t }) {
           </div>
         )}
         <div className="cyt-trow">
-          <Link className="cyt-v" href={href}>View</Link>
-          <Link className="cyt-b" href={bookPath(t)}>Book</Link>
+          <Link className="cyt-v" href={href} tabIndex={tab}>View</Link>
+          <Link className="cyt-b" href={bookPath(t)} tabIndex={tab}>Book</Link>
         </div>
       </div>
     </div>
@@ -300,7 +250,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
                 <div key={ci} className={`cyt-wall-col ${ci === 0 ? "up" : "down"}`}>
                   <div className="cyt-wall-track" style={{ animationDuration: `${Math.max(col.length, 3) * 7}s` }}>
                     {(wallMoves ? [...col, ...col] : col).map((t, i) => (
-                      <PortraitCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
+                      <TherapistCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
                     ))}
                   </div>
                 </div>
@@ -395,7 +345,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trole { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12px; font-weight: 600; color: #1e7a4c; white-space: nowrap; overflow: hidden; }
         .cyt-trole span { overflow: hidden; text-overflow: ellipsis; }
         .cyt-tdot { width: 3px; height: 3px; border-radius: 50%; background: #9fb3a6; flex-shrink: 0; }
-        .cyt-trate { display: flex; align-items: center; gap: 5px; margin: 7px 0 9px; min-height: 18px; font-size: 12.5px; }
+        .cyt-trate { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; margin: 7px 0 9px; min-height: 18px; font-size: 12.5px; }
         .cyt-trate b { font-weight: 800; color: #0b1712; }
         .cyt-tcnt { font-weight: 500; color: #7c8b81; }
         .cyt-tstars { display: inline-flex; }
@@ -415,26 +365,32 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trow .cyt-b { background: #1e7a4c; color: #fff !important; }
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }
 
-        /* ── phone + iPad portrait: one column — headline, trust line, search, chips, Noida card, cards ── */
+        /* ── every width: copy as a column so the trust line sits right under the headline ── */
+        .cyt-hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
+        .cyt-hero-copy > * { order: 3; }
+        .cyt-hero-copy > .cyt-eyebrow { order: 0; }
+        .cyt-hero-copy > .cyt-title { order: 1; }
+        .cyt-hero-copy > .cyt-trust { order: 2; margin: 0 0 14px; }
+        .cyt-hsearch, .cyt-hchips, .cyt-hero-ctas { width: 100%; box-sizing: border-box; }
+        /* chips: one row, swipe / scroll for the rest */
+        .cyt-hchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+        .cyt-hchips::-webkit-scrollbar { display: none; }
+        /* Noida booking: a soft white card with a gold accent — stands out without a block of green */
+        .cyt-hero .cyt-cta2 { justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 16px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #d4a24c; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
+        .cyt-hero .cyt-cta2:hover { background: #fffcf5; color: #0b1712 !important; }
+        .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #fbf3e2; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #b07a1c; }
+        .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; color: #14532d; }
+        .cyt-hero .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #64748b; }
+        .cyt-hero .cyt-cta2-go { display: inline; margin-left: 14px; font-size: 18px; color: #1e7a4c; }
+        .cyt-cta2-badge { top: -9px; right: 12px; }
+
+        /* ── phone + iPad portrait: one column, Noida card full width ── */
         @media (max-width: 1023px) {
-          /* copy as a column so the trust line can sit right under the headline */
-          .cyt-hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
-          .cyt-hero-copy > * { order: 3; }
-          .cyt-hero-copy > .cyt-eyebrow { order: 0; }
-          .cyt-hero-copy > .cyt-title { order: 1; }
-          .cyt-hero-copy > .cyt-trust { order: 2; margin: 0 0 12px; }
-          .cyt-hsearch, .cyt-hchips, .cyt-hero-ctas { width: 100%; box-sizing: border-box; }
           .cyt-hero .description { display: none; }
-          /* WhatsApp help already lives in the bottom action bar */
+          /* phones have the Call / Get matched bar */
           .cyt-wa { display: none !important; }
-          /* Noida booking as a soft white card with a gold accent — stands out without a block of green */
-          .cyt-cta2:hover { background: #fffcf5; color: #0b1712 !important; }
-          .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #fbf3e2; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #b07a1c; }
-          .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; color: #14532d; }
-          .cyt-cta2-txt small { display: block; font-size: 12px; font-weight: 600; color: #64748b; }
-          .cyt-cta2-go { display: inline; margin-left: auto; font-size: 18px; color: #1e7a4c; }
-          .cyt-cta2-badge { top: -9px; right: 12px; background: #c2410c; color: #fff; }
-          .cyt-cta2 { flex: 1 1 100%; justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 14px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #d4a24c; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
+          .cyt-hero .cyt-cta2 { flex: 1 1 100%; }
+          .cyt-hero .cyt-cta2-go { margin-left: auto; }
           .cyt-trust-x { display: none !important; }
         }
         @media (max-width: 600px) {
@@ -490,15 +446,17 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero-copy { flex: 0 0 52%; max-width: none; }
           .cyt-hero-visual { flex: 1; min-width: 0; justify-content: flex-end; }
           .cyt-hero-visual::before { top: -6px; width: 400px; height: 400px; }
+          .cyt-hero .description { margin-bottom: 18px; }
+          .cyt-hchips { margin-top: 12px; -webkit-mask-image: linear-gradient(90deg, #000 92%, transparent); mask-image: linear-gradient(90deg, #000 92%, transparent); }
+          .cyt-hero-ctas { margin-top: 18px; gap: 12px 20px; }
         }
         /* iPad landscape / small desktop: trim the headline so it fits beside the wall */
         @media (min-width: 1024px) and (max-width: 1299px) {
-          .cyt-hero .cyt-title { font-size: clamp(2.4rem, 4vw, 3.2rem); }
+          .cyt-hero .cyt-hero-copy .cyt-title { font-size: clamp(3.2rem, 3.3vw, 4rem); }
           .cyt-hero-inner { padding: 0 clamp(40px, 4.5vw, 56px); }
           .cyt-hero-copy { flex-basis: 50%; }
           .cyt-hero .cyt-wall { height: 520px; gap: 12px; }
           .cyt-hero .cyt-wall-track { gap: 12px; }
-          .cyt-hero .cyt-pcard { height: 260px; }
         }
         @media (min-width: 1440px) { .cyt-hero .cyt-wall { max-width: 620px; } }
         @media (min-width: 1300px) {
@@ -527,38 +485,13 @@ export default function Banner({ topTherapists = [], stats = null }) {
         @keyframes cytWallDown { from { transform: translateY(calc(-50% - 8px)); } to { transform: translateY(0); } }
         .cyt-wall:not(.is-moving) { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
 
-        /* ── photo-first portrait card (desktop wall) ── */
-        .cyt-pcard { position: relative; flex-shrink: 0; height: 300px; border-radius: 22px; overflow: hidden; background: linear-gradient(150deg, #c3e8d2, #82cca1); box-shadow: 0 18px 36px -16px rgba(18,66,42,.38), 0 3px 8px rgba(18,66,42,.06); transition: transform .25s ease, box-shadow .25s ease; }
-        .cyt-pcard:hover, .cyt-pcard:focus-within { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.45); }
-        .cyt-pphoto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; transition: transform .5s ease; }
-        .cyt-pcard:hover .cyt-pphoto { transform: scale(1.04); }
-        .cyt-pinit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #1e7a4c; }
-        .cyt-ppin { position: absolute; top: 12px; left: 12px; z-index: 2; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.92); color: #14532d; padding: 3px 10px; border-radius: 999px; backdrop-filter: blur(4px); }
-        .cyt-plink { position: absolute; inset: 0; z-index: 1; }
-        .cyt-plink:focus-visible { outline: 3px solid #ecc77d; outline-offset: -3px; border-radius: 22px; }
-        .cyt-pinfo { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none; padding: 56px 14px 14px; color: #fff; background: linear-gradient(180deg, rgba(8,32,20,0) 0%, rgba(8,32,20,.62) 42%, rgba(8,32,20,.9) 100%); }
-        .cyt-pname { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 15.5px; line-height: 1.25; }
-        .cyt-pname span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .cyt-prole { font-size: 12px; color: rgba(255,255,255,.82); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cyt-pmeta { display: flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 12px; color: rgba(255,255,255,.85); }
-        .cyt-ptags { margin-top: 3px; font-size: 12px; font-weight: 600; color: #bbf7d0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cyt-pnorate { font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,.9); }
-        .cyt-pnext { display: inline-flex; align-items: center; gap: 5px; margin-top: 7px; padding: 3px 9px; border-radius: 999px; background: rgba(34,197,94,.22); border: 1px solid rgba(134,239,172,.5); color: #ecfdf5; font-size: 11.5px; font-weight: 700; }
-        .cyt-pnext i, .cyt-tnext i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.25); }
-        .cyt-pmeta b { color: #fff; font-weight: 700; }
-        .cyt-pmeta .cyt-new { background: rgba(236,199,125,.95); color: #14532d; }
-        .cyt-pdot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 3px; display: inline-block; }
-        .cyt-pbtns { display: flex; gap: 8px; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; transition: max-height .3s ease, opacity .25s ease, margin-top .3s ease; pointer-events: auto; }
-        /* View / Book are always shown — on touch there is no hover, and on desktop people missed them */
-        .cyt-pbtns { max-height: 44px; opacity: 1; margin-top: 10px; }
-        .cyt-pbtns a { flex: 1; text-align: center; font-size: 12.5px; font-weight: 700; padding: 8px 4px; border-radius: 10px; text-decoration: none; }
-        .cyt-pv { background: rgba(255,255,255,.16); color: #fff !important; border: 1px solid rgba(255,255,255,.45); backdrop-filter: blur(4px); }
-        .cyt-pv:hover { background: rgba(255,255,255,.26); }
-        .cyt-pb { background: #fff; color: #14532d !important; }
-        .cyt-pb:hover { background: #eef6f1; }
+        /* desktop wall: the phone card, full column width */
+        .cyt-wall .cyt-tcard { flex: none; width: 100%; transition: transform .25s ease, box-shadow .25s ease; }
+        .cyt-wall .cyt-tcard:hover, .cyt-wall .cyt-tcard:focus-within { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.4); }
+        .cyt-wall .cyt-tphoto { height: 168px; }
 
         @media (prefers-reduced-motion: reduce) {
-          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-pcard, .cyt-pphoto, .cyt-pbtns { animation: none !important; transition: none !important; }
+          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-wall .cyt-tcard { animation: none !important; transition: none !important; }
         }
       `}</style>
     </section>
