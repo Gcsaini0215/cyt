@@ -70,7 +70,6 @@ const PLANS = Object.entries(DURATION_HOURS).flatMap(([duration, hrs]) => hrs.ma
   duration, hours: h, fee: HOUR_PRICES[h], perHour: Math.round(HOUR_PRICES[h] / parseInt(h, 10)),
 })));
 const BEST_PLAN = PLANS.reduce((a, b) => (b.perHour < a.perHour ? b : a)).hours;
-const MIN_FEE = Math.min(...PLANS.map((x) => x.fee));
 const MODES   = ["Online", "Offline"];
 
 export const PROGRAM_DATA = {
@@ -181,12 +180,12 @@ const EMPTY = {
 // The form is a 4-step wizard; each step only checks its own fields, so a mistake is
 // caught right where it happened (inline, per field) instead of a single guessing-game
 // error banner discovered only once at the very end.
-const STEP_TITLES = ["Program & Fee", "Personal Details", "Academic Background", "Documents"];
+const STEP_TITLES = ["Program", "Personal Details", "Academic Background", "Documents", "Payment"];
 const STEP_INTROS = [
-  "Pick your track, how you'd like to intern and a plan — the fee is shown with each plan.",
+  "Pick your track, how you'd like to intern and how many hours.",
   "How can we reach you?",
   "Tell us a bit about where you're studying.",
-  "Almost there — tell us why, and attach your documents. You pay on the next screen.",
+  "Almost there — tell us why and attach your documents. Payment is the next step.",
 ];
 const STEP_FIELDS = {
   1: ["internType", "mode", "hours", "availableFrom"],
@@ -394,6 +393,25 @@ function CustomSelect({ value, onChange, options, placeholder, error }) {
 
 // Small inline error line shown right under a field, instead of one banner at the top
 // the applicant has to scroll up to read and then guess which field it meant.
+function Stepper({ step, isMobile }) {
+  return (
+    <div className="intern-stepper">
+      {STEP_TITLES.map((title, i) => {
+        const n = i + 1;
+        return (
+          <React.Fragment key={n}>
+            <div className={`intern-step-dot-wrap ${step === n ? "on" : ""} ${step > n ? "done" : ""}`}>
+              <span className="intern-step-dot">{step > n ? <i className="feather-check" style={{ fontSize: 11 }}></i> : n}</span>
+              {!isMobile && <span className="intern-step-label">{title}</span>}
+            </div>
+            {n < STEP_TITLES.length && <span className={`intern-step-line ${step > n ? "done" : ""}`} />}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
 function FieldErr({ msg }) {
   if (!msg) return null;
   return <p style={{ color: "#dc2626", fontSize: 11.5, fontWeight: 600, margin: "5px 0 0", display: "flex", alignItems: "center", gap: 4 }}><i className="feather-alert-circle" style={{ fontSize: 11 }}></i>{msg}</p>;
@@ -770,6 +788,18 @@ export default function InternshipRegistration() {
         .trs-help span { display: flex; align-items: center; gap: 7px; }
         .trs-help a { color: #1e7a4c; font-weight: 700; }
         .trs-main { min-width: 0; }
+        .ir-pay { border: 1.5px solid #ecd49a; border-radius: 16px; background: linear-gradient(135deg, #fffaf0, #fff 70%); padding: 18px 20px; margin-bottom: 20px; }
+        .ir-pay-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+        .ir-pay-k { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
+        .ir-pay-v { display: block; font-size: 32px; font-weight: 900; color: #0f3d24; line-height: 1.15; }
+        .ir-pay-s { font-size: 13px; color: #5b6b62; font-weight: 600; }
+        .ir-pay-btn { height: 50px; padding: 0 26px; border: none; border-radius: 12px; background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 10px 22px -12px rgba(20,83,45,.7); }
+        .ir-pay-btn:disabled { opacity: .7; cursor: not-allowed; }
+        .ir-pay-inc { list-style: none; margin: 14px 0 0; padding: 14px 0 0; border-top: 1px dashed #ecd49a; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+        .ir-pay-inc li { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #33463b; }
+        .ir-pay-inc li::before { content: none; }
+        .ir-pay-inc i { color: #1e7a4c; }
+        @media (max-width: 575px) { .ir-pay-btn { width: 100%; justify-content: center; } .ir-pay-inc { grid-template-columns: 1fr; } .ir-pay-v { font-size: 28px; } }
         .ir-live { width: 7px; height: 7px; border-radius: 50%; background: #22a35a; box-shadow: 0 0 0 3px rgba(34,163,90,.2); display: inline-block; }
         .ir-plans { display: flex; flex-direction: column; gap: 12px; }
         .ir-plan-d { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #64748b; margin-bottom: 6px; }
@@ -805,7 +835,7 @@ export default function InternshipRegistration() {
         pill={<><span className="ir-live" aria-hidden="true" /> Applications open</>}
         title={<>Supervision <span>cum Internship</span> Program</>}
         lead="A mentor-led internship at Choose Your Therapist — work alongside verified psychologists on real projects and earn a certificate and LOR."
-        stats={[{ value: `From ${fmtINR(MIN_FEE)}`, label: "program fee" }, { value: "30–240 hrs", label: "supervised" }, { value: "Certificate", label: "+ LOR" }]}
+        stats={[{ value: "1–3 months", label: "flexible" }, { value: "30–240 hrs", label: "supervised" }, { value: "Certificate", label: "+ LOR" }]}
       />
 
       {/* ── MAIN CONTENT ── */}
@@ -828,13 +858,6 @@ export default function InternshipRegistration() {
                 {["Supervised by verified psychologists", "Real cases, reports and feedback", "Certificate + LOR when you complete your hours"]
                   .map((x) => <li key={x}><i className="feather-check" aria-hidden="true" /> {x}</li>)}
               </ul>
-              <div className="trs-box ir-fees">
-                <b>Program fee</b>
-                {Object.entries(DURATION_HOURS).map(([d, hrs]) => (
-                  <span key={d} className="ir-fee-row"><em>{d}</em>{hrs.map((h) => <i key={h}>{h.replace(" hrs", "h")} · {fmtINR(HOUR_PRICES[h])}</i>)}</span>
-                ))}
-                <small>Same fee for every track · pay online when you submit</small>
-              </div>
               <div className="trs-box">
                 <b>Keep these ready</b>
                 <span><i className="feather-file-text" aria-hidden="true" /> CV / Resume (PDF or DOC)</span>
@@ -851,17 +874,34 @@ export default function InternshipRegistration() {
           </aside>
           <div className="trs-main" style={{ padding: isMobile ? "20px 16px 24px" : "30px 32px 34px" }}>
             {reviewing ? (
-              /* ── REVIEW SCREEN ── */
+              /* ── STEP 5: PAYMENT (fee shown here, after the documents) ── */
               <div>
+                <Stepper step={5} isMobile={isMobile} />
                 <div style={{ marginBottom: 4 }}>
-                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Review &amp; pay</h2>
+                  <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Payment</h2>
                   {draftSaved && (
                     <span style={{ fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
                       <i className="feather-save" style={{ fontSize: 11 }}></i> Draft Saved
                     </span>
                   )}
                 </div>
-                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 24 }}>Check your details, then pay the program fee to submit your application.</p>
+                <p style={{ color: "#64748b", fontSize: 13, marginBottom: 18 }}>Your program fee is below. Pay online to submit your application — your seat is confirmed as soon as the payment goes through.</p>
+
+                <div className="ir-pay">
+                  <div className="ir-pay-top">
+                    <div>
+                      <span className="ir-pay-k">Program fee</span>
+                      <b className="ir-pay-v">{fmtINR(HOUR_PRICES[form.hours] || 0)}</b>
+                      <span className="ir-pay-s">{form.hours} · {form.duration} · {form.mode || "Online"}</span>
+                    </div>
+                    <button type="button" className="ir-pay-btn" onClick={handlePay} disabled={loading}>
+                      {loading ? "Processing…" : <><i className="feather-lock"></i> Pay {fmtINR(HOUR_PRICES[form.hours] || 0)} &amp; submit</>}
+                    </button>
+                  </div>
+                  <ul className="ir-pay-inc">
+                    {["Supervision by verified psychologists", `${form.hours || "Supervised"} of guided work`, "Certificate of Internship + LOR", "Secure payment — UPI, card or net banking"].map((x) => <li key={x}><i className="feather-check"></i>{x}</li>)}
+                  </ul>
+                </div>
 
                 {error && (
                   <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#dc2626", fontWeight: 600, display: "flex", gap: 8, alignItems: "center" }}>
@@ -979,20 +1019,7 @@ export default function InternshipRegistration() {
             ) : (
               <form onSubmit={handleFormSubmit} noValidate>
                 {/* ── Step progress ── */}
-                <div className="intern-stepper">
-                  {STEP_TITLES.map((title, i) => {
-                    const n = i + 1;
-                    return (
-                      <React.Fragment key={n}>
-                        <div className={`intern-step-dot-wrap ${step === n ? "on" : ""} ${step > n ? "done" : ""}`}>
-                          <span className="intern-step-dot">{step > n ? <i className="feather-check" style={{ fontSize: 11 }}></i> : n}</span>
-                          {!isMobile && <span className="intern-step-label">{title}</span>}
-                        </div>
-                        {n < STEP_TITLES.length && <span className={`intern-step-line ${step > n ? "done" : ""}`} />}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
+                <Stepper step={step} isMobile={isMobile} />
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
                   <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>{STEP_TITLES[step - 1]}</h2>
@@ -1003,7 +1030,7 @@ export default function InternshipRegistration() {
                 </div>
                 <p style={{ color: "#64748b", fontSize: 13, marginBottom: 6 }}>{STEP_INTROS[step - 1]}</p>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, fontSize: 11.5, color: "#94a3b8", fontWeight: 700 }}>
-                  <span>Step {step} of 4 · then review &amp; pay</span>
+                  <span>Step {step} of 5</span>
                   {autosaveState === "saving" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i className="feather-loader"></i> Saving…</span>}
                   {autosaveState === "saved" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#228756" }}><i className="feather-check-circle"></i> Saved</span>}
                 </div>
@@ -1219,15 +1246,12 @@ export default function InternshipRegistration() {
                           <span className="ir-plan-d">{d}</span>
                           <div className="ir-plan-row">
                             {hrs.map((h) => {
-                              const pl = PLANS.find((x) => x.hours === h);
                               const on = form.hours === h;
                               return (
-                                <button type="button" key={h} className={`ir-plan${on ? " on" : ""}${h === BEST_PLAN ? " best" : ""}`}
+                                <button type="button" key={h} className={`ir-plan${on ? " on" : ""}`}
                                   onClick={() => setForm((p) => ({ ...p, duration: d, hours: h }))} aria-pressed={on}>
-                                  {h === BEST_PLAN && <em>Best value</em>}
-                                  <span className="ir-plan-h">{h}</span>
-                                  <b>{fmtINR(pl.fee)}</b>
-                                  <small>≈ ₹{pl.perHour}/hr</small>
+                                  <b>{h}</b>
+                                  <small>{d}</small>
                                   <i className="ir-plan-tick" aria-hidden="true">{on ? "✓" : ""}</i>
                                 </button>
                               );
@@ -1237,7 +1261,7 @@ export default function InternshipRegistration() {
                       ))}
                     </div>
                     <FieldErr msg={stepErrors.hours} />
-                    <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0" }}>The fee is the same for every track. You pay online (UPI, card or net banking) when you submit — your seat is confirmed straight away.</p>
+                    <p style={{ fontSize: 12, color: "#64748b", margin: "8px 0 0" }}>You pay online (UPI, card or net banking) when you submit — your seat is confirmed straight away.</p>
                   </div>
 
                   <div style={gridTwo}>
@@ -1388,7 +1412,7 @@ export default function InternshipRegistration() {
                     {step < 4 ? (
                       <>Next <i className="feather-arrow-right"></i></>
                     ) : (
-                      <><i className="feather-eye"></i> Review &amp; pay {form.hours && HOUR_PRICES[form.hours] ? fmtINR(HOUR_PRICES[form.hours]) : ""}</>
+                      <>Continue to payment <i className="feather-arrow-right"></i></>
                     )}
                   </button>
                 </div>
