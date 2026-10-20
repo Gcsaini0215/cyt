@@ -20,6 +20,7 @@ import LeadCard from "../global/lead-card";
 import { profilePath } from "../../utils/therapist-slug";
 import { cleanName, cityOf } from "../../utils/related-therapists";
 import MobileActionBar from "../global/mobile-action-bar";
+import { trackImpressions } from "../../utils/profile-stats";
 
 const BookingPopup = dynamic(() => import("../global/booking-popup"), { ssr: false });
 
@@ -255,6 +256,9 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
     return sortTherapists(base, sort, now);
   }, [allData, filter, feeRange, feeBounds, feeLo, feeHi, sort, now]);
   const shown = filteredData.slice(0, visible);
+  // each therapist whose card is listed counts as one "shown in search" for their profile insights
+  const shownIds = shown.map((t) => t?._id).filter(Boolean).join(",");
+  React.useEffect(() => { if (shownIds) trackImpressions(shownIds.split(",")); }, [shownIds]);
   const left = filteredData.length - shown.length;
 
   const activeChips = [

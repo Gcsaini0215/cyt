@@ -17,6 +17,7 @@ import useTherapistStore from "../store/therapistStore";
 import { useTimingsTodo } from "../components/therapists/dashboard/AvailabilityNudge";
 import { useAddonStep } from "../components/therapists/nav-extras";
 import PerformanceChart from "../components/therapists/dashboard/PerformanceChart";
+import ProfileInsights from "../components/therapists/dashboard/profile-insights";
 import { TodayBar, KpiCard, KpiHead, NextSessionCard, WeekStrip, TodoCard, OV_CSS } from "../components/therapists/dashboard/overview-parts";
 import { TeamBanner, useActionTodos } from "../components/therapists/team-inbox";
 import { fetchBookingsShared } from "../utils/bookings-shared";
@@ -1187,6 +1188,9 @@ export default function TherapistDashboard() {
               <KpiCard label={`Rating (${myReviews.length})`} value={ratingAvg === "—" ? "—" : `${ratingAvg} ★`} href="/therapists/reviews" tone="amber" loading={loading} Icon={StarRateRoundedIcon} hint={myReviews.length ? "Reviews" : "Ask clients for a review"} chart="stars" rating={ratingAvg === "—" ? 0 : Number(ratingAvg)} count={myReviews.length} caption="Average client rating" />
             </div>
           </div>
+
+          {/* how the public profile is doing — views, visitors, sources, profile strength */}
+          <ProfileInsights />
 
           <Box sx={{ display: "grid", gap: "14px", alignItems: "start", gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) 300px", lg: "minmax(0, 1fr) 360px" } }}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: "14px", minWidth: 0 }}>

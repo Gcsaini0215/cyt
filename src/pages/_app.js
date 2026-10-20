@@ -26,6 +26,13 @@ function MyApp({ Component, pageProps }) {
     try { localStorage.setItem("cyt_ref", ref); } catch (e) { /* storage blocked */ }
   }, [router.isReady, router.query.refer]);
 
+  // the page a visitor is leaving — lets a therapist's profile insights tell "came from the directory / home / a blog"
+  useEffect(() => {
+    const onStart = () => { try { sessionStorage.setItem("cyt_last_path", window.location.pathname); } catch (e) { /* storage blocked */ } };
+    router.events.on("routeChangeStart", onStart);
+    return () => router.events.off("routeChangeStart", onStart);
+  }, [router.events]);
+
   useEffect(() => {
     // Global error handler to suppress external widget errors (like Tawk.to)
     const handleError = (event) => {

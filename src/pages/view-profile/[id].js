@@ -25,6 +25,8 @@ import {
   pickRelated, profileSeo, expertiseOf, languagesOf, minFeeOf, cityOf, concernLinksOf, placeLinkOf, modesOf, cleanName,
 } from "../../utils/related-therapists";
 import dynamic from "next/dynamic";
+import { trackProfileView, trackProfileAction } from "../../utils/profile-stats";
+import OwnerInsightsBar from "../../components/therapists/owner-insights-bar";
 const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 export async function getServerSideProps(context) {
@@ -141,7 +143,27 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     }
   }, []);
 
-  /* ── Profile View Tracking ── */
+  /* ── Profile insights for the therapist: a view, and which buttons people press ── */
+  useEffect(() => {
+    if (profile?._id) trackProfileView(String(profile._id));
+  }, [profile?._id]);
+  useEffect(() => {
+    const tid = profile?._id ? String(profile._id) : "";
+    if (!tid) return undefined;
+    const onClick = (e) => {
+      const el = e.target.closest?.("a, button");
+      if (!el) return;
+      const href = el.getAttribute("href") || "";
+      const label = (el.textContent || "").toLowerCase();
+      if (/\/book\/|therapist-checkout|[?&]book=/.test(href) || /\bbook\b/.test(label)) trackProfileAction(tid, "book");
+      else if (/^tel:|wa\.me|whatsapp|^mailto:/.test(href) || /call|whatsapp/.test(label)) trackProfileAction(tid, "contact");
+      else if (/share|copy link/.test(label) || /share/.test(el.getAttribute("aria-label") || "")) trackProfileAction(tid, "share");
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [profile?._id]);
+
+  /* ── Profile View Tracking (recently viewed, this browser only) ── */
   useEffect(() => {
     if (!id || !profile) return;
     try {
@@ -416,6 +438,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
         ))}
       </Head>
       <MyNavbar />
+      {profile && <OwnerInsightsBar ownerUserId={profile.user?._id || profile.user} />}
       {profile && (
         <>
           <ProfileHeader key={`h-${profile._id}`} pageData={profile} favrioutes={favrioutes} />
