@@ -5,20 +5,14 @@ import ConsultationForm from "../home/consultation-form";
 // `delay` ms (default 12 s: long enough to read the top of the page — waiting 25 s+ cost leads), or sooner
 // when someone shows interest or is about to go: scrolled ~30% of the page, (desktop) moves to leave the tab,
 // or (phones, which have no "leaving" signal) scrolls back up fast after reading.
-// Closed -> not again that day; details sent -> never again.
+// It comes back on every page load (a refresh, another page, a later visit) — closing it only hides it for the
+// page in view. Once someone has sent their details it never opens by itself again.
 // Anything on the site can open it on demand: window.dispatchEvent(new Event(OPEN_CHAT_EVENT)).
 export const OPEN_CHAT_EVENT = "cyt:open-chat";
-const DISMISS_KEY = "cyt_lead_dismissed";
 const SENT_KEY = "cyt_lead_sent";
-const SESSION_KEY = "cyt_lead_shown";
-const DAY = 24 * 3600 * 1000;
 
 const store = (fn) => { try { return fn(); } catch { return null; } };
-const mayAutoOpen = () => store(() => {
-  if (localStorage.getItem(SENT_KEY)) return false;
-  if (Date.now() - Number(localStorage.getItem(DISMISS_KEY) || 0) < DAY) return false;
-  return !sessionStorage.getItem(SESSION_KEY);
-}) !== false;
+const mayAutoOpen = () => store(() => !localStorage.getItem(SENT_KEY)) !== false;
 
 // title / note: page-specific copy ("Looking for a psychologist in Bangalore?") — people fill a form
 // that speaks to what they came for far more than a generic one.
@@ -37,7 +31,6 @@ const BookingPopup = ({ delay = 12000, scrollAt = 0.3, forTherapist = false, sho
     const fire = () => {
       if (done) return;
       done = true;
-      store(() => sessionStorage.setItem(SESSION_KEY, "1"));
       setIsOpen(true);
     };
     // phones: a quick flick back up after reading a while is the usual "I'm leaving" gesture
@@ -66,7 +59,6 @@ const BookingPopup = ({ delay = 12000, scrollAt = 0.3, forTherapist = false, sho
 
   const handleClose = () => {
     setIsOpen(false);
-    store(() => { if (!localStorage.getItem(SENT_KEY)) localStorage.setItem(DISMISS_KEY, String(Date.now())); });
     if (onClose) onClose();
   };
 
