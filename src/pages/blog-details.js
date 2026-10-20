@@ -168,6 +168,21 @@ const coverOf = (b) => {
 };
 const OPEN_CHAT_EVENT = "cyt:open-chat";
 
+// common search terms, most specific first — the first one found in the title is shown in gold
+const SEO_TERMS = ["mental health", "anxiety", "depression", "panic attack", "overthinking", "stress", "burnout", "ocd", "trauma", "ptsd",
+  "grief", "self esteem", "self-esteem", "self care", "self-care", "relationship", "marriage", "intimacy", "libido", "loneliness", "sleep",
+  "insomnia", "anger", "adhd", "parenting", "therapy", "therapist", "psychologist", "counselling", "mindfulness", "healing"];
+function titleWithKeyword(title, blog) {
+  const t = String(title || "");
+  const lower = t.toLowerCase();
+  const tags = String(blog?.tags || "").split(",").map((x) => x.trim().toLowerCase()).filter((x) => x.length > 3);
+  const terms = [...SEO_TERMS, ...tags.filter((x) => lower.includes(x)).sort((a, b) => b.length - a.length)];
+  const hit = terms.find((k) => lower.includes(k));
+  if (!hit) return t;
+  const i = lower.indexOf(hit);
+  return <>{t.slice(0, i)}<span className="bd-gold">{t.slice(i, i + hit.length)}</span>{t.slice(i + hit.length)}</>;
+}
+
 const STATES = [
   { label: "Delhi", slug: "delhi" }, { label: "Uttar Pradesh", slug: "uttar-pradesh" }, { label: "Maharashtra", slug: "maharashtra" },
   { label: "Rajasthan", slug: "rajasthan" }, { label: "Gujarat", slug: "gujarat" }, { label: "Chandigarh", slug: "chandigarh" }, { label: "Uttarakhand", slug: "uttarakhand" },
@@ -338,12 +353,13 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
 
       {/* ── header: light banner, same family as /blogs ── */}
       <header className="bd-head">
+        <span className="bd-blob a" aria-hidden="true" /><span className="bd-blob b" aria-hidden="true" />
         <div className="bd-head-in">
           <nav className="bd-crumbs" aria-label="Breadcrumb">
             <Link href="/">Home</Link><span>/</span><Link href="/blogs">Blog</Link>
             {blog.category && <><span>/</span><b>{blog.category}</b></>}
           </nav>
-          <h1 className="bd-title">{blog.title}</h1>
+          <h1 className="bd-title">{titleWithKeyword(blog.title, blog)}</h1>
           {rawMetaDesc.length > 40 && <p className="bd-dek">{rawMetaDesc}</p>}
           <div className="bd-meta">
             <span className="bd-av" aria-hidden="true">{author.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</span>
@@ -396,6 +412,28 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
 
         <aside className="bd-side">
           {ctaCard}
+          {blogTherapists.length > 0 && (
+            <div className="bd-side-th">
+              <b>Talk to a psychologist about this</b>
+              {blogTherapists.map((t) => (
+                <Link key={t.id} href={t.href} className="bd-th">
+                  <span className="bd-th-av">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {t.photo ? <img src={t.photo} alt="" loading="lazy" /> : <i>{t.name.charAt(0)}</i>}
+                  </span>
+                  <span className="bd-th-i">
+                    <strong>{t.name}</strong>
+                    <span>{t.type}{t.city ? ` · ${t.city}` : ""}</span>
+                    <span className="bd-th-m">
+                      {t.rating && <em>★ {Number(t.rating.avg).toFixed(1)}</em>}
+                      {t.fee && <>from ₹{t.fee.toLocaleString("en-IN")}</>}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+              <Link href="/view-all-therapist" className="bd-th-all">See all psychologists →</Link>
+            </div>
+          )}
           {more.length > 0 && (
             <div className="bd-side-more">
               <b>Read next</b>
@@ -438,7 +476,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
       )}
 
       {blogTherapists.length > 0 && (
-        <div style={{ background: "#fff", borderTop: "1px solid #e6ece8" }}>
+        <div className="bd-rt-below" style={{ background: "#fff", borderTop: "1px solid #e6ece8" }}>
           <RelatedTherapists
             id="blog-therapists"
             title="Talk to a psychologist about this"
@@ -460,25 +498,30 @@ const CSS = `
 .bd-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 10000; background: transparent; }
 .bd-progress span { display: block; height: 100%; background: linear-gradient(90deg, #1e7a4c, #d4a24c); transition: width .1s linear; }
 
-.bd-head { background: linear-gradient(135deg, #c3e3cd 0%, #f0dfb4 52%, #cfe6d3 100%); padding: 26px 16px 84px; }
-.bd-head-in { max-width: 820px; margin: 0 auto; text-align: center; }
-.bd-crumbs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; align-items: center; font-size: 13px; color: #5b6b62; margin-bottom: 14px; }
+.bd-head { position: relative; overflow: hidden; background: linear-gradient(135deg, #c3e3cd 0%, #f0dfb4 52%, #cfe6d3 100%); padding: 26px 16px 84px; }
+.bd-blob { position: absolute; border-radius: 50%; pointer-events: none; }
+.bd-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(104,182,136,.7), rgba(104,182,136,0)); }
+.bd-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(232,190,110,.55), rgba(232,190,110,0)); }
+/* title, image and text share one left edge: the same width as the article + side column */
+.bd-head-in { position: relative; z-index: 1; max-width: 1076px; margin: 0 auto; text-align: left; }
+.bd-crumbs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: #5b6b62; margin-bottom: 12px; }
 .bd-crumbs a { color: #166534 !important; font-weight: 700; text-decoration: none !important; }
 .bd-crumbs b { color: #8a5a0b; }
-.bd-page .bd-title { margin: 0; font-size: clamp(26px, 3.6vw, 40px); line-height: 1.15; font-weight: 800; letter-spacing: -.02em; color: #173c2a; }
-.bd-page .bd-dek { margin: 10px auto 0; max-width: 680px; font-size: clamp(15.5px, 1.6vw, 18px); line-height: 1.6; color: #3f4f47; padding: 0; }
-.bd-meta { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; margin-top: 14px; font-size: 13.5px; color: #4b5d53; }
+.bd-page .bd-title { margin: 0; max-width: 900px; font-size: clamp(26px, 3.6vw, 42px); line-height: 1.15; font-weight: 800; letter-spacing: -.02em; color: #173c2a; }
+.bd-gold { color: #a86e0e; }
+.bd-page .bd-dek { margin: 10px 0 0; max-width: 760px; font-size: clamp(15.5px, 1.6vw, 18px); line-height: 1.6; color: #3f4f47; padding: 0; }
+.bd-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px; font-size: 13.5px; color: #4b5d53; }
 .bd-av { width: 36px; height: 36px; border-radius: 50%; background: #14532d; color: #ecc77d; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; }
 .bd-by { display: flex; flex-direction: column; text-align: left; line-height: 1.25; }
 .bd-by b { color: #13261c; font-size: 14px; }
 .bd-by span { font-size: 12px; color: #6b7c72; }
 .bd-dot { width: 4px; height: 4px; border-radius: 50%; background: #9fb3a6; }
 
-.bd-cover { max-width: 920px; margin: -64px auto 0; padding: 0 16px; position: relative; z-index: 1; }
-.bd-cover img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; border-radius: 22px; background: #e7f0ea; box-shadow: 0 30px 60px -36px rgba(20,60,40,.55); }
+.bd-cover { max-width: 1108px; margin: -64px auto 0; padding: 0 16px; position: relative; z-index: 1; }
+.bd-cover img { display: block; width: 100%; aspect-ratio: 12 / 5; object-fit: cover; border-radius: 22px; background: #e7f0ea; box-shadow: 0 30px 60px -36px rgba(20,60,40,.55); }
 
-.bd-wrap { max-width: 1120px; margin: 0 auto; padding: 36px 16px 56px; display: grid; grid-template-columns: minmax(0, 720px) 300px; justify-content: center; gap: 56px; }
-.bd-main { min-width: 0; }
+.bd-wrap { max-width: 1108px; margin: 0 auto; padding: 36px 16px 56px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; box-sizing: border-box; }
+.bd-main { min-width: 0; max-width: 720px; }
 .bd-share-top { display: flex; align-items: center; gap: 12px; padding-bottom: 18px; margin-bottom: 26px; border-bottom: 1px solid #edf1ee; }
 .bd-share-top > span { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a948f; }
 .bd-share { display: flex; gap: 8px; }
@@ -542,6 +585,21 @@ const CSS = `
 .bd-side-item em { font-style: normal; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #a86e0e; }
 .bd-side-item:hover span { color: #1e7a4c; }
 
+.bd-side-th { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 18px; border: 1px solid #edf1ee; background: #fff; }
+.bd-side-th > b { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #8a948f; }
+.bd-th { display: flex; gap: 12px; align-items: center; padding: 8px; margin: 0 -8px; border-radius: 12px; text-decoration: none !important; transition: background .15s; }
+.bd-th:hover { background: #f4f8f5; }
+.bd-th-av { flex-shrink: 0; width: 52px; height: 52px; border-radius: 12px; overflow: hidden; background: #e7f0ea; display: inline-flex; align-items: center; justify-content: center; }
+.bd-th-av img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.bd-th-av i { font-style: normal; font-weight: 800; color: #1e7a4c; font-size: 18px; }
+.bd-th-i { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.bd-th-i strong { font-size: 14.5px; color: #13261c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-th-i > span { font-size: 12px; color: #6b7c72; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bd-th-m { display: flex; gap: 8px; font-weight: 600; }
+.bd-th-m em { font-style: normal; color: #a86e0e; font-weight: 800; }
+.bd-th-all { font-size: 13.5px; font-weight: 800; color: #14532d !important; text-decoration: none !important; padding-top: 4px; border-top: 1px solid #f0f3f1; }
+.bd-rt-below { display: none; }
+
 .bd-next { background: #fbfaf6; border-top: 1px solid #efe9d8; padding: 48px 16px 56px; }
 .bd-next-in { max-width: 1120px; margin: 0 auto; }
 .bd-next-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
@@ -559,9 +617,14 @@ const CSS = `
 
 /* iPad + phones: one column — the side card moves into the article flow */
 @media (max-width: 1099px) {
-  .bd-wrap { grid-template-columns: minmax(0, 720px); gap: 0; }
+  .bd-head-in { max-width: 720px; }
+  .bd-cover { max-width: 752px; }
+  .bd-cover img { aspect-ratio: 16 / 9; }
+  .bd-wrap { grid-template-columns: minmax(0, 1fr); max-width: 752px; gap: 0; }
+  .bd-main { max-width: none; }
   .bd-side { display: none; }
   .bd-cta-inline { display: block; }
+  .bd-rt-below { display: block; }
 }
 @media (max-width: 767px) {
   .bd-head { padding: 18px 16px 56px; background: linear-gradient(135deg, #e3f2e8 0%, #f8f1de 52%, #e6f3ea 100%); }
