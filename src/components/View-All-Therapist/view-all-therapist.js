@@ -700,19 +700,26 @@ function HelpMeChoose({ allData, concerns, langs, onClose, onApply, onCall }) {
 
 const CSS = `
 /* ── Banner ── */
-.vat-banner { position: relative; overflow: hidden; padding: 64px 0 52px; background: linear-gradient(135deg, #d9eee1 0%, #f3ead9 55%, #e4e2f6 100%); }
+.vat-banner { position: relative; overflow: hidden; padding: 30px 0 28px; background: linear-gradient(135deg, #c3e3cd 0%, #f0dfb4 52%, #cfe6d3 100%); }
 .vat-blob { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
-.vat-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(140,200,165,.6), rgba(140,200,165,0)); }
-.vat-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(184,176,236,.5), rgba(184,176,236,0)); }
-.vat-blob.c { width: 220px; height: 220px; right: 24%; bottom: -80px; background: radial-gradient(circle, rgba(240,200,150,.55), rgba(240,200,150,0)); }
+.vat-blob.a { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(104,182,136,.7), rgba(104,182,136,0)); }
+.vat-blob.b { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(232,190,110,.55), rgba(232,190,110,0)); }
+.vat-blob.c { width: 220px; height: 220px; right: 24%; bottom: -80px; background: radial-gradient(circle, rgba(234,178,110,.65), rgba(234,178,110,0)); }
 /* the photo's speaker sits on the left — mirror it so she faces the copy from the right */
 .vat-ban-inner { position: relative; z-index: 2; text-align: left; }
+/* desktop: centred, like Our Story — no empty right half */
+@media (min-width: 1024px) {
+  .vat-ban-inner { text-align: center; }
+  .vat-ban-inner .vat-ban-title, .vat-ban-inner .vat-ban-sub, .vat-ban-inner .vat-ban-search { margin-left: auto; margin-right: auto; }
+  .vat-ban-inner .vat-ban-sub { max-width: 680px; }
+  .vat-ban-row { justify-content: center; }
+}
 /* desktop: the banner runs 200px up behind the header (navbar.js) — start the photo below it */
 .vat-ban-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #9a6a12; margin: 0 0 12px; padding: 0; }
 .vat-ban-eyebrow::before { content: ''; width: 22px; height: 2px; background: #d4a24c; display: inline-block; }
-.vat-ban-title { color: #173c2a; font-size: clamp(26px, 4.2vw, 46px); font-weight: 800; margin: 0 0 10px; line-height: 1.15; letter-spacing: -.3px; max-width: 760px; }
-.vat-gold { color: #2f8a5b; }
-.vat-ban-sub { color: #475569; font-size: clamp(15px, 1.4vw, 17px); margin: 0 0 22px; max-width: 540px; line-height: 1.6; font-weight: 500; padding: 0; }
+.vat-ban-title { color: #173c2a; font-size: clamp(26px, 3.4vw, 40px); font-weight: 800; margin: 0 0 8px; line-height: 1.15; letter-spacing: -.3px; max-width: 760px; }
+.vat-gold { color: #a86e0e; }
+.vat-ban-sub { color: #3f4f47; font-size: clamp(15px, 1.4vw, 16px); margin: 0 0 16px; max-width: 540px; line-height: 1.6; font-weight: 500; padding: 0; }
 .vat-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .vat-ban-search { position: relative; display: flex; align-items: center; max-width: 620px; background: #fff; border-radius: 14px; padding: 6px; border: 1.5px solid #dbe5df; box-shadow: 0 16px 36px -22px rgba(20,83,45,.55); }
 .vat-ban-search-icon { position: absolute; left: 20px; font-size: 18px; color: #64748b; pointer-events: none; }

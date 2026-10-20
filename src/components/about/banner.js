@@ -10,7 +10,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 const styles = `
 .ab-section {
   position: relative;
-  background: linear-gradient(135deg, #d9eee1 0%, #f3ead9 55%, #e4e2f6 100%);
+  background: linear-gradient(135deg, #c3e3cd 0%, #f0dfb4 52%, #cfe6d3 100%);
   padding: 60px 0 50px 0;
   overflow: hidden;
 }
@@ -22,8 +22,8 @@ const styles = `
   pointer-events: none;
   z-index: 0;
 }
-.ab-section::before { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(140,200,165,.6), rgba(140,200,165,0)); }
-.ab-section::after { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(184,176,236,.5), rgba(184,176,236,0)); }
+.ab-section::before { width: 420px; height: 420px; right: -100px; top: -150px; background: radial-gradient(circle, rgba(104,182,136,.7), rgba(104,182,136,0)); }
+.ab-section::after { width: 300px; height: 300px; left: -90px; bottom: -140px; background: radial-gradient(circle, rgba(232,190,110,.55), rgba(232,190,110,0)); }
 .ab-badge {
   display: inline-flex;
   align-items: center;
@@ -37,7 +37,7 @@ const styles = `
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 20px;
-  border: 1px solid #d3e6da;
+  border: 1px solid #e3cc96;
   box-shadow: 0 6px 16px -10px rgba(20,83,45,.35);
 }
 .ab-title {
@@ -47,7 +47,7 @@ const styles = `
   line-height: 1.25;
   margin-bottom: 12px;
 }
-.ab-accent { color: #2f8a5b; }
+.ab-accent { color: #a86e0e; }
 .ab-subtitle {
   font-size: 16px;
   color: #475569;
