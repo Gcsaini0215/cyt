@@ -138,6 +138,34 @@ function TherapistCard({ t, hidden = false }) {
   );
 }
 
+// desktop wall: just the photo — name, type, rating and fee on a short shade at the bottom,
+// so the face stays clear. The whole card opens the profile.
+function PhotoCard({ t, hidden = false }) {
+  const r = rating(t);
+  const name = t.user?.name || "Therapist";
+  const exp = expLabel(t.year_of_exp);
+  const fee = feeLabel(t);
+  return (
+    <Link className="cyt-ph" href={profilePath(t)} tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined} aria-label={`View ${name}'s profile`}>
+      {photo(t) ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="cyt-ph-img" src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
+      ) : (
+        <span className="cyt-ph-init">{initialsOf(name)}</span>
+      )}
+      {fee && <span className="cyt-ph-fee">{fee}</span>}
+      <span className="cyt-ph-info">
+        <span className="cyt-ph-name">{name}<VerifiedRounded sx={{ fontSize: 15, color: "#7dd3fc", flexShrink: 0 }} /></span>
+        <span className="cyt-ph-role">{t.profile_type || "Mental Health Professional"}</span>
+        <span className="cyt-ph-meta">
+          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /><b>{r.avg}</b> ({r.count})</> : <span className="cyt-ph-new">New</span>}
+          {exp && <><i className="cyt-ph-dot" />{exp}</>}
+        </span>
+      </span>
+    </Link>
+  );
+}
+
 // stats: { count, minFee } of the whole directory, worked out on the server
 export default function Banner({ topTherapists = [], stats = null }) {
   const ps = usePublicStats();
@@ -248,9 +276,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
             <div className={`cyt-wall ${wallMoves ? "is-moving" : ""}`} aria-label="Top-rated therapists">
               {wallCols.map((col, ci) => (
                 <div key={ci} className={`cyt-wall-col ${ci === 0 ? "up" : "down"}`}>
-                  <div className="cyt-wall-track" style={{ animationDuration: `${Math.max(col.length, 3) * 7}s` }}>
+                  <div className="cyt-wall-track" style={{ animationDuration: `${Math.max(col.length, 3) * 12}s` }}>
                     {(wallMoves ? [...col, ...col] : col).map((t, i) => (
-                      <TherapistCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
+                      <PhotoCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
                     ))}
                   </div>
                 </div>
@@ -457,6 +485,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero-copy { flex-basis: 50%; }
           .cyt-hero .cyt-wall { height: 520px; gap: 12px; }
           .cyt-hero .cyt-wall-track { gap: 12px; }
+          .cyt-hero .cyt-ph { height: 250px; }
         }
         @media (min-width: 1440px) { .cyt-hero .cyt-wall { max-width: 620px; } }
         @media (min-width: 1300px) {
@@ -485,13 +514,25 @@ export default function Banner({ topTherapists = [], stats = null }) {
         @keyframes cytWallDown { from { transform: translateY(calc(-50% - 8px)); } to { transform: translateY(0); } }
         .cyt-wall:not(.is-moving) { overflow-y: auto; -webkit-mask-image: none; mask-image: none; }
 
-        /* desktop wall: the phone card, full column width */
-        .cyt-wall .cyt-tcard { flex: none; width: 100%; transition: transform .25s ease, box-shadow .25s ease; }
-        .cyt-wall .cyt-tcard:hover, .cyt-wall .cyt-tcard:focus-within { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.4); }
-        .cyt-wall .cyt-tphoto { height: 168px; }
+        /* desktop wall: photo card */
+        .cyt-ph { position: relative; display: block; flex-shrink: 0; height: 290px; border-radius: 22px; overflow: hidden; background: linear-gradient(150deg, #c3e8d2, #82cca1); text-decoration: none !important; box-shadow: 0 18px 36px -16px rgba(18,66,42,.38), 0 3px 8px rgba(18,66,42,.06); transition: transform .25s ease, box-shadow .25s ease; }
+        .cyt-ph:hover, .cyt-ph:focus-visible { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.45); }
+        .cyt-ph:focus-visible { outline: 3px solid #ecc77d; outline-offset: 2px; }
+        .cyt-ph-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; transition: transform .5s ease; }
+        .cyt-ph:hover .cyt-ph-img { transform: scale(1.04); }
+        .cyt-ph-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #1e7a4c; }
+        .cyt-ph-fee { position: absolute; top: 12px; left: 12px; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.94); color: #14532d; padding: 3px 10px; border-radius: 999px; }
+        /* a short shade, only behind the text — the face above stays clear */
+        .cyt-ph-info { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; padding: 34px 14px 13px; color: #fff; background: linear-gradient(180deg, rgba(8,32,20,0) 0%, rgba(8,32,20,.7) 45%, rgba(8,32,20,.88) 100%); }
+        .cyt-ph-name { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 15.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; }
+        .cyt-ph-role { font-size: 12px; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cyt-ph-meta { display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.85); white-space: nowrap; }
+        .cyt-ph-meta b { color: #fff; font-weight: 800; }
+        .cyt-ph-new { font-weight: 800; color: #14532d; background: #ecc77d; border-radius: 5px; padding: 1px 6px; font-size: 10.5px; }
+        .cyt-ph-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 4px; }
 
         @media (prefers-reduced-motion: reduce) {
-          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-wall .cyt-tcard { animation: none !important; transition: none !important; }
+          .cyt-cta2-badge, .cyt-wall, .cyt-wall-track, .cyt-ph, .cyt-ph-img { animation: none !important; transition: none !important; }
         }
       `}</style>
     </section>
