@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
+import { usePager, Pager } from "../../components/trainee/pager";
 import { tApi, fileUrl, fmtDate } from "../../utils/trainee-api";
 
 /* Notes: worksheets, slides and reading the CYT team shares with trainees. */
@@ -21,9 +22,11 @@ function Notes() {
   const [err, setErr] = useState("");
   const load = () => tApi("/trainee-portal/notes").then((r) => (r.status ? setList(Array.isArray(r.data) ? r.data : []) : setErr(r.message || "Couldn't load notes")));
   useEffect(() => { load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading notes…</div>;
   const term = q.trim().toLowerCase();
-  const shown = list.filter((n) => (kind === "all" || n.kind === kind) && (!term || `${n.title} ${n.details}`.toLowerCase().includes(term)));
+  const shown = (list || []).filter((n) => (kind === "all" || n.kind === kind) && (!term || `${n.title} ${n.details}`.toLowerCase().includes(term)));
+  const pg = usePager(shown, 9);
+  useEffect(() => { pg.setPage(1); }, [kind, q]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading notes…</div>;
   const isNew = (d) => Date.now() - new Date(d).getTime() < 7 * 86400000;
 
   return (
@@ -47,8 +50,8 @@ function Notes() {
       {shown.length === 0 ? (
         <div className="tp-card tp-empty"><i className="feather-book-open" aria-hidden="true" /><b>{list.length ? "Nothing matches" : "No notes yet"}</b>{list.length ? "Try another filter." : "When the team shares worksheets or slides, they'll appear here."}</div>
       ) : (
-        <div className="nt-grid">
-          {shown.map((n) => (
+        <><div className="nt-grid">
+          {pg.slice.map((n) => (
             <article key={n._id} className="tp-card nt">
               <div className="nt-ic" aria-hidden="true"><i className={iconOf(n.kind)} /></div>
               <div className="nt-meta">
@@ -67,7 +70,7 @@ function Notes() {
               </div>
             </article>
           ))}
-        </div>
+        </div><Pager pg={pg} /></>
       )}
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
     </>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
+import { usePager, Pager } from "../../components/trainee/pager";
 import { tApi, fmtDate } from "../../utils/trainee-api";
 
 /* Tasks the CYT team sends. The trainee moves each one To do → In progress → Done and can reply with a note / link. */
@@ -22,6 +23,8 @@ function Tasks() {
   useEffect(() => { load(); }, []);
   useEffect(() => { if (live) load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const pg = usePager((list || []).filter((t) => (tab === "open" ? t.status !== "done" : t.status === "done")), 8);
+  useEffect(() => { pg.setPage(1); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading your tasks…</div>;
   const open = list.filter((t) => t.status !== "done");
   const done = list.filter((t) => t.status === "done");
@@ -47,7 +50,7 @@ function Tasks() {
           {tab === "open" ? "New tasks from the CYT team will appear here — we'll email you too." : "Tasks you mark as done will show here."}
         </div>
       ) : (
-        <div className="tk-list">{shown.map((t) => <TaskCard key={t._id} t={t} onSaved={put} />)}</div>
+        <><div className="tk-list">{pg.slice.map((t) => <TaskCard key={t._id} t={t} onSaved={put} />)}</div><Pager pg={pg} /></>
       )}
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
     </>
