@@ -36,7 +36,11 @@ function Upgrade() {
 
   const load = async () => {
     const r = await tApi("/trainee-portal/upgrade");
-    if (r.status) { setInfo(r.data); setPick((p) => p || r.data.options?.[0]?.hours || ""); } else setErr(r.message || "Couldn't load your plan");
+    if (r.status) {
+      const d = { ...r.data, options: Array.isArray(r.data?.options) ? r.data.options : [], upgrades: Array.isArray(r.data?.upgrades) ? r.data.upgrades : [] };
+      setInfo(d);
+      setPick((p) => p || d.options[0]?.hours || "");
+    } else setErr(r.message || "Couldn't load your plan");
   };
   useEffect(() => { load(); loadRazorpay(); }, []);
   useEffect(() => { if (live) load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
