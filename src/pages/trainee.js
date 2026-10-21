@@ -373,47 +373,51 @@ const CSS = `
   .th-bars { height: 150px; gap: 5px; }
 }
 
-/* ── brand palette (green + gold), professional: ivory header, sage / gold card bands, white bodies ── */
-.th .th-hdr { background: #fbf7ec; border-color: #eadfbf; color: #14261c; box-shadow: 0 14px 30px -24px rgba(110,80,20,.35); }
-.th .th-goldline { background: #c9962c; }
-.th .th-date { color: #9a7b3c; }
-.th .th-hdr h1 { color: #14532d; }
-.th .th-hdr-sub { color: #5f6b62; }
-.th .th-hdr-sub a { color: #1f6b47 !important; }
-.th .th-badge { background: #fff; color: #8a6418; border-color: #e6d29a; }
-.th .th-hchip { background: #fff; border-color: #ece3c8; }
-.th .th-hchip > span { background: #f5ebcf; color: #8a6418; }
-.th .th-hchip small { color: #9a8a66; }
-.th .th-hchip b { color: #14261c; }
+/* ── header: strong gold like the therapist "Next session" card; each grid card its own colour ── */
+.th .th-hdr { background: linear-gradient(135deg, #f3d27a 0%, #f7e2a8 45%, #fbedc6 100%); border: 1px solid #dfbd6a; color: #2b1d02; box-shadow: 0 14px 30px -20px rgba(138,93,6,.55); }
+.th .th-goldline { background: #b07d1c; }
+.th .th-date { color: #7a5a14; }
+.th .th-hdr h1 { color: #2b1d02; }
+.th .th-hdr-sub { color: #5c4512; }
+.th .th-hdr-sub a { color: #14532d !important; }
+.th .th-badge { background: rgba(255,255,255,.6); color: #7a5a14; border-color: rgba(176,125,28,.35); }
+.th .th-hchip { background: rgba(255,255,255,.65); border-color: rgba(176,125,28,.28); }
+.th .th-hchip > span { background: #fff; color: #9a6a10; }
+.th .th-hchip small { color: #7a6332; }
+.th .th-hchip b { color: #2b1d02; }
 .th .th-act { background: #14532d; color: #fff !important; box-shadow: 0 8px 18px -10px rgba(20,83,45,.55); }
-.th .th-act.gold { background: #c9962c; color: #fff !important; border: none; }
-.th .th-upd { color: #9a8a66; }
-.th .th-upd:hover { color: #14532d; }
-.th .th-edit { color: #1f6b47 !important; }
+.th .th-act.gold { background: #fff; color: #14532d !important; border: 1.5px solid #14532d; }
+.th .th-upd { color: #7a6332; }
+.th .th-upd:hover { color: #2b1d02; }
+.th .th-edit { color: #14532d !important; }
 
-.th .th-stat { border-top: 3px solid var(--tone, #1f6b47); }
-.th .th-stat:nth-child(1) { --tone: #1f6b47; }
-.th .th-stat:nth-child(2) { --tone: #c9962c; }
-.th .th-stat:nth-child(2) i { background: #f5ebcf; color: #8a6418; }
-.th .th-stat:nth-child(3) { --tone: #2f7d6d; }
-.th .th-stat:nth-child(3) i { background: #e2f0ec; color: #2f6d60; }
-.th .th-stat:nth-child(4) { --tone: #a5741f; }
-.th .th-stat:nth-child(4) i { background: #f3e9d6; color: #8a5a14; }
+/* tiles — therapist-dashboard KPI style, one colour each */
+.th .th-stat { border-top: 3px solid var(--c); background: linear-gradient(165deg, var(--t) 0%, #ffffff 62%); border-color: var(--b); border-top-color: var(--c); }
+.th .th-stat i { background: #fff !important; color: var(--c) !important; box-shadow: 0 2px 6px -3px rgba(15,23,42,.18); }
+.th .th-stat:nth-child(1) { --c: #16a34a; --t: #e6f7ec; --b: #cdebd7; }
+.th .th-stat:nth-child(2) { --c: #0d9488; --t: #e2f6f3; --b: #c8ebe5; }
+.th .th-stat:nth-child(3) { --c: #d97706; --t: #fef3e2; --b: #f5dfb8; }
+.th .th-stat:nth-child(4) { --c: #6366f1; --t: #ecedfd; --b: #d6d8fb; }
+.th .th-stat.warn i { color: #b91c1c !important; }
 
-.th .tp-card .th-ch { margin: -20px -20px 14px; padding: 12px 20px; border-radius: 17px 17px 0 0; border-bottom: 1px solid rgba(15,23,42,.06); background: var(--band, #f3f6f4); }
-.th .th-prog { --band: #e6f0e9; }
-.th .th-week { --band: #f6efdc; }
-.th .th-tasks { --band: #f6efdc; }
-.th .th-notes { --band: #e6f0e9; }
-.th .th-cert { border-left: 4px solid #c9962c; }
-.th .th-help { border-left: 4px solid #1f6b47; }
-.th .th-ch h2 { color: #14532d; }
-.th .th-week .th-ch h2, .th .th-tasks .th-ch h2 { color: #6b4a12; }
-.th .th-bar-col span { background: #2f7d5b; }
-.th .th-bar.today .th-bar-col span { background: #c9962c; }
-.th .th-note-ic { background: #e6f0e9; color: #1f6b47; }
-.th .th-task-ic { background: #f5ebcf; color: #8a6418; }
-@media (max-width: 640px) { .th .tp-card .th-ch { margin: -16px -16px 12px; padding: 10px 16px; border-radius: 15px 15px 0 0; } }
+/* section cards — coloured top band + soft tint */
+.th .tp-card { border-top: 3px solid var(--c, #16a34a); }
+.th .tp-card .th-ch { margin: -20px -20px 14px; padding: 12px 20px; border-radius: 15px 15px 0 0; border-bottom: 1px solid var(--b, #e2e8e4); background: var(--t, #f3f6f4); }
+.th .th-ch h2 { color: var(--d, #14532d); }
+.th .th-prog { --c: #16a34a; --t: #e6f7ec; --b: #cdebd7; --d: #14532d; }
+.th .th-week { --c: #0d9488; --t: #e2f6f3; --b: #c8ebe5; --d: #115e59; }
+.th .th-tasks { --c: #d97706; --t: #fef3e2; --b: #f5dfb8; --d: #92400e; }
+.th .th-notes { --c: #6366f1; --t: #ecedfd; --b: #d6d8fb; --d: #3730a3; }
+.th .th-cert { --c: #c9962c; background: linear-gradient(165deg, #fbf3e2 0%, #ffffff 62%); border-color: #eedfbd; }
+.th .th-help { --c: #0d9488; background: linear-gradient(165deg, #e2f6f3 0%, #ffffff 62%); border-color: #c8ebe5; }
+.th .th-ring { background: conic-gradient(from -90deg, #16a34a 0 calc(var(--p) * 1%), #dcefe3 calc(var(--p) * 1%)) !important; }
+.th .th-ring b { color: #14532d !important; }
+.th .th-bar-col span { background: #0d9488; }
+.th .th-bar.today .th-bar-col span { background: #d4a24c; }
+.th .th-task-ic { background: #fde8c8; color: #b45309; }
+.th .th-note-ic { background: #e0e2fb; color: #4f46e5; }
+.th .th-seal { background: #f5c542; color: #3d2a00; border-radius: 50%; }
+@media (max-width: 640px) { .th .tp-card .th-ch { margin: -16px -16px 12px; padding: 10px 16px; border-radius: 13px 13px 0 0; } }
 `;
 
 export default function TraineeHome() {
