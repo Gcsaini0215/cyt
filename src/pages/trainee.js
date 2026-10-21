@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import TraineeLayout, { useTraineePortal } from "../components/trainee/trainee-layout";
-import { tApi, fileUrl, fmtTime, fmtDate, fmtMins } from "../utils/trainee-api";
+import { tApi, fileUrl, fmtTime, fmtDate, fmtMins, fmtSecs, secsSince } from "../utils/trainee-api";
 
 /* Trainee portal home: today's check-in, internship hours progress, this month at a glance,
    tasks due next, this week's attendance, latest notes, certificate status and help. */
@@ -24,6 +24,14 @@ function Home() {
   // refresh the numbers after a check-in / check-out from the top bar
   const todayKey = `${att?.today?.checkIn || ""}|${att?.today?.checkOut || ""}`;
   useEffect(() => { if (ov) load(); }, [todayKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  // checked in → the time ticks every second
+  const isWorking = !!(att?.today?.checkIn && !att?.today?.checkOut);
+  const [, setSec] = useState(0);
+  useEffect(() => {
+    if (!isWorking) return undefined;
+    const iv = setInterval(() => setSec((n) => n + 1), 1000);
+    return () => clearInterval(iv);
+  }, [isWorking]);
 
   if (!ov) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading your dashboard…</div>;
 
@@ -39,7 +47,7 @@ function Home() {
   // the name is already in the top bar — the header leads with where they stand
   const headline = !program ? "Choose a plan to start your internship"
     : pct >= 100 ? "All hours done — brilliant work! 🎉"
-      : working ? `In session · ${fmtMins(liveMins)} logged today`
+      : working ? `Checked in · ${fmtSecs(secsSince(today.checkIn))}`
         : doneHrs === 0 ? `Your ${program.hours} journey starts today`
           : `${leftHrs.toFixed(leftHrs < 10 ? 1 : 0)} hrs to go — keep it up!`;
 
@@ -71,7 +79,7 @@ function Home() {
           </div>
           <div className="th-hdr-a">
             {!today?.checkIn && <button type="button" className="th-act" onClick={checkIn} disabled={busy}><i className="feather-log-in" aria-hidden="true" /> {busy ? "Checking in…" : "Check in"}</button>}
-            {working && <button type="button" className="th-act gold" onClick={openCheckOut}><i className="feather-log-out" aria-hidden="true" /> Check out · {fmtMins(liveMins)}</button>}
+            {working && <button type="button" className="th-act gold" onClick={openCheckOut}><i className="feather-log-out" aria-hidden="true" /> Check out · <span className="th-tick">{fmtSecs(secsSince(today.checkIn))}</span></button>}
             {today?.checkOut && <Link href="/trainee/attendance" className="th-act"><i className="feather-check-circle" aria-hidden="true" /> Done today · {fmtMins(liveMins)}</Link>}
             <div className="th-hdr-meta">
               <button type="button" onClick={load} className="th-upd"><i className="feather-refresh-cw" aria-hidden="true" /> {updated ? `Updated ${fmtTime(updated)}` : "Loading…"}</button>
@@ -80,7 +88,7 @@ function Home() {
           </div>
         </div>
         <div className="th-hchips">
-          <div className="th-hchip"><span><i className="feather-clock" aria-hidden="true" /></span><div><small>Today</small><b>{today?.checkIn ? fmtMins(liveMins) : "Not in"}</b></div></div>
+          <div className="th-hchip"><span><i className="feather-clock" aria-hidden="true" /></span><div><small>Today</small><b className="th-tick">{today?.checkIn ? (working ? fmtSecs(secsSince(today.checkIn)) : fmtMins(liveMins)) : "Not in"}</b></div></div>
           <div className="th-hchip"><span><i className="feather-target" aria-hidden="true" /></span><div><small>Hours done</small><b>{program ? `${doneHrs.toFixed(doneHrs < 10 ? 1 : 0)} / ${goalHrs}` : fmtMins(a.totalMinutes)}</b></div></div>
           <div className="th-hchip"><span><i className="feather-calendar" aria-hidden="true" /></span><div><small>This week</small><b>{a.weekDays}/7 days</b></div></div>
         </div>
@@ -219,10 +227,10 @@ function Home() {
 
 const CSS = `
 .th { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.th-hdr { position: relative; overflow: hidden; color: #0f172a; border-radius: 20px; padding: 22px 24px; background: #fbe7b3; border: 1px solid #ecc96e; box-shadow: 0 14px 30px -22px rgba(138,90,11,.45); }
-.th-ring1 { position: absolute; top: -70px; right: -50px; width: 220px; height: 220px; border-radius: 50%; border: 1px solid rgba(21,128,61,.12); pointer-events: none; }
-.th-ring2 { position: absolute; top: -30px; right: 40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.35); pointer-events: none; }
-.th-goldline { position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #c9962c; pointer-events: none; }
+.th-hdr { position: relative; overflow: hidden; color: #0f172a; border-radius: 20px; padding: 22px 24px; background: #ffffff; border: 1px solid #e2e6e3; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 8px 24px -18px rgba(15,23,42,.18); }
+.th-ring1 { display: none; }
+.th-ring2 { display: none; }
+.th-goldline { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #1f6b47; pointer-events: none; }
 .th-hdr-row { position: relative; display: flex; align-items: center; gap: 16px; }
 .th-hdr-av { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
 .th-hdr-av img, .th-hdr-av > span { width: 100%; height: 100%; border-radius: 14px; object-fit: cover; display: grid; place-items: center; border: 2px solid #e9c46a; box-sizing: border-box; }
@@ -232,8 +240,9 @@ const CSS = `
 .th-hdr-t { min-width: 0; flex: 1; }
 .th-date { display: block; font-size: 11.5px; font-weight: 700; color: #94a3b8; margin-bottom: 3px; letter-spacing: .2px; }
 .th-hdr-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.th-tick, .th-hdr h1 { font-variant-numeric: tabular-nums; }
 .th-hdr h1 { margin: 0; font-size: 25px; font-weight: 800; color: #0f172a; line-height: 1.2; }
-.th-badge { display: inline-flex; align-items: center; gap: 4px; background: #fff; color: #8a5a0b; border: 1px solid #ecc96e; border-radius: 999px; padding: 2px 9px; font-size: 10.5px; font-weight: 800; }
+.th-badge { display: inline-flex; align-items: center; gap: 4px; background: #f6efdc; color: #7a5a14; border: 1px solid #e9dcb5; border-radius: 999px; padding: 2px 9px; font-size: 10.5px; font-weight: 800; }
 .th-hdr-sub { margin: 5px 0 0; font-size: 13.5px; font-weight: 600; color: #64748b; }
 .th-hdr-sub a { color: #15803d !important; font-weight: 800; }
 .th-hdr-a { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
@@ -247,8 +256,8 @@ const CSS = `
 .th-edit { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
 .th-hchips { position: relative; margin-top: 18px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .th-hchips::-webkit-scrollbar { display: none; }
-.th-hchip { display: flex; align-items: center; gap: 8px; flex-shrink: 0; background: #fff; border: 1px solid #ecc96e; border-radius: 12px; padding: 7px 12px 7px 8px; }
-.th-hchip > span { width: 30px; height: 30px; border-radius: 9px; background: #f7d57e; color: #6b4a07; display: grid; place-items: center; font-size: 15px; }
+.th-hchip { display: flex; align-items: center; gap: 8px; flex-shrink: 0; background: #f7f9f8; border: 1px solid #e6eae7; border-radius: 12px; padding: 7px 12px 7px 8px; }
+.th-hchip > span { width: 30px; height: 30px; border-radius: 9px; background: #e8f1ec; color: #1f6b47; display: grid; place-items: center; font-size: 15px; }
 .th-hchip small { display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; line-height: 1.2; white-space: nowrap; }
 .th-hchip b { display: block; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.3; white-space: nowrap; }
 
@@ -260,13 +269,13 @@ const CSS = `
 .th-stat b { font-size: 22px; font-weight: 800; color: #0f172a; display: flex; align-items: baseline; gap: 8px; line-height: 1.2; }
 .th-stat b.txt { font-size: 18px; }
 .th-stat b small { font-size: 11.5px; font-weight: 800; color: #b91c1c; background: #fef2f2; border-radius: 999px; padding: 1px 8px; }
-.th-stat:nth-child(1) { background: #fbe7b3; border-color: #ecc96e; } .th-stat:nth-child(1) i { background: #f7d57e; color: #6b4a07; }
-.th-stat:nth-child(2) { background: #d6e7fa; border-color: #b6d0f0; } .th-stat:nth-child(2) i { background: #adcbf1; color: #1e3a8a; }
-.th-stat:nth-child(3) { background: #fde0cc; border-color: #f6c6a4; } .th-stat:nth-child(3) i { background: #f9c39c; color: #9a3412; }
-.th-stat:nth-child(4) { background: #e6dcfa; border-color: #cfbff2; } .th-stat:nth-child(4) i { background: #cdb9f3; color: #5b21b6; }
-.th-stat:hover { border-color: #b7dcc4; }
-.th-stat.warn i { background: #fde2e2; color: #b91c1c; }
-.th-stat.gold i { background: #fbecb8; color: #8a5a0b; }
+.th-stat:nth-child(1) i { background: #e8f1ec; color: #1f6b47; }
+.th-stat:nth-child(2) i { background: #e7eef6; color: #2f5d8a; }
+.th-stat:nth-child(3) i { background: #f6efdc; color: #8a6418; }
+.th-stat:nth-child(4) i { background: #eef0f3; color: #475569; }
+.th-stat:hover { border-color: #c9d3cd; }
+.th-stat.warn i { background: #f8e6e6; color: #a43a3a; }
+.th-stat.gold i { background: #f6efdc; color: #8a6418; }
 
 .th-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
 .th-col { display: grid; gap: 16px; min-width: 0; }
@@ -277,9 +286,9 @@ const CSS = `
 .th-muted { font-size: 12.5px; font-weight: 700; color: #94a3b8; }
 
 .th-ring-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
-.th-ring { --p: 0; width: 132px; height: 132px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; background: conic-gradient(from -90deg, #c9962c 0 calc(var(--p) * 1%), #f3e3b8 calc(var(--p) * 1%)); }
+.th-ring { --p: 0; width: 132px; height: 132px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; background: conic-gradient(from -90deg, #1f6b47 0 calc(var(--p) * 1%), #e5ebe7 calc(var(--p) * 1%)); }
 .th-ring > span { width: 104px; height: 104px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
-.th-ring b { font-size: 26px; font-weight: 800; color: #8a5a0b; }
+.th-ring b { font-size: 26px; font-weight: 800; color: #1f2f27; }
 .th-ring small { font-size: 12px; color: #94a3b8; font-weight: 700; }
 .th-prog-t { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .th-prog-t b { font-size: 20px; font-weight: 800; color: #0f172a; }
@@ -289,8 +298,8 @@ const CSS = `
 .th-steps li i { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #e2e8e4; background: #fff; display: grid; place-items: center; font-size: 13px; position: relative; z-index: 1; }
 .th-steps li:not(:last-child)::after { content: ""; position: absolute; top: 15px; left: calc(50% + 18px); right: calc(-50% + 18px); height: 2px; background: #e2e8e4; }
 .th-steps li.done { color: #14532d; }
-.th-steps li.done i { background: #15803d; border-color: #15803d; color: #fff; }
-.th-steps li.done:not(:last-child)::after { background: #15803d; }
+.th-steps li.done i { background: #1f6b47; border-color: #1f6b47; color: #fff; }
+.th-steps li.done:not(:last-child)::after { background: #1f6b47; }
 .th-steps li.now { color: #166534; }
 .th-steps li.now i { border-color: #22a35a; color: #15803d; }
 .th-apply p { margin: 0 0 14px; color: #64748b; font-size: 14px; }
@@ -298,40 +307,43 @@ const CSS = `
 .th-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 170px; align-items: end; }
 .th-bar { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; min-width: 0; }
 .th-bar-v { font-size: 10.5px; font-weight: 800; color: #64748b; height: 14px; white-space: nowrap; }
-.th-bar-col { flex: 1; width: 100%; max-width: 30px; border-radius: 9px; background: #ffffff; display: flex; align-items: flex-end; overflow: hidden; }
-.th-bar-col span { width: 100%; border-radius: 9px; background: #3f8fdc; }
-.th-bar.today .th-bar-col span { background: #f2c94c; }
+.th-bar-col { flex: 1; width: 100%; max-width: 30px; border-radius: 9px; background: #f1f4f2; display: flex; align-items: flex-end; overflow: hidden; }
+.th-bar-col span { width: 100%; border-radius: 9px; background: #5b7fa6; }
+.th-bar.today .th-bar-col span { background: #1f6b47; }
 .th-bar-d { font-size: 12px; font-weight: 800; color: #94a3b8; }
 .th-bar.today .th-bar-d { color: #8a5a0b; }
 
 .th-task, .th-note { display: flex; align-items: center; gap: 12px; padding: 11px 10px; margin: 0 -10px; border-radius: 12px; text-decoration: none !important; color: inherit; }
-.th-task:hover, .th-note:hover { background: rgba(255,255,255,.6); }
+.th-task:hover, .th-note:hover { background: #f7f9f8; }
 .th-task + .th-task, .th-note + .th-note { border-top-color: rgba(15,23,42,.08) !important; }
-.th-prog { background: #ffffff; border-color: #e3e0d6; }
-.th-week { background: #dceafb; border-color: #b6d0f0; }
-.th-tasks { background: #fde6d6; border-color: #f6c6a4; }
-.th-notes { background: #ebe3fb; border-color: #cfbff2; }
-.th-help { background: #d2efea; border-color: #a9dcd4; }
+
+
+
+
+
 .th-ring > span { background: #ffffff !important; }
+.th .tp-card { background: #fff; border-color: #e2e6e3; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+.th .th-stat { background: #fff; border-color: #e2e6e3; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+.th-ch h2 { letter-spacing: -.005em; }
 .th-task + .th-task, .th-note + .th-note { border-top: 1px solid #f1f5f3; }
-.th-task-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #f9c39c; color: #9a3412; }
-.th-task-ic.doing { background: #fbecb8; color: #8a5a0b; }
+.th-task-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #eef0f3; color: #475569; }
+.th-task-ic.doing { background: #f6efdc; color: #8a6418; }
 .th-task-t { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .th-task-t b { font-size: 14px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .th-task-t small { font-size: 12px; color: #94a3b8; font-weight: 600; }
 .th-due { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; background: #f0faf3; color: #166534; white-space: nowrap; }
 .th-due.today { background: #fff7e6; color: #b45309; }
 .th-due.late { background: #fef2f2; color: #b91c1c; }
-.th-note-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #cdb9f3; color: #5b21b6; }
+.th-note-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #e7eef6; color: #2f5d8a; }
 .th-note > i { color: #94a3b8; }
 .th-none { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #64748b; padding: 10px 0; }
 .th-none i { color: #22a35a; font-size: 18px; }
 
 .th-cert { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-.th-cert { background: #d3eedc; border-color: #b4dfc3; }
-.th-cert.ready { background: #fbe7b3; border-color: #ecc96e; }
+.th-cert { }
+.th .th-cert.ready { border-color: #e9dcb5; background: #fffcf4; }
 .th-cert p, .th-help p { margin: 0 0 6px; font-size: 13.5px; color: #64748b; line-height: 1.55; }
-.th-seal { width: 46px; height: 46px; border-radius: 50%; background: #f6d77a; color: #6b4a07; display: grid; place-items: center; font-size: 21px; box-shadow: 0 8px 18px -8px rgba(201,150,44,.6); }
+.th-seal { width: 46px; height: 46px; border-radius: 12px; background: #f6efdc; color: #8a6418; display: grid; place-items: center; font-size: 21px; box-shadow: 0 8px 18px -8px rgba(201,150,44,.6); }
 .th-help { display: flex; flex-direction: column; gap: 8px; }
 .th-help-a { display: flex; gap: 8px; flex-wrap: wrap; }
 .th-mod { margin-top: 6px; }
@@ -360,6 +372,44 @@ const CSS = `
   .th-steps li { font-size: 11px; }
   .th-bars { height: 150px; gap: 5px; }
 }
+
+/* ── academic / clinical palette: navy header, muted header strips on cards, white bodies ── */
+.th .th-hdr { background: #1f3b57; border-color: #1f3b57; color: #fff; box-shadow: 0 16px 34px -24px rgba(15,30,50,.6); }
+.th .th-goldline { background: #d4a24c; }
+.th .th-date { color: rgba(255,255,255,.62); }
+.th .th-hdr h1 { color: #fff; }
+.th .th-hdr-sub { color: rgba(255,255,255,.78); }
+.th .th-hdr-sub a { color: #f2c94c !important; }
+.th .th-badge { background: rgba(242,201,76,.16); color: #f2c94c; border-color: rgba(242,201,76,.4); }
+.th .th-hchip { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
+.th .th-hchip > span { background: rgba(242,201,76,.18); color: #f2c94c; }
+.th .th-hchip small { color: rgba(255,255,255,.55); }
+.th .th-hchip b { color: #fff; }
+.th .th-act { background: #fff; color: #1f3b57 !important; box-shadow: 0 8px 18px -10px rgba(0,0,0,.45); }
+.th .th-act.gold { background: #f2c94c; color: #1f2a37 !important; border: none; }
+.th .th-upd { color: rgba(255,255,255,.55); }
+.th .th-upd:hover { color: #fff; }
+.th .th-edit { color: #f2c94c !important; }
+
+.th .th-stat { border-top: 3px solid var(--tone, #1f6b47); }
+.th .th-stat:nth-child(1) { --tone: #2f7d5b; }
+.th .th-stat:nth-child(2) { --tone: #3f6e9e; }
+.th .th-stat:nth-child(3) { --tone: #b07a22; }
+.th .th-stat:nth-child(4) { --tone: #7a5c8e; }
+.th .th-stat:nth-child(4) i { background: #efe9f3; color: #6b4d80; }
+
+.th .tp-card .th-ch { margin: -20px -20px 14px; padding: 12px 20px; border-radius: 17px 17px 0 0; border-bottom: 1px solid rgba(15,23,42,.06); background: var(--band, #f3f6f4); }
+.th .th-prog { --band: #e3eee7; }
+.th .th-week { --band: #e2eaf3; }
+.th .th-tasks { --band: #f3eadb; }
+.th .th-notes { --band: #ece5f0; }
+.th .th-cert { border-left: 4px solid #d4a24c; }
+.th .th-help { border-left: 4px solid #3f8f8a; }
+.th .th-prog .th-ch h2 { color: #1f4d36; }
+.th .th-week .th-ch h2 { color: #24456a; }
+.th .th-tasks .th-ch h2 { color: #6b4a12; }
+.th .th-notes .th-ch h2 { color: #573d6b; }
+@media (max-width: 640px) { .th .tp-card .th-ch { margin: -16px -16px 12px; padding: 10px 16px; border-radius: 15px 15px 0 0; } }
 `;
 
 export default function TraineeHome() {

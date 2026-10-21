@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { getTrainee, getTraineeToken, clearTraineeToken } from "../../utils/trainee-auth";
 import { apiUrl } from "../../utils/url";
-import { tApi, fileUrl, fmtTime, fmtMins } from "../../utils/trainee-api";
+import { tApi, fileUrl, fmtTime, fmtMins, fmtSecs, secsSince } from "../../utils/trainee-api";
 
 /* Trainee portal shell — same look as the therapist portal: white top bar (menu, logo, check-in, account),
    a slim icon rail on the left that widens with labels, and a slide-in menu on phones / tablets.
@@ -148,10 +148,10 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
   const cheer = cheerFor(att?.today);
   const photo = profile?.photo ? fileUrl(profile.photo) : "";
   const active = (to) => (to === "/trainee" ? router.pathname === to : router.pathname === to || router.pathname.startsWith(`${to}/`));
-  const avatar = () => (photo
+  const avatar = (cls = "") => (photo
     // eslint-disable-next-line @next/next/no-img-element
-    ? <img className="tl-av img" src={photo} alt="" />
-    : <span className="tl-av">{initials}</span>);
+    ? <img className={`tl-av img ${cls}`} src={photo} alt="" />
+    : <span className={`tl-av ${cls}`}>{initials}</span>);
 
   const items = (labels) => (
     <>
@@ -161,6 +161,9 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
         </Link>
       ))}
       <span className="tl-fill" />
+      <Link href="/trainee/profile" className={`tl-item tl-me${active("/trainee/profile") ? " on" : ""}`} title={labels ? undefined : name}>
+        {avatar("xs")}<span className="tl-label">{name}</span>
+      </Link>
       <a href={HELP} target="_blank" rel="noreferrer" className="tl-item" title={labels ? undefined : "Help"}>
         <i className="feather-help-circle" aria-hidden="true" /><span className="tl-label">Help</span>
       </a>
@@ -256,7 +259,7 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
             </Link>
           ))}
           <button type="button" className={`tl-mob-i${drawer || NAV.slice(4).some((n) => active(n.to)) ? " on" : ""}`} onClick={() => setDrawer(true)}>
-            <span className="tl-mob-ic"><i className="feather-more-horizontal" aria-hidden="true" /></span>More
+            <span className="tl-mob-ic">{avatar("xs")}</span>More
           </button>
         </nav>
         {toast && (
@@ -280,7 +283,7 @@ function CheckChip({ att, reloadAtt, onOut }) {
   const working = !!(today?.checkIn && !today?.checkOut);
   useEffect(() => {
     if (!working) return undefined;
-    const iv = setInterval(() => tick((n) => n + 1), 30000);
+    const iv = setInterval(() => tick((n) => n + 1), 1000);
     return () => clearInterval(iv);
   }, [working]);
   if (!att) return null;
@@ -302,7 +305,7 @@ function CheckChip({ att, reloadAtt, onOut }) {
   if (working) {
     return (
       <div className="tl-chk-wrap">
-        <span className="tl-chk-st" title={`Checked in at ${fmtTime(today.checkIn)}`}><i className="dot" />In since {fmtTime(today.checkIn)} · {fmtMins(mins)}</span>
+        <span className="tl-chk-st" title={`Checked in at ${fmtTime(today.checkIn)}`}><i className="dot" />In since {fmtTime(today.checkIn)} · <b className="tl-tick">{fmtSecs(secsSince(today.checkIn))}</b></span>
         <button type="button" className="tl-chk out" onClick={onOut}><i className="feather-log-out" aria-hidden="true" /><span>Check out</span></button>
       </div>
     );
@@ -340,7 +343,7 @@ export function CheckOutModal({ onClose, onDone, today }) {
 }
 
 const CSS = `
-.tl { --tl-h: 60px; min-height: 100vh; background: #f1efe9; color: #13261c; }
+.tl { --tl-h: 60px; min-height: 100vh; background: #e9eeeb; color: #13261c; }
 .tl-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1200; height: var(--tl-h); display: flex; align-items: center; gap: 12px; padding: 0 16px 0 14px; background: rgba(255,255,255,.96); backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid #e4ece7; }
 .tl-menu { width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; border: 1px solid #e4ece7; background: #f6f8f7; color: #334155; cursor: pointer; display: grid; place-items: center; font-size: 19px; }
 .tl-menu:hover { background: #e7f6ec; border-color: #c6e6d1; color: #166534; }
@@ -361,6 +364,9 @@ const CSS = `
 .tl-who > i { color: #94a3b8; }
 .tl-av { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #14532d, #1e7a4c); color: #ecc77d; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .tl-av.img { object-fit: cover; background: #e7efe9; }
+.tl-av.xs { width: 26px !important; height: 26px !important; border-radius: 8px; font-size: 10.5px; box-shadow: none !important; }
+.tl-me .tl-av.xs { background: #14532d; color: #fff; }
+.tl-mob-i.on .tl-mob-ic .tl-av.xs { box-shadow: 0 0 0 2px #fff !important; }
 .tl-who-t { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
 .tl-who-t b { font-size: 14px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
 .tl-who-t small { font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -373,6 +379,7 @@ const CSS = `
 .tl-dd .out:hover { background: #fef2f2; }
 
 .tl-chk-wrap { display: flex; align-items: center; gap: 8px; }
+.tl-tick { font-variant-numeric: tabular-nums; font-weight: 800; }
 .tl-chk { height: 38px; padding: 0 14px; border-radius: 11px; border: none; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
 .tl-chk.in { background: linear-gradient(135deg, #15803d, #166534); color: #fff; box-shadow: 0 6px 16px rgba(22,101,52,.25); }
 .tl-chk.in:hover { filter: brightness(1.06); }

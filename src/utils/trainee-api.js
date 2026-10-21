@@ -25,4 +25,7 @@ export const fileUrl = (rel) => (rel ? `${baseApi}/uploads/${rel}` : "");
 
 export const fmtTime = (d) => (d ? new Date(d).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true }) : "—");
 export const fmtDate = (d, opts = { day: "numeric", month: "short", year: "numeric" }) => (d ? new Date(d).toLocaleDateString("en-IN", opts) : "—");
+// live timer: "1h 35m 12s" (or "35m 12s")
+export const fmtSecs = (sec) => { const t = Math.max(0, Math.floor(sec || 0)); const h = Math.floor(t / 3600); const m = Math.floor((t % 3600) / 60); const s = t % 60; return h ? `${h}h ${String(m).padStart(2, "0")}m ${String(s).padStart(2, "0")}s` : `${m}m ${String(s).padStart(2, "0")}s`; };
+export const secsSince = (from, to) => (from ? Math.max(0, Math.floor(((to ? new Date(to) : new Date()) - new Date(from)) / 1000)) : 0);
 export const fmtMins = (m) => { const h = Math.floor((m || 0) / 60); const mm = (m || 0) % 60; return h ? `${h}h ${mm}m` : `${mm}m`; };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { usePager, Pager } from "../../components/trainee/pager";
-import { tApi, fmtTime, fmtDate, fmtMins } from "../../utils/trainee-api";
+import { tApi, fmtTime, fmtDate, fmtMins, fmtSecs, secsSince } from "../../utils/trainee-api";
 
 /* Attendance: check in when you join, check out when you leave. Today, this month's numbers and streak,
    a month calendar (greener = more hours) and the full history, page by page. */
@@ -18,7 +18,7 @@ function Attendance() {
   const working = !!(today?.checkIn && !today?.checkOut);
   useEffect(() => {
     if (!working) return undefined;
-    const iv = setInterval(() => tick((n) => n + 1), 30000);
+    const iv = setInterval(() => tick((n) => n + 1), 1000);
     return () => clearInterval(iv);
   }, [working]);
   const days = att?.days || [];
@@ -65,7 +65,7 @@ function Attendance() {
           <div className="ta-t-l">
             <span className="ta-date">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</span>
             {!today?.checkIn && <><h2>Not checked in yet</h2><p>Tap check in when you start today&apos;s work.</p></>}
-            {working && <><h2><i className="ta-dot" />Checked in · {fmtMins(liveMins)}</h2><p>Since {fmtTime(today.checkIn)} — check out when you leave.</p></>}
+            {working && <><h2><i className="ta-dot" />Checked in · <span className="ta-tick">{fmtSecs(secsSince(today.checkIn))}</span></h2><p>Since {fmtTime(today.checkIn)} — check out when you leave.</p></>}
             {today?.checkOut && <><h2><i className="feather-check-circle" aria-hidden="true" /> Done for today · {fmtMins(liveMins)}</h2><p>{fmtTime(today.checkIn)} – {fmtTime(today.checkOut)}. See you tomorrow!</p></>}
             {err && <div className="tl-err">{err}</div>}
           </div>
@@ -138,6 +138,7 @@ const CSS = `
 .ta-today h2 { margin: 6px 0 2px; font-size: 18px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px; }
 .ta-today h2 i { color: #15803d; }
 .ta-today p { margin: 0; font-size: 13px; color: #64748b; }
+.ta-tick { font-variant-numeric: tabular-nums; }
 .ta-dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.2); display: inline-block; animation: tlPulse 1.6s ease-in-out infinite; }
 .ta-big { height: 44px; padding: 0 20px; }
 .ta-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
