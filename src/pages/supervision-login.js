@@ -87,15 +87,17 @@ export default function SupervisionLogin() {
   return (
     <>
       <Head>
-        <title>Trainee Portal Login · Choose Your Therapist</title>
+        <title>Trainee Portal · Choose Your Therapist</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `
         html,body{margin:0;padding:0;height:100%;}
         #__next,.wrapper,.main-wrapper{height:100%!important;min-height:100vh;}
+        html,body{overflow:hidden!important;}
         .sl-page{
-          min-height:100vh;display:flex;align-items:center;justify-content:center;
+          position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;z-index:10;overflow-y:auto;-webkit-overflow-scrolling:touch;
+          display:flex;align-items:center;justify-content:center;
           background:linear-gradient(160deg,#e3f2e8 0%,#f8f1de 55%,#e6f3ea 100%);
           padding:20px 16px;font-family:inherit;
           box-sizing:border-box;position:relative;overflow:hidden;
@@ -104,16 +106,19 @@ export default function SupervisionLogin() {
         .sl-blob-1{width:320px;height:320px;top:-110px;left:-110px;background:radial-gradient(circle,rgba(104,182,136,0.35) 0%,transparent 70%);}
         .sl-blob-2{width:340px;height:340px;bottom:-120px;right:-120px;background:radial-gradient(circle,rgba(232,190,110,0.35) 0%,transparent 70%);}
         .sl-card{
-          width:100%;max-width:420px;background:#ffffff;border-radius:24px;
+          width:100%;max-width:420px;margin:auto;background:#ffffff;border-radius:24px;
           padding:34px 30px;border:1px solid #e6ece8;
           box-shadow:0 24px 60px -24px rgba(20,60,40,0.35);position:relative;z-index:1;
         }
         .sl-icon{
-          width:56px;height:56px;border-radius:16px;margin:0 auto 14px;
-          background:linear-gradient(135deg,#14532d,#1e7a4c);
+          width:64px;height:64px;border-radius:18px;margin:0 auto 10px;
+          background:#fff;border:1px solid #e6ece8;
           display:flex;align-items:center;justify-content:center;
-          box-shadow:0 8px 20px rgba(20,83,45,0.3);
+          box-shadow:0 10px 24px -8px rgba(20,83,45,0.35);
         }
+        .sl-icon img{width:44px;height:44px;object-fit:contain;display:block;}
+        .sl-brand{display:block;text-align:center;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#1e7a4c;margin:0 0 6px;}
+        .sl-copy{text-align:center;margin-top:16px;font-size:11.5px;color:#94a3b8;}
         .sl-title{font-size:21px;font-weight:800;color:#13261c;margin:0 0 4px;text-align:center;}
         .sl-sub{font-size:13px;color:#6b7c72;text-align:center;margin:0 0 20px;}
         .sl-tabs{display:flex;gap:4px;padding:4px;border-radius:12px;background:#f1f5f2;margin:0 0 18px;}
@@ -160,10 +165,12 @@ export default function SupervisionLogin() {
 
         <div className="sl-card">
           <div className="sl-icon">
-            <i className="feather-award" style={{ fontSize: 22, color: "#ecc77d" }}></i>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/favicon.png" alt="Choose Your Therapist" width="44" height="44" />
           </div>
+          <span className="sl-brand">Choose Your Therapist</span>
           <h1 className="sl-title">Trainee Portal</h1>
-          <p className="sl-sub">{mode === "register" ? "Create your trainee account" : "Supervision cum Internship · Choose Your Therapist"}</p>
+          <p className="sl-sub">{mode === "register" ? "Create your account to start your internship" : "Sign in with your email — we'll send you a code"}</p>
 
           {waiting ? (
             <div className="sl-wait">
@@ -240,6 +247,7 @@ export default function SupervisionLogin() {
               : <>Already have an account? <button type="button" className="sl-link" onClick={() => switchMode("signin")}>Sign in</button></>}
             <div className="sl-foot2"><Link href="/internship-modules">See the internship modules →</Link></div>
           </div>
+          <p className="sl-copy">© {new Date().getFullYear()} Choose Your Therapist · <Link href="/" style={{ color: "#94a3b8" }}>chooseyourtherapist.in</Link></p>
         </div>
       </div>
     </>
