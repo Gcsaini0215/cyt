@@ -19,7 +19,7 @@ function Notes() {
   const [kind, setKind] = useState("all");
   const [q, setQ] = useState("");
   const [err, setErr] = useState("");
-  const load = () => tApi("/trainee-portal/notes").then((r) => (r.status ? setList(r.data) : setErr(r.message || "Couldn't load notes")));
+  const load = () => tApi("/trainee-portal/notes").then((r) => (r.status ? setList(Array.isArray(r.data) ? r.data : []) : setErr(r.message || "Couldn't load notes")));
   useEffect(() => { load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading notes…</div>;
   const term = q.trim().toLowerCase();

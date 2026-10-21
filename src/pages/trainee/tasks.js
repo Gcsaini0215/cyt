@@ -17,7 +17,7 @@ function Tasks() {
   const [err, setErr] = useState("");
   const load = async () => {
     const r = await tApi("/trainee-portal/tasks");
-    if (r.status) setList(r.data); else setErr(r.message || "Couldn't load tasks");
+    if (r.status) setList(Array.isArray(r.data) ? r.data : []); else setErr(r.message || "Couldn't load tasks");
   };
   useEffect(() => { load(); }, []);
   useEffect(() => { if (live) load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps

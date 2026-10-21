@@ -18,6 +18,13 @@ export const NAV = [
   { to: "/trainee/upgrade", icon: "feather-trending-up", label: "Upgrade internship" },
   { to: "/trainee/profile", icon: "feather-user", label: "Edit profile" },
 ];
+// phones: bottom bar like the client / therapist portals; "More" opens the full menu
+const MOB_NAV = [
+  { to: "/trainee", icon: "feather-grid", label: "Home" },
+  { to: "/trainee/attendance", icon: "feather-clock", label: "Attendance" },
+  { to: "/trainee/tasks", icon: "feather-check-square", label: "Tasks" },
+  { to: "/trainee/notes", icon: "feather-book-open", label: "Notes" },
+];
 const HELP = "https://wa.me/918077757951?text=Hi%2C%20I%27m%20a%20CYT%20trainee%20and%20need%20help";
 const WIDE_KEY = "cyt_trainee_wide";
 
@@ -25,6 +32,16 @@ const Ctx = createContext({ me: null, att: null, reloadAtt: () => {}, profile: n
 export const useTraineePortal = () => useContext(Ctx);
 
 let profileCache = null; // keeps the avatar steady between pages
+
+// a short, upbeat line under the name — changes with the day's check-in and the time
+function cheerFor(today) {
+  if (today?.checkIn && !today?.checkOut) return "You're on a roll today 🔥";
+  if (today?.checkOut) return "Great work today ✨";
+  const h = new Date().getHours();
+  if (h < 12) return "Let's make today count ☀️";
+  if (h < 17) return "Future psychologist at work 🧠";
+  return "Every hour counts 🌱";
+}
 
 const NOTIF_ICON = { task: "feather-check-square", "task-update": "feather-edit", note: "feather-book-open", certificate: "feather-award", plan: "feather-gift", attendance: "feather-clock" };
 function ago(d) {
@@ -127,6 +144,8 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
   const signOut = () => { profileCache = null; clearTraineeToken(); router.push("/supervision-login"); };
   const name = (profile && [profile.firstName, profile.lastName].filter(Boolean).join(" ")) || me?.name || "Trainee";
   const initials = name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  const firstName = name.trim().split(/\s+/)[0] || "there";
+  const cheer = cheerFor(att?.today);
   const photo = profile?.photo ? fileUrl(profile.photo) : "";
   const active = (to) => (to === "/trainee" ? router.pathname === to : router.pathname === to || router.pathname.startsWith(`${to}/`));
   const avatar = () => (photo
@@ -166,7 +185,7 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
           <Link href="/trainee" className="tl-logo" aria-label="Trainee portal home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/cyt-emblem.png" alt="CYT" width="34" height="34" />
-            <span><b>Trainee Portal</b><small>Choose Your Therapist</small></span>
+            <span className="tl-hi"><b>Hi, {firstName}<em aria-hidden="true">👋</em></b><small>{cheer}</small></span>
           </Link>
           <span className="tl-title">{title}</span>
           <div className="tl-right">
@@ -229,6 +248,17 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
         )}
 
         <main className="tl-main">{me ? children : null}</main>
+
+        <nav className="tl-mob" aria-label="Quick menu">
+          {MOB_NAV.map((i) => (
+            <Link key={i.to} href={i.to} className={`tl-mob-i${active(i.to) ? " on" : ""}`} aria-current={active(i.to) ? "page" : undefined}>
+              <span className="tl-mob-ic"><i className={i.icon} aria-hidden="true" /></span>{i.label}
+            </Link>
+          ))}
+          <button type="button" className={`tl-mob-i${drawer || NAV.slice(4).some((n) => active(n.to)) ? " on" : ""}`} onClick={() => setDrawer(true)}>
+            <span className="tl-mob-ic"><i className="feather-more-horizontal" aria-hidden="true" /></span>More
+          </button>
+        </nav>
         {toast && (
           <button type="button" className="tl-toast" onClick={() => openNotif(toast)} role="status">
             <span className={`tl-ni-ic ${toast.type}`} aria-hidden="true"><i className={NOTIF_ICON[toast.type] || "feather-bell"} /></span>
@@ -318,6 +348,10 @@ const CSS = `
 .tl-logo img { width: 32px; height: 32px; display: block; }
 .tl-logo span { display: flex; flex-direction: column; line-height: 1.15; }
 .tl-logo b { font-size: 15px; font-weight: 800; color: #14532d; }
+.tl-hi b { display: inline-flex; align-items: center; gap: 4px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.01em; }
+.tl-hi b em { font-style: normal; display: inline-block; transform-origin: 70% 70%; animation: tlWave 2.4s ease-in-out 0.6s 2; }
+.tl-hi small { white-space: nowrap; }
+@keyframes tlWave { 0%, 60%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(16deg); } 20% { transform: rotate(-8deg); } 40% { transform: rotate(-4deg); } 50% { transform: rotate(10deg); } }
 .tl-logo small { font-size: 10.5px; color: #94a3b8; font-weight: 600; }
 .tl-title { margin-left: 12px; padding-left: 14px; border-left: 1px solid #e4ece7; font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; }
 .tl-right { margin-left: auto; display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -430,9 +464,10 @@ const CSS = `
 .tl-bar .tl-logo { border-left-color: rgba(255,255,255,.22); }
 .tl-bar .tl-logo img { width: 34px; height: 34px; background: #fff; border-radius: 10px; padding: 3px; box-sizing: border-box; object-fit: contain; }
 .tl-bar .tl-logo b { color: #fff; }
-.tl-bar .tl-logo small { color: rgba(255,255,255,.62); }
+.tl-bar .tl-logo small { color: #f3d27a; font-weight: 700; }
 .tl-bar .tl-title { color: #fff; border-left-color: rgba(255,255,255,.22); }
 .tl-bar .tl-who:hover, .tl-bar .tl-who[aria-expanded="true"] { background: rgba(255,255,255,.1); }
+.tl-bar .tl-who-t { display: none; } /* the name is already shown as "Hi, …" on the left */
 .tl-bar .tl-who-t b { color: #fff; }
 .tl-bar .tl-who-t small { color: #bbf7d0; }
 .tl-bar .tl-who > i { color: rgba(255,255,255,.7); }
@@ -453,7 +488,9 @@ const CSS = `
 @media (max-width: 640px) {
   .tl-bar { padding: 0 10px; gap: 8px; }
   .tl-logo { padding-left: 8px; }
-  .tl-logo small, .tl-who-t, .tl-who > i, .tl-chk-st { display: none; }
+  .tl-bar .tl-who-t, .tl-who > i, .tl-chk-st { display: none; }
+  .tl-hi b { max-width: 140px; }
+  .tl-hi small { font-size: 10px; }
   .tl-logo b { font-size: 14px; }
   .tl-right { gap: 6px; }
   .tl-who { padding: 2px; }
@@ -462,13 +499,25 @@ const CSS = `
   .tl-main, .tl.wide .tl-main { padding: calc(var(--tl-h) + 16px) 14px 28px; }
 }
 @media (max-width: 640px) { .tl-nd { position: fixed; left: 10px; right: 10px; top: calc(var(--tl-h) + 8px); width: auto; max-width: none; } .tl-bell { width: 36px; height: 36px; } }
-@media (max-width: 420px) { .tl-logo span { display: none; } }
-@media (prefers-reduced-motion: reduce) { .tl-rail, .tl-main, .tl-drawer, .tl-chk-st .dot { transition: none; animation: none; } }
+@media (max-width: 420px) { .tl-hi small { display: none; } .tl-hi b { max-width: 110px; } }
+.tl-mob { display: none; }
+@media (max-width: 767px) {
+  .tl-mob { display: flex; position: fixed; z-index: 1200; left: 0; right: 0; bottom: 0; gap: 2px; padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); background: rgba(255,255,255,.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-top: 1px solid #e4ece7; box-shadow: 0 -6px 20px -12px rgba(4,22,14,.2); }
+  .tl-mob-i { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none !important; color: #64748b !important; font: inherit; font-weight: 700; font-size: 10.5px; padding: 4px 0; border: 0; background: none; cursor: pointer; }
+  .tl-mob-ic { width: 52px; height: 30px; border-radius: 999px; display: grid; place-items: center; font-size: 19px; transition: background .18s; }
+  .tl-mob-i.on { color: #166534 !important; }
+  .tl-mob-i.on .tl-mob-ic { background: #166534; color: #fff; box-shadow: 0 4px 12px -4px rgba(22,101,52,.55); }
+  .tl-main, .tl.wide .tl-main { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .tl-menu { display: none; }
+  .tl-logo { border-left: 0; padding-left: 2px; }
+  .tl-toast { top: auto; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); right: 10px; left: 10px; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .tl-rail, .tl-main, .tl-drawer, .tl-chk-st .dot, .tl-hi b em { transition: none; animation: none; } }
 
 /* shared page pieces */
-.tp-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
-.tp-h h1 { margin: 0; font-size: 26px; font-weight: 800; color: #0f172a; letter-spacing: -.01em; line-height: 1.25; }
-.tp-h p { margin: 4px 0 0; font-size: 14.5px; color: #64748b; }
+.tp-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.tp-h h1 { margin: 0; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -.01em; line-height: 1.25; }
+.tp-h p { margin: 3px 0 0; font-size: 13.5px; color: #64748b; }
 .tp-card { background: #fff; border: 1px solid #e4ece7; border-radius: 18px; padding: 20px; box-shadow: 0 1px 2px rgba(15,23,42,.03); box-sizing: border-box; }
 .tp-empty { text-align: center; padding: 48px 20px; color: #64748b; font-size: 14.5px; }
 .tp-empty > i { display: block; font-size: 34px; color: #c9962c; margin-bottom: 10px; }
@@ -477,5 +526,5 @@ const CSS = `
 .tp-tabs { display: inline-flex; gap: 4px; background: #fff; border: 1px solid #e4ece7; border-radius: 12px; padding: 4px; }
 .tp-tabs button { height: 34px; padding: 0 14px; border: none; border-radius: 9px; background: none; font: inherit; font-size: 13.5px; font-weight: 700; color: #64748b; cursor: pointer; }
 .tp-tabs button.on { background: #14532d; color: #fff; }
-@media (max-width: 640px) { .tp-h h1 { font-size: 22px; } .tp-card { padding: 16px; border-radius: 16px; } }
+@media (max-width: 640px) { .tp-h h1 { font-size: 20px; } .tp-card { padding: 16px; border-radius: 16px; } }
 `;

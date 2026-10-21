@@ -99,6 +99,7 @@ function Upgrade() {
   }
 
   const chosen = info.options.find((o) => o.hours === pick);
+  const curN = parseInt(info.hours, 10) || 0;
   return (
     <>
       {head}
@@ -108,129 +109,147 @@ function Upgrade() {
           <div><b>Upgraded to {done.to}!</b> We&apos;ve emailed your receipt. Payment ID: {done.paymentId}</div>
         </div>
       )}
-      <section className="tp-card up-cur">
-        <div className="up-cur-top">
-          <div className="up-cur-l">
-            <span className="up-k">Your current plan</span>
-            <div className="up-cur-h"><b>{info.hours || "—"}</b><span>{info.duration}</span></div>
-          </div>
-          <span className={`up-st ${info.free ? "free" : info.paid ? "paid" : "due"}`}>
-            <i className={info.free ? "feather-gift" : info.paid ? "feather-check-circle" : "feather-alert-circle"} aria-hidden="true" />
-            {info.free ? "Free plan from CYT" : info.paid ? `Paid · ${inr(info.fee)}` : "Payment not verified"}
-          </span>
-        </div>
-        <ol className="up-ladder" aria-label="All internship plans">
-          {LADDER.map((h) => {
-            const n = parseInt(h, 10);
-            const curN = parseInt(info.hours, 10) || 0;
-            const st = n < curN ? "past" : n === curN ? "cur" : "next";
-            const canPick = st === "next" && info.options.some((o) => o.hours === h);
-            return (
-              <li key={h} className={`${st}${pick === h ? " picked" : ""}`}>
-                <button type="button" disabled={!canPick} onClick={() => setPick(h)} aria-label={st === "cur" ? `${h} — your plan` : h}>
-                  <span className="dot">{st === "past" ? <i className="feather-check" aria-hidden="true" /> : st === "cur" ? "You" : ""}</span>
-                  <span className="lbl">{n}<small>hrs</small></span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      </section>
-
-      {info.options.length === 0 ? (
-        <div className="tp-card tp-empty"><i className="feather-star" aria-hidden="true" /><b>You&apos;re on our biggest plan</b>There&apos;s nothing to upgrade — enjoy your internship!</div>
-      ) : (
-        <>
-          <h3 className="up-h">Choose your new plan</h3>
-          <div className="up-grid" role="radiogroup" aria-label="Upgrade plans">
-            {info.options.map((o) => (
-              <button key={o.hours} type="button" role="radio" aria-checked={pick === o.hours} className={`up-opt${pick === o.hours ? " on" : ""}`} onClick={() => setPick(o.hours)}>
-                <span className="up-tick" aria-hidden="true"><i className="feather-check" /></span>
-                <b>{o.hours}</b>
-                <small>{o.duration}</small>
-                <span className="up-pay">{inr(o.pay)}</span>
-                <span className="up-full">+{parseInt(o.hours, 10) - parseInt(info.hours, 10)} hrs · ≈ {inr(Math.round(o.pay / parseInt(o.hours, 10)))}/hr</span>
-              </button>
-            ))}
-          </div>
-          <div className="up-sum tp-card">
-            <div>
-              <span>{info.hours} → <b>{chosen?.hours || "—"}</b></span>
-              <strong>{chosen ? inr(chosen.pay) : "—"}</strong>
-              <small>Full price of the {chosen?.hours || "new"} plan. Secure payment by Razorpay.</small>
+      <div className="up-wrap">
+        <div className="up-main">
+          {/* current plan */}
+          <section className="tp-card up-cur">
+            <div className="up-cur-top">
+              <div>
+                <span className="up-k">Current plan</span>
+                <div className="up-cur-h"><b>{info.hours || "—"}</b><span>{info.duration}</span></div>
+              </div>
+              <span className={`up-st ${info.free ? "free" : info.paid ? "paid" : "due"}`}>
+                <i className={info.free ? "feather-gift" : info.paid ? "feather-check-circle" : "feather-alert-circle"} aria-hidden="true" />
+                {info.free ? "Free plan" : info.paid ? `Paid · ${inr(info.fee)}` : "Not verified"}
+              </span>
             </div>
-            <button type="button" className="tl-btn gold up-btn" onClick={pay} disabled={!chosen || busy}>
-              <i className="feather-lock" aria-hidden="true" /> {busy ? "Opening payment…" : chosen ? `Pay ${inr(chosen.pay)} & upgrade` : "Choose a plan"}
-            </button>
-          </div>
-          {err && <div className="tl-err">{err}</div>}
-        </>
-      )}
+            <ol className="up-ladder" aria-label="All internship plans">
+              {LADDER.map((h) => {
+                const n = parseInt(h, 10);
+                const st = n < curN ? "past" : n === curN ? "cur" : "next";
+                const canPick = st === "next" && info.options.some((o) => o.hours === h);
+                return (
+                  <li key={h} className={`${st}${pick === h ? " picked" : ""}`}>
+                    <button type="button" disabled={!canPick} onClick={() => setPick(h)} aria-label={st === "cur" ? `${h} — your plan` : h}>
+                      <span className="dot">{st === "past" ? <i className="feather-check" aria-hidden="true" /> : st === "cur" ? <i className="feather-star" aria-hidden="true" /> : ""}</span>
+                      <span className="lbl">{n}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
 
-      {info.upgrades?.length > 0 && (
-        <div className="tp-card up-hist">
-          <h3>Plan history</h3>
-          {info.upgrades.map((u) => (
-            <div key={u.paymentId} className="up-row"><span>{u.from ? <>{u.from} → </> : null}<b>{u.to}</b></span><span>{u.amount ? inr(u.amount) : <em className="up-free">Free</em>}</span><small>{fmtDate(u.at)}</small></div>
-          ))}
+          {/* choose */}
+          {info.options.length === 0 ? (
+            <div className="tp-card tp-empty"><i className="feather-star" aria-hidden="true" /><b>You&apos;re on our biggest plan</b>There&apos;s nothing to upgrade — enjoy your internship!</div>
+          ) : (
+            <section className="tp-card up-choose">
+              <h3 className="up-h">Choose a bigger plan</h3>
+              <div className="up-list" role="radiogroup" aria-label="Upgrade plans">
+                {info.options.map((o) => (
+                  <button key={o.hours} type="button" role="radio" aria-checked={pick === o.hours} className={`up-opt${pick === o.hours ? " on" : ""}`} onClick={() => setPick(o.hours)}>
+                    <span className="up-radio" aria-hidden="true" />
+                    <span className="up-o-t"><b>{o.hours}</b><small>{o.duration} · +{parseInt(o.hours, 10) - curN} hrs</small></span>
+                    <span className="up-o-p"><b>{inr(o.pay)}</b><small>≈ {inr(Math.round(o.pay / parseInt(o.hours, 10)))}/hr</small></span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
-      )}
+
+        <aside className="up-side">
+          {info.options.length > 0 && (
+            <section className="tp-card up-sum">
+              <span className="up-k">Summary</span>
+              <div className="up-sum-r"><span>New plan</span><b>{chosen ? `${chosen.hours} · ${chosen.duration}` : "—"}</b></div>
+              <div className="up-sum-r"><span>Hours added</span><b>{chosen ? `+${parseInt(chosen.hours, 10) - curN} hrs` : "—"}</b></div>
+              <div className="up-sum-t"><span>To pay</span><strong>{chosen ? inr(chosen.pay) : "—"}</strong></div>
+              <button type="button" className="tl-btn gold up-btn" onClick={pay} disabled={!chosen || busy}>
+                <i className="feather-lock" aria-hidden="true" /> {busy ? "Opening payment…" : chosen ? `Pay ${inr(chosen.pay)}` : "Choose a plan"}
+              </button>
+              <small className="up-note">Full price of the new plan · secure payment by Razorpay</small>
+              {err && <div className="tl-err">{err}</div>}
+            </section>
+          )}
+          {info.upgrades?.length > 0 && (
+            <section className="tp-card up-hist">
+              <span className="up-k">Plan history</span>
+              {info.upgrades.map((u) => (
+                <div key={u.paymentId} className="up-row">
+                  <span>{u.from && u.from !== u.to ? <>{u.from} → </> : null}<b>{u.to}</b><small>{fmtDate(u.at)}</small></span>
+                  {u.amount ? <em>{inr(u.amount)}</em> : <em className="up-free">Free</em>}
+                </div>
+              ))}
+            </section>
+          )}
+        </aside>
+      </div>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
     </>
   );
 }
 
 const CSS = `
-.up-done { display: flex; gap: 12px; align-items: center; background: #ecf7ef; border: 1px solid #cfe9d8; color: #14532d; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; font-size: 14px; }
-.up-done i { font-size: 22px; color: #15803d; }
-.up-cur { padding: 20px 22px; border-left: 4px solid #d4a24c; background: linear-gradient(135deg, #fffdf7 0%, #fff 55%); }
-.up-cur-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.up-k { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
-.up-cur-h { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
-.up-cur-h b { font-size: 32px; font-weight: 800; color: #0f172a; letter-spacing: -.02em; line-height: 1.1; }
-.up-cur-h span { font-size: 15px; font-weight: 700; color: #64748b; }
-.up-st { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 800; border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+.up-done { display: flex; gap: 10px; align-items: center; background: #ecf7ef; border: 1px solid #cfe9d8; color: #14532d; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13.5px; }
+.up-done i { font-size: 18px; color: #15803d; }
+.up-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; align-items: start; max-width: 1040px; }
+.up-main, .up-side { display: grid; gap: 14px; min-width: 0; }
+.up-side { position: sticky; top: calc(var(--tl-h) + 16px); }
+.up-wrap .tp-card { padding: 16px 18px; border-radius: 14px; }
+.up-k { display: block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
+.up-cur { border-left: 3px solid #d4a24c; }
+.up-cur-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.up-cur-h { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
+.up-cur-h b { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -.01em; line-height: 1.15; }
+.up-cur-h span { font-size: 13px; font-weight: 700; color: #64748b; }
+.up-st { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
 .up-st.paid { background: #ecf7ef; color: #166534; }
 .up-st.free { background: #fff6dc; color: #8a5a0b; }
 .up-st.due { background: #fef2f2; color: #b91c1c; }
-.up-ladder { list-style: none; margin: 20px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); }
+.up-ladder { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); }
 .up-ladder li { position: relative; display: flex; justify-content: center; }
-.up-ladder li:not(:last-child)::after { content: ""; position: absolute; top: 15px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 3px; border-radius: 2px; background: #e8ede9; }
+.up-ladder li:not(:last-child)::after { content: ""; position: absolute; top: 10px; left: calc(50% + 11px); right: calc(-50% + 11px); height: 2px; border-radius: 2px; background: #e8ede9; }
 .up-ladder li.past::after { background: #22a35a; }
-.up-ladder button { border: 0; background: none; padding: 0; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; position: relative; z-index: 1; }
+.up-ladder button { border: 0; background: none; padding: 0; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; position: relative; z-index: 1; }
 .up-ladder button:disabled { cursor: default; }
-.up-ladder .dot { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; font-weight: 800; border: 2px solid #dfe6e1; background: #fff; color: #94a3b8; transition: transform .15s, box-shadow .15s; }
-.up-ladder .past .dot { background: #15803d; border-color: #15803d; color: #fff; font-size: 13px; }
-.up-ladder .cur .dot { background: linear-gradient(135deg, #f3d27a, #c9962c); border-color: #c9962c; color: #3b2a05; box-shadow: 0 0 0 5px rgba(212,161,47,.2); }
-.up-ladder .next button:not(:disabled):hover .dot { border-color: #c9962c; transform: scale(1.08); }
-.up-ladder .picked .dot { border-color: #c9962c; box-shadow: 0 0 0 4px rgba(212,161,47,.18); background: #fffaf0; }
-.up-ladder .lbl { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1; }
-.up-ladder .lbl small { font-size: 10.5px; font-weight: 700; color: #94a3b8; margin-left: 2px; }
-.up-ladder .past .lbl { color: #64748b; }
+.up-ladder .dot { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; border: 2px solid #dfe6e1; background: #fff; color: #94a3b8; transition: transform .15s; }
+.up-ladder .past .dot { background: #15803d; border-color: #15803d; color: #fff; }
+.up-ladder .cur .dot { background: linear-gradient(135deg, #f3d27a, #c9962c); border-color: #c9962c; color: #3b2a05; box-shadow: 0 0 0 4px rgba(212,161,47,.18); }
+.up-ladder .next button:not(:disabled):hover .dot { border-color: #c9962c; transform: scale(1.1); }
+.up-ladder .picked .dot { border-color: #c9962c; background: #fff6dc; }
+.up-ladder .lbl { font-size: 12px; font-weight: 800; color: #0f172a; line-height: 1; }
+.up-ladder .past .lbl { color: #94a3b8; }
 .up-ladder .cur .lbl { color: #8a5a0b; }
-.up-h { margin: 24px 0 12px; font-size: 17px; font-weight: 800; color: #0f172a; }
-.up-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
-.up-opt { position: relative; text-align: left; background: #fff; border: 1.5px solid #e2e8e4; border-radius: 16px; padding: 16px; cursor: pointer; font: inherit; display: flex; flex-direction: column; gap: 2px; transition: border-color .15s, box-shadow .15s; }
-.up-opt:hover { border-color: #b7dcc4; }
-.up-opt.on { border-color: #c9962c; box-shadow: 0 0 0 3px rgba(212,161,47,.18); background: #fffdf6; }
-.up-opt b { font-size: 21px; font-weight: 800; color: #0f172a; }
-.up-opt small { font-size: 13px; color: #64748b; font-weight: 700; }
-.up-pay { margin-top: 10px; font-size: 16px; font-weight: 800; color: #14532d; }
-.up-full { font-size: 12px; color: #94a3b8; font-weight: 600; }
-.up-tick { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #d7e0db; display: grid; place-items: center; font-size: 12px; color: transparent; }
-.up-opt.on .up-tick { background: #c9962c; border-color: #c9962c; color: #fff; }
-.up-sum { margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.up-sum > div { display: flex; flex-direction: column; gap: 2px; }
-.up-sum span { font-size: 14px; color: #475569; }
-.up-sum strong { font-size: 28px; font-weight: 800; color: #0f172a; }
-.up-sum small { font-size: 12.5px; color: #94a3b8; }
-.up-btn { height: 50px; padding: 0 24px; font-size: 15px; }
-.up-hist { margin-top: 16px; }
-.up-hist h3 { margin: 0 0 8px; font-size: 16px; font-weight: 800; }
-.up-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #eef2f0; font-size: 14px; }
-.up-row small { color: #94a3b8; }
-.up-free { font-style: normal; font-size: 12px; font-weight: 800; color: #15803d; background: #ecf7ef; border-radius: 999px; padding: 2px 10px; }
-@media (max-width: 640px) { .up-grid { grid-template-columns: 1fr 1fr; } .up-cur-h b { font-size: 26px; } .up-ladder .dot { width: 26px; height: 26px; } .up-ladder li:not(:last-child)::after { top: 12px; left: calc(50% + 13px); right: calc(-50% + 13px); } .up-ladder .lbl { font-size: 12px; } .up-ladder .lbl small { display: none; } .up-cur { padding: 16px; } .up-btn { width: 100%; } .up-opt b { font-size: 18px; } }
+.up-h { margin: 0 0 10px; font-size: 14.5px; font-weight: 800; color: #0f172a; }
+.up-list { display: grid; gap: 6px; }
+.up-opt { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1.5px solid #e8ede9; border-radius: 11px; padding: 10px 14px; cursor: pointer; font: inherit; transition: border-color .15s, background .15s; }
+.up-opt:hover { border-color: #cfe3d6; background: #fbfdfc; }
+.up-opt.on { border-color: #c9962c; background: #fffdf6; }
+.up-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #cbd5e1; flex-shrink: 0; box-sizing: border-box; }
+.up-opt.on .up-radio { border: 5px solid #c9962c; }
+.up-o-t { display: flex; flex-direction: column; min-width: 0; flex: 1; line-height: 1.25; }
+.up-o-t b { font-size: 14.5px; font-weight: 800; color: #0f172a; }
+.up-o-t small, .up-o-p small { font-size: 11.5px; color: #94a3b8; font-weight: 600; }
+.up-o-p { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.25; }
+.up-o-p b { font-size: 14.5px; font-weight: 800; color: #14532d; }
+.up-sum { display: flex; flex-direction: column; gap: 8px; }
+.up-sum-r { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: #64748b; }
+.up-sum-r b { color: #0f172a; font-weight: 700; text-align: right; }
+.up-sum-t { display: flex; justify-content: space-between; align-items: baseline; padding-top: 8px; border-top: 1px dashed #e2e8e4; font-size: 13px; font-weight: 700; color: #475569; }
+.up-sum-t strong { font-size: 22px; font-weight: 800; color: #0f172a; }
+.up-btn { height: 42px; width: 100%; font-size: 14px; margin-top: 2px; }
+.up-note { font-size: 11.5px; color: #94a3b8; text-align: center; }
+.up-hist { display: grid; gap: 2px; }
+.up-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid #f1f5f3; font-size: 13px; }
+.up-row:first-of-type { border-top: 0; }
+.up-row > span { display: flex; flex-direction: column; }
+.up-row small { color: #94a3b8; font-size: 11.5px; }
+.up-row em { font-style: normal; font-weight: 800; color: #0f172a; font-size: 13px; }
+.up-row em.up-free { font-size: 11px; color: #15803d; background: #ecf7ef; border-radius: 999px; padding: 2px 9px; }
+@media (max-width: 900px) { .up-wrap { grid-template-columns: 1fr; } .up-side { position: static; } }
+@media (max-width: 640px) { .up-wrap .tp-card { padding: 14px; } .up-ladder .lbl { font-size: 11px; } }
 `;
 
 export default function UpgradePage() {

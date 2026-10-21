@@ -5,12 +5,11 @@ import { tApi, fileUrl, fmtTime, fmtDate, fmtMins } from "../utils/trainee-api";
 
 /* Trainee portal home: today's check-in, internship hours progress, this month at a glance,
    tasks due next, this week's attendance, latest notes, certificate status and help. */
-const greet = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
 const dayStart = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
 const KIND = { worksheet: ["Worksheet", "feather-edit-3"], ppt: ["Slides", "feather-monitor"], notes: ["Notes", "feather-file-text"], other: ["File", "feather-paperclip"] };
 
 function Home() {
-  const { me, profile, att, reloadAtt, openCheckOut, live } = useTraineePortal();
+  const { att, reloadAtt, openCheckOut, live } = useTraineePortal();
   const [ov, setOv] = useState(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,10 +25,6 @@ function Home() {
   const todayKey = `${att?.today?.checkIn || ""}|${att?.today?.checkOut || ""}`;
   useEffect(() => { if (ov) load(); }, [todayKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const first = profile?.firstName || (me?.name || "").split(" ")[0] || "there";
-  const fullName = (profile && [profile.firstName, profile.lastName].filter(Boolean).join(" ")) || me?.name || "Trainee";
-  const initials = fullName.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-  const photo = profile?.photo ? fileUrl(profile.photo) : "";
   if (!ov) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading your dashboard…</div>;
 
   const { program, attendance: a, tasks, notes, certificate } = ov;
@@ -41,6 +36,12 @@ function Home() {
   const pct = goalHrs ? Math.min(100, Math.round((doneHrs / goalHrs) * 100)) : 0;
   const leftHrs = Math.max(0, goalHrs - doneHrs);
   const weekMax = Math.max(60, ...a.week.map((d) => d.minutes));
+  // the name is already in the top bar — the header leads with where they stand
+  const headline = !program ? "Let's get your internship started"
+    : pct >= 100 ? "All hours done — brilliant work! 🎉"
+      : working ? `In session · ${fmtMins(liveMins)} logged today`
+        : doneHrs === 0 ? `Your ${program.hours} journey starts today`
+          : `${leftHrs.toFixed(leftHrs < 10 ? 1 : 0)} hrs to go — keep it up!`;
 
   const checkIn = async () => {
     setBusy(true);
@@ -56,17 +57,10 @@ function Home() {
       <section className="th-hdr">
         <span className="th-ring1" aria-hidden="true" /><span className="th-ring2" aria-hidden="true" /><span className="th-goldline" aria-hidden="true" />
         <div className="th-hdr-row">
-          <div className="th-hdr-av">
-            {photo
-              // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={photo} alt={first} />
-              : <span>{initials}</span>}
-            <i className={working ? "on" : ""} aria-hidden="true" />
-          </div>
           <div className="th-hdr-t">
             <span className="th-date">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</span>
             <div className="th-hdr-h">
-              <h1>{greet()}, {first}</h1>
+              <h1>{headline}</h1>
               <span className="th-badge"><i className="feather-award" aria-hidden="true" /> Trainee</span>
             </div>
             <p className="th-hdr-sub">
