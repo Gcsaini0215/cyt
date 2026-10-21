@@ -103,7 +103,7 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
           </button>
           <Link href="/trainee" className="tl-logo" aria-label="Trainee portal home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/cyt-mark.svg" alt="" width="32" height="32" />
+            <img src="/cyt-emblem.png" alt="CYT" width="34" height="34" />
             <span><b>Trainee Portal</b><small>Choose Your Therapist</small></span>
           </Link>
           <span className="tl-title">{title}</span>
@@ -302,6 +302,28 @@ const CSS = `
 .tl-btn:disabled { opacity: .65; cursor: not-allowed; }
 .tl-err { margin-top: 10px; font-size: 13px; color: #b91c1c; background: #fef2f2; border-radius: 10px; padding: 8px 12px; }
 .tl-okmsg { margin-top: 10px; font-size: 13px; color: #166534; background: #ecf7ef; border-radius: 10px; padding: 8px 12px; }
+
+/* brand green top bar — same as the therapist / client dashboards */
+.tl-bar.tl-bar { background: linear-gradient(90deg, #0b3320 0%, #14532d 55%, #166534 100%); border-bottom: 0; box-shadow: 0 6px 18px -10px rgba(4,30,16,.55); backdrop-filter: none; }
+.tl-bar .tl-menu { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); color: #fff; }
+.tl-bar .tl-menu:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.35); color: #fff; }
+.tl-bar .tl-logo { border-left-color: rgba(255,255,255,.22); }
+.tl-bar .tl-logo img { width: 34px; height: 34px; background: #fff; border-radius: 10px; padding: 3px; box-sizing: border-box; object-fit: contain; }
+.tl-bar .tl-logo b { color: #fff; }
+.tl-bar .tl-logo small { color: rgba(255,255,255,.62); }
+.tl-bar .tl-title { color: #fff; border-left-color: rgba(255,255,255,.22); }
+.tl-bar .tl-who:hover, .tl-bar .tl-who[aria-expanded="true"] { background: rgba(255,255,255,.1); }
+.tl-bar .tl-who-t b { color: #fff; }
+.tl-bar .tl-who-t small { color: #bbf7d0; }
+.tl-bar .tl-who > i { color: rgba(255,255,255,.7); }
+.tl-bar .tl-av { background: #fff; color: #14532d; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+.tl-bar .tl-av.img { background: #fff; }
+.tl-bar .tl-chk.in { background: linear-gradient(135deg, #f3d27a, #d4a24c); color: #3b2a05; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); }
+.tl-bar .tl-chk.out { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.4); }
+.tl-bar .tl-chk.out:hover { background: rgba(255,255,255,.2); }
+.tl-bar .tl-chk-st { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); color: #dcfce7; }
+.tl-bar .tl-chk-st.done { background: rgba(255,255,255,.1); color: #e2e8f0; }
+.tl-bar .tl-chk-st.done i { color: #86efac; }
 
 @media (max-width: 1023px) {
   .tl-rail { display: none; }
