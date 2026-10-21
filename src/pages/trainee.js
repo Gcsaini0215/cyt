@@ -121,7 +121,7 @@ function Home() {
             </>
           ) : (
             <div className="th-apply">
-              <p>You don&apos;t have an internship plan yet. Pick your tracks and hours — it takes a minute.</p>
+              <p>You don&apos;t have an internship plan yet. Choose what you apply for and your hours — it takes a minute.</p>
               <Link href="/trainee/upgrade" className="tl-btn gold">Choose your plan <i className="feather-arrow-right" aria-hidden="true" /></Link>
             </div>
           )}

@@ -496,8 +496,28 @@ function loadDraft() {
   } catch (_) { return null; }
 }
 
+// tracks the CYT team has switched on (admin → Trainee Portal → Tracks); all of them until it loads
+function useOpenTracks() {
+  const [open, setOpen] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    fetch(`${apiUrl}/trainee-portal/tracks`).then((r) => r.json()).then((d) => { if (alive && d?.status && Array.isArray(d.data)) setOpen(d.data); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  return open;
+}
+
 export default function InternshipRegistration() {
   const [form, setForm] = useState(EMPTY);
+  const openTracks = useOpenTracks();
+  const isOpenTrack = (t) => !openTracks || openTracks.includes(t);
+  const psychShown = PSYCH_TYPES.filter(isOpenTrack);
+  const generalShown = GENERAL_TYPES.filter(isOpenTrack);
+  // a track switched off by the team can't stay selected
+  useEffect(() => {
+    if (!openTracks) return;
+    setForm((f) => (f.internType.some((t) => !openTracks.includes(t)) ? { ...f, internType: f.internType.filter((t) => openTracks.includes(t)) } : f));
+  }, [openTracks]);
   const [step, setStep] = useState(1); // 1..4 — which section of the wizard is showing
   const [stepErrors, setStepErrors] = useState({}); // { fieldKey: message } for the CURRENT step only
   const [error, setError]       = useState("");
@@ -1154,11 +1174,11 @@ export default function InternshipRegistration() {
                     </label>
 
                     {/* Psychology-related */}
-                    <p style={{ fontSize: 11, fontWeight: 800, color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 8 }}>
+                    <p style={{ display: psychShown.length ? "block" : "none", fontSize: 11, fontWeight: 800, color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 8 }}>
                       Psychology-Related
                     </p>
                     <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}>
-                      {PSYCH_TYPES.map(t => {
+                      {psychShown.map(t => {
                         const checked = form.internType.includes(t);
                         return (
                           <label key={t} style={{
@@ -1183,7 +1203,7 @@ export default function InternshipRegistration() {
                                   ? form.internType.filter(x => x !== t)
                                   : [...form.internType, t];
                                 const hasPsych = next.some(x => PSYCH_TYPES.includes(x));
-                                const withResearch = hasPsych && !next.includes("Research & Data")
+                                const withResearch = hasPsych && isOpenTrack("Research & Data") && !next.includes("Research & Data")
                                   ? [...next, "Research & Data"] : next;
                                 set("internType", withResearch);
                               }} />
@@ -1199,11 +1219,11 @@ export default function InternshipRegistration() {
                     </div>
 
                     {/* General */}
-                    <p style={{ fontSize: 11, fontWeight: 800, color: "#0ea5e9", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 8 }}>
+                    <p style={{ display: generalShown.length ? "block" : "none", fontSize: 11, fontWeight: 800, color: "#0ea5e9", textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 8 }}>
                       General Support
                     </p>
                     <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr 1fr 1fr", gap: 8 }}>
-                      {GENERAL_TYPES.map(t => {
+                      {generalShown.map(t => {
                         const isResearch = t === "Research & Data";
                         const locked = isResearch && form.internType.some(x => PSYCH_TYPES.includes(x));
                         const checked = form.internType.includes(t) || locked;

@@ -47,7 +47,7 @@ function Upgrade() {
 
   const pay = async () => {
     setErr(""); setBusy(true);
-    if (info && !info.application && !tracks.length) { setErr("Choose at least one track."); setBusy(false); return; }
+    if (info && !info.application && !tracks.length) { setErr("Choose at least one Apply for option."); setBusy(false); return; }
     const od = await tApi("/trainee-portal/upgrade/order", { method: "POST", body: info?.application ? { hours: pick } : { hours: pick, tracks, mode } });
     if (!od.status) { setErr(od.message || "Couldn't start payment"); setBusy(false); return; }
     try { await waitForRazorpay(); } catch (e) { setErr(e.message); setBusy(false); return; }
@@ -86,7 +86,7 @@ function Upgrade() {
     <div className="tp-h">
       <div>
         <h1>{info.application ? "Upgrade internship" : "Choose your internship plan"}</h1>
-        <p>{info.application ? "Move to a bigger plan with more hours and a longer duration." : "Pick your tracks and hours — your internship starts as soon as you pay."}</p>
+        <p>{info.application ? "Move to a bigger plan with more hours and a longer duration." : "Choose what you apply for, the mode and hours — your internship starts as soon as you pay."}</p>
       </div>
     </div>
   );
@@ -100,7 +100,7 @@ function Upgrade() {
         <div className="up-wrap">
           <div className="up-main">
             <section className="tp-card up-choose">
-              <h3 className="up-h">1 · Your tracks <small>(choose one or more)</small></h3>
+              <h3 className="up-h">1 · Apply for <small>(choose one or more)</small></h3>
               <div className="up-tracks">
                 {(info.tracks || []).map((t) => (
                   <button key={t} type="button" className={tracks.includes(t) ? "on" : ""} onClick={() => flip(t)} aria-pressed={tracks.includes(t)}>
@@ -120,7 +120,7 @@ function Upgrade() {
                   <button key={o.hours} type="button" role="radio" aria-checked={pick === o.hours} className={`up-opt${pick === o.hours ? " on" : ""}`} onClick={() => setPick(o.hours)}>
                     <span className="up-radio" aria-hidden="true" />
                     <span className="up-o-t"><b>{o.hours}</b><small>{o.duration}</small></span>
-                    <span className="up-o-p"><b>{inr(o.pay)}</b><small>≈ {inr(Math.round(o.pay / parseInt(o.hours, 10)))}/hr</small></span>
+                    <span className="up-o-p"><b>{inr(o.pay)}</b></span>
                   </button>
                 ))}
               </div>
@@ -138,7 +138,7 @@ function Upgrade() {
                 <span className="up-k">Summary</span>
                 <div className="up-sum-r"><span>Plan</span><b>{first ? `${first.hours} · ${first.duration}` : "—"}</b></div>
                 <div className="up-sum-r"><span>Mode</span><b>{mode}</b></div>
-                <div className="up-sum-r"><span>Tracks</span><b>{tracks.length ? tracks.length : "—"}</b></div>
+                <div className="up-sum-r"><span>Apply for</span><b>{tracks.length ? `${tracks.length} selected` : "—"}</b></div>
                 <div className="up-sum-t"><span>To pay</span><strong>{first ? inr(first.pay) : "—"}</strong></div>
                 <button type="button" className="tl-btn gold up-btn" onClick={pay} disabled={!first || busy}>
                   <i className="feather-lock" aria-hidden="true" /> {busy ? "Opening payment…" : first ? `Pay ${inr(first.pay)}` : "Choose a plan"}
