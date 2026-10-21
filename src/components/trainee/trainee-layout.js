@@ -340,7 +340,7 @@ export function CheckOutModal({ onClose, onDone, today }) {
 }
 
 const CSS = `
-.tl { --tl-h: 60px; min-height: 100vh; background: #eaf0ec; color: #13261c; }
+.tl { --tl-h: 60px; min-height: 100vh; background: #f1efe9; color: #13261c; }
 .tl-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1200; height: var(--tl-h); display: flex; align-items: center; gap: 12px; padding: 0 16px 0 14px; background: rgba(255,255,255,.96); backdrop-filter: saturate(1.4) blur(8px); border-bottom: 1px solid #e4ece7; }
 .tl-menu { width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; border: 1px solid #e4ece7; background: #f6f8f7; color: #334155; cursor: pointer; display: grid; place-items: center; font-size: 19px; }
 .tl-menu:hover { background: #e7f6ec; border-color: #c6e6d1; color: #166534; }
