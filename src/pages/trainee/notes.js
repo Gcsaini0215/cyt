@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import TraineeLayout from "../../components/trainee/trainee-layout";
+import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { tApi, fileUrl, fmtDate } from "../../utils/trainee-api";
 
 /* Notes: worksheets, slides and reading the CYT team shares with trainees. */
@@ -14,13 +14,13 @@ const iconOf = (k) => (KINDS.find((x) => x.k === k) || KINDS[3]).icon;
 const extOf = (n) => (String(n || "").split(".").pop() || "").toUpperCase();
 
 function Notes() {
+  const { live } = useTraineePortal();
   const [list, setList] = useState(null);
   const [kind, setKind] = useState("all");
   const [q, setQ] = useState("");
   const [err, setErr] = useState("");
-  useEffect(() => {
-    tApi("/trainee-portal/notes").then((r) => (r.status ? setList(r.data) : setErr(r.message || "Couldn't load notes")));
-  }, []);
+  const load = () => tApi("/trainee-portal/notes").then((r) => (r.status ? setList(r.data) : setErr(r.message || "Couldn't load notes")));
+  useEffect(() => { load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading notes…</div>;
   const term = q.trim().toLowerCase();
   const shown = list.filter((n) => (kind === "all" || n.kind === kind) && (!term || `${n.title} ${n.details}`.toLowerCase().includes(term)));

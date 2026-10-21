@@ -3,8 +3,9 @@ import Link from "next/link";
 import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { tApi, fmtDate } from "../../utils/trainee-api";
 
-/* Upgrade internship: move to more hours and pay only the difference from the plan already bought.
+/* Upgrade internship: move to a bigger plan — it costs that plan's full price, the same as when applying.
    Plans and fees are the same as the internship application; the server decides the amount. */
+const LADDER = ["30 hrs", "40 hrs", "60 hrs", "80 hrs", "100 hrs", "120 hrs", "240 hrs"];
 const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
 
 function loadRazorpay() {
@@ -23,7 +24,7 @@ const waitForRazorpay = (timeout = 12000) => new Promise((resolve, reject) => {
 });
 
 function Upgrade() {
-  const { me, profile } = useTraineePortal();
+  const { me, profile, live } = useTraineePortal();
   const [info, setInfo] = useState(null);
   const [pick, setPick] = useState("");
   const [busy, setBusy] = useState(false);
@@ -36,6 +37,7 @@ function Upgrade() {
     if (r.status) { setInfo(r.data); setPick((p) => p || r.data.options?.[0]?.hours || ""); } else setErr(r.message || "Couldn't load your plan");
   };
   useEffect(() => { load(); loadRazorpay(); }, []);
+  useEffect(() => { if (live) load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pay = async () => {
     setErr(""); setBusy(true);
@@ -77,7 +79,7 @@ function Upgrade() {
     <div className="tp-h">
       <div>
         <h1>Upgrade internship</h1>
-        <p>Add more hours to your internship — you only pay the difference.</p>
+        <p>Move to a bigger plan with more hours and a longer duration.</p>
       </div>
     </div>
   );
@@ -106,14 +108,34 @@ function Upgrade() {
           <div><b>Upgraded to {done.to}!</b> We&apos;ve emailed your receipt. Payment ID: {done.paymentId}</div>
         </div>
       )}
-      <div className="up-cur tp-card">
-        <div>
-          <span className="up-k">Your current plan</span>
-          <h2>{info.hours || "—"} <small>{info.duration}</small></h2>
-          <span className="up-fee">Plan value {inr(info.fee)}{info.paid ? "" : " · payment not verified"}</span>
+      <section className="tp-card up-cur">
+        <div className="up-cur-top">
+          <div className="up-cur-l">
+            <span className="up-k">Your current plan</span>
+            <div className="up-cur-h"><b>{info.hours || "—"}</b><span>{info.duration}</span></div>
+          </div>
+          <span className={`up-st ${info.free ? "free" : info.paid ? "paid" : "due"}`}>
+            <i className={info.free ? "feather-gift" : info.paid ? "feather-check-circle" : "feather-alert-circle"} aria-hidden="true" />
+            {info.free ? "Free plan from CYT" : info.paid ? `Paid · ${inr(info.fee)}` : "Payment not verified"}
+          </span>
         </div>
-        <div className="up-cur-ic" aria-hidden="true"><i className="feather-layers" /></div>
-      </div>
+        <ol className="up-ladder" aria-label="All internship plans">
+          {LADDER.map((h) => {
+            const n = parseInt(h, 10);
+            const curN = parseInt(info.hours, 10) || 0;
+            const st = n < curN ? "past" : n === curN ? "cur" : "next";
+            const canPick = st === "next" && info.options.some((o) => o.hours === h);
+            return (
+              <li key={h} className={`${st}${pick === h ? " picked" : ""}`}>
+                <button type="button" disabled={!canPick} onClick={() => setPick(h)} aria-label={st === "cur" ? `${h} — your plan` : h}>
+                  <span className="dot">{st === "past" ? <i className="feather-check" aria-hidden="true" /> : st === "cur" ? "You" : ""}</span>
+                  <span className="lbl">{n}<small>hrs</small></span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
 
       {info.options.length === 0 ? (
         <div className="tp-card tp-empty"><i className="feather-star" aria-hidden="true" /><b>You&apos;re on our biggest plan</b>There&apos;s nothing to upgrade — enjoy your internship!</div>
@@ -126,8 +148,8 @@ function Upgrade() {
                 <span className="up-tick" aria-hidden="true"><i className="feather-check" /></span>
                 <b>{o.hours}</b>
                 <small>{o.duration}</small>
-                <span className="up-pay">Pay {inr(o.pay)}</span>
-                <span className="up-full">Full plan {inr(o.fee)} · +{parseInt(o.hours, 10) - parseInt(info.hours, 10)} hrs</span>
+                <span className="up-pay">{inr(o.pay)}</span>
+                <span className="up-full">+{parseInt(o.hours, 10) - parseInt(info.hours, 10)} hrs · ≈ {inr(Math.round(o.pay / parseInt(o.hours, 10)))}/hr</span>
               </button>
             ))}
           </div>
@@ -135,7 +157,7 @@ function Upgrade() {
             <div>
               <span>{info.hours} → <b>{chosen?.hours || "—"}</b></span>
               <strong>{chosen ? inr(chosen.pay) : "—"}</strong>
-              <small>You already paid for {info.hours}. Secure payment by Razorpay.</small>
+              <small>Full price of the {chosen?.hours || "new"} plan. Secure payment by Razorpay.</small>
             </div>
             <button type="button" className="tl-btn gold up-btn" onClick={pay} disabled={!chosen || busy}>
               <i className="feather-lock" aria-hidden="true" /> {busy ? "Opening payment…" : chosen ? `Pay ${inr(chosen.pay)} & upgrade` : "Choose a plan"}
@@ -147,9 +169,9 @@ function Upgrade() {
 
       {info.upgrades?.length > 0 && (
         <div className="tp-card up-hist">
-          <h3>Past upgrades</h3>
+          <h3>Plan history</h3>
           {info.upgrades.map((u) => (
-            <div key={u.paymentId} className="up-row"><span>{u.from} → <b>{u.to}</b></span><span>{inr(u.amount)}</span><small>{fmtDate(u.at)}</small></div>
+            <div key={u.paymentId} className="up-row"><span>{u.from ? <>{u.from} → </> : null}<b>{u.to}</b></span><span>{u.amount ? inr(u.amount) : <em className="up-free">Free</em>}</span><small>{fmtDate(u.at)}</small></div>
           ))}
         </div>
       )}
@@ -161,12 +183,31 @@ function Upgrade() {
 const CSS = `
 .up-done { display: flex; gap: 12px; align-items: center; background: #ecf7ef; border: 1px solid #cfe9d8; color: #14532d; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; font-size: 14px; }
 .up-done i { font-size: 22px; color: #15803d; }
-.up-cur { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: linear-gradient(135deg, #14532d, #1e7a4c); border: none; color: #fff; }
-.up-k { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #ecc77d; }
-.up-cur h2 { margin: 6px 0 2px; font-size: 30px; font-weight: 800; color: #fff; }
-.up-cur h2 small { font-size: 15px; font-weight: 700; color: #cfe9d8; margin-left: 6px; }
-.up-fee { font-size: 13.5px; color: #cfe9d8; }
-.up-cur-ic { width: 60px; height: 60px; border-radius: 16px; background: rgba(255,255,255,.12); display: grid; place-items: center; font-size: 26px; color: #ecc77d; flex-shrink: 0; }
+.up-cur { padding: 20px 22px; border-left: 4px solid #d4a24c; background: linear-gradient(135deg, #fffdf7 0%, #fff 55%); }
+.up-cur-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.up-k { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
+.up-cur-h { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
+.up-cur-h b { font-size: 32px; font-weight: 800; color: #0f172a; letter-spacing: -.02em; line-height: 1.1; }
+.up-cur-h span { font-size: 15px; font-weight: 700; color: #64748b; }
+.up-st { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 800; border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+.up-st.paid { background: #ecf7ef; color: #166534; }
+.up-st.free { background: #fff6dc; color: #8a5a0b; }
+.up-st.due { background: #fef2f2; color: #b91c1c; }
+.up-ladder { list-style: none; margin: 20px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); }
+.up-ladder li { position: relative; display: flex; justify-content: center; }
+.up-ladder li:not(:last-child)::after { content: ""; position: absolute; top: 15px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 3px; border-radius: 2px; background: #e8ede9; }
+.up-ladder li.past::after { background: #22a35a; }
+.up-ladder button { border: 0; background: none; padding: 0; font: inherit; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; position: relative; z-index: 1; }
+.up-ladder button:disabled { cursor: default; }
+.up-ladder .dot { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; font-weight: 800; border: 2px solid #dfe6e1; background: #fff; color: #94a3b8; transition: transform .15s, box-shadow .15s; }
+.up-ladder .past .dot { background: #15803d; border-color: #15803d; color: #fff; font-size: 13px; }
+.up-ladder .cur .dot { background: linear-gradient(135deg, #f3d27a, #c9962c); border-color: #c9962c; color: #3b2a05; box-shadow: 0 0 0 5px rgba(212,161,47,.2); }
+.up-ladder .next button:not(:disabled):hover .dot { border-color: #c9962c; transform: scale(1.08); }
+.up-ladder .picked .dot { border-color: #c9962c; box-shadow: 0 0 0 4px rgba(212,161,47,.18); background: #fffaf0; }
+.up-ladder .lbl { font-size: 14px; font-weight: 800; color: #0f172a; line-height: 1; }
+.up-ladder .lbl small { font-size: 10.5px; font-weight: 700; color: #94a3b8; margin-left: 2px; }
+.up-ladder .past .lbl { color: #64748b; }
+.up-ladder .cur .lbl { color: #8a5a0b; }
 .up-h { margin: 24px 0 12px; font-size: 17px; font-weight: 800; color: #0f172a; }
 .up-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
 .up-opt { position: relative; text-align: left; background: #fff; border: 1.5px solid #e2e8e4; border-radius: 16px; padding: 16px; cursor: pointer; font: inherit; display: flex; flex-direction: column; gap: 2px; transition: border-color .15s, box-shadow .15s; }
@@ -188,7 +229,8 @@ const CSS = `
 .up-hist h3 { margin: 0 0 8px; font-size: 16px; font-weight: 800; }
 .up-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #eef2f0; font-size: 14px; }
 .up-row small { color: #94a3b8; }
-@media (max-width: 640px) { .up-grid { grid-template-columns: 1fr 1fr; } .up-cur h2 { font-size: 24px; } .up-btn { width: 100%; } .up-opt b { font-size: 18px; } }
+.up-free { font-style: normal; font-size: 12px; font-weight: 800; color: #15803d; background: #ecf7ef; border-radius: 999px; padding: 2px 10px; }
+@media (max-width: 640px) { .up-grid { grid-template-columns: 1fr 1fr; } .up-cur-h b { font-size: 26px; } .up-ladder .dot { width: 26px; height: 26px; } .up-ladder li:not(:last-child)::after { top: 12px; left: calc(50% + 13px); right: calc(-50% + 13px); } .up-ladder .lbl { font-size: 12px; } .up-ladder .lbl small { display: none; } .up-cur { padding: 16px; } .up-btn { width: 100%; } .up-opt b { font-size: 18px; } }
 `;
 
 export default function UpgradePage() {

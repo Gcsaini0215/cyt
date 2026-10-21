@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import TraineeLayout from "../../components/trainee/trainee-layout";
+import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { tApi, fileUrl, fmtDate } from "../../utils/trainee-api";
 
 /* Certificate: the PDF the CYT team forwards once the internship is complete. */
 function Certificate() {
+  const { live } = useTraineePortal();
   const [list, setList] = useState(null);
   const [err, setErr] = useState("");
   useEffect(() => {
     tApi("/trainee-portal/certificates").then((r) => (r.status ? setList(r.data) : setErr(r.message || "Couldn't load certificates")));
-  }, []);
+  }, [live]);
   if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading…</div>;
 
   return (

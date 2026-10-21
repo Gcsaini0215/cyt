@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import TraineeLayout from "../../components/trainee/trainee-layout";
+import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { tApi, fmtDate } from "../../utils/trainee-api";
 
 /* Tasks the CYT team sends. The trainee moves each one To do → In progress → Done and can reply with a note / link. */
@@ -11,6 +11,7 @@ const STATUS = [
 const dayStart = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
 
 function Tasks() {
+  const { live } = useTraineePortal();
   const [list, setList] = useState(null);
   const [tab, setTab] = useState("open");
   const [err, setErr] = useState("");
@@ -19,6 +20,7 @@ function Tasks() {
     if (r.status) setList(r.data); else setErr(r.message || "Couldn't load tasks");
   };
   useEffect(() => { load(); }, []);
+  useEffect(() => { if (live) load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!list) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading your tasks…</div>;
   const open = list.filter((t) => t.status !== "done");

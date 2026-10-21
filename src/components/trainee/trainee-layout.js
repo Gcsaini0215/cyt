@@ -2,7 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { getTrainee, clearTraineeToken } from "../../utils/trainee-auth";
+import { getTrainee, getTraineeToken, clearTraineeToken } from "../../utils/trainee-auth";
+import { apiUrl } from "../../utils/url";
 import { tApi, fileUrl, fmtTime, fmtMins } from "../../utils/trainee-api";
 
 /* Trainee portal shell — same look as the therapist portal: white top bar (menu, logo, check-in, account),
@@ -20,10 +21,20 @@ export const NAV = [
 const HELP = "https://wa.me/918077757951?text=Hi%2C%20I%27m%20a%20CYT%20trainee%20and%20need%20help";
 const WIDE_KEY = "cyt_trainee_wide";
 
-const Ctx = createContext({ me: null, att: null, reloadAtt: () => {}, profile: null, setProfile: () => {}, openCheckOut: () => {} });
+const Ctx = createContext({ me: null, att: null, reloadAtt: () => {}, profile: null, setProfile: () => {}, openCheckOut: () => {}, live: 0 });
 export const useTraineePortal = () => useContext(Ctx);
 
 let profileCache = null; // keeps the avatar steady between pages
+
+const NOTIF_ICON = { task: "feather-check-square", "task-update": "feather-edit", note: "feather-book-open", certificate: "feather-award", plan: "feather-gift", attendance: "feather-clock" };
+function ago(d) {
+  const m = Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 60000));
+  if (m < 1) return "just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `${h} hr${h > 1 ? "s" : ""} ago`;
+  return new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
 
 export default function TraineeLayout({ children, title = "Dashboard" }) {
   const router = useRouter();
@@ -34,7 +45,12 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
   const [drawer, setDrawer] = useState(false);
   const [menu, setMenu] = useState(false);
   const [outOpen, setOutOpen] = useState(false);
+  const [live, setLive] = useState(0);          // bumps on every live event — pages refetch
+  const [notifs, setNotifs] = useState({ items: [], unread: 0 });
+  const [bell, setBell] = useState(false);
+  const [toast, setToast] = useState(null);
   const menuRef = useRef(null);
+  const bellRef = useRef(null);
 
   const setProfile = useCallback((p) => { profileCache = p; setProfileState(p); }, []);
   const reloadAtt = useCallback(async () => {
@@ -50,6 +66,52 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
     reloadAtt();
     if (!profileCache) tApi("/trainee-portal/profile").then((r) => { if (r.status) setProfile(r.data); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const loadNotifs = useCallback(async () => {
+    const r = await tApi("/trainee-portal/notifications");
+    if (r.status) setNotifs(r.data);
+  }, []);
+  // live stream: new alerts pop in, and any change makes open pages refetch
+  useEffect(() => {
+    if (!getTrainee()) return undefined;
+    loadNotifs();
+    let es = null;
+    let toastTimer = null;
+    try {
+      es = new EventSource(`${apiUrl}/trainee-portal/stream?token=${encodeURIComponent(getTraineeToken() || "")}`);
+      es.addEventListener("notif", (e) => {
+        let n = null;
+        try { n = JSON.parse(e.data); } catch { return; }
+        setNotifs((cur) => ({ items: [n, ...cur.items.filter((x) => x._id !== n._id)].slice(0, 40), unread: cur.unread + 1 }));
+        setToast(n);
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => setToast(null), 6000);
+      });
+      es.addEventListener("changed", (e) => {
+        let d = {};
+        try { d = JSON.parse(e.data); } catch { /* ignore */ }
+        if (d.scope === "attendance") reloadAtt();
+        if (d.scope === "profile") tApi("/trainee-portal/profile").then((r) => { if (r.status) setProfile(r.data); });
+        setLive((n) => n + 1);
+      });
+      es.addEventListener("read", () => loadNotifs());
+    } catch { /* EventSource unsupported — the bell still loads on open */ }
+    // catch up after the tab was in the background
+    const onVis = () => { if (document.visibilityState === "visible") { loadNotifs(); reloadAtt(); setLive((n) => n + 1); } };
+    document.addEventListener("visibilitychange", onVis);
+    return () => { if (es) es.close(); clearTimeout(toastTimer); document.removeEventListener("visibilitychange", onVis); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!bell) return undefined;
+    const off = (e) => { if (bellRef.current && !bellRef.current.contains(e.target)) setBell(false); };
+    document.addEventListener("mousedown", off);
+    return () => document.removeEventListener("mousedown", off);
+  }, [bell]);
+  const markRead = async (ids) => {
+    setNotifs((cur) => ({ items: cur.items.map((x) => (!ids || ids.includes(x._id) ? { ...x, read: true } : x)), unread: ids ? Math.max(0, cur.unread - cur.items.filter((x) => ids.includes(x._id) && !x.read).length) : 0 }));
+    await tApi("/trainee-portal/notifications/read", { method: "POST", body: ids ? { ids } : {} });
+  };
+  const openNotif = (n) => { setBell(false); setToast(null); if (!n.read) markRead([n._id]); if (n.link) router.push(n.link); };
+
   useEffect(() => {
     if (!menu) return undefined;
     const off = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenu(false); };
@@ -90,7 +152,7 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
   );
 
   return (
-    <Ctx.Provider value={{ me, att, reloadAtt, profile, setProfile, openCheckOut: () => setOutOpen(true) }}>
+    <Ctx.Provider value={{ me, att, reloadAtt, profile, setProfile, openCheckOut: () => setOutOpen(true), live }}>
       <div className={`tl${wide ? " wide" : ""}`}>
         <Head>
           <title>{`${title} · Trainee Portal | Choose Your Therapist`}</title>
@@ -109,6 +171,30 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
           <span className="tl-title">{title}</span>
           <div className="tl-right">
             <CheckChip att={att} reloadAtt={reloadAtt} onOut={() => setOutOpen(true)} />
+            <div className="tl-bell-w" ref={bellRef}>
+              <button type="button" className="tl-bell" onClick={() => setBell((b) => !b)} aria-label={`Notifications${notifs.unread ? ` (${notifs.unread} new)` : ""}`} aria-expanded={bell}>
+                <i className="feather-bell" aria-hidden="true" />
+                {notifs.unread > 0 && <span className="tl-bell-n">{notifs.unread > 9 ? "9+" : notifs.unread}</span>}
+              </button>
+              {bell && (
+                <div className="tl-nd" role="dialog" aria-label="Notifications">
+                  <div className="tl-nd-h">
+                    <b>Notifications</b>
+                    {notifs.unread > 0 && <button type="button" onClick={() => markRead(null)}>Mark all read</button>}
+                  </div>
+                  <div className="tl-nd-list">
+                    {notifs.items.length === 0 ? (
+                      <div className="tl-nd-empty"><i className="feather-bell-off" aria-hidden="true" />You&apos;re all caught up</div>
+                    ) : notifs.items.map((n) => (
+                      <button key={n._id} type="button" className={`tl-ni${n.read ? "" : " new"}`} onClick={() => openNotif(n)}>
+                        <span className={`tl-ni-ic ${n.type}`} aria-hidden="true"><i className={NOTIF_ICON[n.type] || "feather-bell"} /></span>
+                        <span className="tl-ni-t"><b>{n.title}</b>{n.body && <small>{n.body}</small>}<em>{ago(n.createdAt)}</em></span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="tl-acc" ref={menuRef}>
               <button type="button" className="tl-who" onClick={() => setMenu((m) => !m)} aria-haspopup="menu" aria-expanded={menu}>
                 {avatar()}
@@ -143,6 +229,13 @@ export default function TraineeLayout({ children, title = "Dashboard" }) {
         )}
 
         <main className="tl-main">{me ? children : null}</main>
+        {toast && (
+          <button type="button" className="tl-toast" onClick={() => openNotif(toast)} role="status">
+            <span className={`tl-ni-ic ${toast.type}`} aria-hidden="true"><i className={NOTIF_ICON[toast.type] || "feather-bell"} /></span>
+            <span className="tl-ni-t"><b>{toast.title}</b>{toast.body && <small>{toast.body}</small>}</span>
+            <i className="feather-x tl-toast-x" aria-hidden="true" onClick={(e) => { e.stopPropagation(); setToast(null); }} />
+          </button>
+        )}
         {outOpen && <CheckOutModal onClose={() => setOutOpen(false)} onDone={reloadAtt} today={att?.today} />}
       </div>
     </Ctx.Provider>
@@ -258,6 +351,33 @@ const CSS = `
 .tl-chk-st.done i { color: #15803d; }
 @keyframes tlPulse { 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0); } }
 
+.tl-bell-w { position: relative; }
+.tl-bell { position: relative; width: 40px; height: 40px; border-radius: 12px; border: 0; background: none; color: rgba(255,255,255,.9); cursor: pointer; display: grid; place-items: center; font-size: 19px; }
+.tl-bell:hover, .tl-bell[aria-expanded="true"] { background: rgba(255,255,255,.14); color: #fff; }
+.tl-bell-n { position: absolute; top: 4px; right: 3px; min-width: 17px; height: 17px; padding: 0 4px; box-sizing: border-box; border-radius: 9px; background: #ef4444; color: #fff; font-size: 10px; font-weight: 800; display: grid; place-items: center; border: 2px solid #14532d; }
+.tl-nd { position: absolute; right: -60px; top: calc(100% + 10px); width: 360px; max-width: calc(100vw - 20px); background: #fff; border: 1px solid #e4ece7; border-radius: 16px; box-shadow: 0 22px 50px rgba(15,23,42,.18); z-index: 1300; overflow: hidden; color: #0f172a; }
+.tl-nd-h { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid #eef2f0; }
+.tl-nd-h b { font-size: 15px; font-weight: 800; }
+.tl-nd-h button { border: 0; background: none; font: inherit; font-size: 12.5px; font-weight: 800; color: #15803d; cursor: pointer; }
+.tl-nd-list { max-height: 420px; overflow-y: auto; padding: 6px; }
+.tl-nd-empty { padding: 34px 10px; text-align: center; color: #94a3b8; font-size: 13.5px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.tl-nd-empty i { font-size: 24px; color: #cbd5e1; }
+.tl-ni { width: 100%; display: flex; gap: 10px; align-items: flex-start; padding: 10px; border: 0; border-radius: 12px; background: none; font: inherit; text-align: left; cursor: pointer; position: relative; }
+.tl-ni:hover { background: #f6faf7; }
+.tl-ni.new { background: #f3faf5; }
+.tl-ni.new::after { content: ""; position: absolute; top: 14px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: #15803d; }
+.tl-ni-ic { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: grid; place-items: center; font-size: 15px; background: #ecf7ef; color: #15803d; }
+.tl-ni-ic.note { background: #fff6dc; color: #8a5a0b; }
+.tl-ni-ic.certificate, .tl-ni-ic.plan { background: linear-gradient(135deg, #fbe7a8, #e9c46a); color: #6b4a07; }
+.tl-ni-ic.task-update, .tl-ni-ic.attendance { background: #eff6ff; color: #1d4ed8; }
+.tl-ni-t { display: flex; flex-direction: column; min-width: 0; padding-right: 14px; }
+.tl-ni-t b { font-size: 13.5px; font-weight: 800; color: #0f172a; line-height: 1.35; }
+.tl-ni-t small { font-size: 12.5px; color: #64748b; line-height: 1.4; margin-top: 2px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.tl-ni-t em { font-style: normal; font-size: 11.5px; color: #94a3b8; font-weight: 600; margin-top: 3px; }
+.tl-toast { position: fixed; right: 18px; top: calc(var(--tl-h) + 14px); z-index: 1350; width: 340px; max-width: calc(100vw - 28px); display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; border: 1px solid #e4ece7; border-left: 4px solid #c9962c; background: #fff; box-shadow: 0 20px 44px rgba(15,23,42,.2); font: inherit; text-align: left; cursor: pointer; animation: tlToast .28s cubic-bezier(.2,.8,.2,1); }
+.tl-toast-x { margin-left: auto; color: #94a3b8; font-size: 15px; padding: 2px; }
+@keyframes tlToast { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+
 .tl-rail { position: fixed; left: 0; top: var(--tl-h); bottom: 0; z-index: 1100; width: 68px; background: #fff; border-right: 1px solid #e4ece7; display: flex; flex-direction: column; gap: 2px; padding: 12px 10px; overflow-y: auto; overflow-x: hidden; transition: width .22s cubic-bezier(.2,.8,.2,1); }
 .tl.wide .tl-rail { width: 232px; }
 .tl-item { position: relative; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 12px; border-radius: 12px; border: none; background: none; color: #64748b; font: inherit; text-decoration: none !important; cursor: pointer; }
@@ -341,7 +461,8 @@ const CSS = `
   .tl-chk { height: 36px; padding: 0 11px; font-size: 13px; }
   .tl-main, .tl.wide .tl-main { padding: calc(var(--tl-h) + 16px) 14px 28px; }
 }
-@media (max-width: 380px) { .tl-logo span { display: none; } }
+@media (max-width: 640px) { .tl-nd { position: fixed; left: 10px; right: 10px; top: calc(var(--tl-h) + 8px); width: auto; max-width: none; } .tl-bell { width: 36px; height: 36px; } }
+@media (max-width: 420px) { .tl-logo span { display: none; } }
 @media (prefers-reduced-motion: reduce) { .tl-rail, .tl-main, .tl-drawer, .tl-chk-st .dot { transition: none; animation: none; } }
 
 /* shared page pieces */

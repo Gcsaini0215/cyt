@@ -10,20 +10,26 @@ const dayStart = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return 
 const KIND = { worksheet: ["Worksheet", "feather-edit-3"], ppt: ["Slides", "feather-monitor"], notes: ["Notes", "feather-file-text"], other: ["File", "feather-paperclip"] };
 
 function Home() {
-  const { me, profile, att, reloadAtt, openCheckOut } = useTraineePortal();
+  const { me, profile, att, reloadAtt, openCheckOut, live } = useTraineePortal();
   const [ov, setOv] = useState(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [updated, setUpdated] = useState(null);
   const load = async () => {
     const r = await tApi("/trainee-portal/overview");
-    if (r.status) setOv(r.data); else setErr(r.message || "Couldn't load your dashboard");
+    if (r.status) { setOv(r.data); setUpdated(new Date()); } else setErr(r.message || "Couldn't load your dashboard");
   };
   useEffect(() => { load(); }, []);
+  // live: anything the team sends (task, notes, certificate, plan) refreshes the dashboard
+  useEffect(() => { if (live) load(); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
   // refresh the numbers after a check-in / check-out from the top bar
   const todayKey = `${att?.today?.checkIn || ""}|${att?.today?.checkOut || ""}`;
   useEffect(() => { if (ov) load(); }, [todayKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const first = profile?.firstName || (me?.name || "").split(" ")[0] || "there";
+  const fullName = (profile && [profile.firstName, profile.lastName].filter(Boolean).join(" ")) || me?.name || "Trainee";
+  const initials = fullName.trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  const photo = profile?.photo ? fileUrl(profile.photo) : "";
   if (!ov) return err ? <div className="tl-err">{err}</div> : <div className="tp-load">Loading your dashboard…</div>;
 
   const { program, attendance: a, tasks, notes, certificate } = ov;
@@ -46,42 +52,43 @@ function Home() {
 
   return (
     <div className="th">
-      {/* ── hero: greeting + today ── */}
-      <section className="th-hero">
-        <div className="th-hero-l">
-          <span className="th-date">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</span>
-          <h1>{greet()}, {first}</h1>
-          {program ? (
-            <div className="th-chips">
-              <span><i className="feather-clock" aria-hidden="true" /> {program.hours}</span>
-              {program.duration && <span><i className="feather-calendar" aria-hidden="true" /> {program.duration}</span>}
-              {program.mode && <span><i className={program.mode === "Online" ? "feather-monitor" : "feather-map-pin"} aria-hidden="true" /> {program.mode}</span>}
-              {program.tracks.slice(0, 2).map((t) => <span key={t} className="gold">{t}</span>)}
+      {/* ── header: same look as the therapist dashboard ── */}
+      <section className="th-hdr">
+        <span className="th-ring1" aria-hidden="true" /><span className="th-ring2" aria-hidden="true" /><span className="th-goldline" aria-hidden="true" />
+        <div className="th-hdr-row">
+          <div className="th-hdr-av">
+            {photo
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={photo} alt={first} />
+              : <span>{initials}</span>}
+            <i className={working ? "on" : ""} aria-hidden="true" />
+          </div>
+          <div className="th-hdr-t">
+            <span className="th-date">{new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}</span>
+            <div className="th-hdr-h">
+              <h1>{greet()}, {first}</h1>
+              <span className="th-badge"><i className="feather-award" aria-hidden="true" /> Trainee</span>
             </div>
-          ) : <p className="th-sub">Welcome to your trainee portal.</p>}
+            <p className="th-hdr-sub">
+              {program
+                ? <>{program.hours} · {program.duration}{program.mode ? ` · ${program.mode}` : ""}{program.tracks.length ? <span className="th-tr"> · {program.tracks.slice(0, 2).join(", ")}</span> : null}{program.free ? " · Free plan" : ""}</>
+                : <>No internship plan yet · <Link href="/internship-registration">Apply now</Link></>}
+            </p>
+          </div>
+          <div className="th-hdr-a">
+            {!today?.checkIn && <button type="button" className="th-act" onClick={checkIn} disabled={busy}><i className="feather-log-in" aria-hidden="true" /> {busy ? "Checking in…" : "Check in"}</button>}
+            {working && <button type="button" className="th-act gold" onClick={openCheckOut}><i className="feather-log-out" aria-hidden="true" /> Check out · {fmtMins(liveMins)}</button>}
+            {today?.checkOut && <Link href="/trainee/attendance" className="th-act"><i className="feather-check-circle" aria-hidden="true" /> Done today · {fmtMins(liveMins)}</Link>}
+            <div className="th-hdr-meta">
+              <button type="button" onClick={load} className="th-upd"><i className="feather-refresh-cw" aria-hidden="true" /> {updated ? `Updated ${fmtTime(updated)}` : "Loading…"}</button>
+              <Link href="/trainee/profile" className="th-edit">Edit profile <i className="feather-arrow-up-right" aria-hidden="true" /></Link>
+            </div>
+          </div>
         </div>
-        <div className="th-today">
-          {!today?.checkIn && (
-            <>
-              <b>Not checked in yet</b>
-              <span>Check in when you start today&apos;s work.</span>
-              <button type="button" className="th-cta" onClick={checkIn} disabled={busy}><i className="feather-log-in" aria-hidden="true" /> {busy ? "Checking in…" : "Check in"}</button>
-            </>
-          )}
-          {working && (
-            <>
-              <b><i className="th-dot" /> Checked in · {fmtMins(liveMins)}</b>
-              <span>Since {fmtTime(today.checkIn)}</span>
-              <button type="button" className="th-cta out" onClick={openCheckOut}><i className="feather-log-out" aria-hidden="true" /> Check out</button>
-            </>
-          )}
-          {today?.checkOut && (
-            <>
-              <b><i className="feather-check-circle" aria-hidden="true" /> Done for today · {fmtMins(liveMins)}</b>
-              <span>{fmtTime(today.checkIn)} – {fmtTime(today.checkOut)}</span>
-              <Link href="/trainee/attendance" className="th-cta ghost">View attendance</Link>
-            </>
-          )}
+        <div className="th-hchips">
+          <div className="th-hchip"><span><i className="feather-clock" aria-hidden="true" /></span><div><small>Today</small><b>{today?.checkIn ? fmtMins(liveMins) : "Not in"}</b></div></div>
+          <div className="th-hchip"><span><i className="feather-target" aria-hidden="true" /></span><div><small>Hours done</small><b>{program ? `${doneHrs.toFixed(doneHrs < 10 ? 1 : 0)} / ${goalHrs}` : fmtMins(a.totalMinutes)}</b></div></div>
+          <div className="th-hchip"><span><i className="feather-calendar" aria-hidden="true" /></span><div><small>This week</small><b>{a.weekDays}/7 days</b></div></div>
         </div>
       </section>
 
@@ -218,23 +225,38 @@ function Home() {
 
 const CSS = `
 .th { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.th-hero { display: flex; align-items: stretch; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 24px 26px; border-radius: 20px; color: #fff; background: radial-gradient(120% 140% at 100% 0%, rgba(233,196,106,.28) 0%, rgba(233,196,106,0) 45%), linear-gradient(120deg, #0b3320 0%, #14532d 55%, #1e7a4c 100%); box-shadow: 0 18px 40px -22px rgba(4,30,16,.6); }
-.th-hero-l { min-width: 0; flex: 1 1 320px; display: flex; flex-direction: column; justify-content: center; }
-.th-date { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #ecc77d; }
-.th-hero h1 { margin: 6px 0 12px; font-size: 28px; font-weight: 800; color: #fff; letter-spacing: -.01em; line-height: 1.2; }
-.th-sub { margin: 0; color: #cfe9d8; font-size: 14.5px; }
-.th-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.th-chips span { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #e7f6ec; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 5px 11px; }
-.th-chips span.gold { color: #3b2a05; background: #f3d27a; border-color: #f3d27a; }
-.th-today { flex: 0 1 300px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
-.th-today b { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-.th-today b i { color: #86efac; }
-.th-today span { font-size: 13px; color: #cfe9d8; }
-.th-dot { width: 9px; height: 9px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,.3); display: inline-block; animation: tlPulse 1.6s ease-in-out infinite; }
-.th-cta { margin-top: 10px; height: 44px; border-radius: 12px; border: none; font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none !important; background: linear-gradient(135deg, #f3d27a, #d4a24c); color: #3b2a05 !important; box-shadow: 0 8px 18px -8px rgba(0,0,0,.45); }
-.th-cta.out { background: #fff; color: #14532d !important; }
-.th-cta.ghost { background: rgba(255,255,255,.12); color: #fff !important; border: 1px solid rgba(255,255,255,.35); box-shadow: none; }
-.th-cta:disabled { opacity: .7; cursor: wait; }
+.th-hdr { position: relative; overflow: hidden; color: #0f172a; border-radius: 20px; padding: 22px 24px; background: radial-gradient(90% 140% at 100% 0%, rgba(233,196,106,.22) 0%, rgba(233,196,106,0) 55%), #fff; border: 1px solid #ece6d4; box-shadow: 0 14px 34px -24px rgba(120,90,20,.35); }
+.th-ring1 { position: absolute; top: -70px; right: -50px; width: 220px; height: 220px; border-radius: 50%; border: 1px solid rgba(201,150,44,.14); pointer-events: none; }
+.th-ring2 { position: absolute; top: -30px; right: 40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(233,196,106,.08); pointer-events: none; }
+.th-goldline { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, #e9c46a, #c9962c); pointer-events: none; }
+.th-hdr-row { position: relative; display: flex; align-items: center; gap: 16px; }
+.th-hdr-av { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
+.th-hdr-av img, .th-hdr-av > span { width: 100%; height: 100%; border-radius: 14px; object-fit: cover; display: grid; place-items: center; border: 2px solid #e9c46a; box-sizing: border-box; }
+.th-hdr-av > span { background: #fff8e6; color: #8a5a0b; font-size: 22px; font-weight: 800; }
+.th-hdr-av > i { position: absolute; bottom: -3px; right: -3px; width: 14px; height: 14px; border-radius: 50%; background: #cbd5e1; border: 2.5px solid #fff; }
+.th-hdr-av > i.on { background: #22c55e; }
+.th-hdr-t { min-width: 0; flex: 1; }
+.th-date { display: block; font-size: 11.5px; font-weight: 700; color: #94a3b8; margin-bottom: 3px; letter-spacing: .2px; }
+.th-hdr-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.th-hdr h1 { margin: 0; font-size: 25px; font-weight: 800; color: #0f172a; line-height: 1.2; }
+.th-badge { display: inline-flex; align-items: center; gap: 4px; background: #fff6dc; color: #8a5a0b; border: 1px solid #f1dfae; border-radius: 999px; padding: 2px 9px; font-size: 10.5px; font-weight: 800; }
+.th-hdr-sub { margin: 5px 0 0; font-size: 13.5px; font-weight: 600; color: #64748b; }
+.th-hdr-sub a { color: #b8860b !important; font-weight: 800; }
+.th-hdr-a { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.th-act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 11px; padding: 10px 18px; font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; text-decoration: none !important; background: #14532d; color: #fff !important; box-shadow: 0 8px 18px -10px rgba(20,83,45,.6); transition: transform .15s; }
+.th-act:hover { transform: translateY(-1px); }
+.th-act.gold { background: linear-gradient(135deg, #f3d27a, #d4a24c); color: #3b2a05 !important; box-shadow: 0 0 0 4px rgba(242,201,76,.2); }
+.th-act:disabled { opacity: .7; cursor: wait; }
+.th-hdr-meta { display: flex; align-items: center; gap: 12px; }
+.th-upd { border: 0; background: none; padding: 0; display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 11px; font-weight: 600; color: #94a3b8; cursor: pointer; }
+.th-upd:hover { color: #14532d; }
+.th-edit { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: #b8860b !important; text-decoration: none !important; }
+.th-hchips { position: relative; margin-top: 18px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.th-hchips::-webkit-scrollbar { display: none; }
+.th-hchip { display: flex; align-items: center; gap: 8px; flex-shrink: 0; background: #fbfcfb; border: 1px solid #edf1ee; border-radius: 12px; padding: 7px 12px 7px 8px; }
+.th-hchip > span { width: 30px; height: 30px; border-radius: 9px; background: #fff6dc; color: #b8860b; display: grid; place-items: center; font-size: 15px; }
+.th-hchip small { display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; line-height: 1.2; white-space: nowrap; }
+.th-hchip b { display: block; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.3; white-space: nowrap; }
 
 .th-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .th-stat { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; text-decoration: none !important; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; transition: border-color .15s, transform .15s; }
@@ -315,11 +337,15 @@ const CSS = `
   .th-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
-  .th-hero { padding: 18px; border-radius: 18px; }
-  .th-hero h1 { font-size: 22px; }
-  .th-today { flex-basis: 100%; }
+  .th-hdr { padding: 16px; border-radius: 18px; }
+  .th-hdr-row { flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+  .th-hdr-av { width: 52px; height: 52px; }
+  .th-hdr h1 { font-size: 19px; }
+  .th-tr { display: none; }
+  .th-hdr-a { width: 100%; align-items: stretch; }
+  .th-hdr-meta { justify-content: space-between; }
+  .th-hchips { margin-left: -16px; margin-right: -16px; padding: 0 16px; }
   .th-col-r { grid-template-columns: minmax(0, 1fr); }
-  .th-chips span { font-size: 12px; padding: 4px 10px; }
   .th-stat { padding: 12px; column-gap: 10px; }
   .th-stat i { width: 36px; height: 36px; font-size: 16px; }
   .th-stat b { font-size: 18px; }
