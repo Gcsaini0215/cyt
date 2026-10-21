@@ -373,42 +373,46 @@ const CSS = `
   .th-bars { height: 150px; gap: 5px; }
 }
 
-/* ── academic / clinical palette: navy header, muted header strips on cards, white bodies ── */
-.th .th-hdr { background: #1f3b57; border-color: #1f3b57; color: #fff; box-shadow: 0 16px 34px -24px rgba(15,30,50,.6); }
-.th .th-goldline { background: #d4a24c; }
-.th .th-date { color: rgba(255,255,255,.62); }
-.th .th-hdr h1 { color: #fff; }
-.th .th-hdr-sub { color: rgba(255,255,255,.78); }
-.th .th-hdr-sub a { color: #f2c94c !important; }
-.th .th-badge { background: rgba(242,201,76,.16); color: #f2c94c; border-color: rgba(242,201,76,.4); }
-.th .th-hchip { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); }
-.th .th-hchip > span { background: rgba(242,201,76,.18); color: #f2c94c; }
-.th .th-hchip small { color: rgba(255,255,255,.55); }
-.th .th-hchip b { color: #fff; }
-.th .th-act { background: #fff; color: #1f3b57 !important; box-shadow: 0 8px 18px -10px rgba(0,0,0,.45); }
-.th .th-act.gold { background: #f2c94c; color: #1f2a37 !important; border: none; }
-.th .th-upd { color: rgba(255,255,255,.55); }
-.th .th-upd:hover { color: #fff; }
-.th .th-edit { color: #f2c94c !important; }
+/* ── brand palette (green + gold), professional: ivory header, sage / gold card bands, white bodies ── */
+.th .th-hdr { background: #fbf7ec; border-color: #eadfbf; color: #14261c; box-shadow: 0 14px 30px -24px rgba(110,80,20,.35); }
+.th .th-goldline { background: #c9962c; }
+.th .th-date { color: #9a7b3c; }
+.th .th-hdr h1 { color: #14532d; }
+.th .th-hdr-sub { color: #5f6b62; }
+.th .th-hdr-sub a { color: #1f6b47 !important; }
+.th .th-badge { background: #fff; color: #8a6418; border-color: #e6d29a; }
+.th .th-hchip { background: #fff; border-color: #ece3c8; }
+.th .th-hchip > span { background: #f5ebcf; color: #8a6418; }
+.th .th-hchip small { color: #9a8a66; }
+.th .th-hchip b { color: #14261c; }
+.th .th-act { background: #14532d; color: #fff !important; box-shadow: 0 8px 18px -10px rgba(20,83,45,.55); }
+.th .th-act.gold { background: #c9962c; color: #fff !important; border: none; }
+.th .th-upd { color: #9a8a66; }
+.th .th-upd:hover { color: #14532d; }
+.th .th-edit { color: #1f6b47 !important; }
 
 .th .th-stat { border-top: 3px solid var(--tone, #1f6b47); }
-.th .th-stat:nth-child(1) { --tone: #2f7d5b; }
-.th .th-stat:nth-child(2) { --tone: #3f6e9e; }
-.th .th-stat:nth-child(3) { --tone: #b07a22; }
-.th .th-stat:nth-child(4) { --tone: #7a5c8e; }
-.th .th-stat:nth-child(4) i { background: #efe9f3; color: #6b4d80; }
+.th .th-stat:nth-child(1) { --tone: #1f6b47; }
+.th .th-stat:nth-child(2) { --tone: #c9962c; }
+.th .th-stat:nth-child(2) i { background: #f5ebcf; color: #8a6418; }
+.th .th-stat:nth-child(3) { --tone: #2f7d6d; }
+.th .th-stat:nth-child(3) i { background: #e2f0ec; color: #2f6d60; }
+.th .th-stat:nth-child(4) { --tone: #a5741f; }
+.th .th-stat:nth-child(4) i { background: #f3e9d6; color: #8a5a14; }
 
 .th .tp-card .th-ch { margin: -20px -20px 14px; padding: 12px 20px; border-radius: 17px 17px 0 0; border-bottom: 1px solid rgba(15,23,42,.06); background: var(--band, #f3f6f4); }
-.th .th-prog { --band: #e3eee7; }
-.th .th-week { --band: #e2eaf3; }
-.th .th-tasks { --band: #f3eadb; }
-.th .th-notes { --band: #ece5f0; }
-.th .th-cert { border-left: 4px solid #d4a24c; }
-.th .th-help { border-left: 4px solid #3f8f8a; }
-.th .th-prog .th-ch h2 { color: #1f4d36; }
-.th .th-week .th-ch h2 { color: #24456a; }
-.th .th-tasks .th-ch h2 { color: #6b4a12; }
-.th .th-notes .th-ch h2 { color: #573d6b; }
+.th .th-prog { --band: #e6f0e9; }
+.th .th-week { --band: #f6efdc; }
+.th .th-tasks { --band: #f6efdc; }
+.th .th-notes { --band: #e6f0e9; }
+.th .th-cert { border-left: 4px solid #c9962c; }
+.th .th-help { border-left: 4px solid #1f6b47; }
+.th .th-ch h2 { color: #14532d; }
+.th .th-week .th-ch h2, .th .th-tasks .th-ch h2 { color: #6b4a12; }
+.th .th-bar-col span { background: #2f7d5b; }
+.th .th-bar.today .th-bar-col span { background: #c9962c; }
+.th .th-note-ic { background: #e6f0e9; color: #1f6b47; }
+.th .th-task-ic { background: #f5ebcf; color: #8a6418; }
 @media (max-width: 640px) { .th .tp-card .th-ch { margin: -16px -16px 12px; padding: 10px 16px; border-radius: 15px 15px 0 0; } }
 `;
 
