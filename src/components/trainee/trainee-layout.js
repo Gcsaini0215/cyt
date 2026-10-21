@@ -15,7 +15,7 @@ export const NAV = [
   { to: "/trainee/tasks", icon: "feather-check-square", label: "Tasks" },
   { to: "/trainee/notes", icon: "feather-book-open", label: "Notes" },
   { to: "/trainee/certificate", icon: "feather-award", label: "Certificate" },
-  { to: "/trainee/upgrade", icon: "feather-trending-up", label: "Upgrade internship" },
+  { to: "/trainee/upgrade", icon: "feather-trending-up", label: "Plan & upgrade" },
   { to: "/trainee/profile", icon: "feather-user", label: "Edit profile" },
 ];
 // phones: bottom bar like the client / therapist portals; "More" opens the full menu

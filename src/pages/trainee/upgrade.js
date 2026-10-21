@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { tApi, fmtDate } from "../../utils/trainee-api";
 
@@ -31,6 +30,8 @@ function Upgrade() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [done, setDone] = useState(null);
+  const [tracks, setTracks] = useState([]); // first plan only
+  const [mode, setMode] = useState("Online");
   const paid = useRef(false);
 
   const load = async () => {
@@ -42,7 +43,8 @@ function Upgrade() {
 
   const pay = async () => {
     setErr(""); setBusy(true);
-    const od = await tApi("/trainee-portal/upgrade/order", { method: "POST", body: { hours: pick } });
+    if (info && !info.application && !tracks.length) { setErr("Choose at least one track."); setBusy(false); return; }
+    const od = await tApi("/trainee-portal/upgrade/order", { method: "POST", body: info?.application ? { hours: pick } : { hours: pick, tracks, mode } });
     if (!od.status) { setErr(od.message || "Couldn't start payment"); setBusy(false); return; }
     try { await waitForRazorpay(); } catch (e) { setErr(e.message); setBusy(false); return; }
     paid.current = false;
@@ -52,7 +54,7 @@ function Upgrade() {
       currency: "INR",
       order_id: od.data.orderId,
       name: "Choose Your Therapist",
-      description: `Internship upgrade to ${pick}`,
+      description: info?.application ? `Internship upgrade to ${pick}` : `Internship plan · ${pick}`,
       prefill: { name: me?.name, email: me?.email, contact: profile?.phone || me?.phone },
       theme: { color: "#1b5e20" },
       handler: async (resp) => {
@@ -63,8 +65,8 @@ function Upgrade() {
           r = await tApi("/trainee-portal/upgrade/verify", { method: "POST", body: resp }); // eslint-disable-line no-await-in-loop
         }
         setBusy(false);
-        if (!r?.status) { setErr(`${r?.message || "We couldn't confirm the upgrade."} Payment ID: ${resp.razorpay_payment_id}`); return; }
-        setDone({ to: pick, paymentId: resp.razorpay_payment_id });
+        if (!r?.status) { setErr(`${r?.message || "We couldn't confirm the payment."} Payment ID: ${resp.razorpay_payment_id}`); return; }
+        setDone({ to: pick, paymentId: resp.razorpay_payment_id, first: !info?.application });
         setPick("");
         load();
       },
@@ -79,22 +81,71 @@ function Upgrade() {
   const head = (
     <div className="tp-h">
       <div>
-        <h1>Upgrade internship</h1>
-        <p>Move to a bigger plan with more hours and a longer duration.</p>
+        <h1>{info.application ? "Upgrade internship" : "Choose your internship plan"}</h1>
+        <p>{info.application ? "Move to a bigger plan with more hours and a longer duration." : "Pick your tracks and hours — your internship starts as soon as you pay."}</p>
       </div>
     </div>
   );
 
   if (!info.application) {
+    const first = info.options.find((o) => o.hours === pick);
+    const flip = (t) => setTracks((l) => (l.includes(t) ? l.filter((x) => x !== t) : [...l, t]));
     return (
       <>
         {head}
-        <div className="tp-card tp-empty">
-          <i className="feather-file-plus" aria-hidden="true" />
-          <b>You haven&apos;t applied for the internship yet</b>
-          Apply first — then you can upgrade your hours here any time.
-          <div style={{ marginTop: 16 }}><Link href="/internship-registration" className="tl-btn">Apply for the internship <i className="feather-arrow-right" aria-hidden="true" /></Link></div>
+        <div className="up-wrap">
+          <div className="up-main">
+            <section className="tp-card up-choose">
+              <h3 className="up-h">1 · Your tracks <small>(choose one or more)</small></h3>
+              <div className="up-tracks">
+                {(info.tracks || []).map((t) => (
+                  <button key={t} type="button" className={tracks.includes(t) ? "on" : ""} onClick={() => flip(t)} aria-pressed={tracks.includes(t)}>
+                    {tracks.includes(t) && <i className="feather-check" aria-hidden="true" />} {t}
+                  </button>
+                ))}
+              </div>
+              <h3 className="up-h up-h2">2 · Mode</h3>
+              <div className="tp-tabs" role="radiogroup" aria-label="Mode">
+                {["Online", "Offline"].map((m) => <button key={m} type="button" role="radio" aria-checked={mode === m} className={mode === m ? "on" : ""} onClick={() => setMode(m)}>{m}</button>)}
+              </div>
+            </section>
+            <section className="tp-card up-choose">
+              <h3 className="up-h">3 · Hours</h3>
+              <div className="up-list" role="radiogroup" aria-label="Plans">
+                {info.options.map((o) => (
+                  <button key={o.hours} type="button" role="radio" aria-checked={pick === o.hours} className={`up-opt${pick === o.hours ? " on" : ""}`} onClick={() => setPick(o.hours)}>
+                    <span className="up-radio" aria-hidden="true" />
+                    <span className="up-o-t"><b>{o.hours}</b><small>{o.duration}</small></span>
+                    <span className="up-o-p"><b>{inr(o.pay)}</b><small>≈ {inr(Math.round(o.pay / parseInt(o.hours, 10)))}/hr</small></span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          </div>
+          <aside className="up-side">
+            {done ? (
+              <section className="tp-card up-sum">
+                <span className="up-k">Booked</span>
+                <b className="up-booked"><i className="feather-check-circle" aria-hidden="true" /> Your {done.to} plan is booked!</b>
+                <small className="up-note">We&apos;ve emailed your receipt. Payment ID: {done.paymentId}</small>
+              </section>
+            ) : (
+              <section className="tp-card up-sum">
+                <span className="up-k">Summary</span>
+                <div className="up-sum-r"><span>Plan</span><b>{first ? `${first.hours} · ${first.duration}` : "—"}</b></div>
+                <div className="up-sum-r"><span>Mode</span><b>{mode}</b></div>
+                <div className="up-sum-r"><span>Tracks</span><b>{tracks.length ? tracks.length : "—"}</b></div>
+                <div className="up-sum-t"><span>To pay</span><strong>{first ? inr(first.pay) : "—"}</strong></div>
+                <button type="button" className="tl-btn gold up-btn" onClick={pay} disabled={!first || busy}>
+                  <i className="feather-lock" aria-hidden="true" /> {busy ? "Opening payment…" : first ? `Pay ${inr(first.pay)}` : "Choose a plan"}
+                </button>
+                <small className="up-note">Secure payment by Razorpay</small>
+                {err && <div className="tl-err">{err}</div>}
+              </section>
+            )}
+          </aside>
         </div>
+        <style dangerouslySetInnerHTML={{ __html: CSS }} />
       </>
     );
   }
@@ -250,6 +301,13 @@ const CSS = `
 .up-offer.off { background: #f6f8f7; border: 1px solid #e6ece8; color: #64748b; }
 .up-offer.off b { color: #334155; }
 .up-o-p s { color: #b0bac4; }
+.up-tracks { display: flex; flex-wrap: wrap; gap: 6px; }
+.up-tracks button { display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 12px; border-radius: 999px; border: 1.5px solid #e2e8e4; background: #fff; font: inherit; font-size: 13px; font-weight: 700; color: #475569; cursor: pointer; }
+.up-tracks button.on { border-color: #15803d; background: #ecf7ef; color: #14532d; }
+.up-h small { font-size: 12px; color: #94a3b8; font-weight: 600; }
+.up-h2 { margin-top: 16px !important; }
+.up-booked { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #14532d; }
+.up-booked i { color: #15803d; font-size: 18px; }
 .up-h { margin: 0 0 10px; font-size: 14.5px; font-weight: 800; color: #0f172a; }
 .up-list { display: grid; gap: 6px; }
 .up-opt { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1.5px solid #e8ede9; border-radius: 11px; padding: 10px 14px; cursor: pointer; font: inherit; transition: border-color .15s, background .15s; }
@@ -281,5 +339,5 @@ const CSS = `
 `;
 
 export default function UpgradePage() {
-  return <TraineeLayout title="Upgrade internship"><Upgrade /></TraineeLayout>;
+  return <TraineeLayout title="Plan & upgrade"><Upgrade /></TraineeLayout>;
 }

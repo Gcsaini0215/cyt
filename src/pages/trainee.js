@@ -37,7 +37,7 @@ function Home() {
   const leftHrs = Math.max(0, goalHrs - doneHrs);
   const weekMax = Math.max(60, ...a.week.map((d) => d.minutes));
   // the name is already in the top bar — the header leads with where they stand
-  const headline = !program ? "Let's get your internship started"
+  const headline = !program ? "Choose a plan to start your internship"
     : pct >= 100 ? "All hours done — brilliant work! 🎉"
       : working ? `In session · ${fmtMins(liveMins)} logged today`
         : doneHrs === 0 ? `Your ${program.hours} journey starts today`
@@ -66,7 +66,7 @@ function Home() {
             <p className="th-hdr-sub">
               {program
                 ? <>{program.hours} · {program.duration}{program.mode ? ` · ${program.mode}` : ""}{program.tracks.length ? <span className="th-tr"> · {program.tracks.slice(0, 2).join(", ")}</span> : null}{program.free ? " · Free plan" : ""}</>
-                : <>No internship plan yet · <Link href="/internship-registration">Apply now</Link></>}
+                : <>No plan yet · <Link href="/trainee/upgrade">Choose your plan</Link></>}
             </p>
           </div>
           <div className="th-hdr-a">
@@ -121,8 +121,8 @@ function Home() {
             </>
           ) : (
             <div className="th-apply">
-              <p>You haven&apos;t applied for an internship yet. Pick your track and hours to get started.</p>
-              <Link href="/internship-registration" className="tl-btn">Apply for internship <i className="feather-arrow-right" aria-hidden="true" /></Link>
+              <p>You don&apos;t have an internship plan yet. Pick your tracks and hours — it takes a minute.</p>
+              <Link href="/trainee/upgrade" className="tl-btn gold">Choose your plan <i className="feather-arrow-right" aria-hidden="true" /></Link>
             </div>
           )}
         </section>
