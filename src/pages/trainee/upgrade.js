@@ -3,7 +3,8 @@ import Link from "next/link";
 import TraineeLayout, { useTraineePortal } from "../../components/trainee/trainee-layout";
 import { tApi, fmtDate } from "../../utils/trainee-api";
 
-/* Upgrade internship: move to a bigger plan — it costs that plan's full price, the same as when applying.
+/* Upgrade internship: within 7 days of getting the current plan an upgrade costs the difference (min ₹50 per
+   extra hour, never more than full price); after that it costs the new plan's full price. Server decides.
    Plans and fees are the same as the internship application; the server decides the amount. */
 const LADDER = ["30 hrs", "40 hrs", "60 hrs", "80 hrs", "100 hrs", "120 hrs", "240 hrs"];
 const inr = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
@@ -100,6 +101,8 @@ function Upgrade() {
 
   const chosen = info.options.find((o) => o.hours === pick);
   const curN = parseInt(info.hours, 10) || 0;
+  const offer = info.offer || null;
+  const daysLeft = offer?.active ? Math.max(1, Math.ceil((new Date(offer.endsAt).getTime() - Date.now()) / 86400000)) : 0;
   return (
     <>
       {head}
@@ -140,6 +143,18 @@ function Upgrade() {
             </ol>
           </section>
 
+          {offer && info.options.length > 0 && (offer.active ? (
+            <div className="up-offer on" role="note">
+              <i className="feather-zap" aria-hidden="true" />
+              <div><b>Upgrade offer · {daysLeft} day{daysLeft === 1 ? "" : "s"} left</b>Pay only the difference until {fmtDate(offer.endsAt, { day: "numeric", month: "short" })}. After that, upgrades cost the full plan price.</div>
+            </div>
+          ) : (
+            <div className="up-offer off" role="note">
+              <i className="feather-info" aria-hidden="true" />
+              <div><b>Upgrade offer ended on {fmtDate(offer.endsAt, { day: "numeric", month: "short" })}</b>The offer runs for {offer.days} days after you get a plan — upgrades are now at the full plan price.</div>
+            </div>
+          ))}
+
           {/* choose */}
           {info.options.length === 0 ? (
             <div className="tp-card tp-empty"><i className="feather-star" aria-hidden="true" /><b>You&apos;re on our biggest plan</b>There&apos;s nothing to upgrade — enjoy your internship!</div>
@@ -151,7 +166,7 @@ function Upgrade() {
                   <button key={o.hours} type="button" role="radio" aria-checked={pick === o.hours} className={`up-opt${pick === o.hours ? " on" : ""}`} onClick={() => setPick(o.hours)}>
                     <span className="up-radio" aria-hidden="true" />
                     <span className="up-o-t"><b>{o.hours}</b><small>{o.duration} · +{parseInt(o.hours, 10) - curN} hrs</small></span>
-                    <span className="up-o-p"><b>{inr(o.pay)}</b><small>≈ {inr(Math.round(o.pay / parseInt(o.hours, 10)))}/hr</small></span>
+                    <span className="up-o-p"><b>{inr(o.pay)}</b>{o.pay < o.fee ? <small><s>{inr(o.fee)}</s> · save {inr(o.fee - o.pay)}</small> : <small>full price</small>}</span>
                   </button>
                 ))}
               </div>
@@ -169,7 +184,7 @@ function Upgrade() {
               <button type="button" className="tl-btn gold up-btn" onClick={pay} disabled={!chosen || busy}>
                 <i className="feather-lock" aria-hidden="true" /> {busy ? "Opening payment…" : chosen ? `Pay ${inr(chosen.pay)}` : "Choose a plan"}
               </button>
-              <small className="up-note">Full price of the new plan · secure payment by Razorpay</small>
+              <small className="up-note">{chosen?.offer && chosen.pay < chosen.fee ? `Offer price · valid till ${fmtDate(offer?.endsAt, { day: "numeric", month: "short" })}` : "Full price of the new plan"} · secure payment by Razorpay</small>
               {err && <div className="tl-err">{err}</div>}
             </section>
           )}
@@ -222,6 +237,14 @@ const CSS = `
 .up-ladder .lbl { font-size: 12px; font-weight: 800; color: #0f172a; line-height: 1; }
 .up-ladder .past .lbl { color: #94a3b8; }
 .up-ladder .cur .lbl { color: #8a5a0b; }
+.up-offer { display: flex; gap: 10px; align-items: flex-start; border-radius: 12px; padding: 10px 14px; font-size: 13px; line-height: 1.45; }
+.up-offer b { display: block; font-size: 13.5px; }
+.up-offer i { font-size: 17px; margin-top: 1px; }
+.up-offer.on { background: linear-gradient(135deg, #fff6dc, #fffbef); border: 1px solid #f1dfae; color: #6b4a07; }
+.up-offer.on i { color: #c9962c; }
+.up-offer.off { background: #f6f8f7; border: 1px solid #e6ece8; color: #64748b; }
+.up-offer.off b { color: #334155; }
+.up-o-p s { color: #b0bac4; }
 .up-h { margin: 0 0 10px; font-size: 14.5px; font-weight: 800; color: #0f172a; }
 .up-list { display: grid; gap: 6px; }
 .up-opt { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1.5px solid #e8ede9; border-radius: 11px; padding: 10px 14px; cursor: pointer; font: inherit; transition: border-color .15s, background .15s; }
