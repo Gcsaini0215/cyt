@@ -93,6 +93,7 @@ function MyApp({ Component, pageProps }) {
     "/update-workshop/",
     "/supervision-login",
     "/supervision_to_psychologist",
+    "/trainee",
   ];
 
   const clientDashboardRoutes = [

@@ -7,6 +7,7 @@ import { SubmitConsultationUrl, createTraineeUrl, apiUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
 import PhotoHero from "../components/global/photo-hero";
 import { RegistrationsRow } from "../components/about/registrations";
+import { getTrainee } from "../utils/trainee-auth";
 
 export const PSYCH_TYPES = [
   "Clinical Psychology", "Counselling Psychology", "Industrial & Organizational Psychology",
@@ -463,6 +464,13 @@ function SuccessScreen({ name, internType, traineeSlug }) {
           }}>
             <i className="feather-home"></i> Go to Home
           </Link>
+          <Link href="/trainee" style={{
+            textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "13px 28px", borderRadius: 12, border: "1.5px solid #cfe3d6",
+            background: "#fff", color: "#14532d", fontWeight: 700, fontSize: 14,
+          }}>
+            <i className="feather-award"></i> Open my trainee portal
+          </Link>
         </div>
       </div>
     </div>
@@ -508,6 +516,9 @@ export default function InternshipRegistration() {
   useEffect(() => {
     const draft = loadDraft();
     if (draft) setForm(p => ({ ...p, ...draft }));
+    // signed in to the trainee portal: their name, email and mobile are already known
+    const t = getTrainee();
+    if (t) setForm((p) => ({ ...p, name: p.name || t.name || "", email: p.email || t.email || "", phone: p.phone || String(t.phone || "").slice(-10) }));
   }, []);
 
   useEffect(() => {
