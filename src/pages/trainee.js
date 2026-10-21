@@ -122,7 +122,7 @@ function Home() {
           ) : (
             <div className="th-apply">
               <p>You don&apos;t have an internship plan yet. Choose what you apply for and your hours — it takes a minute.</p>
-              <Link href="/trainee/upgrade" className="tl-btn gold">Choose your plan <i className="feather-arrow-right" aria-hidden="true" /></Link>
+              <Link href="/trainee/upgrade" className="tl-btn">Choose your plan <i className="feather-arrow-right" aria-hidden="true" /></Link>
             </div>
           )}
         </section>
@@ -219,10 +219,10 @@ function Home() {
 
 const CSS = `
 .th { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-.th-hdr { position: relative; overflow: hidden; color: #0f172a; border-radius: 20px; padding: 22px 24px; background: radial-gradient(90% 140% at 100% 0%, rgba(233,196,106,.22) 0%, rgba(233,196,106,0) 55%), #fff; border: 1px solid #ece6d4; box-shadow: 0 14px 34px -24px rgba(120,90,20,.35); }
-.th-ring1 { position: absolute; top: -70px; right: -50px; width: 220px; height: 220px; border-radius: 50%; border: 1px solid rgba(201,150,44,.14); pointer-events: none; }
-.th-ring2 { position: absolute; top: -30px; right: 40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(233,196,106,.08); pointer-events: none; }
-.th-goldline { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, #e9c46a, #c9962c); pointer-events: none; }
+.th-hdr { position: relative; overflow: hidden; color: #0f172a; border-radius: 20px; padding: 22px 24px; background: radial-gradient(90% 140% at 100% 0%, rgba(34,163,90,.14) 0%, rgba(34,163,90,0) 55%), #fff; border: 1px solid #dcebe1; box-shadow: 0 14px 34px -24px rgba(20,83,45,.35); }
+.th-ring1 { position: absolute; top: -70px; right: -50px; width: 220px; height: 220px; border-radius: 50%; border: 1px solid rgba(21,128,61,.12); pointer-events: none; }
+.th-ring2 { position: absolute; top: -30px; right: 40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(34,163,90,.06); pointer-events: none; }
+.th-goldline { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, #22a35a, #14532d); pointer-events: none; }
 .th-hdr-row { position: relative; display: flex; align-items: center; gap: 16px; }
 .th-hdr-av { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
 .th-hdr-av img, .th-hdr-av > span { width: 100%; height: 100%; border-radius: 14px; object-fit: cover; display: grid; place-items: center; border: 2px solid #e9c46a; box-sizing: border-box; }
@@ -233,22 +233,22 @@ const CSS = `
 .th-date { display: block; font-size: 11.5px; font-weight: 700; color: #94a3b8; margin-bottom: 3px; letter-spacing: .2px; }
 .th-hdr-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .th-hdr h1 { margin: 0; font-size: 25px; font-weight: 800; color: #0f172a; line-height: 1.2; }
-.th-badge { display: inline-flex; align-items: center; gap: 4px; background: #fff6dc; color: #8a5a0b; border: 1px solid #f1dfae; border-radius: 999px; padding: 2px 9px; font-size: 10.5px; font-weight: 800; }
+.th-badge { display: inline-flex; align-items: center; gap: 4px; background: #ecf7ef; color: #166534; border: 1px solid #cfe9d8; border-radius: 999px; padding: 2px 9px; font-size: 10.5px; font-weight: 800; }
 .th-hdr-sub { margin: 5px 0 0; font-size: 13.5px; font-weight: 600; color: #64748b; }
-.th-hdr-sub a { color: #b8860b !important; font-weight: 800; }
+.th-hdr-sub a { color: #15803d !important; font-weight: 800; }
 .th-hdr-a { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
 .th-act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 11px; padding: 10px 18px; font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; text-decoration: none !important; background: #14532d; color: #fff !important; box-shadow: 0 8px 18px -10px rgba(20,83,45,.6); transition: transform .15s; }
 .th-act:hover { transform: translateY(-1px); }
-.th-act.gold { background: linear-gradient(135deg, #f3d27a, #d4a24c); color: #3b2a05 !important; box-shadow: 0 0 0 4px rgba(242,201,76,.2); }
+.th-act.gold { background: #fff; color: #166534 !important; border: 1.5px solid #15803d; box-shadow: none; }
 .th-act:disabled { opacity: .7; cursor: wait; }
 .th-hdr-meta { display: flex; align-items: center; gap: 12px; }
 .th-upd { border: 0; background: none; padding: 0; display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 11px; font-weight: 600; color: #94a3b8; cursor: pointer; }
 .th-upd:hover { color: #14532d; }
-.th-edit { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: #b8860b !important; text-decoration: none !important; }
+.th-edit { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
 .th-hchips { position: relative; margin-top: 18px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .th-hchips::-webkit-scrollbar { display: none; }
 .th-hchip { display: flex; align-items: center; gap: 8px; flex-shrink: 0; background: #fbfcfb; border: 1px solid #edf1ee; border-radius: 12px; padding: 7px 12px 7px 8px; }
-.th-hchip > span { width: 30px; height: 30px; border-radius: 9px; background: #fff6dc; color: #b8860b; display: grid; place-items: center; font-size: 15px; }
+.th-hchip > span { width: 30px; height: 30px; border-radius: 9px; background: #ecf7ef; color: #15803d; display: grid; place-items: center; font-size: 15px; }
 .th-hchip small { display: block; font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; line-height: 1.2; white-space: nowrap; }
 .th-hchip b { display: block; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.3; white-space: nowrap; }
 
@@ -286,8 +286,8 @@ const CSS = `
 .th-steps li.done { color: #14532d; }
 .th-steps li.done i { background: #15803d; border-color: #15803d; color: #fff; }
 .th-steps li.done:not(:last-child)::after { background: #15803d; }
-.th-steps li.now { color: #8a5a0b; }
-.th-steps li.now i { border-color: #d4a24c; color: #b8860b; }
+.th-steps li.now { color: #166534; }
+.th-steps li.now i { border-color: #22a35a; color: #15803d; }
 .th-apply p { margin: 0 0 14px; color: #64748b; font-size: 14px; }
 
 .th-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; height: 170px; align-items: end; }
@@ -310,10 +310,10 @@ const CSS = `
 .th-due { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; background: #f0faf3; color: #166534; white-space: nowrap; }
 .th-due.today { background: #fff7e6; color: #b45309; }
 .th-due.late { background: #fef2f2; color: #b91c1c; }
-.th-note-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: linear-gradient(135deg, #fff6dc, #fdecc0); color: #8a5a0b; }
+.th-note-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #ecf7ef; color: #15803d; }
 .th-note > i { color: #94a3b8; }
 .th-none { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #64748b; padding: 10px 0; }
-.th-none i { color: #c9962c; font-size: 18px; }
+.th-none i { color: #22a35a; font-size: 18px; }
 
 .th-cert { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 .th-cert.ready { background: linear-gradient(135deg, #fffaf0, #fff 60%); border-color: #f1e2bd; }
