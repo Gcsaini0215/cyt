@@ -148,6 +148,11 @@ function Upgrade() {
               <i className="feather-zap" aria-hidden="true" />
               <div><b>Upgrade offer · {daysLeft} day{daysLeft === 1 ? "" : "s"} left</b>Pay only the difference until {fmtDate(offer.endsAt, { day: "numeric", month: "short" })}. After that, upgrades cost the full plan price.</div>
             </div>
+          ) : offer.freePlan ? (
+            <div className="up-offer off" role="note">
+              <i className="feather-gift" aria-hidden="true" />
+              <div><b>Your current plan is free from CYT</b>Upgrades are at the full plan price.</div>
+            </div>
           ) : (
             <div className="up-offer off" role="note">
               <i className="feather-info" aria-hidden="true" />
