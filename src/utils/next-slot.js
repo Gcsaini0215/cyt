@@ -2,6 +2,8 @@
 // (/book/[id]): 60-minute slots built from the weekly availability over the next 14 days,
 // skipping slots that have already started today and ones that are booked.
 
+import { istDay, istNowMinutes, istInstant } from "./ist";
+
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const SDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -38,17 +40,16 @@ const timeLabel = (mins) => {
  * @returns {{ date: Date, label: string } | null}
  */
 export function nextOpenSlot(availabilities = [], bookedIso = new Set(), now = new Date()) {
-  const nowMin = now.getHours() * 60 + now.getMinutes();
+  // availability is India time — work in IST whatever the browser's (or server's) timezone
+  const nowMin = istNowMinutes(now);
   for (let i = 0; i < 14; i++) {
-    const d = new Date(now);
-    d.setDate(now.getDate() + i);
+    const d = istDay(now, i);
     const av = availabilities.find((a) => a.day === DAYS[d.getDay()]);
     if (!av?.times?.length) continue;
     const starts = [...new Set(av.times.flatMap((t) => slotStarts(t.open, t.close)))].sort((a, b) => a - b);
     for (const mins of starts) {
       if (i === 0 && mins <= nowMin) continue;
-      const at = new Date(d);
-      at.setHours(Math.floor(mins / 60), mins % 60, 0, 0);
+      const at = istInstant(d, Math.floor(mins / 60), mins % 60);
       if (bookedIso.has(at.toISOString())) continue;
       const dayLabel = i === 0 ? "Today" : i === 1 ? "Tomorrow" : `${SDAYS[d.getDay()]} ${d.getDate()} ${MONS[d.getMonth()]}`;
       return { date: at, label: `${dayLabel}, ${timeLabel(mins)}` };

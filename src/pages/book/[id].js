@@ -17,6 +17,7 @@ import { isObjectId } from "../../utils/therapist-slug";
 import { getSlugMaps, currentSlugFor } from "../../utils/therapist-slug-maps";
 import { profileSeo, cleanName } from "../../utils/related-therapists";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
+import { istDay, istParts, istNowMinutes, istInstant, isAwayFromIst, localTimeLabel } from "../../utils/ist";
 
 // ── constants ────────────────────────────────────────────────────────────────
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -65,10 +66,10 @@ function buildSlots(open, close, dur = 60) {
   return out;
 }
 
+// the next 14 days in India time (availability is set in IST, whatever the visitor's timezone)
 function getNext14Days() {
-  return Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() + i); return new Date(d);
-  });
+  const now = new Date();
+  return Array.from({ length: 14 }, (_, i) => istDay(now, i));
 }
 
 // ── MINI THERAPIST HEADER (shown on every step) ──────────────────────────────
@@ -369,8 +370,11 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       if (RELATIONS.includes(router.query.relation)) setRelation(router.query.relation);
     }
   }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
-  const nowMin     = new Date().getHours() * 60 + new Date().getMinutes();
-  const isToday    = d => d?.toDateString() === new Date().toDateString();
+  const nowMin     = istNowMinutes();
+  const isToday    = d => d?.toDateString() === istDay().toDateString();
+  // visitors outside India also see each slot in their own time (set after mount: no SSR mismatch)
+  const [awayTz, setAwayTz] = React.useState(false);
+  React.useEffect(() => { setAwayTz(isAwayFromIst()); }, []);
 
   React.useEffect(() => {
     if (!id) return;
@@ -425,9 +429,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   const slotIso = React.useCallback((date, val) => {
     if (!date || !val) return "";
     const [h, m] = val.split(":").map(Number);
-    const d = new Date(date);
-    d.setHours(h, m, 0, 0);
-    return d.toISOString();
+    return istInstant(date, h, m).toISOString();
   }, []);
 
   // Slot grid model: one column per open day (max 10), one row per distinct start time.
@@ -457,8 +459,9 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     atDone.current = true;
     const t = new Date(at);
     if (isNaN(t.getTime()) || t.getTime() <= Date.now()) return;
-    const val = `${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")}`;
-    const dy = grid.days.find(d => d.date.toDateString() === t.toDateString());
+    const tp = istParts(t);
+    const val = `${String(tp.h).padStart(2, "0")}:${String(tp.min).padStart(2, "0")}`;
+    const dy = grid.days.find(d => d.date.toDateString() === istDay(t).toDateString());
     const row = grid.rows.find(r => r.val === val);
     if (dy && row && dy.vals.has(val) && !bookedSlots.has(slotIso(dy.date, val))) pickSlot(dy.date, row);
   }, [grid, selSvc, bookedSlots]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -570,9 +573,8 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
 
   function doCheckout() {
     if (!selSvc || !selFmt || !selDate || !selSlot) return;
-    const dt = new Date(selDate);
     const [h, m] = selSlot.val.split(":").map(Number);
-    dt.setHours(h, m, 0, 0);
+    const dt = istInstant(selDate, h, m); // the slot is India time, whatever the browser's timezone
     const p = new URLSearchParams({
       service: selSvc.name, format: selFmt.type,
       price: String(selFmt.fee), booking_date: dt.toISOString(),
@@ -678,6 +680,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
               {grid.days.length
                 ? `${profile.user?.name?.split(" ")[0]}'s availability — next ${grid.days.length} open day${grid.days.length > 1 ? "s" : ""}`
                 : "No availability published yet"}
+              {awayTz && grid.days.length > 0 && <><br /><b style={{ color: "#9a6a12" }}>All times are India time (IST).</b> You'll see your local time before you pay.</>}
             </p>
           </div>
           <div className="bk-periods">
@@ -992,7 +995,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
           { k: "Format",    v: selFmt?.type },
           { k: "Mode",      v: mode === "video" ? "Video Call" : mode === "audio" ? "Voice Call" : "In-Person" },
           { k: "Date",      v: selDate ? `${DAYS[selDate.getDay()]}, ${selDate.getDate()} ${MONS[selDate.getMonth()]}` : "—" },
-          { k: "Time",      v: selSlot ? `${selSlot.label} IST` : "—" },
+          { k: "Time",      v: selSlot ? `${selSlot.label} IST${awayTz && selDate ? ` · ${localTimeLabel(istInstant(selDate, ...selSlot.val.split(":").map(Number)))} your time` : ""}` : "—" },
           { k: "Patient",   v: bookFor === "self" ? "Myself" : `${relation || "Other"}${age ? ` · Age ${age}` : ""}` },
         ].map((row, i, arr) => (
           <div key={row.k} style={{ display: "flex", padding: "12px 16px", borderBottom: i < arr.length - 1 ? "1px solid #e2e8f0" : "none" }}>
@@ -1266,7 +1269,8 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
               <TherapistBar profile={profile} selFmt={selFmt} couponSave={couponSave} />
               <div className="bk-slotchip">
                 <span><i className="feather-calendar" style={{ marginRight: 8 }}></i>
-                  {selDate ? `${SDAYS[selDate.getDay()]}, ${selDate.getDate()} ${MONS[selDate.getMonth()]}` : ""} · {selSlot?.label}
+                  {selDate ? `${SDAYS[selDate.getDay()]}, ${selDate.getDate()} ${MONS[selDate.getMonth()]}` : ""} · {selSlot?.label} IST
+                  {awayTz && selDate && selSlot && <small style={{ display: "block", fontWeight: 600, color: "#64748b", marginTop: 2 }}>{localTimeLabel(istInstant(selDate, ...selSlot.val.split(":").map(Number)))} your time</small>}
                 </span>
                 <button type="button" onClick={() => setPhase("slots")}>Change</button>
               </div>

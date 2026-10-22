@@ -8,6 +8,7 @@ import { fetchData, postData } from "../../utils/actions";
 import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile, apiUrl, releaseBookingSlot } from "../../utils/url";
 import useUserStore from "../../store/userStore";
 import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
+import { istDay, isAwayFromIst, localTimeLabel } from "../../utils/ist";
 
 const G  = "#1a5c38";
 const GL = "#228756";
@@ -20,7 +21,10 @@ function fmtDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
-  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONS[d.getMonth()]} · ${d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })} IST`;
+  const day = istDay(d); // the session's day in India time, not the browser's
+  const ist = `${DAYS[day.getDay()]}, ${day.getDate()} ${MONS[day.getMonth()]} · ${d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })} IST`;
+  // clients outside India also see their own local time
+  return typeof window !== "undefined" && isAwayFromIst() ? `${ist} (${localTimeLabel(d)} your time)` : ist;
 }
 
 // Razorpay's checkout.js is loaded async — wait for window.Razorpay before use.
