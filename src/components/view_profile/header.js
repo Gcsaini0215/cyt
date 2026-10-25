@@ -40,7 +40,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [snackbarText, setSnackbarText] = React.useState("Profile link copied!");
   const [isConsultationModalOpen, setIsConsultationModalOpen] = React.useState(false);
-  const [profileUrl, setProfileUrl] = React.useState("");
+  const [profileUrl, setProfileUrl] = React.useState(() => `https://www.chooseyourtherapist.in${profilePath(pageData)}`);
   const [chatOpen, setChatOpen] = React.useState(false);
   const [waitlistDone, setWaitlistDone] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
@@ -204,9 +204,9 @@ export default function ProfileHeader({ pageData, favrioutes }) {
     <div style={{ display: "flex", gap: 7, alignItems: "center", justifyContent: isMobile ? "center" : "flex-start" }}>
       {shareLinks.map((link) => (
         <Tooltip key={link.name} title={`Share on ${link.name}`} arrow>
-          <a href={link.url} target="_blank" rel="noopener noreferrer" className="ph-share-icon"
+          <a href={link.url} target="_blank" rel="nofollow noopener noreferrer" className="ph-share-icon"
             style={{ width: 30, height: 30, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center", background: link.color, color: "#fff", flexShrink: 0 }}
-          >{link.icon}</a>
+          >{link.icon}<span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>Share on {link.name}</span></a>
         </Tooltip>
       ))}
       <Tooltip title="Copy Link" arrow>

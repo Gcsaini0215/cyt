@@ -96,7 +96,7 @@ export default function ServiceQuality() {
                 clinical spaces in <Link href="/psychologist-in-noida-delhi">Noida and Delhi NCR</Link>.
               </p>
               <p>
-                Beyond therapy, we run <Link href="/allworkshop">workshops</Link>, an{" "}
+                Beyond therapy, we run <Link href="/allworkshop">mental health workshops</Link>, an{" "}
                 <Link href="/internship-registration">internship and supervision track</Link> for
                 psychology students, and a <Link href="/probono-therapist">pro bono counselling
                 initiative</Link> for those who cannot afford paid sessions.

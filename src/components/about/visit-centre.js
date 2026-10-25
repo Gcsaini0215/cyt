@@ -76,7 +76,7 @@ export default function VisitCentre() {
               </li>
               <li>
                 <b>Phone</b>
-                <a href="tel:+918077757951">+91 80777 57951</a>
+                <a href="tel:+918077757951">+91 80777 57951 (Noida centre)</a>
               </li>
               <li>
                 <b>Hours</b>

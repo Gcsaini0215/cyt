@@ -2128,7 +2128,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         </div>
         <div className="na-centre-actions">
           <a className="na-centre-btn" href={MAPS_URL} target="_blank" rel="noopener noreferrer" aria-label="Get directions to the centre"><Ic I={DirectionsRounded} s={16} /><span>Directions</span></a>
-          <a className="na-centre-btn" href="tel:+918077757951" aria-label="Call the Noida centre" onClick={() => track("noida_header_call", {})}><Ic I={PhoneRounded} s={16} /><span>Call</span></a>
+          <a className="na-centre-btn" href="tel:+918077757951" aria-label="Call the Noida centre" onClick={() => track("noida_header_call", {})}><Ic I={PhoneRounded} s={16} /><span>Call</span><span className="na-sr"> the Noida centre</span></a>
           <a className="na-centre-btn wa" href={waLink("Hi, I have a question about booking at the Noida centre.")} target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp"><Ic I={WhatsAppIcon} s={16} /><span>WhatsApp</span></a>
         </div>
       </div>
@@ -3070,10 +3070,11 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
         .na-price-card { border: 1px solid #e2eae5; border-radius: 16px; padding: 18px 18px 8px; background: #fff; }
         .na-price-mode { font-size: 17px; font-weight: 800; color: #0f2a1d; }
+        .na-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
         .na-price-sub { font-size: 13px; color: #64748b; margin-bottom: 8px; }
         .na-price-card ul { list-style: none; margin: 0; padding: 0; }
         .na-price-card li { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-top: 1px solid #f1f5f3; font-size: 14px; color: #475569; }
-        .na-price-card li b { font-size: 18px; font-weight: 800; color: #0f2a1d; }
+        .na-price-card li .na-price-amt { font-size: 18px; font-weight: 800; color: #0f2a1d; }
         .na-help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 14px; }
         .na-help-card { border: 1px solid #e2eae5; border-radius: 16px; padding: 16px; background: #fbfdfc; }
         .na-help-card b { display: block; font-size: 15px; font-weight: 800; color: #0f2a1d; margin-bottom: 4px; }
@@ -3149,7 +3150,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-price-card { padding: 20px 20px 10px; border-radius: 20px; }
         .na-price-card .na-price-mode { color: var(--pc-fg, #0f2a1d); }
         .na-price-card li { border-top-color: var(--pc-bd, #f1f5f3); }
-        .na-price-card li b { color: #0f172a; }
+        .na-price-card li .na-price-amt { color: #0f172a; }
         .na-help-card { border-radius: 20px; padding: 18px; }
         .na-help-card b { color: #0f172a; }
         .na-steps4 li { border-radius: 18px; }
@@ -4146,8 +4147,8 @@ function NoidaSeoContent({ pricing, reviews, team = [] }) {
                   <div className="na-price-mode">{c.mode}</div>
                   <div className="na-price-sub">{c.sub}</div>
                   <ul>
-                    {Number(c.ind) > 0 && <li><span>Individual</span><b>{inr(c.ind)}</b></li>}
-                    {Number(c.cpl) > 0 && <li><span>Couple</span><b>{inr(c.cpl)}</b></li>}
+                    {Number(c.ind) > 0 && <li><span>Individual</span><span className="na-price-amt">{inr(c.ind)}</span></li>}
+                    {Number(c.cpl) > 0 && <li><span>Couple</span><span className="na-price-amt">{inr(c.cpl)}</span></li>}
                   </ul>
                 </div>
               ))}
@@ -4179,9 +4180,9 @@ function NoidaSeoContent({ pricing, reviews, team = [] }) {
               Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301
             </address>
             <div className="na-find-btns">
-              <a className="na-find-btn primary" href={MAPS_URL} target="_blank" rel="noopener noreferrer"><Ic I={DirectionsRounded} s={17} /> Get directions</a>
-              <a className="na-find-btn" href="tel:+918077757951"><Ic I={PhoneRounded} s={17} /> Call</a>
-              <a className="na-find-btn" href={waLink("Hi, I have a question about the Noida centre.")} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={17} /> WhatsApp</a>
+              <a className="na-find-btn primary" href={MAPS_URL} target="_blank" rel="noopener noreferrer"><Ic I={DirectionsRounded} s={17} /> Open in Google Maps</a>
+              <a className="na-find-btn" href="tel:+918077757951"><Ic I={PhoneRounded} s={17} /> Call us</a>
+              <a className="na-find-btn" href={waLink("Hi, I have a question about the Noida centre.")} target="_blank" rel="noopener noreferrer"><Ic I={WhatsAppIcon} s={17} /> Message on WhatsApp</a>
             </div>
             <h4>Easy to reach from</h4>
             <p>
@@ -4217,7 +4218,7 @@ function NoidaSeoContent({ pricing, reviews, team = [] }) {
         <p className="na-seo-links">
           Explore more: <a href="/psychologist-in-noida-delhi">Find a therapist in Noida &amp; Delhi NCR</a> ·{" "}
           <a href="/view-all-therapist">Browse all therapists</a> · <a href="/self-assessment">Free self-assessment</a> ·{" "}
-          <a href="/privacy-policy">Privacy policy</a>
+          <a href="/privacy-policy">How we protect your data</a>
         </p>
       </div>
     </section>
