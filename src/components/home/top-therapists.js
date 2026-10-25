@@ -181,7 +181,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
           <ul className="tt-trust">
             <li><b>{total || "50+"}</b> verified psychologists</li>
             <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <span style={{ fontWeight: 700 }}>{ratingText(ps)}</span> on Google</a></li>
-            <li><b>{sessionsText(ps)}</b> sessions</li>
+            <li><span style={{ fontWeight: 700 }}>{sessionsText(ps)}</span> sessions</li>
             <li>100% confidential</li>
           </ul>
           <Link href="/view-all-therapist?help=1" className="tt-help" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Not sure who to pick? <b>Help me choose</b></Link>

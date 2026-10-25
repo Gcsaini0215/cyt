@@ -276,7 +276,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
           <ul className="cyt-trust" aria-label="Why people choose us">
             <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <span style={{ fontWeight: 700 }}>{ratingText(ps)}</span> on Google <span>({reviewsText(ps)} reviews)</span></a></li>
-            <li><VerifiedRounded sx={{ fontSize: 15, color: "#1e7a4c" }} /> <b>{sessionsText(ps)}</b> sessions</li>
+            <li><VerifiedRounded sx={{ fontSize: 15, color: "#1e7a4c" }} /> <span style={{ fontWeight: 700 }}>{sessionsText(ps)}</span> sessions</li>
             <li className="cyt-trust-x"><i className="feather-lock" /> 100% confidential</li>
           </ul>
         </div>
