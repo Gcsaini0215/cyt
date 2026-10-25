@@ -205,7 +205,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
           width="1200" height="520" fetchPriority="high" decoding="async" />
         <div className="container pl-ban-inner">
           <nav className="pl-crumbs" aria-label="Breadcrumb">
-            <a href="/">Home</a> <span aria-hidden="true">›</span> <a href="/psychologist-in">Psychologists by city</a> <span aria-hidden="true">›</span> <span aria-current="page">{config.name}</span>
+            <a href="/">CYT Home</a> <span aria-hidden="true">›</span> <a href="/psychologist-in">Psychologists by city</a> <span aria-hidden="true">›</span> <span aria-current="page">{config.name}</span>
           </nav>
           <p className="pl-eyebrow">Verified psychologists · online &amp; in person</p>
           <h1 id="pl-h1">Psychologist in <span>{config.name}</span></h1>

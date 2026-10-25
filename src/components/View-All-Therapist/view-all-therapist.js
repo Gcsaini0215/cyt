@@ -339,7 +339,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
     <div className="vat-fee-range" role="group" aria-label="Fees per session">
       <div className="vat-fee-head">
         <span>Fees per session</span>
-        <b>₹{feeLo.toLocaleString("en-IN")} – ₹{feeHi.toLocaleString("en-IN")}{feeHi >= feeBounds.max ? "+" : ""}</b>
+        <span className="vat-fee-val">₹{feeLo.toLocaleString("en-IN")} – ₹{feeHi.toLocaleString("en-IN")}{feeHi >= feeBounds.max ? "+" : ""}</span>
       </div>
       <div className="vat-fee-track">
         <div className="vat-fee-fill" style={{ left: `${feePct(feeLo)}%`, right: `${100 - feePct(feeHi)}%` }} />
@@ -798,7 +798,7 @@ const CSS = `
 .vat-fee-range { width: 280px; }
 .vat-fee-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
 .vat-fee-head span { font-size: 12.5px; font-weight: 700; color: #334155; }
-.vat-fee-head b { font-size: 13.5px; font-weight: 800; color: #1e7a4c; }
+.vat-fee-head .vat-fee-val { font-size: 13.5px; font-weight: 800; color: #1e7a4c; }
 .vat-fee-track { position: relative; height: 24px; }
 .vat-fee-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 5px; margin-top: -2.5px; border-radius: 999px; background: #e2e8e4; }
 .vat-fee-fill { position: absolute; top: 50%; height: 5px; margin-top: -2.5px; border-radius: 999px; background: #1e7a4c; }

@@ -92,7 +92,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": `${SITE}/` },
-        { "@type": "ListItem", "position": 2, "name": "Find a therapist", "item": `${SITE}/view-all-therapist` },
+        { "@type": "ListItem", "position": 2, "name": "All psychologists", "item": `${SITE}/view-all-therapist` },
         { "@type": "ListItem", "position": 3, "name": c.title, "item": url },
       ],
     },
@@ -128,8 +128,8 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
             width="1200" height="520" fetchPriority="high" decoding="async" />
           <div className="container tf-ban-inner">
             <nav className="tf-crumbs" aria-label="Breadcrumb">
-              <Link href="/">Home</Link> <span aria-hidden="true">›</span>
-              <Link href="/view-all-therapist">Find a therapist</Link> <span aria-hidden="true">›</span>
+              <Link href="/">CYT Home</Link> <span aria-hidden="true">›</span>
+              <Link href="/view-all-therapist">All psychologists</Link> <span aria-hidden="true">›</span>
               <span aria-current="page">{c.label}</span>
             </nav>
             <p className="tf-eyebrow">Verified psychologists · online &amp; in person</p>

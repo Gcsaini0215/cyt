@@ -149,7 +149,7 @@ export default function App() {
                     <li className={navCls("/")}><Link href="/" aria-current={isActive("/") ? "page" : undefined}>Home</Link></li>
                     <li className={navCls("/view-all-therapist")}><Link href="/view-all-therapist" aria-current={isActive("/view-all-therapist") ? "page" : undefined}>Therapist Directory</Link></li>
                     <li className={`has-dropdown ${["/therapy-booking", "/self-assessment", "/noida-appointment"].some(isActive) ? "is-active" : ""}`}>
-                      <a href="#" role="button" aria-haspopup="true" onClick={(e) => e.preventDefault()}>Services <i className="feather-chevron-down"></i></a>
+                      <a role="button" tabIndex={0} aria-haspopup="true" style={{ cursor: "pointer" }} onClick={(e) => e.preventDefault()}>Services <i className="feather-chevron-down"></i></a>
                       <ul className="submenu">
                         <li><Link href="/therapy-booking">Therapy Booking</Link></li>
                         <li><Link href="/self-assessment">Self Assessment</Link></li>

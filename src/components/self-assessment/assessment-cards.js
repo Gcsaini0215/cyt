@@ -48,7 +48,7 @@ export default function AssessmentCards({ prices }) {
                   <span className="sac-price">
                     {prices?.[t.key] ? <>{prices[t.key].offer && <s>₹{prices[t.key].fee}</s>} <b>₹{prices[t.key].price}</b>{prices[t.key].offer && prices[t.key].offerLabel && <em>{prices[t.key].offerLabel}</em>}<small>screening fee</small></> : <small>&nbsp;</small>}
                   </span>
-                  <Link href={pathOf(t.key)} className="sac-btn" aria-label={`Take the ${t.short} screening`}>Take the screening <span aria-hidden="true">→</span></Link>
+                  <Link href={pathOf(t.key)} className="sac-btn" aria-label={`Take the ${t.short} screening`}>Take the <span className="sac-sr">{t.short} </span>screening <span aria-hidden="true">→</span></Link>
                 </div>
               </article>
             ))}
@@ -99,6 +99,7 @@ const SAC_CSS = `
 .sac-price small { display: block; font-size: 11px; color: #8a9a91; }
 .sac-btn { padding: 0 16px; height: 42px; border-radius: 12px; border: 0; background: #1f6b45; color: #fff; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 8px 18px -12px rgba(31,107,69,.8); transition: background .2s, transform .2s; }
 .sac-btn:hover { background: #185a39; transform: translateY(-1px); }
+.sac-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .sac-btn span { transition: transform .2s; } .sac-btn:hover span { transform: translateX(2px); }
 .sac-btn.ghost { background: #fff; color: #1f6b45; border: 1.5px solid #cfe1d6; box-shadow: none; }
 .sac-btn.ghost:hover { background: #f0f7f2; }

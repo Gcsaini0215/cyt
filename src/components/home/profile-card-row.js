@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useState, useEffect, useRef } from "react";
 import ImageTag from "../../utils/image-tag";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
@@ -69,25 +70,28 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
   const next = nextAvailable(data, now);
   const bio = bioLine(data.user?.bio);
   const profileHref = profilePath(data);
+  const router = useRouter();
 
   return (
     <article className="pcr">
-      <Link href={profileHref} className="pcr-photo" aria-label={`${name} — view profile`}>
+      {/* the photo opens the profile too, but isn't a second link to it — the name and "View Profile"
+          already are (SEO audits flag the same profile linked three times per card) */}
+      <div className="pcr-photo" role="presentation" style={{ cursor: "pointer" }} onClick={() => router.push(profileHref)}>
         <ImageTag alt={name} src={thumb(`${imagePath}/${data.user?.profile}`, 256)} srcSet={thumbSet(`${imagePath}/${data.user?.profile}`, 128, 256)} width="124" height="124" />
         {data.priority === 1 && <span className="pcr-badge top" title="Handpicked by the CYT team">★ Top Pick</span>}
         {data.priority === 2 && <span className="pcr-badge ver" title="Documents checked by our team">✓ Verified</span>}
-      </Link>
+      </div>
 
       <div className="pcr-main">
         <Link href={profileHref} className="pcr-name">
-          <span>{name}</span>
+          <span>{name}</span><span className="pcr-sr">, {data.profile_type || "Psychologist"}</span>
           <VerifiedRounded sx={{ fontSize: 18, color: "#1d9bf0", flexShrink: 0 }} />
         </Link>
         {data.profile_type && <div className="pcr-role">{data.profile_type}{data.top_therapist && <span className="pcr-top" title="CYT Top therapist — highly rated and active">★ Top therapist</span>}</div>}
         <div className="pcr-meta">
           {avg && (
             <span className="pcr-rate">
-              <StarIcon sx={{ color: "#d4a24c", fontSize: 16 }} /> <b>{avg}</b> <small>({reviews.length})</small>
+              <StarIcon sx={{ color: "#d4a24c", fontSize: 16 }} /> <span className="pcr-avg">{avg}</span> <small>({reviews.length})</small>
             </span>
           )}
           {exp && <span><i className="feather-briefcase" /> {exp} exp.</span>}
@@ -130,8 +134,8 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
           </div>
         )}
         <div className="pcr-acts">
-          <Link href={bookPath(data)} className="pcr-book">Book Now</Link>
-          <Link href={profileHref} className="pcr-view">View Profile</Link>
+          <Link href={bookPath(data)} className="pcr-book">Book Now<span className="pcr-sr"> with {name}</span></Link>
+          <Link href={profileHref} className="pcr-view">View Profile<span className="pcr-sr"> of {name}</span></Link>
         </div>
       </div>
 
@@ -175,7 +179,8 @@ export const CARD_CSS = `
 .pcr-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 13px; color: #475569; font-weight: 500; }
 .pcr-meta span { display: inline-flex; align-items: center; gap: 5px; }
 .pcr-meta i { color: #1e7a4c; font-size: 13px; }
-.pcr-rate b { color: #0f172a; font-weight: 800; }
+.pcr-rate .pcr-avg { color: #0f172a; font-weight: 800; }
+.pcr-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .pcr-rate small { color: #94a3b8; font-size: 12px; }
 .pcr-modes { display: flex; flex-wrap: wrap; gap: 6px; }
 .pcr-modes span { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #14532d; background: #eef6f1; border-radius: 6px; padding: 3px 8px; }

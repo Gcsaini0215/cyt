@@ -110,7 +110,7 @@ export default function PsychologistHub({ stats, total }) {
             srcSet="/assets/img/therapist-directory-banner-800.webp 800w, /assets/img/therapist-directory-banner-1600.webp 1600w"
             sizes="100vw" alt="Psychologists across India — Choose Your Therapist" width="1600" height="750" fetchPriority="high" decoding="async" />
           <div className="container ph-ban-inner">
-            <nav className="ph-crumbs" aria-label="Breadcrumb"><Link href="/">Home</Link> <span aria-hidden="true">›</span> <span aria-current="page">Psychologists by city</span></nav>
+            <nav className="ph-crumbs" aria-label="Breadcrumb"><Link href="/">CYT Home</Link> <span aria-hidden="true">›</span> <span aria-current="page">Psychologists by city</span></nav>
             <p className="ph-eyebrow">{slugs.length} cities &amp; states · online across India</p>
             <h1 id="ph-h1">Find a psychologist <span>near you</span></h1>
             <p className="ph-sub">Meet in person at our Noida centre, or talk online from anywhere — {total ? `all ${total} of our` : "all our"} verified psychologists offer video or audio sessions.</p>

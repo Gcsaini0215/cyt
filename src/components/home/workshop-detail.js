@@ -54,7 +54,7 @@ export default function WorkshopDetail(props) {
               <div className="content text-start">
                 <ul className="page-list">
                   <li className="rbt-breadcrumb-item">
-                    <Link href="/">Home</Link>
+                    <Link href="/">CYT Home</Link>
                   </li>
                   <li>
                     <div className="icon-right">

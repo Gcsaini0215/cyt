@@ -360,7 +360,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
         <span className="bd-blob a" aria-hidden="true" /><span className="bd-blob b" aria-hidden="true" />
         <div className="bd-head-in">
           <nav className="bd-crumbs" aria-label="Breadcrumb">
-            <Link href="/">Home</Link><span>/</span><Link href="/blogs">Blog</Link>
+            <Link href="/">CYT Home</Link><span>/</span><Link href="/blogs">Blog</Link>
             {blog.category && <><span>/</span><b>{blog.category}</b></>}
           </nav>
           <h1 className="bd-title">{titleWithKeyword(blog.title, blog)}</h1>

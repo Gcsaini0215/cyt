@@ -227,7 +227,7 @@ export default function BlogsPage({ posts = [] }) {
           <span className="bl-blob a" /><span className="bl-blob b" /><span className="bl-blob c" />
           <div className="bl-wrap bl-hero-in">
             <nav className="bl-crumbs" aria-label="Breadcrumb">
-              {isClient ? <Link href="/my-dashboard">← Back to My Space</Link> : <><Link href="/">Home</Link><span>/</span><b>Blog</b></>}
+              {isClient ? <Link href="/my-dashboard">← Back to My Space</Link> : <><Link href="/">CYT Home</Link><span>/</span><b>Blog</b></>}
             </nav>
             <p className="bl-eyebrow">🌿 Mental Health Blog · by verified psychologists</p>
             <h1 className="blogs-hero-heading">Mental health articles for <span>calmer days</span></h1>

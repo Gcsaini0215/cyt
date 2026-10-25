@@ -12,7 +12,7 @@ export default function AllWorkshops() {
                 <div className="col-lg-12">
                   <ul className="page-list">
                     <li className="rbt-breadcrumb-item">
-                      <Link href="/">Home</Link>
+                      <Link href="/">CYT Home</Link>
                     </li>
                     <li>
                       <div className="icon-right">

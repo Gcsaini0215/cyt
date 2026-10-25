@@ -195,31 +195,6 @@ export default function FaqPage() {
                     on our latest services, mental health resources, and special
                     offers.
                   </p>
-                  <div className="social-share-wrapper mt--30">
-                    <h5>You can also follow us on:</h5>
-                    <ul className="social-icon social-default transparent-with-border justify-content-start mt--30">
-                      <li>
-                        <a href="https://www.facebook.com/">
-                          <i className="feather-facebook"></i>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="https://www.twitter.com">
-                          <i className="feather-twitter"></i>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="https://www.instagram.com/">
-                          <i className="feather-instagram"></i>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="https://www.linkdin.com/">
-                          <i className="feather-linkedin"></i>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
                 </div>
               </div>
             </div>
