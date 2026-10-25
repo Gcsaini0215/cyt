@@ -14,7 +14,7 @@ export default function CancellationPolicy() {
   return (
     <>
       <Head>
-        <title>Cancellation Policy | Refund & Rescheduling | Choose Your Therapist</title>
+        <title>Cancellation &amp; Refund Policy | Choose Your Therapist</title>
         <meta name="description" content="Review our cancellation and refund policy. Understand the terms for rescheduling or canceling your therapy sessions with independent therapists." />
         <meta name="keywords" content="Cancellation Policy, Refund Policy, Reschedule Therapy Session, Choose Your Therapist" />
         
@@ -28,6 +28,7 @@ export default function CancellationPolicy() {
         <meta name="twitter:title" content="Cancellation Policy | Refund & Rescheduling | Choose Your Therapist" />
         <meta name="twitter:description" content="Review our cancellation and refund terms." />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/cancellation-policy" />
       </Head>
       <MyNavbar />
       <br />

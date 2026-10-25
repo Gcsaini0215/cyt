@@ -265,12 +265,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.chooseyourtherapist.in/mind-matters</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.chooseyourtherapist.in/mentorship-for-students</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
@@ -301,12 +295,6 @@
     <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.chooseyourtherapist.in/join-us</loc>
-    <lastmod>2026-06-16</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
 
   <!-- Auth pages (low priority) -->

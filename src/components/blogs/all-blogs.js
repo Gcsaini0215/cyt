@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import axios from "axios";
 import { baseApi } from "../../utils/url";
+import { blogPath } from "../../utils/blog-slug";
 
 const BLOGS_API = "https://api.chooseyourtherapist.in/api/get-blogs";
 
@@ -448,7 +449,7 @@ export default function AllBlogs() {
       <div className="container">
         {featuredBlog && !searchTerm && selectedCategory === "All" && (
           <div className="featured-section">
-            <Link href={`/blog-details?id=${featuredBlog._id || featuredBlog.id}`}>
+            <Link href={blogPath(featuredBlog)}>
               <div className="featured-banner">
                 <div className="featured-img-wrapper">
                   <LazyImage
@@ -506,7 +507,7 @@ export default function AllBlogs() {
                 className="col-lg-2 col-md-4 col-sm-6 col-6 mobile-grid-item"
                 key={blog._id || blog.id}
               >
-                <Link href={`/blog-details?id=${blog._id || blog.id}`}>
+                <Link href={blogPath(blog)}>
                   <div className="blog-card-custom">
                     <div className="blog-card-img-wrapper">
                       <LazyImage

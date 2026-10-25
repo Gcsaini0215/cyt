@@ -16,7 +16,7 @@ import CorporateServices, { corporateServices } from "../components/business/cor
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/for-business`;
 const OG_IMAGE = `${SITE}/assets/img/corporate-wellness-workshop.jpg`;
-const TITLE = "Corporate Wellness Program in India | Employee Mental Health & EAP";
+const TITLE = "Corporate Wellness Program India | Employee EAP | CYT";
 const DESCRIPTION = "Corporate wellness program for Indian companies: confidential employee counselling (EAP), burnout workshops & manager training by verified psychologists.";
 
 const breadcrumbSchema = {

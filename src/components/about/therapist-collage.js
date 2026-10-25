@@ -76,7 +76,7 @@ export default function TherapistCollage({ pics: picsProp = [] }) {
                     >
                       <img
                         src={src}
-                        alt=""
+                        alt="Verified psychologist at Choose Your Therapist"
                         style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
                         onError={(e) => { e.target.src = DEFAULT_PIC; }}
                       />

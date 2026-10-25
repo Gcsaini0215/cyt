@@ -11,7 +11,7 @@ import { imagePath, defaultProfile } from "../utils/url";
 
 const LEAD_STRIP_MESSAGES = [
   { icon: "feather-heart", text: "Feeling anxious or low? Talk to a verified psychologist today.", href: "/view-all-therapist" },
-  { icon: "feather-percent", text: "Affordable sessions — no waitlists, no judgment.", href: "/view-all-therapist?sort=fee" },
+  { icon: "feather-percent", text: "Affordable sessions — no waitlists, no judgment.", href: "/view-all-therapist" },
   { icon: "feather-check-circle", text: "Verified therapists across India, online & in-person.", href: "/view-all-therapist" },
   { icon: "feather-shield", text: "100% confidential sessions. Your privacy, our promise.", href: "/view-all-therapist" },
   { icon: "feather-phone", text: "Book in under 2 minutes — call +91-807-775-7951", href: "tel:+918077757951" },
@@ -116,7 +116,9 @@ export default function App() {
               const props = { className: `strip-item${i === stripIdx ? " on" : ""}`, tabIndex: i === stripIdx ? 0 : -1, "aria-hidden": i !== stripIdx };
               return m.href.startsWith("tel:")
                 ? <a key={i} {...props} href={m.href}><i className={m.icon}></i> {m.text}</a>
-                : <Link key={i} {...props} href={m.href}><i className={m.icon}></i> {m.text}</Link>;
+                // a button, not a link: the strip is a ticker, and whole-sentence links to the same page
+                // were showing up in SEO audits as long/duplicate anchors (the navbar already links there)
+                : <button key={i} type="button" {...props} onClick={() => router.push(m.href)}><i className={m.icon}></i> {m.text}</button>;
             })}
           </div>
           <a className="strip-call" href={`tel:${PHONE}`}><i className="feather-phone"></i> +91 80777 57951</a>
@@ -373,6 +375,7 @@ export default function App() {
         .strip-item {
           position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 7px;
           white-space: nowrap; color: inherit; text-decoration: none; font-weight: 600;
+          background: none; border: 0; padding: 0; width: 100%; font: inherit; font-weight: 600; cursor: pointer;
           opacity: 0; transform: translateY(6px); transition: opacity .45s ease, transform .45s ease; pointer-events: none;
         }
         .strip-item.on { opacity: 1; transform: none; pointer-events: auto; }

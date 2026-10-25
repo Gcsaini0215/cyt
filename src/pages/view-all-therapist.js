@@ -9,6 +9,7 @@ import { filterTherapists } from "../utils/filterTherapists";
 import { profilePath } from "../utils/therapist-slug";
 import { slimTherapist, feeBand, directoryFaqs, CONCERNS } from "../utils/therapist-directory";
 import dynamic from "next/dynamic";
+import { fitTitle, fitDesc } from "../utils/seo-text";
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/view-all-therapist";
@@ -143,8 +144,8 @@ function getDynamicMeta(query) {
     };
   }
   return {
-    title: "Find Verified Psychologists & Therapists in India | Choose Your Therapist",
-    description: "Browse India's largest directory of verified counselling psychologists, clinical psychologists, and therapists. Filter by specialty, city, language, and experience. Book online or in-person sessions.",
+    title: "Find Verified Psychologists in India | Choose Your Therapist",
+    description: "India's directory of verified counselling and clinical psychologists. Filter by concern, city, language and fees, and book online or in person.",
   };
 }
 
@@ -227,8 +228,8 @@ export default function ViewAllTherapistPage({ initialAllData, listed, initialFi
   return (
     <div id="__next">
       <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
+        <title>{fitTitle(title.replace(/ \| Choose Your Therapist$/, ""))}</title>
+        <meta name="description" content={fitDesc(description)} />
         <meta name="keywords" content="find psychologist India, verified therapists India, counselling psychologist near me, online therapy India, best psychologist India, therapist directory, clinical psychologist, mental health counseling, book therapist online" />
         <meta name="robots" content={seo.robots} />
         <link rel="canonical" href={seo.canonical} />

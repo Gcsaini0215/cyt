@@ -54,7 +54,7 @@ function LineList({ groups, preview, open, gold = false }) {
             <ul>
               {g.items.map(({ keyword, line: [before, kw, after] }) => (
                 <li key={keyword} className={n++ >= preview ? "pit-x" : undefined}>
-                  {before}<strong>{kw}</strong>{after}
+                  {before}<span className="pit-kw">{kw}</span>{after}
                 </li>
               ))}
             </ul>
@@ -253,7 +253,7 @@ const PIT_CSS = `
 .pit-lg ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; }
 .pit-lg li { position: relative; margin: 0; padding: 5px 0 5px 16px; font-size: 14.5px; line-height: 1.5; color: #475569; }
 .pit-lg li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 6px; height: 6px; border-radius: 50%; background: #22a35a; }
-.pit-lg li strong { color: #0f2a1d; font-weight: 800; }
+.pit-lg li .pit-kw { color: #0f2a1d; font-weight: 800; }
 .pit-lines:not(.open) .pit-x { display: none; }
 .pit-lines.gold li::before { background: #d4a12f; }
 .pit-from { font-size: 12.5px; font-weight: 800; color: #7a5a10; background: #fdf3d4; border: 1px solid #ecd49a; border-radius: 999px; padding: 3px 10px; }
@@ -293,7 +293,7 @@ const PIT_CSS = `
 .pit-cta:hover { background: #166534; }
 .pit-empty { margin: 0; font-size: 14.5px; color: #64748b; }
 @media (max-width: 1023px) { .pit-lg ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 380px) { .pit-lg li { font-size: 13px !important; } .pit-lg li strong { font-weight: 700; } }
+@media (max-width: 380px) { .pit-lg li { font-size: 13px !important; } .pit-lg li .pit-kw { font-weight: 700; } }
 @media (max-width: 599px) {
   .pit-w { padding: 0 14px; }
   .pit-tabbar { gap: 22px; margin-bottom: 14px; }

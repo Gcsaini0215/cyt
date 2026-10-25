@@ -8,6 +8,7 @@ import ProfileCardRow, { CARD_CSS } from "../../components/home/profile-card-row
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 import { CONCERN_PAGES, concernBySlug, concernPath } from "../../utils/concerns";
+import { fitTitle, fitDesc } from "../../utils/seo-text";
 import { slimTherapist, sortTherapists, split, getMinFee, sessionModes } from "../../utils/therapist-directory";
 import LeadCard from "../../components/global/lead-card";
 import MobileActionBar from "../../components/global/mobile-action-bar";
@@ -60,8 +61,9 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
   const url = `${SITE}${concernPath(c)}`;
   const all = `/view-all-therapist?concern=${encodeURIComponent(c.value)}`;
   const label = c.label.toLowerCase();
-  const title = `${c.title} — Verified Psychologists in India | Choose Your Therapist`;
-  const description = `${c.intro.split(". ")[0]}. Talk to ${count ? `${count} verified psychologists` : "verified psychologists"} for ${label}${minFee ? `, from ₹${minFee}` : ""} — online or in person.`.slice(0, 300);
+  const title = fitTitle(`${c.title} in India`);
+  // the "talk to N psychologists" part first — the concern's intro sentence can be long
+  const description = fitDesc(`Talk to ${count ? `${count} verified psychologists` : "verified psychologists"} for ${c.slug === "ocd" ? "OCD" : label} in India${minFee ? `, from ₹${minFee}` : ""} — online or in person. ${c.intro.split(". ")[0]}.`);
   const others = CONCERN_PAGES.filter((x) => x.slug !== c.slug);
   const updatedLabel = updatedAt ? new Date(updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" }) : "";
   // short, factual statements — the kind search engines and AI assistants quote directly
@@ -121,7 +123,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
       <main>
         {/* Banner like the city pages: the concern's photo full width under a dark tint */}
         <section className="tf-banner" aria-labelledby="tf-h1">
-          <img className="tf-ban-img" alt=""
+          <img className="tf-ban-img" alt={`${c.title} — talk to a psychologist`}
             src={c.img ? `/images/concerns/${c.img}.webp` : "/assets/img/therapist-directory-banner-1600.webp"}
             width="1200" height="520" fetchPriority="high" decoding="async" />
           <div className="container tf-ban-inner">
@@ -140,8 +142,8 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
               <li>100% confidential</li>
             </ul>
             <div className="tf-ctas">
-              <Link className="tf-btn gold" href={all}>See {count ? `all ${count} ` : ""}therapists</Link>
-              <Link className="tf-btn line" href="/view-all-therapist?help=1"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
+              <Link className="tf-btn gold" href={all} rel="nofollow">See {count ? `all ${count} ` : ""}therapists</Link>
+              <Link className="tf-btn line" href="/view-all-therapist?help=1" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
             </div>
           </div>
         </section>
@@ -167,13 +169,13 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
           <section className="container tf-thers" aria-labelledby="tf-th">
             <div className="tf-sec-head">
               <h2 id="tf-th">Psychologists who help with {label}</h2>
-              {count > therapists.length && <Link href={all}>See all {count} <i className="feather-arrow-right" aria-hidden="true" /></Link>}
+              {count > therapists.length && <Link href={all} rel="nofollow">See all {count} <i className="feather-arrow-right" aria-hidden="true" /></Link>}
             </div>
             <div className="tf-cards">
               {therapists.map((t) => <ProfileCardRow key={t._id} data={t} favrioutes={[]} highlight={c.value} now={now} />)}
             </div>
             {count > therapists.length && (
-              <div className="tf-more"><Link className="tf-btn" href={all}>See all {count} therapists for {label}</Link></div>
+              <div className="tf-more"><Link className="tf-btn" href={all} rel="nofollow">See all {count} therapists for {label}</Link></div>
             )}
           </section>
         )}

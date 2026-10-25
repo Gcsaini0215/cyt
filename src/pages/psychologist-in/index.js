@@ -66,7 +66,7 @@ export default function PsychologistHub({ stats, total }) {
   const states = slugs.filter(isStateSlug).filter(matches).sort((a, b) => (stats[b]?.count || 0) - (stats[a]?.count || 0));
   const abroad = slugs.filter(isAbroad).filter(matches);
   const cities = slugs.filter((x) => !isStateSlug(x) && !isAbroad(x)).filter(matches).sort((a, b) => PLACES[a].name.localeCompare(PLACES[b].name));
-  const title = "Find a Psychologist Near You — Cities & States in India | Choose Your Therapist";
+  const title = "Find a Psychologist Near You | Choose Your Therapist";
   const description = `Verified psychologists across India — in person at our Noida centre and online from anywhere. Browse ${slugs.length} cities and states${total ? `, ${total} psychologists` : ""}.`;
   const schemas = [
     {
@@ -108,7 +108,7 @@ export default function PsychologistHub({ stats, total }) {
         <section className="ph-banner" aria-labelledby="ph-h1">
           <img className="ph-ban-img" src="/assets/img/therapist-directory-banner-1600.webp"
             srcSet="/assets/img/therapist-directory-banner-800.webp 800w, /assets/img/therapist-directory-banner-1600.webp 1600w"
-            sizes="100vw" alt="" width="1600" height="750" fetchPriority="high" decoding="async" />
+            sizes="100vw" alt="Psychologists across India — Choose Your Therapist" width="1600" height="750" fetchPriority="high" decoding="async" />
           <div className="container ph-ban-inner">
             <nav className="ph-crumbs" aria-label="Breadcrumb"><Link href="/">Home</Link> <span aria-hidden="true">›</span> <span aria-current="page">Psychologists by city</span></nav>
             <p className="ph-eyebrow">{slugs.length} cities &amp; states · online across India</p>
@@ -150,7 +150,7 @@ export default function PsychologistHub({ stats, total }) {
             <p>Video or audio sessions with {total ? `any of our ${total}` : "our"} verified psychologists — in Hindi, English and more.</p>
             <div className="ph-acts">
               <Link href="/view-all-therapist" className="ph-btn">Browse psychologists</Link>
-              <Link href="/view-all-therapist?help=1" className="ph-btn ghost">Help me choose</Link>
+              <Link href="/view-all-therapist?help=1" className="ph-btn ghost" rel="nofollow">Help me choose</Link>
             </div>
           </div>
         </section>

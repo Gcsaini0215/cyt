@@ -146,7 +146,7 @@ export default function AssessmentOptions({ test, initialMode = "self", list = n
               {list === null ? <div className="aop-skel" /> : list.length > 0 ? (
                 <div className="aop-sum">
                   <span className="aop-stack" aria-hidden="true">
-                    {list.slice(0, 4).map((t) => <span key={t.id}>{t.photo ? <img src={t.photo} alt="" /> : t.name.charAt(0)}</span>)}
+                    {list.slice(0, 4).map((t) => <span key={t.id}>{t.photo ? <img src={t.photo} alt={t.name} /> : t.name.charAt(0)}</span>)}
                   </span>
                   <span className="aop-sum-t"><b>{list.length} psychologist{list.length === 1 ? "" : "s"}</b> offer the {test.short}</span>
                   <a href="#psychologists" className="aop-btn" onClick={(e) => { e.preventDefault(); document.getElementById("psychologists")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Choose a psychologist ↓</a>

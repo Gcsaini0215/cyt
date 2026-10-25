@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
     <>
       <Head>
         <title>Privacy Policy | Choose Your Therapist</title>
-        <meta name="description" content="How Choose Your Therapist collects, uses and protects your personal information — clients, therapists, the CYT Noida centre, the Pro Bono programme, and Google Calendar data for therapists." />
+        <meta name="description" content="How Choose Your Therapist collects, uses and protects your personal data — for clients, therapists, the Noida centre, Pro Bono and Google Calendar." />
         <link rel="canonical" href="https://www.chooseyourtherapist.in/privacy-policy" />
       </Head>
       <MyNavbar />

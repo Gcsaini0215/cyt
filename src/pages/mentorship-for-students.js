@@ -8,9 +8,9 @@ export default function MentorshipForStudents() {
   return (
     <div id="__next">
       <Head>
-        <title>Student Mentorship | Career Guidance in Psychology | Choose Your Therapist</title>
+        <title>Student Mentorship in Psychology | Choose Your Therapist</title>
         <meta name="robots" content="noindex, nofollow" />
-        <meta name="description" content="Empowering the next generation of mental health professionals. Join our mentorship program for internships, practical training, research guidance, and career support in psychology." />
+        <meta name="description" content="Mentorship for psychology students — internships, practical training, research guidance and career support from practising psychologists." />
         <meta name="keywords" content="Psychology Mentorship, Internship for Students, Research Guidance Psychology, Career in Mental Health India" />
         
         <meta property="og:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
@@ -23,6 +23,7 @@ export default function MentorshipForStudents() {
         <meta name="twitter:title" content="Student Mentorship | Career Guidance in Psychology | Choose Your Therapist" />
         <meta name="twitter:description" content="Join our mentorship program to jumpstart your psychology career." />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/mentorship-for-students" />
       </Head>
       <MyNavbar />
       <PageBreadCrumb title="Mentorship for Students" linkTitle="Guidance for Future Mental Health Professionals" />

@@ -154,8 +154,8 @@ export default function FaqPage() {
   return (
     <div id="__next">
       <Head>
-        <title>Therapy FAQs | Psychologist Questions Answered | Choose Your Therapist</title>
-        <meta name="description" content="Get answers to your questions about online therapy, counselling psychology, booking psychologists in India, session costs, confidentiality, and how Choose Your Therapist works." />
+        <title>Therapy &amp; Psychologist FAQs | Choose Your Therapist</title>
+        <meta name="description" content="Answers about online therapy in India — booking a psychologist, session costs, confidentiality and how Choose Your Therapist works." />
         <meta name="keywords" content="therapy FAQ India, psychologist questions, counselling psychology FAQ, online therapy cost India, how to book therapist, RCI psychologist India, mental health FAQ" />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={PAGE_URL} />
@@ -177,7 +177,7 @@ export default function FaqPage() {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       </Head>
       <MyNavbar />
-      <PageBreadCrumb title="Frequently Asked Questions (FAQ)" linkTitle="Help and Support for Clients"/>
+      <PageBreadCrumb h1 title="Frequently Asked Questions (FAQ)" linkTitle="Help and Support for Clients"/>
       <Faqs />
 
       <div className="rbt-contact-me bg-color-extra2 rbt-section-gap">

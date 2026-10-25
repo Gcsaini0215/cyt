@@ -89,7 +89,7 @@ export default function Feedback({ therapists = [] }) {
                       {it.therapistPhoto && (
                         <Link href={profilePath(it.therapist)} className="hrv-th" aria-label={`${it.therapistName}'s profile`}>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={it.therapistPhoto} alt="" loading="lazy" decoding="async" />
+                          <img src={it.therapistPhoto} alt={it.therapistName} loading="lazy" decoding="async" />
                         </Link>
                       )}
                     </figcaption>

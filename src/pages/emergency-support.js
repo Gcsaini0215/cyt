@@ -8,7 +8,7 @@ export default function EmergencySupport() {
   return (
     <div id="__next">
       <Head>
-        <title>Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist</title>
+        <title>Emergency Mental Health Helplines | Choose Your Therapist</title>
         <meta name="description" content="In a mental health crisis? Access immediate support with 24/7 emergency helplines across India. Find contacts for Tele Manas, Vandrevala Foundation, and more." />
         <meta name="keywords" content="Emergency Mental Health Support, Suicide Helpline India, Tele Manas, 24/7 Crisis Support" />
         
@@ -22,9 +22,10 @@ export default function EmergencySupport() {
         <meta name="twitter:title" content="Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist" />
         <meta name="twitter:description" content="Find immediate help for mental health crises." />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/emergency-support" />
       </Head>
       <MyNavbar />
-      <PageBreadCrumb title="Emergency Support" linkTitle="Get Help When You Need It Most" />
+      <PageBreadCrumb h1 title="Emergency Support" linkTitle="Get Help When You Need It Most" />
 
       {/* Emergency Alert Section */}
       <div className="rbt-section-gap bg-color-danger">

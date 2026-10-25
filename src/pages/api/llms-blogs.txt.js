@@ -1,6 +1,7 @@
 // Plain-text index of every blog article for AI assistants and answer engines (linked from
 // /llms.txt): title, topic, date, one-line summary and URL — always current.
 import { getAllBlogs, blogCard } from "../../utils/blog-cache";
+import { blogPath } from "../../utils/blog-slug";
 
 const SITE = "https://www.chooseyourtherapist.in";
 
@@ -22,7 +23,7 @@ export default async function handler(req, res) {
     lines.push(`## ${topic}`);
     byTopic[topic].forEach((p) => {
       const d = p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : "";
-      lines.push(`- [${p.title}](${SITE}/blog-details?id=${p.id})${d ? ` (${d}, ${p.minutes} min read)` : ""}: ${p.excerpt.replace(/\s+/g, " ").trim()}`);
+      lines.push(`- [${p.title}](${SITE}${blogPath(p)})${d ? ` (${d}, ${p.minutes} min read)` : ""}: ${p.excerpt.replace(/\s+/g, " ").trim()}`);
     });
     lines.push("");
   });

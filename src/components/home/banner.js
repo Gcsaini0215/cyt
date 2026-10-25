@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { apiUrl, imagePath } from "../../utils/url";
 import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
@@ -9,13 +10,14 @@ import { thumb, thumbSet } from "../../utils/thumb";
 import { getMinFee } from "../../utils/therapist-directory";
 import { GBP_URL } from "../about/visit-centre";
 
-// quick concern picks under the search box -> the directory, pre-filtered
+// quick concern picks under the search box -> the concern's own page (/therapy-for/<slug>),
+// not the directory with ?concern= (parameter links are crawl noise)
 const QUICK = [
-  ["Anxiety", "Anxiety"],
-  ["Stress", "Stress Management"],
-  ["Relationships", "Couples Counselling"],
-  ["Low mood", "Depression"],
-  ["Anger", "Anger Management"],
+  ["Anxiety", "anxiety"],
+  ["Stress", "stress"],
+  ["Relationships", "relationships"],
+  ["Low mood", "depression"],
+  ["Anger", "anger"],
 ];
 
 // same event the "Chat with CYT" lead form listens for (components/global/booking-popup.js)
@@ -79,7 +81,9 @@ function Stars({ avg = 0 }) {
   );
 }
 
-function TherapistCard({ t, hidden = false }) {
+// One link per card (the name, stretched over the whole card) + a "Book" button. The photo,
+// name and "View" used to be three separate links to the same profile.
+function TherapistCard({ t }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const langs = langList(t.language_spoken).slice(0, 2);
@@ -87,11 +91,9 @@ function TherapistCard({ t, hidden = false }) {
   const exp = expLabel(t.year_of_exp);
   const skills = expertiseOf(t);
   const href = profilePath(t);
-  const tab = hidden ? -1 : undefined; // the wall's second (loop) copy is skipped by keyboard + screen readers
   return (
-    <div className="cyt-tcard" aria-hidden={hidden || undefined}>
-      {/* photo and name both open the profile */}
-      <Link className="cyt-tphoto" href={href} tabIndex={tab} aria-label={`View ${name}'s profile`}>
+    <div className="cyt-tcard">
+      <div className="cyt-tphoto">
         {photo(t) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
@@ -100,15 +102,15 @@ function TherapistCard({ t, hidden = false }) {
         )}
         <span className="cyt-tverif" title="Verified"><VerifiedRounded sx={{ fontSize: 15 }} /></span>
         {fee && <span className="cyt-tpin">{fee}</span>}
-      </Link>
+      </div>
       <div className="cyt-tbody">
-        <Link className="cyt-tname" href={href} tabIndex={tab}>{name}</Link>
+        <Link className="cyt-tname cyt-stretch" href={href}>{name}</Link>
         <div className="cyt-trole">
           <span>{t.profile_type || "Mental Health Professional"}</span>
         </div>
         <div className="cyt-trate">
           <Stars avg={r ? Number(r.avg) : 0} />
-          {r ? <><b>{r.avg}</b><span className="cyt-tcnt">({r.count})</span></>
+          {r ? <><span className="cyt-tavg">{r.avg}</span><span className="cyt-tcnt">({r.count})</span></>
             : <span className="cyt-tcnt">New</span>}
           {exp && <><i className="cyt-tdot" /><span className="cyt-tcnt">{exp}</span></>}
         </div>
@@ -130,8 +132,8 @@ function TherapistCard({ t, hidden = false }) {
           </div>
         )}
         <div className="cyt-trow">
-          <Link className="cyt-v" href={href} tabIndex={tab}>View</Link>
-          <Link className="cyt-b" href={bookPath(t)} tabIndex={tab}>Book</Link>
+          <span className="cyt-v" aria-hidden="true">View</span>
+          <Link className="cyt-b" href={bookPath(t)}>Book<span className="cyt-sr"> {name}</span></Link>
         </div>
       </div>
     </div>
@@ -141,12 +143,17 @@ function TherapistCard({ t, hidden = false }) {
 // desktop wall: just the photo — name, type, rating and fee on a short shade at the bottom,
 // so the face stays clear. The whole card opens the profile.
 function PhotoCard({ t, hidden = false }) {
+  const router = useRouter();
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const exp = expLabel(t.year_of_exp);
   const fee = feeLabel(t);
+  const href = profilePath(t);
+  // the name is the card's one link; a click anywhere else on the photo opens the profile too.
+  // The wall's second (loop) copy has no link at all — it's only there so the scroll looks endless.
+  const open = (e) => { if (!e.target.closest("a")) router.push(href); };
   return (
-    <Link className="cyt-ph" href={profilePath(t)} tabIndex={hidden ? -1 : undefined} aria-hidden={hidden || undefined} aria-label={`View ${name}'s profile`}>
+    <div className="cyt-ph" aria-hidden={hidden || undefined} onClick={open}>
       {photo(t) ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img className="cyt-ph-img" src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
@@ -155,14 +162,17 @@ function PhotoCard({ t, hidden = false }) {
       )}
       {fee && <span className="cyt-ph-fee">{fee}</span>}
       <span className="cyt-ph-info">
-        <span className="cyt-ph-name">{name}<VerifiedRounded sx={{ fontSize: 15, color: "#7dd3fc", flexShrink: 0 }} /></span>
+        <span className="cyt-ph-name">
+          {hidden ? name : <Link href={href}>{name}</Link>}
+          <VerifiedRounded sx={{ fontSize: 15, color: "#7dd3fc", flexShrink: 0 }} />
+        </span>
         <span className="cyt-ph-role">{t.profile_type || "Mental Health Professional"}</span>
         <span className="cyt-ph-meta">
-          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /><b>{r.avg}</b> ({r.count})</> : <span className="cyt-ph-new">New</span>}
+          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /><span className="cyt-ph-avg">{r.avg}</span> ({r.count})</> : <span className="cyt-ph-new">New</span>}
           {exp && <><i className="cyt-ph-dot" />{exp}</>}
         </span>
       </span>
-    </Link>
+    </div>
   );
 }
 
@@ -247,9 +257,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
           <div className="cyt-hchips" aria-label="Popular concerns">
             {QUICK.map(([label, value]) => (
-              <Link key={value} href={`/view-all-therapist?concern=${encodeURIComponent(value)}`}>{label}</Link>
+              <Link key={value} href={`/therapy-for/${value}`}>{label}</Link>
             ))}
-            <Link className="cyt-help" href="/view-all-therapist?help=1"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
+            <Link className="cyt-help" href="/view-all-therapist?help=1" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
           </div>
 
           <div className="cyt-hero-ctas">
@@ -362,7 +372,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-wall { display: none; }
         .cyt-strip { position: relative; z-index: 1; width: 100%; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 22px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .cyt-strip::-webkit-scrollbar { display: none; }
-        .cyt-tcard { flex: 0 0 min(66%, 290px); scroll-snap-align: start; background: #fff; border: 1px solid #e8f0ea; border-radius: 20px; overflow: hidden; box-shadow: 0 18px 40px -18px rgba(18,66,42,.3), 0 3px 10px rgba(18,66,42,.05); }
+        .cyt-tcard { position: relative; flex: 0 0 min(66%, 290px); scroll-snap-align: start; background: #fff; border: 1px solid #e8f0ea; border-radius: 20px; overflow: hidden; box-shadow: 0 18px 40px -18px rgba(18,66,42,.3), 0 3px 10px rgba(18,66,42,.05); }
         .cyt-tphoto { display: block; position: relative; height: 176px; background: linear-gradient(150deg, #c3e8d2, #82cca1); }
         .cyt-tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
         .cyt-tinit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #1e7a4c; }
@@ -374,7 +384,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trole span { overflow: hidden; text-overflow: ellipsis; }
         .cyt-tdot { width: 3px; height: 3px; border-radius: 50%; background: #9fb3a6; flex-shrink: 0; }
         .cyt-trate { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; margin: 7px 0 9px; min-height: 18px; font-size: 12.5px; }
-        .cyt-trate b { font-weight: 800; color: #0b1712; }
+        .cyt-trate .cyt-tavg { font-weight: 800; color: #0b1712; }
         .cyt-tcnt { font-weight: 500; color: #7c8b81; }
         .cyt-tstars { display: inline-flex; }
         .cyt-tstar { position: relative; display: inline-flex; width: 14px; height: 14px; }
@@ -388,7 +398,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-tlangs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
         .cyt-tlang { font-size: 10.5px; color: #475569; background: #f1f5f3; padding: 3px 8px; border-radius: 999px; }
         .cyt-trow { display: flex; gap: 8px; }
-        .cyt-trow a { flex: 1; text-align: center; font-size: 13px; font-weight: 700; padding: 9px 6px; border-radius: 10px; text-decoration: none !important; }
+        .cyt-trow a, .cyt-trow .cyt-v { flex: 1; text-align: center; font-size: 13px; font-weight: 700; padding: 9px 6px; border-radius: 10px; text-decoration: none !important; }
         .cyt-trow .cyt-v { border: 1.5px solid #dce8e0; color: #26463a !important; }
         .cyt-trow .cyt-b { background: #1e7a4c; color: #fff !important; }
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }
@@ -516,8 +526,13 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
         /* desktop wall: photo card */
         .cyt-ph { position: relative; display: block; flex-shrink: 0; height: 290px; border-radius: 22px; overflow: hidden; background: linear-gradient(150deg, #c3e8d2, #82cca1); text-decoration: none !important; box-shadow: 0 18px 36px -16px rgba(18,66,42,.38), 0 3px 8px rgba(18,66,42,.06); transition: transform .25s ease, box-shadow .25s ease; }
-        .cyt-ph:hover, .cyt-ph:focus-visible { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.45); }
-        .cyt-ph:focus-visible { outline: 3px solid #ecc77d; outline-offset: 2px; }
+        .cyt-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+        .cyt-trow .cyt-b { position: relative; z-index: 2; }
+        .cyt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+        .cyt-ph { cursor: pointer; }
+        .cyt-ph-name a { color: inherit !important; text-decoration: none !important; }
+        .cyt-ph:hover, .cyt-ph:focus-within { transform: translateY(-4px); box-shadow: 0 26px 44px -18px rgba(18,66,42,.45); }
+        .cyt-ph:has(a:focus-visible) { outline: 3px solid #ecc77d; outline-offset: 2px; }
         .cyt-ph-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 22%; transition: transform .5s ease; }
         .cyt-ph:hover .cyt-ph-img { transform: scale(1.04); }
         .cyt-ph-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #1e7a4c; }
@@ -527,7 +542,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-ph-name { display: flex; align-items: center; gap: 5px; font-weight: 800; font-size: 15.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; }
         .cyt-ph-role { font-size: 12px; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cyt-ph-meta { display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.85); white-space: nowrap; }
-        .cyt-ph-meta b { color: #fff; font-weight: 800; }
+        .cyt-ph-meta .cyt-ph-avg { color: #fff; font-weight: 800; }
         .cyt-ph-new { font-weight: 800; color: #14532d; background: #ecc77d; border-radius: 5px; padding: 1px 6px; font-size: 10.5px; }
         .cyt-ph-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.6); margin: 0 4px; }
 

@@ -8,15 +8,16 @@ export default function TermsCondition() {
   return (
     <>
       <Head>
-        <title>Terms and Conditions | Pro Bono Support | Choose Your Therapist</title>
+        <title>Pro Bono Terms &amp; Conditions | Choose Your Therapist</title>
         <meta name="description" content="Terms and conditions for our Pro Bono Support Program - free emotional support conducted by trained psychology interns under professional supervision." />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/terms-conditions" />
       </Head>
       <MyNavbar />
 
       <div className="rbt-section-gap" style={{ paddingTop: 40, background: "#f8faf9" }}>
         <Container maxWidth={false}>
           <Box sx={{ mb: 4, textAlign: "center" }}>
-            <Typography sx={{ fontSize: { xs: 24, md: 32 }, fontWeight: 900, color: "#1e293b", mb: 2 }}>
+            <Typography component="h1" sx={{ fontSize: { xs: 24, md: 32 }, fontWeight: 900, color: "#1e293b", mb: 2 }}>
               Terms and Conditions
             </Typography>
             <Typography sx={{ fontSize: 14, color: "#64748b" }}>

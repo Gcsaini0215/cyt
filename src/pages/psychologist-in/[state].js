@@ -6,6 +6,7 @@ import MyNavbar from "../../components/navbar";
 import { fetchData } from "../../utils/actions";
 import { getTherapistProfiles } from "../../utils/url";
 import { profilePath } from "../../utils/therapist-slug";
+import { fitTitle, fitDesc } from "../../utils/seo-text";
 import { PLACES as STATE_CONFIG, PLACE_SERVICES as SERVICES, inPlace, PLACE_IMG } from "../../utils/places";
 import ProfileCardRow, { CARD_CSS } from "../../components/home/profile-card-row";
 import LeadCard from "../../components/global/lead-card";
@@ -161,8 +162,8 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
   return (
     <div style={{ overflowX: "hidden", width: "100%" }}>
       <Head>
-        <title>{`Best Psychologist in ${config.name} | Verified Therapists | Choose Your Therapist`}</title>
-        <meta name="description" content={config.description} />
+        <title>{fitTitle(`Best Psychologist in ${config.name}`)}</title>
+        <meta name="description" content={fitDesc(config.description)} />
         <meta name="keywords" content={config.localKeywords} />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={PAGE_URL} />
@@ -175,14 +176,14 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
         <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content={`Best Psychologist in ${config.name} | Choose Your Therapist`} />
-        <meta property="og:description" content={config.description} />
+        <meta property="og:description" content={fitDesc(config.description)} />
         <meta property="og:image" content={OG_IMAGE} />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`Best Psychologist in ${config.name} | Choose Your Therapist`} />
-        <meta name="twitter:description" content={config.description} />
+        <meta name="twitter:description" content={fitDesc(config.description)} />
         <meta name="twitter:image" content={OG_IMAGE} />
         <meta name="twitter:site" content="@CYT_India" />
 
@@ -199,7 +200,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
 
       {/* ── Banner: the place's photo, real numbers, two actions ── */}
       <section className="pl-banner" aria-labelledby="pl-h1">
-        <img className="pl-ban-img" alt=""
+        <img className="pl-ban-img" alt={`Psychologist in ${config.name}`}
           src={PLACE_IMG[config.slug] ? `/assets/img/cities/b/${PLACE_IMG[config.slug]}.webp` : "/assets/img/therapist-directory-banner-1600.webp"}
           width="1200" height="520" fetchPriority="high" decoding="async" />
         <div className="container pl-ban-inner">
@@ -246,7 +247,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
             <div className="pl-empty"><a href="/view-all-therapist" className="pl-btn">See all psychologists — online</a></div>
           )}
           <div className="pl-more">
-            {stats.count > therapists.length && <a href={dirHref} className="pl-btn">See all {stats.count} in {config.name}</a>}
+            {stats.count > therapists.length && <a href={dirHref} className="pl-btn" rel="nofollow">See all {stats.count} in {config.name}</a>}
             <a href="/view-all-therapist" className="pl-btn ghost">Browse all {stats.total || ""} psychologists online</a>
             <a href="/psychologist-in" className="pl-link">Other cities &amp; states →</a>
           </div>

@@ -280,7 +280,7 @@ export default function DailyJournalPage() {
   return (
     <Box sx={{ bgcolor: "#f1f5f9", minHeight: "100vh" }}>
       <Head>
-        <title>Daily Journaling | Your Private Digital Diary | Choose Your Therapist</title>
+        <title>Private Daily Journal | Choose Your Therapist</title>
         <meta name="description" content="Maintain your mental well-being with our secure, private digital journal. Track your moods, respond to guided prompts, and export your thoughts to PDF." />
         <meta name="keywords" content="digital journal, online diary, mental health tools, mood tracker, daily reflection, mindfulness journal, private journaling" />
         
@@ -319,7 +319,7 @@ export default function DailyJournalPage() {
         textAlign: "center"
       }}>
         <Container maxWidth="md">
-          <Typography variant="h2" sx={{ 
+          <Typography variant="h2" component="h1" sx={{ 
             fontWeight: 950, 
             mb: 1.5, 
             letterSpacing: "-2px", 

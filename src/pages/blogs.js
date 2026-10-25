@@ -8,6 +8,7 @@ import { getDecodedToken } from "../utils/jwt";
 import { getAllBlogs, blogCard } from "../utils/blog-cache";
 import { usePager, Pager } from "../components/therapists/pager";
 import dynamic from "next/dynamic";
+import { blogPath } from "../utils/blog-slug";
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 /* /blogs — calm banner with search + topics, a featured post, a grid of cards and a nudge to
@@ -16,8 +17,8 @@ const BookingPopup = dynamic(() => import("../components/global/booking-popup"),
 const PAGE_URL = "https://www.chooseyourtherapist.in/blogs";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
 const SITE = "https://www.chooseyourtherapist.in";
-const SEO_TITLE = "Mental Health Blog India — Psychologist-Written Articles | CYT";
-const SEO_DESC = "Free, psychologist-reviewed articles on anxiety, depression, OCD, stress and relationships in India — signs to watch for, practical tips and when to get help.";
+const SEO_TITLE = "Mental Health Blog India — Psychologist Articles | CYT";
+const SEO_DESC = "Free, psychologist-reviewed articles on anxiety, depression, OCD, stress and relationships in India — signs to watch for, tips and when to get help.";
 const ORG = { "@type": "Organization", "@id": `${SITE}#organization`, "name": "Choose Your Therapist", "url": SITE, "logo": { "@type": "ImageObject", "url": `${SITE}/cyt-emblem.png` } };
 
 // shown on the page AND sent as FAQPage — answer engines (Google, ChatGPT, Perplexity) quote these
@@ -107,7 +108,7 @@ const AWARENESS = [
 const TINTS = [["#e7f6ec", "#166534"], ["#e8f1fd", "#1d4ed8"], ["#fdeef2", "#be185d"], ["#fdf4e3", "#b45309"], ["#efeafd", "#6d28d9"], ["#e3f6f4", "#0f766e"]];
 const tintOf = (cat) => TINTS[[...String(cat)].reduce((a, c) => a + c.charCodeAt(0), 0) % TINTS.length];
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "");
-const hrefOf = (p) => `/blog-details?id=${p.id}`;
+const hrefOf = (p) => blogPath(p);
 const thumbOf = (p) => (p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg");
 
 function Card({ p }) {

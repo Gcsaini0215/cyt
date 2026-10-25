@@ -84,7 +84,7 @@ function TherapistBar({ profile, selFmt, couponSave }) {
       background: "#fff", borderBottom: "1px solid #e5e7eb",
       padding: "12px 20px", display: "flex", alignItems: "center", gap: 14,
     }}>
-      <img src={avatar} alt="" style={{
+      <img src={avatar} alt={profile?.user?.name || "Psychologist"} style={{
         width: 44, height: 44, borderRadius: 8, objectFit: "cover",
         objectPosition: "top", border: `2px solid ${GOLD}`, flexShrink: 0,
       }} onError={e => { e.target.src = defaultProfile; }} />

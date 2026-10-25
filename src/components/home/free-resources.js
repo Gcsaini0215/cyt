@@ -529,7 +529,7 @@ export default function FreeResources() {
           </Box>
           <div className="fr-foot">
             <div className="fr-foot-row">
-              <Link href="/view-all-therapist?help=1">Talk to a psychologist →</Link>
+              <Link href="/view-all-therapist?help=1" rel="nofollow">Talk to a psychologist →</Link>
               <button type="button" onClick={() => setShowLeadPopup(true)}>Get a free callback</button>
               <button type="button" onClick={(e) => selectedTool && handleShare(e, selectedTool)}>{sharedTool === selectedTool?.title ? "Link copied" : "Share this tool"}</button>
             </div>

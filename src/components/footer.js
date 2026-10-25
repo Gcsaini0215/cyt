@@ -53,7 +53,7 @@ export default function Footer() {
         .cyt-footer-academic .disclaimer-bar .fw-bold { color: #7fd8a5 !important; }
         .cyt-footer-academic .legal-block { text-align: left; margin-bottom: 18px; }
         .cyt-footer-academic .legal-block:last-child { margin-bottom: 0; }
-        .cyt-footer-academic .legal-block h6 { color: #7fd8a5 !important; font-size: 13px; font-weight: 800; letter-spacing: .3px; margin-bottom: 8px; }
+        .cyt-footer-academic .legal-block .ft-legal-h { color: #7fd8a5 !important; font-size: 13px; line-height: 1.4; margin-top: 0; font-weight: 800; letter-spacing: .3px; margin-bottom: 8px; }
         .cyt-footer-academic .legal-block p { color: rgba(255,255,255,.55) !important; font-size: 12px; line-height: 1.7; letter-spacing: .2px; text-align: left; }
         .cyt-footer-academic .legal-block p + p { margin-top: 8px; }
 
@@ -120,11 +120,10 @@ export default function Footer() {
             {/* Column 2: Get Started */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Get Started</h5>
+                <p className="ft-title">Get Started</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/view-all-therapist">Find a Therapist</Link></li>
                   <li className="mb--12"><Link href="/therapy-booking">Free Consultation</Link></li>
-                  <li className="mb--12"><Link href="/how-it-works">How It Works</Link></li>
                   <li className="mb--12"><Link href="/service-page">Our Services</Link></li>
                   <li className="mb--12"><Link href="/blogs">Blog</Link></li>
                   <li className="mb--12"><Link href="/faqs">FAQs</Link></li>
@@ -136,7 +135,7 @@ export default function Footer() {
             {/* Column 3: Self-Help Tools */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Self-Help Tools</h5>
+                <p className="ft-title">Self-Help Tools</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/self-assessment">Self-Assessment</Link></li>
                   <li className="mb--12"><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
@@ -149,7 +148,7 @@ export default function Footer() {
             {/* Column 4: Programs */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Programs</h5>
+                <p className="ft-title">Programs</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/mentorship-for-students">Student Mentorship</Link></li>
                   <li className="mb--12"><Link href="/internship-registration">Apply for Internship</Link></li>
@@ -162,7 +161,7 @@ export default function Footer() {
             {/* Column 5: Member Portals */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Member Portals</h5>
+                <p className="ft-title">Member Portals</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/login">Client Login</Link></li>
                   <li className="mb--12"><Link href="/register">Client Sign Up</Link></li>
@@ -176,7 +175,7 @@ export default function Footer() {
             {/* Column 6: Cities We Serve */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Cities We Serve</h5>
+                <p className="ft-title">Cities We Serve</p>
                 <ul className="ft-link ft-cities-col liststyle-none mt--20">
                   <li className="mb--10"><Link href="/noida-appointment">Noida</Link></li>
                   <li className="mb--10"><Link href="/psychologist-in-noida-delhi">Find a Therapist – Noida &amp; Delhi</Link></li>
@@ -202,7 +201,7 @@ export default function Footer() {
             {/* Column 7: International Clients */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">International Clients</h5>
+                <p className="ft-title">International Clients</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/appointment">Request an Appointment</Link></li>
                   <li className="mb--12"><Link href="/therapy-booking">Book an Online Session</Link></li>
@@ -215,7 +214,7 @@ export default function Footer() {
             {/* Column 8: Corporate */}
             <div className="col-lg-3 col-md-6 col-sm-6">
               <div className="footer-widget">
-                <h5 className="ft-title">Corporate</h5>
+                <p className="ft-title">Corporate</p>
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/about-us">About Us</Link></li>
                   <li className="mb--12"><Link href="/for-business">Corporate Wellness</Link></li>
@@ -271,7 +270,7 @@ export default function Footer() {
       <div className="disclaimer-bar">
         <div className="container">
           <div className="legal-block">
-            <h6>Disclaimer</h6>
+            <p className="ft-legal-h">Disclaimer</p>
             <p className="mb-0">
               The information available on this website — including but not limited to articles, blogs, self-assessment tools, wellness resources, FAQs and other content (&quot;Content&quot;) — is published by Choose Your Therapist solely for informational purposes and is not a substitute for professional medical or psychological advice, diagnosis or treatment.
             </p>

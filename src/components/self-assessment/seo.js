@@ -1,4 +1,5 @@
 import { FREE_TESTS, TEST_BY_KEY } from "./tests";
+import { fitTitle, fitDesc } from "../../utils/seo-text";
 
 /* SEO for each assessment's own page (/self-assessment/<slug>): the URL slug, the page heading, the
    <title> and search keywords. Descriptions and FAQs are built from the test itself (tests.js). */
@@ -35,8 +36,8 @@ export function seoOf(test) {
   const n = test.questions.length;
   return {
     h1: s.h1,
-    title: `${s.h1} Online — Scored Report & Psychologist Review | CYT`,
-    description: `Take the ${test.full} online: ${n} questions, about ${minutes(test)}. ${test.blurb} Get an instant scored report, or take it with a verified psychologist who adds clinical notes.`,
+    title: fitTitle(`${s.h1} Online`),
+    description: fitDesc(`Take the ${test.short} online: ${n} questions, about ${minutes(test)}. Instant scored report, or take it with a verified psychologist who adds clinical notes.`),
     keywords: [...s.kw, `${test.short} report`, "mental health screening online", "screening test India"].join(", "),
     url: `${SITE}${pathOf(test.key)}`,
     image: `${SITE}/api/og-assessment?t=${test.key}`,

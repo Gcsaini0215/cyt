@@ -552,7 +552,7 @@ function TherapistPicker({ list, value, onChange, hint }) {
           <button key={t._id} type="button" role="radio" aria-checked={value === t._id} className={`na-th-card ${value === t._id ? "on" : ""}`} onClick={() => onChange(t._id)}>
             <span className="na-th-av" aria-hidden="true">
               {initials(t.name)}
-              {t.image && <img src={thPhoto(t.image)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
+              {t.image && <img src={thPhoto(t.image)} alt={t.name || "Psychologist"} loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
             </span>
             <span className="na-th-body">
               <span className="na-th-name">{t.name}</span>
@@ -576,7 +576,7 @@ function ThAvatar({ t, size }) {
   return (
     <span className="na-team-av" style={{ width: size, height: size, fontSize: size * 0.34 }} aria-hidden="true">
       {thInitials(t.name)}
-      {t.image && <img src={thPhoto(t.image)} alt="" loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
+      {t.image && <img src={thPhoto(t.image)} alt={t.name || "Psychologist"} loading="lazy" onError={e => { e.currentTarget.style.display = "none"; }} />}
     </span>
   );
 }

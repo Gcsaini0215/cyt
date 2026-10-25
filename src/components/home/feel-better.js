@@ -132,12 +132,13 @@ export default function FeelBetter({ stats = null }) {
               ? <Link key={t.title} href={t.href} className="fb-tool">{inner}</Link>
               : <button key={t.title} type="button" className="fb-tool" onClick={() => setOpen({ tool: t, concern: f.concern })}>{inner}</button>;
           })}
-          <Link href={`/therapy-for/${f.concern}`} className="fb-tool fb-people">
+          {/* the heading is the link (stretched over the card) — a whole-card link made one very long anchor text */}
+          <div className="fb-tool fb-people">
             <span className="fb-time">Talk to someone</span>
-            <h3>{s?.count ? `${s.count} psychologists` : "Psychologists"} for {LABELS[f.concern]}</h3>
+            <h3><Link href={`/therapy-for/${f.concern}`} className="fb-stretch">{s?.count ? `${s.count} psychologists` : "Psychologists"} for {LABELS[f.concern]}</Link></h3>
             <p>{s?.minFee ? `Online or in person, from ₹${s.minFee.toLocaleString("en-IN")} a session.` : "Online or in person."}</p>
             <span className="fb-go">See who can help <i className="feather-arrow-right" aria-hidden="true" /></span>
-          </Link>
+          </div>
         </div>
 
         <div className="fb-sos">
@@ -178,7 +179,10 @@ const CSS = `
 .fb-tool h3 { font-size: 17px; font-weight: 800; color: #0b1712; margin: 4px 0 0; }
 .fb-tool p { font-size: 14px; color: #64748b; line-height: 1.5; margin: 0; padding: 0; }
 .fb-go { display: inline-flex; align-items: center; gap: 5px; margin-top: auto; padding-top: 6px; font-size: 13.5px; font-weight: 800; color: #1e7a4c; }
-.fb-people { background: #14532d; border-color: #14532d; }
+.fb-people { position: relative; background: #14532d; border-color: #14532d; }
+.fb-people:has(.fb-stretch:focus-visible) { outline: 3px solid #1e7a4c; outline-offset: 2px; }
+.fb-stretch { color: inherit !important; text-decoration: none !important; }
+.fb-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
 .fb-people .fb-time { background: rgba(236,199,125,.18); color: #ecc77d; }
 .fb-people h3 { color: #fff; }
 .fb-people p { color: rgba(255,255,255,.75); }

@@ -88,7 +88,7 @@ export default function Register() {
   return (
     <div>
       <Head>
-        <title>Client Registration | Start Your Healing Journey | Choose Your Therapist</title>
+        <title>Client Sign Up | Choose Your Therapist</title>
         <meta name="description" content="Join Choose Your Therapist today. Register as a client to find verified psychologists, book sessions, and manage your mental health journey." />
         <meta name="keywords" content="Client Registration, Book Therapist India, Start Counseling, Mental Health Support Signup" />
         <link rel="canonical" href="https://chooseyourtherapist.in/register" />

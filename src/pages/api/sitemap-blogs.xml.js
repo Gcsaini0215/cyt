@@ -1,3 +1,5 @@
+import { blogPath } from "../../utils/blog-slug";
+
 const BLOGS_API = "https://api.chooseyourtherapist.in/api/get-blogs";
 const BASE_URL = "https://www.chooseyourtherapist.in";
 
@@ -15,7 +17,7 @@ export default async function handler(req, res) {
           : new Date().toISOString().split("T")[0];
         return `
   <url>
-    <loc>${BASE_URL}/blog-details?id=${b._id}</loc>
+    <loc>${BASE_URL}${blogPath(b)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

@@ -41,22 +41,22 @@ export default function FindByLocation({ stats = {}, total = 0, visitorState = n
 
         <div className="fbl-cards">
           {near && n ? (
-            <Link href={placePath(near)} className="fbl-card near">
+            <div className="fbl-card near">
               <span className="fbl-tag"><i className="feather-map-pin" aria-hidden="true" /> Near you</span>
-              <h3>Psychologists in {PLACES[near].name}</h3>
+              <h3><Link href={placePath(near)} className="fbl-stretch">Psychologists in {PLACES[near].name}</Link></h3>
               <p>
                 {n.count ? `${n.count} based here${n.inPerson ? ` · ${n.inPerson} in person` : ""}` : "Online sessions from anywhere"}
                 {n.minFee ? ` · from ₹${n.minFee.toLocaleString("en-IN")}` : ""}
               </p>
               <span className="fbl-go">See who can help <i className="feather-arrow-right" aria-hidden="true" /></span>
-            </Link>
+            </div>
           ) : (
-            <Link href="/view-all-therapist" className="fbl-card near">
+            <div className="fbl-card near">
               <span className="fbl-tag"><i className="feather-globe" aria-hidden="true" /> Anywhere in India</span>
-              <h3>Online sessions</h3>
+              <h3><Link href="/view-all-therapist" className="fbl-stretch">Online sessions</Link></h3>
               <p>Video or audio sessions with {total ? `any of our ${total}` : "our"} verified psychologists — in Hindi, English and more.</p>
               <span className="fbl-go">Browse psychologists <i className="feather-arrow-right" aria-hidden="true" /></span>
-            </Link>
+            </div>
           )}
           <div className="fbl-card centre">
             <span className="fbl-tag"><i className="feather-home" aria-hidden="true" /> Our centre</span>
@@ -122,6 +122,9 @@ const CSS = `
 .fbl-card { display: flex; flex-direction: column; gap: 6px; padding: 22px 24px; border-radius: 18px; text-decoration: none !important; }
 .fbl-card.near { background: #fff; border: 1px solid #e3ebe6; box-shadow: 0 2px 10px rgba(20,83,45,.05); transition: border-color .2s, box-shadow .2s; }
 .fbl-card.near:hover { border-color: #1e7a4c; box-shadow: 0 14px 30px -16px rgba(20,83,45,.35); }
+.fbl-card.near { position: relative; cursor: pointer; }
+.fbl-stretch { color: inherit !important; text-decoration: none !important; }
+.fbl-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
 .fbl-card.centre { background: #14532d; color: #fff; }
 .fbl-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: 4px 9px; border-radius: 6px; background: #eef6f1; color: #1e7a4c; }
 .fbl-card.centre .fbl-tag { background: rgba(236,199,125,.2); color: #ecc77d; }

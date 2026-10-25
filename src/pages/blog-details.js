@@ -10,6 +10,8 @@ import Footer from "../components/footer";
 import BookingPopup from "../components/global/booking-popup";
 import { getBlogUrl, frontendUrl, getTherapistProfiles } from "../utils/url";
 import { fetchData } from "../utils/actions";
+import { fitTitle, fitDesc } from "../utils/seo-text";
+import { blogPath, blogIdFromSlug } from "../utils/blog-slug";
 
 /* /blog-details — one article, built for reading: a light header (same family as /blogs), the
    cover image overlapping it, a 720px text column in large type, and on wide screens a sticky
@@ -213,7 +215,8 @@ function ShareRow({ url, title }) {
 
 export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   const router = useRouter();
-  const { id } = router.query;
+  // /blog/<slug> carries the id at the end of the slug; old /blog-details?id= links redirect there
+  const id = router.query.id || blogIdFromSlug(router.query.slug);
   const [blog, setBlog] = useState(initialBlog);
   const [html, setHtml] = useState(initialBlog ? cleanBlogContent(initialBlog.content) : "");
   const [more, setMore] = useState([]);
@@ -265,7 +268,8 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   const rawCleanDesc = rawMetaDesc.length > 40 ? rawMetaDesc : plainContentDesc;
   const cleanDesc = rawCleanDesc.length > 160 ? rawCleanDesc.substring(0, 157) + "..." : rawCleanDesc;
   const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}`;
-  const pageUrl = `${frontendUrl}/blog-details?id=${blog._id}`;
+  // always the www address — frontendUrl is the bare domain on the server, which 301s to www
+  const pageUrl = `https://www.chooseyourtherapist.in${blogPath(blog)}`;
   const plainText = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
   const wordCount = plainText.split(" ").filter(Boolean).length;
   const isMedical = ["mental health", "psychology", "therapy", "counselling", "relationship concern", "anxiety", "depression"].some((kw) => (blog.category || "").toLowerCase().includes(kw));
@@ -311,7 +315,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
       <span className="bd-cta-k">Talk to someone</span>
       <b>Reading is a good first step.</b>
       <p>Verified psychologists — online or in person, in Hindi, English and more. Confidential and judgment-free.</p>
-      <Link href={findHref} className="bd-cta-go">{topicMatches[0] ? `Find a ${topicMatches[0].label} psychologist` : "Find a psychologist"} <i className="feather-arrow-right" aria-hidden="true" /></Link>
+      <Link href={findHref} className="bd-cta-go" rel="nofollow">{topicMatches[0] ? `Find a ${topicMatches[0].label} psychologist` : "Find a psychologist"} <i className="feather-arrow-right" aria-hidden="true" /></Link>
       <button type="button" className="bd-cta-alt" onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}>Not sure? Get matched on WhatsApp</button>
     </div>
   );
@@ -319,8 +323,8 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   return (
     <div className="bd-page">
       <Head>
-        <title>{`${blog.title} | Choose Your Therapist`}</title>
-        <meta name="description" content={cleanDesc} />
+        <title>{fitTitle(blog.title)}</title>
+        <meta name="description" content={fitDesc(cleanDesc)} />
         <meta name="keywords" content={blog.tags || blog.category} />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href={pageUrl} />
@@ -394,7 +398,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
           {topicMatches.length > 0 && (
             <div className="bd-topics">
               {topicMatches.map((t) => (
-                <Link key={t.service} href={`/view-all-therapist?services=${encodeURIComponent(t.service)}`} className="bd-topic">
+                <Link key={t.service} href={`/view-all-therapist?services=${encodeURIComponent(t.service)}`} className="bd-topic" rel="nofollow">
                   <b>{t.label} specialists →</b>
                   <span>{t.desc}</span>
                 </Link>
@@ -419,7 +423,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
                 <Link key={t.id} href={t.href} className="bd-th">
                   <span className="bd-th-av">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {t.photo ? <img src={t.photo} alt="" loading="lazy" /> : <i>{t.name.charAt(0)}</i>}
+                    {t.photo ? <img src={t.photo} alt={t.name} loading="lazy" /> : <i>{t.name.charAt(0)}</i>}
                   </span>
                   <span className="bd-th-i">
                     <strong>{t.name}</strong>
@@ -438,9 +442,9 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
             <div className="bd-side-more">
               <b>Read next</b>
               {more.map((p) => (
-                <Link key={p.id} href={`/blog-details?id=${p.id}`} className="bd-side-item">
+                <Link key={p.id} href={blogPath(p)} className="bd-side-item">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg"} alt="" loading="lazy" />
+                  <img src={p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg"} alt={p.title} loading="lazy" />
                   <span><em>{p.category}</em>{p.title}</span>
                 </Link>
               ))}
@@ -458,7 +462,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
             </div>
             <div className="bd-next-grid">
               {more.slice(0, 3).map((p) => (
-                <Link key={p.id} href={`/blog-details?id=${p.id}`} className="bd-card">
+                <Link key={p.id} href={blogPath(p)} className="bd-card">
                   <span className="bd-card-img">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg"} alt={p.title} loading="lazy" />
@@ -658,6 +662,10 @@ export async function getServerSideProps(context) {
     const res = await fetchData(`${getBlogUrl}/${id}`);
     if (res && (res.status === 200 || res.status === true || res.data)) {
       const full = res.data || res;
+      // the old address (/blog-details?id=…) -> 301 to the post's /blog/<slug> URL
+      if (String(context.resolvedUrl || "").startsWith("/blog-details") && full?._id) {
+        return { redirect: { destination: blogPath(full), permanent: true } };
+      }
       const { image, ...rest } = full || {};
       const blog = { ...rest, hasImage: !!image, ...(/^https?:\/\//.test(String(image || "")) ? { image } : {}) };
       // 3 psychologists whose expertise matches the post's topic — links from every post to profiles

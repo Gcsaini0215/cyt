@@ -4,6 +4,7 @@ import BlogCardImg from "../../assets/img/bg-image-12dabd.jpg";
 import BlogCardImg2 from "../../assets/img/blog2.png";
 import BlogCardImg3 from "../../assets/img/blog3.png";
 import BlogCardImg4 from "../../assets/img/blog5.png";
+import { blogPath } from "../../utils/blog-slug";
 
 // shown until the latest posts arrive (or if they can't be fetched)
 const FALLBACK = [
@@ -14,7 +15,7 @@ const FALLBACK = [
 ];
 
 const imgOf = (p) => (p.img ? (p.img.src || p.img) : p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg");
-const hrefOf = (p) => (p.id ? `/blog-details?id=${p.id}` : "/blogs");
+const hrefOf = (p) => (p.id ? blogPath(p) : "/blogs");
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "");
 const meta = (p) => [fmtDate(p.createdAt), p.minutes ? `${p.minutes} min read` : ""].filter(Boolean).join(" · ");
 

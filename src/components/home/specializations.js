@@ -33,7 +33,7 @@ export default function Specializations({ stats: data = null }) {
             <h2 id="sp-h" className="sp-title">What would you like help with?</h2>
             <p className="sp-sub">Pick a concern to see psychologists who specialise in it.</p>
           </div>
-          <Link href="/view-all-therapist?help=1" className="sp-help-link">
+          <Link href="/view-all-therapist?help=1" className="sp-help-link" rel="nofollow">
             <i className="feather-compass" aria-hidden="true" /> Not sure? Help me choose
           </Link>
         </div>
@@ -43,20 +43,20 @@ export default function Specializations({ stats: data = null }) {
             const s = stats?.[c.slug];
             const n = today(c.slug);
             return (
-              <Link key={c.slug} href={concernPath(c)} className="sp-card">
+              <div key={c.slug} className="sp-card">
                 <div className="sp-img">
-                  <img src={`/images/concerns/${c.img}.webp`} alt="" width="560" height="340" loading="lazy" decoding="async" />
+                  <img src={`/images/concerns/${c.img}.webp`} alt={`${c.label} therapy`} width="560" height="340" loading="lazy" decoding="async" />
                   {popular.has(c.slug) && <span className="sp-pop">Popular</span>}
                   {s?.count > 0 && <span className="sp-count">{s.count} therapists</span>}
                 </div>
                 <div className="sp-body">
-                  <h3>{c.label}</h3>
+                  <h3><Link href={concernPath(c)} className="sp-stretch">{c.label}</Link></h3>
                   <p>{c.short}</p>
                   <div className="sp-meta">
                     {s?.faces?.length > 0 && (
                       <span className="sp-faces" aria-hidden="true">
                         {s.faces.map((f) => (
-                          <img key={f.profile} src={thumb(`${imagePath}/${f.profile}`, 64)} srcSet={thumbSet(`${imagePath}/${f.profile}`, 64, 128)} alt="" width="26" height="26" loading="lazy" />
+                          <img key={f.profile} src={thumb(`${imagePath}/${f.profile}`, 64)} srcSet={thumbSet(`${imagePath}/${f.profile}`, 64, 128)} alt={f.name || "Psychologist"} width="26" height="26" loading="lazy" />
                         ))}
                       </span>
                     )}
@@ -67,16 +67,16 @@ export default function Specializations({ stats: data = null }) {
                     <span className="sp-cta">See therapists <i className="feather-arrow-right" aria-hidden="true" /></span>
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
 
-          <Link href="/view-all-therapist?help=1" className="sp-card sp-helpcard">
+          <div className="sp-card sp-helpcard">
             <span className="sp-help-ic" aria-hidden="true"><i className="feather-compass" /></span>
             <h3>Not sure what you're feeling?</h3>
             <p>Answer 3 quick questions and we'll show the therapists who fit.</p>
-            <span className="sp-help-btn">Help me choose <i className="feather-arrow-right" aria-hidden="true" /></span>
-          </Link>
+            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Help me choose <i className="feather-arrow-right" aria-hidden="true" /></Link>
+          </div>
         </div>
 
         <div className="sp-more" aria-label="More concerns">
@@ -86,7 +86,7 @@ export default function Specializations({ stats: data = null }) {
               {c.label}{stats?.[c.slug]?.count ? <small>{stats[c.slug].count}</small> : null}
             </Link>
           ))}
-          <Link href="/view-all-therapist?services=Teen%20Counselling">Teen counselling</Link>
+          <Link href="/view-all-therapist?services=Teen%20Counselling" rel="nofollow">Teen counselling</Link>
           <Link href="/view-all-therapist" className="sp-all">All therapists <i className="feather-arrow-right" aria-hidden="true" /></Link>
         </div>
       </div>
@@ -104,9 +104,12 @@ const CSS = `
 .sp-help-link:hover { background: #fbf0d9; }
 
 .sp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
-.sp-card { display: flex; flex-direction: column; background: #fff; border: 1px solid #e6eee9; border-radius: 18px; overflow: hidden; text-decoration: none !important; box-shadow: 0 2px 10px rgba(20,83,45,.05); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+.sp-card { position: relative; cursor: pointer; display: flex; flex-direction: column; background: #fff; border: 1px solid #e6eee9; border-radius: 18px; overflow: hidden; text-decoration: none !important; box-shadow: 0 2px 10px rgba(20,83,45,.05); transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
 .sp-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px -14px rgba(20,83,45,.28); border-color: #cfe3d6; }
-.sp-card:focus-visible { outline: 3px solid #1e7a4c; outline-offset: 2px; }
+.sp-card:has(.sp-stretch:focus-visible) { outline: 3px solid #1e7a4c; outline-offset: 2px; }
+.sp-stretch { color: inherit !important; text-decoration: none !important; }
+.sp-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.sp-helpcard .sp-stretch { color: #fff !important; }
 .sp-img { position: relative; height: 140px; overflow: hidden; background: #e8f3ec; }
 .sp-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
 .sp-card:hover .sp-img img { transform: scale(1.05); }

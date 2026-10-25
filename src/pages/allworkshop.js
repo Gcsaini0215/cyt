@@ -7,8 +7,8 @@ export default function AllWorkshop() {
   return (
     <div id="__next">
       <Head>
-        <title>Workshops & Events | Mental Health Training | Choose Your Therapist</title>
-        <meta name="description" content="Explore and join our upcoming mental health workshops, training sessions, and internships. Led by expert psychologists to enhance your well-being and professional skills." />
+        <title>Mental Health Workshops &amp; Events | Choose Your Therapist</title>
+        <meta name="description" content="Join upcoming mental health workshops, training sessions and internships, led by expert psychologists — for your well-being and your skills." />
         <meta name="keywords" content="Mental Health Workshops, Psychology Training India, Wellness Events, Internship for Psychology Students" />
         
         <meta property="og:title" content="Workshops & Events | Mental Health Training | Choose Your Therapist" />
@@ -21,6 +21,7 @@ export default function AllWorkshop() {
         <meta name="twitter:title" content="Workshops & Events | Mental Health Training | Choose Your Therapist" />
         <meta name="twitter:description" content="Explore upcoming events and training opportunities." />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/allworkshop" />
       </Head>
       <main className="">
         <MyNavbar />

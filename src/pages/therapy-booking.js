@@ -60,7 +60,7 @@ export default function TherapyBooking({ pics = [] }) {
   return (
     <>
       <Head>
-        <title>Find Your Therapist in 30 Minutes — Free | Choose Your Therapist</title>
+        <title>Find Your Therapist in 30 Minutes | Choose Your Therapist</title>
         <meta name="description" content="Connect with a verified psychologist, share your concerns, and book your therapy appointment — all in 30 minutes." />
         <link rel="canonical" href="https://chooseyourtherapist.in/therapy-booking" />
         <meta key="og:type" property="og:type" content="website" />
@@ -119,7 +119,7 @@ export default function TherapyBooking({ pics = [] }) {
                       <div className={col % 2 === 0 ? "tb-col-up" : "tb-col-down"} style={{ display: "flex", flexDirection: "column" }}>
                         {doubled.map((src, idx) => (
                           <div key={idx} style={{ width: "100%", aspectRatio: "1/1", flexShrink: 0, overflow: "hidden" }}>
-                            <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
+                            <img src={src} alt="Verified psychologist at Choose Your Therapist" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
                               onError={e => { e.target.src = DEFAULT_PIC; }} />
                           </div>
                         ))}

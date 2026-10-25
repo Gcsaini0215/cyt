@@ -32,7 +32,7 @@ export default function SuggestedTherapists({ keywords, label }) {
           {list.map((t) => (
             <div key={t.id} className="sgt-card">
               <div className="sgt-top">
-                <span className="sgt-av">{t.photo ? <img src={t.photo} alt="" /> : t.name.charAt(0)}</span>
+                <span className="sgt-av">{t.photo ? <img src={t.photo} alt={t.name} /> : t.name.charAt(0)}</span>
                 <div className="sgt-who">
                   <b>{t.name}</b>
                   <span>{t.type}{t.city ? ` · ${t.city}` : ""}</span>

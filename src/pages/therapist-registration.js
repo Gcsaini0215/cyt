@@ -543,7 +543,7 @@ export default function TherapistRegistration() {
       <Head>
         <title>Join as a Therapist | List Your Practice on Choose Your Therapist</title>
         <meta name="robots" content="index, follow" />
-        <meta name="description" content="Psychologists, psychiatrists and counsellors: get a verified profile on Choose Your Therapist and get booked online or in person. Keep 70% of every booking. Plans from ₹999/month — apply in 5 minutes." />
+        <meta name="description" content="Psychologists and counsellors: get a verified profile on Choose Your Therapist, get booked online or in person and keep 70% of every booking. From ₹999/month." />
         <link rel="canonical" href="https://www.chooseyourtherapist.in/therapist-registration" />
 
         <meta key="og:type" property="og:type" content="website" />

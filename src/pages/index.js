@@ -51,12 +51,27 @@ function pickTop(all, userState) {
   });
   return [...all.filter(isTop), ...rest].slice(0, 20);
 }
-// cards only need these — the full documents carry schedules, fee tables etc.
-const slimForHome = (t) => ({
-  ...t,
-  availabilities: undefined, completion_items: undefined, verification_checklist: undefined,
-  reviews: (t.reviews || []).map((r) => ({ rating: r.rating, name: r.name || "", description: r.description || "", createdAt: r.createdAt || null })),
-});
+// Banner wall + reviews only need these few fields. The full documents also carried schedules,
+// fee tables, subscription/payment fields and every review — 136 KB of the page's HTML that no
+// one saw (and payment ids have no business being public).
+const homeSlim = (t, reviewText = false) => {
+  const fee = getMinFee(t.fees);
+  const reviews = t.reviews || [];
+  return {
+    _id: t._id,
+    user: { name: t.user?.name || "", profile: t.user?.profile || "" },
+    profile_type: t.profile_type || "", state: t.state || "", year_of_exp: t.year_of_exp || "",
+    language_spoken: t.language_spoken || "", session_formats: t.session_formats || "",
+    experties: t.experties || "", priority: t.priority ?? null,
+    fees: fee ? [{ formats: [{ fee }] }] : [],
+    reviews: reviewText
+      // "What our clients say" shows each therapist's newest three written reviews
+      ? reviews.filter((r) => String(r.description || "").trim())
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 3)
+        .map((r) => ({ rating: r.rating, name: r.name || "", description: r.description || "", createdAt: r.createdAt || null }))
+      : reviews.map((r) => ({ rating: r.rating })),
+  };
+};
 const clean = (o) => JSON.parse(JSON.stringify(o));
 // "Meet our psychologists" cards: just what a card shows (~0.4 KB per therapist)
 const cardSlim = (t) => {
@@ -82,8 +97,8 @@ export async function getStaticProps() {
     const fees = all.map((t) => getMinFee(t.fees)).filter(Boolean);
     return {
       props: {
-        initialBanner: clean(pickBanner(all).map(slimForHome)),
-        initialTop: clean(pickTop(all, null).map(slimForHome)),
+        initialBanner: clean(pickBanner(all).map((t) => homeSlim(t))),
+        initialTop: clean(pickTop(all, null).map((t) => homeSlim(t, true))),
         stats: { count: all.length, minFee: fees.length ? Math.min(...fees) : null },
         concerns: clean(concernStats(all, getMinFee, split)),
         people: clean(all.map(cardSlim)),

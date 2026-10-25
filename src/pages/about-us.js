@@ -217,7 +217,7 @@ export default function AboutUs() {
   return (
     <div id="__next">
       <Head>
-        <title>About Choose Your Therapist | India's Verified Psychologist Network</title>
+        <title>About Us | India's Verified Psychologist Network | CYT</title>
         <meta name="description" content="Find the right therapist in India — verified psychologists for online therapy or in-person sessions in Noida. HFR (ABDM) & MCA registered, since 2020." />
         <meta name="keywords" content="about Choose Your Therapist, CYT India, mental health platform India, verified psychologist network India, online therapy India, therapist near me India, counselling psychologist India, clinical psychologist India, Noida psychologist, Delhi NCR therapist, pan India online counselling, MCA MSME registered mental health platform" />
         <meta name="robots" content="index, follow, max-image-preview:large" />

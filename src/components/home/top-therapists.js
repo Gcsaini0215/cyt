@@ -44,7 +44,8 @@ function Card({ t, now, hidden }) {
   const tab = hidden ? -1 : undefined;
   return (
     <article className="tt-card">
-      <Link href={href} className="tt-photo" tabIndex={tab} aria-label={`${name} — view profile`}>
+      {/* one link per card: the name, stretched over the whole card (+ the Book button) */}
+      <div className="tt-photo">
         {photo
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={thumb(photo, 384)} srcSet={thumbSet(photo, 384, 640)} alt={name} loading="lazy" decoding="async" width="250" height="230" />
@@ -53,9 +54,9 @@ function Card({ t, now, hidden }) {
           {r ? <><Star sx={{ fontSize: 14, color: "#d4a24c" }} /> {r.avg.toFixed(1)} <small>({r.count})</small></> : "New on CYT"}
         </span>
         {isTop(t) && <span className="tt-pick" title="Handpicked by the CYT team">★ Top Pick</span>}
-      </Link>
+      </div>
       <div className="tt-body">
-        <Link href={href} className="tt-name" tabIndex={tab}>
+        <Link href={href} className="tt-name tt-stretch" tabIndex={tab}>
           <span>{name}</span><VerifiedRounded sx={{ fontSize: 16, color: "#1d9bf0", flexShrink: 0 }} />
         </Link>
         <div className="tt-role">{t.profile_type || "Psychologist"}</div>
@@ -68,11 +69,11 @@ function Card({ t, now, hidden }) {
           {modes.inPerson && <span className="ip"><i className="feather-home" aria-hidden="true" /> In-person</span>}
         </div>
         <div className="tt-row">
-          <div className="tt-fee">{fee ? <>From <b>₹{fee.toLocaleString("en-IN")}</b></> : "Fees on request"}</div>
+          <div className="tt-fee">{fee ? <>From <span className="tt-fee-n">₹{fee.toLocaleString("en-IN")}</span></> : "Fees on request"}</div>
         </div>
         <div className="tt-acts">
-          <Link href={href} className="tt-view" tabIndex={tab}>View</Link>
-          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book</Link>
+          <span className="tt-view" aria-hidden="true">View</span>
+          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book<span className="tt-sr"> {name}</span></Link>
         </div>
       </div>
     </article>
@@ -133,7 +134,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
           <div>
             <p className="tt-eyebrow">Our psychologists</p>
             <h2 id="tt-h" className="tt-title">Find someone you'll feel <span>comfortable</span> with</h2>
-            <p className="tt-sub">Real ratings from clients, fees upfront and live availability — online or in person.</p>
+            <p className="tt-sub">Some of the best psychologists in India, chosen by Choose Your Therapist — real ratings from clients, fees upfront, online or in person.</p>
           </div>
           <Link href="/view-all-therapist" className="tt-all">View all {total || ""} psychologists <i className="feather-arrow-right" aria-hidden="true" /></Link>
         </div>
@@ -160,11 +161,11 @@ export default function TopTherapists({ people = [], visitorState = null, total 
               <button type="button" className="tt-arrow prev" onClick={() => slide(-1)} aria-label="Previous psychologists"><i className="feather-chevron-left" /></button>
               <div className="tt-row-scroll" ref={rowRef} role="tabpanel">
                 {shown.map((t) => <Card key={t._id} t={t} now={now} />)}
-                <Link href="/view-all-therapist" className="tt-card tt-more">
+                <div className="tt-card tt-more">
                   <span className="tt-more-ic" aria-hidden="true"><i className="feather-users" /></span>
-                  <b>See all {total || ""} psychologists</b>
+                  <Link href="/view-all-therapist" className="tt-stretch tt-more-a">See all {total || ""} psychologists</Link>
                   <span>Filter by concern, language, fees and more</span>
-                </Link>
+                </div>
               </div>
               <button type="button" className="tt-arrow next" onClick={() => slide(1)} aria-label="More psychologists"><i className="feather-chevron-right" /></button>
             </>
@@ -183,7 +184,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
             <li><b>{sessionsText(ps)}</b> sessions</li>
             <li>100% confidential</li>
           </ul>
-          <Link href="/view-all-therapist?help=1" className="tt-help"><i className="feather-compass" aria-hidden="true" /> Not sure who to pick? <b>Help me choose</b></Link>
+          <Link href="/view-all-therapist?help=1" className="tt-help" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Not sure who to pick? <b>Help me choose</b></Link>
         </div>
       </div>
     </section>
@@ -223,7 +224,7 @@ const CSS = `
 .tt-arrow.prev { left: -18px; } .tt-arrow.next { right: -18px; }
 .tt-arrow:hover { background: #ecc77d; }
 
-.tt-card { flex: 0 0 250px; scroll-snap-align: start; display: flex; flex-direction: column; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 36px -22px rgba(0,0,0,.7); }
+.tt-card { position: relative; flex: 0 0 250px; scroll-snap-align: start; display: flex; flex-direction: column; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 18px 36px -22px rgba(0,0,0,.7); }
 .tt-photo { position: relative; display: block; height: 230px; background: linear-gradient(150deg, #c3e8d2, #82cca1); overflow: hidden; }
 .tt-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transition: transform .45s ease; }
 .tt-card:hover .tt-photo img { transform: scale(1.04); }
@@ -244,13 +245,13 @@ const CSS = `
 .tt-modes span.ip { background: #fbf3e2; color: #7a5413; }
 .tt-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; padding-top: 8px; border-top: 1px dashed #e2e8e4; }
 .tt-fee { font-size: 13px; color: #475569; }
-.tt-fee b { color: #14532d; font-weight: 800; font-size: 14.5px; }
+.tt-fee .tt-fee-n { color: #14532d; font-weight: 800; font-size: 14.5px; }
 .tt-next { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #475569; white-space: nowrap; }
 .tt-next i { width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; }
 .tt-next.today { color: #1e7a4c; }
 .tt-next.today i { background: #22a35a; box-shadow: 0 0 0 3px rgba(34,163,90,.18); }
 .tt-acts { display: flex; gap: 8px; margin-top: 8px; }
-.tt-acts a { flex: 1; text-align: center; padding: 9px 0; border-radius: 10px; font-size: 13.5px; font-weight: 800; text-decoration: none !important; }
+.tt-acts a, .tt-acts .tt-view { flex: 1; text-align: center; padding: 9px 0; border-radius: 10px; font-size: 13.5px; font-weight: 800; text-decoration: none !important; }
 .tt-view { border: 1.5px solid #cfdcd4; color: #26463a !important; }
 .tt-view:hover { border-color: #1e7a4c; color: #1e7a4c !important; }
 .tt-book { background: #1e7a4c; color: #fff !important; }
@@ -259,7 +260,10 @@ const CSS = `
 .tt-more { align-items: center; justify-content: center; text-align: center; gap: 8px; padding: 24px; background: rgba(255,255,255,.06); border: 1.5px dashed rgba(255,255,255,.3); box-shadow: none; text-decoration: none !important; }
 .tt-more:hover { background: rgba(255,255,255,.1); }
 .tt-more-ic { width: 54px; height: 54px; border-radius: 50%; background: #1e7a4c; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-.tt-more b { color: #fff; font-size: 16px; }
+.tt-more .tt-more-a { color: #fff !important; font-size: 16px; font-weight: 800; text-decoration: none !important; }
+.tt-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.tt-acts .tt-book { position: relative; z-index: 2; }
+.tt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .tt-more span:last-child { color: rgba(255,255,255,.65); font-size: 13px; }
 
 .tt-empty { padding: 40px 16px; text-align: center; color: rgba(255,255,255,.8); border: 1px dashed rgba(255,255,255,.25); border-radius: 18px; }

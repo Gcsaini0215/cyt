@@ -583,7 +583,7 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
             </div>
             <div className="vat-links types">
               {typeOptions.map((v) => (
-                <Link key={v} href={`/view-all-therapist?profile_type=${encodeURIComponent(v)}`}>{v}s</Link>
+                <Link key={v} href={`/view-all-therapist?profile_type=${encodeURIComponent(v)}`} rel="nofollow">{v}s</Link>
               ))}
             </div>
           </section>

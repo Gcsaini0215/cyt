@@ -12,7 +12,7 @@ export default function WellnessToolkit() {
   return (
     <div id="__next">
       <Head>
-        <title>Wellness Toolkit | Free Mental Health Resources | Choose Your Therapist</title>
+        <title>Wellness Toolkit — Free Mental Health Tools | CYT</title>
         <meta name="description" content="Access our free wellness toolkit featuring breathing guides, mood trackers, panic buttons, and journaling prompts for your mental well-being." />
         <meta name="keywords" content="Wellness Toolkit, Mental Health Resources, Free Therapy Tools, Breathing Exercises, Mood Tracker, Panic Button" />
         <link rel="canonical" href="https://chooseyourtherapist.in/wellness-toolkit" />

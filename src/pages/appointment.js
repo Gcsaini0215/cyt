@@ -97,7 +97,7 @@ export default function AppointmentPage({ pics = [] }) {
                   <div className={col % 2 === 0 ? "ap-col-up" : "ap-col-down"} style={{ display: "flex", flexDirection: "column" }}>
                     {doubled.map((src, idx) => (
                       <div key={idx} style={{ width: "100%", aspectRatio: "1/1", flexShrink: 0, overflow: "hidden" }}>
-                        <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
+                        <img src={src} alt="Verified psychologist at Choose Your Therapist" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", display: "block" }}
                           onError={e => { e.target.src = DEFAULT_PIC; }} />
                       </div>
                     ))}

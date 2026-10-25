@@ -17,8 +17,8 @@ const BookingPopup = dynamic(() => import("../components/global/booking-popup"),
 
 const SITE = SITE_URL;
 const PAGE_URL = `${SITE}/self-assessment`;
-const TITLE = "Mental Health Screening Tests Online — PHQ-9, GAD-7, DASS-21 & More | CYT";
-const DESC = "Standard mental health screening tools — PHQ-9, GAD-7, DASS-21, K10, PCL-5, EPDS, AUDIT, adult ADHD (ASRS), burnout, self-esteem and Big Five. For screening only, not a diagnosis. Take one online for an instant scored report, or with a verified psychologist.";
+const TITLE = "Mental Health Tests Online — PHQ-9, GAD-7 & More | CYT";
+const DESC = "Standard screening tests — PHQ-9, GAD-7, DASS-21, K10, PCL-5, ADHD, burnout and more. Instant scored report online, or take one with a psychologist.";
 const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
 
 const SCHEMA = [
