@@ -75,7 +75,7 @@ export default function Specializations({ stats: data = null }) {
             <span className="sp-help-ic" aria-hidden="true"><i className="feather-compass" /></span>
             <h3>Not sure what you're feeling?</h3>
             <p>Answer 3 quick questions and we'll show the therapists who fit.</p>
-            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Help me choose <i className="feather-arrow-right" aria-hidden="true" /></Link>
+            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Help me choose a therapist <i className="feather-arrow-right" aria-hidden="true" /></Link>
           </div>
         </div>
 

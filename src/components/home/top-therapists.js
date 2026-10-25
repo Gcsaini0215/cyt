@@ -57,7 +57,7 @@ function Card({ t, now, hidden }) {
       </div>
       <div className="tt-body">
         <Link href={href} className="tt-name tt-stretch" tabIndex={tab}>
-          <span>{name}</span><VerifiedRounded sx={{ fontSize: 16, color: "#1d9bf0", flexShrink: 0 }} />
+          <span>{name}</span><span className="tt-sr">, {t.profile_type || "Psychologist"}</span><VerifiedRounded sx={{ fontSize: 16, color: "#1d9bf0", flexShrink: 0 }} />
         </Link>
         <div className="tt-role">{t.profile_type || "Psychologist"}</div>
         <div className="tt-meta">
@@ -73,7 +73,7 @@ function Card({ t, now, hidden }) {
         </div>
         <div className="tt-acts">
           <span className="tt-view" aria-hidden="true">View</span>
-          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book<span className="tt-sr"> {name}</span></Link>
+          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book<span className="tt-sr"> a session with {name}</span></Link>
         </div>
       </div>
     </article>

@@ -103,6 +103,8 @@ export default function App() {
   const isActive = (href) => (href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`));
   const navCls = (href) => (isActive(href) ? "is-active" : undefined);
   const close = () => setShow(false);
+  const [menuReady, setMenuReady] = React.useState(false);
+  React.useEffect(() => { if (show) setMenuReady(true); }, [show]);
 
   const GREEN_STRIP_HEIGHT = 35; // desktop
 
@@ -134,7 +136,7 @@ export default function App() {
                 <div className="header-info">
                   <div className="logo d-flex align-items-center">
                     <Link href="/" style={{ cursor: "pointer" }}>
-                      <ImageTag alt="Education Logo Images" height={"55"} width={"165"} src="/assets/img/logo-nav.webp" />
+                      <ImageTag alt="Choose Your Therapist logo" height={"55"} width={"165"} src="/assets/img/logo-nav.webp" />
                     </Link>
                   </div>
                 </div>
@@ -254,7 +256,7 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
               <div className="logo">
                 <Link href="/" onClick={() => setShow(false)}>
-                  <ImageTag alt="Logo" height={"45"} width={"135"} src="/assets/img/logo-nav.webp" />
+                  <ImageTag alt="CYT home" height={"45"} width={"135"} src="/assets/img/logo-nav.webp" />
                 </Link>
               </div>
               <button className="close-menu" onClick={() => setShow(false)} style={{ background: '#f8fafc', width: '36px', height: '36px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f1f5f9' }}>
@@ -263,6 +265,9 @@ export default function App() {
             </div>
           </div>
           
+          {/* the menu's links are rendered only once it has been opened — in the server HTML they would
+              repeat every desktop nav link ("anchor text used more than once" in SEO audits) */}
+          {menuReady && <>
           <ul className="mobile-menu" style={{ borderTop: 'none' }}>
             <li className="profile-section-mobile">
               {userType === 1 || userType === 2 ? (
@@ -339,6 +344,7 @@ export default function App() {
             </div>
             {userType !== 2 && <Link className="mm-ther" href="/therapist-registration" onClick={close}>Are you a therapist? Join us →</Link>}
           </div>
+          </>}
         </div>
       </div>
 

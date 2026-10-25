@@ -163,7 +163,7 @@ function PhotoCard({ t, hidden = false }) {
       {fee && <span className="cyt-ph-fee">{fee}</span>}
       <span className="cyt-ph-info">
         <span className="cyt-ph-name">
-          {hidden ? name : <Link href={href}>{name}</Link>}
+          {hidden ? name : <Link href={href}>{name}<span className="cyt-sr"> — view profile</span></Link>}
           <VerifiedRounded sx={{ fontSize: 15, color: "#7dd3fc", flexShrink: 0 }} />
         </span>
         <span className="cyt-ph-role">{t.profile_type || "Mental Health Professional"}</span>
@@ -257,7 +257,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
 
           <div className="cyt-hchips" aria-label="Popular concerns">
             {QUICK.map(([label, value]) => (
-              <Link key={value} href={`/therapy-for/${value}`}>{label}</Link>
+              <Link key={value} href={`/therapy-for/${value}`}>{label}<span className="cyt-sr"> therapy</span></Link>
             ))}
             <Link className="cyt-help" href="/view-all-therapist?help=1" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Help me choose</Link>
           </div>

@@ -24,7 +24,7 @@ export default function MobileActionBar({ waText } = {}) {
   return (
     <div className={`mab${shown ? " on" : ""}`} role="region" aria-label="Contact us">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      <a className="mab-call" href={`tel:${PHONE}`} tabIndex={shown ? undefined : -1}><i className="feather-phone" aria-hidden="true" /> Call</a>
+      <a className="mab-call" href={`tel:${PHONE}`} tabIndex={shown ? undefined : -1}><i className="feather-phone" aria-hidden="true" /> Call us</a>
       <button type="button" className="mab-go" tabIndex={shown ? undefined : -1} onClick={() => window.dispatchEvent(new Event("cyt:open-chat"))}>Get matched</button>
     </div>
   );

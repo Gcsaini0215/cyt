@@ -95,7 +95,7 @@ export default function LeadCard({
           </div>
           <label className="lc-agree">
             <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-            I agree to be contacted by Choose Your Therapist about my request. See our <a href="/privacy-policy">Privacy Policy</a>.
+            I agree to be contacted by Choose Your Therapist about my request. See <a href="/privacy-policy">how we use your data</a>.
           </label>
           {error && <p className="lc-err">{error}</p>}
           <div className="lc-acts">

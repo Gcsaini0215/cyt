@@ -122,9 +122,9 @@ export default function Footer() {
               <div className="footer-widget">
                 <p className="ft-title">Get Started</p>
                 <ul className="ft-link liststyle-none mt--20">
-                  <li className="mb--12"><Link href="/view-all-therapist">Find a Therapist</Link></li>
+                  <li className="mb--12"><Link href="/view-all-therapist">Find a Psychologist</Link></li>
                   <li className="mb--12"><Link href="/therapy-booking">Free Consultation</Link></li>
-                  <li className="mb--12"><Link href="/service-page">Our Services</Link></li>
+                  <li className="mb--12"><Link href="/service-page">Therapy Services</Link></li>
                   <li className="mb--12"><Link href="/blogs">Blog</Link></li>
                   <li className="mb--12"><Link href="/faqs">FAQs</Link></li>
                   <li><Link href="/emergency-support">Emergency Help</Link></li>
@@ -218,9 +218,7 @@ export default function Footer() {
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/about-us">About Us</Link></li>
                   <li className="mb--12"><Link href="/for-business">Corporate Wellness</Link></li>
-                  <li className="mb--12"><Link href="/contact-us">Contact Us</Link></li>
-                  <li className="mb--12"><Link href="/terms-conditions">Terms of Service</Link></li>
-                  <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+                  <li><Link href="/contact-us">Get in Touch</Link></li>
                 </ul>
               </div>
             </div>
@@ -237,7 +235,7 @@ export default function Footer() {
                 <i className="feather-phone"></i>
               </div>
               <div className="text">
-                <a href="tel:+918077757951">+91 80777 57951</a>
+                <a href="tel:+918077757951">Call +91 80777 57951</a>
               </div>
             </div>
             <div className="single-info d-flex align-items-center">
@@ -257,9 +255,6 @@ export default function Footer() {
               </div>
             </div>
             <ul className="social-icon social-default justify-content-center mb-0 gap-3">
-              <li><a href="#" aria-label="Facebook"><i className="feather-facebook"></i></a></li>
-              <li><a href="#" aria-label="Instagram"><i className="feather-instagram"></i></a></li>
-              <li><a href="#" aria-label="LinkedIn"><i className="feather-linkedin"></i></a></li>
               <li><a href="https://wa.me/918077757951" target="_blank" rel="noopener noreferrer"><i className="feather-message-circle" aria-hidden="true"></i><span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>WhatsApp us</span></a></li>
             </ul>
           </div>
