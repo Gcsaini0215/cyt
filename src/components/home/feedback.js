@@ -52,7 +52,7 @@ export default function Feedback({ therapists = [] }) {
             <p className="hrv-sub">Verified reviews from people who found the right psychologist with us.</p>
           </div>
           <a className="hrv-google" href={GBP_URL} target="_blank" rel="noreferrer">
-            <b>{ratingText(ps)}</b>
+            <span className="hrv-g-n">{ratingText(ps)}</span>
             <span className="hrv-g-stars" aria-hidden="true">★★★★★</span>
             <span className="hrv-g-l">on Google · {reviewsText(ps)} reviews</span>
             <span className="hrv-g-s">{sessionsText(ps)} sessions</span>
@@ -113,7 +113,7 @@ const CSS = `
 .hrv-title span { color: #a86e0e; }
 .hrv .hrv-sub { color: #64748b; font-size: 15px; line-height: 1.6; margin: 0; padding: 0; }
 .hrv-google { flex-shrink: 0; display: grid; grid-template-columns: auto auto; align-items: center; gap: 0 10px; padding: 12px 18px; border-radius: 16px; background: #fff; border: 1px solid #e8e1cc; box-shadow: 0 14px 30px -24px rgba(122,84,19,.6); text-decoration: none !important; }
-.hrv-google b { grid-row: span 2; font-size: 30px; font-weight: 900; color: #0b1712; line-height: 1; }
+.hrv-google .hrv-g-n { grid-row: span 2; font-size: 30px; font-weight: 900; color: #0b1712; line-height: 1; }
 .hrv-g-stars { color: #e3a83a; font-size: 15px; letter-spacing: 1px; }
 .hrv-g-l { font-size: 12.5px; color: #475569; font-weight: 600; }
 .hrv-g-s { grid-column: 1 / -1; margin-top: 6px; padding-top: 6px; border-top: 1px solid #f0ebdc; font-size: 12px; font-weight: 700; color: #1e7a4c; }

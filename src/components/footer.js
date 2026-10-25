@@ -260,7 +260,7 @@ export default function Footer() {
               <li><a href="#" aria-label="Facebook"><i className="feather-facebook"></i></a></li>
               <li><a href="#" aria-label="Instagram"><i className="feather-instagram"></i></a></li>
               <li><a href="#" aria-label="LinkedIn"><i className="feather-linkedin"></i></a></li>
-              <li><a href="https://wa.me/918077757951" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><i className="feather-message-circle"></i></a></li>
+              <li><a href="https://wa.me/918077757951" target="_blank" rel="noopener noreferrer"><i className="feather-message-circle" aria-hidden="true"></i><span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>WhatsApp us</span></a></li>
             </ul>
           </div>
         </div>

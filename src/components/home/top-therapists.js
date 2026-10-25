@@ -180,7 +180,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
         <div className="tt-foot">
           <ul className="tt-trust">
             <li><b>{total || "50+"}</b> verified psychologists</li>
-            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <b>{ratingText(ps)}</b> on Google</a></li>
+            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <span style={{ fontWeight: 700 }}>{ratingText(ps)}</span> on Google</a></li>
             <li><b>{sessionsText(ps)}</b> sessions</li>
             <li>100% confidential</li>
           </ul>
