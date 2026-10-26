@@ -8,7 +8,7 @@ import { getDecodedToken } from "../utils/jwt";
 import { getAllBlogs, blogCard } from "../utils/blog-cache";
 import { usePager, Pager } from "../components/therapists/pager";
 import dynamic from "next/dynamic";
-import { blogPath } from "../utils/blog-slug";
+import { blogPath, blogThumb } from "../utils/blog-slug";
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 /* /blogs — calm banner with search + topics, a featured post, a grid of cards and a nudge to
@@ -109,7 +109,7 @@ const TINTS = [["#e7f6ec", "#166534"], ["#e8f1fd", "#1d4ed8"], ["#fdeef2", "#be1
 const tintOf = (cat) => TINTS[[...String(cat)].reduce((a, c) => a + c.charCodeAt(0), 0) % TINTS.length];
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "");
 const hrefOf = (p) => blogPath(p);
-const thumbOf = (p) => (p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg");
+const thumbOf = (p) => blogThumb(p);
 
 function Card({ p }) {
   const [bg, fg] = tintOf(p.category);
@@ -143,7 +143,7 @@ export default function BlogsPage({ posts = [] }) {
 
   // ── SEO: the newest post's cover for link previews; every post as BlogPosting for search + AI answers
   const latest = posts[0] || null;
-  const ogImage = latest?.hasImage ? `${SITE}/api/blog-thumb?id=${latest.id}` : OG_IMAGE;
+  const ogImage = latest?.hasImage ? blogThumb(latest, SITE) : OG_IMAGE;
   const postLd = (p) => ({
     "@type": "BlogPosting",
     "@id": `${SITE}${hrefOf(p)}#article`,
@@ -152,7 +152,7 @@ export default function BlogsPage({ posts = [] }) {
     "url": `${SITE}${hrefOf(p)}`,
     "mainEntityOfPage": `${SITE}${hrefOf(p)}`,
     ...(p.createdAt ? { "datePublished": p.createdAt, "dateModified": p.createdAt } : {}),
-    ...(p.hasImage ? { "image": `${SITE}/api/blog-thumb?id=${p.id}` } : {}),
+    ...(p.hasImage ? { "image": blogThumb(p, SITE) } : {}),
     "articleSection": p.category,
     "timeRequired": `PT${p.minutes}M`,
     "inLanguage": "en-IN",

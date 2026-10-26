@@ -11,7 +11,7 @@ import BookingPopup from "../components/global/booking-popup";
 import { getBlogUrl, frontendUrl, getTherapistProfiles } from "../utils/url";
 import { fetchData } from "../utils/actions";
 import { fitTitle, fitDesc } from "../utils/seo-text";
-import { blogPath, blogIdFromSlug } from "../utils/blog-slug";
+import { blogPath, blogIdFromSlug, blogThumb } from "../utils/blog-slug";
 
 /* /blog-details — one article, built for reading: a light header (same family as /blogs), the
    cover image overlapping it, a 720px text column in large type, and on wide screens a sticky
@@ -166,7 +166,7 @@ const readMinutes = (html) => Math.max(1, Math.ceil(String(html || "").replace(/
 const coverOf = (b) => {
   const img = String(b?.image || "");
   if (/^https?:\/\//.test(img)) return img;
-  return b?.hasImage || img ? `/api/blog-thumb?id=${b._id}` : "/assets/img/blog-card-048b22.jpg";
+  return blogThumb({ ...b, hasImage: b?.hasImage || !!img });
 };
 const OPEN_CHAT_EVENT = "cyt:open-chat";
 
@@ -267,7 +267,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   const plainContentDesc = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 200) : "";
   const rawCleanDesc = rawMetaDesc.length > 40 ? rawMetaDesc : plainContentDesc;
   const cleanDesc = rawCleanDesc.length > 160 ? rawCleanDesc.substring(0, 157) + "..." : rawCleanDesc;
-  const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}`;
+  const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}${Date.parse(blog.updatedAt || "") ? `&v=${Date.parse(blog.updatedAt)}` : ""}`;
   // always the www address — frontendUrl is the bare domain on the server, which 301s to www
   const pageUrl = `https://www.chooseyourtherapist.in${blogPath(blog)}`;
   const plainText = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
@@ -444,7 +444,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
               {more.map((p) => (
                 <Link key={p.id} href={blogPath(p)} className="bd-side-item">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg"} alt={p.title} loading="lazy" />
+                  <img src={blogThumb(p)} alt={p.title} loading="lazy" />
                   <span><em>{p.category}</em>{p.title}</span>
                 </Link>
               ))}
@@ -465,7 +465,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
                 <Link key={p.id} href={blogPath(p)} className="bd-card">
                   <span className="bd-card-img">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.hasImage ? `/api/blog-thumb?id=${p.id}` : "/assets/img/blog-card-048b22.jpg"} alt={p.title} loading="lazy" />
+                    <img src={blogThumb(p)} alt={p.title} loading="lazy" />
                   </span>
                   <span className="bd-card-b">
                     <em>{p.category}</em>

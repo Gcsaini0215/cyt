@@ -33,6 +33,7 @@ export const blogCard = (b) => {
     category: String(b.category || "Mental Health").trim().replace(/\s+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     excerpt: (String(b.metaDesc || "").trim() || text).slice(0, 170),
     createdAt: b.createdAt || null,
+    updatedAt: b.updatedAt || null,
     minutes: Math.max(1, Math.ceil(text.split(" ").filter(Boolean).length / 200)),
     hasImage: !!b.image,
   };

@@ -29,3 +29,13 @@ export const blogPath = (b) => {
 };
 
 export const blogIdFromSlug = (slug) => (String(slug || "").match(/([a-f0-9]{24})$/i) || [])[1] || "";
+
+// Cover image URL for a post. The image's address has to change when the image does — /api/blog-thumb
+// is cached by browsers for a day, so without the version a replaced cover kept showing the old one.
+const DEFAULT_COVER = "/assets/img/blog-card-048b22.jpg";
+export const blogThumb = (b, abs = "") => {
+  const id = String(b?._id || b?.id || "");
+  if (!id || !(b?.hasImage || b?.image)) return DEFAULT_COVER;
+  const v = Date.parse(b?.updatedAt || b?.v || b?.createdAt || "") || 0;
+  return `${abs}/api/blog-thumb?id=${id}${v ? `&v=${v}` : ""}`;
+};
