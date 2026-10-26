@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { PHONE } from "./lead-card";
 
 // Phones: a slim bar at the bottom of landing pages — call, and "Get matched" (opens the lead
 // popup). It isn't pinned all the time (it covered too much of a small screen): it slides up
 // while the visitor scrolls and tucks itself away a few seconds after they stop.
 // waText is still accepted from pages but unused — WhatsApp left the bar (2026-10-21).
+// noida: adds a "Therapist @ Noida" button (the home page moved its hero Noida button here on phones).
 // eslint-disable-next-line no-unused-vars
-export default function MobileActionBar({ waText } = {}) {
+export default function MobileActionBar({ waText, noida = false } = {}) {
   const [shown, setShown] = useState(false);
   useEffect(() => {
     let hideT;
@@ -22,9 +24,14 @@ export default function MobileActionBar({ waText } = {}) {
   }, []);
 
   return (
-    <div className={`mab${shown ? " on" : ""}`} role="region" aria-label="Contact us">
+    <div className={`mab${shown ? " on" : ""}${noida ? " mab-3" : ""}`} role="region" aria-label="Contact us">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <a className="mab-call" href={`tel:${PHONE}`} tabIndex={shown ? undefined : -1}><i className="feather-phone" aria-hidden="true" /> Call us</a>
+      {noida && (
+        <Link className="mab-noida" href="/noida-appointment" tabIndex={shown ? undefined : -1}>
+          <i className="feather-map-pin" aria-hidden="true" /> Therapist @ Noida<span className="mab-sr"> — book a psychologist in Noida, Sector 51</span>
+        </Link>
+      )}
       <button type="button" className="mab-go" tabIndex={shown ? undefined : -1} onClick={() => window.dispatchEvent(new Event("cyt:open-chat"))}>Get matched</button>
     </div>
   );
@@ -38,6 +45,11 @@ const CSS = `
   .mab a, .mab button { height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 800; text-decoration: none !important; border: none; cursor: pointer; }
   .mab-call { background: #fff; color: #14532d !important; border: 1.5px solid #cfdcd4 !important; }
   .mab-go { background: #1e7a4c; color: #fff; }
+  .mab.mab-3 { grid-template-columns: .8fr 1.3fr 1fr; gap: 6px; }
+  .mab.mab-3 a, .mab.mab-3 button { font-size: 13px; gap: 4px; padding: 0 6px; white-space: nowrap; }
+  /* same gold as the underline under "psychologist" in the home hero */
+  .mab-noida { background: #e0ab45; color: #3b2606 !important; border: 1.5px solid #e0ab45 !important; box-shadow: 0 6px 14px -8px rgba(160,110,20,.7); }
+  .mab-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .cb-widget { bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important; }
 }
 @media (prefers-reduced-motion: reduce) { .mab { transition: none; } }

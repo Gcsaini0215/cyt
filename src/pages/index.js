@@ -614,7 +614,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
       }} />
       <BookingPopup showHeading={false} showLocation={false} showSource={false}
         title="Find the right psychologist" sourceTag="Popup · Home" />
-      <MobileActionBar />
+      <MobileActionBar noida />
     </div>
   );
 }
