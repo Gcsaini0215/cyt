@@ -154,6 +154,68 @@ function TherapistHero({ profile, nextLabel, fromFee }) {
   );
 }
 
+// ── WHERE AN IN-PERSON SESSION HAPPENS ───────────────────────────────────────
+// Shown as soon as "In-Person" is picked: the therapist's practice location (from their profile), a map,
+// and a plain warning — clients assumed an in-person therapist was near them (a Noida client booked
+// in-person with a therapist in Ahmedabad).
+const CYT_CENTRE = "Choose Your Therapist, Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301";
+const clean = (v) => (v && !/^(null|undefined|n\/a|-)$/i.test(String(v).trim()) ? String(v).replace(/\s+/g, " ").trim() : "");
+function practicePlace(p) {
+  const address = clean(p?.office_address);
+  const city = clean(p?.office_city);
+  const state = clean(p?.office_state) || clean(p?.state);
+  // therapists who see clients at the CYT Noida centre
+  if (/D-?137|choose your therapist/i.test(address)) return { line: CYT_CENTRE, area: "Sector 51, Noida", query: CYT_CENTRE, centre: true, exact: true };
+  // "Noida, Uttar Pradesh" + "Noida" → one "Noida": split everything on commas and drop repeats
+  const seen = [];
+  [address, city, state].join(",").split(",").map((x) => x.trim()).filter(Boolean).forEach((x) => {
+    const k = x.toLowerCase();
+    if (seen.some((y) => y.toLowerCase() === k)) return;
+    seen.push(x);
+  });
+  // the state is the last part of "Noida, Uttar Pradesh" — "Noida" is a place
+  const st = state.split(",").pop().trim();
+  // "… Jhunjhunu Rajasthan" already ends with the state — don't add it again
+  const parts = st && seen.some((x) => x.toLowerCase() !== st.toLowerCase() && x.toLowerCase().endsWith(st.toLowerCase()))
+    ? seen.filter((x) => x.toLowerCase() !== st.toLowerCase()) : seen;
+  if (!parts.length) return null;
+  const local = parts.filter((x) => x.toLowerCase() !== st.toLowerCase());
+  // only a state ("Uttar Pradesh") isn't a place you can go to — no map, ask to confirm instead
+  const exact = local.length > 0;
+  const last = local[local.length - 1] || "";
+  const area = exact ? [last.length <= 30 && last.toLowerCase() !== st.toLowerCase() ? last : "", st].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(", ") : st;
+  return { line: parts.join(", "), area: area || parts.join(", "), query: `${parts.join(", ")}, India`, centre: false, exact };
+}
+
+function InPersonWhere({ profile }) {
+  const place = practicePlace(profile);
+  const first = String(profile?.user?.name || "The therapist").trim().split(/\s+/)[0];
+  if (!place) {
+    return (
+      <div className="bk-where warn">
+        <div className="bk-where-h"><i className="feather-map-pin"></i> In-person location not listed</div>
+        <p>{first} hasn't added a practice address yet. Choose <b>Video</b> or <b>Audio</b>, or message us on WhatsApp to confirm where the session would be before you book.</p>
+      </div>
+    );
+  }
+  return (
+    <div className="bk-where">
+      <div className="bk-where-h"><i className="feather-map-pin"></i> Where you'll meet</div>
+      <div className="bk-where-addr">{place.line}</div>
+      {!place.exact && <p className="bk-where-warn">{first} has listed only the state, not the exact address. Message us on WhatsApp to confirm where the session would be before you book.</p>}
+      {place.exact && <iframe className="bk-where-map" title={`Map — ${place.area}`} loading="lazy" referrerPolicy="no-referrer-when-downgrade"
+        src={`https://maps.google.com/maps?q=${encodeURIComponent(place.query)}&z=${place.centre ? 16 : 12}&output=embed`} />}
+      {place.exact && <a className="bk-where-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.query)}`} target="_blank" rel="noopener noreferrer">
+        Open in Google Maps <i className="feather-external-link"></i>
+      </a>}
+      <p className="bk-where-note">
+        This is an <b>in-person session in {place.area}</b> — you'll need to go there. Not nearby? Pick <b>Video</b> or <b>Audio</b> above
+        {place.centre ? "." : <>, or <Link href="/noida-appointment">book in person at our Noida centre</Link>.</>}
+      </p>
+    </div>
+  );
+}
+
 // ── CYT NOIDA CENTRE CARD: an in-person alternative that books through the centre's own funnel ──
 function NoidaCentreCard({ pricing }) {
   const from = pricing?.individual_inperson;
@@ -955,6 +1017,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
               );
             })}
           </div>
+          {/in[- ]?person|offline/i.test(selFmt?.type || "") && <InPersonWhere profile={profile} />}
         </div>
       )}
 
@@ -993,6 +1056,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
           { k: "Service",   v: selSvc?.name },
           { k: "Format",    v: selFmt?.type },
           { k: "Mode",      v: mode === "video" ? "Video Call" : mode === "audio" ? "Voice Call" : "In-Person" },
+          ...(/in[- ]?person|offline/i.test(selFmt?.type || "") ? [{ k: "Where", v: practicePlace(profile)?.line || "Address not listed — confirm with us before booking" }] : []),
           { k: "Date",      v: selDate ? `${DAYS[selDate.getDay()]}, ${selDate.getDate()} ${MONS[selDate.getMonth()]}` : "—" },
           { k: "Time",      v: selSlot ? `${selSlot.label} IST${awayTz && selDate ? ` · ${localTimeLabel(istInstant(selDate, ...selSlot.val.split(":").map(Number)))} your time` : ""}` : "—" },
           { k: "Patient",   v: bookFor === "self" ? "Myself" : `${relation || "Other"}${age ? ` · Age ${age}` : ""}` },
@@ -1216,6 +1280,15 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         .bk-trust i { color: ${GL}; font-size: 13px; }
 
         /* noida centre card */
+        .bk-where { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: #fffaf0; border: 1.5px solid #e0ab45; }
+        .bk-where.warn { background: #fff7ed; border-color: #fdba74; }
+        .bk-where-h { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; color: #7a4f0e; text-transform: uppercase; letter-spacing: .04em; }
+        .bk-where-addr { margin: 6px 0 10px; font-size: 15px; font-weight: 700; color: #132a1c; line-height: 1.45; }
+        .bk-where-map { display: block; width: 100%; height: 180px; border: 0; border-radius: 10px; background: #eef2ef; }
+        .bk-where-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 13px; font-weight: 700; color: #166534 !important; text-decoration: none !important; }
+        .bk-where-note, .bk-where p { margin: 10px 0 0; font-size: 13px; line-height: 1.55; color: #4b3a12; }
+        .bk-where-note a { color: #166534 !important; font-weight: 700; }
+        .bk-where .bk-where-warn { margin: 0 0 4px; padding: 8px 10px; border-radius: 8px; background: #fff1e6; color: #9a3412; font-weight: 600; }
         .bk-noida { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding: 18px 20px; border-radius: 12px; background: linear-gradient(135deg, ${G} 0%, #175c37 100%); border: 1px solid ${GOLD}; box-shadow: 0 6px 24px rgba(15,61,36,.18); color: #fff; }
         .bk-noida-mark { flex-shrink: 0; width: 64px; height: 64px; border-radius: 16px; background: #fff; padding: 9px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
         .bk-noida-mark img { width: 100%; height: 100%; object-fit: contain; display: block; }
