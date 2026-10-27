@@ -60,6 +60,8 @@ function slotsFor(avail, date) {
 }
 
 const clientName = (b) => b.cname || b.client?.name || "Client";
+// the CYT team moved this session to you from another therapist (admin → Client 360 → Replace therapist)
+const assignedOf = (b) => (b.reassignments?.length ? b.reassignments[b.reassignments.length - 1] : null);
 const STATUS = {
   [SESSION_STATUS.NEW]: ["Booked", "#1d4ed8", "#eff6ff"],
   [SESSION_STATUS.STARTED]: ["In session", "#b45309", "#fffbeb"],
@@ -208,7 +210,7 @@ export default function MySchedule() {
   const Row = ({ b }) => (
     <button type="button" className="ms-row" onClick={() => setPicked(b)}>
       <span className="ms-time">{timeLabel(minsOf(b.at))}</span>
-      <span className="ms-who"><b>{clientName(b)}</b><span>{[b.service, b.format].filter(Boolean).join(" · ")}</span></span>
+      <span className="ms-who"><b>{clientName(b)}</b><span>{[b.service, b.format, assignedOf(b) && "Assigned by CYT"].filter(Boolean).join(" · ")}</span></span>
       {money(b) > 0 && <span className="ms-amt">{inr(money(b))}</span>}
       <Chip meta={statusMeta(b.status)} />
     </button>
@@ -497,6 +499,7 @@ export default function MySchedule() {
               {picked.client?.phone && <><span>Phone</span><a href={`tel:${picked.client.phone}`}>{picked.client.phone}</a></>}
               {picked.client?.email && <><span>Email</span><a href={`mailto:${picked.client.email}`} style={{ wordBreak: "break-all" }}>{picked.client.email}</a></>}
               {picked.notes && <><span>Notes</span><span style={{ color: "#334155", fontWeight: 500 }}>{picked.notes}</span></>}
+              {assignedOf(picked) && <><span>How they came</span><span style={{ color: "#4b3a12", fontWeight: 500 }}>Moved to you by the CYT team{assignedOf(picked).fromName ? ` (booked with ${assignedOf(picked).fromName})` : ""}{assignedOf(picked).reason ? ` — ${assignedOf(picked).reason}` : ""}</span></>}
             </div>
             <div className="ms-actions">
               <Link href="/appointments">Open in Appointments</Link>

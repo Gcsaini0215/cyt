@@ -86,6 +86,9 @@ function personOf(a) {
 
 const isOnline = (f) => !/offline|in[- ]?person|clinic/i.test(String(f || ""));
 
+// the CYT team moved this session to you from another therapist (admin → Client 360 → Replace therapist)
+const assignedOf = (a) => (Array.isArray(a.reassignments) && a.reassignments.length ? a.reassignments[a.reassignments.length - 1] : null);
+
 function dayLabel(d, now) {
   const k = istKey(d);
   if (k === istKey(now)) return "Today";
@@ -421,7 +424,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                     <td className="when">{d ? <><b>{fmtTime(d)}</b><span>{fmtDay(d)}</span></> : "—"}</td>
                     <td><b>{p.name}</b>{p.forOther && <span className="sub">for {p.relation || "someone"} · by {p.bookedBy}</span>}</td>
                     <td>{[p.age ? `${p.age} yrs` : "", p.gender].filter(Boolean).join(" · ") || "—"}</td>
-                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}{a.source === "noida" ? " · CYT Noida" : ""}</span>{a.assessments?.length > 0 && <div style={{ marginTop: 4 }}><AssessmentChips b={a} map={amap} compact /></div>}</td>
+                    <td>{a.service || "—"}<span className="sub">{a.format || "Online"}{a.source === "noida" ? " · CYT Noida" : ""}{assignedOf(a) ? " · Assigned by CYT" : ""}</span>{a.assessments?.length > 0 && <div style={{ marginTop: 4 }}><AssessmentChips b={a} map={amap} compact /></div>}</td>
                     <td className="concern">{cleanText(a.notes) || "—"}</td>
                     <td><span className={`apx-st ${st.key}`}>{st.label}</span></td>
                     <td className="acts" onClick={(e) => e.stopPropagation()}><SessionButton a={a} /></td>
@@ -462,6 +465,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       <div className="apx-chips">
                         <span className={`apx-st apx-st-inline ${st.key}`}>{st.label}</span>
                         {a.source === "noida" && <span style={{ background: "#fdf3dc", color: "#8a5a00", fontWeight: 700, border: "1px solid #f1d58f" }}>CYT Noida</span>}
+                        {assignedOf(a) && <span className="assigned" title={`Moved to you from ${assignedOf(a).fromName}`}>Assigned by CYT</span>}
                         {a.service && <span>{a.service}</span>}
                         <span>{/offline|in-person|person/i.test(a.format || "") ? <PersonPinCircleRoundedIcon /> : <VideocamRoundedIcon />}{a.format || "Online"}</span>
                         {cleanText(a.session_type) && <span>{a.session_type}</span>}
@@ -524,6 +528,18 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       <div><span>Mode</span><b>{a.format || "Online"}</b></div>
                       {a.source === "noida" && <div><span>Where</span><b>CYT Noida Centre, Sector 51</b></div>}
                     </div>
+
+                    {assignedOf(a) && (
+                      <section className="apx-sec apx-assigned">
+                        <h3>How this client came to you</h3>
+                        <p>
+                          The CYT team moved this session to you on <b>{fmtFull(new Date(assignedOf(a).at))}</b>
+                          {assignedOf(a).fromName ? <> — it was booked with <b>{assignedOf(a).fromName}</b></> : null}.
+                          {assignedOf(a).reason ? <> Reason: {assignedOf(a).reason}.</> : null}
+                        </p>
+                        {a.reassignments.length > 1 && <p className="apx-assigned-more">This session has been moved {a.reassignments.length} times.</p>}
+                      </section>
+                    )}
 
                     <section className="apx-sec">
                       <h3>Client</h3>
@@ -725,6 +741,10 @@ const APX_CSS = `
 .apx-chips span { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: #334155; background: #f3f6f4; border-radius: 8px; padding: 3px 8px; }
 .apx-chips span svg { font-size: 14px; color: var(--g); }
 .apx-chips span.by { background: #fbf3e2; color: #92651a; }
+.apx-chips span.assigned { background: #e0ab45; color: #3b2606; font-weight: 700; }
+.apx-assigned { background: #fff8e8; border: 1px solid #f0d9a4; border-radius: 12px; padding: 12px 14px; }
+.apx-assigned p { margin: 0; font-size: 13.5px; line-height: 1.55; color: #4b3a12; }
+.apx-assigned .apx-assigned-more { margin-top: 6px; font-size: 12px; color: #8a6a2a; }
 .apx-assess { margin: 2px 0 6px; }
 .apx-concern { display: flex; gap: 6px; margin: 0; font-size: 13px; color: #475569; line-height: 1.45; background: #f8faf9; border-left: 3px solid #a7d7b8; border-radius: 0 8px 8px 0; padding: 6px 10px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
