@@ -171,7 +171,8 @@ export const slimTherapist = (t) => ({
   },
   profile_type: t.profile_type || "",
   state: t.state || "",
-  office_address: t.office_address || "",
+  // the area (city, state) — the street address isn't public (backend helper/therapistArea.js)
+  office_area: t.office_area?.label ? { label: t.office_area.label } : null,
   year_of_exp: t.year_of_exp || "",
   language_spoken: t.language_spoken || "",
   session_formats: t.session_formats || "",

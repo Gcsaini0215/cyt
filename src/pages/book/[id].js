@@ -155,61 +155,90 @@ function TherapistHero({ profile, nextLabel, fromFee }) {
 }
 
 // ── WHERE AN IN-PERSON SESSION HAPPENS ───────────────────────────────────────
-// Shown as soon as "In-Person" is picked: the therapist's practice location (from their profile), a map,
-// and a plain warning — clients assumed an in-person therapist was near them (a Noida client booked
-// in-person with a therapist in Ahmedabad).
-const CYT_CENTRE = "Choose Your Therapist, Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301";
-const clean = (v) => (v && !/^(null|undefined|n\/a|-)$/i.test(String(v).trim()) ? String(v).replace(/\s+/g, " ").trim() : "");
+// Shown as soon as "In-Person" is picked — clients assumed an in-person therapist was near them (a Noida
+// client booked in person with a therapist in Ahmedabad). Privacy: a therapist's practice address is often
+// their home, so the page never gets it — only office_area from the API (≈1 km point + "City, State",
+// helper/therapistArea.js on the backend): an area map without a pin, and the client's distance from it.
+// The client's own location stays in their browser. The CYT Noida centre is a business: full address + pin.
+const CYT_CENTRE = "Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301";
+const CENTRE_PIN = { lat: 28.58216, lng: 77.37421 };
 function practicePlace(p) {
-  const address = clean(p?.office_address);
-  const city = clean(p?.office_city);
-  const state = clean(p?.office_state) || clean(p?.state);
-  // therapists who see clients at the CYT Noida centre
-  if (/D-?137|choose your therapist/i.test(address)) return { line: CYT_CENTRE, area: "Sector 51, Noida", query: CYT_CENTRE, centre: true, exact: true };
-  // "Noida, Uttar Pradesh" + "Noida" → one "Noida": split everything on commas and drop repeats
-  const seen = [];
-  [address, city, state].join(",").split(",").map((x) => x.trim()).filter(Boolean).forEach((x) => {
-    const k = x.toLowerCase();
-    if (seen.some((y) => y.toLowerCase() === k)) return;
-    seen.push(x);
-  });
-  // the state is the last part of "Noida, Uttar Pradesh" — "Noida" is a place
-  const st = state.split(",").pop().trim();
-  // "… Jhunjhunu Rajasthan" already ends with the state — don't add it again
-  const parts = st && seen.some((x) => x.toLowerCase() !== st.toLowerCase() && x.toLowerCase().endsWith(st.toLowerCase()))
-    ? seen.filter((x) => x.toLowerCase() !== st.toLowerCase()) : seen;
-  if (!parts.length) return null;
-  const local = parts.filter((x) => x.toLowerCase() !== st.toLowerCase());
-  // only a state ("Uttar Pradesh") isn't a place you can go to — no map, ask to confirm instead
-  const exact = local.length > 0;
-  const last = local[local.length - 1] || "";
-  const area = exact ? [last.length <= 30 && last.toLowerCase() !== st.toLowerCase() ? last : "", st].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(", ") : st;
-  return { line: parts.join(", "), area: area || parts.join(", "), query: `${parts.join(", ")}, India`, centre: false, exact };
+  const a = p?.office_area || {};
+  const state = String(p?.state || "").split(",").map((x) => x.trim()).filter(Boolean).join(", ");
+  if (/sector 51, noida/i.test(a.label || "")) return { label: "CYT Therapy Centre, Sector 51, Noida", address: CYT_CENTRE, ...CENTRE_PIN, exact: true, centre: true };
+  if (Number.isFinite(a.lat) && Number.isFinite(a.lng) && a.exact) return { label: a.label || state, lat: a.lat, lng: a.lng, exact: true, centre: false };
+  return state || a.label ? { label: a.label || state, exact: false, centre: false } : null;
 }
+const kmBetween = (x, y) => {
+  const r = (d) => (d * Math.PI) / 180;
+  const h = Math.sin(r(y.lat - x.lat) / 2) ** 2 + Math.cos(r(x.lat)) * Math.cos(r(y.lat)) * Math.sin(r(y.lng - x.lng) / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(h));
+};
+const mapSrc = (pl) => (pl.centre
+  // the centre: a business, so its pin
+  ? `https://maps.google.com/maps?q=${encodeURIComponent("Choose Your Therapist LLP, D-137, Sector 51, Noida")}&z=16&output=embed`
+  // a therapist: the area only — centred on the rounded point, no pin, zoomed out
+  : `https://maps.google.com/maps?ll=${pl.lat},${pl.lng}&z=12&t=m&hl=en&output=embed`);
 
 function InPersonWhere({ profile }) {
   const place = practicePlace(profile);
   const first = String(profile?.user?.name || "The therapist").trim().split(/\s+/)[0];
+  const [dist, setDist] = React.useState(null); // km
+  const [locState, setLocState] = React.useState(""); // "" | "asking" | "denied"
+  const exact = !!place?.exact;
+  const lat = place?.lat;
+  const lng = place?.lng;
+  const measure = React.useCallback(() => {
+    if (!exact || typeof navigator === "undefined" || !navigator.geolocation) return;
+    setLocState("asking");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setDist(kmBetween({ lat: pos.coords.latitude, lng: pos.coords.longitude }, { lat, lng })); setLocState(""); },
+      () => setLocState("denied"),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }
+    );
+  }, [exact, lat, lng]);
+  // already allowed location on this site before → show the distance straight away
+  React.useEffect(() => {
+    try { navigator.permissions?.query({ name: "geolocation" }).then((r) => { if (r.state === "granted") measure(); }).catch(() => {}); } catch (e) { /* no Permissions API */ }
+  }, [measure]);
+
   if (!place) {
     return (
       <div className="bk-where warn">
         <div className="bk-where-h"><i className="feather-map-pin"></i> In-person location not listed</div>
-        <p>{first} hasn't added a practice address yet. Choose <b>Video</b> or <b>Audio</b>, or message us on WhatsApp to confirm where the session would be before you book.</p>
+        <p>{first} hasn't added where they see clients yet. Choose <b>Video</b> or <b>Audio</b>, or message us on WhatsApp to confirm before you book.</p>
       </div>
     );
   }
+  const far = dist != null && dist > 25;
   return (
-    <div className="bk-where">
+    <div className={`bk-where${far ? " far" : ""}`}>
       <div className="bk-where-h"><i className="feather-map-pin"></i> Where you'll meet</div>
-      <div className="bk-where-addr">{place.line}</div>
-      {!place.exact && <p className="bk-where-warn">{first} has listed only the state, not the exact address. Message us on WhatsApp to confirm where the session would be before you book.</p>}
-      {place.exact && <iframe className="bk-where-map" title={`Map — ${place.area}`} loading="lazy" referrerPolicy="no-referrer-when-downgrade"
-        src={`https://maps.google.com/maps?q=${encodeURIComponent(place.query)}&z=${place.centre ? 16 : 12}&output=embed`} />}
-      {place.exact && <a className="bk-where-link" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.query)}`} target="_blank" rel="noopener noreferrer">
-        Open in Google Maps <i className="feather-external-link"></i>
-      </a>}
+      <div className="bk-where-addr">{place.label}</div>
+      {place.centre && <div className="bk-where-sub">{place.address}</div>}
+      {!place.exact && <p className="bk-where-warn">{first} has listed only the state. Message us on WhatsApp to confirm where the session would be before you book.</p>}
+      {place.exact && (
+        <div className="bk-where-mapbox">
+          <iframe className="bk-where-map" title={`Map — ${place.label}`} loading="lazy" src={mapSrc(place)} />
+          {!place.centre && <span className="bk-where-area" aria-hidden="true"><i>Around here</i></span>}
+        </div>
+      )}
+      {place.exact && (
+        <div className="bk-where-dist">
+          {dist != null ? (
+            <b>{dist < 1 ? "Less than 1 km" : `About ${Math.round(dist).toLocaleString("en-IN")} km`} from you</b>
+          ) : (
+            <button type="button" onClick={measure} disabled={locState === "asking"}>
+              <i className="feather-navigation"></i> {locState === "asking" ? "Finding you…" : "How far is this from me?"}
+            </button>
+          )}
+          {locState === "denied" && <small>Location is off — allow it in your browser to see the distance.</small>}
+          {dist == null && locState !== "denied" && <small>{place.centre ? "" : "For the therapist's privacy only the area is shown. "}Your location stays on your device.</small>}
+        </div>
+      )}
       <p className="bk-where-note">
-        This is an <b>in-person session in {place.area}</b> — you'll need to go there. Not nearby? Pick <b>Video</b> or <b>Audio</b> above
+        {far ? <><b>That&apos;s far from you.</b> </> : null}
+        This is an <b>in-person session in {place.label}</b> — you&apos;ll need to go there. Not nearby? Pick <b>Video</b> or <b>Audio</b> above
         {place.centre ? "." : <>, or <Link href="/noida-appointment">book in person at our Noida centre</Link>.</>}
       </p>
     </div>
@@ -1056,7 +1085,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
           { k: "Service",   v: selSvc?.name },
           { k: "Format",    v: selFmt?.type },
           { k: "Mode",      v: mode === "video" ? "Video Call" : mode === "audio" ? "Voice Call" : "In-Person" },
-          ...(/in[- ]?person|offline/i.test(selFmt?.type || "") ? [{ k: "Where", v: practicePlace(profile)?.line || "Address not listed — confirm with us before booking" }] : []),
+          ...(/in[- ]?person|offline/i.test(selFmt?.type || "") ? [{ k: "Where", v: practicePlace(profile)?.label || "Location not listed — confirm with us before booking" }] : []),
           { k: "Date",      v: selDate ? `${DAYS[selDate.getDay()]}, ${selDate.getDate()} ${MONS[selDate.getMonth()]}` : "—" },
           { k: "Time",      v: selSlot ? `${selSlot.label} IST${awayTz && selDate ? ` · ${localTimeLabel(istInstant(selDate, ...selSlot.val.split(":").map(Number)))} your time` : ""}` : "—" },
           { k: "Patient",   v: bookFor === "self" ? "Myself" : `${relation || "Other"}${age ? ` · Age ${age}` : ""}` },
@@ -1284,8 +1313,17 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         .bk-where.warn { background: #fff7ed; border-color: #fdba74; }
         .bk-where-h { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; color: #7a4f0e; text-transform: uppercase; letter-spacing: .04em; }
         .bk-where-addr { margin: 6px 0 10px; font-size: 15px; font-weight: 700; color: #132a1c; line-height: 1.45; }
-        .bk-where-map { display: block; width: 100%; height: 180px; border: 0; border-radius: 10px; background: #eef2ef; }
-        .bk-where-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 13px; font-weight: 700; color: #166534 !important; text-decoration: none !important; }
+        .bk-where.far { border-color: #f97316; background: #fff7ed; }
+        .bk-where-sub { margin: -6px 0 10px; font-size: 13px; color: #475569; line-height: 1.45; }
+        .bk-where-mapbox { position: relative; border-radius: 10px; overflow: hidden; }
+        .bk-where-map { display: block; width: 100%; height: 190px; border: 0; background: #eef2ef; }
+        .bk-where-area { position: absolute; left: 50%; top: 50%; width: 110px; height: 110px; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(224,171,69,.22); border: 2px solid rgba(201,150,44,.85); pointer-events: none; display: flex; align-items: flex-end; justify-content: center; }
+        .bk-where-area i { margin-bottom: -26px; font-style: normal; font-size: 11px; font-weight: 800; color: #7a4f0e; background: #fff; padding: 2px 8px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,.15); white-space: nowrap; }
+        .bk-where-dist { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; }
+        .bk-where-dist b { font-size: 15px; color: #132a1c; }
+        .bk-where.far .bk-where-dist b { color: #c2410c; }
+        .bk-where-dist button { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #166534; background: #fff; color: #166534; font-weight: 800; font-size: 13px; cursor: pointer; }
+        .bk-where-dist small { flex-basis: 100%; font-size: 11.5px; color: #8a6a2a; }
         .bk-where-note, .bk-where p { margin: 10px 0 0; font-size: 13px; line-height: 1.55; color: #4b3a12; }
         .bk-where-note a { color: #166534 !important; font-weight: 700; }
         .bk-where .bk-where-warn { margin: 0 0 4px; padding: 8px 10px; border-radius: 8px; background: #fff1e6; color: #9a3412; font-weight: 600; }

@@ -16,7 +16,7 @@ export function filterTherapists(allData, filter) {
       (i.services || "").toLowerCase().includes(q) ||
       (i.language_spoken || "").toLowerCase().includes(q) ||
       (i.state || "").toLowerCase().includes(q) ||
-      (i.office_address || "").toLowerCase().includes(q) ||
+      (i.office_area?.label || "").toLowerCase().includes(q) ||
       (i.experties || "").toLowerCase().includes(q)
     );
   }
