@@ -174,7 +174,8 @@ export async function getServerSideProps(context) {
     console.error("Error in view-all-therapist getServerSideProps:", err);
   }
   // just what the ItemList schema needs (not a second copy of the therapists)
-  const listed = filterTherapists(initialAllData, filter).slice(0, 30)
+  // every therapist on this view (not just the first page of cards) — the list is ~60 at most
+  const listed = filterTherapists(initialAllData, filter)
     .map((t) => ({ path: profilePath(t), name: t.user?.name || "Therapist", role: t.profile_type || "Psychologist", image: therapistPhotoUrl(t) }));
 
   // Only state/profile_type produce a finite, meaningful set of indexable

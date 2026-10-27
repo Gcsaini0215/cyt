@@ -148,7 +148,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": `Verified Psychologists in ${config.name}`,
-    "itemListElement": therapists.slice(0, 12).map((t, i) => ({
+    "itemListElement": therapists.map((t, i) => ({
       "@type": "ListItem",
       "position": i + 1,
       "item": {

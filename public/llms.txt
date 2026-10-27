@@ -17,6 +17,7 @@
 ## Find a psychologist
 - [Therapist directory](https://www.chooseyourtherapist.in/view-all-therapist): all verified psychologists with filters, fees, languages and next available day
 - [Psychologists by city and state](https://www.chooseyourtherapist.in/psychologist-in): hub with live counts for every city / state page
+- [Every listed psychologist](https://www.chooseyourtherapist.in/api/llms-therapists.txt): name, type, city, languages, experience, fees, online / in-person, rating, what they help with, profile and booking links (always current)
 
 ## Therapy by concern
 - [Therapy for anxiety](https://www.chooseyourtherapist.in/therapy-for/anxiety)
