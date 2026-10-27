@@ -46,7 +46,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       <Head>
         <title>Find the Right Therapist in Noida & Delhi NCR – Get a Call Back | CYT</title>
-        <meta name="description" content="Not sure which therapist is right for you? Share a few details and our team calls you back — we match you with a verified psychologist in Noida, Delhi NCR or online." />
+        <meta name="description" content="Not sure which therapist is right for you? Share a few details and we call you back with a verified psychologist in Noida, Delhi NCR or online." />
         <meta name="keywords" content="Best Psychologist in Noida, Top Psychologist in Delhi, Mental Health Studio Noida, Anxiety Specialist Delhi NCR, Relationship Counseling Noida Sector 51, Psychologist near me Noida, Best Psychologist in Uttar Pradesh, clinical psychologist in Noida, therapist near me Delhi NCR, psychologist near Sector 50 Noida, therapy center near LPS Global School, counselor in Noida Sector 34" />
         
         {/* Local SEO Meta Tags */}
