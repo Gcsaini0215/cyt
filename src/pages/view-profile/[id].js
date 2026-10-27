@@ -7,8 +7,7 @@ import MyNavbar from "../../components/navbar";
 import { fetchById, fetchData } from "../../utils/actions";
 import {
   GetFavoriteTherapistListUrl,
-  getTherapistProfile,
-  imagePath
+  getTherapistProfile
 } from "../../utils/url";
 import { isObjectId } from "../../utils/therapist-slug";
 import { getSlugMaps, currentSlugFor } from "../../utils/therapist-slug-maps";
@@ -27,6 +26,7 @@ import {
 import dynamic from "next/dynamic";
 import { trackProfileView, trackProfileAction, startProfilePresence } from "../../utils/profile-stats";
 import OwnerInsightsBar from "../../components/therapists/owner-insights-bar";
+import { therapistPhotoUrl, therapistCardUrl, siteCardUrl } from "../../utils/og-urls";
 const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 export async function getServerSideProps(context) {
@@ -194,10 +194,11 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
   const profileCity = cityOf(profile) || "India";
   const profileLocation = `in ${profileCity}`;
 
-  // Ensure absolute image URL for OG tags
-  const profileImage = profile?.user?.profile
-    ? (profile.user.profile.startsWith('http') ? profile.user.profile : `${imagePath}/${profile.user.profile}`)
-    : "https://i.postimg.cc/gj1yngrd/choose.png";
+  // Images for search / AI answers / link previews, all on our own domain (the raw upload's file name
+  // can have spaces, which made it an invalid og:image): a square photo for the schema, and a
+  // 1200x630 card (photo + name + role) for og:image.
+  const profileImage = therapistPhotoUrl(profile) || siteCardUrl("directory");
+  const shareCard = therapistCardUrl(profile) || siteCardUrl("directory");
 
   // Review stats
   const reviews = profile?.reviews || [];
@@ -273,8 +274,9 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     "image": {
       "@type": "ImageObject",
       "url": profileImage,
-      "width": 400,
-      "height": 400
+      "width": 800,
+      "height": 800,
+      "caption": `${profileName}, ${profileType}`
     },
     "url": currentUrl,
     "knowsLanguage": languagesList,
@@ -326,7 +328,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     "@id": `${currentUrl}#practice`,
     "name": `${profileName} | ${profileType}`,
     "description": `Book an online or in-person session with ${profileName}, a verified ${profileType} ${profileLocation} on Choose Your Therapist.`,
-    "image": profileImage,
+    "image": [profileImage, shareCard],
     "url": currentUrl,
     "medicalSpecialty": profileType,
     "availableService": expertiseAreas.map(area => ({
@@ -409,8 +411,9 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
         <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content={profileImage} />
-        <meta property="og:image:secure_url" content={profileImage} />
+        <meta property="og:image" content={shareCard} />
+        <meta property="og:image:secure_url" content={shareCard} />
+        <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={`${profileName} - ${profileType}`} />
@@ -422,7 +425,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
         <meta name="twitter:url" content={currentUrl} />
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
-        <meta name="twitter:image" content={profileImage} />
+        <meta name="twitter:image" content={shareCard} />
         <meta name="twitter:site" content="@chooseyourtherapist" />
 
         {/* Additional */}

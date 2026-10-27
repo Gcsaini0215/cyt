@@ -60,14 +60,14 @@ export default function LocalLandingPage({ ncrCards = [] }) {
         <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
         <meta property="og:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
         <meta property="og:description" content="Leave your number for a free call — we match you with a verified psychologist in Noida, Delhi NCR or online." />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
         <meta name="twitter:description" content="Professional mental health support in Noida & Delhi. Book your session today." />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
 
         <link rel="canonical" href="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
 
@@ -81,8 +81,9 @@ export default function LocalLandingPage({ ncrCards = [] }) {
               "alternateName": "CYT Noida Mental Health Studio",
               "description": "Premier mental health therapy studio in Noida Sector 51. Verified counselling psychologists and clinical psychologists offering in-person and online sessions for anxiety, depression, OCD, trauma, and relationship counselling.",
               "image": [
-                "https://i.postimg.cc/jdcFhHKG/Whats-App-Image-2026-03-10-at-6-01-06-AM-1.jpg",
-                "https://i.postimg.cc/zX7ckC8q/Whats-App-Image-2026-03-10-at-6-01-06-AM.jpg"
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-sector-51.jpg",
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-counselling-room.jpg",
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-team.jpg"
               ],
               "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
               "telephone": "+91-8077757951",

@@ -270,9 +270,6 @@ function MyApp({ Component, pageProps }) {
         <meta name="geo.placename" content="Sector 51, Noida, Uttar Pradesh, India" />
         <meta name="geo.position" content="28.5821626;77.3742084" />
         <meta name="ICBM" content="28.5821626, 77.3742084" />
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="shortcut icon" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/favicon.png" />
         {/* Global Conditions Schema — relatable therapy terms for GEO/AI engines */}
         <script
           type="application/ld+json"

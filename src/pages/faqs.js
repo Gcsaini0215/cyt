@@ -6,7 +6,7 @@ import Faqs from "../components/home/faqs";
 import PageBreadCrumb from "../components/global/page-breadcrumb";
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/faqs";
-const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
+const OG_IMAGE = "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home";
 
 // FAQPage schema — mirrors all 26 questions from the FAQ component
 const faqPageSchema = {

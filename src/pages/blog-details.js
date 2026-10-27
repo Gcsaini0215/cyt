@@ -8,7 +8,7 @@ import { pickRelated, getListedTherapists } from "../utils/related-therapists";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
 import BookingPopup from "../components/global/booking-popup";
-import { getBlogUrl, frontendUrl, getTherapistProfiles } from "../utils/url";
+import { getBlogUrl, getTherapistProfiles } from "../utils/url";
 import { fetchData } from "../utils/actions";
 import { fitTitle, fitDesc } from "../utils/seo-text";
 import { blogPath, blogIdFromSlug, blogThumb } from "../utils/blog-slug";
@@ -267,7 +267,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   const plainContentDesc = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 200) : "";
   const rawCleanDesc = rawMetaDesc.length > 40 ? rawMetaDesc : plainContentDesc;
   const cleanDesc = rawCleanDesc.length > 160 ? rawCleanDesc.substring(0, 157) + "..." : rawCleanDesc;
-  const imageUrl = `${frontendUrl}/api/blog-og-image?id=${blog._id}${Date.parse(blog.updatedAt || "") ? `&v=${Date.parse(blog.updatedAt)}` : ""}`;
+  const imageUrl = `https://www.chooseyourtherapist.in/api/blog-og-image?id=${blog._id}${Date.parse(blog.updatedAt || "") ? `&v=${Date.parse(blog.updatedAt)}` : ""}`;
   // always the www address — frontendUrl is the bare domain on the server, which 301s to www
   const pageUrl = `https://www.chooseyourtherapist.in${blogPath(blog)}`;
   const plainText = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
@@ -304,8 +304,8 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": frontendUrl },
-      { "@type": "ListItem", "position": 2, "name": "Blogs", "item": `${frontendUrl}/blogs` },
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.chooseyourtherapist.in/" },
+      { "@type": "ListItem", "position": 2, "name": "Blogs", "item": "https://www.chooseyourtherapist.in/blogs" },
       { "@type": "ListItem", "position": 3, "name": blog.title, "item": pageUrl },
     ],
   };

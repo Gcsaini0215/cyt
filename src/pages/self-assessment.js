@@ -19,7 +19,7 @@ const SITE = SITE_URL;
 const PAGE_URL = `${SITE}/self-assessment`;
 const TITLE = "Mental Health Tests Online — PHQ-9, GAD-7 & More | CYT";
 const DESC = "Standard screening tests — PHQ-9, GAD-7, DASS-21, K10, PCL-5, ADHD, burnout and more. Instant scored report online, or take one with a psychologist.";
-const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
+const OG_IMAGE = "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home";
 
 const SCHEMA = [
   {

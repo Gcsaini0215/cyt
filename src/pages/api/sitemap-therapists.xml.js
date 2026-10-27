@@ -1,5 +1,6 @@
 import { profilePath } from "../../utils/therapist-slug";
-import { cleanName, photoOf } from "../../utils/related-therapists";
+import { cleanName } from "../../utils/related-therapists";
+import { therapistPhotoUrl, therapistCardUrl } from "../../utils/og-urls";
 
 const THERAPIST_API = "https://api.chooseyourtherapist.in/api/get-therapists-profile";
 const BASE_URL = "https://www.chooseyourtherapist.in";
@@ -24,7 +25,9 @@ export default async function handler(req, res) {
     const urls = therapists
       .filter((t) => t._id)
       .map((t) => {
-        const photo = photoOf(t);
+        // our own-domain copies: the raw uploads can have spaces in the file name (an invalid URL)
+        const photo = therapistPhotoUrl(t);
+        const card = therapistCardUrl(t);
         const name = cleanName(t);
         return `
   <url>
@@ -35,6 +38,10 @@ export default async function handler(req, res) {
     <image:image>
       <image:loc>${esc(photo)}</image:loc>
       <image:title>${esc(`${name} — ${t.profile_type || "Psychologist"}`)}</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>${esc(card)}</image:loc>
+      <image:title>${esc(`${name}, ${t.profile_type || "Psychologist"} — Choose Your Therapist`)}</image:title>
     </image:image>` : ""}
   </url>`;
       })

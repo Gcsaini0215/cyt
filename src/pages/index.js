@@ -208,7 +208,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:url" content={canonicalUrl} />
@@ -219,7 +219,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta name="twitter:site" content="@CYT_India" />
 
         {/* Local SEO Meta Tags - Fixed defaulting to Noida, India for Google sync */}
@@ -277,11 +277,16 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
               "url": "https://www.chooseyourtherapist.in",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://www.chooseyourtherapist.in/logo.png",
-                "width": 250,
-                "height": 60
+                "url": "https://www.chooseyourtherapist.in/icons/cyt-icon-512.png",
+                "width": 512,
+                "height": 512
               },
-              "foundingDate": "2021",
+              "image": [
+                "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home",
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-sector-51.jpg",
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-team.jpg"
+              ],
+              "foundingDate": "2020",
               "areaServed": { "@type": "Country", "name": "India" },
               "medicalSpecialty": [
                 "Counselling Psychology",
@@ -310,7 +315,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
               ],
               "sameAs": [
                 "https://twitter.com/CYT_India",
-                "https://www.instagram.com/chooseyourtherapist",
+                "https://www.instagram.com/choose.your.therapist",
                 "https://www.facebook.com/chooseyourtherapist",
                 "https://www.linkedin.com/company/chooseyourtherapist"
               ]
@@ -319,7 +324,12 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
               "@context": "https://schema.org",
               "@type": "MedicalBusiness",
               "name": "Choose Your Therapist",
-              "image": "https://www.chooseyourtherapist.in/logo.png",
+              "image": [
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-sector-51.jpg",
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-counselling-room.jpg",
+                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-team.jpg"
+              ],
+              "logo": "https://www.chooseyourtherapist.in/icons/cyt-icon-512.png",
               "@id": "https://www.chooseyourtherapist.in",
               "url": "https://www.chooseyourtherapist.in",
               "telephone": "+91-8077757951",

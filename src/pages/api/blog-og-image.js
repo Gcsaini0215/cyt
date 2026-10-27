@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   const { id } = req.query;
   if (!id) return res.status(400).end("Missing id");
 
-  const FALLBACK = "https://i.postimg.cc/gj1yngrd/choose.png";
+  const FALLBACK = "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home";
 
   try {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://api.chooseyourtherapist.in/api";

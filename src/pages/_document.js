@@ -6,9 +6,12 @@ export default function Document() {
   return (
     <Html lang="en" suppressHydrationWarning>
       <Head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
-        <link rel="shortcut icon" href="/favicon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        {/* square icons (Google and AI answers show the favicon next to results) */}
+        <link rel="icon" href="/favicon.ico" sizes="48x48" />
+        <link rel="icon" href="/icons/cyt-icon-192.png" type="image/png" sizes="192x192" />
+        <link rel="icon" href="/icons/cyt-icon-96.png" type="image/png" sizes="96x96" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
+        <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" />

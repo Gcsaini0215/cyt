@@ -96,11 +96,11 @@ export default function Register() {
         <meta property="og:description" content="Register as a client to find verified psychologists and book sessions." />
         <meta property="og:url" content="https://chooseyourtherapist.in/register" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Client Registration | Start Your Healing Journey | Choose Your Therapist" />
         <meta name="twitter:description" content="Register today and take the first step towards better mental health." />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: CSS }} />

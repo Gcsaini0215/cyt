@@ -36,6 +36,7 @@ import SchoolRounded from "@mui/icons-material/SchoolRounded";
 import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import Footer from "../components/footer";
 import RelatedTherapists from "../components/global/related-therapists";
+import { siteCardUrl, CENTRE_PHOTOS } from "../utils/og-urls";
 
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
@@ -137,7 +138,8 @@ function buildSeoGraph(p) {
         url: PAGE_URL,
         telephone: "+918077757951",
         email: "Chooseyourtherapist@gmail.com",
-        image: `${SITE}/og-noida-appointment-v4.jpg`,
+        // real photos of the centre (Google Business Profile + the team's own)
+        image: [siteCardUrl("noida"), ...CENTRE_PHOTOS],
         logo: `${SITE}/favicon.png`,
         description: "Psychologists and therapists at the Choose Your Therapist centre in Sector 51, Noida — individual and couple sessions in-person, online or as a home visit.",
         medicalSpecialty: "Psychiatric",
@@ -2186,8 +2188,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         <meta property="og:title" content={SEO_TITLE} />
         <meta property="og:description" content={SEO_DESC} />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v4.jpg" />
-        <meta property="og:image:secure_url" content="https://www.chooseyourtherapist.in/og-noida-appointment-v4.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
+        <meta property="og:image:secure_url" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -2195,7 +2197,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={SEO_TITLE} />
         <meta name="twitter:description" content={SEO_DESC} />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/og-noida-appointment-v4.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta name="twitter:image:alt" content="Psychologist in Noida — book a session at Choose Your Therapist, Sector 51" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

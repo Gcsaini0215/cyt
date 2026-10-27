@@ -13,6 +13,7 @@ import { slimTherapist, sortTherapists, split, getMinFee, sessionModes } from ".
 import LeadCard from "../../components/global/lead-card";
 import MobileActionBar from "../../components/global/mobile-action-bar";
 import { PLACES, placePath } from "../../utils/places";
+import { siteCardUrl } from "../../utils/og-urls";
 
 // cities / states with the most psychologists, linked from every concern page
 const TOP_PLACES = ["delhi", "uttar-pradesh", "mumbai", "bangalore", "pune", "jaipur", "hyderabad", "chandigarh", "kolkata", "lucknow"];
@@ -114,7 +115,9 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
         <meta property="og:description" content={description} />
         <meta property="og:url" content={url} />
         <meta property="og:type" content="website" />
-        {c.img && <meta property="og:image" content={`${SITE}/images/${c.img}.jpg`} />}
+        <meta property="og:image" content={siteCardUrl("concern", { concern: c.title })} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         {schemas.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />)}
       </Head>
       <style dangerouslySetInnerHTML={{ __html: CSS + CARD_CSS }} />

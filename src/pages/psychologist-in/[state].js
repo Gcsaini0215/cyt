@@ -14,6 +14,7 @@ import MobileActionBar from "../../components/global/mobile-action-bar";
 import { CONCERN_PAGES, concernPath } from "../../utils/concerns";
 import { split as splitList } from "../../utils/therapist-directory";
 import { slimTherapist, sortTherapists, getMinFee, sessionModes } from "../../utils/therapist-directory";
+import { siteCardUrl, therapistPhotoUrl } from "../../utils/og-urls";
 
 const SHOW = 12;
 
@@ -86,7 +87,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
   // therapists record their state, not their city — the directory search matches that
   const dirHref = `/view-all-therapist?search=${encodeURIComponent(config.filterValues[0])}`;
   const PAGE_URL = `https://www.chooseyourtherapist.in/psychologist-in/${config.slug}`;
-  const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
+  const OG_IMAGE = siteCardUrl("city", { city: config.name });
 
   // ── Schema ────────────────────────────────────────────────────────────────
   const serviceSchema = {
@@ -154,7 +155,8 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
         "@type": "Person",
         "name": t.user?.name || t.name || "Verified Psychologist",
         "jobTitle": t.profile_type || "Psychologist",
-        "url": `https://www.chooseyourtherapist.in${profilePath(t)}`
+        "url": `https://www.chooseyourtherapist.in${profilePath(t)}`,
+        ...(therapistPhotoUrl(t) ? { "image": therapistPhotoUrl(t) } : {})
       }
     }))
   } : null;

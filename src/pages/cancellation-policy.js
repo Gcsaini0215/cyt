@@ -22,12 +22,12 @@ export default function CancellationPolicy() {
         <meta property="og:description" content="Our terms for canceling or rescheduling therapy sessions." />
         <meta property="og:url" content="https://chooseyourtherapist.in/cancellation-policy" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Cancellation Policy | Refund & Rescheduling | Choose Your Therapist" />
         <meta name="twitter:description" content="Review our cancellation and refund terms." />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/assets/img/og-image.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <link rel="canonical" href="https://www.chooseyourtherapist.in/cancellation-policy" />
       </Head>
       <MyNavbar />

@@ -15,7 +15,7 @@ const BookingPopup = dynamic(() => import("../components/global/booking-popup"),
    talk to someone. Clients reach it from their portal menu ("Reads for me"). */
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/blogs";
-const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
+const OG_IMAGE = "https://www.chooseyourtherapist.in/api/og/site.jpg?page=home";
 const SITE = "https://www.chooseyourtherapist.in";
 const SEO_TITLE = "Mental Health Blog India — Psychologist Articles | CYT";
 const SEO_DESC = "Free, psychologist-reviewed articles on anxiety, depression, OCD, stress and relationships in India — signs to watch for, tips and when to get help.";

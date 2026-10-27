@@ -18,6 +18,7 @@ import { getSlugMaps, currentSlugFor } from "../../utils/therapist-slug-maps";
 import { profileSeo, cleanName } from "../../utils/related-therapists";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
 import { istDay, istParts, istNowMinutes, istInstant, isAwayFromIst, localTimeLabel } from "../../utils/ist";
+import { therapistCardUrl, siteCardUrl } from "../../utils/og-urls";
 
 // ── constants ────────────────────────────────────────────────────────────────
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -271,10 +272,8 @@ function BookSeo({ profile, urlKey }) {
   const title = `Book a Session with ${name} – ${seo.type} | Choose Your Therapist`;
   const description = seo.description;
   const url = `https://www.chooseyourtherapist.in/book/${urlKey}`;
-  const photo = profile.user?.profile;
-  const image = photo
-    ? (photo.startsWith("http") ? photo : `${imagePath}/${photo}`)
-    : "https://i.postimg.cc/gj1yngrd/choose.png";
+  // the therapist's share card (real photo + name) on our own domain — utils/og-images
+  const image = therapistCardUrl(profile) || siteCardUrl("directory");
   return (
     <Head>
       <title>{title}</title>

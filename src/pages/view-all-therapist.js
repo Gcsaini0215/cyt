@@ -10,10 +10,12 @@ import { profilePath } from "../utils/therapist-slug";
 import { slimTherapist, feeBand, directoryFaqs, CONCERNS } from "../utils/therapist-directory";
 import dynamic from "next/dynamic";
 import { fitTitle, fitDesc } from "../utils/seo-text";
+import { therapistPhotoUrl } from "../utils/og-urls";
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 const PAGE_URL = "https://www.chooseyourtherapist.in/view-all-therapist";
-const OG_IMAGE = "https://i.postimg.cc/gj1yngrd/choose.png";
+// real therapist photos (utils/og-images)
+const OG_IMAGE = "https://www.chooseyourtherapist.in/api/og/site.jpg?page=directory";
 
 // Schema: MedicalOrganization — the directory itself is a medical org listing
 const medicalOrgSchema = {
@@ -173,7 +175,7 @@ export async function getServerSideProps(context) {
   }
   // just what the ItemList schema needs (not a second copy of the therapists)
   const listed = filterTherapists(initialAllData, filter).slice(0, 30)
-    .map((t) => ({ path: profilePath(t), name: `${t.user?.name || "Therapist"} — ${t.profile_type || "Therapist"}` }));
+    .map((t) => ({ path: profilePath(t), name: t.user?.name || "Therapist", role: t.profile_type || "Psychologist", image: therapistPhotoUrl(t) }));
 
   // Only state/profile_type produce a finite, meaningful set of indexable
   // combinations (mirrors the JustDial city x category pattern). Other
@@ -209,8 +211,13 @@ export default function ViewAllTherapistPage({ initialAllData, listed, initialFi
     "itemListElement": listed.map((t, i) => ({
       "@type": "ListItem",
       "position": i + 1,
-      "url": `https://www.chooseyourtherapist.in${t.path}`,
-      "name": t.name,
+      "item": {
+        "@type": "Person",
+        "name": t.name,
+        "jobTitle": t.role,
+        "url": `https://www.chooseyourtherapist.in${t.path}`,
+        ...(t.image ? { "image": t.image } : {}),
+      },
     })),
   } : null;
   // FAQPage — the same questions shown at the bottom of the directory
