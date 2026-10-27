@@ -14,6 +14,7 @@ import LeadCard from "../../components/global/lead-card";
 import MobileActionBar from "../../components/global/mobile-action-bar";
 import { PLACES, placePath } from "../../utils/places";
 import { siteCardUrl } from "../../utils/og-urls";
+import { concernHinglishFaqs } from "../../utils/hinglish-faqs";
 
 // cities / states with the most psychologists, linked from every concern page
 const TOP_PLACES = ["delhi", "uttar-pradesh", "mumbai", "bangalore", "pune", "jaipur", "hyderabad", "chandigarh", "kolkata", "lucknow"];
@@ -62,6 +63,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
   const url = `${SITE}${concernPath(c)}`;
   const all = `/view-all-therapist?concern=${encodeURIComponent(c.value)}`;
   const label = c.label.toLowerCase();
+  const faqs = [...c.faqs, ...concernHinglishFaqs(c)];
   const title = fitTitle(`${c.title} in India`);
   // the "talk to N psychologists" part first — the concern's intro sentence can be long
   const description = fitDesc(`Talk to ${count ? `${count} verified psychologists` : "verified psychologists"} for ${c.slug === "ocd" ? "OCD" : label} in India${minFee ? `, from ₹${minFee}` : ""} — online or in person. ${c.intro.split(". ")[0]}.`);
@@ -100,7 +102,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
     {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": c.faqs.map((f) => ({ "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } })),
+      "mainEntity": faqs.map((f) => ({ "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } })),
     },
   ];
 
@@ -190,7 +192,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
 
         <section className="container tf-faq" aria-labelledby="tf-fq">
           <h2 id="tf-fq">Common questions</h2>
-          {c.faqs.map((f, i) => (
+          {faqs.map((f, i) => (
             <details key={f.q} open={i === 0}>
               <summary>{f.q}</summary>
               <p>{f.a}</p>

@@ -37,6 +37,7 @@ import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import Footer from "../components/footer";
 import RelatedTherapists from "../components/global/related-therapists";
 import { siteCardUrl, CENTRE_PHOTOS } from "../utils/og-urls";
+import { noidaHinglishFaqs } from "../utils/hinglish-faqs";
 
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
@@ -113,6 +114,7 @@ function seoFaq(p) {
     { q: "Can I reschedule or cancel my appointment?", a: "Use the Reschedule tab on the booking page to move your session to another time. To cancel, message us on WhatsApp." },
     ...(pkgs.length ? [{ q: "Do you offer therapy packages?", a: `Yes. Multi-session packages are available: ${pkgs.slice(0, 4).map(k => `${k.name} (${k.sessionsCount} sessions, ${inr(k.price)})`).join("; ")}. You can choose one in the booking flow.` }] : []),
     { q: "Is my information kept confidential?", a: "Your details are used only to manage your booking and are handled as described in our Privacy Policy." },
+    ...noidaHinglishFaqs(p?.individual_inperson),
   ];
 }
 

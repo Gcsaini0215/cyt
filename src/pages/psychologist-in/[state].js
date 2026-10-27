@@ -15,6 +15,7 @@ import { CONCERN_PAGES, concernPath } from "../../utils/concerns";
 import { split as splitList } from "../../utils/therapist-directory";
 import { slimTherapist, sortTherapists, getMinFee, sessionModes } from "../../utils/therapist-directory";
 import { siteCardUrl, therapistPhotoUrl } from "../../utils/og-urls";
+import { placeHinglishFaqs } from "../../utils/hinglish-faqs";
 
 const SHOW = 12;
 
@@ -110,7 +111,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": config.faqs.map(f => ({
+    "mainEntity": [...config.faqs, ...placeHinglishFaqs(config)].map(f => ({
       "@type": "Question",
       "name": f.q,
       "acceptedAnswer": { "@type": "Answer", "text": f.a }
@@ -295,7 +296,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
       <section className="pl-faqs">
         <div className="container pl-narrow">
           <h2>Common questions about therapy in {config.name}</h2>
-          {config.faqs.map((faq, i) => <FaqItem key={i} q={faq.q} a={faq.a} />)}
+          {[...config.faqs, ...placeHinglishFaqs(config)].map((faq, i) => <FaqItem key={i} q={faq.q} a={faq.a} />)}
         </div>
       </section>
 

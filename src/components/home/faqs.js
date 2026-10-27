@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Brain, Heart, Users, BookOpen, Shield, IndianRupee, Plus, MessageCircle } from "lucide-react";
+import { Brain, Heart, Users, BookOpen, Shield, IndianRupee, Plus, MessageCircle, Languages } from "lucide-react";
 
-const faqCategories = [
+// also the source of the home page FAQPage schema (pages/index.js)
+export const faqCategories = [
   {
     icon: Brain,
     label: "About Therapy",
@@ -153,7 +154,36 @@ const faqCategories = [
         a: "Absolutely. Finding the right therapist is a process, and not matching with the first or second one is completely normal. If you feel uncomfortable with your current therapist, aren't seeing progress, or want to try a different approach, you can switch to another therapist without any explanation needed. Choose Your Therapist's goal is to help you find the right fit — we're here to help with that."
       }
     ]
-  }
+  },
+  {
+    // people ask AI assistants in Hinglish too ("Noida me achha psychologist kaun hai")
+    icon: Languages,
+    label: "Hinglish me jawab",
+    color: "#9a6b12",
+    bg: "#fff8e8",
+    faqs: [
+      {
+        q: "Online therapy kaise hoti hai, aur kya Hindi me session ho sakta hai?",
+        a: "Aap apne phone ya laptop se video ya audio call par psychologist se baat karte hain — session lagbhag 50–60 minute ka hota hai. Zyadatar psychologists Hindi aur English dono me session lete hain; har profile par likha hota hai ki wo kaunsi bhashayein bolte hain.",
+      },
+      {
+        q: "Psychologist ki fees kitni hoti hai?",
+        a: "Choose Your Therapist par online session ₹500 se shuru hota hai aur psychologist ke experience ke hisaab se lagbhag ₹2,500 tak jata hai. Noida centre (Sector 51) par in-person session ₹1,200 se shuru hota hai. Har psychologist ki fee booking se pehle unki profile par dikhti hai.",
+      },
+      {
+        q: "Kya meri baatein kisi ko pata chalengi?",
+        a: "Nahi. Session me jo bhi aap batate hain wo aapke aur aapke psychologist ke beech rehta hai — family, office ya kisi aur ke saath share nahi kiya jata. Session record nahi hota.",
+      },
+      {
+        q: "Mujhe kaise pata chalega ki kaunsa psychologist mere liye sahi hai?",
+        a: "Directory me aap concern (jaise anxiety, depression, relationship), bhasha, fees aur online / in-person ke hisaab se filter kar sakte hain. Samajh na aaye to \"Help me choose\" me 3 sawaalon ke jawab dijiye, ya WhatsApp par hamari team se baat kijiye — wo aapke liye sahi psychologist suggest karegi.",
+      },
+      {
+        q: "Psychologist ko kab dikhana chahiye?",
+        a: "Agar udaasi, ghabrahat, gussa ya tension 2–3 hafte se zyada chal rahi hai, aur neend, kaam, padhai ya rishton par asar daal rahi hai, to psychologist se baat karna achha rahega. Agar khud ko nuksaan pahunchane ke khayal aa rahe hain to turant Tele-MANAS 14416 (free, 24×7) par call kijiye.",
+      },
+    ],
+  },
 ];
 
 // same event the "Chat with CYT" lead form listens for (components/global/booking-popup.js)
@@ -165,7 +195,6 @@ const OPEN_CHAT_EVENT = "cyt:open-chat";
 export default function Faqs() {
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState(0); // first question of a topic starts open
-  const category = faqCategories[active];
   const pick = (i) => { setActive(i); setOpen(0); };
 
   return (
@@ -201,10 +230,11 @@ export default function Faqs() {
             </div>
           </aside>
 
-          <div className="hfq-list" role="tabpanel" aria-label={category.label}>
-            {category.faqs.map((item, i) => {
-              const isOpen = open === i;
-              const id = `hfq-${active}-${i}`;
+          {faqCategories.map((cat, ci) => (
+          <div key={cat.label} className="hfq-list" role="tabpanel" aria-label={cat.label} hidden={ci !== active}>
+            {cat.faqs.map((item, i) => {
+              const isOpen = ci === active && open === i;
+              const id = `hfq-${ci}-${i}`;
               return (
                 <div key={id} className={`hfq-item${isOpen ? " open" : ""}`}>
                   <button type="button" className="hfq-q" aria-expanded={isOpen} aria-controls={id} onClick={() => setOpen(isOpen ? -1 : i)}>
@@ -219,6 +249,7 @@ export default function Faqs() {
               );
             })}
           </div>
+          ))}
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
@@ -252,6 +283,7 @@ const CSS = `
 .hfq-help button:hover { background: #186640; }
 
 .hfq-list { display: flex; flex-direction: column; gap: 10px; }
+.hfq-list[hidden] { display: none; }
 .hfq-item { background: #fff; border: 1px solid #e6ece8; border-radius: 14px; transition: border-color .2s, box-shadow .2s; }
 .hfq-item.open { border-color: #cfe3d6; box-shadow: 0 14px 30px -24px rgba(20,83,45,.55); }
 .hfq-q { display: flex; align-items: center; gap: 12px; width: 100%; padding: 15px 16px; border: none; background: transparent; text-align: left; cursor: pointer; }

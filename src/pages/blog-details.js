@@ -12,6 +12,8 @@ import { getBlogUrl, getTherapistProfiles } from "../utils/url";
 import { fetchData } from "../utils/actions";
 import { fitTitle, fitDesc } from "../utils/seo-text";
 import { blogPath, blogIdFromSlug, blogThumb } from "../utils/blog-slug";
+import { profilePath } from "../utils/therapist-slug";
+import { therapistPhotoUrl } from "../utils/og-urls";
 
 /* /blog-details — one article, built for reading: a light header (same family as /blogs), the
    cover image overlapping it, a 720px text column in large type, and on wide screens a sticky
@@ -213,7 +215,7 @@ function ShareRow({ url, title }) {
   );
 }
 
-export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
+export default function BlogDetails({ initialBlog, blogTherapists = [], authorInfo = null }) {
   const router = useRouter();
   // /blog/<slug> carries the id at the end of the slug; old /blog-details?id= links redirect there
   const id = router.query.id || blogIdFromSlug(router.query.slug);
@@ -273,7 +275,10 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
   const plainText = blog.content ? blog.content.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "";
   const wordCount = plainText.split(" ").filter(Boolean).length;
   const isMedical = ["mental health", "psychology", "therapy", "counselling", "relationship concern", "anxiety", "depression"].some((kw) => (blog.category || "").toLowerCase().includes(kw));
-  const author = blog.author && !/^admin$/i.test(blog.author) ? blog.author : "CYT Editorial Team";
+  const author = blog.author && !/^admin$|chooseyourtherapist/i.test(blog.author) ? blog.author : "CYT Editorial Team";
+  // dates people (and AI answers) look for on health content: when it was written and last checked
+  const published = blog.createdAt;
+  const updated = blog.updatedAt && Date.parse(blog.updatedAt) - Date.parse(blog.createdAt || 0) > 86400000 ? blog.updatedAt : null;
   const minutes = readMinutes(blog.content);
   const findHref = topicMatches[0] ? `/view-all-therapist?services=${encodeURIComponent(topicMatches[0].service)}` : "/view-all-therapist";
 
@@ -289,7 +294,11 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
     "inLanguage": "en-IN",
     "articleSection": blog.category || "Mental Health",
     "keywords": tagsList.length > 0 ? tagsList.join(", ") : (blog.category || "mental health, psychology"),
-    "author": { "@type": "Person", "name": blog.author || "Choose Your Therapist Editorial", "worksFor": { "@type": "Organization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist" } },
+    "author": authorInfo
+      ? { "@type": "Person", "name": authorInfo.name, "jobTitle": authorInfo.role, "url": `https://www.chooseyourtherapist.in${authorInfo.href}`, ...(authorInfo.photo ? { "image": authorInfo.photo } : {}), "worksFor": { "@type": "Organization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist" } }
+      : author === "CYT Editorial Team"
+        ? { "@type": "Organization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist" }
+        : { "@type": "Person", "name": author, "worksFor": { "@type": "Organization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist" } },
     "publisher": { "@type": "Organization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist", "logo": { "@type": "ImageObject", "url": "https://www.chooseyourtherapist.in/logo.png", "width": 250, "height": 60 } },
     "datePublished": blog.createdAt,
     "dateModified": blog.updatedAt || blog.createdAt,
@@ -297,6 +306,8 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
     ...(isMedical && {
       "about": { "@type": "MedicalCondition", "name": blog.category || "Mental Health" },
       "medicalAudience": { "@type": "MedicalAudience", "audienceType": "Patient" },
+      "reviewedBy": { "@type": "Organization", "@id": "https://www.chooseyourtherapist.in#organization", "name": "Choose Your Therapist" },
+      "lastReviewed": blog.updatedAt || blog.createdAt,
     }),
     "speakable": { "@type": "SpeakableSpecification", "cssSelector": ["h1", "h2", ".blog-intro"] },
   };
@@ -366,10 +377,19 @@ export default function BlogDetails({ initialBlog, blogTherapists = [] }) {
           <h1 className="bd-title">{titleWithKeyword(blog.title, blog)}</h1>
           {rawMetaDesc.length > 40 && <p className="bd-dek">{rawMetaDesc}</p>}
           <div className="bd-meta">
-            <span className="bd-av" aria-hidden="true">{author.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</span>
-            <span className="bd-by"><b>{author}</b><span>Reviewed by CYT psychologists</span></span>
+            {authorInfo?.photo
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img className="bd-av bd-av-img" src={authorInfo.photo} alt="" width="40" height="40" />
+              : <span className="bd-av" aria-hidden="true">{author.split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</span>}
+            <span className="bd-by">
+              <b>{authorInfo ? <Link href={authorInfo.href} rel="author">{authorInfo.name}</Link> : author}{authorInfo?.role ? <em>, {authorInfo.role}</em> : null}</b>
+              <span>Reviewed by CYT psychologists</span>
+            </span>
             <span className="bd-dot" aria-hidden="true" />
-            <span><time dateTime={blog.createdAt}>{fmtDate(blog.createdAt)}</time> · {minutes} min read</span>
+            <span>
+              Published <time dateTime={published}>{fmtDate(published)}</time>
+              {updated && <> · Updated <time dateTime={updated}>{fmtDate(updated)}</time></>} · {minutes} min read
+            </span>
           </div>
         </div>
       </header>
@@ -519,6 +539,9 @@ const CSS = `
 .bd-by { display: flex; flex-direction: column; text-align: left; line-height: 1.25; }
 .bd-by b { color: #13261c; font-size: 14px; }
 .bd-by span { font-size: 12px; color: #6b7c72; }
+.bd-av-img { object-fit: cover; padding: 0; background: #e8f3ec; }
+.bd-by b a { color: #14532d !important; text-decoration: none !important; border-bottom: 1px solid #ecc77d; }
+.bd-by b em { font-style: normal; font-weight: 600; color: #4b5d53; }
 .bd-dot { width: 4px; height: 4px; border-radius: 50%; background: #9fb3a6; }
 
 .bd-cover { max-width: 1108px; margin: -64px auto 0; padding: 0 16px; position: relative; z-index: 1; }
@@ -675,10 +698,19 @@ export async function getServerSideProps(context) {
         const keywords = getTopicMatch(blog).flatMap((m) => [...m.keywords, m.service]).filter(Boolean);
         blogTherapists = pickRelated(list, { keywords: keywords.length ? keywords : ["anxiety", "stress", "depression"], limit: 3 });
       } catch (e) { /* the post works without them */ }
+      // the author, when they're one of our listed psychologists: their profile, role and photo
+      let authorInfo = null;
+      try {
+        const list = await getListedTherapists(() => fetchData(getTherapistProfiles));
+        const name = String(blog.author || "").trim().toLowerCase();
+        const t = name && list.find((x) => String(x.user?.name || "").trim().toLowerCase() === name);
+        if (t) authorInfo = { name: String(t.user.name).trim(), role: t.profile_type || "Psychologist", href: profilePath(t), photo: therapistPhotoUrl(t) };
+      } catch (e) { /* plain author name */ }
       return {
         props: {
           initialBlog: blog,
           blogTherapists,
+          authorInfo,
         },
       };
     }

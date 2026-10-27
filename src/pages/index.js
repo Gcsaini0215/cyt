@@ -7,7 +7,8 @@ import MyNavbar from "../components/navbar";
 
 const Specializations = dynamic(() => import("../components/home/specializations"), { ssr: true });
 const Blogs = dynamic(() => import("../components/home/blogs"), { ssr: false });
-const Faqs = dynamic(() => import("../components/home/faqs"), { ssr: false });
+// server-rendered so the answers are in the page HTML (search engines and AI assistants read them)
+import Faqs, { faqCategories } from "../components/home/faqs";
 const CallToAction = dynamic(() => import("../components/home/call-to-action"), { ssr: false });
 const Counter = dynamic(() => import("../components/home/counter"), { ssr: false });
 import TopTherapists from "../components/home/top-therapists";
@@ -373,76 +374,6 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
             },
             {
               "@context": "https://schema.org",
-              "@type": "FAQPage",
-              "mainEntity": [
-                {
-                  "@type": "Question",
-                  "name": "What mental health services does Choose Your Therapist offer in India?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Choose Your Therapist (CYT) provides a comprehensive range of mental health services across India, including online counseling, therapy for anxiety and depression, OCD, relationship counseling, corporate wellness programs, school mental health initiatives, and peer support groups."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "How much does an online therapy session cost on Choose Your Therapist?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "At Choose Your Therapist, online sessions start at ₹500 and go up to about ₹2,500, depending on the therapist's experience and specialization; in-person sessions at our Noida centre start at ₹1,200. Every therapist's fee is shown on their profile before you book."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "How do I choose the right therapist for my needs?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "You can filter therapists by specialization (anxiety, depression, OCD, relationship issues), language, location, and availability. Each therapist profile includes their qualifications, experience, approach, and patient reviews to help you make the right choice."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "What should I expect during my first online therapy session?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "In your first session, the therapist will understand your concerns, background, and goals. They will help build a comfortable therapeutic relationship and create a personalized treatment plan. Sessions are typically 45-60 minutes long."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Are therapy sessions on Choose Your Therapist confidential?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, all counseling sessions are 100% confidential. We follow strict data protection standards to ensure your privacy and safety throughout your mental health journey."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Can I book an in-person therapy session as well?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, Choose Your Therapist offers both online and in-person therapy options. Many therapists are available for in-person sessions in cities like Noida, Delhi, Mumbai, Bangalore, and other major Indian cities."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "What is the cancellation policy for therapy sessions?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sessions can be cancelled or rescheduled up to 24 hours before the appointment without any charge. Cancellations within 24 hours may incur a partial fee. Please refer to our cancellation policy page for complete details."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Are the therapists on Choose Your Therapist verified?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, all therapists on Choose Your Therapist are verified mental health professionals with valid licenses and qualifications. We verify their degrees, certifications, and registration with recognized psychological associations before onboarding."
-                  }
-                }
-              ]
-            },
-            {
-              "@context": "https://schema.org",
               "@type": "WebPage",
               "@id": "https://www.chooseyourtherapist.in/#webpage",
               "url": "https://www.chooseyourtherapist.in/",
@@ -524,76 +455,14 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
             }
           ]) }} />
 
-        {/* FAQPage Schema — helps AI search engines and Google surface homepage FAQ answers directly */}
+        {/* FAQPage — built from the same questions the FAQ section shows (components/home/faqs), so the
+            markup always matches what's on the page; one FAQPage per page */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": [
-              {
-                "@type": "Question",
-                "name": "What is therapy and how does it actually help?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Therapy is a professional conversation with a trained psychologist where you talk openly about your thoughts, feelings, and challenges in a safe, non-judgmental space. Research shows therapy is as effective as medication for conditions like anxiety and depression, with longer-lasting results."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "What is the difference between a Counselling Psychologist and a Clinical Psychologist?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "A Counselling Psychologist helps with everyday emotional challenges such as relationship problems, stress, anxiety, and career confusion. A Clinical Psychologist is trained to assess and treat more complex mental health conditions such as severe depression, OCD, PTSD, and personality disorders, and also conducts psychometric assessments."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "What is the difference between anxiety and normal tension?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Normal tension arises from a specific situation and fades once it's over. An anxiety disorder is when fear or worry persists without a clear reason, lasts for weeks, and interferes with daily life."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Online therapy vs in-person therapy — which is better?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Research shows online therapy is just as effective as in-person therapy for most conditions, including anxiety, depression, stress, and relationship issues, with the added convenience of attending from home."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "How expensive is therapy — can I afford it?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "At Choose Your Therapist, online sessions start at ₹500 and go up to about ₹2,500, depending on the therapist's experience and specialization; in-person sessions at our Noida centre start at ₹1,200. Every therapist's fee is shown on their profile before you book. Compare the cost of one session to a restaurant meal or entertainment expense — investing in mental health delivers a far greater return over the long term."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Is what I tell my therapist kept confidential?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes, 100%. Everything you share in session stays strictly confidential, except in rare situations involving risk of serious harm, a court order, or a case of minor abuse."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Your psychologists are verified — what does that mean?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Every psychologist on Choose Your Therapist goes through degree verification, RCI registration checks for Clinical Psychologists and Special Educators, experience verification, and reference checks before being listed on the platform."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Can I change my therapist?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes. Finding the right therapist is a process, and switching to another therapist without any explanation needed is completely normal and supported on Choose Your Therapist."
-                }
-              }
-            ]
+            "mainEntity": faqCategories.flatMap((c) => c.faqs).map((f) => ({
+              "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a },
+            })),
           }) }} />
       </Head>
 
