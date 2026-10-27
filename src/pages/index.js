@@ -180,7 +180,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
     ? `Book online or in-person sessions with top-rated psychologists in ${userCity}, ${userState || ""}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
     : userState 
       ? `Book online or in-person sessions with top-rated psychologists in ${userState}. Expert therapy for anxiety, depression, OCD, and relationship counseling.` 
-      : "Talk to a verified psychologist online or at our Noida centre — for anxiety, stress, depression and relationships. Sessions from ₹400. Book in 2 minutes.";
+      : "Talk to a verified psychologist online or at our Noida centre — for anxiety, stress, depression and relationships. Sessions from ₹500. Book in 2 minutes.";
 
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
@@ -388,7 +388,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
                   "name": "How much does an online therapy session cost on Choose Your Therapist?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Session fees on Choose Your Therapist vary by therapist experience and specialization. Sessions typically start from ₹500 and go up to ₹3000 per session. We also offer affordable subscription plans for regular therapy. Visit our Plans page for detailed pricing."
+                    "text": "At Choose Your Therapist, online sessions start at ₹500 and go up to about ₹2,500, depending on the therapist's experience and specialization; in-person sessions at our Noida centre start at ₹1,200. Every therapist's fee is shown on their profile before you book."
                   }
                 },
                 {
@@ -566,7 +566,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
                 "name": "How expensive is therapy — can I afford it?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "At Choose Your Therapist, sessions start at ₹500 and go up to ₹3000 per session, depending on the therapist's experience and specialization, with affordable options for students and young professionals."
+                  "text": "At Choose Your Therapist, online sessions start at ₹500 and go up to about ₹2,500, depending on the therapist's experience and specialization; in-person sessions at our Noida centre start at ₹1,200. Every therapist's fee is shown on their profile before you book. Compare the cost of one session to a restaurant meal or entertainment expense — investing in mental health delivers a far greater return over the long term."
                 }
               },
               {

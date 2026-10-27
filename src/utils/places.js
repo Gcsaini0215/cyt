@@ -56,7 +56,7 @@ export const PLACES = {
       },
       {
         q: "What is the fee for a psychologist in Delhi?",
-        a: "Therapy fees in Delhi range from ₹800 to ₹3000 per session depending on the psychologist's experience and specialization. Choose Your Therapist shows transparent pricing on every therapist profile so you can choose what fits your budget."
+        a: "Online sessions start from ₹500 and go up to about ₹2,500 depending on the psychologist's experience and specialization; in person at our Noida centre (close to Delhi) from ₹1,200. Choose Your Therapist shows transparent pricing on every therapist profile so you can choose what fits your budget."
       }
     ]
   },
@@ -84,7 +84,7 @@ export const PLACES = {
       },
       {
         q: "What does a therapy session cost in Mumbai?",
-        a: "Therapy sessions in Mumbai on Choose Your Therapist range from ₹800 to ₹3000 per session. Online sessions are generally more affordable. All pricing is transparent and displayed on each therapist's profile."
+        a: "Online sessions on Choose Your Therapist start from ₹500 and go up to about ₹2,500 per session. Online sessions are generally more affordable. All pricing is transparent and displayed on each therapist's profile."
       }
     ]
   },

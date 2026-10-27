@@ -211,7 +211,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                   "name": "What is the cost of a therapy session in Noida & Delhi?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Therapy session costs at Choose Your Therapist range from ₹500 to ₹3000 per session, depending on the psychologist's experience and specialization. We offer transparent pricing and student-friendly rates."
+                    "text": "Online sessions at Choose Your Therapist start at ₹500 and go up to about ₹2,500, depending on the psychologist's experience and specialization; in-person sessions at our Noida centre (Sector 51) start at ₹1,200. Every fee is shown on the therapist's profile before you book."
                   }
                 },
                 {

@@ -1,6 +1,6 @@
 # Choose Your Therapist
 
-> Choose Your Therapist (CYT) is an Indian mental-health platform for finding and booking verified psychologists and therapists — online (video or audio) from anywhere in India, or in person at its centre in Sector 51, Noida. 50+ verified counselling and clinical psychologists; sessions from about ₹500; Hindi, English and other Indian languages.
+> Choose Your Therapist (CYT) is an Indian mental-health platform for finding and booking verified psychologists and therapists — online (video or audio) from anywhere in India, or in person at its centre in Sector 51, Noida. 50+ verified counselling and clinical psychologists; online sessions from ₹500 (up to about ₹2,500), in person at the Noida centre from ₹1,200; Hindi, English and other Indian languages.
 
 ## About
 - [About Choose Your Therapist](https://www.chooseyourtherapist.in/about-us): founded in 2020 by Deepak Kumar (Founder & Director); Shubham Kumar is Associate Psychologist & Head of Operations.

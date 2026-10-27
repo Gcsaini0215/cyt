@@ -109,7 +109,7 @@ const faqPageSchema = {
     {
       "@type": "Question",
       "name": "Therapy kitni mehngi hoti hai — kya yeh afford kar sakte hain?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Choose Your Therapist par sessions ₹500 se shuru hokar ₹3000 per session tak hain — therapist ke experience aur specialization ke hisaab se. Students aur young professionals ke liye affordable options available hain. Online sessions generally in-person se sasti hoti hain. Subscription plans bhi hain agar aap regular therapy karna chahte hain." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Choose Your Therapist par online sessions ₹500 se shuru hokar lagbhag ₹2,500 tak hain — therapist ke experience aur specialization ke hisaab se. Noida centre par in-person session ₹1,200 se shuru hota hai. Har therapist ki fee booking se pehle unki profile par dikhti hai." }
     },
     {
       "@type": "Question",

@@ -118,7 +118,7 @@ const faqCategories = [
     faqs: [
       {
         q: "How expensive is therapy — can I afford it?",
-        a: "At Choose Your Therapist, sessions start at ₹500 and go up to ₹3000 per session, depending on the therapist's experience and specialization. Affordable options are available for students and young professionals. Online sessions are generally cheaper than in-person ones, and subscription plans are available for regular therapy. Compare the cost of one session to a restaurant meal or entertainment expense — investing in mental health delivers a far greater return over the long term."
+        a: "At Choose Your Therapist, online sessions start at ₹500 and go up to about ₹2,500, depending on the therapist's experience and specialization; in-person sessions at our Noida centre start at ₹1,200. Every therapist's fee is shown on their profile before you book. Compare the cost of one session to a restaurant meal or entertainment expense — investing in mental health delivers a far greater return over the long term."
       },
       {
         q: "Is what I tell my therapist kept confidential?",
