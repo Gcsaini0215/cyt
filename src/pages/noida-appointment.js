@@ -38,6 +38,7 @@ import Footer from "../components/footer";
 import RelatedTherapists from "../components/global/related-therapists";
 import { siteCardUrl, CENTRE_PHOTOS } from "../utils/og-urls";
 import { noidaHinglishFaqs } from "../utils/hinglish-faqs";
+import { reportAiConversion } from "../utils/ai-referral";
 
 
 // Pushes an event to Google Tag Manager's dataLayer (already loaded in _document.js).
@@ -1863,6 +1864,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
       const data = await res.json();
       if (data.status) {
         track("noida_booking_complete", { booking_type: bookingType, value: Number(totalAmount) || 0, currency: "INR" });
+        reportAiConversion("booked");
         try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
         saveKnownPhone(form.phone);
         saveKnownName(effectiveName);

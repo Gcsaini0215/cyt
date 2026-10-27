@@ -12,6 +12,7 @@ import { postData } from "../utils/actions";
 import { subscribeToNotifications } from "../utils/push-notifications";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { reportAiArrival } from "../utils/ai-referral";
 import Head from "next/head";
 import { TherapistShell, THERAPIST_SHELL_ROUTES } from "@/components/therapists/main-layout";
 
@@ -25,6 +26,9 @@ function MyApp({ Component, pageProps }) {
     if (!/^[A-Z0-9]{4,20}$/.test(ref)) return;
     try { localStorage.setItem("cyt_ref", ref); } catch (e) { /* storage blocked */ }
   }, [router.isReady, router.query.refer]);
+
+  // arrived from an AI assistant (ChatGPT, Perplexity, Gemini …)? — counted for the admin Overview
+  useEffect(() => { reportAiArrival(); }, []);
 
   // the page a visitor is leaving — lets a therapist's profile insights tell "came from the directory / home / a blog"
   useEffect(() => {

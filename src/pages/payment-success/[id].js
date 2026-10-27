@@ -6,6 +6,7 @@ import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import { fetchData } from "../../utils/actions";
 import { getBookings, imagePath, defaultProfile } from "../../utils/url";
+import { reportAiConversion } from "../../utils/ai-referral";
 
 const G  = "#1a5c38";
 const GL = "#228756";
@@ -48,6 +49,7 @@ export default function PaymentSuccessPage() {
   useEffect(() => {
     if (!booking || trackedRef.current || typeof window === "undefined") return;
     trackedRef.current = true;
+    reportAiConversion("booked");
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
       event: "purchase",

@@ -1,5 +1,9 @@
 import axios from "axios";
 import { getToken } from "./jwt";
+import { reportAiConversion } from "./ai-referral";
+
+// an enquiry sent from any form on the site (all of them post to /save-lead)
+const noteLead = (url) => { if (typeof window !== "undefined" && /\/save-lead$/.test(String(url))) reportAiConversion("lead"); };
 
 export const fetchById = (url, params = {}) => {
   return new Promise((resolve, reject) => {
@@ -89,6 +93,7 @@ export const postFormData = (url, formData) => {
 };
 
 export const postData = (url, data) => {
+  noteLead(url);
   return new Promise((resolve, reject) => {
     const token = getToken();
     const headers = {};
@@ -113,6 +118,7 @@ export const postData = (url, data) => {
 };
 
 export const postFormUrlEncoded = (url, data) => {
+  noteLead(url);
   return new Promise((resolve, reject) => {
     const token = getToken();
     const formData = new URLSearchParams();
