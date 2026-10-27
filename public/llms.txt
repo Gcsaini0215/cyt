@@ -50,6 +50,10 @@
 - Existing clients can book a follow-up or reschedule from the same page.
 - [Psychologist in Noida & Delhi](https://www.chooseyourtherapist.in/psychologist-in-noida-delhi): overview of therapy in Noida and Delhi NCR
 
+## Guides
+- [Psychologist vs psychiatrist vs counsellor in India](https://www.chooseyourtherapist.in/psychologist-vs-psychiatrist-vs-counsellor): who does what, training and RCI registration, who prescribes medicine, and who to see first
+- [Online vs in-person therapy](https://www.chooseyourtherapist.in/online-vs-in-person-therapy): how they compare on effectiveness, cost (online from ₹500, Noida in person from ₹1,200), privacy and who each suits
+
 ## Free tools
 - [Wellness toolkit](https://www.chooseyourtherapist.in/wellness-toolkit): guided breathing, 5-4-3-2-1 grounding, a 30-second panic SOS, mood check-in, gratitude jar, calming sounds; entries stay on the visitor's device
 - [Self-assessment](https://www.chooseyourtherapist.in/self-assessment)
