@@ -19,7 +19,7 @@ import { profileSeo, cleanName } from "../../utils/related-therapists";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
 import { istDay, istParts, istNowMinutes, istInstant, isAwayFromIst, localTimeLabel } from "../../utils/ist";
 import { therapistCardUrl, siteCardUrl } from "../../utils/og-urls";
-import { PACKS, packTotal } from "../../utils/session-packs";
+import { packTotal } from "../../utils/session-packs";
 
 // ── constants ────────────────────────────────────────────────────────────────
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -455,7 +455,11 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
 
   // session packs: the signed-in client's packs (book from one), or buy one with this booking (Step 3)
   const [myPacks,  setMyPacks]  = React.useState([]);
-  const [payPlan,  setPayPlan]  = React.useState(null); // "single" | 4 | 6 | "use"; null = from my pack if there is one
+  const [payPlan,  setPayPlan]  = React.useState(null); // "single" | pack size | "use"; null = from my pack if there is one
+  const [packCfg,  setPackCfg]  = React.useState({ packs: [], days: 90 }); // packs on sale (Admin → Pack Pricing)
+  React.useEffect(() => {
+    fetchData(`${apiUrl}/session-packs`).then(r => { if (r?.status && r.data) setPackCfg({ packs: r.data.packs || [], days: r.data.days || 90 }); }).catch(() => {});
+  }, []);
   React.useEffect(() => {
     if (!isLoggedIn) return;
     fetchById(`${apiUrl}/my-bundles`).then(r => { if (r?.status) setMyPacks(r.data || []); }).catch(() => {});
@@ -676,7 +680,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     const dt = istInstant(selDate, h, m); // the slot is India time, whatever the browser's timezone
     const p = new URLSearchParams({
       service: selSvc.name, format: selFmt.type,
-      price: String(plan === "use" ? 0 : packN ? packTotal(selFmt.fee, packN) : selFmt.fee), booking_date: dt.toISOString(),
+      price: String(plan === "use" ? 0 : packN ? packTotal(selFmt.fee, packN, packCfg.packs) : selFmt.fee), booking_date: dt.toISOString(),
       ...(packN ? { pack: String(packN) } : {}),
       ...(plan === "use" && myPack ? { bundle: myPack._id } : {}),
       session_type: mode, booking_for: bookFor,
@@ -743,14 +747,16 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   // a pack the client already has with this therapist, for this service + format
   const myPack = myPacks.find((b) => String(b.therapist?._id) === String(profile._id) && b.service === selSvc?.name && b.format === selFmt?.type) || null;
   const otherPack = !myPack && myPacks.find((b) => String(b.therapist?._id) === String(profile._id));
-  const plan = payPlan == null ? (myPack ? "use" : "single") : payPlan === "use" && !myPack ? "single" : payPlan;
-  const packN = plan === 4 || plan === 6 ? plan : 0;
+  const wanted = payPlan == null ? (myPack ? "use" : "single") : payPlan;
+  // a pack that isn't (or is no longer) on sale, or "use" without a pack → one session
+  const plan = (wanted === "use" && !myPack) || (typeof wanted === "number" && !packCfg.packs.some((p) => p.size === wanted)) ? "single" : wanted;
+  const packN = typeof plan === "number" && packCfg.packs.some((p) => p.size === plan) ? plan : 0;
   const onPack = plan !== "single"; // a pack: no coupon, credit or assessments with it
   const couponCut = onPack ? 0 : couponSave;
   const creditUse = !onPack && isLoggedIn && useCredit ? Math.min(credit, Math.max(0, base - couponSave)) : 0;
   const assessLines = !onPack && clinPrices ? assess.filter((k) => clinPrices[k]?.active).map((k) => ({ key: k, short: FREE_TESTS.find((t) => t.key === k)?.short || k, price: clinPrices[k].price })) : [];
   const assessFee = assessLines.reduce((n, l) => n + l.price, 0);
-  const total = plan === "use" ? 0 : packN ? packTotal(base, packN) : Math.max(0, base - couponSave - creditUse) + assessFee;
+  const total = plan === "use" ? 0 : packN ? packTotal(base, packN, packCfg.packs) : Math.max(0, base - couponSave - creditUse) + assessFee;
 
   // ── SLOT GRID (phase "slots"): dates across, times down — tap an open cell to start ──
   const rowMins = r => { const [h, m] = r.val.split(":").map(Number); return h * 60 + m; };
@@ -1118,7 +1124,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       {/* How to pay: one session, a pack (4 / 6 at a discount), or a session from a pack already bought */}
       {base > 0 && (
         <div className="bk-pack">
-          <div className="bk-pack-h"><b>How would you like to book?</b><span>Packs are with {profile.user?.name?.split(" ")[0] || "this therapist"} — book the rest any time in 90 days.</span></div>
+          <div className="bk-pack-h"><b>How would you like to book?</b><span>Packs are with {profile.user?.name?.split(" ")[0] || "this therapist"} — book the rest any time in {packCfg.days} days.</span></div>
           {myPack && (
             <label className={`bk-pack-opt use${plan === "use" ? " on" : ""}`}>
               <input type="radio" name="bkplan" checked={plan === "use"} onChange={() => setPayPlan("use")} />
@@ -1131,8 +1137,8 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
             <span className="bk-pack-txt"><b>One session</b><em>Pay for this session only</em></span>
             <span className="bk-pack-price">₹{base.toLocaleString("en-IN")}</span>
           </label>
-          {PACKS.map(({ size, pct }) => {
-            const t = packTotal(base, size);
+          {packCfg.packs.map(({ size, pct }) => {
+            const t = packTotal(base, size, packCfg.packs);
             return (
               <label key={size} className={`bk-pack-opt${plan === size ? " on" : ""}`}>
                 <input type="radio" name="bkplan" checked={plan === size} onChange={() => setPayPlan(size)} />
@@ -1141,7 +1147,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
               </label>
             );
           })}
-          {packN > 0 && <p className="bk-pack-note">This booking is session 1 of {packN}. Unused sessions aren&apos;t refunded after 90 days. Coupons and referral credit can&apos;t be used with a pack.</p>}
+          {packN > 0 && <p className="bk-pack-note">This booking is session 1 of {packN}. Unused sessions aren&apos;t refunded after {packCfg.days} days. Coupons and referral credit can&apos;t be used with a pack.</p>}
           {otherPack && <p className="bk-pack-note">Your pack with {profile.user?.name?.split(" ")[0]} is for {otherPack.service} · {otherPack.format} — choose that to book from it.</p>}
         </div>
       )}
@@ -1173,7 +1179,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ display: "flex", padding: "12px 16px", borderBottom: couponSave > 0 || creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
           <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{plan === "use" ? "From your pack" : packN ? `Pack of ${packN}` : "Session fee"}</span>
-          <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{(plan === "use" ? 0 : packN ? packTotal(base, packN) : base).toLocaleString("en-IN")}</span>
+          <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{(plan === "use" ? 0 : packN ? packTotal(base, packN, packCfg.packs) : base).toLocaleString("en-IN")}</span>
         </div>
         {couponCut > 0 && (
           <div style={{ display: "flex", padding: "12px 16px", borderBottom: creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
@@ -1204,7 +1210,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         <div>
           <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</div>
           {couponCut + creditUse > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(couponCut + creditUse).toLocaleString("en-IN")}</div>}
-          {packN > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(base * packN - packTotal(base, packN)).toLocaleString("en-IN")} on {packN} sessions</div>}
+          {packN > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(base * packN - packTotal(base, packN, packCfg.packs)).toLocaleString("en-IN")} on {packN} sessions</div>}
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: G }}>₹{total.toLocaleString("en-IN")}</div>
       </div>
