@@ -28,7 +28,7 @@ function ShareLadder({ compact = false }) {
       <ol>
         {SHARE_STEPS.map((x) => (
           <li key={x.you}>
-            <span className="trs-share-bar"><i style={{ width: `${x.you}%` }}><em>You {x.you}%</em></i><small>CYT {x.cyt}%</small></span>
+            <span className="trs-share-row"><span className="trs-share-bar"><i style={{ width: `${x.you}%` }}><em>You {x.you}%</em></i></span><small>CYT {x.cyt}%</small></span>
             <span className="trs-share-txt"><b>{x.when}</b>{x.how}</span>
           </li>
         ))}
@@ -717,10 +717,11 @@ export default function TherapistRegistration() {
         .trs-share ol { list-style: none; margin: 10px 0 8px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
         .trs-share li { margin: 0; display: flex; flex-direction: column; gap: 3px; }
         .trs-share li::before { content: none; }
-        .trs-share-bar { position: relative; display: flex; align-items: center; height: 24px; border-radius: 7px; background: #fdf3dc; overflow: hidden; }
+        .trs-share-row { display: flex; align-items: center; gap: 8px; }
+        .trs-share-row > small { flex: 0 0 56px; text-align: right; font-size: 11px; font-weight: 800; color: #8a5a06; white-space: nowrap; }
+        .trs-share-bar { flex: 1; min-width: 0; position: relative; display: flex; align-items: center; height: 24px; border-radius: 7px; background: #fdf3dc; overflow: hidden; }
         .trs-share-bar i { display: flex; align-items: center; height: 100%; background: linear-gradient(90deg, #166534, #22a35a); border-radius: 7px 0 0 7px; }
         .trs-share-bar em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #fff; padding-left: 8px; white-space: nowrap; }
-        .trs-share-bar small { margin-left: auto; padding-right: 7px; font-size: 10.5px; font-weight: 800; color: #8a5a06; }
         .trs-share-txt { font-size: 12px; color: #475569; line-height: 1.4; } .trs-share-txt b { color: #0f3d24; margin-right: 6px; }
         .trs-share p { margin: 0; font-size: 11.5px; color: #64748b; line-height: 1.5; }
         .pk-terms .trs-share { margin-top: 12px; }
