@@ -12,9 +12,13 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import HourglassTopRoundedIcon from "@mui/icons-material/HourglassTopRounded";
 import EventBusyRoundedIcon from "@mui/icons-material/EventBusyRounded";
+import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
+import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
+import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 
 /* Client home cards that bring people back: finish a booking left unpaid, book the next session,
-   review the last one, refer a friend. (Self-check / family / meeting in person are in the portal menu — client-shell.) */
+   review the last one, refer a friend, a check-in test, and help for the family / in person at Noida. */
 
 const SITE = "https://www.chooseyourtherapist.in";
 const WA_HELP = "https://wa.me/918077757951?text=";
@@ -81,11 +85,13 @@ export function PendingCard({ p }) {
 
 /* #1 — continue with the same therapist, same time next week. `missed`: that session was never
    started or marked done — don't say "last session", offer a new time and help instead */
-export function RebookCard({ b, now, missed }) {
+// `credit`: the client's unspent referral credit — it comes off the next booking automatically
+export function RebookCard({ b, now, missed, credit = 0 }) {
   const at = nextSameSlot(b, now);
   const name = therapistName(b);
   const first = name.replace(/^dr\.?\s*/i, "").split(/\s+/)[0];
   const atLabel = at ? fmtWhen(at) : "";
+  const creditChip = credit > 0 && <span className="dc-credit">₹{Number(credit).toLocaleString("en-IN")} referral credit comes off this booking</span>;
   if (missed) {
     const wa = WA_HELP + encodeURIComponent(`Hi CYT team, my session with ${name} on ${fmtWhen(b.booking_date)} didn't take place. Please help.`);
     return (
@@ -99,6 +105,7 @@ export function RebookCard({ b, now, missed }) {
           </div>
         </div>
         <p>If this session didn't happen, pick a new time with {first} — or message us and we'll sort it out.</p>
+        {creditChip}
         <div className="dc-actions">
           <Link href={bookAgainPath(b)} className="dc-btn gold">Pick a new time</Link>
           <a href={wa} target="_blank" rel="noopener noreferrer" className="dc-btn ghost">Talk to us</a>
@@ -117,6 +124,7 @@ export function RebookCard({ b, now, missed }) {
         </div>
       </div>
       <p>Regular sessions help progress stick. Book your next one with {first} — the same time next week is a good habit.</p>
+      {creditChip}
       <div className="dc-actions">
         {at && <Link href={bookAgainPath(b, at)} className="dc-btn gold">Book {atLabel}</Link>}
         <Link href={bookAgainPath(b)} className="dc-btn ghost">Pick another time</Link>
@@ -196,12 +204,15 @@ export function ReviewCard({ b, user, now, onDone, onSkip }) {
 }
 
 /* #4 — Give ₹200, get ₹200 */
-export function ReferralCard() {
-  const [d, setD] = useState(null);
+// `data`: the referral details when the page has already fetched them
+export function ReferralCard({ data }) {
+  const [own, setOwn] = useState(null);
   const [copied, setCopied] = useState(false);
   useEffect(() => {
-    fetchById(MyReferralUrl).then((r) => { if (r?.status) setD(r.data); }).catch(() => {});
-  }, []);
+    if (data !== undefined) return;
+    fetchById(MyReferralUrl).then((r) => { if (r?.status) setOwn(r.data); }).catch(() => {});
+  }, [data]);
+  const d = data !== undefined ? data : own;
   if (!d?.code) return null;
 
   const amt = `₹${Number(d.amount || 200).toLocaleString("en-IN")}`;
@@ -238,6 +249,43 @@ export function ReferralCard() {
       )}
       {d.credit > 0 && <p className="dc-ref-note">Your credit comes off your next booking automatically.</p>}
     </div>
+  );
+}
+
+/* #6 — a check-in test: a client who has had sessions but no screening in the last 30 days */
+export function CheckInCard() {
+  return (
+    <Link href="/self-assessment" className="dc-mini">
+      <span className="dc-mini-ic blue"><InsightsRoundedIcon /></span>
+      <div><b>How are things now?</b><span>A 5-minute screening (PHQ-9, GAD-7…) gives you a score to track — and to share with your therapist.</span></div>
+    </Link>
+  );
+}
+
+/* #7 — help for the people around the client, or in person at the Noida centre (one card at most):
+   booked for a child → parenting; for a spouse → couples; sessions with therapists in Delhi NCR → Noida */
+const NCR = /delhi|uttar pradesh|haryana|noida|gurgaon|gurugram|ghaziabad|faridabad/i;
+export function forYouOffer(bookings) {
+  const list = (bookings || []).filter((b) => b.status !== "Cancelled");
+  const rel = (b) => (/other/i.test(b.whom || "") ? `${b.relation_with_client || ""} ${b.cname || ""}` : "");
+  if (list.some((b) => /child|son|daughter/i.test(rel(b)))) return "parenting";
+  if (list.some((b) => /spouse|husband|wife|partner/i.test(rel(b)))) return "couple";
+  if (!list.some((b) => b.source === "noida") && list.some((b) => NCR.test(b.therapist?.state || ""))) return "noida";
+  return null;
+}
+const OFFERS = {
+  parenting: { href: "/therapy-for/parenting", Icon: ChildCareRoundedIcon, t: "Support for you as a parent", s: "Parenting sessions help you handle what your child is going through — and look after yourself too." },
+  couple: { href: "/therapy-for/relationships", Icon: VolunteerActivismRoundedIcon, t: "Therapy for the two of you", s: "Couples sessions with a therapist who works with relationships." },
+  noida: { href: "/noida-appointment", Icon: StorefrontRoundedIcon, t: "Meet in person in Noida", s: "Sessions at the CYT Therapy Centre, Sector 51 — book a time that suits you." },
+};
+export function ForYouCard({ offer }) {
+  const o = OFFERS[offer];
+  if (!o) return null;
+  return (
+    <Link href={o.href} className="dc-mini">
+      <span className="dc-mini-ic"><o.Icon /></span>
+      <div><b>{o.t}</b><span>{o.s}</span></div>
+    </Link>
   );
 }
 
@@ -308,6 +356,15 @@ export const DC_CSS = `
 .dc-ref-stats span { flex: 1; background: #fff; border: 1px solid #f1e6bd; border-radius: 10px; padding: 8px 10px; font-size: 12px; color: #64748b; }
 .dc-ref-stats b { display: block; font-size: 16px; color: #0f172a; }
 .dc-ref-note { margin: 0; font-size: 12px; color: #92400e; font-weight: 600; }
+.dc-credit { align-self: flex-start; font-size: 12.5px; font-weight: 800; color: #1f2a12; background: #fde68a; border-radius: 999px; padding: 4px 12px; }
+
+.dc-mini { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid #e4ece7; color: #0f172a !important; text-decoration: none !important; transition: border-color .15s, box-shadow .15s; }
+.dc-mini:hover { border-color: #b7dcc4; box-shadow: 0 10px 24px -18px rgba(4,60,30,.5); }
+.dc-mini-ic { width: 40px; height: 40px; border-radius: 12px; background: #e7f6ec; color: #166534; display: grid; place-items: center; flex-shrink: 0; }
+.dc-mini-ic.blue { background: #e0f2fe; color: #0369a1; }
+.dc-mini-ic svg { font-size: 22px; }
+.dc-mini b { display: block; font-size: 14.5px; font-weight: 800; }
+.dc-mini span:not(.dc-mini-ic) { display: block; font-size: 12.5px; color: #64748b; margin-top: 2px; line-height: 1.45; }
 
 
 @media (max-width: 640px) {

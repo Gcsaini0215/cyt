@@ -8,11 +8,14 @@ import { apiUrl } from "../../utils/url";
 
 const when = (d) => (d ? new Date(d).toLocaleString("en-IN", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }) : "");
 
-export default function PreSessionForms({ compact = false }) {
-  const [rows, setRows] = useState(null);
+// `rows`: the list when the page has already fetched it (My Space uses it for the check-in card too)
+export default function PreSessionForms({ compact = false, rows: given }) {
+  const [own, setOwn] = useState(null);
   useEffect(() => {
-    fetchById(`${apiUrl}/assessment-requests/mine`).then((r) => setRows(r?.data || [])).catch(() => setRows([]));
-  }, []);
+    if (given !== undefined) return;
+    fetchById(`${apiUrl}/assessment-requests/mine`).then((r) => setOwn(r?.data || [])).catch(() => setOwn([]));
+  }, [given]);
+  const rows = given !== undefined ? given : own;
 
   const list = (rows || []).filter((r) => !compact || r.status === "sent");
   if (!list.length) return null;

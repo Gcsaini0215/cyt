@@ -3,11 +3,11 @@ import Link from "next/link";
 import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
-import { PendingCard, RebookCard, ReviewCard, ReferralCard, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
-import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl, MyPendingBookingsUrl } from "../utils/url";
+import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl, MyPendingBookingsUrl, MyReferralUrl, apiUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import { CLIENT_BOOKINGS_EVENT } from "../store/clientNotifStore";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
@@ -61,6 +61,8 @@ export default function ClientHome() {
   const [reviewed, setReviewed] = useState(null); // therapist ids this client has already reviewed
   const [skips, setSkips] = useState([]);
   const [pending, setPending] = useState([]); // bookings left at the payment step
+  const [referral, setReferral] = useState(null); // { code, amount, credit, friends }
+  const [checks, setChecks] = useState(null); // screenings sent to / taken by the client
   const [sideEl, setSideEl] = useState(null); // a callback ref: the shell renders the page only after its login check
 
   useEffect(() => {
@@ -75,6 +77,8 @@ export default function ClientHome() {
     load();
     window.addEventListener(CLIENT_BOOKINGS_EVENT, load);
     fetchById(MyReviewedTherapistsUrl).then((r) => setReviewed(r?.status ? r.data || [] : [])).catch(() => setReviewed([]));
+    fetchById(MyReferralUrl).then((r) => setReferral(r?.status ? r.data || {} : {})).catch(() => setReferral({}));
+    fetchById(`${apiUrl}/assessment-requests/mine`).then((r) => setChecks(r?.data || [])).catch(() => setChecks([]));
     setSkips(readSkips());
     const t = setInterval(() => setNow(Date.now()), 30000);
     return () => { clearInterval(t); window.removeEventListener(CLIENT_BOOKINGS_EVENT, load); };
@@ -132,6 +136,9 @@ export default function ClientHome() {
 
   const first = (userInfo?.name || "").trim().split(/\s+/)[0];
   const newbie = bookings !== null && !bookings.length && !pending.length; // nothing booked yet
+  // had sessions, but no screening in the last 30 days → suggest a check-in test
+  const checkIn = doneCount > 0 && checks !== null && !checks.some((c) => now - new Date(c.createdAt || c.booking_date || 0).getTime() < 30 * 86400000);
+  const offer = forYouOffer(bookings);
   // the latest past booking was never started or marked done → don't call it "your last session"
   const lastMissed = !!last && last.status !== "Completed";
   // therapists already shown in "Recent sessions" (its last three past sessions)
@@ -165,7 +172,7 @@ export default function ClientHome() {
                 <div className="ch-next-h"><h2>Your next session</h2><span className={`ch-count${s.live ? " live" : ""}`}><ScheduleRoundedIcon />{s.t}</span></div>
               ); })() : <h2>{last ? "Your next step" : newbie ? "Let's get you started" : "Your next session"}</h2>}
               {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : last ? (
-                <RebookCard b={last} now={now} missed={lastMissed} />
+                <RebookCard b={last} now={now} missed={lastMissed} credit={Number(referral?.credit) || 0} />
               ) : pending.length ? (
                 <div className="ch-empty">
                   <EventAvailableRoundedIcon />
@@ -182,7 +189,7 @@ export default function ClientHome() {
               </section>
             )}
 
-            <PreSessionForms compact />
+            <PreSessionForms compact rows={checks} />
 
             {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
 
@@ -192,9 +199,11 @@ export default function ClientHome() {
           </div>
 
           <aside className="ch-side" ref={setSideEl}>
-            <ReferralCard />
+            {referral !== null && <ReferralCard data={referral} />}
             {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
             <CalmCorner now={now} />
+            {checkIn && <CheckInCard />}
+            {offer && <ForYouCard offer={offer} />}
             {/* only when Recent sessions doesn't already list every therapist */}
             {therapists.length > 0 && !therapists.every((t) => recentIds.has(t.therapist._id)) && (
               <div className="ch-card">
