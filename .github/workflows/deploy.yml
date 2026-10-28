@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          timeout: 60s
+          timeout: 120s # connecting has timed out at 60s on a busy VPS — the build never started
           command_timeout: 30m
           script: |
             set -e
