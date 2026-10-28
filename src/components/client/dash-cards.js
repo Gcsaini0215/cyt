@@ -16,6 +16,7 @@ import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
 import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
 
 /* Client home cards that bring people back: finish a booking left unpaid, book the next session,
    review the last one, refer a friend, a check-in test, and help for the family / in person at Noida. */
@@ -252,6 +253,31 @@ export function ReferralCard({ data }) {
   );
 }
 
+/* #5b — a session pack with sessions left: how many, by when, and book the next one from it */
+export function PackCard({ p, now }) {
+  const name = therapistName(p);
+  const left = p.remaining;
+  const ends = new Date(p.expires_at);
+  const soon = ends.getTime() - now < 14 * DAY;
+  const asBooking = { therapist: p.therapist, service: p.service, format: p.format };
+  return (
+    <div className={`dc-pack${soon ? " soon" : ""}`}>
+      <div className="dc-pack-top">
+        <span className="dc-mini-ic"><Inventory2RoundedIcon /></span>
+        <div className="dc-pack-txt">
+          <b>{left} of {p.size} sessions left with {name}</b>
+          <span>{p.service}{p.format ? ` · ${p.format}` : ""} · use by {ends.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}</span>
+        </div>
+      </div>
+      <div className="dc-pack-dots" aria-hidden="true">
+        {Array.from({ length: p.size }, (_, i) => <i key={i} className={i < p.size - left ? "on" : ""} />)}
+      </div>
+      {soon && <p className="dc-pack-warn">Your pack ends soon — book your remaining sessions so you don&apos;t lose them.</p>}
+      <Link href={bookAgainPath(asBooking)} className="dc-btn green">Book next session · ₹0</Link>
+    </div>
+  );
+}
+
 /* #6 — a check-in test: a client who has had sessions but no screening in the last 30 days */
 export function CheckInCard() {
   return (
@@ -356,6 +382,14 @@ export const DC_CSS = `
 .dc-ref-stats span { flex: 1; background: #fff; border: 1px solid #f1e6bd; border-radius: 10px; padding: 8px 10px; font-size: 12px; color: #64748b; }
 .dc-ref-stats b { display: block; font-size: 16px; color: #0f172a; }
 .dc-ref-note { margin: 0; font-size: 12px; color: #92400e; font-weight: 600; }
+.dc-pack { background: #fff; border: 1px solid #cfe9d8; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.dc-pack.soon { border-color: #fbbf24; background: #fffdf5; }
+.dc-pack-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.dc-pack-txt { min-width: 0; } .dc-pack-txt b { display: block; font-size: 15px; font-weight: 800; }
+.dc-pack-txt span { display: block; font-size: 12.5px; color: #64748b; margin-top: 1px; }
+.dc-pack-dots { display: flex; gap: 6px; } .dc-pack-dots i { flex: 1; height: 6px; border-radius: 99px; background: #dcfce7; } .dc-pack-dots i.on { background: #16a34a; }
+.dc-pack-warn { margin: 0; font-size: 12.5px; font-weight: 600; color: #92400e; }
+.dc-pack .dc-btn { align-self: flex-start; }
 .dc-credit { align-self: flex-start; font-size: 12.5px; font-weight: 800; color: #1f2a12; background: #fde68a; border-radius: 999px; padding: 4px 12px; }
 
 .dc-mini { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid #e4ece7; color: #0f172a !important; text-decoration: none !important; transition: border-color .15s, box-shadow .15s; }

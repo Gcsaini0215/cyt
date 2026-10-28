@@ -16,6 +16,8 @@ import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import { CONCERNS } from "../../utils/therapist-directory";
+import { fetchById, postData } from "../../utils/actions";
+import { apiUrl } from "../../utils/url";
 import { withNoidaCharges, hasNoidaInvoice } from "../../utils/noida-booking";
 
 /* Small everyday widgets for the client home: tip of the day, journey stats, mood check-in,
@@ -87,7 +89,8 @@ export function JourneyStats({ bookings, now }) {
   );
 }
 
-/* #2 — mood check-in (kept in this browser only) */
+/* #2 — mood check-in, saved with the account (/my-moods). This browser keeps a copy, and what it kept
+   before moods were saved on the server is brought over once. */
 const MOOD_KEY = "cyt_mood_v1";
 const MOODS = [
   { v: 1, e: "😞", l: "Low" }, { v: 2, e: "😕", l: "Meh" }, { v: 3, e: "😐", l: "Okay" }, { v: 4, e: "🙂", l: "Good" }, { v: 5, e: "😄", l: "Great" },
@@ -101,17 +104,31 @@ const REPLY = {
 };
 const readMoods = () => { try { return JSON.parse(localStorage.getItem(MOOD_KEY) || "{}"); } catch (e) { return {}; } };
 
+const keepLocal = (all) => {
+  // keep the last 60 days
+  const keys = Object.keys(all).sort().slice(-60);
+  const trimmed = Object.fromEntries(keys.map((k) => [k, all[k]]));
+  try { localStorage.setItem(MOOD_KEY, JSON.stringify(trimmed)); } catch (e) { /* storage blocked */ }
+  return trimmed;
+};
+
 export function MoodCard({ now, bookHref }) {
   const [moods, setMoods] = useState({});
-  useEffect(() => { setMoods(readMoods()); }, []);
+  useEffect(() => {
+    const local = readMoods();
+    setMoods(local);
+    fetchById(`${apiUrl}/my-moods`, { days: 60 }).then((r) => {
+      if (!r?.status) return;
+      const server = r.data || {};
+      const missing = Object.fromEntries(Object.entries(local).filter(([d]) => server[d] == null));
+      if (Object.keys(missing).length) postData(`${apiUrl}/my-moods`, { entries: missing }).catch(() => {});
+      setMoods(keepLocal({ ...local, ...server }));
+    }).catch(() => {});
+  }, []);
   const today = istDay(new Date(now));
   const pick = (v) => {
-    const next = { ...readMoods(), [today]: v };
-    // keep the last 60 days
-    const keys = Object.keys(next).sort().slice(-60);
-    const trimmed = Object.fromEntries(keys.map((k) => [k, next[k]]));
-    try { localStorage.setItem(MOOD_KEY, JSON.stringify(trimmed)); } catch (e) { /* storage blocked */ }
-    setMoods(trimmed);
+    setMoods(keepLocal({ ...readMoods(), [today]: v }));
+    postData(`${apiUrl}/my-moods`, { day: today, v }).catch(() => {});
   };
   const cur = moods[today];
   const week = Array.from({ length: 7 }, (_, i) => {
@@ -139,7 +156,7 @@ export function MoodCard({ now, bookHref }) {
             </div>
           )}
         </div>
-      ) : <p className="dw-sub">One tap — only you can see this.</p>}
+      ) : <p className="dw-sub">One tap — only you can see this. <Link href="/client/check-ins#mood">Your month →</Link></p>}
       <div className="dw-week" aria-label="Your last 7 days">
         {week.map((w) => (
           <span key={w.k} title={w.k}><i className={w.v ? `m${w.v}` : ""}>{w.v ? MOODS[w.v - 1].e : ""}</i>{w.d}</span>
@@ -305,6 +322,7 @@ export const DW_CSS = `
 .dw-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .dw-h b { font-size: 14.5px; font-weight: 800; }
 .dw-sub { margin: 0; font-size: 12px; color: #94a3b8; }
+.dw-sub a { color: #166534 !important; font-weight: 700; text-decoration: none !important; }
 .dw-btn { display: inline-flex; align-items: center; justify-content: center; height: 34px; padding: 0 14px; border-radius: 10px; border: 0; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: none !important; font-family: inherit; }
 .dw-link { font-size: 12.5px; font-weight: 700; color: #b91c1c !important; }
 

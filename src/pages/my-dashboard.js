@@ -3,7 +3,7 @@ import Link from "next/link";
 import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
-import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
@@ -63,6 +63,7 @@ export default function ClientHome() {
   const [pending, setPending] = useState([]); // bookings left at the payment step
   const [referral, setReferral] = useState(null); // { code, amount, credit, friends }
   const [checks, setChecks] = useState(null); // screenings sent to / taken by the client
+  const [packs, setPacks] = useState([]); // session packs with sessions left
   const [sideEl, setSideEl] = useState(null); // a callback ref: the shell renders the page only after its login check
 
   useEffect(() => {
@@ -70,6 +71,7 @@ export default function ClientHome() {
     const load = () => {
       fetchById(getBookings).then((r) => { if (r?.status) setBookings(r.data || []); else setBookings((b) => b || []); }).catch(() => setBookings((b) => b || []));
       fetchById(MyPendingBookingsUrl).then((r) => setPending(r?.status ? r.data || [] : [])).catch(() => {});
+      fetchById(`${apiUrl}/my-bundles`).then((r) => setPacks(r?.status ? r.data || [] : [])).catch(() => {});
       fetchById(GetDashboardDataUrl).then((r) => {
         if (r?.status) setRequests((r.data?.appointmentRequests || []).filter((a) => a.status === "confirmed" || a.status === "rescheduled"));
       }).catch(() => {});
@@ -135,7 +137,7 @@ export default function ClientHome() {
   }, [bookings, now, reviewed, skips]);
 
   const first = (userInfo?.name || "").trim().split(/\s+/)[0];
-  const newbie = bookings !== null && !bookings.length && !pending.length; // nothing booked yet
+  const newbie = bookings !== null && !bookings.length && !pending.length && !packs.length; // nothing booked yet
   // had sessions, but no screening in the last 30 days → suggest a check-in test
   const checkIn = doneCount > 0 && checks !== null && !checks.some((c) => now - new Date(c.createdAt || c.booking_date || 0).getTime() < 30 * 86400000);
   const offer = forYouOffer(bookings);
@@ -181,6 +183,13 @@ export default function ClientHome() {
                 </div>
               ) : <StartCard onCallback={() => setCallback(true)} />}
             </section>
+
+            {packs.length > 0 && (
+              <section className="ch-sec tight">
+                <h2>Your session pack{packs.length > 1 ? "s" : ""}</h2>
+                <div className="ch-pend-list">{packs.map((p) => <PackCard key={p._id} p={p} now={now} />)}</div>
+              </section>
+            )}
 
             {toReview && (
               <section className="ch-sec tight">

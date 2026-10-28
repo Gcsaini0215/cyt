@@ -19,6 +19,7 @@ import { profileSeo, cleanName } from "../../utils/related-therapists";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
 import { istDay, istParts, istNowMinutes, istInstant, isAwayFromIst, localTimeLabel } from "../../utils/ist";
 import { therapistCardUrl, siteCardUrl } from "../../utils/og-urls";
+import { PACKS, packTotal } from "../../utils/session-packs";
 
 // ── constants ────────────────────────────────────────────────────────────────
 const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -452,6 +453,14 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     fetchById(MyReferralUrl).then(r => { if (r?.status) setCredit(Number(r.data?.credit) || 0); }).catch(() => {});
   }, [isLoggedIn]);
 
+  // session packs: the signed-in client's packs (book from one), or buy one with this booking (Step 3)
+  const [myPacks,  setMyPacks]  = React.useState([]);
+  const [payPlan,  setPayPlan]  = React.useState(null); // "single" | 4 | 6 | "use"; null = from my pack if there is one
+  React.useEffect(() => {
+    if (!isLoggedIn) return;
+    fetchById(`${apiUrl}/my-bundles`).then(r => { if (r?.status) setMyPacks(r.data || []); }).catch(() => {});
+  }, [isLoggedIn]);
+
   // ?for=other&relation=Spouse — "book for someone you care about" from the client dashboard
   React.useEffect(() => {
     if (!router.isReady) return;
@@ -667,12 +676,14 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     const dt = istInstant(selDate, h, m); // the slot is India time, whatever the browser's timezone
     const p = new URLSearchParams({
       service: selSvc.name, format: selFmt.type,
-      price: String(selFmt.fee), booking_date: dt.toISOString(),
+      price: String(plan === "use" ? 0 : packN ? packTotal(selFmt.fee, packN) : selFmt.fee), booking_date: dt.toISOString(),
+      ...(packN ? { pack: String(packN) } : {}),
+      ...(plan === "use" && myPack ? { bundle: myPack._id } : {}),
       session_type: mode, booking_for: bookFor,
       ...(bookFor === "other" ? { relation, client_age: age } : {}),
       ...(notes ? { notes } : {}),
-      ...(couponApplied ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
-      ...(couponApplied?.referral ? { referral_code: couponApplied.code } : {}),
+      ...(couponApplied && !onPack ? { coupon: couponApplied.code, discount: String(couponSave) } : {}),
+      ...(couponApplied?.referral && !onPack ? { referral_code: couponApplied.code } : {}),
       ...(creditUse > 0 ? { credit_used: String(creditUse) } : {}),
       ...(assessLines.length ? { assess: assessLines.map((l) => `${l.key}:${l.price}`).join(",") } : {}),
       ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
@@ -729,10 +740,17 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   );
 
   const base  = selFmt?.fee || 0;
-  const creditUse = isLoggedIn && useCredit ? Math.min(credit, Math.max(0, base - couponSave)) : 0;
-  const assessLines = clinPrices ? assess.filter((k) => clinPrices[k]?.active).map((k) => ({ key: k, short: FREE_TESTS.find((t) => t.key === k)?.short || k, price: clinPrices[k].price })) : [];
+  // a pack the client already has with this therapist, for this service + format
+  const myPack = myPacks.find((b) => String(b.therapist?._id) === String(profile._id) && b.service === selSvc?.name && b.format === selFmt?.type) || null;
+  const otherPack = !myPack && myPacks.find((b) => String(b.therapist?._id) === String(profile._id));
+  const plan = payPlan == null ? (myPack ? "use" : "single") : payPlan === "use" && !myPack ? "single" : payPlan;
+  const packN = plan === 4 || plan === 6 ? plan : 0;
+  const onPack = plan !== "single"; // a pack: no coupon, credit or assessments with it
+  const couponCut = onPack ? 0 : couponSave;
+  const creditUse = !onPack && isLoggedIn && useCredit ? Math.min(credit, Math.max(0, base - couponSave)) : 0;
+  const assessLines = !onPack && clinPrices ? assess.filter((k) => clinPrices[k]?.active).map((k) => ({ key: k, short: FREE_TESTS.find((t) => t.key === k)?.short || k, price: clinPrices[k].price })) : [];
   const assessFee = assessLines.reduce((n, l) => n + l.price, 0);
-  const total = Math.max(0, base - couponSave - creditUse) + assessFee;
+  const total = plan === "use" ? 0 : packN ? packTotal(base, packN) : Math.max(0, base - couponSave - creditUse) + assessFee;
 
   // ── SLOT GRID (phase "slots"): dates across, times down — tap an open cell to start ──
   const rowMins = r => { const [h, m] = r.val.split(":").map(Number); return h * 60 + m; };
@@ -1097,8 +1115,39 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         ))}
       </div>
 
+      {/* How to pay: one session, a pack (4 / 6 at a discount), or a session from a pack already bought */}
+      {base > 0 && (
+        <div className="bk-pack">
+          <div className="bk-pack-h"><b>How would you like to book?</b><span>Packs are with {profile.user?.name?.split(" ")[0] || "this therapist"} — book the rest any time in 90 days.</span></div>
+          {myPack && (
+            <label className={`bk-pack-opt use${plan === "use" ? " on" : ""}`}>
+              <input type="radio" name="bkplan" checked={plan === "use"} onChange={() => setPayPlan("use")} />
+              <span className="bk-pack-txt"><b>Use my pack</b><em>{myPack.remaining} of {myPack.size} sessions left · use by {new Date(myPack.expires_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" })}</em></span>
+              <span className="bk-pack-price">₹0 now</span>
+            </label>
+          )}
+          <label className={`bk-pack-opt${plan === "single" ? " on" : ""}`}>
+            <input type="radio" name="bkplan" checked={plan === "single"} onChange={() => setPayPlan("single")} />
+            <span className="bk-pack-txt"><b>One session</b><em>Pay for this session only</em></span>
+            <span className="bk-pack-price">₹{base.toLocaleString("en-IN")}</span>
+          </label>
+          {PACKS.map(({ size, pct }) => {
+            const t = packTotal(base, size);
+            return (
+              <label key={size} className={`bk-pack-opt${plan === size ? " on" : ""}`}>
+                <input type="radio" name="bkplan" checked={plan === size} onChange={() => setPayPlan(size)} />
+                <span className="bk-pack-txt"><b>Pack of {size} sessions <i>{pct}% off</i></b><em>₹{Math.round(t / size).toLocaleString("en-IN")} a session · you save ₹{(base * size - t).toLocaleString("en-IN")}</em></span>
+                <span className="bk-pack-price">₹{t.toLocaleString("en-IN")}</span>
+              </label>
+            );
+          })}
+          {packN > 0 && <p className="bk-pack-note">This booking is session 1 of {packN}. Unused sessions aren&apos;t refunded after 90 days. Coupons and referral credit can&apos;t be used with a pack.</p>}
+          {otherPack && <p className="bk-pack-note">Your pack with {profile.user?.name?.split(" ")[0]} is for {otherPack.service} · {otherPack.format} — choose that to book from it.</p>}
+        </div>
+      )}
+
       {/* Clinical assessment add-on (therapist offers it) */}
-      {clinPrices && (
+      {clinPrices && !onPack && (
         <div className="bk-clin">
           <div className="bk-clin-h">
             <b>Add a clinical assessment <span>(optional)</span></b>
@@ -1123,10 +1172,10 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       {/* Fee breakdown */}
       <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, overflow: "hidden", marginBottom: 16 }}>
         <div style={{ display: "flex", padding: "12px 16px", borderBottom: couponSave > 0 || creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
-          <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>Session fee</span>
-          <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{base.toLocaleString("en-IN")}</span>
+          <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{plan === "use" ? "From your pack" : packN ? `Pack of ${packN}` : "Session fee"}</span>
+          <span style={{ fontSize: 13, color: "#132a1c", fontWeight: 700 }}>₹{(plan === "use" ? 0 : packN ? packTotal(base, packN) : base).toLocaleString("en-IN")}</span>
         </div>
-        {couponSave > 0 && (
+        {couponCut > 0 && (
           <div style={{ display: "flex", padding: "12px 16px", borderBottom: creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
             <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{couponApplied?.referral ? "Referral" : "Discount"}</span>
             <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 700 }}>−₹{couponSave.toLocaleString("en-IN")}</span>
@@ -1154,13 +1203,14 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       }}>
         <div>
           <div style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>Total Payable</div>
-          {couponSave + creditUse > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(couponSave + creditUse).toLocaleString("en-IN")}</div>}
+          {couponCut + creditUse > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(couponCut + creditUse).toLocaleString("en-IN")}</div>}
+          {packN > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, marginTop: 2 }}>You save ₹{(base * packN - packTotal(base, packN)).toLocaleString("en-IN")} on {packN} sessions</div>}
         </div>
         <div style={{ fontSize: 28, fontWeight: 800, color: G }}>₹{total.toLocaleString("en-IN")}</div>
       </div>
 
       {/* Referral credit */}
-      {isLoggedIn && credit > 0 && (
+      {isLoggedIn && credit > 0 && !onPack && (
         <label style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", border: `1.5px solid ${useCredit ? G : "#e2e8f0"}`, borderRadius: 8, background: useCredit ? GB : "#fff", marginBottom: 16, cursor: "pointer" }}>
           <input type="checkbox" checked={useCredit} onChange={e => setUseCredit(e.target.checked)} style={{ width: 18, height: 18, accentColor: G, flexShrink: 0 }} />
           <span style={{ flex: 1 }}>
@@ -1171,7 +1221,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       )}
 
       {/* Coupon */}
-      <div style={{ marginBottom: 20 }}>
+      {!onPack && <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".5px", marginBottom: 10 }}>Have a coupon?</div>
         {couponApplied ? (
           <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", border: `1.5px solid ${G}`, borderRadius: 8, background: GB }}>
@@ -1219,7 +1269,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
             )}
           </>
         )}
-      </div>
+      </div>}
 
       {/* Trust badges */}
       <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 8, flexWrap: "wrap" }}>
@@ -1247,6 +1297,17 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         .bk-clin-opt.on { border-color: #16a34a; background: #f0fdf4; }
         .bk-clin-opt input { width: 18px; height: 18px; accent-color: #166534; flex-shrink: 0; }
         .bk-clin-name { flex: 1; min-width: 0; font-size: 13px; color: #334155; } .bk-clin-name b { color: #166534; margin-right: 6px; }
+        .bk-pack { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 16px; background: #fff; }
+        .bk-pack-h b { display: block; font-size: 14.5px; color: #132a1c; } .bk-pack-h span { display: block; font-size: 12px; color: #64748b; margin: 2px 0 10px; }
+        .bk-pack-opt { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; margin-top: 8px; cursor: pointer; background: #fff; }
+        .bk-pack-opt.on { border-color: #166534; background: #f0faf3; }
+        .bk-pack-opt.use { border-style: dashed; } .bk-pack-opt.use.on { border-style: solid; }
+        .bk-pack-opt input { accent-color: #166534; width: 18px; height: 18px; flex-shrink: 0; margin: 0; }
+        .bk-pack-txt { flex: 1; min-width: 0; } .bk-pack-txt b { display: block; font-size: 13.5px; color: #132a1c; }
+        .bk-pack-txt b i { font-style: normal; font-size: 11px; font-weight: 800; color: #92400e; background: #fde68a; border-radius: 999px; padding: 1px 7px; margin-left: 4px; }
+        .bk-pack-txt em { display: block; font-style: normal; font-size: 11.5px; color: #64748b; margin-top: 1px; }
+        .bk-pack-price { font-size: 14px; font-weight: 800; color: #132a1c; white-space: nowrap; }
+        .bk-pack-note { margin: 10px 0 0; font-size: 11.5px; color: #64748b; line-height: 1.5; }
         .bk-clin-price { font-size: 13.5px; font-weight: 800; color: #132a1c; white-space: nowrap; } .bk-clin-price s { color: #94a3b8; font-weight: 500; }
         .bk-clin-price em { display: block; font-style: normal; font-size: 10.5px; color: #b45309; text-align: right; }
         *, *::before, *::after { box-sizing: border-box; }
@@ -1414,7 +1475,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             }}>
               <i className="feather-lock" style={{ fontSize: 15 }}></i>
-              Confirm Appointment
+              {plan === "use" ? "Book from my pack" : packN ? `Buy pack & book session 1` : "Confirm Appointment"}
               <i className="feather-arrow-right" style={{ fontSize: 15 }}></i>
             </button>
           </div>

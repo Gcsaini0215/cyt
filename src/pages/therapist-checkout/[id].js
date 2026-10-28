@@ -132,6 +132,9 @@ export default function TherapistCheckoutPage() {
       ...(parseAssess(q.assess).length ? { assessments: parseAssess(q.assess).map((a) => a.key) } : {}),
       ...(q.referral_code ? { referral_code: q.referral_code } : q.coupon ? { coupon: q.coupon } : {}),
       ...(Number(q.credit_used) > 0 ? { credit_used: Number(q.credit_used) } : {}),
+      // a session pack: buy one with this booking, or book from one (the server prices both)
+      ...(Number(q.pack) > 0 ? { pack_size: Number(q.pack) } : {}),
+      ...(q.bundle ? { bundle_id: String(q.bundle) } : {}),
       notes:        q.notes        || "",
       booking_date: q.booking_date || "",
       session_type: q.session_type || "",
@@ -171,8 +174,14 @@ export default function TherapistCheckoutPage() {
       const res = await postData(BookTherapistUrl, payload);
       console.log("[checkout] bookTherapist response →", res);
 
-      if (res?.status && res?.data?.id) {
+      if (res?.status && res?.data?.id && res.data.paid) {
+        // booked from a pack — nothing to pay
+        setStatus("done");
+        router.replace(`/payment-success/${res.data.id}?pack=1`);
+      } else if (res?.status && res?.data?.id) {
         bookingIdRef.current = res.data.id;
+        // a pack is charged the total the server worked out
+        if (res.data.amount) payload.amount = res.data.amount;
         await openRazorpay(res.data.id, payload.amount);
       } else {
         setErr(res?.message || "Booking failed. Please go back and try again.");
@@ -321,6 +330,7 @@ export default function TherapistCheckoutPage() {
     { icon: "feather-monitor",    label: "Mode",        val: q.session_type === "video" ? "Video Call" : q.session_type === "audio" ? "Voice Call" : q.session_type === "in-person" ? "In-Person" : q.session_type },
     { icon: "feather-calendar",   label: "Date & Time", val: fmtDate(q.booking_date) },
     { icon: "feather-user",       label: "Patient",     val: q.booking_for === "other" ? (q.relation || "Someone else") : "Myself" },
+    { icon: "feather-package",    label: "Pack",        val: q.bundle ? "Session from your pack" : Number(q.pack) > 0 ? `Pack of ${q.pack} sessions · this is session 1` : "" },
   ].filter(r => r.val);
 
   const isWorking = status === "init" || status === "booking";

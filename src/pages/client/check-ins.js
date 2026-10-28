@@ -6,6 +6,7 @@ import { apiUrl } from "../../utils/url";
 import { usePager, Pager } from "../../components/therapists/pager";
 import { FREE_TESTS } from "../../components/self-assessment/tests";
 import PreSessionForms from "../../components/client/pre-session-forms";
+import MoodMonth from "../../components/client/mood-month";
 import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
 import TrendingDownRoundedIcon from "@mui/icons-material/TrendingDownRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
@@ -119,6 +120,8 @@ export default function CheckIns() {
             <Link href="/client/find" className="ci-btn ghost">Find a psychologist</Link>
           </div>
         )}
+
+        <MoodMonth />
 
         <PreSessionForms />
 

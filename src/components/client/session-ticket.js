@@ -73,8 +73,10 @@ function Ticket({ d, render = false, innerRef }) {
 export default function SessionTicket({ b, therapist: me = null, onClose }) {
 
   const tx = b.transaction || {};
-  const paid = toAmount(tx.amount ?? b.amount);
-  const fee = Math.max(toAmount(b.amount), paid);
+  // the booking a session pack was bought with: its receipt is for the whole pack
+  const packSize = Number(b.pack_size) > 0 && Number(b.pack_total) > 0 ? Number(b.pack_size) : 0;
+  const paid = packSize ? Number(b.pack_total) : toAmount(tx.amount ?? b.amount);
+  const fee = packSize ? Math.max(paid, (Number(b.pack_fee) || 0) * packSize) : Math.max(toAmount(b.amount), paid);
   const receiptNo = invoiceNumber(b);
   const booked = bookedAt(b);
   const fileName = `Session-${receiptNo}.pdf`;
@@ -116,6 +118,7 @@ export default function SessionTicket({ b, therapist: me = null, onClose }) {
     { l: "Service", v: d.service },
     { l: d.otherLabel, v: d.otherName },
     ...(d.sessionFor ? [{ l: "Session for", v: d.sessionFor }] : []),
+    ...(packSize ? [{ l: "Session pack", v: `${packSize} sessions · ${inr(paid / packSize)} each` }] : []),
     ...(d.assess.length ? [{ l: "Session fee", v: d.sessionFee }] : []),
     ...d.assess.map((x) => ({ l: `${x.k} assessment`, v: x.v })),
     ...(d.paidVia ? [{ l: "Paid via", v: d.paidVia }] : []),
