@@ -250,6 +250,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
   const first = profileName.replace(/^dr\.?\s+/i, "").split(" ")[0];
   const modes = modesOf(profile) || "Online";
   const area = profile?.office_area?.label;
+  const badges = Array.isArray(profile?.achievements) ? profile.achievements : [];
   const profileFaq = [
     minFee && { q: `How much does a session with ${profileName} cost?`, a: `Sessions with ${profileName} start at ₹${minFee.toLocaleString("en-IN")} per session. The fee for each service and format is shown before you pay, and you pay online when you book.` },
     { q: `Does ${first} offer online or in-person sessions?`, a: modes === "Online & in-person"
@@ -301,6 +302,8 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     },
     "url": currentUrl,
     "knowsLanguage": languagesList,
+    // CYT achievements the therapist has earned (each verifiable at /verify-achievement/<code>)
+    ...(badges.length > 0 && { "award": badges.map((b) => `${b.title} — Choose Your Therapist`) }),
     "medicalSpecialty": profileType,
     "worksFor": {
       "@type": "MedicalOrganization",
@@ -480,6 +483,16 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
                 {minFee ? `, with fees from ₹${minFee.toLocaleString("en-IN")} per session` : ""}. Book directly on Choose Your Therapist —
                 every psychologist here is verified.
               </p>
+              {badges.length > 0 && (
+                <div className="pr-badges" aria-label="Achievements on CYT">
+                  <span>Achievements on CYT:</span>
+                  {badges.map((b) => (
+                    <a key={b.key} href={`/verify-achievement/${b.code}`} className={`pr-badge ${b.tier}`} title="Verified CYT achievement — see the certificate">
+                      <i aria-hidden="true">🏆</i>{b.title}
+                    </a>
+                  ))}
+                </div>
+              )}
               {concernLinksOf(profile).length > 0 && (
                 <div className="pr-links">
                   <span>Helps with:</span>
@@ -519,6 +532,14 @@ const PR_CSS = `
 .pr-links a { padding: 6px 13px; border-radius: 999px; background: #ecfdf3; border: 1px solid #bfe8cf; color: #166534; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background .15s; }
 .pr-links a:hover { background: #dcfce7; }
 .pr-place { font-size: 14px !important; color: #64748b !important; }
+.pr-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 14px; }
+.pr-badges > span { font-size: 14px; font-weight: 700; color: #0f2a1d; margin-right: 2px; }
+.pr-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 999px; font-size: 13.5px; font-weight: 800; text-decoration: none; border: 1px solid; }
+.pr-badge i { font-style: normal; font-size: 14px; }
+.pr-badge.bronze { background: #fbf1e6; border-color: #e7c7a4; color: #8a4f1c; }
+.pr-badge.silver { background: #f3f5f7; border-color: #d3d9df; color: #475569; }
+.pr-badge.gold { background: #fdf6e3; border-color: #ecd18f; color: #8a5a06; }
+.pr-badge.platinum { background: #e9f7ee; border-color: #a9dcbb; color: #14532d; }
 .pr-place a { color: #166534; font-weight: 700; }
 .vp-body .rt { padding-left: 32px; padding-right: 32px; padding-bottom: 40px; }
 @media (max-width: 599px) {
