@@ -312,6 +312,13 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     "hasOccupation": {
       "@type": "Occupation",
       "name": profileType,
+      // schema.org has no Psychologist type — the international occupation code says it (ISCO-08 2634)
+      "occupationalCategory": {
+        "@type": "CategoryCode",
+        "codeValue": "2634",
+        "name": "Psychologists",
+        "inCodeSet": { "@type": "CategoryCodeSet", "name": "ISCO-08", "url": "https://www.ilo.org/public/english/bureau/stat/isco/isco08/" }
+      },
       ...(experience && { "experienceRequirements": `${experience} experience` })
     },
     "address": {
