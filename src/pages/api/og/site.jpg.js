@@ -1,5 +1,5 @@
 // Share / search card for site pages, built from real therapist photos (and the real Noida centre):
-//   /api/og/site.jpg?page=home | directory | city&city=Delhi | concern&concern=Anxiety | noida
+//   /api/og/site.jpg?page=home | directory | city&city=Delhi | concern&concern=Anxiety | join | noida
 import { siteCard, noidaCard, sendJpeg } from "../../../utils/og-images";
 
 export default async function handler(req, res) {

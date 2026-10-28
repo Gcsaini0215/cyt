@@ -10,6 +10,40 @@ import MyNavbar from "../components/navbar";
 import PhotoHero from "../components/global/photo-hero";
 import Footer from "../components/footer";
 import { RegistrationsRow } from "../components/about/registrations";
+import FaqBlock from "../components/seo/faq-block";
+import { siteCardUrl } from "../utils/og-urls";
+
+// the share card: the same style as the home page (real therapist photos), with the joining headline
+const JOIN_CARD = siteCardUrl("join");
+const PAGE_URL = "https://www.chooseyourtherapist.in/therapist-registration";
+// the answers psychologists look for before signing up — shown on the page and as FAQPage schema
+const JOIN_FAQ = [
+  { q: "Who can join Choose Your Therapist?", a: "Counselling psychologists, clinical psychologists, psychiatrists and counsellors practising in India (or Indian practitioners abroad) with a relevant degree or diploma. Every application is checked by the CYT team before the profile goes live." },
+  { q: "What documents do I need to apply?", a: "Your resume or CV (PDF or DOC), your degree or diploma certificate, and a photo ID such as Aadhaar or PAN. An RCI registration number is welcome if you have one. Applying takes about 5 minutes and your progress is saved on the device." },
+  { q: "How much does it cost to be listed?", a: "Listing plans are ₹999 for a month, ₹4,999 for 6 months (about ₹833 a month) and ₹7,300 for 12 months (about ₹608 a month). Longer plans add priority placement in the directory and a Top Pick badge." },
+  { q: "How much do I earn from each booking?", a: "For every session booked through Choose Your Therapist, 70% of the session fee goes to you and 30% to CYT. You set your own fee for each service and format (video, audio or in person)." },
+  { q: "Can I see clients online and in person?", a: "Yes. Choose video, audio and in-person sessions in your profile. For in-person sessions you place your practice on a map — clients see only the area until they book, and you choose whether your clinic's exact pin is shown." },
+  { q: "How do clients book and pay?", a: "Clients pick a free time from the availability you set, and pay online when they book. You get the booking by email and on your dashboard; online sessions get a Google Meet link when you connect your Google account." },
+  { q: "How long does verification take?", a: "The CYT team reviews your documents after you apply. You can check where your application is at any time from this page with your email, and you get an email when your profile is approved and goes live." },
+];
+const JOIN_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${PAGE_URL}#page`,
+  url: PAGE_URL,
+  name: "Join Choose Your Therapist as a psychologist",
+  description: "Psychologists and counsellors: get a verified profile on Choose Your Therapist, get booked online or in person and keep 70% of every booking.",
+  audience: { "@type": "Audience", audienceType: "Psychologists, counsellors and psychiatrists in India" },
+  isPartOf: { "@type": "WebSite", name: "Choose Your Therapist", url: "https://www.chooseyourtherapist.in" },
+  primaryImageOfPage: { "@type": "ImageObject", url: JOIN_CARD, width: 1200, height: 630 },
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://www.chooseyourtherapist.in/" },
+      { "@type": "ListItem", position: 2, name: "Join as a therapist", item: PAGE_URL },
+    ],
+  },
+};
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 import { therapistRegistrationUrl, verifyOtpUrl, checkTherapistEmailUrl, checkTherapistStatusUrl, resendTherapistOtpUrl } from "../utils/url";
 import { postData, postFormData } from "../utils/actions";
@@ -550,17 +584,18 @@ export default function TherapistRegistration() {
         <meta property="og:url" content="https://www.chooseyourtherapist.in/therapist-registration" />
         <meta property="og:title" content="Grow your practice with Choose Your Therapist" />
         <meta property="og:description" content="Get a verified profile, get booked online or in person, and keep 70% of every booking. Plans from ₹999/month. Apply in about 5 minutes." />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/images/og-therapist-registration.jpg" />
-        <meta property="og:image:secure_url" content="https://www.chooseyourtherapist.in/images/og-therapist-registration.jpg" />
+        <meta property="og:image" content={JOIN_CARD} />
+        <meta property="og:image:secure_url" content={JOIN_CARD} />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Indian psychologist in a session — Grow your practice with Choose Your Therapist" />
+        <meta property="og:image:alt" content="Grow your practice with Choose Your Therapist — verified psychologists across India" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Grow your practice with Choose Your Therapist" />
         <meta name="twitter:description" content="Get a verified profile, get booked online or in person, and keep 70% of every booking. Plans from ₹999/month." />
-        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/images/og-therapist-registration.jpg" />
+        <meta name="twitter:image" content={JOIN_CARD} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JOIN_SCHEMA) }} />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `
@@ -1215,6 +1250,12 @@ export default function TherapistRegistration() {
       </div>
       </div>
 
+      {/* the page sits on dark green — the questions get their own white card */}
+      <div className="trs-faq" style={{ maxWidth: 1180, margin: "8px auto 32px", padding: "0 14px" }}>
+        <div style={{ background: "#fff", borderRadius: 20, padding: "6px 0 14px", boxShadow: "0 20px 40px -28px rgba(0,0,0,.35)" }}>
+          <FaqBlock id="join-faq" title="Joining Choose Your Therapist — questions" items={JOIN_FAQ} />
+        </div>
+      </div>
       {packagesFor !== null && <PackageModal initialEmail={packagesFor} onClose={closePackages} />}
       {/* therapists who stall on the form can ask for a call back */}
       <BookingPopup delay={20000} scrollAt={0.5} forTherapist showHeading={false} showLocation={false} showSource={false}

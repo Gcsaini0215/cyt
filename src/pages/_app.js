@@ -274,11 +274,14 @@ function MyApp({ Component, pageProps }) {
         <meta name="geo.placename" content="Sector 51, Noida, Uttar Pradesh, India" />
         <meta name="geo.position" content="28.5821626;77.3742084" />
         <meta name="ICBM" content="28.5821626, 77.3742084" />
-        {/* Global Conditions Schema — relatable therapy terms for GEO/AI engines */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalConditionsSchema) }}
-        />
+        {/* Conditions schema — relatable therapy terms for GEO/AI engines. Home page only: on every page it put
+            the same 10 conditions on therapist profiles, booking and sign-up pages, where they don't belong */}
+        {router.pathname === "/" && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(globalConditionsSchema) }}
+          />
+        )}
       </Head>
       {!shouldHideWidgets && (
         <>

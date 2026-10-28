@@ -375,7 +375,8 @@ function BookSeo({ profile, urlKey }) {
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <meta name="robots" content="index, follow" />
+      {/* the booking step repeats the profile (same text) — the profile is the page to index */}
+      <meta name="robots" content="noindex, follow" />
       <link rel="canonical" href={url} />
 
       <meta key="og:type" property="og:type" content="website" />

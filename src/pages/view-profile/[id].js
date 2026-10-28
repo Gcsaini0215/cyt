@@ -27,6 +27,7 @@ import dynamic from "next/dynamic";
 import { trackProfileView, trackProfileAction, startProfilePresence } from "../../utils/profile-stats";
 import OwnerInsightsBar from "../../components/therapists/owner-insights-bar";
 import { therapistPhotoUrl, therapistCardUrl, siteCardUrl } from "../../utils/og-urls";
+import FaqBlock from "../../components/seo/faq-block";
 const BookingPopup = dynamic(() => import("../../components/global/booking-popup"), { ssr: false });
 
 export async function getServerSideProps(context) {
@@ -240,6 +241,26 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
   // Languages
   const languagesList = languagesOf(profile).length ? languagesOf(profile) : ["English", "Hindi"];
   const minFee = minFeeOf(profile);
+  // "3-5 Years" / "5" → "3-5 years"
+  const experience = (() => {
+    const raw = String(profile?.year_of_exp || "").trim();
+    if (!raw || raw === "0") return "";
+    return /year/i.test(raw) ? raw.replace(/Years?/i, (m) => m.toLowerCase()) : `${raw} years`;
+  })();
+  const first = profileName.replace(/^dr\.?\s+/i, "").split(" ")[0];
+  const modes = modesOf(profile) || "Online";
+  const area = profile?.office_area?.label;
+  const profileFaq = [
+    minFee && { q: `How much does a session with ${profileName} cost?`, a: `Sessions with ${profileName} start at ₹${minFee.toLocaleString("en-IN")} per session. The fee for each service and format is shown before you pay, and you pay online when you book.` },
+    { q: `Does ${first} offer online or in-person sessions?`, a: modes === "Online & in-person"
+      ? `Both. ${profileName} sees clients online by video or audio call from anywhere${area ? `, and in person in ${area}` : ", and in person"}. Pick the format when you choose a time.`
+      : modes === "In-person" ? `${profileName} sees clients in person${area ? ` in ${area}` : ""}. You choose the time and pay online when you book.`
+      : `${profileName} sees clients online by video or audio call, so you can join from anywhere in India or abroad.` },
+    languagesList.length && { q: `Which languages does ${first} speak in sessions?`, a: `${profileName} offers sessions in ${languagesList.join(", ")}.` },
+    expertiseAreas.length && { q: `What does ${profileName} help with?`, a: `${profileName} works with ${expertiseAreas.slice(0, 8).join(", ")}${expertiseAreas.length > 8 ? ", and more" : ""}.` },
+    { q: `Is ${profileName} a verified ${profileType.toLowerCase()}?`, a: `Yes. Choose Your Therapist checks every psychologist's qualifications${profile?.qualification ? ` (${profileName}: ${profile.qualification})` : ""} and identity documents before their profile goes live.${experience ? ` ${first} has ${experience} of experience.` : ""}` },
+    { q: `How do I book a session with ${first}?`, a: `Choose a free time on this page, then confirm and pay online. You get a confirmation by email, and for online sessions a meeting link in My Sessions. Times are shown in India time (IST).` },
+  ].filter(Boolean);
 
   // Credentials / qualifications
   const credentialList = [];
@@ -263,10 +284,10 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     });
   }
 
-  // --- Schema 1: Psychologist / Physician (Person) ---
+  // --- Schema 1: the psychologist (Person — not Physician: schema.org's Physician is a medical doctor) ---
   const psychologistSchema = {
     "@context": "https://schema.org",
-    "@type": ["Person", "Physician"],
+    "@type": "Person",
     "@id": `${currentUrl}#psychologist`,
     "name": profileName,
     "jobTitle": profileType,
@@ -288,13 +309,11 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
     },
     ...(expertiseAreas.length > 0 && { "knowsAbout": expertiseAreas }),
     ...(credentialList.length > 0 && { "hasCredential": credentialList }),
-    ...(profile?.experience_years && {
-      "hasOccupation": {
-        "@type": "Occupation",
-        "name": profileType,
-        "experienceRequirements": `${profile.experience_years} years`
-      }
-    }),
+    "hasOccupation": {
+      "@type": "Occupation",
+      "name": profileType,
+      ...(experience && { "experienceRequirements": `${experience} experience` })
+    },
     "address": {
       "@type": "PostalAddress",
       "addressRegion": profile?.state || profile?.user?.state || "India",
@@ -342,12 +361,6 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
       "addressCountry": "IN"
     },
     ...(minFee && { "priceRange": `From ₹${minFee} per session` }),
-    "openingHoursSpecification": {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      "opens": "09:00",
-      "closes": "21:00"
-    },
     "parentOrganization": {
       "@type": "MedicalOrganization",
       "name": "Choose Your Therapist",
@@ -470,6 +483,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
                 <p className="pr-place">More verified psychologists in <Link href={placeLinkOf(profile).href}>{placeLinkOf(profile).label}</Link> · <Link href="/view-all-therapist">Browse all psychologists</Link></p>
               )}
             </section>
+            <FaqBlock id="profile-faq" title={`Questions about ${profileName}`} items={profileFaq} />
             <RelatedTherapists
               id="similar"
               title="Similar therapists"

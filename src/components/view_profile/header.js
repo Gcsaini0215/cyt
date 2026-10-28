@@ -379,11 +379,12 @@ export default function ProfileHeader({ pageData, favrioutes }) {
                 margin: 0, fontSize: isMobile ? (isTab ? 26 : 19) : 32, fontWeight: 800, color: "#122019", lineHeight: 1.2,
                 letterSpacing: "-0.3px", fontFamily: "'Playfair Display', Georgia, serif",
               }}>
-                {/* the blue tick sits with the last word, so a long name never leaves it alone on a new line */}
+                {/* the blue tick sits with the last word, so a long name never leaves it alone on a new line. A plain SVG,
+                    not an MUI icon: MUI puts a <style> tag inside the H1 and search engines read the CSS as part of the name */}
                 {(() => {
                   const words = String(pageData.user.name || "").trim().split(/\s+/);
                   const last = words.pop() || "";
-                  return <>{words.length ? `${words.join(" ")} ` : ""}<span style={{ whiteSpace: "nowrap" }}>{last}<VerifiedRounded titleAccess="Verified therapist" sx={{ fontSize: isMobile ? (isTab ? 22 : 18) : 24, color: "#1d9bf0", ml: "6px", verticalAlign: "-0.12em" }} /></span></>;
+                  return <>{words.length ? `${words.join(" ")} ` : ""}<span style={{ whiteSpace: "nowrap" }}>{last}<svg viewBox="0 0 24 24" role="img" aria-label="Verified therapist" focusable="false" style={{ width: isMobile ? (isTab ? 22 : 18) : 24, height: isMobile ? (isTab ? 22 : 18) : 24, fill: "#1d9bf0", marginLeft: 6, verticalAlign: "-0.12em", display: "inline-block" }}><path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48z" /></svg></span></>;
                 })()}
               </h1>
             </div>
