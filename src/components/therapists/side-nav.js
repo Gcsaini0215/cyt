@@ -21,6 +21,7 @@ import CurrencyRupeeRoundedIcon from "@mui/icons-material/CurrencyRupeeRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import WorkspacePremiumRoundedIcon from "@mui/icons-material/WorkspacePremiumRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 
 /* Every therapist-portal page, grouped. Items marked `hidden` are switched off for now
    (pages exist but aren't in the menu yet) — remove the flag to show them. `match` lists the route prefixes that count as
@@ -49,6 +50,8 @@ const ALL_GROUPS = [
   {
     title: "Grow",
     items: [
+      // certificates for sessions / 4★+ reviews / time on CYT (pages/therapists/achievements.js)
+      { to: "/therapists/achievements", Icon: EmojiEventsRoundedIcon, label: "Achievements" },
       { to: "/workshops", Icon: EventNoteRoundedIcon, label: "Workshops", hidden: true, match: ["/workshops", "/create-workshop", "/update-workshop"] },
       { to: "/therapist-blogs", Icon: ArticleRoundedIcon, label: "Blogs", hidden: true, match: ["/therapist-blogs", "/therapist-ai-blog"] },
     ],
