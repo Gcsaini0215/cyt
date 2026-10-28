@@ -31,7 +31,7 @@ export default function WorkshopDetail(props) {
         <meta name="keywords" content={`Mindfulness, Therapy, Mental Health, ${data.title}`} />
         <meta property="og:title" content={data.title} />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={`${imagePath}/${data.workshop_image}`} />
+        <meta key="og:image" property="og:image" content={`${imagePath}/${data.workshop_image}`} />
         <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
         <meta name="twitter:card" content="summary_large_image" />

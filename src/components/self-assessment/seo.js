@@ -40,7 +40,7 @@ export function seoOf(test) {
     description: fitDesc(`Take the ${test.short} online: ${n} questions, about ${minutes(test)}. Instant scored report, or take it with a verified psychologist who adds clinical notes.`),
     keywords: [...s.kw, `${test.short} report`, "mental health screening online", "screening test India"].join(", "),
     url: `${SITE}${pathOf(test.key)}`,
-    image: `${SITE}/api/og-assessment?t=${test.key}`,
+    image: `${SITE}/api/og/site.jpg?page=assessment&concern=${encodeURIComponent(`${test.title} (${test.short})`)}`, // "Depression Screening (PHQ-9)"
   };
 }
 

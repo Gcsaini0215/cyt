@@ -64,7 +64,7 @@ export default function CompareGuide({ g }) {
         <meta property="og:title" content={g.title} />
         <meta property="og:description" content={fitDesc(g.description)} />
         <meta property="og:url" content={url} />
-        <meta property="og:image" content={siteCardUrl("concern", { concern: g.cardTitle })} />
+        <meta key="og:image" property="og:image" content={siteCardUrl("concern", { concern: g.cardTitle })} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />

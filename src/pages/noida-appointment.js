@@ -2192,7 +2192,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         <meta property="og:title" content={SEO_TITLE} />
         <meta property="og:description" content={SEO_DESC} />
         <meta property="og:url" content={PAGE_URL} />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta property="og:image:secure_url" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />

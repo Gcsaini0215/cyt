@@ -117,7 +117,7 @@ export default function TherapyFor({ slug, count, minFee, therapists, inPerson =
         <meta property="og:description" content={description} />
         <meta property="og:url" content={url} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={siteCardUrl("concern", { concern: c.title })} />
+        <meta key="og:image" property="og:image" content={siteCardUrl("concern", { concern: c.title })} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         {schemas.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />)}

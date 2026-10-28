@@ -289,7 +289,7 @@ export default function DailyJournalPage() {
         <meta property="og:url" content="https://www.chooseyourtherapist.in/daily-journal" />
         <meta property="og:title" content="Daily Journaling | Your Private Digital Diary" />
         <meta property="og:description" content="A safe, private space to express your thoughts and track your emotional journey." />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
 

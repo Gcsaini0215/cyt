@@ -180,7 +180,7 @@ export default function StatePsychologistPage({ config, therapists, stats = {}, 
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content={`Best Psychologist in ${config.name} | Choose Your Therapist`} />
         <meta property="og:description" content={fitDesc(config.description)} />
-        <meta property="og:image" content={OG_IMAGE} />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
 

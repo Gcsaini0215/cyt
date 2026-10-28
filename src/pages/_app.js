@@ -268,6 +268,10 @@ function MyApp({ Component, pageProps }) {
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
+        {/* the share card every page gets unless it sets its own (same key="og:image") */}
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
         {/* Global Geo Tags - Defaulting to Noida, India to prevent US-based Googlebot/VPN detection sync issues */}
         <meta name="geo.region" content="IN-UP" />

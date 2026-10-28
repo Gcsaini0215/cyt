@@ -18,7 +18,7 @@ const PAGE_URL = "https://www.chooseyourtherapist.in/about-us";
 // Self-hosted (not a third-party hotlink) so social/AI crawlers always get
 // it; 1200x630 share card made for this page (Who We Are / What We Offer
 // + registration logos). Bump the filename on redesign — social apps cache by URL.
-const OG_IMAGE = "https://www.chooseyourtherapist.in/images/og-about-us-v2.jpg";
+const OG_IMAGE = "https://www.chooseyourtherapist.in/api/og/site.jpg?page=about"; // the share card in the home style (real therapist photos)
 
 // Organization schema — the most trusted signal for AI engines
 const organizationSchema = {
@@ -236,7 +236,7 @@ export default function AboutUs() {
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content="About Choose Your Therapist | India's Verified Psychologist Network" />
         <meta property="og:description" content="Verified psychologists for online therapy across India and in-person sessions in Noida. HFR registered under ABDM (National Health Authority) and MCA registered, since 2020." />
-        <meta property="og:image" content={OG_IMAGE} />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="What Choose Your Therapist stands for — HFR registered under ABDM (HFR ID IN0510005384), MCA, MSME, NHA and ABDM registrations" />

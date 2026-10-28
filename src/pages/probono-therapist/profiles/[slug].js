@@ -159,7 +159,7 @@ export default function ProbonoProfileDetailPage({ psychologist }) {
         <meta property="og:url" content={pageUrl} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content={psychologist.photo} />
+        <meta key="og:image" property="og:image" content={psychologist.photo} />
         <meta property="og:image:secure_url" content={psychologist.photo} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />

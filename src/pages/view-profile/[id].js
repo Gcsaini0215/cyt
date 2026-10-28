@@ -431,7 +431,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
         <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={seoTitle} />
         <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content={shareCard} />
+        <meta key="og:image" property="og:image" content={shareCard} />
         <meta property="og:image:secure_url" content={shareCard} />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />

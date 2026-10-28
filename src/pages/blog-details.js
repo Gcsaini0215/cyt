@@ -345,7 +345,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [], authorIn
         <meta property="og:url" content={pageUrl} />
         <meta property="og:title" content={`${blog.title} | Choose Your Therapist`} />
         <meta property="og:description" content={cleanDesc} />
-        <meta property="og:image" content={imageUrl} />
+        <meta key="og:image" property="og:image" content={imageUrl} />
         <meta property="og:image:secure_url" content={imageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />

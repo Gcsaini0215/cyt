@@ -209,7 +209,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <meta key="og:locale" property="og:locale" content="en_IN" />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:url" content={canonicalUrl} />

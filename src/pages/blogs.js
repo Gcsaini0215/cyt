@@ -201,7 +201,7 @@ export default function BlogsPage({ posts = [] }) {
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content="Mental Health Blog — Articles by Verified Psychologists in India" />
         <meta property="og:description" content={SEO_DESC} />
-        <meta property="og:image" content={ogImage} />
+        <meta key="og:image" property="og:image" content={ogImage} />
         <meta property="og:image:secure_url" content={ogImage} />
         <meta property="og:image:alt" content={latest ? latest.title : "Choose Your Therapist — mental health blog"} />
         {latest?.createdAt && <meta property="og:updated_time" content={new Date(latest.createdAt).toISOString()} />}

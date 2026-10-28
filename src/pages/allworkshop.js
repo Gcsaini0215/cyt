@@ -15,7 +15,7 @@ export default function AllWorkshop() {
         <meta property="og:description" content="Join our upcoming workshops and training sessions led by expert psychologists." />
         <meta property="og:url" content="https://chooseyourtherapist.in/allworkshop" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Workshops & Events | Mental Health Training | Choose Your Therapist" />

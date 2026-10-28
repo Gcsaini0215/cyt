@@ -16,7 +16,7 @@ export default function EmergencySupport() {
         <meta property="og:description" content="Immediate help and crisis support resources for mental health emergencies." />
         <meta property="og:url" content="https://chooseyourtherapist.in/emergency-support" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Emergency Support | 24/7 Mental Health Helplines India | Choose Your Therapist" />

@@ -19,7 +19,7 @@ export default function ContactUs() {
         <meta property="og:description" content="Have questions? Contact Choose Your Therapist for support, inquiries, or assistance." />
         <meta property="og:url" content="https://chooseyourtherapist.in/contact-us" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         
         <meta name="twitter:card" content="summary_large_image" />

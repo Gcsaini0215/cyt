@@ -753,14 +753,14 @@ export default function InternshipRegistration() {
         <meta property="og:url" content="https://chooseyourtherapist.in/internship-registration" />
         <meta property="og:title" content="Supervision cum Internship Program | Choose Your Therapist" />
         <meta property="og:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
-        <meta property="og:image" content="https://chooseyourtherapist.in/images/bg-image-12dabd.jpg" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=internship" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Supervision cum Internship Program | Choose Your Therapist" />
         <meta name="twitter:description" content="Apply for the Supervision cum Internship Program at Choose Your Therapist. Gain hands-on, mentor-led experience in clinical psychology, counselling, research, content, and more." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/images/bg-image-12dabd.jpg" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=internship" />
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `

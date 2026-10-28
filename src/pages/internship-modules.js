@@ -101,6 +101,12 @@ export default function InternshipModules() {
   return (
     <>
       <Head>
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=internship" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Internships in psychology at Choose Your Therapist" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=internship" />
         <title>Internship Modules &amp; Curriculum | Choose Your Therapist</title>
         <meta name="description" content="See the full module-by-module curriculum for every track in the Choose Your Therapist Supervision cum Internship Program." />
         <link rel="canonical" href="https://chooseyourtherapist.in/internship-modules" />

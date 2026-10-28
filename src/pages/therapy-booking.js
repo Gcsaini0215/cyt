@@ -67,7 +67,7 @@ export default function TherapyBooking({ pics = [] }) {
         <meta property="og:url" content="https://chooseyourtherapist.in/therapy-booking" />
         <meta property="og:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
         <meta property="og:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential. Find your therapist in 30 minutes." />
-        <meta property="og:image" content="https://chooseyourtherapist.in/api/og-therapy" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=booking" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
@@ -76,7 +76,7 @@ export default function TherapyBooking({ pics = [] }) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
         <meta name="twitter:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential." />
-        <meta name="twitter:image" content="https://chooseyourtherapist.in/api/og-therapy" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=booking" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />

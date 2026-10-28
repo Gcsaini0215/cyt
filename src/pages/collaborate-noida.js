@@ -252,6 +252,12 @@ export default function CollaborateNoida() {
   return (
     <div id="__next">
       <Head>
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=collab" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Practise at the CYT Noida centre" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=collab" />
         <title>{SEO_TITLE}</title>
         <meta name="description" content={SEO_DESC} />
         <link rel="canonical" href={PAGE_URL} />

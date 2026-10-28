@@ -100,7 +100,7 @@ export default function PsychologistHub({ stats, total }) {
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:url" content={URL} />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=directory" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=directory" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         {schemas.map((x, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(x) }} />)}

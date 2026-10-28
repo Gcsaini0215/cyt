@@ -249,7 +249,7 @@ export default function ViewAllTherapistPage({ initialAllData, listed, initialFi
         <meta property="og:description" content={description} />
         <meta property="og:url" content={seo.canonical} />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content={OG_IMAGE} />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         <meta key="og:locale" property="og:locale" content="en_IN" />
 

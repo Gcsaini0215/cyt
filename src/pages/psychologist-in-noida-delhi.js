@@ -60,7 +60,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
         <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
         <meta property="og:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
         <meta property="og:description" content="Leave your number for a free call — we match you with a verified psychologist in Noida, Delhi NCR or online." />
-        <meta property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Tags */}

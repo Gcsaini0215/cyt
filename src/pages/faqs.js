@@ -164,7 +164,7 @@ export default function FaqPage() {
         <meta property="og:description" content="Get answers to common questions about therapy, booking psychologists in India, session costs, and how Choose Your Therapist works." />
         <meta property="og:url" content={PAGE_URL} />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:image" content={OG_IMAGE} />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         <meta name="twitter:card" content="summary_large_image" />

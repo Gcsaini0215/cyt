@@ -383,7 +383,7 @@ function BookSeo({ profile, urlKey }) {
       <meta property="og:url" content={url} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
+      <meta key="og:image" property="og:image" content={image} />
       <meta property="og:image:secure_url" content={image} />
       <meta property="og:image:alt" content={`${name} - ${seo.type}`} />
       <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />

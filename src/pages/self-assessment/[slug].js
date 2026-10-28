@@ -63,7 +63,7 @@ export default function AssessmentPage({ slug }) {
         <meta property="og:url" content={seo.url} />
         <meta property="og:title" content={`${seo.h1} — online, with a scored report`} />
         <meta property="og:description" content={seo.description} />
-        <meta property="og:image" content={seo.image} />
+        <meta key="og:image" property="og:image" content={seo.image} />
         <meta property="og:image:secure_url" content={seo.image} />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />

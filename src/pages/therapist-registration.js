@@ -584,7 +584,7 @@ export default function TherapistRegistration() {
         <meta property="og:url" content="https://www.chooseyourtherapist.in/therapist-registration" />
         <meta property="og:title" content="Grow your practice with Choose Your Therapist" />
         <meta property="og:description" content="Get a verified profile, get booked online or in person, and keep 70% of every booking. Plans from ₹999/month. Apply in about 5 minutes." />
-        <meta property="og:image" content={JOIN_CARD} />
+        <meta key="og:image" property="og:image" content={JOIN_CARD} />
         <meta property="og:image:secure_url" content={JOIN_CARD} />
         <meta property="og:image:type" content="image/jpeg" />
         <meta property="og:image:width" content="1200" />
@@ -1250,11 +1250,9 @@ export default function TherapistRegistration() {
       </div>
       </div>
 
-      {/* the page sits on dark green — the questions get their own white card */}
-      <div className="trs-faq" style={{ maxWidth: 1180, margin: "8px auto 32px", padding: "0 14px" }}>
-        <div style={{ background: "#fff", borderRadius: 20, padding: "6px 0 14px", boxShadow: "0 20px 40px -28px rgba(0,0,0,.35)" }}>
-          <FaqBlock id="join-faq" title="Joining Choose Your Therapist — questions" items={JOIN_FAQ} />
-        </div>
+      {/* the questions on a full-width light band — on the dark page colour they looked like part of the footer */}
+      <div className="trs-faq" style={{ background: "#f6faf7", borderTop: "1px solid #e3ebe6", padding: "18px 0 30px" }}>
+        <FaqBlock id="join-faq" title="Joining Choose Your Therapist — questions" items={JOIN_FAQ} />
       </div>
       {packagesFor !== null && <PackageModal initialEmail={packagesFor} onClose={closePackages} />}
       {/* therapists who stall on the form can ask for a call back */}

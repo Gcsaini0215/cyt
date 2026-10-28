@@ -67,7 +67,7 @@ export default function SelfAssessment() {
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:title" content="Mental health screening tests — for screening, not diagnosis" />
         <meta property="og:description" content={DESC} />
-        <meta property="og:image" content={OG_IMAGE} />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Mental health screening tests — for screening, not diagnosis" />
