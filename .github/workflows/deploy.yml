@@ -22,6 +22,63 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Deploy to VPS
+        id: deploy
+        # GitHub sometimes can't reach the VPS at all (the SSH connect times out before anything runs) —
+        # then the retry below runs the same deploy once more
+        continue-on-error: true
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          timeout: 120s # connecting has timed out at 60s on a busy VPS — the build never started
+          command_timeout: 30m
+          script: |
+            set -e
+
+            # Backup .env
+            cp /root/cyt/.env /tmp/cyt_env_backup 2>/dev/null || true
+
+            # Clone fresh into cyt-new
+            rm -rf /root/cyt-new
+            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Gcsaini0215/cyt.git /root/cyt-new
+            cp /tmp/cyt_env_backup /root/cyt-new/.env 2>/dev/null || true
+
+            # Build in cyt-new (extra memory for Next.js)
+            cd /root/cyt-new
+            npm ci
+            NODE_OPTIONS="--max-old-space-size=2560" npm run build
+            rm -rf .next/cache
+
+            # Only swap if build succeeded (BUILD_ID must exist)
+            if [ ! -f "/root/cyt-new/.next/BUILD_ID" ]; then
+              echo "Build failed — keeping old version running"
+              rm -rf /root/cyt-new
+              exit 1
+            fi
+
+            # Atomic swap — old site stays live until this moment
+            rm -rf /root/cyt-old
+            mv /root/cyt /root/cyt-old 2>/dev/null || true
+            mv /root/cyt-new /root/cyt
+
+            # Restart and verify
+            pm2 reload cyt-frontend --update-env
+            pm2 save
+            sleep 5
+            pm2 status
+
+            # Clean up old build
+            rm -rf /root/cyt-old
+            echo "Deploy successful"
+
+      - name: Wait before retrying
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 60
+
+      - name: Deploy to VPS (retry)
+        if: steps.deploy.outcome == 'failure'
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
