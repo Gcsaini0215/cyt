@@ -1010,7 +1010,7 @@ export default function TherapistRegistration() {
                           </div>
                         </div>
                         <label style={labelStyle}>Pin Your Clinic on the Map <span className="req">*</span></label>
-                        <MapPicker
+                        <MapPicker search
                           value={form.officeLat != null ? { lat: form.officeLat, lng: form.officeLng } : null}
                           center={pinInfo.center}
                           onChange={({ lat, lng }) => setForm(f => ({ ...f, officeLat: lat, officeLng: lng }))}

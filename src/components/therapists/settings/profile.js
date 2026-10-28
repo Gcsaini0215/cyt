@@ -19,6 +19,7 @@ import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import { Section, Field, SaveBar, scrollToFirstError, toList } from "./settings-ui";
+import PracticeLocation from "./practice-location";
 
 const OTHER_EDU = "Other (Please specify)";
 const STATES = stateList.filter((s) => s !== "Select");
@@ -355,6 +356,9 @@ export default function Profile({ onDirty }) {
           })}
         </div>
       </Section>
+
+      {/* in-person: the pin for the map clients see (saved on its own) */}
+      {formats.includes("In-Person") && <PracticeLocation />}
 
       <Section title="About me" sub="Write to a client, not a recruiter — who you help and how a session with you feels.">
         <Field htmlFor="st-bio" error={fieldErrors.bio}>
