@@ -167,6 +167,8 @@ function practicePlace(p) {
   const a = p?.office_area || {};
   const state = String(p?.state || "").split(",").map((x) => x.trim()).filter(Boolean).join(", ");
   if (/sector 51, noida/i.test(a.label || "")) return { label: "CYT Therapy Centre, Sector 51, Noida", address: CYT_CENTRE, ...CENTRE_PIN, exact: true, centre: true };
+  // a clinic (the therapist chose to show it): its exact pin and address
+  if (a.clinic && Number.isFinite(a.lat) && Number.isFinite(a.lng)) return { label: a.address || a.label || state, address: a.address && a.label ? a.label : "", lat: a.lat, lng: a.lng, exact: true, centre: false, clinic: true };
   if (Number.isFinite(a.lat) && Number.isFinite(a.lng) && a.exact) return { label: a.label || state, lat: a.lat, lng: a.lng, exact: true, centre: false };
   return state || a.label ? { label: a.label || state, exact: false, centre: false } : null;
 }
@@ -178,6 +180,8 @@ const kmBetween = (x, y) => {
 const mapSrc = (pl) => (pl.centre
   // the centre: a business, so its pin
   ? `https://maps.google.com/maps?q=${encodeURIComponent("Choose Your Therapist LLP, D-137, Sector 51, Noida")}&z=16&output=embed`
+  // a clinic the therapist chose to show: its pin
+  : pl.clinic ? `https://maps.google.com/maps?q=${pl.lat},${pl.lng}&z=16&hl=en&output=embed`
   // a therapist: the area only — a few km around the rounded point, no pin. (Google's embed ignores a bare
   // ll= centre and opened somewhere else, and q= would drop a pin — OpenStreetMap's embed takes a box.)
   : `https://www.openstreetmap.org/export/embed.html?bbox=${pl.lng - 0.035},${pl.lat - 0.02},${pl.lng + 0.035},${pl.lat + 0.02}&layer=mapnik`);
@@ -217,12 +221,12 @@ function InPersonWhere({ profile }) {
     <div className={`bk-where${far ? " far" : ""}`}>
       <div className="bk-where-h"><i className="feather-map-pin"></i> Where you'll meet</div>
       <div className="bk-where-addr">{place.label}</div>
-      {place.centre && <div className="bk-where-sub">{place.address}</div>}
+      {(place.centre || place.clinic) && place.address && <div className="bk-where-sub">{place.address}</div>}
       {!place.exact && <p className="bk-where-warn">{first} has listed only the state. Message us on WhatsApp to confirm where the session would be before you book.</p>}
       {place.exact && (
         <div className="bk-where-mapbox">
           <iframe className="bk-where-map" title={`Map — ${place.label}`} loading="lazy" src={mapSrc(place)} />
-          {!place.centre && <span className="bk-where-area" aria-hidden="true"><i>Around here</i></span>}
+          {!place.centre && !place.clinic && <span className="bk-where-area" aria-hidden="true"><i>Around here</i></span>}
         </div>
       )}
       {place.exact && (
@@ -235,7 +239,7 @@ function InPersonWhere({ profile }) {
             </button>
           )}
           {locState === "denied" && <small>Location is off — allow it in your browser to see the distance.</small>}
-          {dist == null && locState !== "denied" && <small>{place.centre ? "" : "For the therapist's privacy only the area is shown. "}Your location stays on your device.</small>}
+          {dist == null && locState !== "denied" && <small>{place.centre || place.clinic ? "" : "For the therapist's privacy only the area is shown. "}Your location stays on your device.</small>}
         </div>
       )}
       <p className="bk-where-note">
