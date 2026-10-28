@@ -328,7 +328,17 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-hero .cyt-title { color: #0b1712; font-size: clamp(2.8rem, 5vw, 4.6rem); line-height: 1.12; margin: 0 0 12px; letter-spacing: -.02em; font-weight: 800; }
         .cyt-hl { color: #1e7a4c; position: relative; white-space: nowrap; }
         /* hand-drawn gold swoosh under the key word */
-        .cyt-hl::after { content: ""; position: absolute; left: -2%; right: -2%; bottom: -.1em; height: .3em; background: url("data:image/svg+xml,%3Csvg xmlns='http:%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 17 C 60 7, 140 4, 296 11' fill='none' stroke='%23e0ab45' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 21 C 110 14, 190 13, 270 17' fill='none' stroke='%23e0ab45' stroke-width='3' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E") no-repeat center / 100% 100%; z-index: -1; pointer-events: none; }
+        .cyt-hl::after { content: ""; position: absolute; left: -2%; right: -2%; bottom: -.1em; height: .3em; background: url("data:image/svg+xml,%3Csvg xmlns='http:%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 17 C 60 7, 140 4, 296 11' fill='none' stroke='%23e0ab45' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 21 C 110 14, 190 13, 270 17' fill='none' stroke='%23e0ab45' stroke-width='3' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E") no-repeat center / 100% 100%; z-index: -2; pointer-events: none;
+          /* drawn in from the left, like a pen stroke */
+          clip-path: inset(0 100% 0 0); animation: cytHlDraw .9s cubic-bezier(.65,0,.35,1) .35s forwards; }
+        /* then a soft shine runs along the stroke every few seconds */
+        .cyt-hl::before { content: ""; position: absolute; left: -2%; right: -2%; bottom: -.1em; height: .3em; z-index: -1; pointer-events: none;
+          -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http:%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 17 C 60 7, 140 4, 296 11' fill='none' stroke='%23e0ab45' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 21 C 110 14, 190 13, 270 17' fill='none' stroke='%23e0ab45' stroke-width='3' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E") no-repeat center / 100% 100%; mask: url("data:image/svg+xml,%3Csvg xmlns='http:%2F%2Fwww.w3.org%2F2000%2Fsvg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 17 C 60 7, 140 4, 296 11' fill='none' stroke='%23e0ab45' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 21 C 110 14, 190 13, 270 17' fill='none' stroke='%23e0ab45' stroke-width='3' stroke-linecap='round' opacity='.55'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+          background: linear-gradient(100deg, transparent 40%, #fffdf3 50%, transparent 60%) no-repeat; background-size: 250% 100%; background-position: 160% 0;
+          animation: cytHlShine 4.5s ease-in-out 1.5s infinite; }
+        @keyframes cytHlDraw { to { clip-path: inset(0 0 0 0); } }
+        @keyframes cytHlShine { 0% { background-position: 160% 0; } 35%, 100% { background-position: -60% 0; } }
+        @media (prefers-reduced-motion: reduce) { .cyt-hl::after { animation: none; clip-path: none; } .cyt-hl::before { display: none; } }
         .cyt-hero .description { color: #475569; font-size: 17px; line-height: 1.6; max-width: 46ch; margin: 0 0 20px; }
 
         .cyt-hsearch { position: relative; display: flex; align-items: center; max-width: 580px; background: #fff; border: 1.5px solid #dbe5df; border-radius: 14px; padding: 5px; box-shadow: 0 16px 36px -22px rgba(20,83,45,.55); }
