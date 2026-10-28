@@ -59,7 +59,7 @@ export default function PerformanceChart({ weeklyData = [], monthlyData = [] }) 
         <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
           <Box>
             <Typography sx={{ fontSize: "9px", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px", mb: 0.3 }}>
-              {period === 0 ? "Your 70% · week" : "Your 70% · 6 mo"}
+              {period === 0 ? "Your share · week" : "Your share · 6 mo"}
             </Typography>
             <Typography sx={{ fontSize: { xs: "18px", md: "22px" }, fontWeight: 900, color: "#1b5e20", lineHeight: 1, letterSpacing: "-0.5px" }}>
               ₹{totalRev.toLocaleString("en-IN")}

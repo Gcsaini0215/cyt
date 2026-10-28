@@ -53,7 +53,7 @@ function GoalCard({ goal, earned, sessions, onSave }) {
             {pct >= 100
               ? <em className="ok">Goal reached — well done! 🎉</em>
               : <em>{toGo != null ? <>About <strong>{toGo} more session{toGo === 1 ? "" : "s"}</strong> to go</> : <>{inr(left)} to go</>} · {daysLeft} day{daysLeft === 1 ? "" : "s"} left</em>}
-            <small>Your 70% share, this month</small>
+            <small>Your share, this month</small>
           </div>
         </div>
       )}

@@ -45,7 +45,7 @@ const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); retur
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 const minsOf = (d) => d.getHours() * 60 + d.getMinutes();
 const inr = (n) => `₹${Math.round(Number(n) || 0).toLocaleString("en-IN")}`;
-const money = (b) => earningOf(b); // your 70% of the session — CYT keeps 30%
+const money = (b) => earningOf(b); // your share of the session (70% to start, more with achievements)
 
 function slotsFor(avail, date) {
   const av = (avail || []).find((a) => a.day === DAYS[date.getDay()]);

@@ -932,7 +932,7 @@ export default function TherapistDashboard() {
       bookings.forEach((b) => {
         const bStatus = b.status || "New";
         const bd = safeDate(b.booking_date);
-        const amt = earningOf(b); // your 70% — CYT keeps 30%
+        const amt = earningOf(b); // your share (70% to start, more with achievements)
         if (bd) {
           if (bd >= monthStart) monthEarnings += amt;
           else if (bd >= lastMonthStart) lastMonthEarnings += amt;
@@ -1035,7 +1035,7 @@ export default function TherapistDashboard() {
           client_name: b.client?.name || "Unknown",
           booking_date: fmtDate(b.booking_date),
           amount: b.client_paid ?? (b.transaction?.amount || b.amount), // what the client paid
-          earn: earningOf(b), // your 70% of it
+          earn: earningOf(b), // your share of it
           status: b.transaction?.status?.name || "Success",
         }))
         .sort((a, b) => (a.status === "Success") - (b.status === "Success"));
@@ -1266,7 +1266,7 @@ export default function TherapistDashboard() {
                 <ReviewsBlock reviews={myReviews} />
               </DashCard>
 
-              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub="Your 70% · of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
+              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub="Your share · of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
                 ) : invoices.length ? (
@@ -1300,7 +1300,7 @@ export default function TherapistDashboard() {
           <h2 className="ov-sec-h">Insights</h2>
           <ProfileInsights />
           <div className="ov-insight-grid">
-            <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Your earnings (70%) & sessions trend" disablePad>
+            <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Your earnings (your share) & sessions trend" disablePad>
               {stats.monthGrowth && (
                 <div className="ov-compare">This month vs last: <b className={stats.monthGrowthUp ? "up" : "down"}>{stats.monthGrowth}</b> earnings · {stats.monthSessions} vs {stats.lastMonthSessions} sessions</div>
               )}

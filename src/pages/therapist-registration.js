@@ -13,6 +13,31 @@ import { RegistrationsRow } from "../components/about/registrations";
 import FaqBlock from "../components/seo/faq-block";
 import { siteCardUrl } from "../utils/og-urls";
 
+// how much of each session fee the therapist keeps — the levels in backend helper/achievements.js
+const SHARE_STEPS = [
+  { you: 70, cyt: 30, when: "When you join", how: "Every session booked through CYT" },
+  { you: 75, cyt: 25, when: "Level 1", how: "Rising Star (10 reviews of 4★+) + 25 sessions" },
+  { you: 80, cyt: 20, when: "Level 2", how: "+ 100 sessions + Client Favourite (50 reviews of 4★+)" },
+  { you: 85, cyt: 15, when: "Level 3", how: "All CYT achievements" },
+  { you: 93, cyt: 7, when: "Top level", how: "+2% for every 100 sessions after that, up to 93%" },
+];
+function ShareLadder({ compact = false }) {
+  return (
+    <div className={`trs-share${compact ? " compact" : ""}`}>
+      <div className="trs-share-h"><b>You keep 70% — and more as you grow</b><span>Your share of every session fee, by level</span></div>
+      <ol>
+        {SHARE_STEPS.map((x) => (
+          <li key={x.you}>
+            <span className="trs-share-bar"><i style={{ width: `${x.you}%` }}><em>You {x.you}%</em></i><small>CYT {x.cyt}%</small></span>
+            <span className="trs-share-txt"><b>{x.when}</b>{x.how}</span>
+          </li>
+        ))}
+      </ol>
+      <p>Each session keeps the share it was completed at. If your average rating drops under 4★, CYT&apos;s share is 30% until it&apos;s back to 4★. CYT never keeps less than 7%.</p>
+    </div>
+  );
+}
+
 // the share card: the same style as the home page (real therapist photos), with the joining headline
 const JOIN_CARD = siteCardUrl("join");
 const PAGE_URL = "https://www.chooseyourtherapist.in/therapist-registration";
@@ -687,6 +712,18 @@ export default function TherapistRegistration() {
         .trs-side-in { position: sticky; top: 96px; padding: 32px 28px; display: flex; flex-direction: column; gap: 16px; }
         .trs-h { font-size: 23px; font-weight: 800; color: #0b1712; margin: 0; line-height: 1.25; letter-spacing: -.01em; }
         .trs-sub { margin: 0; font-size: 14.5px; color: #5b6b62; line-height: 1.6; }
+        .trs-share { margin: 16px 0 4px; padding: 14px; border-radius: 14px; background: #fff; border: 1px solid #dcebe2; }
+        .trs-share-h b { display: block; font-size: 14.5px; color: #0f3d24; } .trs-share-h span { display: block; font-size: 12px; color: #64748b; margin-top: 1px; }
+        .trs-share ol { list-style: none; margin: 10px 0 8px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .trs-share li { margin: 0; display: flex; flex-direction: column; gap: 3px; }
+        .trs-share li::before { content: none; }
+        .trs-share-bar { position: relative; display: flex; align-items: center; height: 24px; border-radius: 7px; background: #fdf3dc; overflow: hidden; }
+        .trs-share-bar i { display: flex; align-items: center; height: 100%; background: linear-gradient(90deg, #166534, #22a35a); border-radius: 7px 0 0 7px; }
+        .trs-share-bar em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #fff; padding-left: 8px; white-space: nowrap; }
+        .trs-share-bar small { margin-left: auto; padding-right: 7px; font-size: 10.5px; font-weight: 800; color: #8a5a06; }
+        .trs-share-txt { font-size: 12px; color: #475569; line-height: 1.4; } .trs-share-txt b { color: #0f3d24; margin-right: 6px; }
+        .trs-share p { margin: 0; font-size: 11.5px; color: #64748b; line-height: 1.5; }
+        .pk-terms .trs-share { margin-top: 12px; }
         .trs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
         .trs-list li { margin: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; color: #26392f; line-height: 1.45; }
         .trs-list li::before { content: none; }
@@ -819,6 +856,7 @@ export default function TherapistRegistration() {
                 {["A verified profile in our therapist directory", "Clients book you online or in person", "Bookings, reminders and payments handled for you"]
                   .map((x) => <li key={x}><i className="feather-check" aria-hidden="true" /> {x}</li>)}
               </ul>
+              <ShareLadder compact />
               <div className="trs-box">
                 <b>Keep these ready</b>
                 <span><i className="feather-file-text" aria-hidden="true" /> Resume / CV (PDF or DOC)</span>
@@ -862,7 +900,7 @@ export default function TherapistRegistration() {
                   ]},
                   { title: "Package", icon: "feather-package", color: "#1e7a4c", rows: [
                     ["Chosen package", (() => { const pk = PACKAGES.find((x) => x.id === form.preferredPlan); return pk ? `${pk.label} — ${inr(pk.amount)} (pay after approval)` : "—"; })()],
-                    ["Listing & bookings", "Listing charge accepted · 70% of every booking to you, 30% to CYT"],
+                    ["Listing & bookings", "Listing charge accepted · you keep 70% of every booking to start (30% to CYT), up to 93% as you earn achievements"],
                   ]},
                   ...(needsAddress(form.mode) ? [{ title: "Practice Location", icon: "feather-map-pin", color: "#f59e0b", rows: [
                     ["Address", `${form.officeAddress.trim()}, ${form.officeCity.trim()}, ${form.officeState.trim()} – ${form.officePincode}`],
@@ -1207,9 +1245,10 @@ export default function TherapistRegistration() {
                       <b>How it works</b>
                       <ul>
                         <li><b>Listing charge:</b> the package above is a fee for listing your profile on Choose Your Therapist for the chosen period.</li>
-                        <li><b>70:30 on every booking:</b> for each session booked through CYT, <b>70%</b> of the session fee goes to you and <b>30%</b> to CYT.</li>
+                        <li><b>Your share of every booking:</b> you start at <b>70%</b> of the session fee (<b>30%</b> to CYT), and it goes up as you earn achievements — 75%, 80%, 85%, up to <b>93%</b>. See the levels below.</li>
                         <li>Packages are for listing and visibility. Bookings depend on your profile, availability and client demand.</li>
                       </ul>
+                      <ShareLadder />
                     </div>
 
                     <label className={`pk-check ${form.planTerms ? "on" : ""}`}>
