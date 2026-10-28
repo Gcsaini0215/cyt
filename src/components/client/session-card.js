@@ -6,6 +6,7 @@ import { profilePath } from "../../utils/therapist-slug";
 import { joinSession } from "../../utils/join-session";
 import { sessionWindow, opensAtText } from "../../utils/session-window";
 import SessionTicket from "./session-ticket";
+import SessionNote from "./session-note";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
@@ -14,6 +15,7 @@ import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
 import DirectionsRoundedIcon from "@mui/icons-material/DirectionsRounded";
 import { withNoidaCharges, NOIDA_CENTRE } from "../../utils/noida-booking";
+import { isAwayFromIst, localTimeLabel } from "../../utils/ist";
 
 /* One booking as the client sees it: who/when, a step tracker (Booked → Paid → Confirmed →
    Join → Done → Review) and the one action that matters right now. */
@@ -103,6 +105,7 @@ export default function SessionCard({ b: raw, now, compact, reviewed, onReview }
   const name = therapistName(b);
   const forOther = /other/i.test(b.whom || "") && b.cname;
   const amount = Number(b.transaction?.amount ?? b.amount?.$numberDecimal ?? b.amount) || 0;
+  const away = typeof window !== "undefined" && isAwayFromIst(b.booking_date);
   const statusLabel = st.cancelled ? "Cancelled" : st.done ? "Completed" : st.live ? "In session" : st.w?.after ? "Missed" : "Upcoming";
   const statusKey = st.cancelled ? "cancel" : st.done ? "done" : st.live ? "live" : st.w?.after ? "missed" : "new";
   const join = () => joinSession(b._id, b.meet_link).catch((e) => toast.error(e.message));
@@ -130,7 +133,9 @@ export default function SessionCard({ b: raw, now, compact, reviewed, onReview }
       </div>
 
       <div className="csc-when">
-        <b>{fmtWhen(b.booking_date)}</b>
+        <b>{fmtWhen(b.booking_date)}{away ? " IST" : ""}</b>
+        {/* a client abroad (e.g. the UK) also sees the time where they are */}
+        {away && <em className="csc-local">{localTimeLabel(b.booking_date)} · your time</em>}
         <span>{st.online ? <><VideocamRoundedIcon /> Online</> : <><PlaceRoundedIcon /> In person</>}{b.service ? ` · ${b.service}` : ""}</span>
         {forOther && <span><FamilyRestroomRoundedIcon /> For {b.cname}{b.relation_with_client ? ` (${b.relation_with_client})` : ""}</span>}
       </div>
@@ -145,6 +150,8 @@ export default function SessionCard({ b: raw, now, compact, reviewed, onReview }
 
       {!compact && <BookingSteps state={st} />}
       {!st.cancelled && st.hint && <p className="csc-hint">{st.hint}</p>}
+      {/* the next (or live) session: the client's own notes for it */}
+      {!compact && !st.cancelled && !st.done && !st.w?.after && b._id && <SessionNote bookingId={b._id} />}
 
       <div className="csc-acts">
         {action}
@@ -178,6 +185,7 @@ export const CSC_CSS = `
 .csc-when b { font-size: 14.5px; font-weight: 800; }
 .csc-when span { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: #475569; }
 .csc-when svg { font-size: 16px; color: #166534; }
+.csc-local { font-style: normal; font-size: 12.5px; font-weight: 700; color: #0369a1; }
 .csc-place { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fffaf0; border: 1px solid #f3e2a4; }
 .csc-place > svg { font-size: 20px; color: #b7791f; flex-shrink: 0; }
 .csc-place > div { flex: 1; min-width: 0; }
