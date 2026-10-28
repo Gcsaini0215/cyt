@@ -66,6 +66,29 @@ export default function Achievements() {
           </div>
         )}
 
+        {data?.level && (
+          <div className="ac-level">
+            <div className="ac-level-now">
+              <span>Your share of each session</span>
+              <b>{data.level.therapistPct}%</b>
+              <small>CYT keeps {data.level.platformPct}% · {data.level.level}</small>
+            </div>
+            <div className="ac-level-body">
+              {data.level.ratingHold
+                ? <p className="warn">Your average rating is under 4★, so CYT&apos;s share is back to 30% for now. {data.level.next?.needs?.[0]} and your better share comes back.</p>
+                : data.level.next
+                  ? <p>Next: <b>you keep {100 - data.level.next.pct}%</b> once you have {data.level.next.needs.join(" and ")}.</p>
+                  : <p>You&apos;re at the top level — CYT keeps only {data.level.minPlatformPct}%.</p>}
+              <ol className="ac-ladder">
+                {[["30%", "To start"], ["25%", "Rising Star + 25 Sessions"], ["20%", "+ 100 Sessions + Client Favourite"], ["15%", "All achievements"], ["−2% / 100 sessions", "After that, down to 7%"]].map(([pct, need]) => (
+                  <li key={pct}><b>CYT {pct}</b><span>{need}</span></li>
+                ))}
+              </ol>
+              <small>Each session keeps the share it was completed at. Average rating under 4★ → back to 30% until it&apos;s 4★ again.</small>
+            </div>
+          </div>
+        )}
+
         {data === null && !err ? <div className="ac-grid">{[0, 1, 2, 3].map((i) => <div key={i} className="ac-skel" />)}</div> : (
           <div className="ac-grid">
             {list.map((a) => {
@@ -128,6 +151,15 @@ const AC_CSS = `
 .ac-stats > div { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
 .ac-stats b { display: block; font-size: 22px; font-weight: 800; color: var(--g-dk); } .ac-stats b i { font-style: normal; font-size: 14px; color: var(--faint); }
 .ac-stats span { font-size: 12px; color: var(--mut); }
+.ac-level { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 14px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+.ac-level-now { background: linear-gradient(160deg, #14532d, #1e7a4c); color: #fff; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+.ac-level-now span { font-size: 12px; opacity: .85; } .ac-level-now b { font-size: 40px; font-weight: 900; line-height: 1.1; } .ac-level-now small { font-size: 12.5px; opacity: .9; }
+.ac-level-body p { margin: 0 0 10px; font-size: 14px; color: var(--ink); } .ac-level-body p.warn { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 10px; }
+.ac-ladder { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.ac-ladder li { border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 12px; background: #fbfdfb; }
+.ac-ladder b { display: block; color: var(--g-dk); font-size: 12.5px; } .ac-ladder span { color: var(--mut); }
+.ac-level-body small { font-size: 11.5px; color: var(--faint); }
+@media (max-width: 700px) { .ac-level { grid-template-columns: 1fr; } }
 .ac-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 12px; }
 .ac-skel { height: 200px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0,#f7f9f8,#eef2f0); background-size: 400px 100%; animation: acSh 1.2s infinite linear; }
 @keyframes acSh { from { background-position: -200px 0; } to { background-position: 200px 0; } }
