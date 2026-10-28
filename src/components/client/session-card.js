@@ -12,7 +12,8 @@ import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import StarRateRoundedIcon from "@mui/icons-material/StarRateRounded";
 import FamilyRestroomRoundedIcon from "@mui/icons-material/FamilyRestroomRounded";
-import { withNoidaCharges } from "../../utils/noida-booking";
+import DirectionsRoundedIcon from "@mui/icons-material/DirectionsRounded";
+import { withNoidaCharges, NOIDA_CENTRE } from "../../utils/noida-booking";
 
 /* One booking as the client sees it: who/when, a step tracker (Booked → Paid → Confirmed →
    Join → Done → Review) and the one action that matters right now. */
@@ -34,8 +35,25 @@ export const therapistPhoto = (b) => {
 };
 export const therapistLink = (b) => (b.therapist?._id ? profilePath({ _id: b.therapist._id, profile_type: b.therapist.profile_type, user: b.therapist.user, state: b.therapist.state }) : "/view-all-therapist");
 
+// Where a paid in-person session happens. The therapist's address is private and the API sends it
+// (as meet_at) only for the client's own paid, in-person, not-cancelled bookings; a CYT Noida session
+// is at the centre.
+export function meetPlace(b) {
+  if (!b || b.status === "Cancelled" || !isInPerson(b) || !isPaid(b)) return null;
+  if (b.source === "noida") return { title: NOIDA_CENTRE.name, address: NOIDA_CENTRE.address, lat: NOIDA_CENTRE.lat, lng: NOIDA_CENTRE.lng };
+  const m = b.meet_at;
+  if (!m) return null;
+  const parts = [m.address, m.city, m.state, m.pincode].map((x) => String(x || "").trim()).filter((x) => x && !/^(null|undefined)$/i.test(x));
+  // "…, Ahmedabad, Gujarat 380015" — drop parts the address already says
+  const address = parts.filter((x, i) => !parts.slice(0, i).some((y) => y.toLowerCase().includes(x.toLowerCase()))).join(", ");
+  if (!address) return null;
+  return { title: `${therapistName(b)}'s practice`, address, lat: m.location?.lat, lng: m.location?.lng };
+}
+export const directionsUrl = (pl) => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(Number.isFinite(pl.lat) && Number.isFinite(pl.lng) ? `${pl.lat},${pl.lng}` : pl.address)}`;
+
 // which step the booking is on, and the one action for now
-export function bookingState(b, now = Date.now()) {
+// `reviewed`: the client has already reviewed this therapist (reviews are one per therapist)
+export function bookingState(b, now = Date.now(), reviewed = false) {
   if (b.status === "Cancelled") return { cancelled: true };
   const paid = isPaid(b);
   const online = !isInPerson(b);
@@ -48,12 +66,12 @@ export function bookingState(b, now = Date.now()) {
     { key: "ready", label: online ? (b.meet_link ? "Meet link ready" : "Confirmed") : "Confirmed", done: paid },
     { key: "join", label: online ? "Join" : "Visit clinic", done: done || live || !!b.client_joined_at },
     { key: "done", label: "Session done", done },
-    { key: "review", label: "Review", done: false },
+    { key: "review", label: "Review", done: done && !!reviewed },
   ];
   const current = steps.findIndex((s) => !s.done);
   let hint = "";
   if (!paid) hint = "Waiting for payment confirmation.";
-  else if (done) hint = "How did it go? A short review helps others find the right therapist.";
+  else if (done) hint = reviewed ? "Thank you for your review." : "How did it go? A short review helps others find the right therapist.";
   else if (live) hint = online ? "Your session is on — rejoin any time if the call drops." : "Your session is in progress.";
   else if (w.before) hint = online ? `Join opens at ${opensAtText(w.opens)} — 15 minutes before your session.` : "Please reach the clinic a few minutes early.";
   else if (w.open) hint = online ? "Your session is about to start — tap Join." : "It's time — please head in.";
@@ -75,10 +93,12 @@ export function BookingSteps({ state }) {
   );
 }
 
-export default function SessionCard({ b: raw, now, compact }) {
+// onReview(b): open the review form in place (My Sessions); without it the button goes to the profile
+export default function SessionCard({ b: raw, now, compact, reviewed, onReview }) {
   const b = withNoidaCharges(raw); // a CYT Noida session shows what the client paid
   const [ticket, setTicket] = React.useState(false);
-  const st = bookingState(b, now);
+  const st = bookingState(b, now, reviewed);
+  const place = !st.cancelled && !st.done ? meetPlace(b) : null;
   const photo = therapistPhoto(b);
   const name = therapistName(b);
   const forOther = /other/i.test(b.whom || "") && b.cname;
@@ -92,8 +112,10 @@ export default function SessionCard({ b: raw, now, compact }) {
     action = <button type="button" className="csc-btn primary" onClick={join}><VideocamRoundedIcon /> {st.live ? "Rejoin" : "Join now"}</button>;
   } else if (!st.cancelled && st.online && b.status === "New" && st.w.before) {
     action = <span className="csc-btn wait"><VideocamRoundedIcon /> Join at {opensAtText(st.w.opens)}</span>;
-  } else if (st.done) {
-    action = <a className="csc-btn primary" href={`${therapistLink(b)}#write-review`}><StarRateRoundedIcon /> Leave a review</a>;
+  } else if (st.done && !reviewed) {
+    action = onReview
+      ? <button type="button" className="csc-btn primary" onClick={() => onReview(raw)}><StarRateRoundedIcon /> Leave a review</button>
+      : <a className="csc-btn primary" href={`${therapistLink(b)}#write-review`}><StarRateRoundedIcon /> Leave a review</a>;
   }
 
   return (
@@ -112,6 +134,14 @@ export default function SessionCard({ b: raw, now, compact }) {
         <span>{st.online ? <><VideocamRoundedIcon /> Online</> : <><PlaceRoundedIcon /> In person</>}{b.service ? ` · ${b.service}` : ""}</span>
         {forOther && <span><FamilyRestroomRoundedIcon /> For {b.cname}{b.relation_with_client ? ` (${b.relation_with_client})` : ""}</span>}
       </div>
+
+      {place && (
+        <div className="csc-place">
+          <PlaceRoundedIcon />
+          <div><b>{place.title}</b><span>{place.address}</span></div>
+          <a href={directionsUrl(place)} target="_blank" rel="noopener noreferrer" className="csc-btn soft"><DirectionsRoundedIcon /> Directions</a>
+        </div>
+      )}
 
       {!compact && <BookingSteps state={st} />}
       {!st.cancelled && st.hint && <p className="csc-hint">{st.hint}</p>}
@@ -148,6 +178,13 @@ export const CSC_CSS = `
 .csc-when b { font-size: 14.5px; font-weight: 800; }
 .csc-when span { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: #475569; }
 .csc-when svg { font-size: 16px; color: #166534; }
+.csc-place { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fffaf0; border: 1px solid #f3e2a4; }
+.csc-place > svg { font-size: 20px; color: #b7791f; flex-shrink: 0; }
+.csc-place > div { flex: 1; min-width: 0; }
+.csc-place b { display: block; font-size: 13px; color: #7a4f0e; }
+.csc-place span { display: block; font-size: 13px; color: #334155; line-height: 1.45; margin-top: 1px; }
+.csc-place .csc-btn { height: 36px; padding: 0 12px; font-size: 12.5px; flex: none; }
+@media (max-width: 480px) { .csc-place { flex-wrap: wrap; } .csc-place .csc-btn { flex: 1 1 100%; } }
 .csc-steps { list-style: none; margin: 2px 0 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); position: relative; }
 .csc-steps li { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; position: relative; margin: 0; }
 .csc-steps li::before { content: ""; position: absolute; top: 11px; right: 50%; width: 100%; height: 2px; background: #e2e8f0; z-index: 0; }

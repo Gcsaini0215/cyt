@@ -1,17 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell from "../components/client/client-shell";
-import SessionCard, { CSC_CSS, therapistName, therapistPhoto } from "../components/client/session-card";
-import { RebookCard, ReviewCard, ReferralCard, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
-import { TipLine, JourneyStats, MoodCard, BreathCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
+import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
+import { PendingCard, RebookCard, ReviewCard, ReferralCard, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
-import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl } from "../utils/url";
+import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl, MyPendingBookingsUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
 import { CLIENT_BOOKINGS_EVENT } from "../store/clientNotifStore";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
+import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 /* Client home: what's next, how to book, and the therapists you've seen — plus the cards that
@@ -34,9 +35,22 @@ const cheerOf = (d, name) => {
   return name ? { pre, name, post } : { pre: plain, name: "", post: "" };
 };
 
+// the countdown beside "Your next session": minutes/hours when it's close, else today / tomorrow / in N days
+function startsIn(b, now) {
+  if (b.status === "Started") return { t: "Live now", live: true };
+  const min = Math.round((new Date(b.booking_date).getTime() - now) / 60000);
+  if (min <= 0) return { t: "Starting now", live: true };
+  if (min < 60) return { t: `Starts in ${min} min`, live: min <= 15 };
+  if (min < 180) return { t: `Starts in ${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ""}` };
+  const days = Math.round((Date.parse(dayKey(b.booking_date)) - Date.parse(dayKey(now))) / 86400000);
+  return { t: days <= 0 ? "Today" : days === 1 ? "Tomorrow" : `In ${days} days` };
+}
+
 const SKIP_KEY = "cyt_review_skip"; // bookings the client said "Not now" to
 const readSkips = () => { try { return JSON.parse(localStorage.getItem(SKIP_KEY) || "[]"); } catch (e) { return []; } };
 const REVIEW_WINDOW = 45 * 24 * 60 * 60 * 1000; // only ask about sessions from the last 45 days
+const BAR_GAP = 76; // top bar + a little air: where the sticky side column starts
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export default function ClientHome() {
   const { userInfo } = useUserStore();
@@ -46,11 +60,14 @@ export default function ClientHome() {
   const [callback, setCallback] = useState(false);
   const [reviewed, setReviewed] = useState(null); // therapist ids this client has already reviewed
   const [skips, setSkips] = useState([]);
+  const [pending, setPending] = useState([]); // bookings left at the payment step
+  const [sideEl, setSideEl] = useState(null); // a callback ref: the shell renders the page only after its login check
 
   useEffect(() => {
     // also re-run live: the notification stream says when a session is confirmed / starts / moves / ends
     const load = () => {
       fetchById(getBookings).then((r) => { if (r?.status) setBookings(r.data || []); else setBookings((b) => b || []); }).catch(() => setBookings((b) => b || []));
+      fetchById(MyPendingBookingsUrl).then((r) => setPending(r?.status ? r.data || [] : [])).catch(() => {});
       fetchById(GetDashboardDataUrl).then((r) => {
         if (r?.status) setRequests((r.data?.appointmentRequests || []).filter((a) => a.status === "confirmed" || a.status === "rescheduled"));
       }).catch(() => {});
@@ -68,6 +85,22 @@ export default function ClientHome() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [callback]);
+
+  // desktop: the side column follows the scroll. When it's taller than the screen a top of 76px hid its
+  // lower cards (call back, requests) — then it sticks by its bottom edge instead, so all of it is reachable.
+  useIsoLayoutEffect(() => {
+    const el = sideEl;
+    if (!el) return undefined;
+    const fit = () => {
+      const top = Math.min(BAR_GAP, window.innerHeight - el.offsetHeight - 16);
+      el.style.setProperty("--ch-side-top", `${Math.round(top)}px`);
+    };
+    fit();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(fit) : null;
+    ro?.observe(el);
+    window.addEventListener("resize", fit);
+    return () => { ro?.disconnect(); window.removeEventListener("resize", fit); };
+  }, [sideEl]);
 
   const skipReview = (bookingId) => {
     const list = [...new Set([...readSkips(), bookingId])].slice(-30);
@@ -98,6 +131,9 @@ export default function ClientHome() {
   }, [bookings, now, reviewed, skips]);
 
   const first = (userInfo?.name || "").trim().split(/\s+/)[0];
+  const newbie = bookings !== null && !bookings.length && !pending.length; // nothing booked yet
+  // the latest past booking was never started or marked done → don't call it "your last session"
+  const lastMissed = !!last && last.status !== "Completed";
   // therapists already shown in "Recent sessions" (its last three past sessions)
   const recentIds = new Set((bookings || [])
     .filter((b) => b.status !== "Cancelled" && b.therapist?._id && (b.status === "Completed" || new Date(b.booking_date).getTime() < now - 90 * 60000))
@@ -114,24 +150,29 @@ export default function ClientHome() {
             <div className="ch-hello">
               {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
               <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
-              <TipLine now={now} />
             </div>
-            <PreSessionForms compact />
 
-            {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
+            {pending.length > 0 && (
+              <section className="ch-next ch-pend">
+                <h2>Finish your booking</h2>
+                <div className="ch-pend-list">{pending.map((p) => <PendingCard key={p._id} p={p} />)}</div>
+              </section>
+            )}
 
-            <section className="ch-next">
-              <h2>{next ? "Your next session" : last ? "Your next step" : "Your next session"}</h2>
+            {/* the first thing on every screen: the next session with its countdown, else the next step */}
+            <section className={`ch-next${next ? " hero" : ""}`}>
+              {next ? (() => { const s = startsIn(next, now); return (
+                <div className="ch-next-h"><h2>Your next session</h2><span className={`ch-count${s.live ? " live" : ""}`}><ScheduleRoundedIcon />{s.t}</span></div>
+              ); })() : <h2>{last ? "Your next step" : newbie ? "Let's get you started" : "Your next session"}</h2>}
               {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : last ? (
-                <RebookCard b={last} now={now} />
-              ) : (
+                <RebookCard b={last} now={now} missed={lastMissed} />
+              ) : pending.length ? (
                 <div className="ch-empty">
                   <EventAvailableRoundedIcon />
-                  <b>No upcoming sessions</b>
-                  <p>Book a session with a verified therapist — online or in person.</p>
-                  <Link href="/client/find" className="csc-btn primary" style={{ flex: "none" }}>Find a therapist</Link>
+                  <b>No confirmed sessions yet</b>
+                  <p>Complete the payment above to confirm your session.</p>
                 </div>
-              )}
+              ) : <StartCard onCallback={() => setCallback(true)} />}
             </section>
 
             {toReview && (
@@ -141,15 +182,19 @@ export default function ClientHome() {
               </section>
             )}
 
+            <PreSessionForms compact />
+
+            {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
+
             <div className="dw-pair">
               <MoodCard now={now} bookHref={last ? bookAgainPath(last, nextSameSlot(last, now)) : "/client/find"} />
             </div>
           </div>
 
-          <aside className="ch-side">
+          <aside className="ch-side" ref={setSideEl}>
             <ReferralCard />
             {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
-            <BreathCard />
+            <CalmCorner now={now} />
             {/* only when Recent sessions doesn't already list every therapist */}
             {therapists.length > 0 && !therapists.every((t) => recentIds.has(t.therapist._id)) && (
               <div className="ch-card">
@@ -167,10 +212,13 @@ export default function ClientHome() {
                 })}
               </div>
             )}
-            <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
-              <PhoneCallbackRoundedIcon />
-              <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
-            </button>
+            {/* a first-time client already has the call back in the start card */}
+            {!newbie && (
+              <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
+                <PhoneCallbackRoundedIcon />
+                <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
+              </button>
+            )}
             {requests.length > 0 && (
               <div className="ch-card">
                 <h3>Appointment requests</h3>
@@ -220,6 +268,18 @@ const HOME_CSS = `
 .ch-hello p { margin: 4px 0 0; font-size: 14px; color: #64748b; }
 /* side column spans both rows, so the lower sections sit right under the main cards (no gap) */
 .ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto 1fr; grid-template-areas: "main side" "rest side"; column-gap: 16px; align-items: start; }
+.ch-pend { margin-bottom: 16px; }
+.ch-next-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.ch-next-h h2 { margin: 0; }
+.ch-count { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; background: #e7f6ec; color: #166534; font-size: 12.5px; font-weight: 800; white-space: nowrap; }
+.ch-count svg { font-size: 16px; }
+.ch-count.live { background: #16a34a; color: #fff; animation: chPulse 1.6s ease-in-out infinite; }
+@keyframes chPulse { 50% { box-shadow: 0 0 0 6px rgba(22,163,74,.18); } }
+/* the next session leads the page: a soft green lift behind its card */
+.ch-next.hero > .csc { box-shadow: 0 18px 40px -26px rgba(4,60,30,.55); }
+.ch-main > .psf.compact { margin: 16px 0 0; }
+.ch-main > .dw-stats { margin-top: 16px; margin-bottom: 0; }
+.ch-pend-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
 .ch-main { grid-area: main; } .ch-side { grid-area: side; } .ch-rest { grid-area: rest; min-width: 0; }
 .ch h2 { font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #166534; margin: 0 0 10px; font-family: inherit; }
 .ch-skel { height: 220px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: chsk 1.3s infinite linear; }
@@ -249,13 +309,20 @@ const HOME_CSS = `
 .ch-ther-txt { flex: 1; min-width: 0; } .ch-ther-txt b { display: block; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-ther-txt span { display: block; font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-ther .csc-btn { height: 34px; flex: none; padding: 0 12px; font-size: 12.5px; }
-/* desktop: the side column follows the scroll, so a long main column leaves no empty strip beside it */
-@media (min-width: 1024px) { .ch-side { position: sticky; top: 76px; } }
+/* desktop: the side column follows the scroll, so a long main column leaves no empty strip beside it
+   (--ch-side-top is set from its height — see the layout effect) */
+@media (min-width: 1280px) { .ch-side { position: sticky; top: var(--ch-side-top, 76px); } }
 .ch-overlay { position: fixed; inset: 0; z-index: 1400; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .ch-modal { background: #fff; border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
 .ch-modal-h { position: sticky; top: 0; z-index: 1; display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; padding: 16px 18px; background: linear-gradient(90deg, #0b3320, #166534); color: #fff; }
 .ch-modal-h b { display: block; font-size: 16px; } .ch-modal-h span { display: block; font-size: 12.5px; color: #bbf7d0; margin-top: 2px; }
 .ch-modal-h button { width: 34px; height: 34px; border-radius: 10px; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .ch-modal-b { padding: 6px 4px 10px; }
-@media (max-width: 1023px) { .ch-grid { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "main" "side" "rest"; row-gap: 16px; } }
+/* below 1280px two columns left the session card ~400px wide (iPad landscape / small laptops, with the
+   menu open): one column — the rest of your sessions first, then the side cards, two across from 700px */
+@media (max-width: 1279px) { .ch-grid { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "main" "rest" "side"; row-gap: 16px; } .ch-sec { margin-top: 6px; } }
+@media (min-width: 700px) and (max-width: 1279px) {
+  .ch-side { display: block; column-count: 2; column-gap: 12px; }
+  .ch-side > * { break-inside: avoid; margin-bottom: 12px; }
+}
 `;

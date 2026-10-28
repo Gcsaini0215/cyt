@@ -7,5 +7,12 @@ export function withNoidaCharges(b) {
   return { ...b, amount: b.noida_amount, transaction: { ...(b.transaction || {}), amount: b.noida_amount, payment_method: via } };
 }
 
+// the CYT centre — a business address, so it is shown in full with a pin
+export const NOIDA_CENTRE = {
+  name: "CYT Therapy Centre, Noida",
+  address: "Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301",
+  lat: 28.58216, lng: 77.37421,
+};
+
 // a Noida session has an invoice only when money was paid for it (a package session is prepaid)
 export const hasNoidaInvoice = (b) => b?.source === "noida" && Number(b.noida_amount) > 0;

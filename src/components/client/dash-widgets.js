@@ -12,10 +12,14 @@ import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import TipsAndUpdatesRoundedIcon from "@mui/icons-material/TipsAndUpdatesRounded";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
+import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
+import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
+import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
+import { CONCERNS } from "../../utils/therapist-directory";
 import { withNoidaCharges, hasNoidaInvoice } from "../../utils/noida-booking";
 
 /* Small everyday widgets for the client home: tip of the day, journey stats, mood check-in,
-   a one-minute breathing exercise and recent sessions. */
+   a one-minute breathing exercise (both in the "Calm corner"), recent sessions and the first-visit start card. */
 
 const TZ = "Asia/Kolkata";
 const istDay = (d = new Date()) => d.toLocaleDateString("en-CA", { timeZone: TZ }); // YYYY-MM-DD
@@ -147,7 +151,8 @@ export function MoodCard({ now, bookHref }) {
 
 /* #3 — one-minute breathing (in 4s · hold 4s · out 6s) */
 const PHASES = [{ t: "Breathe in", s: 4, cls: "in" }, { t: "Hold", s: 4, cls: "hold" }, { t: "Breathe out", s: 6, cls: "out" }];
-export function BreathCard() {
+// `bare`: just the exercise, for inside another card (the Calm corner)
+export function BreathCard({ bare = false }) {
   const [on, setOn] = useState(false);
   const [i, setI] = useState(0);
   const [round, setRound] = useState(0);
@@ -166,9 +171,7 @@ export function BreathCard() {
   }, [on, i, round]);
   const start = () => { setI(0); setRound(0); setOn(true); };
   const ph = PHASES[i];
-  return (
-    <div className="dw-card dw-breath">
-      <div className="dw-h"><b>One-minute breathing</b></div>
+  const body = (
       <div className="dw-breath-body">
         <div className={`dw-orb${on ? ` ${ph.cls}` : ""}`} style={on ? { transitionDuration: `${ph.s}s` } : undefined}>
           <span>{on ? ph.t : round >= 4 ? "Well done" : <AirRoundedIcon />}</span>
@@ -177,6 +180,54 @@ export function BreathCard() {
           <p>{on ? `Round ${round + 1} of 4` : round >= 4 ? "Notice how you feel now." : "In for 4, hold for 4, out for 6. Four calm rounds."}</p>
           <button type="button" className="dw-btn" onClick={on ? () => { setOn(false); setI(0); } : start}>{on ? "Stop" : round >= 4 ? "Again" : "Start"}</button>
         </div>
+      </div>
+  );
+  if (bare) return body;
+  return (
+    <div className="dw-card dw-breath">
+      <div className="dw-h"><b>One-minute breathing</b></div>
+      {body}
+    </div>
+  );
+}
+
+/* tip of the day + the breathing exercise in one card; the exercise opens on a tap */
+export function CalmCorner({ now }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="dw-card dw-calm">
+      <div className="dw-h"><b>Calm corner</b></div>
+      <TipLine now={now} />
+      <button type="button" className={`dw-calm-tog${open ? " on" : ""}`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <AirRoundedIcon /><span>One-minute breathing</span><ExpandMoreRoundedIcon className="chev" />
+      </button>
+      {open && <BreathCard bare />}
+    </div>
+  );
+}
+
+/* first visit (no bookings yet): pick what to talk about -> the directory filtered to it */
+const START_TOPICS = CONCERNS.slice(0, 9);
+export function StartCard({ onCallback }) {
+  return (
+    <div className="dw-card dw-start">
+      <div className="dw-start-h">
+        <b>What would you like to talk about?</b>
+        <span>Pick one — we&apos;ll show therapists who work with it.</span>
+      </div>
+      <div className="dw-topics">
+        {START_TOPICS.map((c) => (
+          <Link key={c.value} href={`/client/find?concern=${encodeURIComponent(c.value)}`}>{c.label}</Link>
+        ))}
+        <Link href="/client/find" className="all">See all therapists →</Link>
+      </div>
+      <div className="dw-start-alt">
+        <button type="button" onClick={onCallback}>
+          <PhoneCallbackRoundedIcon /><div><b>Not sure? Get a call back</b><span>We&apos;ll help you choose</span></div>
+        </button>
+        <Link href="/self-assessment">
+          <FactCheckRoundedIcon /><div><b>Take a screening test</b><span>PHQ-9, GAD-7 and more</span></div>
+        </Link>
       </div>
     </div>
   );
@@ -198,10 +249,15 @@ export function RecentSessions({ bookings, now }) {
         const photo = therapistPhoto(b);
         const name = therapistName(b);
         const amount = Number(b.transaction?.amount ?? b.amount?.$numberDecimal ?? b.amount) || 0;
+        const missed = !done(b) && b.status !== "Started"; // time passed, never started or marked done
         return (
           <div key={b._id} className="dw-row">
             <span className="dw-av">{photo ? <img src={photo} alt="" /> : name.charAt(0)}</span>
-            <div className="dw-row-txt"><b>{name}</b><span>{fmtWhen(b.booking_date)}{amount ? ` · ₹${amount.toLocaleString("en-IN")}` : ""}</span></div>
+            <div className="dw-row-txt">
+              <b>{name}</b>
+              <span>{fmtWhen(b.booking_date)}{missed ? "" : amount ? ` · ₹${amount.toLocaleString("en-IN")}` : ""}</span>
+              {missed && <em className="dw-missed">Not marked as done</em>}
+            </div>
             {(b.source !== "noida" || hasNoidaInvoice(b)) && (
             <button type="button" className="dw-ic" title="Invoice" aria-label="Download invoice"
               onClick={() => setTicket(b)}>
@@ -284,11 +340,33 @@ export const DW_CSS = `
 .dw-row-txt { flex: 1; min-width: 0; }
 .dw-row-txt b { display: block; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dw-row-txt span { display: block; font-size: 11.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dw-missed { display: inline-block; margin-top: 2px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #475569; background: #f1f5f9; border-radius: 999px; padding: 1px 8px; }
 .dw-ic { width: 32px; height: 32px; border-radius: 9px; border: 1px solid #e2e8f0; background: #fff; color: #475569; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .dw-ic svg { font-size: 17px; } .dw-ic.go { background: #f0faf3; border-color: #cfe9d8; color: #166534 !important; }
 
 
+.dw-calm .dw-tip { margin-top: 0; }
+.dw-calm-tog { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid #e4ece7; background: #f6faf7; color: #14532d; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; text-align: left; }
+.dw-calm-tog > svg { font-size: 20px; color: #16a34a; } .dw-calm-tog span { flex: 1; }
+.dw-calm-tog .chev { color: #64748b; transition: transform .2s; } .dw-calm-tog.on .chev { transform: rotate(180deg); }
+
+.dw-start { padding: 18px; gap: 14px; background: linear-gradient(160deg, #f0faf3 0%, #fff 55%); }
+.dw-start-h b { display: block; font-size: 17px; font-weight: 800; color: #0f172a; }
+.dw-start-h span { display: block; font-size: 13px; color: #64748b; margin-top: 2px; }
+.dw-topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.dw-topics a { padding: 8px 14px; border-radius: 999px; border: 1.5px solid #cfe3d6; background: #fff; color: #14532d !important; font-size: 13.5px; font-weight: 700; text-decoration: none !important; }
+.dw-topics a:hover { border-color: #16a34a; background: #ecfdf3; }
+.dw-topics a.all { border-style: dashed; color: #166534 !important; }
+.dw-start-alt { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 10px; }
+.dw-start-alt > * { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid #e4ece7; background: #fff; text-align: left; font: inherit; cursor: pointer; text-decoration: none !important; color: #0f172a !important; }
+.dw-start-alt svg { font-size: 26px; color: #166534; flex-shrink: 0; }
+.dw-start-alt b { display: block; font-size: 14px; } .dw-start-alt span { display: block; font-size: 12px; color: #64748b; }
+
+/* phone: the four numbers as one compact strip */
 @media (max-width: 640px) {
-  .dw-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .dw-stats { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.35fr); gap: 6px; margin-bottom: 14px; }
+  .dw-stat { flex-direction: column; align-items: flex-start; gap: 0; padding: 8px 9px; border-radius: 12px; }
+  .dw-stat-ic { display: none; }
+  .dw-stat b { font-size: 15px; } .dw-stat > div > span { font-size: 10.5px; }
 }
 `;

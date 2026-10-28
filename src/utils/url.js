@@ -197,6 +197,7 @@ export const ToggleCoupanStatusUrl = ToggleCouponStatusUrl;
 export const ApplyCouponUrl = `${apiUrl}/coupon/apply`;
 export const MyReferralUrl = `${apiUrl}/my-referral`;
 export const MyReviewedTherapistsUrl = `${apiUrl}/my-reviewed-therapists`;
+export const MyPendingBookingsUrl = `${apiUrl}/my-pending-bookings`;
 export const SaveReviewUrl = `${apiUrl}/save-review`;
 export const UpdatePaymentStatusUrl = `${apiUrl}/update-payment-status`;
 

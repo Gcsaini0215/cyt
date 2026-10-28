@@ -3,12 +3,16 @@ import Link from "next/link";
 import PreSessionForms from "../../components/client/pre-session-forms";
 import ClientShell from "../../components/client/client-shell";
 import SessionCard, { CSC_CSS } from "../../components/client/session-card";
+import { PendingCard, ReviewCard, DC_CSS } from "../../components/client/dash-cards";
+import useUserStore from "../../store/userStore";
 import { fetchById } from "../../utils/actions";
-import { getBookings } from "../../utils/url";
+import { getBookings, MyReviewedTherapistsUrl, MyPendingBookingsUrl } from "../../utils/url";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { CLIENT_BOOKINGS_EVENT } from "../../store/clientNotifStore";
 import { usePager, Pager } from "../../components/therapists/pager";
 
-/* My Sessions: every booking with its progress — upcoming first, then past, then cancelled. */
+/* My Sessions: every booking with its progress — upcoming first, then past, then cancelled. Bookings
+   left at the payment step sit above the tabs; "Leave a review" opens the review form right here. */
 
 const TABS = [
   { key: "upcoming", label: "Upcoming" },
@@ -20,14 +24,28 @@ export default function MySessions() {
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("upcoming");
   const [now, setNow] = useState(() => Date.now());
+  const { userInfo } = useUserStore();
+  const [pending, setPending] = useState([]);
+  const [reviewed, setReviewed] = useState([]); // therapist ids this client has reviewed (one review per therapist)
+  const [reviewing, setReviewing] = useState(null); // the booking whose review form is open
 
   useEffect(() => {
-    const load = () => fetchById(getBookings).then((r) => setData(r?.status ? r.data || [] : [])).catch(() => setData((d) => d || []));
+    const load = () => {
+      fetchById(getBookings).then((r) => setData(r?.status ? r.data || [] : [])).catch(() => setData((d) => d || []));
+      fetchById(MyPendingBookingsUrl).then((r) => setPending(r?.status ? r.data || [] : [])).catch(() => {});
+    };
     load();
+    fetchById(MyReviewedTherapistsUrl).then((r) => setReviewed(r?.status ? (r.data || []).map(String) : [])).catch(() => {});
     window.addEventListener(CLIENT_BOOKINGS_EVENT, load); // live: a session was confirmed / started / moved / ended
     const t = setInterval(() => { setNow(Date.now()); if (!document.hidden) load(); }, 60000);
     return () => { clearInterval(t); window.removeEventListener(CLIENT_BOOKINGS_EVENT, load); };
   }, []);
+  useEffect(() => {
+    if (!reviewing) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setReviewing(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [reviewing]);
 
   const groups = useMemo(() => {
     const cutoff = now - 90 * 60000;
@@ -50,7 +68,7 @@ export default function MySessions() {
 
   return (
     <ClientShell title="My Sessions">
-      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + MS_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + MS_CSS }} />
       <div className="ms-head">
         <div>
           <h1>My Sessions</h1>
@@ -59,6 +77,13 @@ export default function MySessions() {
         <Link href="/client/find" className="csc-btn primary" style={{ flex: "none" }}>Book a session</Link>
       </div>
       <PreSessionForms compact />
+
+      {pending.length > 0 && (
+        <section className="ms-pend">
+          <h2>Finish your booking</h2>
+          <div className="ms-grid">{pending.map((p) => <PendingCard key={p._id} p={p} />)}</div>
+        </section>
+      )}
 
       <div className="ms-tabs" role="tablist" aria-label="Sessions">
         {TABS.map((t) => (
@@ -72,7 +97,7 @@ export default function MySessions() {
         <div className="ms-grid">{[1, 2].map((i) => <div key={i} className="ms-skel" />)}</div>
       ) : shown.length ? (
         <div data-pager-scope>
-          <div className="ms-grid">{pg.items.map((b) => <SessionCard key={b._id} b={b} now={now} />)}</div>
+          <div className="ms-grid">{pg.items.map((b) => <SessionCard key={b._id} b={b} now={now} reviewed={reviewed.includes(String(b.therapist?._id))} onReview={setReviewing} />)}</div>
           <Pager pg={pg} noun="sessions" />
         </div>
       ) : (
@@ -80,6 +105,16 @@ export default function MySessions() {
           <b>{tab === "upcoming" ? "No upcoming sessions" : tab === "past" ? "No past sessions yet" : "No cancelled sessions"}</b>
           {tab === "upcoming" && <p>Find a therapist and book your first session — online or in person.</p>}
           {tab === "upcoming" && <Link href="/client/find" className="csc-btn primary" style={{ flex: "none" }}>Find a therapist</Link>}
+        </div>
+      )}
+
+      {reviewing && (
+        <div className="ms-overlay" onClick={(e) => { if (e.target === e.currentTarget) setReviewing(null); }}>
+          <div className="ms-modal" role="dialog" aria-modal="true" aria-label="Review your session">
+            <button type="button" className="ms-x" onClick={() => setReviewing(null)} aria-label="Close"><CloseRoundedIcon /></button>
+            <ReviewCard key={reviewing._id} b={reviewing} user={userInfo} now={now}
+              onDone={(id) => setReviewed((r) => [...r, String(id)])} onSkip={() => setReviewing(null)} />
+          </div>
         </div>
       )}
     </ClientShell>
@@ -101,5 +136,12 @@ const MS_CSS = `
 @keyframes mssk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
 .ms-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 32px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #64748b; }
 .ms-empty b { color: #0f172a; font-size: 16px; } .ms-empty p { margin: 0 0 8px; font-size: 13.5px; }
+.ms-pend { margin-bottom: 16px; }
+.ms-pend h2 { margin: 0 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #b45309; font-family: inherit; }
+.ms-overlay { position: fixed; inset: 0; z-index: 1400; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.ms-modal { position: relative; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; border-radius: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.ms-modal .dc-review { border: 0; border-radius: 18px; padding: 20px 18px 18px; }
+.ms-x { position: absolute; top: 10px; right: 10px; z-index: 1; width: 34px; height: 34px; border-radius: 10px; border: 0; background: #f1f5f4; color: #334155; display: grid; place-items: center; cursor: pointer; }
+.ms-modal .dc-review-h { padding-right: 36px; }
 @media (max-width: 767px) { .ms-head .csc-btn { width: 100%; } .ms-tabs { margin: 0 -16px 8px; padding: 8px 16px; } }
 `;

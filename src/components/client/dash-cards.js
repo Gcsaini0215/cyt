@@ -10,11 +10,14 @@ import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
+import HourglassTopRoundedIcon from "@mui/icons-material/HourglassTopRounded";
+import EventBusyRoundedIcon from "@mui/icons-material/EventBusyRounded";
 
-/* Client home cards that bring people back: book the next session, review the last one,
-   refer a friend. (Self-check / family / meeting in person are in the portal menu — client-shell.) */
+/* Client home cards that bring people back: finish a booking left unpaid, book the next session,
+   review the last one, refer a friend. (Self-check / family / meeting in person are in the portal menu — client-shell.) */
 
 const SITE = "https://www.chooseyourtherapist.in";
+const WA_HELP = "https://wa.me/918077757951?text=";
 const DAY = 24 * 60 * 60 * 1000;
 
 // Same weekday and time as the last session, the first such slot at least a day away.
@@ -46,12 +49,63 @@ const Avatar = ({ b, size }) => {
   );
 };
 
-/* #1 — continue with the same therapist, same time next week */
-export function RebookCard({ b, now }) {
+/* #0 — a booking left at the payment step (GET /my-pending-bookings): pay for the same slot,
+   or pick another time if someone else has booked it since */
+export function PendingCard({ p }) {
+  const name = therapistName(p);
+  const amount = Number(p.amount?.$numberDecimal ?? p.amount) || 0;
+  const mode = /in[- ]?person|offline/i.test(p.format || "") ? "In person" : /audio/i.test(p.format || "") ? "Voice call" : "Video call";
+  const taken = p.state === "taken";
+  return (
+    <div className={`dc-pend${taken ? " taken" : ""}`}>
+      <div className="dc-pend-top">
+        <Avatar b={p} />
+        <div className="dc-pend-txt">
+          <span className="dc-pend-eye">{taken ? <><EventBusyRoundedIcon /> Slot no longer free</> : <><HourglassTopRoundedIcon /> Payment pending</>}</span>
+          <b>{name}</b>
+          <span>{fmtWhen(p.booking_date)} · {mode}{amount ? ` · ₹${amount.toLocaleString("en-IN")}` : ""}</span>
+        </div>
+      </div>
+      <p>{taken
+        ? "Someone else booked this time before payment went through. Pick another time with the same therapist."
+        : "Your booking isn't confirmed yet. Complete the payment to confirm it — until then someone else can book this time."}</p>
+      <div className="dc-actions">
+        {taken
+          ? <Link href={bookAgainPath(p)} className="dc-btn green">Pick another time</Link>
+          : <Link href={`/complete-payment/${p._id}`} className="dc-btn green">Complete payment</Link>}
+        {!taken && <Link href={bookAgainPath(p)} className="dc-btn link">Change time</Link>}
+      </div>
+    </div>
+  );
+}
+
+/* #1 — continue with the same therapist, same time next week. `missed`: that session was never
+   started or marked done — don't say "last session", offer a new time and help instead */
+export function RebookCard({ b, now, missed }) {
   const at = nextSameSlot(b, now);
   const name = therapistName(b);
   const first = name.replace(/^dr\.?\s*/i, "").split(/\s+/)[0];
   const atLabel = at ? fmtWhen(at) : "";
+  if (missed) {
+    const wa = WA_HELP + encodeURIComponent(`Hi CYT team, my session with ${name} on ${fmtWhen(b.booking_date)} didn't take place. Please help.`);
+    return (
+      <div className="dc-rebook">
+        <div className="dc-rebook-top">
+          <Avatar b={b} size={56} />
+          <div className="dc-rebook-txt">
+            <span className="dc-eyebrow"><EventBusyRoundedIcon /> Session not marked as done</span>
+            <b>Book a new time with {name}</b>
+            <span>Booked for {fmtWhen(b.booking_date)}{b.service ? ` · ${b.service}` : ""}</span>
+          </div>
+        </div>
+        <p>If this session didn't happen, pick a new time with {first} — or message us and we'll sort it out.</p>
+        <div className="dc-actions">
+          <Link href={bookAgainPath(b)} className="dc-btn gold">Pick a new time</Link>
+          <a href={wa} target="_blank" rel="noopener noreferrer" className="dc-btn ghost">Talk to us</a>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="dc-rebook">
       <div className="dc-rebook-top">
@@ -211,6 +265,16 @@ export const DC_CSS = `
 .dc-rebook-txt > span:last-child { display: block; font-size: 12.5px; color: #bbf7d0; margin-top: 2px; }
 .dc-rebook p { margin: 0; font-size: 13.5px; line-height: 1.5; color: #dcfce7; }
 
+.dc-pend { background: #fff; border: 1.5px solid #fbbf24; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 10px 24px -18px rgba(180,120,10,.6); }
+.dc-pend.taken { border-color: #e2e8f0; box-shadow: none; }
+.dc-pend-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.dc-pend-txt { min-width: 0; }
+.dc-pend-eye { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #b45309; }
+.dc-pend.taken .dc-pend-eye { color: #64748b; }
+.dc-pend-eye svg { font-size: 15px; }
+.dc-pend-txt b { display: block; font-size: 16px; font-weight: 800; margin-top: 1px; }
+.dc-pend-txt > span:last-child { display: block; font-size: 12.5px; color: #475569; margin-top: 1px; }
+.dc-pend p { margin: 0; font-size: 13.5px; line-height: 1.5; color: #475569; }
 .dc-review { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .dc-review-h { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .dc-review-h b { display: block; font-size: 15px; font-weight: 800; }
@@ -247,7 +311,7 @@ export const DC_CSS = `
 
 
 @media (max-width: 640px) {
-  .dc-rebook .dc-actions .dc-btn { flex: 1; }
+  .dc-rebook .dc-actions .dc-btn, .dc-pend .dc-actions .dc-btn.green { flex: 1; }
   .dc-stars button svg { font-size: 34px; }
 }
 `;
