@@ -178,8 +178,9 @@ const kmBetween = (x, y) => {
 const mapSrc = (pl) => (pl.centre
   // the centre: a business, so its pin
   ? `https://maps.google.com/maps?q=${encodeURIComponent("Choose Your Therapist LLP, D-137, Sector 51, Noida")}&z=16&output=embed`
-  // a therapist: the area only — centred on the rounded point, no pin, zoomed out
-  : `https://maps.google.com/maps?ll=${pl.lat},${pl.lng}&z=12&t=m&hl=en&output=embed`);
+  // a therapist: the area only — a few km around the rounded point, no pin. (Google's embed ignores a bare
+  // ll= centre and opened somewhere else, and q= would drop a pin — OpenStreetMap's embed takes a box.)
+  : `https://www.openstreetmap.org/export/embed.html?bbox=${pl.lng - 0.035},${pl.lat - 0.02},${pl.lng + 0.035},${pl.lat + 0.02}&layer=mapnik`);
 
 function InPersonWhere({ profile }) {
   const place = practicePlace(profile);
