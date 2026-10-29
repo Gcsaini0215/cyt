@@ -15,11 +15,11 @@ export default function WellnessToolkit() {
         <title>Wellness Toolkit — Free Mental Health Tools | CYT</title>
         <meta name="description" content="Access our free wellness toolkit featuring breathing guides, mood trackers, panic buttons, and journaling prompts for your mental well-being." />
         <meta name="keywords" content="Wellness Toolkit, Mental Health Resources, Free Therapy Tools, Breathing Exercises, Mood Tracker, Panic Button" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/wellness-toolkit" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/wellness-toolkit" />
         
         <meta property="og:title" content="Wellness Toolkit | Free Mental Health Resources | Choose Your Therapist" />
         <meta property="og:description" content="Free mental health tools and resources to help you manage anxiety, track your mood, and practice mindfulness." />
-        <meta property="og:url" content="https://chooseyourtherapist.in/wellness-toolkit" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/wellness-toolkit" />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />

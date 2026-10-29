@@ -91,10 +91,10 @@ export default function Register() {
         <title>Client Sign Up | Choose Your Therapist</title>
         <meta name="description" content="Join Choose Your Therapist today. Register as a client to find verified psychologists, book sessions, and manage your mental health journey." />
         <meta name="keywords" content="Client Registration, Book Therapist India, Start Counseling, Mental Health Support Signup" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/register" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/register" />
         <meta property="og:title" content="Client Registration | Start Your Healing Journey | Choose Your Therapist" />
         <meta property="og:description" content="Register as a client to find verified psychologists and book sessions." />
-        <meta property="og:url" content="https://chooseyourtherapist.in/register" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/register" />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta name="twitter:card" content="summary_large_image" />

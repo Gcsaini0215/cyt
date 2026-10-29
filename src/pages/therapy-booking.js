@@ -62,9 +62,9 @@ export default function TherapyBooking({ pics = [] }) {
       <Head>
         <title>Find Your Therapist in 30 Minutes | Choose Your Therapist</title>
         <meta name="description" content="Connect with a verified psychologist, share your concerns, and book your therapy appointment — all in 30 minutes." />
-        <link rel="canonical" href="https://chooseyourtherapist.in/therapy-booking" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/therapy-booking" />
         <meta key="og:type" property="og:type" content="website" />
-        <meta property="og:url" content="https://chooseyourtherapist.in/therapy-booking" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/therapy-booking" />
         <meta property="og:title" content="Find Your Therapist in 30 Minutes — Free | Choose Your Therapist" />
         <meta property="og:description" content="Talk to a verified mental health expert for free. No commitment, fully confidential. Find your therapist in 30 minutes." />
         <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=booking" />

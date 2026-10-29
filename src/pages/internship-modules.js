@@ -109,7 +109,7 @@ export default function InternshipModules() {
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=internship" />
         <title>Internship Modules &amp; Curriculum | Choose Your Therapist</title>
         <meta name="description" content="See the full module-by-module curriculum for every track in the Choose Your Therapist Supervision cum Internship Program." />
-        <link rel="canonical" href="https://chooseyourtherapist.in/internship-modules" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/internship-modules" />
       </Head>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <MyNavbar />

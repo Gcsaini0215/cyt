@@ -16,11 +16,11 @@ export default function Plans() {
         <meta name="robots" content="noindex, nofollow" />
         <meta name="description" content="Explore affordable therapy plans and pricing at Choose Your Therapist. We offer flexible options for individual counseling, couples therapy, and specialized mental health support starting from ₹500." />
         <meta name="keywords" content="Therapy Plans, Counseling Pricing India, Affordable Therapy, Mental Health Packages, Choose Your Therapist Plans" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/plans" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/plans" />
         
         <meta property="og:title" content="Therapy Plans & Pricing | Affordable Counseling in India" />
         <meta property="og:description" content="Explore affordable therapy plans and pricing. Flexible options for individual counseling and specialized mental health support." />
-        <meta property="og:url" content="https://chooseyourtherapist.in/plans" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/plans" />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         

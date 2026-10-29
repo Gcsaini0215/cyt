@@ -13,11 +13,11 @@ export default function ContactUs() {
         <meta name="robots" content="index, follow" />
         <meta name="description" content="Have questions? Contact Choose Your Therapist for support, inquiries, or assistance with finding the right psychologist in India. We're here to help." />
         <meta name="keywords" content="Contact Choose Your Therapist, Therapy Support India, Mental Health Inquiries" />
-        <link rel="canonical" href="https://chooseyourtherapist.in/contact-us" />
+        <link rel="canonical" href="https://www.chooseyourtherapist.in/contact-us" />
         
         <meta property="og:title" content="Contact Us | Get in Touch with Choose Your Therapist" />
         <meta property="og:description" content="Have questions? Contact Choose Your Therapist for support, inquiries, or assistance." />
-        <meta property="og:url" content="https://chooseyourtherapist.in/contact-us" />
+        <meta property="og:url" content="https://www.chooseyourtherapist.in/contact-us" />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=home" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
