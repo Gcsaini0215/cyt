@@ -57,6 +57,13 @@ const nextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
         ],
       },
+      // Old / placeholder pages that still answer 200 but have no title or real content:
+      // keep them out of Google so they don't count as thin pages against the site.
+      ...["/workshops", "/starthealing", "/service-page", "/therapist-blogs", "/coming-soon",
+        "/supervision-details", "/ai-chat", "/ai-affirmation"].map((source) => ({
+        source,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      })),
     ];
   },
 };
