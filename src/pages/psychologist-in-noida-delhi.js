@@ -45,114 +45,38 @@ export default function LocalLandingPage({ ncrCards = [] }) {
   return (
     <div style={{ overflowX: 'hidden', width: '100%' }}>
       <Head>
-        <title>Find the Right Therapist in Noida & Delhi NCR – Get a Call Back | CYT</title>
-        <meta name="description" content="Not sure which therapist is right for you? Share a few details and we call you back with a verified psychologist in Noida, Delhi NCR or online." />
-        <meta name="keywords" content="Best Psychologist in Noida, Top Psychologist in Delhi, Mental Health Studio Noida, Anxiety Specialist Delhi NCR, Relationship Counseling Noida Sector 51, Psychologist near me Noida, Best Psychologist in Uttar Pradesh, clinical psychologist in Noida, therapist near me Delhi NCR, psychologist near Sector 50 Noida, therapy center near LPS Global School, counselor in Noida Sector 34" />
+        <title>Not Sure Which Therapist? Free Call Back – Delhi NCR & Online | CYT</title>
+        <meta name="description" content="Not sure which therapist is right for you? Share a few details and our team calls you back to match you with a verified psychologist across Delhi NCR or online." />
+        <meta name="keywords" content="find a therapist Delhi NCR, help choosing a therapist, therapist matching, psychologist call back, online therapist India, therapist near me Delhi NCR" />
         
         {/* Local SEO Meta Tags */}
-        <meta name="geo.region" content="IN-UP" />
-        <meta name="geo.placename" content="Noida, Delhi" />
-        <meta name="geo.position" content="28.5821626;77.3742084" />
-        <meta name="ICBM" content="28.5821626, 77.3742084" />
+        <meta name="geo.region" content="IN-DL" />
+        <meta name="geo.placename" content="Delhi NCR" />
         
         {/* OpenGraph / Social Media Tags */}
         <meta key="og:type" property="og:type" content="website" />
         <meta property="og:url" content="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
-        <meta property="og:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
-        <meta property="og:description" content="Leave your number for a free call — we match you with a verified psychologist in Noida, Delhi NCR or online." />
+        <meta property="og:title" content="Not Sure Which Therapist? Get a Free Call Back – Delhi NCR & Online" />
+        <meta property="og:description" content="Leave your number for a free call — we match you with a verified psychologist across Delhi NCR or online." />
         <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         {/* Twitter Card Tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Find the Right Therapist in Noida & Delhi NCR – Get a Call Back" />
-        <meta name="twitter:description" content="Professional mental health support in Noida & Delhi. Book your session today." />
+        <meta name="twitter:title" content="Not Sure Which Therapist? Get a Free Call Back – Delhi NCR & Online" />
+        <meta name="twitter:description" content="Tell us what you need — we call you back with a verified psychologist across Delhi NCR or online." />
         <meta name="twitter:image" content="https://www.chooseyourtherapist.in/api/og/site.jpg?page=noida" />
 
         <link rel="canonical" href="https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" />
 
-        {/* Schema.org — MedicalClinic + MedicalWebPage + FAQPage + BreadcrumbList */}
+        {/* Schema.org — MedicalWebPage + BreadcrumbList (the Noida centre itself is described on /noida-appointment) */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([
             {
               "@context": "https://schema.org",
-              "@type": "MedicalClinic",
-              "@id": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi#clinic",
-              "name": "Choose Your Therapist — Noida Therapy Studio",
-              "alternateName": "CYT Noida Mental Health Studio",
-              "description": "Premier mental health therapy studio in Noida Sector 51. Verified counselling psychologists and clinical psychologists offering in-person and online sessions for anxiety, depression, OCD, trauma, and relationship counselling.",
-              "image": [
-                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-sector-51.jpg",
-                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-counselling-room.jpg",
-                "https://www.chooseyourtherapist.in/images/centre/cyt-noida-centre-team.jpg"
-              ],
-              "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
-              "telephone": "+91-8077757951",
-              "email": "hello@chooseyourtherapist.in",
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "Gate No-3, D-137, near LPS Global School, Block D, Sector 51",
-                "addressLocality": "Noida",
-                "addressRegion": "Uttar Pradesh",
-                "postalCode": "201301",
-                "addressCountry": "IN"
-              },
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": 28.5821626,
-                "longitude": 77.3742084
-              },
-              "hasMap": "https://www.google.com/maps?cid=4421494166537850872",
-              "medicalSpecialty": [
-                "Counselling Psychology",
-                "Clinical Psychology",
-                "Anxiety & Stress Therapy",
-                "Depression Treatment",
-                "OCD Therapy",
-                "Trauma & PTSD Counselling",
-                "Couples & Relationship Counselling",
-                "Child & Adolescent Psychology",
-                "Special Education"
-              ],
-              "availableService": [
-                { "@type": "MedicalTherapy", "name": "In-Person Therapy Sessions" },
-                { "@type": "MedicalTherapy", "name": "Online Therapy Sessions" },
-                { "@type": "MedicalTherapy", "name": "Anxiety & Stress Management" },
-                { "@type": "MedicalTherapy", "name": "Depression Counselling" },
-                { "@type": "MedicalTherapy", "name": "Couples Therapy" },
-                { "@type": "MedicalTherapy", "name": "Child & Adolescent Therapy" },
-                { "@type": "MedicalTherapy", "name": "OCD Treatment" },
-                { "@type": "MedicalTherapy", "name": "Trauma Therapy" }
-              ],
-              "areaServed": [
-                { "@type": "City", "name": "Noida" },
-                { "@type": "City", "name": "Delhi" },
-                { "@type": "City", "name": "Gurgaon" },
-                { "@type": "City", "name": "Ghaziabad" },
-                { "@type": "City", "name": "Greater Noida" },
-                { "@type": "City", "name": "Faridabad" }
-              ],
-              "openingHoursSpecification": {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
-                "opens": "09:00",
-                "closes": "21:00"
-              },
-              "parentOrganization": {
-                "@type": "MedicalOrganization",
-                "@id": "https://www.chooseyourtherapist.in#organization",
-                "name": "Choose Your Therapist",
-                "url": "https://www.chooseyourtherapist.in"
-              },
-              "sameAs": [
-                "https://www.instagram.com/chooseyourtherapist",
-                "https://www.facebook.com/chooseyourtherapist"
-              ]
-            },
-            {
-              "@context": "https://schema.org",
               "@type": "MedicalWebPage",
-              "name": "Find the Right Therapist in Noida & Delhi NCR – Get a Call Back",
-              "description": "Find and book verified psychologists and therapists in Noida and Delhi NCR for anxiety, depression, OCD, trauma, and relationship counselling.",
+              "name": "Not Sure Which Therapist? Free Call Back – Delhi NCR & Online",
+              "description": "Get help choosing a verified psychologist across Delhi NCR or online: share a few details and the CYT team calls you back with a match.",
+              "mentions": { "@id": "https://www.chooseyourtherapist.in/noida-appointment#centre" },
               "url": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi",
               "lastReviewed": "2026-06-01",
               "reviewedBy": {
@@ -175,53 +99,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
               "@type": "BreadcrumbList",
               "itemListElement": [
                 { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.chooseyourtherapist.in" },
-                { "@type": "ListItem", "position": 2, "name": "Psychologist in Noida & Delhi", "item": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" }
-              ]
-            },
-            {
-              "@context": "https://schema.org",
-              "@type": "FAQPage",
-              "mainEntity": [
-                {
-                  "@type": "Question",
-                  "name": "Who is the best psychologist in Noida for anxiety and stress?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Choose Your Therapist's Noida Studio (Sector 51) has verified counselling and clinical psychologists specializing in anxiety disorders, stress management, and work-life balance issues. All our psychologists are degree-verified and experienced in evidence-based therapies like CBT."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "Do you offer in-person therapy sessions in Noida Sector 51?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes, we offer professional in-person counselling at our therapy studio at Gate No-3, D-137, Sector 51, Noida — near LPS Global School. The center is accessible from Sector 50, 34, 72, and 52. Appointments can be scheduled online at chooseyourtherapist.in."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "How can I find a verified clinical psychologist in Delhi NCR?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Choose Your Therapist features a curated directory of verified clinical psychologists across Delhi, Noida, and Gurgaon. All clinical psychologists on our platform have verified degrees and RCI registration. Browse profiles, check specializations, and book sessions directly at chooseyourtherapist.in/view-all-therapist."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "What is the cost of a therapy session in Noida & Delhi?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Online sessions at Choose Your Therapist start at ₹500 and go up to about ₹2,500, depending on the psychologist's experience and specialization; in-person sessions at our Noida centre (Sector 51) start at ₹1,200. Every fee is shown on the therapist's profile before you book."
-                  }
-                },
-                {
-                  "@type": "Question",
-                  "name": "What is the difference between a counselling psychologist and a clinical psychologist in Noida?",
-                  "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "A counselling psychologist in Noida helps with everyday challenges like stress, anxiety, relationships, and career issues. A clinical psychologist is qualified to diagnose and treat more complex mental health disorders such as OCD, PTSD, severe depression, and personality disorders. Both are available at Choose Your Therapist."
-                  }
-                }
+                { "@type": "ListItem", "position": 2, "name": "Help choosing a therapist – Delhi NCR", "item": "https://www.chooseyourtherapist.in/psychologist-in-noida-delhi" }
               ]
             }
           ]) }} />
@@ -246,10 +124,10 @@ export default function LocalLandingPage({ ncrCards = [] }) {
             <div className="row align-items-center">
               <div className="col-lg-7" style={{ textAlign: 'left' }}>
                 <h1 style={{ fontSize: '4.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: '24px', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
-                  Find the Right Therapist <br/> <span style={{ color: '#4ade80' }}>in Noida &amp; Delhi NCR</span>
+                  Not sure which therapist? <br/> <span style={{ color: '#4ade80' }}>We'll help you choose</span>
                 </h1>
                 <p style={{ fontSize: '1.8rem', color: 'rgba(255, 255, 255, 0.95)', marginBottom: '40px', maxWidth: '800px', fontWeight: 500, lineHeight: 1.6 }}>
-                  Professional therapy for anxiety, depression, and relationships. Connect with top-rated psychologists in Noida, Delhi NCR, or via Online sessions.
+                  Tell us what you're going through and our team calls you back with a verified psychologist who fits — in person across Delhi NCR, or online from anywhere.
                 </p>
                 <div className="hero-btns-container" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
                   <a href="#consultation" className="rbt-btn btn-gradient">Get a Call Back</a>
@@ -298,7 +176,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                       <SwiperSlide key={idx}>
                         <img 
                           src={img} 
-                          alt={`Best Psychologist Noida Center - Office View ${idx + 1}`} 
+                          alt={`CYT therapy centre, Sector 51 — view ${idx + 1}`} 
                           style={{ width: '100%', height: isMobile ? '350px' : '500px', objectFit: 'cover' }}
                         />
                       </SwiperSlide>
@@ -335,7 +213,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                                 objectFit: 'cover',
                                 filter: [1, 3, 5].includes(idx) ? 'grayscale(100%)' : 'none'
                               }} 
-                              alt={`Mental Health Studio Noida - Therapy Room Collage ${idx}`} 
+                              alt={`CYT therapy centre — counselling room ${idx + 1}`} 
                             />
                           </div>
                         ))}
@@ -348,9 +226,9 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                 <div className="inner pl--50 pl_sm--0">
                   <div className="section-title text-start">
                     <span className="subtitle bg-primary-opacity">In-Person Therapy</span>
-                    <h2 className="title" style={{ fontSize: '3rem', fontWeight: 800 }}>Visit Our <span className="theme-gradient">Noida Therapy Studio</span></h2>
+                    <h2 className="title" style={{ fontSize: '3rem', fontWeight: 800 }}>Prefer to meet <span className="theme-gradient">in person?</span></h2>
                     <p className="description mt--20" style={{ fontSize: '1.4rem', lineHeight: 1.7, textAlign: 'left' }}>
-                      Experience professional mental health support in a safe, confidential, and serene environment. Located in Sector 51, our Noida studio is easily accessible from Sector 50, 34, 72, and 52, making it the ideal choice for local residents.
+                      Our own therapy centre offers calm, private counselling rooms. When you call back, we can book you in person there or with a psychologist online.
                     </p>
                     
                     <div className="clinic-details mt--30" style={{ background: '#f8fafc', padding: '25px', borderRadius: '15px', borderLeft: '5px solid #228756', textAlign: 'left' }}>
@@ -371,7 +249,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                     </div>
 
                     <div className="mt--40">
-                      <a href="/noida-appointment" className="rbt-btn btn-gradient">Book an Appointment at Our Noida Centre</a>
+                      <a href="/noida-appointment" className="rbt-btn btn-gradient">Book a psychologist in Noida</a>
                     </div>
                   </div>
                 </div>
@@ -383,8 +261,8 @@ export default function LocalLandingPage({ ncrCards = [] }) {
         {/* Reusing shared sections but with local context provided by the page title/SEO */}
         <RelatedTherapists
           id="ncr"
-          title="Psychologists in Noida & Delhi NCR"
-          subtitle="Verified psychologists near you — in person at our Noida centre or online. Tap a name for the full profile and reviews."
+          title="Psychologists across Delhi NCR"
+          subtitle="Verified psychologists near you — in person or online. Tap a name for the full profile and reviews."
           items={ncrCards}
           moreHref="/view-all-therapist"
           moreLabel="All psychologists"
@@ -396,7 +274,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
             <div className="row mb--60">
               <div className="col-lg-12">
                 <div className="section-title text-center">
-                  <h2 className="title" style={{ fontSize: isMobile ? '3.2rem' : '3.5rem', fontWeight: 800 }}>Top Mental Health Services in <span className="theme-gradient">Noida & Delhi</span></h2>
+                  <h2 className="title" style={{ fontSize: isMobile ? '3.2rem' : '3.5rem', fontWeight: 800 }}>Support we can match you with across <span className="theme-gradient">Delhi NCR</span></h2>
                   <p className="description mt--20" style={{ fontSize: isMobile ? '1.5rem' : '1.6rem' }}>Comprehensive psychological support tailored for the Delhi-NCR community.</p>
                 </div>
               </div>
@@ -405,13 +283,13 @@ export default function LocalLandingPage({ ncrCards = [] }) {
               {[
                 { 
                   title: "Anxiety & Stress Management", 
-                  desc: "Specialized therapy for fast-paced urban lifestyles in Delhi and Noida. Overcome work-related stress and chronic anxiety.",
+                  desc: "Specialized therapy for fast-paced city life. Overcome work-related stress and chronic anxiety.",
                   icon: "feather-wind",
                   color: "#228756"
                 },
                 { 
                   title: "Relationship & Couple Counseling", 
-                  desc: "Helping couples in Noida and Delhi NCR navigate modern relationship challenges with expert guidance.",
+                  desc: "Helping couples across Delhi NCR navigate modern relationship challenges with expert guidance.",
                   icon: "feather-heart",
                   color: "#e11d48"
                 },
@@ -423,7 +301,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                 },
                 { 
                   title: "Child & Adolescent Therapy", 
-                  desc: "Supporting the mental health of children and teens across top schools in Noida and Delhi.",
+                  desc: "Supporting the mental health of children and teens across Delhi NCR.",
                   icon: "feather-user",
                   color: "#a855f7"
                 }

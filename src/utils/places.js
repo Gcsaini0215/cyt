@@ -476,7 +476,7 @@ export const NOIDA_CENTRE = {
   address: "Sector 51, Noida, Uttar Pradesh 201301",
   hours: "Mon – Sun, 9 AM – 9 PM",
   book: "/noida-appointment",
-  page: "/psychologist-in-noida-delhi",
+  page: "/noida-appointment",
 };
 
 // photo for a place page tile (/assets/img/cities/w/<name>.webp); places without one get a styled tile

@@ -180,7 +180,7 @@ export default function Footer() {
                 <p className="ft-title">Cities We Serve</p>
                 <ul className="ft-link ft-cities-col liststyle-none mt--20">
                   <li className="mb--10"><Link href="/noida-appointment">Noida</Link></li>
-                  <li className="mb--10"><Link href="/psychologist-in-noida-delhi">Find a Therapist – Noida &amp; Delhi</Link></li>
+                  <li className="mb--10"><Link href="/psychologist-in-noida-delhi">Help Choosing a Therapist</Link></li>
                   <li className="mb--10"><Link href="/psychologist-in/mumbai">Mumbai</Link></li>
                   <li className="mb--10"><Link href="/psychologist-in/bangalore">Bangalore</Link></li>
                   <li className="mb--10"><Link href="/psychologist-in/pune">Pune</Link></li>

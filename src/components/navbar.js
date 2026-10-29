@@ -331,7 +331,7 @@ export default function App() {
               <ul className="submenu" style={{ display: activeDropdown === "services" ? "block" : "none" }}>
                 <li><Link href="/therapy-booking" onClick={close}>Therapy Booking</Link></li>
                 <li><Link href="/self-assessment" onClick={close}>Self Assessment</Link></li>
-                <li><Link href="/psychologist-in-noida-delhi" onClick={close}>Find a Therapist (Noida &amp; Delhi)</Link></li>
+                <li><Link href="/psychologist-in-noida-delhi" onClick={close}>Help Choosing a Therapist</Link></li>
               </ul>
             </li>
           </ul>

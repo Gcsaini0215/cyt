@@ -191,8 +191,7 @@ function buildSeoGraph(p) {
         "@id": `${PAGE_URL}#breadcrumb`,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: SITE },
-          { "@type": "ListItem", position: 2, name: "Psychologist in Noida & Delhi", item: `${SITE}/psychologist-in-noida-delhi` },
-          { "@type": "ListItem", position: 3, name: "Book at the Noida centre", item: PAGE_URL },
+          { "@type": "ListItem", position: 2, name: "Psychologist in Noida", item: PAGE_URL },
         ],
       },
       {
@@ -4222,7 +4221,7 @@ function NoidaSeoContent({ pricing, reviews, team = [] }) {
         </div>
 
         <p className="na-seo-links">
-          Explore more: <a href="/psychologist-in-noida-delhi">Find a therapist in Noida &amp; Delhi NCR</a> ·{" "}
+          Explore more: <a href="/psychologist-in-noida-delhi">Not sure who to pick? Get a free call back</a> ·{" "}
           <a href="/view-all-therapist">Browse all therapists</a> · <a href="/self-assessment">Free self-assessment</a> ·{" "}
           <a href="/privacy-policy">How we protect your data</a>
         </p>

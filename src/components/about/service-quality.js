@@ -93,7 +93,7 @@ export default function ServiceQuality() {
                 Our network of <Link href="/view-all-therapist">verified psychologists, counsellors,
                 and psychiatrists</Link> — each screened for qualifications, licenses, and clinical
                 experience — offers sessions online by video or audio call, or in person at our
-                clinical spaces in <Link href="/psychologist-in-noida-delhi">Noida and Delhi NCR</Link>.
+                <Link href="/noida-appointment">therapy centre in Noida</Link>.
               </p>
               <p>
                 Beyond therapy, we run <Link href="/allworkshop">mental health workshops</Link>, an{" "}
