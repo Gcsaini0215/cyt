@@ -5,11 +5,11 @@ import React from "react";
    underneath so the page's form card can overlap the bottom edge (give that card the
    "phx-overlap" class).
 
-   Props: pill, title, lead (nodes), stats ([{ value, label }]).
+   Props: pill, title, lead (nodes), stats ([{ value, label }]), action (a button under the stats).
    images / image / interval are still accepted from older callers but no longer shown (the photo
    slideshow was replaced by the light banner, 2026-10-21). */
 // eslint-disable-next-line no-unused-vars
-export default function PhotoHero({ images, image, interval, pill, title, lead, stats = [] }) {
+export default function PhotoHero({ images, image, interval, pill, title, lead, stats = [], action }) {
   return (
     <section className="phx">
       <style dangerouslySetInnerHTML={{ __html: PHX_CSS }} />
@@ -23,6 +23,7 @@ export default function PhotoHero({ images, image, interval, pill, title, lead, 
             {stats.map((s) => <div key={s.label}><b>{s.value}</b><span>{s.label}</span></div>)}
           </div>
         )}
+        {action && <div className="phx-action">{action}</div>}
       </div>
     </section>
   );
@@ -47,6 +48,7 @@ const PHX_CSS = `
 .phx .phx-title span { color: #a86e0e; }
 .phx-lead { font-size: 16px; line-height: 1.55; color: #3f4f47; margin: 0 0 14px; padding: 0; max-width: 780px; }
 .phx-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.phx-action { margin-top: 18px; }
 .phx-stats div { display: inline-flex; align-items: baseline; gap: 6px; background: rgba(255,255,255,.78); border: 1px solid #d3e3d9; border-radius: 999px; padding: 6px 14px; box-shadow: 0 8px 20px -14px rgba(20,83,45,.35); }
 .phx-stats b { font-size: 15px; font-weight: 900; color: #14532d; line-height: 1.2; }
 .phx-stats span { font-size: 12.5px; color: #4b5d53; line-height: 1.35; }

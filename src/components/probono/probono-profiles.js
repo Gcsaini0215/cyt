@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { Box, Typography, Grid, Avatar, Button, Stack } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -8,18 +8,9 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ImageTag from "../../utils/image-tag";
 import ProbonoBanner from "./probono-banner";
-import ProbonoLeadModal from "./probono-lead-modal";
 import { PSYCHOLOGISTS } from "./probono-data";
 
 export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
-  const [selected, setSelected] = useState(null);
-  const [showLeadPopup, setShowLeadPopup] = useState(false);
-
-  const handleConnectNow = (psychologist) => {
-    setSelected(psychologist);
-    setShowLeadPopup(true);
-  };
-
   const filteredList = interns;
 
   return (
@@ -171,7 +162,8 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
 
                   <Button
                     fullWidth
-                    onClick={() => handleConnectNow(p)}
+                    component="a"
+                    href={`/client/free-session?guide=${p.slug}`}
                     sx={{
                       borderRadius: "6px",
                       py: 1.2,
@@ -183,7 +175,7 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                       "&:hover": { opacity: 0.92 },
                     }}
                   >
-                    Send Request
+                    Book Free Session
                   </Button>
                 </Box>
               </Grid>
@@ -191,8 +183,6 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
           </Grid>
         </div>
       </div>
-
-      <ProbonoLeadModal open={showLeadPopup} onClose={() => setShowLeadPopup(false)} selected={selected} />
     </>
   );
 }

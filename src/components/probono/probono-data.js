@@ -20,7 +20,7 @@ export const PSYCHOLOGISTS = [
     name: "Ananya Sharma",
     photo: photo1,
     intro: "Psychology intern gaining supervised experience with anxiety, stress, and life transitions.",
-    bio: "Ananya Sharma is a psychology intern still completing her degree, gaining hands-on experience under the close supervision of a licensed expert. She focuses on anxiety, stress, and life transitions.",
+    bio: "Ananya Sharma is a psychology intern still completing her degree, gaining hands-on experience under close professional supervision. She focuses on anxiety, stress, and life transitions.",
     rating: 4.9,
     requestsSent: 132,
     connected: 118,

@@ -11,6 +11,7 @@ import { tApi, fileUrl, fmtTime, fmtMins, fmtSecs, secsSince } from "../../utils
    Pages read the signed-in trainee and today's attendance from useTraineePortal(). */
 export const NAV = [
   { to: "/trainee", icon: "feather-grid", label: "Dashboard" },
+  { to: "/trainee/probono", icon: "feather-heart", label: "Pro bono sessions" },
   { to: "/trainee/attendance", icon: "feather-clock", label: "Attendance" },
   { to: "/trainee/tasks", icon: "feather-check-square", label: "Tasks" },
   { to: "/trainee/notes", icon: "feather-book-open", label: "Notes" },
@@ -43,7 +44,7 @@ function cheerFor(today) {
   return "Every hour counts 🌱";
 }
 
-const NOTIF_ICON = { task: "feather-check-square", "task-update": "feather-edit", note: "feather-book-open", certificate: "feather-award", plan: "feather-gift", attendance: "feather-clock" };
+const NOTIF_ICON = { task: "feather-check-square", "task-update": "feather-edit", note: "feather-book-open", certificate: "feather-award", plan: "feather-gift", attendance: "feather-clock", probono: "feather-heart" };
 function ago(d) {
   const m = Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 60000));
   if (m < 1) return "just now";

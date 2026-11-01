@@ -10,14 +10,12 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import { Share2 } from "lucide-react";
 import ImageTag from "../../utils/image-tag";
-import ProbonoLeadModal from "./probono-lead-modal";
 import ShareModal from "../global/share-modal";
 import ProbonoProfileReview from "./probono-profile-review";
 
 export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
-  const [showLeadPopup, setShowLeadPopup] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [requestsSent, setRequestsSent] = useState(psychologist.requestsSent || 0);
+  const requestsSent = psychologist.requestsSent || 0;
   const [rating, setRating] = useState(psychologist.rating || 0);
 
   return (
@@ -237,7 +235,8 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
 
             <Button
               fullWidth
-              onClick={() => setShowLeadPopup(true)}
+              component="a"
+              href={`/client/free-session?guide=${psychologist.slug}`}
               sx={{
                 borderRadius: "6px",
                 py: 1.4,
@@ -250,20 +249,13 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
                 "&:hover": { opacity: 0.92 },
               }}
             >
-              Connect Now
+              Book Free Session
             </Button>
           </Box>
 
           <ProbonoProfileReview probonoIntern={psychologist} onReviewSubmitted={(newRating) => setRating(newRating)} />
         </div>
       </div>
-
-      <ProbonoLeadModal
-        open={showLeadPopup}
-        onClose={() => setShowLeadPopup(false)}
-        selected={psychologist}
-        onSuccess={() => setRequestsSent((n) => n + 1)}
-      />
 
       <ShareModal
         open={showShareModal}

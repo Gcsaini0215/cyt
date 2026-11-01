@@ -31,6 +31,7 @@ import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 
 export const CLIENT_NAV = [
   { to: "/my-dashboard", label: "My Space", Icon: HomeRoundedIcon, mob: true },
+  { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon }, // phones: in "More"
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, mob: true },
   { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, mob: true },
   { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, mob: true },
@@ -144,6 +145,7 @@ export default function ClientShell({ title, children }) {
 
   // phone "More" sheet: tiles in pages of 8 that slide sideways
   const tiles = [
+    { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon },
     { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon },
     ...CHECK_NAV,
     ...HELP_NAV,

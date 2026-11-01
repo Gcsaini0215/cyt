@@ -1,85 +1,54 @@
-import React, { useState } from "react";
-import Link from "next/link";
-import { Box, Typography, Button, FormControlLabel, Checkbox } from "@mui/material";
+import React from "react";
+import { Box, Typography, Stack } from "@mui/material";
 import ProbonoBanner from "./probono-banner";
+import FreeConsultationButton from "./free-consultation-button";
+
+const STEPS = [
+  ["Sign in", "Create your account, or sign in if you already have one."],
+  ["Share your details", "Tell us briefly what's on your mind from your dashboard, and read the consent."],
+  ["We arrange your session", "Our team chooses a guide and a time, and your Google Meet link appears in My Space."],
+  ["Decide what's next", "If you'd like to continue, you get a limited-time coupon for your first paid session with any CYT therapist."],
+];
 
 export default function ProbonoTherapist() {
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-
   return (
     <>
-      <ProbonoBanner />
+      <ProbonoBanner action={<FreeConsultationButton />} />
 
-      <div className="rbt-section-gap">
+      <div className="rbt-section-gap" style={{ background: "#fff" }}>
         <div className="container">
-          <Box sx={{ maxWidth: 720, mx: "auto", textAlign: "center" }}>
-            <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 900, color: "#1e293b", mb: 3 }}>
-              About Pro Bono Support
+          <Box sx={{ maxWidth: 720, mx: "auto", "& .MuiTypography-root, & .MuiButton-root": { fontFamily: "inherit" } }}>
+            <Typography component="h2" sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 900, color: "#1e293b", mb: 3, textAlign: "center" }}>
+              How It Works
             </Typography>
 
-            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "justify" }}>
-              Welcome to our <strong>Pro Bono Support Program</strong>. This service is designed to provide{" "}
-              <strong>free, supervised emotional support</strong> to individuals who may be experiencing stress,
-              anxiety, emotional challenges, relationship concerns, academic pressure, work-related difficulties,
-              or other personal issues.
-            </Typography>
-            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2.5, textAlign: "justify" }}>
-              Our <strong>interns are trained psychology professionals</strong> working under the active supervision
-              with <strong>certified mental health experts</strong>. Every session is directly overseen by a qualified
-              therapist to ensure you receive <strong>safe, professional, and high-quality care</strong>.
-            </Typography>
-            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 4, textAlign: "justify" }}>
-              This program aims to make mental health support more accessible while helping psychology interns
-              develop practical skills under professional supervision.
-            </Typography>
-
-            <Box sx={{ mb: 3, textAlign: "left", maxWidth: 720, mx: "auto", px: 2 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
-                    sx={{ color: "#228756", "&.Mui-checked": { color: "#228756" } }}
-                  />
-                }
-                label={
-                  <Typography sx={{ fontSize: 14, color: "#475569", ml: 1 }}>
-                    I have read and agree to the{" "}
-                    <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700, textDecoration: "underline" }}>
-                      terms and conditions
-                    </Link>{" "}
-                    and{" "}
-                    <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700, textDecoration: "underline" }}>
-                      privacy policy
-                    </Link>
-                  </Typography>
-                }
-              />
+            <Box component="ol" sx={{ listStyle: "none", m: 0, mb: 4, p: 0 }}>
+              {STEPS.map(([title, text], i) => (
+                <Stack key={title} component="li" direction="row" spacing={2} sx={{ py: 1.75, borderTop: i ? "1px solid #eef2f0" : "none" }}>
+                  <Box sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: "50%", background: "#166534", color: "#fff", display: "grid", placeItems: "center", fontWeight: 800, fontSize: 14 }}>
+                    {i + 1}
+                  </Box>
+                  <Box>
+                    <Typography sx={{ fontSize: 16, fontWeight: 800, color: "#1e293b" }}>{title}</Typography>
+                    <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.7 }}>{text}</Typography>
+                  </Box>
+                </Stack>
+              ))}
             </Box>
 
-            <Link href={agreedToTerms ? "/probono-therapist/profiles" : "#"} passHref legacyBehavior>
-              <Button
-                component="a"
-                disabled={!agreedToTerms}
-                onClick={(e) => !agreedToTerms && e.preventDefault()}
-                sx={{
-                  borderRadius: "12px",
-                  py: 1.4,
-                  px: 4,
-                  background: "#16a34a",
-                  color: "white",
-                  fontWeight: 800,
-                  fontSize: 15,
-                  textTransform: "none",
-                  boxShadow: "0 8px 18px rgba(22, 163, 74, 0.25)",
-                  cursor: agreedToTerms ? "pointer" : "not-allowed",
-                  opacity: agreedToTerms ? 1 : 0.6,
-                  "&:hover": { opacity: agreedToTerms ? 0.92 : 0.6 },
-                }}
-              >
-                Continue
-              </Button>
-            </Link>
+            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 2 }}>
+              Our <strong>Pro Bono Support Program</strong> offers free, supervised emotional support for concerns such as
+              stress, anxiety, relationships, academic pressure and work. Sessions are led by psychology interns working
+              under professional supervision.
+            </Typography>
+            <Typography sx={{ fontSize: 15, color: "#475569", lineHeight: 1.9, mb: 4 }}>
+              This session is emotional support, not therapy or a diagnosis, and it isn&apos;t for emergencies. Each person
+              can have one free session.
+            </Typography>
+
+            <Box sx={{ textAlign: "center" }}>
+              <FreeConsultationButton />
+            </Box>
           </Box>
         </div>
       </div>

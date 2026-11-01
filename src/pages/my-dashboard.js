@@ -3,7 +3,7 @@ import Link from "next/link";
 import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
-import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import useUserStore from "../store/userStore";
@@ -64,11 +64,13 @@ export default function ClientHome() {
   const [referral, setReferral] = useState(null); // { code, amount, credit, friends }
   const [checks, setChecks] = useState(null); // screenings sent to / taken by the client
   const [packs, setPacks] = useState([]); // session packs with sessions left
+  const [probono, setProbono] = useState(null); // the free session and its coupon
   const [sideEl, setSideEl] = useState(null); // a callback ref: the shell renders the page only after its login check
 
   useEffect(() => {
     // also re-run live: the notification stream says when a session is confirmed / starts / moves / ends
     const load = () => {
+      fetchById(`${apiUrl}/probono/me`).then((r) => setProbono(r?.data || null)).catch(() => {});
       fetchById(getBookings).then((r) => { if (r?.status) setBookings(r.data || []); else setBookings((b) => b || []); }).catch(() => setBookings((b) => b || []));
       fetchById(MyPendingBookingsUrl).then((r) => setPending(r?.status ? r.data || [] : [])).catch(() => {});
       fetchById(`${apiUrl}/my-bundles`).then((r) => setPacks(r?.status ? r.data || [] : [])).catch(() => {});
@@ -160,6 +162,8 @@ export default function ClientHome() {
               {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
               <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
             </div>
+
+            <div className="ch-pb"><ProbonoCard data={probono} onChange={() => fetchById(`${apiUrl}/probono/me`).then((r) => setProbono(r?.data || null)).catch(() => {})} /></div>
 
             {pending.length > 0 && (
               <section className="ch-next ch-pend">
@@ -287,6 +291,7 @@ const HOME_CSS = `
 /* side column spans both rows, so the lower sections sit right under the main cards (no gap) */
 .ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto 1fr; grid-template-areas: "main side" "rest side"; column-gap: 16px; align-items: start; }
 .ch-pend { margin-bottom: 16px; }
+.ch-pb:not(:empty) { margin-bottom: 16px; }
 .ch-next-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .ch-next-h h2 { margin: 0; }
 .ch-count { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; background: #e7f6ec; color: #166534; font-size: 12.5px; font-weight: 800; white-space: nowrap; }

@@ -457,6 +457,11 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   React.useEffect(() => {
     if (!isLoggedIn) return;
     fetchById(MyReferralUrl).then(r => { if (r?.status) setCredit(Number(r.data?.credit) || 0); }).catch(() => {});
+    // the coupon from the client's free session comes off by itself, unless they came with another offer
+    fetchById(`${apiUrl}/probono/me`).then(r => {
+      const code = r?.data?.session?.coupon?.code;
+      if (code && !linkCoupon.current) linkCoupon.current = code;
+    }).catch(() => {});
   }, [isLoggedIn]);
 
   // session packs: the signed-in client's packs (book from one), or buy one with this booking (Step 3)
@@ -1189,7 +1194,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         </div>
         {couponCut > 0 && (
           <div style={{ display: "flex", padding: "12px 16px", borderBottom: creditUse > 0 ? "1px solid #e2e8f0" : "none" }}>
-            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{couponApplied?.referral ? "Referral" : "Discount"}</span>
+            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600, minWidth: 80 }}>{couponApplied?.probono ? "Coupon" : couponApplied?.referral ? "Referral" : "Discount"}</span>
             <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 700 }}>−₹{couponSave.toLocaleString("en-IN")}</span>
           </div>
         )}

@@ -1,6 +1,7 @@
 export const CONSENT_SECTIONS = [
   {
-    title: "1. Nature of the Service",
+    id: "nature",
+    title: "Nature of the Service",
     intro: "This is a free emotional support and guidance session conducted by a psychology intern under professional supervision.",
     lead: "The purpose of this session is to:",
     items: [
@@ -13,7 +14,9 @@ export const CONSENT_SECTIONS = [
     ],
   },
   {
-    title: "2. What This Session Is Not",
+    id: "not",
+    title: "What This Session Is Not",
+    style: "cross",
     intro: "Please understand that this service does not replace professional mental health care.",
     lead: "This session is not:",
     items: [
@@ -31,20 +34,22 @@ export const CONSENT_SECTIONS = [
     outro: "If you require diagnosis, treatment, medication, or long-term therapy, you should schedule an appointment with a licensed psychologist, psychiatrist, or other qualified healthcare professional.",
   },
   {
-    title: "3. Who Will Conduct Your Session?",
+    id: "who",
+    title: "Who Will Conduct Your Session?",
     lead: "Your session will be conducted by a psychology intern who:",
     items: [
       "Is currently enrolled in a recognized psychology training program.",
       "Is completing supervised practical experience.",
       "Has received academic education in psychology.",
-      "Works under the direct supervision of a licensed mental health professional.",
+      "Works under the direct supervision of a mental health professional.",
       "Follows professional ethical guidelines and organizational policies.",
     ],
     outro: "Although interns are trained, they are still developing their clinical skills and therefore work within defined limits under supervision.",
   },
   {
-    title: "4. Professional Supervision",
-    intro: "All psychology interns receive regular supervision from licensed professionals.",
+    id: "supervision",
+    title: "Professional Supervision",
+    intro: "All psychology interns receive regular professional supervision.",
     lead: "The supervising professional may:",
     items: [
       "Review case notes.",
@@ -56,15 +61,56 @@ export const CONSENT_SECTIONS = [
     outro: "Supervision helps maintain service quality and supports both participant safety and intern learning.",
   },
   {
-    title: "5. Session Duration",
-    items: [
-      "Each session lasts approximately 45 minutes.",
-      "Sessions begin and end according to the scheduled appointment time.",
-      "If additional support is needed, follow-up options or referrals may be discussed.",
+    id: "terms",
+    title: "Session Terms",
+    groups: [
+      {
+        heading: "Who can take it",
+        items: [
+          "The free session is for first-time clients aged 18 or over.",
+          "Each person can have one free session, linked to their account and phone number.",
+          "There is no payment and no card is needed.",
+        ],
+      },
+      {
+        heading: "How it is arranged",
+        items: [
+          "You share your details from your My Space account. You can edit them until your session is scheduled.",
+          "The Choose Your Therapist team chooses the intern and the time. If you picked a guide, we will try to arrange them, but this is not guaranteed.",
+          "Your confirmed time, intern and Google Meet link appear in My Space.",
+          "If we can't arrange a session, we will let you know and you can share your details again.",
+          "If your intern can't attend, our team will arrange a new time.",
+        ],
+      },
+      {
+        heading: "On the day",
+        items: [
+          "Each session lasts approximately 45 minutes and takes place online on Google Meet.",
+          "Please join from a private, quiet place with a working internet connection.",
+          "Sessions begin and end according to the scheduled appointment time.",
+          "If additional support is needed, follow-up options or referrals may be discussed.",
+        ],
+      },
+      {
+        heading: "Cancelling or missing it",
+        items: [
+          "You can cancel from your account before the session, and share your details again later.",
+          "If you miss a scheduled session without cancelling, your free session counts as used.",
+        ],
+      },
+      {
+        heading: "Your coupon after the session",
+        items: [
+          "After you complete your free session, a coupon worth ₹200 appears in My Space.",
+          "It works on your first paid session with any Choose Your Therapist therapist.",
+          "It is valid for 30 days, can only be used from your account, and can't be exchanged for cash.",
+        ],
+      },
     ],
   },
   {
-    title: "6. Confidentiality",
+    id: "confidentiality",
+    title: "Confidentiality",
     intro: "Your privacy is important to us. Information shared during your session will be treated confidentially and used only for the purposes of providing support, supervision, and maintaining service quality.",
     lead: "However, confidentiality may be limited if:",
     items: [
@@ -72,12 +118,14 @@ export const CONSENT_SECTIONS = [
       "There is concern about immediate risk of harm to another person.",
       "Abuse or neglect of a child, older adult, or vulnerable person must legally be reported.",
       "Disclosure is required by applicable law or a court order.",
-      "Information is shared with the supervising licensed professional as part of clinical supervision.",
+      "Information is shared with the supervising professional as part of clinical supervision.",
     ],
-    outro: "Only individuals directly involved in your care and supervision will have access to relevant information.",
+    outro: "Only individuals directly involved in your care and supervision will have access to relevant information. Your support person sees your name, age, language and what you would like to talk about, but not your phone number or email address.",
   },
   {
-    title: "7. Appropriate Use of This Service",
+    id: "use",
+    title: "Appropriate Use of This Service",
+    style: "chips",
     lead: "This program is suitable for individuals seeking support with concerns such as:",
     items: [
       "Stress",
@@ -96,7 +144,8 @@ export const CONSENT_SECTIONS = [
     outro: "The intern may determine that your needs are beyond the scope of this service and recommend a referral to a licensed professional.",
   },
   {
-    title: "8. Emergency Situations",
+    id: "emergency",
+    title: "Emergency Situations",
     intro: "This service is not intended for emergencies.",
     lead: "Please do not use this service if you are experiencing:",
     items: [
@@ -110,7 +159,8 @@ export const CONSENT_SECTIONS = [
     highlight: true,
   },
   {
-    title: "9. Respectful Conduct",
+    id: "conduct",
+    title: "Respectful Conduct",
     lead: "To ensure a safe and respectful environment for everyone, participants are expected to:",
     items: [
       "Treat interns and staff with courtesy and respect.",
@@ -121,7 +171,8 @@ export const CONSENT_SECTIONS = [
     outro: "Sessions may be ended if inappropriate or unsafe behavior occurs.",
   },
   {
-    title: "10. Voluntary Participation",
+    id: "voluntary",
+    title: "Voluntary Participation",
     intro: "Participation in this program is completely voluntary.",
     lead: "You may:",
     items: [
@@ -132,7 +183,8 @@ export const CONSENT_SECTIONS = [
     ],
   },
   {
-    title: "11. Referral to Professional Services",
+    id: "referral",
+    title: "Referral to Professional Services",
     intro: "If the psychology intern or supervising professional believes you would benefit from additional care, they may recommend that you:",
     items: [
       "Schedule therapy with a licensed psychologist.",
@@ -144,14 +196,16 @@ export const CONSENT_SECTIONS = [
     outro: "Recommendations are made to support your wellbeing and ensure you receive the most appropriate level of care.",
   },
   {
-    title: "12. Informed Consent",
-    intro: 'By selecting "I Understand and Agree", you confirm that:',
+    id: "consent",
+    title: "Informed Consent",
+    intro: "By ticking the consent box when you share your details, you confirm that:",
     items: [
       "You have read and understood all of the information above.",
-      "You understand that your session will be conducted by a psychology intern under the supervision of a licensed mental health professional.",
+      "You understand that your session will be conducted by a psychology intern under professional supervision.",
       "You understand that this service provides emotional support and guidance but is not professional therapy or psychological treatment.",
       "You understand the limits of confidentiality.",
       "You understand that this service is not appropriate for emergencies.",
+      "You agree to the session terms above.",
       "You agree to participate voluntarily.",
       "You consent to the use of your information for supervision and quality assurance purposes in accordance with applicable privacy policies.",
       "You understand that you may be referred to a licensed professional if your needs are beyond the scope of this service.",
@@ -159,5 +213,9 @@ export const CONSENT_SECTIONS = [
   },
 ];
 
-export const CONSENT_STATEMENT =
-  "I have carefully read and understood the information above. I acknowledge the nature and limitations of the Pro Bono Support Program, understand that my session will be conducted by a psychology intern under licensed supervision, and voluntarily consent to participate under these terms.";
+export const CONSENT_GLANCE = [
+  ["Free", "One session, no payment"],
+  ["45 minutes", "Online on Google Meet"],
+  ["18 and over", "First-time clients only"],
+  ["Arranged for you", "Our team confirms the time"],
+];

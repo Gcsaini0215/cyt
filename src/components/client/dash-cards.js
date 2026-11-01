@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchById, postData } from "../../utils/actions";
-import { MyReferralUrl, SaveReviewUrl } from "../../utils/url";
+import { MyReferralUrl, SaveReviewUrl, apiUrl } from "../../utils/url";
 import { bookPath } from "../../utils/therapist-slug";
 import { fmtWhen, therapistName, therapistPhoto } from "./session-card";
 import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
@@ -251,6 +251,65 @@ export function ReferralCard({ data }) {
       {d.credit > 0 && <p className="dc-ref-note">Your credit comes off your next booking automatically.</p>}
     </div>
   );
+}
+
+/* The free pro bono session: waiting, confirmed with its Meet link, another-time prompt, then the first-session coupon */
+export function ProbonoCard({ data, onChange, hideManage }) {
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const s = data?.session;
+  if (!s) return null;
+  const when = (d) => new Date(d).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", hour12: true });
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(s.coupon.code); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) { /* clipboard blocked */ }
+  };
+  const cancel = async () => {
+    if (!window.confirm("Cancel your free session?")) return;
+    setBusy(true);
+    try { await postData(`${apiUrl}/probono/${s._id}/cancel`, {}); onChange?.(); } catch (e) { /* the card stays as it is */ }
+    setBusy(false);
+  };
+
+  if (s.coupon) {
+    return (
+      <div className="dc-ref">
+        <div className="dc-ref-h">
+          <CardGiftcardRoundedIcon />
+          <div><b>₹{s.coupon.amount} off your first session</b><span>If you&apos;d like to continue, this works with any CYT therapist. There&apos;s no pressure to book.</span></div>
+        </div>
+        <div className="dc-ref-code">
+          <b style={{ letterSpacing: 0, fontSize: 15, overflow: "visible", flex: 1 }}>{s.coupon.code}</b>
+          <button type="button" onClick={copy} aria-label="Copy code">{copied ? "Copied" : <><ContentCopyRoundedIcon /> Copy</>}</button>
+        </div>
+        <div className="dc-ref-share"><Link href="/client/find" className="dc-btn gold" style={{ flex: 1 }}>Find a therapist</Link></div>
+        <p className="dc-ref-note">Valid until {new Date(s.coupon.expires_at).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric" })}. It comes off automatically when you book.</p>
+      </div>
+    );
+  }
+  if (s.status === "requested" || s.status === "accepted") {
+    const confirmed = s.status === "accepted";
+    return (
+      <div className="ch-card">
+        <h3>{confirmed ? "Your free session is confirmed" : "We have your details"}</h3>
+        <div className="ch-req">{confirmed ? <><b>{s.intern?.name || "Your guide"}</b><span>{when(s.slot_at)}</span></> : <span>Our team will choose a guide and a time for you, and confirm them here.</span>}</div>
+        <div className="dc-actions" style={{ marginTop: 8 }}>
+          {confirmed && s.meet_link && <a href={s.meet_link} target="_blank" rel="noopener noreferrer" className="dc-btn green">Join Google Meet</a>}
+          {!hideManage && <Link href="/client/free-session" className="dc-btn link">View details</Link>}
+          <button type="button" className="dc-btn link" onClick={cancel} disabled={busy}>Cancel</button>
+        </div>
+      </div>
+    );
+  }
+  if (s.status === "declined") {
+    return (
+      <div className="ch-card">
+        <h3>Your free session is still yours</h3>
+        <div className="ch-req"><span>We couldn&apos;t arrange it.{s.decline_reason ? ` ${s.decline_reason}` : ""}</span></div>
+        {!hideManage && <div className="dc-actions" style={{ marginTop: 8 }}><Link href="/client/free-session" className="dc-btn green">Share my details again</Link></div>}
+      </div>
+    );
+  }
+  return null;
 }
 
 /* #5b — a session pack with sessions left: how many, by when, and book the next one from it */
