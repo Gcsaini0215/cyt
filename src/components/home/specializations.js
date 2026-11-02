@@ -147,20 +147,23 @@ const CSS = `
 .sp-more a.sp-all { border: none; color: #1e7a4c !important; font-weight: 800; }
 
 @media (max-width: 1100px) { .sp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-/* phones: one swipeable row instead of a 1300px-tall grid */
+/* phones: two across, with each card cut down to its photo, name and fee so the grid stays short */
 @media (max-width: 767px) {
   .sp-sec { padding: 40px 0 36px; }
   .sp-head { margin-bottom: 16px; }
   .sp-help-link { display: none; }
-  .sp-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; margin: 0 -16px; padding: 2px 16px 8px; scrollbar-width: none; }
-  .sp-grid::-webkit-scrollbar { display: none; }
-  .sp-card { flex: 0 0 72%; scroll-snap-align: start; }
+  .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .sp-card:hover { transform: none; }
-  .sp-img { height: 118px; }
-  .sp-body { padding: 11px 13px 12px; }
-  .sp-body h3 { font-size: 15px; }
-  .sp-body p { font-size: 12.5px; }
-  .sp-helpcard { padding: 18px 16px; }
+  .sp-img { height: 104px; }
+  .sp-body { gap: 3px; padding: 9px 10px 10px; }
+  .sp-body h3 { font-size: 14.5px; line-height: 1.25; }
+  .sp-body > p, .sp-faces, .sp-today, .sp-cta { display: none; }
+  .sp-meta { min-height: 0; margin-top: 0; }
+  .sp-foot:not(:has(> :not(.sp-today, .sp-cta, span:empty))) { display: none; }
+  .sp-helpcard { padding: 12px 10px; }
+  .sp-helpcard > p, .sp-help-ic { display: none; }
+  .sp-helpcard h3 { margin: 0; font-size: 15px; }
+  .sp-help-btn { align-self: stretch; justify-content: center; height: auto; min-height: 44px; margin-top: 8px; padding: 6px 8px; font-size: 13px; text-align: center; line-height: 1.2; }
   .sp-more { flex-wrap: nowrap; overflow-x: auto; margin: 16px -16px 0; padding: 0 16px 2px; scrollbar-width: none; }
   .sp-more::-webkit-scrollbar { display: none; }
 }

@@ -163,22 +163,24 @@ const bandStyles = `
   .rgb-item { display: flex; align-items: center; gap: 10px; min-width: 0; padding-left: 14px; border-left: 1px solid #efe8d6; }
   .rgb-item img { flex: none; width: 84px; height: 42px; object-fit: contain; }
   .rgb-item span { min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.3; color: #4b5d53; }
-  @media (max-width: 1199px) {
-    .rgb { flex-direction: column; align-items: stretch; gap: 10px; }
-    .rgb-label { text-align: center; }
-    .rgb-item { flex-direction: column; gap: 6px; padding-left: 0; border-left: 0; text-align: center; }
-  }
   .rgb-id { display: none; }
-  /* phones: the four logos in one row, and the HFR ID in words */
-  @media (max-width: 767px) {
-    .rgb-band { margin-top: -26px; background: linear-gradient(180deg, transparent 0, transparent 26px, #fff 26px); }
-    .rgb { width: calc(100% - 24px); gap: 6px; padding: 10px 8px; border-radius: 14px; }
-    .rgb-label { font-size: 11px; }
-    .rgb-grid { gap: 4px; }
-    .rgb-item { gap: 0; }
+  /* iPad and phones: label and HFR ID on one line, logos alone on the next, to keep the band short */
+  @media (max-width: 1199px) {
+    .rgb { display: grid; grid-template-columns: auto auto; justify-content: space-between; gap: 6px 8px; padding: 9px 18px; }
+    .rgb-label { font-size: 12px; white-space: nowrap; }
+    .rgb-id { display: block; grid-column: 2; grid-row: 1; margin: 0; text-align: right; font-size: 12px; font-weight: 700; color: #4b5d53; white-space: nowrap; }
+    .rgb-grid { grid-column: 1 / -1; grid-row: 2; }
+    .rgb-item { justify-content: center; padding-left: 0; border-left: 0; }
     .rgb-item img { width: 100%; height: 34px; }
     .rgb-item span { display: none; }
-    .rgb-id { display: block; margin: 0; text-align: center; font-size: 11.5px; font-weight: 700; color: #4b5d53; }
+  }
+  /* phones: the white strip holds only the logos; the label and HFR ID sit above it, on the banner */
+  @media (max-width: 767px) {
+    .rgb-band { margin-top: -44px; background: linear-gradient(180deg, transparent 0, transparent 44px, #fff 44px); }
+    .rgb { width: calc(100% - 24px); gap: 5px 8px; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+    .rgb-label, .rgb-id { padding: 0 4px; font-size: 11px; color: #3a2a0c; }
+    .rgb-grid { gap: 4px; padding: 7px 10px; background: #fff; border: 1px solid #ece4cf; border-radius: 12px; box-shadow: 0 14px 28px -14px rgba(20,60,35,.42); }
+    .rgb-item img { height: 30px; }
   }
 `;
 
