@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 const CallbackWidget = dynamic(() => import("@/components/global/callback-widget"), { ssr: false });
 const ActiveBookingBanner = dynamic(() => import("@/components/global/active-booking-banner"), { ssr: false });
 import CookieConsent from "@/components/global/cookie-consent";
+import SessionNotice from "@/components/global/session-notice";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { postData } from "../utils/actions";
@@ -295,6 +296,7 @@ function MyApp({ Component, pageProps }) {
         </>
       )}
       <CookieConsent />
+      <SessionNotice />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
         <div className="main-wrapper" suppressHydrationWarning>

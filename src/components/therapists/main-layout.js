@@ -5,6 +5,8 @@ import DashboardTopNav from "./top-nav";
 import TherapistSideNav from "./side-nav";
 import { checkProfileSet } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
+import { getDecodedToken } from "../../utils/jwt";
+import useSessionGuard from "../../utils/session-guard";
 
 /**
  * Therapist portal shell (top nav + side nav + chat). _app.js mounts it ONCE
@@ -75,8 +77,14 @@ export function TherapistShell({ children }) {
   const { profileSet, setProfileSet } = useTherapistStore();
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
+  const signedIn = useSessionGuard();
+  const clientAccount = signedIn && getDecodedToken()?.role === 0;
+
+  // a client account can't use these pages (the API rejects it) — send it to its own dashboard
+  React.useEffect(() => { if (clientAccount) router.replace("/my-dashboard"); }, [clientAccount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
+    if (!signedIn || clientAccount) return;
     if (!profileSet) {
       const getData = async () => {
         try {
@@ -88,7 +96,7 @@ export function TherapistShell({ children }) {
       };
       getData();
     }
-  }, [profileSet]);
+  }, [profileSet, signedIn, clientAccount]);
 
   // Thin progress bar + dimmed body while the next page's code/data loads;
   // only shown if it takes >120ms so instant switches don't flicker.
@@ -110,6 +118,8 @@ export function TherapistShell({ children }) {
       router.events.off("routeChangeError", done);
     };
   }, [router.events]);
+
+  if (!signedIn || clientAccount) return null;
 
   return (
     <ShellContext.Provider value={true}>

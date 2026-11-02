@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -6,9 +6,10 @@ import { apiUrl, imagePath } from "../../utils/url";
 import Star from "@mui/icons-material/Star";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import { profilePath, bookPath } from "../../utils/therapist-slug";
-import { thumb, thumbSet } from "../../utils/thumb";
+import { thumb } from "../../utils/thumb";
 import { getMinFee } from "../../utils/therapist-directory";
 import { GBP_URL } from "../about/visit-centre";
+import { RegistrationsBand } from "../about/registrations";
 
 // quick concern picks under the search box -> the concern's own page (/therapy-for/<slug>),
 // not the directory with ?concern= (parameter links are crawl noise)
@@ -20,14 +21,18 @@ const QUICK = [
   ["Anger", "anger"],
 ];
 
+// the banner turns through these: a colour and one encouraging word. They say nothing about the therapist shown.
+// c: panel; soft, soft2: the arcs around it; ink: words and buttons on the cream (kept dark enough to read)
+const THEMES = [
+  { id: "hope", word: "HOPE", c: "#8cc465", soft: "#c9e0a0", soft2: "#dfe7b8", ink: "#2f6b38" },
+  { id: "courage", word: "COURAGE", c: "#ea8580", soft: "#f2c0ae", soft2: "#f6dbc4", ink: "#b13a49" },
+  { id: "calm", word: "CALM", c: "#7fbbe4", soft: "#bedbe2", soft2: "#dbe6d8", ink: "#25618f" },
+  { id: "strength", word: "STRENGTH", c: "#dca266", soft: "#ecc993", soft2: "#f2deb4", ink: "#935512" },
+];
+const TURN_MS = 5000;
+
 // same event the "Chat with CYT" lead form listens for (components/global/booking-popup.js)
 const OPEN_CHAT_EVENT = "cyt:open-chat";
-
-function initialsOf(name) {
-  if (!name) return "T";
-  const p = name.trim().split(/\s+/);
-  return (p[0][0] + (p[1]?.[0] || "")).toUpperCase();
-}
 
 function shuffled(arr) {
   const a = [...arr];
@@ -56,122 +61,36 @@ function rating(t) {
   return r.length ? { avg: (r.reduce((a, x) => a + x.rating, 0) / r.length).toFixed(1), count: r.length } : null;
 }
 
-const feeLabel = (t) => {
-  const fee = getMinFee(t.fees);
-  return fee ? `From ₹${fee.toLocaleString("en-IN")}` : "";
-};
-
 const photo = (t) => (t.user?.profile ? `${imagePath}/${t.user.profile}` : "");
 
-// every area of expertise the therapist saved on their profile, as it was written
-const expertiseOf = (t) => String(t?.experties || "").split(",").map((x) => x.trim()).filter(Boolean);
-
-// five stars filled to the average (rounded to the nearest half)
-function Stars({ avg = 0 }) {
-  const v = Math.round(avg * 2) / 2;
-  return (
-    <span className="cyt-tstars" aria-hidden="true">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className="cyt-tstar">
-          <Star sx={{ fontSize: 14, color: "#dbe3dd" }} />
-          {v >= i - 0.5 && <span className="cyt-tstar-on" style={{ width: v >= i ? "100%" : "50%" }}><Star sx={{ fontSize: 14, color: "#e3a83a" }} /></span>}
-        </span>
-      ))}
-    </span>
-  );
-}
-
-// One link per card (the name, stretched over the whole card) + a "Book" button. The photo,
-// name and "View" used to be three separate links to the same profile.
-function TherapistCard({ t }) {
+// One link per card (the name, stretched over the whole card) + a "Book now" button.
+function TherapistCard({ t, onBroken }) {
   const r = rating(t);
   const name = t.user?.name || "Therapist";
-  const langs = langList(t.language_spoken).slice(0, 2);
-  const fee = feeLabel(t);
+  const langs = langList(t.language_spoken).slice(0, 2).join(", ");
+  const fee = getMinFee(t.fees);
   const exp = expLabel(t.year_of_exp);
-  const skills = expertiseOf(t);
-  const href = profilePath(t);
   return (
     <div className="cyt-tcard">
       <div className="cyt-tphoto">
-        {photo(t) ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
-        ) : (
-          <span className="cyt-tinit">{initialsOf(name)}</span>
-        )}
-        <span className="cyt-tverif" title="Verified"><VerifiedRounded sx={{ fontSize: 15 }} /></span>
-        {fee && <span className="cyt-tpin">{fee}</span>}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={thumb(photo(t), 640, 90)} srcSet={`${thumb(photo(t), 640, 90)} 1x, ${thumb(photo(t), 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" onError={onBroken} />
       </div>
       <div className="cyt-tbody">
-        <Link className="cyt-tname cyt-stretch" href={href}>{name}</Link>
-        <div className="cyt-trole">
-          <span>{t.profile_type || "Mental Health Professional"}</span>
+        <Link className="cyt-tname cyt-stretch" href={profilePath(t)}>
+          <span>{name}</span><VerifiedRounded sx={{ fontSize: 17, color: "#1d9bf0", flexShrink: 0 }} />
+        </Link>
+        <div className="cyt-trole">{t.profile_type || "Mental Health Professional"}</div>
+        <div className="cyt-tmeta">
+          <span className="cyt-trate">{r ? <><Star sx={{ fontSize: 15, color: "#e3a83a" }} /><b>{r.avg}</b> ({r.count})</> : <b className="cyt-tnew">New</b>}</span>
+          {exp && <span>{exp}</span>}
+          {langs && <span>{langs}</span>}
         </div>
-        <div className="cyt-trate">
-          <Stars avg={r ? Number(r.avg) : 0} />
-          {r ? <><span className="cyt-tavg">{r.avg}</span><span className="cyt-tcnt">({r.count})</span></>
-            : <span className="cyt-tcnt">New</span>}
-          {exp && <><i className="cyt-tdot" /><span className="cyt-tcnt">{exp}</span></>}
-        </div>
-        {skills.length > 0 && (
-          /* expertise pills drifting left, same as the directory cards (list doubled for a seamless loop) */
-          <div className="cyt-tskills" aria-label={`Areas of expertise: ${skills.join(", ")}`}>
-            <div className="cyt-tmq" style={{ animationDuration: `${Math.max(18, skills.length * 5)}s` }}>
-              {[0, 1].map((copy) => (
-                <div key={copy} className="cyt-tmq-set" aria-hidden={copy === 1 || undefined}>
-                  {skills.map((x) => <span key={x} className="cyt-tskill">{x}</span>)}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {langs.length > 0 && (
-          <div className="cyt-tlangs">
-            {langs.map((l) => <span key={l} className="cyt-tlang">{l}</span>)}
-          </div>
-        )}
         <div className="cyt-trow">
-          <span className="cyt-v" aria-hidden="true">View</span>
-          <Link className="cyt-b" href={bookPath(t)}>Book<span className="cyt-sr"> {name}</span></Link>
+          {fee ? <span className="cyt-tfee"><small>Session from</small><b>₹{fee.toLocaleString("en-IN")}</b></span> : <span />}
+          <Link className="cyt-b" href={bookPath(t)}>Book now<span className="cyt-sr"> with {name}</span></Link>
         </div>
       </div>
-    </div>
-  );
-}
-
-// desktop wall: just the photo — name, type, rating and fee on a short shade at the bottom,
-// so the face stays clear. The whole card opens the profile.
-function PhotoCard({ t, hidden = false }) {
-  const router = useRouter();
-  const r = rating(t);
-  const name = t.user?.name || "Therapist";
-  const exp = expLabel(t.year_of_exp);
-  const fee = feeLabel(t);
-  const href = profilePath(t);
-  // the name is the card's one link; a click anywhere else on the photo opens the profile too.
-  // The wall's second (loop) copy has no link at all — it's only there so the scroll looks endless.
-  const open = (e) => { if (!e.target.closest("a")) router.push(href); };
-  return (
-    <div className="cyt-ph" aria-hidden={hidden || undefined} onClick={open}>
-      {photo(t) ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="cyt-ph-img" src={thumb(photo(t), 384)} srcSet={thumbSet(photo(t), 384, 640)} alt={name} loading="lazy" decoding="async" />
-      ) : (
-        <span className="cyt-ph-init">{initialsOf(name)}</span>
-      )}
-      {fee && <span className="cyt-ph-fee">{fee}</span>}
-      <span className="cyt-ph-info">
-        <span className="cyt-ph-name">
-          {hidden ? name : <Link href={href}>{name}<span className="cyt-sr"> — view profile</span></Link>}
-          <VerifiedRounded sx={{ fontSize: 15, color: "#7dd3fc", flexShrink: 0 }} />
-        </span>
-        <span className="cyt-ph-role">{t.profile_type || "Mental Health Professional"}</span>
-        <span className="cyt-ph-meta">
-          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /><span className="cyt-ph-avg">{r.avg}</span> ({r.count})</> : <span className="cyt-ph-new">New</span>}
-          {exp && <><i className="cyt-ph-dot" />{exp}</>}
-        </span>
-      </span>
     </div>
   );
 }
@@ -189,33 +108,27 @@ export default function Banner({ topTherapists = [], stats = null }) {
     setRanked(groups.flat());
   }, [topTherapists]);
 
-  const strip = ranked.slice(0, 10); // phone / tablet carousel
-  /* desktop wall — two columns of cards drifting in opposite directions (CSS animation on a
-     doubled list, so the loop is seamless); pauses on hover. Desktop vs phone is decided in
-     CSS, not JS, so the server sends the right layout and nothing jumps after load. */
-  const wallPool = ranked.slice(0, 12);
-  const wallCols = [wallPool.filter((_, i) => i % 2 === 0), wallPool.filter((_, i) => i % 2 === 1)];
-  const wallMoves = wallPool.length >= 4;
+  // a photo that won't load drops that person from the banner, rather than showing an empty card
+  const [broken, setBroken] = useState([]);
+  const dropPhoto = (t) => setBroken((b) => [...b, t._id]);
 
-  // phone carousel: native swipe (scroll-snap) + a gentle auto-advance that stops for good
-  // once the visitor touches it
-  const stripRef = useRef(null);
+  const people = useMemo(() => ranked.filter((t) => photo(t) && !broken.includes(t._id)), [ranked, broken]);
+
+  // fetched ahead, so a card that slides in already has its photo
+  useEffect(() => { people.slice(0, 8).forEach((t) => { new Image().src = thumb(photo(t), 640, 85); }); }, [people]);
+
+  const [turn, setTurn] = useState(0);
+  const [paused, setPaused] = useState(false); // the pause button, or the visitor chose a dot
+  const [resting, setResting] = useState(false); // pointer or keyboard focus on the cards
+  const cur = THEMES[turn % THEMES.length];
+  // the next person leads on each turn, and the following ones stand beside them
+  const list = people.length ? [...people.slice(turn % people.length), ...people.slice(0, turn % people.length)] : [];
+  useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPaused(true); }, []);
   useEffect(() => {
-    const el = stripRef.current;
-    if (!el || strip.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let stopped = false;
-    const stop = () => { stopped = true; };
-    el.addEventListener("pointerdown", stop);
-    el.addEventListener("touchstart", stop, { passive: true });
-    const t = setInterval(() => {
-      if (stopped || el.offsetParent === null) return;
-      const card = el.firstElementChild;
-      const step = card ? card.getBoundingClientRect().width + 14 : el.clientWidth * 0.7;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 8;
-      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + step, behavior: "smooth" });
-    }, 3500);
-    return () => { clearInterval(t); el.removeEventListener("pointerdown", stop); el.removeEventListener("touchstart", stop); };
-  }, [strip.length]);
+    if (paused || resting || people.length < 2) return undefined;
+    const t = setInterval(() => setTurn((n) => n + 1), TURN_MS);
+    return () => clearInterval(t);
+  }, [paused, resting, people.length]);
 
   // live Noida offer (admin → Coupons → "show on booking page"); nothing shows when none is running
   const [offer, setOffer] = useState(null);
@@ -229,7 +142,14 @@ export default function Banner({ topTherapists = [], stats = null }) {
   const [q, setQ] = useState("");
 
   return (
-    <section className="rbt-banner-area rbt-banner-1 variation-2 cyt-hero">
+    <>
+    <section className="rbt-banner-area rbt-banner-1 variation-2 cyt-hero" style={{ "--ink": cur.ink }}>
+      {THEMES.map((c) => (
+        <span key={c.id} className={`cyt-bgl${c === cur ? " on" : ""}`} style={{ "--c": c.c, "--soft": c.soft, "--soft2": c.soft2 }} aria-hidden="true" />
+      ))}
+      <span key={cur.id} className="cyt-word" style={{ "--c": cur.c, "--len": cur.word.length }} aria-hidden="true">
+        <b>{cur.word}</b><i>{cur.word}</i>
+      </span>
       <div className="cyt-hero-inner">
         <div className="cyt-hero-copy">
           <p className="cyt-eyebrow">
@@ -281,24 +201,30 @@ export default function Banner({ topTherapists = [], stats = null }) {
           </ul>
         </div>
 
-        <div className="cyt-hero-visual">
-          {wallPool.length > 0 && (
-            <div className={`cyt-wall ${wallMoves ? "is-moving" : ""}`} aria-label="Top-rated therapists">
-              {wallCols.map((col, ci) => (
-                <div key={ci} className={`cyt-wall-col ${ci === 0 ? "up" : "down"}`}>
-                  <div className="cyt-wall-track" style={{ animationDuration: `${Math.max(col.length, 3) * 12}s` }}>
-                    {(wallMoves ? [...col, ...col] : col).map((t, i) => (
-                      <PhotoCard key={`${t._id || i}-${i}`} t={t} hidden={i >= col.length} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {strip.length > 0 ? (
-            <div className="cyt-strip" ref={stripRef} aria-label="Top-rated therapists">
-              {strip.map((t, i) => <TherapistCard key={t._id || i} t={t} />)}
-            </div>
+        <div className="cyt-hero-visual" onMouseEnter={() => setResting(true)} onMouseLeave={() => setResting(false)} onFocus={() => setResting(true)} onBlur={() => setResting(false)}>
+          {list.length ? (
+            <>
+              {/* desktop: one card to the front; phones and tablets: a row to swipe */}
+              <div className="cyt-stage" key={list[0]._id}>
+                {list.slice(1, 3).map((t, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={t._id} className={`cyt-back b${i}`} src={thumb(photo(t), 640, 85)} alt="" onError={() => dropPhoto(t)} />
+                ))}
+                <div className="cyt-spot"><TherapistCard t={list[0]} onBroken={() => dropPhoto(list[0])} /></div>
+              </div>
+              <div className="cyt-strip" key={`strip-${list[0]._id}`} aria-label="Top-rated therapists">
+                {list.slice(0, 6).map((t, i) => <TherapistCard key={t._id || i} t={t} onBroken={() => dropPhoto(t)} />)}
+              </div>
+              <div className="cyt-dots" role="group" aria-label="Choose a slide">
+                {THEMES.map((c, i) => (
+                  <button key={c.id} type="button" className={c === cur ? "on" : ""} aria-label={c.word} aria-pressed={c === cur}
+                    onClick={() => { setTurn(i); setPaused(true); }} />
+                ))}
+                <button type="button" className="cyt-cpause" aria-label={paused ? "Play" : "Pause"} onClick={() => setPaused((x) => !x)}>
+                  <i className={paused ? "feather-play" : "feather-pause"} aria-hidden="true" />
+                </button>
+              </div>
+            </>
           ) : (
             <div className="cyt-cover-skeleton" />
           )}
@@ -306,14 +232,16 @@ export default function Banner({ topTherapists = [], stats = null }) {
       </div>
 
       <style jsx global>{`
-        /* keep the original .rbt-banner-1 background image — a soft, calm wash over it keeps the copy readable */
+        /* cream on the left; the slide's colour fans out from the right in arcs (cyt-bgl) */
         .cyt-hero { position: relative; overflow: hidden; padding: 48px 0 52px; }
-        .cyt-hero::after {
-          content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-          background:
-            radial-gradient(52% 42% at 88% 6%, rgba(122, 202, 159, 0.22), transparent 70%),
-            radial-gradient(44% 40% at 4% 98%, rgba(150, 205, 175, 0.16), transparent 72%),
-            linear-gradient(180deg, rgba(250, 253, 251, 0.66), rgba(240, 248, 242, 0.82));
+        .rbt-banner-1.cyt-hero { --ink: #2f6b38; background: #f3ebd2; }
+        @media (min-width: 768px) { .rbt-banner-1.cyt-hero { padding-bottom: 76px !important; } }
+        @media (max-width: 767px) { .rbt-banner-1.cyt-hero { padding-bottom: 42px !important; } }
+        .cyt-bgl { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .8s ease; pointer-events: none;
+          background: linear-gradient(180deg, transparent 42%, var(--soft) 100%), radial-gradient(circle at 106% 50%, var(--c) 0 27vw, var(--soft) 27.1vw 38vw, var(--soft2) 38.1vw 50vw, transparent 50.1vw); }
+        .cyt-bgl.on { opacity: 1; }
+        @media (max-width: 1023px) {
+          .cyt-bgl { background: linear-gradient(180deg, transparent 42%, var(--soft2) 100%), radial-gradient(circle at 108% 100%, var(--c) 0 42vw, var(--soft) 42.2vw 66vw, var(--soft2) 66.2vw 92vw, transparent 92.2vw); }
         }
         /* Desktop: the hero runs up behind the floating navbar. The zoom-safe over-pull +
            matching top padding live in navbar.js so every page's banner gets the same treatment. */
@@ -376,6 +304,54 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trust a:hover { text-decoration: underline !important; }
         .cyt-trust b { color: #0b1712; } .cyt-trust span { color: #7c8b81; }
         .cyt-trust i { color: #1e7a4c; font-size: 14px; }
+        .cyt-hero.cyt-hero .cyt-hl { color: var(--ink); transition: color .6s ease; }
+        .cyt-hero.cyt-hero .cyt-hsearch button { background: var(--ink); color: #fff; transition: background .6s ease; }
+        .cyt-hero.cyt-hero .cyt-hsearch button:hover { background: var(--ink); filter: brightness(.92); }
+        .cyt-hero.cyt-hero .cyt-hchips a, .cyt-hero.cyt-hero .cyt-eyebrow { background: #fff; }
+
+        /* the slide's word down the right edge */
+        .cyt-word { display: none; }
+        /* the dots, then the card that swings in */
+        .cyt-dots { position: relative; z-index: 2; display: flex; align-items: center; gap: 2px; padding: 2px 6px; border-radius: 999px; background: rgba(255,255,255,.7); }
+        .cyt-dots button { width: 24px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+        .cyt-dots button:not(.cyt-cpause)::before { content: ""; width: 9px; height: 9px; border-radius: 9px; background: #b8c4bb; transition: width .25s ease, background .25s ease; }
+        .cyt-dots button.on::before { width: 20px; background: var(--ink); }
+        .cyt-dots .cyt-cpause { width: 28px; color: #33423a; font-size: 13px; }
+        .cyt-stage { display: none; }
+        .cyt-hero-visual { flex-direction: column; gap: 12px; }
+        .cyt-hero-visual::before { display: none; }
+        @keyframes cytWordIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+        @keyframes cytSwing { from { opacity: 0; transform: translateY(26px) rotate(7deg) scale(.95); } to { opacity: 1; transform: none; } }
+        @keyframes cytBackIn { from { opacity: 0; } to { opacity: 1; } }
+        .cyt-strip { animation: cytBackIn .5s ease both; }
+        @media (min-width: 1024px) {
+          .cyt-strip { display: none !important; }
+          .cyt-stage { display: block; position: relative; width: 270px; height: 360px; }
+          .cyt-spot { position: absolute; inset: 0; z-index: 2; animation: cytSwing .7s cubic-bezier(.22,1,.36,1) both; }
+          /* desktop: the photo is the card, with the details and Book now on it */
+          .cyt-spot .cyt-tcard { width: 100%; height: 100%; padding: 0; overflow: hidden; box-shadow: 0 30px 50px -24px rgba(20,40,30,.55); }
+          .cyt-spot .cyt-tphoto { height: 100%; border-radius: 22px; }
+          .cyt-spot .cyt-tbody { position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 12px 10px; background: linear-gradient(180deg, transparent, rgba(5,20,12,.9) 52%); }
+          .cyt-spot .cyt-tname { color: #fff !important; }
+          .cyt-spot .cyt-trole, .cyt-spot .cyt-tmeta, .cyt-spot .cyt-trate b, .cyt-spot .cyt-tfee small { color: rgba(255,255,255,.9); }
+          .cyt-spot .cyt-tfee b { color: #fff; }
+          .cyt-spot .cyt-tmeta { margin-top: 5px; }
+          .cyt-spot .cyt-trow { margin-top: 8px; padding-top: 0; border-top: 0; }
+          .cyt-spot .cyt-trow .cyt-b { min-height: 40px; padding: 0 16px; background: #fff; color: var(--ink) !important; }
+          .cyt-spot .cyt-tmeta > span:nth-child(3) { display: none; }
+          /* measured from the bottom: the hero runs up behind the navbar, so its top isn't on screen */
+          .cyt-word { position: absolute; bottom: 56px; height: 440px; right: 0; z-index: 1; display: flex; flex-direction: row-reverse; align-items: center; gap: 6px; pointer-events: none; animation: cytWordIn .7s ease both; }
+          .cyt-word b, .cyt-word i { writing-mode: vertical-rl; transform: rotate(180deg); font-style: normal; font-weight: 800; line-height: 1; white-space: nowrap; }
+          .cyt-word i { font-size: min(96px, calc(420px / (var(--len) * .76))); color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,.62); }
+          .cyt-word b { display: none; padding: 14px 5px; border-radius: 10px; background: rgba(255,255,255,.72); color: #22302a; font-size: 26px; letter-spacing: .02em; }
+          .cyt-back { position: absolute; top: 40px; width: 180px; height: 250px; object-fit: cover; object-position: center 25%; border-radius: 20px; opacity: .9; animation: cytBackIn .6s ease both; box-shadow: 0 18px 34px -20px rgba(20,40,30,.5); }
+          .cyt-back.b0 { left: -96px; transform: rotate(-8deg); }
+          .cyt-back.b1 { right: -96px; transform: rotate(8deg); }
+        }
+        @media (min-width: 1300px) {
+        }
+        @media (min-width: 1300px) { .cyt-word b { display: block; } }
+        @media (prefers-reduced-motion: reduce) { .cyt-bgl, .cyt-spot, .cyt-back, .cyt-strip, .cyt-word { animation: none !important; transition: none !important; } }
 
         .cyt-hero-visual { width: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
         .cyt-hero-visual::before { content: ""; position: absolute; width: 420px; height: 420px; right: 0; top: -30px; border-radius: 50%; background: radial-gradient(circle, rgba(88,168,118,.26), transparent 66%); filter: blur(30px); z-index: 0; pointer-events: none; }
@@ -385,35 +361,21 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-wall { display: none; }
         .cyt-strip { position: relative; z-index: 1; width: 100%; display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 22px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
         .cyt-strip::-webkit-scrollbar { display: none; }
-        .cyt-tcard { position: relative; flex: 0 0 min(66%, 290px); scroll-snap-align: start; background: #fff; border: 1px solid #e8f0ea; border-radius: 20px; overflow: hidden; box-shadow: 0 18px 40px -18px rgba(18,66,42,.3), 0 3px 10px rgba(18,66,42,.05); }
-        .cyt-tphoto { display: block; position: relative; height: 176px; background: linear-gradient(150deg, #c3e8d2, #82cca1); }
-        .cyt-tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
-        .cyt-tinit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #1e7a4c; }
-        .cyt-tverif { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: #1d9bf0; color: #fff; display: flex; align-items: center; justify-content: center; }
-        .cyt-tpin { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.94); color: #14532d; padding: 3px 10px; border-radius: 999px; }
-        .cyt-tbody { padding: 13px 15px 15px; }
-        .cyt-tname { display: block; font-weight: 800; font-size: 15.5px; line-height: 1.3; color: #0b1712 !important; text-decoration: none !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cyt-trole { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12px; font-weight: 600; color: #1e7a4c; white-space: nowrap; overflow: hidden; }
-        .cyt-trole span { overflow: hidden; text-overflow: ellipsis; }
-        .cyt-tdot { width: 3px; height: 3px; border-radius: 50%; background: #9fb3a6; flex-shrink: 0; }
-        .cyt-trate { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; margin: 7px 0 9px; min-height: 18px; font-size: 12.5px; }
-        .cyt-trate .cyt-tavg { font-weight: 800; color: #0b1712; }
-        .cyt-tcnt { font-weight: 500; color: #7c8b81; }
-        .cyt-tstars { display: inline-flex; }
-        .cyt-tstar { position: relative; display: inline-flex; width: 14px; height: 14px; }
-        .cyt-tstar-on { position: absolute; left: 0; top: 0; overflow: hidden; display: inline-flex; }
-        .cyt-tskills { overflow: hidden; margin: 0 -15px 10px; padding: 0 15px; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 90%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 90%, transparent 100%); }
-        .cyt-tmq { display: flex; width: max-content; animation: cytTmq linear infinite; }
-        .cyt-tmq-set { display: flex; gap: 6px; padding-right: 6px; flex-shrink: 0; }
-        .cyt-tskill { flex-shrink: 0; white-space: nowrap; font-size: 11px; font-weight: 700; color: #166534; background: #ecfdf3; border: 1px solid #bbf7d0; padding: 3px 9px; border-radius: 999px; }
-        @keyframes cytTmq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        @media (prefers-reduced-motion: reduce) { .cyt-tmq { animation: none; } }
-        .cyt-tlangs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
-        .cyt-tlang { font-size: 10.5px; color: #475569; background: #f1f5f3; padding: 3px 8px; border-radius: 999px; }
-        .cyt-trow { display: flex; gap: 8px; }
-        .cyt-trow a, .cyt-trow .cyt-v { flex: 1; text-align: center; font-size: 13px; font-weight: 700; padding: 9px 6px; border-radius: 10px; text-decoration: none !important; }
-        .cyt-trow .cyt-v { border: 1.5px solid #dce8e0; color: #26463a !important; }
-        .cyt-trow .cyt-b { background: #1e7a4c; color: #fff !important; }
+        .cyt-tcard { position: relative; flex: 0 0 min(70%, 262px); scroll-snap-align: start; padding: 8px; background: #fff; border-radius: 22px; box-shadow: 0 10px 22px -14px rgba(20,40,30,.4); }
+        .cyt-tphoto { position: relative; height: 190px; border-radius: 16px; overflow: hidden; background: #e6efe9; }
+        .cyt-tphoto img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
+        .cyt-tbody { padding: 12px 8px 6px; }
+        .cyt-tname { display: flex; align-items: center; gap: 5px; color: #0b1712 !important; font-size: 16px; font-weight: 800; line-height: 1.25; text-decoration: none !important; }
+        .cyt-tname span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cyt-trole { margin-top: 1px; color: #55665c; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cyt-tmeta { display: flex; align-items: center; flex-wrap: nowrap; margin-top: 8px; color: #55665c; font-size: 13px; white-space: nowrap; overflow: hidden; }
+        .cyt-tmeta > span + span::before { content: "·"; margin: 0 6px; color: #9fb3a6; }
+        .cyt-trate { display: inline-flex; align-items: center; gap: 3px; }
+        .cyt-trate b { color: #0b1712; font-weight: 800; }
+        .cyt-trow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eef2ee; }
+        .cyt-tfee small { display: block; color: #7c8b81; font-size: 11.5px; line-height: 1.2; }
+        .cyt-tfee b { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
+        .cyt-trow .cyt-b { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: var(--ink); color: #fff !important; font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .6s ease; }
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }
 
         /* ── every width: copy as a column so the trust line sits right under the headline ── */
@@ -463,7 +425,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hchips a { height: 32px; font-size: 13px; padding: 0 12px; }
           .cyt-hero-ctas { margin-top: 14px; gap: 6px; }
           .cyt-trust { gap: 6px 14px; font-size: 12.5px; }
-          .cyt-tphoto { height: 160px; }
+          .cyt-tphoto { height: 170px; }
         }
         @media (min-width: 601px) and (max-width: 1023px) {
           .cyt-hero { padding: 22px 0 24px !important; }
@@ -486,7 +448,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-cta2 { min-height: 64px; font-size: 16.5px; padding: 10px 18px 10px 12px; }
           .cyt-cta2 > i.feather-map-pin { width: 42px; height: 42px; font-size: 19px; }
           .cyt-cta2-txt small { font-size: 13px; }
-          .cyt-tcard { flex-basis: 280px; }
+          .cyt-tcard { flex-basis: 262px; }
         }
 
         /* ── desktop + iPad landscape: two-column scrolling card wall ── */
@@ -564,5 +526,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         }
       `}</style>
     </section>
+    <RegistrationsBand />
+    </>
   );
 }

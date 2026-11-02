@@ -153,6 +153,58 @@ export function RegistrationsGrid() {
   );
 }
 
+const bandStyles = `
+  /* home: a white card over the banner's bottom edge */
+  /* full width: see-through over the banner, white below it (the page behind is dark) */
+  .rgb-band { position: relative; z-index: 3; margin-top: -44px; background: linear-gradient(180deg, transparent 0, transparent 44px, #fff 44px); }
+  .rgb { box-sizing: border-box; display: flex; align-items: center; gap: 20px; width: calc(100% - 80px); max-width: 1240px; margin: 0 auto; padding: 14px 22px; background: #fff; border: 1px solid #ece4cf; border-radius: 18px; box-shadow: 0 16px 34px -14px rgba(20,60,35,.42); }
+  .rgb-label { flex: none; margin: 0; font-size: 13px; font-weight: 800; line-height: 1.3; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
+  .rgb-grid { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .rgb-item { display: flex; align-items: center; gap: 10px; min-width: 0; padding-left: 14px; border-left: 1px solid #efe8d6; }
+  .rgb-item img { flex: none; width: 84px; height: 42px; object-fit: contain; }
+  .rgb-item span { min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.3; color: #4b5d53; }
+  @media (max-width: 1199px) {
+    .rgb { flex-direction: column; align-items: stretch; gap: 10px; }
+    .rgb-label { text-align: center; }
+    .rgb-item { flex-direction: column; gap: 6px; padding-left: 0; border-left: 0; text-align: center; }
+  }
+  .rgb-id { display: none; }
+  /* phones: the four logos in one row, and the HFR ID in words */
+  @media (max-width: 767px) {
+    .rgb-band { margin-top: -26px; background: linear-gradient(180deg, transparent 0, transparent 26px, #fff 26px); }
+    .rgb { width: calc(100% - 24px); gap: 6px; padding: 10px 8px; border-radius: 14px; }
+    .rgb-label { font-size: 11px; }
+    .rgb-grid { gap: 4px; }
+    .rgb-item { gap: 0; }
+    .rgb-item img { width: 100%; height: 34px; }
+    .rgb-item span { display: none; }
+    .rgb-id { display: block; margin: 0; text-align: center; font-size: 11.5px; font-weight: 700; color: #4b5d53; }
+  }
+`;
+
+// the four registrations under the home banner
+export function RegistrationsBand() {
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: bandStyles }} />
+      <div className="rgb-band">
+      <div className="rgb">
+        <p className="rgb-label">Registered with</p>
+        <div className="rgb-grid">
+          {REGISTRATIONS.map((r, i) => (
+            <div className="rgb-item" key={r.src}>
+              <img src={r.src} alt={r.alt} width={r.w} height={r.h} loading="lazy" />
+              <span>{CAPTIONS[i]}</span>
+            </div>
+          ))}
+        </div>
+        <p className="rgb-id">ABDM · HFR ID IN0510005384</p>
+      </div>
+      </div>
+    </>
+  );
+}
+
 const rowStyles = `
   .rgr { margin-top: 16px; }
   .rgr-label { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #8a5a0b; }

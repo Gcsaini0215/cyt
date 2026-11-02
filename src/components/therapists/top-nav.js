@@ -217,6 +217,7 @@ export default function DashboardTopNav() {
       { label: "My profile", Icon: OpenInNewRoundedIcon, href: publicProfile },
       { label: "Share profile", Icon: IosShareRoundedIcon, onClick: () => shareProfile(therapistInfo) },
     ] : []),
+    { label: "Website", Icon: LanguageRoundedIcon, href: "/" },
     { label: "Log out", Icon: LogoutRoundedIcon, onClick: handleLogout, out: true },
   ];
   const sheetPages = Array.from({ length: Math.ceil(sheetTiles.length / TILES_PER_PAGE) }, (_, i) => sheetTiles.slice(i * TILES_PER_PAGE, (i + 1) * TILES_PER_PAGE));

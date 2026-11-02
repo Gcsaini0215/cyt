@@ -3,7 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useUserStore from "../../store/userStore";
-import { isAuthenticated, removeToken, getDecodedToken } from "../../utils/jwt";
+import { removeToken, getDecodedToken } from "../../utils/jwt";
+import useSessionGuard from "../../utils/session-guard";
 import { imagePath } from "../../utils/url";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
@@ -99,19 +100,16 @@ export default function ClientShell({ title, children }) {
   };
   const menuRef = useRef(null);
 
+  const signedIn = useSessionGuard();
   useEffect(() => {
-    // isAuthenticated() also drops an expired token, before the page calls the API with it
-    if (!isAuthenticated()) {
-      router.replace(`/login?next=${encodeURIComponent(router.asPath)}`);
-      return;
-    }
+    if (!signedIn) return;
     // a therapist account can't use the client pages (the API rejects it) — send it to its own dashboard
     if (getDecodedToken()?.role === 1) {
       router.replace("/therapist-dashboard");
       return;
     }
     setReady(true);
-  }, [router]);
+  }, [router, signedIn]);
   useEffect(() => {
     if (!menu) return undefined;
     const close = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenu(false); };
