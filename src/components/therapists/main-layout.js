@@ -49,6 +49,8 @@ const shellStyles = `
   html[data-tsn-wide] .ts-area { padding-left: 232px; }
   .ts-main { padding: 28px 40px; }
   .ts-inner { max-width: 1500px; margin: 0 auto; transition: opacity .18s ease; }
+  .ts-inner:has(.ov) { max-width: none; }
+  body:has(.ts-area) { padding-bottom: 0 !important; } /* the shell keeps its own room for the phone bar */
   .ts-inner.is-busy { opacity: .55; pointer-events: none; }
   /* opacity only: a transform here would make every position:fixed modal/
      banner inside the page position itself relative to this box instead of
@@ -56,7 +58,7 @@ const shellStyles = `
   .ts-page { animation: tsIn .2s ease; }
   @keyframes tsIn { from { opacity: 0; } to { opacity: 1; } }
   @media (max-width: 1023px) { html[data-tsn-wide] .ts-area { padding-left: 68px; } .ts-main { padding: 22px 24px; } }
-  @media (max-width: 767px) { .ts-area, html[data-tsn-wide] .ts-area { padding-left: 0; padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); } }
+  @media (max-width: 767px) { .ts-area, html[data-tsn-wide] .ts-area { padding-left: 0; padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); } }
   @media (max-width: 599px) { .ts-main { padding: 14px 12px; } }
   @media (prefers-reduced-motion: reduce) { .ts-page { animation: none; } .ts-inner { transition: none; } }
 

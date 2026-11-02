@@ -71,6 +71,7 @@ const DASH_CSS = `
 .ov-motivate, .ov-main-grid, .ov-insight-grid { display: grid; gap: 14px; align-items: stretch; margin-bottom: 14px; }
 .ov-motivate { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 360px; }
 .ov-main-grid, .ov-insight-grid { grid-template-columns: minmax(0, 1fr) 360px; }
+.ov-insight-grid:not(:has(> :nth-child(2))) { grid-template-columns: minmax(0, 1fr); }
 .ov-motivate > *, .ov-main-grid > *, .ov-insight-grid > * { min-width: 0; }
 /* equal heights: each column's last card takes up the spare space, so no gaps under short columns */
 .ov-main-grid > div { display: flex; flex-direction: column; gap: 14px; }

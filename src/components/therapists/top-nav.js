@@ -25,17 +25,23 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import MenuOpenRoundedIcon from "@mui/icons-material/MenuOpenRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
+import MonitorHeartOutlinedIcon from "@mui/icons-material/MonitorHeartOutlined";
+import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
+import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
+import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
 const WIDE_KEY = "cyt_tsn_wide";
+const TILES_PER_PAGE = 8;
 
 // phones: four favourites + "More" (opens the full menu)
 const MOB_NAV = [
-  { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Home" },
-  { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Sessions", badgeKey: "bookings" },
-  { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "Schedule" },
-  { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings", badgeKey: "settings" },
+  { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, Off: MonitorHeartOutlinedIcon, label: "Home" },
+  { to: "/appointments", Icon: EventAvailableRoundedIcon, Off: EventAvailableOutlinedIcon, label: "Sessions", badgeKey: "bookings" },
+  { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, Off: CalendarMonthOutlinedIcon, label: "Schedule" },
+  { to: "/settings", Icon: ManageAccountsRoundedIcon, Off: ManageAccountsOutlinedIcon, label: "Settings", badgeKey: "settings" },
 ];
 
 /* Top bar for the therapist portal: menu button (widens the rail on desktop / opens the
@@ -48,7 +54,8 @@ export default function DashboardTopNav() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [menuPage, setMenuPage] = useState(0); // phones: which page of the tile menu is showing
-  useEffect(() => { if (!drawer) setMenuPage(0); }, [drawer]);
+  const pagesRef = useRef(null);
+  const [barHidden, setBarHidden] = useState(false); // phone bar: slides away while scrolling down
   const [wide, setWide] = useState(false);
   const [q, setQ] = useState("");
   const [qOpen, setQOpen] = useState(false);
@@ -115,6 +122,23 @@ export default function DashboardTopNav() {
   useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   useEffect(() => { fetchTherapistInfo(); }, [fetchTherapistInfo]);
+  // phone bar: down hides it, up brings it back, and it's always there at the top and the end of a page
+  useEffect(() => {
+    let last = window.scrollY;
+    let queued = false;
+    const check = () => {
+      queued = false;
+      const y = window.scrollY;
+      const atEdge = y < 80 || y + window.innerHeight >= document.documentElement.scrollHeight - 40;
+      if (Math.abs(y - last) < 12 && !atEdge) return; // small movements add up until they're a real scroll
+      setBarHidden(!atEdge && y > last);
+      last = y;
+    };
+    const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(check); } };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  useEffect(() => { setBarHidden(false); }, [pathname]);
 
   // new-booking alert on every portal page. Known booking ids are kept for the browser tab,
   // so moving between pages doesn't miss (or repeat) an alert.
@@ -185,6 +209,25 @@ export default function DashboardTopNav() {
     else if (e.key === "ArrowUp") { e.preventDefault(); setQIdx((i) => Math.max(i - 1, 0)); }
     else if (e.key === "Enter") { e.preventDefault(); go(results[qIdx]); }
   };
+
+  const barTos = new Set(MOB_NAV.map((m) => m.to));
+  const sheetTiles = [
+    ...drawerGroups.flatMap((g) => g.items.filter((i) => !barTos.has(i.to)).map((i) => ({ ...i, up: !!g.upgrade }))),
+    ...(publicProfile ? [
+      { label: "My profile", Icon: OpenInNewRoundedIcon, href: publicProfile },
+      { label: "Share profile", Icon: IosShareRoundedIcon, onClick: () => shareProfile(therapistInfo) },
+    ] : []),
+    { label: "Log out", Icon: LogoutRoundedIcon, onClick: handleLogout, out: true },
+  ];
+  const sheetPages = Array.from({ length: Math.ceil(sheetTiles.length / TILES_PER_PAGE) }, (_, i) => sheetTiles.slice(i * TILES_PER_PAGE, (i + 1) * TILES_PER_PAGE));
+  const mobOn = drawer ? MOB_NAV.length : MOB_NAV.findIndex((i) => isActive(i, pathname));
+  // the sheet opens on the page holding the current screen
+  useEffect(() => {
+    if (!drawer) return;
+    const page = Math.max(0, Math.floor(sheetTiles.findIndex((t) => t.to && isActive(t, pathname)) / TILES_PER_PAGE));
+    if (pagesRef.current) pagesRef.current.scrollLeft = page * pagesRef.current.clientWidth;
+    setMenuPage(page);
+  }, [drawer]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -273,32 +316,35 @@ export default function DashboardTopNav() {
                 <span>Your profile isn&apos;t complete</span><i><b style={{ width: `${pct}%` }} /></i><em>Finish →</em>
               </Link>
             )}
-            {/* phones: tiles in the sidebar's order, minus what the bottom bar already has, in pages of 12
-                (4 × 3) that slide sideways if there are more; Upgrade tiles are gold, Subscriptions comes last */}
-            {(() => {
-              const inBar = new Set(MOB_NAV.map((m) => m.to));
-              const tiles = drawerGroups.flatMap((g) => g.items.filter((i) => !inBar.has(i.to)).map((i) => ({ ...i, up: !!g.upgrade })));
-              const pages = Array.from({ length: Math.ceil(tiles.length / 12) }, (_, i) => tiles.slice(i * 12, i * 12 + 12));
-              return (
-                <div className="tn-pages-wrap">
-                  <div className="tn-pages" onScroll={(e) => setMenuPage(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
-                    {pages.map((items, pi) => (
-                      <div key={pi} className="tn-drawer-group tn-page">
-                        {items.map((item) => (
-                          <Link key={item.to} href={item.to} className={`${isActive(item, pathname) ? "on" : ""}${item.up ? " up" : ""}`} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>
-                            <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
-                            <span className="tn-dr-lbl">{item.label}<NavTag item={item} upgrade={upgrade} className="tn-dr-tag" /></span>
-                          </Link>
-                        ))}
-                      </div>
-                    ))}
+            {/* phones: tiles in the sidebar's order, minus what the bottom bar already has, eight to a page that
+                slide sideways; Upgrade tiles are gold, and the account actions come last */}
+            <div className="tn-pages-wrap">
+              <div className="tn-pages" ref={pagesRef} onScroll={(e) => setMenuPage(Math.round(e.currentTarget.scrollLeft / Math.max(1, e.currentTarget.clientWidth)))}>
+                {sheetPages.map((items, pi) => (
+                  <div key={pi} className="tn-drawer-group tn-page">
+                    {items.map((item) => {
+                      const body = (
+                        <>
+                          <span className="tn-dr-ic"><item.Icon /><NavBadge value={badges[item.badgeKey]} className="tn-dr-badge" /></span>
+                          <span className="tn-dr-lbl">{item.label}<NavTag item={item} upgrade={upgrade} className="tn-dr-tag" /></span>
+                        </>
+                      );
+                      if (item.onClick) return <button key={item.label} type="button" className={item.out ? "out" : ""} onClick={item.onClick}>{body}</button>;
+                      if (item.href) return <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer">{body}</a>;
+                      return <Link key={item.to} href={item.to} className={`${isActive(item, pathname) ? "on" : ""}${item.up ? " up" : ""}`} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>{body}</Link>;
+                    })}
                   </div>
-                  {pages.length > 1 && (
-                    <div className="tn-dots" aria-hidden="true">{pages.map((_, i) => <i key={i} className={i === menuPage ? "on" : ""} />)}</div>
-                  )}
+                ))}
+              </div>
+              {sheetPages.length > 1 && (
+                <div className="tn-dots" role="tablist" aria-label="Menu pages">
+                  {sheetPages.map((_, i) => (
+                    <button key={i} type="button" role="tab" className={i === menuPage ? "on" : ""} aria-label={`Page ${i + 1}`} aria-selected={i === menuPage}
+                      onClick={() => pagesRef.current?.scrollTo({ left: i * pagesRef.current.clientWidth, behavior: "smooth" })} />
+                  ))}
                 </div>
-              );
-            })()}
+              )}
+            </div>
             <nav>
               {drawerGroups.map((g) => (
                 <div key={g.title} className={`tn-drawer-group${g.upgrade ? " up" : ""}`}>
@@ -321,19 +367,23 @@ export default function DashboardTopNav() {
         </div>
       )}
 
-      {/* phones: always-visible bottom bar */}
-      <nav className="tn-mob-nav" aria-label="Quick menu">
-        {MOB_NAV.map((item) => (
-          <Link key={item.to} href={item.to} className={`tn-mob-item${isActive(item, pathname) ? " active" : ""}`}
-            onClick={() => item.badgeKey === "bookings" && setNotificationCount(0)}>
-            <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
-            <span className="tn-mob-ico"><item.Icon /></span>
-            {item.label}
-          </Link>
-        ))}
+      {/* phones: the bottom bar, which slides away while scrolling down */}
+      <nav className={`tn-mob-nav${barHidden && !drawer ? " away" : ""}`} aria-label="Quick menu" style={{ "--n": MOB_NAV.length + 1, "--i": mobOn }} onFocus={() => setBarHidden(false)}>
+        {mobOn >= 0 && <span className="tn-mob-line" aria-hidden="true" />}
+        {MOB_NAV.map((item) => {
+          const on = isActive(item, pathname);
+          return (
+            <Link key={item.to} href={item.to} className={`tn-mob-item${on ? " active" : ""}`} aria-current={on ? "page" : undefined}
+              onClick={() => item.badgeKey === "bookings" && setNotificationCount(0)}>
+              <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
+              <span className="tn-mob-ico">{on ? <item.Icon /> : <item.Off />}</span>
+              {item.label}
+            </Link>
+          );
+        })}
         <button type="button" className={`tn-mob-item${drawer ? " active" : ""}`} onClick={() => setDrawer(true)}>
           <NavBadge value={moreCount} className="tn-mob-badge" />
-          <span className="tn-mob-ico"><AppsRoundedIcon /></span>
+          <span className="tn-mob-ico">{drawer ? <GridViewRoundedIcon /> : <GridViewOutlinedIcon />}</span>
           More
         </button>
       </nav>
@@ -458,36 +508,44 @@ const TN_CSS = `
   .tn-drawer { top: auto; right: 0; width: 100%; max-height: 88vh; border-radius: 22px 22px 0 0; padding-top: 0;
     animation: tnSheet .26s cubic-bezier(.2,.9,.3,1); box-shadow: 0 -20px 50px -20px rgba(0,0,0,.35); }
   @keyframes tnSheet { from { transform: translateY(100%); } to { transform: none; } }
-  .tn-sheet-grip { display: block; width: 42px; height: 5px; border-radius: 5px; background: #d6dfda; margin: 8px auto 0; }
-  .tn-drawer-head { padding: 10px 16px 12px; }
+  .tn-sheet-grip { display: block; position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 4px; background: rgba(255,255,255,.45); }
+  .tn-drawer-head { padding: 18px 14px 10px; border: 0; background: linear-gradient(100deg, #0b3320, #166534); border-radius: 22px 22px 0 0; }
+  .tn-drawer-head b { color: #fff; }
+  .tn-drawer-head > div > span:not(.nx-tone) { color: #f5c542; }
+  .tn-drawer-head button { background: rgba(255,255,255,.14); color: #fff; }
   /* the tile pages replace the grouped list on phones */
   .tn-drawer nav { display: none; }
-  .tn-pages-wrap { display: block; padding: 14px 0 10px; }
-  .tn-pages { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .tn-pages-wrap { display: block; padding: 12px 0 calc(8px + env(safe-area-inset-bottom, 0px)); }
+  .tn-pages { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .tn-pages::-webkit-scrollbar { display: none; }
-  .tn-pages .tn-page { flex: 0 0 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 6px; padding: 0 12px; align-content: start; scroll-snap-align: start; margin: 0; }
-  .tn-dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
-  .tn-dots i { width: 6px; height: 6px; border-radius: 999px; background: #d6dfda; transition: width .2s, background .2s; }
-  .tn-dots i.on { width: 18px; background: #166534; }
+  .tn-pages .tn-page { flex: 0 0 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 12px 2px; padding: 0 8px; align-content: start; scroll-snap-align: start; scroll-snap-stop: always; margin: 0; }
+  .tn-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .tn-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 7px; background: #d6dfda; cursor: pointer; transition: width .2s ease, background .2s ease; }
+  .tn-dots button.on { width: 20px; background: #d4a24c; }
   .tn-drawer-group { display: contents; }
   .tn-drawer-group > span { display: none; }
-  .tn-drawer-group a { height: auto; flex-direction: column; justify-content: flex-start; align-items: center; gap: 6px; padding: 0; border-radius: 0;
-    background: none; font-size: 11.5px; font-weight: 700; color: #334155; text-align: center; line-height: 1.25; }
-  .tn-dr-ic { width: 52px; height: 52px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; transition: background .15s; }
-  .tn-drawer-group a svg { font-size: 24px; color: #166534; }
-  .tn-drawer-group a.on { background: none; color: #166534; }
-  .tn-drawer-group a.on .tn-dr-ic { background: #dff3e6; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
+  .tn-drawer-group a, .tn-drawer-group > button { min-width: 0; height: auto; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; gap: 6px; padding: 2px; border: 0; border-radius: 0;
+    background: none; font: inherit; font-size: 12px; font-weight: 700; color: #334155; text-align: center; line-height: 1.2; text-decoration: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tn-dr-ic { width: 50px; height: 50px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; transition: background .15s; }
+  .tn-drawer-group a svg, .tn-drawer-group > button svg { font-size: 24px; color: #166534; }
+  .tn-drawer-group a.on { background: none; color: #166534; font-weight: 800; }
+  .tn-drawer-group a.on .tn-dr-ic { background: #e3f4e9; }
+  .tn-drawer-group > button.out { color: #dc2626; }
+  .tn-drawer-group > button.out .tn-dr-ic { background: #fef2f2; }
+  .tn-drawer-group > button.out svg { color: #dc2626; }
   .tn-drawer-group a:active .tn-dr-ic { background: #e7f6ec; }
   /* Upgrade tiles (Assessments, Coupons until bought) in gold, like the sidebar */
   .tn-drawer-group a.up .tn-dr-ic { background: linear-gradient(145deg, #fff8e6, #fbefcc); box-shadow: inset 0 0 0 1px #ecd49a; }
   .tn-drawer-group a.up svg { color: #a37a16; }
   .tn-drawer-group a.up { color: #7a5a10; }
-  .tn-dr-lbl { flex: 0 0 auto; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  /* the golden underline draws in from the left when tapped, and stays on the current page */
+  .tn-dr-lbl { flex: 0 0 auto; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding-bottom: 4px;
+    background: linear-gradient(#d4a24c, #d4a24c) left bottom / 0 2.5px no-repeat; transition: background-size .22s ease; }
+  .tn-drawer-group a.on .tn-dr-lbl, .tn-drawer-group a:active .tn-dr-lbl, .tn-drawer-group > button:active .tn-dr-lbl { background-size: 100% 2.5px; }
   .tn-drawer-group a .tn-dr-badge.nx-badge { top: -5px; right: -6px; }
   .tn-drawer-group a .tn-dr-badge.nx-dot { top: 2px; right: 2px; }
   .tn-drawer-pct { margin: 10px 14px 0; }
-  .tn-drawer-foot { padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); }
-  .tn-drawer-foot a, .tn-drawer-foot button { height: 42px; font-size: 13px; }
+  .tn-drawer-foot { display: none; }
 }
 
 .tn-mob-nav { display: none; }
@@ -514,23 +572,24 @@ const TN_CSS = `
   .tn-right { gap: 0; }
   .tn-search input { font-size: 16px; }
   .tn-search input::placeholder { font-size: 14px; }
-  .tn-mob-nav {
-    display: flex; position: fixed; z-index: 1200; left: 0; right: 0; bottom: 0;
-    padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); gap: 2px;
-    background: rgba(255,255,255,.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border-top: 1px solid #e4ece7; box-shadow: 0 -6px 20px -12px rgba(4,22,14,.2);
-  }
-  .tn-mob-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none !important; color: #64748b; font-weight: 700; font-size: 10.5px; font-family: inherit; padding: 4px 0; position: relative; border: 0; background: none; cursor: pointer; }
-  .tn-mob-ico { width: 52px; height: 30px; border-radius: 999px; display: grid; place-items: center; transition: background .18s; }
-  .tn-mob-ico svg { font-size: 23px; }
-  .tn-mob-item.active { color: #166534; }
-  .tn-mob-item.active .tn-mob-ico { background: #166534; box-shadow: 0 4px 12px -4px rgba(22,101,52,.55); }
-  .tn-mob-item.active .tn-mob-ico svg { color: #fff; }
+  .tn-mob-nav { display: flex; position: fixed; z-index: 1200; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); padding: 0 4px; background: #fff; border: 1px solid #e4ece7; border-radius: 22px; overflow: hidden;
+    box-shadow: 0 14px 30px -12px rgba(4,30,16,.38), 0 3px 8px -4px rgba(4,30,16,.14); transition: transform .26s cubic-bezier(.22,.8,.3,1); will-change: transform; }
+  .tn-mob-nav.away { transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom, 0px))); }
+  body:has(.ts-area) #cyt-cookie-consent-bar { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; } /* never over the bar's buttons */
+  body:has(.tn-drawer-wrap) #cyt-cookie-consent-bar { display: none !important; }
+  .tn-mob-line { position: absolute; top: 0; left: 4px; width: calc((100% - 8px) / var(--n)); height: 3px; transform: translateX(calc(100% * var(--i))); transition: transform .24s cubic-bezier(.22,.8,.3,1); pointer-events: none; }
+  .tn-mob-line::after { content: ""; display: block; width: 34px; height: 100%; margin: 0 auto; border-radius: 0 0 4px 4px; background: #d4a24c; }
+  .tn-mob-item { flex: 1; min-width: 0; min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px 0 6px; position: relative; border: 0; background: none; color: #64748b; font-family: inherit; font-size: 11.5px; font-weight: 600; text-decoration: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color .18s ease; }
+  .tn-mob-item:active .tn-mob-ico { transform: scale(.88); }
+  .tn-mob-ico { display: grid; place-items: center; width: 48px; height: 28px; border-radius: 999px; transition: transform .18s ease, background .18s ease; }
+  .tn-mob-ico svg { font-size: 24px; color: inherit; }
+  .tn-mob-item.active { color: #166534; font-weight: 800; }
+  .tn-mob-item.active .tn-mob-ico { background: #e3f4e9; }
   .tn-mob-badge { position: absolute; top: 0; right: calc(50% - 26px); background: #ef4444; color: #fff; border-radius: 8px; padding: 1px 5px; font-size: 9.5px; font-weight: 800; border: 2px solid #fff; z-index: 1; }
   .tn-mob-item .tn-mob-badge.nx-badge { margin: 0; height: auto; min-width: 0; line-height: 1.3; }
   .tn-mob-item .tn-mob-badge.nx-dot { width: 11px; height: 11px; padding: 0; top: 3px; right: calc(50% - 20px); background: #f59e0b; border: 2px solid #fff; box-shadow: none; }
 }
-@media (prefers-reduced-motion: reduce) { .tn-drawer, .tn-drawer-wrap, .tn-prof-dd { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tn-drawer, .tn-drawer-wrap, .tn-prof-dd { animation: none; } .tn-mob-nav, .tn-mob-line, .tn-mob-ico { transition: none; } }
 
 /* -- brand green top bar -- */
 .tn-bar.tn-bar { background: linear-gradient(90deg, #0b3320 0%, #14532d 55%, #166534 100%); border-bottom: 0; box-shadow: 0 6px 18px -10px rgba(4,30,16,.55); }
