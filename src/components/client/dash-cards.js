@@ -264,7 +264,7 @@ export function ProbonoCard({ data, onChange, hideManage }) {
     try { await navigator.clipboard.writeText(s.coupon.code); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) { /* clipboard blocked */ }
   };
   const cancel = async () => {
-    if (!window.confirm("Cancel your free session?")) return;
+    if (!window.confirm(s.cancel_uses_free ? "Cancelling now will use up your free session, and you won't be able to ask for another one. Cancel anyway?" : "Cancel your free session? You can share your details again once.")) return;
     setBusy(true);
     try { await postData(`${apiUrl}/probono/${s._id}/cancel`, {}); onChange?.(); } catch (e) { /* the card stays as it is */ }
     setBusy(false);
@@ -300,7 +300,7 @@ export function ProbonoCard({ data, onChange, hideManage }) {
       </div>
     );
   }
-  if (s.status === "declined") {
+  if (s.status === "declined" && data.eligible) {
     return (
       <div className="ch-card">
         <h3>Your free session is still yours</h3>

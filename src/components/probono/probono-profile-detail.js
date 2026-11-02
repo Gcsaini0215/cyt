@@ -10,6 +10,7 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import { Share2 } from "lucide-react";
 import ImageTag from "../../utils/image-tag";
+import FreeConsultationButton from "./free-consultation-button";
 import ShareModal from "../global/share-modal";
 import ProbonoProfileReview from "./probono-profile-review";
 
@@ -233,24 +234,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
               </Box>
             </Stack>
 
-            <Button
-              fullWidth
-              component="a"
-              href={`/client/free-session?guide=${psychologist.slug}`}
-              sx={{
-                borderRadius: "6px",
-                py: 1.4,
-                background: "linear-gradient(135deg,#166534,#16a34a)",
-                color: "white",
-                fontWeight: 700,
-                fontSize: 15,
-                textTransform: "none",
-                boxShadow: "0 8px 18px rgba(22,101,52,0.2)",
-                "&:hover": { opacity: 0.92 },
-              }}
-            >
-              Book Free Session
-            </Button>
+            <Box sx={{ textAlign: "center" }}><FreeConsultationButton /></Box>
           </Box>
 
           <ProbonoProfileReview probonoIntern={psychologist} onReviewSubmitted={(newRating) => setRating(newRating)} />

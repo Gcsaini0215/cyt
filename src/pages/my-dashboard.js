@@ -1,7 +1,7 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PreSessionForms from "../components/client/pre-session-forms";
-import ClientShell from "../components/client/client-shell";
+import ClientShell, { WA_HELP } from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
@@ -13,6 +13,10 @@ import { CLIENT_BOOKINGS_EVENT } from "../store/clientNotifStore";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
+import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
+import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
+import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
+import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 /* Client home: what's next, how to book, and the therapists you've seen — plus the cards that
@@ -49,8 +53,6 @@ function startsIn(b, now) {
 const SKIP_KEY = "cyt_review_skip"; // bookings the client said "Not now" to
 const readSkips = () => { try { return JSON.parse(localStorage.getItem(SKIP_KEY) || "[]"); } catch (e) { return []; } };
 const REVIEW_WINDOW = 45 * 24 * 60 * 60 * 1000; // only ask about sessions from the last 45 days
-const BAR_GAP = 76; // top bar + a little air: where the sticky side column starts
-const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export default function ClientHome() {
   const { userInfo } = useUserStore();
@@ -65,7 +67,6 @@ export default function ClientHome() {
   const [checks, setChecks] = useState(null); // screenings sent to / taken by the client
   const [packs, setPacks] = useState([]); // session packs with sessions left
   const [probono, setProbono] = useState(null); // the free session and its coupon
-  const [sideEl, setSideEl] = useState(null); // a callback ref: the shell renders the page only after its login check
 
   useEffect(() => {
     // also re-run live: the notification stream says when a session is confirmed / starts / moves / ends
@@ -93,22 +94,6 @@ export default function ClientHome() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [callback]);
-
-  // desktop: the side column follows the scroll. When it's taller than the screen a top of 76px hid its
-  // lower cards (call back, requests) — then it sticks by its bottom edge instead, so all of it is reachable.
-  useIsoLayoutEffect(() => {
-    const el = sideEl;
-    if (!el) return undefined;
-    const fit = () => {
-      const top = Math.min(BAR_GAP, window.innerHeight - el.offsetHeight - 16);
-      el.style.setProperty("--ch-side-top", `${Math.round(top)}px`);
-    };
-    fit();
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(fit) : null;
-    ro?.observe(el);
-    window.addEventListener("resize", fit);
-    return () => { ro?.disconnect(); window.removeEventListener("resize", fit); };
-  }, [sideEl]);
 
   const skipReview = (bookingId) => {
     const list = [...new Set([...readSkips(), bookingId])].slice(-30);
@@ -152,6 +137,14 @@ export default function ClientHome() {
     .slice(0, 3)
     .map((b) => b.therapist._id));
 
+  // with no review or pack the main column is short, so this card fills it instead of a stretched one
+  const moodInMain = !newbie && !toReview && !packs.length;
+  const moodCard = (
+    <div className="dw-pair ch-mood">
+      <MoodCard now={now} bookHref={last ? bookAgainPath(last, nextSameSlot(last, now)) : "/client/find"} />
+    </div>
+  );
+
   return (
     <ClientShell title="My Space">
       <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + HOME_CSS }} />
@@ -163,7 +156,15 @@ export default function ClientHome() {
               <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
             </div>
 
-            <div className="ch-pb"><ProbonoCard data={probono} onChange={() => fetchById(`${apiUrl}/probono/me`).then((r) => setProbono(r?.data || null)).catch(() => {})} /></div>
+            <div className="ch-pb">
+              <ProbonoCard data={probono} onChange={() => fetchById(`${apiUrl}/probono/me`).then((r) => setProbono(r?.data || null)).catch(() => {})} />
+              {probono?.eligible && !["requested", "accepted"].includes(probono.session?.status) && (
+                <Link href="/client/free-session" className="ch-cta">
+                  <VolunteerActivismRoundedIcon />
+                  <div><b>Get a free consultation</b><span>One free 45-minute session on Google Meet. We&apos;ll arrange it for you.</span></div>
+                </Link>
+              )}
+            </div>
 
             {pending.length > 0 && (
               <section className="ch-next ch-pend">
@@ -188,6 +189,17 @@ export default function ClientHome() {
               ) : <StartCard onCallback={() => setCallback(true)} />}
             </section>
 
+            {!newbie && (
+              <nav className="ch-quick" aria-label="Quick actions">
+                <Link href="/client/find"><PersonSearchRoundedIcon /><span>Find a therapist</span></Link>
+                <Link href="/client/my-bookings"><EventAvailableRoundedIcon /><span>My sessions</span></Link>
+                <Link href="/self-assessment"><PsychologyAltRoundedIcon /><span>Take a screening</span></Link>
+                <a href={WA_HELP} target="_blank" rel="noopener noreferrer"><SupportAgentRoundedIcon /><span>Talk to us</span></a>
+              </nav>
+            )}
+
+            {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
+
             {packs.length > 0 && (
               <section className="ch-sec tight">
                 <h2>Your session pack{packs.length > 1 ? "s" : ""}</h2>
@@ -204,17 +216,35 @@ export default function ClientHome() {
 
             <PreSessionForms compact rows={checks} />
 
-            {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
-
-            <div className="dw-pair">
-              <MoodCard now={now} bookHref={last ? bookAgainPath(last, nextSameSlot(last, now)) : "/client/find"} />
-            </div>
+            {moodInMain && moodCard}
           </div>
 
-          <aside className="ch-side" ref={setSideEl}>
+          <aside className="ch-side">
             {referral !== null && <ReferralCard data={referral} />}
             {bookings !== null && <RecentSessions bookings={bookings} now={now} />}
             <CalmCorner now={now} />
+            {/* a first-time client already has the call back in the start card */}
+            {!newbie && (
+              <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
+                <PhoneCallbackRoundedIcon />
+                <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
+              </button>
+            )}
+          </aside>
+
+          <div className="ch-rest">
+          {upcoming.length > 0 && (
+            <section className="ch-sec">
+              <div className="ch-sec-h"><h2>Also coming up</h2><Link href="/client/my-bookings">All sessions →</Link></div>
+              <div className="ch-cards">{upcoming.map((b) => <SessionCard key={b._id} b={b} now={now} compact />)}</div>
+            </section>
+          )}
+
+          </div>
+
+          {/* full width under both columns: each row of cards stretches to fill it, however many there are */}
+          <div className="ch-band">
+            {!moodInMain && moodCard}
             {checkIn && <CheckInCard />}
             {offer && <ForYouCard offer={offer} />}
             {/* only when Recent sessions doesn't already list every therapist */}
@@ -234,13 +264,6 @@ export default function ClientHome() {
                 })}
               </div>
             )}
-            {/* a first-time client already has the call back in the start card */}
-            {!newbie && (
-              <button type="button" className="ch-cta alt" onClick={() => setCallback(true)}>
-                <PhoneCallbackRoundedIcon />
-                <div><b>Not sure whom to book?</b><span>Request a call back — we&apos;ll help you choose</span></div>
-              </button>
-            )}
             {requests.length > 0 && (
               <div className="ch-card">
                 <h3>Appointment requests</h3>
@@ -252,16 +275,6 @@ export default function ClientHome() {
                 ))}
               </div>
             )}
-          </aside>
-
-          <div className="ch-rest">
-          {upcoming.length > 0 && (
-            <section className="ch-sec">
-              <div className="ch-sec-h"><h2>Also coming up</h2><Link href="/client/my-bookings">All sessions →</Link></div>
-              <div className="ch-cards">{upcoming.map((b) => <SessionCard key={b._id} b={b} now={now} compact />)}</div>
-            </section>
-          )}
-
           </div>
         </div>
 
@@ -288,8 +301,9 @@ const HOME_CSS = `
 .ch-hello h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
 .ch-hello h1 span { color: #166534; }
 .ch-hello p { margin: 4px 0 0; font-size: 14px; color: #64748b; }
-/* side column spans both rows, so the lower sections sit right under the main cards (no gap) */
-.ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto 1fr; grid-template-areas: "main side" "rest side"; column-gap: 16px; align-items: start; }
+.cls-main:has(.ch) { max-width: none !important; }
+/* the two columns end level, and the band below them runs the full width */
+.ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "main side" "rest rest" "band band"; column-gap: 16px; align-items: stretch; }
 .ch-pend { margin-bottom: 16px; }
 .ch-pb:not(:empty) { margin-bottom: 16px; }
 .ch-next-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
@@ -301,7 +315,26 @@ const HOME_CSS = `
 /* the next session leads the page: a soft green lift behind its card */
 .ch-next.hero > .csc { box-shadow: 0 18px 40px -26px rgba(4,60,30,.55); }
 .ch-main > .psf.compact { margin: 16px 0 0; }
-.ch-main > .dw-stats { margin-top: 16px; margin-bottom: 0; }
+.ch-main > .dw-stats { margin-top: 12px; margin-bottom: 0; }
+/* the columns end level by growing whatever is last in the main one, never the next-session card above it */
+.ch-main > :last-child { flex: 1 0 auto; }
+.ch-main > section:last-child { display: flex; flex-direction: column; }
+.ch-main > section:last-child > :last-child { flex: 1; }
+.ch-main > .dw-stats { flex: none; }
+.ch-main > .ch-mood { display: flex; margin-top: 12px; }
+.ch-main > .ch-mood > * { flex: 1; min-width: 0; }
+@media (min-width: 1280px) and (max-width: 1499px) {
+  .ch-grid { grid-template-columns: minmax(0, 1fr) 320px; }
+  .ch-main > .dw-stats { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.2fr); gap: 8px; }
+}
+.ch-quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.ch-quick a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; border-radius: 14px; background: #fff; border: 1px solid #e4ece7; color: #0f172a !important; font-size: 14px; font-weight: 700; line-height: 1.25; text-decoration: none !important; }
+.ch-quick a:hover { border-color: #a7d7b8; background: #f6fbf7; }
+.ch-quick svg { flex: none; font-size: 22px; color: #166534; }
+.ch-band { grid-area: band; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.ch-band > * { flex: 1 1 300px; min-width: 0; margin: 0 !important; }
+.ch-band > .ch-mood { flex: 2 1 620px; display: flex; }
+.ch-band > .ch-mood > * { flex: 1; min-width: 0; }
 .ch-pend-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
 .ch-main { grid-area: main; } .ch-side { grid-area: side; } .ch-rest { grid-area: rest; min-width: 0; }
 .ch h2 { font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #166534; margin: 0 0 10px; font-family: inherit; }
@@ -311,6 +344,7 @@ const HOME_CSS = `
 .ch-empty > svg { font-size: 34px; color: #16a34a; }
 .ch-empty b { font-size: 16px; } .ch-empty p { margin: 0 0 8px; font-size: 13.5px; color: #64748b; }
 .ch-side { display: flex; flex-direction: column; gap: 12px; }
+.ch-side > :last-child { flex: 1 0 auto; }
 .ch-cta { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 16px; text-decoration: none !important; color: #fff !important; border: 0; text-align: left; width: 100%; cursor: pointer; font-family: inherit;
   background: linear-gradient(135deg, #0b3320, #166534); box-shadow: 0 12px 26px -16px rgba(4,30,16,.7); }
 .ch-cta > svg { font-size: 30px; color: #f5c542; flex-shrink: 0; }
@@ -332,9 +366,6 @@ const HOME_CSS = `
 .ch-ther-txt { flex: 1; min-width: 0; } .ch-ther-txt b { display: block; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-ther-txt span { display: block; font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ch-ther .csc-btn { height: 34px; flex: none; padding: 0 12px; font-size: 12.5px; }
-/* desktop: the side column follows the scroll, so a long main column leaves no empty strip beside it
-   (--ch-side-top is set from its height — see the layout effect) */
-@media (min-width: 1280px) { .ch-side { position: sticky; top: var(--ch-side-top, 76px); } }
 .ch-overlay { position: fixed; inset: 0; z-index: 1400; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
 .ch-modal { background: #fff; border-radius: 18px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
 .ch-modal-h { position: sticky; top: 0; z-index: 1; display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; padding: 16px 18px; background: linear-gradient(90deg, #0b3320, #166534); color: #fff; }
@@ -342,10 +373,21 @@ const HOME_CSS = `
 .ch-modal-h button { width: 34px; height: 34px; border-radius: 10px; border: 0; background: rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .ch-modal-b { padding: 6px 4px 10px; }
 /* below 1280px two columns left the session card ~400px wide (iPad landscape / small laptops, with the
-   menu open): one column — the rest of your sessions first, then the side cards, two across from 700px */
-@media (max-width: 1279px) { .ch-grid { grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "main" "rest" "side"; row-gap: 16px; } .ch-sec { margin-top: 6px; } }
+   menu open): one column, with the side cards two across from 700px */
+@media (max-width: 1279px) {
+  .ch-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "main" "rest" "side" "band"; }
+  .ch-side { margin-top: 12px; }
+  .ch-band { margin-top: 12px; }
+  .ch-sec { margin-top: 6px; }
+}
 @media (min-width: 700px) and (max-width: 1279px) {
-  .ch-side { display: block; column-count: 2; column-gap: 12px; }
-  .ch-side > * { break-inside: avoid; margin-bottom: 12px; }
+  .ch-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .ch-side > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  /* the taller cards pair up, and so do the shorter ones */
+  .ch-side > :nth-child(2) { order: 3; } .ch-side > :nth-child(4) { order: 4; }
+}
+@media (max-width: 699px) {
+  .ch-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ch-band > *, .ch-band > .ch-mood { flex-basis: 100%; }
 }
 `;

@@ -75,8 +75,8 @@ export const CONSENT_SECTIONS = [
       {
         heading: "How it is arranged",
         items: [
-          "You share your details from your My Space account. You can edit them until your session is scheduled.",
-          "The Choose Your Therapist team chooses the intern and the time. If you picked a guide, we will try to arrange them, but this is not guaranteed.",
+          "You share your details from your My Space account. You can edit them, except your phone number, until your session is scheduled. To correct your number, please contact us.",
+          "The Choose Your Therapist team chooses the intern and the time, according to who is available.",
           "Your confirmed time, intern and Google Meet link appear in My Space.",
           "If we can't arrange a session, we will let you know and you can share your details again.",
           "If your intern can't attend, our team will arrange a new time.",
@@ -94,7 +94,8 @@ export const CONSENT_SECTIONS = [
       {
         heading: "Cancelling or missing it",
         items: [
-          "You can cancel from your account before the session, and share your details again later.",
+          "You can cancel once from your account and share your details again later.",
+          "A second cancellation, or cancelling less than 24 hours before your session, counts as using your free session.",
           "If you miss a scheduled session without cancelling, your free session counts as used.",
         ],
       },

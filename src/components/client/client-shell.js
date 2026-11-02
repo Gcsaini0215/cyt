@@ -24,6 +24,7 @@ import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
+import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
@@ -37,7 +38,7 @@ export const CLIENT_NAV = [
   { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, mob: true },
   { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon }, // phones: in "More"
 ];
-// "Just for you" — public pages, so they open outside the portal (marked ↗). Never say "centre".
+// "See Links" — a small drop-down of public pages, so they open outside the portal (marked ↗). Never say "centre".
 export const HELP_NAV = [
   { to: "/therapy-for/relationships", label: "For us as a couple", Icon: VolunteerActivismRoundedIcon },
   { to: "/therapy-for/parenting", label: "For my child", Icon: ChildCareRoundedIcon },
@@ -50,7 +51,7 @@ export const CHECK_NAV = [
   { to: "/self-assessment", label: "Book an assessment", Icon: PsychologyAltRoundedIcon, ext: true },
 ];
 const TILES_PER_PAGE = 8;
-const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
+export const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 const RAIL_KEY = "cyt_cls_rail_mini";
 // runs while the HTML is parsed, before the rail is painted
 const RAIL_SCRIPT = `try{if(localStorage.getItem("${"cyt_cls_rail_mini"}")==="1")document.documentElement.classList.add("cls-mini")}catch(e){}`;
@@ -63,6 +64,7 @@ export default function ClientShell({ title, children }) {
   const [menu, setMenu] = useState(false);
   const [more, setMore] = useState(false); // phones: the "More" sheet
   const [checksOpen, setChecksOpen] = useState(false); // side menu: "How am I doing?" drop-down
+  const [linksOpen, setLinksOpen] = useState(false); // side menu: "See Links" drop-down
   const [sheetPage, setSheetPage] = useState(0);
   // ☰ flips the side menu: desktop full ↔ icons only (remembered), tablet icons ↔ full
   // Desktop: the icons-only rail is a class on <html> (`cls-mini`), set by RAIL_SCRIPT while the
@@ -209,12 +211,20 @@ export default function ClientShell({ title, children }) {
           )}
         </div>
         <div className="cls-rail-group">
-          <span className="cls-rail-h">Just for you</span>
-          {HELP_NAV.map(({ to, label, Icon }) => (
-            <Link key={to} href={to} className="cls-item sub" title={label}>
-              <Icon /><span>{label}</span><NorthEastRoundedIcon className="cls-ext" />
-            </Link>
-          ))}
+          <div className={`cls-dd-group${linksOpen ? " open" : ""}`}>
+            <button type="button" className="cls-item" onClick={() => setLinksOpen((o) => !o)} aria-expanded={linksOpen} title="See Links">
+              <LinkRoundedIcon /><span>See Links</span><KeyboardArrowDownRoundedIcon className="cls-chev" />
+            </button>
+            {linksOpen && (
+              <div className="cls-dd-kids">
+                {HELP_NAV.map(({ to, label, Icon }) => (
+                  <Link key={to} href={to} className="cls-item kid" title={label}>
+                    <Icon /><span>{label}</span><NorthEastRoundedIcon className="cls-ext" />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="cls-rail-foot">
           <a href={WA_HELP} target="_blank" rel="noopener noreferrer" className="cls-item"><SupportAgentRoundedIcon /><span>Talk to us</span></a>
@@ -307,13 +317,15 @@ const CLS_CSS = `
 .cls-dd .out { color: #dc2626 !important; }
 .cls-rail { position: fixed; top: var(--cls-h); left: 0; bottom: 0; width: 232px; background: #fff; border-right: 1px solid var(--line); padding: 14px 12px;
   display: flex; flex-direction: column; gap: 3px; z-index: 1100; overflow-y: auto; }
+body:has(.cls) { padding-bottom: 0 !important; } /* the shell keeps its own room for the phone bar */
 .cls-rail > *, .cls-rail .cls-item { flex-shrink: 0; } /* the menu scrolls when the drop-down opens — items never squeeze */
 .cls-item { display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 12px; border-radius: 12px; color: #475569 !important; font-size: 14.5px; font-weight: 700;
   text-decoration: none !important; border: 0; background: none; cursor: pointer; font-family: inherit; width: 100%; text-align: left; }
 .cls-item svg { color: #64748b; }
 .cls-item:hover { background: #e7f6ec; color: var(--g) !important; } .cls-item:hover svg { color: var(--g); }
-.cls-item.on { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; box-shadow: 0 6px 14px -6px rgba(22,101,52,.6); }
-.cls-item.on svg { color: #fff; }
+.cls-item.on { position: relative; background: none; color: var(--g) !important; font-weight: 800; }
+.cls-item.on svg { color: var(--g); }
+.cls-item.on > span { padding-bottom: 3px; border-bottom: 2.5px solid #d4a24c; }
 .cls-item.out { color: #dc2626 !important; } .cls-item.out svg { color: #dc2626; }
 .cls-dd-group { display: flex; flex-direction: column; gap: 2px; }
 .cls-chev { margin-left: auto; font-size: 19px !important; color: #94a3b8 !important; transition: transform .18s ease; }
@@ -321,9 +333,8 @@ const CLS_CSS = `
 .cls-dd-kids { display: flex; flex-direction: column; gap: 2px; margin-left: 14px; padding-left: 6px; border-left: 2px solid #e4ece7; }
 .cls-item.kid { height: 38px; font-size: 13.5px; font-weight: 600; padding: 0 10px; gap: 10px; white-space: nowrap; }
 .cls-item.kid svg { font-size: 18px; }
-.cls-item.kid.on { box-shadow: none; background: #e7f6ec; color: var(--g) !important; } .cls-item.kid.on svg { color: var(--g); }
+.cls-item.kid.on { color: var(--g) !important; } .cls-item.kid.on svg { color: var(--g); }
 .cls-rail-group { margin-top: 14px; padding-top: 12px; border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 2px; }
-.cls-rail-h { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--faint); padding: 0 12px 6px; }
 .cls-item.sub { height: 40px; font-size: 13.5px; font-weight: 600; }
 .cls-item.sub svg { font-size: 19px; }
 .cls-item .cls-ext { margin-left: auto; font-size: 15px !important; color: #cbd5e1 !important; }
@@ -333,7 +344,8 @@ const CLS_CSS = `
 .cls-mob { display: none; }
 @media (max-width: 1023px) {
   .cls-rail { width: 76px; padding: 12px 10px; }
-  .cls-item { justify-content: center; padding: 0; } .cls-item span, .cls-item .cls-ext, .cls-rail-h, .cls-chev { display: none; }
+  .cls-item { justify-content: center; padding: 0; } .cls-item span, .cls-item .cls-ext, .cls-chev { display: none; }
+  .cls-item.on::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #d4a24c; }
   .cls-dd-kids { margin-left: 0; padding-left: 0; border-left: 0; background: #f4f8f5; border-radius: 12px; }
   .cls-item.kid { padding: 0; }
   .cls-rail-group { margin-top: 10px; padding-top: 10px; }
@@ -343,7 +355,8 @@ const CLS_CSS = `
 @media (min-width: 1024px) {
   html.cls-mini .cls .cls-rail { width: 76px; padding: 12px 10px; }
   html.cls-mini .cls .cls-item { justify-content: center; padding: 0; }
-  html.cls-mini .cls .cls-item span, html.cls-mini .cls .cls-item .cls-ext, html.cls-mini .cls .cls-rail-h, html.cls-mini .cls .cls-chev { display: none; }
+  html.cls-mini .cls .cls-item.on::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #d4a24c; }
+  html.cls-mini .cls .cls-item span, html.cls-mini .cls .cls-item .cls-ext, html.cls-mini .cls .cls-chev { display: none; }
   html.cls-mini .cls .cls-dd-kids { margin-left: 0; padding-left: 0; border-left: 0; background: #f4f8f5; border-radius: 12px; }
   html.cls-mini .cls .cls-item.kid { padding: 0; }
   html.cls-mini .cls .cls-main { padding-left: 100px; max-width: 1348px; }
@@ -352,7 +365,7 @@ const CLS_CSS = `
 @media (min-width: 768px) and (max-width: 1023px) {
   .cls.flip .cls-rail { width: 232px; padding: 14px 12px; box-shadow: 18px 0 40px -20px rgba(4,30,16,.35); }
   .cls.flip .cls-item { justify-content: flex-start; padding: 0 12px; }
-  .cls.flip .cls-item span { display: inline; } .cls.flip .cls-item .cls-ext, .cls.flip .cls-chev { display: block; } .cls.flip .cls-rail-h { display: block; }
+  .cls.flip .cls-item span { display: inline; } .cls.flip .cls-item .cls-ext, .cls.flip .cls-chev { display: block; }
   .cls.flip .cls-dd-kids { margin-left: 14px; padding-left: 6px; border-left: 2px solid #e4ece7; background: none; }
   .cls.flip .cls-item.kid { padding: 0 10px; }
 }

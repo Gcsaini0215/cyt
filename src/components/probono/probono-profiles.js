@@ -8,6 +8,7 @@ import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ImageTag from "../../utils/image-tag";
 import ProbonoBanner from "./probono-banner";
+import FreeConsultationButton from "./free-consultation-button";
 import { PSYCHOLOGISTS } from "./probono-data";
 
 export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
@@ -15,7 +16,7 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
 
   return (
     <>
-      <ProbonoBanner />
+      <ProbonoBanner action={<FreeConsultationButton />} />
 
       <div className="rbt-section-gap" style={{ paddingTop: 28, background: "#f8faf9" }}>
         <div className="container">
@@ -160,23 +161,6 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                     </Box>
                   </Link>
 
-                  <Button
-                    fullWidth
-                    component="a"
-                    href={`/client/free-session?guide=${p.slug}`}
-                    sx={{
-                      borderRadius: "6px",
-                      py: 1.2,
-                      background: "linear-gradient(135deg,#166534,#16a34a)",
-                      color: "white",
-                      fontWeight: 700,
-                      textTransform: "none",
-                      boxShadow: "0 8px 18px rgba(22,101,52,0.2)",
-                      "&:hover": { opacity: 0.92 },
-                    }}
-                  >
-                    Book Free Session
-                  </Button>
                 </Box>
               </Grid>
             ))}
