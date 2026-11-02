@@ -54,6 +54,9 @@ const SKIP_KEY = "cyt_review_skip"; // bookings the client said "Not now" to
 const readSkips = () => { try { return JSON.parse(localStorage.getItem(SKIP_KEY) || "[]"); } catch (e) { return []; } };
 const REVIEW_WINDOW = 45 * 24 * 60 * 60 * 1000; // only ask about sessions from the last 45 days
 
+const REBOOK_DAYS = 30;
+const MISSED_DAYS = 14;
+
 export default function ClientHome() {
   const { userInfo } = useUserStore();
   const [bookings, setBookings] = useState(null);
@@ -130,6 +133,8 @@ export default function ClientHome() {
   const offer = forYouOffer(bookings);
   // the latest past booking was never started or marked done → don't call it "your last session"
   const lastMissed = !!last && last.status !== "Completed";
+  // "continue with this therapist" stays fresh for a month (a missed session for two weeks); after that, the default card
+  const rebookable = !!last && now - new Date(last.booking_date).getTime() < (lastMissed ? MISSED_DAYS : REBOOK_DAYS) * 86400000;
   // therapists already shown in "Recent sessions" (its last three past sessions)
   const recentIds = new Set((bookings || [])
     .filter((b) => b.status !== "Cancelled" && b.therapist?._id && (b.status === "Completed" || new Date(b.booking_date).getTime() < now - 90 * 60000))
@@ -177,8 +182,8 @@ export default function ClientHome() {
             <section className={`ch-next${next ? " hero" : ""}`}>
               {next ? (() => { const s = startsIn(next, now); return (
                 <div className="ch-next-h"><h2>Your next session</h2><span className={`ch-count${s.live ? " live" : ""}`}><ScheduleRoundedIcon />{s.t}</span></div>
-              ); })() : <h2>{last ? "Your next step" : newbie ? "Let's get you started" : "Your next session"}</h2>}
-              {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : last ? (
+              ); })() : <h2>{rebookable ? "Your next step" : newbie ? "Let's get you started" : last ? "Welcome back" : "Your next session"}</h2>}
+              {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : rebookable ? (
                 <RebookCard b={last} now={now} missed={lastMissed} credit={Number(referral?.credit) || 0} />
               ) : pending.length ? (
                 <div className="ch-empty">

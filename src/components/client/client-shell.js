@@ -18,24 +18,29 @@ import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
 import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
 import ChildCareRoundedIcon from "@mui/icons-material/ChildCareRounded";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
-import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import NorthEastRoundedIcon from "@mui/icons-material/NorthEastRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ClientNotifications from "./client-notifications";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
+import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
+import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
    phones. Sends logged-out visitors to /login and brings them back afterwards. */
 
 export const CLIENT_NAV = [
-  { to: "/my-dashboard", label: "My Space", Icon: HomeRoundedIcon, mob: true },
+  { to: "/my-dashboard", label: "My Space", Icon: HomeRoundedIcon, Off: HomeOutlinedIcon, mob: true },
   { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon }, // phones: in "More"
-  { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, mob: true },
-  { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, mob: true },
-  { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, mob: true },
+  { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, Off: EventAvailableOutlinedIcon, mob: true },
+  { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, Off: PersonSearchOutlinedIcon, mob: true },
+  { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, Off: FavoriteBorderRoundedIcon, mob: true },
   { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon }, // phones: in "More"
 ];
 // "See Links" — a small drop-down of public pages, so they open outside the portal (marked ↗). Never say "centre".
@@ -50,8 +55,8 @@ export const CHECK_NAV = [
   { to: "/client/check-ins", label: "My check-ins", Icon: InsightsRoundedIcon },
   { to: "/self-assessment", label: "Book an assessment", Icon: PsychologyAltRoundedIcon, ext: true },
 ];
-const TILES_PER_PAGE = 8;
 export const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
+const TILES_PER_PAGE = 8;
 const RAIL_KEY = "cyt_cls_rail_mini";
 // runs while the HTML is parsed, before the rail is painted
 const RAIL_SCRIPT = `try{if(localStorage.getItem("${"cyt_cls_rail_mini"}")==="1")document.documentElement.classList.add("cls-mini")}catch(e){}`;
@@ -65,7 +70,9 @@ export default function ClientShell({ title, children }) {
   const [more, setMore] = useState(false); // phones: the "More" sheet
   const [checksOpen, setChecksOpen] = useState(false); // side menu: "How am I doing?" drop-down
   const [linksOpen, setLinksOpen] = useState(false); // side menu: "See Links" drop-down
+  const [barHidden, setBarHidden] = useState(false); // phone bar: slides away while scrolling down
   const [sheetPage, setSheetPage] = useState(0);
+  const tilesRef = useRef(null);
   // ☰ flips the side menu: desktop full ↔ icons only (remembered), tablet icons ↔ full
   // Desktop: the icons-only rail is a class on <html> (`cls-mini`), set by RAIL_SCRIPT while the
   // page is still loading, so a refresh shows the right width at once (reading it in an effect made
@@ -143,22 +150,48 @@ export default function ClientShell({ title, children }) {
   const active = (to) => router.pathname === to;
   const onChecks = CHECK_NAV.some((c) => active(c.to));
   useEffect(() => { if (onChecks) setChecksOpen(true); }, [onChecks]);
-  useEffect(() => { if (more) setSheetPage(0); }, [more]);
+  // phone bar: down hides it, up brings it back, and it's always there at the top and the end of a page
+  useEffect(() => {
+    let last = window.scrollY;
+    let queued = false;
+    const check = () => {
+      queued = false;
+      const y = window.scrollY;
+      const atEdge = y < 80 || y + window.innerHeight >= document.documentElement.scrollHeight - 40;
+      if (Math.abs(y - last) < 12 && !atEdge) return; // small movements add up until they're a real scroll
+      setBarHidden(!atEdge && y > last);
+      last = y;
+    };
+    const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(check); } };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  useEffect(() => { setBarHidden(false); }, [router.asPath]);
 
   // phone "More" sheet: tiles in pages of 8 that slide sideways
-  const tiles = [
+  const mobNav = CLIENT_NAV.filter((n) => n.mob);
+  const moreOn = more || active("/my-settings") || onChecks;
+  const mobOn = moreOn ? mobNav.length : mobNav.findIndex((n) => active(n.to));
+  const sheetTiles = [
     { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon },
     { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon },
     ...CHECK_NAV,
     ...HELP_NAV,
     { href: WA_HELP, label: "Talk to us", Icon: SupportAgentRoundedIcon, blank: true },
     { href: "/", label: "Website", Icon: LanguageRoundedIcon },
+    { label: "Log out", Icon: LogoutRoundedIcon, onClick: logout },
   ];
   const tilePages = [];
-  for (let i = 0; i < tiles.length; i += TILES_PER_PAGE) tilePages.push(tiles.slice(i, i + TILES_PER_PAGE));
-  const tilesRef = useRef(null);
-  const onTilesScroll = (e) => { const el = e.currentTarget; setSheetPage(Math.round(el.scrollLeft / Math.max(1, el.clientWidth))); };
+  for (let i = 0; i < sheetTiles.length; i += TILES_PER_PAGE) tilePages.push(sheetTiles.slice(i, i + TILES_PER_PAGE));
+  const onTilesScroll = (e) => { const el = e.currentTarget; setSheetPage(Math.round(el.scrollLeft / el.clientWidth)); };
   const goTilePage = (i) => { const el = tilesRef.current; if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" }); };
+  // opens on the page holding the current screen
+  useEffect(() => {
+    if (!more) return;
+    const page = Math.max(0, Math.floor(sheetTiles.findIndex((t) => t.to && active(t.to)) / TILES_PER_PAGE));
+    if (tilesRef.current) tilesRef.current.scrollLeft = page * tilesRef.current.clientWidth;
+    setSheetPage(page);
+  }, [more]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={`cls${flip ? " flip" : ""}`}>
@@ -234,14 +267,15 @@ export default function ClientShell({ title, children }) {
 
       <main className="cls-main">{ready ? children : null}</main>
 
-      <nav className="cls-mob" aria-label="Quick menu">
-        {CLIENT_NAV.filter((n) => n.mob).map(({ to, label, short, Icon }) => (
-          <Link key={to} href={to} className={`cls-mob-item${active(to) ? " on" : ""}`}>
-            <span className="cls-mob-ic"><Icon /></span>{short || label}
+      <nav className={`cls-mob${barHidden && !more ? " away" : ""}`} aria-label="Quick menu" style={{ "--n": mobNav.length + 1, "--i": mobOn }} onFocus={() => setBarHidden(false)}>
+        {mobOn >= 0 && <span className="cls-mob-line" aria-hidden="true" />}
+        {mobNav.map(({ to, label, short, Icon, Off }) => (
+          <Link key={to} href={to} className={`cls-mob-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}>
+            <span className="cls-mob-ic">{active(to) ? <Icon /> : <Off />}</span>{short || label}
           </Link>
         ))}
-        <button type="button" className={`cls-mob-item${more || active("/my-settings") || onChecks ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
-          <span className="cls-mob-ic"><AppsRoundedIcon /></span>More
+        <button type="button" className={`cls-mob-item${moreOn ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
+          <span className="cls-mob-ic">{moreOn ? <GridViewRoundedIcon /> : <GridViewOutlinedIcon />}</span>More
         </button>
       </nav>
 
@@ -251,30 +285,26 @@ export default function ClientShell({ title, children }) {
           <div className="cls-sheet" role="dialog" aria-modal="true" aria-label="More">
             <span className="cls-grip" aria-hidden="true" />
             <div className="cls-sheet-head">
-              <span className="cls-av big">{photo ? <img src={photo} alt="" onError={() => setPhotoFailed(true)} /> : initials}</span>
+              <span className="cls-av">{photo ? <img src={photo} alt="" onError={() => setPhotoFailed(true)} /> : initials}</span>
               <div><b>{name || "My account"}</b><span className="cls-room">My therapy room</span></div>
               <button type="button" onClick={() => setMore(false)} aria-label="Close"><CloseRoundedIcon /></button>
             </div>
             <div className="cls-tiles-track" ref={tilesRef} onScroll={onTilesScroll}>
-              {tilePages.map((pageTiles, k) => (
+              {tilePages.map((tiles, k) => (
                 <div key={k} className="cls-tiles">
-                  {pageTiles.map(({ to, href, label, Icon, blank }) => (to ? (
-                    <Link key={label} href={to} className={active(to) ? "on" : ""}><span><Icon /></span>{label}</Link>
-                  ) : (
-                    <a key={label} href={href} {...(blank ? { target: "_blank", rel: "noopener noreferrer" } : {})}><span><Icon /></span>{label}</a>
-                  )))}
+                  {tiles.map(({ to, href, label, Icon, blank, onClick }) => {
+                    const body = <><span className="cls-tile-ic"><Icon /></span><span className="cls-tile-tx">{label}</span></>;
+                    if (onClick) return <button key={label} type="button" className="out" onClick={onClick}>{body}</button>;
+                    return to ? <Link key={label} href={to} className={active(to) ? "on" : ""} aria-current={active(to) ? "page" : undefined}>{body}</Link>
+                      : <a key={label} href={href} {...(blank ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{body}</a>;
+                  })}
                 </div>
               ))}
             </div>
-            {tilePages.length > 1 && (
-              <div className="cls-dots" role="tablist" aria-label="Menu pages">
-                {tilePages.map((_, k) => (
-                  <button key={k} type="button" role="tab" className={k === sheetPage ? "on" : ""} onClick={() => goTilePage(k)} aria-label={`Page ${k + 1}`} aria-selected={k === sheetPage} />
-                ))}
-              </div>
-            )}
-            <div className="cls-sheet-foot">
-              <button type="button" onClick={logout}><LogoutRoundedIcon /> Log out</button>
+            <div className="cls-dots" role="tablist" aria-label="Menu pages">
+              {tilePages.map((_, k) => (
+                <button key={k} type="button" role="tab" className={k === sheetPage ? "on" : ""} onClick={() => goTilePage(k)} aria-label={`Page ${k + 1}`} aria-selected={k === sheetPage} />
+              ))}
             </div>
           </div>
         </div>
@@ -374,15 +404,21 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .hide-sm { display: none !important; }
   .cls-bar { padding: 0 12px; }
   .cls-rail { display: none; }
-  .cls-main { padding: calc(var(--cls-h) + 14px) 16px calc(88px + env(safe-area-inset-bottom, 0px)); }
-  .cls-mob { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 1200; gap: 2px; padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
-    background: rgba(255,255,255,.97); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px -12px rgba(4,22,14,.2); }
-  .cls-mob-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #64748b !important; font-size: 10.5px; font-weight: 700; text-decoration: none !important; padding: 4px 0; }
-  .cls-mob-ic { width: 52px; height: 30px; border-radius: 999px; display: grid; place-items: center; }
-  .cls-mob-ic svg { font-size: 23px; }
-  .cls-mob-item.on { color: var(--g) !important; }
-  .cls-mob-item.on .cls-mob-ic { background: #166534; box-shadow: 0 4px 12px -4px rgba(22,101,52,.55); }
-  .cls-mob-item.on .cls-mob-ic svg { color: #fff; }
+  .cls-main { padding: calc(var(--cls-h) + 14px) 16px calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .cls-mob { display: flex; position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 1200; padding: 0 4px; background: #fff; border: 1px solid #e4ece7; border-radius: 22px; overflow: hidden;
+    box-shadow: 0 14px 30px -12px rgba(4,30,16,.38), 0 3px 8px -4px rgba(4,30,16,.14); transition: transform .26s cubic-bezier(.22,.8,.3,1); will-change: transform; }
+  .cls-mob.away { transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom, 0px))); }
+  body:has(.cls) #cyt-cookie-consent-bar { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; } /* never over the bar's buttons */
+  body:has(.cls-sheet) #cyt-cookie-consent-bar { display: none !important; }
+  .cls-mob-line { position: absolute; top: 0; left: 4px; width: calc((100% - 8px) / var(--n)); height: 3px; transform: translateX(calc(100% * var(--i))); transition: transform .24s cubic-bezier(.22,.8,.3,1); pointer-events: none; }
+  .cls-mob-line::after { content: ""; display: block; width: 34px; height: 100%; margin: 0 auto; border-radius: 0 0 4px 4px; background: #d4a24c; }
+  .cls-mob-item { flex: 1; min-width: 0; min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px 0 6px; color: #64748b !important; font-size: 11.5px; font-weight: 600; text-decoration: none !important; -webkit-tap-highlight-color: transparent; transition: color .18s ease; }
+  .cls-mob-item:active .cls-mob-ic { transform: scale(.88); }
+  .cls-mob-ic { display: grid; place-items: center; width: 48px; height: 28px; border-radius: 999px; transition: transform .18s ease, background .18s ease; }
+  .cls-mob-ic svg { font-size: 24px; color: inherit; }
+  .cls-mob-item.on { color: var(--g) !important; font-weight: 800; }
+  .cls-mob-item.on .cls-mob-ic { background: #e3f4e9; }
+  @media (prefers-reduced-motion: reduce) { .cls-mob, .cls-mob-line, .cls-mob-ic { transition: none; } }
   button.cls-mob-item { border: 0; background: none; font-family: inherit; cursor: pointer; }
   .cls-sheet-wrap { position: fixed; inset: 0; z-index: 1400; background: rgba(15,23,42,.45); display: flex; align-items: flex-end; }
   .cls-sheet { width: 100%; max-height: 88vh; overflow-y: auto; background: #fff; border-radius: 22px 22px 0 0; box-shadow: 0 -20px 50px -20px rgba(0,0,0,.35); animation: clsSheet .26s cubic-bezier(.2,.9,.3,1); }
@@ -394,17 +430,30 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-sheet-head button { width: 36px; height: 36px; border-radius: 10px; border: 0; background: #f1f5f4; color: #334155; display: grid; place-items: center; cursor: pointer; }
   .cls-sheet-head > div > .cls-room { color: #b7791f; font-weight: 800; font-size: 12.5px; }
   .cls-av.big { width: 46px; height: 46px; border-radius: 14px; background: var(--g-bg); font-size: 16px; }
-  .cls-tiles-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  /* eight to a page, four across: the rest are one swipe away */
+  .cls-tiles-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .cls-tiles-track::-webkit-scrollbar { display: none; }
-  .cls-tiles { flex: 0 0 100%; scroll-snap-align: start; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 16px 6px; padding: 16px 12px 14px; align-content: start; }
-  .cls-dots { display: flex; justify-content: center; gap: 6px; padding: 0 0 12px; }
-  .cls-dots button { width: 7px; height: 7px; padding: 0; border-radius: 7px; border: 0; background: #d6dfda; cursor: pointer; transition: width .2s ease, background .2s ease; }
-  .cls-dots button.on { width: 20px; background: #166534; }
-  .cls-tiles a { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: #334155 !important; text-align: center; line-height: 1.25; text-decoration: none !important; }
-  .cls-tiles a > span { width: 52px; height: 52px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; }
-  .cls-tiles a svg { font-size: 24px; color: var(--g); }
-  .cls-tiles a.on { color: var(--g) !important; } .cls-tiles a.on > span { background: #dff3e6; box-shadow: inset 0 0 0 1.5px #a7d7b8; }
-  .cls-sheet-foot { padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #eef2f0; }
-  .cls-sheet-foot button { width: 100%; height: 44px; border-radius: 12px; border: 1.5px solid #fecaca; background: #fff; color: #dc2626; font-weight: 800; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-family: inherit; }
+  .cls-tiles { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; align-content: start; gap: 12px 2px; padding: 12px 8px 6px; }
+  .cls-dots { display: flex; justify-content: center; gap: 6px; padding: 2px 0 calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .cls-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 7px; background: #d6dfda; cursor: pointer; transition: width .2s ease, background .2s ease; }
+  .cls-dots button.on { width: 20px; background: #d4a24c; }
+  .cls-tiles > * { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 2px; border: 0; background: none; color: #334155 !important; font: inherit; font-size: 12px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .cls-tile-ic { flex: none; width: 50px; height: 50px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; }
+  .cls-tile-ic svg { font-size: 24px; color: var(--g); }
+  .cls-tile-tx { position: relative; padding-bottom: 4px; }
+  /* the golden underline draws in from the left when tapped, and stays on the current page */
+  .cls-tile-tx::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.5px; border-radius: 2px; background: #d4a24c; transform: scaleX(0); transform-origin: left; transition: transform .22s ease; }
+  .cls-tiles > :hover .cls-tile-tx::after, .cls-tiles > :active .cls-tile-tx::after, .cls-tiles > :focus-visible .cls-tile-tx::after, .cls-tiles > .on .cls-tile-tx::after { transform: scaleX(1); }
+  .cls-tiles > .on { color: var(--g) !important; font-weight: 800; }
+  .cls-tiles > .on .cls-tile-ic { background: #e3f4e9; }
+  .cls-tiles > .out { color: #dc2626 !important; }
+  .cls-tiles > .out .cls-tile-ic { background: #fef2f2; }
+  .cls-tiles > .out svg { color: #dc2626; }
+  .cls-sheet { position: relative; }
+  .cls-grip { position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin: 0 0 0 -20px; border-radius: 4px; background: rgba(255,255,255,.45); }
+  .cls-sheet-head { padding: 18px 14px 10px; border: 0; background: linear-gradient(100deg, #0b3320, #166534); color: #fff; }
+  .cls-sheet-head b { color: #fff; }
+  .cls-sheet-head > div > .cls-room { color: #f5c542; }
+  .cls-sheet-head button { background: rgba(255,255,255,.14); color: #fff; }
 }
 `;
