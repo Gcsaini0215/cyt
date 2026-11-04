@@ -6,7 +6,7 @@ import Footer from "../../components/footer";
 import { apiUrl } from "../../utils/url";
 import {
   FX_CSS, WHATSAPP, inr, dayLabel, EMAIL_RX, FORMAT_LABEL, loadRazorpay, waitForRazorpay, useOfferSlots,
-  FormatPick, SlotPick, Field, GiftLinkBox, PSY, Countdown,
+  FormatPick, SlotPick, Field, GiftLinkBox, PSY, Countdown, CentreMap, useScrollFx, offerEnd,
 } from "../../components/festival/festival-ui";
 
 /* Festival offer page — Diwali 2026: book one session with a CYT counselling psychologist at the normal Noida fee, get a second
@@ -15,6 +15,7 @@ import {
    Admin → Festival Offer switches it on/off, turns online / in-person on/off and moves the dates. */
 const OFFER = "diwali-2026";
 const PAGE_URL = "https://www.chooseyourtherapist.in/festival-therapy";
+const OG_IMAGE = "https://www.chooseyourtherapist.in/og-festival-therapy.jpg";
 
 export default function FestivalTherapy() {
   const [offer, setOffer] = useState(null);
@@ -30,9 +31,16 @@ export default function FestivalTherapy() {
   const [done, setDone] = useState(null);
   const [refresh, setRefresh] = useState(0);
 
+  useScrollFx(".fh-in");
+  // the countdown hit zero while the page was open: close it here too (the server stops taking orders anyway)
+  const timeUp = () => setOffer((o) => (o && o.open ? { ...o, open: false, ended: true } : o));
   useEffect(() => {
     fetch(`${apiUrl}/festival-offers/current?offer=${OFFER}`).then((r) => r.json())
-      .then((j) => (j?.status ? setOffer(j.data) : setOfferErr("This offer isn't available right now.")))
+      .then((j) => {
+        if (!j?.status) return setOfferErr("This offer isn't available right now.");
+        const d = j.data;
+        setOffer(Date.now() >= offerEnd(d.bookBy) ? { ...d, open: false, ended: true } : d);
+      })
       .catch(() => setOfferErr("Couldn't load the offer. Please refresh."));
   }, []);
   useEffect(() => { if (offer?.open) loadRazorpay(); }, [offer]);
@@ -114,27 +122,34 @@ export default function FestivalTherapy() {
         <title>Diwali Offer: Book 1 Therapy Session, Get 1 Free | CYT</title>
         <meta name="description" content="Shubh Deepawali! Book one session with an experienced counselling psychologist, online or at our Noida centre, and get a second session free — for yourself or as a gift for a loved one. Book till 8 Nov." />
         <link rel="canonical" href={PAGE_URL} />
-        <meta property="og:title" content="Is Diwali, Ek Session Apne Liye, Ek Apno Ke Liye — Book 1, Get 1 Free" />
+        <meta property="og:title" content="Is Diwali, Ek Therapy Session Apne Liye, Ek Apno Ke Liye — Book 1, Get 1 Free" />
         <meta property="og:description" content="Book a therapy session with an experienced counselling psychologist, online or in Noida, and get a second session free to keep or gift. Book till 8 Nov." />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:type" content="website" />
+        <meta key="og:image" property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Diwali offer — Book 1 therapy session, get 1 session free. Online and in Noida." />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Diwali Offer: Book 1 Therapy Session, Get 1 Free" />
+        <meta name="twitter:image" content={OG_IMAGE} />
       </Head>
       <MyNavbar />
       <main className="fx">
         <section className="fh">
           <div className="fx-wrap fh-in">
             <div className="fh-brand">Shubh Deepawali 🪔</div>
-            <h1><em>Is Diwali,</em> Ek Session Apne Liye, Ek <em>Apno</em> Ke Liye.</h1>
+            <h1><em>Is Diwali,</em> Ek Therapy Session Apne Liye, Ek <em>Apno</em> Ke Liye.</h1>
             <p className="fh-sub">Book 1 Session, Get 1 Session</p>
             <div className="fh-free">FREE</div>
-            <Countdown endDate={offer?.bookBy || "2026-11-08"} />
-            <a href="#book" className="fx-btn fh-cta">Book Now</a>
+            <Countdown endDate={offer?.bookBy || "2026-11-08"} onEnd={timeUp} />
+            <a href="#book" className="fx-btn fh-cta" onClick={(e) => { const el = document.getElementById("book"); if (el) { e.preventDefault(); window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" }); } }}>{offer && !offer.open && !done ? "See details" : "Book Now"}</a>
             <p className="fh-with">with an <b>experienced counselling psychologist</b> · Online &amp; Noida</p>
           </div>
         </section>
 
         <div className="fx-wrap fb">
-          <section className="fx-card fb-book" id="book">
+          <section className="fx-card fb-book fx-reveal" id="book">
             {offerErr ? <div className="fx-err">{offerErr}</div>
               : !offer ? <div className="fx-muted">Loading…</div>
               : done ? <Done d={done} email={form.email} giftFor={giftFor} giftPhone={giftFor === "gift" ? gift.phone : ""} />
@@ -144,10 +159,11 @@ export default function FestivalTherapy() {
                   <div className="fx-step">
                     <h2 className="fx-h"><span className="n">1</span>How would you like to meet?</h2>
                     <FormatPick value={format} onChange={setFormat} prices={offer.prices} formats={offer.formats} />
+                    {format === "in-person" && <CentreMap />}
                   </div>
                   <div className="fx-step">
                     <h2 className="fx-h"><span className="n">2</span>Pick your session time</h2>
-                    <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={offer.blockedDates} from={offer.today} to={offer.lastSessionDate} />
+                    <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={offer.blockedDates} from={offer.today} to={offer.lastSessionDate} dateFormats={offer.dateFormats} format={format} />
                     <div className="fx-hint" style={{ marginTop: 6 }}>Showing the next {offer.validDays} days — both your sessions are within this window.</div>
                   </div>
                   <div className="fx-step">
@@ -197,7 +213,7 @@ export default function FestivalTherapy() {
           </section>
 
           <aside className="fb-side">
-            <div className="fx-card fb-offer">
+            <div className="fx-card fb-offer fx-reveal">
               <div className="fb-tag">Diwali Offer</div>
               <div className="fb-big">1 + 1 Session</div>
               <ul className="fb-list">
@@ -207,7 +223,7 @@ export default function FestivalTherapy() {
                 <li>With {PSY}, private and confidential.</li>
               </ul>
             </div>
-            <div className="fx-card fb-terms">
+            <div className="fx-card fb-terms fx-reveal">
               <h3>Terms</h3>
               <ul>
                 <li>Book till <b>{bookBy}, 11:59 PM</b>.</li>
@@ -233,7 +249,12 @@ function Closed({ paused }) {
       <div className="tick" style={{ background: "#7a1426" }}>🪔</div>
       <h2>{paused ? "Bookings are paused for a little while" : "This Diwali offer has ended"}</h2>
       {paused && <p className="fx-hint" style={{ fontSize: 14 }}>Please check back soon, or <a className="fx-link" href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi, I'd like to book the Diwali 1+1 offer.")}`} target="_blank" rel="noopener noreferrer">WhatsApp us</a> and we'll help you book.</p>}
-      {!paused && <p className="fx-hint" style={{ fontSize: 14 }}>Thank you for the love! Already have a free-session link? Open it from your email or My Space.</p>}
+      {!paused && <p className="fx-hint" style={{ fontSize: 14 }}>Thank you for the love! 🪔</p>}
+      <div className="fc-booked">
+        <b>Already booked under this offer?</b>
+        <span>Your sessions and your free-session link are in your dashboard.</span>
+        <Link href={`/login?next=${encodeURIComponent("/my-dashboard")}`} className="fx-btn fx-btn-open">Go to your dashboard to check →</Link>
+      </div>
       <Link href="/noida-appointment" className="fx-btn fx-btn-ghost" style={{ marginTop: 10 }}>Book a regular session</Link>
     </div>
   );
@@ -340,7 +361,11 @@ const PAGE_CSS = `
 .fh-cta { background:#f2b43c; color:#5e0f1d; font-size:20px; padding:14px 46px; box-shadow:0 8px 24px rgba(0,0,0,.25); }
 .fh-with { margin:16px 0 0; color:#f6e7cf; font-size:15px; }
 .fb { display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:22px; align-items:start; margin-top:-30px; padding-bottom:48px; position:relative; }
-.fb-side { display:flex; flex-direction:column; gap:16px; position:sticky; top:90px; }
+.fb-side { display:flex; flex-direction:column; gap:16px; }
+.fh-in { will-change:transform, opacity; }
+.fc-booked { margin:14px auto 4px; max-width:440px; background:#fff6e3; border:1px solid #f0d9a6; border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:6px; align-items:center; }
+.fc-booked b { color:#5e0f1d; font-size:15px; } .fc-booked span { font-size:13.5px; color:#6b5a4e; }
+.fc-booked .fx-btn { margin-top:4px; }
 .fb-offer { background:#fbf3e6; border-color:#ecdcc4; }
 .fb-tag { color:#7a1426; font-weight:700; font-size:14px; }
 .fb-big { font-size:30px; font-weight:900; color:#5e0f1d; margin:2px 0 10px; }

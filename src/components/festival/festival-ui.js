@@ -111,11 +111,23 @@ export function daysBetween(from, to) {
   return out;
 }
 
-export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, blocked = [], emptyText, from, to }) {
-  const open = [...byDate.keys()].sort();
+// "Online only" / "In-person only" / null — when the admin has switched a mode off for one day
+export function dayModeNote(dateFormats, d, format) {
+  const day = dateFormats?.[d];
+  if (!Array.isArray(day) || day.includes(format)) return null;
+  if (!day.length) return "Closed";
+  return day.includes("online") ? "Online only" : "In-person only";
+}
+
+export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, blocked = [], emptyText, from, to, dateFormats, format }) {
+  const open = [...byDate.keys()].sort().filter((d) => !dayModeNote(dateFormats, d, format));
   // the whole window (e.g. the next 15 days from booking), with days that have no free time greyed out
   const dates = from && to ? daysBetween(from, to) : open;
-  useEffect(() => { if (!loading && open.length && !byDate.has(date)) onDate(open[0]); }, [loading, open.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (loading) return;
+    if (open.length && !open.includes(date)) { onDate(open[0]); onSlot(""); }
+    if (!open.length && date) { onDate(""); onSlot(""); }
+  }, [loading, open.join(","), format]); // eslint-disable-line react-hooks/exhaustive-deps
   if (loading) return <div className="fx-muted">Loading open times…</div>;
   if (error) return <div className="fx-err">{error}</div>;
   const slots = (byDate.get(date) || []).slice().sort((a, b) => minutesOf(a) - minutesOf(b));
@@ -123,11 +135,11 @@ export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, b
     <div>
       <div className="fx-dates">
         {dates.map((d) => {
-          const off = blocked.includes(d), full = !off && !byDate.has(d);
+          const off = blocked.includes(d), mode = !off && dayModeNote(dateFormats, d, format), full = !off && !mode && !byDate.has(d);
           return (
-            <button key={d} type="button" disabled={off || full} title={off ? "No sessions this day" : full ? "No open times this day" : ""}
-              className={`fx-date ${d === date ? "on" : ""} ${off || full ? "off" : ""}`} onClick={() => { onDate(d); onSlot(""); }}>
-              <span>{dayLabel(d, { weekday: "short" })}</span><b>{dayLabel(d, { day: "numeric" })}</b><span>{off ? "Closed" : full ? "No slots" : dayLabel(d, { month: "short" })}</span>
+            <button key={d} type="button" disabled={!!(off || mode || full)} title={off ? "No sessions this day" : mode ? `${mode} on this day` : full ? "No open times this day" : ""}
+              className={`fx-date ${d === date ? "on" : ""} ${off || mode || full ? "off" : ""} ${mode ? "mode" : ""}`} onClick={() => { onDate(d); onSlot(""); }}>
+              <span>{dayLabel(d, { weekday: "short" })}</span><b>{dayLabel(d, { day: "numeric" })}</b><span>{off ? "Closed" : mode ? (mode === "Closed" ? "Closed" : mode.replace(" only", "")) : full ? "No slots" : dayLabel(d, { month: "short" })}</span>
             </button>
           );
         })}
@@ -144,10 +156,13 @@ export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, b
 }
 
 // Live countdown to the end of a day in IST ("YYYY-MM-DD" → 11:59:59 PM IST)
-export function Countdown({ endDate, label = "Offer ends in" }) {
-  const end = endDate ? Date.parse(`${endDate}T23:59:59+05:30`) : 0;
+export const offerEnd = (endDate) => (endDate ? Date.parse(`${endDate}T23:59:59+05:30`) : 0);
+export function Countdown({ endDate, label = "Offer ends in", onEnd }) {
+  const end = offerEnd(endDate);
   const [now, setNow] = useState(null); // set on the client only, so the server HTML matches
   useEffect(() => { setNow(Date.now()); const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const over = !!end && now !== null && now >= end;
+  useEffect(() => { if (over && onEnd) onEnd(); }, [over]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!end || now === null) return <div className="fx-cd fx-cd-wait" aria-hidden="true" />;
   const left = Math.max(0, Math.floor((end - now) / 1000));
   if (!left) return <div className="fx-cd"><div className="fx-cd-l">This offer has ended</div></div>;
@@ -161,6 +176,47 @@ export function Countdown({ endDate, label = "Offer ends in" }) {
       <div className="fx-cd-s">Book till {dayLabel(endDate, { day: "numeric", month: "short" })}, 11:59 PM</div>
     </div>
   );
+}
+
+// The Noida centre on a map — shown when someone picks an in-person session
+export const CENTRE_ADDRESS = "Gate No-3, D-137, near LPS Global School, Block D, Sector 51, Noida, Uttar Pradesh 201301";
+const MAP_EMBED = "https://www.google.com/maps?q=Choose+Your+Therapist+LLP,+D-137,+Sector+51,+Noida&z=16&output=embed";
+const MAPS_URL = "https://www.google.com/maps/search/?api=1&query=Choose+Your+Therapist+LLP+Sector+51+Noida";
+export function CentreMap() {
+  return (
+    <div className="fx-map">
+      <iframe title="Map — Choose Your Therapist, D-137, Sector 51, Noida" src={MAP_EMBED} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+      <div className="fx-map-b">
+        <div><b>📍 CYT Noida centre</b>{CENTRE_ADDRESS}</div>
+        <a className="fx-btn fx-btn-ghost" href={MAPS_URL} target="_blank" rel="noopener noreferrer">Directions</a>
+      </div>
+    </div>
+  );
+}
+
+// Fade-up cards as they scroll into view; the hero drifts up and fades (no motion if the reader prefers less)
+export function useScrollFx(heroSel) {
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("fx-js");
+    const io = "IntersectionObserver" in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.01, rootMargin: "0px 0px -40px 0px" }) : null;
+    document.querySelectorAll(".fx-reveal").forEach((el) => (io ? io.observe(el) : el.classList.add("in")));
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const hero = heroSel && document.querySelector(heroSel);
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        if (!hero) return;
+        const y = Math.min(window.scrollY, 600);
+        hero.style.transform = `translateY(${y * 0.35}px)`;
+        hero.style.opacity = String(Math.max(0.15, 1 - y / 520));
+      });
+    };
+    if (hero && !reduce) { window.addEventListener("scroll", onScroll, { passive: true }); onScroll(); }
+    return () => { root.classList.remove("fx-js"); io?.disconnect(); window.removeEventListener("scroll", onScroll); if (raf) cancelAnimationFrame(raf); if (hero) { hero.style.transform = ""; hero.style.opacity = ""; } };
+  }, [heroSel]);
 }
 
 export function Field({ label, optional, children, hint }) {
@@ -227,6 +283,15 @@ export const FX_CSS = `
 .fx-date span { font-size:11px; color:var(--soft); } .fx-date b { font-size:18px; line-height:1.2; }
 .fx-date.on { background:var(--m); border-color:var(--m); color:#fff; } .fx-date.on span { color:#f6d9a8; }
 .fx-date.off { opacity:.45; cursor:not-allowed; background:#f6f1ea; } .fx-date.off span:last-child { font-weight:700; color:#9b1c1c; }
+.fx-date.mode { opacity:.6; } .fx-date.mode span:last-child { color:#1f6f8b; font-size:10px; }
+.fx-map { margin-top:12px; border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; }
+.fx-map iframe { display:block; width:100%; height:230px; border:0; }
+.fx-map-b { display:flex; gap:10px; align-items:center; justify-content:space-between; padding:10px 12px; flex-wrap:wrap; }
+.fx-map-b div { font-size:13px; color:var(--ink); min-width:0; flex:1 1 220px; } .fx-map-b b { display:block; font-size:14px; color:var(--m); }
+.fx-map-b a { flex:none; padding:9px 16px; font-size:14px; }
+.fx-reveal { transition:opacity .6s ease, transform .6s ease; }
+.fx-js .fx-reveal:not(.in) { opacity:0; transform:translateY(26px); }
+@media (prefers-reduced-motion: reduce) { .fx-js .fx-reveal:not(.in) { opacity:1; transform:none; } .fx-reveal { transition:none; } }
 .fx-slots { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px; margin-top:10px; }
 .fx-slot { border:1.5px solid var(--line); background:#fff; border-radius:10px; padding:9px 4px; font-weight:700; font-size:14px; cursor:pointer; font:inherit; font-weight:700; color:inherit; }
 .fx-slot.on { background:var(--g); border-color:var(--g2); color:var(--m2); }

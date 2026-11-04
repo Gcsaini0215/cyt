@@ -6,7 +6,7 @@ import Footer from "../../../components/footer";
 import { apiUrl, getUserUrl } from "../../../utils/url";
 import { fetchById } from "../../../utils/actions";
 import { isAuthenticated } from "../../../utils/jwt";
-import { FX_CSS, WHATSAPP, dayLabel, EMAIL_RX, FORMAT_LABEL, useOfferSlots, FormatPick, SlotPick, Field, GiftLinkBox } from "../../../components/festival/festival-ui";
+import { FX_CSS, WHATSAPP, dayLabel, EMAIL_RX, FORMAT_LABEL, useOfferSlots, FormatPick, SlotPick, Field, GiftLinkBox, CentreMap, useScrollFx } from "../../../components/festival/festival-ui";
 
 /* The free session of a festival "book 1, get 1" offer — whoever has this link (the buyer, or the person they
    gifted it to) books it here at ₹0 on the Noida centre's slots, before the link's last day.
@@ -43,6 +43,7 @@ export default function FestivalGiftPage({ code, gift: initial }) {
   const [user, setUser] = useState(null);         // signed-in client
   const [skipLogin, setSkipLogin] = useState(false);
   const here = `/festival-therapy/gift/${code}`;
+  useScrollFx(".gh .fx-wrap");
 
   // the server couldn't fetch it (or it's really not valid) — one more try from the browser
   useEffect(() => {
@@ -120,6 +121,8 @@ export default function FestivalGiftPage({ code, gift: initial }) {
         <meta name="robots" content="noindex, nofollow" />
         <meta property="og:title" content="You've received a free therapy session 🎁 — Shubh Deepawali" />
         <meta property="og:description" content="Someone who cares about you has gifted you a free session with an experienced counselling psychologist at Choose Your Therapist. Online or in Noida." />
+        <meta key="og:image" property="og:image" content="https://www.chooseyourtherapist.in/og-festival-therapy.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
       <MyNavbar />
       <main className="fx">
@@ -133,7 +136,7 @@ export default function FestivalGiftPage({ code, gift: initial }) {
           </div>
         </section>
         <div className="fx-wrap gb">
-          <section className="fx-card">
+          <section className="fx-card fx-reveal">
             {!gift && checking ? <div className="fx-muted">Loading…</div> : !gift ? (
               <div className="fx-done">
                 <h2>This link isn't valid</h2>
@@ -214,10 +217,11 @@ export default function FestivalGiftPage({ code, gift: initial }) {
                     <div className="fx-step">
                       <h2 className="fx-h"><span className="n">2</span>How would you like to meet?</h2>
                       <FormatPick value={format} onChange={setFormat} formats={gift.formats} />
+                      {format === "in-person" && <CentreMap />}
                     </div>
                     <div className="fx-step">
                       <h2 className="fx-h"><span className="n">3</span>Pick a time that suits you <span className="gb-by">by {by}</span></h2>
-                      <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={gift.blockedDates.filter((d) => d >= gift.today && d <= gift.validTill)} from={gift.today} to={gift.validTill} />
+                      <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={gift.blockedDates.filter((d) => d >= gift.today && d <= gift.validTill)} from={gift.today} to={gift.validTill} dateFormats={gift.dateFormats} format={format} />
                       <div className="fx-hint" style={{ marginTop: 8 }}>Times around Diwali fill up quickly — grab one that works for you now.</div>
                     </div>
                     <div className="fx-step">
