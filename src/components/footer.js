@@ -124,6 +124,7 @@ export default function Footer() {
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/view-all-therapist">Find a Psychologist</Link></li>
                   <li className="mb--12"><Link href="/therapy-booking">Free Consultation</Link></li>
+                  <li className="mb--12"><Link href="/festival-therapy">Diwali Offer: Book 1, Get 1 Free 🪔</Link></li>
                   <li className="mb--12"><Link href="/service-page">Therapy Services</Link></li>
                   <li className="mb--12"><Link href="/blogs">Blog</Link></li>
                   <li className="mb--12"><Link href="/faqs">FAQs</Link></li>

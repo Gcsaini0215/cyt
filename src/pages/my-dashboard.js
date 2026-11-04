@@ -6,6 +6,7 @@ import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
+import FestivalGiftCards from "../components/festival/festival-gift-card";
 import useUserStore from "../store/userStore";
 import { GetDashboardDataUrl, getBookings, MyReviewedTherapistsUrl, MyPendingBookingsUrl, MyReferralUrl, apiUrl } from "../utils/url";
 import { fetchById } from "../utils/actions";
@@ -170,6 +171,8 @@ export default function ClientHome() {
                 </Link>
               )}
             </div>
+
+            <FestivalGiftCards />
 
             {pending.length > 0 && (
               <section className="ch-next ch-pend">
