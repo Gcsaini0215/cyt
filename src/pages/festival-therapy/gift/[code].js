@@ -217,7 +217,7 @@ export default function FestivalGiftPage({ code, gift: initial }) {
                     </div>
                     <div className="fx-step">
                       <h2 className="fx-h"><span className="n">3</span>Pick a time that suits you <span className="gb-by">by {by}</span></h2>
-                      <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={gift.blockedDates.filter((d) => d >= gift.today && d <= gift.validTill)} />
+                      <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={gift.blockedDates.filter((d) => d >= gift.today && d <= gift.validTill)} from={gift.today} to={gift.validTill} />
                       <div className="fx-hint" style={{ marginTop: 8 }}>Times around Diwali fill up quickly — grab one that works for you now.</div>
                     </div>
                     <div className="fx-step">

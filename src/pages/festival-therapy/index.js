@@ -6,7 +6,7 @@ import Footer from "../../components/footer";
 import { apiUrl } from "../../utils/url";
 import {
   FX_CSS, WHATSAPP, inr, dayLabel, EMAIL_RX, FORMAT_LABEL, loadRazorpay, waitForRazorpay, useOfferSlots,
-  FormatPick, SlotPick, Field, GiftLinkBox, PSY,
+  FormatPick, SlotPick, Field, GiftLinkBox, PSY, Countdown,
 } from "../../components/festival/festival-ui";
 
 /* Festival offer page — Diwali 2026: book one session with a CYT counselling psychologist at the normal Noida fee, get a second
@@ -106,16 +106,16 @@ export default function FestivalTherapy() {
     }
   };
 
-  const bookBy = offer ? dayLabel(offer.bookBy, { day: "numeric", month: "short" }) : "7 Nov";
+  const bookBy = offer ? dayLabel(offer.bookBy, { day: "numeric", month: "short" }) : "8 Nov";
 
   return (
     <>
       <Head>
         <title>Diwali Offer: Book 1 Therapy Session, Get 1 Free | CYT</title>
-        <meta name="description" content="Shubh Deepawali! Book one session with an experienced counselling psychologist, online or at our Noida centre, and get a second session free — for yourself or as a gift for a loved one. Book till 7 Nov." />
+        <meta name="description" content="Shubh Deepawali! Book one session with an experienced counselling psychologist, online or at our Noida centre, and get a second session free — for yourself or as a gift for a loved one. Book till 8 Nov." />
         <link rel="canonical" href={PAGE_URL} />
         <meta property="og:title" content="Is Diwali, Ek Session Apne Liye, Ek Apno Ke Liye — Book 1, Get 1 Free" />
-        <meta property="og:description" content="Book a therapy session with an experienced counselling psychologist, online or in Noida, and get a second session free to keep or gift. Book till 7 Nov." />
+        <meta property="og:description" content="Book a therapy session with an experienced counselling psychologist, online or in Noida, and get a second session free to keep or gift. Book till 8 Nov." />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:type" content="website" />
       </Head>
@@ -127,6 +127,7 @@ export default function FestivalTherapy() {
             <h1><em>Is Diwali,</em> Ek Session Apne Liye, Ek <em>Apno</em> Ke Liye.</h1>
             <p className="fh-sub">Book 1 Session, Get 1 Session</p>
             <div className="fh-free">FREE</div>
+            <Countdown endDate={offer?.bookBy || "2026-11-08"} />
             <a href="#book" className="fx-btn fh-cta">Book Now</a>
             <p className="fh-with">with an <b>experienced counselling psychologist</b> · Online &amp; Noida</p>
           </div>
@@ -146,7 +147,8 @@ export default function FestivalTherapy() {
                   </div>
                   <div className="fx-step">
                     <h2 className="fx-h"><span className="n">2</span>Pick your session time</h2>
-                    <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={offer.blockedDates} />
+                    <SlotPick {...slots} date={date} slot={slot} onDate={setDate} onSlot={setSlot} blocked={offer.blockedDates} from={offer.today} to={offer.lastSessionDate} />
+                    <div className="fx-hint" style={{ marginTop: 6 }}>Showing the next {offer.validDays} days — both your sessions are within this window.</div>
                   </div>
                   <div className="fx-step">
                     <h2 className="fx-h"><span className="n">3</span>Your details</h2>
@@ -208,7 +210,7 @@ export default function FestivalTherapy() {
             <div className="fx-card fb-terms">
               <h3>Terms</h3>
               <ul>
-                <li>Book till <b>{bookBy}</b>.</li>
+                <li>Book till <b>{bookBy}, 11:59 PM</b>.</li>
                 <li>Use both sessions within <b>{offer?.validDays || 15} days</b> of booking.</li>
                 {(offer?.blockedDates || ["2026-11-08"]).length > 0 && <li>No sessions on <b>{(offer?.blockedDates || ["2026-11-08"]).map((b) => dayLabel(b, { day: "numeric", month: "short" })).join(", ")}</b>.</li>}
                 <li>Free session: one per paid session, booked from its link; the link works once.</li>
@@ -333,7 +335,7 @@ const PAGE_CSS = `
 .fh h1 { font-size:clamp(30px,5.4vw,54px); line-height:1.12; font-weight:800; margin:0 0 18px; color:#fbf3e6; }
 .fh h1 em { font-style:normal; color:#f2b43c; }
 .fh-sub { font-size:clamp(18px,2.6vw,26px); margin:0; color:#fbf3e6; }
-.fh-free { font-size:clamp(66px,12vw,124px); font-weight:900; color:#f2b43c; line-height:1; letter-spacing:2px; margin:4px 0 20px; }
+.fh-free { font-size:clamp(66px,12vw,124px); font-weight:900; color:#f2b43c; line-height:1; letter-spacing:2px; margin:4px 0 16px; }
 .fh-free sup { font-size:.4em; vertical-align:top; }
 .fh-cta { background:#f2b43c; color:#5e0f1d; font-size:20px; padding:14px 46px; box-shadow:0 8px 24px rgba(0,0,0,.25); }
 .fh-with { margin:16px 0 0; color:#f6e7cf; font-size:15px; }
@@ -359,5 +361,6 @@ const PAGE_CSS = `
   .fh::before, .fh::after { display:none; }
   .fh-cta { font-size:18px; padding:13px 38px; }
   .fh-with { font-size:13.5px; }
+  .fx-cd-b { min-width:56px; } .fx-cd-b b { font-size:22px; }
 }
 `;

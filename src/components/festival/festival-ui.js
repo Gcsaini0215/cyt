@@ -100,28 +100,65 @@ export function FormatPick({ value, onChange, prices, formats = ["in-person", "o
   );
 }
 
-export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, blocked = [], emptyText }) {
-  const dates = [...byDate.keys()].sort();
-  useEffect(() => { if (!loading && dates.length && !byDate.has(date)) onDate(dates[0]); }, [loading, dates.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+// every day from `from` to `to` (YYYY-MM-DD)
+export function daysBetween(from, to) {
+  const out = [];
+  if (!from || !to) return out;
+  for (let d = from, i = 0; d <= to && i < 60; i++) {
+    out.push(d);
+    const x = new Date(`${d}T00:00:00Z`); x.setUTCDate(x.getUTCDate() + 1); d = x.toISOString().slice(0, 10);
+  }
+  return out;
+}
+
+export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, blocked = [], emptyText, from, to }) {
+  const open = [...byDate.keys()].sort();
+  // the whole window (e.g. the next 15 days from booking), with days that have no free time greyed out
+  const dates = from && to ? daysBetween(from, to) : open;
+  useEffect(() => { if (!loading && open.length && !byDate.has(date)) onDate(open[0]); }, [loading, open.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
   if (loading) return <div className="fx-muted">Loading open times…</div>;
   if (error) return <div className="fx-err">{error}</div>;
-  if (!dates.length) return <div className="fx-empty">{emptyText || "No open times in this window right now."} <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer">WhatsApp us</a> and we'll find one.</div>;
   const slots = (byDate.get(date) || []).slice().sort((a, b) => minutesOf(a) - minutesOf(b));
   return (
     <div>
       <div className="fx-dates">
-        {dates.map((d) => (
-          <button key={d} type="button" className={`fx-date ${d === date ? "on" : ""}`} onClick={() => { onDate(d); onSlot(""); }}>
-            <span>{dayLabel(d, { weekday: "short" })}</span><b>{dayLabel(d, { day: "numeric" })}</b><span>{dayLabel(d, { month: "short" })}</span>
-          </button>
-        ))}
+        {dates.map((d) => {
+          const off = blocked.includes(d), full = !off && !byDate.has(d);
+          return (
+            <button key={d} type="button" disabled={off || full} title={off ? "No sessions this day" : full ? "No open times this day" : ""}
+              className={`fx-date ${d === date ? "on" : ""} ${off || full ? "off" : ""}`} onClick={() => { onDate(d); onSlot(""); }}>
+              <span>{dayLabel(d, { weekday: "short" })}</span><b>{dayLabel(d, { day: "numeric" })}</b><span>{off ? "Closed" : full ? "No slots" : dayLabel(d, { month: "short" })}</span>
+            </button>
+          );
+        })}
       </div>
+      {!open.length && <div className="fx-empty" style={{ marginTop: 8 }}>{emptyText || "No open times in this window right now."} <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer">WhatsApp us</a> and we'll find one.</div>}
       {blocked.length > 0 && <div className="fx-note">🪔 No sessions on {blocked.map((b) => dayLabel(b, { day: "numeric", month: "short" })).join(", ")}.</div>}
       <div className="fx-slots">
         {slots.map((s) => (
           <button key={s} type="button" className={`fx-slot ${s === slot ? "on" : ""}`} onClick={() => onSlot(s)}>{s.split(" - ")[0]}</button>
         ))}
       </div>
+    </div>
+  );
+}
+
+// Live countdown to the end of a day in IST ("YYYY-MM-DD" → 11:59:59 PM IST)
+export function Countdown({ endDate, label = "Offer ends in" }) {
+  const end = endDate ? Date.parse(`${endDate}T23:59:59+05:30`) : 0;
+  const [now, setNow] = useState(null); // set on the client only, so the server HTML matches
+  useEffect(() => { setNow(Date.now()); const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  if (!end || now === null) return <div className="fx-cd fx-cd-wait" aria-hidden="true" />;
+  const left = Math.max(0, Math.floor((end - now) / 1000));
+  if (!left) return <div className="fx-cd"><div className="fx-cd-l">This offer has ended</div></div>;
+  const parts = [[Math.floor(left / 86400), "Days"], [Math.floor(left / 3600) % 24, "Hrs"], [Math.floor(left / 60) % 60, "Min"], [left % 60, "Sec"]];
+  return (
+    <div className="fx-cd" role="timer" aria-label={`${label} ${parts[0][0]} days ${parts[1][0]} hours`}>
+      <div className="fx-cd-l">{label}</div>
+      <div className="fx-cd-row">
+        {parts.map(([n, t]) => <div key={t} className="fx-cd-b"><b>{String(n).padStart(2, "0")}</b><span>{t}</span></div>)}
+      </div>
+      <div className="fx-cd-s">Book till {dayLabel(endDate, { day: "numeric", month: "short" })}, 11:59 PM</div>
     </div>
   );
 }
@@ -189,9 +226,17 @@ export const FX_CSS = `
 .fx-date { flex:none; width:62px; border:1.5px solid var(--line); background:#fff; border-radius:12px; padding:7px 0; display:flex; flex-direction:column; align-items:center; cursor:pointer; font:inherit; color:inherit; }
 .fx-date span { font-size:11px; color:var(--soft); } .fx-date b { font-size:18px; line-height:1.2; }
 .fx-date.on { background:var(--m); border-color:var(--m); color:#fff; } .fx-date.on span { color:#f6d9a8; }
+.fx-date.off { opacity:.45; cursor:not-allowed; background:#f6f1ea; } .fx-date.off span:last-child { font-weight:700; color:#9b1c1c; }
 .fx-slots { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px; margin-top:10px; }
 .fx-slot { border:1.5px solid var(--line); background:#fff; border-radius:10px; padding:9px 4px; font-weight:700; font-size:14px; cursor:pointer; font:inherit; font-weight:700; color:inherit; }
 .fx-slot.on { background:var(--g); border-color:var(--g2); color:var(--m2); }
+.fx-cd { margin:0 auto 22px; min-height:96px; }
+.fx-cd-l { font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#f6d9a8; margin-bottom:8px; }
+.fx-cd-row { display:flex; gap:8px; justify-content:center; }
+.fx-cd-b { min-width:62px; background:rgba(0,0,0,.22); border:1px solid rgba(242,180,60,.55); border-radius:12px; padding:8px 6px 6px; display:flex; flex-direction:column; align-items:center; }
+.fx-cd-b b { font-size:26px; line-height:1; color:#f2b43c; font-variant-numeric:tabular-nums; }
+.fx-cd-b span { font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:#f6e7cf; margin-top:4px; }
+.fx-cd-s { font-size:12.5px; color:#f6e7cf; margin-top:8px; }
 .fx-note { font-size:12.5px; color:var(--soft); margin-top:6px; }
 .fx-muted { color:var(--soft); font-size:14px; padding:8px 0; }
 .fx-empty { background:#fff8ec; border:1px solid var(--line); border-radius:12px; padding:12px; font-size:14px; }
