@@ -6,12 +6,13 @@ import Footer from "../../components/footer";
 import { apiUrl } from "../../utils/url";
 import {
   FX_CSS, WHATSAPP, inr, dayLabel, EMAIL_RX, FORMAT_LABEL, loadRazorpay, waitForRazorpay, useOfferSlots,
-  FormatPick, SlotPick, Field, GiftLinkBox,
+  FormatPick, SlotPick, Field, GiftLinkBox, PSY,
 } from "../../components/festival/festival-ui";
 
-/* Festival offer page — Diwali 2026: book one session with Deepak Kumar at the normal Noida fee, get a second
+/* Festival offer page — Diwali 2026: book one session with a CYT counselling psychologist at the normal Noida fee, get a second
    one free (for yourself or as a gift). Slots are the Noida centre's own; payment, booking and dashboards go
-   through the usual Noida flow (with `offer` set). The free session is booked from its link: /festival-therapy/gift/<code>. */
+   through the usual Noida flow (with `offer` set). The free session is booked from its link: /festival-therapy/gift/<code>.
+   Admin → Festival Offer switches it on/off, turns online / in-person on/off and moves the dates. */
 const OFFER = "diwali-2026";
 const PAGE_URL = "https://www.chooseyourtherapist.in/festival-therapy";
 
@@ -35,6 +36,8 @@ export default function FestivalTherapy() {
       .catch(() => setOfferErr("Couldn't load the offer. Please refresh."));
   }, []);
   useEffect(() => { if (offer?.open) loadRazorpay(); }, [offer]);
+  // only the modes the admin has switched on
+  useEffect(() => { if (offer?.formats?.length && !offer.formats.includes(format)) setFormat(offer.formats[0]); }, [offer]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const slots = useOfferSlots({ from: offer?.today, to: offer?.lastSessionDate, blocked: offer?.blockedDates || [], refreshKey: refresh });
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: k === "phone" ? e.target.value.replace(/\D/g, "").slice(0, 10) : e.target.value }));
@@ -68,8 +71,10 @@ export default function FestivalTherapy() {
     try {
       const r = await fetch(`${apiUrl}/noida-appointments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload(), ...rz }) });
       const j = await r.json();
-      if (j.status) { setDone(j.data); window.scrollTo({ top: document.getElementById("book")?.offsetTop - 80 || 0, behavior: "smooth" }); }
+      if (j.status) { setDone({ ...j.data, rz }); window.scrollTo({ top: document.getElementById("book")?.offsetTop - 80 || 0, behavior: "smooth" }); }
       else if (j.paymentHandled && j.refunded !== undefined) lostSlot(j.message);
+      // paid, and the booking is being confirmed on the other side — the success screen waits for it
+      else if (j.paymentHandled) { setDone({ confirming: true, rz, email: form.email.trim(), name: form.name.trim() }); }
       else setError(j.message || `Payment received, but we couldn't save the booking. Please WhatsApp us with payment ID ${rz.razorpay_payment_id}.`);
     } catch {
       setError(`Payment succeeded but we couldn't confirm the booking. Please WhatsApp us with payment ID ${rz.razorpay_payment_id}.`);
@@ -88,7 +93,7 @@ export default function FestivalTherapy() {
       await waitForRazorpay();
       const rzp = new window.Razorpay({
         key: j.data.keyId, amount: Math.round(j.data.amount * 100), currency: "INR", order_id: j.data.orderId,
-        name: "Choose Your Therapist", description: "Diwali 1+1 — session with Deepak Kumar",
+        name: "Choose Your Therapist", description: "Diwali 1+1 — therapy session",
         handler: (resp) => finish({ razorpay_order_id: resp.razorpay_order_id, razorpay_payment_id: resp.razorpay_payment_id, razorpay_signature: resp.razorpay_signature }),
         prefill: { name: form.name, email: form.email, contact: form.phone },
         theme: { color: "#7a1426" },
@@ -107,10 +112,10 @@ export default function FestivalTherapy() {
     <>
       <Head>
         <title>Diwali Offer: Book 1 Therapy Session, Get 1 Free | CYT</title>
-        <meta name="description" content="Shubh Deepawali! Book one session with Deepak Kumar, Counselling Psychologist, online or at our Noida centre, and get a second session free — for yourself or as a gift for a loved one. Book till 7 Nov." />
+        <meta name="description" content="Shubh Deepawali! Book one session with an experienced counselling psychologist, online or at our Noida centre, and get a second session free — for yourself or as a gift for a loved one. Book till 7 Nov." />
         <link rel="canonical" href={PAGE_URL} />
         <meta property="og:title" content="Is Diwali, Ek Session Apne Liye, Ek Apno Ke Liye — Book 1, Get 1 Free" />
-        <meta property="og:description" content="Book a session with Deepak Kumar (Counselling Psychologist), online or in Noida, and get a second session free to keep or gift. Book till 7 Nov." />
+        <meta property="og:description" content="Book a therapy session with an experienced counselling psychologist, online or in Noida, and get a second session free to keep or gift. Book till 7 Nov." />
         <meta property="og:url" content={PAGE_URL} />
         <meta property="og:type" content="website" />
       </Head>
@@ -123,7 +128,7 @@ export default function FestivalTherapy() {
             <p className="fh-sub">Book 1 Session, Get 1 Session</p>
             <div className="fh-free">FREE</div>
             <a href="#book" className="fx-btn fh-cta">Book Now</a>
-            <p className="fh-with">with <b>Deepak Kumar</b>, Counselling Psychologist · Online &amp; Noida</p>
+            <p className="fh-with">with an <b>experienced counselling psychologist</b> · Online &amp; Noida</p>
           </div>
         </section>
 
@@ -132,12 +137,12 @@ export default function FestivalTherapy() {
             {offerErr ? <div className="fx-err">{offerErr}</div>
               : !offer ? <div className="fx-muted">Loading…</div>
               : done ? <Done d={done} email={form.email} giftFor={giftFor} giftPhone={giftFor === "gift" ? gift.phone : ""} />
-              : !offer.open ? <Closed />
+              : !offer.open ? <Closed paused={!offer.ended} />
               : (
                 <>
                   <div className="fx-step">
                     <h2 className="fx-h"><span className="n">1</span>How would you like to meet?</h2>
-                    <FormatPick value={format} onChange={setFormat} prices={offer.prices} />
+                    <FormatPick value={format} onChange={setFormat} prices={offer.prices} formats={offer.formats} />
                   </div>
                   <div className="fx-step">
                     <h2 className="fx-h"><span className="n">2</span>Pick your session time</h2>
@@ -175,7 +180,7 @@ export default function FestivalTherapy() {
                   </div>
                   <div className="fx-step">
                     <div className="fx-sum">
-                      <div><span>Session with Deepak Kumar · {format === "online" ? "Online" : "In-person"}</span><b>{inr(fee)}</b></div>
+                      <div><span>Therapy session · {format === "online" ? "Online" : "In-person"}</span><b>{inr(fee)}</b></div>
                       <div><span>Platform fee</span><b>{inr(offer.prices.platformFee)}</b></div>
                       <div className="free"><span>+ 1 session FREE 🎁</span><b>{inr(0)}</b></div>
                       <div className="tot"><span>You pay</span><b>{inr(total)}</b></div>
@@ -196,8 +201,8 @@ export default function FestivalTherapy() {
               <ul className="fb-list">
                 <li><b>Pay for one</b> session at the usual fee — the second is free.</li>
                 <li><b>Keep it or gift it</b> 🎁 — share the free session's link with someone you care about.</li>
-                <li><b>Online or in person</b> at our Noida centre — your choice, for each session.</li>
-                <li>With <b>Deepak Kumar</b>, Counselling Psychologist.</li>
+                <li>{offer && offer.formats.length === 1 ? (offer.formats[0] === "online" ? <><b>Online</b> sessions — from the comfort of home.</> : <><b>In person</b> at our Noida centre.</>) : <><b>Online or in person</b> at our Noida centre — your choice, for each session.</>}</li>
+                <li>With {PSY}, private and confidential.</li>
               </ul>
             </div>
             <div className="fx-card fb-terms">
@@ -205,7 +210,7 @@ export default function FestivalTherapy() {
               <ul>
                 <li>Book till <b>{bookBy}</b>.</li>
                 <li>Use both sessions within <b>{offer?.validDays || 15} days</b> of booking.</li>
-                <li>No sessions on <b>8 Nov</b> (Diwali).</li>
+                {(offer?.blockedDates || ["2026-11-08"]).length > 0 && <li>No sessions on <b>{(offer?.blockedDates || ["2026-11-08"]).map((b) => dayLabel(b, { day: "numeric", month: "short" })).join(", ")}</b>.</li>}
                 <li>Free session: one per paid session, booked from its link; the link works once.</li>
                 <li>Individual sessions only; can't be combined with other coupons.</li>
               </ul>
@@ -220,18 +225,36 @@ export default function FestivalTherapy() {
   );
 }
 
-function Closed() {
+function Closed({ paused }) {
   return (
     <div className="fx-done">
       <div className="tick" style={{ background: "#7a1426" }}>🪔</div>
-      <h2>This Diwali offer has ended</h2>
-      <p className="fx-hint" style={{ fontSize: 14 }}>Thank you for the love! Already have a free-session link? Open it from your email or My Space.</p>
+      <h2>{paused ? "Bookings are paused for a little while" : "This Diwali offer has ended"}</h2>
+      {paused && <p className="fx-hint" style={{ fontSize: 14 }}>Please check back soon, or <a className="fx-link" href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Hi, I'd like to book the Diwali 1+1 offer.")}`} target="_blank" rel="noopener noreferrer">WhatsApp us</a> and we'll help you book.</p>}
+      {!paused && <p className="fx-hint" style={{ fontSize: 14 }}>Thank you for the love! Already have a free-session link? Open it from your email or My Space.</p>}
       <Link href="/noida-appointment" className="fx-btn fx-btn-ghost" style={{ marginTop: 10 }}>Book a regular session</Link>
     </div>
   );
 }
 
-function Done({ d, email, giftFor: chosen, giftPhone }) {
+function Done({ d: d0, email, giftFor: chosen, giftPhone }) {
+  const [d, setD] = useState(d0);
+  const [waited, setWaited] = useState(false);
+  // the link (or the whole booking, when the webhook confirmed it) wasn't in the first answer — ask again for a bit
+  useEffect(() => {
+    if (d.gift || !d.rz?.razorpay_order_id) return;
+    let n = 0, live = true;
+    const tick = () => {
+      fetch(`${apiUrl}/festival-offers/booking/${d.rz.razorpay_order_id}?payment=${encodeURIComponent(d.rz.razorpay_payment_id)}`).then((r) => r.json()).then((j) => {
+        if (!live) return;
+        if (j?.status && j.data?.gift) { setD((x) => ({ ...x, ...j.data, confirming: false })); return; }
+        if (j?.status) setD((x) => ({ ...x, ...j.data, confirming: false }));
+        if (++n < 10) setTimeout(tick, 2500); else setWaited(true);
+      }).catch(() => { if (live && ++n < 10) setTimeout(tick, 2500); else if (live) setWaited(true); });
+    };
+    const t = setTimeout(tick, 1200);
+    return () => { live = false; clearTimeout(t); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const g = d.gift;
   const [giftFor, setGiftFor] = useState(g?.recipientName ? "gift" : g?.forSelf ? "self" : "");
   const [recipient, setRecipient] = useState(g?.recipientName || "");
@@ -249,24 +272,36 @@ function Done({ d, email, giftFor: chosen, giftPhone }) {
       setGiftFor("gift"); setRecipient(j.data.recipientName); setPhone(f.phone); setShow(false); setMsg(j.emailed ? `We've emailed ${j.data.recipientName} the link too.` : "");
     } catch { setMsg("Couldn't save. Please try again."); }
   };
+  if (d.confirming) {
+    return (
+      <div className="fx-done">
+        <div className="tick" style={{ background: "#c98a12" }}>⏳</div>
+        <h2>Payment received — confirming your booking…</h2>
+        <p className="fx-hint" style={{ fontSize: 14 }}>{waited ? <>This is taking longer than usual. You'll get an email at {d.email} shortly. If you don't, <a className="fx-link" href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hi, I paid for the Diwali 1+1 offer (payment ${d.rz?.razorpay_payment_id}). Please confirm my booking.`)}`} target="_blank" rel="noopener noreferrer">WhatsApp us</a>.</> : "This takes a few seconds. Please keep this page open."}</p>
+      </div>
+    );
+  }
   return (
     <div className="fx-done">
       <div className="tick">✓</div>
       <h2>Your session is booked!</h2>
       <p className="fx-hint" style={{ fontSize: 14 }}>Confirmation sent to {d.email || email}. Shubh Deepawali 🪔</p>
       <div className="fx-rows">
-        <div><span>With</span><b>Deepak Kumar</b></div>
+        <div><span>With</span><b>Counselling psychologist, CYT</b></div>
         <div><span>When</span><b>{dayLabel(d.date, { weekday: "short", day: "numeric", month: "short" })}, {d.slot}</b></div>
         <div><span>Mode</span><b>{FORMAT_LABEL[d.format] || d.format}</b></div>
         <div><span>Paid</span><b>{inr(d.amount)}</b></div>
       </div>
       {g ? (
         <>
-          <h3 className="fd-h">🎁 Your free session {giftFor === "gift" ? `for ${recipient}` : ""}</h3>
+          <div className="fd-gift">
+          <div className="fd-ribbon">🎁 + 1 session FREE</div>
+          <h3 className="fd-h">Your free session {giftFor === "gift" ? `for ${recipient}` : "link"}</h3>
           <p className="fx-hint" style={{ fontSize: 13.5, marginBottom: 10 }}>
             {giftFor === "gift" ? `Send this link to ${recipient.split(" ")[0]} — they choose their own time (in-person or online).` : "Book your second session with this link anytime before it expires — or gift it to someone."}
           </p>
-          <GiftLinkBox link={g.link} validTill={g.validTill} toName={giftFor === "gift" ? recipient : ""} fromName={giftFor === "gift" ? d.name : ""} phone={giftFor === "gift" && /^\d{10}$/.test(phone) ? phone : ""} />
+          <GiftLinkBox link={g.link} validTill={g.validTill} toName={giftFor === "gift" ? recipient : ""} fromName={d.name} phone={giftFor === "gift" && /^\d{10}$/.test(phone) ? phone : ""}
+            openLabel={giftFor === "gift" ? "See their gift page" : "Book my free session"} />
           {giftFor !== "gift" && !show && <button type="button" className="fx-btn fx-btn-ghost" style={{ marginTop: 12 }} onClick={() => setShow(true)}>Gift it to someone</button>}
           {show && (
             <div style={{ textAlign: "left", marginTop: 12 }}>
@@ -279,9 +314,10 @@ function Done({ d, email, giftFor: chosen, giftPhone }) {
             </div>
           )}
           {msg && <div className="fx-hint" style={{ marginTop: 8 }}>{msg}</div>}
+          </div>
         </>
       ) : (
-        <p className="fx-hint">Your free-session link is on its way to your email{chosen === "gift" ? " (and to the person you're gifting it to)" : ""}.</p>
+        <p className="fx-hint">{waited ? <>Your free-session link is on its way to your email{chosen === "gift" ? " (and to the person you're gifting it to)" : ""} and will show in My Space.</> : "Getting your free-session link…"}</p>
       )}
       <p className="fx-hint" style={{ marginTop: 14 }}>Both sessions also show in <Link href="/my-dashboard" className="fx-link">My Space</Link> — log in with {d.email || email}.</p>
     </div>
@@ -310,7 +346,9 @@ const PAGE_CSS = `
 .fb-list li, .fb-terms li { margin-bottom:6px; }
 .fb-terms h3 { margin:0 0 8px; font-size:15px; color:#7a1426; }
 .fb-terms .fx-link { display:inline-block; margin-top:6px; font-size:14px; }
-.fd-h { font-size:17px; color:#7a1426; margin:18px 0 4px; }
+.fd-h { font-size:17px; color:#7a1426; margin:8px 0 4px; }
+.fd-gift { margin-top:18px; background:linear-gradient(180deg,#fff6e3,#fff); border:1px solid #f0d9a6; border-radius:16px; padding:14px; position:relative; }
+.fd-ribbon { display:inline-block; background:#7a1426; color:#f6d9a8; font-weight:800; font-size:12.5px; letter-spacing:.5px; border-radius:999px; padding:5px 14px; }
 @media (max-width:900px) {
   .fb { grid-template-columns:minmax(0,1fr); margin-top:-24px; }
   .fb-side { position:static; order:-1; }

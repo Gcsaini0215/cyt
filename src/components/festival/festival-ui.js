@@ -14,8 +14,26 @@ export const dayLabel = (d, opts = { weekday: "short", day: "numeric", month: "s
 export const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export const FORMAT_LABEL = { "in-person": "In-person · Noida centre", online: "Online · video call" };
 
-export const shareText = ({ link, toName, fromName, validTill }) =>
-  `${toName ? `Hi ${toName.split(" ")[0]}, ` : ""}Shubh Deepawali! 🪔 ${fromName ? `${fromName.split(" ")[0]} has` : "I've"} gifted you a free therapy session with Deepak Kumar (Counselling Psychologist) at Choose Your Therapist — in person in Noida or online. Book your time here before ${dayLabel(validTill, { day: "numeric", month: "short" })}: ${link}`;
+export const PSY = "an experienced counselling psychologist";
+// The WhatsApp message the buyer sends with the free-session link (they can edit it before sending).
+export const shareText = ({ link, toName, fromName, validTill }) => {
+  const by = dayLabel(validTill, { day: "numeric", month: "short" });
+  const first = (s) => String(s || "").trim().split(" ")[0];
+  return [
+    `${toName ? `Hi ${first(toName)}` : "Hi"} 🪔`,
+    "",
+    `Shubh Deepawali! This Diwali I wanted to give you something special — a *free therapy session* with ${PSY} at Choose Your Therapist 💛`,
+    "",
+    "🎁 1 free session, just for you",
+    "💻 Online or 🏢 in person at their Noida centre",
+    `📅 Book any time before *${by}*`,
+    "",
+    `👉 ${link}`,
+    "",
+    "Open the link, pick a time that suits you — no payment needed. It's private and only for you.",
+    ...(fromName ? ["", `With love,`, first(fromName)] : []),
+  ].join("\n");
+};
 export const waShare = (text, phone) => `https://wa.me/${phone ? `91${phone}` : ""}?text=${encodeURIComponent(text)}`;
 
 // Razorpay's script is only fetched when someone is about to pay
@@ -69,10 +87,11 @@ const minutesOf = (slot) => {
   return h * 60 + m;
 };
 
-export function FormatPick({ value, onChange, prices }) {
+export function FormatPick({ value, onChange, prices, formats = ["in-person", "online"] }) {
+  const opts = [["in-person", "In-person", "At our Noida centre"], ["online", "Online", "Video call from home"]].filter(([k]) => formats.includes(k));
   return (
-    <div className="fx-formats" role="radiogroup" aria-label="Session mode">
-      {[["in-person", "In-person", "At our Noida centre"], ["online", "Online", "Video call from home"]].map(([k, t, s]) => (
+    <div className={`fx-formats ${opts.length === 1 ? "one" : ""}`} role="radiogroup" aria-label="Session mode">
+      {opts.map(([k, t, s]) => (
         <button key={k} type="button" role="radio" aria-checked={value === k} className={`fx-format ${value === k ? "on" : ""}`} onClick={() => onChange(k)}>
           <b>{t}</b><span>{s}</span>{prices ? <em>{inr(prices[k])}</em> : <em>Free</em>}
         </button>
@@ -97,7 +116,7 @@ export function SlotPick({ byDate, loading, error, date, slot, onDate, onSlot, b
           </button>
         ))}
       </div>
-      {blocked.length > 0 && <div className="fx-note">🪔 No sessions on {blocked.map((b) => dayLabel(b, { day: "numeric", month: "short" })).join(", ")} (Diwali).</div>}
+      {blocked.length > 0 && <div className="fx-note">🪔 No sessions on {blocked.map((b) => dayLabel(b, { day: "numeric", month: "short" })).join(", ")}.</div>}
       <div className="fx-slots">
         {slots.map((s) => (
           <button key={s} type="button" className={`fx-slot ${s === slot ? "on" : ""}`} onClick={() => onSlot(s)}>{s.split(" - ")[0]}</button>
@@ -117,21 +136,38 @@ export function Field({ label, optional, children, hint }) {
   );
 }
 
-export function GiftLinkBox({ link, validTill, toName, fromName, phone }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); }
-    catch { window.prompt("Copy this link", link); }
+export function GiftLinkBox({ link, validTill, toName, fromName, phone, openLabel = "Open free session link", showTemplate = true }) {
+  const [copied, setCopied] = useState("");
+  const tpl = shareText({ link, toName, fromName, validTill });
+  const [text, setText] = useState(tpl);
+  const [edited, setEdited] = useState(false);
+  const [to, setTo] = useState(phone || "");
+  useEffect(() => { if (!edited) setText(tpl); }, [tpl]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (phone) setTo(phone); }, [phone]);
+  const copy = async (what, val) => {
+    try { await navigator.clipboard.writeText(val); setCopied(what); setTimeout(() => setCopied(""), 1800); }
+    catch { window.prompt("Copy this", val); }
   };
   return (
     <div className="fx-linkbox">
-      <div className="fx-linkbox-k">Free session link</div>
+      <div className="fx-linkbox-k">🎁 Free session link</div>
       <div className="fx-linkbox-v">{link}</div>
       <div className="fx-linkbox-acts">
-        <a className="fx-btn fx-btn-wa" href={waShare(shareText({ link, toName, fromName, validTill }), phone)} target="_blank" rel="noopener noreferrer">Share on WhatsApp</a>
-        <button type="button" className="fx-btn fx-btn-ghost" onClick={copy}>{copied ? "Copied ✓" : "Copy link"}</button>
+        <a className="fx-btn fx-btn-open" href={link}>{openLabel} →</a>
+        <button type="button" className="fx-btn fx-btn-ghost" onClick={() => copy("link", link)}>{copied === "link" ? "Copied ✓" : "Copy link"}</button>
       </div>
       <div className="fx-hint">Use by {dayLabel(validTill, { day: "numeric", month: "long" })} · works once</div>
+      {showTemplate && (
+        <div className="fx-wa">
+          <div className="fx-wa-h"><span className="fx-wa-ic">✆</span> WhatsApp message <i>— ready to send, edit if you like</i></div>
+          <textarea className="fx-wa-msg" rows={9} value={text} onChange={(e) => { setText(e.target.value); setEdited(true); }} aria-label="WhatsApp message" />
+          <div className="fx-wa-row">
+            <input className="fx-wa-to" value={to} onChange={(e) => setTo(e.target.value.replace(/\D/g, "").slice(0, 10))} inputMode="numeric" placeholder="Their WhatsApp no. (optional)" aria-label="Their WhatsApp number" />
+            <a className="fx-btn fx-btn-wa" href={waShare(text, /^\d{10}$/.test(to) ? to : "")} target="_blank" rel="noopener noreferrer">Send on WhatsApp</a>
+          </div>
+          <button type="button" className="fx-wa-copy" onClick={() => copy("msg", text)}>{copied === "msg" ? "Message copied ✓" : "Copy message"}</button>
+        </div>
+      )}
     </div>
   );
 }
@@ -182,6 +218,18 @@ export const FX_CSS = `
 .fx-linkbox-k { font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:var(--g2); }
 .fx-linkbox-v { font-weight:800; color:var(--m); word-break:break-all; margin:6px 0 10px; font-size:15px; }
 .fx-linkbox-acts { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:6px; }
+.fx-btn-open { background:var(--m); color:#fff; box-shadow:0 6px 16px rgba(122,20,38,.25); }
+.fx-btn-open:hover { color:#fff; background:var(--m2); }
+.fx-formats.one { grid-template-columns:1fr; max-width:320px; }
+.fx-wa { text-align:left; margin-top:14px; background:#effaf3; border:1px solid #cdebd8; border-radius:14px; padding:12px; }
+.fx-wa-h { font-size:13px; font-weight:800; color:#16733f; margin-bottom:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.fx-wa-h i { font-style:normal; font-weight:500; color:#4f7a60; }
+.fx-wa-ic { width:20px; height:20px; border-radius:50%; background:#1f9d55; color:#fff; font-size:12px; display:inline-flex; align-items:center; justify-content:center; }
+.fx-wa-msg { width:100%; border:1px solid #cdebd8; border-radius:10px 10px 10px 2px; background:#dcf8c6; padding:10px 12px; font:inherit; font-size:14px; line-height:1.45; color:#1b2b20; resize:vertical; }
+.fx-wa-row { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.fx-wa-to { flex:1 1 170px; min-width:0; border:1.5px solid #cdebd8; border-radius:999px; padding:10px 14px; font:inherit; font-size:14px; }
+.fx-wa-row .fx-btn-wa { flex:1 1 170px; }
+.fx-wa-copy { background:none; border:0; color:#16733f; font:inherit; font-size:13px; font-weight:700; text-decoration:underline; cursor:pointer; margin-top:6px; padding:0; }
 .fx-done { text-align:center; }
 .fx-done .tick { width:58px; height:58px; border-radius:50%; background:#1f9d55; color:#fff; font-size:30px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:8px; }
 .fx-done h2 { margin:0 0 4px; font-size:22px; color:var(--m); }

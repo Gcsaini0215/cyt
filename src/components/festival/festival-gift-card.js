@@ -22,7 +22,7 @@ export default function FestivalGiftCards() {
             <div className="fgc-ic">🎁</div>
             <div className="fgc-body">
               <b>{g.role === "received" ? `${(g.from || "Someone").split(" ")[0]} gifted you a free session` : gifted ? `Your free session — gifted to ${g.recipientName.split(" ")[0]}` : "Your free Diwali session"}</b>
-              <span>{g.role === "received" || !gifted ? `With Deepak Kumar · in-person or online · book by ${by}` : `They haven't booked it yet · link works till ${by}`}</span>
+              <span>{g.role === "received" || !gifted ? `With a counselling psychologist · in-person or online · book by ${by}` : `They haven't booked it yet · link works till ${by}`}</span>
               <div className="fgc-acts">
                 {(g.role === "received" || !gifted) && <a className="fgc-btn" href={`/festival-therapy/gift/${g.code}`}>Book it</a>}
                 {g.role === "bought" && (
