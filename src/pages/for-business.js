@@ -2,22 +2,13 @@ import React from "react";
 import Head from "next/head";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
-import BusinessHero from "../components/business/hero";
-import TrustStrip from "../components/business/trust-strip";
-import BusinessAudiences from "../components/business/audiences";
-import CareModel from "../components/business/care-model";
-import OnboardingSteps from "../components/business/onboarding-steps";
-import ImpactStats from "../components/business/impact-stats";
-import PlansComparison from "../components/business/plans-comparison";
-import DemoForm from "../components/business/demo-form";
-import BusinessFaqs, { faqData } from "../components/business/faqs";
-import CorporateServices, { corporateServices } from "../components/business/corporate-services";
+import EapPage, { EAP_INCLUDES, faqData } from "../components/business/eap";
 
 const SITE = "https://www.chooseyourtherapist.in";
 const PAGE_URL = `${SITE}/for-business`;
 const OG_IMAGE = `${SITE}/api/og/site.jpg?page=business`; // the share card in the home style
-const TITLE = "Corporate Wellness Program India | Employee EAP | CYT";
-const DESCRIPTION = "Corporate wellness program for Indian companies: confidential employee counselling (EAP), burnout workshops & manager training by verified psychologists.";
+const TITLE = "Corporate EAP India | Employee Assistance Program | CYT";
+const DESCRIPTION = "Employee Assistance Program (EAP) for Indian companies: confidential counselling for employees and families, workshops, manager support and anonymous HR reports.";
 
 const breadcrumbSchema = {
   "@context": "https://schema.org",
@@ -31,7 +22,7 @@ const breadcrumbSchema = {
 const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  "name": "Corporate Wellness Program",
+  "name": "Corporate Employee Assistance Program (EAP)",
   "serviceType": "Corporate mental health and Employee Assistance Program (EAP)",
   "description": DESCRIPTION,
   "url": PAGE_URL,
@@ -49,7 +40,7 @@ const serviceSchema = {
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
     "name": "Corporate mental health services",
-    "itemListElement": corporateServices.map((s) => ({
+    "itemListElement": EAP_INCLUDES.map((s) => ({
       "@type": "Offer",
       "itemOffered": { "@type": "Service", "name": s.title, "description": s.desc }
     }))
@@ -72,22 +63,21 @@ export default function ForBusiness() {
       <Head>
         <title>{TITLE}</title>
         <meta name="description" content={DESCRIPTION} />
-        <meta name="keywords" content="corporate wellness program India, employee mental health, EAP India, employee assistance program, corporate counselling services, workplace mental health, employee wellness program, stress management workshop for employees, corporate mental health services Noida Delhi NCR" />
+        <meta name="keywords" content="EAP India, employee assistance program India, corporate EAP, corporate wellness program India, employee mental health, EAP India, employee assistance program, corporate counselling services, workplace mental health, employee wellness program, stress management workshop for employees, corporate mental health services Noida Delhi NCR" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <link rel="canonical" href={PAGE_URL} />
-        <link rel="preload" as="image" href="/assets/img/corporate-wellness-workshop.jpg" />
 
         <meta key="og:title" property="og:title" content={TITLE} />
-        <meta key="og:description" property="og:description" content="Confidential employee counselling, workshops and manager training by verified psychologists. Get a corporate wellness proposal in 24 hours." />
+        <meta key="og:description" property="og:description" content="Confidential counselling for your employees and their families, workshops, manager support and anonymous HR reports. Get an EAP proposal." />
         <meta key="og:url" property="og:url" content={PAGE_URL} />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:image" property="og:image" content={OG_IMAGE} />
-        <meta property="og:image:alt" content="Employees in a workplace wellbeing workshop as part of a corporate wellness program" />
+        <meta property="og:image:alt" content="Choose Your Therapist — Employee Assistance Program for Indian workplaces" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={TITLE} />
-        <meta name="twitter:description" content="Confidential employee counselling, workshops and manager training by verified psychologists." />
+        <meta name="twitter:description" content="Confidential counselling for employees and families, workshops, manager support and anonymous HR reports." />
         <meta name="twitter:image" content={OG_IMAGE} />
 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
@@ -96,16 +86,7 @@ export default function ForBusiness() {
       </Head>
 
       <MyNavbar />
-      <BusinessHero />
-      <TrustStrip />
-      <BusinessAudiences />
-      <CorporateServices />
-      <CareModel />
-      <OnboardingSteps />
-      <ImpactStats />
-      <PlansComparison />
-      <DemoForm />
-      <BusinessFaqs />
+      <EapPage />
       <Footer />
     </div>
   );
