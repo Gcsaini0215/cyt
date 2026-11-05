@@ -7,16 +7,16 @@ import ImageTag from "../utils/image-tag";
 import { getDecodedToken, getToken } from "../utils/jwt";
 import useTherapistStore from "../store/therapistStore";
 import useUserStore from "../store/userStore";
-import { imagePath, defaultProfile } from "../utils/url";
+import { imagePath, defaultProfile, apiUrl } from "../utils/url";
 
-const LEAD_STRIP_MESSAGES = [
-  { icon: "feather-heart", text: "Feeling anxious or low? Talk to a verified psychologist today.", href: "/view-all-therapist" },
-  { icon: "feather-percent", text: "Affordable sessions — no waitlists, no judgment.", href: "/view-all-therapist" },
-  { icon: "feather-check-circle", text: "Verified therapists across India, online & in-person.", href: "/view-all-therapist" },
-  { icon: "feather-shield", text: "100% confidential sessions. Your privacy, our promise.", href: "/view-all-therapist" },
-  { icon: "feather-phone", text: "Book in under 2 minutes — call +91-807-775-7951", href: "tel:+918077757951" },
-  { icon: "feather-users", text: "Couples, teens, individuals — therapy for every stage of life.", href: "/view-all-therapist" },
+// The bar above the navbar: things worth knowing right now, each with one action. The festival offer shows only
+// while it is open (/festival-offers/current — admin → Festival Offer), so it disappears by itself when it ends.
+const WA_MATCH = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi, I'd like help choosing the right psychologist.");
+const BASE_BAR = [
+  { key: "noida", tag: "Noida centre", icon: "feather-map-pin", text: "In-person therapy at our Sector 51, Noida centre", short: "In-person therapy in Noida", cta: "Book a slot", href: "/noida-appointment" },
+  { key: "match", tag: "Free", icon: "feather-message-circle", text: "Not sure who to pick? Get matched with a psychologist on WhatsApp", short: "Get matched free on WhatsApp", cta: "Chat now", href: WA_MATCH, ext: true },
 ];
+const barDay = (d) => { try { const [y, m, dd] = d.split("-").map(Number); return new Date(Date.UTC(y, m - 1, dd)).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" }); } catch { return d; } };
 
 const PHONE = "+918077757951";
 const WHATSAPP = "https://wa.me/918077757951";
@@ -25,6 +25,9 @@ export default function App() {
   const router = useRouter();
   const [show, setShow] = React.useState(false);
   const [stripIdx, setStripIdx] = React.useState(0);
+  const [bar, setBar] = React.useState(BASE_BAR);
+  const [barClosed, setBarClosed] = React.useState(false);
+  const barPause = React.useRef(false);
   const [userType, setUserType] = React.useState(0);
   const [activeDropdown, setActiveDropdown] = React.useState("");
   const [isSticky, setIsSticky] = React.useState(false);
@@ -92,11 +95,29 @@ export default function App() {
     };
   }, [fetchTherapistInfo]);
 
+  // a running festival offer goes first (cached for this visit)
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setStripIdx((i) => (i + 1) % LEAD_STRIP_MESSAGES.length), 4500);
-    return () => clearInterval(t);
+    try { if (sessionStorage.getItem("cyt-bar-closed") === "1") setBarClosed(true); } catch { /* storage blocked */ }
+    const withOffer = (o) => (o?.open ? [{ key: "offer", tag: `${o.title || "Festival"} offer`, icon: "feather-gift", emoji: "🪔",
+      text: `Book 1 session, get 1 FREE · book till ${barDay(o.bookBy)}`, short: `Book 1, get 1 FREE · till ${barDay(o.bookBy)}`, cta: "Book now", href: "/festival-therapy" }, ...BASE_BAR] : BASE_BAR);
+    let cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem("cyt-bar-offer") || "null"); } catch { cached = null; }
+    if (cached && Date.now() - cached.at < 10 * 60 * 1000) { setBar(withOffer(cached.o)); return; }
+    let alive = true;
+    fetch(`${apiUrl}/festival-offers/current`).then((r) => r.json()).then((j) => {
+      const o = j?.status ? j.data : null;
+      try { sessionStorage.setItem("cyt-bar-offer", JSON.stringify({ at: Date.now(), o })); } catch { /* ignore */ }
+      if (alive) setBar(withOffer(o));
+    }).catch(() => {});
+    return () => { alive = false; };
   }, []);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const t = setInterval(() => { if (!barPause.current) setStripIdx((i) => (i + 1) % bar.length); }, 5000);
+    return () => clearInterval(t);
+  }, [bar.length]);
+  const closeBar = () => { setBarClosed(true); try { sessionStorage.setItem("cyt-bar-closed", "1"); } catch { /* ignore */ } };
+  const barNow = bar[stripIdx % bar.length];
 
   // current page highlighted in the menu
   const path = router?.pathname || "";
@@ -110,22 +131,35 @@ export default function App() {
 
   return (
     <>
-      {/* Top Green Strip — running lead-gen ticker */}
+      {/* Top bar — what's worth knowing right now (offer / Noida centre / free match), one action each */}
       <div className={`top-strip ${isSticky ? "is-stuck" : ""}`}>
-        <div className="top-strip-desktop">
+        <div className="top-strip-desktop" onMouseEnter={() => { barPause.current = true; }} onMouseLeave={() => { barPause.current = false; }}>
           <div className="strip-rot" aria-live="off">
-            {LEAD_STRIP_MESSAGES.map((m, i) => {
-              const props = { className: `strip-item${i === stripIdx ? " on" : ""}`, tabIndex: i === stripIdx ? 0 : -1, "aria-hidden": i !== stripIdx };
-              return m.href.startsWith("tel:")
-                ? <a key={i} {...props} href={m.href}><i className={m.icon}></i> {m.text}</a>
-                // a button, not a link: the strip is a ticker, and whole-sentence links to the same page
-                // were showing up in SEO audits as long/duplicate anchors (the navbar already links there)
-                : <button key={i} type="button" {...props} onClick={() => router.push(m.href)}><i className={m.icon}></i> {m.text}</button>;
-            })}
+            {bar.map((m, i) => (
+              <div key={m.key} className={`strip-item${i === stripIdx % bar.length ? " on" : ""}`} aria-hidden={i !== stripIdx % bar.length}>
+                <span className={`strip-tag${m.key === "offer" ? " gold" : ""}`}>{m.emoji ? `${m.emoji} ` : <i className={m.icon} aria-hidden="true" />} {m.tag}</span>
+                <span className="strip-text">{m.text}</span>
+                <a className="strip-cta" href={m.href} tabIndex={i === stripIdx % bar.length ? 0 : -1}
+                  {...(m.ext ? { target: "_blank", rel: "noopener noreferrer" } : { onClick: (e) => { e.preventDefault(); router.push(m.href); } })}>
+                  {m.cta} <i className="feather-arrow-right" aria-hidden="true" />
+                </a>
+              </div>
+            ))}
           </div>
           <a className="strip-call" href={`tel:${PHONE}`}><i className="feather-phone"></i> +91 80777 57951</a>
         </div>
       </div>
+      {!barClosed && barNow && (
+        <div className="top-bar-m">
+          <a className="tbm-link" href={barNow.href} key={barNow.key}
+            {...(barNow.ext ? { target: "_blank", rel: "noopener noreferrer" } : { onClick: (e) => { e.preventDefault(); router.push(barNow.href); } })}>
+            <span className="tbm-ic" aria-hidden="true">{barNow.emoji || <i className={barNow.icon} />}</span>
+            <span className="tbm-text">{barNow.short}</span>
+            <i className="feather-arrow-right tbm-go" aria-hidden="true" />
+          </a>
+          <button type="button" className="tbm-x" onClick={closeBar} aria-label="Hide this bar"><i className="feather-x" aria-hidden="true" /></button>
+        </div>
+      )}
 
       {/* Header */}
       <header className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
@@ -361,37 +395,52 @@ export default function App() {
         .top-strip-desktop {
           display: flex;
           align-items: center;
-          background: linear-gradient(135deg,#f0cf6e,#d4af37);
-          color: #111;
+          background: linear-gradient(90deg, #0b2418 0%, #14532d 55%, #0f3d26 100%);
+          color: #fff;
           font-size: 13px;
           font-weight: 500;
           height: ${GREEN_STRIP_HEIGHT}px;
-          border-bottom: 2px solid #175c37;
+          border-bottom: 1px solid rgba(236,199,125,.35);
           overflow: hidden;
           position: relative;
         }
-        .top-strip-desktop::before,
-        .top-strip-desktop::after {
-          content: ""; position: absolute; top: 0; bottom: 0; width: 48px; z-index: 2; pointer-events: none;
-        }
-        .top-strip-desktop::before { left: 0; background: linear-gradient(90deg,#f0cf6e,transparent); }
-        .top-strip-desktop::after { right: 0; background: linear-gradient(-90deg,#d4af37,transparent); }
-        .top-strip-desktop::before, .top-strip-desktop::after { display: none; }
         .strip-rot { position: relative; flex: 1; height: 100%; }
         .strip-item {
-          position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 7px;
-          white-space: nowrap; color: inherit; text-decoration: none; font-weight: 600;
-          background: none; border: 0; padding: 0; width: 100%; font: inherit; font-weight: 600; cursor: pointer;
-          opacity: 0; transform: translateY(6px); transition: opacity .45s ease, transform .45s ease; pointer-events: none;
+          position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; white-space: nowrap;
+          opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; pointer-events: none;
         }
         .strip-item.on { opacity: 1; transform: none; pointer-events: auto; }
-        .strip-item:hover { color: #14532d; text-decoration: underline; }
-        .strip-item i { color: #14532d; }
-        .strip-call { position: absolute; right: clamp(20px, 3vw, 40px); top: 0; bottom: 0; display: flex; align-items: center; gap: 6px; font-weight: 700; color: #14532d; text-decoration: none; z-index: 3; }
-        .strip-call:hover { text-decoration: underline; color: #14532d; }
+        .strip-tag { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+          color: #ecc77d; background: rgba(236,199,125,.14); border: 1px solid rgba(236,199,125,.4); }
+        .strip-tag.gold { color: #14532d; background: linear-gradient(135deg, #f3d48f, #d4a24c); border-color: transparent; }
+        .strip-tag i { font-size: 11px; }
+        .strip-text { color: #f1f7f3; font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; }
+        .strip-cta { display: inline-flex; align-items: center; gap: 5px; height: 23px; padding: 0 11px; border-radius: 999px; background: #fff; color: #14532d !important;
+          font-size: 12px; font-weight: 800; text-decoration: none !important; transition: background .2s ease; }
+        .strip-cta:hover { background: #ecc77d; }
+        .strip-cta i { font-size: 11px; transition: transform .2s ease; } .strip-cta:hover i { transform: translateX(2px); }
+        .strip-call { position: absolute; right: clamp(20px, 3vw, 40px); top: 0; bottom: 0; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12.5px; color: #ecc77d; text-decoration: none; z-index: 3; }
+        .strip-call:hover { text-decoration: underline; color: #ecc77d; }
         @media (max-width: 1199px) { .strip-call { display: none; } }
+        @media (max-width: 1100px) { .strip-text { max-width: 46vw; } }
         @media (prefers-reduced-motion: reduce) { .strip-item { transition: none; } }
         @media (max-width: 991px) { .top-strip-desktop { display: none; } }
+
+        /* phones / tablets: one line above the header that scrolls away with the page; x hides it for the visit */
+        .top-bar-m { display: none; }
+        @media (max-width: 991px) {
+          .top-bar-m { position: relative; z-index: 10002; display: flex; align-items: stretch; height: 34px;
+            background: linear-gradient(90deg, #0b2418, #14532d); border-bottom: 1px solid rgba(236,199,125,.35); }
+          .tbm-link { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 6px 0 14px; color: #fff !important; text-decoration: none !important;
+            font-size: 12.5px; font-weight: 700; animation: tbmIn .45s ease both; }
+          .tbm-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: rgba(236,199,125,.18); color: #ecc77d; font-size: 11px; }
+          .tbm-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+          .tbm-go { flex: none; color: #ecc77d; font-size: 13px; }
+          .tbm-x { flex: none; width: 38px; border: 0; background: none; color: rgba(255,255,255,.7); font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+          .tbm-x:hover { color: #fff; }
+          @keyframes tbmIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        }
+        @media (max-width: 991px) and (prefers-reduced-motion: reduce) { .tbm-link { animation: none; } }
 
         .rbt-header.rbt-header-10 {
           position: sticky;

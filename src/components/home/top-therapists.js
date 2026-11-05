@@ -328,13 +328,11 @@ const CSS = `
   .tt-sec { padding: 52px 0 88px; }
   .tt-all { display: none; }
   .tt-all.tt-all-m { display: flex; justify-content: center; width: 100%; margin: 14px 0 0; }
-  /* heading: centred, sized for the screen, lines broken evenly */
-  .tt-head { justify-content: center; text-align: center; margin-bottom: 20px; }
+  /* heading: like every other home section on phones — left-aligned, full width */
+  .tt-head { margin-bottom: 20px; }
   .tt-head > div { width: 100%; }
-  .tt-eyebrow { justify-content: center; margin-bottom: 10px; }
-  .tt-eyebrow::after { content: ""; width: 26px; height: 2px; background: #d4a24c; }
-  .tt-title { font-size: clamp(1.6rem, 7.2vw, 2rem); line-height: 1.18; text-wrap: balance; margin: 0 auto 10px; max-width: 18ch; }
-  .tt-sub { font-size: 14.5px; line-height: 1.6; margin: 0 auto; max-width: 34ch; text-wrap: pretty; }
+  .tt-title { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
+  .tt-sub { font-size: 15px; line-height: 1.6; max-width: none; }
   .tt-controls { flex-direction: column; align-items: stretch; margin-bottom: 16px; }
   .tt-tabs { margin: 0; align-self: flex-start; max-width: 100%; }
   .tt-langs { margin: 0 -16px; padding: 0 16px; }
