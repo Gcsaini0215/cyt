@@ -50,33 +50,28 @@ function Card({ t, now, hidden }) {
       <div className="tt-photo">
         {photo && !broken
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={thumb(photo, 384)} srcSet={thumbSet(photo, 384, 640)} alt={name} loading="lazy" decoding="async" width="270" height="250" onError={() => setBroken(true)} />
+          ? <img src={thumb(photo, 384)} srcSet={thumbSet(photo, 384, 640)} alt={name} loading="lazy" decoding="async" width="258" height="358" onError={() => setBroken(true)} />
           : <span className="tt-init" aria-hidden="true"><b>{initials || "C"}</b></span>}
-        <span className="tt-shade" aria-hidden="true" />
         {isTop(t) && <span className="tt-pick" title="Handpicked by the CYT team">★ Top Pick</span>}
         <span className={`tt-rate${r ? "" : " new"}`}>
-          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /> {r.avg.toFixed(1)} <small>· {r.count} review{r.count === 1 ? "" : "s"}</small></> : "New on CYT"}
+          {r ? <><Star sx={{ fontSize: 14, color: "#ecc77d" }} /> {r.avg.toFixed(1)} <small>({r.count})</small></> : "New on CYT"}
         </span>
-        <div className="tt-modes">
-          {modes.online && <span><i className="feather-video" aria-hidden="true" /> Online</span>}
-          {modes.inPerson && <span><i className="feather-map-pin" aria-hidden="true" /> In-person</span>}
-        </div>
-      </div>
-      <div className="tt-body">
-        <Link href={href} className="tt-name tt-stretch" tabIndex={tab}>
-          <span>{name}</span><span className="tt-sr">, {t.profile_type || "Psychologist"}</span><VerifiedRounded sx={{ fontSize: 17, color: "#1d9bf0", flexShrink: 0 }} />
-        </Link>
-        <div className="tt-role">{t.profile_type || "Psychologist"}</div>
-        <ul className="tt-meta">
-          {expLabel(t.year_of_exp) && <li><i className="feather-briefcase" aria-hidden="true" /> {expLabel(t.year_of_exp)} experience</li>}
-          {langs.length > 0 && <li><i className="feather-message-circle" aria-hidden="true" /> {langs.join(", ")}</li>}
-        </ul>
-        <div className="tt-fee">
-          {fee ? <><span>Session from</span><b>₹{fee.toLocaleString("en-IN")}</b></> : <span>Fees on request</span>}
-        </div>
-        <div className="tt-acts">
-          <span className="tt-view" aria-hidden="true">View profile</span>
-          <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book <i className="feather-arrow-right" aria-hidden="true" /><span className="tt-sr"> a session with {name}</span></Link>
+        <div className="tt-info">
+          <div className="tt-modes">
+            {modes.online && <span><i className="feather-video" aria-hidden="true" /> Online</span>}
+            {modes.inPerson && <span><i className="feather-map-pin" aria-hidden="true" /> In-person</span>}
+          </div>
+          <Link href={href} className="tt-name tt-stretch" tabIndex={tab}>
+            <span>{name}</span><span className="tt-sr">, {t.profile_type || "Psychologist"}</span><VerifiedRounded sx={{ fontSize: 17, color: "#4cb3ff", flexShrink: 0 }} />
+          </Link>
+          <div className="tt-role">{t.profile_type || "Psychologist"}</div>
+          <div className="tt-meta">
+            {[expLabel(t.year_of_exp) && `${expLabel(t.year_of_exp)} exp.`, langs.join(", ")].filter(Boolean).join("  ·  ")}
+          </div>
+          <div className="tt-row">
+            <div className="tt-fee">{fee ? <><small>Session from</small><b>₹{fee.toLocaleString("en-IN")}</b></> : <small>Fees on request</small>}</div>
+            <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book now<span className="tt-sr"> — a session with {name}</span></Link>
+          </div>
         </div>
       </div>
     </article>
@@ -245,49 +240,44 @@ const CSS = `
 .tt-track { position: relative; height: 4px; border-radius: 99px; background: rgba(255,255,255,.1); margin: 4px auto 0; max-width: 320px; overflow: hidden; }
 .tt-track span { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #22895a, #ecc77d); transition: left .15s linear, width .2s ease; }
 
-.tt-card { position: relative; flex: 0 0 270px; scroll-snap-align: start; display: flex; flex-direction: column; background: #fff; border-radius: 22px; overflow: hidden;
-  box-shadow: 0 22px 44px -26px rgba(0,0,0,.85); transition: transform .3s ease, box-shadow .3s ease; }
-.tt-card:hover { transform: translateY(-6px); box-shadow: 0 30px 56px -28px rgba(0,0,0,.9), 0 0 0 2px rgba(236,199,125,.55); }
-.tt-photo { position: relative; display: block; height: 250px; background: linear-gradient(150deg, #1e7a4c, #0b2418); overflow: hidden; }
-.tt-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transition: transform .6s ease; }
-.tt-card:hover .tt-photo img { transform: scale(1.06); }
-.tt-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(8,28,18,.78) 100%); pointer-events: none; }
-.tt-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+.tt-card { position: relative; flex: 0 0 258px; height: 370px; scroll-snap-align: start; display: flex; padding: 6px; background: #fff; border-radius: 24px;
+  box-shadow: 0 26px 44px -24px rgba(0,0,0,.85); transition: transform .3s ease, box-shadow .3s ease; }
+.tt-card:hover { transform: translateY(-6px); box-shadow: 0 32px 56px -26px rgba(0,0,0,.9), 0 0 0 3px rgba(236,199,125,.6); }
+.tt-photo { position: relative; flex: 1; border-radius: 18px; overflow: hidden; background: linear-gradient(150deg, #1e7a4c, #0b2418); }
+.tt-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; transition: transform .6s ease; }
+.tt-card:hover .tt-photo img { transform: scale(1.05); }
+.tt-init { position: absolute; inset: 0 0 38% 0; display: flex; align-items: center; justify-content: center;
   background: radial-gradient(circle at 30% 25%, #2a8a58 0, #14532d 55%, #0b2418 100%); }
-.tt-init b { width: 104px; height: 104px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; font-weight: 800; letter-spacing: 1px;
+.tt-photo:has(.tt-init) { background: #0b2418; }
+.tt-init b { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; letter-spacing: 1px;
   color: #14532d; background: linear-gradient(135deg, #fbf1dc, #ecc77d); box-shadow: 0 0 0 6px rgba(236,199,125,.25); }
-.tt-pick { position: absolute; top: 12px; left: 12px; z-index: 1; padding: 4px 10px; border-radius: 999px; background: linear-gradient(135deg, #f3d48f, #d4a24c); color: #14532d; font-size: 11px; font-weight: 800; letter-spacing: .02em; cursor: help; box-shadow: 0 6px 14px -6px rgba(0,0,0,.5); }
-.tt-rate { position: absolute; top: 12px; right: 12px; z-index: 1; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px;
-  background: rgba(11,36,24,.66); backdrop-filter: blur(6px); color: #fff; font-size: 12.5px; font-weight: 800; border: 1px solid rgba(255,255,255,.18); }
-.tt-rate small { font-weight: 600; color: #d6e5dc; }
-.tt-rate.new { background: rgba(251,243,226,.95); color: #7a5413; font-size: 11.5px; border-color: transparent; }
-.tt-modes { position: absolute; left: 12px; bottom: 12px; right: 12px; z-index: 1; display: flex; gap: 6px; flex-wrap: wrap; }
-.tt-modes span { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); backdrop-filter: blur(6px); border-radius: 999px; padding: 3px 10px; }
-.tt-body { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 16px 16px 16px; }
-.tt-name { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; color: #0b1712 !important; font-size: 17px; font-weight: 800; letter-spacing: -.01em; text-decoration: none !important; }
+.tt-pick { position: absolute; top: 10px; left: 10px; z-index: 1; padding: 4px 10px; border-radius: 999px; background: linear-gradient(135deg, #f3d48f, #d4a24c); color: #14532d; font-size: 11px; font-weight: 800; cursor: help; box-shadow: 0 6px 14px -6px rgba(0,0,0,.5); }
+.tt-rate { position: absolute; top: 10px; right: 10px; z-index: 1; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.94); color: #0b1712; font-size: 12.5px; font-weight: 800; box-shadow: 0 6px 14px -8px rgba(0,0,0,.5); }
+.tt-rate small { font-weight: 600; color: #64748b; }
+.tt-rate.new { background: rgba(251,243,226,.96); color: #7a5413; font-size: 11.5px; }
+.tt-info { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; flex-direction: column; gap: 2px; padding: 60px 12px 12px;
+  background: linear-gradient(180deg, rgba(5,20,12,0) 0%, rgba(5,20,12,.72) 38%, rgba(5,20,12,.94) 100%); color: #fff; }
+.tt-modes { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+.tt-modes span { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 800; color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 2px 8px; }
+.tt-name { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; color: #fff !important; font-size: 17px; font-weight: 800; letter-spacing: -.01em; text-decoration: none !important; line-height: 1.25; }
 .tt-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tt-name:hover { color: #1e7a4c !important; }
-.tt-role { font-size: 13px; font-weight: 700; color: #1e7a4c; }
-.tt-meta { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #3d4d44; }
-.tt-meta li { display: flex; align-items: center; gap: 7px; margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.tt-meta li::before { content: none; }
-.tt-meta i { color: #a86e0e; font-size: 13px; flex: none; }
-.tt-fee { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: #f4f8f5; }
-.tt-fee span { font-size: 12.5px; color: #4b5b53; font-weight: 600; }
-.tt-fee b { font-size: 18px; font-weight: 900; color: #14532d; letter-spacing: -.01em; }
-.tt-acts { display: flex; gap: 8px; margin-top: 10px; }
-.tt-acts a, .tt-acts .tt-view { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; border-radius: 12px; font-size: 13.5px; font-weight: 800; text-decoration: none !important; }
-.tt-view { border: 1.5px solid #cfdcd4; color: #26463a !important; transition: border-color .2s ease, color .2s ease; }
-.tt-card:hover .tt-view { border-color: #1e7a4c; color: #1e7a4c !important; }
-.tt-book { background: linear-gradient(135deg, #22895a, #1e7a4c 55%, #14532d); color: #fff !important; box-shadow: 0 8px 18px -10px rgba(20,83,45,.9); }
-.tt-book i { transition: transform .2s ease; } .tt-book:hover i { transform: translateX(3px); }
+.tt-name:hover { color: #ecc77d !important; }
+.tt-role { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.9); }
+.tt-meta { font-size: 12px; color: rgba(255,255,255,.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.tt-fee { display: flex; flex-direction: column; line-height: 1.15; }
+.tt-fee small { font-size: 11px; color: rgba(255,255,255,.8); font-weight: 600; }
+.tt-fee b { font-size: 19px; font-weight: 900; color: #fff; letter-spacing: -.01em; }
+.tt-book { position: relative; z-index: 2; display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 16px; border-radius: 12px; background: #fff; color: #0b1712 !important;
+  font-size: 13.5px; font-weight: 800; text-decoration: none !important; box-shadow: 0 8px 18px -10px rgba(0,0,0,.6); transition: background .2s ease, color .2s ease; }
+.tt-book:hover { background: #ecc77d; color: #14532d !important; }
 
-.tt-more { align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 26px; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 1.5px dashed rgba(236,199,125,.45); box-shadow: none; text-decoration: none !important; }
+.tt-more { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 26px; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 1.5px dashed rgba(236,199,125,.45); box-shadow: none; text-decoration: none !important; }
 .tt-more:hover { background: rgba(255,255,255,.1); box-shadow: none; }
 .tt-more-ic { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f3d48f, #d4a24c); color: #14532d; display: flex; align-items: center; justify-content: center; font-size: 24px; }
 .tt-more .tt-more-a { color: #fff !important; font-size: 17px; font-weight: 800; text-decoration: none !important; }
 .tt-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
-.tt-acts .tt-book { position: relative; z-index: 2; }
 .tt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .tt-more span:last-child { color: #c9dbd0; font-size: 13.5px; }
 
@@ -324,8 +314,7 @@ const CSS = `
   .tt-langs { margin: 0 -16px; padding: 0 16px; }
   .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 13px; }
   .tt-row-scroll { margin: 0 -16px; padding: 6px 16px 16px; scroll-padding-left: 16px; gap: 14px; -webkit-mask-image: none; mask-image: none; }
-  .tt-card { flex-basis: 80%; }
-  .tt-photo { height: 240px; }
+  .tt-card { flex-basis: 74%; height: 360px; }
   .tt-card:hover { transform: none; }
   .tt-card:hover .tt-photo img { transform: none; }
   .tt-trust li { padding: 10px 12px; gap: 10px; }
