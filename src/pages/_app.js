@@ -7,6 +7,7 @@ const CallbackWidget = dynamic(() => import("@/components/global/callback-widget
 const ActiveBookingBanner = dynamic(() => import("@/components/global/active-booking-banner"), { ssr: false });
 import CookieConsent from "@/components/global/cookie-consent";
 import SessionNotice from "@/components/global/session-notice";
+import SiteMotion from "@/components/global/site-motion";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-toastify/dist/ReactToastify.css";
 import { postData } from "../utils/actions";
@@ -297,6 +298,7 @@ function MyApp({ Component, pageProps }) {
       )}
       <CookieConsent />
       <SessionNotice />
+      <SiteMotion />
       <div className="offcanvas-overlay" suppressHydrationWarning></div>
       <div className="wrapper" suppressHydrationWarning>
         <div className="main-wrapper" suppressHydrationWarning>

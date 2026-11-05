@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ShieldCheck, Lock, Users, HeartHandshake, MessageCircle, Presentation, ClipboardList, BarChart3, LifeBuoy,
   UserCheck, Check, Laptop, MapPin, Star, Clock, ArrowRight, EyeOff, Phone, Briefcase, Building2, CalendarCheck,
@@ -23,10 +23,18 @@ const REGISTRATIONS = [
   { src: "/images/registrations/abdm.svg", alt: "Ayushman Bharat Digital Mission", label: "ABDM · HFR ID IN0510005384" },
 ];
 
+/* India figures only, each checked against the original document (Nov 2026):
+   Deloitte India report PDF (3,995 employees, fieldwork late 2021 – Apr 2022) and the Economic Survey 2023-24
+   as released by PIB (citing the National Mental Health Survey 2015-16, NIMHANS / MoHFW). */
+const DELOITTE = { label: "Deloitte India, Mental health and well-being in the workplace (2022)", url: "https://www.deloitte.com/content/dam/assets-shared/legacy/docs/perspectives/2022/gx-mental-health-2022-report-noexp.pdf" };
+const ECO_SURVEY = { label: "Economic Survey 2023-24 · National Mental Health Survey 2015-16 (PIB, Govt of India)", url: "https://www.pib.gov.in/PressReleasePage.aspx?PRID=2034931" };
 const WHY = [
-  { n: "80%", t: "of India's workforce reported mental health issues in the past year", src: "Deloitte, Mental health & well-being in the workplace, 2022" },
-  { n: "US$14 bn", t: "a year is what poor employee mental health costs Indian employers — absence, presenteeism and attrition", src: "Deloitte, 2022" },
-  { n: "12 bn", t: "working days are lost worldwide every year to depression and anxiety alone", src: "World Health Organization, 2022" },
+  { n: "80%+", t: "of employees surveyed across Indian companies had at least one mental health symptom in the past year", src: DELOITTE },
+  { n: "₹1.1 lakh crore", t: "(~US$14 bn) lost by Indian employers in a year (2021–22) to poor employee mental health — through absenteeism, presenteeism and attrition", src: DELOITTE },
+  { n: "47%", t: "of those affected named the workplace as their biggest source of stress", src: DELOITTE },
+  { n: "1 in 5", t: "employees in the survey had resigned to look after their mental health; a third kept working through it", src: DELOITTE },
+  { n: "10.6%", t: "of adults in India live with a mental disorder — 13.5% in metro cities, against 6.9% in rural areas", src: ECO_SURVEY },
+  { n: "70–92%", t: "of people with a mental disorder in India get no treatment, depending on the condition", src: ECO_SURVEY },
 ];
 
 export const EAP_INCLUDES = [
@@ -90,6 +98,81 @@ export const faqData = [
   { q: "Is this an emergency service?", a: "No. For anyone at immediate risk, call 112 or India's Tele-MANAS mental health helpline 14416 (free, 24×7). Our team can also guide HR on next steps after a crisis." },
 ];
 
+/* ---------------- motion helpers ---------------- */
+
+const reduceMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+// "80%+" → counts 0 → 80 when it scrolls into view (the real text is in the server HTML)
+function CountUp({ text, ms = 1400 }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(text);
+  useEffect(() => {
+    const nums = [...text.matchAll(/\d+(?:\.\d+)?/g)].map((m) => m[0]);
+    if (!nums.length || reduceMotion() || !("IntersectionObserver" in window)) return undefined;
+    const fmt = (k) => {
+      let i = 0;
+      return text.replace(/\d+(?:\.\d+)?/g, (m) => {
+        const dec = (nums[i++].split(".")[1] || "").length;
+        return (parseFloat(m) * k).toFixed(dec);
+      });
+    };
+    setShown(fmt(0));
+    let raf = 0;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const t0 = performance.now();
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / ms);
+        setShown(k < 1 ? fmt(1 - Math.pow(1 - k, 3)) : text);
+        if (k < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    }, { threshold: 0.4 });
+    if (ref.current) io.observe(ref.current);
+    return () => { io.disconnect(); cancelAnimationFrame(raf); };
+  }, [text, ms]);
+  return <span ref={ref}>{shown}</span>;
+}
+
+// reveal-on-scroll and hero parallax (the progress bar and smooth "#" links are site-wide: global/site-motion.js)
+function usePageMotion(rootRef) {
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return undefined;
+    const reduce = reduceMotion();
+    const els = root.querySelectorAll("[data-r], [data-rs]");
+    let io = null;
+    if (reduce || !("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("in"));
+    } else {
+      root.classList.add("eap-js");
+      io = new IntersectionObserver((entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      }), { threshold: 0.01, rootMargin: "0px 0px -8% 0px" });
+      els.forEach((el) => io.observe(el));
+    }
+    const hero = root.querySelector(".eap-hero");
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = window.scrollY;
+        if (hero && !reduce) hero.style.setProperty("--py", String(Math.min(y, 800)));
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      io?.disconnect();
+      root.classList.remove("eap-js");
+    };
+  }, [rootRef]);
+}
+
 /* ---------------- sections ---------------- */
 
 function Hero({ stats }) {
@@ -134,7 +217,7 @@ function Registered() {
     <section className="eap-reg" aria-label="Registered with">
       <div className="eap-wrap">
         <div className="eap-reg-l">Registered with</div>
-        <div className="eap-reg-row">
+        <div className="eap-reg-row" data-rs="">
           {REGISTRATIONS.map((r) => (
             <div className="eap-reg-c" key={r.src}><img src={r.src} alt={r.alt} loading="lazy" /><span>{r.label}</span></div>
           ))}
@@ -148,14 +231,17 @@ function Why() {
   return (
     <section className="eap-sec" aria-labelledby="eap-why">
       <div className="eap-wrap">
-        <div className="eap-head">
+        <div className="eap-head" data-r="">
           <span className="eap-eyebrow">Why it matters</span>
-          <h2 id="eap-why">Mental health is already a <em>business cost</em></h2>
+          <h2 id="eap-why">In India, mental health is already a <em>business cost</em></h2>
           <p>Most of it is invisible: people who come to work but can't focus, quiet resignations, sick days that aren't really about the flu.</p>
         </div>
-        <div className="eap-why">
+        <div className="eap-why" data-rs="">
           {WHY.map((w) => (
-            <div className="eap-why-c" key={w.n}><b>{w.n}</b><p>{w.t}</p><small>{w.src}</small></div>
+            <div className="eap-why-c" key={w.n}>
+              <b><CountUp text={w.n} /></b><p>{w.t}</p>
+              <a className="eap-src" href={w.src.url} target="_blank" rel="noopener noreferrer">Source: {w.src.label} ↗</a>
+            </div>
           ))}
         </div>
       </div>
@@ -167,12 +253,12 @@ function Includes() {
   return (
     <section className="eap-sec eap-sec-sage" id="eap-program" aria-labelledby="eap-inc">
       <div className="eap-wrap">
-        <div className="eap-head">
+        <div className="eap-head" data-r="">
           <span className="eap-eyebrow">What's inside</span>
           <h2 id="eap-inc">Everything in one <em>Employee Assistance Program</em></h2>
           <p>Pick what your team needs — every plan is built from these parts.</p>
         </div>
-        <div className="eap-grid">
+        <div className="eap-grid" data-rs="">
           {EAP_INCLUDES.map(({ icon: I, title, desc }) => (
             <div className="eap-card" key={title}><span className="eap-ic"><I size={20} /></span><h3>{title}</h3><p>{desc}</p></div>
           ))}
@@ -186,12 +272,12 @@ function Privacy() {
   return (
     <section className="eap-sec eap-dark" aria-labelledby="eap-priv">
       <div className="eap-wrap eap-priv">
-        <div>
+        <div data-r="">
           <span className="eap-eyebrow light">Confidential by design</span>
           <h2 id="eap-priv">Employees will only use it if they <em>trust</em> it</h2>
           <p>So privacy isn't a setting — it's how the program works.</p>
         </div>
-        <ul className="eap-priv-l">
+        <ul className="eap-priv-l" data-rs="">
           <li><Lock size={18} /><div><b>No names to HR, ever</b><span>Reports are aggregate: sessions used and broad themes only.</span></div></li>
           <li><EyeOff size={18} /><div><b>Nothing said in a session is shared</b><span>Notes stay with the psychologist and the employee.</span></div></li>
           <li><UserCheck size={18} /><div><b>Employees book themselves</b><span>No approval from a manager, no request through HR.</span></div></li>
@@ -206,20 +292,20 @@ function HowItWorks() {
   return (
     <section className="eap-sec" aria-labelledby="eap-how">
       <div className="eap-wrap">
-        <div className="eap-head">
+        <div className="eap-head" data-r="">
           <span className="eap-eyebrow">How it works</span>
           <h2 id="eap-how">Simple for employees, <em>light work for HR</em></h2>
         </div>
         <div className="eap-how">
-          <div className="eap-how-col">
+          <div className="eap-how-col" data-r="">
             <h3><Users size={18} /> For your employees</h3>
-            <ol className="eap-steps">
+            <ol className="eap-steps" data-rs="">
               {EMPLOYEE_STEPS.map((s, i) => <li key={s.t}><span className="n">{i + 1}</span><div><b>{s.t}</b><p>{s.d}</p></div></li>)}
             </ol>
           </div>
-          <div className="eap-how-col">
+          <div className="eap-how-col" data-r="">
             <h3><Briefcase size={18} /> For HR — live in about a week</h3>
-            <ol className="eap-steps">
+            <ol className="eap-steps" data-rs="">
               {HR_STEPS.map(({ icon: I, t, d }) => <li key={t}><span className="n ic"><I size={16} /></span><div><b>{t}</b><p>{d}</p></div></li>)}
             </ol>
           </div>
@@ -233,12 +319,12 @@ function Models() {
   return (
     <section className="eap-sec eap-sec-cream" aria-labelledby="eap-plans">
       <div className="eap-wrap">
-        <div className="eap-head">
+        <div className="eap-head" data-r="">
           <span className="eap-eyebrow">Ways to work with us</span>
           <h2 id="eap-plans">Start small, <em>scale when it works</em></h2>
           <p>Pricing depends on headcount and what's covered — tell us about your team and we'll send a proposal.</p>
         </div>
-        <div className="eap-models">
+        <div className="eap-models" data-rs="">
           {MODELS.map((m) => (
             <div className={`eap-model ${m.featured ? "feat" : ""}`} key={m.name}>
               <span className="eap-model-tag">{m.tag}</span>
@@ -249,7 +335,7 @@ function Models() {
             </div>
           ))}
         </div>
-        <div className="eap-topics">
+        <div className="eap-topics" data-r="">
           <h3>Popular workshop topics</h3>
           <div className="eap-chips">{TOPICS.map((t) => <span key={t}>{t}</span>)}</div>
         </div>
@@ -306,7 +392,7 @@ function Enquiry() {
   return (
     <section className="eap-sec eap-sec-sage" id="eap-enquiry" aria-labelledby="eap-enq">
       <div className="eap-wrap eap-enq">
-        <div className="eap-enq-l">
+        <div className="eap-enq-l" data-r="">
           <span className="eap-eyebrow">Get a proposal</span>
           <h2 id="eap-enq">Tell us about your <em>team</em></h2>
           <p>We'll design an EAP around your headcount, locations and goals — with clear pricing.</p>
@@ -322,7 +408,7 @@ function Enquiry() {
             <span className="eap-addr"><MapPin size={15} /> D-137, Sector 51, Noida</span>
           </div>
         </div>
-        <form className="eap-form" onSubmit={submit} noValidate>
+        <form className="eap-form" onSubmit={submit} noValidate data-r="">
           <div className="eap-f2">
             <label>Your name *<input value={form.name} onChange={set("name")} autoComplete="name" /></label>
             <label>Designation *<input value={form.designation} onChange={set("designation")} placeholder="e.g. HR Manager" /></label>
@@ -355,11 +441,11 @@ function Faqs() {
   return (
     <section className="eap-sec" aria-labelledby="eap-faq">
       <div className="eap-wrap eap-faq">
-        <div className="eap-head">
+        <div className="eap-head" data-r="">
           <span className="eap-eyebrow">FAQs</span>
           <h2 id="eap-faq">Questions HR teams <em>ask us</em></h2>
         </div>
-        <div className="eap-faq-l">
+        <div className="eap-faq-l" data-rs="">
           {faqData.map((f, i) => (
             <div className={`eap-q ${open === i ? "on" : ""}`} key={f.q}>
               <button type="button" onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i}>{f.q}<span>{open === i ? "−" : "+"}</span></button>
@@ -375,7 +461,7 @@ function Faqs() {
 function FinalCta() {
   return (
     <section className="eap-final">
-      <div className="eap-wrap eap-final-in">
+      <div className="eap-wrap eap-final-in" data-r="">
         <div>
           <h2>Give your people someone to talk to.</h2>
           <p>A confidential EAP your team can start using within a week.</p>
@@ -391,8 +477,10 @@ function FinalCta() {
 
 export default function EapPage() {
   const stats = usePublicStats();
+  const rootRef = useRef(null);
+  usePageMotion(rootRef);
   return (
-    <main className="eap">
+    <main className="eap" ref={rootRef}>
       <Hero stats={stats} />
       <Registered />
       <Why />
@@ -467,9 +555,12 @@ const CSS = `
 .eap-head p { font-size:17px; color:var(--soft); margin:0; line-height:1.6; }
 .eap-why { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
 .eap-why-c { border:1px solid var(--line); border-radius:22px; padding:26px; background:#fff; }
-.eap-why-c b { display:block; font-size:44px; font-weight:900; color:var(--g); line-height:1; letter-spacing:-1px; }
+.eap-why-c b { display:block; font-size:40px; font-weight:900; color:var(--g); line-height:1.05; letter-spacing:-1px; }
 .eap-why-c p { font-size:16px; line-height:1.5; margin:12px 0 14px; color:#2b3a32; }
-.eap-why-c small { font-size:12px; color:#8a978f; }
+.eap-why-c { display:flex; flex-direction:column; }
+.eap-why-c p { flex:1; }
+.eap-src { font-size:12px; line-height:1.4; color:#6b7a72 !important; text-decoration:underline; text-decoration-color:#cfd8d3; text-underline-offset:2px; }
+.eap-src:hover { color:var(--g) !important; }
 .eap-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
 .eap-card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:22px; transition:transform .2s ease, box-shadow .2s ease; }
 .eap-card:hover { transform:translateY(-3px); box-shadow:0 22px 40px -30px rgba(23,60,42,.55); }
@@ -559,8 +650,107 @@ const CSS = `
 .eap-final h2 { color:#fff; font-size:clamp(26px,3.2vw,36px); font-weight:900; margin:0 0 6px; }
 .eap-final p { color:#cfe6d3; margin:0; font-size:16px; }
 
+/* ===== motion & polish ===== */
+@keyframes eapUp { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:none; } }
+@keyframes eapIn { from { opacity:0; translate:40px 0; } to { opacity:1; translate:0 0; } }
+@keyframes eapPop { from { opacity:0; scale:.82; } to { opacity:1; scale:1; } }
+@keyframes eapFloat { 0%, 100% { translate:0 0; } 50% { translate:0 -9px; } }
+@keyframes eapShift { from { background-position:0% 50%; } to { background-position:100% 50%; } }
+@keyframes eapSpin { to { rotate:360deg; } }
+
+
+/* reveal: blocks fade up; lists/grids fade up one child after another (animation fill "backwards" keeps hovers working) */
+.eap-js [data-r]:not(.in), .eap-js [data-rs]:not(.in) > * { opacity:0; }
+.eap-js [data-r].in { animation:eapUp .75s cubic-bezier(.2,.7,.2,1) backwards; }
+.eap-js [data-rs].in > * { animation:eapUp .65s cubic-bezier(.2,.7,.2,1) backwards; }
+.eap-js [data-rs].in > *:nth-child(2) { animation-delay:.08s; } .eap-js [data-rs].in > *:nth-child(3) { animation-delay:.16s; }
+.eap-js [data-rs].in > *:nth-child(4) { animation-delay:.24s; } .eap-js [data-rs].in > *:nth-child(5) { animation-delay:.32s; }
+.eap-js [data-rs].in > *:nth-child(6) { animation-delay:.40s; } .eap-js [data-rs].in > *:nth-child(7) { animation-delay:.48s; }
+.eap-js [data-rs].in > *:nth-child(8) { animation-delay:.56s; } .eap-js [data-rs].in > *:nth-child(n+9) { animation-delay:.62s; }
+
+/* hero: entrance + gentle parallax (--py = scrollY, set from JS) */
+.eap-hero { position:relative; }
+.eap-hero::before { content:""; position:absolute; width:420px; height:420px; left:-160px; top:-140px; border-radius:50%;
+  background:radial-gradient(circle, rgba(227,168,58,.22) 0, transparent 65%); pointer-events:none; }
+.eap-hero-l > * { animation:eapUp .8s cubic-bezier(.2,.7,.2,1) backwards; }
+.eap-hero-l > *:nth-child(2) { animation-delay:.08s; } .eap-hero-l > *:nth-child(3) { animation-delay:.16s; }
+.eap-hero-l > *:nth-child(4) { animation-delay:.24s; } .eap-hero-l > *:nth-child(5) { animation-delay:.32s; }
+.eap-hero-l { translate:0 calc(var(--py, 0) * .10px); }
+.eap-hero-circle { animation:eapPop 1s cubic-bezier(.2,.7,.2,1) .1s backwards; translate:0 calc(var(--py, 0) * .22px); }
+.eap-hero-circle::after { content:""; position:absolute; inset:-34px; border-radius:50%; border:2px dashed rgba(168,110,14,.35); animation:eapSpin 60s linear infinite; }
+.eap-hero-img { animation:eapIn 1s cubic-bezier(.2,.7,.2,1) .2s backwards; }
+.eap-badge { animation:eapUp .7s cubic-bezier(.2,.7,.2,1) .55s backwards, eapFloat 6s ease-in-out 1.3s infinite; }
+.eap-badge-b { animation-delay:.75s, 4.3s; }
+
+/* buttons */
+.eap-btn svg { transition:transform .2s ease; }
+.eap-btn:hover svg { transform:translateX(4px); }
+.eap-btn-main { background:linear-gradient(135deg, var(--g2), var(--g) 55%, var(--gd)); }
+.eap-btn-main:hover { box-shadow:0 16px 30px -14px rgba(22,101,52,.75); }
+
+/* registrations */
+.eap-reg-c { transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.eap-reg-c img { filter:grayscale(.35); transition:filter .2s ease; }
+.eap-reg-c:hover { border-color:#cfe6d3; box-shadow:0 14px 28px -22px rgba(23,60,42,.6); transform:translateY(-2px); }
+.eap-reg-c:hover img { filter:none; }
+
+/* stats */
+.eap-why-c { position:relative; overflow:hidden; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.eap-why-c::before { content:""; position:absolute; left:0; top:0; height:4px; width:100%; background:linear-gradient(90deg, var(--g2), var(--gold2));
+  transform:scaleX(.18); transform-origin:0 50%; transition:transform .45s ease; }
+.eap-why-c:hover { transform:translateY(-4px); box-shadow:0 26px 44px -32px rgba(23,60,42,.6); border-color:#d9eadf; }
+.eap-why-c:hover::before { transform:scaleX(1); }
+.eap-why-c b { background:linear-gradient(120deg, var(--gd), var(--g2) 55%, var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent; font-variant-numeric:tabular-nums; }
+
+/* program cards */
+.eap-sec-sage { background:radial-gradient(circle at 0% 0%, #e6f3ea 0, transparent 38%), radial-gradient(circle at 100% 100%, #fbf1dc 0, transparent 34%), #f6faf7; }
+.eap-sec-cream { background:radial-gradient(circle at 100% 0%, #f8ecd0 0, transparent 36%), #fbf7ec; }
+.eap-card { position:relative; }
+.eap-card:hover { border-color:#cfe6d3; }
+.eap-ic { transition:background .25s ease, color .25s ease, transform .25s ease; }
+.eap-card:hover .eap-ic { background:linear-gradient(135deg, var(--g2), var(--gd)); color:#fff; transform:rotate(-6deg) scale(1.06); }
+
+/* privacy */
+.eap-dark { position:relative; overflow:hidden; }
+.eap-dark::before, .eap-dark::after { content:""; position:absolute; border-radius:50%; border:1px solid rgba(227,168,58,.25); pointer-events:none; }
+.eap-dark::before { width:520px; height:520px; right:-180px; top:-200px; }
+.eap-dark::after { width:340px; height:340px; right:-90px; top:-110px; border-color:rgba(227,168,58,.4); }
+.eap-priv { position:relative; z-index:1; }
+.eap-priv-l li { transition:background .25s ease, border-color .25s ease, transform .25s ease; }
+.eap-priv-l li:hover { background:rgba(255,255,255,.1); border-color:rgba(227,168,58,.45); transform:translateX(4px); }
+
+/* steps: a line joining the numbers */
+.eap-steps li:not(:last-child)::after { content:""; position:absolute; left:16px; top:40px; bottom:-14px; width:2px; background:linear-gradient(#cfe6d3, rgba(207,230,211,0)); }
+.eap-how-col { transition:box-shadow .25s ease; }
+.eap-how-col:hover { box-shadow:0 26px 50px -38px rgba(23,60,42,.55); }
+
+/* plans */
+.eap-model { transition:transform .25s ease, box-shadow .25s ease; }
+.eap-model:hover { transform:translateY(-5px); box-shadow:0 30px 56px -40px rgba(23,60,42,.6); }
+.eap-model.feat { background:linear-gradient(180deg, #f1f9f3 0, #fff 45%); }
+.eap-chips span { transition:background .2s ease, border-color .2s ease, color .2s ease; }
+.eap-chips span:hover { background:#fff6e3; border-color:var(--gold2); color:var(--gd); }
+
+/* form + faq */
+.eap-form { position:relative; }
+.eap-form::before { content:""; position:absolute; inset:-1px; border-radius:24px; padding:1px; background:linear-gradient(135deg, rgba(30,122,76,.35), rgba(227,168,58,.35));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
+.eap-q { transition:border-color .2s ease, background .2s ease; }
+.eap-q:hover { border-color:#cfe6d3; }
+.eap-q p { animation:eapUp .35s ease both; }
+
+/* final band */
+.eap-final { position:relative; overflow:hidden; background:linear-gradient(120deg, var(--gd), var(--g), var(--g2), var(--gd)); background-size:300% 100%; animation:eapShift 14s ease-in-out infinite alternate; }
+.eap-final::after { content:""; position:absolute; width:300px; height:300px; right:-80px; bottom:-150px; border-radius:50%; border:2px solid rgba(227,168,58,.35); pointer-events:none; }
+.eap-final-in { position:relative; z-index:1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .eap *, .eap *::before, .eap *::after { animation:none !important; transition:none !important; }
+  .eap-hero-l, .eap-hero-circle { translate:none !important; }
+}
+
 @media (max-width:1024px) {
-  .eap-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .eap-grid, .eap-why { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .eap-reg .eap-wrap { flex-direction:column; align-items:stretch; }
   .eap-reg-l { text-align:center; }
 }
@@ -570,7 +760,7 @@ const CSS = `
   .eap-hero-r { min-height:0; padding-top:12px; }
   .eap-hero-img { width:min(380px,86%); }
   .eap-hero-circle { width:min(400px,94%); bottom:-90px; }
-  .eap-why, .eap-models { grid-template-columns:minmax(0,1fr); }
+  .eap-models { grid-template-columns:minmax(0,1fr); }
   .eap-sec { padding:64px 0; }
 }
 @media (max-width:600px) {
@@ -580,9 +770,9 @@ const CSS = `
   .eap-lead { font-size:16.5px; }
   .eap-ctas .eap-btn { flex:1 1 100%; }
   .eap-reg-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
-  .eap-grid, .eap-f2 { grid-template-columns:minmax(0,1fr); }
+  .eap-grid, .eap-f2, .eap-why { grid-template-columns:minmax(0,1fr); }
   .eap-form, .eap-how-col, .eap-model { padding:20px; }
-  .eap-why-c b { font-size:38px; }
+  .eap-why-c b { font-size:34px; }
 }
 /* phones and tablets held upright: no banner photo — text, buttons and proof only */
 @media (max-width:900px), (max-width:1100px) and (orientation:portrait) {
