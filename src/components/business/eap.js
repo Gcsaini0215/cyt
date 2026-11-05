@@ -103,7 +103,7 @@ export const faqData = [
 const reduceMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 // "80%+" → counts 0 → 80 when it scrolls into view (the real text is in the server HTML)
-function CountUp({ text, ms = 1400 }) {
+export function CountUp({ text, ms = 1400 }) {
   const ref = useRef(null);
   const [shown, setShown] = useState(text);
   useEffect(() => {
@@ -136,7 +136,7 @@ function CountUp({ text, ms = 1400 }) {
 }
 
 // reveal-on-scroll and hero parallax (the progress bar and smooth "#" links are site-wide: global/site-motion.js)
-function usePageMotion(rootRef) {
+export function usePageMotion(rootRef) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return undefined;
@@ -212,7 +212,7 @@ function Hero({ stats }) {
   );
 }
 
-function Registered() {
+export function Registered() {
   return (
     <section className="eap-reg" aria-label="Registered with">
       <div className="eap-wrap">
@@ -496,7 +496,7 @@ export default function EapPage() {
   );
 }
 
-const CSS = `
+export const CSS = `
 .eap { --g:#166534; --g2:#1e7a4c; --gd:#173c2a; --ink:#0b1712; --gold:#a86e0e; --gold2:#e3a83a; --cream:#f8f1de; --sage:#e6f3ea; --line:#e6ece8; --soft:#4b5b53; color:var(--ink); background:#fff; }
 .eap * { box-sizing:border-box; }
 .eap li { margin:0; }

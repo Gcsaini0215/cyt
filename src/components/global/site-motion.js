@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
    left alone here. A section that holds a fixed/sticky element or its own animation is never touched (a transform on it
    would break those). Without JS everything simply shows. */
 
-const EXACT = new Set(["/", "/about-us", "/contact-us", "/for-business", "/how-it-works", "/faqs", "/blogs", "/mind-matters",
+const EXACT = new Set(["/", "/about-us", "/contact-us", "/for-business", "/for-schools-colleges", "/how-it-works", "/faqs", "/blogs", "/mind-matters",
   "/wellness-toolkit", "/self-assessment", "/view-all-therapist", "/join-us", "/plans", "/allworkshop",
   "/internship-modules", "/mentorship-for-students", "/online-vs-in-person-therapy", "/psychologist-vs-psychiatrist-vs-counsellor",
   "/emergency-support", "/cancellation-policy", "/privacy-policy", "/terms-conditions", "/starthealing", "/collaborate-noida",

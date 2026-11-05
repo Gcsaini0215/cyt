@@ -146,6 +146,7 @@ const PAGES = {
   about: { kicker: "ABOUT CHOOSE YOUR THERAPIST", title: "Mental health care you can trust", sub: "Verified psychologists across India since 2020 — and our own centre in Noida" },
   internship: { kicker: "INTERNSHIPS IN PSYCHOLOGY", title: "Learn from practising psychologists", sub: "Supervised clinical internships — online and at our Noida centre" },
   business: { kicker: "CORPORATE WELLNESS", title: "Mental health support at work", sub: "Workshops, counselling and wellbeing programmes for your team" },
+  schools: { kicker: "SCHOOLS & COLLEGES", title: "Mental health support for students", sub: "Counselling, workshops and a crisis pathway — by verified psychologists" },
   collab: { kicker: "COLLABORATE WITH CYT · NOIDA", title: "Practise at our Noida centre", sub: "Therapy rooms and clients for psychologists — apply in a few minutes" },
   booking: { kicker: "BOOK A SESSION", title: "Book a session with a verified psychologist", sub: "Pick a time, pay online — video, audio or in person" },
   assessment: { kicker: "MENTAL HEALTH SCREENING", title: "{concern}", sub: "A standard screening test — take it online, or with a psychologist" },

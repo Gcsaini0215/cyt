@@ -191,7 +191,13 @@ export default function App() {
                       </ul>
                     </li>
                     <li className={navCls("/about-us")}><Link href="/about-us">Our Story</Link></li>
-                    <li className={navCls("/for-business")}><Link href="/for-business">Corporate</Link></li>
+                    <li className={`has-dropdown ${["/for-business", "/for-schools-colleges"].some(isActive) ? "is-active" : ""}`}>
+                      <a role="button" tabIndex={0} aria-haspopup="true" style={{ cursor: "pointer" }} onClick={(e) => e.preventDefault()}>Partners <i className="feather-chevron-down"></i></a>
+                      <ul className="submenu">
+                        <li><Link href="/for-business">Corporate (EAP)</Link></li>
+                        <li><Link href="/for-schools-colleges">Schools &amp; Colleges</Link></li>
+                      </ul>
+                    </li>
                     <li className={navCls("/contact-us")}><Link href="/contact-us">Contact us</Link></li>
                   </ul>
                 </nav>
@@ -352,6 +358,7 @@ export default function App() {
             <li className={navCls("/noida-appointment")}><Link href="/noida-appointment" onClick={close}><i className="feather-map-pin"></i> Book in Noida</Link></li>
             <li className={navCls("/about-us")}><Link href="/about-us" onClick={close}><i className="feather-heart"></i> Our Story</Link></li>
             <li className={navCls("/for-business")}><Link href="/for-business" onClick={close}><i className="feather-briefcase"></i> Corporate</Link></li>
+            <li className={navCls("/for-schools-colleges")}><Link href="/for-schools-colleges" onClick={close}><i className="feather-book-open"></i> Schools &amp; Colleges</Link></li>
             <li className={navCls("/contact-us")}><Link href="/contact-us" onClick={close}><i className="feather-mail"></i> Contact</Link></li>
             
             <li className={`has-dropdown ${activeDropdown === "services" ? "open" : ""}`}>
