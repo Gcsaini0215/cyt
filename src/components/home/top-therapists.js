@@ -43,13 +43,14 @@ function Card({ t, now, hidden }) {
   const tab = hidden ? -1 : undefined;
   const initials = name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
   const exp = expLabel(t.year_of_exp);
+  const langs = split(t.language_spoken).slice(0, 2).join(", ");
   return (
     <article className="tt-card">
-      {/* same as the home banner's therapist card: the photo is the card, details + Book now on it */}
+      {/* same as the home banner's therapist card on phones: white card, photo on top, details + Book now below */}
       <div className="tt-photo">
         {photo && !broken
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={thumb(photo, 640, 90)} srcSet={`${thumb(photo, 640, 90)} 1x, ${thumb(photo, 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" width="270" height="360" onError={() => setBroken(true)} />
+          ? <img src={thumb(photo, 640, 90)} srcSet={`${thumb(photo, 640, 90)} 1x, ${thumb(photo, 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" width="246" height="190" onError={() => setBroken(true)} />
           : <span className="tt-init" aria-hidden="true"><b>{initials || "C"}</b></span>}
       </div>
       <div className="tt-info">
@@ -60,6 +61,7 @@ function Card({ t, now, hidden }) {
         <div className="tt-meta">
           <span className="tt-rate">{r ? <><Star sx={{ fontSize: 15, color: "#e3a83a" }} /><b>{r.avg.toFixed(1)}</b> ({r.count})</> : <b>New</b>}</span>
           {exp && <span>{exp}</span>}
+          {langs && <span>{langs}</span>}
         </div>
         <div className="tt-row">
           {fee ? <span className="tt-fee"><small>Session from</small><b>₹{fee.toLocaleString("en-IN")}</b></span> : <span />}
@@ -232,29 +234,30 @@ const CSS = `
 .tt-track { position: relative; height: 4px; border-radius: 99px; background: rgba(255,255,255,.1); margin: 4px auto 0; max-width: 320px; overflow: hidden; }
 .tt-track span { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #22895a, #ecc77d); transition: left .15s linear, width .2s ease; }
 
-.tt-card { position: relative; flex: 0 0 270px; height: 360px; scroll-snap-align: start; border-radius: 22px; overflow: hidden; background: #fff;
-  box-shadow: 0 30px 50px -24px rgba(0,0,0,.75); transition: transform .3s ease, box-shadow .3s ease; }
-.tt-card:hover { transform: translateY(-6px); box-shadow: 0 36px 60px -26px rgba(0,0,0,.85); }
-.tt-photo { position: absolute; inset: 0; border-radius: 22px; overflow: hidden; background: #e6efe9; }
+.tt-card { position: relative; flex: 0 0 262px; scroll-snap-align: start; display: flex; flex-direction: column; padding: 8px; background: #fff; border-radius: 22px;
+  box-shadow: 0 22px 40px -24px rgba(0,0,0,.8); transition: transform .3s ease, box-shadow .3s ease; }
+.tt-card:hover { transform: translateY(-6px); box-shadow: 0 30px 52px -26px rgba(0,0,0,.85); }
+.tt-photo { position: relative; height: 190px; border-radius: 16px; overflow: hidden; background: #e6efe9; flex: none; }
 .tt-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; transition: transform .6s ease; }
 .tt-card:hover .tt-photo img { transform: scale(1.04); }
-.tt-init { position: absolute; inset: 0 0 30% 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 25%, #2a8a58 0, #14532d 60%, #0b2418 100%); }
-.tt-photo:has(.tt-init) { background: #0b2418; }
-.tt-init b { width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; color: #14532d; background: linear-gradient(135deg, #fbf1dc, #ecc77d); }
-.tt-info { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 48px 12px 10px; background: linear-gradient(180deg, transparent, rgba(5,20,12,.9) 52%); }
-.tt-name { display: flex; align-items: center; gap: 5px; color: #fff !important; font-size: 16px; font-weight: 800; line-height: 1.25; text-decoration: none !important; }
+.tt-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 25%, #2a8a58 0, #14532d 60%, #0b2418 100%); }
+.tt-init b { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: #14532d; background: linear-gradient(135deg, #fbf1dc, #ecc77d); }
+.tt-info { flex: 1; display: flex; flex-direction: column; padding: 12px 8px 6px; }
+.tt-name { display: flex; align-items: center; gap: 5px; color: #0b1712 !important; font-size: 16px; font-weight: 800; line-height: 1.25; text-decoration: none !important; }
 .tt-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tt-role { margin-top: 1px; color: rgba(255,255,255,.9); font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tt-meta { display: flex; align-items: center; flex-wrap: nowrap; margin-top: 5px; color: rgba(255,255,255,.9); font-size: 13px; white-space: nowrap; overflow: hidden; }
-.tt-meta > span + span::before { content: "·"; margin: 0 6px; color: rgba(255,255,255,.6); }
+.tt-name:hover { color: #1e7a4c !important; }
+.tt-role { margin-top: 1px; color: #55665c; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tt-meta { display: flex; align-items: center; flex-wrap: nowrap; margin-top: 8px; color: #55665c; font-size: 13px; white-space: nowrap; overflow: hidden; }
+.tt-meta > span + span::before { content: "·"; margin: 0 6px; color: #9fb3a6; }
 .tt-rate { display: inline-flex; align-items: center; gap: 3px; }
-.tt-rate b { color: rgba(255,255,255,.9); font-weight: 800; }
-.tt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
-.tt-fee small { display: block; color: rgba(255,255,255,.9); font-size: 11.5px; line-height: 1.2; }
-.tt-fee b { display: block; color: #fff; font-size: 18px; font-weight: 800; line-height: 1.2; }
-.tt-book { position: relative; z-index: 2; flex: none; min-height: 40px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 12px; background: #fff; color: #0b1712 !important;
+.tt-rate b { color: #0b1712; font-weight: 800; }
+.tt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2ee; }
+.tt-meta { margin-bottom: 10px; }
+.tt-fee small { display: block; color: #7c8b81; font-size: 11.5px; line-height: 1.2; }
+.tt-fee b { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
+.tt-book { position: relative; z-index: 2; flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: #1e7a4c; color: #fff !important;
   font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .2s ease; }
-.tt-book:hover { background: #ecc77d; }
+.tt-book:hover { background: #14532d; }
 
 .tt-more { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 26px; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 1.5px dashed rgba(236,199,125,.45); box-shadow: none; text-decoration: none !important; }
 .tt-more:hover { background: rgba(255,255,255,.1); box-shadow: none; }
@@ -297,7 +300,7 @@ const CSS = `
   .tt-langs { margin: 0 -16px; padding: 0 16px; }
   .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 13px; }
   .tt-row-scroll { margin: 0 -16px; padding: 6px 16px 16px; scroll-padding-left: 16px; gap: 14px; -webkit-mask-image: none; mask-image: none; }
-  .tt-card { flex-basis: 74%; max-width: 270px; height: 360px; }
+  .tt-card { flex-basis: 72%; max-width: 262px; }
   .tt-card:hover { transform: none; }
   .tt-card:hover .tt-photo img { transform: none; }
   .tt-trust li { padding: 10px 12px; gap: 10px; }
