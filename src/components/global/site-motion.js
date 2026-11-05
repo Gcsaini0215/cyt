@@ -2,7 +2,9 @@ import React, { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 
 /* Site-wide scroll feel for the public pages (mounted once in _app.js):
-   - sections below the first screen fade up as they scroll into view; a grid of cards inside one comes in card by card
+   - inside each section, the pieces come in one by one as they scroll into view — headings, text, buttons, images and
+     the cards of a card grid (a card comes in as one piece, with its text). Sections / containers themselves never move,
+     and sideways rows that scroll on their own (home psychologists) and sliders are left alone
    - a thin gold reading-progress bar at the top
    - in-page "#" links glide to their target, clear of the sticky header
    Never on dashboards, sign-in, booking or payment screens. Nothing moves for people who ask for reduced motion.
@@ -44,26 +46,39 @@ function unsafe(el) {
   return false;
 }
 
-// the first card grid inside a section: 3–12 similar children laid out as a grid / wrapping row
+// card grids inside a section (3–24 similar children as a grid / wrapping row): each card comes in as one piece.
+// Sideways-scrolling rows (e.g. the home psychologists row, which moves on by itself) and sliders are left alone.
+const NO_GRID = ".swiper, .slick-slider, [class*=carousel], [class*=marquee], .tt-row-scroll";
+function swipeRows(section) {
+  return [...section.querySelectorAll("div, ul")].filter((c) => {
+    if (c.children.length < 3) return false;
+    const cs = getComputedStyle(c);
+    return /(auto|scroll)/.test(cs.overflowX) && (cs.display === "flex" || cs.display === "grid");
+  });
+}
 function cardGrids(section) {
   const found = [];
   const cands = section.querySelectorAll("div, ul, ol");
-  for (let i = 0; i < cands.length && found.length < 2 && i < 400; i++) {
+  for (let i = 0; i < cands.length && found.length < 6 && i < 600; i++) {
     const c = cands[i];
     const kids = c.children;
-    if (kids.length < 3 || kids.length > 12) continue;
+    if (kids.length < 3 || kids.length > 90) continue;
     if (found.some((f) => f.contains(c) || c.contains(f))) continue;
     const cs = getComputedStyle(c);
-    const isGrid = cs.display === "grid" || cs.display === "inline-grid" || (cs.display === "flex" && cs.flexWrap === "wrap") || /\brow\b/.test(c.className);
-    if (!isGrid) continue;
+    if (/(auto|scroll)/.test(cs.overflowX)) continue; // a swipe row: leave it
+    const grid = cs.display === "grid" || cs.display === "inline-grid" || (cs.display === "flex" && cs.flexWrap === "wrap") || /\brow\b/.test(c.className);
+    if (!grid || kids.length > 24) continue;
     const tag = kids[0].tagName;
     if (![...kids].every((k) => k.tagName === tag)) continue;
     if ([...kids].some((k) => getComputedStyle(k).animationName !== "none")) continue;
-    if (c.closest(".swiper, .slick-slider, [class*=carousel], [class*=marquee]")) continue;
+    if (c.closest(NO_GRID)) continue;
     found.push(c);
   }
   return found;
 }
+
+// the pieces of a section that come in one by one — small things only, never a whole container
+const PIECES = "h1, h2, h3, h4, h5, h6, p, blockquote, img, video, a[class*=btn], a[class*=Btn], a[class*=button], [class*=eyebrow], [class*=kicker]";
 
 export default function SiteMotion() {
   const router = useRouter();
@@ -74,31 +89,52 @@ export default function SiteMotion() {
     if (!on) return undefined;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const root = document.querySelector(".main-wrapper") || document.body;
+    // what scrolls in together comes in one after another
     const io = !reduce && "IntersectionObserver" in window
-      ? new IntersectionObserver((entries) => entries.forEach((e) => {
-          if (!e.isIntersecting) return;
-          e.target.classList.remove("sm-pending");
-          e.target.classList.add("sm-in");
-          io.unobserve(e.target);
-        }), { threshold: 0, rootMargin: "0px 0px -6% 0px" })
+      ? new IntersectionObserver((entries) => {
+          const shown = entries.filter((e) => e.isIntersecting).map((e) => e.target)
+            .sort((x, y) => (x.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+          shown.forEach((el, i) => {
+            el.style.setProperty("--smd", `${Math.min(i, 8) * 0.07}s`);
+            el.classList.add("sm-on");
+            io.unobserve(el);
+          });
+        }, { threshold: 0.05, rootMargin: "0px 0px -3% 0px" })
       : null;
 
     const scan = () => {
       if (!io) return;
       const vh = window.innerHeight;
-      root.querySelectorAll("section, footer").forEach((el) => {
-        if (el.dataset.sm) return;
-        el.dataset.sm = "1";
-        if (el.parentElement?.closest("section") || el.closest(SKIP_INSIDE)) return;
-        const r = el.getBoundingClientRect();
-        if (r.height < 40 || r.top < vh * 0.9) return; // already on screen (or tiny): show as it is
-        if (unsafe(el)) return;
-        cardGrids(el).forEach((g) => {
-          g.classList.add("sm-stagger");
-          [...g.children].forEach((k, i) => { k.style.animationDelay = `${Math.min(i, 8) * 0.07 + 0.12}s`; });
+      const vw = window.innerWidth;
+      root.querySelectorAll("section, footer").forEach((sec) => {
+        if (sec.dataset.sm) return;
+        sec.dataset.sm = "1";
+        if (sec.parentElement?.closest("section") || sec.closest(SKIP_INSIDE)) return;
+        const r = sec.getBoundingClientRect();
+        if (r.height < 40) return;
+        if (unsafe(sec)) return;
+        const grids = cardGrids(sec);
+        const rows = swipeRows(sec);
+        const items = [];
+        grids.forEach((g) => items.push(...g.children));
+        const inGrid = (el) => grids.some((g) => g.contains(el)) || rows.some((r2) => r2.contains(el));
+        const list = sec.querySelectorAll(PIECES);
+        for (let i = 0; i < list.length && items.length < 90; i++) {
+          const el = list[i];
+          if (inGrid(el) || el.closest(`${SKIP_INSIDE}, ${NO_GRID}, form, table, nav, [role=tablist]`)) continue;
+          if (items.some((x) => x.contains(el))) continue; // already part of a bigger piece
+          items.push(el);
+        }
+        items.forEach((el) => {
+          if (getComputedStyle(el).animationName !== "none") return;
+          const er = el.getBoundingClientRect();
+          if (er.height > vh * 0.9) return; // a big block, not a piece
+          if (!er.width && !er.height) return; // hidden
+          const onScreen = er.top < vh * 0.92 && er.bottom > 0 && er.left < vw && er.right > 0;
+          if (onScreen) return; // already in view on arrival: leave it as it is
+          el.classList.add("sm-it");
+          io.observe(el);
         });
-        el.classList.add("sm-pending");
-        io.observe(el);
       });
     };
 
@@ -119,6 +155,8 @@ export default function SiteMotion() {
         if (barRef.current) {
           barRef.current.style.transform = `scaleX(${max > 200 ? Math.min(1, window.scrollY / max) : 0})`;
         }
+        // at the very bottom: whatever is still waiting (e.g. the last footer line) comes in
+        if (window.scrollY >= max - 4) root.querySelectorAll(".sm-it:not(.sm-on)").forEach((el) => { el.classList.add("sm-on"); io?.unobserve(el); });
       });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -156,7 +194,7 @@ export default function SiteMotion() {
     document.addEventListener("click", onClick);
 
     // printing: show everything
-    const reveal = () => root.querySelectorAll(".sm-pending").forEach((el) => el.classList.replace("sm-pending", "sm-in"));
+    const reveal = () => root.querySelectorAll(".sm-it").forEach((el) => el.classList.add("sm-on"));
     window.addEventListener("beforeprint", reveal);
 
     return () => {
@@ -166,8 +204,8 @@ export default function SiteMotion() {
       if (raf) cancelAnimationFrame(raf);
       document.removeEventListener("click", onClick);
       window.removeEventListener("beforeprint", reveal);
-      root.querySelectorAll("[data-sm]").forEach((el) => { delete el.dataset.sm; el.classList.remove("sm-pending", "sm-in"); });
-      root.querySelectorAll(".sm-stagger").forEach((g) => { g.classList.remove("sm-stagger"); [...g.children].forEach((k) => { k.style.animationDelay = ""; }); });
+      root.querySelectorAll("[data-sm]").forEach((el) => { delete el.dataset.sm; });
+      root.querySelectorAll(".sm-it").forEach((el) => { el.classList.remove("sm-it", "sm-on"); el.style.removeProperty("--smd"); });
     };
   }, [on, router.asPath]);
 
@@ -181,18 +219,17 @@ export default function SiteMotion() {
 }
 
 const CSS = `
-@keyframes smUp { from { opacity:0; transform:translateY(34px); } to { opacity:1; transform:none; } }
-@keyframes smCard { from { opacity:0; transform:translateY(26px) scale(.98); } to { opacity:1; transform:none; } }
-.sm-pending { opacity:0; }
-.sm-in { animation:smUp .85s cubic-bezier(.2,.7,.2,1) backwards; }
-.sm-pending .sm-stagger > * { opacity:0; }
-.sm-in .sm-stagger > * { animation:smCard .7s cubic-bezier(.2,.7,.2,1) backwards; }
+@keyframes smUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:none; } }
+@keyframes smZoom { from { opacity:0; transform:translateY(18px) scale(.96); } to { opacity:1; transform:none; } }
+.sm-it { opacity:0; }
+.sm-it.sm-on { opacity:1; animation:smUp .75s cubic-bezier(.2,.7,.2,1) var(--smd, 0s) backwards; }
+img.sm-it.sm-on, video.sm-it.sm-on, iframe.sm-it.sm-on { animation-name:smZoom; animation-duration:.9s; }
 .sm-progress { position:fixed; top:0; left:0; right:0; height:3px; z-index:2147483000; transform:scaleX(0); transform-origin:0 50%;
   background:linear-gradient(90deg, #1e7a4c, #e3a83a); box-shadow:0 0 10px rgba(227,168,58,.55); pointer-events:none; }
 @media (prefers-reduced-motion: reduce) {
-  .sm-pending, .sm-pending .sm-stagger > * { opacity:1; }
-  .sm-in, .sm-in .sm-stagger > * { animation:none; }
+  .sm-it { opacity:1; }
+  .sm-it.sm-on { animation:none; }
   .sm-progress { display:none; }
 }
-@media print { .sm-pending, .sm-pending .sm-stagger > * { opacity:1 !important; } .sm-progress { display:none; } }
+@media print { .sm-it { opacity:1 !important; } .sm-progress { display:none; } }
 `;
