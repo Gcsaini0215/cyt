@@ -76,7 +76,14 @@ export default function TopTherapists({ people = [], visitorState = null, total 
   const ps = usePublicStats();
   const [now, setNow] = useState(null);
   useEffect(() => { setNow(Date.now()); }, []);
-  const [tab, setTab] = useState("top");
+  const [tab, setTab] = useState("all");
+  // every live psychologist, in a fresh random order on each visit (shuffled after load, so the server HTML is stable)
+  const [order, setOrder] = useState(null);
+  useEffect(() => {
+    const ids = people.map((t) => String(t._id));
+    for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+    setOrder(new Map(ids.map((id, i) => [id, i])));
+  }, [people]);
   const [lang, setLang] = useState("");
   const rowRef = useRef(null);
   const [prog, setProg] = useState({ at: 0, size: 1 });
@@ -102,22 +109,44 @@ export default function TopTherapists({ people = [], visitorState = null, total 
       : [];
     const near = visitorState ? byLang.filter((t) => sameState(t.state, visitorState)).sort(byPriority) : [];
     const inPerson = byLang.filter((t) => sessionModes(t).inPerson).sort(byPriority);
-    return { top, today, near, inPerson };
-  }, [people, lang, now, visitorState]);
+    const all = order ? [...byLang].sort((a, b) => (order.get(String(a._id)) ?? 0) - (order.get(String(b._id)) ?? 0)) : [...byLang].sort(byPriority);
+    return { all, top, today, near, inPerson };
+  }, [people, lang, now, visitorState, order]);
 
   const nearLabel = visitorState ? (/delhi/i.test(visitorState) ? "Delhi" : visitorState) : "";
   const TABS = [
+    { key: "all", label: "All", n: lists.all.length },
     { key: "top", label: "Top rated", n: lists.top.length },
     // "Available today" is off: therapists don't keep their weekly availability current
     { key: "today", label: "Available today", n: lists.today.length, hide: true },
     { key: "near", label: `Near you · ${nearLabel}`, n: lists.near.length, hide: lists.near.length < 2 && tab !== "near" },
     { key: "inPerson", label: "In-person", n: lists.inPerson.length },
   ].filter((x) => !x.hide);
-  const shown = (lists[tab] || []).slice(0, 16);
+  const shown = lists[tab] || [];
 
   // new tab / language -> back to the start of the row
   useEffect(() => { rowRef.current?.scrollTo({ left: 0 }); onRowScroll(); }, [tab, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the row moves on by itself, one card every few seconds — paused while someone hovers, touches or tabs into it,
+  // when it's off screen or the tab is hidden, and never for people who prefer reduced motion
+  const pauseUntil = useRef(0);
+  const hold = (ms = 8000) => { pauseUntil.current = Date.now() + ms; };
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
+    let visible = false;
+    const io = "IntersectionObserver" in window ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0.3 }) : null;
+    io?.observe(el);
+    const timer = setInterval(() => {
+      if (!visible || document.hidden || Date.now() < pauseUntil.current) return;
+      const card = el.querySelector(".tt-card");
+      const step = (card?.getBoundingClientRect().width || 250) + 18;
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 8) el.scrollTo({ left: 0, behavior: "smooth" });
+      else el.scrollBy({ left: step, behavior: "smooth" });
+    }, 3800);
+    return () => { clearInterval(timer); io?.disconnect(); };
+  }, [tab, lang]);
   const slide = (dir) => {
+    hold(10000);
     const el = rowRef.current;
     if (!el) return;
     const card = el.querySelector(".tt-card");
@@ -158,7 +187,8 @@ export default function TopTherapists({ people = [], visitorState = null, total 
           {shown.length > 0 ? (
             <>
               <button type="button" className="tt-arrow prev" onClick={() => slide(-1)} aria-label="Previous psychologists"><i className="feather-chevron-left" /></button>
-              <div className="tt-row-scroll" ref={rowRef} role="tabpanel" onScroll={onRowScroll}>
+              <div className="tt-row-scroll" ref={rowRef} role="tabpanel" onScroll={onRowScroll}
+                onMouseEnter={() => hold(600000)} onMouseLeave={() => hold(1500)} onTouchStart={() => hold(10000)} onFocus={() => hold(15000)}>
                 {shown.map((t) => <Card key={t._id} t={t} now={now} />)}
                 <div className="tt-card tt-more">
                   <span className="tt-more-ic" aria-hidden="true"><i className="feather-users" /></span>
@@ -178,6 +208,8 @@ export default function TopTherapists({ people = [], visitorState = null, total 
             </div>
           )}
         </div>
+
+        <Link href="/view-all-therapist" className="tt-all tt-all-m">View all {total || ""} psychologists <i className="feather-arrow-right" aria-hidden="true" /></Link>
 
         <div className="tt-foot">
           <ul className="tt-trust">
@@ -208,6 +240,7 @@ const CSS = `
 .tt-sub { font-size: 16px; line-height: 1.6; color: #c9dbd0; margin: 0; padding: 0; max-width: 60ch; }
 .tt-all { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 999px; background: linear-gradient(135deg, #22895a, #1e7a4c 60%, #14532d); color: #fff !important; font-weight: 800; font-size: 14.5px; text-decoration: none !important; white-space: nowrap; box-shadow: 0 14px 28px -14px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.12); transition: transform .2s ease; }
 .tt-all:hover { transform: translateY(-2px); }
+.tt-all-m { display: none; }
 .tt-all i { transition: transform .2s ease; } .tt-all:hover i { transform: translateX(3px); }
 
 .tt-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 22px; }
@@ -294,7 +327,14 @@ const CSS = `
 @media (max-width: 767px) {
   .tt-sec { padding: 52px 0 88px; }
   .tt-all { display: none; }
-  .tt-sub { font-size: 15px; }
+  .tt-all.tt-all-m { display: flex; justify-content: center; width: 100%; margin: 14px 0 0; }
+  /* heading: centred, sized for the screen, lines broken evenly */
+  .tt-head { justify-content: center; text-align: center; margin-bottom: 20px; }
+  .tt-head > div { width: 100%; }
+  .tt-eyebrow { justify-content: center; margin-bottom: 10px; }
+  .tt-eyebrow::after { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+  .tt-title { font-size: clamp(1.6rem, 7.2vw, 2rem); line-height: 1.18; text-wrap: balance; margin: 0 auto 10px; max-width: 18ch; }
+  .tt-sub { font-size: 14.5px; line-height: 1.6; margin: 0 auto; max-width: 34ch; text-wrap: pretty; }
   .tt-controls { flex-direction: column; align-items: stretch; margin-bottom: 16px; }
   .tt-tabs { margin: 0; align-self: flex-start; max-width: 100%; }
   .tt-langs { margin: 0 -16px; padding: 0 16px; }
