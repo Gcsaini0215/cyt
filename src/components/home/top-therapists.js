@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { usePublicStats, sessionsText, ratingText, reviewsText } from "../../utils/public-stats";
 import Link from "next/link";
 import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
 import Star from "@mui/icons-material/Star";
@@ -7,7 +6,6 @@ import { imagePath } from "../../utils/url";
 import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
 import { split, getMinFee, sessionModes, nextAvailable } from "../../utils/therapist-directory";
-import { GBP_URL } from "../about/visit-centre";
 
 // Home "Meet our psychologists": a swipeable row of therapist cards with real ratings, fees
 // and availability, in tabs that differ from the banner wall — Top rated, Available today,
@@ -73,7 +71,6 @@ function Card({ t, now, hidden }) {
 }
 
 export default function TopTherapists({ people = [], visitorState = null, total = 0 }) {
-  const ps = usePublicStats();
   const [now, setNow] = useState(null);
   useEffect(() => { setNow(Date.now()); }, []);
   const [tab, setTab] = useState("all");
@@ -211,22 +208,13 @@ export default function TopTherapists({ people = [], visitorState = null, total 
 
         <Link href="/view-all-therapist" className="tt-all tt-all-m">View all {total || ""} psychologists <i className="feather-arrow-right" aria-hidden="true" /></Link>
 
-        <div className="tt-foot">
-          <ul className="tt-trust">
-            <li><i className="feather-user-check" aria-hidden="true" /><div><b>{total || "50+"}</b><span>verified psychologists</span></div></li>
-            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 20, color: "#ecc77d" }} /><div><b>{ratingText(ps)} ★</b><span>on Google · {reviewsText(ps)} reviews</span></div></a></li>
-            <li><i className="feather-calendar" aria-hidden="true" /><div><b>{sessionsText(ps)}</b><span>sessions on CYT</span></div></li>
-            <li><i className="feather-lock" aria-hidden="true" /><div><b>100%</b><span>confidential</span></div></li>
-          </ul>
-          <Link href="/view-all-therapist?help=1" className="tt-help" rel="nofollow"><i className="feather-compass" aria-hidden="true" /> Not sure who to pick? <b>Help me choose</b></Link>
-        </div>
       </div>
     </section>
   );
 }
 
 const CSS = `
-.tt-sec { position: relative; overflow: hidden; padding: 80px 0 64px;
+.tt-sec { position: relative; overflow: hidden; padding: 72px 0 52px;
   background: radial-gradient(circle at 88% 0%, rgba(30,122,76,.38) 0, transparent 42%), radial-gradient(circle at 0% 100%, rgba(212,162,76,.16) 0, transparent 40%), linear-gradient(180deg, #0b2418 0%, #0d2b1d 100%); }
 .tt-sec::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
   background-image: radial-gradient(rgba(236,199,125,.18) 1px, transparent 1px); background-size: 26px 26px;
@@ -243,19 +231,22 @@ const CSS = `
 .tt-all-m { display: none; }
 .tt-all i { transition: transform .2s ease; } .tt-all:hover i { transform: translateX(3px); }
 
-.tt-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 22px; }
-.tt-tabs, .tt-langs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+/* filters: plain text tabs (gold underline when on) — no pill boxes, so the section stays short */
+.tt-controls { display: flex; align-items: center; gap: 4px 18px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.tt-tabs, .tt-langs { display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none; }
 .tt-tabs::-webkit-scrollbar, .tt-langs::-webkit-scrollbar { display: none; }
-.tt-tabs { padding: 5px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
-.tt-tabs button { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 16px; border-radius: 999px; border: 0; background: none; color: #d6e5dc; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .2s ease, color .2s ease; }
-.tt-tabs button small { font-size: 11px; font-weight: 800; background: rgba(255,255,255,.14); color: #fff; border-radius: 999px; padding: 1px 8px; }
-.tt-tabs button:hover { color: #fff; }
-.tt-tabs button.on { background: #fff; color: #14532d; box-shadow: 0 6px 16px -8px rgba(0,0,0,.6); }
-.tt-tabs button.on small { background: #e6f3ea; color: #1e7a4c; }
+.tt-langs { margin-left: auto; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.14); }
+.tt-tabs button, .tt-langs button { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; border: 0; border-radius: 0; background: none;
+  color: #b9cdc1; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: color .2s ease; }
+.tt-langs button { font-size: 13px; padding: 0 10px; }
+.tt-tabs button::after, .tt-langs button::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 2px; border-radius: 2px; background: #ecc77d; transform: scaleX(0); transition: transform .25s ease; }
+.tt-tabs button:hover, .tt-langs button:hover { color: #fff; }
+.tt-tabs button.on, .tt-langs button.on { color: #fff; }
+.tt-tabs button.on::after, .tt-langs button.on::after { transform: scaleX(1); }
+.tt-langs button.on { color: #ecc77d; }
+.tt-tabs button small { font-size: 12px; font-weight: 700; color: #8fae9c; }
+.tt-tabs button.on small { color: #ecc77d; }
 .tt-dot { width: 7px; height: 7px; border-radius: 50%; background: #34d27b; box-shadow: 0 0 0 3px rgba(52,210,123,.25); }
-.tt-langs button { height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14); background: none; color: #c9dbd0; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: border-color .2s ease, color .2s ease, background .2s ease; }
-.tt-langs button:hover { color: #fff; border-color: rgba(255,255,255,.35); }
-.tt-langs button.on { color: #14532d; background: #ecc77d; border-color: #ecc77d; }
 
 .tt-frame { position: relative; }
 .tt-row-scroll { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 2px 18px; scrollbar-width: none; scroll-padding-left: 2px;
@@ -304,28 +295,11 @@ const CSS = `
 .tt-empty p { margin: 0 0 10px; padding: 0; color: inherit; }
 .tt-empty button { height: 40px; padding: 0 18px; border-radius: 10px; border: none; background: #fff; color: #14532d; font-weight: 800; cursor: pointer; }
 
-.tt-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; margin-top: 30px; }
-.tt-trust { list-style: none; margin: 0; padding: 0; flex: 1 1 640px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.tt-trust li { margin: 0; display: flex; }
-.tt-trust li::before { content: none; }
-.tt-trust li > i, .tt-trust li > a > svg { flex: none; }
-.tt-trust li, .tt-trust a { align-items: center; gap: 12px; }
-.tt-trust li { padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
-.tt-trust li > i { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(236,199,125,.16); color: #ecc77d; font-size: 17px; }
-.tt-trust a { display: flex; color: inherit !important; text-decoration: none !important; width: 100%; }
-.tt-trust a > svg { width: 38px !important; height: 38px !important; padding: 9px; border-radius: 12px; background: rgba(236,199,125,.16); }
-.tt-trust div { display: flex; flex-direction: column; min-width: 0; }
-.tt-trust b { color: #fff; font-size: 17px; font-weight: 800; line-height: 1.2; }
-.tt-trust span { color: #c9dbd0; font-size: 12.5px; line-height: 1.3; }
-.tt-trust a:hover b { color: #ecc77d; }
-.tt-help { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(236,199,125,.6); background: rgba(212,162,76,.16); color: #fff !important; font-size: 14px; text-decoration: none !important; white-space: nowrap; transition: background .2s ease; }
-.tt-help b { color: #ecc77d; }
-.tt-help:hover { background: rgba(212,162,76,.3); }
 
 @media (max-width: 1240px) { .tt-arrow.prev { left: -8px; } .tt-arrow.next { right: -8px; } }
-@media (max-width: 991px) { .tt-arrow { display: none; } .tt-trust { grid-template-columns: repeat(2, minmax(0, 1fr)); flex-basis: 100%; } .tt-help { width: 100%; justify-content: center; } }
+@media (max-width: 991px) { .tt-arrow { display: none; } }
 @media (max-width: 767px) {
-  .tt-sec { padding: 52px 0 88px; }
+  .tt-sec { padding: 48px 0 44px; }
   .tt-all { display: none; }
   .tt-all.tt-all-m { display: flex; justify-content: center; width: 100%; margin: 14px 0 0; }
   /* heading: like every other home section on phones — left-aligned, full width */
@@ -333,17 +307,17 @@ const CSS = `
   .tt-head > div { width: 100%; }
   .tt-title { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
   .tt-sub { font-size: 15px; line-height: 1.6; max-width: none; }
-  .tt-controls { flex-direction: column; align-items: stretch; margin-bottom: 16px; }
-  .tt-tabs { margin: 0; align-self: flex-start; max-width: 100%; }
-  .tt-langs { margin: 0 -16px; padding: 0 16px; }
-  .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 13px; }
+  /* phones: tabs and languages share one sideways-scrolling line */
+  .tt-controls { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 14px; padding: 0 16px; gap: 0 12px; }
+  .tt-controls::-webkit-scrollbar { display: none; }
+  .tt-tabs, .tt-langs { flex: none; overflow: visible; }
+  .tt-langs { margin-left: 0; padding-left: 10px; }
+  .tt-tabs button { height: 36px; font-size: 13.5px; padding: 0 9px; }
+  .tt-langs button { height: 36px; padding: 0 8px; }
   .tt-row-scroll { margin: 0 -16px; padding: 6px 16px 16px; scroll-padding-left: 16px; gap: 14px; -webkit-mask-image: none; mask-image: none; }
   .tt-card { flex-basis: 72%; max-width: 262px; }
   .tt-card:hover { transform: none; }
   .tt-card:hover .tt-photo img { transform: none; }
-  .tt-trust li { padding: 10px 12px; gap: 10px; }
-  .tt-trust b { font-size: 16px; }
-  .tt-trust span { font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { .tt-photo img, .tt-card, .tt-arrow, .tt-track span { transition: none; } }
 `;
