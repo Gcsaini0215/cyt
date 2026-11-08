@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { createPortal } from "react-dom";
 import { availableToday } from "../../utils/concerns";
 import { imagePath } from "../../utils/url";
 import { thumb, thumbSet } from "../../utils/thumb";
@@ -70,12 +71,15 @@ function Modal({ tool, concern, count, onClose }) {
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
     const prev = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
+    return () => { document.body.style.overflow = prev; document.documentElement.style.overflow = prevHtml; window.removeEventListener("keydown", onKey); };
   }, [onClose]);
   const Tool = TOOLS[tool.id];
-  return (
+  // rendered on <body>: the section is its own layer, so a pop-up inside it slid under later sections and the phone bar
+  return createPortal(
     <div className="fb-modal-wrap" role="dialog" aria-modal="true" aria-labelledby="fb-modal-h">
       <style dangerouslySetInnerHTML={{ __html: css }} />
       <div className="fb-overlay" onClick={onClose} />
@@ -94,7 +98,8 @@ function Modal({ tool, concern, count, onClose }) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -258,9 +263,9 @@ const CSS = `
 .fb-more { margin: 16px 0 0; padding: 0; font-size: 14px; color: #4b5b53; }
 .fb-more a { color: #1e7a4c; font-weight: 800; text-decoration: none; white-space: nowrap; }
 
-.fb-modal-wrap { position: fixed; inset: 0; z-index: 100002; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.fb-modal-wrap { position: fixed; inset: 0; z-index: 2147483100; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .fb-overlay { position: absolute; inset: 0; background: rgba(7,26,17,.55); }
-.fb-modal { position: relative; width: 100%; max-width: 460px; max-height: calc(100vh - 32px); overflow-y: auto; background: #fff; border-radius: 20px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.45); }
+.fb-modal { position: relative; width: 100%; max-width: 460px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; background: #fff; border-radius: 20px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.45); }
 .fb-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #eef2f0; }
 .fb-modal-head h3 { font-size: 17px; font-weight: 800; color: #0b1712; margin: 0; }
 .fb-x { width: 34px; height: 34px; border-radius: 10px; border: none; background: #f1f5f3; color: #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -289,7 +294,7 @@ const CSS = `
   .fb-sos-acts { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr; gap: 8px; }
   .fb-sos-go, .fb-sos-call { width: 100%; justify-content: center; }
   .fb-modal-wrap { align-items: flex-end; padding: 0; }
-  .fb-modal { max-width: none; border-radius: 20px 20px 0 0; max-height: 92vh; }
+  .fb-modal { max-width: none; border-radius: 20px 20px 0 0; max-height: 92vh; max-height: 92dvh; padding-bottom: env(safe-area-inset-bottom, 0px); }
 }
 @media (prefers-reduced-motion: reduce) { .fb-tool, .fb-feelings button, .fb-go i, .fb-pp-btn i { transition: none; } .fb-orb i, .fb-live.on i { animation: none; } }
 `;
