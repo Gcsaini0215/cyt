@@ -124,6 +124,21 @@ export default function Banner({ topTherapists = [], stats = null }) {
   const cur = THEMES[turn % THEMES.length];
   // the next person leads on each turn, and the following ones stand beside them
   const list = people.length ? [...people.slice(turn % people.length), ...people.slice(0, turn % people.length)] : [];
+  // phones/tablets: the card row crossfades — fade out, swap the people while hidden, fade back in
+  const [shown, setShown] = useState(0);
+  const [stripOut, setStripOut] = useState(false);
+  const stripRef = React.useRef(null);
+  useEffect(() => {
+    if (shown === turn) return undefined;
+    setStripOut(true);
+    const t = setTimeout(() => {
+      if (stripRef.current) stripRef.current.scrollLeft = 0;
+      setShown(turn);
+      setStripOut(false);
+    }, 450);
+    return () => clearTimeout(t);
+  }, [turn]); // eslint-disable-line react-hooks/exhaustive-deps
+  const stripList = people.length ? [...people.slice(shown % people.length), ...people.slice(0, shown % people.length)] : [];
   useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPaused(true); }, []);
   useEffect(() => {
     if (paused || resting || people.length < 2) return undefined;
@@ -231,8 +246,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
                 ))}
                 <div className="cyt-spot"><TherapistCard t={list[0]} onBroken={() => dropPhoto(list[0])} /></div>
               </div>
-              <div className="cyt-strip" key={`strip-${list[0]._id}`} aria-label="Top-rated therapists">
-                {list.slice(0, 6).map((t, i) => <TherapistCard key={t._id || i} t={t} onBroken={() => dropPhoto(t)} />)}
+              <div className={`cyt-strip${stripOut ? " out" : ""}`} ref={stripRef} aria-label="Top-rated therapists">
+                {stripList.slice(0, 6).map((t, i) => <TherapistCard key={i} t={t} onBroken={() => dropPhoto(t)} />)}
               </div>
               <div className="cyt-dots" role="group" aria-label="Choose a slide">
                 {THEMES.map((c, i) => (
@@ -352,7 +367,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         @keyframes cytWordIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
         @keyframes cytSwing { from { opacity: 0; transform: translateY(26px) rotate(7deg) scale(.95); } to { opacity: 1; transform: none; } }
         @keyframes cytBackIn { from { opacity: 0; } to { opacity: 1; } }
-        .cyt-strip { animation: cytBackIn .5s ease both; }
+        .cyt-strip { transition: opacity .45s ease, transform .45s ease; }
+        .cyt-strip.out { opacity: 0; transform: scale(.985); }
         @media (min-width: 1024px) {
           .cyt-strip { display: none !important; }
           .cyt-stage { display: block; position: relative; width: 270px; height: 360px; }
@@ -438,6 +454,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
         @media (max-width: 600px) {
           .cyt-hero { padding: 10px 0 12px !important; }
           .cyt-hero-inner { gap: 14px; padding: 0 16px; }
+          /* the card row runs to the right edge of the screen (no empty strip of banner on the right) */
+          .cyt-strip { width: calc(100% + 16px); margin-right: -16px; padding-right: 16px; scroll-padding-left: 4px; }
           .cyt-hchips { width: calc(100% + 32px); }
           .cyt-eyebrow { font-size: 11.5px; padding: 5px 11px 5px 9px; margin-bottom: 8px; }
           .cyt-hero .cyt-title { font-size: clamp(2.05rem, 7.8vw, 2.6rem); line-height: 1.1; margin-bottom: 8px; }
