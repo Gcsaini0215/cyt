@@ -124,21 +124,38 @@ export default function Banner({ topTherapists = [], stats = null }) {
   const cur = THEMES[turn % THEMES.length];
   // the next person leads on each turn, and the following ones stand beside them
   const list = people.length ? [...people.slice(turn % people.length), ...people.slice(0, turn % people.length)] : [];
-  // phones/tablets: the card row crossfades — fade out, swap the people while hidden, fade back in
-  const [shown, setShown] = useState(0);
-  const [stripOut, setStripOut] = useState(false);
+  // phones/tablets: the card row slides one card along on each turn. The cards are listed twice, so after the
+  // last one it carries on into the copy and then quietly resets to the start (no rewind). It waits while the
+  // visitor is swiping.
   const stripRef = React.useRef(null);
+  const slideAt = React.useRef(0);
+  const touchedAt = React.useRef(0);
+  const base = people.slice(0, 8);
+  const stripList = base.length > 1 ? [...base, ...base] : base;
   useEffect(() => {
-    if (shown === turn) return undefined;
-    setStripOut(true);
-    const t = setTimeout(() => {
-      if (stripRef.current) stripRef.current.scrollLeft = 0;
-      setShown(turn);
-      setStripOut(false);
-    }, 450);
-    return () => clearTimeout(t);
+    const el = stripRef.current;
+    if (!el || base.length < 2 || turn === 0) return undefined;
+    if (Date.now() - touchedAt.current < 6000) return undefined;
+    const cards = el.children;
+    // carry on from wherever the visitor left it
+    const left = el.scrollLeft;
+    let i = 0;
+    for (let k = 0; k < cards.length; k++) if (Math.abs(cards[k].offsetLeft - cards[0].offsetLeft - left) < cards[k].offsetWidth / 2) { i = k; break; }
+    const next = i + 1;
+    el.scrollTo({ left: cards[next].offsetLeft - cards[0].offsetLeft, behavior: "smooth" });
+    slideAt.current = next;
+    let reset;
+    if (next >= base.length) {
+      // now showing the copy of card 1 — jump back to the real one without anyone seeing
+      reset = setTimeout(() => {
+        const prev = el.style.scrollSnapType;
+        el.style.scrollSnapType = "none";
+        el.scrollLeft = cards[next - base.length].offsetLeft - cards[0].offsetLeft;
+        el.style.scrollSnapType = prev;
+      }, 900);
+    }
+    return () => clearTimeout(reset);
   }, [turn]); // eslint-disable-line react-hooks/exhaustive-deps
-  const stripList = people.length ? [...people.slice(shown % people.length), ...people.slice(0, shown % people.length)] : [];
   useEffect(() => { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setPaused(true); }, []);
   useEffect(() => {
     if (paused || resting || people.length < 2) return undefined;
@@ -246,8 +263,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
                 ))}
                 <div className="cyt-spot"><TherapistCard t={list[0]} onBroken={() => dropPhoto(list[0])} /></div>
               </div>
-              <div className={`cyt-strip${stripOut ? " out" : ""}`} ref={stripRef} aria-label="Top-rated therapists">
-                {stripList.slice(0, 6).map((t, i) => <TherapistCard key={i} t={t} onBroken={() => dropPhoto(t)} />)}
+              <div className="cyt-strip" ref={stripRef} aria-label="Top-rated therapists"
+                onTouchStart={() => { touchedAt.current = Date.now(); }} onPointerDown={() => { touchedAt.current = Date.now(); }}>
+                {stripList.map((t, i) => <TherapistCard key={`${t._id}-${i}`} t={t} onBroken={() => dropPhoto(t)} />)}
               </div>
               <div className="cyt-dots" role="group" aria-label="Choose a slide">
                 {THEMES.map((c, i) => (
@@ -367,8 +385,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         @keyframes cytWordIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
         @keyframes cytSwing { from { opacity: 0; transform: translateY(26px) rotate(7deg) scale(.95); } to { opacity: 1; transform: none; } }
         @keyframes cytBackIn { from { opacity: 0; } to { opacity: 1; } }
-        .cyt-strip { transition: opacity .45s ease, transform .45s ease; }
-        .cyt-strip.out { opacity: 0; transform: scale(.985); }
+        .cyt-strip { scroll-behavior: auto; }
         @media (min-width: 1024px) {
           .cyt-strip { display: none !important; }
           .cyt-stage { display: block; position: relative; width: 270px; height: 360px; }
