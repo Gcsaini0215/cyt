@@ -295,6 +295,8 @@ export default function Footer() {
                 <Link href="/privacy-policy">Privacy Policy</Link>
                 <span className="separator">|</span>
                 <Link href="/cancellation-policy">Cancellation Policy</Link>
+                <span className="separator">|</span>
+                <a href="#cookie-settings" role="button" onClick={(e) => { e.preventDefault(); window.dispatchEvent(new Event("cyt:cookie-settings")); }}>Cookie settings</a>
               </div>
             </div>
           </div>

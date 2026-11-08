@@ -129,6 +129,15 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
     }
 
     const fetchUserLocation = async () => {
+      // a place the visitor shared earlier ("Use my location" card) beats the IP guess
+      try {
+        const p = JSON.parse(localStorage.getItem("cyt-visitor-place") || "null");
+        if (p && p.state && Date.now() - (p.at || 0) < 30 * 24 * 3600 * 1000) {
+          setUserState(p.state);
+          if (p.city) setUserCity(p.city);
+          return;
+        }
+      } catch { /* storage blocked: fall back to IP */ }
       try {
         const response = await fetch("https://ipapi.co/json/");
         const data = await response.json();
@@ -487,9 +496,10 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
       
       {/* Footer */}
       <Footer />
-      <LocationConsent onAccept={() => {
-        // Refresh location-based sorting if user accepts
-        getTopTherapists();
+      <LocationConsent onPlace={(p) => {
+        // the visitor shared their location: their state first in the psychologists lists
+        setUserState(p.state);
+        if (p.city) setUserCity(p.city);
       }} />
       <BookingPopup showHeading={false} showLocation={false} showSource={false}
         title="Find the right psychologist" sourceTag="Popup · Home" />

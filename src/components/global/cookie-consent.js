@@ -1,119 +1,135 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
+/* Cookie choice card (every page). Choices are kept in localStorage "cookie_consent_v2" and sent to Google via
+   Consent Mode (default set in _document.js before GTM). "Cookie settings" in the footer reopens it
+   (window event "cyt:cookie-settings"). The id stays #cyt-cookie-consent-bar: other parts of the site look for it. */
+
+const KEY = "cookie_consent_v2";
+
+function applyConsent(c) {
+  try {
+    window.dataLayer = window.dataLayer || [];
+    // eslint-disable-next-line prefer-rest-params
+    const gtag = window.gtag || function gtag() { window.dataLayer.push(arguments); };
+    const a = c.analytics ? "granted" : "denied";
+    const m = c.marketing ? "granted" : "denied";
+    gtag("consent", "update", { analytics_storage: a, ad_storage: m, ad_user_data: m, ad_personalization: m });
+    window.dataLayer.push({ event: "cyt_consent_update", consent_analytics: a, consent_marketing: m });
+  } catch { /* analytics never blocks the page */ }
+}
+
+function Switch({ on, onChange, label }) {
+  return (
+    <button type="button" role="switch" aria-checked={on} aria-label={label} className={`cyc-sw${on ? " on" : ""}`} onClick={() => onChange(!on)}>
+      <span />
+    </button>
+  );
+}
+
 export default function CookieConsent() {
-  const [visible, setVisible]     = useState(false);
-  const [customize, setCustomize] = useState(false);
-  const [prefs, setPrefs]         = useState({ analytics: true, marketing: false });
+  const [visible, setVisible] = useState(false);
+  const [manage, setManage] = useState(false);
+  const [prefs, setPrefs] = useState({ analytics: true, marketing: false });
 
   useEffect(() => {
-    if (!localStorage.getItem("cookie_consent_v2")) {
-      const t = setTimeout(() => setVisible(true), 2000);
-      return () => clearTimeout(t);
-    }
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { saved = null; }
+    let t = 0;
+    if (!saved) t = setTimeout(() => setVisible(true), 1800);
+    else setPrefs({ analytics: !!saved.analytics, marketing: !!saved.marketing });
+    const reopen = () => { setManage(true); setVisible(true); };
+    window.addEventListener("cyt:cookie-settings", reopen);
+    return () => { clearTimeout(t); window.removeEventListener("cyt:cookie-settings", reopen); };
   }, []);
 
-  const accept = () => {
-    localStorage.setItem("cookie_consent_v2", JSON.stringify({ analytics: true, marketing: true }));
+  const save = (c) => {
+    try { localStorage.setItem(KEY, JSON.stringify(c)); } catch { /* storage blocked: ask again next time */ }
+    applyConsent(c);
+    setPrefs(c);
     setVisible(false);
-  };
-  const savePrefs = () => {
-    localStorage.setItem("cookie_consent_v2", JSON.stringify(prefs));
-    setVisible(false);
-  };
-  const dismiss = () => {
-    localStorage.setItem("cookie_consent_v2", JSON.stringify({ analytics: false, marketing: false }));
-    setVisible(false);
+    setManage(false);
   };
 
   if (!visible) return null;
-
   return (
-    <div id="cyt-cookie-consent-bar" style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 99998, background: "#1a202c", color: "#fff", boxShadow: "0 -4px 20px rgba(0,0,0,0.25)", animation: "ckSlideUp 0.35s ease" }}>
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes ckSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .ck-wrap { max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 14px; }
-        .ck-text { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
-        .ck-msg { margin: 0; font-size: 13px; color: #cbd5e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ck-btns { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .ck-btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.22); color: #cbd5e0; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        .ck-btn-accept { background: #228756; border: none; color: #fff; padding: 7px 18px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-        .ck-btn-x { background: transparent; border: none; color: rgba(255,255,255,0.4); padding: 6px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; line-height: 1; }
-        .ck-btn-x:hover { color: rgba(255,255,255,0.8); }
-        @media (max-width: 600px) {
-          .ck-wrap { flex-direction: row; align-items: center; gap: 8px; padding: 8px 12px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
-          .ck-text { gap: 8px; }
-          .ck-text i { display: none; }
-          .ck-msg { white-space: normal; font-size: 11.5px; line-height: 1.35; }
-          .ck-btns { gap: 6px; }
-          .ck-btn-ghost { padding: 7px 10px; }
-          .ck-btn-accept { padding: 7px 12px; }
-        }
-      ` }} />
-
-      {!customize ? (
-        <div className="ck-wrap">
-          {/* Text */}
-          <div className="ck-text">
-            <i className="feather-shield" style={{ fontSize: 18, color: "#4ade80", flexShrink: 0 }} />
-            <p className="ck-msg">
-              We use cookies to enhance your experience.{" "}
-              <Link href="/privacy-policy" style={{ color: "#4ade80", fontWeight: 600 }}>Privacy</Link>
-              {" & "}
-              <Link href="/terms-conditions" style={{ color: "#4ade80", fontWeight: 600 }}>Terms</Link>.
+    <div id="cyt-cookie-consent-bar" className="cyc" role="dialog" aria-modal="false" aria-labelledby="cyc-title">
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <div className="cyc-top">
+        <span className="cyc-ic" aria-hidden="true">🍪</span>
+        <div>
+          <p id="cyc-title" className="cyc-title">{manage ? "Cookie preferences" : "We value your privacy"}</p>
+          {!manage && (
+            <p className="cyc-text">
+              We use cookies to keep the site working and, with your OK, to understand visits and improve our care.{" "}
+              <Link href="/privacy-policy">Privacy Policy</Link>
             </p>
-          </div>
-          {/* Buttons */}
-          <div className="ck-btns">
-            <button className="ck-btn-ghost" onClick={() => setCustomize(true)}>Customize</button>
-            <button className="ck-btn-accept" onClick={accept}>Accept All</button>
-            <button className="ck-btn-x" onClick={dismiss} title="Dismiss">
-              <i className="feather-x" style={{ fontSize: 16 }} />
-            </button>
-          </div>
+          )}
         </div>
-      ) : (
-        /* Customize panel */
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 20px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#fff" }}>Cookie Preferences</p>
-            <button onClick={() => setCustomize(false)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", cursor: "pointer", fontSize: 13 }}>
-              <i className="feather-arrow-left" style={{ fontSize: 14 }} /> Back
-            </button>
-          </div>
+      </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 14px" }}>
-              <div>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff" }}>Essential</p>
-                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>Required for the site to function.</p>
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#4ade80", background: "rgba(74,222,128,0.12)", padding: "3px 10px", borderRadius: 20 }}>Always On</span>
-            </div>
-
-            {[
-              { key: "analytics", label: "Analytics", desc: "Help us understand how visitors use our site." },
-              { key: "marketing", label: "Marketing", desc: "Used to deliver relevant ads and campaigns." },
-            ].map(({ key, label, desc }) => (
-              <label key={key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 14px", cursor: "pointer" }}>
-                <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#fff" }}>{label}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>{desc}</p>
-                </div>
-                <div onClick={() => setPrefs(p => ({ ...p, [key]: !p[key] }))}
-                  style={{ width: 40, height: 22, borderRadius: 11, background: prefs[key] ? "#228756" : "#4a5568", position: "relative", cursor: "pointer", flexShrink: 0, transition: "background 0.2s" }}>
-                  <div style={{ position: "absolute", top: 3, left: prefs[key] ? 21 : 3, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
-                </div>
-              </label>
-            ))}
-          </div>
-
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-            <button className="ck-btn-ghost" onClick={dismiss}>Reject All</button>
-            <button className="ck-btn-accept" onClick={savePrefs}>Save Preferences</button>
-          </div>
-        </div>
+      {manage && (
+        <ul className="cyc-list">
+          <li><div><b>Essential</b><span>Sign-in, bookings and security. Always on.</span></div><em>Always on</em></li>
+          <li><div><b>Analytics</b><span>Helps us see which pages help people most.</span></div>
+            <Switch label="Analytics cookies" on={prefs.analytics} onChange={(v) => setPrefs((p) => ({ ...p, analytics: v }))} /></li>
+          <li><div><b>Marketing</b><span>Lets us show relevant ads on other sites.</span></div>
+            <Switch label="Marketing cookies" on={prefs.marketing} onChange={(v) => setPrefs((p) => ({ ...p, marketing: v }))} /></li>
+        </ul>
       )}
+
+      <div className="cyc-acts">
+        {manage ? (
+          <>
+            <button type="button" className="cyc-btn cyc-ghost" onClick={() => save(prefs)}>Save choices</button>
+            <button type="button" className="cyc-btn cyc-main" onClick={() => save({ analytics: true, marketing: true })}>Accept all</button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="cyc-btn cyc-ghost" onClick={() => save({ analytics: false, marketing: false })}>Only essential</button>
+            <button type="button" className="cyc-btn cyc-main" onClick={() => save({ analytics: true, marketing: true })}>Accept all</button>
+          </>
+        )}
+      </div>
+      {!manage && <button type="button" className="cyc-link" onClick={() => setManage(true)}>Manage preferences</button>}
+      {manage && <button type="button" className="cyc-link" onClick={() => setManage(false)}>← Back</button>}
     </div>
   );
 }
+
+const CSS = `
+@keyframes cycIn { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+.cyc { position:fixed; left:24px; bottom:24px; z-index:99998; width:min(400px, calc(100vw - 32px)); background:#fff; color:#0b1712; border:1px solid #e3ebe6;
+  border-radius:20px; padding:18px 18px 14px; box-shadow:0 24px 60px -24px rgba(11,36,24,.55), 0 2px 6px rgba(11,36,24,.06); animation:cycIn .45s cubic-bezier(.2,.7,.2,1) both;
+  font-size:14px; }
+.cyc::before { content:""; position:absolute; left:18px; right:18px; top:0; height:3px; border-radius:0 0 3px 3px; background:linear-gradient(90deg,#1e7a4c,#e3a83a); }
+.cyc-top { display:flex; gap:12px; align-items:flex-start; }
+.cyc-ic { flex:none; width:42px; height:42px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; background:#fbf1dc; }
+.cyc-title { margin:2px 0 4px; font-size:16px; font-weight:800; color:#0b1712; line-height:1.3; }
+.cyc-text { margin:0; font-size:13.5px; line-height:1.55; color:#4b5b53; }
+.cyc-text a { color:#1e7a4c; font-weight:700; text-decoration:underline; text-underline-offset:2px; }
+.cyc-list { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.cyc-list li { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0; padding:10px 12px; border-radius:12px; background:#f6faf7; border:1px solid #e6efe9; }
+.cyc-list li::before { content:none; }
+.cyc-list b { display:block; font-size:13.5px; color:#0b1712; } .cyc-list span { display:block; font-size:12px; color:#66756d; line-height:1.4; }
+.cyc-list em { font-style:normal; font-size:11px; font-weight:800; color:#1e7a4c; background:#e4f6ea; border-radius:999px; padding:3px 9px; white-space:nowrap; }
+.cyc-sw { flex:none; position:relative; width:42px; height:24px; border-radius:999px; border:0; background:#cfd8d3; cursor:pointer; padding:0; transition:background .2s ease; }
+.cyc-sw span { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .2s ease; }
+.cyc-sw.on { background:#1e7a4c; } .cyc-sw.on span { transform:translateX(18px); }
+.cyc-sw:focus-visible, .cyc-btn:focus-visible, .cyc-link:focus-visible { outline:2px solid #e3a83a; outline-offset:2px; }
+.cyc-acts { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:14px; }
+.cyc-btn { height:42px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; border:1.5px solid transparent; transition:background .2s ease, border-color .2s ease; }
+.cyc-main { background:linear-gradient(135deg,#22895a,#1e7a4c 55%,#14532d); color:#fff; }
+.cyc-main:hover { background:#14532d; }
+.cyc-ghost { background:#fff; color:#26463a; border-color:#cfdcd4; }
+.cyc-ghost:hover { border-color:#1e7a4c; color:#1e7a4c; }
+.cyc-link { display:block; margin:10px auto 0; background:none; border:0; padding:2px 4px; color:#66756d; font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+.cyc-link:hover { color:#1e7a4c; }
+@media (max-width:900px), (max-width:1100px) and (orientation:portrait) {
+  .cyc { left:12px; right:12px; width:auto; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); padding:16px 16px 12px; border-radius:18px; }
+}
+/* never over the phone action bar (home, Noida…) */
+body:has(.mab.on) .cyc { bottom:calc(76px + env(safe-area-inset-bottom, 0px)); }
+@media (prefers-reduced-motion: reduce) { .cyc { animation:none; } .cyc-sw, .cyc-sw span { transition:none; } }
+@media print { .cyc { display:none; } }
+`;

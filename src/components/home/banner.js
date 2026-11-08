@@ -22,12 +22,13 @@ const QUICK = [
 ];
 
 // the banner turns through these: a colour and one encouraging word. They say nothing about the therapist shown.
-// c: panel; soft, soft2: the arcs around it; ink: words and buttons on the cream (kept dark enough to read)
+// c: panel; soft, soft2: the arcs around it; ink: words and buttons on the sage base (kept dark enough to read)
+// a touch deeper than before, so the hero doesn't look washed out on the sage background
 const THEMES = [
-  { id: "hope", word: "HOPE", c: "#8cc465", soft: "#c9e0a0", soft2: "#dfe7b8", ink: "#2f6b38" },
-  { id: "courage", word: "COURAGE", c: "#ea8580", soft: "#f2c0ae", soft2: "#f6dbc4", ink: "#b13a49" },
-  { id: "calm", word: "CALM", c: "#7fbbe4", soft: "#bedbe2", soft2: "#dbe6d8", ink: "#25618f" },
-  { id: "strength", word: "STRENGTH", c: "#dca266", soft: "#ecc993", soft2: "#f2deb4", ink: "#935512" },
+  { id: "hope", word: "HOPE", c: "#72b04c", soft: "#acd283", soft2: "#c9dfb2", ink: "#2f6b38" },
+  { id: "courage", word: "COURAGE", c: "#e3716b", soft: "#eba996", soft2: "#eecdbb", ink: "#b13a49" },
+  { id: "calm", word: "CALM", c: "#5fa6d8", soft: "#a4cbe0", soft2: "#c8dcd6", ink: "#25618f" },
+  { id: "strength", word: "STRENGTH", c: "#d08f46", soft: "#e2b878", soft2: "#e8d3a8", ink: "#935512" },
 ];
 const TURN_MS = 5000;
 
@@ -232,9 +233,9 @@ export default function Banner({ topTherapists = [], stats = null }) {
       </div>
 
       <style jsx global>{`
-        /* cream on the left; the slide's colour fans out from the right in arcs (cyt-bgl) */
+        /* sage on the left; the slide's colour fans out from the right in arcs (cyt-bgl) */
         .cyt-hero { position: relative; overflow: hidden; padding: 48px 0 52px; }
-        .rbt-banner-1.cyt-hero { --ink: #2f6b38; background: #f3ebd2; }
+        .rbt-banner-1.cyt-hero { --ink: #2f6b38; background: #e2ece1; }
         @media (min-width: 768px) { .rbt-banner-1.cyt-hero { padding-bottom: 76px !important; } }
         @media (max-width: 767px) { .rbt-banner-1.cyt-hero { padding-bottom: 62px !important; } }
         .cyt-bgl { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .8s ease; pointer-events: none;

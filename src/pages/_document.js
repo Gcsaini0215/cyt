@@ -22,6 +22,16 @@ export default function Document() {
             __html: `try{if(localStorage.getItem('cyt_tsn_wide')==='1')document.documentElement.setAttribute('data-tsn-wide','')}catch(e){}`,
           }}
         />
+        {/* Google Consent Mode v2, before GTM: a visitor who chose in the cookie card (cookie_consent_v2) gets
+            that choice; no choice yet = as before (everything allowed). The card sends 'update' when they choose. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+            (function(){var a='granted',m='granted';try{var c=JSON.parse(localStorage.getItem('cookie_consent_v2')||'null');
+            if(c){a=c.analytics?'granted':'denied';m=c.marketing?'granted':'denied';}}catch(e){}
+            gtag('consent','default',{analytics_storage:a,ad_storage:m,ad_user_data:m,ad_personalization:m,functionality_storage:'granted',security_storage:'granted'});})();`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
