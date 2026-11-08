@@ -100,6 +100,8 @@ export default function Registrations() {
 
 // what each registration is, shown under its logo in the grid
 const CAPTIONS = ["Ministry of Corporate Affairs", "MSME registered", "National Health Authority", "ABDM · HFR ID IN0510005384"];
+// home banner strip: no ID numbers, just what each logo is
+const BAND_CAPTIONS = ["Ministry of Corporate Affairs", "MSME registered", "National Health Authority", "Ayushman Bharat Digital Mission"];
 
 const gridStyles = `
   /* full-width band: see-through over the banner, clean white below it (the page behind is dark) */
@@ -164,23 +166,26 @@ const bandStyles = `
   .rgb-item img { flex: none; width: 84px; height: 42px; object-fit: contain; }
   .rgb-item span { min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.3; color: #4b5d53; }
   .rgb-id { display: none; }
-  /* iPad and phones: label and HFR ID on one line, logos alone on the next, to keep the band short */
+  /* iPad and phones: logos only, to keep the band short */
   @media (max-width: 1199px) {
-    .rgb { display: grid; grid-template-columns: auto auto; justify-content: space-between; gap: 6px 8px; padding: 9px 18px; }
+    .rgb-band { margin-top: -28px; background: linear-gradient(180deg, transparent 0, transparent 28px, #fff 28px); }
+    .rgb { display: block; padding: 9px 18px; border-radius: 16px; box-shadow: 0 12px 26px -16px rgba(20,60,35,.4); }
     .rgb-label { font-size: 12px; white-space: nowrap; }
     .rgb-id { display: block; grid-column: 2; grid-row: 1; margin: 0; text-align: right; font-size: 12px; font-weight: 700; color: #4b5d53; white-space: nowrap; }
-    .rgb-grid { grid-column: 1 / -1; grid-row: 2; }
+    .rgb-grid { width: 100%; }
     .rgb-item { justify-content: center; padding-left: 0; border-left: 0; }
+    .rgb-item + .rgb-item { border-left: 1px solid #efe8d6; }
     .rgb-item img { width: 100%; height: 34px; }
     .rgb-item span { display: none; }
   }
-  /* phones: the white strip holds only the logos; the label and HFR ID sit above it, on the banner */
+  /* phones: a slim white strip of logos over the banner edge */
   @media (max-width: 767px) {
-    .rgb-band { margin-top: -44px; background: linear-gradient(180deg, transparent 0, transparent 44px, #fff 44px); }
+    .rgb-band { margin-top: -25px; background: linear-gradient(180deg, transparent 0, transparent 25px, #fff 25px); }
     .rgb { width: calc(100% - 24px); gap: 5px 8px; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
     .rgb-label, .rgb-id { padding: 0 4px; font-size: 11px; color: #3a2a0c; }
-    .rgb-grid { gap: 4px; padding: 7px 10px; background: #fff; border: 1px solid #ece4cf; border-radius: 12px; box-shadow: 0 14px 28px -14px rgba(20,60,35,.42); }
-    .rgb-item img { height: 30px; }
+    .rgb-grid { gap: 0; padding: 8px 4px; background: #fff; border: 1px solid #ece4cf; border-radius: 14px; box-shadow: 0 10px 22px -14px rgba(20,60,35,.4); }
+    .rgb-item { padding: 0 6px; }
+    .rgb-item img { height: 32px; }
   }
 `;
 
@@ -191,16 +196,14 @@ export function RegistrationsBand() {
       <style dangerouslySetInnerHTML={{ __html: bandStyles }} />
       <div className="rgb-band">
       <div className="rgb">
-        <p className="rgb-label">Registered with</p>
         <div className="rgb-grid">
           {REGISTRATIONS.map((r, i) => (
             <div className="rgb-item" key={r.src}>
               <img src={r.src} alt={r.alt} width={r.w} height={r.h} loading="lazy" />
-              <span>{CAPTIONS[i]}</span>
+              <span>{BAND_CAPTIONS[i]}</span>
             </div>
           ))}
         </div>
-        <p className="rgb-id">ABDM · HFR ID IN0510005384</p>
       </div>
       </div>
     </>

@@ -29,9 +29,9 @@ export default function Specializations({ stats: data = null }) {
       <div className="container">
         <div className="sp-head">
           <div>
-            <span className="sp-bar" aria-hidden="true" />
-            <h2 id="sp-h" className="sp-title">What would you like help with?</h2>
-            <p className="sp-sub">Pick a concern to see psychologists who specialise in it.</p>
+            <p className="sp-eyebrow">Therapy by concern</p>
+            <h2 id="sp-h" className="sp-title">What would you like <span>help with?</span></h2>
+            <p className="sp-sub">Pick what's on your mind — meet verified psychologists who specialise in it, with fees shown upfront.</p>
           </div>
           <Link href="/view-all-therapist?help=1" className="sp-help-link" rel="nofollow">
             <i className="feather-compass" aria-hidden="true" /> Not sure? Help me choose
@@ -47,7 +47,7 @@ export default function Specializations({ stats: data = null }) {
                 <div className="sp-img">
                   <img src={`/images/concerns/${c.img}.webp`} alt={`${c.label} therapy`} width="560" height="340" loading="lazy" decoding="async" />
                   {popular.has(c.slug) && <span className="sp-pop">Popular</span>}
-                  {s?.count > 0 && <span className="sp-count">{s.count} therapists</span>}
+                  {s?.count > 0 && <span className="sp-count"><i className="feather-users" aria-hidden="true" /> {s.count} therapists</span>}
                 </div>
                 <div className="sp-body">
                   <h3><Link href={concernPath(c)} className="sp-stretch">{c.label}</Link></h3>
@@ -95,12 +95,15 @@ export default function Specializations({ stats: data = null }) {
 }
 
 const CSS = `
-.sp-sec { background: #fff; padding: 64px 0 60px; }
-.sp-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 26px; }
-.sp-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #d4a24c; margin-bottom: 12px; }
-.sp-title { font-size: clamp(1.6rem, 3.2vw, 2.2rem); font-weight: 800; color: #0b1712; margin: 0 0 6px; line-height: 1.2; letter-spacing: -.01em; }
-.sp-sub { color: #64748b; font-size: 15px; margin: 0; padding: 0; }
-.sp-help-link { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 999px; background: #fffaf0; border: 1px solid #ecd3a3; color: #7a5413 !important; font-size: 14px; font-weight: 700; text-decoration: none !important; white-space: nowrap; }
+.sp-sec { background: linear-gradient(180deg, #fff 0%, #fbf8f0 100%); padding: 72px 0 64px; }
+.sp-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; margin-bottom: 28px; }
+.sp-head > div { min-width: 0; flex: 1 1 520px; }
+.sp-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
+.sp-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+.sp-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
+.sp-title span { color: #1e7a4c; }
+.sp-sub { color: #4b5b53; font-size: 16px; line-height: 1.6; margin: 0; padding: 0; max-width: 62ch; }
+.sp-help-link { display: inline-flex; align-items: center; gap: 7px; height: 44px; padding: 0 18px; border-radius: 999px; background: #fff; border: 1.5px solid #ecd3a3; color: #7a5413 !important; font-size: 14px; font-weight: 800; text-decoration: none !important; white-space: nowrap; transition: background .2s ease; }
 .sp-help-link:hover { background: #fbf0d9; }
 
 .sp-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
@@ -115,7 +118,7 @@ const CSS = `
 .sp-card:hover .sp-img img { transform: scale(1.05); }
 .sp-img::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(7,26,17,.45), transparent 55%); }
 .sp-pop { position: absolute; top: 10px; left: 10px; z-index: 1; font-size: 10.5px; font-weight: 800; color: #14532d; background: rgba(236,199,125,.96); padding: 3px 9px; border-radius: 999px; }
-.sp-count { position: absolute; bottom: 9px; left: 10px; z-index: 1; font-size: 11.5px; font-weight: 800; color: #fff; }
+.sp-count { position: absolute; bottom: 9px; left: 10px; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; background: rgba(7,26,17,.55); backdrop-filter: blur(4px); font-size: 11.5px; font-weight: 800; color: #fff; }
 .sp-body { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 13px 15px 14px; }
 .sp-body h3 { font-size: 16px; font-weight: 800; color: #0b1712; margin: 0; }
 .sp-card:hover .sp-body h3 { color: #1e7a4c; }
@@ -149,8 +152,12 @@ const CSS = `
 @media (max-width: 1100px) { .sp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 /* phones: two across, with each card cut down to its photo, name and fee so the grid stays short */
 @media (max-width: 767px) {
-  .sp-sec { padding: 40px 0 36px; }
-  .sp-head { margin-bottom: 16px; }
+  .sp-sec { padding: 48px 0 40px; }
+  .sp-head { margin-bottom: 18px; }
+  .sp-head > div { flex-basis: 100%; }
+  .sp-title { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
+  .sp-sub { font-size: 15px; }
+  .sp-count { font-size: 10.5px; padding: 2px 8px; bottom: 7px; left: 7px; }
   .sp-help-link { display: none; }
   .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .sp-card:hover { transform: none; }

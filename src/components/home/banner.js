@@ -237,7 +237,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-hero { position: relative; overflow: hidden; padding: 48px 0 52px; }
         .rbt-banner-1.cyt-hero { --ink: #2f6b38; background: #e2ece1; }
         @media (min-width: 768px) { .rbt-banner-1.cyt-hero { padding-bottom: 76px !important; } }
-        @media (max-width: 767px) { .rbt-banner-1.cyt-hero { padding-bottom: 62px !important; } }
+        @media (min-width: 768px) and (max-width: 1199px) { .rbt-banner-1.cyt-hero { padding-bottom: 60px !important; } }
+        @media (max-width: 767px) { .rbt-banner-1.cyt-hero { padding-bottom: 44px !important; } }
+        /* phones: no slide dots above the logo strip (the slides still change on their own) */
+        @media (max-width: 767px) { .cyt-hero .cyt-dots { display: none !important; } }
         .cyt-bgl { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .8s ease; pointer-events: none;
           background: linear-gradient(180deg, transparent 42%, var(--soft) 100%), radial-gradient(circle at 106% 50%, var(--c) 0 27vw, var(--soft) 27.1vw 38vw, var(--soft2) 38.1vw 50vw, transparent 50.1vw); }
         .cyt-bgl.on { opacity: 1; }

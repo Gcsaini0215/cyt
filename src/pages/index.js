@@ -481,7 +481,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <Banner topTherapists={bannerTherapists} stats={stats} />
         <Specializations stats={concerns} />
         <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
-        <FeelBetter stats={concerns?.bySlug} />
+        <FeelBetter stats={concerns?.bySlug} week={concerns?.week} />
         <section style={{ background: "#fff", padding: "8px 0 56px" }}>
           <div className="container">
             <LeadCard tag="Home" title="Not sure where to start? Talk to us" />
