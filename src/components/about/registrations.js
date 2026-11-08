@@ -122,13 +122,15 @@ const gridStyles = `
   }
   .rgg-card img { max-width: 150px; max-height: 64px; width: auto; height: auto; object-fit: contain; }
   .rgg-card span { font-size: 12px; font-weight: 700; color: #4b5d53; line-height: 1.3; }
+  /* phones: same as the home banner — one slim white strip of logos, centred on the banner's bottom edge */
   @media (max-width: 767px) {
-    .rgg-band { margin-top: -44px; background: linear-gradient(180deg, transparent 0, transparent 44px, #fff 44px); }
+    .rgg-band { margin-top: -25px; background: linear-gradient(180deg, transparent 0, transparent 25px, #fff 25px); }
     .rgg { padding: 0 12px; }
-    .rgg-label { font-size: 10.5px; margin-bottom: 8px; }
-    .rgg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-    .rgg-card { height: 62px; padding: 8px 6px; border-radius: 12px; }
-    .rgg-card img { max-width: 100%; max-height: 42px; }
+    .rgg-label { display: none; }
+    .rgg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; padding: 8px 4px; background: #fff; border: 1px solid #ece4cf; border-radius: 14px; box-shadow: 0 10px 22px -14px rgba(20,60,35,.4); }
+    .rgg-card { height: 32px; padding: 0 6px; border: 0; border-radius: 0; box-shadow: none; background: none; }
+    .rgg-card + .rgg-card { border-left: 1px solid #efe8d6; }
+    .rgg-card img { max-width: 100%; max-height: 32px; }
     .rgg-card span { display: none; }
   }
 `;

@@ -141,6 +141,19 @@ export default function Banner({ topTherapists = [], stats = null }) {
   }, []);
 
   const [q, setQ] = useState("");
+  // the search hint turns through the common concerns (Anxiety → Stress → …); it waits while the box is in use
+  const [hint, setHint] = useState(0);
+  const [hintOut, setHintOut] = useState(false);
+  const [typing, setTyping] = useState(false);
+  useEffect(() => {
+    if (typing || q) return undefined;
+    let swap;
+    const t = setInterval(() => {
+      setHintOut(true); // fade the word away…
+      swap = setTimeout(() => { setHint((i) => (i + 1) % QUICK.length); setHintOut(false); }, 550); // …then bring the next one in
+    }, 3200);
+    return () => { clearInterval(t); clearTimeout(swap); setHintOut(false); };
+  }, [typing, q]);
 
   return (
     <>
@@ -172,7 +185,12 @@ export default function Banner({ topTherapists = [], stats = null }) {
             <i className="feather-search" aria-hidden="true" />
             <label htmlFor="cyt-hq" className="cyt-sr">Search by concern, name or city</label>
             <input id="cyt-hq" name="search" type="search" autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)}
-              placeholder="Anxiety, therapist name, city…" />
+              onFocus={() => setTyping(true)} onBlur={() => setTyping(false)} placeholder="" />
+            {!q && (
+              <span className="cyt-hint" aria-hidden="true">
+                <span className={`cyt-hint-w${hintOut ? " out" : ""}`}>{QUICK[hint][0]}</span>, therapist name, city…
+              </span>
+            )}
             <button type="submit" aria-label="Find therapist"><span className="cyt-hs-txt">Find therapist</span><i className="feather-arrow-right cyt-hs-ico" aria-hidden="true" /></button>
           </form>
 
@@ -278,12 +296,19 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-hsearch > i { position: absolute; left: 17px; font-size: 18px; color: #64748b; pointer-events: none; }
         .cyt-hsearch input { flex: 1; min-width: 0; height: 46px; border: none !important; outline: none; background: transparent; padding: 0 10px 0 42px; font-size: 15.5px; color: #0f172a; box-shadow: none !important; }
         .cyt-hsearch input::-webkit-search-cancel-button { display: none; }
+        /* the turning search hint (drawn over the empty box so the word can fade) */
+        .cyt-hsearch .cyt-hint { position: absolute; left: 47px; right: 190px; top: 50%; transform: translateY(-50%); font-size: 15.5px; color: #8a978f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+        .cyt-hint-w { display: inline-block; transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
+        .cyt-hint-w.out { opacity: 0; transform: translateY(5px); filter: blur(2px); }
+        @media (prefers-reduced-motion: reduce) { .cyt-hint-w { transition: opacity .3s ease; } .cyt-hint-w.out { transform: none; filter: none; } }
         .cyt-hsearch button { flex-shrink: 0; height: 46px; padding: 0 22px; border: none; border-radius: 10px; background: #1e7a4c; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 18px -10px rgba(30,122,76,.8); }
         .cyt-hsearch button:hover { background: #186640; }
         .cyt-hs-ico, .cyt-cta2-go { display: none; }
         .cyt-cta2-txt small { display: none; }
 
         .cyt-hchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+        /* phones: no concern pills under the search box — the search hint turns through them instead */
+        @media (max-width: 767px) { .cyt-hero .cyt-hchips { display: none !important; } }
         .cyt-hchips a { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 999px; background: rgba(255,255,255,.8); border: 1px solid #dbe5df; color: #26463a !important; font-size: 13.5px; font-weight: 600; text-decoration: none !important; white-space: nowrap; transition: border-color .15s, background .15s; }
         .cyt-hchips a:hover { border-color: #1e7a4c; background: #fff; color: #1e7a4c !important; }
         .cyt-hchips a.cyt-help { background: #fffaf0; border-color: #ecd3a3; color: #7a5413 !important; font-weight: 700; }
@@ -418,6 +443,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero .cyt-title { font-size: clamp(2.05rem, 7.8vw, 2.6rem); line-height: 1.1; margin-bottom: 8px; }
           .cyt-hsearch { border-radius: 12px; }
           .cyt-hsearch input { height: 44px; font-size: 15px; padding-left: 38px; }
+          .cyt-hsearch .cyt-hint { left: 43px; right: 62px; font-size: 15px; }
           .cyt-hsearch > i { left: 15px; }
           /* icon-only search button so the placeholder isn't cut off */
           .cyt-hsearch button { height: 44px; width: 44px; padding: 0; font-size: 20px; display: inline-flex; align-items: center; justify-content: center; }
@@ -443,6 +469,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-hero-copy > .cyt-trust { margin-bottom: 18px; }
           .cyt-hsearch { max-width: none; }
           .cyt-hsearch input { height: 50px; font-size: 16px; }
+          .cyt-hsearch .cyt-hint { font-size: 16px; }
           .cyt-hsearch button { height: 50px; padding: 0 26px; }
           /* one swipeable row of chips, like on phones */
           .cyt-hchips { flex-wrap: nowrap; overflow-x: auto; margin: 14px -40px 0; padding: 0 40px 2px; width: calc(100% + 80px); scrollbar-width: none; }
