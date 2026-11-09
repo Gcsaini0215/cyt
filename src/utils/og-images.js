@@ -334,20 +334,17 @@ export async function posterPng(t, { qr, link }) {
       <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".45"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
     </defs>
     <rect width="100%" height="100%" fill="#fbf8f0"/>
-    <path d="M0 0 H${PW} V470 Q${cx} 590 0 470 Z" fill="url(#g)"/>
+    <path d="M0 0 H${PW} V400 Q${cx} 520 0 400 Z" fill="url(#g)"/>
     <circle cx="${PW - 90}" cy="60" r="330" fill="url(#glow)"/>
-    <circle cx="90" cy="420" r="120" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
-    <circle cx="90" cy="420" r="80" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
-    <rect x="0" y="${PH - 150}" width="${PW}" height="150" fill="#0b3f26"/>
-    <rect x="0" y="${PH - 156}" width="${PW}" height="6" fill="${GOLD}"/>
+    <circle cx="90" cy="330" r="120" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
+    <circle cx="90" cy="330" r="80" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
+    <rect x="0" y="${PH - 190}" width="${PW}" height="190" fill="#0b3f26"/>
+    <rect x="0" y="${PH - 196}" width="${PW}" height="6" fill="${GOLD}"/>
   </svg>`), left: 0, top: 0 });
 
-  const lg = await logo(320);
-  layers.push({ input: rect(lg.info.width + 40, lg.info.height + 26, "#ffffff", 20), left: Math.round(cx - (lg.info.width + 40) / 2), top: 54 });
-  layers.push({ input: lg.data, left: Math.round(cx - lg.info.width / 2), top: 67 });
 
   // photo in a gold-framed arch
-  const AW = 340, AH = 410, F = 14, top = 205;
+  const AW = 350, AH = 420, F = 14, top = 104;
   const FW = AW + F * 2, FH = AH + F * 2;
   layers.push({ input: Buffer.from(`<svg width="${FW + 24}" height="${FH + 24}" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient>
@@ -391,28 +388,37 @@ export async function posterPng(t, { qr, link }) {
   layers.push({ input: head.data, left: Math.round(cx - head.info.width / 2), top: y });
   y += head.info.height + 22;
 
-  // QR card with the CYT ID up the left side and the site down the right
-  const Q = 470, CARD = Q + 64;
-  const cardX = Math.round(cx - CARD / 2);
-  layers.push({ input: Buffer.from(`<svg width="${CARD}" height="${CARD}"><rect x="2" y="2" width="${CARD - 4}" height="${CARD - 4}" rx="32" fill="#ffffff" stroke="${GOLD}" stroke-width="4"/></svg>`), left: cardX, top: y });
-  if (qr) layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(cx - Q / 2), top: y + 32 });
+  // QR card with the therapist's CYT ID written up a light gold strip on its left
+  const Q = 500, CARD = Q + 64, STRIP = 62, GAPX = 16;
   const code = String(t?.profile_code || "").trim();
-  const STRIP = 64;
-  // left strip: CYT ID (reads upwards)
-  layers.push({ input: rect(STRIP, CARD, "#135c37", 18), left: cardX - STRIP - 18, top: y });
-  const idTxt = await vertical(code ? `<span foreground="#f6d58a"><b>CYT ID</b></span>   <b>${esc(code)}</b>` : `<b>VERIFIED ON CYT</b>`, { size: 27, color: "#ffffff", angle: -90 });
-  layers.push({ input: idTxt.data, left: cardX - STRIP - 18 + Math.round((STRIP - idTxt.info.width) / 2), top: y + Math.round((CARD - idTxt.info.height) / 2) });
-  // right strip: the site (reads downwards)
-  layers.push({ input: rect(STRIP, CARD, "#fdf3dc", 18), left: cardX + CARD + 18, top: y });
-  const siteTxt = await vertical(`<b>CHOOSEYOURTHERAPIST.IN</b>`, { size: 23, color: "#8a5a08", angle: 90 });
-  layers.push({ input: siteTxt.data, left: cardX + CARD + 18 + Math.round((STRIP - siteTxt.info.width) / 2), top: y + Math.round((CARD - siteTxt.info.height) / 2) });
+  const groupW = (code ? STRIP + GAPX : 0) + CARD;
+  const stripX = Math.round(cx - groupW / 2);
+  const cardX = code ? stripX + STRIP + GAPX : Math.round(cx - CARD / 2);
+  const qcx = cardX + CARD / 2;
+  layers.push({ input: Buffer.from(`<svg width="${CARD}" height="${CARD}"><rect x="2" y="2" width="${CARD - 4}" height="${CARD - 4}" rx="32" fill="#ffffff" stroke="${GOLD}" stroke-width="4"/></svg>`), left: cardX, top: y });
+  if (qr) layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(qcx - Q / 2), top: y + 32 });
+  if (code) {
+    layers.push({ input: Buffer.from(`<svg width="${STRIP}" height="${CARD}"><rect x="1.5" y="1.5" width="${STRIP - 3}" height="${CARD - 3}" rx="18" fill="#fdf3dc" stroke="${GOLD}" stroke-width="3"/></svg>`), left: stripX, top: y });
+    const idTxt = await vertical(`<b>${esc(code)}</b>`, { size: 32, color: "#0b3f26", angle: -90 });
+    layers.push({ input: idTxt.data, left: stripX + Math.round((STRIP - idTxt.info.width) / 2), top: y + Math.round((CARD - idTxt.info.height) / 2) });
+  }
   y += CARD + 24;
 
   const ln = await text(`<b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 30, color: "#135c37", width: PW - 160, align: "centre" });
-  layers.push({ input: ln.data, left: Math.round(cx - ln.info.width / 2), top: y });
+  layers.push({ input: ln.data, left: Math.round(qcx - ln.info.width / 2), top: y });
 
-  const foot = await text(`Online &amp; in-person sessions   ·   <span foreground="${GOLD}">Verified by Choose Your Therapist</span>`, { size: 28, color: "#e7f2ea", width: PW - 120, align: "centre" });
-  layers.push({ input: foot.data, left: Math.round(cx - foot.info.width / 2), top: PH - 75 - Math.round(foot.info.height / 2) });
+  const FY = PH - 190, FH2 = 190;
+  const flg = await logo(250);
+  const site = await text(`<b>chooseyourtherapist.in</b>`, { size: 44, color: "#f2c94c", width: 700 });
+  const tag = await text("Online &amp; in-person sessions  ·  Verified therapists", { size: 24, color: "#cfe3d6", width: 700 });
+  const pillW = flg.info.width + 36, pillH = flg.info.height + 24, GAPF = 40;
+  const textW = Math.max(site.info.width, tag.info.width);
+  const fx = Math.round(cx - (pillW + GAPF + textW) / 2);
+  layers.push({ input: rect(pillW, pillH, "#ffffff", 18), left: fx, top: FY + Math.round((FH2 - pillH) / 2) });
+  layers.push({ input: flg.data, left: fx + 18, top: FY + Math.round((FH2 - pillH) / 2) + 12 });
+  const tx = fx + pillW + GAPF, th = site.info.height + 6 + tag.info.height;
+  layers.push({ input: site.data, left: tx, top: FY + Math.round((FH2 - th) / 2) });
+  layers.push({ input: tag.data, left: tx, top: FY + Math.round((FH2 - th) / 2) + site.info.height + 6 });
 
   return sharp({ create: { width: PW, height: PH, channels: 3, background: "#fbf8f0" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
 }
