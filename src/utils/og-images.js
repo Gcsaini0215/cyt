@@ -433,7 +433,6 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
   const W2 = 1080, H2 = story ? 1920 : 1080, M = 72, CW = W2 - M * 2, PAD = 56, IW = CW - PAD * 2;
   const name = esc(cleanName(t) || "Your therapist");
   const role = esc(t?.profile_type || "Psychologist");
-  const short = esc(String(link || "").replace(/^https:\/\/www\./, ""));
   const body = esc(String(words || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim().slice(0, 280)) || "Your words here.";
   const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).replace(/ (\d{4})$/, ", $1");
 
@@ -459,7 +458,7 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
   const msg = await text(body, { size: story ? 58 : 50, color: "#0f1419", width: IW, lines: story ? 12 : 7 });
   parts.push({ input: msg.data, left: PAD, top: y });
   y += msg.info.height + 44;
-  const meta = await text(`${date}  ·  Book: <span foreground="#1e7a4c">${short}</span>`, { size: 30, color: "#6b7a86", width: IW, lines: 1 });
+  const meta = await text(`${date}  ·  Book: <span foreground="#1e7a4c">www.chooseyourtherapist.in</span>`, { size: 30, color: "#6b7a86", width: IW, lines: 1 });
   parts.push({ input: meta.data, left: PAD, top: y });
   y += meta.info.height;
   y += PAD + 6;
@@ -491,7 +490,7 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
   if (QB) {
     const Q = 200, qy = H2 - M - Q - 30;
     const lead = await text("<b>Scan to book a session</b>", { size: 36, color: "#0f1419", width: CW - Q - 120 });
-    const sub = await text(short, { size: 28, color: "#1e7a4c", width: CW - Q - 120, lines: 1 });
+    const sub = await text("www.chooseyourtherapist.in", { size: 28, color: "#1e7a4c", width: CW - Q - 120, lines: 1 });
     const box = Buffer.from(`<svg width="${CW}" height="${Q + 30}"><rect x="2" y="2" width="${CW - 4}" height="${Q + 26}" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#ffffff" stroke-width="4"/></svg>`);
     layers.push({ input: box, left: M, top: qy });
     layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: M + 15, top: qy + 15 });
