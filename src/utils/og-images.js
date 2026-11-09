@@ -291,63 +291,124 @@ export async function renewCard(t, { state = "ended", days = 0 } = {}) {
 }
 
 // "Scan to book" poster for a therapist's clinic / desk (A4 portrait, 1240x1754 = 150 dpi):
-// green top band with the logo, round photo with a gold ring, name + role, a big QR in a white card,
-// the short link under it, and a footer. qr = PNG of their /t/<name>?src=my-qr link.
+// green top band with the logo; the photo in a gold-framed arch with a gold "Verified" seal on its corner;
+// name, role, city · rating; a big QR in a white card with their CYT ID written up one side and the
+// site down the other; the short link; a green footer. qr = PNG of their /t/<name>?src=my-qr link.
+const archPath = (w, h, r = 22) => `M0 ${w / 2} A ${w / 2} ${w / 2} 0 0 1 ${w} ${w / 2} V ${h - r} Q ${w} ${h} ${w - r} ${h} H ${r} Q 0 ${h} 0 ${h - r} Z`;
+
+// gold scalloped seal with a green centre, a tick and "VERIFIED"
+async function verifiedSeal(size) {
+  const c = size / 2, n = 28, ro = c, ri = c * 0.9;
+  const pts = Array.from({ length: n * 2 }, (_, i) => {
+    const a = (Math.PI * i) / n - Math.PI / 2, r = i % 2 ? ri : ro;
+    return `${(c + r * Math.cos(a)).toFixed(1)},${(c + r * Math.sin(a)).toFixed(1)}`;
+  }).join(" ");
+  const base = Buffer.from(`<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset=".55" stop-color="#e0ab45"/><stop offset="1" stop-color="#b8821f"/></linearGradient></defs>
+    <polygon points="${pts}" fill="url(#gd)"/>
+    <circle cx="${c}" cy="${c}" r="${c * 0.76}" fill="#ffffff"/>
+    <circle cx="${c}" cy="${c}" r="${c * 0.68}" fill="#135c37"/>
+    <circle cx="${c}" cy="${c}" r="${c * 0.62}" fill="none" stroke="#f2c94c" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 5"/>
+    <path d="M ${c - size * 0.13} ${c - size * 0.06} l ${size * 0.09} ${size * 0.09} l ${size * 0.17} -${size * 0.18}" fill="none" stroke="#f6d58a" stroke-width="${size * 0.05}" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`);
+  const word = await text("<b>VERIFIED</b>", { size: Math.round(size * 0.1), color: "#ffffff", width: size, align: "centre" });
+  const cyt = await text("<b>CYT</b>", { size: Math.round(size * 0.075), color: "#f6d58a", width: size, align: "centre" });
+  return sharp(base).composite([
+    { input: word.data, left: Math.round(c - word.info.width / 2), top: Math.round(c + size * 0.1) },
+    { input: cyt.data, left: Math.round(c - cyt.info.width / 2), top: Math.round(c - size * 0.29) },
+  ]).png().toBuffer();
+}
+
+// a line of text turned to read upwards (left side) or downwards (right side)
+async function vertical(markup, { size, color, angle }) {
+  const tx = await text(markup, { size, color, width: 1200 });
+  return sharp(tx.data).rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer({ resolveWithObject: true });
+}
+
 export async function posterPng(t, { qr, link }) {
-  const PW = 1240, PH = 1754;
+  const PW = 1240, PH = 1754, cx = PW / 2;
   const layers = [];
-  // background: cream page, green top band with soft gold glow, green footer
   layers.push({ input: Buffer.from(`<svg width="${PW}" height="${PH}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <radialGradient id="g" cx="100%" cy="0%" r="110%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".55" stop-color="#135c37"/><stop offset="1" stop-color="#0b3f26"/></radialGradient>
       <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".45"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
     </defs>
     <rect width="100%" height="100%" fill="#fbf8f0"/>
-    <path d="M0 0 H${PW} V560 Q${PW / 2} 680 0 560 Z" fill="url(#g)"/>
+    <path d="M0 0 H${PW} V470 Q${cx} 590 0 470 Z" fill="url(#g)"/>
     <circle cx="${PW - 90}" cy="60" r="330" fill="url(#glow)"/>
+    <circle cx="90" cy="420" r="120" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
+    <circle cx="90" cy="420" r="80" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
     <rect x="0" y="${PH - 150}" width="${PW}" height="150" fill="#0b3f26"/>
     <rect x="0" y="${PH - 156}" width="${PW}" height="6" fill="${GOLD}"/>
   </svg>`), left: 0, top: 0 });
 
-  const lg = await logo(330);
-  layers.push({ input: rect(lg.info.width + 40, lg.info.height + 26, "#ffffff", 20), left: Math.round((PW - lg.info.width - 40) / 2), top: 60 });
-  layers.push({ input: lg.data, left: Math.round((PW - lg.info.width) / 2), top: 73 });
+  const lg = await logo(320);
+  layers.push({ input: rect(lg.info.width + 40, lg.info.height + 26, "#ffffff", 20), left: Math.round(cx - (lg.info.width + 40) / 2), top: 54 });
+  layers.push({ input: lg.data, left: Math.round(cx - lg.info.width / 2), top: 67 });
 
-  // round photo with a gold ring
-  const D = 360, cx = PW / 2, py = 250;
-  layers.push({ input: Buffer.from(`<svg width="${D + 28}" height="${D + 28}"><circle cx="${(D + 28) / 2}" cy="${(D + 28) / 2}" r="${(D + 28) / 2}" fill="${GOLD}"/><circle cx="${(D + 28) / 2}" cy="${(D + 28) / 2}" r="${D / 2 + 4}" fill="#ffffff"/></svg>`), left: Math.round(cx - (D + 28) / 2), top: py - 14 });
+  // photo in a gold-framed arch
+  const AW = 340, AH = 410, F = 14, top = 205;
+  const FW = AW + F * 2, FH = AH + F * 2;
+  layers.push({ input: Buffer.from(`<svg width="${FW + 24}" height="${FH + 24}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#062a18" flood-opacity=".35"/></filter></defs>
+    <g transform="translate(12 8)" filter="url(#sh)"><path d="${archPath(FW, FH, 30)}" fill="url(#fg)"/></g>
+  </svg>`), left: Math.round(cx - FW / 2 - 12), top: top - F - 8 });
   const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
-  if (buf) {
-    const ph = await sharp(buf).rotate().resize(D, D, { fit: "cover", position: "attention" }).png().toBuffer();
-    const round = await sharp(ph).composite([{ input: Buffer.from(`<svg width="${D}" height="${D}"><circle cx="${D / 2}" cy="${D / 2}" r="${D / 2}"/></svg>`), blend: "dest-in" }]).png().toBuffer();
-    layers.push({ input: round, left: Math.round(cx - D / 2), top: py });
-  }
+  const mask = Buffer.from(`<svg width="${AW}" height="${AH}"><path d="${archPath(AW, AH, 20)}"/></svg>`);
+  const photo = buf
+    ? await sharp(await sharp(buf).rotate().resize(AW, AH, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer()
+    : await sharp({ create: { width: AW, height: AH, channels: 4, background: "#dcebe1" } }).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
+  layers.push({ input: photo, left: Math.round(cx - AW / 2), top });
 
-  let y = py + D + 44;
-  const name = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 66, color: "#0b1712", width: PW - 160, align: "centre", lines: 2 });
+  // gold seal on the arch's lower-right corner
+  const S = 170;
+  layers.push({ input: await verifiedSeal(S), left: Math.round(cx + AW / 2 - S * 0.55), top: top + AH - S * 0.7 });
+
+  let y = top + AH + F + 40;
+  const name = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 64, color: "#0b1712", width: PW - 160, align: "centre", lines: 2 });
   layers.push({ input: name.data, left: Math.round(cx - name.info.width / 2), top: y });
-  y += name.info.height + 10;
-  const role = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 36, color: "#1e7a4c", width: PW - 160, align: "centre", lines: 1 });
+  y += name.info.height + 8;
+  const role = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 34, color: "#1e7a4c", width: PW - 160, align: "centre", lines: 1 });
   layers.push({ input: role.data, left: Math.round(cx - role.info.width / 2), top: y });
-  y += role.info.height + 12;
+  y += role.info.height + 14;
+  // city · rating as small pills (no experience line)
   const r = ratingOf(t);
-  const facts = [cityOf(t), expOf(t?.year_of_exp) && `${expOf(t.year_of_exp)} experience`, r && `★ ${r.avg} (${r.n} review${r.n > 1 ? "s" : ""})`].filter(Boolean).join("   ·   ");
-  if (facts) {
-    const f = await text(esc(facts), { size: 28, color: "#4b5b53", width: PW - 160, align: "centre" });
-    layers.push({ input: f.data, left: Math.round(cx - f.info.width / 2), top: y });
-    y += f.info.height;
+  const pills = [cityOf(t) && esc(cityOf(t)), r && `<span foreground="${GOLD}">★</span> ${r.avg}  (${r.n} review${r.n > 1 ? "s" : ""})`, "Online &amp; in person"].filter(Boolean);
+  const pillImgs = await Promise.all(pills.map((p) => text(p, { size: 25, color: "#24412f", width: 600 })));
+  const PADX = 22, GAP = 12, PHH = 50;
+  const total = pillImgs.reduce((a, p) => a + p.info.width + PADX * 2, 0) + GAP * (pillImgs.length - 1);
+  let px = Math.round(cx - total / 2);
+  for (const p of pillImgs) {
+    const w = p.info.width + PADX * 2;
+    layers.push({ input: rect(w, PHH, "#eef6f0", PHH / 2), left: px, top: y });
+    layers.push({ input: p.data, left: px + PADX, top: y + Math.round((PHH - p.info.height) / 2) });
+    px += w + GAP;
   }
+  y += PHH + 34;
 
-  // QR card
-  y += 50;
-  const head = await text(`<b>Scan to book a session</b>`, { size: 52, color: "#0b3f26", width: PW - 160, align: "centre" });
+  const head = await text(`<b>Scan to book a session</b>`, { size: 50, color: "#0b3f26", width: PW - 160, align: "centre" });
   layers.push({ input: head.data, left: Math.round(cx - head.info.width / 2), top: y });
-  y += head.info.height + 26;
-  const Q = 470, CARD = Q + 70;
-  layers.push({ input: Buffer.from(`<svg width="${CARD}" height="${CARD}"><rect x="2" y="2" width="${CARD - 4}" height="${CARD - 4}" rx="34" fill="#ffffff" stroke="${GOLD}" stroke-width="4"/></svg>`), left: Math.round(cx - CARD / 2), top: y });
-  if (qr) layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(cx - Q / 2), top: y + 35 });
-  y += CARD + 26;
-  const ln = await text(`<b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 32, color: "#135c37", width: PW - 160, align: "centre" });
+  y += head.info.height + 22;
+
+  // QR card with the CYT ID up the left side and the site down the right
+  const Q = 470, CARD = Q + 64;
+  const cardX = Math.round(cx - CARD / 2);
+  layers.push({ input: Buffer.from(`<svg width="${CARD}" height="${CARD}"><rect x="2" y="2" width="${CARD - 4}" height="${CARD - 4}" rx="32" fill="#ffffff" stroke="${GOLD}" stroke-width="4"/></svg>`), left: cardX, top: y });
+  if (qr) layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(cx - Q / 2), top: y + 32 });
+  const code = String(t?.profile_code || "").trim();
+  const STRIP = 64;
+  // left strip: CYT ID (reads upwards)
+  layers.push({ input: rect(STRIP, CARD, "#135c37", 18), left: cardX - STRIP - 18, top: y });
+  const idTxt = await vertical(code ? `<span foreground="#f6d58a"><b>CYT ID</b></span>   <b>${esc(code)}</b>` : `<b>VERIFIED ON CYT</b>`, { size: 27, color: "#ffffff", angle: -90 });
+  layers.push({ input: idTxt.data, left: cardX - STRIP - 18 + Math.round((STRIP - idTxt.info.width) / 2), top: y + Math.round((CARD - idTxt.info.height) / 2) });
+  // right strip: the site (reads downwards)
+  layers.push({ input: rect(STRIP, CARD, "#fdf3dc", 18), left: cardX + CARD + 18, top: y });
+  const siteTxt = await vertical(`<b>CHOOSEYOURTHERAPIST.IN</b>`, { size: 23, color: "#8a5a08", angle: 90 });
+  layers.push({ input: siteTxt.data, left: cardX + CARD + 18 + Math.round((STRIP - siteTxt.info.width) / 2), top: y + Math.round((CARD - siteTxt.info.height) / 2) });
+  y += CARD + 24;
+
+  const ln = await text(`<b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 30, color: "#135c37", width: PW - 160, align: "centre" });
   layers.push({ input: ln.data, left: Math.round(cx - ln.info.width / 2), top: y });
 
   const foot = await text(`Online &amp; in-person sessions   ·   <span foreground="${GOLD}">Verified by Choose Your Therapist</span>`, { size: 28, color: "#e7f2ea", width: PW - 120, align: "centre" });
