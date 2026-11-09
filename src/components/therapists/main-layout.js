@@ -37,6 +37,7 @@ export const THERAPIST_SHELL_ROUTES = new Set([
   "/therapists/reviews",
   "/therapists/achievements",
   "/therapists/my-link",
+  "/therapists/social-posts",
   "/therapists/change-password",
   "/my-plans",
 ]);

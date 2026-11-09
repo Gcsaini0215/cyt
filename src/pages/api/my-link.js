@@ -1,8 +1,9 @@
-// GET /api/my-link?id=<therapist profile id> → { live, handle, url } for the dashboard's "My booking link" page.
-// Public data only (the same names the directory shows).
+// GET /api/my-link?id=<therapist profile id> → { live, handle, url, posts } for the dashboard's
+// "My booking link" and "Social posts" pages. Public data only (what the directory already shows).
 import { getSlugMaps } from "../../utils/therapist-slug-maps";
 import { handleFor, linkUrl } from "../../utils/my-link";
 import { nameSlug } from "../../utils/therapist-slug";
+import { concernsOf, reviewsOf } from "../../utils/og-images";
 
 export default async function handler(req, res) {
   const id = String(req.query.id || "");
@@ -14,7 +15,12 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "no-store");
     if (!t) return res.json({ status: true, data: { live: false, handle: null, url: null } });
     const handle = handleFor(t, maps);
-    return res.json({ status: true, data: { live: true, handle, url: linkUrl(handle), name: nameSlug(t) } });
+    const posts = {
+      reviews: Math.min(reviewsOf(t).length, 12),
+      concerns: concernsOf(t).map(([, , , tag]) => tag),
+      specialities: String(t.experties || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 4),
+    };
+    return res.json({ status: true, data: { live: true, handle, url: linkUrl(handle), name: nameSlug(t), posts } });
   } catch (e) {
     return res.status(500).json({ status: false, message: "Couldn't load your link" });
   }

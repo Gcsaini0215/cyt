@@ -422,3 +422,260 @@ export async function posterPng(t, { qr, link }) {
 
   return sharp({ create: { width: PW, height: PH, channels: 3, background: "#fbf8f0" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
 }
+
+/* ─── Social posts for the therapist's own Instagram / WhatsApp (pages/therapists/social-posts.js) ───
+   /api/social-card/<handle>/<kind>-<post|story>-<n>.png
+   kind: book (now taking sessions) · review (a client's words, initial only) · concern (a hook for one of their specialities)
+   post = 1080x1080, story = 1080x1920 (story also carries a QR, since links in a WhatsApp status can't be tapped). */
+const CONCERN_HOOKS = [
+  [/anxiety|panic|worry/i, "Feeling anxious", "all the time?", "Anxiety"],
+  [/depress|low mood|sad/i, "Feeling low", "for weeks?", "Depression"],
+  [/stress|burnout|work.?life/i, "Stressed and", "running on empty?", "Stress & burnout"],
+  [/couple|relationship|marriage|marital/i, "Struggling in your", "relationship?", "Relationships"],
+  [/grief|loss|bereave/i, "Carrying a loss", "that won't ease?", "Grief & loss"],
+  [/anger/i, "Anger getting", "in the way?", "Anger"],
+  [/self.?esteem|confidence/i, "Hard on", "yourself?", "Self-esteem"],
+  [/sleep|insomnia/i, "Can't switch off", "at night?", "Sleep"],
+  [/ocd|obsess/i, "Thoughts that", "won't let go?", "OCD"],
+  [/trauma|ptsd/i, "Something from the past", "still hurting?", "Trauma"],
+  [/child|parent|adolescen|teen/i, "Worried about", "your child?", "Parenting & teens"],
+];
+export function concernsOf(t) {
+  const hay = `${t?.experties || ""}, ${(Array.isArray(t?.services) ? t.services.map((s) => s.service || s).join(", ") : t?.services) || ""}`;
+  const out = CONCERN_HOOKS.filter(([re]) => re.test(hay));
+  return out.length ? out : [[null, "You don't have to", "figure it out alone.", "Therapy"]];
+}
+export function reviewsOf(t) {
+  return (t?.reviews || [])
+    .filter((r) => Number(r.rating) >= 4 && String(r.description || "").trim().length >= 25)
+    .filter((r) => !/\b(train(ed|ing|ee)?|intern(ship)?|learn(ing|t)?|teach(ing)?|course|mentor(ing|ship)?|student|lecture|class(es)?)\b/i.test(r.description))
+    .map((r) => ({ ...r, text: String(r.description).replace(/\s+/g, " ").trim() }))
+    .sort((a, b) => (b.rating - a.rating) || (Math.abs(140 - a.text.length) - Math.abs(140 - b.text.length)) || (new Date(b.createdAt) - new Date(a.createdAt)));
+}
+const specialitiesOf = (t) => String(t?.experties || "").split(",").map((x) => x.trim()).filter((x) => x && x.length <= 26).slice(0, 3);
+const initialOf = (n) => { const c = String(n || "").trim()[0]; return c ? `${c.toUpperCase()}.` : "A client"; };
+
+const greenBg = (w, h) => Buffer.from(`<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="g" cx="100%" cy="0%" r="130%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".5" stop-color="#135c37"/><stop offset="1" stop-color="#0a3622"/></radialGradient>
+    <radialGradient id="gl" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".42"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#g)"/>
+  <circle cx="${w - 60}" cy="40" r="${w * 0.36}" fill="url(#gl)"/>
+  <circle cx="-30" cy="${h - 40}" r="${w * 0.26}" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
+  <circle cx="-30" cy="${h - 40}" r="${w * 0.18}" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
+</svg>`);
+const creamBg = (w, h) => Buffer.from(`<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#fbf8f0"/>
+  <circle cx="${w - 40}" cy="30" r="${w * 0.3}" fill="#f6e4bd" fill-opacity=".55"/>
+  <circle cx="${w - 40}" cy="30" r="${w * 0.2}" fill="none" stroke="#e0ab45" stroke-opacity=".35" stroke-width="2"/>
+</svg>`);
+
+async function logoPill(width) {
+  const lg = await logo(width);
+  const pw = lg.info.width + 28, ph = lg.info.height + 18;
+  const img = await sharp(rect(pw, ph, "#ffffff", 14)).composite([{ input: lg.data, left: 14, top: 9 }]).png().toBuffer();
+  return { data: img, w: pw, h: ph };
+}
+async function archPhoto(t, w, h, frame = 12) {
+  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
+  const mask = Buffer.from(`<svg width="${w}" height="${h}"><path d="${archPath(w, h, 18)}"/></svg>`);
+  const ph = buf
+    ? await sharp(await sharp(buf).rotate().resize(w, h, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer()
+    : await sharp({ create: { width: w, height: h, channels: 4, background: "#dcebe1" } }).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
+  const FW = w + frame * 2, FH = h + frame * 2;
+  const fr = Buffer.from(`<svg width="${FW}" height="${FH}" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient></defs><path d="${archPath(FW, FH, 26)}" fill="url(#fg)"/></svg>`);
+  return { data: await sharp(fr).composite([{ input: ph, left: frame, top: frame }]).png().toBuffer(), w: FW, h: FH };
+}
+async function roundPhoto(t, d) {
+  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
+  const ring = Buffer.from(`<svg width="${d + 10}" height="${d + 10}"><circle cx="${(d + 10) / 2}" cy="${(d + 10) / 2}" r="${(d + 10) / 2}" fill="#e0ab45"/></svg>`);
+  if (!buf) return sharp(ring).png().toBuffer();
+  const ph = await sharp(await sharp(buf).rotate().resize(d, d, { fit: "cover", position: "attention" }).png().toBuffer())
+    .composite([{ input: Buffer.from(`<svg width="${d}" height="${d}"><circle cx="${d / 2}" cy="${d / 2}" r="${d / 2}"/></svg>`), blend: "dest-in" }]).png().toBuffer();
+  return sharp(ring).composite([{ input: ph, left: 5, top: 5 }]).png().toBuffer();
+}
+async function goldButton(label, w, h, size) {
+  const bt = await text(`<b>${label}</b>`, { size, color: "#1f2a14", width: w - 40 });
+  const bg = Buffer.from(`<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#e3a83a"/></linearGradient></defs><rect width="${w}" height="${h}" rx="${h / 2}" fill="url(#b)"/></svg>`);
+  return sharp(bg).composite([{ input: bt.data, left: Math.round((w - bt.info.width) / 2), top: Math.round((h - bt.info.height) / 2) }]).png().toBuffer();
+}
+async function pillsRow(items, { size, color, bg, padX = 18, h = 46, gap = 10, maxW }) {
+  const imgs = await Promise.all(items.map((p) => text(esc(p), { size, color, width: 700 })));
+  const parts = [];
+  let x = 0;
+  for (const im of imgs) {
+    const w = im.info.width + padX * 2;
+    if (maxW && x + w > maxW) break;
+    parts.push({ input: rect(w, h, bg, h / 2), left: x, top: 0 }, { input: im.data, left: x + padX, top: Math.round((h - im.info.height) / 2) });
+    x += w + gap;
+  }
+  const W2 = Math.max(1, x - gap);
+  return { data: await sharp({ create: { width: W2, height: h, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(parts).png().toBuffer(), w: W2, h };
+}
+// move layers[from..] down by `by` px (used to centre a block in the space left over)
+const shiftFrom = (layers, from, by) => { for (let i = from; i < layers.length; i++) layers[i].top += Math.round(by); };
+const starsMarkup = (n) => `<span foreground="#f2c94c">${"★".repeat(Math.round(n))}</span>`;
+
+export async function socialCard(t, { kind = "book", size = "post", n = 0, link = "", qr = null } = {}) {
+  const W2 = 1080, H2 = size === "story" ? 1920 : 1080, story = size === "story";
+  const cx = W2 / 2, layers = [];
+  const name = esc(cleanName(t) || "Your therapist");
+  const role = esc(t?.profile_type || "Psychologist");
+  const short = esc(String(link || "").replace(/^https:\/\/www\./, ""));
+  const r = ratingOf(t);
+
+  if (kind === "review") {
+    const list = reviewsOf(t);
+    if (!list.length) return null; // only real, published reviews — never a made-up quote
+    const rv = list[n % list.length];
+    layers.push({ input: creamBg(W2, H2), left: 0, top: 0 });
+    const lp = await logoPill(story ? 230 : 200);
+    layers.push({ input: lp.data, left: 64, top: story ? 90 : 60 });
+    const chip = await text("<b>WHAT CLIENTS SAY</b>", { size: story ? 26 : 22, color: "#a86e0e", width: 600 });
+    layers.push({ input: chip.data, left: W2 - 64 - chip.info.width, top: (story ? 90 : 60) + Math.round((lp.h - chip.info.height) / 2) });
+    const BH = story ? 420 : 250, BY = H2 - BH;
+    const areaTop = (story ? 90 : 60) + lp.h + 30, areaBot = BY - 30;
+    const mark = layers.length;
+    let y = areaTop;
+    const q = await text("<b>“</b>", { size: story ? 220 : 160, color: "#e0ab45", width: 300 });
+    layers.push({ input: q.data, left: 64, top: y });
+    y += Math.round(q.info.height * 0.78) + (story ? 44 : 34);
+    const quote = await text(esc(rv.text.length > 260 ? `${rv.text.slice(0, 257).replace(/\s+\S*$/, "")}…` : rv.text), { size: story ? 58 : 46, color: "#0b1712", width: W2 - 160, lines: story ? 9 : 6 });
+    layers.push({ input: quote.data, left: 80, top: y });
+    y += quote.info.height + 34;
+    const st = await text(`${starsMarkup(rv.rating || 5)}   <b>${initialOf(rv.name)}</b>  ·  verified client`, { size: story ? 36 : 30, color: "#4b5b53", width: W2 - 160 });
+    layers.push({ input: st.data, left: 80, top: y });
+    y += st.info.height;
+    shiftFrom(layers, mark, Math.max(0, (areaBot - y) / 2));
+    // bottom: green band with the therapist
+    layers.push({ input: greenBg(W2, BH), left: 0, top: BY });
+    layers.push({ input: rect(W2, 6, GOLD), left: 0, top: BY });
+    const D = story ? 170 : 140;
+    const PY = BY + (story ? 60 : Math.round((BH - D - 10) / 2));
+    layers.push({ input: await roundPhoto(t, D), left: 64, top: PY });
+    const tx = 64 + D + 10 + 34, TW = W2 - tx - 64;
+    const nm = await text(`<b>${name}</b>`, { size: story ? 50 : 42, color: "#ffffff", width: TW, lines: 1 });
+    const rl = await text(role, { size: story ? 32 : 26, color: "#f6d58a", width: TW, lines: 1 });
+    if (story) {
+      const ty = PY + Math.round((D + 10 - nm.info.height - rl.info.height - 6) / 2);
+      layers.push({ input: nm.data, left: tx, top: ty }, { input: rl.data, left: tx, top: ty + nm.info.height + 6 });
+      layers.push({ input: await goldButton(`Book: ${short}`, W2 - 128, 96, 34), left: 64, top: PY + D + 50 });
+    } else {
+      const lk = await text(`<b>Book: ${short}</b>`, { size: 26, color: "#f2c94c", width: TW, lines: 1 });
+      const th = nm.info.height + 4 + rl.info.height + 14 + lk.info.height;
+      const ty = PY + Math.round((D + 10 - th) / 2);
+      layers.push({ input: nm.data, left: tx, top: ty }, { input: rl.data, left: tx, top: ty + nm.info.height + 4 }, { input: lk.data, left: tx, top: ty + nm.info.height + 4 + rl.info.height + 14 });
+    }
+  } else if (kind === "concern") {
+    const cs = concernsOf(t);
+    const [, l1, l2, tag] = cs[n % cs.length];
+    layers.push({ input: greenBg(W2, H2), left: 0, top: 0 });
+    const lp = await logoPill(story ? 230 : 200);
+    layers.push({ input: lp.data, left: 64, top: story ? 90 : 60 });
+    const chip = await text(`<b>${esc(tag.toUpperCase())}</b>`, { size: story ? 26 : 22, color: "#f6d58a", width: 600 });
+    layers.push({ input: rect(chip.info.width + 32, chip.info.height + 16, "#f2c94c", 18, 0.16), left: W2 - 64 - chip.info.width - 32, top: (story ? 90 : 60) + Math.round((lp.h - chip.info.height - 16) / 2) });
+    layers.push({ input: chip.data, left: W2 - 64 - chip.info.width - 16, top: (story ? 90 : 60) + Math.round((lp.h - chip.info.height) / 2) });
+    const D = story ? 170 : 120, RY = story ? H2 - 640 : H2 - 290;
+    const areaTop = (story ? 90 : 60) + lp.h + 30, areaBot = RY - 30;
+    const mark = layers.length;
+    let y = areaTop;
+    const h1 = await text(`<b>${esc(l1)}</b>`, { size: story ? 104 : 88, color: "#ffffff", width: W2 - 128, lines: 2 });
+    layers.push({ input: h1.data, left: 64, top: y });
+    y += h1.info.height;
+    const h2 = await text(`<b>${esc(l2)}</b>`, { size: story ? 104 : 88, color: "#f2c94c", width: W2 - 128, lines: 2 });
+    layers.push({ input: h2.data, left: 64, top: y });
+    y += h2.info.height + (story ? 50 : 34);
+    const sub = await text("You don't have to carry it alone. Talk to a verified psychologist — online or in person.", { size: story ? 40 : 32, color: "#d9eadf", width: W2 - 160, lines: 3 });
+    layers.push({ input: sub.data, left: 64, top: y });
+    y += sub.info.height;
+    shiftFrom(layers, mark, Math.max(0, (areaBot - y) / 2));
+    // therapist row
+    layers.push({ input: rect(W2 - 128, D + 50, "#ffffff", 28, 0.08), left: 64, top: RY });
+    layers.push({ input: await roundPhoto(t, D), left: 89, top: RY + 20 });
+    const nm = await text(`<b>${name}</b>`, { size: story ? 48 : 40, color: "#ffffff", width: W2 - D - 260, lines: 1 });
+    const rl = await text(`${role}${r ? `   <span foreground="#f2c94c">★ ${r.avg}</span>` : ""}`, { size: story ? 30 : 26, color: "#f6d58a", width: W2 - D - 260, lines: 1 });
+    const tx = 89 + D + 10 + 30, ty = RY + 20 + Math.round((D + 10 - nm.info.height - rl.info.height - 6) / 2);
+    layers.push({ input: nm.data, left: tx, top: ty }, { input: rl.data, left: tx, top: ty + nm.info.height + 6 });
+    if (story) {
+      if (qr) {
+        const Q = 230;
+        layers.push({ input: rect(Q + 30, Q + 30, "#ffffff", 22), left: 64, top: H2 - 360 });
+        layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: 79, top: H2 - 345 });
+      }
+      const bx = qr ? 64 + 260 + 30 : 64, bw = W2 - 64 - bx;
+      const lead = await text("<b>Scan or tap to book</b>", { size: 34, color: "#ffffff", width: bw });
+      layers.push({ input: lead.data, left: bx, top: H2 - 340 });
+      layers.push({ input: await goldButton(short, bw, 96, 30), left: bx, top: H2 - 340 + lead.info.height + 24 });
+    } else {
+      const lk = await text(`<b>Book a session: ${short}</b>`, { size: 28, color: "#f2c94c", width: W2 - 128 });
+      layers.push({ input: lk.data, left: 64, top: H2 - 42 - lk.info.height });
+    }
+  } else {
+    // book — "Now taking sessions"
+    layers.push({ input: greenBg(W2, H2), left: 0, top: 0 });
+    const lp = await logoPill(story ? 230 : 200);
+    const chip = await text("<b>NOW TAKING SESSIONS</b>", { size: story ? 26 : 22, color: "#f6d58a", width: 600 });
+    if (story) {
+      layers.push({ input: lp.data, left: Math.round(cx - lp.w / 2), top: 90 });
+      layers.push({ input: rect(chip.info.width + 32, chip.info.height + 16, "#f2c94c", 18, 0.16), left: Math.round(cx - (chip.info.width + 32) / 2), top: 90 + lp.h + 36 });
+      layers.push({ input: chip.data, left: Math.round(cx - chip.info.width / 2), top: 90 + lp.h + 44 });
+      const ph = await archPhoto(t, 540, 650, 14);
+      const mark = layers.length;
+      const py = 90 + lp.h + 36 + chip.info.height + 16 + 50;
+      layers.push({ input: ph.data, left: Math.round(cx - ph.w / 2), top: py });
+      layers.push({ input: await verifiedSeal(170), left: Math.round(cx + ph.w / 2 - 120), top: py + ph.h - 130 });
+      let y = py + ph.h + 40;
+      const nm = await text(`<b>${name}</b>`, { size: 66, color: "#ffffff", width: W2 - 128, align: "centre", lines: 2 });
+      layers.push({ input: nm.data, left: Math.round(cx - nm.info.width / 2), top: y });
+      y += nm.info.height + 8;
+      const rl = await text(`<b>${role}</b>`, { size: 36, color: "#f6d58a", width: W2 - 128, align: "centre", lines: 1 });
+      layers.push({ input: rl.data, left: Math.round(cx - rl.info.width / 2), top: y });
+      y += rl.info.height + 26;
+      const sp = specialitiesOf(t);
+      if (sp.length) {
+        const pr = await pillsRow(sp, { size: 28, color: "#ffffff", bg: "rgba(255,255,255,0.14)", h: 54, maxW: W2 - 128 });
+        layers.push({ input: pr.data, left: Math.round(cx - pr.w / 2), top: y });
+        y += pr.h + 22;
+      }
+      const meta = await text(`Online &amp; in person${r ? `   ·   <span foreground="#f2c94c">★ ${r.avg}</span> (${r.n} reviews)` : ""}`, { size: 30, color: "#d9eadf", width: W2 - 128, align: "centre" });
+      layers.push({ input: meta.data, left: Math.round(cx - meta.info.width / 2), top: y });
+      y += meta.info.height;
+      shiftFrom(layers, mark, Math.max(0, (H2 - 360 - 40 - y) / 2));
+      if (qr) {
+        const Q = 220;
+        layers.push({ input: rect(Q + 30, Q + 30, "#ffffff", 22), left: 64, top: H2 - 330 });
+        layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: 79, top: H2 - 315 });
+      }
+      const bx = qr ? 64 + 250 + 30 : 64, bw = W2 - 64 - bx;
+      const lead = await text("<b>Scan or tap to book</b>", { size: 34, color: "#ffffff", width: bw });
+      layers.push({ input: lead.data, left: bx, top: H2 - 310 });
+      layers.push({ input: await goldButton(short, bw, 96, 30), left: bx, top: H2 - 310 + lead.info.height + 24 });
+    } else {
+      layers.push({ input: lp.data, left: 64, top: 60 });
+      const ph = await archPhoto(t, 390, 470, 12);
+      const px = W2 - 64 - ph.w, py = 200;
+      layers.push({ input: ph.data, left: px, top: py });
+      layers.push({ input: await verifiedSeal(140), left: px - 40, top: py + ph.h - 120 });
+      layers.push({ input: rect(chip.info.width + 32, chip.info.height + 16, "#f2c94c", 18, 0.16), left: 64, top: 230 });
+      layers.push({ input: chip.data, left: 80, top: 238 });
+      let y = 230 + chip.info.height + 16 + 30;
+      const TW = px - 64 - 40;
+      const nm = await text(`<b>${name}</b>`, { size: 62, color: "#ffffff", width: TW, lines: 3 });
+      layers.push({ input: nm.data, left: 64, top: y });
+      y += nm.info.height + 10;
+      const rl = await text(`<b>${role}</b>`, { size: 32, color: "#f6d58a", width: TW, lines: 2 });
+      layers.push({ input: rl.data, left: 64, top: y });
+      y += rl.info.height + 24;
+      for (const s of specialitiesOf(t)) {
+        const li = await text(`<span foreground="#f2c94c">✓</span>  ${esc(s)}`, { size: 28, color: "#e7f2ea", width: TW });
+        layers.push({ input: li.data, left: 64, top: y });
+        y += li.info.height + 8;
+      }
+      const meta = await text(`Online &amp; in person${r ? `  ·  <span foreground="#f2c94c">★ ${r.avg}</span>` : ""}`, { size: 26, color: "#d9eadf", width: TW });
+      layers.push({ input: meta.data, left: 64, top: Math.max(y + 10, 640) });
+      layers.push({ input: await goldButton(`Book a session  ·  ${short}`, W2 - 128, 92, 32), left: 64, top: H2 - 64 - 92 });
+    }
+  }
+  return sharp({ create: { width: W2, height: H2, channels: 3, background: "#0b3f26" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
+}
