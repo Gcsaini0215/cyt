@@ -425,8 +425,8 @@ export async function posterPng(t, { qr, link }) {
 
 
 /* ─── Tweet-style post for the therapist's own Instagram / WhatsApp (pages/therapists/social-posts.js) ───
-   Colourful gradient background with a frosted "tweet" card: round photo, name + green tick, profile type,
-   their own short line, date + booking link, and their real rating / review count (no made-up numbers).
+   Green gradient background with a frosted "tweet" card: round photo, name + green tick, profile type,
+   their own short line, date + booking link. No logo, no rating / reviews (owner's choice).
    size: post = 1080x1080 · story = 1080x1920 (story adds a QR, since links in a WhatsApp status can't be tapped). */
 export async function tweetCard(t, { words = "", size = "post", link = "", qr = null } = {}) {
   const story = size === "story";
@@ -435,7 +435,6 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
   const role = esc(t?.profile_type || "Psychologist");
   const short = esc(String(link || "").replace(/^https:\/\/www\./, ""));
   const body = esc(String(words || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim().slice(0, 280)) || "Your words here.";
-  const r = ratingOf(t);
   const date = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).replace(/ (\d{4})$/, ", $1");
 
   const parts = [];
@@ -447,12 +446,9 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
     ? await sharp(await sharp(buf).rotate().resize(D, D, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: circle, blend: "dest-in" }]).png().toBuffer()
     : await sharp({ create: { width: D, height: D, channels: 4, background: "#f6d9b8" } }).composite([{ input: circle, blend: "dest-in" }]).png().toBuffer();
   parts.push({ input: av, left: PAD, top: y });
-  // CYT logo in the top-right corner of the card (where the bird sits on a tweet image)
-  const lg = await logo(story ? 190 : 170);
-  parts.push({ input: lg.data, left: CW - PAD - lg.info.width, top: y + Math.round((D - lg.info.height) / 2) });
-  const tx = PAD + D + 26, TW = IW - D - 26 - lg.info.width - 30 - 46;
+  const tx = PAD + D + 26, TW = IW - D - 26 - 50;
   const nm = await text(`<b>${name}</b>`, { size: 40, color: "#0f1419", width: TW, lines: 1 });
-  const rl = await text(role, { size: 32, color: "#536471", width: IW - D - 26 - lg.info.width - 30, lines: 1 });
+  const rl = await text(role, { size: 32, color: "#536471", width: IW - D - 26, lines: 1 });
   const ny = y + Math.round((D - nm.info.height - 6 - rl.info.height) / 2);
   parts.push({ input: nm.data, left: tx, top: ny });
   const S = 36; // green verified tick next to the name
@@ -463,32 +459,27 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
   const msg = await text(body, { size: story ? 58 : 50, color: "#0f1419", width: IW, lines: story ? 12 : 7 });
   parts.push({ input: msg.data, left: PAD, top: y });
   y += msg.info.height + 44;
-  const meta = await text(`${date}  ·  Book: <span foreground="#1d8fe0">${short}</span>`, { size: 30, color: "#6b7a86", width: IW, lines: 1 });
+  const meta = await text(`${date}  ·  Book: <span foreground="#1e7a4c">${short}</span>`, { size: 30, color: "#6b7a86", width: IW, lines: 1 });
   parts.push({ input: meta.data, left: PAD, top: y });
   y += meta.info.height;
-  if (r) {
-    y += 30;
-    const st = await text(`<b>${r.avg} ★</b> <span foreground="#6b7a86">rating</span>        <b>${r.n}</b> <span foreground="#6b7a86">${r.n === 1 ? "review" : "reviews"}</span>        <b>Online</b> <span foreground="#6b7a86">&amp; in person</span>`, { size: 32, color: "#0f1419", width: IW, lines: 1 });
-    parts.push({ input: st.data, left: PAD, top: y });
-    y += st.info.height;
-  }
   y += PAD + 6;
   const CH = y;
 
-  // frosted card: translucent white with a soft pink → teal tint and a bright edge
+  // frosted card: translucent white with a soft mint tint and a bright edge
   const cardBg = Buffer.from(`<svg width="${CW}" height="${CH}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fdf2ff" stop-opacity=".93"/><stop offset=".55" stop-color="#f3f6ff" stop-opacity=".86"/><stop offset="1" stop-color="#d9fbf6" stop-opacity=".84"/></linearGradient></defs>
+    <defs><linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".55" stop-color="#f3fbf6" stop-opacity=".9"/><stop offset="1" stop-color="#ddf3e5" stop-opacity=".88"/></linearGradient></defs>
     <rect x="2" y="2" width="${CW - 4}" height="${CH - 4}" rx="34" fill="url(#c)" stroke="#ffffff" stroke-opacity=".75" stroke-width="4"/>
   </svg>`);
   const card = await sharp({ create: { width: CW, height: CH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
     .composite([{ input: cardBg, left: 0, top: 0 }, ...parts]).png().toBuffer();
-  const shadow = await sharp(Buffer.from(`<svg width="${CW + 120}" height="${CH + 120}"><rect x="60" y="80" width="${CW}" height="${CH}" rx="34" fill="#1e1b4b" fill-opacity=".35"/></svg>`)).blur(28).png().toBuffer();
+  const shadow = await sharp(Buffer.from(`<svg width="${CW + 120}" height="${CH + 120}"><rect x="60" y="80" width="${CW}" height="${CH}" rx="34" fill="#021a0e" fill-opacity=".45"/></svg>`)).blur(28).png().toBuffer();
 
+  // green brand gradient: deep forest bottom-left → fresh mint top-right, with a soft gold glow
   const bg = Buffer.from(`<svg width="${W2}" height="${H2}" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e14fe8"/><stop offset=".35" stop-color="#8b6ee8"/><stop offset=".65" stop-color="#4fb3e6"/><stop offset="1" stop-color="#22e3c9"/></linearGradient>
-      <radialGradient id="a" cx="0" cy="1" r="0.8"><stop offset="0" stop-color="#3b2fc9" stop-opacity=".75"/><stop offset="1" stop-color="#3b2fc9" stop-opacity="0"/></radialGradient>
-      <radialGradient id="b" cx="1" cy="0" r="0.7"><stop offset="0" stop-color="#1ff2d8" stop-opacity=".8"/><stop offset="1" stop-color="#1ff2d8" stop-opacity="0"/></radialGradient>
+      <linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#073620"/><stop offset=".4" stop-color="#14663d"/><stop offset=".75" stop-color="#2a9a5f"/><stop offset="1" stop-color="#7fd3a0"/></linearGradient>
+      <radialGradient id="a" cx="0" cy="1" r="0.8"><stop offset="0" stop-color="#021f12" stop-opacity=".7"/><stop offset="1" stop-color="#021f12" stop-opacity="0"/></radialGradient>
+      <radialGradient id="b" cx="1" cy="0" r="0.6"><stop offset="0" stop-color="#f2c94c" stop-opacity=".45"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
     </defs>
     <rect width="100%" height="100%" fill="url(#g)"/><rect width="100%" height="100%" fill="url(#a)"/><rect width="100%" height="100%" fill="url(#b)"/>
   </svg>`);
@@ -500,12 +491,12 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
   if (QB) {
     const Q = 200, qy = H2 - M - Q - 30;
     const lead = await text("<b>Scan to book a session</b>", { size: 36, color: "#0f1419", width: CW - Q - 120 });
-    const sub = await text(short, { size: 28, color: "#1d8fe0", width: CW - Q - 120, lines: 1 });
+    const sub = await text(short, { size: 28, color: "#1e7a4c", width: CW - Q - 120, lines: 1 });
     const box = Buffer.from(`<svg width="${CW}" height="${Q + 30}"><rect x="2" y="2" width="${CW - 4}" height="${Q + 26}" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#ffffff" stroke-width="4"/></svg>`);
     layers.push({ input: box, left: M, top: qy });
     layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: M + 15, top: qy + 15 });
     const lx = M + Q + 50, ly = qy + Math.round((Q + 30 - lead.info.height - 8 - sub.info.height) / 2);
     layers.push({ input: lead.data, left: lx, top: ly }, { input: sub.data, left: lx, top: ly + lead.info.height + 8 });
   }
-  return sharp({ create: { width: W2, height: H2, channels: 3, background: "#8b6ee8" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
+  return sharp({ create: { width: W2, height: H2, channels: 3, background: "#14663d" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
 }
