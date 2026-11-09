@@ -23,6 +23,7 @@ const LocationConsent = dynamic(() => import("../components/home/location-consen
 const BookingPopup = dynamic(() => import("../components/global/booking-popup"), { ssr: false });
 
 import { fetchData } from "../utils/actions";
+import { onHomePage } from "../utils/listing";
 import { getTherapistProfiles } from "../utils/url";
 import { getMinFee, split, sessionModes } from "../utils/therapist-directory";
 import { placeStats } from "../utils/places";
@@ -94,13 +95,14 @@ const cardSlim = (t) => {
 export async function getStaticProps() {
   try {
     const res = await fetchData(getTherapistProfiles, { page: 1, pageSize: 1000 });
-    const all = res?.data || [];
-    const fees = all.map((t) => getMinFee(t.fees)).filter(Boolean);
+    const everyone = res?.data || [];
+    const all = onHomePage(everyone); // a lapsed paid plan stays in the directory, not on the home page
+    const fees = everyone.map((t) => getMinFee(t.fees)).filter(Boolean);
     return {
       props: {
         initialBanner: clean(pickBanner(all).map((t) => homeSlim(t))),
         initialTop: clean(pickTop(all, null).map((t) => homeSlim(t, true))),
-        stats: { count: all.length, minFee: fees.length ? Math.min(...fees) : null },
+        stats: { count: everyone.length, minFee: fees.length ? Math.min(...fees) : null },
         concerns: clean(concernStats(all, getMinFee, split)),
         people: clean(all.map(cardSlim)),
         places: placeStats(all, getMinFee, sessionModes),
@@ -161,7 +163,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
   const getTopTherapists = useCallback(async () => {
     try {
       const res = await fetchData(getTherapistProfiles);
-      const all = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+      const all = onHomePage((res && res.data) ? res.data : (Array.isArray(res) ? res : []));
       if (all.length > 0) {
         setBannerTherapists(pickBanner(all));
         setTopTherapists(pickTop(all, userState));

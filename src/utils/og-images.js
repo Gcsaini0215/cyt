@@ -215,3 +215,77 @@ export const sendJpeg = (res, buf, maxAge = 86400) => {
   res.setHeader("Cache-Control", `public, max-age=${maxAge}, stale-while-revalidate=604800`);
   res.status(200).end(buf);
 };
+
+// Renewal advert for the "your plan is ending / has ended" emails: /api/renew-card/<id>-<soon|ended>.png
+// Photo on the left; on the right the logo, a headline, what the plan gives and the price, and a gold button.
+export async function renewCard(t, { state = "ended", days = 0 } = {}) {
+  const PW = 430;
+  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
+  const layers = [];
+  // right side: deep green with a soft gold glow
+  layers.push({ input: Buffer.from(`<svg width="${W - PW}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="g" cx="100%" cy="0%" r="120%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".5" stop-color="#135c37"/><stop offset="1" stop-color="#0b3f26"/></radialGradient>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".42"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#g)"/>
+    <circle cx="${W - PW - 20}" cy="10" r="230" fill="url(#glow)"/>
+    <circle cx="${W - PW + 10}" cy="${H + 10}" r="150" fill="none" stroke="#ffffff" stroke-opacity=".08"/>
+    <circle cx="${W - PW + 10}" cy="${H + 10}" r="105" fill="none" stroke="#f2c94c" stroke-opacity=".16"/>
+  </svg>`), left: PW, top: 0 });
+  if (buf) {
+    layers.push({ input: await sharp(buf).rotate().resize(PW, H, { fit: "cover", position: "attention" }).png().toBuffer(), left: 0, top: 0 });
+  } else {
+    layers.push({ input: rect(PW, H, "#dcebe1"), left: 0, top: 0 });
+    const lgp = await logo(300);
+    layers.push({ input: lgp.data, left: Math.round((PW - lgp.info.width) / 2), top: Math.round((H - lgp.info.height) / 2) });
+  }
+  layers.push({ input: rect(8, H, GOLD), left: PW, top: 0 });
+  // name strip over the photo
+  const nm = cleanName(t);
+  if (nm) {
+    layers.push({ input: Buffer.from(`<svg width="${PW}" height="150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".72"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#s)"/></svg>`), left: 0, top: H - 150 });
+    const n1 = await text(`<b>${esc(nm)}</b>`, { size: 30, color: "#ffffff", width: PW - 48, lines: 1 });
+    layers.push({ input: n1.data, left: 24, top: H - 30 - n1.info.height - 30 });
+    const n2 = await text(esc(t?.profile_type || "Psychologist"), { size: 20, color: "#f6d58a", width: PW - 48, lines: 1 });
+    layers.push({ input: n2.data, left: 24, top: H - 26 - n2.info.height });
+  }
+
+  const X = PW + 56, TW = W - X - 48;
+  let y = 44;
+  // white pill behind the logo so it reads on green
+  const lg = await logo(210);
+  layers.push({ input: rect(lg.info.width + 28, lg.info.height + 18, "#ffffff", 14), left: X, top: y });
+  layers.push({ input: lg.data, left: X + 14, top: y + 9 });
+  y += lg.info.height + 18 + 26;
+
+  const tag = state === "ended" ? "YOUR PLAN HAS ENDED" : days > 1 ? `YOUR PLAN ENDS IN ${days} DAYS` : "YOUR PLAN ENDS TOMORROW";
+  const chip = await text(`<b>${tag}</b>`, { size: 16, color: "#f6d58a", width: 520 });
+  layers.push({ input: rect(chip.info.width + 30, chip.info.height + 14, "#f2c94c", 16, 0.16), left: X, top: y });
+  layers.push({ input: chip.data, left: X + 15, top: y + 7 });
+  y += chip.info.height + 14 + 18;
+
+  const head = state === "ended"
+    ? `Get back on the <span foreground="#f2c94c">CYT home page</span>`
+    : `Stay on the <span foreground="#f2c94c">CYT home page</span>`;
+  const h1 = await text(`<b>${head}</b>`, { size: 50, color: "#ffffff", width: TW, lines: 2 });
+  layers.push({ input: h1.data, left: X, top: y });
+  y += h1.info.height + 20;
+
+  for (const line of ["Shown to visitors on the home page", "Featured in concern &amp; city sections", "Profile insights, reviews &amp; booking tools"]) {
+    const li = await text(`<span foreground="#f2c94c">✓</span>   ${line}`, { size: 23, color: "#e7f2ea", width: TW });
+    layers.push({ input: li.data, left: X, top: y });
+    y += li.info.height + 10;
+  }
+
+  // price + button along the bottom
+  const BY = H - 44 - 70;
+  const price = await text(`Plans from <b><span foreground="#f2c94c">₹20/day</span></b>`, { size: 24, color: "#ffffff", width: 300 });
+  layers.push({ input: price.data, left: X, top: BY + Math.round((70 - price.info.height) / 2) });
+  const btnW = 290, btnX = W - 48 - btnW;
+  layers.push({ input: Buffer.from(`<svg width="${btnW}" height="70" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#e3a83a"/></linearGradient></defs><rect width="${btnW}" height="70" rx="16" fill="url(#b)"/></svg>`), left: btnX, top: BY });
+  const bt = await text(`<b>${state === "ended" ? "Renew now  →" : "Renew in 1 min  →"}</b>`, { size: 26, color: "#1f2a14", width: btnW, align: "centre" });
+  layers.push({ input: bt.data, left: btnX + Math.round((btnW - bt.info.width) / 2), top: BY + Math.round((70 - bt.info.height) / 2) });
+
+  return sharp(await canvas()).composite(layers).png({ compressionLevel: 9, palette: true, quality: 90 }).toBuffer();
+}
