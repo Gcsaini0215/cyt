@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     if (!t) return res.status(404).send("Your profile isn't live yet");
     const handle = handleFor(t, maps);
     const qr = size === "story" ? await qrPng(linkUrl(handle, "qr")) : null;
-    const png = await tweetCard(t, { words, size, handle, link: linkUrl(handle), qr });
+    const png = await tweetCard(t, { words, size, link: linkUrl(handle), qr });
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).end(png);
