@@ -48,7 +48,7 @@ const ALL_GROUPS = [
       { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews", badgeKey: "reviews" },
       // their own short booking link, QR code and "Scan to book" poster (pages/therapists/my-link.js) — free for everyone
       { to: "/therapists/my-link", Icon: QrCode2RoundedIcon, label: "My booking link" },
-      // ready-made Instagram / WhatsApp posts from their photo, specialities and reviews (pages/therapists/social-posts.js) — free
+      // one tweet-style post with their own words, photo and booking link (pages/therapists/social-posts.js) — free
       { to: "/therapists/social-posts", Icon: CampaignRoundedIcon, label: "Social posts" },
       // certificates for sessions / 4★+ reviews / time on CYT (pages/therapists/achievements.js)
       { to: "/therapists/achievements", Icon: EmojiEventsRoundedIcon, label: "Achievements" },

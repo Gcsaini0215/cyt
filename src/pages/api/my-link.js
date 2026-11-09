@@ -3,7 +3,6 @@
 import { getSlugMaps } from "../../utils/therapist-slug-maps";
 import { handleFor, linkUrl } from "../../utils/my-link";
 import { nameSlug } from "../../utils/therapist-slug";
-import { concernsOf, reviewsOf } from "../../utils/og-images";
 
 export default async function handler(req, res) {
   const id = String(req.query.id || "");
@@ -15,11 +14,7 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "no-store");
     if (!t) return res.json({ status: true, data: { live: false, handle: null, url: null } });
     const handle = handleFor(t, maps);
-    const posts = {
-      reviews: Math.min(reviewsOf(t).length, 12),
-      concerns: concernsOf(t).map(([, , , tag]) => tag),
-      specialities: String(t.experties || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 4),
-    };
+    const posts = { specialities: String(t.experties || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 6) };
     return res.json({ status: true, data: { live: true, handle, url: linkUrl(handle), name: nameSlug(t), posts } });
   } catch (e) {
     return res.status(500).json({ status: false, message: "Couldn't load your link" });
