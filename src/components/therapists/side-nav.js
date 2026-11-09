@@ -24,11 +24,11 @@ import WorkspacePremiumRoundedIcon from "@mui/icons-material/WorkspacePremiumRou
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 
-/* Every therapist-portal page, grouped. Items marked `hidden` are switched off for now
-   (pages exist but aren't in the menu yet) — remove the flag to show them. `match` lists the route prefixes that count as
-   "this item" so sub-pages (e.g. /coupon/create) keep their menu item highlighted.
-   The `upgrade` group (paid add-ons and growth tools) sits last and gets the gold styling. Once the therapist
-   owns an upgrade (`owns`), the item moves up into its `home` group (groupsFor). */
+/* Every therapist-portal page, grouped, in order of how often it's used:
+     Practice (daily work) > Grow (reputation + new clients) > Money (payouts + plan) > ✦ Upgrade (gold box) > Account (bottom)
+   Items marked `hidden` are switched off for now (pages exist but aren't in the menu yet) — remove the flag to show them.
+   `match` lists the route prefixes that count as "this item" so sub-pages (e.g. /coupon/create) keep their menu item
+   highlighted. Once the therapist owns an upgrade (`owns`), the item moves up into its `home` group (groupsFor). */
 const ALL_GROUPS = [
   {
     title: "Practice",
@@ -36,22 +36,16 @@ const ALL_GROUPS = [
       { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
       { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badgeKey: "bookings" },
       { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
-      { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews", badgeKey: "reviews" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },
-    ],
-  },
-  {
-    title: "Money",
-    items: [
-      { to: "/therapists/payouts", Icon: AccountBalanceWalletRoundedIcon, label: "Payouts" },
-      { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices", hidden: true },
+      { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications", badgeKey: "inbox" },
     ],
   },
   {
     title: "Grow",
     items: [
-      // their own short booking link, QR code and "Scan to book" poster (pages/therapists/my-link.js)
+      { to: "/therapists/reviews", Icon: StarRateRoundedIcon, label: "Reviews", badgeKey: "reviews" },
+      // their own short booking link, QR code and "Scan to book" poster (pages/therapists/my-link.js) — free for everyone
       { to: "/therapists/my-link", Icon: QrCode2RoundedIcon, label: "My booking link" },
       // certificates for sessions / 4★+ reviews / time on CYT (pages/therapists/achievements.js)
       { to: "/therapists/achievements", Icon: EmojiEventsRoundedIcon, label: "Achievements" },
@@ -60,11 +54,11 @@ const ALL_GROUPS = [
     ],
   },
   {
-    title: "Account",
+    title: "Money",
     items: [
-      { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications", badgeKey: "inbox" },
-      { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings", badgeKey: "settings", match: ["/settings", "/therapists/change-password"] },
-      { to: "/therapists/help", Icon: SupportAgentRoundedIcon, label: "Help & support" },
+      { to: "/therapists/payouts", Icon: AccountBalanceWalletRoundedIcon, label: "Payouts" },
+      { to: "/therapists/invoices", Icon: ReceiptLongRoundedIcon, label: "Invoices", hidden: true },
+      { to: "/my-plans", Icon: WorkspacePremiumRoundedIcon, label: "Subscriptions" },
     ],
   },
   {
@@ -76,10 +70,11 @@ const ALL_GROUPS = [
     ],
   },
   {
-    // the plans page sits last (after the gold Upgrade group), like a billing link usually does
-    title: "Billing",
+    // settings and help sit at the bottom, as in most apps
+    title: "Account",
     items: [
-      { to: "/my-plans", Icon: WorkspacePremiumRoundedIcon, label: "Subscriptions" },
+      { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings", badgeKey: "settings", match: ["/settings", "/therapists/change-password"] },
+      { to: "/therapists/help", Icon: SupportAgentRoundedIcon, label: "Help & support" },
     ],
   },
 ];
