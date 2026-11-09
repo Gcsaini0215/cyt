@@ -8,6 +8,8 @@ import { thumb, thumbSet } from "../../utils/thumb";
 // /therapy-for/<slug> page), a "Help me choose" card, and the rest as chips. Counts, fees,
 // faces and "available today" come from the real directory (stats from getStaticProps).
 const MORE = ["stress", "anger", "self-esteem", "grief", "adhd"];
+// quick "how does it feel?" chips on the help card — each opens the matching concern page
+const FEELINGS = [["Worried", "anxiety"], ["Low", "depression"], ["Stressed", "stress"]];
 
 export default function Specializations({ stats: data = null }) {
   const stats = data?.bySlug || null;
@@ -72,10 +74,19 @@ export default function Specializations({ stats: data = null }) {
           })}
 
           <div className="sp-card sp-helpcard">
-            <span className="sp-help-ic" aria-hidden="true"><i className="feather-compass" /></span>
-            <h3>Not sure what you're feeling?</h3>
-            <p>Answer 3 quick questions and we'll show the therapists who fit.</p>
-            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Help me choose a therapist <i className="feather-arrow-right" aria-hidden="true" /></Link>
+            <span className="sp-hc-glow" aria-hidden="true" />
+            <span className="sp-hc-rings" aria-hidden="true"><i /><i /><i /></span>
+            <span className="sp-hc-tag"><i className="feather-compass" aria-hidden="true" /> 60-second match</span>
+            <h3>Not sure what you're <em>feeling?</em></h3>
+            <p>Answer 3 quick questions — free, no sign-up.</p>
+            <div className="sp-hc-feel" aria-label="Or start from a feeling">
+              {FEELINGS.map(([label, slug]) => {
+                const c = CONCERN_PAGES.find((x) => x.slug === slug);
+                return c ? <Link key={slug} href={concernPath(c)}>{label}</Link> : null;
+              })}
+              <Link href="/view-all-therapist?help=1" rel="nofollow">Can't say</Link>
+            </div>
+            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Help me choose <i className="feather-arrow-right" aria-hidden="true" /></Link>
           </div>
         </div>
 
@@ -112,7 +123,7 @@ const CSS = `
 .sp-card:has(.sp-stretch:focus-visible) { outline: 3px solid #1e7a4c; outline-offset: 2px; }
 .sp-stretch { color: inherit !important; text-decoration: none !important; }
 .sp-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
-.sp-helpcard .sp-stretch { color: #fff !important; }
+.sp-helpcard .sp-stretch { color: #1f2a14 !important; }
 .sp-img { position: relative; height: 140px; overflow: hidden; background: #e8f3ec; }
 .sp-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s ease; }
 .sp-card:hover .sp-img img { transform: scale(1.05); }
@@ -135,12 +146,26 @@ const CSS = `
 .sp-cta i { transition: transform .2s; }
 .sp-card:hover .sp-cta i { transform: translateX(3px); }
 
-.sp-helpcard { background: #fffaf0; border-color: #f0dfba; padding: 22px 20px; justify-content: center; gap: 8px; }
-.sp-helpcard:hover { border-color: #ecd3a3; }
-.sp-help-ic { width: 46px; height: 46px; border-radius: 14px; background: #fbf0d9; color: #9a6f22; display: flex; align-items: center; justify-content: center; font-size: 22px; }
-.sp-helpcard h3 { font-size: 17px; font-weight: 800; color: #14532d; margin: 6px 0 0; }
-.sp-helpcard p { font-size: 13.5px; color: #6b5a3a; line-height: 1.5; margin: 0; padding: 0; }
-.sp-help-btn { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; height: 40px; padding: 0 16px; border-radius: 10px; background: #1e7a4c; color: #fff; font-size: 13.5px; font-weight: 800; }
+.sp-helpcard { contain: size; isolation: isolate; background: radial-gradient(120% 90% at 100% 0%, #1f7a4a 0%, #135c37 45%, #0b3f26 100%); border: 1px solid #0f4a2c; padding: 16px 16px 15px; justify-content: flex-start; gap: 8px; color: #fff; box-shadow: 0 18px 36px -20px rgba(11,63,38,.65); }
+.sp-helpcard:hover { border-color: #d4a24c; box-shadow: 0 22px 40px -18px rgba(11,63,38,.7); }
+.sp-hc-glow { position: absolute; z-index: -1; width: 220px; height: 220px; right: -90px; top: -100px; border-radius: 50%; background: radial-gradient(circle, rgba(242,201,76,.38), rgba(242,201,76,0) 65%); pointer-events: none; }
+.sp-hc-rings { position: absolute; z-index: -1; right: -46px; bottom: -46px; width: 150px; height: 150px; pointer-events: none; }
+.sp-hc-rings i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.10); animation: sp-breathe 6s ease-in-out infinite; }
+.sp-hc-rings i:nth-child(2) { inset: 22px; animation-delay: -2s; border-color: rgba(242,201,76,.18); }
+.sp-hc-rings i:nth-child(3) { inset: 44px; animation-delay: -4s; background: rgba(255,255,255,.04); }
+@keyframes sp-breathe { 0%, 100% { transform: scale(.94); opacity: .7; } 50% { transform: scale(1.04); opacity: 1; } }
+.sp-hc-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(242,201,76,.16); border: 1px solid rgba(242,201,76,.38); color: #f6d58a; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.sp-helpcard h3 { font-size: 18px; line-height: 1.2; font-weight: 800; color: #fff; margin: 2px 0 0; letter-spacing: -.01em; }
+.sp-helpcard h3 em { font-style: normal; color: #f2c94c; }
+.sp-card.sp-helpcard:hover .sp-body h3, .sp-card.sp-helpcard:hover h3 { color: #fff; }
+.sp-helpcard p { font-size: 13px; color: rgba(255,255,255,.78); line-height: 1.5; margin: 0; padding: 0; }
+.sp-hc-feel { position: relative; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.sp-hc-feel a { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.22); color: #fff !important; font-size: 12.5px; font-weight: 700; text-decoration: none !important; transition: background .2s ease, border-color .2s ease, color .2s ease; }
+.sp-hc-feel a:hover { background: #fff; color: #135c37 !important; border-color: #fff; }
+.sp-help-btn { align-self: stretch; justify-content: center; display: inline-flex; align-items: center; gap: 6px; margin-top: auto; height: 40px; flex-shrink: 0; padding: 0 16px; border-radius: 12px; background: linear-gradient(180deg, #f6d27a, #e3a83a); color: #1f2a14; font-size: 14px; font-weight: 800; box-shadow: 0 8px 18px -10px rgba(227,168,58,.9); }
+.sp-helpcard:hover .sp-help-btn i { transform: translateX(3px); }
+.sp-help-btn i { transition: transform .2s; }
+
 
 .sp-more { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 22px; }
 .sp-more > span { font-size: 13px; font-weight: 700; color: #64748b; margin-right: 2px; }
@@ -167,12 +192,14 @@ const CSS = `
   .sp-body > p, .sp-faces, .sp-today, .sp-cta { display: none; }
   .sp-meta { min-height: 0; margin-top: 0; }
   .sp-foot:not(:has(> :not(.sp-today, .sp-cta, span:empty))) { display: none; }
-  .sp-helpcard { padding: 12px 10px; }
-  .sp-helpcard > p, .sp-help-ic { display: none; }
-  .sp-helpcard h3 { margin: 0; font-size: 15px; }
-  .sp-help-btn { align-self: stretch; justify-content: center; height: auto; min-height: 44px; margin-top: 8px; padding: 6px 8px; font-size: 13px; text-align: center; line-height: 1.2; }
+  .sp-helpcard { padding: 12px 11px; gap: 7px; }
+  .sp-helpcard > p, .sp-hc-feel { display: none; }
+  .sp-hc-tag { font-size: 9.5px; padding: 3px 8px; letter-spacing: .06em; }
+  .sp-helpcard h3 { margin: 0; font-size: 15.5px; }
+  .sp-hc-rings { width: 110px; height: 110px; right: -40px; bottom: -40px; }
+  .sp-help-btn { height: auto; min-height: 42px; margin-top: auto; padding: 6px 8px; font-size: 13px; text-align: center; line-height: 1.2; }
   .sp-more { flex-wrap: nowrap; overflow-x: auto; margin: 16px -16px 0; padding: 0 16px 2px; scrollbar-width: none; }
   .sp-more::-webkit-scrollbar { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .sp-card, .sp-img img, .sp-cta i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .sp-card, .sp-img img, .sp-cta i { transition: none; } .sp-hc-rings i { animation: none; } }
 `;
