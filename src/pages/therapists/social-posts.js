@@ -51,7 +51,7 @@ export default function SocialPosts() {
   const [info, setInfo] = useState(null);
   const [err, setErr] = useState("");
   const [words, setWords] = useState("");
-  const [size, setSize] = useState("post");
+  const size = "post"; // square only — the owner dropped the story / status size
   const [img, setImg] = useState(null); // { url, blob }
   const [making, setMaking] = useState(false);
   const [imgErr, setImgErr] = useState("");
@@ -99,7 +99,7 @@ export default function SocialPosts() {
     return () => clearTimeout(t);
   }, [words, size, info]);
 
-  const link = info?.handle ? linkUrl(info.handle, size === "story" ? "wa" : "ig") : "";
+  const link = info?.handle ? linkUrl(info.handle, "ig") : "";
   const caption = `${words.trim()}\n\nBook a session 👉 ${link}\n\n#mentalhealth #therapy #psychologist #chooseyourtherapist`;
   const fileName = `CYT-post-${size}.png`;
 
@@ -147,11 +147,6 @@ export default function SocialPosts() {
               </div>
               <textarea value={words} maxLength={MAX} onChange={(e) => setWords(e.target.value)} rows={6} aria-label="Your post" placeholder="Write something helpful for your followers…" />
               <div className={`spp-count ${words.length > MAX - 20 ? "near" : ""}`}>{words.length}/{MAX}</div>
-              <h2>Size</h2>
-              <div className="spp-sizes">
-                <button type="button" className={size === "post" ? "on" : ""} onClick={() => setSize("post")}><b>Post</b><span>Instagram / Facebook · square</span></button>
-                <button type="button" className={size === "story" ? "on" : ""} onClick={() => setSize("story")}><b>Story / Status</b><span>Instagram story · WhatsApp status</span></button>
-              </div>
             </div>
 
             <div className="pt-card spp-card spp-preview">
@@ -187,13 +182,8 @@ const SP_CSS = `
 .spp-idea svg { font-size: 17px; }
 .spp-card textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.55; font-family: inherit; resize: vertical; color: var(--ink); height: auto; }
 .spp-card textarea:focus { outline: none; border-color: #1e7a4c; }
-.spp-count { text-align: right; font-size: 12px; color: var(--mut); margin: 4px 0 14px; font-weight: 700; }
+.spp-count { text-align: right; font-size: 12px; color: var(--mut); margin: 4px 0 0; font-weight: 700; }
 .spp-count.near { color: #b45309; }
-.spp-sizes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.spp-sizes button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; font-family: inherit; }
-.spp-sizes button b { font-size: 14px; color: var(--ink); }
-.spp-sizes button span { font-size: 12.5px; color: var(--mut); }
-.spp-sizes button.on { border-color: #1e7a4c; background: #f0faf3; box-shadow: inset 3px 0 0 #e0ab45; }
 .spp-preview { display: flex; flex-direction: column; align-items: center; gap: 12px; position: sticky; top: 76px; }
 .spp-frame { position: relative; width: 100%; max-width: 440px; border-radius: 16px; overflow: hidden; background: #eef3ef; box-shadow: 0 16px 36px -22px rgba(15,23,42,.45); }
 .spp-frame.post { aspect-ratio: 1 / 1; }
@@ -215,6 +205,5 @@ const SP_CSS = `
 }
 @media (max-width: 575px) {
   .spp-card { padding: 16px 14px; }
-  .spp-sizes { grid-template-columns: 1fr; }
 }
 `;
