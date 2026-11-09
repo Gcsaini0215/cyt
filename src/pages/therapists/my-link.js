@@ -44,17 +44,27 @@ function useCopy() {
 
 export default function MyLink() {
   const { therapistInfo } = useTherapistStore();
-  const id = therapistInfo?._id;
   const [info, setInfo] = useState(null);
   const [err, setErr] = useState("");
   const [stats, setStats] = useState(null);
   const [done, copy] = useCopy();
+  // the profile id comes with the therapist's profile; the insights call also carries it (a fallback
+  // for an older API that left the id out)
+  const id = therapistInfo?._id || stats?.therapistId || null;
 
+  useEffect(() => {
+    fetchById(`${apiUrl}/profile-stats/me`).then((r) => { if (r?.status) setStats(r.data); else setStats({}); }).catch(() => setStats({}));
+  }, []);
   useEffect(() => {
     if (!id) return;
     fetch(`/api/my-link?id=${id}`).then((r) => r.json()).then((j) => { if (j?.status) setInfo(j.data); else setErr("Couldn't load your link. Please refresh."); })
       .catch(() => setErr("Couldn't load your link. Please check your connection and refresh."));
-    fetchById(`${apiUrl}/profile-stats/me`).then((r) => { if (r?.status) setStats(r.data); }).catch(() => {});
+  }, [id]);
+  // nothing to go on after a while: say so instead of loading for ever
+  useEffect(() => {
+    if (id) return undefined;
+    const t = setTimeout(() => setErr("Couldn't load your profile. Please refresh the page — if it keeps happening, log out and back in."), 10000);
+    return () => clearTimeout(t);
   }, [id]);
 
   const h = info?.handle;

@@ -1,5 +1,5 @@
 // "Scan to book" A4 poster PNG for a therapist: /api/my-poster/<handle>.png[?dl=1]
-import { apiUrl } from "../../../utils/url";
+import { qrPng } from "../my-qr/[file]";
 import { getSlugMaps } from "../../../utils/therapist-slug-maps";
 import { resolveHandle, linkUrl } from "../../../utils/my-link";
 import { posterPng } from "../../../utils/og-images";
@@ -13,9 +13,7 @@ export default async function handler(req, res) {
     if (!id) { maps = await getSlugMaps(true); id = resolveHandle(m[1], maps); }
     if (!id) return res.status(404).send("Not found");
     const t = maps.list.find((x) => String(x._id) === id);
-    const qrUrl = linkUrl(m[1], "qr");
-    const r = await fetch(`${apiUrl}/profile-link/qr?w=1000&u=${encodeURIComponent(qrUrl)}`);
-    const qr = r.ok ? Buffer.from(await r.arrayBuffer()) : null;
+    const qr = await qrPng(linkUrl(m[1], "qr"));
     const png = await posterPng(t, { qr, link: linkUrl(m[1]) });
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=3600");
