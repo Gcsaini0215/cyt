@@ -22,6 +22,7 @@ import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import WorkspacePremiumRoundedIcon from "@mui/icons-material/WorkspacePremiumRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 
 /* Every therapist-portal page, grouped. Items marked `hidden` are switched off for now
    (pages exist but aren't in the menu yet) — remove the flag to show them. `match` lists the route prefixes that count as
@@ -50,6 +51,8 @@ const ALL_GROUPS = [
   {
     title: "Grow",
     items: [
+      // their own short booking link, QR code and "Scan to book" poster (pages/therapists/my-link.js)
+      { to: "/therapists/my-link", Icon: QrCode2RoundedIcon, label: "My booking link" },
       // certificates for sessions / 4★+ reviews / time on CYT (pages/therapists/achievements.js)
       { to: "/therapists/achievements", Icon: EmojiEventsRoundedIcon, label: "Achievements" },
       { to: "/workshops", Icon: EventNoteRoundedIcon, label: "Workshops", hidden: true, match: ["/workshops", "/create-workshop", "/update-workshop"] },

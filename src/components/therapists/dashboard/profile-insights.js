@@ -11,6 +11,7 @@ import { apiUrl } from "../../../utils/url";
 const SRC = [
   ["google", "Google search", "#1e7a4c"], ["directory", "Therapist directory", "#2f9a63"], ["home", "Home page", "#d4a24c"],
   ["city", "City & topic pages", "#7bb38f"], ["blog", "Blogs", "#e7c27d"], ["social", "WhatsApp / social", "#5b8f74"],
+  ["mylink", "Your booking link", "#b7791f"], ["qr", "Your QR code", "#8a5a08"],
   ["direct", "Direct / bookmarked", "#a3c9b1"], ["other", "Other", "#cdd9d1"],
 ];
 const pctChange = (now, before) => {
