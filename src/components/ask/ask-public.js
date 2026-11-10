@@ -13,7 +13,7 @@ export function therapistLink(card, maps) {
   return {
     name: card.name || "CYT psychologist",
     role: card.profile_type || "Psychologist",
-    photo: card.profile ? thumb(`${imagePath}/${card.profile}`, 160) : "",
+    photo: card.profile ? thumb(`${imagePath}/${card.profile}`, 128) : "", // 128 is an allowed next/image width (160 is not → 400)
     profileHref: t ? `/view-profile/${slug || card._id}` : "",
     bookHref: t ? `/book/${slug || card._id}` : "",
   };
