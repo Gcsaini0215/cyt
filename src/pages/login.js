@@ -47,6 +47,7 @@ export default function Login() {
   const [otp, setOtp] = useState("");
   const [otpView, setOtpView] = useState(false);
   const [notice, setNotice] = useState("");
+  const [viaWhatsapp, setViaWhatsapp] = useState(false);
   const [error, setError] = useState("");
   const [noAccount, setNoAccount] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,7 @@ export default function Login() {
       setLoading(true);
       const res = await postData(loginUrl, { email: mail, portal: "site" });
       if (res.status) {
+        setViaWhatsapp(Boolean(res.data?.whatsapp));
         setNotice(isResend ? "We've sent a new code." : "");
         setOtp("");
         setOtpView(true);
@@ -240,7 +242,7 @@ export default function Login() {
             ) : (
               <div>
                 <h2 id="lg-h">Check your inbox</h2>
-                <p className="lg-sub">We sent a 6-digit code to <b>{email.trim()}</b>. It may take a minute — check Spam or Promotions too.</p>
+                <p className="lg-sub">We sent a 6-digit code to <b>{email.trim()}</b>{viaWhatsapp && <> and to your <b>WhatsApp</b></>}. It may take a minute — check Spam or Promotions too.</p>
                 {inbox && (
                   <a className="lg-inbox" href={inbox.url} target="_blank" rel="noreferrer"><i className="feather-mail" aria-hidden="true" /> Open {inbox.name}</a>
                 )}
