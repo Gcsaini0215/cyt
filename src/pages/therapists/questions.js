@@ -74,7 +74,7 @@ export default function TherapistQuestions() {
 
         {msg && <div className="tq-ok">{msg}</div>}
         {err && <div className="pt-err">{err}</div>}
-        {data && !data.approved && tab === "open" && <div className="tq-warn">Only verified therapists can answer. Your profile will be able to answer once it&apos;s approved.</div>}
+        {data && !data.approved && tab === "open" && <div className="tq-warn">Only therapists who are live on Choose Your Therapist can answer. You&apos;ll be able to answer as soon as your profile is live.</div>}
         {!data && !err && <div className="pt-skel" style={{ height: 220, borderRadius: 18 }} />}
         {data && items.length === 0 && <div className="pt-card tq-empty">{tab === "open" ? "No questions waiting right now. New ones show up here." : "You haven't answered any questions yet."}</div>}
 
