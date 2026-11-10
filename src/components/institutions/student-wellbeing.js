@@ -308,7 +308,7 @@ function Enquiry() {
       await postData(SubmitConsultationUrl, {
         name: form.name.trim(), email: form.email.trim(), phone: form.phone, location: form.city.trim(),
         concern: `Student wellbeing enquiry — ${form.org} (${form.type}, ${form.size} students)`, message: summary, source: "Schools & Colleges Page",
-        company: form.org.trim(), designation: form.designation.trim(), industry: form.type, teamSize: form.size, services: needs, timeline: form.timeline,
+        company: form.org.trim(), designation: form.designation.trim(), industry: form.type, teamSize: form.size, services: needs, timeline: form.timeline, board: form.board, requirements: form.message.trim(),
       });
       setSuccess("Thank you! Our team will get back to you within one working day.");
       setForm(EMPTY);

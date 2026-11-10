@@ -379,7 +379,7 @@ function Enquiry() {
         name: form.name.trim(), email: form.email.trim(), phone: form.phone, location: form.city.trim(),
         concern: `Corporate EAP enquiry — ${form.company} (${form.teamSize} employees)`, message: summary, source: "Corporate Page",
         company: form.company.trim(), designation: form.designation.trim(), industry: form.industry, teamSize: form.teamSize,
-        workModel: form.workModel, services, timeline: form.timeline,
+        workModel: form.workModel, services, timeline: form.timeline, requirements: form.message.trim(),
       });
       setSuccess("Thank you! Our team will get back to you within one working day.");
       setForm(EMPTY);
