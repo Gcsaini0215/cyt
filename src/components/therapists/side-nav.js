@@ -24,6 +24,7 @@ import WorkspacePremiumRoundedIcon from "@mui/icons-material/WorkspacePremiumRou
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import QrCode2RoundedIcon from "@mui/icons-material/QrCode2Rounded";
 import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
+import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
 
 /* Every therapist-portal page, grouped, in order of how often it's used:
      Practice (daily work) > Grow (reputation + new clients) > Money (payouts + plan) > ✦ Upgrade (gold box) > Account (bottom)
@@ -50,6 +51,8 @@ const ALL_GROUPS = [
       { to: "/therapists/my-link", Icon: QrCode2RoundedIcon, label: "My booking link" },
       // one tweet-style post with their own words, photo and booking link (pages/therapists/social-posts.js) — free
       { to: "/therapists/social-posts", Icon: CampaignRoundedIcon, label: "Social posts" },
+      // anonymous client questions — good answers go public on /ask-a-psychologist with a Book button (pages/therapists/questions.js)
+      { to: "/therapists/questions", Icon: QuestionAnswerRoundedIcon, label: "Client questions" },
       // certificates for sessions / 4★+ reviews / time on CYT (pages/therapists/achievements.js)
       { to: "/therapists/achievements", Icon: EmojiEventsRoundedIcon, label: "Achievements" },
       { to: "/workshops", Icon: EventNoteRoundedIcon, label: "Workshops", hidden: true, match: ["/workshops", "/create-workshop", "/update-workshop"] },

@@ -45,3 +45,4 @@ Sitemap: https://www.chooseyourtherapist.in/sitemap.xml
 Sitemap: https://www.chooseyourtherapist.in/sitemap-static.xml
 Sitemap: https://www.chooseyourtherapist.in/api/sitemap-therapists.xml
 Sitemap: https://www.chooseyourtherapist.in/api/sitemap-blogs.xml
+Sitemap: https://www.chooseyourtherapist.in/api/sitemap-questions.xml

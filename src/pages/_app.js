@@ -55,6 +55,14 @@ function MyApp({ Component, pageProps }) {
       }
     });
 
+    // PWA: keep the browser's install prompt so the client portal can offer "Install app" (components/client/install-app-bar.js)
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      window.__cytInstall = e;
+      window.dispatchEvent(new Event("cyt-install-ready"));
+    });
+    window.addEventListener("appinstalled", () => { window.__cytInstall = null; });
+
     // Register service worker and subscribe to notifications
     // Skipped in development to avoid stale-cache reload flicker during HMR
     if ("serviceWorker" in navigator) {

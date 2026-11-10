@@ -1,25 +1,28 @@
 {
+  "id": "/",
   "short_name": "CYT",
   "name": "Choose Your Therapist",
-  "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "48x48 32x32 16x16",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "/icons/cyt-icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "/icons/cyt-icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": "/",
+  "description": "Talk to a verified psychologist — book sessions, join your video call, track your check-ins and ask a psychologist.",
+  "lang": "en-IN",
+  "start_url": "/my-dashboard?src=app",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#228756",
-  "background_color": "#ffffff"
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "theme_color": "#14532d",
+  "background_color": "#ffffff",
+  "categories": ["health", "medical", "lifestyle"],
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48 32x32 16x16", "type": "image/x-icon" },
+    { "src": "/icons/cyt-icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/icons/cyt-icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/icons/cyt-maskable-192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
+    { "src": "/icons/cyt-maskable-512.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "My Space", "short_name": "My Space", "url": "/my-dashboard?src=app-shortcut", "icons": [{ "src": "/icons/cyt-icon-96.png", "sizes": "96x96" }] },
+    { "name": "My Sessions", "short_name": "Sessions", "url": "/client/my-bookings?src=app-shortcut", "icons": [{ "src": "/icons/cyt-icon-96.png", "sizes": "96x96" }] },
+    { "name": "Find a therapist", "short_name": "Find", "url": "/client/find?src=app-shortcut", "icons": [{ "src": "/icons/cyt-icon-96.png", "sizes": "96x96" }] },
+    { "name": "Ask a psychologist", "short_name": "Ask", "url": "/client/ask?src=app-shortcut", "icons": [{ "src": "/icons/cyt-icon-96.png", "sizes": "96x96" }] }
+  ]
 }

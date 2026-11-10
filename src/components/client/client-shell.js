@@ -32,6 +32,8 @@ import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
+import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
+import InstallAppBar from "./install-app-bar";
 
 /* Client portal frame: green top bar, side menu on desktop / iPad, bottom bar + "More" sheet on
    phones. Sends logged-out visitors to /login and brings them back afterwards. */
@@ -42,6 +44,7 @@ export const CLIENT_NAV = [
   { to: "/client/my-bookings", label: "My Sessions", short: "Sessions", Icon: EventAvailableRoundedIcon, Off: EventAvailableOutlinedIcon, mob: true },
   { to: "/client/find", label: "Find My Therapist", short: "Explore", Icon: PersonSearchRoundedIcon, Off: PersonSearchOutlinedIcon, mob: true },
   { to: "/client/favrioute-therapits", label: "My Shortlist", short: "Shortlist", Icon: FavoriteRoundedIcon, Off: FavoriteBorderRoundedIcon, mob: true },
+  { to: "/client/ask", label: "Ask a Psychologist", Icon: QuestionAnswerRoundedIcon }, // phones: in "More"
   { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon }, // phones: in "More"
 ];
 // "See Links" — a small drop-down of public pages, so they open outside the portal (marked ↗). Never say "centre".
@@ -168,10 +171,11 @@ export default function ClientShell({ title, children }) {
 
   // phone "More" sheet: tiles in pages of 8 that slide sideways
   const mobNav = CLIENT_NAV.filter((n) => n.mob);
-  const moreOn = more || active("/my-settings") || onChecks;
+  const moreOn = more || active("/my-settings") || active("/client/ask") || onChecks;
   const mobOn = moreOn ? mobNav.length : mobNav.findIndex((n) => active(n.to));
   const sheetTiles = [
     { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon },
+    { to: "/client/ask", label: "Ask a Psychologist", Icon: QuestionAnswerRoundedIcon },
     { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon },
     ...CHECK_NAV,
     ...HELP_NAV,
@@ -263,7 +267,7 @@ export default function ClientShell({ title, children }) {
         </div>
       </nav>
 
-      <main className="cls-main">{ready ? children : null}</main>
+      <main className="cls-main">{ready ? <><InstallAppBar />{children}</> : null}</main>
 
       <nav className={`cls-mob${barHidden && !more ? " away" : ""}`} aria-label="Quick menu" style={{ "--n": mobNav.length + 1, "--i": mobOn }} onFocus={() => setBarHidden(false)}>
         {mobOn >= 0 && <span className="cls-mob-line" aria-hidden="true" />}

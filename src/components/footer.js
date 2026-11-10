@@ -130,6 +130,7 @@ export default function Footer() {
                   <li className="mb--12"><Link href="/faqs">FAQs</Link></li>
                   <li className="mb--12"><Link href="/psychologist-vs-psychiatrist-vs-counsellor">Psychologist vs Psychiatrist</Link></li>
                   <li className="mb--12"><Link href="/online-vs-in-person-therapy">Online vs In-Person Therapy</Link></li>
+                  <li className="mb--12"><Link href="/ask-a-psychologist">Ask a Psychologist</Link></li>
                   <li><Link href="/emergency-support">Emergency Help</Link></li>
                 </ul>
               </div>
