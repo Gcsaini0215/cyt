@@ -27,6 +27,7 @@ export function sourceOf() {
     const utm = String(q.get("utm_source") || q.get("src") || "").toLowerCase();
     // the therapist's own booking link (/t/<name>?src=my-…): its QR code, or anywhere else they shared it
     if (utm === "my-qr") return "qr";
+    if (utm === "my-gbp") return "gmaps"; // their Google Maps listing (Website / Book button)
     if (/^my-[a-z]+$/.test(utm)) return "mylink";
     if (/whatsapp|^wa$|facebook|instagram|^fb$|^ig$|linkedin|twitter|^x$|telegram|youtube/.test(utm)) return "social";
     if (/google/.test(utm)) return "google";
