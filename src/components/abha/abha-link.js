@@ -295,7 +295,9 @@ const CSS = `
 .ab-in:focus, .ab-otp input:focus { outline: none; border-color: var(--g2); box-shadow: 0 0 0 3px rgba(30,122,76,.14); }
 .ab-hint { margin: 8px 0 0; font-size: 13px; color: var(--mut); line-height: 1.5; }
 .ab-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: #f6faf7; border: 1px solid var(--line); font-size: 13px; line-height: 1.55; color: #334155; cursor: pointer; }
-.ab-consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--g2); flex: none; }
+/* the site theme (App.css) hides every checkbox (opacity 0, absolute) for its own label styling — undo that here */
+.ab .ab-consent input[type="checkbox"] { opacity: 1; position: static; -webkit-appearance: checkbox; appearance: auto; width: 20px; height: 20px; min-width: 20px; margin: 1px 0 0; padding: 0; accent-color: var(--g2); cursor: pointer; flex: none; }
+.ab-consent:has(input:checked) { border-color: #9fd3b4; background: #ecfdf3; }
 .ab-note { margin: 0 0 4px; font-size: 13.5px; color: #166534; background: #ecfdf3; border: 1px solid #c7ecd5; padding: 9px 12px; border-radius: 10px; }
 .ab-otp { display: flex; gap: 8px; }
 .ab-otp input { width: 48px; height: 54px; text-align: center; font-size: 22px; font-weight: 800; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; color: var(--ink); }
