@@ -86,7 +86,7 @@ export default function Specializations({ stats: data = null }) {
               })}
               <Link href="/view-all-therapist?help=1" rel="nofollow">Can't say</Link>
             </div>
-            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Help me choose <i className="feather-arrow-right" aria-hidden="true" /></Link>
+            <Link href="/view-all-therapist?help=1" rel="nofollow" className="sp-help-btn sp-stretch">Get help choosing <i className="feather-arrow-right" aria-hidden="true" /></Link>
           </div>
         </div>
 

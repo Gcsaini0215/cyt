@@ -153,7 +153,7 @@ export default function FeelBetter({ stats = null, week = null }) {
               {faces.length > 0 ? (
                 <span className="fb-faces" aria-hidden="true">
                   {faces.map((x) => (
-                    <img key={x.profile} src={thumb(`${imagePath}/${x.profile}`, 64)} srcSet={thumbSet(`${imagePath}/${x.profile}`, 64, 128)} alt="" width="40" height="40" loading="lazy" />
+                    <img key={x.profile} src={thumb(`${imagePath}/${x.profile}`, 64)} srcSet={thumbSet(`${imagePath}/${x.profile}`, 64, 128)} alt={x.name || "Psychologist"} width="40" height="40" loading="lazy" />
                   ))}
                   {extra > 0 && <em>+{extra}</em>}
                 </span>

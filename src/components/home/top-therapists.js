@@ -1,7 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import VerifiedRounded from "@mui/icons-material/VerifiedRounded";
-import Star from "@mui/icons-material/Star";
 import { imagePath } from "../../utils/url";
 import { profilePath, bookPath } from "../../utils/therapist-slug";
 import { thumb, thumbSet } from "../../utils/thumb";
@@ -49,20 +47,20 @@ function Card({ t, now, hidden }) {
         {photo && !broken
           // eslint-disable-next-line @next/next/no-img-element
           ? <img src={thumb(photo, 640, 90)} srcSet={`${thumb(photo, 640, 90)} 1x, ${thumb(photo, 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" width="246" height="190" onError={() => setBroken(true)} />
-          : <span className="tt-init" aria-hidden="true"><b>{initials || "C"}</b></span>}
+          : <span className="tt-init" aria-hidden="true"><span>{initials || "C"}</span></span>}
       </div>
       <div className="tt-info">
         <Link href={href} className="tt-name tt-stretch" tabIndex={tab}>
-          <span>{name}</span><span className="tt-sr">, {t.profile_type || "Psychologist"}</span><VerifiedRounded sx={{ fontSize: 17, color: "#1d9bf0", flexShrink: 0 }} />
+          <span>{name}</span><span className="tt-sr">, {t.profile_type || "Psychologist"}</span><svg viewBox="0 0 24 24" width="17" height="17" fill="#1d9bf0" style={{ flexShrink: 0 }} aria-hidden="true"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z" /></svg>
         </Link>
         <div className="tt-role">{t.profile_type || "Mental Health Professional"}</div>
         <div className="tt-meta">
-          <span className="tt-rate">{r ? <><Star sx={{ fontSize: 15, color: "#e3a83a" }} /><b>{r.avg.toFixed(1)}</b> ({r.count})</> : <b>New</b>}</span>
+          <span className="tt-rate">{r ? <><svg className="cyt-star" viewBox="0 0 24 24" width="15" height="15" fill="#e3a83a" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg><span className="tt-num">{r.avg.toFixed(1)}</span> ({r.count})</> : <span className="tt-num">New</span>}</span>
           {exp && <span>{exp}</span>}
           {langs && <span>{langs}</span>}
         </div>
         <div className="tt-row">
-          {fee ? <span className="tt-fee"><small>Session from</small><b>₹{fee.toLocaleString("en-IN")}</b></span> : <span />}
+          {fee ? <span className="tt-fee"><small>Session from</small><span className="tt-num">₹{fee.toLocaleString("en-IN")}</span></span> : <span />}
           <Link href={bookPath(t)} className="tt-book" tabIndex={tab}>Book now<span className="tt-sr"> with {name}</span></Link>
         </div>
       </div>
@@ -206,7 +204,7 @@ export default function TopTherapists({ people = [], visitorState = null, total 
           )}
         </div>
 
-        <Link href="/view-all-therapist" className="tt-all tt-all-m">View all {total || ""} psychologists <i className="feather-arrow-right" aria-hidden="true" /></Link>
+        <Link href="/view-all-therapist" className="tt-all tt-all-m">Browse all {total || ""} psychologists <i className="feather-arrow-right" aria-hidden="true" /></Link>
 
       </div>
     </section>
@@ -265,7 +263,7 @@ const CSS = `
 .tt-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; transition: transform .6s ease; }
 .tt-card:hover .tt-photo img { transform: scale(1.04); }
 .tt-init { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 25%, #2a8a58 0, #14532d 60%, #0b2418 100%); }
-.tt-init b { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: #14532d; background: linear-gradient(135deg, #fbf1dc, #ecc77d); }
+.tt-init span { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: #14532d; background: linear-gradient(135deg, #fbf1dc, #ecc77d); }
 .tt-info { flex: 1; display: flex; flex-direction: column; padding: 12px 8px 6px; }
 .tt-name { display: flex; align-items: center; gap: 5px; color: #0b1712 !important; font-size: 16px; font-weight: 800; line-height: 1.25; text-decoration: none !important; }
 .tt-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -274,11 +272,11 @@ const CSS = `
 .tt-meta { display: flex; align-items: center; flex-wrap: nowrap; margin-top: 8px; color: #55665c; font-size: 13px; white-space: nowrap; overflow: hidden; }
 .tt-meta > span + span::before { content: "·"; margin: 0 6px; color: #9fb3a6; }
 .tt-rate { display: inline-flex; align-items: center; gap: 3px; }
-.tt-rate b { color: #0b1712; font-weight: 800; }
+.tt-rate .tt-num { color: #0b1712; font-weight: 800; }
 .tt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2ee; }
 .tt-meta { margin-bottom: 10px; }
 .tt-fee small { display: block; color: #7c8b81; font-size: 11.5px; line-height: 1.2; }
-.tt-fee b { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
+.tt-fee .tt-num { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
 .tt-book { position: relative; z-index: 2; flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: #1e7a4c; color: #fff !important;
   font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .2s ease; }
 .tt-book:hover { background: #14532d; }

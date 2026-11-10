@@ -65,7 +65,10 @@ function rating(t) {
 const photo = (t) => (t.user?.profile ? `${imagePath}/${t.user.profile}` : "");
 
 // One link per card (the name, stretched over the whole card) + a "Book now" button.
-function TherapistCard({ t, onBroken }) {
+// `copy` = the second copy in the looping phone strip: same look and taps, but no <a href> links,
+// so crawlers don't see every therapist link twice (SEO "duplicate anchor text").
+function TherapistCard({ t, onBroken, copy = false, spot = false }) {
+  const router = useRouter();
   const r = rating(t);
   const name = t.user?.name || "Therapist";
   const langs = langList(t.language_spoken).slice(0, 2).join(", ");
@@ -78,18 +81,23 @@ function TherapistCard({ t, onBroken }) {
         <img src={thumb(photo(t), 640, 90)} srcSet={`${thumb(photo(t), 640, 90)} 1x, ${thumb(photo(t), 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" onError={onBroken} />
       </div>
       <div className="cyt-tbody">
-        <Link className="cyt-tname cyt-stretch" href={profilePath(t)}>
-          <span>{name}</span><VerifiedRounded sx={{ fontSize: 17, color: "#1d9bf0", flexShrink: 0 }} />
-        </Link>
+        {(() => {
+          const inner = <>{spot && <span className="cyt-sr">View profile of </span>}<span>{name}</span><svg viewBox="0 0 24 24" width="17" height="17" fill="#1d9bf0" style={{ flexShrink: 0 }} aria-hidden="true"><path d="m23 12-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z" /></svg></>;
+          return copy
+            ? <span className="cyt-tname cyt-stretch" role="link" tabIndex={-1} onClick={() => router.push(profilePath(t))}>{inner}</span>
+            : <Link className="cyt-tname cyt-stretch" href={profilePath(t)}>{inner}</Link>;
+        })()}
         <div className="cyt-trole">{t.profile_type || "Mental Health Professional"}</div>
         <div className="cyt-tmeta">
-          <span className="cyt-trate">{r ? <><Star sx={{ fontSize: 15, color: "#e3a83a" }} /><b>{r.avg}</b> ({r.count})</> : <b className="cyt-tnew">New</b>}</span>
+          <span className="cyt-trate">{r ? <><svg className="cyt-star" viewBox="0 0 24 24" width="15" height="15" fill="#e3a83a" aria-hidden="true"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg><span className="cyt-num">{r.avg}</span> ({r.count})</> : <span className="cyt-num cyt-tnew">New</span>}</span>
           {exp && <span>{exp}</span>}
           {langs && <span>{langs}</span>}
         </div>
         <div className="cyt-trow">
-          {fee ? <span className="cyt-tfee"><small>Session from</small><b>₹{fee.toLocaleString("en-IN")}</b></span> : <span />}
-          <Link className="cyt-b" href={bookPath(t)}>Book now<span className="cyt-sr"> with {name}</span></Link>
+          {fee ? <span className="cyt-tfee"><small>Session from</small><span className="cyt-num">₹{fee.toLocaleString("en-IN")}</span></span> : <span />}
+          {copy
+            ? <span className="cyt-b" role="link" tabIndex={-1} onClick={(e) => { e.stopPropagation(); router.push(bookPath(t)); }}>Book now</span>
+            : <Link className="cyt-b" href={bookPath(t)}><span aria-hidden="true">Book now</span><span className="cyt-sr">{spot ? `Book ${name} today` : `Book a session with ${name}`}</span></Link>}
         </div>
       </div>
     </div>
@@ -259,13 +267,13 @@ export default function Banner({ topTherapists = [], stats = null }) {
               <div className="cyt-stage" key={list[0]._id}>
                 {list.slice(1, 3).map((t, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img key={t._id} className={`cyt-back b${i}`} src={thumb(photo(t), 640, 85)} alt="" onError={() => dropPhoto(t)} />
+                  <img key={t._id} className={`cyt-back b${i}`} src={thumb(photo(t), 640, 85)} alt={t.user?.name || "Psychologist"} onError={() => dropPhoto(t)} />
                 ))}
-                <div className="cyt-spot"><TherapistCard t={list[0]} onBroken={() => dropPhoto(list[0])} /></div>
+                <div className="cyt-spot"><TherapistCard t={list[0]} spot onBroken={() => dropPhoto(list[0])} /></div>
               </div>
               <div className="cyt-strip" ref={stripRef} aria-label="Top-rated therapists"
                 onTouchStart={() => { touchedAt.current = Date.now(); }} onPointerDown={() => { touchedAt.current = Date.now(); }}>
-                {stripList.map((t, i) => <TherapistCard key={`${t._id}-${i}`} t={t} onBroken={() => dropPhoto(t)} />)}
+                {stripList.map((t, i) => <TherapistCard key={`${t._id}-${i}`} t={t} copy={i >= base.length} onBroken={() => dropPhoto(t)} />)}
               </div>
               <div className="cyt-dots" role="group" aria-label="Choose a slide">
                 {THEMES.map((c, i) => (
@@ -395,8 +403,8 @@ export default function Banner({ topTherapists = [], stats = null }) {
           .cyt-spot .cyt-tphoto { height: 100%; border-radius: 22px; }
           .cyt-spot .cyt-tbody { position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 12px 10px; background: linear-gradient(180deg, transparent, rgba(5,20,12,.9) 52%); }
           .cyt-spot .cyt-tname { color: #fff !important; }
-          .cyt-spot .cyt-trole, .cyt-spot .cyt-tmeta, .cyt-spot .cyt-trate b, .cyt-spot .cyt-tfee small { color: rgba(255,255,255,.9); }
-          .cyt-spot .cyt-tfee b { color: #fff; }
+          .cyt-spot .cyt-trole, .cyt-spot .cyt-tmeta, .cyt-spot .cyt-trate .cyt-num, .cyt-spot .cyt-tfee small { color: rgba(255,255,255,.9); }
+          .cyt-spot .cyt-tfee .cyt-num { color: #fff; }
           .cyt-spot .cyt-tmeta { margin-top: 5px; }
           .cyt-spot .cyt-trow { margin-top: 8px; padding-top: 0; border-top: 0; }
           .cyt-spot .cyt-trow .cyt-b { min-height: 40px; padding: 0 16px; background: #fff; color: var(--ink) !important; }
@@ -433,10 +441,10 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-tmeta { display: flex; align-items: center; flex-wrap: nowrap; margin-top: 8px; color: #55665c; font-size: 13px; white-space: nowrap; overflow: hidden; }
         .cyt-tmeta > span + span::before { content: "·"; margin: 0 6px; color: #9fb3a6; }
         .cyt-trate { display: inline-flex; align-items: center; gap: 3px; }
-        .cyt-trate b { color: #0b1712; font-weight: 800; }
+        .cyt-trate .cyt-num { color: #0b1712; font-weight: 800; }
         .cyt-trow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eef2ee; }
         .cyt-tfee small { display: block; color: #7c8b81; font-size: 11.5px; line-height: 1.2; }
-        .cyt-tfee b { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
+        .cyt-tfee .cyt-num { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
         .cyt-trow .cyt-b { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: var(--ink); color: #fff !important; font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .6s ease; }
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }
 
