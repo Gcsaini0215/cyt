@@ -31,6 +31,8 @@ export default function App() {
   const [userType, setUserType] = React.useState(0);
   const [activeDropdown, setActiveDropdown] = React.useState("");
   const [isSticky, setIsSticky] = React.useState(false);
+  const headerRef = React.useRef(null);
+  const [holdH, setHoldH] = React.useState(0); // header height kept as a spacer while it is pinned
   const [showAccountMenu, setShowAccountMenu] = React.useState(false);
   const accountMenuRef = React.useRef(null);
   const { therapistInfo, fetchTherapistInfo } = useTherapistStore();
@@ -66,15 +68,31 @@ export default function App() {
   }, [showAccountMenu]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsSticky(true);
-      } else {
+    // The theme pins the header with position: fixed, which takes it out of the page — so a spacer of the same
+    // height holds its place (no jump). It pins only once the header has scrolled out of view and unpins only back
+    // at the very top, so iPhone's bounce at the top can't flip it on/off (that flicker + "stuck" top was the glitch).
+    let sticky = false, raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      if (!sticky) {
+        const h = headerRef.current?.offsetHeight || 0;
+        if (y > Math.max(h, 60)) {
+          const strip = document.querySelector(".top-strip");
+          const stripH = strip && window.innerWidth >= 992 ? strip.offsetHeight : 0; // desktop strip turns fixed too
+          setHoldH(h + stripH);
+          sticky = true;
+          setIsSticky(true);
+        }
+      } else if (y <= 2) {
+        sticky = false;
         setIsSticky(false);
       }
     };
+    const handleScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     const data = getToken();
     if (data) {
       const userData = getDecodedToken();
@@ -92,6 +110,7 @@ export default function App() {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, [fetchTherapistInfo]);
 
@@ -162,7 +181,7 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
+      <header ref={headerRef} className={`rbt-header rbt-header-10 ${isSticky ? "header-sticky" : ""}`}>
         <div className={`rbt-header-wrapper ${isSticky ? "rbt-sticky" : "header-space-betwween"}`}>
           <div className="container-fluid">
             <div className="mainbar-row rbt-navigation-start align-items-center">
@@ -288,6 +307,7 @@ export default function App() {
           </div>
         </div>
       </header>
+      {isSticky && holdH > 0 && <div className="nav-hold" aria-hidden="true" style={{ height: holdH }} />}
 
       {/* Mobile Menu */}
       <div className={show ? "popup-mobile-menu active" : "popup-mobile-menu"}>
@@ -458,6 +478,8 @@ export default function App() {
           border-bottom: 1px solid #dbe3df;
         }
         @media (max-width: 991px) { .rbt-header.rbt-header-10 { top: 0; } }
+        /* pinned: the bar itself is fixed and .nav-hold keeps its place, so the empty header box draws nothing */
+        .rbt-header.rbt-header-10.header-sticky { border-bottom: 0 !important; box-shadow: none !important; }
 
         /* ── Full-width header, stuck right under the top strip (desktop) ── */
         @media (min-width: 992px) {
