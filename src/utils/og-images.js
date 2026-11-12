@@ -488,86 +488,93 @@ export async function posterPng(t, { qr, link }) {
 /* ─── Desk table tent (print on A4, cut, fold, stand) ───
    Sheet top→bottom: glue tab | back panel (QR, printed upside down) | front panel (photo, name).
    Fold on both dashed lines so the two panels form an A-frame; the tab glues inside the front's lower edge. */
+// front: a headline cover in deep green + gold (no photo, no logo image — just type and shapes)
 async function tentFront(t, link, W, H) {
   const L = [];
   L.push({ input: Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
-    <defs><radialGradient id="g" cx="85%" cy="0%" r="120%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".55" stop-color="#135c37"/><stop offset="1" stop-color="#0b3f26"/></radialGradient>
-    <radialGradient id="gl" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".38"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient></defs>
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d4a2e"/><stop offset="1" stop-color="#06301d"/></linearGradient>
+      <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8d77e"/><stop offset="1" stop-color="#d9a032"/></linearGradient>
+    </defs>
     <rect width="${W}" height="${H}" fill="url(#g)"/>
-    <circle cx="${W - 60}" cy="40" r="260" fill="url(#gl)"/>
-    <circle cx="40" cy="${H - 200}" r="150" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="2"/>
-    <circle cx="40" cy="${H - 200}" r="100" fill="none" stroke="#f2c94c" stroke-opacity=".12" stroke-width="2"/>
-    <rect y="${H - 96}" width="${W}" height="96" fill="${GOLD}"/>
+    <circle cx="${W - 120}" cy="${H - 110}" r="330" fill="#13603b" fill-opacity=".55"/>
+    <circle cx="${W - 120}" cy="${H - 110}" r="250" fill="#177045" fill-opacity=".55"/>
+    <circle cx="${W - 120}" cy="${H - 110}" r="170" fill="url(#sun)"/>
+    <circle cx="${W - 120}" cy="${H - 110}" r="200" fill="none" stroke="#f6d58a" stroke-opacity=".35" stroke-width="2" stroke-dasharray="4 10"/>
+    <rect x="56" y="58" width="56" height="5" rx="2.5" fill="#f2c94c"/>
   </svg>`), left: 0, top: 0 });
-  const lg = await logo(190);
-  L.push({ input: rect(lg.info.width + 28, lg.info.height + 20, "#ffffff", 14), left: 34, top: 30 });
-  L.push({ input: lg.data, left: 48, top: 40 });
-  const ver = await text("<b>✓ VERIFIED</b>", { size: 20, color: "#0b3f26", width: 300 });
-  const vw = ver.info.width + 30;
-  L.push({ input: rect(vw, 40, "#f6d58a", 20), left: W - 34 - vw, top: 30 + Math.round((lg.info.height + 20 - 40) / 2) });
-  L.push({ input: ver.data, left: W - 34 - vw + 15, top: 30 + Math.round((lg.info.height + 20 - ver.info.height) / 2) });
 
-  // round photo with a gold ring
-  const D = 220, R = 10, cy = 140;
-  L.push({ input: Buffer.from(`<svg width="${D + R * 2}" height="${D + R * 2}"><defs><linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient></defs><circle cx="${D / 2 + R}" cy="${D / 2 + R}" r="${D / 2 + R}" fill="url(#r)"/></svg>`), left: Math.round(W / 2 - D / 2 - R), top: cy - R });
-  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
-  const circ = Buffer.from(`<svg width="${D}" height="${D}"><circle cx="${D / 2}" cy="${D / 2}" r="${D / 2}"/></svg>`);
-  const ph = buf
-    ? await sharp(await sharp(buf).rotate().resize(D, D, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: circ, blend: "dest-in" }]).png().toBuffer()
-    : await sharp({ create: { width: D, height: D, channels: 4, background: "#dcebe1" } }).composite([{ input: circ, blend: "dest-in" }]).png().toBuffer();
-  L.push({ input: ph, left: Math.round(W / 2 - D / 2), top: cy });
+  const X = 56;
+  const brand = await text("<b>CHOOSE YOUR THERAPIST</b>", { size: 20, color: "#f6d58a", width: 500 });
+  L.push({ input: brand.data, left: X + 70, top: 60 - Math.round(brand.info.height / 2) + 1 });
 
-  let y = cy + D + R + 24;
-  const nm = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 50, color: "#ffffff", width: W - 80, align: "centre", lines: 1 });
-  L.push({ input: nm.data, left: Math.round(W / 2 - nm.info.width / 2), top: y });
-  y += nm.info.height + 2;
-  const rl = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 28, color: "#f6d58a", width: W - 80, align: "centre", lines: 1 });
-  L.push({ input: rl.data, left: Math.round(W / 2 - rl.info.width / 2), top: y });
-  y += rl.info.height + 22;
-  const line = await text("You don't have to figure it out alone.\nLet's talk.", { size: 27, color: "#dcefe3", width: W - 100, align: "centre" });
-  L.push({ input: line.data, left: Math.round(W / 2 - line.info.width / 2), top: y });
+  let y = 150;
+  const h1 = await text("<b>Feel heard.</b>", { size: 92, color: "#ffffff", width: W - X * 2 });
+  L.push({ input: h1.data, left: X - 4, top: y });
+  y += 108;
+  const h2 = await text("<b>Feel better.</b>", { size: 92, color: "#f2c94c", width: W - X * 2 });
+  L.push({ input: h2.data, left: X - 4, top: y });
+  y += 128;
+  const sub = await text("A safe, private space to talk —\nonline or in person.", { size: 29, color: "#cfe6d8", width: 520 });
+  L.push({ input: sub.data, left: X, top: y });
 
-  const bk = await text(`Book: <b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 26, color: "#0b3f26", width: W - 60, align: "centre", lines: 1 });
-  L.push({ input: bk.data, left: Math.round(W / 2 - bk.info.width / 2), top: H - 96 + Math.round((96 - bk.info.height) / 2) });
+  // who: name + role at the bottom left, with a verified chip
+  const nm = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 38, color: "#ffffff", width: 480, lines: 1 });
+  const rl = await text(esc(t?.profile_type || "Psychologist"), { size: 24, color: "#cfe6d8", width: 480, lines: 1 });
+  const chip = await text("<b>✓ CYT VERIFIED</b>", { size: 17, color: "#0b3f26", width: 300 });
+  const by = H - 56 - rl.info.height - 6 - nm.info.height - 14 - 34;
+  const cw = chip.info.width + 26;
+  L.push({ input: rect(cw, 34, "#f2c94c", 17), left: X, top: by });
+  L.push({ input: chip.data, left: X + 13, top: by + Math.round((34 - chip.info.height) / 2) });
+  L.push({ input: nm.data, left: X, top: by + 34 + 14 });
+  L.push({ input: rl.data, left: X, top: by + 34 + 14 + nm.info.height + 6 });
+
+  // nudge on the sun: "book on the back"
+  const nb = await text("<b>Scan the\nback to\nbook</b>", { size: 26, color: "#0b3f26", width: 200, align: "centre" });
+  L.push({ input: nb.data, left: Math.round(W - 120 - nb.info.width / 2), top: Math.round(H - 110 - nb.info.height / 2) });
   return sharp({ create: { width: W, height: H, channels: 4, background: "#0b3f26" } }).composite(L).png().toBuffer();
 }
 
-async function tentBack(t, qr, W, H) {
+// back: warm gold with soft rings, white QR card, how-to, fee + ID, link
+async function tentBack(t, qr, W, H, link) {
   const L = [];
   L.push({ input: Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fdf3dc"/><stop offset="1" stop-color="#f6e2ae"/></linearGradient></defs>
+    <defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7d57c"/><stop offset="1" stop-color="#e8ae3e"/></linearGradient></defs>
     <rect width="${W}" height="${H}" fill="url(#b)"/>
-    <circle cx="${W}" cy="0" r="220" fill="#f2c94c" fill-opacity=".25"/>
-    <circle cx="0" cy="${H}" r="180" fill="#135c37" fill-opacity=".07"/>
+    <circle cx="0" cy="0" r="260" fill="#ffffff" fill-opacity=".14"/>
+    <circle cx="0" cy="0" r="170" fill="#ffffff" fill-opacity=".12"/>
+    <circle cx="${W}" cy="${H}" r="300" fill="#0b3f26" fill-opacity=".08"/>
+    <circle cx="${W}" cy="${H}" r="200" fill="#0b3f26" fill-opacity=".08"/>
+    <rect y="${H - 74}" width="${W}" height="74" fill="#0b3f26"/>
   </svg>`), left: 0, top: 0 });
-  let y = 34;
-  const hd = await text("<b>Scan to book a session</b>", { size: 42, color: "#0b3f26", width: W - 60, align: "centre", lines: 1 });
+  let y = 0;
+  const hd = await text("<b>Book a session</b>", { size: 50, color: "#0b3f26", width: W - 60, align: "centre", lines: 1 });
   L.push({ input: hd.data, left: Math.round(W / 2 - hd.info.width / 2), top: y });
-  y += hd.info.height + 18;
-  const Q = 390, C = Q + 40;
-  L.push({ input: Buffer.from(`<svg width="${C}" height="${C}"><rect x="2" y="2" width="${C - 4}" height="${C - 4}" rx="24" fill="#ffffff" stroke="#135c37" stroke-width="4"/></svg>`), left: Math.round(W / 2 - C / 2), top: y });
-  if (qr) L.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(W / 2 - Q / 2), top: y + 20 });
+  y += 70;
+  const sb = await text("Point your phone camera at the code", { size: 24, color: "#3f3417", width: W - 60, align: "centre" });
+  L.push({ input: sb.data, left: Math.round(W / 2 - sb.info.width / 2), top: y });
+  y += sb.info.height + 20;
+  const Q = 350, C = Q + 44;
+  L.push({ input: Buffer.from(`<svg width="${C + 20}" height="${C + 24}" xmlns="http://www.w3.org/2000/svg"><defs><filter id="s" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#5a3d00" flood-opacity=".25"/></filter></defs><rect x="10" y="6" width="${C}" height="${C}" rx="28" fill="#ffffff" filter="url(#s)"/></svg>`), left: Math.round(W / 2 - C / 2 - 10), top: y - 6 });
+  if (qr) L.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(W / 2 - Q / 2), top: y + 22 });
   y += C + 22;
-  const st = await text("<b>1</b> Scan with your camera   <b>2</b> Pick a time   <b>3</b> Talk online or in person", { size: 22, color: "#334155", width: W - 50, align: "centre", lines: 1 });
-  L.push({ input: st.data, left: Math.round(W / 2 - st.info.width / 2), top: y });
-  y += st.info.height + 20;
   const fee = getMinFee(t?.fees);
   const code = String(t?.profile_code || "").trim();
   const pills = [fee && `Sessions from <b>₹${fee.toLocaleString("en-IN")}</b>`, code && `CYT ID <b>${esc(code)}</b>`].filter(Boolean);
-  if (pills.length) y += await pillRow(L, pills, { cx: W / 2, y, size: 22, color: "#0b3f26", fill: "#ffffff", stroke: "#e0c47e", h: 44, maxW: W - 40 });
-  // centre the block in the space above the footer line
-  const shift = Math.max(0, Math.round((H - 70 - y) / 2) - 10);
+  if (pills.length) y += await pillRow(L, pills, { cx: W / 2, y, size: 22, color: "#0b3f26", fill: "#fff7e3", stroke: "#0b3f26", h: 44, maxW: W - 40 });
+  // centre the block in the space above the dark strip
+  const shift = Math.max(0, Math.round((H - 74 - y) / 2));
   for (let i = 1; i < L.length; i++) L[i].top += shift;
-  const ft = await text("<b>chooseyourtherapist.in</b>", { size: 22, color: "#135c37", width: W - 60, align: "centre" });
-  L.push({ input: ft.data, left: Math.round(W / 2 - ft.info.width / 2), top: H - ft.info.height - 26 });
-  return sharp({ create: { width: W, height: H, channels: 4, background: "#fdf3dc" } }).composite(L).png().toBuffer();
+  const ln = await text(`<b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 24, color: "#f6d58a", width: W - 40, align: "centre", lines: 1 });
+  L.push({ input: ln.data, left: Math.round(W / 2 - ln.info.width / 2), top: H - 74 + Math.round((74 - ln.info.height) / 2) });
+  return sharp({ create: { width: W, height: H, channels: 4, background: "#f2c94c" } }).composite(L).png().toBuffer();
 }
 
 export async function tentPng(t, { qr, link }) {
   const SW = 1240, SH = 1754; // A4 at 150 dpi
   const W = 840, H = 760, TAB = 100, X = Math.round((SW - W) / 2), TOP = 96;
   const yTab = TOP, yBack = TOP + TAB, yFront = yBack + H, yEnd = yFront + H;
-  const [front, back] = await Promise.all([tentFront(t, link, W, H), tentBack(t, qr, W, H)]);
+  const [front, back] = await Promise.all([tentFront(t, link, W, H), tentBack(t, qr, W, H, link)]);
   const L = [];
   const howto = await text("<b>Cut</b> along the solid outline  ·  <b>Fold</b> on both dashed lines  ·  <b>Glue</b> the tab inside the front", { size: 22, color: "#475569", width: SW - 100, align: "centre", lines: 1 });
   L.push({ input: howto.data, left: Math.round(SW / 2 - howto.info.width / 2), top: Math.round((TOP - howto.info.height) / 2) });
