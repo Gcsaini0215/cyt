@@ -10,6 +10,7 @@ import sharp from "sharp";
 import { getSlugMaps } from "./therapist-slug-maps";
 import { uploadUrl } from "./og-urls";
 import { cleanName, cityOf } from "./related-therapists";
+import { getMinFee, split as splitList } from "./therapist-directory";
 
 const W = 1200, H = 630;
 const GREEN = "#14532d", GOLD = "#e0ab45";
@@ -20,6 +21,12 @@ const FONT = (() => {
   const p = path.join(process.cwd(), "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf");
   return fs.existsSync(p) ? p : undefined;
 })();
+// bold weight: registering the file once lets Pango draw real bold for <b> (the regular file alone faked nothing)
+const FONT_BOLD = path.join(process.cwd(), "public/fonts/og/NotoSans-Bold.ttf");
+let boldReady = null;
+const ensureBold = () => boldReady || (boldReady = fs.existsSync(FONT_BOLD)
+  ? sharp({ text: { text: "x", font: "Noto Sans Bold 12", fontfile: FONT_BOLD, rgba: true } }).png().toBuffer().catch(() => null)
+  : Promise.resolve(null));
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -48,6 +55,7 @@ export async function fetchPhoto(url) {
 
 // a line of text as a transparent PNG (Pango markup: <b>, <span foreground=…>)
 async function text(markup, { size = 32, width = 640, color = "#0f172a", bold = false, align = "left", lines = 0 } = {}) {
+  await ensureBold();
   const body = `<span foreground="${color}"${bold ? ' weight="bold"' : ""}>${markup}</span>`;
   const img = sharp({ text: { text: body, font: `Noto Sans ${size}`, fontfile: FONT, width, align, rgba: true, dpi: 72, wrap: "word" } });
   const out = await img.png().toBuffer({ resolveWithObject: true });
@@ -325,102 +333,266 @@ async function vertical(markup, { size, color, angle }) {
   return sharp(tx.data).rotate(angle, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer({ resolveWithObject: true });
 }
 
+// a row of rounded pills centred on cx; returns the row height
+async function pillRow(layers, items, { cx, y, size = 25, color = "#24412f", fill = "#eef6f0", stroke = "", padX = 22, h = 50, gap = 12, maxW = 1080 }) {
+  const imgs = await Promise.all(items.map((p) => text(p, { size, color, width: 600, lines: 1 })));
+  // drop items from the end until the row fits
+  while (imgs.length > 1 && imgs.reduce((a, p) => a + p.info.width + padX * 2, 0) + gap * (imgs.length - 1) > maxW) imgs.pop();
+  const total = imgs.reduce((a, p) => a + p.info.width + padX * 2, 0) + gap * (imgs.length - 1);
+  let px = Math.round(cx - total / 2);
+  for (const p of imgs) {
+    const w = p.info.width + padX * 2;
+    layers.push({ input: Buffer.from(`<svg width="${w}" height="${h}"><rect x="1" y="1" width="${w - 2}" height="${h - 2}" rx="${(h - 2) / 2}" fill="${fill}"${stroke ? ` stroke="${stroke}" stroke-width="2"` : ""}/></svg>`), left: px, top: y });
+    layers.push({ input: p.data, left: px + padX, top: y + Math.round((h - p.info.height) / 2) });
+    px += w + gap;
+  }
+  return h;
+}
+
 export async function posterPng(t, { qr, link }) {
-  const PW = 1240, PH = 1754, cx = PW / 2;
+  const PW = 1240, PH = 1754, cx = PW / 2, FOOT = 170;
   const layers = [];
   layers.push({ input: Buffer.from(`<svg width="${PW}" height="${PH}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <radialGradient id="g" cx="100%" cy="0%" r="110%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".55" stop-color="#135c37"/><stop offset="1" stop-color="#0b3f26"/></radialGradient>
-      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".45"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".4"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
     </defs>
     <rect width="100%" height="100%" fill="#fbf8f0"/>
-    <path d="M0 0 H${PW} V400 Q${cx} 520 0 400 Z" fill="url(#g)"/>
-    <circle cx="${PW - 90}" cy="60" r="330" fill="url(#glow)"/>
-    <circle cx="90" cy="330" r="120" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
-    <circle cx="90" cy="330" r="80" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
-    <rect x="0" y="${PH - 190}" width="${PW}" height="190" fill="#0b3f26"/>
-    <rect x="0" y="${PH - 196}" width="${PW}" height="6" fill="${GOLD}"/>
+    <path d="M0 0 H${PW} V330 Q${cx} 450 0 330 Z" fill="url(#g)"/>
+    <circle cx="${PW - 90}" cy="40" r="300" fill="url(#glow)"/>
+    <circle cx="80" cy="270" r="110" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="2"/>
+    <circle cx="80" cy="270" r="72" fill="none" stroke="#f2c94c" stroke-opacity=".14" stroke-width="2"/>
+    <rect x="0" y="${PH - FOOT}" width="${PW}" height="${FOOT}" fill="#0b3f26"/>
+    <rect x="0" y="${PH - FOOT - 6}" width="${PW}" height="6" fill="${GOLD}"/>
   </svg>`), left: 0, top: 0 });
 
+  // eyebrow on the green band
+  const eb = await text("<b>VERIFIED THERAPIST  ·  CHOOSE YOUR THERAPIST</b>", { size: 22, color: "#f6d58a", width: PW - 160, align: "centre" });
+  layers.push({ input: eb.data, left: Math.round(cx - eb.info.width / 2), top: 42 });
 
   // photo in a gold-framed arch
-  const AW = 350, AH = 420, F = 14, top = 104;
+  const AW = 300, AH = 360, F = 12, top = 100;
   const FW = AW + F * 2, FH = AH + F * 2;
   layers.push({ input: Buffer.from(`<svg width="${FW + 24}" height="${FH + 24}" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient>
     <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#062a18" flood-opacity=".35"/></filter></defs>
-    <g transform="translate(12 8)" filter="url(#sh)"><path d="${archPath(FW, FH, 30)}" fill="url(#fg)"/></g>
+    <g transform="translate(12 8)" filter="url(#sh)"><path d="${archPath(FW, FH, 28)}" fill="url(#fg)"/></g>
   </svg>`), left: Math.round(cx - FW / 2 - 12), top: top - F - 8 });
   const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
-  const mask = Buffer.from(`<svg width="${AW}" height="${AH}"><path d="${archPath(AW, AH, 20)}"/></svg>`);
+  const mask = Buffer.from(`<svg width="${AW}" height="${AH}"><path d="${archPath(AW, AH, 18)}"/></svg>`);
   const photo = buf
     ? await sharp(await sharp(buf).rotate().resize(AW, AH, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer()
     : await sharp({ create: { width: AW, height: AH, channels: 4, background: "#dcebe1" } }).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
   layers.push({ input: photo, left: Math.round(cx - AW / 2), top });
-
-  // gold seal on the arch's lower-right corner
-  const S = 170;
+  const S = 150;
   layers.push({ input: await verifiedSeal(S), left: Math.round(cx + AW / 2 - S * 0.55), top: top + AH - S * 0.7 });
 
-  let y = top + AH + F + 40;
-  const name = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 64, color: "#0b1712", width: PW - 160, align: "centre", lines: 2 });
+  let y = top + AH + F + 30;
+  const name = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 66, color: "#0b1712", width: PW - 160, align: "centre", lines: 1 });
   layers.push({ input: name.data, left: Math.round(cx - name.info.width / 2), top: y });
-  y += name.info.height + 8;
+  y += name.info.height + 4;
   const role = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 34, color: "#1e7a4c", width: PW - 160, align: "centre", lines: 1 });
   layers.push({ input: role.data, left: Math.round(cx - role.info.width / 2), top: y });
-  y += role.info.height + 14;
-  // city · rating as small pills (no experience line)
+  y += role.info.height + 20;
+
+  // city · rating · languages
   const r = ratingOf(t);
-  const pills = [cityOf(t) && esc(cityOf(t)), r && `<span foreground="${GOLD}">★</span> ${r.avg}  (${r.n} review${r.n > 1 ? "s" : ""})`, "Online &amp; in person"].filter(Boolean);
-  const pillImgs = await Promise.all(pills.map((p) => text(p, { size: 25, color: "#24412f", width: 600 })));
-  const PADX = 22, GAP = 12, PHH = 50;
-  const total = pillImgs.reduce((a, p) => a + p.info.width + PADX * 2, 0) + GAP * (pillImgs.length - 1);
-  let px = Math.round(cx - total / 2);
-  for (const p of pillImgs) {
-    const w = p.info.width + PADX * 2;
-    layers.push({ input: rect(w, PHH, "#eef6f0", PHH / 2), left: px, top: y });
-    layers.push({ input: p.data, left: px + PADX, top: y + Math.round((PHH - p.info.height) / 2) });
-    px += w + GAP;
+  const langs = splitList(t?.language_spoken).slice(0, 3);
+  const pills = [
+    cityOf(t) && esc(cityOf(t)),
+    r && `<span foreground="${GOLD}">★</span> <b>${r.avg}</b>  (${r.n} review${r.n > 1 ? "s" : ""})`,
+    langs.length && esc(langs.join(" · ")),
+  ].filter(Boolean);
+  if (pills.length) y += (await pillRow(layers, pills, { cx, y })) + 24;
+
+  // what they help with
+  const helps = splitList(t?.experties).filter((x) => x.length <= 34).slice(0, 4).map(esc);
+  if (helps.length) {
+    const hl = await text("<b>HELPS WITH</b>", { size: 20, color: "#8a6a1f", width: 400, align: "centre" });
+    layers.push({ input: hl.data, left: Math.round(cx - hl.info.width / 2), top: y });
+    y += hl.info.height + 10;
+    y += (await pillRow(layers, helps, { cx, y, size: 24, color: "#0b3f26", fill: "#ffffff", stroke: "#e3cf9b", h: 48 })) + 30;
+  } else y += 10;
+
+  // booking panel: QR card on the left, headline + steps + fee + ID on the right
+  const PANEL_W = 1060, PX = Math.round(cx - PANEL_W / 2), PAD = 36;
+  const Q = 420, CARD = Q + 48;
+  const RX = PX + PAD + CARD + 44, RW = PX + PANEL_W - PAD - RX;
+  const right = [];
+  let ry = 0;
+  const head = await text("<b>Scan to book\na session</b>", { size: 50, color: "#0b3f26", width: RW });
+  right.push({ input: head.data, left: 0, top: ry });
+  ry += head.info.height + 22;
+  const steps = ["Scan the QR with your phone camera", "Pick a day and time that suits you", "Talk online or meet in person"];
+  for (let i = 0; i < steps.length; i++) {
+    const D = 44;
+    right.push({ input: Buffer.from(`<svg width="${D}" height="${D}"><circle cx="${D / 2}" cy="${D / 2}" r="${D / 2}" fill="#135c37"/></svg>`), left: 0, top: ry });
+    const num = await text(`<b>${i + 1}</b>`, { size: 24, color: "#f6d58a", width: D, align: "centre" });
+    right.push({ input: num.data, left: Math.round((D - num.info.width) / 2), top: ry + Math.round((D - num.info.height) / 2) });
+    const st = await text(steps[i], { size: 26, color: "#334155", width: RW - D - 16 });
+    right.push({ input: st.data, left: D + 16, top: ry + Math.max(0, Math.round((D - st.info.height) / 2)) });
+    ry += Math.max(D, st.info.height) + 16;
   }
-  y += PHH + 34;
-
-  const head = await text(`<b>Scan to book a session</b>`, { size: 50, color: "#0b3f26", width: PW - 160, align: "centre" });
-  layers.push({ input: head.data, left: Math.round(cx - head.info.width / 2), top: y });
-  y += head.info.height + 22;
-
-  // QR card with the therapist's CYT ID written up a light gold strip on its left
-  const Q = 500, CARD = Q + 64, STRIP = 62, GAPX = 16;
+  const fee = getMinFee(t?.fees);
   const code = String(t?.profile_code || "").trim();
-  const groupW = (code ? STRIP + GAPX : 0) + CARD;
-  const stripX = Math.round(cx - groupW / 2);
-  const cardX = code ? stripX + STRIP + GAPX : Math.round(cx - CARD / 2);
-  const qcx = cardX + CARD / 2;
-  layers.push({ input: Buffer.from(`<svg width="${CARD}" height="${CARD}"><rect x="2" y="2" width="${CARD - 4}" height="${CARD - 4}" rx="32" fill="#ffffff" stroke="${GOLD}" stroke-width="4"/></svg>`), left: cardX, top: y });
-  if (qr) layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(qcx - Q / 2), top: y + 32 });
-  if (code) {
-    layers.push({ input: Buffer.from(`<svg width="${STRIP}" height="${CARD}"><rect x="1.5" y="1.5" width="${STRIP - 3}" height="${CARD - 3}" rx="18" fill="#fdf3dc" stroke="${GOLD}" stroke-width="3"/></svg>`), left: stripX, top: y });
-    const idTxt = await vertical(`<b>${esc(code)}</b>`, { size: 32, color: "#0b3f26", angle: -90 });
-    layers.push({ input: idTxt.data, left: stripX + Math.round((STRIP - idTxt.info.width) / 2), top: y + Math.round((CARD - idTxt.info.height) / 2) });
+  const meta = [fee && `Sessions from <b>₹${fee.toLocaleString("en-IN")}</b>`, code && `CYT ID  <b>${esc(code)}</b>`].filter(Boolean);
+  if (meta.length) {
+    ry += 8;
+    for (const m of meta) {
+      const mt = await text(m, { size: 24, color: "#5b4a1f", width: RW - 40, lines: 1 });
+      const w = mt.info.width + 36, h = 46;
+      right.push({ input: rect(w, h, "#fdf3dc", 23), left: 0, top: ry });
+      right.push({ input: mt.data, left: 18, top: ry + Math.round((h - mt.info.height) / 2) });
+      ry += h + 10;
+    }
+    ry -= 10;
   }
-  y += CARD + 24;
+  const PANEL_H = Math.max(CARD, ry) + PAD * 2;
+  layers.push({ input: Buffer.from(`<svg width="${PANEL_W + 30}" height="${PANEL_H + 40}" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="ps" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#0b3f26" flood-opacity=".13"/></filter></defs>
+    <rect x="15" y="8" width="${PANEL_W}" height="${PANEL_H}" rx="36" fill="#ffffff" stroke="#e7dcc0" stroke-width="2" filter="url(#ps)"/>
+  </svg>`), left: PX - 15, top: y - 8 });
+  const cardY = y + Math.round((PANEL_H - CARD) / 2);
+  layers.push({ input: Buffer.from(`<svg width="${CARD}" height="${CARD}"><rect x="2" y="2" width="${CARD - 4}" height="${CARD - 4}" rx="26" fill="#ffffff" stroke="${GOLD}" stroke-width="4"/></svg>`), left: PX + PAD, top: cardY });
+  if (qr) layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: PX + PAD + 24, top: cardY + 24 });
+  const rTop = y + Math.round((PANEL_H - ry) / 2);
+  for (const l of right) layers.push({ ...l, left: RX + l.left, top: rTop + l.top });
+  y += PANEL_H + 40;
 
-  const ln = await text(`<b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 30, color: "#135c37", width: PW - 160, align: "centre" });
-  layers.push({ input: ln.data, left: Math.round(qcx - ln.info.width / 2), top: y });
+  // link, centred, with a small label
+  const lnLabel = await text("Or open your booking link", { size: 22, color: "#64748b", width: PW - 160, align: "centre" });
+  const ln = await text(`<b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 32, color: "#135c37", width: PW - 160, align: "centre", lines: 1 });
+  const footTop = PH - FOOT - 6;
+  const block = lnLabel.info.height + 6 + ln.info.height;
+  const ly = y + Math.max(0, Math.round((footTop - y - block) / 2));
+  layers.push({ input: lnLabel.data, left: Math.round(cx - lnLabel.info.width / 2), top: ly });
+  layers.push({ input: ln.data, left: Math.round(cx - ln.info.width / 2), top: ly + lnLabel.info.height + 6 });
 
-  const FY = PH - 190, FH2 = 190;
-  const flg = await logo(250);
-  const site = await text(`<b>chooseyourtherapist.in</b>`, { size: 44, color: "#f2c94c", width: 700 });
-  const tag = await text("Online &amp; in-person sessions  ·  Verified therapists", { size: 24, color: "#cfe3d6", width: 700 });
+  // footer: logo pill + site + tagline
+  const FY = PH - FOOT;
+  const flg = await logo(240);
+  const site = await text(`<b>chooseyourtherapist.in</b>`, { size: 42, color: "#f2c94c", width: 700 });
+  const tag = await text("Verified psychologists  ·  Online &amp; in person", { size: 24, color: "#cfe3d6", width: 700 });
   const pillW = flg.info.width + 36, pillH = flg.info.height + 24, GAPF = 40;
   const textW = Math.max(site.info.width, tag.info.width);
   const fx = Math.round(cx - (pillW + GAPF + textW) / 2);
-  layers.push({ input: rect(pillW, pillH, "#ffffff", 18), left: fx, top: FY + Math.round((FH2 - pillH) / 2) });
-  layers.push({ input: flg.data, left: fx + 18, top: FY + Math.round((FH2 - pillH) / 2) + 12 });
+  layers.push({ input: rect(pillW, pillH, "#ffffff", 18), left: fx, top: FY + Math.round((FOOT - pillH) / 2) });
+  layers.push({ input: flg.data, left: fx + 18, top: FY + Math.round((FOOT - pillH) / 2) + 12 });
   const tx = fx + pillW + GAPF, th = site.info.height + 6 + tag.info.height;
-  layers.push({ input: site.data, left: tx, top: FY + Math.round((FH2 - th) / 2) });
-  layers.push({ input: tag.data, left: tx, top: FY + Math.round((FH2 - th) / 2) + site.info.height + 6 });
+  layers.push({ input: site.data, left: tx, top: FY + Math.round((FOOT - th) / 2) });
+  layers.push({ input: tag.data, left: tx, top: FY + Math.round((FOOT - th) / 2) + site.info.height + 6 });
 
   return sharp({ create: { width: PW, height: PH, channels: 3, background: "#fbf8f0" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
+}
+
+/* ─── Desk table tent (print on A4, cut, fold, stand) ───
+   Sheet top→bottom: glue tab | back panel (QR, printed upside down) | front panel (photo, name).
+   Fold on both dashed lines so the two panels form an A-frame; the tab glues inside the front's lower edge. */
+async function tentFront(t, link, W, H) {
+  const L = [];
+  L.push({ input: Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="g" cx="85%" cy="0%" r="120%"><stop offset="0" stop-color="#1f7a4a"/><stop offset=".55" stop-color="#135c37"/><stop offset="1" stop-color="#0b3f26"/></radialGradient>
+    <radialGradient id="gl" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#f2c94c" stop-opacity=".38"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient></defs>
+    <rect width="${W}" height="${H}" fill="url(#g)"/>
+    <circle cx="${W - 60}" cy="40" r="260" fill="url(#gl)"/>
+    <circle cx="40" cy="${H - 200}" r="150" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="2"/>
+    <circle cx="40" cy="${H - 200}" r="100" fill="none" stroke="#f2c94c" stroke-opacity=".12" stroke-width="2"/>
+    <rect y="${H - 96}" width="${W}" height="96" fill="${GOLD}"/>
+  </svg>`), left: 0, top: 0 });
+  const lg = await logo(190);
+  L.push({ input: rect(lg.info.width + 28, lg.info.height + 20, "#ffffff", 14), left: 34, top: 30 });
+  L.push({ input: lg.data, left: 48, top: 40 });
+  const ver = await text("<b>✓ VERIFIED</b>", { size: 20, color: "#0b3f26", width: 300 });
+  const vw = ver.info.width + 30;
+  L.push({ input: rect(vw, 40, "#f6d58a", 20), left: W - 34 - vw, top: 30 + Math.round((lg.info.height + 20 - 40) / 2) });
+  L.push({ input: ver.data, left: W - 34 - vw + 15, top: 30 + Math.round((lg.info.height + 20 - ver.info.height) / 2) });
+
+  // round photo with a gold ring
+  const D = 220, R = 10, cy = 140;
+  L.push({ input: Buffer.from(`<svg width="${D + R * 2}" height="${D + R * 2}"><defs><linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6d27a"/><stop offset="1" stop-color="#c9922c"/></linearGradient></defs><circle cx="${D / 2 + R}" cy="${D / 2 + R}" r="${D / 2 + R}" fill="url(#r)"/></svg>`), left: Math.round(W / 2 - D / 2 - R), top: cy - R });
+  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
+  const circ = Buffer.from(`<svg width="${D}" height="${D}"><circle cx="${D / 2}" cy="${D / 2}" r="${D / 2}"/></svg>`);
+  const ph = buf
+    ? await sharp(await sharp(buf).rotate().resize(D, D, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: circ, blend: "dest-in" }]).png().toBuffer()
+    : await sharp({ create: { width: D, height: D, channels: 4, background: "#dcebe1" } }).composite([{ input: circ, blend: "dest-in" }]).png().toBuffer();
+  L.push({ input: ph, left: Math.round(W / 2 - D / 2), top: cy });
+
+  let y = cy + D + R + 24;
+  const nm = await text(`<b>${esc(cleanName(t) || "Your therapist")}</b>`, { size: 50, color: "#ffffff", width: W - 80, align: "centre", lines: 1 });
+  L.push({ input: nm.data, left: Math.round(W / 2 - nm.info.width / 2), top: y });
+  y += nm.info.height + 2;
+  const rl = await text(`<b>${esc(t?.profile_type || "Psychologist")}</b>`, { size: 28, color: "#f6d58a", width: W - 80, align: "centre", lines: 1 });
+  L.push({ input: rl.data, left: Math.round(W / 2 - rl.info.width / 2), top: y });
+  y += rl.info.height + 22;
+  const line = await text("You don't have to figure it out alone.\nLet's talk.", { size: 27, color: "#dcefe3", width: W - 100, align: "centre" });
+  L.push({ input: line.data, left: Math.round(W / 2 - line.info.width / 2), top: y });
+
+  const bk = await text(`Book: <b>${esc(String(link || "").replace(/^https:\/\/www\./, ""))}</b>`, { size: 26, color: "#0b3f26", width: W - 60, align: "centre", lines: 1 });
+  L.push({ input: bk.data, left: Math.round(W / 2 - bk.info.width / 2), top: H - 96 + Math.round((96 - bk.info.height) / 2) });
+  return sharp({ create: { width: W, height: H, channels: 4, background: "#0b3f26" } }).composite(L).png().toBuffer();
+}
+
+async function tentBack(t, qr, W, H) {
+  const L = [];
+  L.push({ input: Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fdf3dc"/><stop offset="1" stop-color="#f6e2ae"/></linearGradient></defs>
+    <rect width="${W}" height="${H}" fill="url(#b)"/>
+    <circle cx="${W}" cy="0" r="220" fill="#f2c94c" fill-opacity=".25"/>
+    <circle cx="0" cy="${H}" r="180" fill="#135c37" fill-opacity=".07"/>
+  </svg>`), left: 0, top: 0 });
+  let y = 34;
+  const hd = await text("<b>Scan to book a session</b>", { size: 42, color: "#0b3f26", width: W - 60, align: "centre", lines: 1 });
+  L.push({ input: hd.data, left: Math.round(W / 2 - hd.info.width / 2), top: y });
+  y += hd.info.height + 18;
+  const Q = 390, C = Q + 40;
+  L.push({ input: Buffer.from(`<svg width="${C}" height="${C}"><rect x="2" y="2" width="${C - 4}" height="${C - 4}" rx="24" fill="#ffffff" stroke="#135c37" stroke-width="4"/></svg>`), left: Math.round(W / 2 - C / 2), top: y });
+  if (qr) L.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: Math.round(W / 2 - Q / 2), top: y + 20 });
+  y += C + 22;
+  const st = await text("<b>1</b> Scan with your camera   <b>2</b> Pick a time   <b>3</b> Talk online or in person", { size: 22, color: "#334155", width: W - 50, align: "centre", lines: 1 });
+  L.push({ input: st.data, left: Math.round(W / 2 - st.info.width / 2), top: y });
+  y += st.info.height + 20;
+  const fee = getMinFee(t?.fees);
+  const code = String(t?.profile_code || "").trim();
+  const pills = [fee && `Sessions from <b>₹${fee.toLocaleString("en-IN")}</b>`, code && `CYT ID <b>${esc(code)}</b>`].filter(Boolean);
+  if (pills.length) y += await pillRow(L, pills, { cx: W / 2, y, size: 22, color: "#0b3f26", fill: "#ffffff", stroke: "#e0c47e", h: 44, maxW: W - 40 });
+  // centre the block in the space above the footer line
+  const shift = Math.max(0, Math.round((H - 70 - y) / 2) - 10);
+  for (let i = 1; i < L.length; i++) L[i].top += shift;
+  const ft = await text("<b>chooseyourtherapist.in</b>", { size: 22, color: "#135c37", width: W - 60, align: "centre" });
+  L.push({ input: ft.data, left: Math.round(W / 2 - ft.info.width / 2), top: H - ft.info.height - 26 });
+  return sharp({ create: { width: W, height: H, channels: 4, background: "#fdf3dc" } }).composite(L).png().toBuffer();
+}
+
+export async function tentPng(t, { qr, link }) {
+  const SW = 1240, SH = 1754; // A4 at 150 dpi
+  const W = 840, H = 760, TAB = 100, X = Math.round((SW - W) / 2), TOP = 96;
+  const yTab = TOP, yBack = TOP + TAB, yFront = yBack + H, yEnd = yFront + H;
+  const [front, back] = await Promise.all([tentFront(t, link, W, H), tentBack(t, qr, W, H)]);
+  const L = [];
+  const howto = await text("<b>Cut</b> along the solid outline  ·  <b>Fold</b> on both dashed lines  ·  <b>Glue</b> the tab inside the front", { size: 22, color: "#475569", width: SW - 100, align: "centre", lines: 1 });
+  L.push({ input: howto.data, left: Math.round(SW / 2 - howto.info.width / 2), top: Math.round((TOP - howto.info.height) / 2) });
+  // glue tab (slightly tapered so it tucks in neatly)
+  L.push({ input: Buffer.from(`<svg width="${W}" height="${TAB}"><path d="M40 0 H${W - 40} L${W} ${TAB} H0 Z" fill="#eef1ef"/></svg>`), left: X, top: yTab });
+  const gl = await text("<b>GLUE HERE</b>", { size: 22, color: "#94a3b8", width: 400, align: "centre" });
+  L.push({ input: await sharp(gl.data).rotate(180, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer(), left: Math.round(SW / 2 - gl.info.width / 2), top: yTab + Math.round((TAB - gl.info.height) / 2) });
+  L.push({ input: await sharp(back).rotate(180).png().toBuffer(), left: X, top: yBack });
+  L.push({ input: front, left: X, top: yFront });
+  // cut outline + fold lines + markers
+  L.push({ input: Buffer.from(`<svg width="${SW}" height="${SH}" xmlns="http://www.w3.org/2000/svg">
+    <path d="M${X + 40} ${yTab} H${X + W - 40} L${X + W} ${yBack} V${yEnd} H${X} V${yBack} Z" fill="none" stroke="#334155" stroke-width="2.5"/>
+    <line x1="${X - 30}" y1="${yBack}" x2="${X + W + 30}" y2="${yBack}" stroke="#64748b" stroke-width="2.5" stroke-dasharray="14 10"/>
+    <line x1="${X - 30}" y1="${yFront}" x2="${X + W + 30}" y2="${yFront}" stroke="#64748b" stroke-width="2.5" stroke-dasharray="14 10"/>
+  </svg>`), left: 0, top: 0 });
+  for (const [yy, lbl] of [[yBack, "FOLD"], [yFront, "FOLD"]]) {
+    const f = await text(`<b>${lbl}</b>`, { size: 18, color: "#64748b", width: 200 });
+    L.push({ input: f.data, left: X + W + 40, top: yy - Math.round(f.info.height / 2) });
+    L.push({ input: f.data, left: X - 40 - f.info.width, top: yy - Math.round(f.info.height / 2) });
+  }
+  const cut = await text("CUT", { size: 18, color: "#334155", width: 200 });
+  L.push({ input: (await sharp(cut.data).rotate(-90, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer()), left: X - 30, top: yFront + Math.round(H / 2) });
+  const ft = await text("Choose Your Therapist  ·  desk card", { size: 18, color: "#94a3b8", width: 600, align: "centre" });
+  L.push({ input: ft.data, left: Math.round(SW / 2 - ft.info.width / 2), top: yEnd + Math.round((SH - yEnd - ft.info.height) / 2) });
+  return sharp({ create: { width: SW, height: SH, channels: 3, background: "#ffffff" } }).png().composite(L).png({ compressionLevel: 9 }).toBuffer();
 }
 
 

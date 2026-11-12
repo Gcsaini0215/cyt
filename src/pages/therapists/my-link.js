@@ -42,6 +42,14 @@ function useCopy() {
   return [done, copy];
 }
 
+// open an A4 image in a new tab and print it edge to edge
+function printA4(src, title) {
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(`<!doctype html><title>${title}</title><style>@page{size:A4;margin:0}html,body{margin:0}img{width:100%;display:block}</style><img src="${window.location.origin}${src}" onload="setTimeout(function(){print()},300)">`);
+  w.document.close();
+}
+
 export default function MyLink() {
   const { therapistInfo } = useTherapistStore();
   const [info, setInfo] = useState(null);
@@ -147,16 +155,31 @@ export default function MyLink() {
                     <img className="ml-qr-img" src={`/api/my-qr/${h}.png`} alt="QR code for your booking link" width="140" height="140" loading="lazy" />
                     <a className="ml-b line sm" href={`/api/my-qr/${h}.png?dl=1`} download><FileDownloadRoundedIcon /> Download QR</a>
                     <a className="ml-b line sm" href={`/api/my-poster/${h}.png?dl=1`} download><FileDownloadRoundedIcon /> Download poster</a>
-                    <button type="button" className="ml-b gold sm" onClick={() => {
-                      const w = window.open("", "_blank");
-                      if (!w) return;
-                      w.document.write(`<!doctype html><title>Poster</title><style>@page{size:A4;margin:0}html,body{margin:0}img{width:100%;display:block}</style><img src="${window.location.origin}/api/my-poster/${h}.png" onload="setTimeout(function(){print()},300)">`);
-                      w.document.close();
-                    }}><PrintRoundedIcon /> Print poster</button>
+                    <button type="button" className="ml-b gold sm" onClick={() => printA4(`/api/my-poster/${h}.png`, "Poster")}><PrintRoundedIcon /> Print poster</button>
                   </div>
                 </div>
               </section>
             </div>
+
+            <section className="pt-card ml-card ml-qr" style={{ marginBottom: 14 }}>
+              <h2><PrintRoundedIcon /> Desk card (table tent)</h2>
+              <p className="ml-sub">A stand-up card for your clinic desk or reception: your photo on the front, the QR on the back.</p>
+              <div className="ml-qr-body">
+                <a href={`/api/my-tent/${h}.png`} target="_blank" rel="noopener noreferrer" className="ml-poster" title="Open the desk card">
+                  <img src={`/api/my-tent/${h}.png`} alt="Your desk card to print, cut and fold" width="248" height="351" loading="lazy" />
+                </a>
+                <div className="ml-qr-side" style={{ maxWidth: 420 }}>
+                  <ol className="ml-steps">
+                    <li>Print on A4 — thick paper or card (200–300 gsm) stands best.</li>
+                    <li>Cut along the solid outline.</li>
+                    <li>Fold on both dashed lines.</li>
+                    <li>Glue the grey tab inside the bottom of the front.</li>
+                  </ol>
+                  <a className="ml-b line sm" href={`/api/my-tent/${h}.png?dl=1`} download><FileDownloadRoundedIcon /> Download desk card</a>
+                  <button type="button" className="ml-b gold sm" onClick={() => printA4(`/api/my-tent/${h}.png`, "Desk card")}><PrintRoundedIcon /> Print desk card</button>
+                </div>
+              </div>
+            </section>
 
             <section className="pt-card ml-card">
               <h2>Who came from your link · last 30 days</h2>
@@ -219,6 +242,7 @@ const ML_CSS = `
 .ml-qr-body { display: flex; gap: 16px; align-items: flex-start; }
 .ml-poster { flex-shrink: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 10px 24px -16px rgba(15,23,42,.4); background: #fbf8f0; }
 .ml-poster img { display: block; width: 180px; height: auto; }
+.ml-steps { margin: 0 0 4px; padding-left: 20px; font-size: 13.5px; line-height: 1.6; color: #475569; }
 .ml-qr-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .ml-qr-img { width: 120px; height: 120px; border-radius: 10px; border: 1px solid var(--line); background: #fff; padding: 6px; }
 .ml-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 6px 0 10px; }
