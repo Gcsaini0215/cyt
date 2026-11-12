@@ -32,11 +32,12 @@ import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlin
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
 const WIDE_KEY = "cyt_tsn_wide";
 // phones + touch tablets get the app shell (bottom bar, tile menu, no side rail) — same query in side-nav / main-layout CSS
 export const TOUCH_SHELL = "(max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse)";
-const TILES_PER_PAGE = 8;
+const TILES_PER_PAGE = 12;
 
 // phones: four favourites + "More" (opens the full menu)
 const MOB_NAV = [
@@ -57,6 +58,18 @@ function openFromIcon(e) {
   const r = el.getBoundingClientRect();
   const pr = page.getBoundingClientRect();
   window.__tsOpen = { ox: Math.round(r.left + r.width / 2 - pr.left), oy: Math.round(r.top + r.height / 2 - pr.top), at: Date.now() };
+}
+
+function AppClock() {
+  const [now, setNow] = useState(null);
+  useEffect(() => { setNow(new Date()); const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
+  if (!now) return null;
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    <span className="tn-clock" aria-label={now.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}>
+      <b className="h">{pad(now.getHours() % 12 || 12)}</b><i>:</i><b className="m">{pad(now.getMinutes())}</b><small>{now.getHours() < 12 ? "AM" : "PM"}</small>
+    </span>
+  );
 }
 
 /* Top bar for the therapist portal: menu button (widens the rail on desktop / opens the
@@ -227,6 +240,8 @@ export default function DashboardTopNav() {
     else if (e.key === "Enter") { e.preventDefault(); go(results[qIdx]); }
   };
 
+  const pageItem = NAV_ITEMS.find((i) => isActive(i, pathname));
+  const pageTitle = pathname === "/therapist-dashboard" ? "Home" : (pageItem?.label || "Dashboard");
   const barTos = new Set(MOB_NAV.map((m) => m.to));
   const sheetTiles = [
     ...drawerGroups.flatMap((g) => g.items.filter((i) => !barTos.has(i.to)).map((i) => ({ ...i, up: !!g.upgrade }))),
@@ -255,6 +270,9 @@ export default function DashboardTopNav() {
         <button type="button" className="tn-menu-btn" onClick={onMenu} aria-label="Menu" title="Menu">
           {wide ? <MenuOpenRoundedIcon /> : <MenuRoundedIcon />}
         </button>
+        {/* phones / iPad: the page's name, like an app (the profile chip moves to the right as an avatar) */}
+        <span className="tn-app-title">{pageTitle}</span>
+        <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="tn-app-site">WWW.CHOOSEYOURTHERAPIST.IN</a>
 
         {/* who's signed in — name, what they are, and whether the profile is live */}
         <div ref={profileRef} className="tn-prof" onMouseEnter={openProfile} onMouseLeave={closeProfileSoon}>
@@ -302,6 +320,10 @@ export default function DashboardTopNav() {
         </div>
 
         <div className="tn-right">
+          <AppClock />
+          <button type="button" className="tn-icon-btn tn-refresh" aria-label="Refresh" title="Refresh" onClick={(e) => {
+            const b = e.currentTarget; b.classList.add("spin"); setTimeout(() => window.location.reload(), 200);
+          }}><RefreshRoundedIcon /></button>
           <button type="button" className="tn-icon-btn tn-search-ic" onClick={() => { setMSearch(true); setTimeout(() => searchRef.current?.focus(), 30); }} aria-label="Search pages" title="Search">
             <SearchRoundedIcon />
           </button>
@@ -396,6 +418,17 @@ export default function DashboardTopNav() {
               <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
               <span className="tn-mob-ico">{on ? <item.Icon /> : <item.Off />}</span>
               {item.label}
+            </Link>
+          );
+        })}
+        {sheetTiles.filter((t) => t.to).slice(0, 7).map((item, i) => {
+          const on = isActive(item, pathname);
+          return (
+            <Link key={`dx-${item.to}`} href={item.to} data-i={i} className={`tn-mob-item dock-x${on ? " active" : ""}${item.up ? " up" : ""}`} aria-current={on ? "page" : undefined}
+              onClick={(e) => { if (!on) openFromIcon(e); }}>
+              <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
+              <span className="tn-mob-ico"><item.Icon /></span>
+              {item.short || item.label}
             </Link>
           );
         })}
@@ -721,4 +754,61 @@ const TN_CSS = `
   .tn-drawer-group a, .tn-drawer-group > button { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) { .ts-page.ts-zoom { animation: none; } }
+
+/* ═══ app bar like the CYT admin app (phones + touch tablets): page title left, round buttons right ═══ */
+.tn-app-title, .tn-app-site, .tn-clock, .tn-refresh { display: none !important; }
+.dock-x { display: none !important; }
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .tn-bar.tn-bar { height: 60px; gap: 8px; padding: 0 12px 0 16px; }
+  :root { --tn-h: 60px; }
+  .tn-bar .tn-menu-btn { display: none; }
+  .tn-app-title { display: block !important; order: 1; flex: 0 1 auto; min-width: 0; font-size: 24px; font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tn-bar .tn-prof { order: 10; flex: 0 0 auto; }
+  .tn-bar .tn-who { padding: 0; max-width: none; flex: none; }
+  .tn-bar .tn-who-txt { display: none; }
+  .tn-bar .tn-who-av { width: 38px; height: 38px; border-radius: 50%; }
+  .tn-prof-dd { left: auto; right: 0; }
+  .tn-bar .tn-right { order: 5; margin-left: auto; gap: 8px; }
+  .tn-bar .tn-icon-btn { margin-left: 0; }
+  .tn-refresh { display: grid !important; }
+  .tn-refresh.spin svg { animation: tnSpin .7s linear infinite; }
+  @keyframes tnSpin { to { transform: rotate(360deg); } }
+  /* More: a bottom sheet like the admin's — white header, 12 icons a page */
+  .tn-drawer-head { background: #fff !important; border-bottom: 1px solid #eef2f0 !important; padding: 20px 16px 12px !important; }
+  .tn-drawer-head b { color: #0b1712 !important; font-size: 17px; }
+  .tn-drawer-head > div > span:not(.nx-tone) { color: #1e8a4f !important; }
+  .tn-drawer-head button { background: #f0f3f1 !important; color: #1c1c1e !important; border-radius: 50% !important; }
+  .tn-drawer-head img { border-radius: 50%; }
+  .tn-sheet-grip { background: #d6dfda !important; }
+  .tn-pages .tn-page { gap: 16px 4px; padding: 4px 10px; }
+}
+@media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .tn-app-site { display: inline-flex !important; order: 2; margin: 3px auto 0 4px; color: #1e8a4f !important; font-size: 15px; font-weight: 800; letter-spacing: .06em; text-decoration: none !important; white-space: nowrap; }
+  .tn-bar .tn-right { margin-left: 0; }
+  .tn-clock { display: inline-flex !important; align-items: baseline; gap: 1px; margin-right: 4px; padding: 4px 12px; border-radius: 14px; background: #f0f3f1;
+    font-family: "SF Pro Rounded", ui-rounded, Inter, -apple-system, sans-serif; font-variant-numeric: tabular-nums; line-height: 1; }
+  .tn-clock b { font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
+  .tn-clock .h { color: #1c1c1e; } .tn-clock .m { color: #1e8a4f; }
+  .tn-clock i { font-style: normal; font-size: 24px; font-weight: 900; color: #d4a24c; margin: 0 1px; animation: tnBlink 1s steps(1) infinite; }
+  .tn-clock small { font-size: 11px; font-weight: 800; color: #6e6e73; margin-left: 4px; letter-spacing: .04em; }
+  @keyframes tnBlink { 50% { opacity: .25; } }
+  /* the Dock fills the width: 3 extra favourites in portrait, 7 in landscape */
+  .dock-x { display: flex !important; }
+  .dock-x[data-i="3"], .dock-x[data-i="4"], .dock-x[data-i="5"], .dock-x[data-i="6"] { display: none !important; }
+  .dock-x[data-i="0"] { --tile: linear-gradient(160deg, #ff8aa6, #e0335e); --tile-sh: rgba(224,51,94,.55); }
+  .dock-x[data-i="1"] { --tile: linear-gradient(160deg, #7f9cff, #3b4fd1); --tile-sh: rgba(59,79,209,.55); }
+  .dock-x[data-i="2"] { --tile: linear-gradient(160deg, #ff9b6b, #e5532a); --tile-sh: rgba(229,83,42,.55); }
+  .dock-x[data-i="3"] { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.55); }
+  .dock-x[data-i="4"] { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.55); }
+  .dock-x[data-i="5"] { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.55); }
+  .dock-x[data-i="6"] { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.55); }
+  .dock-x.up { --tile: linear-gradient(160deg, #f6d27a, #c9962c); --tile-sh: rgba(201,150,44,.6); }
+  .tn-mob-nav { gap: 10px; }
+  .tn-mob-item { width: 80px; }
+  .tn-mob-item { font-size: 11.5px; white-space: nowrap; }
+  .tn-mob-item > :not(.tn-mob-ico):not(.tn-mob-badge) { overflow: hidden; text-overflow: ellipsis; }
+}
+@media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) and (orientation: landscape) {
+  .dock-x[data-i="3"], .dock-x[data-i="4"], .dock-x[data-i="5"], .dock-x[data-i="6"] { display: flex !important; }
+}
 `;

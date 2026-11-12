@@ -7,6 +7,7 @@ import { checkProfileSet } from "../../utils/url";
 import { fetchById } from "../../utils/actions";
 import { getDecodedToken } from "../../utils/jwt";
 import useSessionGuard from "../../utils/session-guard";
+import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 
 /**
  * Therapist portal shell (top nav + side nav + chat). _app.js mounts it ONCE
@@ -83,6 +84,7 @@ export function TherapistShell({ children }) {
   const [busy, setBusy] = React.useState(false);
   const signedIn = useSessionGuard();
   const pageKey = router.asPath.split("?")[0];
+  const ptrRef = usePullToRefresh(); // installed app: pull down at the top to refresh
   // a page opened from a bottom-bar / menu icon grows out of that icon (top-nav.js leaves window.__tsOpen);
   // read once per page so the class never changes while the page is shown
   const zoom = React.useMemo(() => {
@@ -136,7 +138,8 @@ export function TherapistShell({ children }) {
 
   return (
     <ShellContext.Provider value={true}>
-      <style dangerouslySetInnerHTML={{ __html: shellStyles }} />
+      <style dangerouslySetInnerHTML={{ __html: shellStyles + PTR_CSS }} />
+      <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
       {busy && <div className="ts-progress" role="progressbar" aria-label="Loading page" />}
       <DashboardTopNav />
       <TherapistSideNav />
