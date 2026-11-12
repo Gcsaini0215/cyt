@@ -61,6 +61,19 @@ export const CHECK_NAV = [
 ];
 export const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 const TILES_PER_PAGE = 8;
+// phones + touch tablets (iPad) get the app shell: bottom bar, tile menu, no side menu
+const TOUCH_SHELL = "(max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse)";
+// iPhone-style "opening an app": the next page grows out of the tapped icon. The shell remounts with every
+// page, so the new page reads this as it mounts (zoom state below) and the old page never moves.
+function openFromIcon(e) {
+  if (typeof window === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  const el = e?.currentTarget;
+  const main = document.querySelector(".cls-main");
+  if (!el || !main) return;
+  const r = el.getBoundingClientRect();
+  const m = main.getBoundingClientRect();
+  window.__clsOpen = { ox: Math.round(r.left + r.width / 2 - m.left), oy: Math.round(r.top + r.height / 2 - m.top), at: Date.now() };
+}
 const RAIL_KEY = "cyt_cls_rail_mini";
 // runs while the HTML is parsed, before the rail is painted
 const RAIL_SCRIPT = `try{if(localStorage.getItem("${"cyt_cls_rail_mini"}")==="1")document.documentElement.classList.add("cls-mini")}catch(e){}`;
@@ -77,6 +90,12 @@ export default function ClientShell({ title, children }) {
   const [barHidden, setBarHidden] = useState(false); // phone bar: slides away while scrolling down
   const [sheetPage, setSheetPage] = useState(0);
   const tilesRef = useRef(null);
+  const [zoom] = useState(() => {
+    if (typeof window === "undefined") return null;
+    const z = window.__clsOpen;
+    window.__clsOpen = null;
+    return z && Date.now() - z.at < 8000 ? z : null;
+  });
   // ☰ flips the side menu: desktop full ↔ icons only (remembered), tablet icons ↔ full
   // Desktop: the icons-only rail is a class on <html> (`cls-mini`), set by RAIL_SCRIPT while the
   // page is still loading, so a refresh shows the right width at once (reading it in an effect made
@@ -90,7 +109,7 @@ export default function ClientShell({ title, children }) {
     } catch (e) { /* storage blocked */ }
   }, []);
   const toggleRail = () => {
-    if (window.matchMedia("(max-width: 767px)").matches) { setMore(true); return; } // phones: the menu sheet
+    if (window.matchMedia(TOUCH_SHELL).matches) { setMore(true); return; } // phones + iPad: the menu sheet
     const html = document.documentElement;
     html.classList.add("cls-anim"); // animate only when the user toggles, never on load
     if (window.matchMedia("(min-width: 1024px)").matches) {
@@ -267,16 +286,17 @@ export default function ClientShell({ title, children }) {
         </div>
       </nav>
 
-      <main className="cls-main">{ready ? <><InstallAppBar />{children}</> : null}</main>
+      <main className={`cls-main${zoom ? " cls-zoom" : ""}`} style={zoom ? { "--ox": `${zoom.ox}px`, "--oy": `${zoom.oy}px` } : undefined}>{ready ? <><InstallAppBar />{children}</> : null}</main>
 
       <nav className={`cls-mob${barHidden && !more ? " away" : ""}`} aria-label="Quick menu" style={{ "--n": mobNav.length + 1, "--i": mobOn }} onFocus={() => setBarHidden(false)}>
         {mobOn >= 0 && <span className="cls-mob-line" aria-hidden="true" />}
-        {mobNav.map(({ to, label, short, Icon, Off }) => (
-          <Link key={to} href={to} className={`cls-mob-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}>
+        {mobNav.map(({ to, label, short, Icon, Off }, i) => (
+          <Link key={to} href={to} data-k={["home", "sessions", "explore", "shortlist"][i] || "x"} className={`cls-mob-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}
+            onClick={(e) => { if (!active(to)) openFromIcon(e); }}>
             <span className="cls-mob-ic">{active(to) ? <Icon /> : <Off />}</span>{short || label}
           </Link>
         ))}
-        <button type="button" className={`cls-mob-item${moreOn ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
+        <button type="button" data-k="more" className={`cls-mob-item${moreOn ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
           <span className="cls-mob-ic">{moreOn ? <GridViewRoundedIcon /> : <GridViewOutlinedIcon />}</span>More
         </button>
       </nav>
@@ -297,7 +317,7 @@ export default function ClientShell({ title, children }) {
                   {tiles.map(({ to, href, label, Icon, blank, onClick }) => {
                     const body = <><span className="cls-tile-ic"><Icon /></span><span className="cls-tile-tx">{label}</span></>;
                     if (onClick) return <button key={label} type="button" className="out" onClick={onClick}>{body}</button>;
-                    return to ? <Link key={label} href={to} className={active(to) ? "on" : ""} aria-current={active(to) ? "page" : undefined}>{body}</Link>
+                    return to ? <Link key={label} href={to} className={active(to) ? "on" : ""} aria-current={active(to) ? "page" : undefined} onClick={(e) => { if (!active(to)) openFromIcon(e); }}>{body}</Link>
                       : <a key={label} href={href} {...(blank ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{body}</a>;
                   })}
                 </div>
@@ -402,7 +422,7 @@ body:has(.cls) { padding-bottom: 0 !important; } /* the shell keeps its own room
   .cls.flip .cls-item.kid { padding: 0 10px; }
 }
 html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, padding .2s ease; }
-@media (max-width: 767px) {
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .hide-sm { display: none !important; }
   .cls-bar { padding: 0 12px; }
   .cls-rail { display: none; }
@@ -458,4 +478,95 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-sheet-head > div > .cls-room { color: #f5c542; }
   .cls-sheet-head button { background: rgba(255,255,255,.14); color: #fff; }
 }
+
+/* ═══ App feel on phones + touch tablets (browser and installed app) — same look as the CYT admin app ═══ */
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  html.cls-mini .cls .cls-main, .cls.flip .cls-main { padding: calc(var(--cls-h) + 14px) 16px calc(110px + env(safe-area-inset-bottom, 0px)); }
+  .cls-main { max-width: none; }
+  /* white top bar */
+  .cls-bar { background: #fff; box-shadow: none; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .cls-burger { background: #f0f3f1; color: #1c1c1e; border-radius: 50%; margin-left: -4px; }
+  .cls-burger:hover { background: #e6ebe8; }
+  .cls-logo img { box-shadow: 0 0 0 1px #e4ece7; border-radius: 50%; }
+  .cls-brand b { color: #1c1c1e; }
+  .cls-brand { flex: 1; overflow: hidden; }
+  .cls-brand b { overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+  .cls-brand span { color: #1e8a4f; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; font-size: 8.6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cls-right { margin-left: 8px; }
+  .cls-ic { color: #1c1c1e !important; background: #f0f3f1; border-radius: 50%; }
+  .cls-right > :not(.cls-me) button, .cls-right > :not(.cls-me) a { color: #1c1c1e !important; }
+  .cls-me-btn { color: #1c1c1e; }
+  .cls-av { background: #14532d; color: #fff; border-radius: 50%; }
+
+  /* bottom bar: app icons */
+  .cls-mob-line { display: none; }
+  .cls-mob { background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); overflow: visible; }
+  .cls-mob-item { position: relative; gap: 4px; font-size: 11px; font-weight: 700; color: #475569 !important; min-height: 66px; }
+  .cls-mob-ic { width: 40px; height: 40px; border-radius: 12px; color: #fff; background: var(--tile, linear-gradient(160deg, #3fa66b, #14532d));
+    box-shadow: 0 6px 12px -6px var(--tile-sh, rgba(11,63,38,.6)), inset 0 1px 0 rgba(255,255,255,.35); }
+  .cls-mob-ic svg { font-size: 22px; color: #fff; }
+  .cls-mob-item.on { color: #0b1712 !important; font-weight: 800; }
+  .cls-mob-item.on .cls-mob-ic { background: var(--tile, linear-gradient(160deg, #3fa66b, #14532d)); transform: translateY(-2px); }
+  .cls-mob-item.on::after { content: ""; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #0b1712; opacity: .5; }
+  .cls-mob-item[data-k="home"]      { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.6); }
+  .cls-mob-item[data-k="sessions"]  { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.65); }
+  .cls-mob-item[data-k="explore"]   { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.6); }
+  .cls-mob-item[data-k="shortlist"] { --tile: linear-gradient(160deg, #ff8aa6, #e0335e); --tile-sh: rgba(224,51,94,.6); }
+  .cls-mob-item[data-k="more"]      { --tile: linear-gradient(160deg, #8e9aa6, #4b5662); --tile-sh: rgba(75,86,98,.6); }
+
+  /* More sheet: colourful app icons */
+  .cls-tile-ic { width: 56px; height: 56px; border-radius: 17px; background: var(--tile, linear-gradient(160deg, #4fd38b, #12804a));
+    box-shadow: 0 10px 18px -10px var(--tile-sh, rgba(11,63,38,.6)), inset 0 1px 0 rgba(255,255,255,.35); }
+  .cls-tile-ic svg { color: #fff !important; font-size: 26px; }
+  .cls-tiles > .on .cls-tile-ic { background: var(--tile); box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(20,83,45,.45); }
+  .cls-tiles > :active .cls-tile-ic { transform: scale(.9); }
+  .cls-tiles > * { color: #1f2a24 !important; }
+  .cls-tile-tx { overflow-wrap: anywhere; -webkit-hyphens: auto; hyphens: auto; }
+  .cls-tiles > :nth-child(8n+1) { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.6); }
+  .cls-tiles > :nth-child(8n+2) { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.55); }
+  .cls-tiles > :nth-child(8n+3) { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.55); }
+  .cls-tiles > :nth-child(8n+4) { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.55); }
+  .cls-tiles > :nth-child(8n+5) { --tile: linear-gradient(160deg, #ff8aa6, #e0335e); --tile-sh: rgba(224,51,94,.55); }
+  .cls-tiles > :nth-child(8n+6) { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.55); }
+  .cls-tiles > :nth-child(8n+7) { --tile: linear-gradient(160deg, #ff9b6b, #e5532a); --tile-sh: rgba(229,83,42,.55); }
+  .cls-tiles > :nth-child(8n+8) { --tile: linear-gradient(160deg, #7f9cff, #3b4fd1); --tile-sh: rgba(59,79,209,.55); }
+  .cls-tiles > .out .cls-tile-ic { background: linear-gradient(160deg, #ff7a7a, #dc2626); box-shadow: 0 10px 18px -10px rgba(220,38,38,.6); }
+  .cls-tiles > .out { color: #dc2626 !important; }
+
+  /* My Space numbers: 2 x 2 white cards, coloured icon + title, tinted outline */
+  .dw-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+  .dw-stat { flex-direction: column !important; align-items: flex-start !important; gap: 6px !important; padding: 12px 13px !important; border-radius: 18px !important;
+    background: #fff; border: 1.5px solid var(--kc-b, #e3e8e5) !important; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .dw-stat-ic { display: grid !important; width: 30px !important; height: 30px !important; border-radius: 50% !important; color: #fff !important; background: var(--kc, #16a34a) !important; }
+  .dw-stat-ic svg { font-size: 17px !important; }
+  .dw-stat b { font-size: 22px !important; color: #1c1c1e; }
+  .dw-stat > div > span { font-size: 12px !important; font-weight: 700; color: var(--kc, #16a34a) !important; }
+  .dw-stat:has(.dw-stat-ic.g) { --kc: #16a34a; --kc-b: #c6ead3; }
+  .dw-stat:has(.dw-stat-ic.b) { --kc: #0a84ff; --kc-b: #c4dcfb; }
+  .dw-stat:has(.dw-stat-ic.r) { --kc: #e5397a; --kc-b: #f6c9da; }
+  .dw-stat:has(.dw-stat-ic.y) { --kc: #e08a00; --kc-b: #f3dcae; }
+
+  /* opening a page from an icon */
+  .cls-main.cls-zoom { transform-origin: var(--ox, 50%) var(--oy, 100%); animation: clsOpen .46s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes clsOpen { 0% { opacity: 0; transform: scale(.08); border-radius: 60px; } 35% { opacity: 1; } 100% { opacity: 1; transform: none; border-radius: 0; } }
+}
+/* iPad: Dock with big icons; the menu as a centred card */
+@media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .cls-mob { left: 50%; right: auto; width: auto; max-width: calc(100% - 40px); transform: translateX(-50%); gap: 14px; padding: 10px 14px 8px; border-radius: 30px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .cls-mob.away { transform: translate(-50%, calc(100% + 30px + env(safe-area-inset-bottom, 0px))); }
+  .cls-mob-item { flex: none; width: 76px; min-height: 0; font-size: 12px; padding: 0; }
+  .cls-mob-ic { width: 58px; height: 58px; border-radius: 18px; }
+  .cls-mob-ic svg { font-size: 30px; }
+  .cls-mob-item[data-k="more"] { margin-left: 6px; }
+  .cls-mob-item[data-k="more"]::before { content: ""; position: absolute; left: -11px; top: 8px; bottom: 26px; width: 1px; background: rgba(20,83,45,.18); }
+  .cls-mob-item.on::after { bottom: -6px; }
+  .cls-sheet-wrap { justify-content: center; }
+  .cls-sheet { width: min(760px, 100%); margin-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); border-radius: 24px; }
+  .cls-sheet-head { border-radius: 24px 24px 0 0; }
+  .cls-tile-ic { width: 66px; height: 66px; border-radius: 20px; }
+  .cls-tile-ic svg { font-size: 32px; }
+  .cls-tiles > * { font-size: 13px; }
+  .dw-stats { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+}
+@media (prefers-reduced-motion: reduce) { .cls-main.cls-zoom { animation: none; } }
 `;
