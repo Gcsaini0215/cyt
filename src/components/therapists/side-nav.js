@@ -235,6 +235,6 @@ html[data-tsn-wide] .tsn-item .tsn-badge.nx-badge, html[data-tsn-wide] .tsn-item
   html[data-tsn-wide] .tsn-group.up { margin: 0; padding: 0; background: none; border: 0; }
   html[data-tsn-wide] .tsn-item .tsn-badge.nx-badge { position: absolute; }
 }
-@media (max-width: 767px) { .tsn-rail, .tsn-tip { display: none; } }
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { .tsn-rail, .tsn-tip { display: none; } }
 @media (prefers-reduced-motion: reduce) { html.tsn-anim .tsn-rail { transition: none; } .tsn-tip { animation: none; } }
 `;

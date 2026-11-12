@@ -275,7 +275,7 @@ function MyApp({ Component, pageProps }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="theme-color" content="#228756" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta key="og:type" property="og:type" content="website" />
         <meta key="og:site_name" property="og:site_name" content="Choose Your Therapist" />
         {/* the share card every page gets unless it sets its own (same key="og:image") */}

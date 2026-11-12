@@ -34,6 +34,8 @@ import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
 const WIDE_KEY = "cyt_tsn_wide";
+// phones + touch tablets get the app shell (bottom bar, tile menu, no side rail) — same query in side-nav / main-layout CSS
+export const TOUCH_SHELL = "(max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse)";
 const TILES_PER_PAGE = 8;
 
 // phones: four favourites + "More" (opens the full menu)
@@ -43,6 +45,19 @@ const MOB_NAV = [
   { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, Off: CalendarMonthOutlinedIcon, label: "Schedule" },
   { to: "/settings", Icon: ManageAccountsRoundedIcon, Off: ManageAccountsOutlinedIcon, label: "Settings", badgeKey: "settings" },
 ];
+
+// iPhone-style "opening an app": the next page grows out of the tapped icon (bottom bar / menu tiles).
+// Leaves the icon's centre (relative to the page body) for the shell, which gives the NEW page .ts-zoom as it
+// mounts (main-layout.js) — so the zoom starts exactly when it appears and the old page never moves.
+function openFromIcon(e) {
+  if (typeof window === "undefined" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+  const el = e?.currentTarget;
+  const page = document.querySelector(".ts-page");
+  if (!el || !page) return;
+  const r = el.getBoundingClientRect();
+  const pr = page.getBoundingClientRect();
+  window.__tsOpen = { ox: Math.round(r.left + r.width / 2 - pr.left), oy: Math.round(r.top + r.height / 2 - pr.top), at: Date.now() };
+}
 
 /* Top bar for the therapist portal: menu button (widens the rail on desktop / opens the
    full menu on phones & tablets), logo, a page search, and account controls. Phones also
@@ -94,7 +109,9 @@ export default function DashboardTopNav() {
   };
 
   const onMenu = () => {
-    if (window.matchMedia("(min-width: 1024px)").matches) toggleWide();
+    // phones and touch tablets (iPad) use the app-style tile menu; desktop widens the rail
+    if (window.matchMedia(TOUCH_SHELL).matches) setDrawer(true);
+    else if (window.matchMedia("(min-width: 1024px)").matches) toggleWide();
     else setDrawer(true);
   };
 
@@ -332,7 +349,7 @@ export default function DashboardTopNav() {
                       );
                       if (item.onClick) return <button key={item.label} type="button" className={item.out ? "out" : ""} onClick={item.onClick}>{body}</button>;
                       if (item.href) return <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer">{body}</a>;
-                      return <Link key={item.to} href={item.to} className={`${isActive(item, pathname) ? "on" : ""}${item.up ? " up" : ""}`} onClick={() => { if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>{body}</Link>;
+                      return <Link key={item.to} href={item.to} className={`${isActive(item, pathname) ? "on" : ""}${item.up ? " up" : ""}`} onClick={(e) => { if (!isActive(item, pathname)) openFromIcon(e); if (item.badgeKey === "bookings") setNotificationCount(0); setDrawer(false); }}>{body}</Link>;
                     })}
                   </div>
                 ))}
@@ -374,15 +391,15 @@ export default function DashboardTopNav() {
         {MOB_NAV.map((item) => {
           const on = isActive(item, pathname);
           return (
-            <Link key={item.to} href={item.to} className={`tn-mob-item${on ? " active" : ""}`} aria-current={on ? "page" : undefined}
-              onClick={() => item.badgeKey === "bookings" && setNotificationCount(0)}>
+            <Link key={item.to} href={item.to} data-k={item.label.toLowerCase()} className={`tn-mob-item${on ? " active" : ""}`} aria-current={on ? "page" : undefined}
+              onClick={(e) => { if (!on) openFromIcon(e); if (item.badgeKey === "bookings") setNotificationCount(0); }}>
               <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
               <span className="tn-mob-ico">{on ? <item.Icon /> : <item.Off />}</span>
               {item.label}
             </Link>
           );
         })}
-        <button type="button" className={`tn-mob-item${drawer ? " active" : ""}`} onClick={() => setDrawer(true)}>
+        <button type="button" data-k="more" className={`tn-mob-item${drawer ? " active" : ""}`} onClick={() => setDrawer(true)}>
           <NavBadge value={moreCount} className="tn-mob-badge" />
           <span className="tn-mob-ico">{drawer ? <GridViewRoundedIcon /> : <GridViewOutlinedIcon />}</span>
           More
@@ -505,7 +522,7 @@ const TN_CSS = `
 .tn-drawer-foot svg { font-size: 18px; }
 
 /* phones: the menu is a bottom sheet with a grid of tiles */
-@media (max-width: 767px) {
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .tn-drawer { top: auto; right: 0; width: 100%; max-height: 88vh; border-radius: 22px 22px 0 0; padding-top: 0;
     animation: tnSheet .26s cubic-bezier(.2,.9,.3,1); box-shadow: 0 -20px 50px -20px rgba(0,0,0,.35); }
   @keyframes tnSheet { from { transform: translateY(100%); } to { transform: none; } }
@@ -553,7 +570,7 @@ const TN_CSS = `
 @media (max-width: 1023px) {
   .tn-search kbd { display: none; }
 }
-@media (max-width: 767px) {
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   .tn-bar { gap: 6px; padding: 0 8px; }
   .tn-title-text, .tn-prof-name, .tn-prof-chevron, .tn-hide-sm { display: none; }
   .tn-search { display: none; }
@@ -619,4 +636,89 @@ const TN_CSS = `
 .tn-bar .tn-notif-dot { border-color: #14532d; }
 .tn-bar .tn-logo { border-left-color: rgba(255,255,255,.22); }
 .tn-bar .tn-logo img { background: #fff; border-radius: 10px; padding: 3px; box-sizing: border-box; }
+
+/* ═══ App feel on phones + touch tablets (browser and installed app) — same look as the CYT admin app ═══
+   white top bar, colourful app-icon bottom bar (a Dock on iPad), colourful menu tiles, white KPI cards with
+   coloured titles, and pages that grow out of the tapped icon. Desktop is untouched. */
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .tn-bar.tn-bar { background: #fff; box-shadow: none; border-bottom: 1px solid rgba(0,0,0,.06); }
+  .tn-bar .tn-menu-btn { background: #f0f3f1; border-color: transparent; color: #1c1c1e; border-radius: 50%; }
+  .tn-bar .tn-menu-btn:hover { background: #e6ebe8; color: #1c1c1e; }
+  .tn-bar .tn-who:hover, .tn-bar .tn-who[aria-expanded="true"] { background: #f4f6f5; }
+  .tn-bar .tn-who-av { border-radius: 50%; box-shadow: 0 0 0 1px #e4ece7; }
+  .tn-bar .tn-who-txt > b { color: #1c1c1e; }
+  .tn-bar .tn-who-tick { color: #16a34a; }
+  .tn-bar .tn-who-type { color: #64748b; }
+  .tn-bar .tn-who-brand { color: #1e8a4f; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 9.5px; }
+  .tn-bar .tn-icon-btn { color: #1c1c1e; background: #f0f3f1; border-radius: 50%; width: 38px; height: 38px; margin-left: 6px; }
+  .tn-bar .tn-icon-btn:hover { background: #e6ebe8; color: #1c1c1e; }
+  .tn-bar .tn-notif-dot { border-color: #fff; }
+
+  /* bottom bar: app icons */
+  .tn-mob-line { display: none; }
+  .tn-mob-nav { background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px); overflow: visible; }
+  .tn-mob-item { gap: 4px; font-size: 11px; font-weight: 700; color: #475569; min-height: 66px; }
+  .tn-mob-ico { width: 40px; height: 40px; border-radius: 12px; color: #fff; background: var(--tile, linear-gradient(160deg, #3fa66b, #14532d));
+    box-shadow: 0 6px 12px -6px var(--tile-sh, rgba(11,63,38,.6)), inset 0 1px 0 rgba(255,255,255,.35); }
+  .tn-mob-ico svg { font-size: 22px; color: #fff; }
+  .tn-mob-item.active { color: #0b1712; font-weight: 800; }
+  .tn-mob-item.active .tn-mob-ico { background: var(--tile, linear-gradient(160deg, #3fa66b, #14532d)); transform: translateY(-2px); }
+  .tn-mob-item.active::after { content: ""; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #0b1712; opacity: .5; }
+  .tn-mob-item[data-k="home"]     { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.65); }
+  .tn-mob-item[data-k="sessions"] { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.6); }
+  .tn-mob-item[data-k="schedule"] { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.6); }
+  .tn-mob-item[data-k="settings"] { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.6); }
+  .tn-mob-item[data-k="more"]     { --tile: linear-gradient(160deg, #8e9aa6, #4b5662); --tile-sh: rgba(75,86,98,.6); }
+
+  /* menu tiles: colourful app icons */
+  .tn-dr-ic { width: 56px; height: 56px; border-radius: 17px; background: var(--tile, linear-gradient(160deg, #4fd38b, #12804a));
+    box-shadow: 0 10px 18px -10px var(--tile-sh, rgba(11,63,38,.6)), inset 0 1px 0 rgba(255,255,255,.35); }
+  .tn-drawer-group a svg, .tn-drawer-group > button svg { color: #fff !important; font-size: 26px; }
+  .tn-drawer-group a.on .tn-dr-ic { background: var(--tile, linear-gradient(160deg, #4fd38b, #12804a)); box-shadow: 0 0 0 3px #fff, 0 0 0 5px rgba(20,83,45,.45); }
+  .tn-drawer-group a:active .tn-dr-ic { background: var(--tile); transform: scale(.9); }
+  .tn-dr-lbl { color: #1f2a24; overflow-wrap: anywhere; -webkit-hyphens: auto; hyphens: auto; }
+  .tn-page > :nth-child(8n+1) { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.6); }
+  .tn-page > :nth-child(8n+2) { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.55); }
+  .tn-page > :nth-child(8n+3) { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.55); }
+  .tn-page > :nth-child(8n+4) { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.55); }
+  .tn-page > :nth-child(8n+5) { --tile: linear-gradient(160deg, #ff8aa6, #e0335e); --tile-sh: rgba(224,51,94,.55); }
+  .tn-page > :nth-child(8n+6) { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.55); }
+  .tn-page > :nth-child(8n+7) { --tile: linear-gradient(160deg, #ff9b6b, #e5532a); --tile-sh: rgba(229,83,42,.55); }
+  .tn-page > :nth-child(8n+8) { --tile: linear-gradient(160deg, #7f9cff, #3b4fd1); --tile-sh: rgba(59,79,209,.55); }
+  .tn-drawer-group a.up .tn-dr-ic { background: linear-gradient(160deg, #f6d27a, #c9962c); box-shadow: 0 10px 18px -10px rgba(201,150,44,.7), inset 0 1px 0 rgba(255,255,255,.4); }
+  .tn-drawer-group > button.out .tn-dr-ic { background: linear-gradient(160deg, #ff7a7a, #dc2626); box-shadow: 0 10px 18px -10px rgba(220,38,38,.6); }
+
+  /* dashboard numbers: white cards, coloured title, crisp tinted outline (no gradients / stripes) */
+  .ov-kpi, .ov-kpi.green, .ov-kpi.teal, .ov-kpi.gold, .ov-kpi.amber {
+    background: #fff !important; border: 1.5px solid var(--kc-b, #e3e8e5) !important; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .ov-kpi.green { --kc: #16a34a; --kc-b: #c6ead3; } .ov-kpi.teal { --kc: #0a84ff; --kc-b: #c4dcfb; }
+  .ov-kpi.gold { --kc: #e08a00; --kc-b: #f3dcae; } .ov-kpi.amber { --kc: #e5397a; --kc-b: #f6c9da; }
+  .ov-kpis .ov-kpi::before { display: none; }
+  .ov-kpi-label { color: var(--kc, #16a34a) !important; font-size: 13px; }
+  .ov-kpi-ic { color: var(--kc, #16a34a); }
+  .ov-kpi .ov-kpi-val, .ov-kpi.green .ov-kpi-val, .ov-kpi.teal .ov-kpi-val, .ov-kpi.gold .ov-kpi-val, .ov-kpi.amber .ov-kpi-val { color: #1c1c1e; }
+
+  /* opening a page from an icon: it grows out of that icon, like opening an app */
+  .ts-page.ts-zoom { transform-origin: var(--ox, 50%) var(--oy, 100%); animation: tsOpen .46s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes tsOpen { 0% { opacity: 0; transform: scale(.08); border-radius: 60px; } 35% { opacity: 1; } 100% { opacity: 1; transform: none; border-radius: 0; } }
+}
+
+/* iPad: the bottom bar becomes a Dock with big icons; the menu opens as a centred card */
+@media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .tn-mob-nav { left: 50%; right: auto; width: auto; max-width: calc(100% - 40px); transform: translateX(-50%); gap: 14px; padding: 10px 14px 8px; border-radius: 30px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .tn-mob-nav.away { transform: translate(-50%, calc(100% + 30px + env(safe-area-inset-bottom, 0px))); }
+  .tn-mob-item { flex: none; width: 76px; min-height: 0; font-size: 12px; padding: 0; }
+  .tn-mob-ico { width: 58px; height: 58px; border-radius: 18px; }
+  .tn-mob-ico svg { font-size: 30px; }
+  .tn-mob-item[data-k="more"] { margin-left: 6px; }
+  .tn-mob-item[data-k="more"]::before { content: ""; position: absolute; left: -11px; top: 8px; bottom: 26px; width: 1px; background: rgba(20,83,45,.18); }
+  .tn-mob-item.active::after { bottom: -6px; }
+  .tn-drawer { left: 0; right: 0; margin: 0 auto; width: min(760px, 100%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); border-radius: 24px; }
+  .tn-drawer-head { border-radius: 24px 24px 0 0; }
+  .tn-dr-ic { width: 66px; height: 66px; border-radius: 20px; }
+  .tn-drawer-group a svg, .tn-drawer-group > button svg { font-size: 32px; }
+  .tn-drawer-group a, .tn-drawer-group > button { font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) { .ts-page.ts-zoom { animation: none; } }
 `;

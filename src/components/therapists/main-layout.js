@@ -64,7 +64,7 @@ const shellStyles = `
   .ts-page { animation: tsIn .2s ease; }
   @keyframes tsIn { from { opacity: 0; } to { opacity: 1; } }
   @media (max-width: 1023px) { html[data-tsn-wide] .ts-area { padding-left: 68px; } .ts-main { padding: 22px 24px; } }
-  @media (max-width: 767px) { .ts-area, html[data-tsn-wide] .ts-area { padding-left: 0; padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); } }
+  @media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) { .ts-area, html[data-tsn-wide] .ts-area { padding-left: 0; padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); } }
   @media (max-width: 599px) { .ts-main { padding: 14px 12px; } }
   @media (prefers-reduced-motion: reduce) { .ts-page { animation: none; } .ts-inner { transition: none; } }
 
@@ -82,6 +82,15 @@ export function TherapistShell({ children }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
   const signedIn = useSessionGuard();
+  const pageKey = router.asPath.split("?")[0];
+  // a page opened from a bottom-bar / menu icon grows out of that icon (top-nav.js leaves window.__tsOpen);
+  // read once per page so the class never changes while the page is shown
+  const zoom = React.useMemo(() => {
+    if (typeof window === "undefined" || !pageKey) return null;
+    const z = window.__tsOpen;
+    window.__tsOpen = null;
+    return z && Date.now() - z.at < 8000 ? z : null;
+  }, [pageKey]);
   const clientAccount = signedIn && getDecodedToken()?.role === 0;
 
   // a client account can't use these pages (the API rejects it) — send it to its own dashboard
@@ -135,7 +144,7 @@ export function TherapistShell({ children }) {
         <main className="ts-main">
           <div className={`container-fluid ts-inner${busy ? " is-busy" : ""}`}>
             {/* keyed by route so each page body fades in on arrival */}
-            <div className="ts-page" key={router.asPath.split("?")[0]}>{children}</div>
+            <div className={`ts-page${zoom ? " ts-zoom" : ""}`} key={pageKey} style={zoom ? { "--ox": `${zoom.ox}px`, "--oy": `${zoom.oy}px` } : undefined}>{children}</div>
           </div>
         </main>
       </div>
