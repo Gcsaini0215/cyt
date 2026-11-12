@@ -428,7 +428,7 @@ export default function DashboardTopNav() {
               onClick={(e) => { if (!on) openFromIcon(e); }}>
               <NavBadge value={badges[item.badgeKey]} className="tn-mob-badge" />
               <span className="tn-mob-ico"><item.Icon /></span>
-              {item.short || item.label}
+              <span className="tn-dock-l">{item.short || item.label}</span>
             </Link>
           );
         })}
@@ -806,7 +806,7 @@ const TN_CSS = `
   .tn-mob-nav { gap: 10px; }
   .tn-mob-item { width: 80px; }
   .tn-mob-item { font-size: 11.5px; white-space: nowrap; }
-  .tn-mob-item > :not(.tn-mob-ico):not(.tn-mob-badge) { overflow: hidden; text-overflow: ellipsis; }
+  .tn-dock-l { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 }
 @media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) and (orientation: landscape) {
   .dock-x[data-i="3"], .dock-x[data-i="4"], .dock-x[data-i="5"], .dock-x[data-i="6"] { display: flex !important; }

@@ -1,3 +1,5 @@
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
@@ -60,7 +62,9 @@ export const CHECK_NAV = [
   { to: "/self-assessment", label: "Book an assessment", Icon: PsychologyAltRoundedIcon, ext: true },
 ];
 export const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
-const TILES_PER_PAGE = 8;
+// short names for the iPad Dock
+const DOCK_SHORT = { "Free Consultation": "Free session", "Ask a Psychologist": "Ask", "My check-ins": "Check-ins", "Book an assessment": "Assessment", "For us as a couple": "Couple", "For my child": "Child", "Meet in person": "In person", "Reads for me": "Reads" };
+const TILES_PER_PAGE = 12; // 3 rows of 4, like the admin app menu
 // phones + touch tablets (iPad) get the app shell: bottom bar, tile menu, no side menu
 const TOUCH_SHELL = "(max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse)";
 // iPhone-style "opening an app": the next page grows out of the tapped icon. The shell remounts with every
@@ -79,6 +83,19 @@ const RAIL_KEY = "cyt_cls_rail_mini";
 const RAIL_SCRIPT = `try{if(localStorage.getItem("${"cyt_cls_rail_mini"}")==="1")document.documentElement.classList.add("cls-mini")}catch(e){}`;
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+// iPad app bar: a bold two-colour digital clock (shown on touch tablets only)
+function AppClock() {
+  const [now, setNow] = useState(null);
+  useEffect(() => { setNow(new Date()); const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
+  if (!now) return null;
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    <span className="cls-clock" aria-label={now.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}>
+      <b className="h">{pad(now.getHours() % 12 || 12)}</b><i>:</i><b className="m">{pad(now.getMinutes())}</b><small>{now.getHours() < 12 ? "AM" : "PM"}</small>
+    </span>
+  );
+}
+
 export default function ClientShell({ title, children }) {
   const router = useRouter();
   const { userInfo } = useUserStore();
@@ -90,6 +107,7 @@ export default function ClientShell({ title, children }) {
   const [barHidden, setBarHidden] = useState(false); // phone bar: slides away while scrolling down
   const [sheetPage, setSheetPage] = useState(0);
   const tilesRef = useRef(null);
+  const ptrRef = usePullToRefresh(); // installed app: pull down at the top to refresh
   const [zoom] = useState(() => {
     if (typeof window === "undefined") return null;
     const z = window.__clsOpen;
@@ -202,6 +220,8 @@ export default function ClientShell({ title, children }) {
     { href: "/", label: "Website", Icon: LanguageRoundedIcon },
     { label: "Log out", Icon: LogoutRoundedIcon, onClick: logout },
   ];
+  const navAll = [...CLIENT_NAV, ...CHECK_NAV];
+  const pageTitle = router.pathname === "/my-dashboard" ? "Home" : (navAll.find((n) => active(n.to))?.label || title || "My account");
   const tilePages = [];
   for (let i = 0; i < sheetTiles.length; i += TILES_PER_PAGE) tilePages.push(sheetTiles.slice(i, i + TILES_PER_PAGE));
   const onTilesScroll = (e) => { const el = e.currentTarget; setSheetPage(Math.round(el.scrollLeft / el.clientWidth)); };
@@ -218,12 +238,20 @@ export default function ClientShell({ title, children }) {
     <div className={`cls${flip ? " flip" : ""}`}>
       <script dangerouslySetInnerHTML={{ __html: RAIL_SCRIPT }} />
       <Head><title>{title ? `${title} | Choose Your Therapist` : "My account | Choose Your Therapist"}</title></Head>
-      <style dangerouslySetInnerHTML={{ __html: CLS_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CLS_CSS + PTR_CSS }} />
+      <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
       <header className="cls-bar">
         <button type="button" className="cls-burger" onClick={toggleRail} aria-label={flip ? "Expand menu" : "Collapse menu"} title="Menu"><MenuRoundedIcon /></button>
         <Link href="/my-dashboard" className="cls-logo" aria-label="Home"><img src="/cyt-emblem.png" alt="CYT" width={32} height={32} /></Link>
         <div className="cls-brand"><b>Choose Your Therapist</b><span>www.chooseyourtherapist.in</span></div>
+        {/* phones / iPad: the page's name, like an app */}
+        <span className="cls-app-title">{pageTitle}</span>
+        <a href="https://www.chooseyourtherapist.in" target="_blank" rel="noopener noreferrer" className="cls-app-site">WWW.CHOOSEYOURTHERAPIST.IN</a>
         <div className="cls-right">
+          <AppClock />
+          <button type="button" className="cls-ic cls-refresh" aria-label="Refresh" title="Refresh" onClick={(e) => {
+            e.currentTarget.classList.add("spin"); setTimeout(() => window.location.reload(), 200);
+          }}><RefreshRoundedIcon /></button>
           <ClientNotifications ready={ready} />
           <a href="/" className="cls-ic hide-sm" title="Go to website" aria-label="Go to website"><LanguageRoundedIcon /></a>
           <div className="cls-me" ref={menuRef}>
@@ -294,6 +322,12 @@ export default function ClientShell({ title, children }) {
           <Link key={to} href={to} data-k={["home", "sessions", "explore", "shortlist"][i] || "x"} className={`cls-mob-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}
             onClick={(e) => { if (!active(to)) openFromIcon(e); }}>
             <span className="cls-mob-ic">{active(to) ? <Icon /> : <Off />}</span>{short || label}
+          </Link>
+        ))}
+        {sheetTiles.filter((t) => t.to).slice(0, 7).map(({ to, label, Icon }, i) => (
+          <Link key={`dx-${to}`} href={to} data-i={i} className={`cls-mob-item dock-x${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}
+            onClick={(e) => { if (!active(to)) openFromIcon(e); }}>
+            <span className="cls-mob-ic"><Icon /></span><span className="cls-dock-l">{DOCK_SHORT[label] || label}</span>
           </Link>
         ))}
         <button type="button" data-k="more" className={`cls-mob-item${moreOn ? " on" : ""}`} onClick={() => setMore(true)} aria-haspopup="dialog" aria-expanded={more}>
@@ -569,4 +603,53 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .dw-stats { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 }
 @media (prefers-reduced-motion: reduce) { .cls-main.cls-zoom { animation: none; } }
+
+/* ═══ app bar like the CYT admin app (phones + touch tablets) ═══ */
+.cls-app-title, .cls-app-site, .cls-clock, .cls-refresh, .dock-x { display: none !important; }
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .cls-burger, .cls-logo, .cls-brand { display: none !important; }
+  .cls-bar { padding: 0 12px 0 16px; gap: 8px; }
+  .cls-app-title { display: block !important; flex: 0 1 auto; min-width: 0; font-size: 24px; font-weight: 800; letter-spacing: -.03em; color: #1c1c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cls-right { margin-left: auto !important; gap: 8px; }
+  .cls-refresh { display: grid !important; border: 0; cursor: pointer; }
+  .cls-refresh.spin svg { animation: clsSpin .7s linear infinite; }
+  @keyframes clsSpin { to { transform: rotate(360deg); } }
+  .cls-right .cls-ic, .cls-right > :not(.cls-me):not(.cls-clock) button { width: 38px; height: 38px; border-radius: 50%; background: #f0f3f1; color: #1c1c1e !important; display: grid; place-items: center; }
+  .cls-me-btn { padding: 0; height: 38px; }
+  .cls-av { width: 38px; height: 38px; }
+  /* More: white header like the admin's, 12 icons a page */
+  .cls-sheet-head { background: #fff !important; color: #0b1712 !important; border-bottom: 1px solid #eef2f0 !important; padding: 20px 16px 12px !important; }
+  .cls-sheet-head b { color: #0b1712 !important; font-size: 17px; }
+  .cls-sheet-head > div > .cls-room { color: #1e8a4f !important; }
+  .cls-sheet-head button { background: #f0f3f1 !important; color: #1c1c1e !important; border-radius: 50% !important; }
+  .cls-grip { background: #d6dfda !important; }
+  .cls-tiles { gap: 16px 4px; padding: 14px 10px 8px; }
+}
+@media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  .cls-app-site { display: inline-flex !important; margin: 3px auto 0 4px; color: #1e8a4f !important; font-size: 15px; font-weight: 800; letter-spacing: .06em; text-decoration: none !important; white-space: nowrap; }
+  .cls-right { margin-left: 0 !important; }
+  .cls-clock { display: inline-flex !important; align-items: baseline; gap: 1px; margin-right: 4px; padding: 4px 12px; border-radius: 14px; background: #f0f3f1;
+    font-family: "SF Pro Rounded", ui-rounded, Inter, -apple-system, sans-serif; font-variant-numeric: tabular-nums; line-height: 1; }
+  .cls-clock b { font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
+  .cls-clock .h { color: #1c1c1e; } .cls-clock .m { color: #1e8a4f; }
+  .cls-clock i { font-style: normal; font-size: 24px; font-weight: 900; color: #d4a24c; margin: 0 1px; animation: clsBlink 1s steps(1) infinite; }
+  .cls-clock small { font-size: 11px; font-weight: 800; color: #6e6e73; margin-left: 4px; letter-spacing: .04em; }
+  @keyframes clsBlink { 50% { opacity: .25; } }
+  /* the Dock fills the width: 3 extra favourites in portrait, 7 in landscape */
+  .dock-x { display: flex !important; }
+  .dock-x[data-i="3"], .dock-x[data-i="4"], .dock-x[data-i="5"], .dock-x[data-i="6"] { display: none !important; }
+  .dock-x[data-i="0"] { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.55); }
+  .dock-x[data-i="1"] { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.55); }
+  .dock-x[data-i="2"] { --tile: linear-gradient(160deg, #7f9cff, #3b4fd1); --tile-sh: rgba(59,79,209,.55); }
+  .dock-x[data-i="3"] { --tile: linear-gradient(160deg, #ff9b6b, #e5532a); --tile-sh: rgba(229,83,42,.55); }
+  .dock-x[data-i="4"] { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.55); }
+  .dock-x[data-i="5"] { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.55); }
+  .dock-x[data-i="6"] { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.55); }
+  .cls-mob { gap: 10px; }
+  .cls-mob-item { width: 80px; font-size: 11.5px; white-space: nowrap; }
+  .cls-dock-l { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) and (orientation: landscape) {
+  .dock-x[data-i="3"], .dock-x[data-i="4"], .dock-x[data-i="5"], .dock-x[data-i="6"] { display: flex !important; }
+}
 `;
