@@ -509,10 +509,10 @@ async function tentFront(t, link, W, H) {
   L.push({ input: brand.data, left: X + 70, top: 60 - Math.round(brand.info.height / 2) + 1 });
 
   let y = 150;
-  const h1 = await text("<b>It’s okay to</b>", { size: 92, color: "#ffffff", width: W - X * 2 });
+  const h1 = await text("<b>Say it here.</b>", { size: 92, color: "#ffffff", width: W - X * 2 });
   L.push({ input: h1.data, left: X - 4, top: y });
   y += 108;
-  const h2 = await text("<b>not be okay.</b>", { size: 92, color: "#f2c94c", width: W - X * 2 });
+  const h2 = await text("<b>It stays here.</b>", { size: 92, color: "#f2c94c", width: W - X * 2 });
   L.push({ input: h2.data, left: X - 4, top: y });
   y += 128;
   const sub = await text("Talk to someone who truly listens —\nonline or in person.", { size: 29, color: "#cfe6d8", width: 520 });
