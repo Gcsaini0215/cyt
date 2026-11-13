@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { fetchById, putData } from "../../utils/actions";
+import { fetchById } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
 import { cycleState, PHASES, niceDay } from "../../utils/cycle";
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
 /* My Space card for Cycle & Mood Care (pages/client/cycle.js):
    switched on → today's phase + next period · not asked yet → an invite ("Is this for me?")
-   · a man / "not for me" → nothing. The menu shows the page only once it's on (localStorage flag). */
+   (shown to everyone as "New" — the page itself asks who it is for). */
 
 export const CYCLE_FLAG = "cyt_cycle";
 export const CYCLE_EVENT = "cyt-cycle";
@@ -20,11 +19,10 @@ export function setCycleFlag(on) {
 
 export default function CycleCard() {
   const [d, setD] = useState(null);
-  const [hidden, setHidden] = useState(false);
   useEffect(() => {
     fetchById(`${apiUrl}/my-cycle`, { lite: 1 }).then((r) => { if (r?.status) { setD(r.data); setCycleFlag(!!r.data?.profile?.enabled); } }).catch(() => {});
   }, []);
-  if (!d || hidden) return null;
+  if (!d) return null;
   const p = d.profile;
 
   if (p?.enabled) {
@@ -42,9 +40,6 @@ export default function CycleCard() {
       </Link>
     );
   }
-  if (d.gender === "Male" || p?.dismissed || p?.menstruates === false) return null;
-
-  const notForMe = () => { setHidden(true); putData(`${apiUrl}/my-cycle/profile`, { dismissed: true }).catch(() => {}); };
   return (
     <div className="cyc invite">
       <span className="cyc-ic"><SpaRoundedIcon /></span>
@@ -54,7 +49,6 @@ export default function CycleCard() {
         <span>Track your period and mood — and get support when PMS, PMDD or PCOS weigh on you. Private to you.</span>
       </div>
       <Link href="/client/cycle" className="cyc-go">{d.gender === "Female" ? "Set it up" : "Is this for me?"} <ArrowForwardRoundedIcon /></Link>
-      <button type="button" className="cyc-x" onClick={notForMe} aria-label="Not for me" title="Not for me"><CloseRoundedIcon /></button>
     </div>
   );
 }
@@ -79,7 +73,6 @@ export const CYC_CSS = `
 .cyc-go svg { font-size: 17px; }
 .cyc-x { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,.8); color: #94a3b8; display: grid; place-items: center; cursor: pointer; }
 .cyc-x svg { font-size: 17px; }
-.cyc.invite { padding-right: 44px; }
 @media (max-width: 699px) {
   .cyc { flex-wrap: wrap; padding: 14px; }
   .cyc-go { width: 100%; justify-content: center; }

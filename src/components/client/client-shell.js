@@ -2,7 +2,6 @@ import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
-import { CYCLE_FLAG, CYCLE_EVENT } from "./cycle-card";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -109,14 +108,6 @@ export default function ClientShell({ title, children }) {
   const [linksOpen, setLinksOpen] = useState(false); // side menu: "See Links" drop-down
   const [barHidden, setBarHidden] = useState(false); // phone bar: slides away while scrolling down
   const [sheetPage, setSheetPage] = useState(0);
-  // "Cycle & Mood" shows in the menu once the client has switched it on (pages/client/cycle.js)
-  const [cycleOn, setCycleOn] = useState(false);
-  useEffect(() => {
-    const read = () => { try { setCycleOn(localStorage.getItem(CYCLE_FLAG) === "on"); } catch (e) { /* storage blocked */ } };
-    read();
-    window.addEventListener(CYCLE_EVENT, read);
-    return () => window.removeEventListener(CYCLE_EVENT, read);
-  }, []);
   const tilesRef = useRef(null);
   const ptrRef = usePullToRefresh(); // installed app: pull down at the top to refresh
   const [zoom] = useState(() => {
@@ -223,7 +214,7 @@ export default function ClientShell({ title, children }) {
   const mobOn = moreOn ? mobNav.length : mobNav.findIndex((n) => active(n.to));
   const sheetTiles = [
     { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon },
-    ...(cycleOn ? [CYCLE_ITEM] : []),
+    CYCLE_ITEM,
     { to: "/client/ask", label: "Ask a Psychologist", Icon: QuestionAnswerRoundedIcon },
     { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon },
     ...CHECK_NAV,
@@ -285,7 +276,7 @@ export default function ClientShell({ title, children }) {
       </header>
 
       <nav className="cls-rail" aria-label="My account">
-        {(cycleOn ? [...CLIENT_NAV.slice(0, 2), CYCLE_ITEM, ...CLIENT_NAV.slice(2)] : CLIENT_NAV).map(({ to, label, Icon }) => (
+        {[...CLIENT_NAV.slice(0, 2), CYCLE_ITEM, ...CLIENT_NAV.slice(2)].map(({ to, label, Icon }) => (
           <Link key={to} href={to} className={`cls-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}>
             <Icon /><span>{label}</span>
           </Link>

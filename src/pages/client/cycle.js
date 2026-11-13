@@ -57,7 +57,7 @@ export default function CyclePage() {
 function Gate({ data, onDone }) {
   const g = data.gender;
   const p = data.profile;
-  const first = g === "Female" || p?.menstruates ? "privacy" : g === "Male" || p?.dismissed ? "notfor" : "who";
+  const first = g === "Female" || p?.menstruates ? "privacy" : "who"; // a wrong tap earlier? they can answer again
   const [step, setStep] = useState(first);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -151,7 +151,7 @@ function Gate({ data, onDone }) {
               <Link href="/my-dashboard" className="cy-btn">Back to My Space</Link>
               <Link href="/therapy-for/relationships" className="cy-btn line">Supporting a partner? Talk to a therapist</Link>
             </div>
-            <button type="button" className="cy-link" disabled={busy} onClick={() => setStep("periods")}>I do get periods — show it to me</button>
+            <button type="button" className="cy-link" disabled={busy} onClick={() => setStep("who")}>Picked by mistake? Change my answer</button>
           </>
         )}
 
