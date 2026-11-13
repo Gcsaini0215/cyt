@@ -66,6 +66,30 @@ const initialsOf = (name) => {
 };
 
 const DASH_CSS = `
+/* ═══ iPhone-widget look for the whole home (same feel as the app-icon bottom bar) ═══ */
+.ov-dc { background: #fff; border-radius: 22px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.ov-dc-h { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; }
+.ov-dc-ic { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: #fff; background: linear-gradient(160deg, var(--t1), var(--t2)); box-shadow: 0 6px 12px -6px var(--t2), inset 0 1px 0 rgba(255,255,255,.35); }
+.ov-dc-ic svg { font-size: 19px; }
+.ov-dc-t { flex: 1; min-width: 0; }
+.ov-dc-t h3 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.01em; color: #1c1c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-dc-t small { display: block; font-size: 12px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-dc-b { flex: 1; padding: 4px 16px 16px; min-width: 0; }
+.ov-dc-b.flush { padding: 0 0 6px; }
+.ov :is(.ov-card, .ov-kpi, .gp-card, .pi, .pvs) { border: 0 !important; border-radius: 22px !important; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 10px 26px -18px rgba(15,23,42,.28) !important; }
+.ov .ov-sec-h, .ov .gp-title { font-size: 20px; letter-spacing: -.02em; color: #1c1c1e; margin: 14px 2px 10px; }
+.ov :is(.ov-top, .ov-motivate, .ov-main-grid, .ov-insight-grid) { gap: 12px; margin-bottom: 12px; }
+.ov-main-grid > div { gap: 12px !important; }
+@media (max-width: 767px) {
+  .ov :is(.ov-top, .ov-motivate, .ov-main-grid, .ov-insight-grid) { gap: 10px; margin-bottom: 10px; }
+  .ov-main-grid > div { gap: 10px !important; }
+  .ov-dc, .ov :is(.ov-card, .ov-kpi, .gp-card, .pi, .pvs) { border-radius: 20px !important; }
+  .ov-dc-h { padding: 12px 14px 8px; }
+  .ov-dc-b { padding: 2px 14px 14px; }
+  .ov-dc-ic { width: 30px; height: 30px; border-radius: 9px; } .ov-dc-ic svg { font-size: 17px; }
+  .ov-dc-t h3 { font-size: 15px; }
+}
+
 /* one column system for the whole page: a wide left area + a right column of 360px (300px on small laptops),
    the same as the Next session / To-do row above — so every right-hand card lines up */
 .ov-motivate, .ov-main-grid, .ov-insight-grid { display: grid; gap: 14px; align-items: stretch; margin-bottom: 14px; }
@@ -216,77 +240,22 @@ const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
    REUSABLE PIECES
 ════════════════════════════════════════════════════════════════════ */
 
-/** Card shell — every dashboard widget sits in one of these. */
-function DashCard({ icon: Icon, title, sub, action, disablePad = false, children, sx }) {
+/** Card shell — every dashboard widget sits in one of these. Styled like an iPhone widget (DASH_CSS .ov-dc):
+    a coloured app-icon tile (tone), a short title, an optional one-line sub, and the action on the right. */
+const TONES = { green: ["#4fd38b", "#12804a"], blue: ["#5ab0ff", "#1d63d8"], orange: ["#ffc65a", "#f07b12"], purple: ["#b98cff", "#6a3fd6"], pink: ["#ff8aa6", "#e0335e"], teal: ["#4fd6d6", "#0e8a9a"] };
+function DashCard({ icon: Icon, title, sub, action, disablePad = false, children, tone = "green" }) {
+  const [a, b] = TONES[tone] || TONES.green;
   return (
-    <Box
-      sx={{
-        background: "#fff",
-        border: UI.cardBorder,
-        borderRadius: `${UI.cardRadius}px`,
-        boxShadow: UI.cardShadow,
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        ...sx,
-      }}
-    >
+    <section className="ov-dc" style={{ "--t1": a, "--t2": b }}>
       {title && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 1.5,
-            px: { xs: 1.75, md: 2.25 },
-            py: 1.5,
-            borderBottom: "1px solid #e1efe5",
-            background: "linear-gradient(90deg, #eef8f1 0%, #ffffff 75%)",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.15, minWidth: 0 }}>
-            {Icon && (
-              <Box
-                sx={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: "9px",
-                  background: "linear-gradient(135deg, #14532d, #16a34a)",
-                  color: "#fff",
-                  boxShadow: "0 4px 10px -4px rgba(22,101,52,.55)",
-                  display: "grid",
-                  placeItems: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <Icon sx={{ fontSize: 17 }} />
-              </Box>
-            )}
-            <Box sx={{ minWidth: 0 }}>
-              <Typography
-                sx={{
-                  fontSize: { xs: "12px", md: "12.5px" },
-                  fontWeight: 800,
-                  color: UI.text,
-                  textTransform: "uppercase",
-                  letterSpacing: ".4px",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {title}
-              </Typography>
-              {sub && (
-                <Typography sx={{ fontSize: "10.5px", color: UI.faint, mt: 0.1 }}>{sub}</Typography>
-              )}
-            </Box>
-          </Box>
+        <div className="ov-dc-h">
+          {Icon && <span className="ov-dc-ic" aria-hidden="true"><Icon /></span>}
+          <div className="ov-dc-t"><h3>{title}</h3>{sub && <small>{sub}</small>}</div>
           {action}
-        </Box>
+        </div>
       )}
-      <Box sx={{ p: disablePad ? 0 : { xs: 1.5, md: 2 }, flex: 1 }}>{children}</Box>
-    </Box>
+      <div className={`ov-dc-b${disablePad ? " flush" : ""}`}>{children}</div>
+    </section>
   );
 }
 
@@ -1244,7 +1213,7 @@ export default function TherapistDashboard() {
               {/* 4 — the week ahead */}
               <WeekStrip sessions={upcomingSessions} now={clockTime} />
 
-              <DashCard icon={EventAvailableRoundedIcon} title="Upcoming Sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
+              <DashCard icon={EventAvailableRoundedIcon} tone="blue" title="Upcoming sessions" sub={`${upcomingSessions.length} scheduled`} action={<CardLink href="/appointments" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={44} sx={{ mb: 1 }} />)}</Box>
                 ) : upcomingSessions.length ? (
@@ -1263,11 +1232,11 @@ export default function TherapistDashboard() {
 
             <div>
               {/* 7 — latest two reviews, pending payments first */}
-              <DashCard icon={StarRateRoundedIcon} title="Client Reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
+              <DashCard icon={StarRateRoundedIcon} tone="orange" title="Client reviews" action={myReviews.length > 2 ? <CardLink href="/therapists/reviews" /> : null}>
                 <ReviewsBlock reviews={myReviews} />
               </DashCard>
 
-              <DashCard icon={PaymentsRoundedIcon} title="Recent Invoices" sub="Your share · of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
+              <DashCard icon={PaymentsRoundedIcon} tone="green" title="Recent invoices" sub="Your share of what the client paid" action={<CardLink href="/therapists/invoices" />} disablePad>
                 {loading ? (
                   <Box sx={{ p: 2 }}>{[1, 2, 3].map((i) => <Skeleton key={i} height={38} sx={{ mb: 1 }} />)}</Box>
                 ) : invoices.length ? (
@@ -1301,7 +1270,7 @@ export default function TherapistDashboard() {
           <h2 className="ov-sec-h">Insights</h2>
           <ProfileInsights />
           <div className="ov-insight-grid">
-            <DashCard icon={InsightsRoundedIcon} title="Performance" sub="Your earnings (your share) & sessions trend" disablePad>
+            <DashCard icon={InsightsRoundedIcon} tone="purple" title="Performance" sub="Your earnings & sessions trend" disablePad>
               {stats.monthGrowth && (
                 <div className="ov-compare">This month vs last: <b className={stats.monthGrowthUp ? "up" : "down"}>{stats.monthGrowth}</b> earnings · {stats.monthSessions} vs {stats.lastMonthSessions} sessions</div>
               )}
