@@ -18,7 +18,7 @@ const NEWS = [
   {
     id: "toolkit-abcd-2026-11", portal: "therapist", date: "2026-11-14", Icon: HandymanRoundedIcon, tone: "green",
     title: "Toolkit: CBT worksheets", kicker: "New",
-    text: "Give clients the ABCD thought log — they fill it online in their own dashboard, and you review it before the next session.",
+    text: "Give clients the ABCD Thought Log and the Activity Diary — they fill them online in their own dashboard, and you review before the next session.",
     points: ["Send it to a client in one tap", "Share a link — the Book button books you", "See answers when the client sends it"],
     to: "/therapists/toolkit", cta: "Open Toolkit",
   },

@@ -741,7 +741,12 @@ export async function cycleCareCard() {
 }
 
 /* Therapist Toolkit share card — /worksheet/<code>: the ABCD worksheet with the therapist who shared it */
-export async function worksheetCard(t) {
+const WS_CARD = {
+  abcd: { kick: "CBT WORKSHEET  ·  FREE", l1: "Untangle a stressful", l2: "moment in 4 steps", tiles: [["A", "#2563eb", "Happened"], ["B", "#7c3aed", "Thought"], ["C", "#ea580c", "Felt"], ["D", "#16a34a", "Rethink"]] },
+  activity: { kick: "ACTIVITY DIARY  ·  FREE", l1: "Find out what really", l2: "lifts your mood", tiles: [["A", "#0ea5e9", "Achieve"], ["C", "#ec4899", "Close"], ["E", "#f59e0b", "Enjoy"], ["7", "#16a34a", "Days"]] },
+};
+export async function worksheetCard(t, tool = "abcd") {
+  const cfg = WS_CARD[tool] || WS_CARD.abcd;
   const layers = [];
   const bg = Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs>
     <radialGradient id="a" cx="1" cy="0" r="1"><stop offset="0" stop-color="#d9efe1"/><stop offset="1" stop-color="#d9efe1" stop-opacity="0"/></radialGradient></defs>
@@ -750,14 +755,14 @@ export async function worksheetCard(t) {
   const X = 64, TW = 640;
   const lg = await logo(240);
   layers.push({ input: lg.data, left: X, top: 46 });
-  const k = await text("<b>CBT WORKSHEET  ·  FREE</b>", { size: 18, color: "#15803d", width: 360 });
+  const k = await text(`<b>${cfg.kick}</b>`, { size: 18, color: "#15803d", width: 400 });
   layers.push({ input: rect(k.info.width + 36, 42, "#e3f4e9", 21), left: X, top: 160 });
   layers.push({ input: k.data, left: X + 18, top: 160 + Math.round((42 - k.info.height) / 2) });
-  const t1 = await text("<b>Untangle a stressful</b>", { size: 52, color: "#0f1f17", width: TW, lines: 1 });
-  const t2 = await text("<b>moment in 4 steps</b>", { size: 52, color: "#14532d", width: TW, lines: 1 });
+  const t1 = await text(`<b>${cfg.l1}</b>`, { size: 52, color: "#0f1f17", width: TW, lines: 1 });
+  const t2 = await text(`<b>${cfg.l2}</b>`, { size: 52, color: "#14532d", width: TW, lines: 1 });
   layers.push({ input: t1.data, left: X, top: 226 }, { input: t2.data, left: X, top: 226 + t1.info.height + 2 });
   // A B C D tiles
-  const cols = [["A", "#2563eb", "Happened"], ["B", "#7c3aed", "Thought"], ["C", "#ea580c", "Felt"], ["D", "#16a34a", "Rethink"]];
+  const cols = cfg.tiles;
   let x = X; const ty = 226 + t1.info.height + t2.info.height + 34;
   for (const [l, c, w] of cols) {
     layers.push({ input: rect(132, 104, c, 20), left: x, top: ty });

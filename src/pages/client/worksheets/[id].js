@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import ClientShell from "../../../components/client/client-shell";
 import { AbcdForm, withDefaults } from "../../../components/toolkit/abcd";
+import { ActivityForm, withActivity } from "../../../components/toolkit/activity";
+import { WhyCard, toolOf } from "../../../components/toolkit/registry";
 import { fetchById, putData } from "../../../utils/actions";
 import { apiUrl } from "../../../utils/url";
 import { bookPath } from "../../../utils/therapist-slug";
@@ -24,7 +26,9 @@ export default function WorksheetPage() {
     if (!id) return;
     fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
       if (!r?.status) return setErr(r?.message || "Worksheet not found");
-      setW(r.data); setData(withDefaults(r.data.data)); setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? 4 : r.data.step || 0);
+      const act = r.data.tool === "activity";
+      setW(r.data); setData(act ? withActivity(r.data.data) : withDefaults(r.data.data));
+      setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? (act ? 1 : 4) : Math.min(r.data.step || 0, act ? 1 : 4));
     }).catch(() => setErr("Couldn't open this worksheet"));
   }, [id]);
 
@@ -45,7 +49,7 @@ export default function WorksheetPage() {
     clearTimeout(timer.current);
     setBusy(true);
     try {
-      const r = await save({ data, step: 4, submit: true });
+      const r = await save({ data, step: w.tool === "activity" ? 1 : 4, submit: true });
       if (r?.status) setW((x) => ({ ...x, status: r.data.status, flag: r.data.flag, submittedAt: new Date().toISOString() }));
       setSaved(r?.message || "");
     } catch (e) { setSaved(e?.response?.data?.message || "Couldn't send — try again"); }
@@ -63,15 +67,15 @@ export default function WorksheetPage() {
           <>
             <div className="ws-h">
               <div>
-                <h1>ABCD Thought Log</h1>
+                <h1>{toolOf(w.tool).name}</h1>
                 <p>{th ? <>From <b>{th.name}</b>{th.profile_type ? ` · ${th.profile_type}` : ""}</> : "A CBT exercise"} {saved && <em className="ws-saved">{saved}</em>}</p>
               </div>
               {th?.live && <Link href={bookPath(th)} className="ws-book">Book {th.name.split(" ")[0]}</Link>}
             </div>
             {w.note && <div className="ws-note"><b>{th ? `${th.name.split(" ")[0]} says:` : "Note:"}</b> {w.note}</div>}
             {w.status === "reviewed" && w.feedback && <div className="ws-fb"><b>{th?.name || "Your therapist"} reviewed it:</b><p>{w.feedback}</p></div>}
-            <AbcdForm value={data} step={step} onChange={onChange} onStep={onStep} therapistName={th?.name}
-              finish={(
+            <WhyCard tool={w.tool} open={!sent && w.status !== "draft"} />
+            {(() => { const finish = (
                 <div className="ws-send">
                   {sent ? (
                     <p className="ws-ok">✓ Sent to {th?.name || "your therapist"} on {new Date(w.submittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}. {w.status === "reviewed" ? "They've reviewed it." : "They'll go through it with you."} You can still edit and send again.</p>
@@ -82,7 +86,11 @@ export default function WorksheetPage() {
                   <p className="ws-priv">🔒 Only you{th ? ` and ${th.name}` : ""} can see this. {th ? "They see it only after you press Send." : ""}</p>
                   {th?.live && <Link href={bookPath(th)} className="ws-talk">Worksheets work best when you talk them through — book a session with {th.name} →</Link>}
                 </div>
-              )} />
+              );
+              return w.tool === "activity"
+                ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
+                : <AbcdForm value={data} step={step} onChange={onChange} onStep={onStep} therapistName={th?.name} finish={finish} />;
+            })()}
           </>
         )}
       </div>

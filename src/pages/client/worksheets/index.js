@@ -4,6 +4,7 @@ import ClientShell from "../../../components/client/client-shell";
 import { fetchById } from "../../../utils/actions";
 import { apiUrl } from "../../../utils/url";
 import { bookPath } from "../../../utils/therapist-slug";
+import { Tiles, WR_CSS } from "../../../components/toolkit/registry";
 
 /* My Space → Worksheets: worksheets my therapist sent me (or I opened from a therapist's link).
    Filled right here — nothing to download. */
@@ -17,7 +18,7 @@ export default function MyWorksheetsPage() {
   }, []);
   return (
     <ClientShell title="Worksheets">
-      <style>{CSS}</style>
+      <style>{CSS + WR_CSS}</style>
       <div className="wk">
         <div className="wk-h">
           <h1>Worksheets</h1>
@@ -36,7 +37,7 @@ export default function MyWorksheetsPage() {
               return (
                 <li key={w._id}>
                   <Link href={`/client/worksheets/${w._id}`} className="wk-row">
-                    <span className="wk-ic" aria-hidden="true">ABCD</span>
+                    <span className="wk-ic" aria-hidden="true"><Tiles tool={w.tool} size={22} /></span>
                     <span className="wk-t">
                       <b>{w.title}</b>
                       <small>{w.therapist ? `From ${w.therapist.name}` : "My worksheet"}{w.preview ? ` · “${w.preview}”` : w.note ? ` · ${w.note}` : ""}</small>
@@ -66,7 +67,8 @@ const CSS = `
 .wk-list li { background: #fff; border: 1px solid #e3e9e5; border-radius: 16px; overflow: hidden; }
 .wk-row { display: flex; align-items: center; gap: 12px; padding: 14px; text-decoration: none !important; color: inherit; }
 .wk-row:hover { background: #f8fbf9; }
-.wk-ic { flex: none; width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 11.5px; font-weight: 900; letter-spacing: .04em; color: #fff; background: linear-gradient(135deg, #2563eb, #7c3aed 45%, #ea580c 75%, #16a34a); }
+.wk-ic { flex: none; width: 52px; display: grid; place-items: center; }
+.wk-ic .wr-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
 .wk-t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .wk-t b { font-size: 15.5px; color: #0f1f17; }
 .wk-t small { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -76,5 +78,5 @@ const CSS = `
 .wk-st.new { background: #fee2e2; color: #b91c1c; } .wk-st.draft { background: #fff4dd; color: #92651a; }
 .wk-st.sent { background: #eaf1ff; color: #1d4ed8; } .wk-st.done { background: #e9f8ef; color: #15803d; }
 .wk-book { display: block; padding: 10px 14px; border-top: 1px solid #eef2f0; background: #f6fbf8; font-size: 13.5px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
-@media (max-width: 560px) { .wk-r small { display: none; } .wk-st { font-size: 10.5px; padding: 2px 8px; } .wk-ic { width: 44px; height: 44px; font-size: 10px; } }
+@media (max-width: 560px) { .wk-r small { display: none; } .wk-st { font-size: 10.5px; padding: 2px 8px; } .wk-ic { width: 46px; } }
 `;

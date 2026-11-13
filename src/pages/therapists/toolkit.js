@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
-import { AbcdForm, AbcdView, STEPS, emptyData } from "../../components/toolkit/abcd";
+import { AbcdForm, AbcdView, emptyData } from "../../components/toolkit/abcd";
+import { ActivityForm, ActivityView } from "../../components/toolkit/activity";
+import { LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
 import { fetchById, postJsonData, putData } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
 
@@ -11,14 +13,6 @@ import { apiUrl, imagePath } from "../../utils/url";
    or send it straight to one of your clients — they fill it in their own dashboard, nothing to download —
    and review what clients send you. More worksheets come later (shown as "Coming soon"). */
 const SITE = "https://www.chooseyourtherapist.in";
-const LIBRARY = [
-  { key: "abcd", name: "ABCD Thought Log", tag: "CBT", desc: "Situation → thought → feeling → a balanced thought. For anxiety, low mood, anger and overthinking.", ready: true },
-  { key: "record", name: "Thought Record", tag: "CBT", desc: "The 7-column record: evidence for and against, and a re-rated feeling." },
-  { key: "activation", name: "Activity Planner", tag: "Behavioural activation", desc: "Small, planned activities to lift low mood, with a mood rating for each." },
-  { key: "worry", name: "Worry Tree", tag: "Anxiety", desc: "Sort worries you can act on from the ones to let go, and plan worry time." },
-  { key: "exposure", name: "Exposure Ladder", tag: "Anxiety", desc: "Step-by-step fear ladder with distress ratings, from easiest to hardest." },
-  { key: "coping", name: "Coping Cards", tag: "Skills", desc: "Personal reminder cards for hard moments — made together in session." },
-];
 const STATUS = { assigned: ["Not opened yet", "new"], draft: ["Filling it in", "draft"], submitted: ["Sent to you — review", "sent"], reviewed: ["Reviewed", "done"] };
 const dt = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" }) : "");
 const photoOf = (p) => (!p || /pngegg|default/i.test(p) ? "" : /^(https?:|data:)/.test(p) ? p : `${imagePath}/${p}`);
@@ -27,7 +21,7 @@ export default function ToolkitPage() {
   const router = useRouter();
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
-  const [panel, setPanel] = useState(null); // "try" | "share" | "send" | { entry }
+  const [panel, setPanel] = useState(null); // { kind: "try" | "share" | "send", tool } | { entry }
   const load = useCallback(() => fetchById(`${apiUrl}/therapist/worksheets`).then((r) => (r?.status ? setD(r.data) : setErr(r?.message || "Couldn't load"))).catch(() => setErr("Couldn't load your toolkit")), []);
   useEffect(() => { load(); }, [load]);
   // opened from a notification: ?entry=<id>
@@ -38,7 +32,7 @@ export default function ToolkitPage() {
   return (
     <MainLayout>
       <Head><title>Toolkit | Choose Your Therapist</title></Head>
-      <style>{CSS}</style>
+      <style>{CSS + WR_CSS}</style>
       <div className="tk">
         <header className="tk-h">
           <div>
@@ -54,17 +48,20 @@ export default function ToolkitPage() {
           {LIBRARY.map((w) => (
             <article key={w.key} className={`tk-w${w.ready ? " ready" : ""}`}>
               <div className="tk-w-top">
-                {w.ready ? <span className="tk-abcd" aria-hidden="true">{STEPS.map((s) => <i key={s.k} style={{ background: s.color }}>{s.letter}</i>)}</span> : <span className="tk-soon">Coming soon</span>}
+                {w.ready ? <Tiles tool={w.key} /> : <span className="tk-soon">Coming soon</span>}
                 <em>{w.tag}</em>
               </div>
               <h2>{w.name}</h2>
-              <p>{w.desc}</p>
+              <p>{w.short}</p>
               {w.ready && (
-                <div className="tk-acts">
-                  <button type="button" className="tk-btn" onClick={() => setPanel("share")}>Share link</button>
-                  <button type="button" className="tk-btn line" onClick={() => setPanel("send")}>Send to a client</button>
-                  <button type="button" className="tk-btn ghost" onClick={() => setPanel("try")}>Try it yourself</button>
-                </div>
+                <>
+                  <div className="tk-acts">
+                    <button type="button" className="tk-btn" onClick={() => setPanel({ kind: "share", tool: w.key })}>Share link</button>
+                    <button type="button" className="tk-btn line" onClick={() => setPanel({ kind: "send", tool: w.key })}>Send to a client</button>
+                    <button type="button" className="tk-btn ghost" onClick={() => setPanel({ kind: "try", tool: w.key })}>Try it yourself</button>
+                  </div>
+                  <WhyCard tool={w.key} open={false} compact />
+                </>
               )}
             </article>
           ))}
@@ -109,9 +106,9 @@ export default function ToolkitPage() {
         </div>
       </div>
 
-      {panel === "try" && <TryPanel onClose={() => setPanel(null)} />}
-      {panel === "share" && <SharePanel onClose={() => setPanel(null)} onMade={load} />}
-      {panel === "send" && <SendPanel clients={d?.clients || []} onClose={() => setPanel(null)} onMade={load} />}
+      {panel?.kind === "try" && <TryPanel tool={panel.tool} onClose={() => setPanel(null)} />}
+      {panel?.kind === "share" && <SharePanel tool={panel.tool} onClose={() => setPanel(null)} onMade={load} />}
+      {panel?.kind === "send" && <SendPanel tool={panel.tool} clients={d?.clients || []} onClose={() => setPanel(null)} onMade={load} />}
       {panel?.entry && <ReviewPanel id={panel.entry} onClose={() => { setPanel(null); if (router.query.entry) router.replace("/therapists/toolkit", undefined, { shallow: true }); }} onDone={load} />}
     </MainLayout>
   );
@@ -139,20 +136,23 @@ function CopyBtn({ url }) {
   return <button type="button" className="tk-mini" onClick={() => { navigator.clipboard?.writeText(url).then(() => { setOk(true); setTimeout(() => setOk(false), 1500); }); }}>{ok ? "Copied" : "Copy"}</button>;
 }
 
-function TryPanel({ onClose }) {
-  const [data, setData] = useState(emptyData());
+function TryPanel({ tool, onClose }) {
+  const [data, setData] = useState(tool === "activity" ? {} : emptyData());
   const [step, setStep] = useState(0);
   return (
-    <Sheet title="Try the ABCD worksheet (not saved)" onClose={onClose} wide>
+    <Sheet title={`Try the ${toolOf(tool).name} (not saved)`} onClose={onClose} wide>
       <p className="tk-mut tk-pad">This is exactly what your client sees in their dashboard. Nothing you type here is saved.</p>
-      <AbcdForm value={data} step={step} onChange={setData} onStep={setStep} therapistName="you" />
+      <WhyCard tool={tool} open={false} />
+      {tool === "activity"
+        ? <ActivityForm value={data} step={step} onChange={setData} onStep={setStep} />
+        : <AbcdForm value={data} step={step} onChange={setData} onStep={setStep} therapistName="you" />}
     </Sheet>
   );
 }
 
-function ShareResult({ url, text }) {
+function ShareResult({ url, text, title = "Worksheet" }) {
   const wa = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
-  const share = () => { if (navigator.share) navigator.share({ title: "ABCD Thought Log", text, url }).catch(() => {}); else navigator.clipboard?.writeText(url); };
+  const share = () => { if (navigator.share) navigator.share({ title, text, url }).catch(() => {}); else navigator.clipboard?.writeText(url); };
   return (
     <div className="tk-done">
       <p className="tk-ok">✓ Your link is ready</p>
@@ -166,24 +166,25 @@ function ShareResult({ url, text }) {
   );
 }
 
-function SharePanel({ onClose, onMade }) {
+function SharePanel({ tool, onClose, onMade }) {
+  const w = toolOf(tool);
   const [note, setNote] = useState("");
   const [res, setRes] = useState(null);
   const [busy, setBusy] = useState(false);
   const make = async () => {
     setBusy(true);
-    try { const r = await postJsonData(`${apiUrl}/therapist/worksheets/link`, { tool: "abcd", note }); if (r?.status) { setRes(r.data); onMade(); } }
-    catch (e) { setRes({ error: e?.response?.data?.message || "Couldn't make the link" }); }
+    try { const r = await postJsonData(`${apiUrl}/therapist/worksheets/link`, { tool, note }); if (r?.status) { setRes(r.data); onMade(); } else setRes({ error: r?.message || "Couldn't make the link" }); }
+    catch (e) { setRes({ error: e?.response?.data?.message || "Couldn't make the link — try again in a minute" }); }
     setBusy(false);
   };
   return (
-    <Sheet title="Share the ABCD worksheet" onClose={onClose}>
+    <Sheet title={`Share the ${w.name}`} onClose={onClose}>
       <ul className="tk-how">
         <li>Anyone who opens the link sees the worksheet with <b>your name and photo</b>.</li>
         <li>The <b>Book</b> button books a session with <b>you</b>.</li>
         <li>They fill it in their own CYT account, and can send it to you.</li>
       </ul>
-      {res?.code ? <ShareResult url={`${SITE}${res.path}`} text="Try this free CBT worksheet — it helps untangle a stressful moment in 4 small steps." /> : (
+      {res?.code ? <ShareResult url={`${SITE}${res.path}`} title={w.name} text={`Try this free worksheet: ${w.name} — ${w.headline.toLowerCase()}.`} /> : (
         <>
           <label className="tk-lbl">A short note on top (optional)
             <input maxLength={300} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Use this whenever overthinking starts at night" />
@@ -196,7 +197,8 @@ function SharePanel({ onClose, onMade }) {
   );
 }
 
-function SendPanel({ clients, onClose, onMade }) {
+function SendPanel({ tool, clients, onClose, onMade }) {
+  const w = toolOf(tool);
   const [q, setQ] = useState("");
   const [pick, setPick] = useState("");
   const [note, setNote] = useState("");
@@ -207,16 +209,16 @@ function SendPanel({ clients, onClose, onMade }) {
   const send = async () => {
     if (!pick) return;
     setBusy(true);
-    try { const r = await postJsonData(`${apiUrl}/therapist/worksheets/link`, { tool: "abcd", note, client: pick }); if (r?.status) { setRes(r.data); onMade(); } else setRes({ error: r?.message }); }
+    try { const r = await postJsonData(`${apiUrl}/therapist/worksheets/link`, { tool, note, client: pick }); if (r?.status) { setRes(r.data); onMade(); } else setRes({ error: r?.message }); }
     catch (e) { setRes({ error: e?.response?.data?.message || "Couldn't send" }); }
     setBusy(false);
   };
   return (
-    <Sheet title="Send the ABCD worksheet to a client" onClose={onClose}>
+    <Sheet title={`Send the ${w.name} to a client`} onClose={onClose}>
       {res?.code ? (
         <>
           <p className="tk-ok">✓ Sent to {res.client?.name}. It&apos;s waiting in their My Space → Worksheets, and they got a notification.</p>
-          <ShareResult url={`${SITE}${res.path}`} text={`Hi ${res.client?.name?.split(" ")[0] || ""}, here's the worksheet we talked about. Fill it before our next session.`} />
+          <ShareResult url={`${SITE}${res.path}`} title={w.name} text={`Hi ${res.client?.name?.split(" ")[0] || ""}, here's the worksheet we talked about. Fill it before our next session.`} />
         </>
       ) : clients.length === 0 ? (
         <p className="tk-mut">Clients appear here after their first paid session with you. For anyone else, use <b>Share link</b>.</p>
@@ -265,7 +267,7 @@ function ReviewPanel({ id, onClose, onDone }) {
         <>
           {e.flag && <div className="tk-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
           <p className="tk-mut">Sent {dt(e.submittedAt)}{e.reviewedAt ? ` · you reviewed it ${dt(e.reviewedAt)}` : ""}</p>
-          <AbcdView data={e.data} />
+          {e.tool === "activity" ? <ActivityView data={e.data} /> : <AbcdView data={e.data} />}
           <label className="tk-lbl">Your feedback to {e.client.name.split(" ")[0]}
             <textarea rows={4} maxLength={2000} value={fb} onChange={(x) => setFb(x.target.value)} placeholder="What you noticed, a kind word, and what to try next" />
           </label>
@@ -284,9 +286,10 @@ const CSS = `
 .tk-h p { margin: 4px 0 0; font-size: 14.5px; color: #475569; max-width: 680px; }
 .tk-alert { border: 0; border-radius: 999px; padding: 10px 16px; background: #fee2e2; color: #b91c1c; font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; }
 .tk-box { background: #fff; border: 1px solid #e3e9e5; border-radius: 16px; padding: 18px; margin-bottom: 14px; color: #64748b; }
-.tk-lib { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
-.tk-w { background: #fff; border: 1px solid #e3e9e5; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px; opacity: .72; }
-.tk-w.ready { opacity: 1; grid-column: span 3; border: 1.5px solid #bfe0cb; background: linear-gradient(135deg, #ffffff 55%, #eef8f2); box-shadow: 0 16px 34px -26px rgba(20,83,45,.6); padding: 20px; }
+.tk-lib { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; align-items: start; }
+.tk-w { grid-column: span 3; background: #fff; border: 1px solid #e3e9e5; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px; opacity: .72; }
+.tk-w.ready { opacity: 1; grid-column: span 6; border: 1.5px solid #bfe0cb; background: linear-gradient(135deg, #ffffff 55%, #eef8f2); box-shadow: 0 16px 34px -26px rgba(20,83,45,.6); padding: 20px; }
+.tk-w .wr-why { margin: 12px 0 0; }
 .tk-w-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tk-w-top em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #15803d; background: #e9f8ef; border-radius: 999px; padding: 3px 10px; }
 .tk-abcd { display: flex; gap: 6px; }
@@ -353,10 +356,10 @@ const CSS = `
 .tk-url { display: flex; gap: 8px; align-items: center; background: #f1f7f3; border-radius: 12px; padding: 8px 8px 8px 12px; }
 .tk-url code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: #14532d; }
 .tk-sos { margin-bottom: 10px; padding: 12px 14px; border-radius: 12px; background: #fff1f2; border: 1px solid #fecdd3; color: #881337; font-weight: 700; font-size: 14px; }
-@media (max-width: 1100px) { .tk-lib { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tk-w.ready { grid-column: span 2; } .tk-cols { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1100px) { .tk-w { grid-column: span 6; } .tk-w.ready { grid-column: span 12; } .tk-cols { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) {
   .tk-h h1 { font-size: 22px; }
-  .tk-lib { grid-template-columns: minmax(0, 1fr); gap: 10px; } .tk-w.ready { grid-column: auto; padding: 16px; }
+  .tk-lib { grid-template-columns: minmax(0, 1fr); gap: 10px; } .tk-w, .tk-w.ready { grid-column: auto; } .tk-w.ready { padding: 16px; }
   .tk-acts .tk-btn { flex: 1 1 100%; }
   .tk-scrim { align-items: flex-end; padding: 0; }
   .tk-sheet { max-width: none !important; border-radius: 22px 22px 0 0; max-height: calc(100dvh - 24px); }

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
-import { STEPS, AB_CSS } from "../../components/toolkit/abcd";
+import { AB_CSS } from "../../components/toolkit/abcd";
+import { WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
 import { apiUrl, imagePath } from "../../utils/url";
 import { bookPath } from "../../utils/therapist-slug";
 import { getDecodedToken } from "../../utils/jwt";
@@ -32,6 +33,8 @@ export async function getServerSideProps({ params, res }) {
 export default function SharedWorksheet({ link }) {
   const router = useRouter();
   const t = link.therapist;
+  const w = toolOf(link.tool);
+  const words = w.headline.split(" ");
   const first = (t?.name || "your psychologist").replace(/^(dr\.?|ms\.?|mr\.?|mrs\.?)\s+/i, "").split(" ")[0];
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
@@ -61,8 +64,8 @@ export default function SharedWorksheet({ link }) {
   }, [router.query.start]);
 
   const onBook = () => { fetch(`${apiUrl}/worksheet-link/${link.code}/book`, { method: "POST" }).catch(() => {}); };
-  const title = `ABCD Thought Log — a CBT worksheet${t ? ` from ${t.name}` : ""}`;
-  const desc = `Untangle a stressful moment in 4 small steps: what happened, what you thought, how you felt, and a kinder, more balanced way to see it.${t ? ` Shared by ${t.name}${t.profile_type ? `, ${t.profile_type}` : ""}.` : ""}`;
+  const title = `${w.name} — a free ${w.tag} worksheet${t ? ` from ${t.name}` : ""}`;
+  const desc = `${w.headline}. ${w.short}${t ? ` Shared by ${t.name}${t.profile_type ? `, ${t.profile_type}` : ""}.` : ""}`;
   const img = photoOf(t?.photo);
 
   return (
@@ -81,15 +84,15 @@ export default function SharedWorksheet({ link }) {
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      <style>{AB_CSS + CSS}</style>
+      <style>{AB_CSS + WR_CSS + CSS}</style>
       <MyNavbar />
       <main className="sw">
         <section className="sw-hero">
           <div className="sw-in">
             <div className="sw-txt">
-              <span className="sw-kick">CBT worksheet · free</span>
-              <h1>Untangle a stressful moment in <em>4 small steps</em></h1>
-              <p>The ABCD thought log helps you notice the thought behind a feeling — and find a calmer, more balanced way to see it. Fill it online; it&apos;s saved in your own account.</p>
+              <span className="sw-kick">{w.name} · free</span>
+              <h1>{words.slice(0, -3).join(" ")} <em>{words.slice(-3).join(" ")}</em></h1>
+              <p>{w.short} Fill it online — it&apos;s saved in your own account, nothing to download or print.</p>
               {link.note && <blockquote>“{link.note}” <cite>— {t?.name}</cite></blockquote>}
               <div className="sw-acts">
                 <button type="button" className="sw-btn" onClick={start} disabled={busy}>{busy ? "Opening…" : "Start the worksheet — free"}</button>
@@ -110,18 +113,24 @@ export default function SharedWorksheet({ link }) {
           </div>
         </section>
 
+        <section className="sw-whys">
+          <div className="sw-in col"><WhyCard tool={w.key} /></div>
+        </section>
+
         <section className="sw-steps">
           <div className="sw-in col">
             <h2>How it works</h2>
             <div className="sw-grid">
-              {STEPS.map((s) => (
-                <div key={s.k} className="sw-step" style={{ "--c": s.color, "--soft": s.soft }}>
-                  <span className="ab-l">{s.letter}</span>
-                  <b>{s.name}</b>
-                  <p>{s.help}</p>
-                  <small>e.g. “{s.example}”</small>
-                </div>
-              ))}
+              {w.how.map(([l, name, help], i) => {
+                const c = w.tiles[i % w.tiles.length][1];
+                return (
+                  <div key={name} className="sw-step" style={{ "--c": c, "--soft": `color-mix(in srgb, ${c} 10%, #fff)` }}>
+                    <span className="ab-l">{l}</span>
+                    <b>{name}</b>
+                    <p>{help}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -170,6 +179,8 @@ const CSS = `
 .sw-th-v { margin: 8px 0 14px; font-size: 12px; font-weight: 800; color: #15803d; background: #e9f8ef; border-radius: 999px; padding: 4px 10px; }
 .sw-th .sw-btn { width: 100%; }
 .sw-steps, .sw-why { padding: clamp(32px, 5vw, 64px) 0; }
+.sw-whys { padding: 0 0 clamp(24px, 4vw, 40px); background: #f6faf7; }
+.sw-whys .wr-why { margin: 0; }
 .sw-steps { background: #fff; }
 .sw h2 { margin: 0 0 18px; font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -.01em; }
 .sw-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }

@@ -5,13 +5,14 @@ import { apiUrl } from "../../../../utils/url";
 export default async function handler(req, res) {
   try {
     const code = String(req.query.code || "").replace(/\.(jpe?g|png)$/i, "").slice(0, 20);
-    let t = null;
+    let t = null; let tool = "abcd";
     try {
       const r = await fetch(`${apiUrl}/worksheet-link/${encodeURIComponent(code)}?count=0`);
       const j = await r.json();
-      if (j?.status && j.data?.therapist) t = { ...j.data.therapist, user: { name: j.data.therapist.name, profile: j.data.therapist.photo } };
+      if (j?.status) tool = j.data.tool || "abcd";
+      if (j?.status && j.data?.therapist) t = { ...j.data.therapist, user: { name: j.data.therapist.name, profile: j.data.therapist.photo && !/pngegg|default/i.test(j.data.therapist.photo) ? j.data.therapist.photo : "" } };
     } catch (e) { /* card without the photo */ }
-    return sendJpeg(res, await worksheetCard(t), 86400);
+    return sendJpeg(res, await worksheetCard(t, tool), 86400);
   } catch (e) {
     console.error("og worksheet:", e?.message);
     res.setHeader("Cache-Control", "public, max-age=600");
