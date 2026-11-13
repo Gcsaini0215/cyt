@@ -3,8 +3,8 @@ import Link from "next/link";
 import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell, { WA_HELP } from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
-import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
-import { DashKpis, ActivityChart, KPI_CSS } from "../components/client/dash-kpis";
+import { PendingCard, RebookCard, ReviewCard, ReferralCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
+import { DashKpis, ActivityChart, ScreeningSection, KPI_CSS } from "../components/client/dash-kpis";
 import { MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import FestivalGiftCards from "../components/festival/festival-gift-card";
@@ -15,7 +15,6 @@ import { CLIENT_BOOKINGS_EVENT } from "../store/clientNotifStore";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
 import EventAvailableRoundedIcon from "@mui/icons-material/EventAvailableRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
-import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import PsychologyAltRoundedIcon from "@mui/icons-material/PsychologyAltRounded";
 import SupportAgentRoundedIcon from "@mui/icons-material/SupportAgentRounded";
@@ -166,12 +165,6 @@ export default function ClientHome() {
 
             <div className="ch-pb">
               <ProbonoCard data={probono} onChange={() => fetchById(`${apiUrl}/probono/me`).then((r) => setProbono(r?.data || null)).catch(() => {})} />
-              {probono?.eligible && !["requested", "accepted"].includes(probono.session?.status) && (
-                <Link href="/client/free-session" className="ch-cta">
-                  <VolunteerActivismRoundedIcon />
-                  <div><b>Get a free consultation</b><span>One free 45-minute session on Google Meet. We&apos;ll arrange it for you.</span></div>
-                </Link>
-              )}
             </div>
 
             <FestivalGiftCards />
@@ -187,7 +180,7 @@ export default function ClientHome() {
             <section className={`ch-next${next ? " hero" : ""}`}>
               {next ? (() => { const s = startsIn(next, now); return (
                 <div className="ch-next-h"><h2>Your next session</h2><span className={`ch-count${s.live ? " live" : ""}`}><ScheduleRoundedIcon />{s.t}</span></div>
-              ); })() : <h2>{rebookable ? "Your next step" : newbie ? "Let's get you started" : last ? "Welcome back" : "Your next session"}</h2>}
+              ); })() : newbie ? null : <h2>{rebookable ? "Your next step" : last ? "Welcome back" : "Your next session"}</h2>}
               {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : rebookable ? (
                 <RebookCard b={last} now={now} missed={lastMissed} credit={Number(referral?.credit) || 0} />
               ) : pending.length ? (
@@ -243,6 +236,7 @@ export default function ClientHome() {
           </aside>
 
           <div className="ch-rest">
+            <div className="ch-scr"><ScreeningSection due={checkIn} /></div>
           {upcoming.length > 0 && (
             <section className="ch-sec">
               <div className="ch-sec-h"><h2>Also coming up</h2><Link href="/client/my-bookings">All sessions →</Link></div>
@@ -255,7 +249,6 @@ export default function ClientHome() {
           {/* full width under both columns: each row of cards stretches to fill it, however many there are */}
           <div className="ch-band">
             {!moodInMain && moodCard}
-            {checkIn && <CheckInCard />}
             {offer && <ForYouCard offer={offer} />}
             {/* only when Recent sessions doesn't already list every therapist */}
             {therapists.length > 0 && !therapists.every((t) => recentIds.has(t.therapist._id)) && (
@@ -310,6 +303,14 @@ const HOME_CSS = `
 .ch-hello { grid-area: hello; margin-bottom: 14px; }
 .ch-kpi { grid-area: kpi; min-width: 0; }
 .ch-kpi:empty { display: none; }
+.ch-scr { margin-top: 18px; }
+/* every card below the stat cards: one dashboard look */
+.ch .dw-card, .ch .ch-cta.alt, .ch .dw-pair > * { border-radius: 18px; border-color: #e6ece8; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); }
+.ch .dw-start { padding: 18px; gap: 14px; }
+.ch .dw-start-h b { font-size: 17px; }
+.ch .dw-topics a { transition: transform .15s ease, background .15s ease; }
+.ch .dw-topics a:hover { transform: translateY(-1px); }
+.ch .dw-start-alt > * { background: #f6fbf7; border-color: #dcefe3; }
 .ch-main > .ck-act { margin-top: 12px; flex: none; }
 .ch-hello h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
 .ch-hello h1 span { color: #166534; }

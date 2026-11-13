@@ -7,6 +7,14 @@ import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
+import NightsStayRoundedIcon from "@mui/icons-material/NightsStayRounded";
+import AirRoundedIcon from "@mui/icons-material/AirRounded";
+import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
+import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
+import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import CenterFocusStrongRoundedIcon from "@mui/icons-material/CenterFocusStrongRounded";
+import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
 /* My Space dashboard: a row of stat cards under the greeting, and a "Your activity" chart
    (sessions per month for the last 6 months). Used by pages/my-dashboard.js. */
@@ -94,7 +102,80 @@ export function ActivityChart({ bookings, now }) {
   );
 }
 
+/* "Screening tests": the most used tests as cards (paths match components/self-assessment/seo.js) */
+const SCREENS = [
+  { k: "dep", short: "PHQ-9", t: "Depression", d: "Low mood, interest, sleep", time: "2–3 min", to: "/self-assessment/phq-9-depression-test", Icon: NightsStayRoundedIcon },
+  { k: "anx", short: "GAD-7", t: "Anxiety", d: "Worry, restlessness, tension", time: "2 min", to: "/self-assessment/gad-7-anxiety-test", Icon: AirRoundedIcon },
+  { k: "str", short: "DASS-21", t: "Stress, anxiety & mood", d: "All three in one test", time: "4–5 min", to: "/self-assessment/dass-21-depression-anxiety-stress-test", Icon: BoltRoundedIcon },
+  { k: "brn", short: "CBI", t: "Burnout", d: "Work and personal exhaustion", time: "3 min", to: "/self-assessment/burnout-test-cbi", Icon: LocalFireDepartmentRoundedIcon },
+  { k: "est", short: "RSES", t: "Self-esteem", d: "How you see yourself", time: "2 min", to: "/self-assessment/rosenberg-self-esteem-test", Icon: AutoAwesomeRoundedIcon },
+  { k: "adhd", short: "ASRS", t: "Adult ADHD", d: "Focus, restlessness, planning", time: "1–2 min", to: "/self-assessment/asrs-adult-adhd-test", Icon: CenterFocusStrongRoundedIcon },
+];
+
+export function ScreeningSection({ due = false }) {
+  return (
+    <section className="ck-scr">
+      <div className="ck-scr-h">
+        <span className="ck-scr-ic"><FactCheckRoundedIcon /></span>
+        <div>
+          <b>Screening tests</b>
+          <span>{due ? "It's been a while — a quick check-in shows how you're doing now." : "Clinically used tests · a score report you can share with your therapist."}</span>
+        </div>
+        <Link href="/self-assessment" className="ck-scr-all">All 12 tests <ArrowForwardRoundedIcon /></Link>
+      </div>
+      <div className="ck-scr-grid">
+        {SCREENS.map(({ k, short, t, d, time, to, Icon }) => (
+          <Link key={k} href={to} className={`ck-sc ${k}`}>
+            <span className="ck-sc-ic"><Icon /></span>
+            <span className="ck-sc-tag">{short}</span>
+            <b>{t}</b>
+            <small>{d}</small>
+            <span className="ck-sc-ft"><em>{time}</em><i>Start <ArrowForwardRoundedIcon /></i></span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export const KPI_CSS = `
+.ck-scr { background: #fff; border: 1px solid #e6ece8; border-radius: 20px; padding: 18px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); }
+.ck-scr-h { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.ck-scr-ic { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; color: #fff; flex: none; background: linear-gradient(160deg, #4fd38b, #12804a); box-shadow: 0 6px 14px -6px rgba(18,128,74,.6); }
+.ck-scr-ic svg { font-size: 23px; }
+.ck-scr-h > div { flex: 1; min-width: 0; }
+.ck-scr-h b { display: block; font-size: 17px; font-weight: 800; color: #0f172a; }
+.ck-scr-h > div > span { display: block; font-size: 12.5px; color: #64748b; margin-top: 1px; }
+.ck-scr-all { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px; background: #eef7f1; color: #166534 !important; font-size: 13px; font-weight: 800; text-decoration: none !important; }
+.ck-scr-all svg { font-size: 16px; }
+.ck-scr-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.ck-sc { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; padding: 14px; border-radius: 16px; background: var(--sc-bg); border: 1px solid var(--sc-line);
+  color: #0f172a !important; text-decoration: none !important; transition: transform .15s ease, box-shadow .15s ease; }
+.ck-sc:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -16px var(--sc-sh); }
+.ck-sc-ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: var(--sc-tile); box-shadow: 0 6px 14px -6px var(--sc-sh); margin-bottom: 8px; }
+.ck-sc-ic svg { font-size: 22px; }
+.ck-sc-tag { position: absolute; top: 14px; right: 12px; padding: 2px 8px; border-radius: 999px; background: #fff; color: var(--sc-ink); font-size: 10.5px; font-weight: 800; letter-spacing: .02em; }
+.ck-sc b { font-size: 14.5px; font-weight: 800; line-height: 1.25; }
+.ck-sc small { font-size: 12px; color: #64748b; line-height: 1.35; flex: 1; }
+.ck-sc-ft { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 8px; }
+.ck-sc-ft em { font-style: normal; font-size: 11.5px; font-weight: 700; color: #64748b; }
+.ck-sc-ft i { font-style: normal; display: inline-flex; align-items: center; gap: 2px; font-size: 12.5px; font-weight: 800; color: var(--sc-ink); }
+.ck-sc-ft i svg { font-size: 15px; }
+.ck-sc.dep { --sc-tile: linear-gradient(160deg, #7f9cff, #3b4fd1); --sc-sh: rgba(59,79,209,.55); --sc-bg: #f3f5ff; --sc-line: #e2e7fb; --sc-ink: #3b4fd1; }
+.ck-sc.anx { --sc-tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --sc-sh: rgba(14,138,154,.55); --sc-bg: #effafa; --sc-line: #d9f1f1; --sc-ink: #0e7490; }
+.ck-sc.str { --sc-tile: linear-gradient(160deg, #ffc65a, #f07b12); --sc-sh: rgba(240,123,18,.55); --sc-bg: #fff8ee; --sc-line: #fbead2; --sc-ink: #b45309; }
+.ck-sc.brn { --sc-tile: linear-gradient(160deg, #ff9b6b, #e5532a); --sc-sh: rgba(229,83,42,.55); --sc-bg: #fff4ef; --sc-line: #fbe1d6; --sc-ink: #c2410c; }
+.ck-sc.est { --sc-tile: linear-gradient(160deg, #ff8aa6, #e0335e); --sc-sh: rgba(224,51,94,.55); --sc-bg: #fff3f6; --sc-line: #fbdde5; --sc-ink: #be123c; }
+.ck-sc.adhd { --sc-tile: linear-gradient(160deg, #b98cff, #6a3fd6); --sc-sh: rgba(106,63,214,.55); --sc-bg: #f7f3ff; --sc-line: #e9e0fb; --sc-ink: #6d28d9; }
+@media (max-width: 1279px) { .ck-scr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 699px) {
+  .ck-scr { padding: 14px; border-radius: 18px; }
+  .ck-scr-h { flex-wrap: wrap; }
+  .ck-scr-all { order: 3; width: 100%; justify-content: center; }
+  .ck-scr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ck-sc { padding: 12px; }
+}
+
 .ck-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin: 0 0 18px; }
 .ck { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 0; padding: 14px 14px 13px; border-radius: 18px;
   background: #fff; border: 1px solid #e6ece8; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35);

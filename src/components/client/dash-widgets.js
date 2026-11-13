@@ -14,7 +14,6 @@ import TipsAndUpdatesRoundedIcon from "@mui/icons-material/TipsAndUpdatesRounded
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import PhoneCallbackRoundedIcon from "@mui/icons-material/PhoneCallbackRounded";
-import FactCheckRoundedIcon from "@mui/icons-material/FactCheckRounded";
 import { CONCERNS } from "../../utils/therapist-directory";
 import { fetchById, postData } from "../../utils/actions";
 import { apiUrl } from "../../utils/url";
@@ -242,9 +241,6 @@ export function StartCard({ onCallback }) {
         <button type="button" onClick={onCallback}>
           <PhoneCallbackRoundedIcon /><div><b>Not sure? Get a call back</b><span>We&apos;ll help you choose</span></div>
         </button>
-        <Link href="/self-assessment">
-          <FactCheckRoundedIcon /><div><b>Take a screening test</b><span>PHQ-9, GAD-7 and more</span></div>
-        </Link>
       </div>
     </div>
   );
