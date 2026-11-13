@@ -1,10 +1,10 @@
-// POST /api/tweet-card  (Authorization: Bearer <therapist token>)  body { words, size: "post"|"story" } → PNG
+// POST /api/tweet-card  (Authorization: Bearer <therapist token>)  body { words, size: "post"|"story", theme, hd } (hd = 2160 px) → PNG
 // Tweet-style post with the logged-in therapist's own words (utils/og-images.js tweetCard).
 // Only the therapist themself can make one — the token is checked with the backend, so nobody can
 // put words in another therapist's mouth on a CYT image.
 import { getSlugMaps } from "../../utils/therapist-slug-maps";
 import { handleFor, linkUrl } from "../../utils/my-link";
-import { tweetCard } from "../../utils/og-images";
+import { tweetCard, TWEET_THEMES } from "../../utils/og-images";
 import { apiUrl } from "../../utils/url";
 import { qrPng } from "./my-qr/[file]";
 
@@ -29,6 +29,8 @@ export default async function handler(req, res) {
   if (!/^Bearer \S+$/.test(auth)) return res.status(401).send("Please log in");
   const words = String(req.body?.words || "").slice(0, 280);
   const size = req.body?.size === "story" ? "story" : "post";
+  const hd = req.body?.hd === true;
+  const theme = Object.prototype.hasOwnProperty.call(TWEET_THEMES, req.body?.theme) ? req.body.theme : "forest";
   try {
     const id = await myTherapistId(auth);
     if (!id) return res.status(401).send("Please log in again");
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
     if (!t) return res.status(404).send("Your profile isn't live yet");
     const handle = handleFor(t, maps);
     const qr = size === "story" ? await qrPng(linkUrl(handle, "qr")) : null;
-    const png = await tweetCard(t, { words, size, link: linkUrl(handle), qr });
+    const png = await tweetCard(t, { words, size, link: linkUrl(handle), qr, theme, hd });
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).end(png);

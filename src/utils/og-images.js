@@ -607,9 +607,26 @@ export async function tentPng(t, { qr, link }) {
    Green gradient background with a frosted "tweet" card: round photo, name + green tick, profile type,
    their own short line, date + booking link. No logo, no rating / reviews (owner's choice).
    size: post = 1080x1080 · story = 1080x1920 (story adds a QR, since links in a WhatsApp status can't be tapped). */
-export async function tweetCard(t, { words = "", size = "post", link = "", qr = null } = {}) {
+// colour themes for tweetCard — keys must match THEMES in pages/therapists/social-posts.js
+// bg: 4 gradient stops (bottom-left → top-right) · deep: dark corner · glow: bright corner glow · dots: soft circles
+// card: frosted card tint (3 stops) · tick / link: accent on the card · sh: card shadow strength
+export const TWEET_THEMES = {
+  forest:   { bg: ["#073620", "#14663d", "#2a9a5f", "#7fd3a0"], deep: "#021f12", glow: "#f2c94c", dots: "#ffffff", card: ["#ffffff", "#f3fbf6", "#ddf3e5"], tick: "#1e8a4f", link: "#1e7a4c", sh: .45 },
+  sage:     { bg: ["#a9cdb4", "#cfe5d6", "#e9f3ec", "#fbf6e9"], deep: "#7fb08f", glow: "#f6d27a", dots: "#ffffff", card: ["#ffffff", "#ffffff", "#f4faf6"], tick: "#1e8a4f", link: "#1e7a4c", sh: .22 },
+  lavender: { bg: ["#3b2a78", "#6a4fd0", "#9f87f0", "#e3d6ff"], deep: "#1f1450", glow: "#ffb3d6", dots: "#ffffff", card: ["#ffffff", "#f8f5ff", "#ece4ff"], tick: "#6a4fd0", link: "#5b3fc4", sh: .45 },
+  ocean:    { bg: ["#06304f", "#0f5f93", "#2a93c9", "#8fd8f2"], deep: "#021a2e", glow: "#ffe08a", dots: "#ffffff", card: ["#ffffff", "#f3f9fd", "#dff0fa"], tick: "#1572b6", link: "#0f5f93", sh: .45 },
+  sunset:   { bg: ["#b8320f", "#ec5b3f", "#f99466", "#ffd89a"], deep: "#6e1a05", glow: "#fff3b0", dots: "#ffffff", card: ["#ffffff", "#fff8f3", "#ffeadd"], tick: "#e5532a", link: "#c2410c", sh: .4 },
+  rose:     { bg: ["#7a1f45", "#c53d6c", "#ec7d9f", "#ffd3de"], deep: "#3f0a22", glow: "#ffe3a3", dots: "#ffffff", card: ["#ffffff", "#fff6f8", "#ffe6ec"], tick: "#c53d6c", link: "#a8305b", sh: .42 },
+  teal:     { bg: ["#043f3c", "#0b7a73", "#22aaa0", "#9be8dc"], deep: "#012422", glow: "#ffd27a", dots: "#ffffff", card: ["#ffffff", "#f2fbfa", "#dcf4f0"], tick: "#0b8a82", link: "#0b7a73", sh: .45 },
+  midnight: { bg: ["#070b18", "#141d3a", "#26335e", "#45507f"], deep: "#000000", glow: "#d4a24c", dots: "#d4a24c", card: ["#ffffff", "#fbf8f1", "#f3ead6"], tick: "#c9962c", link: "#9a6f15", sh: .6 },
+};
+
+export async function tweetCard(t, { words = "", size = "post", link = "", qr = null, theme = "forest", hd = false } = {}) {
+  const T = TWEET_THEMES[theme] || TWEET_THEMES.forest;
+  // hd: everything drawn at 2x (2160 px) — sharp text + photo for the download / share
+  const K = hd ? 2 : 1, k = (n) => Math.round(n * K);
   const story = size === "story";
-  const W2 = 1080, H2 = story ? 1920 : 1080, M = 72, CW = W2 - M * 2, PAD = 56, IW = CW - PAD * 2;
+  const W2 = k(1080), H2 = k(story ? 1920 : 1080), M = k(72), CW = W2 - M * 2, PAD = k(56), IW = CW - PAD * 2;
   const name = esc(cleanName(t) || "Your therapist");
   const role = esc(t?.profile_type || "Psychologist");
   const body = esc(String(words || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim().slice(0, 280)) || "Your words here.";
@@ -617,64 +634,79 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
 
   const parts = [];
   let y = PAD;
-  const D = 116;
+  const D = k(116), RING = k(5);
   const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
   const circle = Buffer.from(`<svg width="${D}" height="${D}"><circle cx="${D / 2}" cy="${D / 2}" r="${D / 2}"/></svg>`);
   const av = buf
-    ? await sharp(await sharp(buf).rotate().resize(D, D, { fit: "cover", position: "attention" }).png().toBuffer()).composite([{ input: circle, blend: "dest-in" }]).png().toBuffer()
+    ? await sharp(await sharp(buf).rotate().resize(D, D, { fit: "cover", position: "attention", kernel: "lanczos3" }).sharpen().png().toBuffer()).composite([{ input: circle, blend: "dest-in" }]).png().toBuffer()
     : await sharp({ create: { width: D, height: D, channels: 4, background: "#f6d9b8" } }).composite([{ input: circle, blend: "dest-in" }]).png().toBuffer();
-  parts.push({ input: av, left: PAD, top: y });
-  const tx = PAD + D + 26, TW = IW - D - 26 - 50;
-  const nm = await text(`<b>${name}</b>`, { size: 40, color: "#0f1419", width: TW, lines: 1 });
-  const rl = await text(role, { size: 32, color: "#536471", width: IW - D - 26, lines: 1 });
-  const ny = y + Math.round((D - nm.info.height - 6 - rl.info.height) / 2);
+  // theme-coloured ring round the photo
+  const ring = Buffer.from(`<svg width="${D + RING * 2}" height="${D + RING * 2}" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${T.glow}"/><stop offset="1" stop-color="${T.tick}"/></linearGradient></defs><circle cx="${D / 2 + RING}" cy="${D / 2 + RING}" r="${D / 2 + RING}" fill="url(#r)"/></svg>`);
+  parts.push({ input: ring, left: PAD - RING, top: y - RING }, { input: av, left: PAD, top: y });
+  // a big soft quote mark in the card's top-right corner
+  const quote = await text("<b>“</b>", { size: k(170), color: T.tick });
+  const qFaded = await sharp(quote.data).ensureAlpha().linear([1, 1, 1, 0.16], [0, 0, 0, 0]).png().toBuffer();
+  parts.push({ input: qFaded, left: PAD + IW - quote.info.width + k(6), top: y - k(36) });
+  const tx = PAD + D + k(26), TW = IW - D - k(26) - k(150);
+  const nm = await text(`<b>${name}</b>`, { size: k(40), color: "#0f1419", width: TW, lines: 1 });
+  const rl = await text(role, { size: k(32), color: "#536471", width: IW - D - k(26) - k(110), lines: 1 });
+  const ny = y + Math.round((D - nm.info.height - k(6) - rl.info.height) / 2);
   parts.push({ input: nm.data, left: tx, top: ny });
-  const S = 36; // green verified tick next to the name
-  const tick = Buffer.from(`<svg width="${S}" height="${S}" xmlns="http://www.w3.org/2000/svg"><circle cx="${S / 2}" cy="${S / 2}" r="${S / 2}" fill="#1e8a4f"/><path d="M ${S * 0.28} ${S * 0.52} l ${S * 0.15} ${S * 0.15} l ${S * 0.3} -${S * 0.32}" fill="none" stroke="#fff" stroke-width="${S * 0.11}" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
-  parts.push({ input: tick, left: tx + nm.info.width + 10, top: ny + Math.round((nm.info.height - S) / 2) });
-  parts.push({ input: rl.data, left: tx, top: ny + nm.info.height + 6 });
-  y += D + 44;
-  const msg = await text(body, { size: story ? 58 : 50, color: "#0f1419", width: IW, lines: story ? 12 : 7 });
+  const S = k(36); // verified tick next to the name
+  const tick = Buffer.from(`<svg width="${S}" height="${S}" xmlns="http://www.w3.org/2000/svg"><circle cx="${S / 2}" cy="${S / 2}" r="${S / 2}" fill="${T.tick}"/><path d="M ${S * 0.28} ${S * 0.52} l ${S * 0.15} ${S * 0.15} l ${S * 0.3} -${S * 0.32}" fill="none" stroke="#fff" stroke-width="${S * 0.11}" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+  parts.push({ input: tick, left: tx + nm.info.width + k(10), top: ny + Math.round((nm.info.height - S) / 2) });
+  parts.push({ input: rl.data, left: tx, top: ny + nm.info.height + k(6) });
+  y += D + k(44);
+  const msg = await text(body, { size: k(story ? 58 : 50), color: "#0f1419", width: IW, lines: story ? 12 : 7 });
   parts.push({ input: msg.data, left: PAD, top: y });
-  y += msg.info.height + 44;
-  const meta = await text(`${date}  ·  Book: <span foreground="#1e7a4c">www.chooseyourtherapist.in</span>`, { size: 30, color: "#6b7a86", width: IW, lines: 1 });
+  y += msg.info.height + k(40);
+  // thin theme-coloured divider above the date / link
+  parts.push({ input: Buffer.from(`<svg width="${IW}" height="${k(3)}"><rect width="${IW}" height="${k(3)}" rx="${k(1.5)}" fill="${T.tick}" fill-opacity=".2"/></svg>`), left: PAD, top: y });
+  y += k(26);
+  const meta = await text(`${date}  ·  Book: <span foreground="${T.link}"><b>www.chooseyourtherapist.in</b></span>`, { size: k(30), color: "#6b7a86", width: IW, lines: 1 });
   parts.push({ input: meta.data, left: PAD, top: y });
   y += meta.info.height;
-  y += PAD + 6;
-  const CH = y;
+  y += PAD + k(6);
+  const CH = y, R = k(34);
 
-  // frosted card: translucent white with a soft mint tint and a bright edge
+  // frosted card: soft theme tint with a bright edge
   const cardBg = Buffer.from(`<svg width="${CW}" height="${CH}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".55" stop-color="#f3fbf6" stop-opacity=".9"/><stop offset="1" stop-color="#ddf3e5" stop-opacity=".88"/></linearGradient></defs>
-    <rect x="2" y="2" width="${CW - 4}" height="${CH - 4}" rx="34" fill="url(#c)" stroke="#ffffff" stroke-opacity=".75" stroke-width="4"/>
+    <defs><linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${T.card[0]}" stop-opacity=".97"/><stop offset=".55" stop-color="${T.card[1]}" stop-opacity=".94"/><stop offset="1" stop-color="${T.card[2]}" stop-opacity=".92"/></linearGradient></defs>
+    <rect x="${k(2)}" y="${k(2)}" width="${CW - k(4)}" height="${CH - k(4)}" rx="${R}" fill="url(#c)" stroke="#ffffff" stroke-opacity=".8" stroke-width="${k(4)}"/>
   </svg>`);
   const card = await sharp({ create: { width: CW, height: CH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
     .composite([{ input: cardBg, left: 0, top: 0 }, ...parts]).png().toBuffer();
-  const shadow = await sharp(Buffer.from(`<svg width="${CW + 120}" height="${CH + 120}"><rect x="60" y="80" width="${CW}" height="${CH}" rx="34" fill="#021a0e" fill-opacity=".45"/></svg>`)).blur(28).png().toBuffer();
+  const SP = k(60);
+  const shadow = await sharp(Buffer.from(`<svg width="${CW + SP * 2}" height="${CH + SP * 2}"><rect x="${SP}" y="${SP + k(20)}" width="${CW}" height="${CH}" rx="${R}" fill="${T.deep}" fill-opacity="${T.sh}"/></svg>`)).blur(k(28)).png().toBuffer();
 
-  // green brand gradient: deep forest bottom-left → fresh mint top-right, with a soft gold glow
+  // theme gradient + a dark corner, a bright glow, soft bokeh and two thin rings
   const bg = Buffer.from(`<svg width="${W2}" height="${H2}" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#073620"/><stop offset=".4" stop-color="#14663d"/><stop offset=".75" stop-color="#2a9a5f"/><stop offset="1" stop-color="#7fd3a0"/></linearGradient>
-      <radialGradient id="a" cx="0" cy="1" r="0.8"><stop offset="0" stop-color="#021f12" stop-opacity=".7"/><stop offset="1" stop-color="#021f12" stop-opacity="0"/></radialGradient>
-      <radialGradient id="b" cx="1" cy="0" r="0.6"><stop offset="0" stop-color="#f2c94c" stop-opacity=".45"/><stop offset="1" stop-color="#f2c94c" stop-opacity="0"/></radialGradient>
+      <linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="${T.bg[0]}"/><stop offset=".4" stop-color="${T.bg[1]}"/><stop offset=".75" stop-color="${T.bg[2]}"/><stop offset="1" stop-color="${T.bg[3]}"/></linearGradient>
+      <radialGradient id="a" cx="0" cy="1" r="0.8"><stop offset="0" stop-color="${T.deep}" stop-opacity=".6"/><stop offset="1" stop-color="${T.deep}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="b" cx="1" cy="0" r="0.6"><stop offset="0" stop-color="${T.glow}" stop-opacity=".5"/><stop offset="1" stop-color="${T.glow}" stop-opacity="0"/></radialGradient>
+      <radialGradient id="d"><stop offset="0" stop-color="${T.dots}" stop-opacity=".22"/><stop offset="1" stop-color="${T.dots}" stop-opacity="0"/></radialGradient>
     </defs>
     <rect width="100%" height="100%" fill="url(#g)"/><rect width="100%" height="100%" fill="url(#a)"/><rect width="100%" height="100%" fill="url(#b)"/>
+    <circle cx="${W2 * 0.86}" cy="${H2 * 0.88}" r="${W2 * 0.2}" fill="url(#d)"/>
+    <circle cx="${W2 * 0.1}" cy="${H2 * 0.12}" r="${W2 * 0.13}" fill="url(#d)"/>
+    <circle cx="${W2 * 0.95}" cy="${H2 * 0.05}" r="${W2 * 0.26}" fill="none" stroke="${T.dots}" stroke-opacity=".16" stroke-width="${k(3)}"/>
+    <circle cx="${W2 * 0.02}" cy="${H2 * 0.98}" r="${W2 * 0.2}" fill="none" stroke="${T.dots}" stroke-opacity=".12" stroke-width="${k(3)}"/>
   </svg>`);
 
   const layers = [{ input: bg, left: 0, top: 0 }];
-  const QB = story && qr ? 300 : 0; // room for the QR row at the bottom of a story
-  const cy = Math.max(48, Math.round((H2 - QB - CH) / 2));
-  layers.push({ input: shadow, left: M - 60, top: cy - 60 }, { input: card, left: M, top: cy });
+  const QB = story && qr ? k(300) : 0; // room for the QR row at the bottom of a story
+  const cy = Math.max(k(48), Math.round((H2 - QB - CH) / 2));
+  layers.push({ input: shadow, left: M - SP, top: cy - SP }, { input: card, left: M, top: cy });
   if (QB) {
-    const Q = 200, qy = H2 - M - Q - 30;
-    const lead = await text("<b>Scan to book a session</b>", { size: 36, color: "#0f1419", width: CW - Q - 120 });
-    const sub = await text("www.chooseyourtherapist.in", { size: 28, color: "#1e7a4c", width: CW - Q - 120, lines: 1 });
-    const box = Buffer.from(`<svg width="${CW}" height="${Q + 30}"><rect x="2" y="2" width="${CW - 4}" height="${Q + 26}" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#ffffff" stroke-width="4"/></svg>`);
+    const Q = k(200), qy = H2 - M - Q - k(30);
+    const lead = await text("<b>Scan to book a session</b>", { size: k(36), color: "#0f1419", width: CW - Q - k(120) });
+    const sub = await text("www.chooseyourtherapist.in", { size: k(28), color: T.link, width: CW - Q - k(120), lines: 1 });
+    const box = Buffer.from(`<svg width="${CW}" height="${Q + k(30)}"><rect x="${k(2)}" y="${k(2)}" width="${CW - k(4)}" height="${Q + k(26)}" rx="${k(28)}" fill="#ffffff" fill-opacity=".88" stroke="#ffffff" stroke-width="${k(4)}"/></svg>`);
     layers.push({ input: box, left: M, top: qy });
-    layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: M + 15, top: qy + 15 });
-    const lx = M + Q + 50, ly = qy + Math.round((Q + 30 - lead.info.height - 8 - sub.info.height) / 2);
-    layers.push({ input: lead.data, left: lx, top: ly }, { input: sub.data, left: lx, top: ly + lead.info.height + 8 });
+    layers.push({ input: await sharp(qr).resize(Q, Q, { kernel: "nearest" }).png().toBuffer(), left: M + k(15), top: qy + k(15) });
+    const lx = M + Q + k(50), ly = qy + Math.round((Q + k(30) - lead.info.height - k(8) - sub.info.height) / 2);
+    layers.push({ input: lead.data, left: lx, top: ly }, { input: sub.data, left: lx, top: ly + lead.info.height + k(8) });
   }
-  return sharp({ create: { width: W2, height: H2, channels: 3, background: "#14663d" } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
+  return sharp({ create: { width: W2, height: H2, channels: 3, background: T.bg[1] } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
 }
