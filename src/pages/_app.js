@@ -15,6 +15,7 @@ import { subscribeToNotifications } from "../utils/push-notifications";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { reportAiArrival } from "../utils/ai-referral";
+import useClientPresence from "../utils/client-presence";
 import Head from "next/head";
 import { TherapistShell, THERAPIST_SHELL_ROUTES } from "@/components/therapists/main-layout";
 
@@ -31,6 +32,9 @@ function MyApp({ Component, pageProps }) {
 
   // arrived from an AI assistant (ChatGPT, Perplexity, Gemini …)? — counted for the admin Overview
   useEffect(() => { reportAiArrival(); }, []);
+
+  // logged-in client online now? — Admin → Client 360 "Live now"
+  useClientPresence(router);
 
   // the page a visitor is leaving — lets a therapist's profile insights tell "came from the directory / home / a blog"
   useEffect(() => {

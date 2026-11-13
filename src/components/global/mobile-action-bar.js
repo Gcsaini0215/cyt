@@ -37,14 +37,19 @@ export default function MobileActionBar({ waText, noida = false } = {}) {
   return (
     <div className={`mab${shown ? " on" : ""}${noida ? " mab-3" : ""}`} role="region" aria-label="Contact us">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      <a className="mab-call" href={`tel:${PHONE}`} tabIndex={shown ? undefined : -1}><i className="feather-phone" aria-hidden="true" /> Call us</a>
+      {/* looks like the app dock on the client / therapist dashboards: colour icon tiles with a label under them */}
+      <a className="mab-it mab-call" href={`tel:${PHONE}`} tabIndex={shown ? undefined : -1}>
+        <span className="mab-ic"><i className="feather-phone" aria-hidden="true" /></span><span className="mab-l">Call us</span>
+      </a>
       {noida && (
-        <Link className="mab-noida" href={offer ? "/noida-appointment?offer=1" : "/noida-appointment"} tabIndex={shown ? undefined : -1}>
-          <i className="feather-map-pin" aria-hidden="true" /> Therapist @ Noida<span className="mab-sr"> — book a psychologist in Noida, Sector 51</span>
-          {offer && <span className="mab-badge">{String(offer.discount || "").replace(/ off$/i, "")} OFF</span>}
+        <Link className="mab-it mab-noida" href={offer ? "/noida-appointment?offer=1" : "/noida-appointment"} tabIndex={shown ? undefined : -1}>
+          <span className="mab-ic"><i className="feather-map-pin" aria-hidden="true" />{offer && <span className="mab-badge">{String(offer.discount || "").replace(/ off$/i, "")} OFF</span>}</span>
+          <span className="mab-l">Therapist @ Noida</span><span className="mab-sr"> — book a psychologist in Noida, Sector 51</span>
         </Link>
       )}
-      <button type="button" className="mab-go" tabIndex={shown ? undefined : -1} onClick={() => window.dispatchEvent(new Event("cyt:open-chat"))}>Get matched</button>
+      <button type="button" className="mab-it mab-go" tabIndex={shown ? undefined : -1} onClick={() => window.dispatchEvent(new Event("cyt:open-chat"))}>
+        <span className="mab-ic"><i className="feather-message-circle" aria-hidden="true" /></span><span className="mab-l">Get matched</span>
+      </button>
     </div>
   );
 }
@@ -52,18 +57,26 @@ export default function MobileActionBar({ waText, noida = false } = {}) {
 const CSS = `
 .mab { display: none; }
 @media (max-width: 767px) {
-  .mab { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9995; display: grid; grid-template-columns: 1fr 1.6fr; gap: 8px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)); background: rgba(255,255,255,.97); border-top: 1px solid #e3ebe6; box-shadow: 0 -8px 24px -14px rgba(0,0,0,.35); backdrop-filter: blur(6px); transform: translateY(110%); transition: transform .3s ease; pointer-events: none; }
+  /* a floating, frosted dock — same feel as the bottom bar inside the client / therapist app */
+  .mab { position: fixed; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 9995; display: flex; padding: 0 4px;
+    background: rgba(255,255,255,.94); -webkit-backdrop-filter: saturate(180%) blur(16px); backdrop-filter: saturate(180%) blur(16px);
+    border: 1px solid #e4ece7; border-radius: 22px; box-shadow: 0 14px 34px -14px rgba(11,23,18,.45);
+    transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom, 0px))); transition: transform .32s cubic-bezier(.22,.8,.3,1); pointer-events: none; }
   .mab.on { transform: translateY(0); pointer-events: auto; }
-  .mab a, .mab button { height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; font-weight: 800; text-decoration: none !important; border: none; cursor: pointer; }
-  .mab-call { background: #fff; color: #14532d !important; border: 1.5px solid #cfdcd4 !important; }
-  .mab-go { background: #1e7a4c; color: #fff; }
-  .mab.mab-3 { grid-template-columns: .8fr 1.3fr 1fr; gap: 6px; }
-  .mab.mab-3 a, .mab.mab-3 button { font-size: 13px; gap: 4px; padding: 0 6px; white-space: nowrap; }
-  /* same gold as the underline under "psychologist" in the home hero */
-  .mab-noida { background: #e0ab45; color: #3b2606 !important; border: 1.5px solid #e0ab45 !important; box-shadow: 0 6px 14px -8px rgba(160,110,20,.7); position: relative; overflow: visible; }
-  .mab-badge { position: absolute; top: -9px; right: -4px; padding: 2px 7px; border-radius: 999px; background: #c2410c; color: #fff; font-size: 10px; font-weight: 800; line-height: 1.3; letter-spacing: .02em; box-shadow: 0 4px 10px -2px rgba(194,65,12,.45); }
+  .mab-it { flex: 1; min-width: 0; min-height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 2px 7px;
+    background: none; border: 0; font-family: inherit; font-size: 11.5px; font-weight: 700; color: #334155 !important; text-decoration: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mab-ic { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: #fff; background: var(--tile);
+    box-shadow: 0 6px 14px -6px var(--tile-sh), inset 0 1px 0 rgba(255,255,255,.35); transition: transform .18s ease; }
+  .mab-ic i { font-size: 19px; line-height: 1; color: #fff; }
+  .mab-it:active .mab-ic { transform: scale(.88); }
+  .mab-l { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mab-call { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.6); }
+  /* gold, like the underline under "psychologist" in the home hero */
+  .mab-noida { --tile: linear-gradient(160deg, #ffd27a, #d4952a); --tile-sh: rgba(180,120,20,.6); color: #0b1712 !important; font-weight: 800; }
+  .mab-go { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.55); }
+  .mab-badge { position: absolute; top: -8px; left: 28px; padding: 2px 6px; border-radius: 999px; background: #c2410c; color: #fff; font-size: 9.5px; font-weight: 800; line-height: 1.3; letter-spacing: .02em; white-space: nowrap; box-shadow: 0 4px 10px -2px rgba(194,65,12,.45); border: 1.5px solid #fff; }
   .mab-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .cb-widget { bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important; }
+  .cb-widget { bottom: calc(160px + env(safe-area-inset-bottom, 0px)) !important; }
 }
-@media (prefers-reduced-motion: reduce) { .mab { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .mab, .mab-ic { transition: none; } }
 `;
