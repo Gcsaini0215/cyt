@@ -490,11 +490,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
         <FeelBetter stats={concerns?.bySlug} week={concerns?.week} />
         <CycleCarePromo />
-        <section style={{ background: "#fff", padding: "8px 0 56px" }}>
-          <div className="container">
-            <LeadCard tag="Home" title="Not sure where to start? Talk to us" />
-          </div>
-        </section>
+        <LeadCard tag="Home" title="Not sure where to start? Talk to us" full />
         <HomeWorkshop isWhite={false} />
         <FindByLocation stats={places} total={stats?.count || 0} visitorState={userState} />
         <Feedback therapists={topTherapists} />

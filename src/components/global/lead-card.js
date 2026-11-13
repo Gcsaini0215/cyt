@@ -45,6 +45,7 @@ export default function LeadCard({
   concern = "",
   waText = "Hi, I'd like help finding the right psychologist.",
   dark = false,
+  full = false, // home page: edge to edge, no card frame, lined up with the page width
 }) {
   const [name, setName] = useState("");
   const [code, setCode] = useState(DEFAULT_COUNTRY);
@@ -84,7 +85,7 @@ export default function LeadCard({
   };
 
   return (
-    <section className={`lc${dark ? " dark" : ""}`} aria-label="Get help choosing a psychologist">
+    <section className={`lc${dark ? " dark" : ""}${full ? " full" : ""}`} aria-label="Get help choosing a psychologist">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="lc-copy">
         <span className="lc-eyebrow"><i className="feather-headphones" aria-hidden="true" /> Free help · no charge</span>
@@ -230,6 +231,16 @@ const CSS = `
 .lc-tick { width:64px; height:64px; border-radius:50%; background:#e7f6ec; color:#1e7a4c; display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 0 0 8px #f3faf5; margin-bottom:6px; }
 .lc.dark { border-color:#14532d; }
 
+/* full width (home): a band across the page, not a card — content lines up with .container */
+.lc.full { --g:20px; border-radius:0; border:0; box-shadow:none; border-top:1px solid #f0dfba; border-bottom:1px solid #e6ece8; grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+.lc.full .lc-copy { padding:56px 48px 52px var(--g); border-right:0; }
+.lc.full .lc-side { padding:56px var(--g) 52px 56px; background:linear-gradient(180deg,#fff,#f7fbf8); }
+.lc.full .lc-copy > p { max-width:520px; }
+.lc.full h2 { font-size:clamp(26px, 2.8vw, 36px); }
+@media (min-width:601px) and (max-width:1023px) { .lc.full { --g:40px; } }
+@media (min-width:1024px) { .lc.full { --g:max(clamp(40px, 4.5vw, 56px), calc((100% - 1380px) / 2 + 40px)); } }
+@media (min-width:1300px) { .lc.full { --g:max(40px, calc((100% - 1380px) / 2 + 40px)); } }
+
 /* iPad / small laptop: copy on top (steps in a row), form below */
 @media (max-width:1023px) {
   .lc { grid-template-columns:minmax(0,1fr); border-radius:22px; }
@@ -270,4 +281,11 @@ const CSS = `
   .lc-steps small { display:none; }
 }
 @media (prefers-reduced-motion: reduce) { .lc-status.on i, .lc-spin { animation:none; } .lc-btn, .lc-topics button { transition:none; } }
+
+@media (max-width:1023px) {
+  .lc.full { grid-template-columns:minmax(0,1fr); border-radius:0; }
+  .lc.full .lc-copy { padding:40px var(--g) 28px; border-bottom:1px solid #f0dfba; }
+  .lc.full .lc-side { padding:28px var(--g) 36px; }
+}
+@media (max-width:767px) { .lc.full { border-radius:0; } .lc.full .lc-copy { padding:32px var(--g) 22px; } .lc.full .lc-side { padding:24px var(--g) 30px; } }
 `;
