@@ -6,6 +6,7 @@ import Banner from "../components/home/banner";
 import MyNavbar from "../components/navbar";
 
 const Specializations = dynamic(() => import("../components/home/specializations"), { ssr: true });
+const CycleCarePromo = dynamic(() => import("../components/home/cycle-care-promo"), { ssr: true });
 const Blogs = dynamic(() => import("../components/home/blogs"), { ssr: false });
 // server-rendered so the answers are in the page HTML (search engines and AI assistants read them)
 import Faqs, { faqCategories } from "../components/home/faqs";
@@ -484,6 +485,7 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
         <Specializations stats={concerns} />
         <TopTherapists people={people} visitorState={userState} total={stats?.count || people.length} />
         <FeelBetter stats={concerns?.bySlug} week={concerns?.week} />
+        <CycleCarePromo />
         <section style={{ background: "#fff", padding: "8px 0 56px" }}>
           <div className="container">
             <LeadCard tag="Home" title="Not sure where to start? Talk to us" />

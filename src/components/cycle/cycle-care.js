@@ -111,7 +111,7 @@ function Gate({ data, onDone }) {
       <div className="cy-hero">
         <div className="cy-hero-ic"><SpaRoundedIcon /></div>
         <div>
-          <span className="cy-kicker">New · For women</span>
+          <span className="cy-kicker">New · For women · Free</span>
           <h1>Cycle &amp; Mood Care</h1>
           <p>Track your period and how you feel through the month — and get support from a therapist when PMS, PMDD, period pain or PCOS start affecting your mood.</p>
         </div>

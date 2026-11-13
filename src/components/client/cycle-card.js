@@ -44,7 +44,7 @@ export default function CycleCard() {
     <div className="cmc invite">
       <span className="cmc-ic"><SpaRoundedIcon /></span>
       <div className="cmc-t">
-        <small>New · For women</small>
+        <small>New · Free · For women</small>
         <b>Cycle &amp; Mood Care</b>
         <span>Track your period and mood — and get support when PMS, PMDD or PCOS weigh on you. Private to you.</span>
       </div>

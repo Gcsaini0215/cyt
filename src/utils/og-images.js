@@ -9,6 +9,7 @@ import fs from "fs";
 import sharp from "sharp";
 import { getSlugMaps } from "./therapist-slug-maps";
 import { uploadUrl } from "./og-urls";
+import { cycleArtSvg } from "./cycle-art";
 import { cleanName, cityOf } from "./related-therapists";
 import { getMinFee, split as splitList } from "./therapist-directory";
 
@@ -709,4 +710,32 @@ export async function tweetCard(t, { words = "", size = "post", link = "", qr = 
     layers.push({ input: lead.data, left: lx, top: ly }, { input: sub.data, left: lx, top: ly + lead.info.height + k(8) });
   }
   return sharp({ create: { width: W2, height: H2, channels: 3, background: T.bg[1] } }).png().composite(layers).png({ compressionLevel: 9 }).toBuffer();
+}
+
+/* ─── Share card for /cycle-mood-care (Cycle & Mood Care for women): /api/og/cycle-care.jpg ─── */
+export async function cycleCareCard() {
+  const layers = [];
+  const bg = Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs>
+    <radialGradient id="a" cx="1" cy="0" r="1"><stop offset="0" stop-color="#ffd1dc"/><stop offset="1" stop-color="#ffd1dc" stop-opacity="0"/></radialGradient>
+    <radialGradient id="b" cx="0" cy="1" r=".8"><stop offset="0" stop-color="#ffe8d6"/><stop offset="1" stop-color="#ffe8d6" stop-opacity="0"/></radialGradient></defs>
+    <rect width="100%" height="100%" fill="#fff6f8"/><rect width="100%" height="100%" fill="url(#a)"/><rect width="100%" height="100%" fill="url(#b)"/></svg>`);
+  layers.push({ input: bg, left: 0, top: 0 });
+  const art = await sharp(Buffer.from(cycleArtSvg({ size: 560 }))).png().toBuffer();
+  layers.push({ input: art, left: W - 560 - 20, top: Math.round((H - 560) / 2) + 10 });
+  const X = 64, TW = 640;
+  const lg = await logo(250);
+  layers.push({ input: lg.data, left: X, top: 46 });
+  const pillW = 330, pillH = 42;
+  layers.push({ input: rect(pillW, pillH, "#fde2ea", 21), left: X, top: 162 });
+  const k = await text("<b>NEW  ·  FOR WOMEN  ·  FREE</b>", { size: 18, color: "#a3173f", width: pillW, align: "centre" });
+  layers.push({ input: k.data, left: X + Math.round((pillW - k.info.width) / 2), top: 162 + Math.round((pillH - k.info.height) / 2) });
+  const t1 = await text("<b>Your cycle. Your mood.</b>", { size: 48, color: "#2a0b17", width: TW, lines: 1 });
+  const t2 = await text("<b>Your care.</b>", { size: 48, color: "#d63a62", width: TW });
+  layers.push({ input: t1.data, left: X, top: 226 }, { input: t2.data, left: X, top: 226 + t1.info.height + 2 });
+  const sub = await text("Track your period and mood privately — and get support for PMS, PMDD, period pain and PCOS.", { size: 25, color: "#5b4a51", width: 560, lines: 3 });
+  const sy = 226 + t1.info.height + t2.info.height + 24;
+  layers.push({ input: sub.data, left: X, top: sy });
+  const foot = await text("<b>chooseyourtherapist.in/cycle-mood-care</b>", { size: 22, color: "#c22d58", width: TW });
+  layers.push({ input: foot.data, left: X, top: H - 56 - foot.info.height });
+  return toJpeg(await canvas("#fff6f8"), layers);
 }

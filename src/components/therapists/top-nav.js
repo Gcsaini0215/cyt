@@ -811,4 +811,9 @@ const TN_CSS = `
 @media (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) and (orientation: landscape) {
   .dock-x[data-i="3"], .dock-x[data-i="4"], .dock-x[data-i="5"], .dock-x[data-i="6"] { display: flex !important; }
 }
+
+/* Cycle & Mood launches FREE — a small tag on its icon everywhere (menu, More, Dock) */
+a[href="/therapists/cycle"] { position: relative; }
+a[href="/therapists/cycle"]::before { content: "FREE"; position: absolute; top: 2px; right: 2px; left: auto; bottom: auto; margin: 0; width: auto; height: auto; padding: 1px 5px; border-radius: 6px;
+  background: linear-gradient(160deg, #f0668a, #c22d58); color: #fff; font-size: 9px; font-weight: 800; letter-spacing: .05em; line-height: 1.45; z-index: 3; pointer-events: none; box-shadow: 0 3px 8px -3px rgba(194,45,88,.8); display: block; transform: none; opacity: 1; }
 `;

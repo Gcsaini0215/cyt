@@ -15,8 +15,8 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 
 const NEWS = [
   {
-    id: "cycle-care-2026-11", portal: "client", date: "2026-11-13", Icon: SpaRoundedIcon, tone: "rose",
-    title: "Cycle & Mood Care", kicker: "New · For women",
+    id: "cycle-care-2026-11", portal: "client", forWomen: true, date: "2026-11-13", Icon: SpaRoundedIcon, tone: "rose",
+    title: "Cycle & Mood Care", kicker: "New · Free · For women",
     text: "A private space to track your period and mood — and get support when PMS, PMDD, period pain or PCOS weigh on you.",
     points: ["See your phase and next period", "Spot how your mood changes through the month", "Find women therapists who understand"],
     to: "/client/cycle", cta: "Try it",
@@ -29,8 +29,8 @@ const NEWS = [
     cta: "Take a look",
   },
   {
-    id: "cycle-care-th-2026-11", portal: "therapist", date: "2026-11-13", Icon: SpaRoundedIcon, tone: "rose",
-    title: "Cycle & Mood Care — for you", kicker: "New · Self-care",
+    id: "cycle-care-th-2026-11", portal: "therapist", forWomen: true, date: "2026-11-13", Icon: SpaRoundedIcon, tone: "rose",
+    title: "Cycle & Mood Care — for you", kicker: "New · Free · Self-care",
     text: "You look after others all day. Track your own cycle and mood privately — nobody else can see it.",
     points: ["Your phase and next period", "Mood through the month", "Private to you, delete any time"],
     to: "/therapists/cycle", cta: "Try it",
@@ -104,6 +104,7 @@ export default function WhatsNew({ portal, home }) {
               : <button type="button" className="wn-btn line" onClick={closeAll}>Close</button>}
             <button type="button" className="wn-btn" onClick={n.to ? go : next}>{n.cta} {n.to && <ArrowForwardRoundedIcon />}</button>
           </div>
+          <button type="button" className="wn-skip" onClick={n.forWomen && i < items.length - 1 ? next : closeAll}>{n.forWomen ? "Not for me — skip" : "Skip"}</button>
           {items.length > 1 && <div className="wn-dots">{items.map((x, k) => <i key={x.id} className={k === i ? "on" : ""} />)}</div>}
         </div>
       </div>
@@ -139,6 +140,7 @@ const WN_CSS = `
   background: linear-gradient(160deg, var(--wn-a), var(--wn-b)); color: #fff; box-shadow: 0 10px 20px -12px var(--wn-b); }
 .wn-btn svg { font-size: 19px; }
 .wn-btn.line { background: #fff; color: #334155; border: 1.5px solid #e2e8f0; box-shadow: none; }
+.wn-skip { display: block; margin: 12px auto 0; border: 0; background: none; font: inherit; font-size: 13.5px; font-weight: 700; color: #64748b; text-decoration: underline; cursor: pointer; padding: 4px 8px; }
 .wn-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
 .wn-dots i { width: 7px; height: 7px; border-radius: 50%; background: #d6dfda; }
 .wn-dots i.on { width: 20px; border-radius: 4px; background: var(--wn-b); }
