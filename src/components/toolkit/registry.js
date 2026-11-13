@@ -45,12 +45,33 @@ export const WORKSHEETS = {
       ["4", "Look at the patterns", "After a few days, see what lifts you — then plan more of it."],
     ],
   },
+  whatif: {
+    key: "whatif", name: "What-If Flip", tag: "Anxiety", ready: true,
+    tiles: [["?", "#7c3aed"], ["↓", "#e11d48"], ["↑", "#16a34a"], ["✓", "#0ea5e9"]],
+    short: "Turn a spiralling “what if…” into balanced outcomes — the worry, a just-as-likely good one, and the most likely one.",
+    headline: "Stop the what-if spiral before it pulls you down",
+    why: "Anxiety loves two words: “what if?”. One small question can slide, step by step, into feeling sure the worst will happen. Your mind isn't lying on purpose — it is just showing you only one side. Flipping each worry to an equally likely good outcome, and then to the most likely one, brings the full picture back and turns the volume of the worry down.",
+    benefits: [
+      "Catch the moment a “what if” starts to spiral",
+      "See that a good outcome is often just as likely as the bad one",
+      "Get to the most realistic outcome — usually somewhere in the middle",
+      "Feel more able to cope, even if the hard thing did happen",
+    ],
+    forWho: ["Worry & overthinking", "Anxiety", "Exams & interviews", "Health worries"],
+    time: "5–10 minutes, whenever a worry keeps looping",
+    how: [
+      ["?", "Name the what-if", "Write the worry exactly as it sounds in your head."],
+      ["↓", "Write the fear", "The bad outcome your mind is showing you."],
+      ["↑", "Flip it", "An outcome that is just as likely — but good."],
+      ["✓", "Find the likely one", "What will most probably happen, and how you'd cope."],
+    ],
+  },
   record: { key: "record", name: "Thought Record", tag: "CBT", short: "The 7-column record: evidence for and against, and a re-rated feeling." },
   worry: { key: "worry", name: "Worry Tree", tag: "Anxiety", short: "Sort worries you can act on from the ones to let go, and plan worry time." },
   exposure: { key: "exposure", name: "Exposure Ladder", tag: "Anxiety", short: "Step-by-step fear ladder with distress ratings, from easiest to hardest." },
   coping: { key: "coping", name: "Coping Cards", tag: "Skills", short: "Personal reminder cards for hard moments — made together in session." },
 };
-export const LIBRARY = ["abcd", "activity", "record", "worry", "exposure", "coping"].map((k) => WORKSHEETS[k]);
+export const LIBRARY = ["abcd", "activity", "whatif", "record", "worry", "exposure", "coping"].map((k) => WORKSHEETS[k]);
 export const toolOf = (k) => WORKSHEETS[k] || WORKSHEETS.abcd;
 
 export function Tiles({ tool, size = 38 }) {

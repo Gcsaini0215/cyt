@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import ClientShell from "../../../components/client/client-shell";
 import { AbcdMulti, toLogs } from "../../../components/toolkit/abcd";
 import { ActivityForm, withActivity } from "../../../components/toolkit/activity";
+import { WhatIfForm, withWhatIf } from "../../../components/toolkit/whatif";
 import { WhyCard, toolOf } from "../../../components/toolkit/registry";
 import { fetchById, putData } from "../../../utils/actions";
 import { apiUrl } from "../../../utils/url";
@@ -28,9 +29,10 @@ export default function WorksheetPage() {
     fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
       if (!r?.status) return setErr(r?.message || "Worksheet not found");
       const act = r.data.tool === "activity";
-      const first = act ? withActivity(r.data.data) : { logs: toLogs(r.data.data) };
+      const first = act ? withActivity(r.data.data) : r.data.tool === "whatif" ? withWhatIf(r.data.data) : { logs: toLogs(r.data.data) };
       setW(r.data); setData(first); dataRef.current = first;
-      setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? (act ? 1 : 4) : Math.min(r.data.step || 0, act ? 1 : 4));
+      const last = act ? 1 : r.data.tool === "whatif" ? 2 : 4;
+      setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? last : Math.min(r.data.step || 0, last));
     }).catch(() => setErr("Couldn't open this worksheet"));
   }, [id]);
 
@@ -65,7 +67,7 @@ export default function WorksheetPage() {
     clearTimeout(timer.current);
     setBusy(true);
     try {
-      const r = await save({ data: dataRef.current || data, step: w.tool === "activity" ? 1 : 4, submit: true });
+      const r = await save({ data: dataRef.current || data, step: w.tool === "activity" ? 1 : w.tool === "whatif" ? 2 : 4, submit: true });
       if (r?.status) setW((x) => ({ ...x, status: r.data.status, flag: r.data.flag, submittedAt: new Date().toISOString() }));
       setSaved(r?.message || "");
     } catch (e) { setSaved(e?.response?.data?.message || "Couldn't send — try again"); }
@@ -99,12 +101,13 @@ export default function WorksheetPage() {
                     <p className="ws-ok">✓ Sent to {th?.name || "your therapist"} on {new Date(w.submittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}. {w.status === "reviewed" ? "They've reviewed it." : "They'll go through it with you."} You can still edit and send again.</p>
                   ) : null}
                   {th ? (
-                    <button type="button" className="ab-btn" disabled={busy} onClick={send}>{busy ? "Sending…" : sent ? `Send the update to ${th.name.split(" ")[0]}` : `Send to ${th.name}`}</button>
+                    <button type="button" className="ws-sendbtn" disabled={busy} onClick={send}>{busy ? "Sending…" : sent ? `Send the update to ${th.name.split(" ")[0]}` : `Send to ${th.name}`}</button>
                   ) : null}
                   <p className="ws-priv">🔒 Only you{th ? ` and ${th.name}` : ""} can see this. {th ? "They see it only after you press Send." : ""}</p>
                   {th?.live && <Link href={bookPath(th)} className="ws-talk">Worksheets work best when you talk them through — book a session with {th.name} →</Link>}
                 </div>
               );
+              if (w.tool === "whatif") return <WhatIfForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />;
               return w.tool === "activity"
                 ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
                 : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} therapistName={th?.name} finish={finish}
@@ -130,6 +133,12 @@ const CSS = `
 .ws-note { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; background: #fffaf0; border: 1px solid #f3e2bb; font-size: 14.5px; color: #5b4310; }
 .ws-fb { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; background: #e9f8ef; border: 1px solid #bfe6cc; color: #14532d; }
 .ws-fb p { margin: 4px 0 0; font-size: 14.5px; white-space: pre-wrap; }
+.ws-sendbtn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 50px; padding: 0 24px; border-radius: 14px; border: 0; background: linear-gradient(135deg, #1e7a4c, #14532d); color: #fff; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 12px 24px -12px rgba(20,83,45,.75); }
+.ws-sendbtn::before { content: "➤"; font-size: 15px; }
+.ws-sendbtn:hover:not(:disabled) { filter: brightness(1.08); }
+.ws-sendbtn:disabled { opacity: .6; cursor: default; }
+.ws-send .ws-fb { width: 100%; box-sizing: border-box; margin: 0; }
+@media (max-width: 560px) { .ws-sendbtn { width: 100%; } }
 .ws-send { margin-top: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .ws-ok { margin: 0; padding: 10px 12px; border-radius: 12px; background: #e9f8ef; color: #14532d; font-size: 14px; font-weight: 600; }
 .ws-priv { margin: 0; font-size: 12.5px; color: #64748b; }

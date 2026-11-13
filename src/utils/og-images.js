@@ -743,6 +743,7 @@ export async function cycleCareCard() {
 /* Therapist Toolkit share card — /worksheet/<code>: the ABCD worksheet with the therapist who shared it */
 const WS_CARD = {
   abcd: { kick: "CBT WORKSHEET  ·  FREE", l1: "Untangle a stressful", l2: "moment in 4 steps", tiles: [["A", "#2563eb", "Happened"], ["B", "#7c3aed", "Thought"], ["C", "#ea580c", "Felt"], ["D", "#16a34a", "Rethink"]] },
+  whatif: { kick: "WHAT-IF FLIP  ·  FREE", l1: "Stop the what-if", l2: "spiral in 3 steps", tiles: [["?", "#7c3aed", "What if"], ["↓", "#e11d48", "The fear"], ["↑", "#16a34a", "Flip it"], ["✓", "#0ea5e9", "Likely"]] },
   activity: { kick: "ACTIVITY DIARY  ·  FREE", l1: "Find out what really", l2: "lifts your mood", tiles: [["A", "#0ea5e9", "Achieve"], ["C", "#ec4899", "Close"], ["E", "#f59e0b", "Enjoy"], ["7", "#16a34a", "Days"]] },
 };
 export async function worksheetCard(t, tool = "abcd") {

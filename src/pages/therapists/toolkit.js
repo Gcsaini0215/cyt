@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
 import { AbcdMulti, AbcdLogsView } from "../../components/toolkit/abcd";
 import { ActivityForm, ActivityView } from "../../components/toolkit/activity";
+import { WhatIfForm, WhatIfView } from "../../components/toolkit/whatif";
 import { LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
 import { fetchById, postJsonData, putData } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
@@ -150,7 +151,7 @@ function TryPanel({ tool, onClose }) {
     <Sheet title={`Try the ${toolOf(tool).name} (not saved)`} onClose={onClose} wide>
       <p className="tk-mut tk-pad">This is exactly what your client sees in their dashboard. Nothing you type here is saved.</p>
       <WhyCard tool={tool} open={false} />
-      {tool === "activity"
+      {tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={setData} onStep={setStep} /> : tool === "activity"
         ? <ActivityForm value={data} step={step} onChange={setData} onStep={setStep} />
         : <AbcdMulti value={data} step={step} onChange={setData} onStep={setStep} therapistName="you" />}
     </Sheet>
@@ -275,7 +276,7 @@ function ReviewPanel({ id, onClose, onDone }) {
         <>
           {e.flag && <div className="tk-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
           <p className="tk-mut">Sent {dt(e.submittedAt)}{e.reviewedAt ? ` · you reviewed it ${dt(e.reviewedAt)}` : ""}</p>
-          {e.tool === "activity" ? <ActivityView data={e.data} /> : <AbcdLogsView data={e.data} />}
+          {e.tool === "activity" ? <ActivityView data={e.data} /> : e.tool === "whatif" ? <WhatIfView data={e.data} /> : <AbcdLogsView data={e.data} />}
           <label className="tk-lbl">Your feedback to {e.client.name.split(" ")[0]}
             <textarea rows={4} maxLength={2000} value={fb} onChange={(x) => setFb(x.target.value)} placeholder="What you noticed, a kind word, and what to try next" />
           </label>
