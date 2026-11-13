@@ -662,4 +662,11 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
 .cls a[href="/client/cycle"] { position: relative; }
 .cls a[href="/client/cycle"]::before { content: "FREE"; position: absolute; top: 2px; right: 2px; left: auto; bottom: auto; margin: 0; width: auto; height: auto; padding: 1px 5px; border-radius: 6px;
   background: linear-gradient(160deg, #f0668a, #c22d58); color: #fff; font-size: 9px; font-weight: 800; letter-spacing: .05em; line-height: 1.45; z-index: 3; pointer-events: none; box-shadow: 0 3px 8px -3px rgba(194,45,88,.8); display: block; transform: none; opacity: 1; }
+
+/* iPhone: no rubber-band bounce at the top — it pulled the fixed top bar down and showed the page above it.
+   A strip of the bar's colour above it covers any gap that is left (the app's own pull-to-refresh still works) */
+@media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+  html:has(.cls), body:has(.cls) { overscroll-behavior-y: none; }
+  .cls-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 120px; background: #fff; pointer-events: none; }
+}
 `;
