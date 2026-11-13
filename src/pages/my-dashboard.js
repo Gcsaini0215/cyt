@@ -6,6 +6,7 @@ import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { DashKpis, ActivityChart, ScreeningSection, KPI_CSS } from "../components/client/dash-kpis";
 import CycleCard, { CYC_CSS } from "../components/client/cycle-card";
+import WorksheetCard from "../components/client/worksheet-card";
 import { MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import FestivalGiftCards from "../components/festival/festival-gift-card";
@@ -202,6 +203,7 @@ export default function ClientHome() {
               </nav>
             )}
 
+            <div className="ch-cyc"><WorksheetCard /></div>
             <div className="ch-cyc"><CycleCard /></div>
             {bookings !== null && <ActivityChart bookings={bookings} now={now} />}
 

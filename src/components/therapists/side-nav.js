@@ -1,4 +1,5 @@
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import HandymanRoundedIcon from "@mui/icons-material/HandymanRounded";
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -40,6 +41,8 @@ const ALL_GROUPS = [
       { to: "/therapist-dashboard", Icon: MonitorHeartRoundedIcon, label: "Dashboard" },
       { to: "/appointments", Icon: EventAvailableRoundedIcon, label: "Appointments", badgeKey: "bookings" },
       { to: "/my-schedule", Icon: CalendarMonthRoundedIcon, label: "My Schedule" },
+      // CBT worksheets clients fill online + share links that book this therapist (pages/therapists/toolkit.js)
+      { to: "/therapists/toolkit", Icon: HandymanRoundedIcon, label: "Toolkit" },
       { to: "/clinic-patients", Icon: GroupsRoundedIcon, label: "Clients", hidden: true, match: ["/clinic-patients", "/add-offline-client"] },
       { to: "/case-history", Icon: FolderSharedRoundedIcon, label: "Case History", hidden: true, match: ["/case-history", "/create-report"] },
       { to: "/therapists/notifications", Icon: NotificationsActiveRoundedIcon, label: "Notifications", badgeKey: "inbox" },

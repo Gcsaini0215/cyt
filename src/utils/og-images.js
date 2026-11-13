@@ -739,3 +739,47 @@ export async function cycleCareCard() {
   layers.push({ input: foot.data, left: X, top: H - 56 - foot.info.height });
   return toJpeg(await canvas("#fff6f8"), layers);
 }
+
+/* Therapist Toolkit share card — /worksheet/<code>: the ABCD worksheet with the therapist who shared it */
+export async function worksheetCard(t) {
+  const layers = [];
+  const bg = Buffer.from(`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg"><defs>
+    <radialGradient id="a" cx="1" cy="0" r="1"><stop offset="0" stop-color="#d9efe1"/><stop offset="1" stop-color="#d9efe1" stop-opacity="0"/></radialGradient></defs>
+    <rect width="100%" height="100%" fill="#f7fbf8"/><rect width="100%" height="100%" fill="url(#a)"/></svg>`);
+  layers.push({ input: bg, left: 0, top: 0 });
+  const X = 64, TW = 640;
+  const lg = await logo(240);
+  layers.push({ input: lg.data, left: X, top: 46 });
+  const k = await text("<b>CBT WORKSHEET  ·  FREE</b>", { size: 18, color: "#15803d", width: 360 });
+  layers.push({ input: rect(k.info.width + 36, 42, "#e3f4e9", 21), left: X, top: 160 });
+  layers.push({ input: k.data, left: X + 18, top: 160 + Math.round((42 - k.info.height) / 2) });
+  const t1 = await text("<b>Untangle a stressful</b>", { size: 52, color: "#0f1f17", width: TW, lines: 1 });
+  const t2 = await text("<b>moment in 4 steps</b>", { size: 52, color: "#14532d", width: TW, lines: 1 });
+  layers.push({ input: t1.data, left: X, top: 226 }, { input: t2.data, left: X, top: 226 + t1.info.height + 2 });
+  // A B C D tiles
+  const cols = [["A", "#2563eb", "Happened"], ["B", "#7c3aed", "Thought"], ["C", "#ea580c", "Felt"], ["D", "#16a34a", "Rethink"]];
+  let x = X; const ty = 226 + t1.info.height + t2.info.height + 34;
+  for (const [l, c, w] of cols) {
+    layers.push({ input: rect(132, 104, c, 20), left: x, top: ty });
+    const L = await text(`<b>${l}</b>`, { size: 40, color: "#ffffff", width: 120, align: "centre" });
+    const Wd = await text(w, { size: 19, color: "#ffffff", width: 124, align: "centre" });
+    layers.push({ input: L.data, left: x + Math.round((132 - L.info.width) / 2), top: ty + 12 }, { input: Wd.data, left: x + Math.round((132 - Wd.info.width) / 2), top: ty + 66 });
+    x += 146;
+  }
+  // the therapist who shared it
+  const PX = 790, PW = 340;
+  layers.push({ input: rect(PW, 470, "#ffffff", 30), left: PX, top: 80 });
+  const buf = t ? await fetchPhoto(uploadUrl(t)) : null;
+  if (buf) layers.push({ input: await roundedPhoto(buf, 200, 200, 40), left: PX + 70, top: 116 });
+  else layers.push({ input: rect(200, 200, "#14532d", 40), left: PX + 70, top: 116 });
+  const nm = await text(`<b>${esc(t?.user?.name || t?.name || "Your psychologist")}</b>`, { size: 30, color: "#0f1f17", width: PW - 40, align: "centre", lines: 2 });
+  layers.push({ input: nm.data, left: PX + Math.round((PW - nm.info.width) / 2), top: 340 });
+  const ty2 = await text(esc(t?.profile_type || "Psychologist"), { size: 21, color: "#64748b", width: PW - 40, align: "centre", lines: 1 });
+  layers.push({ input: ty2.data, left: PX + Math.round((PW - ty2.info.width) / 2), top: 340 + nm.info.height + 8 });
+  const bk = await text("<b>Book a session  →</b>", { size: 22, color: "#ffffff", width: 260, align: "centre" });
+  layers.push({ input: rect(260, 56, "#14532d", 16), left: PX + 40, top: 470 });
+  layers.push({ input: bk.data, left: PX + 40 + Math.round((260 - bk.info.width) / 2), top: 470 + Math.round((56 - bk.info.height) / 2) });
+  const foot = await text("<b>chooseyourtherapist.in</b>", { size: 22, color: "#15803d", width: TW });
+  layers.push({ input: foot.data, left: X, top: H - 52 - foot.info.height });
+  return toJpeg(await canvas("#f7fbf8"), layers);
+}

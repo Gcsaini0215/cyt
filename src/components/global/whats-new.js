@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
 import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
+import HandymanRoundedIcon from "@mui/icons-material/HandymanRounded";
 import DashboardCustomizeRoundedIcon from "@mui/icons-material/DashboardCustomizeRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
@@ -14,6 +15,13 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
    Waits until the cookie card has been answered, so the two never stack. */
 
 const NEWS = [
+  {
+    id: "toolkit-abcd-2026-11", portal: "therapist", date: "2026-11-14", Icon: HandymanRoundedIcon, tone: "green",
+    title: "Toolkit: CBT worksheets", kicker: "New",
+    text: "Give clients the ABCD thought log — they fill it online in their own dashboard, and you review it before the next session.",
+    points: ["Send it to a client in one tap", "Share a link — the Book button books you", "See answers when the client sends it"],
+    to: "/therapists/toolkit", cta: "Open Toolkit",
+  },
   {
     id: "cycle-care-2026-11", portal: "client", forWomen: true, date: "2026-11-13", Icon: SpaRoundedIcon, tone: "rose",
     title: "Cycle & Mood Care", kicker: "New · Free · For women",
