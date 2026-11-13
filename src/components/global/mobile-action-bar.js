@@ -65,16 +65,18 @@ const CSS = `
   .mab.on { transform: translateY(0); pointer-events: auto; }
   .mab-it { flex: 1; min-width: 0; min-height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px 2px 7px;
     background: none; border: 0; font-family: inherit; font-size: 11.5px; font-weight: 700; color: #334155 !important; text-decoration: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .mab-ic { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: #fff; background: var(--tile);
-    box-shadow: 0 6px 14px -6px var(--tile-sh), inset 0 1px 0 rgba(255,255,255,.35); transition: transform .18s ease; }
-  .mab-ic i { font-size: 19px; line-height: 1; color: #fff; }
+  .mab-ic { position: relative; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #fff; background: var(--tile); overflow: visible;
+    box-shadow: 0 8px 16px -6px var(--tile-sh), inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(0,0,0,.12); transition: transform .18s ease; }
+  /* glossy top shine, like an app icon */
+  .mab-ic::before { content: ""; position: absolute; inset: 2px 3px 50% 3px; border-radius: 11px 11px 14px 14px / 11px 11px 8px 8px; background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)); pointer-events: none; }
+  .mab-ic i { position: relative; font-size: 20px; line-height: 1; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
   .mab-it:active .mab-ic { transform: scale(.88); }
   .mab-l { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mab-call { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.6); }
+  .mab-call { --tile: linear-gradient(150deg, #34e89e 0%, #0fb67a 45%, #078a5c 100%); --tile-sh: rgba(7,138,92,.65); }
   /* gold, like the underline under "psychologist" in the home hero */
-  .mab-noida { --tile: linear-gradient(160deg, #ffd27a, #d4952a); --tile-sh: rgba(180,120,20,.6); color: #0b1712 !important; font-weight: 800; }
-  .mab-go { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.55); }
-  .mab-badge { position: absolute; top: -8px; left: 28px; padding: 2px 6px; border-radius: 999px; background: #c2410c; color: #fff; font-size: 9.5px; font-weight: 800; line-height: 1.3; letter-spacing: .02em; white-space: nowrap; box-shadow: 0 4px 10px -2px rgba(194,65,12,.45); border: 1.5px solid #fff; }
+  .mab-noida { --tile: linear-gradient(150deg, #ffcf3f 0%, #ff9a1f 50%, #f26b0f 100%); --tile-sh: rgba(242,107,15,.65); color: #0b1712 !important; font-weight: 800; }
+  .mab-go { --tile: linear-gradient(150deg, #ff7ac6 0%, #c13cf0 50%, #6a3fd6 100%); --tile-sh: rgba(150,50,220,.6); }
+  .mab-badge { position: absolute; z-index: 1; top: -8px; left: 28px; padding: 2px 6px; border-radius: 999px; background: #c2410c; color: #fff; font-size: 9.5px; font-weight: 800; line-height: 1.3; letter-spacing: .02em; white-space: nowrap; box-shadow: 0 4px 10px -2px rgba(194,65,12,.45); border: 1.5px solid #fff; }
   .mab-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .cb-widget { bottom: calc(160px + env(safe-area-inset-bottom, 0px)) !important; }
 }
