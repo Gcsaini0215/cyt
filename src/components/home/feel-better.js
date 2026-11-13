@@ -63,6 +63,16 @@ const FEELINGS = [
   },
 ];
 
+// what we say back first — a kind, human line for each feeling
+const KIND = {
+  anxious: ["It's okay to feel this way.", "Anxiety is your body trying to keep you safe. Let's help it slow down."],
+  low: ["Some days are heavy.", "You don't have to feel better all at once — one small step is enough for today."],
+  stressed: ["You're carrying a lot.", "Take one minute of space for yourself before the next thing."],
+  angry: ["Your anger makes sense.", "It usually means something matters to you. Let's cool the heat first."],
+  sleep: ["Lying awake is exhausting.", "Let's help your mind and body wind down for the night."],
+  hurt: ["Being hurt stays with you.", "Your feelings deserve to be heard — by you first, and by someone who listens."],
+};
+
 const LABELS = { anxiety: "anxiety", depression: "low mood", "work-stress-burnout": "work stress", anger: "anger", stress: "stress & sleep", relationships: "relationships" };
 
 function Modal({ tool, concern, count, onClose }) {
@@ -117,70 +127,68 @@ export default function FeelBetter({ stats = null, week = null }) {
   const extra = Math.max(0, (s?.count || 0) - faces.length);
   const today = availableToday(s?.ids, week, now);
 
+  const [kindT, kindS] = KIND[f.id];
   return (
     <section className="fb-sec" aria-labelledby="fb-h">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      <div className="container">
-        <p className="fb-eyebrow">Free · no sign-up · private</p>
-        <h2 id="fb-h" className="fb-title">How are you <span>feeling</span> right now?</h2>
-        <p className="fb-sub">Pick one — we'll suggest a 1–5 minute exercise that can help, and the psychologists who work with it.</p>
-
-        <div className="fb-feelings" role="tablist" aria-label="How are you feeling">
-          {FEELINGS.map((x) => (
-            <button key={x.id} type="button" role="tab" aria-selected={feel === x.id} className={feel === x.id ? "on" : ""} onClick={() => setFeel(x.id)}>
-              <span aria-hidden="true">{x.emoji}</span> {x.label}
-            </button>
-          ))}
+      {/* a full-width band in two halves: the question on the left, our answer on the right */}
+      <div className="fb-band">
+        <div className="fb-ask">
+          <p className="fb-eyebrow">Free · no sign-up · private</p>
+          <h2 id="fb-h" className="fb-title">How are you <span>feeling</span> right now?</h2>
+          <p className="fb-sub">Whatever it is, it's okay to feel it. Tap the one closest to you — we'll share a small step that helps right now, and people who can help for longer.</p>
+          <div className="fb-feelings" role="tablist" aria-label="How are you feeling">
+            {FEELINGS.map((x) => (
+              <button key={x.id} type="button" role="tab" aria-selected={feel === x.id} className={feel === x.id ? "on" : ""} onClick={() => setFeel(x.id)}>
+                <span aria-hidden="true">{x.emoji}</span>{x.label}
+              </button>
+            ))}
+          </div>
+          <p className="fb-sos">
+            <span className="fb-orb" aria-hidden="true"><i /><b>🫁</b></span>
+            <span><b>Panic attack right now?</b> <button type="button" onClick={() => setOpen({ tool: { id: "sos", title: "30-second SOS" }, concern: "anxiety" })}>Try a 30-second reset</button> or call <a href="tel:18008914416">Tele-MANAS 1800-89-14416</a> (free, 24×7).</span>
+          </p>
         </div>
 
-        <div className="fb-grid" role="tabpanel">
-          {f.tools.map((t) => {
-            const inner = (
-              <>
-                <span className="fb-time">{t.time}</span>
-                <h3>{t.title}</h3>
-                <p>{t.desc}</p>
-                <span className="fb-go">{t.href ? "Open" : "Start now"} <i className="feather-arrow-right" aria-hidden="true" /></span>
-              </>
-            );
-            return t.href
-              ? <Link key={t.title} href={t.href} className="fb-tool">{inner}</Link>
-              : <button key={t.title} type="button" className="fb-tool" onClick={() => setOpen({ tool: t, concern: f.concern })}>{inner}</button>;
-          })}
-          {/* the heading is the link (stretched over the card) — a whole-card link made one very long anchor text */}
-          <div className="fb-tool fb-people">
-            <div className="fb-pp-top">
-              {faces.length > 0 ? (
-                <span className="fb-faces" aria-hidden="true">
-                  {faces.map((x) => (
-                    <img key={x.profile} src={thumb(`${imagePath}/${x.profile}`, 64)} srcSet={thumbSet(`${imagePath}/${x.profile}`, 64, 128)} alt={x.name || "Psychologist"} width="40" height="40" loading="lazy" />
-                  ))}
-                  {extra > 0 && <em>+{extra}</em>}
-                </span>
-              ) : <span className="fb-time">Talk to someone</span>}
-              <span className={`fb-live${today > 0 ? " on" : ""}`}><i aria-hidden="true" />{today > 0 ? `${today} free today` : "Online & in person"}</span>
-            </div>
-            <h3><Link href={`/therapy-for/${f.concern}`} className="fb-stretch">{s?.count ? `${s.count} psychologists` : "Psychologists"} for {LABELS[f.concern]}</Link></h3>
-            <p>{s?.minFee ? <>Verified experts · from <b>₹{s.minFee.toLocaleString("en-IN")}</b> a session</> : "Verified experts, online or in person."}</p>
-            <span className="fb-pp-btn">See who can help <i className="feather-arrow-right" aria-hidden="true" /></span>
+        <div className="fb-answer" role="tabpanel" aria-live="polite">
+          <div className="fb-kind" key={f.id}>
+            <span className="fb-big" aria-hidden="true">{f.emoji}</span>
+            <div><b>{kindT}</b><span>{kindS}</span></div>
           </div>
+          <p className="fb-lbl">Try this now</p>
+          <div className="fb-steps">
+            {f.tools.map((t) => {
+              const inner = (
+                <>
+                  <span className="fb-ic" aria-hidden="true"><i className={`feather-${t.id === "breathing" ? "wind" : t.id === "grounding" ? "anchor" : t.id === "sounds" ? "headphones" : "edit-3"}`} /></span>
+                  <span className="fb-st"><b>{t.title}</b><small>{t.desc}</small></span>
+                  <span className="fb-time">{t.time}</span>
+                  <i className="feather-arrow-right fb-arr" aria-hidden="true" />
+                </>
+              );
+              return t.href
+                ? <Link key={t.title} href={t.href} className="fb-step">{inner}</Link>
+                : <button key={t.title} type="button" className="fb-step" onClick={() => setOpen({ tool: t, concern: f.concern })}>{inner}</button>;
+            })}
+          </div>
+          <p className="fb-lbl">Talk to someone who understands</p>
+          <div className="fb-people">
+            {faces.length > 0 && (
+              <span className="fb-faces" aria-hidden="true">
+                {faces.map((x) => (
+                  <img key={x.profile} src={thumb(`${imagePath}/${x.profile}`, 64)} srcSet={thumbSet(`${imagePath}/${x.profile}`, 64, 128)} alt={x.name || "Psychologist"} width="40" height="40" loading="lazy" />
+                ))}
+                {extra > 0 && <em>+{extra}</em>}
+              </span>
+            )}
+            <span className="fb-pp-t">
+              <b>{s?.count ? `${s.count} psychologists` : "Psychologists"} for {LABELS[f.concern]}</b>
+              <small>{today > 0 ? <><i className="fb-dot" />{today} free today</> : "Online & in person"}{s?.minFee ? <> · from ₹{s.minFee.toLocaleString("en-IN")}</> : null}</small>
+            </span>
+            <Link href={`/therapy-for/${f.concern}`} className="fb-pp-btn">See who can help <i className="feather-arrow-right" aria-hidden="true" /></Link>
+          </div>
+          <p className="fb-more">More free tools — mood tracker, gratitude jar, calming sounds: <Link href="/wellness-toolkit">Wellness Toolkit <i className="feather-arrow-right" aria-hidden="true" /></Link></p>
         </div>
-
-        <div className="fb-sos">
-          <span className="fb-orb" aria-hidden="true"><i /><i /><b>🫁</b></span>
-          <div className="fb-sos-txt">
-            <b>Having a panic attack right now?</b>
-            <span>A 30-second guided reset can slow things down. You're not alone.</span>
-          </div>
-          <div className="fb-sos-acts">
-            <button type="button" className="fb-sos-go" onClick={() => setOpen({ tool: { id: "sos", title: "30-second SOS" }, concern: "anxiety" })}>Start 30-sec reset</button>
-            <a className="fb-sos-call" href="tel:18008914416"><i className="feather-phone" aria-hidden="true" /> <span><b>Tele-MANAS 1800-89-14416</b><small>Free · 24×7 crisis line</small></span></a>
-          </div>
-        </div>
-
-        <p className="fb-more">
-          More free tools — mood tracker, gratitude jar, calming sounds, couples guide: <Link href="/wellness-toolkit">open the Wellness Toolkit <i className="feather-arrow-right" aria-hidden="true" /></Link>
-        </p>
       </div>
 
       {open && <Modal tool={open.tool} concern={open.concern} count={stats?.[open.concern]?.count} onClose={() => setOpen(null)} />}
@@ -189,78 +197,68 @@ export default function FeelBetter({ stats = null, week = null }) {
 }
 
 const CSS = `
-.fb-sec { position: relative; overflow: hidden; isolation: isolate; padding: 72px 0 60px; background: linear-gradient(180deg, #e2ece1 0%, #edf3ea 55%, #f7f4ea 100%); }
-.fb-sec::before { content: ""; position: absolute; z-index: -1; width: 520px; height: 520px; right: -180px; top: -220px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.20), rgba(227,168,58,0) 68%); }
-.fb-sec::after { content: ""; position: absolute; z-index: -1; width: 420px; height: 420px; left: -200px; bottom: -160px; border-radius: 50%; background: radial-gradient(circle, rgba(30,122,76,.13), rgba(30,122,76,0) 70%); }
+/* full-width band (like the Cycle & Mood and "Not sure where to start?" sections): left = the question on soft green,
+   right = our answer on white. Content lines up with .container (same --g as LeadCard full) */
+.fb-sec { --g: 20px; position: relative; isolation: isolate; background: #fff; border-top: 1px solid #e3ece5; }
+@media (min-width: 601px) and (max-width: 1023px) { .fb-sec { --g: 40px; } }
+@media (min-width: 1024px) { .fb-sec { --g: max(clamp(40px, 4.5vw, 56px), calc((100% - 1380px) / 2 + 40px)); } }
+@media (min-width: 1300px) { .fb-sec { --g: max(40px, calc((100% - 1380px) / 2 + 40px)); } }
+.fb-band { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.fb-ask { position: relative; overflow: hidden; isolation: isolate; padding: 64px 48px 56px var(--g); background: linear-gradient(160deg, #eaf4ec 0%, #e1efe4 55%, #d6eadb 100%); }
+.fb-ask::before { content: ""; position: absolute; z-index: -1; width: 380px; height: 380px; right: -150px; top: -170px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.22), rgba(227,168,58,0) 68%); }
+.fb-ask::after { content: ""; position: absolute; z-index: -1; width: 260px; height: 260px; left: -120px; bottom: -130px; border-radius: 50%; border: 40px solid rgba(30,122,76,.06); }
 .fb-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
 .fb-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
-.fb-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
+.fb-title { font-size: clamp(28px, 3vw, 40px); font-weight: 800; color: #0b1712; margin: 0 0 12px; line-height: 1.12; letter-spacing: -.02em; }
 .fb-title span { color: #1e7a4c; }
-.fb-sub { color: #4b5b53; font-size: 16px; line-height: 1.6; margin: 0 0 24px; padding: 0; max-width: 60ch; }
-.fb-feelings { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-.fb-feelings button { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 999px; border: 1.5px solid #d6e3d9; background: #fff; color: #1f3d30; font-size: 14.5px; font-weight: 700; cursor: pointer;
-  box-shadow: 0 4px 12px -8px rgba(20,83,45,.35); transition: border-color .15s ease, transform .15s ease, background .15s ease; }
-.fb-feelings button span { font-size: 19px; }
-.fb-feelings button:hover { border-color: #1e7a4c; transform: translateY(-1px); }
-.fb-feelings button.on { background: linear-gradient(135deg, #22895a, #1e7a4c 55%, #14532d); border-color: #14532d; color: #fff; box-shadow: 0 10px 20px -12px rgba(20,83,45,.9); }
+.fb-sub { color: #3f5249; font-size: 16px; line-height: 1.65; margin: 0 0 24px; padding: 0; max-width: 52ch; }
+.fb-feelings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 560px; }
+.fb-feelings button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 92px; padding: 12px 8px; border-radius: 18px; border: 1.5px solid rgba(30,122,76,.14); background: rgba(255,255,255,.75); color: #1f3d30; font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; text-align: center; line-height: 1.2;
+  transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.fb-feelings button span { font-size: 30px; line-height: 1; }
+.fb-feelings button:hover { transform: translateY(-2px); background: #fff; border-color: rgba(30,122,76,.35); }
+.fb-feelings button.on { background: #fff; border-color: #1e7a4c; box-shadow: 0 0 0 3px rgba(30,122,76,.14), 0 14px 26px -16px rgba(20,83,45,.6); color: #14532d; }
 .fb-feelings button:focus-visible { outline: 2px solid #e3a83a; outline-offset: 2px; }
+.fb-sos { display: flex; align-items: center; gap: 12px; margin: 22px 0 0; padding: 0; max-width: 560px; font-size: 13.5px; color: #4b5b53; line-height: 1.55; }
+.fb-sos b { color: #7c2d12; }
+.fb-sos button { border: 0; background: none; padding: 0; font: inherit; font-weight: 800; color: #c2410c; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.fb-sos a { color: #7c2d12 !important; font-weight: 800; white-space: nowrap; }
+.fb-orb { position: relative; flex: none; width: 40px; height: 40px; display: grid; place-items: center; }
+.fb-orb i { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(234,88,12,.28), rgba(234,88,12,.05) 70%); animation: fbBreathe 6s ease-in-out infinite; }
+.fb-orb b { position: relative; width: 28px; height: 28px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 15px; }
+@keyframes fbBreathe { 0%, 100% { transform: scale(.75); opacity: .6; } 50% { transform: scale(1); opacity: 1; } }
 
-.fb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.fb-tool { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; padding: 20px 20px 18px; border-radius: 18px; border: 1px solid #dbe7de; background: #fff;
-  box-shadow: 0 16px 34px -26px rgba(11,52,30,.55), 0 1px 3px rgba(11,52,30,.05); cursor: pointer; text-decoration: none !important; font: inherit; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-.fb-tool:hover { transform: translateY(-3px); box-shadow: 0 22px 40px -24px rgba(11,52,30,.6); border-color: #b9d6c3; }
-.fb-tool:focus-visible { outline: 3px solid #1e7a4c; outline-offset: 2px; }
-.fb-time { font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: #8a5a0b; background: #fbefd3; border-radius: 999px; padding: 4px 10px; }
-.fb-tool h3 { font-size: 18px; font-weight: 800; color: #0b1712; margin: 6px 0 0; line-height: 1.3; }
-.fb-tool p { font-size: 14.5px; color: #5b6b63; line-height: 1.55; margin: 0; padding: 0; }
-.fb-go { display: inline-flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 10px; font-size: 14px; font-weight: 800; color: #1e7a4c; }
-.fb-tool:hover .fb-go i { transform: translateX(3px); }
-.fb-go i { transition: transform .2s ease; }
-@keyframes fbPulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,.6); } 70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
-@keyframes fbBreathe { 0%, 100% { transform: scale(.72); opacity: .55; } 50% { transform: scale(1); opacity: 1; } }
-.fb-people { position: relative; overflow: hidden; gap: 8px; background: linear-gradient(150deg, #1e7a4c 0%, #166534 50%, #0f3f24 100%); border-color: #14532d; }
-.fb-people::before { content: ""; position: absolute; width: 200px; height: 200px; right: -70px; top: -80px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.35), rgba(227,168,58,0) 70%); pointer-events: none; }
-.fb-people::after { content: ""; position: absolute; width: 150px; height: 150px; left: -60px; bottom: -70px; border-radius: 50%; border: 24px solid rgba(255,255,255,.05); pointer-events: none; }
-.fb-people:has(.fb-stretch:focus-visible) { outline: 3px solid #e3a83a; outline-offset: 2px; }
-.fb-stretch { color: inherit !important; text-decoration: none !important; }
-.fb-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
-.fb-pp-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; flex-wrap: wrap; }
-.fb-faces { display: inline-flex; align-items: center; }
-.fb-faces img, .fb-faces em { width: 40px; height: 40px; border-radius: 50%; border: 2.5px solid #1a6e44; margin-left: -10px; background: #e8f3ec; object-fit: cover; }
+.fb-answer { padding: 64px var(--g) 56px 56px; background: linear-gradient(180deg, #fff, #f8fbf9); display: flex; flex-direction: column; }
+.fb-kind { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 20px; background: #f3f9f5; border: 1px solid #e0eee5; animation: fbIn .35s ease; }
+@keyframes fbIn { from { opacity: 0; transform: translateY(6px); } }
+.fb-big { font-size: 44px; line-height: 1; flex: none; }
+.fb-kind b { display: block; font-size: 20px; font-weight: 800; color: #0b1712; letter-spacing: -.01em; }
+.fb-kind div > span { display: block; font-size: 14.5px; color: #4b5b53; line-height: 1.5; margin-top: 2px; }
+.fb-lbl { margin: 22px 0 10px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #6b7c73; }
+.fb-steps { display: grid; gap: 10px; }
+.fb-step { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid #e3ece6; background: #fff; text-align: left; font: inherit; cursor: pointer; color: #0b1712 !important; text-decoration: none !important;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease; }
+.fb-step:hover { border-color: #a7d7b8; transform: translateX(3px); box-shadow: 0 12px 24px -20px rgba(11,52,30,.6); }
+.fb-step:focus-visible { outline: 3px solid #1e7a4c; outline-offset: 2px; }
+.fb-ic { width: 42px; height: 42px; border-radius: 13px; flex: none; display: grid; place-items: center; background: #e7f6ec; color: #1e7a4c; font-size: 19px; }
+.fb-st { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.fb-st b { font-size: 15.5px; font-weight: 800; }
+.fb-st small { font-size: 13px; color: #5b6b63; line-height: 1.4; }
+.fb-time { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #8a5a0b; background: #fbefd3; border-radius: 999px; padding: 4px 9px; white-space: nowrap; }
+.fb-arr { flex: none; color: #1e7a4c; font-size: 17px; }
+.fb-people { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 18px; border-radius: 18px; color: #fff; background: linear-gradient(140deg, #1e7a4c 0%, #166534 55%, #0f3f24 100%); box-shadow: 0 18px 32px -24px rgba(11,52,30,.9); }
+.fb-faces { display: inline-flex; align-items: center; flex: none; }
+.fb-faces img, .fb-faces em { width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid #1a6e44; margin-left: -10px; background: #e8f3ec; object-fit: cover; }
 .fb-faces img:first-child { margin-left: 0; }
-.fb-faces em { display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-size: 12.5px; font-weight: 900; color: #3b2604; background: #ecc77d; }
-.fb-live { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.16); color: #fff; font-size: 12px; font-weight: 700; white-space: nowrap; }
-.fb-live i { width: 7px; height: 7px; border-radius: 50%; background: #ecc77d; }
-.fb-live.on i { background: #4ade80; animation: fbPulse 1.8s infinite; }
-.fb-people .fb-time { background: rgba(236,199,125,.18); color: #f5d595; }
-.fb-people h3 { color: #fff; margin-top: 8px; }
-.fb-people p { color: rgba(255,255,255,.8); }
-.fb-people p b { color: #f5d595; }
-.fb-pp-btn { margin-top: auto; display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 12px; background: #ecc77d; color: #3b2604; font-size: 14px; font-weight: 800; transition: background .2s ease; }
-.fb-pp-btn i { transition: transform .2s ease; }
-.fb-people:hover .fb-pp-btn { background: #f5d595; }
-.fb-people:hover .fb-pp-btn i { transform: translateX(3px); }
-
-.fb-sos { position: relative; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px 22px; margin-top: 16px; padding: 18px 22px; border-radius: 20px;
-  background: linear-gradient(120deg, #fff7f0 0%, #ffeee2 100%); border: 1px solid #f8d2b8; box-shadow: 0 16px 34px -28px rgba(124,45,18,.7); }
-.fb-orb { position: relative; width: 62px; height: 62px; display: flex; align-items: center; justify-content: center; flex: none; }
-.fb-orb i { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(234,88,12,.28), rgba(234,88,12,.06) 70%); animation: fbBreathe 6s ease-in-out infinite; }
-.fb-orb i + i { inset: 9px; background: rgba(234,88,12,.18); animation-delay: .4s; }
-.fb-orb b { position: relative; width: 36px; height: 36px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px -4px rgba(194,65,12,.5); }
-.fb-sos-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.fb-sos-txt b { font-size: 16.5px; font-weight: 800; color: #7c2d12; }
-.fb-sos-txt span { font-size: 14px; color: #9a4a22; line-height: 1.5; }
-.fb-sos-acts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-.fb-sos-go { height: 46px; padding: 0 20px; border-radius: 13px; border: none; background: linear-gradient(135deg, #ea580c, #c2410c); color: #fff; font-size: 14.5px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px -12px rgba(194,65,12,.9); white-space: nowrap; }
-.fb-sos-go:hover { background: #9a3412; }
-.fb-sos-call { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 14px; border-radius: 13px; background: #fff; border: 1.5px solid #f3c7a8; color: #7c2d12 !important; text-decoration: none !important; white-space: nowrap; }
-.fb-sos-call:hover { border-color: #c2410c; }
-.fb-sos-call > i { color: #c2410c; font-size: 16px; }
-.fb-sos-call span { display: flex; flex-direction: column; line-height: 1.2; }
-.fb-sos-call b { font-size: 13px; font-weight: 800; }
-.fb-sos-call small { font-size: 11px; color: #9a4a22; font-weight: 600; }
-.fb-sos-go:focus-visible, .fb-sos-call:focus-visible { outline: 2px solid #e3a83a; outline-offset: 2px; }
-.fb-more { margin: 16px 0 0; padding: 0; font-size: 14px; color: #4b5b53; }
+.fb-faces em { display: inline-flex; align-items: center; justify-content: center; font-style: normal; font-size: 12px; font-weight: 900; color: #3b2604; background: #ecc77d; }
+.fb-pp-t { flex: 1; min-width: 160px; display: grid; gap: 2px; }
+.fb-pp-t b { font-size: 15.5px; font-weight: 800; }
+.fb-pp-t small { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: rgba(255,255,255,.82); }
+.fb-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: fbPulse 1.8s infinite; }
+@keyframes fbPulse { 0% { box-shadow: 0 0 0 0 rgba(74,222,128,.6); } 70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); } 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); } }
+.fb-pp-btn { display: inline-flex; align-items: center; gap: 7px; height: 42px; padding: 0 16px; border-radius: 12px; background: #ecc77d; color: #3b2604 !important; font-size: 14px; font-weight: 800; text-decoration: none !important; white-space: nowrap; transition: background .2s ease; }
+.fb-pp-btn:hover { background: #f5d595; }
+.fb-more { margin: 16px 0 0; padding: 0; font-size: 13.5px; color: #5b6b63; }
 .fb-more a { color: #1e7a4c; font-weight: 800; text-decoration: none; white-space: nowrap; }
 
 .fb-modal-wrap { position: fixed; inset: 0; z-index: 2147483100; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -274,27 +272,33 @@ const CSS = `
 .fb-modal-foot a { color: #1e7a4c; font-weight: 800; font-size: 14px; text-decoration: none; }
 .fb-loading { text-align: center; color: #94a3b8; padding: 30px 0; margin: 0; }
 
+@media (max-width: 1023px) {
+  .fb-band { grid-template-columns: minmax(0, 1fr); }
+  .fb-ask { padding: 48px var(--g) 32px; }
+  .fb-feelings { max-width: none; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .fb-answer { padding: 28px var(--g) 44px; }
+}
 @media (max-width: 767px) {
-  .fb-sec { padding: 48px 0 44px; }
-  .fb-title { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
+  .fb-ask { padding: 40px var(--g) 26px; }
+  .fb-title { font-size: 27px; line-height: 1.2; }
   .fb-sub { font-size: 15px; margin-bottom: 18px; }
-  .fb-feelings { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px 14px; padding: 0 16px 2px; scrollbar-width: none; }
-  .fb-feelings::-webkit-scrollbar { display: none; }
-  .fb-feelings button { flex-shrink: 0; height: 42px; font-size: 14px; }
-  .fb-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .fb-people { grid-column: 1 / -1; }
-  .fb-tool { padding: 15px 14px; border-radius: 16px; }
-  .fb-tool h3 { font-size: 15.5px; }
-  .fb-tool p { font-size: 13px; }
-  .fb-sos { grid-template-columns: auto minmax(0, 1fr); padding: 16px; gap: 14px; }
-  .fb-orb { width: 52px; height: 52px; }
-  .fb-orb b { width: 30px; height: 30px; font-size: 15px; }
-  .fb-sos-txt b { font-size: 15.5px; }
-  .fb-sos-txt span { font-size: 13.5px; }
-  .fb-sos-acts { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr; gap: 8px; }
-  .fb-sos-go, .fb-sos-call { width: 100%; justify-content: center; }
+  .fb-feelings { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .fb-feelings button { min-height: 78px; font-size: 13px; border-radius: 16px; }
+  .fb-feelings button span { font-size: 26px; }
+  .fb-sos { align-items: flex-start; font-size: 13px; }
+  .fb-answer { padding: 24px var(--g) 36px; }
+  .fb-kind { padding: 14px 16px; gap: 12px; }
+  .fb-big { font-size: 36px; }
+  .fb-kind b { font-size: 17px; }
+  .fb-kind div > span { font-size: 13.5px; }
+  .fb-step { padding: 12px 13px; gap: 11px; }
+  .fb-ic { width: 38px; height: 38px; }
+  .fb-st b { font-size: 14.5px; }
+  .fb-time { display: none; }
+  .fb-people { padding: 14px; }
+  .fb-pp-btn { width: 100%; justify-content: center; }
   .fb-modal-wrap { align-items: flex-end; padding: 0; }
   .fb-modal { max-width: none; border-radius: 20px 20px 0 0; max-height: 92vh; max-height: 92dvh; padding-bottom: env(safe-area-inset-bottom, 0px); }
 }
-@media (prefers-reduced-motion: reduce) { .fb-tool, .fb-feelings button, .fb-go i, .fb-pp-btn i { transition: none; } .fb-orb i, .fb-live.on i { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .fb-feelings button, .fb-step { transition: none; } .fb-orb i, .fb-dot, .fb-kind { animation: none; } }
 `;
