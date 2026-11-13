@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
@@ -14,6 +15,8 @@ import { apiUrl, imagePath } from "../../utils/url";
    Plan rules: the first two worksheets are free for the therapist's OWN use (saved, private). The yearly plan
    unlocks every worksheet for themselves, plus Share link and Send to a client (server checks it too). */
 const FREE_SELF = ["abcd", "activity"];
+const PLAN_NAME = { annual: "Yearly", free: "Free (given by CYT)", "1_month": "1-month", "3_month": "3-month", "6_month": "6-month" };
+const longDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "");
 const SITE = "https://www.chooseyourtherapist.in";
 const STATUS = { assigned: ["Not opened yet", "new"], draft: ["Filling it in", "draft"], submitted: ["Sent to you — review", "sent"], reviewed: ["Reviewed", "done"] };
 const dt = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" }) : "");
@@ -78,6 +81,13 @@ export default function ToolkitPage() {
           {waiting.length > 0 && <button type="button" className="tk-alert" onClick={() => router.push(`/therapists/toolkit/${waiting[0]._id}?review=1`)}>● {waiting.length} worksheet{waiting.length === 1 ? "" : "s"} to review</button>}
         </header>
 
+        {d?.access?.free && (
+          <div className="tk-freeplan" role="note">
+            <span aria-hidden="true">⚠️</span>
+            <p><b>You&apos;re on CYT&apos;s free plan{d.access.planEnds ? ` (till ${longDate(d.access.planEnds)})` : ""}.</b> It was given by the CYT team and can be ended by the admin at any time — the Toolkit would lock again. Take the yearly plan to keep it for sure.</p>
+            <Link href="/my-plans" className="tk-btn">Take the yearly plan</Link>
+          </div>
+        )}
         {err && <div className="tk-box">{err}</div>}
 
         <section className="tk-lib" aria-label="Worksheets">
@@ -113,7 +123,7 @@ export default function ToolkitPage() {
                     <Tiles tool={m.tool} size={20} />
                     <span><b>{m.title}</b><small>{m.preview || "Not filled yet"} · {dt(m.updatedAt)}</small></span>
                   </button>
-                  <button type="button" className="tk-del" disabled={busyDel === m._id} onClick={() => removeMine(m._id)} aria-label={`Delete ${m.title}`} title="Delete">🗑</button>
+                  <button type="button" className="tk-del" disabled={busyDel === m._id} onClick={() => removeMine(m._id)} aria-label={`Delete ${m.title}`} title="Delete"><DeleteOutlineRoundedIcon /></button>
                 </li>
               ))}
             </ul>
@@ -136,7 +146,7 @@ export default function ToolkitPage() {
                         <span className="tk-l-t"><b>{e.client.name}{e.flag && <em className="tk-flag">⚠ check in</em>}</b><small>{e.title}{e.preview ? ` · “${e.preview}”` : ""}</small></span>
                         <span className="tk-l-r"><em className={`tk-st ${tone}`}>{label}</em><small>{dt(e.submittedAt || e.updatedAt)}</small></span>
                       </button>
-                      <button type="button" className="tk-del" disabled={busyDel === e._id} onClick={() => removeClient(e)} aria-label={`Remove ${e.client.name}'s worksheet`} title="Remove from my list">🗑</button>
+                      <button type="button" className="tk-del" disabled={busyDel === e._id} onClick={() => removeClient(e)} aria-label={`Remove ${e.client.name}'s worksheet`} title="Remove from my list"><DeleteOutlineRoundedIcon /></button>
                     </li>
                   );
                 })}
@@ -170,7 +180,7 @@ export default function ToolkitPage() {
         </div>
       </div>
 
-      {panel?.kind === "upgrade" && <UpgradePanel tool={panel.tool} why={panel.why} onClose={() => setPanel(null)} />}
+      {panel?.kind === "upgrade" && <UpgradePanel tool={panel.tool} why={panel.why} access={d?.access} onClose={() => setPanel(null)} />}
       {panel?.kind === "share" && <SharePanel tool={panel.tool} onClose={() => setPanel(null)} onMade={load} />}
       {panel?.kind === "send" && <SendPanel tool={panel.tool} clients={d?.clients || []} onClose={() => setPanel(null)} onMade={load} />}
     </MainLayout>
@@ -200,7 +210,7 @@ function CopyBtn({ url }) {
 }
 
 /* locked: Share / Send (any worksheet) and own use of worksheets after the first two need the yearly plan */
-function UpgradePanel({ tool, why, onClose }) {
+function UpgradePanel({ tool, why, access, onClose }) {
   const w = toolOf(tool);
   const title = "Boost your profile first — with the yearly plan";
   return (
@@ -208,6 +218,12 @@ function UpgradePanel({ tool, why, onClose }) {
       <div className="tk-up">
         <span className="tk-up-ic" aria-hidden="true">👑</span>
         <h4 className="tk-up-h">Boost your profile first with the yearly plan</h4>
+        <div className={`tk-cur${access?.plan ? "" : " none"}`}>
+          <small>Your plan right now</small>
+          <b>{access?.plan ? `${PLAN_NAME[access.plan] || access.plan} plan` : "No active plan"}</b>
+          {access?.plan && access?.planEnds && <span>till {longDate(access.planEnds)}</span>}
+          {access?.plan && access.plan !== "annual" && access.plan !== "free" && <em>The Toolkit opens with the yearly plan — your current plan doesn&apos;t include it.</em>}
+        </div>
         <p>{why === "self"
           ? <>Your profile stays live and growing on CYT all year — and <b>{w.name}</b> and every new worksheet open for you. ABCD and the Activity Diary stay free for your own use.</>
           : <>Your profile stays live and growing on CYT all year — and you can share worksheets with your name and Book button, and send them to your clients. ABCD and the Activity Diary stay free for your own use.</>}</p>
@@ -355,8 +371,20 @@ const CSS = `
 .tk-up-h { margin: 12px 0 0; font-size: 19px; font-weight: 800; color: #0f1f17; }
 .tk-list li, .tk-mine-l li { display: flex; align-items: center; gap: 6px; }
 .tk-list li > button:first-child, .tk-mine-l li > button:first-child { flex: 1; min-width: 0; }
-.tk-del { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #f1d4d4; background: #fff; color: #b91c1c; font-size: 15px; cursor: pointer; display: grid; place-items: center; padding: 0; }
-.tk-del:hover { background: #fff5f5; }
+.tk-del { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #fef2f2; color: #dc2626; cursor: pointer; display: grid; place-items: center; padding: 0; transition: background .15s ease, transform .15s ease; }
+.tk-del svg { font-size: 19px; }
+.tk-del:hover { background: #fee2e2; }
+.tk-del:active { transform: scale(.9); }
+.tk-freeplan { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; padding: 12px 14px; border-radius: 16px; background: #fffbeb; border: 1px solid #fde68a; }
+.tk-freeplan > span { font-size: 20px; }
+.tk-freeplan p { flex: 1 1 320px; margin: 0; font-size: 14px; color: #713f12; line-height: 1.5; }
+.tk-freeplan .tk-btn { height: 38px; }
+.tk-cur { margin: 12px 0 0; padding: 12px 14px; border-radius: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; display: flex; flex-direction: column; gap: 2px; }
+.tk-cur.none { background: #f8fafc; border-color: #e2e8f0; }
+.tk-cur small { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #64748b; }
+.tk-cur b { font-size: 16px; color: #0f1f17; }
+.tk-cur span { font-size: 13px; color: #475569; }
+.tk-cur em { font-style: normal; margin-top: 4px; font-size: 13px; color: #92651a; }
 .tk-del:disabled { opacity: .5; }
 .tk-pg { display: flex; justify-content: center; gap: 4px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f3; }
 .tk-pg button { min-width: 32px; height: 32px; border-radius: 9px; border: 1px solid #dfe7e2; background: #fff; font: inherit; font-size: 13px; font-weight: 800; color: #14532d; cursor: pointer; }
