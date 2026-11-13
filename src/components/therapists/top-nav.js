@@ -821,6 +821,10 @@ a[href="/therapists/cycle"]::before { content: "FREE"; position: absolute; top: 
    A strip of the bar's colour above it covers any gap that is left (the app's own pull-to-refresh still works) */
 @media (max-width: 767px), (min-width: 768px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
   html:has(.ts-area), body:has(.ts-area) { overscroll-behavior-y: none; }
+  html:has(.ts-area) { background: #fff; }
   .tn-bar.tn-bar::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 120px; background: #fff; pointer-events: none; }
+  /* iPhone: the blur (backdrop-filter) clipped the white strip above the bar, so the page still showed through on
+     scroll-up. The bar is solid white here anyway — no blur, and a white shadow upwards that nothing clips */
+  .tn-bar.tn-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: #fff; box-shadow: 0 -160px 0 0 #fff; }
 }
 `;

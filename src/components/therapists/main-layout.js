@@ -40,6 +40,7 @@ export const THERAPIST_SHELL_ROUTES = new Set([
   "/therapists/achievements",
   "/therapists/my-link",
   "/therapists/toolkit",
+  "/therapists/toolkit/[id]",
   "/therapists/social-posts",
   "/therapists/questions",
   "/therapists/google-listing",

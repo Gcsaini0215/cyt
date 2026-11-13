@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
-import { AbcdMulti, AbcdLogsView } from "../../components/toolkit/abcd";
-import { ActivityForm, ActivityView } from "../../components/toolkit/activity";
-import { WhatIfForm, WhatIfView } from "../../components/toolkit/whatif";
 import { LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
-import { fetchById, postJsonData, putData } from "../../utils/actions";
+import { fetchById, postJsonData } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
 
 /* Therapist → Toolkit: CBT worksheets to use with clients.
    ABCD thought log: try it, share a link (anyone who opens it sees YOUR name and a Book button that books you),
    or send it straight to one of your clients — they fill it in their own dashboard, nothing to download —
-   and review what clients send you. More worksheets come later (shown as "Coming soon"). */
+   and review what clients send you.
+   Plan rules: the first two worksheets are free for the therapist's OWN use (saved, private). The yearly plan
+   unlocks every worksheet for themselves, plus Share link and Send to a client (server checks it too). */
+const FREE_SELF = ["abcd", "activity"];
 const SITE = "https://www.chooseyourtherapist.in";
 const STATUS = { assigned: ["Not opened yet", "new"], draft: ["Filling it in", "draft"], submitted: ["Sent to you — review", "sent"], reviewed: ["Reviewed", "done"] };
 const dt = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" }) : "");
@@ -22,7 +23,7 @@ export default function ToolkitPage() {
   const router = useRouter();
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
-  const [panel, setPanel] = useState(null); // { kind: "try" | "share" | "send", tool } | { entry }
+  const [panel, setPanel] = useState(null); // { kind: "share" | "send" | "upgrade", tool } — worksheets themselves open as pages
   const load = useCallback(() => fetchById(`${apiUrl}/therapist/worksheets`).then((r) => (r?.status ? setD(r.data) : setErr(r?.message || "Couldn't load"))).catch(() => setErr("Couldn't load your toolkit")), []);
   useEffect(() => { load(); }, [load]);
   // worksheets clients send show up without a reload: refresh every 30 s while the page is open, and on return
@@ -32,10 +33,22 @@ export default function ToolkitPage() {
     document.addEventListener("visibilitychange", again);
     return () => { clearInterval(t); document.removeEventListener("visibilitychange", again); };
   }, [load]);
-  // opened from a notification: ?entry=<id>
-  useEffect(() => { if (router.query.entry) setPanel({ entry: String(router.query.entry) }); }, [router.query.entry]);
+  // old notification links (?entry=<id>) → the worksheet page
+  useEffect(() => { if (router.query.entry) router.replace(`/therapists/toolkit/${router.query.entry}?review=1`); }, [router, router.query.entry]);
 
   const waiting = useMemo(() => (d?.entries || []).filter((e) => e.status === "submitted"), [d]);
+  const yearly = !!d?.access?.yearly;
+  const selfOk = (tool) => yearly || FREE_SELF.includes(tool);
+  const [starting, setStarting] = useState("");
+  const openForMe = async (tool) => {
+    if (!selfOk(tool)) { setPanel({ kind: "upgrade", tool, why: "self" }); return; }
+    setStarting(tool);
+    try {
+      const r = await postJsonData(`${apiUrl}/therapist/worksheets/self`, { tool });
+      if (r?.status) { router.push(`/therapists/toolkit/${r.data.id}`); return; }
+    } catch (e) { if (e?.response?.data?.locked) setPanel({ kind: "upgrade", tool, why: "self" }); }
+    setStarting("");
+  };
 
   return (
     <MainLayout>
@@ -47,26 +60,26 @@ export default function ToolkitPage() {
             <h1>Toolkit</h1>
             <p>Therapy worksheets your clients fill online — in their own dashboard, no PDFs. Share a link to bring new clients to <b>you</b>.</p>
           </div>
-          {waiting.length > 0 && <button type="button" className="tk-alert" onClick={() => setPanel({ entry: waiting[0]._id })}>● {waiting.length} worksheet{waiting.length === 1 ? "" : "s"} to review</button>}
+          {waiting.length > 0 && <button type="button" className="tk-alert" onClick={() => router.push(`/therapists/toolkit/${waiting[0]._id}?review=1`)}>● {waiting.length} worksheet{waiting.length === 1 ? "" : "s"} to review</button>}
         </header>
 
         {err && <div className="tk-box">{err}</div>}
 
         <section className="tk-lib" aria-label="Worksheets">
-          {LIBRARY.map((w) => (
-            <article key={w.key} className={`tk-w${w.ready ? " ready" : ""}`}>
+          {LIBRARY.filter((w) => w.ready).map((w) => (
+            <article key={w.key} className="tk-w ready">
               <div className="tk-w-top">
-                {w.ready ? <Tiles tool={w.key} /> : <span className="tk-soon">Coming soon</span>}
-                <em>{w.tag}</em>
+                <Tiles tool={w.key} />
+                <span className="tk-tags">{!yearly && <em className={FREE_SELF.includes(w.key) ? "free" : "lock"}>{FREE_SELF.includes(w.key) ? "Free for you" : "🔒 Yearly plan"}</em>}<em>{w.tag}</em></span>
               </div>
               <h2>{w.name}</h2>
               <p>{w.short}</p>
               {w.ready && (
                 <>
                   <div className="tk-acts">
-                    <button type="button" className="tk-btn" onClick={() => setPanel({ kind: "share", tool: w.key })}>Share link</button>
-                    <button type="button" className="tk-btn line" onClick={() => setPanel({ kind: "send", tool: w.key })}>Send to a client</button>
-                    <button type="button" className="tk-btn ghost" onClick={() => setPanel({ kind: "try", tool: w.key })}>Try it yourself</button>
+                    <button type="button" className={`tk-btn${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "share", tool: w.key } : { kind: "upgrade", tool: w.key, why: "share" })}>{yearly ? "" : "🔒 "}Share link</button>
+                    <button type="button" className={`tk-btn line${yearly ? "" : " locked"}`} onClick={() => setPanel(yearly ? { kind: "send", tool: w.key } : { kind: "upgrade", tool: w.key, why: "send" })}>{yearly ? "" : "🔒 "}Send to a client</button>
+                    <button type="button" className="tk-btn ghost" disabled={starting === w.key} onClick={() => openForMe(w.key)}>{starting === w.key ? "Opening…" : `${selfOk(w.key) ? "" : "🔒 "}Use it for myself`}</button>
                   </div>
                   <WhyCard tool={w.key} open={false} compact />
                 </>
@@ -74,6 +87,22 @@ export default function ToolkitPage() {
             </article>
           ))}
         </section>
+
+        {d?.mine?.length > 0 && (
+          <section className="tk-card tk-mine">
+            <div className="tk-card-h"><h3>Just for you</h3><small>{d.mine.length}</small><span className="tk-mine-s">Your own worksheets — saved, and only you can see them</span></div>
+            <ul className="tk-mine-l">
+              {d.mine.map((m) => (
+                <li key={m._id}>
+                  <button type="button" onClick={() => router.push(`/therapists/toolkit/${m._id}`)}>
+                    <Tiles tool={m.tool} size={20} />
+                    <span><b>{m.title}</b><small>{m.preview || "Not filled yet"} · {dt(m.updatedAt)}</small></span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <div className="tk-cols">
           <section className="tk-card">
@@ -86,7 +115,7 @@ export default function ToolkitPage() {
                   const [label, tone] = STATUS[e.status] || STATUS.draft;
                   return (
                     <li key={e._id}>
-                      <button type="button" onClick={() => setPanel({ entry: e._id })} className={e.flag ? "flag" : ""}>
+                      <button type="button" onClick={() => router.push(`/therapists/toolkit/${e._id}?review=1`)} className={e.flag ? "flag" : ""}>
                         {photoOf(e.client.photo) ? <img src={photoOf(e.client.photo)} alt="" /> : <span className="tk-av">{(e.client.name || "C").slice(0, 1)}</span>}
                         <span className="tk-l-t"><b>{e.client.name}{e.flag && <em className="tk-flag">⚠ check in</em>}</b><small>{e.title}{e.preview ? ` · “${e.preview}”` : ""}</small></span>
                         <span className="tk-l-r"><em className={`tk-st ${tone}`}>{label}</em><small>{dt(e.submittedAt || e.updatedAt)}</small></span>
@@ -114,10 +143,9 @@ export default function ToolkitPage() {
         </div>
       </div>
 
-      {panel?.kind === "try" && <TryPanel tool={panel.tool} onClose={() => setPanel(null)} />}
+      {panel?.kind === "upgrade" && <UpgradePanel tool={panel.tool} why={panel.why} onClose={() => setPanel(null)} />}
       {panel?.kind === "share" && <SharePanel tool={panel.tool} onClose={() => setPanel(null)} onMade={load} />}
       {panel?.kind === "send" && <SendPanel tool={panel.tool} clients={d?.clients || []} onClose={() => setPanel(null)} onMade={load} />}
-      {panel?.entry && <ReviewPanel id={panel.entry} onClose={() => { setPanel(null); if (router.query.entry) router.replace("/therapists/toolkit", undefined, { shallow: true }); }} onDone={load} />}
     </MainLayout>
   );
 }
@@ -144,16 +172,25 @@ function CopyBtn({ url }) {
   return <button type="button" className="tk-mini" onClick={() => { navigator.clipboard?.writeText(url).then(() => { setOk(true); setTimeout(() => setOk(false), 1500); }); }}>{ok ? "Copied" : "Copy"}</button>;
 }
 
-function TryPanel({ tool, onClose }) {
-  const [data, setData] = useState({});
-  const [step, setStep] = useState(0);
+/* locked: Share / Send (any worksheet) and own use of worksheets after the first two need the yearly plan */
+function UpgradePanel({ tool, why, onClose }) {
+  const w = toolOf(tool);
+  const title = why === "self" ? `${w.name} comes with the yearly plan` : "Share & send with the yearly plan";
   return (
-    <Sheet title={`Try the ${toolOf(tool).name} (not saved)`} onClose={onClose} wide>
-      <p className="tk-mut tk-pad">This is exactly what your client sees in their dashboard. Nothing you type here is saved.</p>
-      <WhyCard tool={tool} open={false} />
-      {tool === "whatif" ? <WhatIfForm value={data} step={step} onChange={setData} onStep={setStep} /> : tool === "activity"
-        ? <ActivityForm value={data} step={step} onChange={setData} onStep={setStep} />
-        : <AbcdMulti value={data} step={step} onChange={setData} onStep={setStep} therapistName="you" />}
+    <Sheet title={title} onClose={onClose}>
+      <div className="tk-up">
+        <span className="tk-up-ic" aria-hidden="true">👑</span>
+        <p>{why === "self"
+          ? <>ABCD Thought Log and Activity Diary are free for your own use. <b>{w.name}</b> and every new worksheet open with the yearly plan.</>
+          : <>Sharing worksheets and sending them to your clients comes with the <b>yearly plan</b>. You can still use ABCD and the Activity Diary for yourself for free.</>}</p>
+        <ul>
+          <li>Send any worksheet to your clients — they fill it in their dashboard</li>
+          <li>Share links with your name and a Book button that brings clients to <b>you</b></li>
+          <li>Every worksheet for your own use, including new ones as they come</li>
+          <li>Review answers and send feedback before the next session</li>
+        </ul>
+        <Link href="/my-plans" className="tk-btn big">See the yearly plan — ₹7,300 / year (₹20 a day)</Link>
+      </div>
     </Sheet>
   );
 }
@@ -254,40 +291,6 @@ function SendPanel({ tool, clients, onClose, onMade }) {
   );
 }
 
-function ReviewPanel({ id, onClose, onDone }) {
-  const [e, setE] = useState(null);
-  const [fb, setFb] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState("");
-  useEffect(() => {
-    fetchById(`${apiUrl}/therapist/worksheets/entries/${id}`).then((r) => { if (r?.status) { setE(r.data); setFb(r.data.feedback || ""); } else setMsg(r?.message || "Not found"); }).catch(() => setMsg("Couldn't open it"));
-  }, [id]);
-  const save = async () => {
-    setBusy(true);
-    try { const r = await putData(`${apiUrl}/therapist/worksheets/entries/${id}/review`, { feedback: fb }); if (r?.status) { setMsg("✓ Feedback sent to your client"); onDone(); } }
-    catch (x) { setMsg(x?.response?.data?.message || "Couldn't send"); }
-    setBusy(false);
-  };
-  return (
-    <Sheet title={e ? `${e.client.name} · ${e.title}` : "Worksheet"} onClose={onClose} wide>
-      {!e ? <p className="tk-mut">{msg || "Loading…"}</p> : !e.shared ? (
-        <p className="tk-mut">{e.client.name} {e.status === "assigned" ? "hasn't opened it yet" : "is still filling it in"}. You&apos;ll see the answers when they press <b>Send</b>.</p>
-      ) : (
-        <>
-          {e.flag && <div className="tk-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
-          <p className="tk-mut">Sent {dt(e.submittedAt)}{e.reviewedAt ? ` · you reviewed it ${dt(e.reviewedAt)}` : ""}</p>
-          {e.tool === "activity" ? <ActivityView data={e.data} /> : e.tool === "whatif" ? <WhatIfView data={e.data} /> : <AbcdLogsView data={e.data} />}
-          <label className="tk-lbl">Your feedback to {e.client.name.split(" ")[0]}
-            <textarea rows={4} maxLength={2000} value={fb} onChange={(x) => setFb(x.target.value)} placeholder="What you noticed, a kind word, and what to try next" />
-          </label>
-          {msg && <p className="tk-ok">{msg}</p>}
-          <button type="button" className="tk-btn big" disabled={busy || !fb.trim()} onClick={save}>{busy ? "Sending…" : e.status === "reviewed" ? "Update feedback" : "Send feedback"}</button>
-        </>
-      )}
-    </Sheet>
-  );
-}
-
 const CSS = `
 .tk { color: #0f1f17; }
 .tk-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -297,12 +300,35 @@ const CSS = `
 .tk-box { background: #fff; border: 1px solid #e3e9e5; border-radius: 16px; padding: 18px; margin-bottom: 14px; color: #64748b; }
 .tk-lib { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; align-items: start; }
 .tk-w { grid-column: span 3; background: #fff; border: 1px solid #e3e9e5; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 6px; opacity: .72; }
-.tk-w.ready { opacity: 1; grid-column: span 6; border: 1.5px solid #bfe0cb; background: linear-gradient(135deg, #ffffff 55%, #eef8f2); box-shadow: 0 16px 34px -26px rgba(20,83,45,.6); padding: 20px; }
+.tk-w.ready { opacity: 1; grid-column: span 4; border: 1.5px solid #bfe0cb; background: linear-gradient(135deg, #ffffff 55%, #eef8f2); box-shadow: 0 16px 34px -26px rgba(20,83,45,.6); padding: 20px; }
 .tk-w .wr-why { margin: 12px 0 0; }
 .tk-w-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .tk-w-top em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #15803d; background: #e9f8ef; border-radius: 999px; padding: 3px 10px; }
 .tk-abcd { display: flex; gap: 6px; }
 .tk-abcd i { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; color: #fff; font-style: normal; font-weight: 900; font-size: 17px; }
+.tk-tags { display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tk-tags em.free { background: #e0f2fe; color: #0369a1; }
+.tk-tags em.lock { background: #fff4dd; color: #92651a; }
+.tk-btn.locked { background: #fffaf0 !important; color: #92651a !important; border: 1.5px solid #ecd59c !important; }
+.tk-btn.ghost:disabled { opacity: .6; }
+.tk-mine { margin-bottom: 14px; }
+.tk-mine .tk-card-h { flex-wrap: wrap; }
+.tk-mine-s { font-size: 12.5px; color: #64748b; }
+.tk-mine-l { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.tk-mine-l button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid #e3e9e5; background: #fbfdfc; font: inherit; text-align: left; cursor: pointer; }
+.tk-mine-l button:hover { border-color: #15803d; }
+.tk-mine-l button > span:last-child { min-width: 0; display: flex; flex-direction: column; }
+.tk-mine-l b { font-size: 14px; }
+.tk-mine-l small { font-size: 12px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tk-saved { margin-left: 6px; color: #15803d; font-size: 12.5px; }
+.tk-selfnote { margin: 14px 0 0; font-size: 13.5px; color: #475569; }
+.tk-selfnote button { border: 0; background: none; color: #b91c1c; font: inherit; font-weight: 700; cursor: pointer; margin-left: 6px; }
+.tk-up { text-align: center; }
+.tk-up-ic { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #fff1c7, #f8d77a); font-size: 32px; }
+.tk-up p { margin: 12px 0; font-size: 15px; color: #334155; line-height: 1.55; }
+.tk-up ul { text-align: left; list-style: none; margin: 0 0 6px; padding: 12px 14px; background: #fff; border: 1px solid #e3e9e5; border-radius: 14px; display: flex; flex-direction: column; gap: 8px; }
+.tk-up li { position: relative; padding-left: 24px; font-size: 14px; color: #1f2937; }
+.tk-up li::before { content: "✓"; position: absolute; left: 0; top: 1px; width: 17px; height: 17px; border-radius: 50%; background: #16a34a; color: #fff; font-size: 10px; font-weight: 900; display: grid; place-items: center; }
 .tk-soon { font-size: 11.5px; font-weight: 800; color: #64748b; background: #f1f5f3; border-radius: 999px; padding: 3px 10px; }
 .tk-w h2 { margin: 6px 0 0; font-size: 17px; font-weight: 800; }
 .tk-w.ready h2 { font-size: 22px; }
@@ -365,7 +391,8 @@ const CSS = `
 .tk-url { display: flex; gap: 8px; align-items: center; background: #f1f7f3; border-radius: 12px; padding: 8px 8px 8px 12px; }
 .tk-url code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: #14532d; }
 .tk-sos { margin-bottom: 10px; padding: 12px 14px; border-radius: 12px; background: #fff1f2; border: 1px solid #fecdd3; color: #881337; font-weight: 700; font-size: 14px; }
-@media (max-width: 1100px) { .tk-w { grid-column: span 6; } .tk-w.ready { grid-column: span 12; } .tk-cols { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 1100px) { .tk-w { grid-column: span 6; } .tk-w.ready { grid-column: span 6; } }
+@media (max-width: 820px) { .tk-w.ready { grid-column: span 12; } .tk-cols { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 640px) {
   .tk-h h1 { font-size: 22px; }
   .tk-lib { grid-template-columns: minmax(0, 1fr); gap: 10px; } .tk-w, .tk-w.ready { grid-column: auto; } .tk-w.ready { padding: 16px; }
