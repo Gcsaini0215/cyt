@@ -373,6 +373,9 @@ const CSS = `
 .tk-list li > button:first-child, .tk-mine-l li > button:first-child { flex: 1; min-width: 0; }
 .tk-del { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 0; background: #fef2f2; color: #dc2626; cursor: pointer; display: grid; place-items: center; padding: 0; transition: background .15s ease, transform .15s ease; }
 .tk-del svg { font-size: 19px; }
+/* the list-row button styles (.tk-list button / .tk-mine-l button: full width, padding, border) must not reach the delete icon */
+.tk-list li > .tk-del, .tk-mine-l li > .tk-del { flex: 0 0 36px; width: 36px !important; height: 36px; min-width: 36px; padding: 0 !important; border: 0 !important; border-radius: 50% !important; background: #fef2f2; display: grid; place-items: center; gap: 0; }
+.tk-list li > .tk-del:hover, .tk-mine-l li > .tk-del:hover { background: #fee2e2; }
 .tk-del:hover { background: #fee2e2; }
 .tk-del:active { transform: scale(.9); }
 .tk-freeplan { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; padding: 12px 14px; border-radius: 16px; background: #fffbeb; border: 1px solid #fde68a; }
