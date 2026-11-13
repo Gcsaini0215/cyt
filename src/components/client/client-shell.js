@@ -1,6 +1,8 @@
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import { CYCLE_FLAG, CYCLE_EVENT } from "./cycle-card";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -61,6 +63,7 @@ export const CHECK_NAV = [
   { to: "/client/check-ins", label: "My check-ins", Icon: InsightsRoundedIcon },
   { to: "/self-assessment", label: "Book an assessment", Icon: PsychologyAltRoundedIcon, ext: true },
 ];
+const CYCLE_ITEM = { to: "/client/cycle", label: "Cycle & Mood", Icon: SpaRoundedIcon };
 export const WA_HELP = "https://wa.me/918077757951?text=" + encodeURIComponent("Hi CYT team, I need help with my booking: ");
 // short names for the iPad Dock
 const DOCK_SHORT = { "Free Consultation": "Free session", "Ask a Psychologist": "Ask", "My check-ins": "Check-ins", "Book an assessment": "Assessment", "For us as a couple": "Couple", "For my child": "Child", "Meet in person": "In person", "Reads for me": "Reads" };
@@ -106,6 +109,14 @@ export default function ClientShell({ title, children }) {
   const [linksOpen, setLinksOpen] = useState(false); // side menu: "See Links" drop-down
   const [barHidden, setBarHidden] = useState(false); // phone bar: slides away while scrolling down
   const [sheetPage, setSheetPage] = useState(0);
+  // "Cycle & Mood" shows in the menu once the client has switched it on (pages/client/cycle.js)
+  const [cycleOn, setCycleOn] = useState(false);
+  useEffect(() => {
+    const read = () => { try { setCycleOn(localStorage.getItem(CYCLE_FLAG) === "on"); } catch (e) { /* storage blocked */ } };
+    read();
+    window.addEventListener(CYCLE_EVENT, read);
+    return () => window.removeEventListener(CYCLE_EVENT, read);
+  }, []);
   const tilesRef = useRef(null);
   const ptrRef = usePullToRefresh(); // installed app: pull down at the top to refresh
   const [zoom] = useState(() => {
@@ -208,10 +219,11 @@ export default function ClientShell({ title, children }) {
 
   // phone "More" sheet: tiles in pages of 8 that slide sideways
   const mobNav = CLIENT_NAV.filter((n) => n.mob);
-  const moreOn = more || active("/my-settings") || active("/client/ask") || onChecks;
+  const moreOn = more || active("/my-settings") || active("/client/ask") || active("/client/cycle") || onChecks;
   const mobOn = moreOn ? mobNav.length : mobNav.findIndex((n) => active(n.to));
   const sheetTiles = [
     { to: "/client/free-session", label: "Free Consultation", Icon: VolunteerActivismRoundedIcon },
+    ...(cycleOn ? [CYCLE_ITEM] : []),
     { to: "/client/ask", label: "Ask a Psychologist", Icon: QuestionAnswerRoundedIcon },
     { to: "/my-settings", label: "About Me", Icon: ManageAccountsRoundedIcon },
     ...CHECK_NAV,
@@ -220,7 +232,7 @@ export default function ClientShell({ title, children }) {
     { href: "/", label: "Website", Icon: LanguageRoundedIcon },
     { label: "Log out", Icon: LogoutRoundedIcon, onClick: logout },
   ];
-  const navAll = [...CLIENT_NAV, ...CHECK_NAV];
+  const navAll = [...CLIENT_NAV, CYCLE_ITEM, ...CHECK_NAV];
   const pageTitle = router.pathname === "/my-dashboard" ? "Home" : (navAll.find((n) => active(n.to))?.label || title || "My account");
   const tilePages = [];
   for (let i = 0; i < sheetTiles.length; i += TILES_PER_PAGE) tilePages.push(sheetTiles.slice(i, i + TILES_PER_PAGE));
@@ -273,7 +285,7 @@ export default function ClientShell({ title, children }) {
       </header>
 
       <nav className="cls-rail" aria-label="My account">
-        {CLIENT_NAV.map(({ to, label, Icon }) => (
+        {(cycleOn ? [...CLIENT_NAV.slice(0, 2), CYCLE_ITEM, ...CLIENT_NAV.slice(2)] : CLIENT_NAV).map(({ to, label, Icon }) => (
           <Link key={to} href={to} className={`cls-item${active(to) ? " on" : ""}`} aria-current={active(to) ? "page" : undefined}>
             <Icon /><span>{label}</span>
           </Link>

@@ -5,6 +5,7 @@ import ClientShell, { WA_HELP } from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
 import { DashKpis, ActivityChart, ScreeningSection, KPI_CSS } from "../components/client/dash-kpis";
+import CycleCard, { CYC_CSS } from "../components/client/cycle-card";
 import { MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import FestivalGiftCards from "../components/festival/festival-gift-card";
@@ -153,7 +154,7 @@ export default function ClientHome() {
 
   return (
     <ClientShell title="My Space">
-      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + KPI_CSS + HOME_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + KPI_CSS + CYC_CSS + HOME_CSS }} />
       <div className="ch">
         <div className="ch-grid">
           <div className="ch-hello">
@@ -201,6 +202,7 @@ export default function ClientHome() {
               </nav>
             )}
 
+            <div className="ch-cyc"><CycleCard /></div>
             {bookings !== null && <ActivityChart bookings={bookings} now={now} />}
 
             {packs.length > 0 && (
@@ -304,6 +306,8 @@ const HOME_CSS = `
 .ch-kpi { grid-area: kpi; min-width: 0; }
 .ch-kpi:empty { display: none; }
 .ch-scr { margin-top: 18px; }
+.ch-main > .ch-cyc { margin-top: 12px; flex: none; }
+.ch-main > .ch-cyc:empty { display: none; }
 /* every card below the stat cards: one dashboard look */
 .ch .dw-card, .ch .ch-cta.alt, .ch .dw-pair > * { border-radius: 18px; border-color: #e6ece8; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); }
 .ch .dw-start { padding: 18px; gap: 14px; }
