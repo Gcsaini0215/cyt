@@ -8,6 +8,7 @@ import { fetchById } from "../../utils/actions";
 import { getDecodedToken } from "../../utils/jwt";
 import useSessionGuard from "../../utils/session-guard";
 import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
+import WhatsNew from "../global/whats-new";
 
 /**
  * Therapist portal shell (top nav + side nav + chat). _app.js mounts it ONCE
@@ -139,6 +140,7 @@ export function TherapistShell({ children }) {
   return (
     <ShellContext.Provider value={true}>
       <style dangerouslySetInnerHTML={{ __html: shellStyles + PTR_CSS }} />
+      <WhatsNew portal="therapist" home="/therapist-dashboard" />
       <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
       {busy && <div className="ts-progress" role="progressbar" aria-label="Loading page" />}
       <DashboardTopNav />

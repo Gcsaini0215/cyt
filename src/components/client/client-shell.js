@@ -2,6 +2,7 @@ import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
+import WhatsNew from "../global/whats-new";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -242,6 +243,7 @@ export default function ClientShell({ title, children }) {
       <script dangerouslySetInnerHTML={{ __html: RAIL_SCRIPT }} />
       <Head><title>{title ? `${title} | Choose Your Therapist` : "My account | Choose Your Therapist"}</title></Head>
       <style dangerouslySetInnerHTML={{ __html: CLS_CSS + PTR_CSS }} />
+      <WhatsNew portal="client" home="/my-dashboard" />
       <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
       <header className="cls-bar">
         <button type="button" className="cls-burger" onClick={toggleRail} aria-label={flip ? "Expand menu" : "Collapse menu"} title="Menu"><MenuRoundedIcon /></button>
