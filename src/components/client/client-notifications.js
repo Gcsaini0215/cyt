@@ -11,6 +11,7 @@ import TaskAltRoundedIcon from "@mui/icons-material/TaskAltRounded";
 import EventBusyRoundedIcon from "@mui/icons-material/EventBusyRounded";
 import CardGiftcardRoundedIcon from "@mui/icons-material/CardGiftcardRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 
 /* The client portal's bell (top bar) and the pop-up cards for new notifications. */
 
@@ -22,6 +23,7 @@ const KIND = {
   completed: [TaskAltRoundedIcon, "mint"],
   cancelled: [EventBusyRoundedIcon, "blush"],
   referral: [CardGiftcardRoundedIcon, "butter"],
+  worksheet: [AssignmentRoundedIcon, "lilac"],
 };
 const kindOf = (t) => KIND[t] || [NotificationsRoundedIcon, "sky"];
 const ago = (d) => {
@@ -136,6 +138,9 @@ const CN_CSS = `
 .cn-allow { margin: 10px 12px 0; border: 1px dashed #c7d2fe; background: #eef2ff; color: #3730a3; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; text-align: left; font-family: inherit; }
 .cn-list { overflow-y: auto; padding: 6px; }
 .cn-row { display: flex; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 10px; border-radius: 12px; cursor: pointer; font-family: inherit; }
+/* the app bar styles its icon buttons as 38px circles — never the rows in this panel */
+.cn-panel button.cn-row { width: 100% !important; height: auto !important; border-radius: 12px !important; display: flex !important; place-items: initial; }
+.cn-panel .cn-head button { width: auto !important; height: auto !important; border-radius: 8px !important; background: none !important; color: #166534 !important; display: inline !important; }
 .cn-row:hover { background: #f6f8f7; }
 .cn-row.unread { background: #f0fdf4; }
 .cn-ic { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; }

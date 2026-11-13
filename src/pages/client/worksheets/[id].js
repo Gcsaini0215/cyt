@@ -21,13 +21,15 @@ export default function WorksheetPage() {
   const [busy, setBusy] = useState(false);
   const timer = useRef(null);
   const latest = useRef({ data: null, step: 0 });
+  const dataRef = useRef(null); // always the newest answers (a click can change data and step together)
 
   useEffect(() => {
     if (!id) return;
     fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
       if (!r?.status) return setErr(r?.message || "Worksheet not found");
       const act = r.data.tool === "activity";
-      setW(r.data); setData(act ? withActivity(r.data.data) : { logs: toLogs(r.data.data) });
+      const first = act ? withActivity(r.data.data) : { logs: toLogs(r.data.data) };
+      setW(r.data); setData(first); dataRef.current = first;
       setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? (act ? 1 : 4) : Math.min(r.data.step || 0, act ? 1 : 4));
     }).catch(() => setErr("Couldn't open this worksheet"));
   }, [id]);
@@ -42,14 +44,28 @@ export default function WorksheetPage() {
     }, 900);
   };
   useEffect(() => () => clearTimeout(timer.current), []);
-  const onChange = (next) => { setData(next); queue(next, step); };
-  const onStep = (n) => { setStep(n); if (data) queue(data, n); };
+  const onChange = (next) => { dataRef.current = next; setData(next); queue(next, step); };
+  const onStep = (n) => { setStep(n); if (dataRef.current) queue(dataRef.current, n); };
+
+  // the therapist's feedback shows up without a reload: check every 20 s (and when the tab comes back)
+  useEffect(() => {
+    if (!id) return undefined;
+    const check = () => {
+      if (document.visibilityState !== "visible") return;
+      fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
+        if (r?.status) setW((x) => (x ? { ...x, status: r.data.status, feedback: r.data.feedback, reviewedAt: r.data.reviewedAt, submittedAt: r.data.submittedAt, ongoing: r.data.ongoing } : x));
+      }).catch(() => {});
+    };
+    const t = setInterval(check, 20000);
+    document.addEventListener("visibilitychange", check);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", check); };
+  }, [id]);
 
   const send = async () => {
     clearTimeout(timer.current);
     setBusy(true);
     try {
-      const r = await save({ data, step: w.tool === "activity" ? 1 : 4, submit: true });
+      const r = await save({ data: dataRef.current || data, step: w.tool === "activity" ? 1 : 4, submit: true });
       if (r?.status) setW((x) => ({ ...x, status: r.data.status, flag: r.data.flag, submittedAt: new Date().toISOString() }));
       setSaved(r?.message || "");
     } catch (e) { setSaved(e?.response?.data?.message || "Couldn't send — try again"); }
@@ -78,6 +94,7 @@ export default function WorksheetPage() {
             <WhyCard tool={w.tool} open={!sent && w.status !== "draft"} />
             {(() => { const finish = (
                 <div className="ws-send">
+                  {w.status === "reviewed" && w.feedback ? <div className="ws-fb"><b>{th?.name || "Your therapist"}&apos;s feedback:</b><p>{w.feedback}</p></div> : null}
                   {sent ? (
                     <p className="ws-ok">✓ Sent to {th?.name || "your therapist"} on {new Date(w.submittedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}. {w.status === "reviewed" ? "They've reviewed it." : "They'll go through it with you."} You can still edit and send again.</p>
                   ) : null}

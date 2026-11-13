@@ -24,6 +24,13 @@ export default function ToolkitPage() {
   const [panel, setPanel] = useState(null); // { kind: "try" | "share" | "send", tool } | { entry }
   const load = useCallback(() => fetchById(`${apiUrl}/therapist/worksheets`).then((r) => (r?.status ? setD(r.data) : setErr(r?.message || "Couldn't load"))).catch(() => setErr("Couldn't load your toolkit")), []);
   useEffect(() => { load(); }, [load]);
+  // worksheets clients send show up without a reload: refresh every 30 s while the page is open, and on return
+  useEffect(() => {
+    const again = () => { if (document.visibilityState === "visible") load(); };
+    const t = setInterval(again, 30000);
+    document.addEventListener("visibilitychange", again);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", again); };
+  }, [load]);
   // opened from a notification: ?entry=<id>
   useEffect(() => { if (router.query.entry) setPanel({ entry: String(router.query.entry) }); }, [router.query.entry]);
 

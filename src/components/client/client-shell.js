@@ -623,7 +623,8 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-refresh { display: grid !important; border: 0; cursor: pointer; }
   .cls-refresh.spin svg { animation: clsSpin .7s linear infinite; }
   @keyframes clsSpin { to { transform: rotate(360deg); } }
-  .cls-right .cls-ic, .cls-right > :not(.cls-me):not(.cls-clock) button { width: 38px; height: 38px; border-radius: 50%; background: #f0f3f1; color: #1c1c1e !important; display: grid; place-items: center; }
+  /* only the round icon buttons themselves — not the buttons inside the bell's drop-down (they overlapped as circles) */
+  .cls-right .cls-ic, .cls-right > :not(.cls-me):not(.cls-clock) > button { width: 38px; height: 38px; border-radius: 50%; background: #f0f3f1; color: #1c1c1e !important; display: grid; place-items: center; }
   .cls-me-btn { padding: 0; height: 38px; }
   .cls-av { width: 38px; height: 38px; }
   /* More: white header like the admin's, 12 icons a page */
