@@ -1,3 +1,4 @@
+import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -82,6 +83,8 @@ const ALL_GROUPS = [
     // settings and help sit at the bottom, as in most apps
     title: "Account",
     items: [
+      // private period + mood tracker for the therapist themself (pages/therapists/cycle.js)
+      { to: "/therapists/cycle", Icon: SpaRoundedIcon, label: "Cycle & Mood" },
       { to: "/settings", Icon: ManageAccountsRoundedIcon, label: "Settings", badgeKey: "settings", match: ["/settings", "/therapists/change-password"] },
       { to: "/therapists/help", Icon: SupportAgentRoundedIcon, label: "Help & support" },
     ],
