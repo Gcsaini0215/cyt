@@ -227,20 +227,23 @@ const START_TOPICS = CONCERNS.slice(0, 9);
 export function StartCard({ onCallback }) {
   return (
     <div className="dw-card dw-start">
-      <div className="dw-start-h">
-        <b>What would you like to talk about?</b>
-        <span>Pick one — we&apos;ll show therapists who work with it.</span>
+      {/* phone: heading, one swipeable row of topics, a slim call-back row · iPad/desktop: heading + call-back left, topics right */}
+      <div className="dw-start-l">
+        <div className="dw-start-h">
+          <b>What would you like to talk about?</b>
+          <span>Pick one — we&apos;ll show therapists who work with it.</span>
+        </div>
+        <div className="dw-start-alt">
+          <button type="button" onClick={onCallback}>
+            <PhoneCallbackRoundedIcon /><div><b>Not sure? Get a call back</b><span>We&apos;ll help you choose</span></div>
+          </button>
+        </div>
       </div>
       <div className="dw-topics">
         {START_TOPICS.map((c) => (
           <Link key={c.value} href={`/client/find?concern=${encodeURIComponent(c.value)}`}>{c.label}</Link>
         ))}
-        <Link href="/client/find" className="all">See all therapists →</Link>
-      </div>
-      <div className="dw-start-alt">
-        <button type="button" onClick={onCallback}>
-          <PhoneCallbackRoundedIcon /><div><b>Not sure? Get a call back</b><span>We&apos;ll help you choose</span></div>
-        </button>
+        <Link href="/client/find" className="all">See all →</Link>
       </div>
     </div>
   );
@@ -374,6 +377,22 @@ export const DW_CSS = `
 .dw-start-alt { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 10px; }
 .dw-start-alt > * { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid #e4ece7; background: #fff; text-align: left; font: inherit; cursor: pointer; text-decoration: none !important; color: #0f172a !important; }
 .dw-start-alt svg { font-size: 26px; color: #166534; flex-shrink: 0; }
+/* compact: two columns on iPad/desktop, a swipeable row of topics on phones */
+.dw-start { display: grid; grid-template-columns: minmax(220px, .85fr) minmax(0, 1.6fr); align-items: center; column-gap: 18px; }
+.dw-start-l { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.dw-start .dw-topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.dw-start .dw-topics a { text-align: center; padding: 9px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 767px) {
+  .dw-start { grid-template-columns: minmax(0, 1fr); row-gap: 10px; padding: 14px !important; }
+  .dw-start-l { display: contents; }
+  .dw-start-h { order: 1; } .dw-start-h b { font-size: 16px !important; } .dw-start-h span { font-size: 12.5px; }
+  .dw-start .dw-topics { order: 2; display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -14px; padding: 2px 14px; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; }
+  .dw-start .dw-topics::-webkit-scrollbar { display: none; }
+  .dw-start .dw-topics a { flex: none; padding: 7px 13px; font-size: 13px; scroll-snap-align: start; }
+  .dw-start-alt { order: 3; }
+  .dw-start-alt > * { padding: 9px 12px; gap: 10px; }
+  .dw-start-alt svg { font-size: 22px; }
+}
 .dw-start-alt b { display: block; font-size: 14px; } .dw-start-alt span { display: block; font-size: 12px; color: #64748b; }
 
 /* phone: the four numbers as one compact strip */

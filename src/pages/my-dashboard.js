@@ -182,7 +182,7 @@ export default function ClientHome() {
             <section className={`ch-next${next ? " hero" : ""}`}>
               {next ? (() => { const s = startsIn(next, now); return (
                 <div className="ch-next-h"><h2>Your next session</h2><span className={`ch-count${s.live ? " live" : ""}`}><ScheduleRoundedIcon />{s.t}</span></div>
-              ); })() : newbie ? null : <h2>{rebookable ? "Your next step" : last ? "Welcome back" : "Your next session"}</h2>}
+              ); })() : newbie || (!rebookable && !last) ? null : <h2>{rebookable ? "Your next step" : "Welcome back"}</h2>}
               {bookings === null ? <div className="ch-skel" /> : next ? <SessionCard b={next} now={now} /> : rebookable ? (
                 <RebookCard b={last} now={now} missed={lastMissed} credit={Number(referral?.credit) || 0} />
               ) : pending.length ? (

@@ -4,7 +4,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
 import { LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
-import { fetchById, postJsonData } from "../../utils/actions";
+import { deleteById, fetchById, postJsonData } from "../../utils/actions";
 import { apiUrl, imagePath } from "../../utils/url";
 
 /* Therapist → Toolkit: CBT worksheets to use with clients.
@@ -40,6 +40,21 @@ export default function ToolkitPage() {
   const yearly = !!d?.access?.yearly;
   const selfOk = (tool) => yearly || FREE_SELF.includes(tool);
   const [starting, setStarting] = useState("");
+  const [linkPage, setLinkPage] = useState(1);
+  const LINKS_PER = 5;
+  const [busyDel, setBusyDel] = useState("");
+  const removeMine = async (id) => {
+    if (!window.confirm("Delete this worksheet? Everything written in it is removed.")) return;
+    setBusyDel(id);
+    try { await deleteById(`${apiUrl}/my-worksheets/${id}`); } catch (x) { /* already gone */ }
+    setBusyDel(""); load();
+  };
+  const removeClient = async (e) => {
+    if (!window.confirm(`Remove ${e.client.name}'s worksheet from your list? It stays in their dashboard.`)) return;
+    setBusyDel(e._id);
+    try { await deleteById(`${apiUrl}/therapist/worksheets/entries/${e._id}`); } catch (x) { /* already gone */ }
+    setBusyDel(""); load();
+  };
   const openForMe = async (tool) => {
     if (!selfOk(tool)) { setPanel({ kind: "upgrade", tool, why: "self" }); return; }
     setStarting(tool);
@@ -98,6 +113,7 @@ export default function ToolkitPage() {
                     <Tiles tool={m.tool} size={20} />
                     <span><b>{m.title}</b><small>{m.preview || "Not filled yet"} · {dt(m.updatedAt)}</small></span>
                   </button>
+                  <button type="button" className="tk-del" disabled={busyDel === m._id} onClick={() => removeMine(m._id)} aria-label={`Delete ${m.title}`} title="Delete">🗑</button>
                 </li>
               ))}
             </ul>
@@ -120,6 +136,7 @@ export default function ToolkitPage() {
                         <span className="tk-l-t"><b>{e.client.name}{e.flag && <em className="tk-flag">⚠ check in</em>}</b><small>{e.title}{e.preview ? ` · “${e.preview}”` : ""}</small></span>
                         <span className="tk-l-r"><em className={`tk-st ${tone}`}>{label}</em><small>{dt(e.submittedAt || e.updatedAt)}</small></span>
                       </button>
+                      <button type="button" className="tk-del" disabled={busyDel === e._id} onClick={() => removeClient(e)} aria-label={`Remove ${e.client.name}'s worksheet`} title="Remove from my list">🗑</button>
                     </li>
                   );
                 })}
@@ -130,7 +147,7 @@ export default function ToolkitPage() {
             <div className="tk-card-h"><h3>Your links</h3><small>{(d?.links || []).length}</small></div>
             {!d ? <p className="tk-mut">Loading…</p> : d.links.length === 0 ? <p className="tk-mut">Share the ABCD worksheet on WhatsApp, Instagram or with a client — every link shows your name and books you.</p> : (
               <ul className="tk-links">
-                {d.links.slice(0, 12).map((l) => (
+                {d.links.slice((linkPage - 1) * LINKS_PER, linkPage * LINKS_PER).map((l) => (
                   <li key={l._id}>
                     <span><b>{l.forClient ? `Sent to ${l.forClient.name}` : "Share link"}</b><small>{l.note ? `“${l.note}” · ` : ""}{dt(l.createdAt)}</small></span>
                     <span className="tk-nums"><i title="Opened">👁 {l.opens}</i><i title="Started">✍ {l.starts}</i><i title="Book clicks">📅 {l.bookClicks}</i></span>
@@ -139,6 +156,16 @@ export default function ToolkitPage() {
                 ))}
               </ul>
             )}
+            {d && d.links.length > LINKS_PER && (() => {
+              const pages = Math.ceil(d.links.length / LINKS_PER);
+              return (
+                <div className="tk-pg">
+                  <button type="button" disabled={linkPage <= 1} onClick={() => setLinkPage(linkPage - 1)} aria-label="Previous">‹</button>
+                  {Array.from({ length: pages }, (_, i) => <button key={i} type="button" className={linkPage === i + 1 ? "on" : ""} onClick={() => setLinkPage(i + 1)}>{i + 1}</button>)}
+                  <button type="button" disabled={linkPage >= pages} onClick={() => setLinkPage(linkPage + 1)} aria-label="Next">›</button>
+                </div>
+              );
+            })()}
           </section>
         </div>
       </div>
@@ -175,21 +202,23 @@ function CopyBtn({ url }) {
 /* locked: Share / Send (any worksheet) and own use of worksheets after the first two need the yearly plan */
 function UpgradePanel({ tool, why, onClose }) {
   const w = toolOf(tool);
-  const title = why === "self" ? `${w.name} comes with the yearly plan` : "Share & send with the yearly plan";
+  const title = "Boost your profile first — with the yearly plan";
   return (
     <Sheet title={title} onClose={onClose}>
       <div className="tk-up">
         <span className="tk-up-ic" aria-hidden="true">👑</span>
+        <h4 className="tk-up-h">Boost your profile first with the yearly plan</h4>
         <p>{why === "self"
-          ? <>ABCD Thought Log and Activity Diary are free for your own use. <b>{w.name}</b> and every new worksheet open with the yearly plan.</>
-          : <>Sharing worksheets and sending them to your clients comes with the <b>yearly plan</b>. You can still use ABCD and the Activity Diary for yourself for free.</>}</p>
+          ? <>Your profile stays live and growing on CYT all year — and <b>{w.name}</b> and every new worksheet open for you. ABCD and the Activity Diary stay free for your own use.</>
+          : <>Your profile stays live and growing on CYT all year — and you can share worksheets with your name and Book button, and send them to your clients. ABCD and the Activity Diary stay free for your own use.</>}</p>
         <ul>
+          <li>Your profile stays live on CYT for the full year — one payment, no monthly renewals</li>
           <li>Send any worksheet to your clients — they fill it in their dashboard</li>
           <li>Share links with your name and a Book button that brings clients to <b>you</b></li>
           <li>Every worksheet for your own use, including new ones as they come</li>
           <li>Review answers and send feedback before the next session</li>
         </ul>
-        <Link href="/my-plans" className="tk-btn big">See the yearly plan — ₹7,300 / year (₹20 a day)</Link>
+        <Link href="/my-plans" className="tk-btn big">Boost my profile — yearly plan ₹7,300 (₹20 a day)</Link>
       </div>
     </Sheet>
   );
@@ -323,6 +352,16 @@ const CSS = `
 .tk-saved { margin-left: 6px; color: #15803d; font-size: 12.5px; }
 .tk-selfnote { margin: 14px 0 0; font-size: 13.5px; color: #475569; }
 .tk-selfnote button { border: 0; background: none; color: #b91c1c; font: inherit; font-weight: 700; cursor: pointer; margin-left: 6px; }
+.tk-up-h { margin: 12px 0 0; font-size: 19px; font-weight: 800; color: #0f1f17; }
+.tk-list li, .tk-mine-l li { display: flex; align-items: center; gap: 6px; }
+.tk-list li > button:first-child, .tk-mine-l li > button:first-child { flex: 1; min-width: 0; }
+.tk-del { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #f1d4d4; background: #fff; color: #b91c1c; font-size: 15px; cursor: pointer; display: grid; place-items: center; padding: 0; }
+.tk-del:hover { background: #fff5f5; }
+.tk-del:disabled { opacity: .5; }
+.tk-pg { display: flex; justify-content: center; gap: 4px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f3; }
+.tk-pg button { min-width: 32px; height: 32px; border-radius: 9px; border: 1px solid #dfe7e2; background: #fff; font: inherit; font-size: 13px; font-weight: 800; color: #14532d; cursor: pointer; }
+.tk-pg button.on { background: #14532d; border-color: #14532d; color: #fff; }
+.tk-pg button:disabled { opacity: .4; cursor: default; }
 .tk-up { text-align: center; }
 .tk-up-ic { display: inline-grid; place-items: center; width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #fff1c7, #f8d77a); font-size: 32px; }
 .tk-up p { margin: 12px 0; font-size: 15px; color: #334155; line-height: 1.55; }
