@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import ClientShell from "../../../components/client/client-shell";
-import { AbcdForm, withDefaults } from "../../../components/toolkit/abcd";
+import { AbcdMulti, toLogs } from "../../../components/toolkit/abcd";
 import { ActivityForm, withActivity } from "../../../components/toolkit/activity";
 import { WhyCard, toolOf } from "../../../components/toolkit/registry";
 import { fetchById, putData } from "../../../utils/actions";
@@ -27,7 +27,7 @@ export default function WorksheetPage() {
     fetchById(`${apiUrl}/my-worksheets/${id}`).then((r) => {
       if (!r?.status) return setErr(r?.message || "Worksheet not found");
       const act = r.data.tool === "activity";
-      setW(r.data); setData(act ? withActivity(r.data.data) : withDefaults(r.data.data));
+      setW(r.data); setData(act ? withActivity(r.data.data) : { logs: toLogs(r.data.data) });
       setStep(r.data.status === "submitted" || r.data.status === "reviewed" ? (act ? 1 : 4) : Math.min(r.data.step || 0, act ? 1 : 4));
     }).catch(() => setErr("Couldn't open this worksheet"));
   }, [id]);
@@ -72,6 +72,7 @@ export default function WorksheetPage() {
               </div>
               {th?.live && <Link href={bookPath(th)} className="ws-book">Book {th.name.split(" ")[0]}</Link>}
             </div>
+            {router.query.again === "1" && !w.ongoing && th && <div className="ws-note">You&apos;ve already used your free worksheet from {th.name} — here it is. To log more situations, book a session with them.</div>}
             {w.note && <div className="ws-note"><b>{th ? `${th.name.split(" ")[0]} says:` : "Note:"}</b> {w.note}</div>}
             {w.status === "reviewed" && w.feedback && <div className="ws-fb"><b>{th?.name || "Your therapist"} reviewed it:</b><p>{w.feedback}</p></div>}
             <WhyCard tool={w.tool} open={!sent && w.status !== "draft"} />
@@ -89,7 +90,9 @@ export default function WorksheetPage() {
               );
               return w.tool === "activity"
                 ? <ActivityForm value={data} step={step} onChange={onChange} onStep={onStep} finish={finish} />
-                : <AbcdForm value={data} step={step} onChange={onChange} onStep={onStep} therapistName={th?.name} finish={finish} />;
+                : <AbcdMulti value={data} step={step} onChange={onChange} onStep={onStep} therapistName={th?.name} finish={finish}
+                    canAdd={!th || !!w.ongoing}
+                    lockCta={th?.live ? <Link href={bookPath(th)} className="ab-btn ws-lockbtn">Book a session with {th.name}</Link> : <Link href="/client/find" className="ab-btn ws-lockbtn">Find a therapist</Link>} />;
             })()}
           </>
         )}
@@ -113,6 +116,7 @@ const CSS = `
 .ws-send { margin-top: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
 .ws-ok { margin: 0; padding: 10px 12px; border-radius: 12px; background: #e9f8ef; color: #14532d; font-size: 14px; font-weight: 600; }
 .ws-priv { margin: 0; font-size: 12.5px; color: #64748b; }
+.ws-lockbtn { display: inline-flex; align-items: center; text-decoration: none !important; color: #fff !important; background: #14532d !important; }
 .ws-talk { font-size: 14px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
 @media (max-width: 560px) { .ws-h h1 { font-size: 20px; } .ws-book { height: 36px; padding: 0 12px; font-size: 13px; } }
 `;

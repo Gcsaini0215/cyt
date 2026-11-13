@@ -266,3 +266,87 @@ export const AB_CSS = `
   .ab-chips button small { display: none; }
 }
 `;
+
+/* ── many situations in one ABCD worksheet ── */
+export const toLogs = (data) => {
+  const logs = Array.isArray(data?.logs) ? data.logs : data?.a ? [data] : [];
+  return (logs.length ? logs : [emptyData()]).map(withDefaults);
+};
+const short = (l, i) => { const t = String(l?.a?.what || "").trim(); return t ? (t.length > 26 ? `${t.slice(0, 26)}…` : t) : `Situation ${i + 1}`; };
+
+/* tabs for each situation + "New situation". canAdd=false (not in sessions with this therapist yet) shows the
+   lock with a Book button instead — the free share link allows one situation. */
+export function AbcdMulti({ value, onChange, step, onStep, therapistName, canAdd = true, lockCta = null, finish }) {
+  const logs = toLogs(value);
+  const [cur, setCur] = useState(() => Math.max(0, logs.length - 1));
+  const [lock, setLock] = useState(false);
+  const i = Math.min(cur, logs.length - 1);
+  const update = (one) => onChange({ logs: logs.map((l, k) => (k === i ? one : l)) });
+  const add = () => {
+    if (!canAdd) { setLock(true); return; }
+    onChange({ logs: [...logs, emptyData()] });
+    setCur(logs.length); setLock(false); onStep(0);
+  };
+  const remove = () => {
+    if (logs.length < 2 || !window.confirm("Delete this situation?")) return;
+    onChange({ logs: logs.filter((_, k) => k !== i) }); setCur(Math.max(0, i - 1));
+  };
+  return (
+    <div className="abm">
+      <style>{ABM_CSS}</style>
+      <div className="abm-tabs" role="tablist" aria-label="Situations">
+        {logs.map((l, k) => (
+          <button key={k} type="button" role="tab" aria-selected={k === i && !lock} className={k === i && !lock ? "on" : ""} onClick={() => { setCur(k); setLock(false); }}>
+            <i>{k + 1}</i><span>{short(l, k)}</span>
+          </button>
+        ))}
+        <button type="button" className={`abm-add${canAdd ? "" : " locked"}${lock ? " on" : ""}`} onClick={add}>{canAdd ? "+ New situation" : "🔒 New situation"}</button>
+      </div>
+      {lock ? (
+        <div className="abm-lock">
+          <b>Log more situations with {therapistName || "your therapist"}</b>
+          <p>This free worksheet covers one situation. When you&apos;re in sessions with {therapistName || "a therapist"}, you can log every tough moment here between sessions — and go through them together.</p>
+          {lockCta}
+          <button type="button" className="abm-back" onClick={() => setLock(false)}>← Back to my situation</button>
+        </div>
+      ) : (
+        <>
+          {logs.length > 1 && <div className="abm-meta">Situation {i + 1} of {logs.length}<button type="button" onClick={remove}>Delete</button></div>}
+          <AbcdForm key={i} value={logs[i]} step={step} onChange={update} onStep={onStep} therapistName={therapistName} finish={finish} />
+        </>
+      )}
+    </div>
+  );
+}
+
+/* every situation, read-only (therapist review) */
+export function AbcdLogsView({ data }) {
+  const logs = toLogs(data).filter((l) => String(l.a.what || "").trim());
+  if (!logs.length) return <p className="ab-mut">Nothing written yet.</p>;
+  return logs.map((l, k) => (
+    <div key={k} className="abm-v">
+      {logs.length > 1 && <h4>Situation {k + 1}</h4>}
+      <AbcdView data={l} />
+    </div>
+  ));
+}
+
+const ABM_CSS = `
+.abm-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 12px; padding: 2px; }
+.abm-tabs::-webkit-scrollbar { display: none; }
+.abm-tabs button { flex: none; display: inline-flex; align-items: center; gap: 8px; max-width: 240px; height: 40px; padding: 0 14px 0 6px; border-radius: 12px; border: 1.5px solid #e3e9e5; background: #fff; font: inherit; font-size: 13.5px; font-weight: 700; color: #334155; cursor: pointer; }
+.abm-tabs button i { flex: none; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-style: normal; font-weight: 900; background: #f1f5f3; color: #14532d; }
+.abm-tabs button span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.abm-tabs button.on { border-color: #14532d; background: #14532d; color: #fff; }
+.abm-tabs button.on i { background: rgba(255,255,255,.2); color: #fff; }
+.abm-tabs .abm-add { padding: 0 14px; border-style: dashed; color: #15803d; }
+.abm-tabs .abm-add.locked { color: #92651a; border-color: #e7cf95; background: #fffaf0; }
+.abm-tabs .abm-add.on { border-style: solid; }
+.abm-meta { display: flex; align-items: center; justify-content: space-between; margin: -4px 2px 8px; font-size: 12.5px; font-weight: 700; color: #64748b; }
+.abm-meta button { border: 0; background: none; color: #b91c1c; font: inherit; cursor: pointer; }
+.abm-lock { background: linear-gradient(135deg, #fffaf0, #fff); border: 1.5px solid #f1dfae; border-radius: 18px; padding: 20px; }
+.abm-lock b { display: block; font-size: 18px; color: #3b2a06; }
+.abm-lock p { margin: 8px 0 14px; font-size: 14.5px; color: #5b4a2a; line-height: 1.55; }
+.abm-back { display: block; margin-top: 12px; border: 0; background: none; padding: 0; font: inherit; font-size: 13.5px; font-weight: 800; color: #15803d; cursor: pointer; }
+.abm-v h4 { margin: 14px 0 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+`;

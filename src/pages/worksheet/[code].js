@@ -52,7 +52,7 @@ export default function SharedWorksheet({ link }) {
     setBusy(true);
     try {
       const r = await postData(`${apiUrl}/my-worksheets/start`, { code: link.code });
-      if (r?.status) router.push(`/client/worksheets/${r.data.id}`); else setMsg(r?.message || "Couldn't open it");
+      if (r?.status) router.push(`/client/worksheets/${r.data.id}${r.data.limited ? "?again=1" : ""}`); else setMsg(r?.message || "Couldn't open it");
     } catch (e) { setMsg(e?.response?.data?.message || "Couldn't open it — try again"); }
     setBusy(false);
   };
@@ -99,6 +99,7 @@ export default function SharedWorksheet({ link }) {
                 <Link href={book} className="sw-btn line" onClick={onBook}>Book a session with {first}</Link>
               </div>
               {msg && <p className="sw-msg">{msg}</p>}
+              <p className="sw-small">✨ Free for one situation. Clients in sessions with {first} can keep logging between sessions.</p>
               <p className="sw-small">🔒 Private: only you{t ? ` and ${t.name}` : ""} can see your answers, and only after you choose to send them.</p>
             </div>
             {t && (

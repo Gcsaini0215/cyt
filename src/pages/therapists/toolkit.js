@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import MainLayout from "../../components/therapists/main-layout";
-import { AbcdForm, AbcdView, emptyData } from "../../components/toolkit/abcd";
+import { AbcdMulti, AbcdLogsView } from "../../components/toolkit/abcd";
 import { ActivityForm, ActivityView } from "../../components/toolkit/activity";
 import { LIBRARY, Tiles, WhyCard, WR_CSS, toolOf } from "../../components/toolkit/registry";
 import { fetchById, postJsonData, putData } from "../../utils/actions";
@@ -137,7 +137,7 @@ function CopyBtn({ url }) {
 }
 
 function TryPanel({ tool, onClose }) {
-  const [data, setData] = useState(tool === "activity" ? {} : emptyData());
+  const [data, setData] = useState({});
   const [step, setStep] = useState(0);
   return (
     <Sheet title={`Try the ${toolOf(tool).name} (not saved)`} onClose={onClose} wide>
@@ -145,7 +145,7 @@ function TryPanel({ tool, onClose }) {
       <WhyCard tool={tool} open={false} />
       {tool === "activity"
         ? <ActivityForm value={data} step={step} onChange={setData} onStep={setStep} />
-        : <AbcdForm value={data} step={step} onChange={setData} onStep={setStep} therapistName="you" />}
+        : <AbcdMulti value={data} step={step} onChange={setData} onStep={setStep} therapistName="you" />}
     </Sheet>
   );
 }
@@ -183,6 +183,7 @@ function SharePanel({ tool, onClose, onMade }) {
         <li>Anyone who opens the link sees the worksheet with <b>your name and photo</b>.</li>
         <li>The <b>Book</b> button books a session with <b>you</b>.</li>
         <li>They fill it in their own CYT account, and can send it to you.</li>
+        <li>Free for <b>one situation</b> — your ongoing clients can log as many as they need between sessions (use <b>Send to a client</b>).</li>
       </ul>
       {res?.code ? <ShareResult url={`${SITE}${res.path}`} title={w.name} text={`Try this free worksheet: ${w.name} — ${w.headline.toLowerCase()}.`} /> : (
         <>
@@ -267,7 +268,7 @@ function ReviewPanel({ id, onClose, onDone }) {
         <>
           {e.flag && <div className="tk-sos">⚠ Something in this worksheet mentions self-harm. Please check in with {e.client.name} today. Tele-MANAS: 14416 (free, 24×7).</div>}
           <p className="tk-mut">Sent {dt(e.submittedAt)}{e.reviewedAt ? ` · you reviewed it ${dt(e.reviewedAt)}` : ""}</p>
-          {e.tool === "activity" ? <ActivityView data={e.data} /> : <AbcdView data={e.data} />}
+          {e.tool === "activity" ? <ActivityView data={e.data} /> : <AbcdLogsView data={e.data} />}
           <label className="tk-lbl">Your feedback to {e.client.name.split(" ")[0]}
             <textarea rows={4} maxLength={2000} value={fb} onChange={(x) => setFb(x.target.value)} placeholder="What you noticed, a kind word, and what to try next" />
           </label>
