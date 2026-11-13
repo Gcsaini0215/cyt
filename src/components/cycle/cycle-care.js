@@ -601,7 +601,14 @@ const CY_CSS = `
 .cy-priv li { display: flex; gap: 10px; font-size: 14px; line-height: 1.45; color: #334155; }
 .cy-priv svg { flex: none; font-size: 18px; color: #fff; background: #1e9e64; border-radius: 50%; padding: 2px; }
 .cy-check { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; color: var(--cy-ink); cursor: pointer; margin-top: 6px; }
-.cy-check input { width: 19px; height: 19px; accent-color: #d63a62; }
+/* the site theme hides native checkboxes (opacity 0, absolute) — draw our own, always visible */
+.cy .cy-check input[type=checkbox] { position: static !important; opacity: 1 !important; visibility: visible !important; display: inline-grid !important; place-content: center; flex: none; margin: 0 !important; width: 24px !important; height: 24px !important; border-radius: 7px; border: 2px solid #d9a3b3; background: #fff; -webkit-appearance: none; appearance: none; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.cy .cy-check input[type=checkbox]::after { content: ""; width: 6px; height: 11px; border: solid #fff; border-width: 0 3px 3px 0; transform: rotate(45deg) translate(-1px, -1px); opacity: 0; }
+.cy .cy-check input[type=checkbox]:checked { background: #d63a62; border-color: #d63a62; }
+.cy .cy-check input[type=checkbox]:checked::after { opacity: 1; }
+.cy .cy-check input[type=checkbox]:focus-visible { outline: 3px solid #f9c4d3; outline-offset: 2px; }
+.cy .cy-check::before, .cy .cy-check::after { display: none !important; }
+.cy .cy-check { padding: 12px 14px; border-radius: 14px; background: #fff7f9; border: 1px solid #f9dbe3; line-height: 1.4; }
 .cy-field { display: grid; gap: 6px; margin-bottom: 8px; }
 .cy-field span, .cy-lbl { font-size: 13px; font-weight: 800; color: #334155; }
 .cy-lbl { display: block; margin: 14px 0 8px; }
