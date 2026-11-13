@@ -20,6 +20,7 @@ export default function WorksheetPage() {
   const [step, setStep] = useState(0);
   const [saved, setSaved] = useState("");
   const [busy, setBusy] = useState(false);
+  const [askReset, setAskReset] = useState(false); // reset needs a second, deliberate tap in a confirm box
   const timer = useRef(null);
   const latest = useRef({ data: null, step: 0 });
   const dataRef = useRef(null); // always the newest answers (a click can change data and step together)
@@ -74,6 +75,22 @@ export default function WorksheetPage() {
     setBusy(false);
   };
 
+  const blank = (tool) => (tool === "activity" ? withActivity({}) : tool === "whatif" ? withWhatIf({}) : { logs: toLogs({}) });
+  const reset = async () => {
+    clearTimeout(timer.current); latest.current = { data: null, step: 0 };
+    setBusy(true);
+    try {
+      const r = await save({ reset: true });
+      if (r?.status) {
+        const fresh = blank(w.tool);
+        dataRef.current = fresh; setData(fresh); setStep(0);
+        setW((x) => ({ ...x, status: r.data.status, flag: false, submittedAt: r.data.status === "draft" ? null : x.submittedAt }));
+        setSaved("Cleared — start fresh");
+      }
+    } catch (e) { setSaved(e?.response?.data?.message || "Couldn't reset — try again"); }
+    setBusy(false); setAskReset(false);
+  };
+
   const th = w?.therapist;
   const sent = w && (w.status === "submitted" || w.status === "reviewed");
   return (
@@ -88,8 +105,24 @@ export default function WorksheetPage() {
                 <h1>{toolOf(w.tool).name}</h1>
                 <p>{th ? <>From <b>{th.name}</b>{th.profile_type ? ` · ${th.profile_type}` : ""}</> : "A CBT exercise"} {saved && <em className="ws-saved">{saved}</em>}</p>
               </div>
-              {th?.live && <Link href={bookPath(th)} className="ws-book">Book {th.name.split(" ")[0]}</Link>}
+              <div className="ws-h-acts">
+                <button type="button" className="ws-reset" onClick={() => setAskReset(true)} title="Clear all answers">↺ Reset</button>
+                {th?.live && <Link href={bookPath(th)} className="ws-book">Book {th.name.split(" ")[0]}</Link>}
+              </div>
             </div>
+            {askReset && (
+              <div className="ws-scrim" role="dialog" aria-modal="true" aria-label="Reset worksheet" onClick={(e) => e.target === e.currentTarget && !busy && setAskReset(false)}>
+                <div className="ws-dlg">
+                  <span className="ws-dlg-ic" aria-hidden="true">↺</span>
+                  <h3>Reset this worksheet?</h3>
+                  <p>Everything you&apos;ve written in <b>{toolOf(w.tool).name}</b> will be cleared and you&apos;ll start from the beginning. This can&apos;t be undone.{sent && th ? ` ${th.name} will see it as not sent any more.` : ""}</p>
+                  <div className="ws-dlg-b">
+                    <button type="button" className="ws-dlg-no" onClick={() => setAskReset(false)} disabled={busy} autoFocus>No, keep my answers</button>
+                    <button type="button" className="ws-dlg-yes" onClick={reset} disabled={busy}>{busy ? "Clearing…" : "Yes, clear everything"}</button>
+                  </div>
+                </div>
+              </div>
+            )}
             {router.query.again === "1" && !w.ongoing && th && <div className="ws-note">You&apos;ve already used your free worksheet from {th.name} — here it is. To log more situations, book a session with them.</div>}
             {w.note && <div className="ws-note"><b>{th ? `${th.name.split(" ")[0]} says:` : "Note:"}</b> {w.note}</div>}
             {w.status === "reviewed" && w.feedback && <div className="ws-fb"><b>{th?.name || "Your therapist"} reviewed it:</b><p>{w.feedback}</p></div>}
@@ -129,6 +162,18 @@ const CSS = `
 .ws-h h1 { margin: 0; font-size: 24px; font-weight: 800; color: #0f1f17; }
 .ws-h p { margin: 4px 0 0; font-size: 14px; color: #475569; }
 .ws-saved { font-style: normal; margin-left: 8px; font-size: 12px; font-weight: 700; color: #94a3b8; }
+.ws-h-acts { display: flex; align-items: center; gap: 8px; flex: none; }
+.ws-reset { height: 40px; padding: 0 14px; border-radius: 12px; border: 1.5px solid #e3e9e5; background: #fff; color: #475569; font: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer; }
+.ws-reset:hover { border-color: #fca5a5; color: #b91c1c; }
+.ws-scrim { position: fixed; inset: 0; z-index: 3000; background: rgba(11,23,18,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.ws-dlg { width: 100%; max-width: 400px; background: #fff; border-radius: 20px; padding: 22px; text-align: center; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
+.ws-dlg-ic { display: inline-grid; place-items: center; width: 54px; height: 54px; border-radius: 16px; background: #fff1f2; color: #b91c1c; font-size: 26px; font-weight: 900; }
+.ws-dlg h3 { margin: 12px 0 6px; font-size: 19px; font-weight: 800; color: #0f1f17; }
+.ws-dlg p { margin: 0; font-size: 14.5px; color: #475569; line-height: 1.5; }
+.ws-dlg-b { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+.ws-dlg-no { height: 46px; border-radius: 12px; border: 0; background: #14532d; color: #fff; font: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.ws-dlg-yes { height: 44px; border-radius: 12px; border: 1.5px solid #fecaca; background: #fff; color: #b91c1c; font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; }
+.ws-dlg-yes:hover:not(:disabled) { background: #fff5f5; }
 .ws-book { flex: none; height: 40px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 12px; background: #14532d; color: #fff !important; font-weight: 800; font-size: 14px; text-decoration: none !important; }
 .ws-note { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; background: #fffaf0; border: 1px solid #f3e2bb; font-size: 14.5px; color: #5b4310; }
 .ws-fb { margin-bottom: 12px; padding: 12px 14px; border-radius: 14px; background: #e9f8ef; border: 1px solid #bfe6cc; color: #14532d; }
@@ -144,5 +189,5 @@ const CSS = `
 .ws-priv { margin: 0; font-size: 12.5px; color: #64748b; }
 .ws-lockbtn { display: inline-flex; align-items: center; text-decoration: none !important; color: #fff !important; background: #14532d !important; }
 .ws-talk { font-size: 14px; font-weight: 800; color: #15803d !important; text-decoration: none !important; }
-@media (max-width: 560px) { .ws-h h1 { font-size: 20px; } .ws-book { height: 36px; padding: 0 12px; font-size: 13px; } }
+@media (max-width: 560px) { .ws-h { flex-wrap: wrap; } .ws-reset { height: 36px; padding: 0 10px; font-size: 12.5px; } .ws-h h1 { font-size: 20px; } .ws-book { height: 36px; padding: 0 12px; font-size: 13px; } }
 `;
