@@ -29,6 +29,7 @@ import { getTherapistProfiles } from "../utils/url";
 import { getMinFee, split, sessionModes } from "../utils/therapist-directory";
 import { placeStats } from "../utils/places";
 import { concernStats } from "../utils/concerns";
+import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../utils/pull-refresh";
 
 // Banner wall + "top therapists": priority-1 therapists first, then the most-reviewed.
 const isTop = (t) => t.priority === 1 || t.priority === "1";
@@ -118,6 +119,7 @@ export async function getStaticProps() {
 
 
 export default function HomePage({ initialBanner = [], initialTop = [], stats = null, concerns = null, people = [], places = {} }) {
+  const ptrRef = usePullToRefresh(); // installed app: pull down at the top to refresh
   const [topTherapists, setTopTherapists] = useState(initialTop);
   const [bannerTherapists, setBannerTherapists] = useState(initialBanner);
   const [userState, setUserState] = useState(null);
@@ -480,6 +482,8 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
 
       <main className="rbt-main-wrapper home-wide">
         <MyNavbar />
+        <style dangerouslySetInnerHTML={{ __html: PTR_CSS + ".ptr { --ptr-top: 84px; }" }} />
+        <div className="ptr" ref={ptrRef} aria-hidden="true" dangerouslySetInnerHTML={{ __html: PTR_ICON }} />
         {/* Homepage Sections */}
         <Banner topTherapists={bannerTherapists} stats={stats} />
         <Specializations stats={concerns} />

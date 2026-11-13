@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import SpaRoundedIcon from "@mui/icons-material/SpaRounded";
 import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
@@ -54,6 +54,29 @@ export default function WhatsNew({ portal, home }) {
   const [items, setItems] = useState([]);
   const [i, setI] = useState(0);
   const onHome = router.pathname === home;
+  const open = onHome && items.length > 0;
+  const wrapRef = useRef(null);
+
+  // while it's open the page behind must not move: on iPhone a drag on the backdrop scrolled the page
+  // (and the app bar hid / showed), which looked like the screen shaking
+  useEffect(() => {
+    if (!open) return undefined;
+    const html = document.documentElement; const body = document.body;
+    const y = window.scrollY;
+    const prev = { ho: html.style.overflow, bo: body.style.overflow, bp: body.style.position, bt: body.style.top, bw: body.style.width };
+    html.style.overflow = "hidden"; body.style.overflow = "hidden";
+    body.style.position = "fixed"; body.style.top = `-${y}px`; body.style.width = "100%";
+    const el = wrapRef.current;
+    // only the card's own text may scroll (and only when it is taller than the screen)
+    const stop = (e) => { const sc = e.target.closest?.(".wn-body"); if (!sc || sc.scrollHeight <= sc.clientHeight) e.preventDefault(); };
+    el?.addEventListener("touchmove", stop, { passive: false });
+    return () => {
+      el?.removeEventListener("touchmove", stop);
+      html.style.overflow = prev.ho; body.style.overflow = prev.bo;
+      body.style.position = prev.bp; body.style.top = prev.bt; body.style.width = prev.bw;
+      window.scrollTo(0, y);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!onHome) return undefined;
@@ -85,7 +108,7 @@ export default function WhatsNew({ portal, home }) {
   const go = () => { markSeen(items.map((x) => x.id)); setItems([]); if (n.to) router.push(n.to); };
 
   return (
-    <div className="wn-wrap" role="dialog" aria-modal="true" aria-label={`What's new: ${n.title}`} onClick={(e) => { if (e.target === e.currentTarget) closeAll(); }}>
+    <div ref={wrapRef} className="wn-wrap" role="dialog" aria-modal="true" aria-label={`What's new: ${n.title}`} onClick={(e) => { if (e.target === e.currentTarget) closeAll(); }}>
       <style dangerouslySetInnerHTML={{ __html: WN_CSS }} />
       <div className={`wn ${n.tone}`} key={n.id}>
         <button type="button" className="wn-x" onClick={closeAll} aria-label="Close"><CloseRoundedIcon /></button>
@@ -113,9 +136,9 @@ export default function WhatsNew({ portal, home }) {
 }
 
 const WN_CSS = `
-.wn-wrap { position: fixed; inset: 0; z-index: 1500; background: rgba(9,20,14,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: wnFade .2s ease; }
+.wn-wrap { position: fixed; inset: 0; z-index: 1500; overscroll-behavior: contain; touch-action: none; -webkit-tap-highlight-color: transparent; background: rgba(9,20,14,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: wnFade .2s ease; }
 @keyframes wnFade { from { opacity: 0; } }
-.wn { position: relative; width: 100%; max-width: 420px; border-radius: 26px; overflow: hidden; background: #fff; box-shadow: 0 30px 70px -20px rgba(0,0,0,.45); animation: wnUp .35s cubic-bezier(.16,1,.3,1); }
+.wn { position: relative; display: flex; flex-direction: column; max-height: calc(100dvh - 32px); width: 100%; max-width: 420px; touch-action: manipulation; border-radius: 26px; overflow: hidden; background: #fff; box-shadow: 0 30px 70px -20px rgba(0,0,0,.45); animation: wnUp .35s cubic-bezier(.16,1,.3,1); }
 @keyframes wnUp { from { transform: translateY(24px) scale(.97); opacity: 0; } }
 .wn { --wn-a: #1e9e64; --wn-b: #0b5d38; --wn-soft: #e7f6ec; }
 .wn.rose { --wn-a: #f0668a; --wn-b: #a3173f; --wn-soft: #fde8ee; }
@@ -130,7 +153,8 @@ const WN_CSS = `
 .wn-top h2 { margin: 4px 0 0; color: #fff !important; font-size: 23px; font-weight: 800; letter-spacing: -.02em; font-family: inherit; }
 .wn-x { position: absolute; top: 12px; right: 12px; z-index: 1; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.22); color: #fff; display: grid; place-items: center; cursor: pointer; }
 .wn-x svg { font-size: 20px; }
-.wn-body { padding: 18px 20px 18px; }
+.wn-top { flex: none; }
+.wn-body { padding: 18px 20px 18px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
 .wn-body p { margin: 0 0 12px; font-size: 14.5px; line-height: 1.55; color: #334155; text-align: center; }
 .wn-body ul { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; }
 .wn-body li { display: flex; align-items: flex-start; gap: 8px; padding: 9px 12px; border-radius: 12px; background: var(--wn-soft); font-size: 13.5px; font-weight: 700; color: #0f172a; line-height: 1.35; }
@@ -146,7 +170,9 @@ const WN_CSS = `
 .wn-dots i.on { width: 20px; border-radius: 4px; background: var(--wn-b); }
 @media (max-width: 599px) {
   .wn-wrap { align-items: flex-end; padding: 0; }
-  .wn { max-width: none; border-radius: 26px 26px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); animation: wnSheet .38s cubic-bezier(.16,1,.3,1); }
+  .wn { max-width: none; max-height: calc(100dvh - 24px); border-radius: 26px 26px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); animation: wnSheet .38s cubic-bezier(.16,1,.3,1); will-change: transform; }
+  .wn-top { padding: 18px 20px 16px; }
+  .wn-ic { width: 56px; height: 56px; margin: 10px auto 8px; }
   @keyframes wnSheet { from { transform: translateY(100%); } }
 }
 @media (prefers-reduced-motion: reduce) { .wn, .wn-wrap { animation: none; } }
