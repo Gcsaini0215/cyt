@@ -4,7 +4,8 @@ import PreSessionForms from "../components/client/pre-session-forms";
 import ClientShell, { WA_HELP } from "../components/client/client-shell";
 import SessionCard, { CSC_CSS, therapistName, therapistPhoto, dayKey } from "../components/client/session-card";
 import { PendingCard, RebookCard, ReviewCard, ReferralCard, CheckInCard, ForYouCard, PackCard, ProbonoCard, forYouOffer, bookAgainPath, nextSameSlot, DC_CSS } from "../components/client/dash-cards";
-import { JourneyStats, MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
+import { DashKpis, ActivityChart, KPI_CSS } from "../components/client/dash-kpis";
+import { MoodCard, CalmCorner, StartCard, RecentSessions, DW_CSS } from "../components/client/dash-widgets";
 import DashAppointmentForm from "../components/dashboard/dash-appointment-form";
 import FestivalGiftCards from "../components/festival/festival-gift-card";
 import useUserStore from "../store/userStore";
@@ -153,14 +154,15 @@ export default function ClientHome() {
 
   return (
     <ClientShell title="My Space">
-      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + HOME_CSS }} />
+      <style dangerouslySetInnerHTML={{ __html: CSC_CSS + DC_CSS + DW_CSS + KPI_CSS + HOME_CSS }} />
       <div className="ch">
         <div className="ch-grid">
+          <div className="ch-hello">
+            {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
+            <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
+          </div>
+          <div className="ch-kpi">{bookings !== null && <DashKpis bookings={bookings} now={now} credit={referral?.credit} />}</div>
           <div className="ch-main">
-            <div className="ch-hello">
-              {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
-              <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
-            </div>
 
             <div className="ch-pb">
               <ProbonoCard data={probono} onChange={() => fetchById(`${apiUrl}/probono/me`).then((r) => setProbono(r?.data || null)).catch(() => {})} />
@@ -206,7 +208,7 @@ export default function ClientHome() {
               </nav>
             )}
 
-            {bookings !== null && <JourneyStats bookings={bookings} now={now} />}
+            {bookings !== null && <ActivityChart bookings={bookings} now={now} />}
 
             {packs.length > 0 && (
               <section className="ch-sec tight">
@@ -305,13 +307,16 @@ export default function ClientHome() {
 
 const HOME_CSS = `
 
-.ch-hello { margin-bottom: 14px; }
+.ch-hello { grid-area: hello; margin-bottom: 14px; }
+.ch-kpi { grid-area: kpi; min-width: 0; }
+.ch-kpi:empty { display: none; }
+.ch-main > .ck-act { margin-top: 12px; flex: none; }
 .ch-hello h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
 .ch-hello h1 span { color: #166534; }
 .ch-hello p { margin: 4px 0 0; font-size: 14px; color: #64748b; }
 .cls-main:has(.ch) { max-width: none !important; }
 /* the two columns end level, and the band below them runs the full width */
-.ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "main side" "rest rest" "band band"; column-gap: 16px; align-items: stretch; }
+.ch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; grid-template-areas: "hello hello" "kpi kpi" "main side" "rest rest" "band band"; column-gap: 16px; align-items: stretch; }
 .ch-pend { margin-bottom: 16px; }
 .ch-pb:not(:empty) { margin-bottom: 16px; }
 .ch-next-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
@@ -336,16 +341,22 @@ const HOME_CSS = `
   .ch-main > .dw-stats { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.2fr); gap: 8px; }
 }
 .ch-quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
-.ch-quick a { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; border-radius: 14px; background: #fff; border: 1px solid #e4ece7; color: #0f172a !important; font-size: 14px; font-weight: 700; line-height: 1.25; text-decoration: none !important; }
-.ch-quick a:hover { border-color: #a7d7b8; background: #f6fbf7; }
-.ch-quick svg { flex: none; font-size: 22px; color: #166534; }
+.ch-quick a { display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 16px; background: #fff; border: 1px solid #e6ece8; color: #0f172a !important; font-size: 14px; font-weight: 700; line-height: 1.25; text-decoration: none !important;
+  box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); transition: transform .15s ease; }
+.ch-quick a:hover { transform: translateY(-2px); }
+.ch-quick svg { flex: none; box-sizing: content-box; font-size: 20px; padding: 8px; border-radius: 11px; color: #fff; background: var(--qa); box-shadow: 0 6px 12px -6px var(--qa-sh); }
+.ch-quick a:nth-child(1) { --qa: linear-gradient(160deg, #ff9b6b, #e5532a); --qa-sh: rgba(229,83,42,.6); }
+.ch-quick a:nth-child(2) { --qa: linear-gradient(160deg, #5ab0ff, #1d63d8); --qa-sh: rgba(29,99,216,.6); }
+.ch-quick a:nth-child(3) { --qa: linear-gradient(160deg, #b98cff, #6a3fd6); --qa-sh: rgba(106,63,214,.6); }
+.ch-quick a:nth-child(4) { --qa: linear-gradient(160deg, #4fd38b, #12804a); --qa-sh: rgba(18,128,74,.6); }
 .ch-band { grid-area: band; display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .ch-band > * { flex: 1 1 300px; min-width: 0; margin: 0 !important; }
 .ch-band > .ch-mood { flex: 2 1 620px; display: flex; }
 .ch-band > .ch-mood > * { flex: 1; min-width: 0; }
 .ch-pend-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
 .ch-main { grid-area: main; } .ch-side { grid-area: side; } .ch-rest { grid-area: rest; min-width: 0; }
-.ch h2 { font-size: 13px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #166534; margin: 0 0 10px; font-family: inherit; }
+.ch h2 { display: flex; align-items: center; gap: 8px; font-size: 16.5px; font-weight: 800; letter-spacing: -.01em; color: #0f172a; margin: 0 0 10px; font-family: inherit; }
+.ch h2::before { content: ""; width: 4px; height: 18px; border-radius: 4px; background: linear-gradient(180deg, #34c27a, #15803d); flex: none; }
 .ch-skel { height: 220px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: chsk 1.3s infinite linear; }
 @keyframes chsk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
 .ch-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 28px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -359,7 +370,7 @@ const HOME_CSS = `
 .ch-cta b { display: block; font-size: 15.5px; } .ch-cta span { display: block; font-size: 12.5px; opacity: .8; margin-top: 2px; line-height: 1.4; }
 .ch-cta.alt { background: #fff; color: #0f172a !important; border: 1px solid #e4ece7; box-shadow: none; }
 .ch-cta.alt > svg { color: #166534; } .ch-cta.alt span { color: #64748b; opacity: 1; }
-.ch-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; }
+.ch-card { background: #fff; border: 1px solid #e6ece8; border-radius: 18px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); }
 .ch-card h3 { font-size: 14px; font-weight: 800; margin: 0 0 8px; font-family: inherit; }
 .ch-req { padding: 8px 0; border-top: 1px solid #eef2f0; } .ch-req:first-of-type { border-top: 0; }
 .ch-req b { display: block; font-size: 13px; color: #166534; } .ch-req span { font-size: 12.5px; color: #475569; }
@@ -383,7 +394,7 @@ const HOME_CSS = `
 /* below 1280px two columns left the session card ~400px wide (iPad landscape / small laptops, with the
    menu open): one column, with the side cards two across from 700px */
 @media (max-width: 1279px) {
-  .ch-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "main" "rest" "side" "band"; }
+  .ch-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "hello" "kpi" "main" "rest" "side" "band"; }
   .ch-side { margin-top: 12px; }
   .ch-band { margin-top: 12px; }
   .ch-sec { margin-top: 6px; }
