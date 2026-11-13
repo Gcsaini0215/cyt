@@ -17,8 +17,10 @@ const monthKey = (d) => new Date(d).toLocaleDateString("en-CA", { year: "numeric
 const shortDate = (d) => new Date(d).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: TZ });
 
 export function DashKpis({ bookings, now, credit = 0 }) {
-  const list = (bookings || []).filter((b) => b.status !== "Cancelled");
-  if (!list.length) return null;
+  if (bookings === null || bookings === undefined) {
+    return <div className="ck-row" aria-hidden="true">{[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="ck ck-skel" />)}</div>;
+  }
+  const list = bookings.filter((b) => b.status !== "Cancelled");
   const done = list.filter(isDone);
   const ahead = list.filter((b) => (b.status === "New" || b.status === "Started") && new Date(b.booking_date).getTime() > now - 90 * 60000)
     .sort((a, b) => new Date(a.booking_date) - new Date(b.booking_date));
@@ -26,13 +28,13 @@ export function DashKpis({ bookings, now, credit = 0 }) {
   const thisMonth = monthKey(now);
   const month = list.filter((b) => monthKey(b.booking_date) === thisMonth && b.status !== "Cancelled").length;
   const first = list.reduce((m, b) => Math.min(m, new Date(b.booking_date).getTime() || m), Infinity);
-  const since = Number.isFinite(first) ? new Date(first).toLocaleDateString("en-IN", { month: "short", year: "numeric", timeZone: TZ }) : "—";
+  const since = Number.isFinite(first) ? new Date(first).toLocaleDateString("en-IN", { month: "short", year: "numeric", timeZone: TZ }) : "Today";
   const lastDone = done.sort((a, b) => new Date(b.booking_date) - new Date(a.booking_date))[0];
   const tiles = [
     { k: "done", Icon: TaskAltRoundedIcon, v: done.length, l: `Session${done.length === 1 ? "" : "s"} done`, s: lastDone ? `Last: ${shortDate(lastDone.booking_date)}` : "Your journey starts here", to: "/client/my-bookings" },
-    { k: "up", Icon: EventAvailableRoundedIcon, v: ahead.length, l: "Upcoming", s: ahead[0] ? `Next: ${shortDate(ahead[0].booking_date)}` : "Nothing booked yet", to: "/client/my-bookings" },
+    { k: "up", Icon: EventAvailableRoundedIcon, v: ahead.length, l: "Upcoming", s: ahead[0] ? `Next: ${shortDate(ahead[0].booking_date)}` : "Book a session →", to: ahead[0] ? "/client/my-bookings" : "/client/find" },
     { k: "month", Icon: CalendarMonthRoundedIcon, v: month, l: "This month", s: new Date(now).toLocaleDateString("en-IN", { month: "long", timeZone: TZ }) },
-    { k: "ther", Icon: Diversity3RoundedIcon, v: therapists, l: `Therapist${therapists === 1 ? "" : "s"}`, s: "who've helped you", to: "/client/find" },
+    { k: "ther", Icon: Diversity3RoundedIcon, v: therapists, l: `Therapist${therapists === 1 ? "" : "s"}`, s: therapists ? "who've helped you" : "Find yours →", to: "/client/find" },
     { k: "credit", Icon: AccountBalanceWalletRoundedIcon, v: `₹${Number(credit) || 0}`, l: "Credit", s: credit ? "Off your next booking" : "Refer a friend, get ₹200" },
     { k: "since", Icon: FlagRoundedIcon, v: since, l: "With us since", s: `${done.length ? "Keep going" : "Welcome"} 💚` },
   ];
@@ -56,8 +58,8 @@ export function DashKpis({ bookings, now, credit = 0 }) {
 }
 
 export function ActivityChart({ bookings, now }) {
-  const list = (bookings || []).filter((b) => b.status !== "Cancelled");
-  if (!list.length) return null;
+  if (!bookings) return null;
+  const list = bookings.filter((b) => b.status !== "Cancelled");
   const months = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now); d.setDate(1); d.setMonth(d.getMonth() - (5 - i));
     return { k: monthKey(d), l: d.toLocaleDateString("en-IN", { month: "short", timeZone: TZ }) };
@@ -74,6 +76,7 @@ export function ActivityChart({ bookings, now }) {
         <span className="ck-h-ic"><InsightsRoundedIcon /></span>
         <div><b>Your activity</b><span>{total} session{total === 1 ? "" : "s"} done in the last 6 months</span></div>
       </div>
+      {!list.length && <p className="ck-empty">Your sessions will show here as a chart — <Link href="/client/find">book your first one →</Link></p>}
       <div className="ck-bars" role="img" aria-label={rows.map((r) => `${r.l}: ${r.done} done${r.up ? `, ${r.up} booked` : ""}`).join("; ")}>
         {rows.map((r) => (
           <div key={r.k} className={`ck-bar${r.k === monthKey(now) ? " now" : ""}`}>
@@ -110,6 +113,12 @@ a.ck:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px rgba(15,
 .ck.credit { --ck-tile: linear-gradient(160deg, #ffc65a, #f07b12); --ck-sh: rgba(240,123,18,.55); --ck-soft: #fdf0dc; --ck-ink: #b45309; }
 .ck.since { --ck-tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --ck-sh: rgba(14,138,154,.55); --ck-soft: #ddf4f4; --ck-ink: #0e7490; }
 .ck.since .ck-v { font-size: 20px; padding: 3px 0 2px; }
+.ck-skel { min-height: 128px; background: linear-gradient(90deg, #eef2f0 0%, #f7f9f8 40%, #eef2f0 80%); background-size: 600px 100%; animation: ckSk 1.3s infinite linear; box-shadow: none; border-color: transparent; }
+.ck-skel::after { display: none; }
+@keyframes ckSk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
+.ck-act { position: relative; }
+.ck-empty { margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; background: #f3faf5; color: #334155; font-size: 13px; font-weight: 600; }
+.ck-empty a { color: #166534 !important; font-weight: 800; text-decoration: none !important; }
 
 .ck-card { background: #fff; border: 1px solid #e6ece8; border-radius: 18px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); }
 .ck-h { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -141,6 +150,7 @@ a.ck:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px rgba(15,
   .ck.since .ck-v { font-size: 14.5px; padding: 3px 0 4px; }
   .ck-l { font-size: 11.5px; }
   .ck-s { display: none; }
+  .ck-skel { min-height: 96px; }
   .ck-bars { height: 130px; gap: 8px; }
 }
 `;

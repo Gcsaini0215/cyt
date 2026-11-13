@@ -161,7 +161,7 @@ export default function ClientHome() {
             {(() => { const c = cheerOf(new Date(now), first); return <h1>{c.pre}{c.name && <span>{c.name}</span>}{c.post}</h1>; })()}
             <p>{bookings === null ? "Loading your sessions…" : next ? "Here's what's coming up." : doneCount ? `You've completed ${doneCount} session${doneCount === 1 ? "" : "s"} with us.` : "Welcome — let's find the right therapist for you."}</p>
           </div>
-          <div className="ch-kpi">{bookings !== null && <DashKpis bookings={bookings} now={now} credit={referral?.credit} />}</div>
+          <div className="ch-kpi"><DashKpis bookings={bookings} now={now} credit={referral?.credit} /></div>
           <div className="ch-main">
 
             <div className="ch-pb">
