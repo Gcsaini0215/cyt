@@ -46,7 +46,7 @@ function Card({ t, now, hidden }) {
       <div className="tt-photo">
         {photo && !broken
           // eslint-disable-next-line @next/next/no-img-element
-          ? <img src={thumb(photo, 640, 90)} srcSet={`${thumb(photo, 640, 90)} 1x, ${thumb(photo, 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" width="246" height="190" onError={() => setBroken(true)} />
+          ? <img src={thumb(photo, 384, 80)} srcSet={`${thumb(photo, 384, 80)} 1x, ${thumb(photo, 640, 80)} 2x`} alt={name} loading="lazy" decoding="async" width="246" height="190" onError={() => setBroken(true)} />
           : <span className="tt-init" aria-hidden="true"><span>{initials || "C"}</span></span>}
       </div>
       <div className="tt-info">

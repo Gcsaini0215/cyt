@@ -78,7 +78,7 @@ function TherapistCard({ t, onBroken, copy = false, spot = false }) {
     <div className="cyt-tcard">
       <div className="cyt-tphoto">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={thumb(photo(t), 640, 90)} srcSet={`${thumb(photo(t), 640, 90)} 1x, ${thumb(photo(t), 1080, 90)} 2x`} alt={name} loading="lazy" decoding="async" onError={onBroken} />
+        <img src={thumb(photo(t), 384, 80)} srcSet={`${thumb(photo(t), 384, 80)} 1x, ${thumb(photo(t), 640, 80)} 2x`} alt={name} loading="lazy" decoding="async" onError={onBroken} />
       </div>
       <div className="cyt-tbody">
         {(() => {
