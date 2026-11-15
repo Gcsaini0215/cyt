@@ -371,6 +371,7 @@ const CSS = `
 .thw-hero h1 { font-size: clamp(28px, 4.2vw, 46px); font-weight: 900; color: #0f3d24; margin: 16px 0 12px; line-height: 1.12; letter-spacing: -.6px; max-width: 820px; }
 .thw-lead { font-size: 17px; color: #3f5148; line-height: 1.6; margin: 0 0 22px; max-width: 720px; }
 .thw-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+@media (max-width: 1100px) { .thw-cta { justify-content: flex-start; } } /* the banner text is left-aligned on iPad and phones */
 .thw-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 12px; background: linear-gradient(135deg, #1e7a4c, #14532d); color: #fff !important; font-weight: 800; font-size: 15px; text-decoration: none; box-shadow: 0 10px 22px -12px rgba(15,61,36,.6); }
 .thw-btn.ghost { background: #fff; color: #14532d !important; border: 1.5px solid #cfe3d6; box-shadow: none; }
 .thw-btn.light { background: #fff; color: #14532d !important; }
