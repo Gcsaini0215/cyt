@@ -99,6 +99,25 @@ export default function ProfileHeader({ pageData, favrioutes }) {
 
   React.useEffect(() => { setMounted(true); }, []);
 
+  // Desktop: once the header's Book button has scrolled away, a small booking card floats bottom-right
+  // (phones/iPad already have the bottom bar). Hidden again near the top and near the footer. 2026-11-15.
+  const [deskCta, setDeskCta] = React.useState(false);
+  React.useEffect(() => {
+    if (isMobile) { setDeskCta(false); return undefined; }
+    let raf = 0;
+    const check = () => {
+      raf = 0;
+      const nearBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight) < 480;
+      const show = window.scrollY > 520 && !nearBottom;
+      setDeskCta((prev) => (prev === show ? prev : show));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(check); };
+    check();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (raf) cancelAnimationFrame(raf); };
+  }, [isMobile]);
+
   // Mobile: Book / Chat live in a bar pinned to the bottom of the screen. Keep it above the
   // site's cookie + location consent bars, and pad the page so nothing hides behind it.
   React.useEffect(() => {
@@ -234,19 +253,19 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         .chat-btn:hover { background: #0f3d24 !important; color: #fff !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15,61,36,0.22); }
         .chat-btn:active { transform: translateY(0); }
         .waitlist-btn { background: #fff; border: 1.5px solid #dbe3df !important; color: #5b6b62 !important; transition: all 0.2s; }
-        .waitlist-btn:hover { border-color: #166534 !important; color: #166534 !important; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,61,36,0.14); }
+        .waitlist-btn:hover { border-color: #14532d !important; color: #14532d !important; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(15,61,36,0.14); }
         .waitlist-btn:active { transform: translateY(0); }
         .ph-share-icon { transition: transform 0.15s, filter 0.15s; }
         .ph-share-icon:hover { transform: translateY(-2px); filter: brightness(1.08); }
         .ph-fact-row + .ph-fact-row { border-top: 1px solid #ecefec; }
-        .ph-next { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; font-size: 12px; color: #166534; font-weight: 600; line-height: 1.3; }
+        .ph-next { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; font-size: 12px; color: #14532d; font-weight: 600; line-height: 1.3; }
         .ph-next b { display: block; font-size: 13px; color: #0f3d24; font-weight: 800; }
         .ph-next-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; box-shadow: 0 0 0 3px rgba(34,197,94,.2); }
         .ph-sticky-next { color: #16a34a; font-weight: 700; }
-        .waitlist-btn:disabled { cursor: default; color: #166534 !important; border-color: #bbf7d0 !important; background: #f0fdf4; transform: none !important; box-shadow: none !important; }
+        .waitlist-btn:disabled { cursor: default; color: #14532d !important; border-color: #bbf7d0 !important; background: #f0fdf4; transform: none !important; box-shadow: none !important; }
         .ph-wl-form label { display: block; font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .4px; margin: 12px 0 6px; }
         .ph-wl-form input, .ph-wl-form select { width: 100%; height: 46px; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0 12px; font-size: 14.5px; background: #f8fafc; outline: none; box-sizing: border-box; }
-        .ph-wl-form input:focus, .ph-wl-form select:focus { border-color: #166534; background: #fff; }
+        .ph-wl-form input:focus, .ph-wl-form select:focus { border-color: #14532d; background: #fff; }
 
         /* ── mobile sticky Book / Chat bar ── */
         body.ph-has-sticky-cta { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
@@ -280,7 +299,7 @@ export default function ProfileHeader({ pageData, favrioutes }) {
         }
         .ph-sticky-book {
           flex-shrink: 0; height: 46px; padding: 0 20px; border-radius: 10px; border: none; cursor: pointer;
-          background: linear-gradient(135deg, #1a6b3a, #0f3d24); color: #fff; font-weight: 800; font-size: 14px;
+          background: linear-gradient(135deg, #1e7a4c, #0f3d24); color: #fff; font-weight: 800; font-size: 14px;
           box-shadow: 0 6px 16px -6px rgba(15,61,36,0.55);
         }
         .ph-sticky-book:active, .ph-sticky-chat:active { transform: scale(0.97); }
@@ -296,7 +315,19 @@ export default function ProfileHeader({ pageData, favrioutes }) {
             linear-gradient(180deg, rgba(11,47,28,.5) 0%, rgba(11,47,28,.25) 50%, rgba(60,42,8,.35) 100%),
             #3b3324 url("/assets/img/hero/in-calm-room-900.webp") 65% 60% / cover no-repeat; }
         }
-        @media (prefers-reduced-motion: reduce) { .ph-sticky { animation: none; transition: none; } }
+        /* ── desktop floating Book card (shown after the header's Book button scrolls away) ── */
+        .ph-desk-cta {
+          position: fixed; right: 24px; bottom: 24px; z-index: 9989; width: min(380px, calc(100vw - 48px));
+          display: flex; align-items: center; gap: 14px; padding: 12px 12px 12px 16px;
+          background: rgba(255,255,255,0.98); border: 1px solid #e3ebe6; border-radius: 16px;
+          box-shadow: 0 18px 40px -18px rgba(15,61,36,0.45), 0 2px 6px rgba(15,61,36,0.06);
+          animation: phDeskIn .25s ease;
+        }
+        @keyframes phDeskIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        .ph-desk-cta-who { flex: 1; min-width: 0; line-height: 1.25; }
+        .ph-desk-cta-who b { display: block; font-size: 14.5px; font-weight: 800; color: #0f3d24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ph-desk-cta-who small { display: block; font-size: 12px; color: #64748b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+        @media (prefers-reduced-motion: reduce) { .ph-sticky { animation: none; transition: none; } .ph-desk-cta { animation: none; } }
       ` }} />
 
       {/* ── LETTERHEAD BANNER ── */}
@@ -486,6 +517,20 @@ export default function ProfileHeader({ pageData, favrioutes }) {
               <div className="ph-sticky-fee"><b>{pageData.user?.name?.split(" ")[0] || "Therapist"}</b><small>{pageData.profile_type || "Therapist"}</small></div>
             );
           })()}
+          <button type="button" className="ph-sticky-book" onClick={handleClick}>Book Session</button>
+        </div>,
+        document.body
+      )}
+
+      {mounted && !isMobile && deskCta && !chatOpen && createPortal(
+        <div className="ph-desk-cta" role="region" aria-label="Book this therapist">
+          <div className="ph-desk-cta-who">
+            <b>{pageData.user?.name || "Therapist"}</b>
+            {(() => {
+              const price = getMinMaxPrice(pageData.fees || []);
+              return <small>{price && price !== "--" ? price : pageData.profile_type || "Therapist"}{nextSlot ? <> · Next: <span className="ph-sticky-next">{nextSlot.label}</span></> : null}</small>;
+            })()}
+          </div>
           <button type="button" className="ph-sticky-book" onClick={handleClick}>Book Session</button>
         </div>,
         document.body

@@ -108,6 +108,29 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
   // Back to the first page of results whenever what's shown changes
   React.useEffect(() => { setVisible(PAGE_SIZE); }, [filter, sort, feeRange, allData]);
 
+  // Back from a profile → same place in the list (2026-11-15). Before leaving we save the scroll position and how
+  // many cards were open, tagged with this history entry's key; coming back to that same entry (browser Back)
+  // re-opens that many cards and scrolls there. A fresh visit gets a new key, so it still starts at the top.
+  const visibleRef = React.useRef(visible);
+  visibleRef.current = visible;
+  React.useEffect(() => {
+    const KEY = "cyt_dir_return";
+    const entryKey = () => (typeof window !== "undefined" && window.history.state && window.history.state.key) || "";
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem(KEY) || "null"); } catch (e) { saved = null; }
+    if (saved && saved.k && saved.k === entryKey() && saved.p === window.location.pathname) {
+      if (saved.n > PAGE_SIZE) setVisible(saved.n);
+      // after the extra cards have rendered
+      requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: saved.y || 0, left: 0, behavior: "instant" })));
+      setTimeout(() => { if (Math.abs(window.scrollY - (saved.y || 0)) > 40) window.scrollTo({ top: saved.y || 0, left: 0, behavior: "instant" }); }, 350);
+    }
+    const onLeave = () => {
+      try { sessionStorage.setItem(KEY, JSON.stringify({ k: entryKey(), p: window.location.pathname, y: Math.round(window.scrollY), n: visibleRef.current })); } catch (e) { /* storage blocked */ }
+    };
+    router.events.on("routeChangeStart", onLeave);
+    return () => router.events.off("routeChangeStart", onLeave);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   React.useEffect(() => {
     const getData = async () => {
       try {
@@ -721,7 +744,7 @@ const CSS = `
 }
 /* desktop: the banner runs 200px up behind the header (navbar.js) — start the photo below it */
 .vat-ban-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #9a6a12; margin: 0 0 12px; padding: 0; }
-.vat-ban-eyebrow::before { content: ''; width: 22px; height: 2px; background: #d4a24c; display: inline-block; }
+.vat-ban-eyebrow::before { content: ''; width: 22px; height: 2px; background: #e3a83a; display: inline-block; }
 .vat-ban-title { color: #173c2a; font-size: clamp(26px, 3.4vw, 40px); font-weight: 800; margin: 0 0 8px; line-height: 1.15; letter-spacing: -.3px; max-width: 760px; }
 .vat-gold { color: #a86e0e; }
 .vat-ban-sub { color: #3f4f47; font-size: clamp(15px, 1.4vw, 16px); margin: 0 0 16px; max-width: 540px; line-height: 1.6; font-weight: 500; padding: 0; }
@@ -747,7 +770,7 @@ const CSS = `
 /* inside the client portal (/client/find): title line + one compact sticky bar, filters in a drawer */
 .vat-emb-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .vat-emb-h h1 { font-size: clamp(20px, 2.4vw, 26px); font-weight: 800; margin: 0; color: #0f172a; letter-spacing: -.3px; font-family: inherit; }
-.vat-emb-help { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid #cfe9d8; background: #f0faf3; color: #166534; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.vat-emb-help { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid #cfe9d8; background: #f0faf3; color: #14532d; font-size: 13px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; }
 .vat-bar.emb { border: 1px solid #e3ebe6; border-radius: 14px; padding: 8px; }
 .vat-emb-bar { display: flex; align-items: center; gap: 8px; }
 .vat-emb-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 10px 0 12px; border: 1.5px solid #dbe5df; border-radius: 11px; background: #f7faf8; }
@@ -791,7 +814,7 @@ const CSS = `
 .vat-results-wrap { padding: 32px 0 64px; background: #f7f9f8; }
 .vat-results-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; }
 .vat-results-title { font-size: 24px; font-weight: 800; color: #14532d; letter-spacing: -0.3px; position: relative; padding-left: 16px; line-height: 1.2; margin: 0; }
-.vat-results-title::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 4px; border-radius: 2px; background: #d4a24c; }
+.vat-results-title::before { content: ''; position: absolute; left: 0; top: 3px; bottom: 3px; width: 4px; border-radius: 2px; background: #e3a83a; }
 .vat-results-count { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 13.5px; color: #64748b; font-weight: 600; margin: 6px 0 0; padding: 0 0 0 16px; }
 .vat-legend { font-size: 12px; font-weight: 500; color: #64748b; cursor: help; }
 .vat-legend .tp { font-size: 10.5px; font-weight: 800; color: #14532d; background: #ecc77d; border-radius: 5px; padding: 2px 6px; margin-right: 4px; }

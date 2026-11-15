@@ -27,9 +27,9 @@ const DAYS  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Satu
 const SDAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MONS  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const G    = "#0f3d24";
-const GL   = "#166534";
+const GL   = "#14532d";
 const GB   = "#eef5f1";
-const GOLD = "#d4af37";
+const GOLD = "#e3a83a";
 const DARK = "#132a1c";
 const GRAD = `linear-gradient(135deg, ${G}, #175c37)`;
 
@@ -138,7 +138,7 @@ function TherapistHero({ profile, nextLabel, fromFee }) {
         onError={e => { e.target.src = defaultProfile; }} />
       <div style={{ minWidth: 0, flex: 1 }}>
         <div className="bk-hero-eyebrow">Book a session with</div>
-        <div className="bk-hero-name">{u.name}</div>
+        <h1 className="bk-hero-name">{u.name}</h1>
         <div className="bk-hero-role">{profile?.profile_type || "Mental Health Professional"}</div>
         {chips.length > 0 && (
           <div className="bk-chips">
@@ -1327,14 +1327,14 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         .bk-clin-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
         .bk-clin-opt { display: flex; align-items: center; gap: 10px; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 9px 12px; cursor: pointer; }
         .bk-clin-opt.on { border-color: #16a34a; background: #f0fdf4; }
-        .bk-clin-opt input { width: 18px; height: 18px; accent-color: #166534; flex-shrink: 0; }
-        .bk-clin-name { flex: 1; min-width: 0; font-size: 13px; color: #334155; } .bk-clin-name b { color: #166534; margin-right: 6px; }
+        .bk-clin-opt input { width: 18px; height: 18px; accent-color: #14532d; flex-shrink: 0; }
+        .bk-clin-name { flex: 1; min-width: 0; font-size: 13px; color: #334155; } .bk-clin-name b { color: #14532d; margin-right: 6px; }
         .bk-pack { border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 16px; background: #fff; }
         .bk-pack-h b { display: block; font-size: 14.5px; color: #132a1c; } .bk-pack-h span { display: block; font-size: 12px; color: #64748b; margin: 2px 0 10px; }
         .bk-pack-opt { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; margin-top: 8px; cursor: pointer; background: #fff; }
-        .bk-pack-opt.on { border-color: #166534; background: #f0faf3; }
+        .bk-pack-opt.on { border-color: #14532d; background: #f0faf3; }
         .bk-pack-opt.use { border-style: dashed; } .bk-pack-opt.use.on { border-style: solid; }
-        .bk-pack-opt input { accent-color: #166534; width: 18px; height: 18px; flex-shrink: 0; margin: 0; }
+        .bk-pack-opt input { accent-color: #14532d; width: 18px; height: 18px; flex-shrink: 0; margin: 0; }
         .bk-pack-txt { flex: 1; min-width: 0; } .bk-pack-txt b { display: block; font-size: 13.5px; color: #132a1c; }
         .bk-pack-txt b i { font-style: normal; font-size: 11px; font-weight: 800; color: #92400e; background: #fde68a; border-radius: 999px; padding: 1px 7px; margin-left: 4px; }
         .bk-pack-txt em { display: block; font-style: normal; font-size: 11.5px; color: #64748b; margin-top: 1px; }
@@ -1358,7 +1358,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         .bk-hero { display: flex; gap: 18px; align-items: center; background: #fff; border: 1px solid #e5e7eb; border-top: 3px solid ${GOLD}; border-radius: 12px; padding: 18px 20px; box-shadow: 0 4px 24px rgba(0,0,0,.05); margin-bottom: 14px; }
         .bk-hero-img { width: 92px; height: 92px; border-radius: 16px; object-fit: cover; object-position: top; border: 2px solid ${GOLD}; flex-shrink: 0; background: #f1f5f9; }
         .bk-hero-eyebrow { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; }
-        .bk-hero-name { font-size: 22px; font-weight: 800; color: ${DARK}; line-height: 1.25; margin-top: 2px; }
+        .bk-hero-name { font-size: 22px; font-weight: 800; color: ${DARK}; line-height: 1.25; margin: 2px 0 0; padding: 0; font-family: inherit; letter-spacing: normal; text-transform: none; } /* the page's one H1 (was a div) */
         .bk-hero-role { font-size: 13px; color: ${GL}; font-weight: 700; margin-top: 2px; }
         .bk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .bk-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #475569; background: #f1f5f9; border-radius: 99px; padding: 5px 11px; }
@@ -1415,10 +1415,10 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         .bk-where-dist { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; }
         .bk-where-dist b { font-size: 15px; color: #132a1c; }
         .bk-where.far .bk-where-dist b { color: #c2410c; }
-        .bk-where-dist button { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #166534; background: #fff; color: #166534; font-weight: 800; font-size: 13px; cursor: pointer; }
+        .bk-where-dist button { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #14532d; background: #fff; color: #14532d; font-weight: 800; font-size: 13px; cursor: pointer; }
         .bk-where-dist small { flex-basis: 100%; font-size: 11.5px; color: #8a6a2a; }
         .bk-where-note, .bk-where p { margin: 10px 0 0; font-size: 13px; line-height: 1.55; color: #4b3a12; }
-        .bk-where-note a { color: #166534 !important; font-weight: 700; }
+        .bk-where-note a { color: #14532d !important; font-weight: 700; }
         .bk-where .bk-where-warn { margin: 0 0 4px; padding: 8px 10px; border-radius: 8px; background: #fff1e6; color: #9a3412; font-weight: 600; }
         .bk-noida { display: flex; align-items: center; gap: 18px; margin-top: 16px; padding: 18px 20px; border-radius: 12px; background: linear-gradient(135deg, ${G} 0%, #175c37 100%); border: 1px solid ${GOLD}; box-shadow: 0 6px 24px rgba(15,61,36,.18); color: #fff; }
         .bk-noida-mark { flex-shrink: 0; width: 64px; height: 64px; border-radius: 16px; background: #fff; padding: 9px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; }
