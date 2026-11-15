@@ -171,16 +171,17 @@ export default function ViewAllTherapist({ initialAllData = [], initialFilters =
       barRef.current?.style.setProperty("--vat-top", `${Math.max(0, Math.round(bottom))}px`);
     };
     // the header switches to its slimmer pinned style just after the scroll — measure again then
-    let late = 0;
+    let late = 0, late2 = 0;
     const on = () => {
       if (!raf) raf = requestAnimationFrame(measure);
-      clearTimeout(late);
+      clearTimeout(late); clearTimeout(late2);
       late = setTimeout(measure, 300);
+      late2 = setTimeout(measure, 750); // the header slides in when it pins (0.65s) — measure again once it has landed
     };
     measure();
     window.addEventListener("scroll", on, { passive: true });
     window.addEventListener("resize", on);
-    return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); cancelAnimationFrame(raf); clearTimeout(late); };
+    return () => { window.removeEventListener("scroll", on); window.removeEventListener("resize", on); cancelAnimationFrame(raf); clearTimeout(late); clearTimeout(late2); };
   }, []);
 
   // modals: Escape closes, page behind doesn't scroll

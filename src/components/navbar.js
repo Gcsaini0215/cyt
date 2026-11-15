@@ -71,20 +71,25 @@ export default function App() {
     // The theme pins the header with position: fixed, which takes it out of the page — so a spacer of the same
     // height holds its place (no jump). It pins only once the header has scrolled out of view and unpins only back
     // at the very top, so iPhone's bounce at the top can't flip it on/off (that flicker + "stuck" top was the glitch).
+    // Phones / iPad (2026-11-16): near the top the header is NOT pinned — it scrolls with the page, so coming back up
+    // never leaves the hero heading half under the bar. It pins past MOB_PIN and lets go below MOB_UNPIN (the gap
+    // keeps iPhone's momentum/bounce from flickering it). Desktop keeps the old rule.
+    const MOB_PIN = 180, MOB_UNPIN = 150;
     let sticky = false, raf = 0;
     const update = () => {
       raf = 0;
       const y = window.scrollY;
+      const mobile = window.innerWidth < 992;
       if (!sticky) {
         const h = headerRef.current?.offsetHeight || 0;
-        if (y > Math.max(h, 60)) {
+        if (y > (mobile ? Math.max(MOB_PIN, h + 40) : Math.max(h, 60))) {
           const strip = document.querySelector(".top-strip");
-          const stripH = strip && window.innerWidth >= 992 ? strip.offsetHeight : 0; // desktop strip turns fixed too
+          const stripH = strip && !mobile ? strip.offsetHeight : 0; // desktop strip turns fixed too
           setHoldH(h + stripH);
           sticky = true;
           setIsSticky(true);
         }
-      } else if (y <= 2) {
+      } else if (mobile ? y < MOB_UNPIN : y <= 2) {
         sticky = false;
         setIsSticky(false);
       }
@@ -477,7 +482,9 @@ export default function App() {
           box-shadow: 0 2px 16px rgba(15,61,36,.07);
           border-bottom: 1px solid #dbe3df;
         }
-        @media (max-width: 991px) { .rbt-header.rbt-header-10 { top: 0; } }
+        /* phones / iPad: not sticky near the top (it scrolls with the page so the hero heading is never under it);
+           further down the bar pins itself (position: fixed + .nav-hold) and slides in — see MOB_PIN in the code */
+        @media (max-width: 991px) { .rbt-header.rbt-header-10 { position: relative; top: 0; } }
         /* pinned: the bar itself is fixed and .nav-hold keeps its place, so the empty header box draws nothing */
         .rbt-header.rbt-header-10.header-sticky { border-bottom: 0 !important; box-shadow: none !important; }
 
