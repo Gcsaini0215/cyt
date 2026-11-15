@@ -33,7 +33,7 @@ export default function WorkshopPaymentPending({ pageData }) {
         const response = await postData(saveWorkshopPaymentUrl, data);
         if (response.status) {
           const token = getToken();
-          if(!token){
+          if (!token && response.token) {
             setToken(response.token);
           }
           setSuccess("Payment Recevide successfully");

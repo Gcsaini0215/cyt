@@ -33,7 +33,7 @@ export default function PaymentPending({ pageData }) {
         const response = await postData(savePaymentUrl, data);
         if (response.status) {
           const token = getToken();
-          if (!token) {
+          if (!token && response.token) {
             setToken(response.token);
           }
           setSuccess("Payment Recevided successfully");
