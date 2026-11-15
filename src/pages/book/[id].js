@@ -10,6 +10,7 @@ import {
   ApplyCouponUrl, sendGuestEmailOtpUrl, verifyGuestEmailOtpUrl, PublicCouponsUrl,
   BookedSlotsUrl, apiUrl, MyReferralUrl,
 } from "../../utils/url";
+import { trackFunnel } from "../../utils/funnel";
 import { fetchById } from "../../utils/actions";
 import { getValidServices } from "../../utils/helpers";
 import { getToken } from "../../utils/jwt";
@@ -450,6 +451,9 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
 
   const days14     = React.useMemo(getNext14Days, []);
   const isLoggedIn = typeof window !== "undefined" && !!getToken();
+  // booking-funnel step counts (no personal data) — utils/funnel.js
+  const fn = (step, withMode) => trackFunnel(step, { guest: !isLoggedIn, mode: withMode ? mode : "", therapist: String(id || "") });
+  React.useEffect(() => { if (id) fn("book_view"); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // referral credit the signed-in client has earned ("Give ₹200, get ₹200"), spent here automatically
   const [credit,    setCredit]    = React.useState(0);
@@ -603,6 +607,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     try {
       await postData(sendGuestEmailOtpUrl, { email });
       setEmailOtpSent(true); startTimer();
+      fn("otp_sent");
     } catch(e) { setLErr(e?.response?.data?.message || "Failed to send verification code."); }
     finally { setLLoad(false); }
   }
@@ -616,6 +621,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       const res = await postData(verifyGuestEmailOtpUrl, { email, otp: code });
       if (res?.status) {
         setEmailVerified(true); setVerifiedEmail(email);
+        fn("otp_verified");
       } else { setLErr(res?.message || "Invalid code. Please try again."); }
     } catch(e) { setLErr(e?.response?.data?.message || "Invalid code."); }
     finally { setLLoad(false); }
@@ -706,6 +712,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
       ...(!isLoggedIn && emailVerified ? { guest_email_verified: "true" } : {}),
     });
+    fn("to_checkout", true);
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }
 
@@ -730,6 +737,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     setSelSlot({ val: row.val, label: row.label });
     setFstep(1);
     setPhase("form");
+    fn("slot_picked");
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -1016,7 +1024,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
           (bookFor === "other" && !relation) ||
           (!isLoggedIn && (!(guestName || "").trim() || (guestPhone || "").length < 10 || !(guestEmail || "").includes("@") || !emailVerified))
         }
-        onClick={() => setFstep(2)}
+        onClick={() => { fn("details_done"); setFstep(2); }}
       />
       <div style={{ textAlign: "center", marginTop: 10 }}><BackBtn onClick={() => setPhase("slots")} /></div>
     </div>
@@ -1097,7 +1105,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
         }} />
       <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "right", marginTop: 4 }}>{notes.length}/500</div>
 
-      <ContinueBtn disabled={!selSvc || !selFmt} onClick={() => setFstep(3)} />
+      <ContinueBtn disabled={!selSvc || !selFmt} onClick={() => { fn("session_done", true); setFstep(3); }} />
       <div style={{ textAlign: "center", marginTop: 10 }}><BackBtn onClick={() => setFstep(1)} /></div>
     </div>
   );

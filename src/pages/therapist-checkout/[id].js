@@ -6,6 +6,7 @@ import MyNavbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import { fetchData, postData } from "../../utils/actions";
 import { getTherapistProfile, BookTherapistUrl, imagePath, defaultProfile, apiUrl, releaseBookingSlot } from "../../utils/url";
+import { trackFunnel } from "../../utils/funnel";
 import useUserStore from "../../store/userStore";
 import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
 import { istDay, isAwayFromIst, localTimeLabel } from "../../utils/ist";
@@ -64,6 +65,8 @@ export default function TherapistCheckoutPage() {
 
   const token       = typeof window !== "undefined" ? getToken() : null;
   const isLoggedIn  = !!token;
+  // booking-funnel step counts (no personal data) — utils/funnel.js
+  const fn = (step) => trackFunnel(step, { guest: !isLoggedIn, mode: router.query.session_type || "", therapist: String(id || "") });
 
   // ── fetch therapist profile for display ──────────────────────────────────
   useEffect(() => {
@@ -180,6 +183,7 @@ export default function TherapistCheckoutPage() {
         router.replace(`/payment-success/${res.data.id}?pack=1`);
       } else if (res?.status && res?.data?.id) {
         bookingIdRef.current = res.data.id;
+        fn("booking_created");
         // a pack is charged the total the server worked out
         if (res.data.amount) payload.amount = res.data.amount;
         await openRazorpay(res.data.id, payload.amount);
@@ -233,6 +237,7 @@ export default function TherapistCheckoutPage() {
         description: "Therapy Session Booking",
         handler: async function(response) {
           paidRef.current = true;
+          fn("paid");
           const paymentId = response.razorpay_payment_id;
           // Money has left the customer's account by now — so a hiccup while confirming must not
           // read as a failed payment. Retry the confirmation, and if it still can't be confirmed,
@@ -269,20 +274,22 @@ export default function TherapistCheckoutPage() {
             }
             await new Promise(r => setTimeout(r, 1500));
           }
+          fn("verify_error");
           setPaidId(paymentId);
           setErr(`Your payment went through (ID: ${paymentId}) but we couldn't confirm the booking${lastMsg ? ` — ${lastMsg}` : ""}. Please WhatsApp us with this payment ID and we'll sort it out right away.`);
           setStatus("error");
         },
         prefill: {
-          name:    userInfo?.name  || "",
-          email:   userInfo?.email || "",
-          contact: userInfo?.phone || "",
+          name:    userInfo?.name  || router.query.guest_name  || "",
+          email:   userInfo?.email || router.query.guest_email || "",
+          contact: userInfo?.phone || router.query.guest_phone || "",
         },
         theme: { color: G },
         modal: {
           ondismiss: function() {
             if (paidRef.current) return; // paid — the handler owns what happens next
             // user closed Razorpay — free the slot at once, and let them retry
+            fn("rzp_dismiss");
             releaseBookingSlot(bookingId);
             setStatus("error");
             setErr("Payment was cancelled. You can retry whenever you're ready.");
@@ -295,11 +302,13 @@ export default function TherapistCheckoutPage() {
       rzp.on("payment.failed", (resp) => {
         // Bank / UPI declined it. Razorpay's window lets them try another method; if they close
         // it, this message plus the Retry button is what they land on.
+        fn("rzp_failed");
         const why = resp?.error?.description;
         setErr(`Payment failed${why ? ` — ${why}` : ""}. Please retry or use a different payment method.`);
         setStatus("error");
         bookedRef.current = false;
       });
+      fn("rzp_open");
       rzp.open();
     } catch {
       setErr("Payment failed to initialize. Please try again.");
