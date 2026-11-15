@@ -123,10 +123,19 @@ const CSS = `
 .cyc-main:hover { background:#14532d; }
 .cyc-ghost { background:#fff; color:#26463a; border-color:#cfdcd4; }
 .cyc-ghost:hover { border-color:#1e7a4c; color:#1e7a4c; }
-.cyc-link { display:block; margin:10px auto 0; background:none; border:0; padding:2px 4px; color:#66756d; font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+.cyc-link { display:block; margin:4px auto -6px; background:none; border:0; padding:8px 8px; min-height:32px; color:#66756d; font-size:12.5px; font-weight:700; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
 .cyc-link:hover { color:#1e7a4c; }
 @media (max-width:900px), (max-width:1100px) and (orientation:portrait) {
-  .cyc { left:12px; right:12px; width:auto; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); padding:16px 16px 12px; border-radius:18px; }
+  .cyc { left:12px; right:12px; width:auto; max-width:560px; margin:0 auto; bottom:calc(12px + env(safe-area-inset-bottom, 0px)); padding:12px 14px 10px; border-radius:16px; }
+  /* compact on phones / iPad: it used to cover ~40% of the screen (2026-11-15) — same words and buttons, less height */
+  .cyc-ic { display:none; }
+  .cyc-top { gap:0; }
+  .cyc-title { margin:0 0 2px; font-size:14px; }
+  .cyc-text { font-size:12.5px; line-height:1.45; }
+  .cyc-acts { margin-top:10px; }
+  .cyc-btn { height:38px; font-size:13.5px; border-radius:10px; }
+  .cyc-link { margin-top:0; font-size:12px; }
+  .cyc-list li { padding:8px 10px; }
 }
 /* never over the phone action bar (home, Noida…) */
 body:has(.mab.on) .cyc { bottom:calc(76px + env(safe-area-inset-bottom, 0px)); }

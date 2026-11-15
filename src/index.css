@@ -1,3 +1,35 @@
+/* ── CYT brand tokens (2026-11-15, responsive plan Phase 1 "foundations") ──
+   The CURRENT green / gold values, named once so new and touched code can use var(--brand-…).
+   Nothing on the site changes from this block alone; merging the many green/gold shades into
+   these is a separate, owner-approved step. */
+:root {
+  --brand-primary: #1e7a4c;        /* buttons, links, active states */
+  --brand-primary-strong: #166534; /* the most-used darker green */
+  --brand-primary-dark: #14532d;   /* headings, deep surfaces, footer */
+  --brand-accent: #e3a83a;         /* gold: highlights, dividers, focus */
+  --brand-accent-soft: #ecc77d;    /* light gold */
+  --surface: #ffffff;
+  --surface-muted: #f6faf7;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --focus-ring: #e3a83a;
+}
+/* keyboard users always see where they are (zero specificity: any component's own focus style wins) */
+:where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+/* bigger tap areas, same look (2026-11-15 audit: these measured under 32px on phones) */
+.hamberger .hamberger-button { position: relative; }
+.hamberger .hamberger-button::before { content: ""; position: absolute; inset: -7px; } /* 30px icon → 44px tap area */
+.cyt-trust a { padding-block: 7px; } /* "5.0 on Google" link: inline, so no layout change */
+
+/* people who switch off motion in their phone/computer settings get instant, not smooth, scrolling */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+}
+
 .vbox-overlay {
   --vbox-tools-color: #fff;
   --vbox-title-background: #101010;
