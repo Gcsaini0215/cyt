@@ -143,6 +143,14 @@ export default function CallbackWidget() {
           .cb-pill { writing-mode:horizontal-tb; font-size:0; gap:0; padding:9px 7px 9px 9px; animation:none; border-radius:12px 0 0 12px; }
           .cb-pill-icon { width:28px; height:28px; }
         }
+        /* iPad / tablet (768–1199): the tall side tab covered the right edge of cards (profile header,
+           booking slots). Here it is just the phone icon, lower down, clear of the bottom booking bar. */
+        @media(min-width:768px) and (max-width:1199px){
+          .cb-widget { top:auto; bottom:calc(132px + env(safe-area-inset-bottom, 0px)); align-items:flex-end; }
+          .cb-card { width:280px; border-radius:16px 0 0 16px; }
+          .cb-pill { writing-mode:horizontal-tb; font-size:0; gap:0; padding:10px 8px 10px 10px; animation:none; border-radius:12px 0 0 12px; }
+          .cb-pill-icon { width:30px; height:30px; }
+        }
       ` }} />
 
       <div className="cb-widget">

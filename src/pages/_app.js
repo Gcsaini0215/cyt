@@ -325,7 +325,8 @@ function MyApp({ Component, pageProps }) {
       {!shouldHideWidgets && (
         <>
           {/* home: the side tab sat on the hero headline — the hero has its own search, Noida card and lead popup */}
-          {router.pathname !== "/" && <CallbackWidget />}
+          {/* booking & payment pages: the visitor is mid-booking — no side tab over the slots / summary */}
+          {router.pathname !== "/" && !["/book/[id]", "/therapist-checkout/[id]", "/complete-payment/[id]", "/payment-success/[id]"].includes(router.pathname) && <CallbackWidget />}
           <ActiveBookingBanner />
         </>
       )}
