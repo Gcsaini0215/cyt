@@ -146,7 +146,6 @@ export default function Footer() {
                 <ul className="ft-link liststyle-none mt--20">
                   <li className="mb--12"><Link href="/self-assessment">Self-Assessment</Link></li>
                   <li className="mb--12"><Link href="/wellness-toolkit">Wellness Toolkit</Link></li>
-                  <li><Link href="/allworkshop">Workshops</Link></li>
                 </ul>
               </div>
             </div>

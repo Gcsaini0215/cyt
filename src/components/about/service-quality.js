@@ -96,7 +96,7 @@ export default function ServiceQuality() {
                 <Link href="/noida-appointment">therapy centre in Noida</Link>.
               </p>
               <p>
-                Beyond therapy, we run <Link href="/allworkshop">mental health workshops</Link>, an{" "}
+                Beyond therapy, we run mental health workshops, an{" "}
                 <Link href="/internship-registration">internship and supervision track</Link> for
                 psychology students, and a <Link href="/probono-therapist">pro bono counselling
                 initiative</Link> for those who cannot afford paid sessions.
