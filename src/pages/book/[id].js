@@ -442,6 +442,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
   const [emailOtpSent,   setEmailOtpSent]   = React.useState(false);
   const [emailVerified,  setEmailVerified]  = React.useState(false);
   const [verifiedEmail,  setVerifiedEmail]  = React.useState("");
+  const [emailProof,     setEmailProof]     = React.useState(""); // server-signed proof the email was verified
   const [lOtp,      setLOtp]      = React.useState(["","","","","",""]);
   const [lLoad,     setLLoad]     = React.useState(false);
   const [lErr,      setLErr]      = React.useState("");
@@ -620,7 +621,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
     try {
       const res = await postData(verifyGuestEmailOtpUrl, { email, otp: code });
       if (res?.status) {
-        setEmailVerified(true); setVerifiedEmail(email);
+        setEmailVerified(true); setVerifiedEmail(email); setEmailProof(res.proof || "");
         fn("otp_verified");
       } else { setLErr(res?.message || "Invalid code. Please try again."); }
     } catch(e) { setLErr(e?.response?.data?.message || "Invalid code."); }
@@ -707,11 +708,17 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
       ...(couponApplied?.referral && !onPack ? { referral_code: couponApplied.code } : {}),
       ...(creditUse > 0 ? { credit_used: String(creditUse) } : {}),
       ...(assessLines.length ? { assess: assessLines.map((l) => `${l.key}:${l.price}`).join(",") } : {}),
-      ...(!isLoggedIn && (guestName || "").trim() ? { guest_name: (guestName || "").trim() } : {}),
-      ...(!isLoggedIn && guestPhone ? { guest_phone: guestPhone } : {}),
-      ...(!isLoggedIn && (guestEmail || "").trim() ? { guest_email: (guestEmail || "").trim().toLowerCase() } : {}),
-      ...(!isLoggedIn && emailVerified ? { guest_email_verified: "true" } : {}),
     });
+    // Guest contact details go to the checkout through this tab's sessionStorage, NOT the URL
+    // (a URL ends up in server logs and browser history). 2026-11-15 audit.
+    if (!isLoggedIn) {
+      try {
+        sessionStorage.setItem(`cyt_guest_${id}`, JSON.stringify({
+          name: (guestName || "").trim(), phone: guestPhone || "",
+          email: (guestEmail || "").trim().toLowerCase(), proof: emailProof || "", verified: !!emailVerified,
+        }));
+      } catch (e) { /* storage blocked — checkout will ask them to go back */ }
+    }
     fn("to_checkout", true);
     router.push(`/therapist-checkout/${id}?${p.toString()}`);
   }
@@ -949,7 +956,7 @@ export default function BookPage({ initialProfile = null, id: ssrId, urlKey }) {
               onChange={e => {
                 setGuestEmail(e.target.value);
                 if (emailVerified && e.target.value.trim().toLowerCase() !== verifiedEmail) {
-                  setEmailVerified(false); setEmailOtpSent(false); setLOtp(["","","","","",""]); setLErr("");
+                  setEmailVerified(false); setEmailProof(""); setEmailOtpSent(false); setLOtp(["","","","","",""]); setLErr("");
                 }
               }}
               placeholder="Email address *"

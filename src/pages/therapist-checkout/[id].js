@@ -65,6 +65,11 @@ export default function TherapistCheckoutPage() {
 
   const token       = typeof window !== "undefined" ? getToken() : null;
   const isLoggedIn  = !!token;
+  // guest name / phone / email / email proof from /book — kept in this tab's sessionStorage, not the URL
+  const guest = React.useMemo(() => {
+    if (typeof window === "undefined" || !id) return {};
+    try { return JSON.parse(sessionStorage.getItem(`cyt_guest_${id}`) || "{}") || {}; } catch (e) { return {}; }
+  }, [id]);
   // booking-funnel step counts (no personal data) — utils/funnel.js
   const fn = (step) => trackFunnel(step, { guest: !isLoggedIn, mode: router.query.session_type || "", therapist: String(id || "") });
 
@@ -123,7 +128,7 @@ export default function TherapistCheckoutPage() {
 
     // If just logged in via OTP, userInfo may not be loaded yet —
     // use guest_email from query to identify the user on backend
-    const guestEmail = q.guest_email || "";
+    const guestEmail = guest.email || "";
 
     const payload = {
       is_logged_in: isLI,
@@ -151,10 +156,11 @@ export default function TherapistCheckoutPage() {
         phone:   userInfo.phone || "",
       } : {
         // guest user: use details from booking form
-        name:  userInfo?.name  || q.guest_name  || "",
-        email: userInfo?.email || q.guest_email || "",
-        phone: userInfo?.phone || q.guest_phone || "",
-        guest_email_verified: q.guest_email_verified === "true",
+        name:  userInfo?.name  || guest.name  || "",
+        email: userInfo?.email || guest.email || "",
+        phone: userInfo?.phone || guest.phone || "",
+        guest_email_proof: guest.proof || "",
+        guest_email_verified: !!guest.verified, // only for the old API during the switch-over; the new one checks the proof
       }),
 
       // "for other" extra fields
@@ -280,9 +286,9 @@ export default function TherapistCheckoutPage() {
           setStatus("error");
         },
         prefill: {
-          name:    userInfo?.name  || router.query.guest_name  || "",
-          email:   userInfo?.email || router.query.guest_email || "",
-          contact: userInfo?.phone || router.query.guest_phone || "",
+          name:    userInfo?.name  || guest.name  || "",
+          email:   userInfo?.email || guest.email || "",
+          contact: userInfo?.phone || guest.phone || "",
         },
         theme: { color: G },
         modal: {
