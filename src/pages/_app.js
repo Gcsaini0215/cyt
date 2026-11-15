@@ -8,7 +8,7 @@ const ActiveBookingBanner = dynamic(() => import("@/components/global/active-boo
 import CookieConsent from "@/components/global/cookie-consent";
 import SessionNotice from "@/components/global/session-notice";
 import SiteMotion from "@/components/global/site-motion";
-import "react-datepicker/dist/react-datepicker.css";
+// react-datepicker.css removed (2026-11-16): no page uses the date picker any more — it was 24 KB on every page
 import "react-toastify/dist/ReactToastify.css";
 import { postData } from "../utils/actions";
 import { subscribeToNotifications } from "../utils/push-notifications";
@@ -17,7 +17,9 @@ import { useEffect } from "react";
 import { reportAiArrival } from "../utils/ai-referral";
 import useClientPresence from "../utils/client-presence";
 import Head from "next/head";
-import { TherapistShell, THERAPIST_SHELL_ROUTES } from "@/components/therapists/main-layout";
+import { THERAPIST_SHELL_ROUTES } from "@/components/therapists/shell-routes";
+// the therapist portal shell loads only on therapist pages, not with every public page (2026-11-16 speed)
+const TherapistShell = dynamic(() => import("@/components/therapists/main-layout").then((m) => m.TherapistShell));
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();

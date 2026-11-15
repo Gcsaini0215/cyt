@@ -9,6 +9,7 @@ import { getDecodedToken } from "../../utils/jwt";
 import useSessionGuard from "../../utils/session-guard";
 import usePullToRefresh, { PTR_CSS, PTR_ICON } from "../../utils/pull-refresh";
 import WhatsNew from "../global/whats-new";
+import { THERAPIST_SHELL_ROUTES } from "./shell-routes";
 
 /**
  * Therapist portal shell (top nav + side nav + chat). _app.js mounts it ONCE
@@ -17,36 +18,7 @@ import WhatsNew from "../global/whats-new";
  * Pages still wrap themselves in <MainLayout>; inside the shell that is a
  * pass-through. Add a route here when a new page uses MainLayout.
  */
-export const THERAPIST_SHELL_ROUTES = new Set([
-  "/therapist-dashboard",
-  "/appointments",
-  "/my-schedule",
-  "/case-history",
-  "/clinic-patients",
-  "/add-offline-client",
-  "/create-report",
-  "/coupons",
-  "/coupon/create",
-  "/coupon/update/[id]",
-  "/workshops",
-  "/create-workshop",
-  "/update-workshop/[id]",
-  "/therapist-blogs",
-  "/therapist-ai-blog",
-  "/settings",
-  "/therapists/invoices",
-  "/therapists/notifications",
-  "/therapists/reviews",
-  "/therapists/achievements",
-  "/therapists/my-link",
-  "/therapists/toolkit",
-  "/therapists/toolkit/[id]",
-  "/therapists/social-posts",
-  "/therapists/questions",
-  "/therapists/google-listing",
-  "/therapists/change-password",
-  "/my-plans",
-]);
+export { THERAPIST_SHELL_ROUTES }; // moved to ./shell-routes (kept exported here for old imports)
 
 const ShellContext = React.createContext(false);
 
