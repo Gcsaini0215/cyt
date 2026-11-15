@@ -33,6 +33,27 @@ function MyApp({ Component, pageProps }) {
   // arrived from an AI assistant (ChatGPT, Perplexity, Gemini …)? — counted for the admin Overview
   useEffect(() => { reportAiArrival(); }, []);
 
+  // Refresh near the top of a page: browsers (iPhone Safari especially) put you back a little way down,
+  // so the sticky header sits over the hero heading and the page looks cut off. Within the first screen,
+  // start a refreshed page at the very top instead; deeper positions (e.g. halfway through a blog) are kept.
+  useEffect(() => {
+    let nav;
+    try { nav = performance.getEntriesByType("navigation")[0]; } catch (e) { nav = null; }
+    if (!nav || nav.type !== "reload") return undefined;
+    const snap = () => {
+      const y = window.scrollY;
+      if (y > 0 && y < window.innerHeight * 0.9) window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    };
+    const timers = [];
+    const run = () => { snap(); timers.push(setTimeout(snap, 250), setTimeout(snap, 700)); };
+    if (document.readyState === "complete") run(); else window.addEventListener("load", run, { once: true });
+    // the visitor starts scrolling themselves — stop correcting
+    const stop = () => timers.forEach(clearTimeout);
+    window.addEventListener("touchstart", stop, { once: true, passive: true });
+    window.addEventListener("wheel", stop, { once: true, passive: true });
+    return () => { stop(); window.removeEventListener("load", run); };
+  }, []);
+
   // logged-in client online now? — Admin → Client 360 "Live now"
   useClientPresence(router);
 
