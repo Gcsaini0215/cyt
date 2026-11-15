@@ -1,9 +1,31 @@
 import nodemailer from "nodemailer";
 
+// 2026-11-15 audit P1-2: this route needs no login — cap it per visitor and never put raw form text into the mail HTML.
+const LIMIT = 5, WINDOW_MS = 60 * 60 * 1000; // 5 applications per IP per hour (single Next process, in memory)
+const hits = new Map();
+const tooMany = (ip) => {
+  const now = Date.now();
+  const recent = (hits.get(ip) || []).filter((t) => now - t < WINDOW_MS);
+  if (recent.length >= LIMIT) { hits.set(ip, recent); return true; }
+  recent.push(now);
+  hits.set(ip, recent);
+  if (hits.size > 5000) hits.clear(); // keep memory bounded
+  return false;
+};
+const esc = (v) => String(v ?? "").slice(0, 2000)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
 
-  const { name, email, phone, city, college, degree, specialization, internType, mode, duration, hours, programFee, transactionId, availableFrom, motivation } = req.body;
+  const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
+  if (tooMany(ip)) return res.status(429).json({ ok: false, message: "Too many applications from this connection. Please try again in an hour." });
+
+  const body = req.body || {};
+  const rawEmail = String(body.email || "").trim();
+  const { name, email, phone, city, college, degree, specialization, mode, duration, hours, programFee, transactionId, availableFrom } =
+    Object.fromEntries(Object.entries(body).map(([k, v]) => [k, Array.isArray(v) ? v : esc(v)]));
+  const internType = Array.isArray(body.internType) ? body.internType.map(esc) : esc(body.internType);
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -14,7 +36,8 @@ export default async function handler(req, res) {
   });
 
   const types = Array.isArray(internType) ? internType.join(", ") : internType;
-  const motivationSnippet = (motivation || "").slice(0, 180) + ((motivation || "").length > 180 ? "..." : "");
+  const rawMotivation = String(body.motivation || "");
+  const motivationSnippet = esc(rawMotivation.slice(0, 180)) + (rawMotivation.length > 180 ? "..." : "");
   const appliedOn = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
   const html = `
@@ -130,8 +153,8 @@ export default async function handler(req, res) {
     await transporter.sendMail({
       from: '"CYT Internship" <appointment.cyt@gmail.com>',
       to: "chooseyourtherapist@gmail.com",
-      replyTo: email,
-      subject: `🎓 New Internship Application — ${name} (${types})`,
+      replyTo: /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(rawEmail) ? rawEmail : undefined,
+      subject: `🎓 New Internship Application — ${String(body.name || "").slice(0, 80)} (${(Array.isArray(body.internType) ? body.internType.join(", ") : String(body.internType || "")).slice(0, 80)})`,
       html,
     });
     return res.status(200).json({ ok: true });
