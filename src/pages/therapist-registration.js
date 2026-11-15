@@ -1245,20 +1245,8 @@ export default function TherapistRegistration() {
                       })}
                     </div>
 
-                    <div className="pk-terms">
-                      <b>How it works</b>
-                      <ul>
-                        <li><b>Listing charge:</b> the package above is a fee for listing your profile on Choose Your Therapist for the chosen period.</li>
-                        <li><b>Your share of every booking:</b> you start at <b>70%</b> of the session fee (<b>30%</b> to CYT), and it goes up as you earn achievements — 75%, 80%, 85%, up to <b>93%</b>. See the levels below.</li>
-                        <li>Packages are for listing and visibility. Bookings depend on your profile, availability and client demand.</li>
-                      </ul>
-                      {/* the full guide opens in a new tab so the form here is not lost */}
-                      <a className="pk-guide" href="/therapist-how-it-works" target="_blank" rel="noopener">
-                        Read the full guide: how CYT works for therapists, with screens from your dashboard <i className="feather-arrow-up-right" aria-hidden="true" />
-                      </a>
-                      <ShareLadder />
-                    </div>
-
+                    {/* "How it works" and the share levels live on /therapist-how-it-works now (linked in the agreement below) —
+                        step 1 shows just the packages, the agreement and Continue (2026-11-16) */}
                     <label className={`pk-check ${form.planTerms ? "on" : ""}`}>
                       <input type="checkbox" checked={form.planTerms} onChange={(e) => set("planTerms", e.target.checked)} />
                       <span>Yes, I have read <a href="/therapist-how-it-works" target="_blank" rel="noopener" className="pk-check-link">How it works</a> and I accept the terms — the <b>website listing charge</b> and the <b>70:30 split for every booking</b>.</span>

@@ -1,7 +1,7 @@
 // Server-only: the achievement certificate (A4 landscape, 1754x1240 PNG) for /api/certificate/<code>.png.
 // Built like the share cards (sharp + Pango text, Noto Sans) — CYT's own certificate for a therapist's
 // achievement on CYT: white paper, green + gold frame, a faint CYT watermark, the numbers in small panels,
-// the tier medal, the founder's signature, and a QR + ID that verify it at /verify-achievement/<code>.
+// the tier medal, Choose Your Therapist as the issuer (no personal signature), and a QR + ID that verify it at /verify-achievement/<code>.
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
@@ -148,18 +148,19 @@ export async function certificatePng(c, { sample = false } = {}) {
     for (const p of panels) { layers.push({ input: p.data, left: x, top: y }); x += p.w + gap; }
   }
 
-  // bottom row: medal (left) · signature + date (centre) · QR (right)
+  // bottom row: medal (left) · issuer (Choose Your Therapist) + date (centre) · QR (right)
   const rowTop = H - 440;
   layers.push({ input: medal(c.tier), left: 170, top: rowTop });
   const tl = await text(`${tier.label} ACHIEVEMENT`, { size: 16, color: tier.b, width: 420, spacing: 3, face: "serif", bold: true });
   layers.push(centred(tl, rowTop + 306, 170 + 130));
 
-  const sig = await text("Deepak Kumar", { size: 76, color: GREEN, width: 600, face: "script" });
-  const sigTop = rowTop + 70;
+  // issued by the company, not signed by a person (2026-11-16): the brand name where a signature used to be
+  const sig = await text("Choose Your Therapist", { size: 44, bold: true, color: GREEN, width: 640, face: "serif" });
+  const sigTop = rowTop + 96;
   layers.push(centred(sig, sigTop));
-  const sigLine = sigTop + sig.info.height - 4;
-  layers.push({ input: Buffer.from(`<svg width="440" height="3"><rect width="440" height="2" fill="${INK}" fill-opacity=".6"/></svg>`), left: Math.round(W / 2 - 220), top: sigLine });
-  const who = await text("Founder &amp; Director\nChoose Your Therapist LLP", { size: 20, color: MUTE, width: 600, spacing: 1 });
+  const sigLine = sigTop + sig.info.height + 8;
+  layers.push({ input: Buffer.from(`<svg width="440" height="3"><rect width="440" height="2" fill="${GOLD}" fill-opacity=".85"/></svg>`), left: Math.round(W / 2 - 220), top: sigLine });
+  const who = await text("Issued by Choose Your Therapist LLP\nVerified achievement", { size: 20, color: MUTE, width: 600, spacing: 1 });
   layers.push(centred(who, sigLine + 12));
   const when = await text(`Awarded on ${esc(fmtDate(c.unlockedAt || Date.now()))}`, { size: 21, color: INK, width: 600, face: "italic" });
   layers.push(centred(when, sigLine + 16 + who.info.height + 8));

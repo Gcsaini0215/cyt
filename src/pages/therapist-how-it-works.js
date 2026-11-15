@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import MyNavbar from "../components/navbar";
 import Footer from "../components/footer";
+import PhotoHero from "../components/global/photo-hero";
 import { PACKAGES, inr, perDay } from "../components/therapist/package-modal";
 import { SHARE_STEPS, SHARE_RULES } from "../utils/therapist-share";
 import { siteCardUrl } from "../utils/og-urls";
@@ -26,14 +27,14 @@ const STEPS = [
 const FEATURES = [
   {
     key: "dashboard", title: "Your dashboard — the day at a glance",
-    shots: [{ img: "dashboard", w: 1400, h: 875, label: "Desktop" }, { img: "dashboard-phone", w: 520, h: 1125, label: "Phone", phone: true }],
+    shots: [{ img: "dashboard", w: 1400, h: 875, label: "Desktop" }],
     points: [
       "Next session card with the client, time, mode and a Join button that opens just before the session",
       "Today's and upcoming sessions, with WhatsApp / call shortcuts to the client",
       "Your numbers: earnings at your share, sessions, new clients and rating",
       "A monthly earnings goal, profile views and your latest reviews in one place",
     ],
-    note: "On a phone or iPad the dashboard works like an app — a bottom bar with Home, Sessions, Schedule and More.",
+    note: "On a phone or iPad it works like an app — see “Use it like an app” below.",
   },
   {
     key: "hours", title: "My Schedule — your weekly hours",
@@ -73,7 +74,7 @@ const FEATURES = [
   },
   {
     key: "public", title: "Your public profile — what clients see",
-    shots: [{ img: "public-profile", w: 1400, h: 807, label: "Desktop" }, { img: "public-profile-phone", w: 520, h: 1120, label: "Phone", phone: true }],
+    shots: [{ img: "public-profile", w: 1400, h: 807, label: "Desktop" }],
     points: [
       "Verified badge, your next available slot and a Book a Session button",
       "About you, the concerns you help with, fees, availability and reviews",
@@ -91,7 +92,7 @@ const FEATURES = [
   },
   {
     key: "achievements", title: "Achievements — and a bigger share",
-    shots: [{ img: "achievements", w: 1400, h: 1069, label: "Desktop" }, { img: "certificate", w: 1400, h: 990, label: "Certificate" }],
+    shots: [{ img: "achievements", w: 1400, h: 1069, label: "Desktop" }, { img: "certificate", w: 1400, h: 990, label: "Certificate (sample)", plain: true }],
     points: [
       "Earn CYT awards for sessions completed, 4★+ reviews and a year with CYT",
       "Each award comes with a certificate that has a QR code anyone can scan to verify it",
@@ -123,6 +124,19 @@ const FEATURES = [
       "Choose which emails and notifications you get, and keep your account details up to date",
     ],
   },
+];
+
+// the app's bottom bar (a Dock on iPad) and its "More" menu — same icons and colours as components/therapists/top-nav.js
+const DOCK = [
+  { k: "home", icon: "feather-activity", t: "Home" },
+  { k: "sessions", icon: "feather-calendar", t: "Sessions" },
+  { k: "schedule", icon: "feather-clock", t: "Schedule" },
+  { k: "settings", icon: "feather-user", t: "Settings" },
+  { k: "more", icon: "feather-grid", t: "More" },
+];
+const TILES = [
+  { icon: "feather-credit-card", t: "Payouts" }, { icon: "feather-star", t: "Reviews" }, { icon: "feather-edit-3", t: "Toolkit" }, { icon: "feather-award", t: "Achievements" },
+  { icon: "feather-bar-chart-2", t: "Insights" }, { icon: "feather-link", t: "My link" }, { icon: "feather-file-text", t: "Invoices" }, { icon: "feather-help-circle", t: "Help" },
 ];
 
 const MORE = [
@@ -173,23 +187,14 @@ export default function TherapistHowItWorks() {
       <MyNavbar />
 
       <main className="thw">
-        {/* ── hero ── */}
-        <section className="thw-hero">
-          <div className="thw-wrap">
-            <span className="thw-eyebrow"><i className="feather-briefcase" aria-hidden="true" /> For psychologists &amp; counsellors</span>
-            <h1>How Choose Your Therapist works for therapists</h1>
-            <p className="thw-lead">From your application to your first booking — what you do, what it costs, how much of each session you keep, and the dashboard you run your practice from.</p>
-            <div className="thw-cta">
-              <Link href="/therapist-registration" className="thw-btn">Start your registration <i className="feather-arrow-right" aria-hidden="true" /></Link>
-              <a href="#dashboard" className="thw-btn ghost">See the dashboard</a>
-            </div>
-            <ul className="thw-quick">
-              <li><b>Verified</b> profiles only</li>
-              <li><b>Pay after</b> approval</li>
-              <li><b>70%</b> of every session fee, up to 93%</li>
-            </ul>
-          </div>
-        </section>
+        {/* ── hero: the site's photo banner, like the registration and partner pages ── */}
+        <PhotoHero
+          pill={<><i className="feather-briefcase" aria-hidden="true" /> For psychologists &amp; counsellors</>}
+          title={<>How Choose Your Therapist <span>works for therapists</span></>}
+          lead="From your application to your first booking — what you do, what it costs, how much of each session you keep, and the dashboard you run your practice from."
+          stats={[{ value: "Verified", label: "profiles only" }, { value: "Pay after", label: "approval" }, { value: "70%", label: "of every session fee, up to 93%" }]}
+          action={<div className="thw-cta"><Link href="/therapist-registration" className="thw-btn">Start your registration <i className="feather-arrow-right" aria-hidden="true" /></Link><a href="#dashboard" className="thw-btn ghost">See the dashboard</a></div>}
+        />
 
         {/* ── steps ── */}
         <section className="thw-sec">
@@ -269,16 +274,55 @@ export default function TherapistHowItWorks() {
                   </div>
                   <div className={`thw-shots${f.shots.length > 1 ? " many" : ""}${f.shots.some((s) => s.phone) ? " with-phone" : ""}`}>
                     {f.shots.map((s) => (
-                      <figure key={s.img} className={s.phone ? "phone" : ""}>
-                        {/* tap / click opens the full-size screen in a new tab */}
-                        <a href={IMG(`${s.img}.webp`)} target="_blank" rel="noopener" aria-label={`Open the ${s.label} screen full size`}>
-                          {img(s.img, s.w, s.h, `${f.title} — ${s.label} screen (sample data)`, s.phone)}
+                      <figure key={s.img} className={s.plain ? "plain" : "laptop"}>
+                        {/* tap / click opens the full-size screen in a new tab; screens sit in a laptop, the certificate on its own */}
+                        <a href={IMG(`${s.img}.webp`)} target="_blank" rel="noopener" aria-label={`Open the ${s.label} full size`}>
+                          {s.plain ? img(s.img, s.w, s.h, `${f.title} — ${s.label}`, false) : (
+                            <>
+                              <span className="thw-lap-scr">{img(s.img, s.w, s.h, `${f.title} — ${s.label} screen (sample data)`, false)}</span>
+                              <span className="thw-lap-base" aria-hidden="true" />
+                            </>
+                          )}
                         </a>
                         <figcaption>{s.label}</figcaption>
                       </figure>
                     ))}
                   </div>
                 </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── app: the phone screens, in phones ── */}
+        <section className="thw-sec thw-app" id="app">
+          <div className="thw-wrap thw-app-in">
+            <div className="thw-app-txt">
+              <h2>Use it like an app — on your phone and iPad</h2>
+              <p className="thw-sub">Open your dashboard on a phone or iPad and it works like an app: big buttons and a bottom bar with Home, Sessions, Schedule, Settings and More.</p>
+              <ul className="thw-app-list">
+                <li><i className="feather-smartphone" aria-hidden="true" /> Add it to your home screen and open it like any app</li>
+                <li><i className="feather-bell" aria-hidden="true" /> Your next session, Join and Reschedule right on the first screen</li>
+                <li><i className="feather-refresh-cw" aria-hidden="true" /> Pull down to refresh; everything stays in sync with your desktop</li>
+                <li><i className="feather-eye" aria-hidden="true" /> Check how your public profile looks to clients on a phone</li>
+              </ul>
+              <div className="thw-ipad" aria-label="The app on iPad: the More menu and the Dock">
+                <div className="thw-tiles">
+                  {TILES.map((x) => <span key={x.t} className="thw-tile"><i className={x.icon} aria-hidden="true" /><em>{x.t}</em></span>)}
+                </div>
+                <div className="thw-dock">
+                  {DOCK.map((x) => <span key={x.k} className="thw-dock-i" data-k={x.k}><i className={x.icon} aria-hidden="true" /><em>{x.t}</em></span>)}
+                </div>
+              </div>
+            </div>
+            <div className="thw-app-phones">
+              {[{ img: "dashboard-phone", h: 1125, label: "Your dashboard" }, { img: "public-profile-phone", h: 1120, label: "Your profile, as clients see it" }].map((p) => (
+                <figure key={p.img} className="thw-phone">
+                  <a href={IMG(`${p.img}.webp`)} target="_blank" rel="noopener" aria-label={`Open ${p.label} full size`}>
+                    <span className="thw-phone-scr">{img(p.img, 520, p.h, `${p.label} — phone screen (sample data)`, true)}</span>
+                  </a>
+                  <figcaption>{p.label}</figcaption>
+                </figure>
               ))}
             </div>
           </div>
@@ -326,7 +370,7 @@ const CSS = `
 .thw-eyebrow { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; color: #14532d; background: #fff; border: 1px solid #e3ebe6; padding: 6px 12px; border-radius: 999px; }
 .thw-hero h1 { font-size: clamp(28px, 4.2vw, 46px); font-weight: 900; color: #0f3d24; margin: 16px 0 12px; line-height: 1.12; letter-spacing: -.6px; max-width: 820px; }
 .thw-lead { font-size: 17px; color: #3f5148; line-height: 1.6; margin: 0 0 22px; max-width: 720px; }
-.thw-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.thw-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
 .thw-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 12px; background: linear-gradient(135deg, #1e7a4c, #14532d); color: #fff !important; font-weight: 800; font-size: 15px; text-decoration: none; box-shadow: 0 10px 22px -12px rgba(15,61,36,.6); }
 .thw-btn.ghost { background: #fff; color: #14532d !important; border: 1.5px solid #cfe3d6; box-shadow: none; }
 .thw-btn.light { background: #fff; color: #14532d !important; }
@@ -383,13 +427,54 @@ const CSS = `
 .thw-feat-note { margin: 14px 0 0; font-size: 13.5px; color: #64748b; line-height: 1.55; }
 .thw-shots { display: grid; gap: 14px; }
 .thw-shots.many { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } /* two screens side by side, not one tall stack */
-.thw-shots.with-phone { grid-template-columns: minmax(0, 1fr) minmax(0, 200px); align-items: end; }
 .thw-shots figure { margin: 0; }
 .thw-shots a { display: block; border-radius: 14px; }
-.thw-shots a:hover img { border-color: #9fcdb2; }
-.thw-shots img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid #dfe8e2; background: #fff; }
-.thw-shots figure.phone img { border-radius: 22px; border: 6px solid #0f1f17; }
+
+.thw-shots img { display: block; width: 100%; height: auto; background: #fff; }
+/* desktop screens sit inside a laptop: dark screen bezel + aluminium base with the thumb notch */
+.thw-lap-scr { display: block; background: #121c17; border-radius: 12px 12px 0 0; padding: 2.4% 2.4% 2.6%; }
+.thw-lap-scr img { border-radius: 3px; }
+.thw-lap-base { position: relative; display: block; height: 13px; margin: 0 -5%; background: linear-gradient(180deg, #e6eaed 0%, #c3c9ce 55%, #a9b0b6 100%); border-radius: 0 0 14px 14px; }
+.thw-lap-base::after { content: ""; position: absolute; top: 0; left: 50%; width: 16%; height: 5px; transform: translateX(-50%); background: #9aa2a9; border-radius: 0 0 6px 6px; }
+.thw-shots a:hover .thw-lap-scr { background: #1e7a4c; }
 .thw-shots figcaption { font-size: 12px; font-weight: 700; color: #64748b; margin-top: 6px; text-align: center; }
+
+.thw-app { background: linear-gradient(160deg, #f1f8f4 0%, #fbf6ea 100%); border-top: 1px solid #e8efea; border-bottom: 1px solid #e8efea; }
+.thw-app-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.thw-app-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.thw-app-list li { margin: 0; display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: #334155; line-height: 1.5; }
+.thw-app-list li::before { content: none; }
+.thw-app-list i { flex: none; width: 32px; height: 32px; border-radius: 10px; background: #fff; border: 1px solid #e3ebe6; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+.thw-app-phones { display: flex; justify-content: center; gap: 22px; }
+.thw-phone { margin: 0; flex: 0 1 240px; min-width: 0; }
+.thw-phone a { display: block; }
+/* phone screens sit inside a phone body */
+.thw-phone-scr { display: block; padding: 7px; background: #121c17; border-radius: 30px; }
+.thw-phone-scr img { display: block; width: 100%; height: auto; border-radius: 24px; }
+.thw-phone figcaption { font-size: 12.5px; font-weight: 700; color: #475569; margin-top: 10px; text-align: center; }
+
+/* iPad app: the More menu tiles + the Dock (colours from the real app) */
+.thw-ipad { margin-top: 22px; padding: 18px 16px 14px; border-radius: 26px; background: linear-gradient(160deg, #dfeee6 0%, #f3e7cf 100%); border: 1px solid #e3ebe6; max-width: 460px; }
+.thw-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 8px; margin-bottom: 16px; }
+.thw-tile, .thw-dock-i { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.thw-tile i, .thw-dock-i i { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 15px; color: #fff; font-size: 21px; background: var(--tile); box-shadow: 0 6px 14px -8px var(--tile-sh, rgba(0,0,0,.4)); }
+.thw-tile em, .thw-dock-i em { font-style: normal; font-size: 11.5px; font-weight: 700; color: #1f2d26; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.thw-tile:nth-child(8n+1) { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.6); }
+.thw-tile:nth-child(8n+2) { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.55); }
+.thw-tile:nth-child(8n+3) { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.55); }
+.thw-tile:nth-child(8n+4) { --tile: linear-gradient(160deg, #4fd38b, #12804a); --tile-sh: rgba(18,128,74,.55); }
+.thw-tile:nth-child(8n+5) { --tile: linear-gradient(160deg, #ff8aa6, #e0335e); --tile-sh: rgba(224,51,94,.55); }
+.thw-tile:nth-child(8n+6) { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.55); }
+.thw-tile:nth-child(8n+7) { --tile: linear-gradient(160deg, #ff9b6b, #e5532a); --tile-sh: rgba(229,83,42,.55); }
+.thw-tile:nth-child(8n+8) { --tile: linear-gradient(160deg, #7f9cff, #3b4fd1); --tile-sh: rgba(59,79,209,.55); }
+.thw-dock { display: flex; justify-content: space-around; gap: 6px; padding: 10px 8px; border-radius: 22px; background: rgba(255,255,255,.62); border: 1px solid rgba(255,255,255,.8); }
+.thw-dock-i[data-k="home"]     { --tile: linear-gradient(160deg, #5ab0ff, #1d63d8); --tile-sh: rgba(29,99,216,.65); }
+.thw-dock-i[data-k="sessions"] { --tile: linear-gradient(160deg, #ffc65a, #f07b12); --tile-sh: rgba(240,123,18,.6); }
+.thw-dock-i[data-k="schedule"] { --tile: linear-gradient(160deg, #4fd6d6, #0e8a9a); --tile-sh: rgba(14,138,154,.6); }
+.thw-dock-i[data-k="settings"] { --tile: linear-gradient(160deg, #b98cff, #6a3fd6); --tile-sh: rgba(106,63,214,.6); }
+.thw-dock-i[data-k="more"]     { --tile: linear-gradient(160deg, #8e9aa6, #4b5662); --tile-sh: rgba(75,86,98,.6); }
+.thw-dock-i i { width: 44px; height: 44px; border-radius: 13px; font-size: 19px; }
+.thw-shots figure.plain img { border: 1px solid #dfe8e2; border-radius: 10px; }
 
 .thw-more { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
 .thw-more-i { border: 1px solid #e3ebe6; border-radius: 16px; padding: 18px; background: #fff; }
@@ -413,8 +498,9 @@ const CSS = `
   .thw-two { grid-template-columns: minmax(0, 1fr); gap: 22px; }
   .thw-feat, .thw-feat.flip { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .thw-feat.flip .thw-feat-txt { order: 0; }
-  .thw-shots.with-phone { grid-template-columns: minmax(0, 1fr) minmax(0, 34%); }
-  .thw-pk { grid-template-columns: minmax(0, 1fr); max-width: 520px; }
+  .thw-shots.many { grid-template-columns: minmax(0, 1fr); gap: 22px; } /* one laptop per row on iPad portrait — side by side they were too small */
+  .thw-app-in { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .thw-feat-txt { max-width: 640px; }
 }
 /* phone */
 @media (max-width: 600px) {
@@ -426,7 +512,14 @@ const CSS = `
   .thw-steps, .thw-more { grid-template-columns: minmax(0, 1fr); }
   .thw-feats { gap: 40px; }
   .thw-feat li { font-size: 14.5px; }
-  .thw-shots.with-phone, .thw-shots.many { grid-template-columns: minmax(0, 1fr); }
-  .thw-shots.with-phone figure.phone { max-width: 230px; margin: 0 auto; }
+  .thw-pk { grid-template-columns: minmax(0, 1fr); }
+  .thw-app-phones { gap: 12px; }
+  .thw-ipad { padding: 14px 10px 10px; }
+  .thw-tile i { width: 44px; height: 44px; font-size: 19px; border-radius: 13px; }
+  .thw-dock-i i { width: 40px; height: 40px; }
+  .thw-dock-i em, .thw-tile em { font-size: 10.5px; }
+  .thw-phone-scr { padding: 5px; border-radius: 22px; }
+  .thw-phone-scr img { border-radius: 18px; }
+  .thw-lap-base { height: 9px; }
 }
 `;
