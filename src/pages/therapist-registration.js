@@ -626,8 +626,10 @@ export default function TherapistRegistration() {
       <style dangerouslySetInnerHTML={{ __html: `
         input:focus, select:focus, textarea:focus { border-color: #1e7a4c !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
         .req { color: #ef4444; }
-        .section-card { background: #fff; border: 1px solid #dbe3df; border-radius: 4px; padding: 26px 28px; margin-bottom: 20px; }
-        @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
+        /* 2026-11-16: the form already sits in one card (.trs-shell) — sections are no longer boxes inside it (they were
+           3–4 boxes deep on phones). A section is its heading + content; two sections in a row get a thin line between. */
+        .section-card { background: none; border: 0; border-radius: 0; padding: 0; margin-bottom: 26px; }
+        .section-card + .section-card { border-top: 1px solid #e3ebe6; padding-top: 22px; }
         @keyframes trspin { to { transform: rotate(360deg); } }
 
         .af-doc { border: 1px solid #dbe3df; border-radius: 4px; background: #fff; overflow: hidden; }
@@ -663,7 +665,7 @@ export default function TherapistRegistration() {
         .pk-card li { margin: 0; display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; color: #334155; line-height: 1.4; }
         .pk-card li::before { content: none; }
         .pk-card li i { color: #1e7a4c; font-size: 12px; margin-top: 2px; }
-        .pk-terms { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: #f8faf9; border: 1px solid #e3ebe6; font-size: 13px; color: #334155; }
+        .pk-terms { margin-top: 20px; padding: 16px 0 0; border-top: 1px solid #e3ebe6; font-size: 13px; color: #334155; } /* was a box inside the section box */
         .pk-terms > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #4b5d53; margin-bottom: 6px; }
         .pk-terms ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; }
         .pk-terms li { margin: 0; }
@@ -724,7 +726,11 @@ export default function TherapistRegistration() {
         .trs-share-bar em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #fff; padding-left: 8px; white-space: nowrap; }
         .trs-share-txt { font-size: 12px; color: #475569; line-height: 1.4; } .trs-share-txt b { color: #0f3d24; margin-right: 6px; }
         .trs-share p { margin: 0; font-size: 11.5px; color: #64748b; line-height: 1.5; }
-        .pk-terms .trs-share { margin-top: 12px; }
+        /* "You keep 70%" once per screen: beside the form (sidebar) on wide screens, inside the form when the sidebar
+           drops below it — and never as a box inside "How it works" */
+        .pk-terms .trs-share { margin-top: 14px; padding: 14px 0 0; background: none; border: 0; border-top: 1px dashed #dfe9e3; border-radius: 0; }
+        @media (min-width: 900px) { .pk-terms .trs-share { display: none; } }
+        @media (max-width: 899px) { .trs-side .trs-share { display: none; } }
         .trs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
         .trs-list li { margin: 0; display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; color: #26392f; line-height: 1.45; }
         .trs-list li::before { content: none; }
