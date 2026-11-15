@@ -270,7 +270,10 @@ export default function TherapistHowItWorks() {
                   <div className={`thw-shots${f.shots.length > 1 ? " many" : ""}${f.shots.some((s) => s.phone) ? " with-phone" : ""}`}>
                     {f.shots.map((s) => (
                       <figure key={s.img} className={s.phone ? "phone" : ""}>
-                        {img(s.img, s.w, s.h, `${f.title} — ${s.label} screen (sample data)`, s.phone)}
+                        {/* tap / click opens the full-size screen in a new tab */}
+                        <a href={IMG(`${s.img}.webp`)} target="_blank" rel="noopener" aria-label={`Open the ${s.label} screen full size`}>
+                          {img(s.img, s.w, s.h, `${f.title} — ${s.label} screen (sample data)`, s.phone)}
+                        </a>
                         <figcaption>{s.label}</figcaption>
                       </figure>
                     ))}
@@ -369,6 +372,7 @@ const CSS = `
 .thw-demo { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: #6b4a0c; background: #fbf3e2; border: 1px solid #f0dcae; border-radius: 999px; padding: 6px 12px; margin: -8px 0 26px; }
 .thw-feats { display: flex; flex-direction: column; gap: 56px; }
 .thw-feat { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; align-items: center; }
+.thw-feat.flip { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } /* the screens keep the wide column on either side */
 .thw-feat.flip .thw-feat-txt { order: 2; }
 .thw-feat-n { display: inline-block; font-size: 12px; font-weight: 900; letter-spacing: .08em; color: #b07a1c; background: #fbf3e2; border-radius: 999px; padding: 4px 10px; margin-bottom: 10px; }
 .thw-feat h3 { font-size: clamp(19px, 2vw, 23px); font-weight: 800; color: #0f3d24; margin: 0 0 12px; line-height: 1.25; }
@@ -378,9 +382,11 @@ const CSS = `
 .thw-feat li i { color: #1e7a4c; margin-top: 4px; flex: none; }
 .thw-feat-note { margin: 14px 0 0; font-size: 13.5px; color: #64748b; line-height: 1.55; }
 .thw-shots { display: grid; gap: 14px; }
-.thw-shots.many { grid-template-columns: minmax(0, 1fr); }
+.thw-shots.many { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } /* two screens side by side, not one tall stack */
 .thw-shots.with-phone { grid-template-columns: minmax(0, 1fr) minmax(0, 200px); align-items: end; }
 .thw-shots figure { margin: 0; }
+.thw-shots a { display: block; border-radius: 14px; }
+.thw-shots a:hover img { border-color: #9fcdb2; }
 .thw-shots img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid #dfe8e2; background: #fff; }
 .thw-shots figure.phone img { border-radius: 22px; border: 6px solid #0f1f17; }
 .thw-shots figcaption { font-size: 12px; font-weight: 700; color: #64748b; margin-top: 6px; text-align: center; }
@@ -400,6 +406,7 @@ const CSS = `
 @media (max-width: 1100px) {
   .thw-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .thw-feat { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 28px; }
+  .thw-feat.flip { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
   .thw-more { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 899px) {
@@ -419,7 +426,7 @@ const CSS = `
   .thw-steps, .thw-more { grid-template-columns: minmax(0, 1fr); }
   .thw-feats { gap: 40px; }
   .thw-feat li { font-size: 14.5px; }
-  .thw-shots.with-phone { grid-template-columns: minmax(0, 1fr); }
+  .thw-shots.with-phone, .thw-shots.many { grid-template-columns: minmax(0, 1fr); }
   .thw-shots.with-phone figure.phone { max-width: 230px; margin: 0 auto; }
 }
 `;
