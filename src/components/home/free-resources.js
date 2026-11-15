@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import {
   FiPlayCircle,
-  FiBookOpen,
   FiBarChart2,
   FiWind,
   FiArrowRight,
@@ -118,10 +117,6 @@ export default function FreeResources() {
   }, [router.isReady]);
 
   const handleOpenModal = (tool) => {
-    if (tool.title === "Daily Journal") {
-      router.push("/daily-journal");
-      return;
-    }
     setSelectedTool(tool);
     setOpenModal(true);
   };
@@ -188,7 +183,6 @@ export default function FreeResources() {
     { id: "breathing", title: "Breathing Guide", desc: "Box or 4-7-8 breathing with a timer — calm the body fast.",    icon: <FiWind />,        ...G, time: "1–5 min" },
     { id: "mood",      title: "Mood Tracker",    desc: "Check in with how you feel and spot patterns over time.",     icon: <FiBarChart2 />,   ...G, time: "30 sec" },
     { id: "coping",    title: "Coping Skills",   desc: "Quick grounding and calming techniques for hard moments.",    icon: <FiShield />,      ...G, time: "2 min" },
-    { id: "journal",   title: "Daily Journal",   desc: "Gentle prompts to help you process your day.",                icon: <FiBookOpen />,    ...G, time: "5 min" },
     { id: "gratitude", title: "Gratitude Jar",   desc: "Collect small good moments and revisit them on hard days.",   icon: <FiHeart />,       ...G, time: "1 min" },
     { id: "sounds",    title: "Focus Sounds",    desc: "Rain, waves, wind or soft noise — with a sleep timer.",       icon: <FiMusic />,       ...G, time: "Any time" },
     { id: "couple",    title: "Couple Harmony",  desc: "Turn a fight into a calm \"I feel… I need…\" conversation.", icon: <FiUsers />,       ...G, time: "3 min" },
@@ -307,7 +301,7 @@ export default function FreeResources() {
           </div>
           <h2 className="fr-title">Wellness <span>Toolkit</span></h2>
           <p className="fr-sub">Feeling overwhelmed right now? Try a 1-minute tool — free, no sign-up.</p>
-          <p className="fr-private"><FiShield size={13} /> Your check-ins, notes and journal stay on this device — we never see them.</p>
+          <p className="fr-private"><FiShield size={13} /> Your check-ins and notes stay on this device — we never see them.</p>
         </div>
 
         {/* Grid */}

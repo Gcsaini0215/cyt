@@ -26,6 +26,8 @@ const nextConfig = {
     return [
       // the old "Therapy Plan & Pricing" page is retired — fees live on each therapist's profile
       { source: "/plans", destination: "/view-all-therapist", permanent: true },
+      // the Daily Journal was removed (owner request, 2026-11-15) — old links land on the wellness tools
+      { source: "/daily-journal", destination: "/wellness-toolkit", permanent: true },
       {
         source: "/:path*",
         has: [{ type: "host", value: "chooseyourtherapist.in" }],

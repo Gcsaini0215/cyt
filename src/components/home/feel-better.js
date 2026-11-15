@@ -30,7 +30,6 @@ const FEELINGS = [
     id: "low", emoji: "😔", label: "Low", concern: "depression",
     tools: [
       { href: "/wellness-toolkit?tool=gratitude", title: "Gratitude jar", desc: "Write one small good thing from today.", time: "1 min" },
-      { href: "/daily-journal", title: "Guided journal", desc: "Gentle prompts to get it out of your head.", time: "5 min" },
     ],
   },
   {
@@ -58,7 +57,6 @@ const FEELINGS = [
     id: "hurt", emoji: "💔", label: "Hurt by someone", concern: "relationships",
     tools: [
       { href: "/wellness-toolkit?tool=couple", title: "Say it calmly", desc: "Turn hurt into an \"I feel…\" sentence.", time: "3 min" },
-      { href: "/daily-journal", title: "Write it out", desc: "Untangle what happened and what you need.", time: "5 min" },
     ],
   },
 ];
