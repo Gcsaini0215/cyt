@@ -13,14 +13,8 @@ import { RegistrationsRow } from "../components/about/registrations";
 import FaqBlock from "../components/seo/faq-block";
 import { siteCardUrl } from "../utils/og-urls";
 
-// how much of each session fee the therapist keeps — the levels in backend helper/achievements.js
-const SHARE_STEPS = [
-  { you: 70, cyt: 30, when: "When you join", how: "Every session booked through CYT" },
-  { you: 75, cyt: 25, when: "Level 1", how: "Rising Star (10 reviews of 4★+) + 25 sessions" },
-  { you: 80, cyt: 20, when: "Level 2", how: "+ 100 sessions + Client Favourite (50 reviews of 4★+)" },
-  { you: 85, cyt: 15, when: "Level 3", how: "All CYT achievements" },
-  { you: 93, cyt: 7, when: "Top level", how: "+2% for every 100 sessions after that, up to 93%" },
-];
+// how much of each session fee the therapist keeps — shared with /therapist-how-it-works
+import { SHARE_STEPS } from "../utils/therapist-share";
 function ShareLadder({ compact = false }) {
   return (
     <div className={`trs-share${compact ? " compact" : ""}`}>
@@ -669,6 +663,9 @@ export default function TherapistRegistration() {
         .pk-terms > b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #4b5d53; margin-bottom: 6px; }
         .pk-terms ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; }
         .pk-terms li { margin: 0; }
+        .pk-guide { display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; padding: 6px 0; font-size: 13.5px; font-weight: 800; color: #1e7a4c !important; text-decoration: underline; text-underline-offset: 3px; line-height: 1.4; }
+        .pk-guide:hover { color: #14532d !important; }
+        .pk-check-link { color: #1e7a4c !important; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
         .pk-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid #cbd5c9; background: #fafafa; cursor: pointer; font-size: 13.5px; color: #334155; line-height: 1.55; }
         .pk-check.on { border-color: #86efac; background: #f0fdf4; color: #14532d; }
         .pk-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: #1e7a4c; position: static; opacity: 1; }
@@ -1255,12 +1252,16 @@ export default function TherapistRegistration() {
                         <li><b>Your share of every booking:</b> you start at <b>70%</b> of the session fee (<b>30%</b> to CYT), and it goes up as you earn achievements — 75%, 80%, 85%, up to <b>93%</b>. See the levels below.</li>
                         <li>Packages are for listing and visibility. Bookings depend on your profile, availability and client demand.</li>
                       </ul>
+                      {/* the full guide opens in a new tab so the form here is not lost */}
+                      <a className="pk-guide" href="/therapist-how-it-works" target="_blank" rel="noopener">
+                        Read the full guide: how CYT works for therapists, with screens from your dashboard <i className="feather-arrow-up-right" aria-hidden="true" />
+                      </a>
                       <ShareLadder />
                     </div>
 
                     <label className={`pk-check ${form.planTerms ? "on" : ""}`}>
                       <input type="checkbox" checked={form.planTerms} onChange={(e) => set("planTerms", e.target.checked)} />
-                      <span>Yes, I have read and agree to the <b>website listing charge</b> and the <b>70:30 split for every booking</b>.</span>
+                      <span>Yes, I have read <a href="/therapist-how-it-works" target="_blank" rel="noopener" className="pk-check-link">How it works</a> and I accept the terms — the <b>website listing charge</b> and the <b>70:30 split for every booking</b>.</span>
                     </label>
                   </div>
                 )}
