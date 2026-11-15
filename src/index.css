@@ -30,6 +30,14 @@
   html { scroll-behavior: auto !important; }
 }
 
+/* bigger tap areas, round 2 (2026-11-16 audit: 18–24px tall on phone/iPad) — same look.
+   Footer link lists + copyright links are on every page; the others are inline links in text. */
+/* footer links are inline-block with an ::after underline, so an invisible ::before takes the taps (no layout change) */
+.footer-widget .ft-link li a::before, .copyright-link li a::before { content: ""; position: absolute; inset: -7px -4px; }
+.copyright-link li a { position: relative; }
+.sab-note a { padding-block: 7px; } /* inline text link: padding grows the tap area only */
+.na-chips .na-chip, .na-chips-host .na-chip { min-height: 32px; display: inline-flex; align-items: center; }
+
 .vbox-overlay {
   --vbox-tools-color: #fff;
   --vbox-title-background: #101010;
