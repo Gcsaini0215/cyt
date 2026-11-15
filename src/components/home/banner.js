@@ -338,7 +338,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-hsearch input { flex: 1; min-width: 0; height: 46px; border: none !important; outline: none; background: transparent; padding: 0 10px 0 42px; font-size: 15.5px; color: #0f172a; box-shadow: none !important; }
         .cyt-hsearch input::-webkit-search-cancel-button { display: none; }
         /* the turning search hint (drawn over the empty box so the word can fade) */
-        .cyt-hsearch .cyt-hint { position: absolute; left: 47px; right: 190px; top: 50%; transform: translateY(-50%); font-size: 15.5px; color: #8a978f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+        .cyt-hsearch .cyt-hint { position: absolute; left: 47px; right: 190px; top: 50%; transform: translateY(-50%); font-size: 15.5px; color: #66756d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
         .cyt-hint-w { display: inline-block; transition: opacity .55s ease, transform .55s ease, filter .55s ease; }
         .cyt-hint-w.out { opacity: 0; transform: translateY(5px); filter: blur(2px); }
         @media (prefers-reduced-motion: reduce) { .cyt-hint-w { transition: opacity .3s ease; } .cyt-hint-w.out { transform: none; filter: none; } }
@@ -372,7 +372,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trust li::before { content: none; }
         .cyt-trust a { display: inline-flex; align-items: center; gap: 5px; color: inherit !important; text-decoration: none !important; }
         .cyt-trust a:hover { text-decoration: underline !important; }
-        .cyt-trust b { color: #0b1712; } .cyt-trust span { color: #7c8b81; }
+        .cyt-trust b { color: #0b1712; } .cyt-trust span { color: #66756d; }
         .cyt-trust i { color: #1e7a4c; font-size: 14px; }
         .cyt-hero.cyt-hero .cyt-hl { color: var(--ink); transition: color .6s ease; }
         .cyt-hero.cyt-hero .cyt-hsearch button { background: var(--ink); color: #fff; transition: background .6s ease; }
@@ -443,7 +443,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-trate { display: inline-flex; align-items: center; gap: 3px; }
         .cyt-trate .cyt-num { color: #0b1712; font-weight: 800; }
         .cyt-trow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eef2ee; }
-        .cyt-tfee small { display: block; color: #7c8b81; font-size: 11.5px; line-height: 1.2; }
+        .cyt-tfee small { display: block; color: #66756d; font-size: 11.5px; line-height: 1.2; }
         .cyt-tfee .cyt-num { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
         .cyt-trow .cyt-b { flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: var(--ink); color: #fff !important; font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .6s ease; }
         .cyt-cover-skeleton { width: 260px; height: 340px; border-radius: 22px; background: rgba(130,204,161,.18); }

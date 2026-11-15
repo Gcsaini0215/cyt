@@ -71,7 +71,7 @@ const BookingPopup = ({ delay = 12000, scrollAt = 0.3, forTherapist = false, sho
     <div className="bp-wa-head">
       <span className="bp-wa-avatar">💬</span>
       <div className="bp-wa-titles">
-        <h5 className="bp-wa-title">{title}</h5>
+        <p className="bp-wa-title">{title}</p>
         <span className="bp-wa-sub">Our team usually replies within minutes</span>
       </div>
       <button className="bp-wa-close" onClick={handleClose} aria-label="Close">✕</button>

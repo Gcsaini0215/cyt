@@ -124,7 +124,7 @@ const CSS = `
 .hrv::before { content: ""; position: absolute; z-index: -1; width: 520px; height: 520px; left: -220px; top: -260px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.16), rgba(227,168,58,0) 68%); }
 .hrv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px 32px; margin-bottom: 28px; }
 .hrv-intro { min-width: 0; }
-.hrv .hrv-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
+.hrv .hrv-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #94600c; }
 .hrv .hrv-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .hrv .hrv-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .hrv-title span { color: #1e7a4c; }
@@ -138,7 +138,7 @@ const CSS = `
 .hrv-g-l { font-size: 13px; color: #4b5b53; font-weight: 600; }
 .hrv-g-l b { color: #0b1712; }
 .hrv-g-s { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eadfc4; font-size: 13px; font-weight: 800; color: #14532d; }
-.hrv-g-go { margin-left: auto; color: #a86e0e; }
+.hrv-g-go { margin-left: auto; color: #94600c; }
 
 .hrv-swiper { overflow: hidden; padding: 2px !important; }
 .hrv-swiper .swiper-wrapper { align-items: stretch; }

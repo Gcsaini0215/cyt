@@ -91,7 +91,7 @@ const CSS = `
 .hbl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
 .hbl-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #e3a83a; margin-bottom: 12px; }
 .hbl .hbl-title { font-size: clamp(24px, 3vw, 34px); font-weight: 800; color: #0b1712; margin: 0 0 6px; line-height: 1.2; }
-.hbl-title span { color: #a86e0e; }
+.hbl-title span { color: #94600c; }
 .hbl .hbl-sub { color: #64748b; font-size: 15px; line-height: 1.6; margin: 0; padding: 0; }
 .hbl-all { flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 18px; border-radius: 999px; border: 1.5px solid #cfe3d6; background: #fff; color: #14532d !important; font-size: 14px; font-weight: 800; text-decoration: none !important; transition: background .15s, border-color .15s; }
 .hbl-all:hover { background: #eef6f1; border-color: #1e7a4c; }
@@ -106,10 +106,10 @@ const CSS = `
 .hbl-body { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .hbl-t { font-weight: 800; color: #13261c; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .hbl-ex { font-size: 14px; line-height: 1.6; color: #5b6560; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.hbl-meta { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #8a948f; font-weight: 600; }
+.hbl-meta { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #64716b; font-weight: 600; }
 .hbl-meta i { margin-left: auto; font-style: normal; color: #1e7a4c; font-weight: 800; }
 .hbl-cat { position: absolute; top: 12px; left: 12px; font-style: normal; font-size: 11.5px; font-weight: 800; color: #14532d; background: rgba(255,255,255,.94); padding: 4px 10px; border-radius: 999px; }
-.hbl-cat2 { font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #a86e0e; }
+.hbl-cat2 { font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #94600c; }
 
 /* featured: photo on top, details below */
 .hbl-feat { flex-direction: column; }

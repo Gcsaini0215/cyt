@@ -205,7 +205,7 @@ const CSS = `
 .fb-ask { position: relative; overflow: hidden; isolation: isolate; padding: 64px 48px 56px var(--g); background: linear-gradient(160deg, #eaf4ec 0%, #e1efe4 55%, #d6eadb 100%); }
 .fb-ask::before { content: ""; position: absolute; z-index: -1; width: 380px; height: 380px; right: -150px; top: -170px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.22), rgba(227,168,58,0) 68%); }
 .fb-ask::after { content: ""; position: absolute; z-index: -1; width: 260px; height: 260px; left: -120px; bottom: -130px; border-radius: 50%; border: 40px solid rgba(30,122,76,.06); }
-.fb-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
+.fb-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #94600c; }
 .fb-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .fb-title { font-size: clamp(28px, 3vw, 40px); font-weight: 800; color: #0b1712; margin: 0 0 12px; line-height: 1.12; letter-spacing: -.02em; }
 .fb-title span { color: #1e7a4c; }

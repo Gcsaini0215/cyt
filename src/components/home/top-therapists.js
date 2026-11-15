@@ -275,7 +275,7 @@ const CSS = `
 .tt-rate .tt-num { color: #0b1712; font-weight: 800; }
 .tt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2ee; }
 .tt-meta { margin-bottom: 10px; }
-.tt-fee small { display: block; color: #7c8b81; font-size: 11.5px; line-height: 1.2; }
+.tt-fee small { display: block; color: #66756d; font-size: 11.5px; line-height: 1.2; }
 .tt-fee .tt-num { display: block; color: #0b1712; font-size: 18px; font-weight: 800; line-height: 1.2; }
 .tt-book { position: relative; z-index: 2; flex: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 20px; border-radius: 12px; background: #1e7a4c; color: #fff !important;
   font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .2s ease; }

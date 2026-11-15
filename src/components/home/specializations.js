@@ -109,7 +109,7 @@ const CSS = `
 .sp-sec { background: linear-gradient(180deg, #fff 0%, #fbf8f0 100%); padding: 72px 0 64px; }
 .sp-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; margin-bottom: 28px; }
 .sp-head > div { min-width: 0; flex: 1 1 520px; }
-.sp-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
+.sp-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #94600c; }
 .sp-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .sp-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .sp-title span { color: #1e7a4c; }

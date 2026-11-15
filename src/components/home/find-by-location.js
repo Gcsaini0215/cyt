@@ -186,7 +186,7 @@ const CSS = `
 .fbl-section::before { content: ""; position: absolute; z-index: -1; inset: 0; background-image: radial-gradient(rgba(30,122,76,.10) 1.2px, transparent 1.3px); background-size: 22px 22px;
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 85% 10%, #000 0%, transparent 70%); mask-image: radial-gradient(ellipse 70% 60% at 85% 10%, #000 0%, transparent 70%); }
 .fbl-head { margin-bottom: 26px; }
-.fbl-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px !important; padding: 0; font-size: 12px !important; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e !important; }
+.fbl-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px !important; padding: 0; font-size: 12px !important; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #94600c !important; }
 .fbl-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .fbl-head h2 { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .fbl-head h2 span { color: #1e7a4c; }
@@ -278,7 +278,7 @@ const CSS = `
 .fbl-place > i { color: #1e7a4c; font-size: 13px; }
 .fbl-place small { font-size: 11px; font-weight: 800; color: #14532d; background: #e7f4ec; border-radius: 999px; padding: 3px 9px; }
 .fbl-place.abroad { border-color: #e6c98a; background: #fffaf0; }
-.fbl-place.abroad > i { color: #a86e0e; }
+.fbl-place.abroad > i { color: #94600c; }
 .fbl-place.abroad small { background: #fbefd3; color: #8a5a0b; }
 .fbl-place:hover, .fbl-place.on { border-color: #1e7a4c; color: #14532d !important; transform: translateY(-1px); }
 .fbl-credit { margin: 18px 0 0; padding: 0; font-size: 11.5px; color: #94a3b8; }

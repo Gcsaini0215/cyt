@@ -170,7 +170,7 @@ const CSS = `
 .lc-copy::before { content:""; position:absolute; z-index:-1; width:320px; height:320px; right:-130px; top:-140px; border-radius:50%; background:radial-gradient(circle, rgba(227,168,58,.32), rgba(227,168,58,0) 70%); }
 .lc-copy::after { content:""; position:absolute; z-index:-1; width:240px; height:240px; left:-110px; bottom:-120px; border-radius:50%; border:36px solid rgba(168,110,14,.07); }
 .lc-eyebrow { align-self:flex-start; display:inline-flex; align-items:center; gap:7px; padding:6px 12px; border-radius:999px; background:#fff; border:1px solid #efd9a8; box-shadow:0 4px 12px -8px rgba(168,110,14,.6);
-  color:#a86e0e; font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; margin-bottom:16px; }
+  color:#94600c; font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; margin-bottom:16px; }
 .lc h2 { font-size:clamp(24px, 2.6vw, 32px); font-weight:800; color:#14532d; margin:0 0 10px; line-height:1.2; letter-spacing:-.3px; }
 .lc-copy > p { font-size:15.5px; color:#5b4a2a; line-height:1.65; margin:0 0 24px; padding:0; max-width:460px; }
 .lc-steps { list-style:none; margin:0 0 24px; padding:0; display:flex; flex-direction:column; gap:14px; counter-reset:none; }
@@ -182,7 +182,7 @@ const CSS = `
 .lc-steps small { display:block; font-size:13px; color:#7a6640; line-height:1.4; }
 .lc-trust { margin-top:auto; padding-top:18px; border-top:1px dashed #e6cf9c; display:flex; flex-wrap:wrap; gap:8px 18px; }
 .lc-trust span { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:#14532d; }
-.lc-trust i { color:#a86e0e; }
+.lc-trust i { color:#94600c; }
 
 .lc-side { padding:34px 36px; display:flex; flex-direction:column; justify-content:center; background:#fff; }
 .lc-form { margin:0; }

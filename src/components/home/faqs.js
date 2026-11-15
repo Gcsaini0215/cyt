@@ -262,7 +262,7 @@ const CSS = `
 .hfq-head { margin-bottom: 26px; max-width: 760px; }
 .hfq-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #e3a83a; margin-bottom: 12px; }
 .hfq .hfq-title { font-size: clamp(24px, 3vw, 34px); font-weight: 800; color: #0b1712; margin: 0 0 6px; line-height: 1.2; }
-.hfq-title span { color: #a86e0e; }
+.hfq-title span { color: #94600c; }
 .hfq .hfq-sub { color: #64748b; font-size: 15px; line-height: 1.6; margin: 0; padding: 0; }
 
 .hfq-wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px; align-items: start; }
@@ -287,7 +287,7 @@ const CSS = `
 .hfq-item { background: #fff; border: 1px solid #e6ece8; border-radius: 14px; transition: border-color .2s, box-shadow .2s; }
 .hfq-item.open { border-color: #cfe3d6; box-shadow: 0 14px 30px -24px rgba(20,83,45,.55); }
 .hfq-q { display: flex; align-items: center; gap: 12px; width: 100%; padding: 15px 16px; border: none; background: transparent; text-align: left; cursor: pointer; }
-.hfq-num { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #a86e0e; min-width: 20px; }
+.hfq-num { flex-shrink: 0; font-size: 12px; font-weight: 800; color: #94600c; min-width: 20px; }
 .hfq-q-t { flex: 1; min-width: 0; font-size: 15.5px; font-weight: 700; line-height: 1.4; color: #13261c; }
 .hfq-plus { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: #eef6f1; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; transition: transform .25s ease, background .2s; }
 .hfq-item.open .hfq-plus { transform: rotate(45deg); background: #1e7a4c; color: #fff; }

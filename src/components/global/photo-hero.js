@@ -45,7 +45,7 @@ const PHX_CSS = `
 .phx-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.82); border: 1px solid #e3cc96; font-size: 13px; font-weight: 700; color: #14532d; box-shadow: 0 6px 16px -10px rgba(20,83,45,.35); }
 .phx-pill i, .phx-pill svg { font-size: 14px; }
 .phx .phx-title { color: #173c2a; font-size: clamp(26px, 3.2vw, 38px); line-height: 1.15; margin: 10px 0 8px; padding: 0; font-weight: 800; letter-spacing: -0.02em; }
-.phx .phx-title span { color: #a86e0e; }
+.phx .phx-title span { color: #94600c; }
 .phx-lead { font-size: 16px; line-height: 1.55; color: #3f4f47; margin: 0 0 14px; padding: 0; max-width: 780px; }
 .phx-stats { display: flex; flex-wrap: wrap; gap: 8px; }
 .phx-action { margin-top: 18px; }

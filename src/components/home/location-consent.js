@@ -116,7 +116,7 @@ const CSS = `
 .loc { position:fixed; left:24px; bottom:24px; z-index:9999; width:min(400px, calc(100vw - 32px)); background:#fff; color:#0b1712; border:1px solid #e3ebe6;
   border-radius:20px; padding:18px 18px 16px; box-shadow:0 24px 60px -24px rgba(11,36,24,.55), 0 2px 6px rgba(11,36,24,.06); animation:locIn .45s cubic-bezier(.2,.7,.2,1) both; font-size:14px; }
 .loc::before { content:""; position:absolute; left:18px; right:18px; top:0; height:3px; border-radius:0 0 3px 3px; background:linear-gradient(90deg,#1e7a4c,#e3a83a); }
-.loc-x { position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%; border:0; background:none; color:#8a978f; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.loc-x { position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%; border:0; background:none; color:#66756d; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .loc-x:hover { background:#f2f5f3; color:#0b1712; }
 .loc-top { display:flex; gap:12px; align-items:flex-start; padding-right:24px; }
 .loc-ic { flex:none; width:42px; height:42px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:19px; background:#e4f6ea; color:#1e7a4c; }
