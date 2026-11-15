@@ -142,7 +142,7 @@ const UI = {
   green: {
     d900: "#0f3d24",
     d800: "#134e2b",
-    main: "#166534",
+    main: "#14532d",
     mid: "#1f9d57",
     bright: "#22c55e",
     light: "#4ade80",
@@ -770,14 +770,14 @@ function WelcomeOverlay({ name, leaving, onDismiss }) {
           {name}
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, mb: { xs: 4, md: 5 }, animation: "wUp 0.5s ease 1.25s both" }}>
-          <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: "#d4af37", boxShadow: "0 0 0 4px rgba(212,175,55,0.22)" }} />
+          <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: "#e3a83a", boxShadow: "0 0 0 4px rgba(212,175,55,0.22)" }} />
           <Typography sx={{ fontSize: { xs: "13px", md: "14px" }, color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>
             Your dashboard is ready
           </Typography>
         </Box>
         <Box onClick={onDismiss} sx={{ display: "inline-flex", alignItems: "center", gap: 1.5, background: "rgba(212,175,55,0.14)", border: "1.5px solid rgba(212,175,55,0.4)", borderRadius: "8px", px: { xs: 3.5, md: 5 }, py: { xs: 1.5, md: 1.8 }, cursor: "pointer", transition: "all .2s", animation: "wUp 0.5s ease 1.55s both", "&:hover": { background: "rgba(212,175,55,0.22)", transform: "scale(1.04)" } }}>
           <Typography sx={{ fontSize: { xs: "14px", md: "16px" }, fontWeight: 700, color: "#fff" }}>Enter Dashboard</Typography>
-          <Typography sx={{ fontSize: { xs: "16px", md: "18px" }, color: "#d4af37" }}>→</Typography>
+          <Typography sx={{ fontSize: { xs: "16px", md: "18px" }, color: "#e3a83a" }}>→</Typography>
         </Box>
       </Box>
     </Box>

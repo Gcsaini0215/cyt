@@ -439,7 +439,7 @@ export default function App() {
         .strip-item.on { opacity: 1; transform: none; pointer-events: auto; }
         .strip-tag { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 9px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
           color: #ecc77d; background: rgba(236,199,125,.14); border: 1px solid rgba(236,199,125,.4); }
-        .strip-tag.gold { color: #14532d; background: linear-gradient(135deg, #f3d48f, #d4a24c); border-color: transparent; }
+        .strip-tag.gold { color: #14532d; background: linear-gradient(135deg, #f3d48f, #e3a83a); border-color: transparent; }
         .strip-tag i { font-size: 11px; }
         .strip-text { color: #f1f7f3; font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; }
         .strip-cta { display: inline-flex; align-items: center; gap: 5px; height: 23px; padding: 0 11px; border-radius: 999px; background: #fff; color: #14532d !important;
@@ -560,11 +560,11 @@ export default function App() {
         /* ── Nav link accents (academic green) ────────── */
         .mainmenu-nav .mainmenu > li > a { color: #132a1c !important; font-weight: 600 !important; position: relative; }
         .mainmenu-nav .mainmenu > li.is-active > a { color: #1e7a4c !important; }
-        .mainmenu-nav .mainmenu > li.is-active > a::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% + 13px); height: 2.5px; border-radius: 2px; background: #d4a24c; }
+        .mainmenu-nav .mainmenu > li.is-active > a::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% + 13px); height: 2.5px; border-radius: 2px; background: #e3a83a; }
         .mainmenu-nav .mainmenu > li.has-dropdown.is-active > a::after { right: 16px; }
         .mainmenu-nav .mainmenu > li > a:hover,
-        .mainmenu-nav .mainmenu > li.has-dropdown:hover > a { color: #166534 !important; }
-        .mainmenu-nav .submenu a:hover { color: #166534 !important; }
+        .mainmenu-nav .mainmenu > li.has-dropdown:hover > a { color: #14532d !important; }
+        .mainmenu-nav .submenu a:hover { color: #14532d !important; }
 
         /* ── Profile pill (logged in / logged out) ─────── */
         .nav-profile-pill {
@@ -573,20 +573,20 @@ export default function App() {
           border: 1.5px solid #dbe3df; background: #f8faf9;
           text-decoration: none !important; transition: all .18s ease;
         }
-        .nav-profile-pill:hover { border-color: #166534; background: #f0fdf4; }
+        .nav-profile-pill:hover { border-color: #14532d; background: #f0fdf4; }
         .nav-profile-av {
           width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
           overflow: hidden; display: flex; align-items: center; justify-content: center;
-          background: #eef5f1; border: 2px solid #d4af37;
-          color: #166534; font-size: 15px;
+          background: #eef5f1; border: 2px solid #e3a83a;
+          color: #14532d; font-size: 15px;
         }
         .nav-profile-av img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
         .nav-profile-name { font-weight: 700; color: #132a1c; font-size: 14.5px; white-space: nowrap; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
-        .nav-profile-ini { font-size: 12.5px; font-weight: 800; color: #166534; letter-spacing: .3px; }
+        .nav-profile-ini { font-size: 12.5px; font-weight: 800; color: #14532d; letter-spacing: .3px; }
         .nav-mob-av { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center;
-          background: #eef5f1; border: 2px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+          background: #eef5f1; border: 2px solid #e3a83a; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
         .nav-mob-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .nav-mob-av b { font-size: 16px; font-weight: 800; color: #166534; }
+        .nav-mob-av b { font-size: 16px; font-weight: 800; color: #14532d; }
         .nav-mob-room { display: block; font-size: 12px; font-weight: 800; color: #b7791f; letter-spacing: .2px; margin-top: 1px; }
 
         /* ── Account dropdown (logged-out state) ─────────── */
@@ -599,7 +599,7 @@ export default function App() {
           cursor: pointer; transition: all .18s ease;
         }
         .nav-account-trigger:hover,
-        .nav-account-trigger[aria-expanded="true"] { border-color: #166534; background: #f0fdf4; color: #166534; }
+        .nav-account-trigger[aria-expanded="true"] { border-color: #14532d; background: #f0fdf4; color: #14532d; }
         .nav-account-trigger i { font-size: 14px; }
         .nav-account-menu {
           position: absolute; top: calc(100% + 10px); right: 0; z-index: 20;
@@ -615,8 +615,8 @@ export default function App() {
           font-weight: 700; font-size: 13.5px; color: #132a1c;
           text-decoration: none !important; transition: background .15s ease;
         }
-        .nav-account-menu a:hover { background: #f0fdf4; color: #166534; }
-        .nav-account-menu a i { font-size: 15px; color: #166534; flex-shrink: 0; }
+        .nav-account-menu a:hover { background: #f0fdf4; color: #14532d; }
+        .nav-account-menu a i { font-size: 15px; color: #14532d; flex-shrink: 0; }
         .nav-account-menu a.nav-acc-sep { border-top: 1px solid #eef2f0; border-radius: 0 0 9px 9px; margin-top: 4px; padding-top: 12px; color: #475569; }
         @media (prefers-reduced-motion: reduce) { .nav-account-menu { animation: none; } }
 

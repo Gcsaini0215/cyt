@@ -68,7 +68,7 @@ export default function UpcomingAppointment({ data }) {
               variant="contained"
               size="small"
               sx={{
-                background: "linear-gradient(135deg, #228756, #1b6843)",
+                background: "linear-gradient(135deg, #1e7a4c, #1b6843)",
                 borderRadius: "8px",
                 textTransform: "none",
                 fontSize: "11px",

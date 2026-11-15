@@ -69,7 +69,7 @@ const IndiaMap = () => {
       >
         <g
           fill="rgba(34, 135, 86, 0.05)"
-          stroke="#228756"
+          stroke="#1e7a4c"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"

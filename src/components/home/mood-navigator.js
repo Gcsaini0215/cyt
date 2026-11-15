@@ -72,7 +72,7 @@ const MoodNavigator = () => {
       id: "growth",
       label: "Ready to Grow",
       icon: <Sprout size={32} />,
-      color: "#228756",
+      color: "#1e7a4c",
       bg: "#f0fdf4",
       description: "Seeking wellness"
     }
@@ -91,7 +91,7 @@ const MoodNavigator = () => {
           <Typography
             variant="overline"
             sx={{ 
-              color: "#228756", 
+              color: "#1e7a4c", 
               fontWeight: 800, 
               letterSpacing: 4,
               mb: 1,
@@ -111,7 +111,7 @@ const MoodNavigator = () => {
               letterSpacing: "-0.02em"
             }}
           >
-            How are you <span style={{ color: "#228756" }}>feeling today?</span>
+            How are you <span style={{ color: "#1e7a4c" }}>feeling today?</span>
           </Typography>
           <Typography sx={{ color: "#64748b", fontSize: "1.1rem", maxWidth: "600px", mx: "auto", fontWeight: 500 }}>
             Select your current state of mind. We'll help you find the right 

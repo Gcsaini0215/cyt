@@ -202,7 +202,7 @@ const CSS = `
 .imf-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .imf-grid.compact { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
 .imf { position: relative; display: flex; flex-direction: column; gap: 1px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 1.5px solid #ece4cf; }
-.imf.best { border-color: #d4a24c; }
+.imf.best { border-color: #e3a83a; }
 .imf em { position: absolute; top: -9px; left: 12px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #3d2a00; background: #ecc77d; border-radius: 999px; padding: 1px 8px; }
 .imf span { font-size: 12.5px; font-weight: 700; color: #5b6b62; }
 .imf b { font-size: 21px; font-weight: 900; color: #0f3d24; line-height: 1.2; }

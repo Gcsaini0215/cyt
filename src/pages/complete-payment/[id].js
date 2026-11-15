@@ -82,7 +82,7 @@ export default function CompletePaymentPage() {
         order_id: od.data.id,
         name: "Choose Your Therapist",
         description: "Therapy Session Booking",
-        theme: { color: "#228756" },
+        theme: { color: "#1e7a4c" },
         handler: async (response) => {
           paidRef.current = true;
           const paymentId = response.razorpay_payment_id;
@@ -199,7 +199,7 @@ const CSS = `
 .cp-card { background: #fff; border: 1px solid #e6ece8; border-radius: 20px; padding: 24px; box-shadow: 0 14px 34px -20px rgba(15,23,42,.22); }
 .cp-center { text-align: center; }
 .cp-eyebrow { display: inline-block; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: #fef3c7; color: #92400e; }
-.cp-eyebrow.ok { background: #dcfce7; color: #166534; }
+.cp-eyebrow.ok { background: #dcfce7; color: #14532d; }
 .cp-eyebrow.off { background: #fee2e2; color: #b91c1c; }
 .cp h1 { font-size: 22px; font-weight: 800; color: #0f172a; margin: 10px 0 6px; line-height: 1.25; }
 .cp-sub, .cp-card > p { font-size: 14px; color: #475569; margin: 0 0 18px; line-height: 1.5; }

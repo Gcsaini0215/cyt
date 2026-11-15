@@ -44,7 +44,7 @@ const internStyles = `
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(90deg, #228756, #48bb78);
+  background: linear-gradient(90deg, #1e7a4c, #48bb78);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -52,7 +52,7 @@ const internStyles = `
 .intern-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-color: #228756;
+  border-color: #1e7a4c;
 }
 
 .intern-card:hover::before {
@@ -80,7 +80,7 @@ const internStyles = `
   align-items: center;
   gap: 4px;
   background: #f0fdf4;
-  color: #228756;
+  color: #1e7a4c;
   padding: 4px 12px;
   border-radius: 50px;
   font-size: 10px;
@@ -120,7 +120,7 @@ const internStyles = `
 }
 
 .quote-icon {
-  color: #228756;
+  color: #1e7a4c;
   opacity: 0.15;
   font-size: 40px;
   position: absolute;
@@ -130,7 +130,7 @@ const internStyles = `
 
 /* Custom Swiper Pagination */
 .swiper-pagination-bullet {
-  background: #228756 !important;
+  background: #1e7a4c !important;
   opacity: 0.2;
   width: 10px;
   height: 10px;
@@ -218,7 +218,7 @@ export default function InternsSection() {
             <Typography 
               variant="overline" 
               sx={{ 
-                color: "#228756", 
+                color: "#1e7a4c", 
                 fontWeight: 800, 
                 letterSpacing: 2, 
                 fontSize: "13px",
@@ -238,7 +238,7 @@ export default function InternsSection() {
                 lineHeight: 1.2
               }}
             >
-              Meet Our <span style={{ color: "#228756" }}>Rising Stars</span>
+              Meet Our <span style={{ color: "#1e7a4c" }}>Rising Stars</span>
             </Typography>
             <Typography 
               sx={{ 
@@ -292,7 +292,7 @@ function InternCard({ intern }) {
           </div>
           <Typography className="intern-name">{intern.name}</Typography>
           <div className="intern-university">
-            <SchoolIcon sx={{ fontSize: 14, color: "#228756" }} />
+            <SchoolIcon sx={{ fontSize: 14, color: "#1e7a4c" }} />
             {intern.university}
           </div>
         </div>

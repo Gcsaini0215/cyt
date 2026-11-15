@@ -69,7 +69,7 @@ export default function CallbackWidget() {
         .cb-pill {
           order:1;
           display:flex; align-items:center; gap:8px;
-          background:linear-gradient(135deg,#1a6b3a,#228756);
+          background:linear-gradient(135deg,#1e7a4c,#1e7a4c);
           color:#fff; border:none; border-radius:10px 0 0 10px;
           padding:18px 11px; font-size:12.5px; font-weight:700;
           cursor:pointer; letter-spacing:0.4px;
@@ -95,7 +95,7 @@ export default function CallbackWidget() {
 
         /* Card header */
         .cb-card-header {
-          background:linear-gradient(135deg,#0d2b1c,#1a5c38,#228756);
+          background:linear-gradient(135deg,#0d2b1c,#1a5c38,#1e7a4c);
           padding:16px 18px; display:flex; align-items:center; justify-content:space-between; position:relative; overflow:hidden;
         }
         .cb-card-header::after { content:''; position:absolute; top:-30px; right:-30px; width:100px; height:100px; border-radius:50%; background:rgba(255,255,255,0.06); pointer-events:none; }
@@ -111,12 +111,12 @@ export default function CallbackWidget() {
         .cb-inp-wrap { position:relative; margin-bottom:10px; }
         .cb-inp-label { display:block; font-size:10.5px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
         .cb-inp { width:100%; border:1.5px solid #e2e8f0; border-radius:10px; padding:11px 12px; font-size:13px; font-family:inherit; outline:none; color:#0f172a; box-sizing:border-box; transition:border-color .15s,box-shadow .15s; background:#fff; height:44px; }
-        .cb-inp:focus { border-color:#228756; box-shadow:0 0 0 3px rgba(34,135,86,0.1); }
+        .cb-inp:focus { border-color:#1e7a4c; box-shadow:0 0 0 3px rgba(34,135,86,0.1); }
         .cb-inp::placeholder { color:#cbd5e1; }
         .cb-error { font-size:11px; color:#ef4444; margin:-6px 0 8px; font-weight:500; }
         .cb-btn {
           width:100%; border:none;
-          background:linear-gradient(135deg,#1a6b3a,#228756);
+          background:linear-gradient(135deg,#1e7a4c,#1e7a4c);
           color:#fff; border-radius:11px; padding:12px 0; font-size:13.5px; font-weight:700;
           cursor:pointer; transition:opacity .15s,transform .15s; font-family:inherit;
           display:flex; align-items:center; justify-content:center; gap:8px; margin-top:2px;

@@ -168,7 +168,7 @@ export default function ProfileSettings() {
           </div>
           <PreviewCard t={t} photo={photo} name={name} />
           {publicPath && (
-            <a className="stg-btn primary" href={publicPath} target="_blank" rel="noopener noreferrer" style={{ width: "100%", marginTop: 16, color: "#fff", background: "#166534" }}>
+            <a className="stg-btn primary" href={publicPath} target="_blank" rel="noopener noreferrer" style={{ width: "100%", marginTop: 16, color: "#fff", background: "#14532d" }}>
               Open full profile
             </a>
           )}

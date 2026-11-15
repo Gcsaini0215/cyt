@@ -619,7 +619,7 @@ export const TWEET_THEMES = {
   sunset:   { bg: ["#b8320f", "#ec5b3f", "#f99466", "#ffd89a"], deep: "#6e1a05", glow: "#fff3b0", dots: "#ffffff", card: ["#ffffff", "#fff8f3", "#ffeadd"], tick: "#e5532a", link: "#c2410c", sh: .4 },
   rose:     { bg: ["#7a1f45", "#c53d6c", "#ec7d9f", "#ffd3de"], deep: "#3f0a22", glow: "#ffe3a3", dots: "#ffffff", card: ["#ffffff", "#fff6f8", "#ffe6ec"], tick: "#c53d6c", link: "#a8305b", sh: .42 },
   teal:     { bg: ["#043f3c", "#0b7a73", "#22aaa0", "#9be8dc"], deep: "#012422", glow: "#ffd27a", dots: "#ffffff", card: ["#ffffff", "#f2fbfa", "#dcf4f0"], tick: "#0b8a82", link: "#0b7a73", sh: .45 },
-  midnight: { bg: ["#070b18", "#141d3a", "#26335e", "#45507f"], deep: "#000000", glow: "#d4a24c", dots: "#d4a24c", card: ["#ffffff", "#fbf8f1", "#f3ead6"], tick: "#c9962c", link: "#9a6f15", sh: .6 },
+  midnight: { bg: ["#070b18", "#141d3a", "#26335e", "#45507f"], deep: "#000000", glow: "#e3a83a", dots: "#e3a83a", card: ["#ffffff", "#fbf8f1", "#f3ead6"], tick: "#c9962c", link: "#9a6f15", sh: .6 },
 };
 
 export async function tweetCard(t, { words = "", size = "post", link = "", qr = null, theme = "forest", hd = false } = {}) {

@@ -73,22 +73,22 @@
 
 .selection-card:hover {
     transform: translateY(-2px);
-    border-color: #228756;
+    border-color: #1e7a4c;
     box-shadow: 0 4px 12px rgba(34, 135, 86, 0.1);
 }
 
 .selection-card.active {
-    border-color: #228756;
+    border-color: #1e7a4c;
     background: #f0fdf4;
     box-shadow: 0 4px 12px rgba(34, 135, 86, 0.15);
 }
 
 .selection-card.active .card-icon i {
-    color: #228756;
+    color: #1e7a4c;
 }
 
 .selection-card.active .card-label {
-    color: #228756;
+    color: #1e7a4c;
     font-weight: 700;
 }
 
@@ -111,7 +111,7 @@
     position: absolute;
     top: -6px;
     right: -6px;
-    background: #228756;
+    background: #1e7a4c;
     color: white;
     width: 18px;
     height: 18px;

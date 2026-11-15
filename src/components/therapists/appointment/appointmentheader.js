@@ -32,7 +32,7 @@ export default function AppointmentHeader() {
           .premium-header-container {
             width: 100%;
             padding: 50px 40px;
-            background: linear-gradient(135deg, #228756 0%, #1b6843 100%);
+            background: linear-gradient(135deg, #1e7a4c 0%, #1b6843 100%);
             box-shadow: 0 20px 40px rgba(27, 104, 67, 0.2);
             border-radius: 24px;
             margin-bottom: 40px;

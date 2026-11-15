@@ -74,7 +74,7 @@ const CSS = `
 .pc-sec { scroll-margin-top: 96px; margin-bottom: 14px; padding: 20px; border-radius: 16px; background: #fff; border: 1px solid #e4ece7; }
 .pc-sec.warn { border-color: #fcd9a8; }
 .pc-sec h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font-size: 19px; font-weight: 800; color: #0f172a; font-family: inherit; }
-.pc-sec h2 span { flex: none; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #166534; color: #fff; font-size: 13.5px; }
+.pc-sec h2 span { flex: none; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #14532d; color: #fff; font-size: 13.5px; }
 .pc-sec.warn h2 span { background: #b45309; }
 .pc-sec p { margin: 0 0 8px; font-size: 15px; line-height: 1.65; color: #475569; }
 .pc-sec p.pc-outro { margin: 10px 0 0; }
@@ -90,8 +90,8 @@ const CSS = `
 .pc-group h3 { margin: 0 0 4px; font-size: 15.5px; font-weight: 800; color: #14532d; font-family: inherit; }
 .pc-end { padding: 20px; border-radius: 16px; background: #fff; border: 1px solid #e4ece7; text-align: center; }
 .pc-end p { margin: 0 0 12px; font-size: 14.5px; color: #475569; }
-.pc-end p a { color: #166534; font-weight: 700; text-decoration: underline; }
-.pc-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 22px; border-radius: 10px; background: #166534; color: #fff !important; font-size: 15px; font-weight: 800; text-decoration: none !important; }
+.pc-end p a { color: #14532d; font-weight: 700; text-decoration: underline; }
+.pc-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 22px; border-radius: 10px; background: #14532d; color: #fff !important; font-size: 15px; font-weight: 800; text-decoration: none !important; }
 @media (max-width: 900px) {
   .pc-wrap { grid-template-columns: minmax(0, 1fr); }
   .pc-nav { display: none; }

@@ -187,7 +187,7 @@ const CSS = `
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 85% 10%, #000 0%, transparent 70%); mask-image: radial-gradient(ellipse 70% 60% at 85% 10%, #000 0%, transparent 70%); }
 .fbl-head { margin-bottom: 26px; }
 .fbl-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px !important; padding: 0; font-size: 12px !important; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e !important; }
-.fbl-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+.fbl-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .fbl-head h2 { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .fbl-head h2 span { color: #1e7a4c; }
 .fbl-head p { color: #4b5b53; font-size: 16px; line-height: 1.6; margin: 0; padding: 0; max-width: 60ch; }
@@ -210,7 +210,7 @@ const CSS = `
 .fbl-stretch { color: inherit !important; text-decoration: none !important; }
 .fbl-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
 .fbl-card.near:has(.fbl-stretch:focus-visible) { outline: 3px solid #e3a83a; outline-offset: 2px; }
-.fbl-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: #e7f4ec; color: #166534; }
+.fbl-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: #e7f4ec; color: #14532d; }
 .fbl-card h3 { font-size: 22px; font-weight: 800; color: #0b1712; margin: 6px 0 2px; line-height: 1.25; padding-right: 64px; }
 .fbl-stats { display: flex; flex-wrap: wrap; gap: 8px; }
 .fbl-stats span { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px; border-radius: 10px; background: #f3f8f4; border: 1px solid #e1ece4; font-size: 13.5px; color: #4b5b53; font-weight: 600; }
@@ -222,7 +222,7 @@ const CSS = `
 .fbl-go i { transition: transform .2s ease; }
 .fbl-card.near:hover .fbl-go i { transform: translateX(3px); }
 
-.fbl-card.centre { color: #fff; background: linear-gradient(150deg, #1e7a4c 0%, #166534 50%, #0f3f24 100%); box-shadow: 0 22px 44px -28px rgba(11,52,30,.9); }
+.fbl-card.centre { color: #fff; background: linear-gradient(150deg, #1e7a4c 0%, #14532d 50%, #0f3f24 100%); box-shadow: 0 22px 44px -28px rgba(11,52,30,.9); }
 .fbl-card.centre::before { content: ""; position: absolute; width: 260px; height: 260px; right: -90px; top: -110px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.35), rgba(227,168,58,0) 70%); pointer-events: none; }
 .fbl-card.centre::after { content: ""; position: absolute; width: 180px; height: 180px; left: -70px; bottom: -90px; border-radius: 50%; border: 28px solid rgba(255,255,255,.05); pointer-events: none; }
 .fbl-card.centre > * { position: relative; }
@@ -259,7 +259,7 @@ const CSS = `
 .fbl-tile:focus-visible { outline: none; }
 .fbl-tile:focus-visible::after { box-shadow: inset 0 0 0 3px #e3a83a; }
 .fbl-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,26,17,.05) 25%, rgba(7,26,17,.85) 100%); }
-.fbl-badge { position: absolute; top: 10px; left: 10px; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,.92); color: #166534; font-size: 11px; font-weight: 800; letter-spacing: .2px; backdrop-filter: blur(4px); }
+.fbl-badge { position: absolute; top: 10px; left: 10px; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,.92); color: #14532d; font-size: 11px; font-weight: 800; letter-spacing: .2px; backdrop-filter: blur(4px); }
 .fbl-badge.gold { background: #ecc77d; color: #3b2604; }
 .fbl-info { position: absolute; left: 14px; right: 44px; bottom: 12px; display: flex; flex-direction: column; color: #fff; }
 .fbl-info b { font-size: 16.5px; font-weight: 800; line-height: 1.25; }
@@ -276,11 +276,11 @@ const CSS = `
 .fbl-place { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 8px 0 13px; border-radius: 999px; border: 1px solid #dbe5df; background: #fff; color: #26463a !important; font-size: 13.5px; font-weight: 600; text-decoration: none !important; white-space: nowrap;
   box-shadow: 0 4px 12px -9px rgba(11,52,30,.45); transition: border-color .15s ease, transform .15s ease; }
 .fbl-place > i { color: #1e7a4c; font-size: 13px; }
-.fbl-place small { font-size: 11px; font-weight: 800; color: #166534; background: #e7f4ec; border-radius: 999px; padding: 3px 9px; }
+.fbl-place small { font-size: 11px; font-weight: 800; color: #14532d; background: #e7f4ec; border-radius: 999px; padding: 3px 9px; }
 .fbl-place.abroad { border-color: #e6c98a; background: #fffaf0; }
 .fbl-place.abroad > i { color: #a86e0e; }
 .fbl-place.abroad small { background: #fbefd3; color: #8a5a0b; }
-.fbl-place:hover, .fbl-place.on { border-color: #1e7a4c; color: #166534 !important; transform: translateY(-1px); }
+.fbl-place:hover, .fbl-place.on { border-color: #1e7a4c; color: #14532d !important; transform: translateY(-1px); }
 .fbl-credit { margin: 18px 0 0; padding: 0; font-size: 11.5px; color: #94a3b8; }
 .fbl-credit a { color: #64748b; }
 

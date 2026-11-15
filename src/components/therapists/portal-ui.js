@@ -1,7 +1,7 @@
 /* Page chrome for the simpler therapist-portal pages (Payouts, Help & support):
    same tokens as the dashboard / settings. */
 export const PT_CSS = `
-.pt { --g: #166534; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8;
+.pt { --g: #14532d; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); max-width: 1180px; margin: 0 auto 24px; }
 .pt *, .pt *::before, .pt *::after { box-sizing: border-box; }
 .pt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -23,7 +23,7 @@ export const PT_CSS = `
 .pt-btn.primary:disabled { opacity: .65; cursor: default; }
 .pt-btn.outline { background: #fff; color: var(--g) !important; border-color: #cfe3d6; } .pt-btn.outline:hover { background: var(--g-bg); }
 .pt-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
-.pt-chip.ok { background: #e7f6ec; color: #166534; } .pt-chip.warn { background: #fef3c7; color: #92400e; } .pt-chip.mut { background: #f1f5f9; color: #475569; }
+.pt-chip.ok { background: #e7f6ec; color: #14532d; } .pt-chip.warn { background: #fef3c7; color: #92400e; } .pt-chip.mut { background: #f1f5f9; color: #475569; }
 .pt-empty { text-align: center; padding: 26px 12px; color: var(--mut); font-size: 13.5px; line-height: 1.55; }
 .pt-empty b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
 .pt-skel { height: 64px; border-radius: 12px; margin-bottom: 8px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: ptsk 1.3s infinite linear; }

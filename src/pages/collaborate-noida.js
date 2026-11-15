@@ -595,7 +595,7 @@ export default function CollaborateNoida() {
 }
 
 const CSS = `
-.cn { --g: #1a6b3a; --g2: #155a30; --gl: #f0fdf4; --gb: #d5e3da; --ink: #10231a; --mut: #5b6b62;
+.cn { --g: #1e7a4c; --g2: #155a30; --gl: #f0fdf4; --gb: #d5e3da; --ink: #10231a; --mut: #5b6b62;
   font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink); background: #f7faf8; padding-bottom: 48px; }
 .cn * { box-sizing: border-box; }
 .cn-wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }

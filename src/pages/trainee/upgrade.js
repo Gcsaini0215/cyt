@@ -274,13 +274,13 @@ const CSS = `
 .up-side { position: sticky; top: calc(var(--tl-h) + 16px); }
 .up-wrap .tp-card { padding: 16px 18px; border-radius: 14px; }
 .up-k { display: block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
-.up-cur { border-left: 3px solid #d4a24c; }
+.up-cur { border-left: 3px solid #e3a83a; }
 .up-cur-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .up-cur-h { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
 .up-cur-h b { font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -.01em; line-height: 1.15; }
 .up-cur-h span { font-size: 13px; font-weight: 700; color: #64748b; }
 .up-st { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
-.up-st.paid { background: #ecf7ef; color: #166534; }
+.up-st.paid { background: #ecf7ef; color: #14532d; }
 .up-st.free { background: #fff6dc; color: #8a5a0b; }
 .up-st.due { background: #fef2f2; color: #b91c1c; }
 .up-ladder { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); }

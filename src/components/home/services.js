@@ -119,11 +119,11 @@ export default function Services() {
             .service-card .icons img { transition: transform 0.4s ease; }
             .service-card:hover .icons img { transform: scale(1.15) rotate(3deg); }
             .service-card .title { font-weight: 700; font-size: 2rem; margin-top: 12px; transition: color 0.3s ease; }
-            .service-card:hover .title { color: #228756; }
+            .service-card:hover .title { color: #1e7a4c; }
             .service-card .rbt-btn-link { display: inline-flex; align-items: center; font-weight: 600; margin-top: 10px; color: #007f99; position: relative; overflow: hidden; }
             .service-card .rbt-btn-link i { margin-left: 6px; transition: transform 0.3s ease; }
             .service-card:hover .rbt-btn-link i { transform: translateX(5px); }
-            .service-card::after { content: ""; position: absolute; inset: 0; border-radius: 20px; border: 2px solid transparent; background: linear-gradient(90deg,#228756,#007f99,#1e90ff); background-size: 300% 300%; opacity: 0; transition: opacity 0.4s ease; z-index: -1; }
+            .service-card::after { content: ""; position: absolute; inset: 0; border-radius: 20px; border: 2px solid transparent; background: linear-gradient(90deg,#1e7a4c,#007f99,#1e90ff); background-size: 300% 300%; opacity: 0; transition: opacity 0.4s ease; z-index: -1; }
             .service-card:hover::after { opacity: 1; animation: borderGlow 3s linear infinite; }
             @keyframes borderGlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
             .special-offer { background: linear-gradient(135deg, #fff9e6, #fff); border: 2px dashed #51ad14ff; }

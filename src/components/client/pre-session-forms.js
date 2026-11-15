@@ -64,14 +64,14 @@ const PSF_CSS = `
 .psf-row.sent { border-color: #fde68a; background: #fffdf5; }
 .psf-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .psf-top b { display: block; font-size: 14.5px; color: #0f172a; } .psf-top span { display: block; font-size: 12.5px; color: #64748b; margin-top: 2px; }
-.psf-chip { flex-shrink: 0; font-size: 11.5px !important; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #e7f6ec; color: #166534 !important; margin: 0 !important; }
+.psf-chip { flex-shrink: 0; font-size: 11.5px !important; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #e7f6ec; color: #14532d !important; margin: 0 !important; }
 .psf-row.sent .psf-chip { background: #fef3c7; color: #92400e !important; }
 .psf-ins { margin: 8px 0 0; font-size: 13.5px; color: #475569; line-height: 1.55; }
 .psf-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .psf-btn { height: 40px; padding: 0 14px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; font-size: 13.5px; font-weight: 800; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; text-decoration: none !important; }
-.psf-btn.ghost { background: #fff; color: #166534 !important; border: 1.5px solid #cfe3d6; }
+.psf-btn.ghost { background: #fff; color: #14532d !important; border: 1.5px solid #cfe3d6; }
 .psf-res { margin-top: 8px; font-size: 14px; font-weight: 700; color: #0f172a; }
 .psf-res p { margin: 6px 0 0; font-size: 13px; color: #475569; font-style: italic; font-weight: 500; line-height: 1.55; }
-.psf-more { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 800; color: #166534 !important; }
+.psf-more { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 800; color: #14532d !important; }
 @media (max-width: 560px) { .psf-acts .psf-btn { flex: 1 1 100%; } }
 `;

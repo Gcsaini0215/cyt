@@ -58,7 +58,7 @@ function Certificate() {
 
 const CSS = `
 .ce-wait { text-align: center; padding: 40px 24px; }
-.ce-seal { width: 76px; height: 76px; margin: 0 auto 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fbe7a8, #d4a24c 70%); color: #fff; display: grid; place-items: center; font-size: 34px; box-shadow: 0 10px 24px rgba(201,150,44,.35), inset 0 0 0 4px rgba(255,255,255,.35); }
+.ce-seal { width: 76px; height: 76px; margin: 0 auto 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fbe7a8, #e3a83a 70%); color: #fff; display: grid; place-items: center; font-size: 34px; box-shadow: 0 10px 24px rgba(201,150,44,.35), inset 0 0 0 4px rgba(255,255,255,.35); }
 .ce-seal.sm { width: 54px; height: 54px; font-size: 24px; margin-bottom: 10px; }
 .ce-wait h2 { margin: 0 0 6px; font-size: 20px; font-weight: 800; color: #0f172a; }
 .ce-wait p { margin: 0 auto; max-width: 520px; font-size: 14.5px; color: #64748b; line-height: 1.6; }

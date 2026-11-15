@@ -99,7 +99,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                   "&:hover": {
                     transform: isMobile ? "none" : "translateY(-12px) scale(1.02)",
                     boxShadow: isMobile ? "0 10px 30px rgba(0,0,0,0.04)" : "0 25px 50px rgba(34, 135, 86, 0.15)",
-                    borderColor: "#228756",
+                    borderColor: "#1e7a4c",
                     "& .view-profile-btn": {
                       backgroundColor: "#1a6b44",
                       transform: "scale(1.05)",
@@ -122,7 +122,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                       bottom: 0,
                       borderRadius: "50%",
                       padding: "2px",
-                      background: "linear-gradient(45deg, #228756, #dcfce7, #228756)",
+                      background: "linear-gradient(45deg, #1e7a4c, #dcfce7, #1e7a4c)",
                       animation: "rotate-gradient 6s linear infinite",
                       WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
                       WebkitMaskComposite: "xor",
@@ -155,7 +155,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                       <Typography sx={{ fontSize: isMobile ? "17px" : "19px", fontWeight: 800, color: "#1e293b", letterSpacing: "-0.5px" }}>
                         {therapist.user?.name}
                       </Typography>
-                      <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#228756" }} />
+                      <CheckCircle sx={{ fontSize: isMobile ? 18 : 20, color: "#1e7a4c" }} />
                     </Box>
                     {therapist.qualification && (
                       <Typography sx={{
@@ -174,7 +174,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                     )}
                     <Typography sx={{
                       fontSize: isMobile ? "12px" : "13px",
-                      color: "#228756",
+                      color: "#1e7a4c",
                       fontWeight: 700,
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
@@ -263,7 +263,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                       fontSize: isMobile ? "11px" : "12px",
                       fontWeight: 800,
                       color: "white",
-                      backgroundColor: "#228756",
+                      backgroundColor: "#1e7a4c",
                       px: isMobile ? 1.5 : 2,
                       py: isMobile ? 0.8 : 1,
                       borderRadius: "50px",
@@ -342,7 +342,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                   <Typography variant="h4" sx={{ fontWeight: 800, color: "#1e293b", mb: 0.5, fontSize: isMobile ? "24px" : "32px" }}>
                     {selectedTherapist.user?.name}
                   </Typography>
-                  <Typography variant="subtitle1" sx={{ color: "#228756", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
+                  <Typography variant="subtitle1" sx={{ color: "#1e7a4c", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
                     {selectedTherapist.profile_type || "Specialist"}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500, mt: 0.5 }}>
@@ -395,7 +395,7 @@ export default function TherapistSwiper({ topTherapists = [] }) {
                   mt: 2,
                   py: 2,
                   borderRadius: "16px",
-                  backgroundColor: "#228756",
+                  backgroundColor: "#1e7a4c",
                   textTransform: "none",
                   fontSize: "18px",
                   fontWeight: 700,

@@ -212,7 +212,7 @@ const CSS = `
 .ph-crumbs { font-size: 13px; color: rgba(255,255,255,.65); margin-bottom: 14px; }
 .ph-crumbs a { color: rgba(255,255,255,.85); font-weight: 600; text-decoration: none; }
 .ph-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ecc77d; }
-.ph-eyebrow::before { content: ""; width: 22px; height: 2px; background: #d4a24c; }
+.ph-eyebrow::before { content: ""; width: 22px; height: 2px; background: #e3a83a; }
 .ph-banner h1 { font-size: clamp(28px, 4.2vw, 46px); font-weight: 800; color: #fff; margin: 0 0 10px; letter-spacing: -.02em; line-height: 1.15; }
 .ph-banner h1 span { color: #ecc77d; }
 .ph-sub { font-size: clamp(15px, 1.4vw, 17px); color: rgba(255,255,255,.9); line-height: 1.6; margin: 0 0 22px; padding: 0; max-width: 560px; font-weight: 500; }

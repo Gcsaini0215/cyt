@@ -239,7 +239,7 @@ const CSS = `
 .tf-banner .tf-crumbs { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 14px; }
 .tf-banner .tf-crumbs a { color: rgba(255,255,255,.85); font-weight: 600; text-decoration: none; }
 .tf-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ecc77d; }
-.tf-eyebrow::before { content: ""; width: 22px; height: 2px; background: #d4a24c; }
+.tf-eyebrow::before { content: ""; width: 22px; height: 2px; background: #e3a83a; }
 .tf-banner h1 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -.02em; line-height: 1.12; }
 .tf-banner h1 span { color: #ecc77d; }
 .tf-sub { font-size: clamp(15px, 1.4vw, 17px); color: rgba(255,255,255,.88); line-height: 1.6; margin: 0 0 18px; padding: 0; max-width: 620px; }
@@ -291,7 +291,7 @@ const CSS = `
 .tf-box h2, .tf-sec-head h2, .tf-faq h2, .tf-others h2 { font-size: 20px; font-weight: 800; color: #14532d; margin: 0 0 14px; }
 .tf-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .tf-list li { position: relative; margin: 0; padding-left: 24px; font-size: 15px; line-height: 1.55; color: #334155; }
-.tf-list li::before { content: ""; position: absolute; left: 4px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: #d4a24c; }
+.tf-list li::before { content: ""; position: absolute; left: 4px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: #e3a83a; }
 .tf-list.check li::before { content: "✓"; width: auto; height: auto; background: none; top: 0; left: 2px; color: #1e7a4c; font-weight: 800; }
 
 .tf-qf { margin-top: 40px; }

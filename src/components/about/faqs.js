@@ -40,7 +40,7 @@ export default function AboutFaqs() {
           <div className="col-lg-7 text-center">
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
-              backgroundColor: 'rgba(34, 135, 86, 0.1)', color: '#228756',
+              backgroundColor: 'rgba(34, 135, 86, 0.1)', color: '#1e7a4c',
               padding: '8px 20px', borderRadius: '100px',
               fontSize: '14px', fontWeight: 700, marginBottom: '20px'
             }}>
@@ -59,7 +59,7 @@ export default function AboutFaqs() {
             ))}
             <p style={{ textAlign: 'center', marginTop: '28px', fontSize: '14px', color: '#64748b' }}>
               Have a question about therapy itself?{' '}
-              <Link href="/faqs" style={{ color: '#228756', fontWeight: 700 }}>
+              <Link href="/faqs" style={{ color: '#1e7a4c', fontWeight: 700 }}>
                 See our full FAQ &rarr;
               </Link>
             </p>

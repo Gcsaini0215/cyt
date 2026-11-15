@@ -22,7 +22,7 @@ const styles = `
     font-size: 12px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: #a8862a;
     display: inline-flex; align-items: center; gap: 12px; margin: 0 0 10px;
   }
-  .vc-kicker::before { content: ""; width: 28px; height: 2px; background: #d4af37; display: inline-block; }
+  .vc-kicker::before { content: ""; width: 28px; height: 2px; background: #e3a83a; display: inline-block; }
   .vc-title { font-size: clamp(24px, 3vw, 32px); font-weight: 900; color: #0f172a; line-height: 1.2; margin: 0 0 12px; }
   .vc-lead { font-size: 14.5px; line-height: 1.8; color: #4a5468; margin: 0 0 22px; }
 

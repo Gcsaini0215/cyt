@@ -68,7 +68,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
         }
         .ppd-card { position:relative; border:1px solid #dbe3df; border-radius:6px; background:#fff; }
         .ppd-name { font-family:inherit; font-weight:800; font-size:26px; color:#132a1c; letter-spacing:-0.2px; }
-        .ppd-role { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#228756; }
+        .ppd-role { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#1e7a4c; }
         .ppd-bio { font-size:15px; color:#3f4d47; line-height:1.85; }
         .ppd-stat-label { font-size:11px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; color:#94a3b8; }
       ` }} />
@@ -91,7 +91,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
               startIcon={<ArrowBackIcon />}
               sx={{
                 mb: 3,
-                color: "#228756",
+                color: "#1e7a4c",
                 fontWeight: 700,
                 textTransform: "none",
                 borderRadius: "6px",
@@ -121,7 +121,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
                   borderRadius: "6px",
                   background: "#f8faf9",
                   border: "1px solid #dbe3df",
-                  color: "#228756",
+                  color: "#1e7a4c",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -156,15 +156,15 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
             </Typography>
 
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.75} sx={{ mt: 0.75, mb: 2 }}>
-              <SupervisorAccountIcon sx={{ fontSize: 15, color: "#228756" }} />
+              <SupervisorAccountIcon sx={{ fontSize: 15, color: "#1e7a4c" }} />
               <Typography className="ppd-role">{psychologist.roleLabel || "Trainee Psychologist"}</Typography>
             </Stack>
 
             {!!psychologist.availableDays?.length && (
               <Box sx={{ mb: 2.5 }}>
                 <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mb: 0.75 }}>
-                  <EventAvailableRoundedIcon sx={{ fontSize: 14, color: "#228756" }} />
-                  <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                  <EventAvailableRoundedIcon sx={{ fontSize: 14, color: "#1e7a4c" }} />
+                  <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#1e7a4c", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                     Available Days
                   </Typography>
                 </Stack>
@@ -175,7 +175,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
                       sx={{
                         fontSize: 11,
                         fontWeight: 700,
-                        color: "#228756",
+                        color: "#1e7a4c",
                         background: "#f8faf9",
                         border: "1px solid #cfe4d7",
                         borderRadius: "4px",
@@ -216,7 +216,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
             >
               <Box sx={{ flex: 1, textAlign: "center", borderRight: "1px solid #e2e8f0" }}>
                 <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-                  <SendIcon sx={{ fontSize: 15, color: "#228756" }} />
+                  <SendIcon sx={{ fontSize: 15, color: "#1e7a4c" }} />
                   <Typography sx={{ fontSize: 17, fontWeight: 800, color: "#1e293b" }}>{requestsSent}</Typography>
                 </Stack>
                 <Typography className="ppd-stat-label" sx={{ mt: 0.4 }}>
@@ -225,7 +225,7 @@ export default function ProbonoProfileDetail({ psychologist, pageUrl }) {
               </Box>
               <Box sx={{ flex: 1, textAlign: "center" }}>
                 <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5}>
-                  <GroupsIcon sx={{ fontSize: 15, color: "#228756" }} />
+                  <GroupsIcon sx={{ fontSize: 15, color: "#1e7a4c" }} />
                   <Typography sx={{ fontSize: 17, fontWeight: 800, color: "#1e293b" }}>{psychologist.connected}</Typography>
                 </Stack>
                 <Typography className="ppd-stat-label" sx={{ mt: 0.4 }}>

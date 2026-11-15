@@ -206,7 +206,7 @@ const CSS = `
 .fb-ask::before { content: ""; position: absolute; z-index: -1; width: 380px; height: 380px; right: -150px; top: -170px; border-radius: 50%; background: radial-gradient(circle, rgba(227,168,58,.22), rgba(227,168,58,0) 68%); }
 .fb-ask::after { content: ""; position: absolute; z-index: -1; width: 260px; height: 260px; left: -120px; bottom: -130px; border-radius: 50%; border: 40px solid rgba(30,122,76,.06); }
 .fb-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
-.fb-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+.fb-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .fb-title { font-size: clamp(28px, 3vw, 40px); font-weight: 800; color: #0b1712; margin: 0 0 12px; line-height: 1.12; letter-spacing: -.02em; }
 .fb-title span { color: #1e7a4c; }
 .fb-sub { color: #3f5249; font-size: 16px; line-height: 1.65; margin: 0 0 24px; padding: 0; max-width: 52ch; }
@@ -244,7 +244,7 @@ const CSS = `
 .fb-st small { font-size: 13px; color: #5b6b63; line-height: 1.4; }
 .fb-time { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #8a5a0b; background: #fbefd3; border-radius: 999px; padding: 4px 9px; white-space: nowrap; }
 .fb-arr { flex: none; color: #1e7a4c; font-size: 17px; }
-.fb-people { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 18px; border-radius: 18px; color: #fff; background: linear-gradient(140deg, #1e7a4c 0%, #166534 55%, #0f3f24 100%); box-shadow: 0 18px 32px -24px rgba(11,52,30,.9); }
+.fb-people { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 18px; border-radius: 18px; color: #fff; background: linear-gradient(140deg, #1e7a4c 0%, #14532d 55%, #0f3f24 100%); box-shadow: 0 18px 32px -24px rgba(11,52,30,.9); }
 .fb-faces { display: inline-flex; align-items: center; flex: none; }
 .fb-faces img, .fb-faces em { width: 38px; height: 38px; border-radius: 50%; border: 2.5px solid #1a6e44; margin-left: -10px; background: #e8f3ec; object-fit: cover; }
 .fb-faces img:first-child { margin-left: 0; }

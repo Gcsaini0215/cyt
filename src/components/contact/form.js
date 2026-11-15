@@ -76,7 +76,7 @@ export default function ContactForm() {
 
                 {success && (
                   <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px 14px', marginBottom: '16px' }}>
-                    <p style={{ color: '#166534', fontSize: '13px', margin: 0, fontWeight: 600 }}>{success}</p>
+                    <p style={{ color: '#14532d', fontSize: '13px', margin: 0, fontWeight: 600 }}>{success}</p>
                   </div>
                 )}
                 {error && (

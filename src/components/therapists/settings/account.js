@@ -105,7 +105,7 @@ function GoogleMeet() {
           </button>
         </>
       )}
-      {msg && <div role="status" style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: msg[0] === "ok" ? "#166534" : "#dc2626" }}>{msg[1]}</div>}
+      {msg && <div role="status" style={{ marginTop: 10, fontSize: 13, fontWeight: 600, color: msg[0] === "ok" ? "#14532d" : "#dc2626" }}>{msg[1]}</div>}
     </Section>
   );
 }

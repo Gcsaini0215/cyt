@@ -497,7 +497,7 @@ export default function EapPage() {
 }
 
 export const CSS = `
-.eap { --g:#166534; --g2:#1e7a4c; --gd:#173c2a; --ink:#0b1712; --gold:#a86e0e; --gold2:#e3a83a; --cream:#f8f1de; --sage:#e6f3ea; --line:#e6ece8; --soft:#4b5b53; color:var(--ink); background:#fff; }
+.eap { --g:#14532d; --g2:#1e7a4c; --gd:#173c2a; --ink:#0b1712; --gold:#a86e0e; --gold2:#e3a83a; --cream:#f8f1de; --sage:#e6f3ea; --line:#e6ece8; --soft:#4b5b53; color:var(--ink); background:#fff; }
 .eap * { box-sizing:border-box; }
 .eap li { margin:0; }
 .eap-wrap { max-width:1180px; margin:0 auto; padding:0 16px; }
@@ -530,7 +530,7 @@ export const CSS = `
 .eap-hero-in { align-items:end; }
 .eap-hero-r { position:relative; display:flex; justify-content:center; align-items:flex-end; min-height:540px; }
 .eap-hero-circle { position:absolute; left:54%; bottom:-120px; transform:translateX(-50%); width:min(520px,100%); aspect-ratio:1; border-radius:50%;
-  background:radial-gradient(circle at 35% 30%, #2a8a58 0, #166534 55%, #173c2a 100%); box-shadow:0 0 0 14px rgba(227,168,58,.28), 0 0 0 30px rgba(227,168,58,.12); }
+  background:radial-gradient(circle at 35% 30%, #2a8a58 0, #14532d 55%, #173c2a 100%); box-shadow:0 0 0 14px rgba(227,168,58,.28), 0 0 0 30px rgba(227,168,58,.12); }
 .eap-hero-img { position:relative; z-index:1; display:block; width:min(500px,98%); height:auto; filter:drop-shadow(0 24px 30px rgba(23,60,42,.28)); }
 .eap-badge { position:absolute; z-index:2; display:flex; align-items:center; gap:10px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:10px 14px; box-shadow:0 18px 36px -22px rgba(23,60,42,.6); max-width:250px; }
 .eap-badge span { width:36px; height:36px; border-radius:12px; background:var(--sage); color:var(--g); display:flex; align-items:center; justify-content:center; flex:none; }

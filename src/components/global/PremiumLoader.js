@@ -9,7 +9,7 @@ const PremiumLoader = () => {
         <div className="pl-leaf-wrap">
           <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="pl-leaf-svg">
             {/* stem */}
-            <line x1="32" y1="58" x2="32" y2="36" stroke="#228756" strokeWidth="2.5" strokeLinecap="round" className="pl-stem" />
+            <line x1="32" y1="58" x2="32" y2="36" stroke="#1e7a4c" strokeWidth="2.5" strokeLinecap="round" className="pl-stem" />
             {/* left curl */}
             <path d="M32 48 Q20 44 18 34" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round" fill="none" className="pl-curl-l" />
             {/* right curl */}
@@ -17,7 +17,7 @@ const PremiumLoader = () => {
             {/* main leaf */}
             <path
               d="M32 36 C32 36 14 30 12 12 C12 12 30 10 38 22 C44 30 32 36 32 36Z"
-              fill="#228756"
+              fill="#1e7a4c"
               className="pl-leaf"
             />
             {/* leaf shine */}
@@ -57,7 +57,7 @@ const PremiumLoader = () => {
           top: 0; left: 0;
           height: 3px;
           width: 100%;
-          background: linear-gradient(90deg, #166534, #228756, #4ade80, #228756, #166534);
+          background: linear-gradient(90deg, #14532d, #1e7a4c, #4ade80, #1e7a4c, #14532d);
           background-size: 300% 100%;
           animation: pl-slide 1.4s ease-in-out infinite;
           border-radius: 0 2px 2px 0;

@@ -37,7 +37,7 @@ const FQB_CSS = `
 .fqb-item { border: 1px solid #e2ebe5; border-radius: 12px; background: #fff; }
 .fqb-item summary { cursor: pointer; list-style: none; padding: 13px 44px 13px 16px; position: relative; font-size: 15px; font-weight: 700; color: #0f2a1d; }
 .fqb-item summary::-webkit-details-marker { display: none; }
-.fqb-item summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: 700; color: #166534; }
+.fqb-item summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: 700; color: #14532d; }
 .fqb-item[open] summary::after { content: "–"; }
 .fqb-item p { margin: 0; padding: 0 16px 14px; font-size: 14.5px; line-height: 1.7; color: #334155; }
 @media (max-width: 599px) { .fqb { padding: 22px 14px 8px; } .fqb h2 { font-size: 20px; } }

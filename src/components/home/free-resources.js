@@ -198,11 +198,11 @@ export default function FreeResources() {
         .fr-tag {
           display:inline-flex; align-items:center; gap:8px;
           font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
-          color:#166534; margin-bottom:12px;
+          color:#14532d; margin-bottom:12px;
         }
-        .fr-tag-dot { width:20px; height:2px; background:#d4af37; display:inline-block; }
+        .fr-tag-dot { width:20px; height:2px; background:#e3a83a; display:inline-block; }
         .fr-title { font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:800; color:#132a1c; margin:0 0 8px; line-height:1.25; }
-        .fr-title span { color:#166534; }
+        .fr-title span { color:#14532d; }
         .fr-sub { color:#64748b; font-size:14.5px; margin:0; line-height:1.6; }
         .fr-private { display:inline-flex; align-items:center; gap:6px; margin:8px 0 0; padding:0; font-size:12.5px; font-weight:600; color:#1e7a4c; }
         .fr-time { font-size:10.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; padding:3px 8px; border-radius:6px; }
@@ -345,7 +345,7 @@ export default function FreeResources() {
         <DialogContent sx={{ p: 0 }}>
           <Box sx={{
             background: "linear-gradient(135deg,#0f3d24,#175c37)",
-            borderBottom: "3px solid #d4af37",
+            borderBottom: "3px solid #e3a83a",
             px: 3, py: 2.5, position: "relative",
             display: "flex", alignItems: "center", gap: 2,
           }}>
@@ -357,7 +357,7 @@ export default function FreeResources() {
             </Box>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 800, color: "#fff", fontSize: "17px", lineHeight: 1.3 }}>{selectedTool?.title}</Typography>
-              <Typography variant="body2" sx={{ color: "#d4af37", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>Wellness Resource</Typography>
+              <Typography variant="body2" sx={{ color: "#e3a83a", fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>Wellness Resource</Typography>
             </Box>
           </Box>
 
@@ -371,7 +371,7 @@ export default function FreeResources() {
                 <Typography sx={{ color: "#64748b", mb: 4 }}>How are you feeling right now?</Typography>
                 <Grid container spacing={2} sx={{ mb: 4 }}>
                   {[
-                    { e: "😊", l: "Happy", color: "#228756" }, { e: "😔", l: "Sad", color: "#3b82f6" },
+                    { e: "😊", l: "Happy", color: "#1e7a4c" }, { e: "😔", l: "Sad", color: "#3b82f6" },
                     { e: "😰", l: "Anxious", color: "#6366f1" }, { e: "😤", l: "Angry", color: "#ef4444" },
                     { e: "😴", l: "Tired", color: "#64748b" }, { e: "🧘", l: "Calm", color: "#007f99" }
                   ].map((mood, i) => (
@@ -435,7 +435,7 @@ export default function FreeResources() {
                 <Box sx={{ minHeight: "240px" }}>
                   <Stack spacing={2}>
                     {[
-                      { cat: "Grounding", t: "5-4-3-2-1 Technique", d: "Identify 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste.", c: "#228756" },
+                      { cat: "Grounding", t: "5-4-3-2-1 Technique", d: "Identify 5 things you see, 4 you feel, 3 you hear, 2 you smell, 1 you taste.", c: "#1e7a4c" },
                       { cat: "Grounding", t: "Object Focus", d: "Pick an object and describe every detail (color, texture, weight) out loud.", c: "#007f99" },
                       { cat: "Physical", t: "Cold Water Reset", d: "Splash cold water on your face to trigger the mammalian dive reflex and slow your heart.", c: "#3b82f6" },
                       { cat: "Physical", t: "PMR Technique", d: "Tense and release each muscle group starting from your toes up to your neck.", c: "#6366f1" },
@@ -550,7 +550,7 @@ export default function FreeResources() {
             {!leadSubmitted ? (
               <>
                 <Box sx={{ textAlign: "center", mb: 3 }}>
-                  <Box sx={{ width: 56, height: 56, borderRadius: "8px", bgcolor: "#eef5f1", border: "2px solid #d4af37", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 26, color: "#166534" }}>
+                  <Box sx={{ width: 56, height: 56, borderRadius: "8px", bgcolor: "#eef5f1", border: "2px solid #e3a83a", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 26, color: "#14532d" }}>
                     💬
                   </Box>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: "#1e293b", mb: 0.5 }}>
@@ -569,7 +569,7 @@ export default function FreeResources() {
                       value={leadData.name}
                       onChange={e => setLeadData(prev => ({ ...prev, name: e.target.value }))}
                       style={{ width: "100%", padding: "11px 14px", border: "1.5px solid #e2e8f0", borderRadius: 12, fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "#f8fafc" }}
-                      onFocus={e => e.target.style.borderColor = "#228756"}
+                      onFocus={e => e.target.style.borderColor = "#1e7a4c"}
                       onBlur={e => e.target.style.borderColor = "#e2e8f0"}
                     />
                   </Box>
@@ -580,7 +580,7 @@ export default function FreeResources() {
                       value={leadData.phone}
                       onChange={e => setLeadData(prev => ({ ...prev, phone: e.target.value }))}
                       style={{ width: "100%", padding: "11px 14px", border: "1.5px solid #e2e8f0", borderRadius: 12, fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box", background: "#f8fafc" }}
-                      onFocus={e => e.target.style.borderColor = "#228756"}
+                      onFocus={e => e.target.style.borderColor = "#1e7a4c"}
                       onBlur={e => e.target.style.borderColor = "#e2e8f0"}
                     />
                   </Box>
@@ -590,7 +590,7 @@ export default function FreeResources() {
                   fullWidth
                   onClick={handleLeadSubmit}
                   disabled={leadLoading || !leadData.name.trim() || !leadData.phone.trim()}
-                  sx={{ mt: 2.5, py: 1.5, borderRadius: "6px", background: "linear-gradient(135deg,#166534,#16a34a)", color: "white", fontWeight: 800, fontSize: 15, boxShadow: "0 4px 14px rgba(22,101,52,.25)", "&:hover": { opacity: 0.9 }, "&.Mui-disabled": { background: "#cbd5e1", color: "#94a3b8" } }}
+                  sx={{ mt: 2.5, py: 1.5, borderRadius: "6px", background: "linear-gradient(135deg,#14532d,#16a34a)", color: "white", fontWeight: 800, fontSize: 15, boxShadow: "0 4px 14px rgba(22,101,52,.25)", "&:hover": { opacity: 0.9 }, "&.Mui-disabled": { background: "#cbd5e1", color: "#94a3b8" } }}
                 >
                   {leadLoading ? "Connecting..." : "Get Matched — Free"}
                 </Button>
@@ -607,7 +607,7 @@ export default function FreeResources() {
                 <Typography sx={{ fontSize: 13, color: "#64748b", lineHeight: 1.7 }}>
                   Our team will reach out on WhatsApp within 24 hours. Keep using the tools in the meantime!
                 </Typography>
-                <Button onClick={() => setShowLeadPopup(false)} sx={{ mt: 3, bgcolor: "#f0fdf4", color: "#166534", fontWeight: 800, borderRadius: "6px", px: 4 }}>
+                <Button onClick={() => setShowLeadPopup(false)} sx={{ mt: 3, bgcolor: "#f0fdf4", color: "#14532d", fontWeight: 800, borderRadius: "6px", px: 4 }}>
                   Close
                 </Button>
               </Box>

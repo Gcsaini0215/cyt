@@ -18,7 +18,7 @@ const typeColors = {
   psychologist:  { bg: "#dbeafe", color: "#1d4ed8", border: "#bfdbfe" },
   counsellor:    { bg: "#ede9fe", color: "#6d28d9", border: "#ddd6fe" },
   counselor:     { bg: "#ede9fe", color: "#6d28d9", border: "#ddd6fe" },
-  therapist:     { bg: "#f0fdf4", color: "#166534", border: "#bbf7d0" },
+  therapist:     { bg: "#f0fdf4", color: "#14532d", border: "#bbf7d0" },
   psychiatrist:  { bg: "#fff7ed", color: "#c2410c", border: "#fed7aa" },
   "life coach":  { bg: "#fef9c3", color: "#92400e", border: "#fde68a" },
   coach:         { bg: "#fef9c3", color: "#92400e", border: "#fde68a" },
@@ -80,7 +80,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
         .vtc-card:hover {
           transform: translateY(-3px);
           box-shadow: 0 14px 30px rgba(15,61,36,.12);
-          border-top-color: #d4af37;
+          border-top-color: #e3a83a;
           border-color: #cfe4d7;
         }
 
@@ -148,7 +148,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
           flex: 1;
           min-width: 0;
         }
-        .vtc-name:hover { color: #166534; }
+        .vtc-name:hover { color: #14532d; }
 
         /* bookmark */
         .vtc-bk {
@@ -187,12 +187,12 @@ export default function ProfileCardVert({ data, favrioutes }) {
           display: flex; align-items: center; gap: 3px;
           font-size: 12px; color: #64748b; font-weight: 600;
         }
-        .vtc-meta-it i { color: #166534; font-size: 11px; }
+        .vtc-meta-it i { color: #14532d; font-size: 11px; }
         .vtc-sep { color: #e2e8f0; font-size: 11px; margin: 0 2px; }
 
         /* price */
         .vtc-price {
-          font-size: 14px; font-weight: 800; color: #166534;
+          font-size: 14px; font-weight: 800; color: #14532d;
         }
 
         /* action buttons */
@@ -204,7 +204,7 @@ export default function ProfileCardVert({ data, favrioutes }) {
           font-weight: 700; font-size: 12px; text-decoration: none;
           transition: all .2s;
         }
-        .vtc-btn-out:hover { border-color: #166534; color: #166534; }
+        .vtc-btn-out:hover { border-color: #14532d; color: #14532d; }
         .vtc-btn-fill {
           flex: 1.3; text-align: center; display: block;
           padding: 8px 0; border-radius: 4px;

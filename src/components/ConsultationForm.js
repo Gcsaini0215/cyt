@@ -79,7 +79,7 @@ export default function ConsultationFormSection() {
                 textAlign: { xs: "center", md: "left" },
               }}
             >
-              Book Your <span style={{ color: "#228756" }}>Free First Consultation</span>
+              Book Your <span style={{ color: "#1e7a4c" }}>Free First Consultation</span>
             </Typography>
 
             <Typography
@@ -207,7 +207,7 @@ export default function ConsultationFormSection() {
                   py: 1.5,
                   fontWeight: 700,
                   fontSize: "1rem",
-                  background: "linear-gradient(90deg, #228756, #3bcf84)",
+                  background: "linear-gradient(90deg, #1e7a4c, #3bcf84)",
                   color: "#fff",
                   borderRadius: "30px",
                   "&:hover": {

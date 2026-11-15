@@ -338,7 +338,7 @@ export default function ClientLogs() {
       <Box sx={{ pb: 4, mt: -2 }}>
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 8 }}>
-            <CircularProgress sx={{ color: '#228756' }} />
+            <CircularProgress sx={{ color: '#1e7a4c' }} />
           </Box>
         )}
         {!loading && (
@@ -358,13 +358,13 @@ export default function ClientLogs() {
             >
               {/* Green Header Banner - Mobile Friendly */}
               <Box sx={{ 
-                bgcolor: '#228756', 
+                bgcolor: '#1e7a4c', 
                 py: 2.2, 
                 px: { xs: 2, sm: 4 },
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between',
-                background: 'linear-gradient(135deg, #228756 0%, #1b6843 100%)',
+                background: 'linear-gradient(135deg, #1e7a4c 0%, #1b6843 100%)',
                 flexWrap: 'nowrap',
                 gap: 1.2
               }}>
@@ -529,7 +529,7 @@ export default function ClientLogs() {
                         value={formData.amount}
                         onChange={handleChange}
                         InputProps={{
-                          startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon sx={{ fontSize: 16, color: '#228756' }} /></InputAdornment>,
+                          startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon sx={{ fontSize: 16, color: '#1e7a4c' }} /></InputAdornment>,
                         }}
                         sx={{ 
                           '& .MuiOutlinedInput-root': { borderRadius: '12px' },
@@ -562,7 +562,7 @@ export default function ClientLogs() {
                         variant="contained"
                         disabled={submitting}
                         sx={{ 
-                          bgcolor: formData.id ? '#1e40af' : '#228756', 
+                          bgcolor: formData.id ? '#1e40af' : '#1e7a4c', 
                           '&:hover': { bgcolor: formData.id ? '#1e3a8a' : '#1b6843' },
                           '&:disabled': { bgcolor: '#cbd5e1', color: '#94a3b8' },
                           borderRadius: '12px',
@@ -605,7 +605,7 @@ export default function ClientLogs() {
                       key={month}
                       label={month}
                       sx={{
-                        bgcolor: '#228756',
+                        bgcolor: '#1e7a4c',
                         color: '#ffffff',
                         fontWeight: 900,
                         fontSize: '14px',
@@ -636,11 +636,11 @@ export default function ClientLogs() {
                 <Table stickyHeader>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, pl: 4, fontSize: '1.1rem' }}>INVOICE DETAILS</TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>VISIT DATE</TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>TYPE</TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', py: 2, fontSize: '1.1rem' }}>FEES</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#228756', pr: 4, py: 2, fontSize: '1.1rem' }}>ACTIONS</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#1e7a4c', py: 2, pl: 4, fontSize: '1.1rem' }}>INVOICE DETAILS</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#1e7a4c', py: 2, fontSize: '1.1rem' }}>VISIT DATE</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#1e7a4c', py: 2, fontSize: '1.1rem' }}>TYPE</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#1e7a4c', py: 2, fontSize: '1.1rem' }}>FEES</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 900, color: '#ffffff', bgcolor: '#1e7a4c', pr: 4, py: 2, fontSize: '1.1rem' }}>ACTIONS</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -654,7 +654,7 @@ export default function ClientLogs() {
                           <Box>
                             <Typography variant="body1" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.3rem' }}>{log.name}</Typography>
                             {log.email && (
-                              <Typography variant="body2" sx={{ color: '#228756', fontWeight: 700, fontSize: '1.15rem', display: 'block' }}>
+                              <Typography variant="body2" sx={{ color: '#1e7a4c', fontWeight: 700, fontSize: '1.15rem', display: 'block' }}>
                                 {log.email}
                               </Typography>
                             )}
@@ -669,7 +669,7 @@ export default function ClientLogs() {
                               size="small" 
                               sx={{ 
                                 bgcolor: log.type === 'Clinic' ? '#f0fdf4' : '#eff6ff', 
-                                color: log.type === 'Clinic' ? '#166534' : '#1e40af', 
+                                color: log.type === 'Clinic' ? '#14532d' : '#1e40af', 
                                 fontWeight: 900, 
                                 borderRadius: '6px',
                                 fontSize: '14px',
@@ -688,7 +688,7 @@ export default function ClientLogs() {
                             <Typography sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.4rem' }}>
                               ₹{log.amount}
                             </Typography>
-                            <Typography sx={{ fontSize: '1.1rem', color: '#228756', fontWeight: 700 }}>
+                            <Typography sx={{ fontSize: '1.1rem', color: '#1e7a4c', fontWeight: 700 }}>
                               {log.paidVia || log.medication || 'Online'}
                             </Typography>
                             {log.remainingAmount && (
@@ -722,7 +722,7 @@ export default function ClientLogs() {
                                   size="medium" 
                                   onClick={() => handleInvoice(log)} 
                                   disabled={submitting}
-                                  sx={{ color: '#228756', bgcolor: 'rgba(34, 135, 86, 0.05)', '&:hover': { bgcolor: 'rgba(34, 135, 86, 0.1)' } }}
+                                  sx={{ color: '#1e7a4c', bgcolor: 'rgba(34, 135, 86, 0.05)', '&:hover': { bgcolor: 'rgba(34, 135, 86, 0.1)' } }}
                                 >
                                   <ReceiptLongIcon fontSize="medium" />
                                 </IconButton>
@@ -789,7 +789,7 @@ export default function ClientLogs() {
                       <Box>
                         <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b', fontSize: '1.25rem' }}>{log.name}</Typography>
                         <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 700 }}>{log.date} • {log.type === 'Clinic' ? 'In-Person' : log.type}</Typography>
-                        <Typography sx={{ fontSize: '0.85rem', color: '#228756', fontWeight: 800, mt: 0.5 }}>{log.packageName || log.medicineName || 'Individual Session'}</Typography>
+                        <Typography sx={{ fontSize: '0.85rem', color: '#1e7a4c', fontWeight: 800, mt: 0.5 }}>{log.packageName || log.medicineName || 'Individual Session'}</Typography>
                       </Box>
                     </Box>
 
@@ -813,7 +813,7 @@ export default function ClientLogs() {
                         size="small"
                         onClick={() => handleInvoice(log)}
                         startIcon={<ReceiptLongIcon />}
-                        sx={{ bgcolor: '#f0fdf4', color: '#166534', fontWeight: 800, borderRadius: '10px', py: 1 }}
+                        sx={{ bgcolor: '#f0fdf4', color: '#14532d', fontWeight: 800, borderRadius: '10px', py: 1 }}
                       >
                         Invoice
                       </Button>
@@ -860,7 +860,7 @@ export default function ClientLogs() {
                 {/* Close Button */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 3, pb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Box sx={{ width: 44, height: 44, borderRadius: 1.5, background: '#228756', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                    <Box sx={{ width: 44, height: 44, borderRadius: 1.5, background: '#1e7a4c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                       <ReceiptLongIcon />
                     </Box>
                     <Typography variant="h6" sx={{ fontWeight: 900, color: '#1e293b' }}>Invoice</Typography>
@@ -877,7 +877,7 @@ export default function ClientLogs() {
                   {/* Header */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
                     <Box>
-                      <Typography sx={{ fontSize: '1.4rem', fontWeight: 900, color: '#228756', m: 0 }}>ChooseYourTherapist</Typography>
+                      <Typography sx={{ fontSize: '1.4rem', fontWeight: 900, color: '#1e7a4c', m: 0 }}>ChooseYourTherapist</Typography>
                       <Typography sx={{ color: '#64748b', fontSize: 13, fontWeight: 500, m: 0 }}>Professional Therapy Services</Typography>
                     </Box>
                     <Box sx={{ textAlign: 'right' }}>
@@ -902,7 +902,7 @@ export default function ClientLogs() {
                       <Chip 
                         label={selectedLog.type} 
                         size="small"
-                        sx={{ bgcolor: '#f0fdf4', color: '#166534', fontWeight: 800, fontSize: 11 }}
+                        sx={{ bgcolor: '#f0fdf4', color: '#14532d', fontWeight: 800, fontSize: 11 }}
                       />
                     </Box>
                   </Box>
@@ -916,7 +916,7 @@ export default function ClientLogs() {
                     <Divider sx={{ my: 2 }} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography sx={{ m: 0, fontWeight: 800, fontSize: '1.1rem' }}>Total Amount</Typography>
-                      <Typography sx={{ m: 0, fontWeight: 900, color: '#228756', fontSize: '1.2rem' }}>₹{selectedLog.amount}</Typography>
+                      <Typography sx={{ m: 0, fontWeight: 900, color: '#1e7a4c', fontSize: '1.2rem' }}>₹{selectedLog.amount}</Typography>
                     </Box>
                   </Box>
 
@@ -940,10 +940,10 @@ export default function ClientLogs() {
                                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
                                 body { font-family: "Inter", sans-serif; margin: 0; padding: 40px 20px; color: #1e293b; background: #f1f5f9; }
                                 .invoice-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 20px 50px rgba(0,0,0,0.08); max-width: 850px; margin: 0 auto; position: relative; }
-                                .top-banner { background: linear-gradient(90deg, #228756 0%, #1b6843 100%); height: 8px; width: 100%; }
+                                .top-banner { background: linear-gradient(90deg, #1e7a4c 0%, #1b6843 100%); height: 8px; width: 100%; }
                                 .content { padding: 40px; }
                                 .header { display: flex; justify-content: space-between; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 2px solid #f1f5f9; }
-                                .brand-info h1 { color: #228756; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
+                                .brand-info h1 { color: #1e7a4c; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
                                 .brand-info p { color: #64748b; font-size: 13px; margin: 5px 0 0 0; font-weight: 600; }
                                 .invoice-meta { text-align: right; }
                                 .invoice-meta h2 { font-size: 28px; font-weight: 900; color: #cbd5e1; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
@@ -975,18 +975,18 @@ export default function ClientLogs() {
                                 .total-row span:first-child { color: #64748b; font-weight: 700; font-size: 13px; }
                                 .total-row span:last-child { color: #1e293b; font-weight: 800; font-size: 14px; }
                                 .grand-total span:first-child { color: #1e293b; font-weight: 900; font-size: 14px; }
-                                .grand-total span:last-child { color: #228756; font-weight: 900; font-size: 20px; }
+                                .grand-total span:last-child { color: #1e7a4c; font-weight: 900; font-size: 20px; }
                                 
                                 .signature-area { display: flex; justify-content: flex-end; margin-top: 50px; text-align: center; }
                                 .sig-box { width: 180px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
                                 .sig-box p { font-size: 11px; font-weight: 700; color: #64748b; margin: 0; text-transform: uppercase; }
                                 .sig-box span { font-size: 9px; color: #94a3b8; font-style: italic; }
 
-                                .paid-stamp { position: absolute; top: 180px; left: 50%; transform: translateX(-50%) rotate(-15deg); border: 4px solid #228756; color: #228756; padding: 8px 25px; border-radius: 12px; font-size: 36px; font-weight: 900; text-transform: uppercase; opacity: 0.1; pointer-events: none; }
+                                .paid-stamp { position: absolute; top: 180px; left: 50%; transform: translateX(-50%) rotate(-15deg); border: 4px solid #1e7a4c; color: #1e7a4c; padding: 8px 25px; border-radius: 12px; font-size: 36px; font-weight: 900; text-transform: uppercase; opacity: 0.1; pointer-events: none; }
                                 
                                 .footer { margin-top: 60px; padding-top: 25px; border-top: 1px solid #f1f5f9; text-align: center; }
                                 .footer p { color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0; font-weight: 500; }
-                                .footer .brand { color: #228756; font-weight: 800; margin-top: 8px; display: block; font-size: 13px; }
+                                .footer .brand { color: #1e7a4c; font-weight: 800; margin-top: 8px; display: block; font-size: 13px; }
                                 
                                 @media print {
                                   body { background: white; padding: 0; margin: 0; }
@@ -1097,7 +1097,7 @@ export default function ClientLogs() {
                         iframe.contentWindow.print();
                         setTimeout(() => document.body.removeChild(iframe), 1000);
                       }}
-                      sx={{ bgcolor: '#228756', '&:hover': { bgcolor: '#1b6843' }, borderRadius: '14px', py: 1.5, textTransform: 'none', fontWeight: 800, boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)' }}
+                      sx={{ bgcolor: '#1e7a4c', '&:hover': { bgcolor: '#1b6843' }, borderRadius: '14px', py: 1.5, textTransform: 'none', fontWeight: 800, boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)' }}
                     >
                       Download PDF
                     </Button>
@@ -1119,10 +1119,10 @@ export default function ClientLogs() {
                                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
                                 body { font-family: "Inter", sans-serif; margin: 0; padding: 40px 20px; color: #1e293b; background: #f1f5f9; }
                                 .invoice-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 20px 50px rgba(0,0,0,0.08); max-width: 850px; margin: 0 auto; position: relative; }
-                                .top-banner { background: linear-gradient(90deg, #228756 0%, #1b6843 100%); height: 8px; width: 100%; }
+                                .top-banner { background: linear-gradient(90deg, #1e7a4c 0%, #1b6843 100%); height: 8px; width: 100%; }
                                 .content { padding: 40px; }
                                 .header { display: flex; justify-content: space-between; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 2px solid #f1f5f9; }
-                                .brand-info h1 { color: #228756; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
+                                .brand-info h1 { color: #1e7a4c; font-weight: 900; font-size: 26px; margin: 0; letter-spacing: -0.5px; }
                                 .brand-info p { color: #64748b; font-size: 13px; margin: 5px 0 0 0; font-weight: 600; }
                                 .invoice-meta { text-align: right; }
                                 .invoice-meta h2 { font-size: 28px; font-weight: 900; color: #cbd5e1; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
@@ -1154,18 +1154,18 @@ export default function ClientLogs() {
                                 .total-row span:first-child { color: #64748b; font-weight: 700; font-size: 13px; }
                                 .total-row span:last-child { color: #1e293b; font-weight: 800; font-size: 14px; }
                                 .grand-total span:first-child { color: #1e293b; font-weight: 900; font-size: 14px; }
-                                .grand-total span:last-child { color: #228756; font-weight: 900; font-size: 20px; }
+                                .grand-total span:last-child { color: #1e7a4c; font-weight: 900; font-size: 20px; }
                                 
                                 .signature-area { display: flex; justify-content: flex-end; margin-top: 50px; text-align: center; }
                                 .sig-box { width: 180px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
                                 .sig-box p { font-size: 11px; font-weight: 700; color: #64748b; margin: 0; text-transform: uppercase; }
                                 .sig-box span { font-size: 9px; color: #94a3b8; font-style: italic; }
 
-                                .paid-stamp { position: absolute; top: 180px; left: 50%; transform: translateX(-50%) rotate(-15deg); border: 4px solid #228756; color: #228756; padding: 8px 25px; border-radius: 12px; font-size: 36px; font-weight: 900; text-transform: uppercase; opacity: 0.1; pointer-events: none; }
+                                .paid-stamp { position: absolute; top: 180px; left: 50%; transform: translateX(-50%) rotate(-15deg); border: 4px solid #1e7a4c; color: #1e7a4c; padding: 8px 25px; border-radius: 12px; font-size: 36px; font-weight: 900; text-transform: uppercase; opacity: 0.1; pointer-events: none; }
                                 
                                 .footer { margin-top: 60px; padding-top: 25px; border-top: 1px solid #f1f5f9; text-align: center; }
                                 .footer p { color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0; font-weight: 500; }
-                                .footer .brand { color: #228756; font-weight: 800; margin-top: 8px; display: block; font-size: 13px; }
+                                .footer .brand { color: #1e7a4c; font-weight: 800; margin-top: 8px; display: block; font-size: 13px; }
                                 
                                 @media print {
                                   body { background: white; padding: 0; margin: 0; }
@@ -1319,8 +1319,8 @@ export default function ClientLogs() {
                   <Typography sx={{ fontSize: { xs: 13, sm: 14 }, mb: 2, color: '#1e293b', fontWeight: 700 }}><strong>Subject:</strong> Invoice from Choose Your Therapist - #{selectedLog?.id?.toString().slice(-8)}</Typography>
                   <Divider sx={{ mb: 2 }} />
                   <Typography sx={{ fontSize: { xs: 14, sm: 15 }, whiteSpace: 'pre-wrap', mb: 3, color: '#334155', lineHeight: 1.6 }}>{emailMessage}</Typography>
-                  <Box sx={{ p: 2, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px dashed #228756', textAlign: 'center' }}>
-                    <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: '#228756', fontWeight: 700, wordBreak: 'break-all' }}>
+                  <Box sx={{ p: 2, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px dashed #1e7a4c', textAlign: 'center' }}>
+                    <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: '#1e7a4c', fontWeight: 700, wordBreak: 'break-all' }}>
                       🔗 View Invoice: https://chooseyourtherapist.in/invoice/{selectedLog?.id}
                     </Typography>
                   </Box>
@@ -1340,8 +1340,8 @@ export default function ClientLogs() {
                   '& .MuiOutlinedInput-root': { 
                     borderRadius: '16px',
                     bgcolor: '#fff',
-                    '&:hover fieldset': { borderColor: '#228756' },
-                    '&.Mui-focused fieldset': { borderColor: '#228756' }
+                    '&:hover fieldset': { borderColor: '#1e7a4c' },
+                    '&.Mui-focused fieldset': { borderColor: '#1e7a4c' }
                   } 
                 }}
               />
@@ -1365,7 +1365,7 @@ export default function ClientLogs() {
                 disabled={submitting}
                 startIcon={submitting ? <CircularProgress size={20} color="inherit" /> : <EmailIcon />}
                 sx={{ 
-                  bgcolor: '#228756', 
+                  bgcolor: '#1e7a4c', 
                   '&:hover': { bgcolor: '#1b6843' }, 
                   py: 2, 
                   borderRadius: '16px', 

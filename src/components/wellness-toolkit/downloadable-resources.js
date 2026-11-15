@@ -28,7 +28,7 @@ export default function DownloadableResources({ bgColor = "#f8f9fa" }) {
       title: "CBT Thought Record",
       desc: "A clinical worksheet to help you catch, challenge, and change unhelpful thoughts.",
       icon: <DescriptionIcon sx={{ fontSize: 32 }} />,
-      color: "#228756",
+      color: "#1e7a4c",
       tag: "CLINICAL",
       level: "Intermediate",
       downloads: [
@@ -107,7 +107,7 @@ export default function DownloadableResources({ bgColor = "#f8f9fa" }) {
             label="RESOURCES" 
             sx={{ 
               backgroundColor: 'rgba(34, 135, 86, 0.1)', 
-              color: '#228756', 
+              color: '#1e7a4c', 
               fontWeight: 800, 
               fontSize: '12px',
               mb: 2,
@@ -123,7 +123,7 @@ export default function DownloadableResources({ bgColor = "#f8f9fa" }) {
               mb: 2
             }}
           >
-            Wellness <span style={{ color: '#228756' }}>Downloads</span>
+            Wellness <span style={{ color: '#1e7a4c' }}>Downloads</span>
           </Typography>
           <Typography 
             sx={{ 
@@ -399,7 +399,7 @@ export default function DownloadableResources({ bgColor = "#f8f9fa" }) {
             textAlign: 'center', 
             backgroundColor: '#ffffff', 
             borderRadius: '24px',
-            border: '1px dashed #228756',
+            border: '1px dashed #1e7a4c',
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
@@ -413,8 +413,8 @@ export default function DownloadableResources({ bgColor = "#f8f9fa" }) {
           <Button 
             variant="outlined" 
             sx={{ 
-              borderColor: '#228756', 
-              color: '#228756', 
+              borderColor: '#1e7a4c', 
+              color: '#1e7a4c', 
               borderRadius: '50px',
               fontWeight: 800,
               px: 4,

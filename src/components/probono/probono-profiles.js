@@ -32,7 +32,7 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                 component="a"
                 startIcon={<ArrowBackIcon />}
                 sx={{
-                  color: "#228756",
+                  color: "#1e7a4c",
                   fontWeight: 700,
                   textTransform: "none",
                   "&:hover": { background: "#f0fdf4" },
@@ -66,7 +66,7 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                     alignItems: "center",
                     transition: "border-color 0.2s ease, box-shadow 0.2s ease",
                     "&:hover": {
-                      borderColor: "#228756",
+                      borderColor: "#1e7a4c",
                       boxShadow: "0 8px 22px rgba(15, 23, 42, 0.08)",
                     },
                   }}
@@ -110,8 +110,8 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                           border: "1px solid transparent",
                         }}
                       >
-                        <SupervisorAccountIcon sx={{ fontSize: 13, color: "#228756" }} />
-                        <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        <SupervisorAccountIcon sx={{ fontSize: 13, color: "#1e7a4c" }} />
+                        <Typography sx={{ fontSize: 10.5, fontWeight: 700, color: "#1e7a4c", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                           {p.roleLabel || "Trainee Psychologist"}
                         </Typography>
                       </Stack>
@@ -132,8 +132,8 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                       {!!p.availableDays?.length && (
                         <Box sx={{ width: "100%", mb: 2.5, p: "10px 12px", borderRadius: "6px", background: "#f8faf9", border: "1px solid #eef2f0" }}>
                           <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ mb: 0.75 }}>
-                            <EventAvailableRoundedIcon sx={{ fontSize: 13, color: "#228756" }} />
-                            <Typography sx={{ fontSize: 10, fontWeight: 700, color: "#228756", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                            <EventAvailableRoundedIcon sx={{ fontSize: 13, color: "#1e7a4c" }} />
+                            <Typography sx={{ fontSize: 10, fontWeight: 700, color: "#1e7a4c", textTransform: "uppercase", letterSpacing: "0.4px" }}>
                               Available Days
                             </Typography>
                           </Stack>
@@ -144,7 +144,7 @@ export default function ProbonoProfiles({ interns = PSYCHOLOGISTS }) {
                                 sx={{
                                   fontSize: 10.5,
                                   fontWeight: 700,
-                                  color: "#228756",
+                                  color: "#1e7a4c",
                                   background: "#fff",
                                   border: "1px solid #cfe4d7",
                                   borderRadius: "4px",

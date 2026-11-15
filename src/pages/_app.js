@@ -298,7 +298,7 @@ function MyApp({ Component, pageProps }) {
     <Providers>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="theme-color" content="#228756" />
+        <meta name="theme-color" content="#1e7a4c" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta key="og:type" property="og:type" content="website" />

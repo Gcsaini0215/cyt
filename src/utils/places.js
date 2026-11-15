@@ -430,7 +430,7 @@ export const PLACES = {
 
 // ─── Services shown on every page ───────────────────────────────────────────
 export const PLACE_SERVICES = [
-  { title: "Anxiety & Stress", desc: "Evidence-based therapy for worry, panic attacks, and chronic stress.", icon: "feather-wind", color: "#228756" },
+  { title: "Anxiety & Stress", desc: "Evidence-based therapy for worry, panic attacks, and chronic stress.", icon: "feather-wind", color: "#1e7a4c" },
   { title: "Depression", desc: "Professional support to overcome persistent low mood and hopelessness.", icon: "feather-sun", color: "#0ea5e9" },
   { title: "OCD", desc: "ERP — the gold-standard treatment for obsessive-compulsive disorder.", icon: "feather-refresh-cw", color: "#7c3aed" },
   { title: "Trauma & PTSD", desc: "Trauma-focused CBT and EMDR for healing from past painful experiences.", icon: "feather-shield", color: "#dc2626" },

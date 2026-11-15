@@ -100,9 +100,9 @@ export default function HowItWorks() {
               >
                 <defs>
                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{ stopColor: '#228756', stopOpacity: 0.8 }} />
-                    <stop offset="50%" style={{ stopColor: '#228756', stopOpacity: 1 }} />
-                    <stop offset="100%" style={{ stopColor: '#228756', stopOpacity: 0.8 }} />
+                    <stop offset="0%" style={{ stopColor: '#1e7a4c', stopOpacity: 0.8 }} />
+                    <stop offset="50%" style={{ stopColor: '#1e7a4c', stopOpacity: 1 }} />
+                    <stop offset="100%" style={{ stopColor: '#1e7a4c', stopOpacity: 0.8 }} />
                   </linearGradient>
                 </defs>
                 <line x1="0" y1="50" x2="1200" y2="50" stroke="url(#lineGradient)" strokeWidth="3" />
@@ -131,7 +131,7 @@ export default function HowItWorks() {
                         height: 100,
                         borderRadius: '50%',
                         background: hoveredStep === step.id 
-                          ? 'linear-gradient(135deg, #228756 0%, #1a6f47 100%)'
+                          ? 'linear-gradient(135deg, #1e7a4c 0%, #1a6f47 100%)'
                           : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
                         top: 0,
                         left: '50%',
@@ -146,7 +146,7 @@ export default function HowItWorks() {
                       {/* Icon */}
                       <step.Icon sx={{
                         fontSize: 50,
-                        color: hoveredStep === step.id ? '#ffffff' : '#228756',
+                        color: hoveredStep === step.id ? '#ffffff' : '#1e7a4c',
                         position: 'relative',
                         zIndex: 2,
                         transition: 'all 0.3s ease',
@@ -161,7 +161,7 @@ export default function HowItWorks() {
                         width: 32,
                         height: 32,
                         borderRadius: '50%',
-                        background: '#228756',
+                        background: '#1e7a4c',
                         color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
@@ -190,7 +190,7 @@ export default function HowItWorks() {
                         </Typography>
                         <Typography sx={{
                           fontSize: '13px',
-                          color: hoveredStep === step.id ? '#228756' : '#556b63',
+                          color: hoveredStep === step.id ? '#1e7a4c' : '#556b63',
                           lineHeight: 1.5,
                           fontWeight: hoveredStep === step.id ? 600 : 500,
                           transition: 'all 0.3s ease'
@@ -215,7 +215,7 @@ export default function HowItWorks() {
                   p: 3,
                   borderRadius: '20px',
                   background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                  border: '2px solid #228756',
+                  border: '2px solid #1e7a4c',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
@@ -228,7 +228,7 @@ export default function HowItWorks() {
                       width: 60,
                       height: 60,
                       borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #228756 0%, #1a6f47 100%)',
+                      background: 'linear-gradient(135deg, #1e7a4c 0%, #1a6f47 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -244,7 +244,7 @@ export default function HowItWorks() {
                         width: 36,
                         height: 36,
                         borderRadius: '50%',
-                        background: '#228756',
+                        background: '#1e7a4c',
                         color: '#ffffff',
                         display: 'flex',
                         alignItems: 'center',
@@ -276,7 +276,7 @@ export default function HowItWorks() {
                       </Typography>
                       <Typography sx={{
                         fontSize: '12px',
-                        color: '#228756',
+                        color: '#1e7a4c',
                         fontWeight: 600,
                         fontStyle: 'italic'
                       }}>
@@ -289,7 +289,7 @@ export default function HowItWorks() {
                     <Box sx={{
                       mt: 2,
                       pt: 2,
-                      borderTop: '2px dashed #228756',
+                      borderTop: '2px dashed #1e7a4c',
                       textAlign: 'center'
                     }}>
                       <Box sx={{
@@ -297,12 +297,12 @@ export default function HowItWorks() {
                         height: 24,
                         margin: '-18px auto 0',
                         background: '#ffffff',
-                        border: '3px solid #228756',
+                        border: '3px solid #1e7a4c',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#228756',
+                        color: '#1e7a4c',
                         fontWeight: 700,
                         fontSize: '14px'
                       }}>
@@ -323,7 +323,7 @@ export default function HowItWorks() {
           p: isMobile ? 4 : 6,
           borderRadius: '24px',
           background: 'linear-gradient(135deg, #f0fdf4 0%, #f7fbf9 100%)',
-          border: '2px solid #228756',
+          border: '2px solid #1e7a4c',
           position: 'relative',
           overflow: 'hidden'
         }}>
@@ -370,7 +370,7 @@ export default function HowItWorks() {
               px: 6,
               py: 2.5,
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #228756 0%, #1a6f47 100%)',
+              background: 'linear-gradient(135deg, #1e7a4c 0%, #1a6f47 100%)',
               color: '#ffffff',
               fontWeight: 700,
               fontSize: '16px',
@@ -389,11 +389,11 @@ export default function HowItWorks() {
               py: 2.5,
               borderRadius: '12px',
               background: '#ffffff',
-              color: '#228756',
+              color: '#1e7a4c',
               fontWeight: 700,
               fontSize: '16px',
               cursor: 'pointer',
-              border: '2px solid #228756',
+              border: '2px solid #1e7a4c',
               transition: 'all 0.3s',
               '&:hover': {
                 background: '#f0fdf4',

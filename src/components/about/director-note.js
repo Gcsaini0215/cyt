@@ -93,7 +93,7 @@ const styles = `
     align-items: center;
     gap: 12px;
   }
-  .dn-kicker::before { content: ""; width: 28px; height: 2px; background: #d4af37; display: inline-block; }
+  .dn-kicker::before { content: ""; width: 28px; height: 2px; background: #e3a83a; display: inline-block; }
 
   .dn-quote-mark {
     font-family: Georgia, 'Times New Roman', serif;

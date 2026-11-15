@@ -25,7 +25,7 @@ const TherapistCard = (props) => {
                 mx: 'auto',
                 '&:hover': {
                     boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-                    borderColor: '#228756',
+                    borderColor: '#1e7a4c',
                 },
             }}
         >
@@ -39,14 +39,14 @@ const TherapistCard = (props) => {
                             sx={{
                                 width: 80,
                                 height: 80,
-                                border: '2px solid #228756',
+                                border: '2px solid #1e7a4c',
                             }}
                         />
                         <div style={{
                             position: 'absolute',
                             bottom: -4,
                             right: -4,
-                            backgroundColor: '#228756',
+                            backgroundColor: '#1e7a4c',
                             borderRadius: '50%',
                             width: '24px',
                             height: '24px',
@@ -72,7 +72,7 @@ const TherapistCard = (props) => {
                         </h3>
                         <p style={{
                             fontSize: '14px',
-                            color: '#228756',
+                            color: '#1e7a4c',
                             fontWeight: 500,
                             margin: '0 0 8px 0',
                             overflow: 'hidden',
@@ -114,7 +114,7 @@ const TherapistCard = (props) => {
                         <span key={lang.trim()} style={{
                             display: 'inline-block',
                             backgroundColor: '#e8f5e9',
-                            color: '#228756',
+                            color: '#1e7a4c',
                             padding: '4px 10px',
                             borderRadius: '12px',
                             fontSize: '12px',
@@ -129,7 +129,7 @@ const TherapistCard = (props) => {
                     variant="contained"
                     fullWidth
                     sx={{
-                        backgroundColor: '#228756',
+                        backgroundColor: '#1e7a4c',
                         '&:hover': {
                             backgroundColor: '#1a6b45',
                         },

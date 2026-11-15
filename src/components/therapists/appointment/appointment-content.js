@@ -575,7 +575,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                         {completed && <div><dt>Ended</dt><dd>{fmtTime(completed)}</dd></div>}
                         <div><dt>Booking ID</dt><dd className="mono">#{String(a._id).slice(-8)}</dd></div>
                         {a.assessments?.length > 0 && <div style={{ gridColumn: "1 / -1" }}><dt>Clinical assessment</dt><dd style={{ whiteSpace: "normal" }}><AssessmentChips b={a} map={amap} /></dd></div>}
-                        {a.meet_link && <div style={{ gridColumn: "1 / -1" }}><dt>Google Meet</dt><dd><a href={a.meet_link} target="_blank" rel="noopener noreferrer" className="mono" style={{ color: "#166534" }}>{a.meet_link.replace("https://", "")}</a></dd></div>}
+                        {a.meet_link && <div style={{ gridColumn: "1 / -1" }}><dt>Google Meet</dt><dd><a href={a.meet_link} target="_blank" rel="noopener noreferrer" className="mono" style={{ color: "#14532d" }}>{a.meet_link.replace("https://", "")}</a></dd></div>}
                         {a.meet_link && a.status === SESSION_STATUS.NEW && <div style={{ gridColumn: "1 / -1" }}><dt>Joined</dt><dd>{a.client_joined_at ? "Client ✓" : "Client —"} · {a.therapist_joined_at ? "You ✓" : "You —"}</dd></div>}
                       </dl>
                     </section>
@@ -584,7 +584,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
                       <h3>Payment</h3>
                       <dl>
                         <div><dt>{a.source === "noida" ? "Client paid" : "Amount"}</dt><dd>{amount != null && amount !== "" ? inr(amount) : "—"}</dd></div>
-                        {a.therapist_share != null && a.status !== SESSION_STATUS.CANCELED && !a.noida_legacy && <div><dt>You earn ({a.share_pct || 70}%)</dt><dd style={{ color: "#166534", fontWeight: 800 }}>{inr(a.therapist_share)}</dd></div>}
+                        {a.therapist_share != null && a.status !== SESSION_STATUS.CANCELED && !a.noida_legacy && <div><dt>You earn ({a.share_pct || 70}%)</dt><dd style={{ color: "#14532d", fontWeight: 800 }}>{inr(a.therapist_share)}</dd></div>}
                         {a.platform_share != null && a.status !== SESSION_STATUS.CANCELED && !a.noida_legacy && <div><dt>CYT ({100 - (a.share_pct || 70)}%)</dt><dd>{inr(a.platform_share)}</dd></div>}
                         {a.source === "noida" && num(a.noida_fee) > 0 && <div><dt>Session fee</dt><dd>{inr(num(amount) - num(a.noida_fee))}</dd></div>}
                         {a.source === "noida" && num(a.noida_fee) > 0 && <div><dt>Platform fee</dt><dd>{inr(a.noida_fee)}</dd></div>}
@@ -653,7 +653,7 @@ const AppointmentsContent = ({ appointments: initialAppointments, onRefresh }) =
 export default AppointmentsContent;
 
 const APX_CSS = `
-.apx { --g: #166534; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8; --gold: #c9962c;
+.apx { --g: #14532d; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8; --gold: #c9962c;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); max-width: 1240px; margin: 0 auto; padding-bottom: 24px; }
 .apx *, .apx *::before, .apx *::after { box-sizing: border-box; }
 .apx svg { font-size: 18px; }
@@ -689,11 +689,11 @@ const APX_CSS = `
 .apx-stat span { font-size: 12.5px; font-weight: 700; color: var(--mut); }
 .apx-stat b { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -.3px; }
 .apx-stat small { font-size: 11.5px; color: var(--faint); }
-.apx-stat.green { background: linear-gradient(165deg, #e6f7ec, #fff 62%); border-color: #cdebd7; border-top-color: #16a34a; } .apx-stat.green b { color: #166534; }
+.apx-stat.green { background: linear-gradient(165deg, #e6f7ec, #fff 62%); border-color: #cdebd7; border-top-color: #16a34a; } .apx-stat.green b { color: #14532d; }
 .apx-stat.teal { background: linear-gradient(165deg, #e2f6f3, #fff 62%); border-color: #c8ebe5; border-top-color: #0d9488; } .apx-stat.teal b { color: #0f766e; }
 .apx-stat.gold { background: linear-gradient(165deg, #fbf3e2, #fff 62%); border-color: #eedfbd; border-top-color: #c9962c; } .apx-stat.gold b { color: #92651a; }
 .apx-stat.slate { background: linear-gradient(165deg, #eef2f6, #fff 62%); border-color: #dde4ec; border-top-color: #64748b; } .apx-stat.slate b { color: #334155; }
-.apx-stat.on { box-shadow: 0 0 0 2px #166534; }
+.apx-stat.on { box-shadow: 0 0 0 2px #14532d; }
 
 .apx-bar { position: sticky; top: var(--tn-h, 56px); z-index: 15; display: flex; gap: 10px; align-items: center; margin: 0 -4px 14px; padding: 8px 4px; background: #f1f6f2; }
 .apx-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; }
@@ -718,7 +718,7 @@ const APX_CSS = `
 .apx-card:hover { box-shadow: 0 14px 30px -20px rgba(15,61,36,.45); border-color: #c6e2cf; transform: translateY(-1px); }
 .apx-card:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
 .apx-time { width: 96px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 12px 6px; text-align: center;
-  background: linear-gradient(180deg, #14532d, #166534); color: #fff; }
+  background: linear-gradient(180deg, #14532d, #14532d); color: #fff; }
 .apx-time b { font-size: 15px; font-weight: 800; white-space: nowrap; }
 .apx-time span { font-size: 11px; opacity: .8; }
 .apx-time em { font-style: normal; font-size: 10.5px; font-weight: 800; background: #f5c542; color: #3d2a00; border-radius: 999px; padding: 1px 7px; margin-top: 4px; white-space: nowrap; }
@@ -736,7 +736,7 @@ const APX_CSS = `
 .apx-who-txt span svg { font-size: 15px; color: var(--gold); }
 .apx-st { flex-shrink: 0; font-size: 11px; font-weight: 800; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
 .apx-st.new { background: #e0f2fe; color: #0369a1; } .apx-st.live { background: #fef3c7; color: #b45309; }
-.apx-st.done { background: #e7f6ec; color: #166534; } .apx-st.cancel { background: #fee2e2; color: #b91c1c; }
+.apx-st.done { background: #e7f6ec; color: #14532d; } .apx-st.cancel { background: #fee2e2; color: #b91c1c; }
 .apx-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .apx-chips span { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: #334155; background: #f3f6f4; border-radius: 8px; padding: 3px 8px; }
 .apx-chips span svg { font-size: 14px; color: var(--g); }
@@ -771,7 +771,7 @@ const APX_CSS = `
 .apx-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); z-index: 1300; background: #f6f9f7; display: flex; flex-direction: column;
   box-shadow: -24px 0 60px -24px rgba(4,30,16,.45); animation: apxSlide .26s cubic-bezier(.2,.9,.3,1); font-family: Inter, system-ui, sans-serif; }
 @keyframes apxSlide { from { transform: translateX(100%); } to { transform: none; } }
-.apx-dr-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: linear-gradient(90deg, #0b3320, #166534); color: #fff; }
+.apx-dr-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; background: linear-gradient(90deg, #0b3320, #14532d); color: #fff; }
 .apx-dr-head .apx-av { background: rgba(255,255,255,.16); color: #fff; }
 .apx-dr-who { flex: 1; min-width: 0; }
 .apx-dr-who b { display: block; font-size: 17px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -795,7 +795,7 @@ const APX_CSS = `
 .apx-contact .apx-btn { height: 36px; font-size: 12.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .apx-note { margin: 0 0 8px; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-wrap; background: #f8faf9; border-left: 3px solid #a7d7b8; border-radius: 0 10px 10px 0; padding: 10px 12px; }
 .apx-pay { font-size: 12px; font-weight: 800; border-radius: 999px; padding: 2px 10px; }
-.apx-pay.ok { background: #e7f6ec; color: #166534; } .apx-pay.warn { background: #fef3c7; color: #b45309; }
+.apx-pay.ok { background: #e7f6ec; color: #14532d; } .apx-pay.warn { background: #fef3c7; color: #b45309; }
 .apx-dr-foot { display: flex; gap: 8px; padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); background: #fff; border-top: 1px solid var(--line); }
 .apx-inv { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
 .apx-inv-top { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px dashed #d6e0da; margin-bottom: 12px; }
@@ -858,7 +858,7 @@ const APX_CSS = `
 .apx-acts .apx-btn { height: 32px; font-size: 12.5px; border-radius: 9px; }
 .apx-acts .apx-btn.icon { width: 32px; background: #f6f8f7; color: #475569 !important; }
 .apx-acts .apx-btn.icon.wa { color: #16a34a !important; }
-.apx-acts .apx-btn.primary { background: #166534; box-shadow: none; }
+.apx-acts .apx-btn.primary { background: #14532d; box-shadow: none; }
 .apx-acts .apx-btn.primary, .apx-acts .apx-btn.danger { min-width: 120px; }
 .apx-acts .apx-btn.soft { border-color: #e2e8f0; color: #334155 !important; }
 .apx-group h2 { font-size: 12px; color: #334155; }

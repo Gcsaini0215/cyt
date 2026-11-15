@@ -227,7 +227,7 @@ export default function CallToAction() {
               color: "#0f2f1f",
               mb: 2,
               letterSpacing: "-0.5px",
-              background: "linear-gradient(135deg, #0f2f1f 0%, #228756 100%)",
+              background: "linear-gradient(135deg, #0f2f1f 0%, #1e7a4c 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text"
@@ -261,7 +261,7 @@ export default function CallToAction() {
             py: 3,
             borderRadius: "20px",
             background: "linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)",
-            border: "2px solid #228756",
+            border: "2px solid #1e7a4c",
             boxShadow: "0 8px 24px rgba(34, 135, 86, 0.12)",
             transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
             "&:hover": {
@@ -274,7 +274,7 @@ export default function CallToAction() {
             }
           }}
         >
-          <Search sx={{ color: "#228756", fontSize: 28, flexShrink: 0 }} />
+          <Search sx={{ color: "#1e7a4c", fontSize: 28, flexShrink: 0 }} />
           <input
             type="text"
             placeholder="Search concerns, symptoms, or therapy types..."
@@ -317,9 +317,9 @@ export default function CallToAction() {
                 fontWeight: selectedCategory === cat.id ? 700 : 600,
                 px: 1.5,
                 height: "40px",
-                backgroundColor: selectedCategory === cat.id ? "#228756" : "#f0fdf4",
-                color: selectedCategory === cat.id ? "white" : "#228756",
-                border: selectedCategory === cat.id ? "2px solid #228756" : "2px solid #e0e7ff",
+                backgroundColor: selectedCategory === cat.id ? "#1e7a4c" : "#f0fdf4",
+                color: selectedCategory === cat.id ? "white" : "#1e7a4c",
+                border: selectedCategory === cat.id ? "2px solid #1e7a4c" : "2px solid #e0e7ff",
                 cursor: "pointer",
                 transition: "all 0.3s",
                 "&:hover": {

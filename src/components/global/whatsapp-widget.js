@@ -58,7 +58,7 @@ const WhatsAppWidget = () => {
             transform: 'translateY(-50%)'
           }}
         >
-          <Box sx={{ p: 2.5, background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)', color: 'white', position: 'relative' }}>
+          <Box sx={{ p: 2.5, background: 'linear-gradient(135deg, #1e7a4c 0%, #1a6b44 100%)', color: 'white', position: 'relative' }}>
             <Typography sx={{ fontWeight: 900, fontSize: '18px', mb: 0.5 }}>How can we help?</Typography>
             <Typography sx={{ opacity: 0.9, fontSize: '13px', fontWeight: 500 }}>Typically replies in 5 minutes</Typography>
             <IconButton 
@@ -88,7 +88,7 @@ const WhatsAppWidget = () => {
                   '&:hover': {
                     bgcolor: '#f8fafc',
                     transform: 'translateX(5px)',
-                    color: '#228756'
+                    color: '#1e7a4c'
                   }
                 }}
               >
@@ -112,7 +112,7 @@ const WhatsAppWidget = () => {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 1.5,
-            background: '#228756',
+            background: '#1e7a4c',
             color: 'white',
             padding: isMobile ? '10px 5px' : '15px 10px',
             borderRadius: '10px 0 0 10px',

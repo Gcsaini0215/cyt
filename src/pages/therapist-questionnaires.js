@@ -180,7 +180,7 @@ const TA_CSS = `
 .ta-plan.on { border: 1px solid #e3d29c; color: #14532d; background: linear-gradient(150deg, #f2faf3, #fbf6e3); box-shadow: 0 6px 16px -10px rgba(22,101,52,.35); }
 .ta-plan.on:hover { box-shadow: 0 10px 20px -10px rgba(22,101,52,.45); }
 .ta-plan.on .ta-plan-txt small { color: #15803d; }
-.ta-plan.on .ta-plan-go { color: #166534; background: #fff; border: 1px solid #c5e8d2; border-radius: 999px; padding: 3px 10px; }
+.ta-plan.on .ta-plan-go { color: #14532d; background: #fff; border: 1px solid #c5e8d2; border-radius: 999px; padding: 3px 10px; }
 .ta-ring { --p: 50%; width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center;
   background: conic-gradient(#16a34a var(--p), #dfeee5 0); }
 .ta-ring > span { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
@@ -206,7 +206,7 @@ const TA_CSS = `
 .ta-main { min-width: 0; }
 .ta-line1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .ta-line1 b { font-size: 15px; color: #0f172a; }
 .ta-st { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 9px; text-transform: uppercase; letter-spacing: .3px; }
-.ta-st.ok { background: #dcfce7; color: #166534; } .ta-st.todo { background: #fef3c7; color: #92400e; } .ta-st.wait { background: #f1f5f9; color: #475569; }
+.ta-st.ok { background: #dcfce7; color: #14532d; } .ta-st.todo { background: #fef3c7; color: #92400e; } .ta-st.wait { background: #f1f5f9; color: #475569; }
 .ta-line2 { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; min-width: 0; }
 .ta-tool { flex: none; font-size: 12px; font-weight: 800; color: #1e3a8a; background: #eff6ff; border-radius: 6px; padding: 1px 7px; }
 .ta-long { font-size: 13px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -214,7 +214,7 @@ const TA_CSS = `
 .ta-score { display: flex; flex-direction: column; gap: 4px; }
 .ta-num b { font-size: 22px; font-weight: 800; color: #0f172a; line-height: 1; } .ta-num span { font-size: 13px; color: #64748b; font-weight: 700; }
 .ta-lvl { align-self: flex-start; font-size: 12px; font-weight: 800; border-radius: 6px; padding: 1px 7px; }
-.ta-lvl.ok { background: #dcfce7; color: #166534; } .ta-lvl.mild { background: #fef9c3; color: #854d0e; } .ta-lvl.mod { background: #ffedd5; color: #9a3412; } .ta-lvl.bad { background: #fee2e2; color: #991b1b; }
+.ta-lvl.ok { background: #dcfce7; color: #14532d; } .ta-lvl.mild { background: #fef9c3; color: #854d0e; } .ta-lvl.mod { background: #ffedd5; color: #9a3412; } .ta-lvl.bad { background: #fee2e2; color: #991b1b; }
 .ta-bar { display: block; height: 5px; border-radius: 99px; background: #eef2f0; overflow: hidden; }
 .ta-bar span { display: block; height: 100%; border-radius: 99px; }
 .ta-bar .ok { background: #16a34a; } .ta-bar .mild { background: #ca8a04; } .ta-bar .mod { background: #ea580c; } .ta-bar .bad { background: #dc2626; }

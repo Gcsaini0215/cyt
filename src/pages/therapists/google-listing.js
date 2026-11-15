@@ -231,7 +231,7 @@ const CSS = `
 .gl-url > div { display: flex; gap: 8px; }
 .gl-url input { flex: 1; min-width: 0; height: 44px; border: 1.5px solid var(--line); border-radius: 12px; padding: 0 12px; font-size: 14.5px; font-family: inherit; }
 .gl-open { display: inline-block; margin-top: 8px; font-weight: 800; color: #1e7a4c !important; font-size: 13.5px; }
-.gl-ok { margin-left: 10px; color: #166534; font-weight: 700; font-size: 13px; }
+.gl-ok { margin-left: 10px; color: #14532d; font-weight: 700; font-size: 13px; }
 .gl-guide { list-style: none; counter-reset: gl; margin: 0; padding: 0; }
 .gl-guide > li { counter-increment: gl; position: relative; padding-left: 64px; }
 .gl-guide > li::before { content: counter(gl); position: absolute; left: 18px; top: 18px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; background: #ecfdf3; color: #14532d; font-weight: 800; }
@@ -245,10 +245,10 @@ const CSS = `
 .gl-copy-v { background: #f6faf7; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 14px; color: #0b1712; overflow-wrap: anywhere; }
 .gl-copy-v.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
 .gl-copy-v.area { white-space: pre-line; line-height: 1.55; }
-.gl-copy button { height: 36px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #cfe3d6; background: #fff; color: #166534; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.gl-copy button { height: 36px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #cfe3d6; background: #fff; color: #14532d; font-weight: 800; font-size: 13px; cursor: pointer; font-family: inherit; white-space: nowrap; }
 .gl-b { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 18px; border-radius: 12px; font-size: 14px; font-weight: 800; border: 0; cursor: pointer; font-family: inherit; text-decoration: none !important; white-space: nowrap; }
 .gl-b.main { background: linear-gradient(180deg, #1f7a4a, #14532d); color: #fff !important; }
-.gl-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #166534 !important; }
+.gl-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #14532d !important; }
 .gl-b:disabled { opacity: .6; }
 .gl-foot { font-size: 12.5px; color: #94a3b8; margin: 8px 0 20px; }
 @media (max-width: 900px) { .gl-hero { grid-template-columns: 1fr; } }

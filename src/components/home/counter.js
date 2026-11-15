@@ -52,7 +52,7 @@ export default function MentalHealthData() {
       title: "Treatment Gap",
       desc: "Indians need active mental health interventions, yet 70-92% remain untreated (NMHS).",
       icon: <FiPieChart />,
-      color: "#228756",
+      color: "#1e7a4c",
       bg: "rgba(34, 135, 86, 0.08)",
       link: "https://indianjournalpsychiatry.org/showbacktrack.asp?issn=0019-5545;year=2017;volume=59;issue=1;spage=21;epage=26;aulast=Gautham"
     },
@@ -113,7 +113,7 @@ export default function MentalHealthData() {
           <div className="col-lg-5">
             <div className="section-title text-start">
               <span className="subtitle" style={{ 
-                background: '#228756', 
+                background: '#1e7a4c', 
                 color: '#ffffff', 
                 padding: '8px 20px', 
                 borderRadius: '50px',
@@ -134,7 +134,7 @@ export default function MentalHealthData() {
                 marginBottom: '25px'
               }}>
                 Why Proactive <span style={{ 
-                  backgroundImage: "linear-gradient(135deg, #228756 0%, #007f99 100%)", 
+                  backgroundImage: "linear-gradient(135deg, #1e7a4c 0%, #007f99 100%)", 
                   WebkitBackgroundClip: "text", 
                   backgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -225,7 +225,7 @@ export default function MentalHealthData() {
                       marginTop: 'auto', 
                       paddingTop: '15px', 
                       fontSize: '12px', 
-                      color: '#228756', 
+                      color: '#1e7a4c', 
                       fontWeight: '700',
                       textTransform: 'uppercase'
                     }}>

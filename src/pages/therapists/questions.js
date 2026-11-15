@@ -126,7 +126,7 @@ const CSS = `
 .tq-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
 .tq-tabs button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 16px; font-weight: 800; font-size: 13.5px; color: #334155; cursor: pointer; font-family: inherit; }
 .tq-tabs button.on { border-color: #1e7a4c; background: #ecfdf3; color: #14532d; }
-.tq-ok { background: #ecfdf3; border: 1px solid #c7ecd5; color: #166534; border-radius: 12px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; }
+.tq-ok { background: #ecfdf3; border: 1px solid #c7ecd5; color: #14532d; border-radius: 12px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; }
 .tq-warn { background: #fdf3dc; border: 1px solid #f3dca6; color: #8a5a06; border-radius: 12px; padding: 10px 14px; font-size: 14px; margin-bottom: 12px; }
 .tq-empty { padding: 22px; color: var(--mut); }
 .tq-card, .tq-write { margin: 0 0 12px; padding: 18px 20px; }
@@ -145,12 +145,12 @@ const CSS = `
 .tq-tips { margin: 14px 0; padding: 12px 14px 12px 30px; background: #fbf8f0; border-radius: 12px; font-size: 13px; color: #334155; line-height: 1.6; }
 .tq-write textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.6; font-family: inherit; resize: vertical; height: auto; }
 .tq-write textarea:focus { outline: none; border-color: #1e7a4c; }
-.tq-count { text-align: right; font-size: 12px; color: #166534; font-weight: 700; margin-top: 4px; }
+.tq-count { text-align: right; font-size: 12px; color: #14532d; font-weight: 700; margin-top: 4px; }
 .tq-count.low { color: #b45309; }
 .tq-acts { display: flex; gap: 8px; margin-top: 12px; }
 .tq-b { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border-radius: 12px; font-size: 14.5px; font-weight: 800; border: 0; cursor: pointer; font-family: inherit; }
 .tq-b.main { background: linear-gradient(180deg, #1f7a4a, #14532d); color: #fff; }
-.tq-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #166534; }
+.tq-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #14532d; }
 .tq-b.sm { height: 38px; font-size: 13.5px; padding: 0 16px; }
 .tq-b:disabled { opacity: .55; cursor: default; }
 .tq-hold { font-size: 12px; color: #94a3b8; margin: 10px 0 0; }

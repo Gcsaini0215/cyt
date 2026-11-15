@@ -317,10 +317,10 @@ const AddressSelection = () => {
         boxShadow: '0 10px 30px rgba(34, 135, 86, 0.15)'
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <LocationOn sx={{ mr: 1, color: '#228756', fontSize: 28 }} />
+          <LocationOn sx={{ mr: 1, color: '#1e7a4c', fontSize: 28 }} />
           <Typography variant="h5" component="h2" sx={{
             fontWeight: 700,
-            background: 'linear-gradient(90deg, #228756, #56ab2f)',
+            background: 'linear-gradient(90deg, #1e7a4c, #56ab2f)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
@@ -453,7 +453,7 @@ const AddressSelection = () => {
                 py: 1.5,
                 fontSize: '1.1rem',
                 fontWeight: 600,
-                background: 'linear-gradient(135deg, #228756 0%, #56ab2f 100%)',
+                background: 'linear-gradient(135deg, #1e7a4c 0%, #56ab2f 100%)',
                 borderRadius: '12px',
                 boxShadow: '0 4px 15px rgba(34, 135, 86, 0.3)',
                 '&:hover': {

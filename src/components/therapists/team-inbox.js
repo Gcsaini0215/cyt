@@ -133,28 +133,28 @@ const TI_CSS = `
 .tib { position: relative; display: flex; gap: 12px; align-items: flex-start; background: linear-gradient(135deg, #f0fdf4, #ffffff 70%); border: 1px solid #bbe5c8;
   border-radius: 16px; padding: 14px 44px 14px 14px; margin-bottom: 14px; font-family: inherit; }
 .tib.imp { background: linear-gradient(135deg, #fffbeb, #ffffff 70%); border-color: #fcd34d; }
-.tib-ic { width: 40px; height: 40px; border-radius: 12px; background: #166534; color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.tib-ic { width: 40px; height: 40px; border-radius: 12px; background: #14532d; color: #fff; display: grid; place-items: center; flex-shrink: 0; }
 .tib.imp .tib-ic { background: #d97706; }
 .tib-body { flex: 1; min-width: 0; }
 .tib-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.tib-from { font-size: 11.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #166534; }
+.tib-from { font-size: 11.5px; font-weight: 800; letter-spacing: .3px; text-transform: uppercase; color: #14532d; }
 .tib.imp .tib-from { color: #b45309; }
-.tib-more { font-size: 12.5px; font-weight: 700; color: #166534 !important; text-decoration: none !important; white-space: nowrap; }
+.tib-more { font-size: 12.5px; font-weight: 700; color: #14532d !important; text-decoration: none !important; white-space: nowrap; }
 .tib b, .tis-txt b { display: block; font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 3px; line-height: 1.35; }
 .tib p, .tis-txt p { font-size: 13.5px; color: #475569; margin: 4px 0 0; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
 .tib p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tib-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .tib-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid #cfe3d6; background: #fff;
-  color: #166534 !important; font-weight: 700; font-size: 13px; font-family: inherit; text-decoration: none !important; cursor: pointer; }
+  color: #14532d !important; font-weight: 700; font-size: 13px; font-family: inherit; text-decoration: none !important; cursor: pointer; }
 .tib-btn svg { font-size: 17px; }
-.tib-btn.primary { background: #166534; border-color: #166534; color: #fff !important; }
+.tib-btn.primary { background: #14532d; border-color: #14532d; color: #fff !important; }
 .tib-btn:disabled { opacity: .6; cursor: default; }
 .tib-x { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 9px; border: 0; background: transparent; color: #64748b; display: grid; place-items: center; cursor: pointer; }
 .tib-x:hover { background: rgba(15,23,42,.06); }
 .tib-x svg { font-size: 18px; }
 
 .tis { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; font-family: inherit; }
-.tis-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: #166534; }
+.tis-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: #14532d; }
 .tis-h b { font-size: 15px; font-weight: 800; color: #0f172a; }
 .tis-list { list-style: none; margin: 0; padding: 0; }
 .tis-list li { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #eef2f0; margin: 0; }

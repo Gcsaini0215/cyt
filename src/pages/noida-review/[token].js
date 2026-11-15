@@ -122,7 +122,7 @@ const CSS = `
 .rv-muted { color: #64748b; font-size: 14px; margin: 0 0 18px; line-height: 1.5; }
 .rv-stars { display: flex; justify-content: center; gap: 6px; margin: 8px 0 4px; }
 .rv-stars button { width: 48px; height: 48px; border: none; background: none; font-size: 40px; line-height: 1; color: #e2e8e4; cursor: pointer; padding: 0; transition: transform .12s, color .12s; }
-.rv-stars button.on { color: #d4a24c; }
+.rv-stars button.on { color: #e3a83a; }
 .rv-stars button:hover { transform: scale(1.12); }
 .rv-stars button:focus-visible { outline: 2px solid #1e7a4c; outline-offset: 2px; border-radius: 8px; }
 .rv-label { font-size: 13px; font-weight: 700; color: #9a6f22; min-height: 18px; margin-bottom: 16px; }
@@ -137,6 +137,6 @@ const CSS = `
 .rv-btn:disabled { opacity: .6; cursor: default; }
 .rv-error { color: #b91c1c; font-size: 13px; margin: 0 0 10px; }
 .rv-fine { color: #94a3b8; font-size: 11.5px; margin: 12px 0 0; line-height: 1.5; }
-.rv-done-ic { width: 56px; height: 56px; border-radius: 50%; background: #fbf3e2; color: #d4a24c; font-size: 26px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+.rv-done-ic { width: 56px; height: 56px; border-radius: 50%; background: #fbf3e2; color: #e3a83a; font-size: 26px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
 .rv-done p { color: #475569; font-size: 14.5px; line-height: 1.6; margin: 0 0 18px; }
 `;

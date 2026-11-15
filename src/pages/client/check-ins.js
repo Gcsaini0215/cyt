@@ -51,7 +51,7 @@ function Spark({ rows, max }) {
   return (
     <svg className="ci-spark" viewBox={`0 0 ${w} ${h}`} width={w} height={h} aria-hidden="true">
       <polyline points={xy.map((p) => p.join(",")).join(" ")} fill="none" stroke="#16a34a" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-      {xy.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i === xy.length - 1 ? 3.5 : 2.2} fill={i === xy.length - 1 ? "#166534" : "#86c79e"} />)}
+      {xy.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i === xy.length - 1 ? 3.5 : 2.2} fill={i === xy.length - 1 ? "#14532d" : "#86c79e"} />)}
     </svg>
   );
 }
@@ -210,12 +210,12 @@ const CI_CSS = `
 .ci h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; color: #0f172a; font-family: inherit; }
 .ci-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .ci-sub { margin: 4px 0 0; font-size: 13.5px; color: #64748b; display: flex; align-items: center; gap: 5px; }
-.ci-sub svg { font-size: 15px; color: #166534; }
+.ci-sub svg { font-size: 15px; color: #14532d; }
 .ci-err { color: #dc2626; font-weight: 600; font-size: 13.5px; }
 .ci-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: 11px; font-size: 13.5px; font-weight: 800; text-decoration: none !important; border: 1px solid transparent; white-space: nowrap; }
 .ci-btn svg { font-size: 18px; }
 .ci-btn.primary { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; }
-.ci-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.ci-btn.ghost { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .ci-btn.sm { height: 34px; padding: 0 11px; font-size: 12.5px; }
 .ci-care { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
 .ci-care b { font-size: 14px; color: #9a3412; } .ci-care > span { font-size: 13.5px; color: #7c2d12; line-height: 1.55; }
@@ -229,7 +229,7 @@ const CI_CSS = `
 .ci-name { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: #16a34a; }
 .ci-card-top b { display: block; font-size: 14.5px; color: #0f172a; line-height: 1.3; margin-top: 2px; }
 .ci-chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
-.ci-chip.green { background: #dcfce7; color: #166534; } .ci-chip.yellow { background: #fef9c3; color: #854d0e; }
+.ci-chip.green { background: #dcfce7; color: #14532d; } .ci-chip.yellow { background: #fef9c3; color: #854d0e; }
 .ci-chip.orange { background: #ffedd5; color: #c2410c; } .ci-chip.red { background: #fee2e2; color: #b91c1c; } .ci-chip.blue { background: #e0f2fe; color: #0369a1; }
 .ci-score { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
 .ci-score > span { font-size: 14px; color: #64748b; } .ci-score > span b { font-size: 30px; color: #0f172a; line-height: 1; }
@@ -245,20 +245,20 @@ const CI_CSS = `
 .ci-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2f0; }
 .ci-card-foot > span { font-size: 12px; color: #64748b; }
 .ci-more { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: #64748b; }
-.ci-more a, .ci-try a { padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid #cfe3d6; color: #166534 !important; font-weight: 700; font-size: 12.5px; text-decoration: none !important; }
+.ci-more a, .ci-try a { padding: 6px 12px; border-radius: 999px; background: #fff; border: 1px solid #cfe3d6; color: #14532d !important; font-weight: 700; font-size: 12.5px; text-decoration: none !important; }
 .ci-h2 { margin: 26px 0 10px; font-size: 17px; font-weight: 800; color: #0f172a; font-family: inherit; }
 .ci-filters { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 10px; scrollbar-width: none; }
 .ci-filters::-webkit-scrollbar { display: none; }
 .ci-filters button { flex-shrink: 0; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid #dfe7e2; background: #fff; color: #475569; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
 .ci-filters button em { font-style: normal; font-size: 11px; background: #eef2f0; border-radius: 999px; padding: 1px 7px; }
-.ci-filters button.on { background: #166534; border-color: #166534; color: #fff; } .ci-filters button.on em { background: rgba(255,255,255,.2); }
+.ci-filters button.on { background: #14532d; border-color: #14532d; color: #fff; } .ci-filters button.on em { background: rgba(255,255,255,.2); }
 .ci-list { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; overflow: hidden; }
 .ci-row { display: grid; grid-template-columns: 120px minmax(0, 1fr) 64px 180px; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid #eef2f0; font-size: 13.5px; }
 .ci-row:first-child { border-top: 0; }
 .ci-date { color: #64748b; font-size: 12.5px; } .ci-what { color: #0f172a; font-weight: 700; min-width: 0; }
 .ci-val { color: #64748b; font-size: 12.5px; text-align: right; } .ci-row > .ci-chip { justify-self: end; } .ci-val b { color: #0f172a; font-size: 15px; }
 .ci-note { margin: 16px 0 0; font-size: 12.5px; color: #64748b; line-height: 1.6; }
-.ci-note a { color: #166534 !important; font-weight: 800; }
+.ci-note a { color: #14532d !important; font-weight: 800; }
 .ci-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 34px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .ci-empty > svg { font-size: 40px; color: #86c79e; }
 .ci-empty b { font-size: 16px; } .ci-empty p { margin: 0 0 8px; font-size: 13.5px; color: #64748b; max-width: 460px; line-height: 1.55; }

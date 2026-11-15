@@ -88,7 +88,7 @@ select.cf-input {
 .cf-submit {
   width: 100%;
   padding: 14px 20px;
-  background: linear-gradient(135deg, #166534 0%, #16a34a 100%);
+  background: linear-gradient(135deg, #14532d 0%, #16a34a 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -373,10 +373,10 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
               id="cf-consent"
               checked={consent}
               onChange={e => setConsent(e.target.checked)}
-              style={{ marginTop:2, flexShrink:0, accentColor:"#228756", width:15, height:15, cursor:"pointer" }}
+              style={{ marginTop:2, flexShrink:0, accentColor:"#1e7a4c", width:15, height:15, cursor:"pointer" }}
             />
             <label htmlFor="cf-consent" style={{ fontSize:12, color:"#475569", lineHeight:1.55, cursor:"pointer" }}>
-              I consent to be contacted by Choose Your Therapist. My data is collected only for booking purposes and will not be shared. See <a href="/privacy-policy" style={{ color:"#228756", fontWeight:600, textDecoration:"none" }}>how we use your data</a>.
+              I consent to be contacted by Choose Your Therapist. My data is collected only for booking purposes and will not be shared. See <a href="/privacy-policy" style={{ color:"#1e7a4c", fontWeight:600, textDecoration:"none" }}>how we use your data</a>.
             </label>
           </div>
 
@@ -429,7 +429,7 @@ export default function ConsultationForm({ showHeading = true, showLocation = tr
               onClick={() => setShowSuccessPopup(false)}
               style={{
                 width: "100%", padding: "13px",
-                background: "linear-gradient(135deg, #166534, #16a34a)",
+                background: "linear-gradient(135deg, #14532d, #16a34a)",
                 color: "white", border: "none",
                 borderRadius: "12px", fontWeight: 700,
                 fontSize: "15px", cursor: "pointer",

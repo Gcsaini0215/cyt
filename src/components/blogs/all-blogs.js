@@ -117,7 +117,7 @@ export default function AllBlogs() {
           <p style={{ color: "#ef4444", fontSize: 16, marginBottom: 16 }}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            style={{ background: "#228756", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+            style={{ background: "#1e7a4c", color: "#fff", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
           >
             Retry
           </button>
@@ -169,7 +169,7 @@ export default function AllBlogs() {
           z-index: 5;
         }
         .featured-badge {
-          background: #228756;
+          background: #1e7a4c;
           color: white;
           padding: 6px 18px;
           border-radius: 20px;
@@ -279,12 +279,12 @@ export default function AllBlogs() {
         }
         .filter-btn:hover {
           background: #f8f8f8;
-          border-color: #228756;
-          color: #228756;
+          border-color: #1e7a4c;
+          color: #1e7a4c;
         }
         .filter-btn.active {
-          background: #228756;
-          border-color: #228756;
+          background: #1e7a4c;
+          border-color: #1e7a4c;
           color: #fff;
           box-shadow: 0 4px 12px rgba(34, 135, 86, 0.2);
         }
@@ -320,7 +320,7 @@ export default function AllBlogs() {
           box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         .search-input:focus {
-          border-color: #228756;
+          border-color: #1e7a4c;
           box-shadow: 0 4px 20px rgba(34, 135, 86, 0.15);
         }
         .search-icon-container {
@@ -372,7 +372,7 @@ export default function AllBlogs() {
           position: absolute;
           top: 15px;
           right: -30px;
-          background-color: #228756;
+          background-color: #1e7a4c;
           color: white;
           font-size: 7px;
           font-weight: 700;

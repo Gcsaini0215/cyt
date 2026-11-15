@@ -451,7 +451,7 @@ export default function CouponsPage() {
             </div>
           ) : (
             <div className="pt-empty">
-              <LocalOfferRoundedIcon style={{ fontSize: 34, color: "#166534", marginBottom: 6 }} />
+              <LocalOfferRoundedIcon style={{ fontSize: 34, color: "#14532d", marginBottom: 6 }} />
               <b>No coupons yet</b>
               Create a code like <i>20% off your first session</i>. It shows on your profile as an offer and clients apply it while booking.
               {!locked && <div style={{ marginTop: 12 }}><button className="pt-btn primary" onClick={() => openEditor({})}><AddRoundedIcon /> Create your first coupon</button></div>}
@@ -489,13 +489,13 @@ const CP_CSS = `
 .cpu-l > p { font-size: 14px; color: #4b5d52; margin: 0 0 12px; }
 .cpu ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
 .cpu li { position: relative; padding-left: 26px; font-size: 13.5px; color: #475569; line-height: 1.45; margin: 0; }
-.cpu li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: #166534; color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; }
+.cpu li::before { content: "✓"; position: absolute; left: 0; top: 0; width: 18px; height: 18px; border-radius: 50%; background: #14532d; color: #fff; font-size: 11px; font-weight: 900; display: grid; place-items: center; }
 .cpu li b { color: #0f2a1d; }
 .cpu-r { background: #fff; border: 1px dashed #d9b85c; border-radius: 14px; padding: 16px; text-align: center; }
 .cpu-price b { display: block; font-size: 34px; font-weight: 900; color: #14532d; letter-spacing: -.5px; line-height: 1.1; }
 .cpu-price span { display: block; font-size: 12.5px; font-weight: 700; color: #8a6312; margin-top: 2px; }
 .cpu-btn { width: 100%; margin-top: 12px; height: 46px; border: 0; border-radius: 11px; cursor: pointer; font-family: inherit; font-size: 15px; font-weight: 800; color: #fff;
-  background: linear-gradient(135deg, #1a6b3a, #0f3d24); box-shadow: 0 8px 18px -8px rgba(15,61,36,.7); transition: filter .15s; }
+  background: linear-gradient(135deg, #1e7a4c, #0f3d24); box-shadow: 0 8px 18px -8px rgba(15,61,36,.7); transition: filter .15s; }
 .cpu-btn:hover { filter: brightness(1.1); }
 .cpu-btn:disabled { opacity: .7; cursor: default; }
 .cpu-r small { display: block; margin-top: 8px; font-size: 11.5px; color: #94a3b8; }
@@ -510,25 +510,25 @@ const CP_CSS = `
 .cp-acts { display: flex; align-items: center; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eef2f0; }
 .cp-acts .cp-sw { margin-right: auto; }
 .cp-ib { width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e4ece7; background: #fff; color: #334155; display: grid; place-items: center; cursor: pointer; padding: 0; }
-.cp-ib svg { font-size: 18px; } .cp-ib:hover { background: #e7f6ec; color: #166534; } .cp-ib.red:hover { background: #fef2f2; color: #b91c1c; }
+.cp-ib svg { font-size: 18px; } .cp-ib:hover { background: #e7f6ec; color: #14532d; } .cp-ib.red:hover { background: #fef2f2; color: #b91c1c; }
 .cp-sw { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 14px 0 0; position: relative; }
 .cp-sw input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .cp-sw-t { flex: 0 0 38px; height: 22px; border-radius: 999px; background: #cbd5e1; position: relative; transition: background .15s; margin-top: 1px; }
 .cp-sw-t::after { content: ""; position: absolute; left: 3px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
-.cp-sw input:checked + .cp-sw-t { background: #166534; } .cp-sw input:checked + .cp-sw-t::after { transform: translateX(16px); }
-.cp-sw input:focus-visible + .cp-sw-t { outline: 2px solid #166534; outline-offset: 2px; }
+.cp-sw input:checked + .cp-sw-t { background: #14532d; } .cp-sw input:checked + .cp-sw-t::after { transform: translateX(16px); }
+.cp-sw input:focus-visible + .cp-sw-t { outline: 2px solid #14532d; outline-offset: 2px; }
 .cp-sw b { display: block; font-size: 14px; color: #0f172a; } .cp-sw small { display: block; font-size: 12.5px; color: #64748b; line-height: 1.45; margin-top: 2px; }
 /* margin-right:auto keeps the On/Off switch on the left and the icons on the right (no crowding) */
 .cp-sw.sm { margin: 0 auto 0 0; padding-right: 12px; align-items: center; font-size: 13px; font-weight: 700; color: #334155; }
 .cp-share { max-width: 480px; }
 .cp-share-h { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eef2f0; }
 .cp-share-h h2 { font-family: inherit; font-size: 17px; font-weight: 800; color: #0f172a; margin: 0; }
-.cp-share-h h2 span { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 1px; color: #166534; }
+.cp-share-h h2 span { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 1px; color: #14532d; }
 .cp-msg { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 11px; padding: 10px 12px; font-family: inherit; font-size: 14px; line-height: 1.5; color: #0f172a; resize: vertical; }
-.cp-msg:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.cp-msg:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .cp-share-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .cp-sbtn { flex: 1 1 140px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 11px; border: 1.5px solid #cfe3d6; background: #fff;
-  color: #166534 !important; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
+  color: #14532d !important; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
 .cp-sbtn svg { font-size: 18px; }
 .cp-sbtn:hover { background: #ecfdf3; }
 .cp-sbtn.wa { background: #25d366; border-color: #25d366; color: #fff !important; }
@@ -543,14 +543,14 @@ const CP_CSS = `
 .cp-l span { font-weight: 500; color: #94a3b8; }
 .cp-row { display: flex; gap: 8px; }
 .cp-in { width: 100%; height: 44px; border: 1.5px solid #e2e8f0; border-radius: 11px; padding: 0 12px; font-size: 15px; color: #0f172a; background: #fff; font-family: inherit; min-width: 0; }
-.cp-in:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.cp-in:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .cp-in.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 800; letter-spacing: 1.5px; }
 .cp-seg { display: flex; flex: 0 0 auto; border: 1.5px solid #e2e8f0; border-radius: 11px; overflow: hidden; }
 .cp-seg button { border: 0; background: #fff; padding: 0 14px; font-size: 14px; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; }
-.cp-seg button.on { background: #166534; color: #fff; }
+.cp-seg button.on { background: #14532d; color: #fff; }
 .cp-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .cp-presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.cp-presets button { border: 1px solid #cfe3d6; background: #fff; color: #166534; border-radius: 999px; padding: 4px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.cp-presets button { border: 1px solid #cfe3d6; background: #fff; color: #14532d; border-radius: 999px; padding: 4px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .cp-presets button:hover { background: #e7f6ec; }
 .cp-hint { font-size: 12px; color: #94a3b8; margin: 5px 0 0; }
 .cp-form { border-color: #b7dfc5; box-shadow: 0 8px 24px rgba(22,101,52,.08); scroll-margin-top: 60px; }

@@ -9,7 +9,7 @@ import { getBookings, imagePath, defaultProfile } from "../../utils/url";
 import { reportAiConversion } from "../../utils/ai-referral";
 
 const G  = "#1a5c38";
-const GL = "#228756";
+const GL = "#1e7a4c";
 const GB = "#f0fdf4";
 
 
@@ -322,7 +322,7 @@ export default function PaymentSuccessPage() {
             {!loading && booking && (
               <div className="ps-pin" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#166534", textTransform: "uppercase", letterSpacing: .5, marginBottom: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#14532d", textTransform: "uppercase", letterSpacing: .5, marginBottom: 4 }}>
                     {inPerson ? "Your in-person session" : "How to join"}
                   </div>
                   <div style={{ fontSize: 13.5, color: "#14532d", lineHeight: 1.55 }}>

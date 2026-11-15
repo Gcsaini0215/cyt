@@ -300,7 +300,7 @@ export const QT_CSS = `
 .qt-ground, .qt-sos { text-align: center; }
 .qt-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
 .qt-dots span { width: 28px; height: 5px; border-radius: 999px; background: #e2e8e4; }
-.qt-dots span.on { background: #d4a24c; } .qt-dots span.done { background: #1e7a4c; }
+.qt-dots span.on { background: #e3a83a; } .qt-dots span.done { background: #1e7a4c; }
 .qt-big { font-size: 64px; font-weight: 800; color: #1e7a4c; line-height: 1; }
 .qt-ground h4, .qt-sos h4 { font-size: 20px; font-weight: 800; color: #0b1712; margin: 8px 0 6px; }
 .qt-ground p, .qt-sos p { font-size: 14.5px; color: #475569; line-height: 1.6; margin: 0 auto 16px; padding: 0; max-width: 40ch; }

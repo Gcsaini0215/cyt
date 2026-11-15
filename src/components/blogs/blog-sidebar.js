@@ -13,7 +13,7 @@ export default function BlogSidebar() {
                 <div className="inner">
                     <form action="#" className="rbt-search-style-1">
                         <input type="text" placeholder="Search Blogs..." />
-                        <button className="search-btn" style={{ backgroundColor: '#228756', color: '#fff', borderRadius: '0 8px 8px 0' }}>
+                        <button className="search-btn" style={{ backgroundColor: '#1e7a4c', color: '#fff', borderRadius: '0 8px 8px 0' }}>
                             <i className="feather-search"></i>
                         </button>
                     </form>

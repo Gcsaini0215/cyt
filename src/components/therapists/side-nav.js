@@ -190,14 +190,14 @@ html.tsn-anim .tsn-rail { transition: width .22s cubic-bezier(.2,.8,.2,1); }
   transition: background .15s ease, color .15s ease, box-shadow .15s ease;
 }
 .tsn-item svg { font-size: 21px; flex-shrink: 0; transition: transform .15s ease; }
-.tsn-item:hover { background: #f3faf5; color: #166534; }
+.tsn-item:hover { background: #f3faf5; color: #14532d; }
 .tsn-item:hover svg { transform: scale(1.08); }
 .tsn-item:focus-visible { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #16a34a; }
 /* the current page: no background box — green text/icon with a gold underline; hovering it doesn't change it */
 .tsn-item.active, .tsn-item.active:hover { background: none; color: #15803d; box-shadow: none; }
 .tsn-item.active svg { color: #15803d; }
 .tsn-item.active:hover svg { transform: none; }
-.tsn-item.active::before { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #d4a24c; }
+.tsn-item.active::before { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #e3a83a; }
 .tsn-item.active .tsn-label { font-weight: 800; }
 .tsn-label { display: none; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; white-space: nowrap; min-width: 0; }
 .tsn-item .tsn-badge.nx-badge { position: absolute; top: 3px; right: 4px; min-width: 17px; height: 17px; padding: 0 4px; font-size: 9.5px; border: 1.5px solid #fff; }
@@ -224,7 +224,7 @@ html[data-tsn-wide] .tsn-rail { width: 232px; }
 html[data-tsn-wide] .tsn-item { justify-content: flex-start; }
 html[data-tsn-wide] .tsn-label { display: inline-flex; }
 html[data-tsn-wide] .tsn-item.active::before { display: none; }
-html[data-tsn-wide] .tsn-item.active .tsn-label { padding-bottom: 3px; border-bottom: 2.5px solid #d4a24c; }
+html[data-tsn-wide] .tsn-item.active .tsn-label { padding-bottom: 3px; border-bottom: 2.5px solid #e3a83a; }
 html[data-tsn-wide] .tsn-gtitle, html[data-tsn-wide] .tsn-group.up .tsn-gtitle { display: block; }
 html[data-tsn-wide] .tsn-sep { display: none; }
 html[data-tsn-wide] .tsn-group.up { margin: 6px 0 2px; padding: 4px 6px 6px; border-radius: 14px; background: linear-gradient(160deg, #fffaf0, #fdf3dc); border: 1px solid #f0e2b8; }

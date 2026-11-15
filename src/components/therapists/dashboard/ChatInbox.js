@@ -239,7 +239,7 @@ export default function ChatInbox() {
                       <div style={{
                         padding:"9px 12px",
                         borderRadius: isMe ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
-                        background: isMe ? "linear-gradient(135deg,#166534,#16a34a)" : "#fff",
+                        background: isMe ? "linear-gradient(135deg,#14532d,#16a34a)" : "#fff",
                         color: isMe ? "#fff" : "#0f172a",
                         fontSize:13, lineHeight:1.55, fontWeight:500,
                         boxShadow: isMe ? "0 2px 8px rgba(34,135,86,0.2)" : "0 2px 6px rgba(0,0,0,0.07)",
@@ -277,7 +277,7 @@ export default function ChatInbox() {
                   autoFocus
                 />
                 <button type="submit" disabled={!input.trim() || sending}
-                  style={{ width:38, height:38, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#166534,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
+                  style={{ width:38, height:38, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#14532d,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                   </svg>

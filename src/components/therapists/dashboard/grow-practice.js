@@ -45,7 +45,7 @@ function GoalCard({ goal, earned, sessions, onSave }) {
         <div className="gp-goal-body">
           <svg className="gp-ring" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r={r} fill="none" stroke="#f1ead6" strokeWidth="10" />
-            <circle cx="50" cy="50" r={r} fill="none" stroke={pct >= 100 ? "#1e7a4c" : "#d4a24c"} strokeWidth="10" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)} transform="rotate(-90 50 50)" />
+            <circle cx="50" cy="50" r={r} fill="none" stroke={pct >= 100 ? "#1e7a4c" : "#e3a83a"} strokeWidth="10" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)} transform="rotate(-90 50 50)" />
             <text x="50" y="55" textAnchor="middle" fontSize="18" fontWeight="800" fill="#13261c">{pct}%</text>
           </svg>
           <div className="gp-goal-txt">
@@ -281,7 +281,7 @@ const CSS = `
 .gp-goal-txt > b { font-size: 22px; font-weight: 900; color: #13261c; }
 .gp-goal-txt > b span { font-size: 14px; font-weight: 700; color: #8a7342; }
 .gp-goal-txt em { font-style: normal; font-size: 13.5px; color: #475569; }
-.gp-goal-txt em.ok { color: #166534; font-weight: 700; }
+.gp-goal-txt em.ok { color: #14532d; font-weight: 700; }
 .gp-goal-txt small { font-size: 11.5px; color: #8a948f; }
 
 .gp-badge-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
@@ -325,11 +325,11 @@ const CSS = `
 .gp-search { height: 34px; border: 1px solid #dbe5df; border-radius: 10px; padding: 0 12px; font-size: 13px; min-width: 0; width: 200px; }
 .gp-st { font-weight: 700; color: #6b7c72; }
 .gp-st.due { color: #b45309; }
-.gp-st.up { color: #166534; }
+.gp-st.up { color: #14532d; }
 .gp-fu-btns button.on { background: #14532d; border-color: #14532d; color: #fff; }
 .gp-tpls { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .gp-tpls button { border: 1px solid #e6d7b8; background: #fff; border-radius: 999px; padding: 4px 11px; font-size: 12px; font-weight: 700; color: #6b4a0f; cursor: pointer; }
-.gp-tpls button.on { background: #fbf1dc; border-color: #d4a24c; color: #3d2a00; }
+.gp-tpls button.on { background: #fbf1dc; border-color: #e3a83a; color: #3d2a00; }
 .gp-more { margin-top: 8px; border: none; background: none; color: #1e7a4c; font-weight: 800; font-size: 13px; cursor: pointer; padding: 0; }
 
 .gp-heat { display: flex; flex-direction: column; gap: 4px; }

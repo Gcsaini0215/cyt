@@ -97,7 +97,7 @@ const OFC_CSS = `
 .ofc-codebox em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #8a6312; flex-shrink: 0; }
 .ofc-codebox em.ofc-pop { color: #15803d; }
 .ofc-book { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; height: 42px; border: 0; border-radius: 6px; cursor: pointer;
-  background: linear-gradient(135deg, #1a6b3a, #0f3d24); color: #fff !important; font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: .2px;
+  background: linear-gradient(135deg, #1e7a4c, #0f3d24); color: #fff !important; font-family: inherit; font-size: 14px; font-weight: 800; letter-spacing: .2px;
   text-decoration: none !important; box-shadow: 0 6px 14px -6px rgba(15,61,36,.6); transition: filter .15s; }
 .ofc-book:hover { filter: brightness(1.12); }
 .ofc-book:hover .ofc-arr { transform: translateX(3px); }

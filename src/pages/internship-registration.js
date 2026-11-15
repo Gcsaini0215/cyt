@@ -75,7 +75,7 @@ const MODES   = ["Online", "Offline"];
 
 export const PROGRAM_DATA = {
   "Clinical Psychology": {
-    icon: "feather-activity", color: "#228756", bg: "#f0fdf4",
+    icon: "feather-activity", color: "#1e7a4c", bg: "#f0fdf4",
     tagline: "Work alongside clinical psychologists in assessment, documentation, case analysis, and therapeutic practice.",
     duration: "1–3 Months | 30–120 hrs",
     modules: [
@@ -284,7 +284,7 @@ function ProgramModal({ domain, onClose }) {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 8, padding: 12 }}>
               {PLANS.map((pl) => (
-                <div key={pl.hours} style={{ border: `1.5px solid ${pl.hours === BEST_PLAN ? "#d4a24c" : "#eef2ef"}`, borderRadius: 10, padding: "8px 10px", background: "#fff" }}>
+                <div key={pl.hours} style={{ border: `1.5px solid ${pl.hours === BEST_PLAN ? "#e3a83a" : "#eef2ef"}`, borderRadius: 10, padding: "8px 10px", background: "#fff" }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b" }}>{pl.hours} · {pl.duration}</div>
                   <div style={{ fontSize: 16, fontWeight: 900, color: "#0f3d24" }}>{fmtINR(pl.fee)}</div>
                   <div style={{ fontSize: 11, color: pl.hours === BEST_PLAN ? "#8a5a0b" : "#94a3b8", fontWeight: 700 }}>{pl.hours === BEST_PLAN ? "Best value · " : ""}≈ ₹{pl.perHour}/hr</div>
@@ -343,7 +343,7 @@ function CustomSelect({ value, onChange, options, placeholder, error }) {
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button type="button" onClick={() => setOpen(p => !p)} style={{
-        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#228756" : (error ? "#fca5a5" : "#cbd5c9")}`,
+        width: "100%", background: "#fff", border: `1.5px solid ${open ? "#1e7a4c" : (error ? "#fca5a5" : "#cbd5c9")}`,
         borderRadius: 3, padding: "10px 13px", fontSize: 14, cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
         textAlign: "left", fontFamily: "inherit", outline: "none",
@@ -378,7 +378,7 @@ function CustomSelect({ value, onChange, options, placeholder, error }) {
               <div key={opt} onMouseDown={() => { onChange(opt); setOpen(false); }} style={{
                 padding: "9px 14px 9px 18px", cursor: "pointer", fontSize: 13,
                 fontWeight: value === opt ? 700 : 400,
-                color: value === opt ? "#228756" : "#374151",
+                color: value === opt ? "#1e7a4c" : "#374151",
                 background: value === opt ? "#f0fdf4" : "transparent",
                 borderBottom: i < options.length - 1 ? "1px solid #f8fafc" : "none",
               }}>
@@ -437,7 +437,7 @@ function SuccessScreen({ name, internType, traineeSlug }) {
         </p>
 
         <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 14, padding: "18px 20px", marginBottom: 24, textAlign: "left" }}>
-          <p style={{ fontSize: 13, fontWeight: 800, color: "#166534", margin: "0 0 4px" }}>Need further assistance?</p>
+          <p style={{ fontSize: 13, fontWeight: 800, color: "#14532d", margin: "0 0 4px" }}>Need further assistance?</p>
           <p style={{ fontSize: 12.5, color: "#3f6212", margin: "0 0 12px", lineHeight: 1.6 }}>
             Message us on WhatsApp or email us — our team is happy to help with any questions about your application.
           </p>
@@ -448,7 +448,7 @@ function SuccessScreen({ name, internType, traineeSlug }) {
               <i className="feather-message-circle"></i> WhatsApp Us
             </a>
             <a href="mailto:hello@chooseyourtherapist.in"
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#fff", color: "#166534", border: "1.5px solid #86efac", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#fff", color: "#14532d", border: "1.5px solid #86efac", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
               <i className="feather-mail"></i> hello@chooseyourtherapist.in
             </a>
           </div>
@@ -458,7 +458,7 @@ function SuccessScreen({ name, internType, traineeSlug }) {
           <Link href="/" style={{
             textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
             padding: "13px 28px", borderRadius: 12,
-            background: "linear-gradient(135deg,#1b5e20,#228756)",
+            background: "linear-gradient(135deg,#1b5e20,#1e7a4c)",
             color: "#fff", fontWeight: 700, fontSize: 14,
             boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
           }}>
@@ -764,8 +764,8 @@ export default function InternshipRegistration() {
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        input:focus, select:focus, textarea:focus { border-color: #228756 !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
-        .intern-input:focus { border-color: #228756 !important; }
+        input:focus, select:focus, textarea:focus { border-color: #1e7a4c !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
+        .intern-input:focus { border-color: #1e7a4c !important; }
         input[type="date"] { -webkit-appearance: none; appearance: none; }
         @media (max-width: 640px) { input[type="date"] { font-size: 13px !important; padding: 10px 10px !important; min-height: unset !important; } }
         .req { color: #ef4444; }
@@ -773,16 +773,16 @@ export default function InternshipRegistration() {
         .intern-step-dot-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .intern-step-dot { width: 26px; height: 26px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .2s; }
         .intern-step-dot-wrap.on .intern-step-dot { background: #0f3d24; color: #fff; }
-        .intern-step-dot-wrap.done .intern-step-dot { background: #228756; color: #fff; }
+        .intern-step-dot-wrap.done .intern-step-dot { background: #1e7a4c; color: #fff; }
         .intern-step-label { font-size: 11px; font-weight: 700; color: #94a3b8; white-space: nowrap; }
         .intern-step-dot-wrap.on .intern-step-label { color: #0f3d24; }
-        .intern-step-dot-wrap.done .intern-step-label { color: #228756; }
+        .intern-step-dot-wrap.done .intern-step-label { color: #1e7a4c; }
         .intern-step-line { flex: 1; height: 2px; background: #e2e8f0; margin: 0 8px; min-width: 12px; transition: background .2s; }
-        .intern-step-line.done { background: #228756; }
+        .intern-step-line.done { background: #1e7a4c; }
         @media (max-width: 640px) { .intern-step-dot { width: 24px; height: 24px; } .intern-step-line { margin: 0 4px; } }
         .section-card { background: #fff; border: 1px solid #dbe3df; border-radius: 4px; padding: 26px 28px; margin-bottom: 20px; }
         @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
-        .submit-btn { background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; border: none; borderRadius: 3px; padding: 14px 40px; fontSize: 15px; fontWeight: 800; cursor: pointer; width: 100%; letterSpacing: 0.3px; transition: opacity 0.2s; }
+        .submit-btn { background: linear-gradient(135deg, #1b5e20, #1e7a4c); color: #fff; border: none; borderRadius: 3px; padding: 14px 40px; fontSize: 15px; fontWeight: 800; cursor: pointer; width: 100%; letterSpacing: 0.3px; transition: opacity 0.2s; }
         .submit-btn:hover { opacity: 0.9; }
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -791,7 +791,7 @@ export default function InternshipRegistration() {
         .af-titlebar {
           background: #0f3d24; text-align: left;
           padding: 18px 24px; border-radius: 4px 4px 0 0;
-          border-bottom: 3px solid #d4af37;
+          border-bottom: 3px solid #e3a83a;
         }
         .af-titlebar-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65) !important; margin: 0 0 4px; }
         .af-titlebar-title { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; color: #ffffff !important; }
@@ -824,7 +824,7 @@ export default function InternshipRegistration() {
         .ir-pay-k { display: block; font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a5a0b; }
         .ir-pay-v { display: block; font-size: 32px; font-weight: 900; color: #0f3d24; line-height: 1.15; }
         .ir-pay-s { font-size: 13px; color: #5b6b62; font-weight: 600; }
-        .ir-pay-btn { height: 50px; padding: 0 26px; border: none; border-radius: 12px; background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 10px 22px -12px rgba(20,83,45,.7); }
+        .ir-pay-btn { height: 50px; padding: 0 26px; border: none; border-radius: 12px; background: linear-gradient(135deg, #1b5e20, #1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 10px 22px -12px rgba(20,83,45,.7); }
         .ir-pay-btn:disabled { opacity: .7; cursor: not-allowed; }
         .ir-pay-inc { list-style: none; margin: 14px 0 0; padding: 14px 0 0; border-top: 1px dashed #ecd49a; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
         .ir-pay-inc li { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #33463b; }
@@ -838,7 +838,7 @@ export default function InternshipRegistration() {
         .ir-plan { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #dbe3df; background: #fff; cursor: pointer; text-align: left; font-family: inherit; transition: border-color .15s, background .15s; }
         .ir-plan:hover { border-color: #86c6a0; }
         .ir-plan.on { border-color: #1e7a4c; background: #f0fdf4; box-shadow: 0 0 0 3px rgba(30,122,76,.12); }
-        .ir-plan.best { border-color: #d4a24c; }
+        .ir-plan.best { border-color: #e3a83a; }
         .ir-plan.best.on { border-color: #1e7a4c; }
         .ir-plan em { position: absolute; top: -9px; left: 12px; font-style: normal; font-size: 10.5px; font-weight: 800; color: #3d2a00; background: #ecc77d; border-radius: 999px; padding: 1px 8px; }
         .ir-plan-h { font-size: 12.5px; font-weight: 700; color: #475569; }
@@ -856,7 +856,7 @@ export default function InternshipRegistration() {
           .trs-h { font-size: 19px; }
         }
         @media (max-width: 575px) { .ir-plan-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ir-plan b { font-size: 18px; } }
-        .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
+        .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #e3a83a; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
         select.intern-input, .intern-input { border-radius: 3px !important; }
       ` }} />
 
@@ -911,7 +911,7 @@ export default function InternshipRegistration() {
                 <div style={{ marginBottom: 4 }}>
                   <h2 style={{ fontSize: isMobile ? 18 : 22, fontWeight: 900, color: "#1e293b", margin: "0 0 4px" }}>Payment</h2>
                   {draftSaved && (
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#228756", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#1e7a4c", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 20, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 5 }}>
                       <i className="feather-save" style={{ fontSize: 11 }}></i> Draft Saved
                     </span>
                   )}
@@ -942,7 +942,7 @@ export default function InternshipRegistration() {
                 {paidInfo && (
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}>
                     <button type="button" disabled={loading} onClick={() => finalizeApplication(paidRespRef.current)}
-                      style={{ flex: 1, minWidth: 160, padding: "12px", borderRadius: 3, border: "none", background: "#228756", color: "#fff", fontSize: 13, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
+                      style={{ flex: 1, minWidth: 160, padding: "12px", borderRadius: 3, border: "none", background: "#1e7a4c", color: "#fff", fontSize: 13, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
                       {loading ? "Saving…" : "Retry saving application"}
                     </button>
                     <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi, I paid for the internship program but my application didn't save. Payment ID: ${paidInfo.id}`)}`}
@@ -955,7 +955,7 @@ export default function InternshipRegistration() {
 
                 {/* Personal */}
                 {[
-                  { title: "Personal Details", icon: "feather-user", color: "#228756", rows: [
+                  { title: "Personal Details", icon: "feather-user", color: "#1e7a4c", rows: [
                     ["Full Name", form.name, true], ["Email", form.email, true],
                     ["Phone", form.phone, true], ["City", form.city, false],
                     ["Gender", form.gender || "—", false], ["Date of Birth", form.dob || "—", false],
@@ -1018,7 +1018,7 @@ export default function InternshipRegistration() {
                         { label: "College ID", file: form.collegeId, icon: "feather-credit-card" },
                       ].map(({ label, file, icon }) => (
                         <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <i className={icon} style={{ fontSize: 14, color: file ? "#228756" : "#cbd5e1", flexShrink: 0 }}></i>
+                          <i className={icon} style={{ fontSize: 14, color: file ? "#1e7a4c" : "#cbd5e1", flexShrink: 0 }}></i>
                           <div>
                             <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>{label}</span>
                             <span style={{ fontSize: 13, color: file ? "#374151" : "#94a3b8" }}>{file ? file.name : "Not uploaded"}</span>
@@ -1042,7 +1042,7 @@ export default function InternshipRegistration() {
                     <i className="feather-edit-2"></i> Edit Details
                   </button>
                   <button type="button" onClick={handlePay} disabled={loading}
-                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#1e7a4c)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                     {loading ? <><span style={{ width: 16, height: 16, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.8s linear infinite" }}></span> Processing…</> : <><i className="feather-credit-card"></i> Pay {fmtINR(HOUR_PRICES[form.hours] || 0)} &amp; Submit</>}
                   </button>
                 </div>
@@ -1055,7 +1055,7 @@ export default function InternshipRegistration() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 4 }}>
                   <h2 style={{ fontSize: isMobile ? 17 : 19, fontWeight: 800, color: "#0f3d24", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>{STEP_TITLES[step - 1]}</h2>
                   <Link href="/internship-modules"
-                    style={{ color: "#228756", fontSize: 12.5, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3 }}>
+                    style={{ color: "#1e7a4c", fontSize: 12.5, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3 }}>
                     See the modules
                   </Link>
                 </div>
@@ -1063,7 +1063,7 @@ export default function InternshipRegistration() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24, fontSize: 11.5, color: "#94a3b8", fontWeight: 700 }}>
                   <span>Step {step} of 5</span>
                   {autosaveState === "saving" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><i className="feather-loader"></i> Saving…</span>}
-                  {autosaveState === "saved" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#228756" }}><i className="feather-check-circle"></i> Saved</span>}
+                  {autosaveState === "saved" && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#1e7a4c" }}><i className="feather-check-circle"></i> Saved</span>}
                 </div>
 
                 {error && (
@@ -1184,14 +1184,14 @@ export default function InternshipRegistration() {
                           <label key={t} style={{
                             display: "flex", alignItems: "center", gap: 9, padding: "9px 12px",
                             borderRadius: 3, cursor: "pointer", userSelect: "none",
-                            border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`,
+                            border: `1.5px solid ${checked ? "#1e7a4c" : "#cbd5c9"}`,
                             background: checked ? "#f0fdf4" : "#fff",
                             transition: "all 0.15s",
                           }}>
                             <span style={{
                               width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                              border: `2px solid ${checked ? "#228756" : "#cbd5e1"}`,
-                              background: checked ? "#228756" : "#fff",
+                              border: `2px solid ${checked ? "#1e7a4c" : "#cbd5e1"}`,
+                              background: checked ? "#1e7a4c" : "#fff",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.15s",
                             }}>
@@ -1207,7 +1207,7 @@ export default function InternshipRegistration() {
                                   ? [...next, "Research & Data"] : next;
                                 set("internType", withResearch);
                               }} />
-                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3, flex: 1 }}>{t}</span>
+                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#14532d" : "#475569", lineHeight: 1.3, flex: 1 }}>{t}</span>
                             {PROGRAM_DATA[t] && (
                               <i className="feather-info" title="View curriculum"
                                 onClick={e => { e.preventDefault(); e.stopPropagation(); setModalDomain(t); }}
@@ -1231,15 +1231,15 @@ export default function InternshipRegistration() {
                           <label key={t} style={{
                             display: "flex", alignItems: "center", gap: 9, padding: "9px 12px",
                             borderRadius: 3, cursor: locked ? "not-allowed" : "pointer", userSelect: "none",
-                            border: `1.5px solid ${checked ? (locked ? "#86efac" : "#228756") : "#cbd5c9"}`,
+                            border: `1.5px solid ${checked ? (locked ? "#86efac" : "#1e7a4c") : "#cbd5c9"}`,
                             background: checked ? (locked ? "#f0fdf4" : "#f0fdf4") : "#fff",
                             opacity: locked ? 0.85 : 1,
                             transition: "all 0.15s",
                           }}>
                             <span style={{
                               width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                              border: `2px solid ${checked ? (locked ? "#4ade80" : "#228756") : "#cbd5e1"}`,
-                              background: checked ? (locked ? "#4ade80" : "#228756") : "#fff",
+                              border: `2px solid ${checked ? (locked ? "#4ade80" : "#1e7a4c") : "#cbd5e1"}`,
+                              background: checked ? (locked ? "#4ade80" : "#1e7a4c") : "#fff",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.15s",
                             }}>
@@ -1253,7 +1253,7 @@ export default function InternshipRegistration() {
                                   : [...form.internType, t];
                                 set("internType", next);
                               }} />
-                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569", lineHeight: 1.3, flex: 1 }}>
+                            <span style={{ fontSize: 12, fontWeight: checked ? 700 : 500, color: checked ? "#14532d" : "#475569", lineHeight: 1.3, flex: 1 }}>
                               {t}
                               {locked && <span style={{ display: "block", fontSize: 9, color: "#16a34a", fontWeight: 600, marginTop: 1 }}>Auto-required</span>}
                             </span>
@@ -1303,9 +1303,9 @@ export default function InternshipRegistration() {
                           <button type="button" key={m} onClick={() => set("mode", m)}
                             style={{
                               flex: 1, padding: "9px 8px", borderRadius: 3, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                              border: `1.5px solid ${form.mode === m ? "#228756" : (stepErrors.mode ? "#fca5a5" : "#cbd5c9")}`,
+                              border: `1.5px solid ${form.mode === m ? "#1e7a4c" : (stepErrors.mode ? "#fca5a5" : "#cbd5c9")}`,
                               background: form.mode === m ? "#f0fdf4" : "#fff",
-                              color: form.mode === m ? "#166534" : "#64748b",
+                              color: form.mode === m ? "#14532d" : "#64748b",
                               transition: "all 0.15s",
                             }}>
                             {m}
@@ -1342,7 +1342,7 @@ export default function InternshipRegistration() {
                       onChange={e => set("motivation", e.target.value)} />
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 4 }}>
                       <FieldErr msg={stepErrors.motivation} />
-                      <span style={{ fontSize: 11, color: form.motivation.trim().length >= 50 ? "#228756" : "#94a3b8", fontWeight: form.motivation.trim().length >= 50 ? 700 : 400, marginLeft: "auto" }}>
+                      <span style={{ fontSize: 11, color: form.motivation.trim().length >= 50 ? "#1e7a4c" : "#94a3b8", fontWeight: form.motivation.trim().length >= 50 ? 700 : 400, marginLeft: "auto" }}>
                         {form.motivation.trim().length < 50
                           ? `${50 - form.motivation.trim().length} more characters to go`
                           : `${form.motivation.length}/500`}
@@ -1353,7 +1353,7 @@ export default function InternshipRegistration() {
 
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 14, marginBottom: 18 }}>
                     {[
-                      { id: "resumeInput",   key: "resumeFile",  label: "CV / Resume",        hint: "PDF, DOC — max 5MB", accept: ".pdf,.doc,.docx", icon: "feather-file-text",  color: "#228756", bg: "#f0fdf4" },
+                      { id: "resumeInput",   key: "resumeFile",  label: "CV / Resume",        hint: "PDF, DOC — max 5MB", accept: ".pdf,.doc,.docx", icon: "feather-file-text",  color: "#1e7a4c", bg: "#f0fdf4" },
                       { id: "collegeIdInput",key: "collegeId",   label: "College ID Card",     hint: "JPG, PNG, PDF — max 5MB", accept: ".jpg,.jpeg,.png,.pdf", icon: "feather-credit-card", color: "#0ea5e9", bg: "#f0f9ff" },
                       { id: "photoInput",    key: "passportPhoto",label: "Passport Size Photo", hint: "JPG, PNG — max 2MB", accept: ".jpg,.jpeg,.png", icon: "feather-camera", color: "#8b5cf6", bg: "#f5f3ff" },
                     ].map(({ id, key, label, hint, accept, icon, color, bg }) => (
@@ -1392,14 +1392,14 @@ export default function InternshipRegistration() {
                   {/* Terms */}
                   <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 4, padding: "14px 16px", borderRadius: 3, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#cbd5c9"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
                     <input type="checkbox" checked={form.agreeTerms} onChange={e => set("agreeTerms", e.target.checked)} style={{ display: "none" }} />
-                    <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#228756" : "#cbd5e1"}`, background: form.agreeTerms ? "#228756" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                    <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#1e7a4c" : "#cbd5e1"}`, background: form.agreeTerms ? "#1e7a4c" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
                       {form.agreeTerms && <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>}
                     </div>
-                    <span style={{ fontSize: 12, color: form.agreeTerms ? "#166534" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
+                    <span style={{ fontSize: 12, color: form.agreeTerms ? "#14532d" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
                       I agree to the{" "}
-                      <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700 }}>Terms & Conditions</Link>{" "}
+                      <Link href="/terms-conditions" style={{ color: "#1e7a4c", fontWeight: 700 }}>Terms & Conditions</Link>{" "}
                       and{" "}
-                      <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700 }}>Privacy Policy</Link>.
+                      <Link href="/privacy-policy" style={{ color: "#1e7a4c", fontWeight: 700 }}>Privacy Policy</Link>.
                       I confirm that all information provided is accurate and complete.
                     </span>
                   </label>
@@ -1434,7 +1434,7 @@ export default function InternshipRegistration() {
                   )}
                   <button type="submit" disabled={loading}
                     style={{
-                      flex: 2, background: "linear-gradient(135deg, #1b5e20, #228756)",
+                      flex: 2, background: "linear-gradient(135deg, #1b5e20, #1e7a4c)",
                       color: "#fff", border: "none", borderRadius: 3, padding: "15px 40px",
                       fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer",
                       opacity: loading ? 0.7 : 1, letterSpacing: "0.3px", display: "flex",

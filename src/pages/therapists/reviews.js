@@ -25,7 +25,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 const SITE = "https://www.chooseyourtherapist.in";
 const SEEN_KEY = "cyt_th_reviews_seen"; // how many reviews they had seen (shared with the menu badge)
-const AV = ["#166534", "#0f766e", "#1d4ed8", "#7c3aed", "#b45309", "#be185d", "#0369a1"];
+const AV = ["#14532d", "#0f766e", "#1d4ed8", "#7c3aed", "#b45309", "#be185d", "#0369a1"];
 
 const TZ = "Asia/Kolkata";
 const valid = (d) => d && !Number.isNaN(new Date(d).getTime());
@@ -333,7 +333,7 @@ const RV_CSS = `
 .rv-ask textarea:focus, .rv-ask-link input:focus { outline: none; border-color: #16a34a; }
 .rv-ask-link { display: flex; gap: 8px; margin-bottom: 14px; }
 .rv-ask-link input { flex: 1; min-width: 0; height: 42px; border: 1.5px solid #dbe3df; border-radius: 11px; padding: 0 11px; font-size: 13px; color: #334155; background: #f8faf9; font-family: inherit; margin: 0; }
-.rv-ask-link button { height: 42px; padding: 0 14px; border-radius: 11px; border: 1.5px solid #166534; background: #fff; color: #166534; font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.rv-ask-link button { height: 42px; padding: 0 14px; border-radius: 11px; border: 1.5px solid #14532d; background: #fff; color: #14532d; font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-family: inherit; white-space: nowrap; }
 .rv-ask-link button svg { font-size: 17px; }
 .rv-ask-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .rv-ask-grid a, .rv-ask-grid button { height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-size: 14px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; font-family: inherit; }
@@ -341,7 +341,7 @@ const RV_CSS = `
 .rv-ask-grid .wa { background: #25d366; color: #fff; }
 .rv-ask-grid .em { background: #eef2ff; color: #3730a3; }
 .rv-ask-grid .sm { background: #ecfeff; color: #0e7490; }
-.rv-ask-grid .cp { background: #166534; color: #fff; }
+.rv-ask-grid .cp { background: #14532d; color: #fff; }
 .rv-ask-more { width: 100%; margin-top: 8px; justify-content: center; }
 .rv-card .rv-stars { margin: 10px 0 4px; }
 .rv-text { font-size: 14px; color: #334155; line-height: 1.6; margin: 0; white-space: pre-line; overflow-wrap: anywhere; }

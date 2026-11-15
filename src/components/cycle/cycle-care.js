@@ -669,7 +669,7 @@ const CY_CSS = `
 .cy-moods { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .cy-moods button { display: grid; justify-items: center; gap: 2px; padding: 8px 2px; border-radius: 12px; border: 1.5px solid var(--cy-line); background: #fff; font: inherit; font-size: 11.5px; font-weight: 700; color: var(--cy-mut); cursor: pointer; }
 .cy-moods span { font-size: 22px; line-height: 1.1; }
-.cy-moods button.on { border-color: #1e9e64; background: #effaf3; color: #166534; }
+.cy-moods button.on { border-color: #1e9e64; background: #effaf3; color: #14532d; }
 .cy-log textarea { width: 100%; margin-top: 12px; border: 1.5px solid var(--cy-line); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 14px; resize: vertical; color: var(--cy-ink); }
 .cy-cal-g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; margin-top: 12px; }
 .cy-cal-wd { text-align: center; font-size: 11px; font-weight: 800; color: var(--cy-mut); padding-bottom: 2px; }

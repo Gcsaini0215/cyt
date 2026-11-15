@@ -246,13 +246,13 @@ const PM_CSS = `
 .pm-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; padding: 18px 14px 14px; border-radius: 14px; border: 1.5px solid #dbe5df; background: #fff; cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s, background .15s; }
 .pm-card:hover { border-color: #9fcdb2; }
 .pm-card.on { border-color: #1e7a4c; background: #f3faf6; box-shadow: 0 0 0 3px #dcefe3; }
-.pm-tag { position: absolute; top: -10px; left: 12px; padding: 2px 9px; border-radius: 999px; background: #d4af37; color: #3a2d05; font-size: 10.5px; font-weight: 800; }
+.pm-tag { position: absolute; top: -10px; left: 12px; padding: 2px 9px; border-radius: 999px; background: #e3a83a; color: #3a2d05; font-size: 10.5px; font-weight: 800; }
 .pm-tag.cur { background: #16a34a; color: #fff; }
 .pm-radio { position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1; background: #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
 .pm-card.on .pm-radio { border-color: #1e7a4c; background: #1e7a4c; }
 .pm-label { font-size: 13px; font-weight: 700; color: #475569; }
 .pm-price { font-size: 25px; font-weight: 900; color: #0f3d24; line-height: 1.15; }
-.pm-day { display: inline-block; margin: 3px 0 2px; padding: 2px 8px; border-radius: 999px; background: #e8f5ee; color: #166534; font-size: 12px; font-weight: 800; }
+.pm-day { display: inline-block; margin: 3px 0 2px; padding: 2px 8px; border-radius: 999px; background: #e8f5ee; color: #14532d; font-size: 12px; font-weight: 800; }
 .pm-per { font-size: 12px; color: #64748b; margin-bottom: 8px; }
 .pm-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .pm-card li { margin: 0; display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; color: #334155; line-height: 1.4; }
@@ -261,7 +261,7 @@ const PM_CSS = `
 .pm-terms { margin: 16px 0 0; padding: 12px 14px 12px 30px; border-radius: 12px; background: #f8faf9; border: 1px solid #e3ebe6; font-size: 12.5px; color: #334155; line-height: 1.55; display: flex; flex-direction: column; gap: 5px; }
 .pm-terms li { margin: 0; }
 .pm-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 12px 14px; border-radius: 12px; border: 1.5px solid #cbd5c9; background: #fafafa; cursor: pointer; font-size: 13.5px; color: #334155; line-height: 1.55; }
-.pm-check.on { border-color: #86efac; background: #f0fdf4; color: #166534; }
+.pm-check.on { border-color: #86efac; background: #f0fdf4; color: #14532d; }
 .pm-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: #1e7a4c; position: static; opacity: 1; }
 .pm-pay { width: 100%; height: 50px; margin-top: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #0f3d24, #1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
 .pm-pay:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }

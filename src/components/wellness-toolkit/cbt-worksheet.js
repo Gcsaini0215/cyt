@@ -32,11 +32,11 @@ export default function CBTWorksheet() {
     <section className="rbt-section-gap bg-color-white" style={{ padding: '100px 0' }}>
       <Container maxWidth="md">
         <Box sx={{ mb: 6, textAlign: 'center' }}>
-          <Typography sx={{ color: '#228756', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '14px', mb: 2 }}>
+          <Typography sx={{ color: '#1e7a4c', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '14px', mb: 2 }}>
             Interactive Therapy Tool
           </Typography>
           <Typography variant="h2" sx={{ color: '#1e293b', fontWeight: 900, fontSize: { xs: '32px', md: '48px' }, mb: 2 }}>
-            CBT <span style={{ color: '#228756' }}>Thought Record</span>
+            CBT <span style={{ color: '#1e7a4c' }}>Thought Record</span>
           </Typography>
           <Typography sx={{ color: '#64748b', fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>
             Use this tool to challenge negative thoughts and develop a more balanced perspective. 
@@ -57,10 +57,10 @@ export default function CBTWorksheet() {
           <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 5 }}>
             {steps.map((label) => (
               <Step key={label} sx={{
-                '& .MuiStepLabel-label.Mui-active': { color: '#228756', fontWeight: 700 },
+                '& .MuiStepLabel-label.Mui-active': { color: '#1e7a4c', fontWeight: 700 },
                 '& .MuiStepLabel-label.Mui-completed': { color: '#1e293b' },
-                '& .MuiStepIcon-root.Mui-active': { color: '#228756' },
-                '& .MuiStepIcon-root.Mui-completed': { color: '#228756' }
+                '& .MuiStepIcon-root.Mui-active': { color: '#1e7a4c' },
+                '& .MuiStepIcon-root.Mui-completed': { color: '#1e7a4c' }
               }}>
                 <StepLabel>{label}</StepLabel>
               </Step>
@@ -71,7 +71,7 @@ export default function CBTWorksheet() {
             {activeStep === 0 && (
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <PsychologyIcon sx={{ color: '#228756' }} /> The Situation
+                  <PsychologyIcon sx={{ color: '#1e7a4c' }} /> The Situation
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
                   What happened? Where were you? Who were you with? (e.g., "My boss didn't reply to my email for 4 hours")
@@ -126,7 +126,7 @@ export default function CBTWorksheet() {
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: '#228756' }}>Facts contradicting the thought</Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: '#1e7a4c' }}>Facts contradicting the thought</Typography>
                     <TextField
                       fullWidth multiline rows={4}
                       name="evidenceAgainst"
@@ -143,7 +143,7 @@ export default function CBTWorksheet() {
             {activeStep === 3 && (
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CheckCircleIcon sx={{ color: '#228756' }} /> Balanced Perspective
+                  <CheckCircleIcon sx={{ color: '#1e7a4c' }} /> Balanced Perspective
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748b', mb: 3 }}>
                   Now, look at both sides. What is a more realistic way to see this?
@@ -163,7 +163,7 @@ export default function CBTWorksheet() {
 
             {activeStep === steps.length && (
               <Box sx={{ textAlign: 'center', py: 3 }}>
-                <CheckCircleIcon sx={{ fontSize: '80px', color: '#228756', mb: 2 }} />
+                <CheckCircleIcon sx={{ fontSize: '80px', color: '#1e7a4c', mb: 2 }} />
                 <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>Great Work!</Typography>
                 <Typography sx={{ mb: 4, color: '#64748b' }}>
                   You've successfully challenged a negative thought. How do you feel now?
@@ -172,7 +172,7 @@ export default function CBTWorksheet() {
                   variant="outlined" 
                   onClick={handleReset}
                   startIcon={<DeleteOutlineIcon />}
-                  sx={{ borderColor: '#228756', color: '#228756', borderRadius: '50px', fontWeight: 700 }}
+                  sx={{ borderColor: '#1e7a4c', color: '#1e7a4c', borderRadius: '50px', fontWeight: 700 }}
                 >
                   Clear and Start New
                 </Button>
@@ -193,7 +193,7 @@ export default function CBTWorksheet() {
                 variant="contained"
                 onClick={handleNext}
                 sx={{ 
-                  backgroundColor: '#228756', 
+                  backgroundColor: '#1e7a4c', 
                   borderRadius: '12px', 
                   px: 4, 
                   fontWeight: 800,

@@ -29,7 +29,7 @@ const styles = `
   align-items: center;
   gap: 8px;
   background: rgba(255,255,255,0.75);
-  color: #166534;
+  color: #14532d;
   padding: 8px 20px;
   border-radius: 50px;
   font-weight: 700;

@@ -254,7 +254,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
           </div>
 
           <ul className="cyt-trust" aria-label="Why people choose us">
-            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#d4a24c" }} /> <span style={{ fontWeight: 700 }}>{ratingText(ps)}</span> on Google <span>({reviewsText(ps)} reviews)</span></a></li>
+            <li><a href={GBP_URL} target="_blank" rel="noreferrer"><Star sx={{ fontSize: 15, color: "#e3a83a" }} /> <span style={{ fontWeight: 700 }}>{ratingText(ps)}</span> on Google <span>({reviewsText(ps)} reviews)</span></a></li>
             <li><VerifiedRounded sx={{ fontSize: 15, color: "#1e7a4c" }} /> <span style={{ fontWeight: 700 }}>{sessionsText(ps)}</span> sessions</li>
             <li className="cyt-trust-x"><i className="feather-lock" /> 100% confidential</li>
           </ul>
@@ -459,7 +459,7 @@ export default function Banner({ topTherapists = [], stats = null }) {
         .cyt-hchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
         .cyt-hchips::-webkit-scrollbar { display: none; }
         /* Noida booking: a soft white card with a gold accent — stands out without a block of green */
-        .cyt-hero .cyt-cta2 { justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 16px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #d4a24c; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
+        .cyt-hero .cyt-cta2 { justify-content: flex-start; gap: 12px; min-height: 58px; padding: 9px 16px 9px 10px; font-size: 15px; text-align: left; color: #0b1712 !important; background: #fff; border: 1px solid #e6d7b8; border-left: 4px solid #e3a83a; box-shadow: 0 10px 24px -16px rgba(122,84,19,.55); }
         .cyt-hero .cyt-cta2:hover { background: #fffcf5; color: #0b1712 !important; }
         .cyt-cta2 > i.feather-map-pin { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #fbf3e2; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; color: #b07a1c; }
         .cyt-cta2-txt { display: flex; flex-direction: column; line-height: 1.25; font-weight: 800; color: #14532d; }

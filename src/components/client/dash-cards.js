@@ -375,7 +375,7 @@ export function ForYouCard({ offer }) {
 }
 
 export const DC_CSS = `
-.dc-av { width: 44px; height: 44px; border-radius: 14px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; font-size: 17px; flex-shrink: 0; overflow: hidden; }
+.dc-av { width: 44px; height: 44px; border-radius: 14px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; font-weight: 800; font-size: 17px; flex-shrink: 0; overflow: hidden; }
 .dc-av img { width: 100%; height: 100%; object-fit: cover; }
 .dc-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .dc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; padding: 0 16px; border-radius: 11px; font-size: 14px; font-weight: 800; cursor: pointer; border: 1px solid transparent; font-family: inherit; text-decoration: none !important; white-space: nowrap; }
@@ -386,7 +386,7 @@ export const DC_CSS = `
 .dc-btn.green { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; }
 .dc-btn.link { background: none; color: #64748b !important; padding: 0 6px; }
 .dc-btn.wa { background: #25d366; color: #fff !important; flex: 1; }
-.dc-btn.ghost-dark { background: #fff; color: #166534 !important; border-color: #cfe3d6; width: 42px; padding: 0; flex: none; }
+.dc-btn.ghost-dark { background: #fff; color: #14532d !important; border-color: #cfe3d6; width: 42px; padding: 0; flex: none; }
 
 .dc-rebook { border-radius: 18px; padding: 18px; color: #fff; background: radial-gradient(120% 140% at 100% 0%, #1f7a45 0%, #0b3320 55%); box-shadow: 0 16px 34px -20px rgba(4,30,16,.8); display: flex; flex-direction: column; gap: 12px; }
 .dc-rebook-top { display: flex; align-items: center; gap: 14px; min-width: 0; }
@@ -419,7 +419,7 @@ export const DC_CSS = `
 .dc-stars button:hover svg { transform: scale(1.12); }
 .dc-stars-lbl { font-size: 13px; font-weight: 700; color: #475569; margin-left: 8px; }
 .dc-review textarea { width: 100%; border: 1px solid #d6e0da; border-radius: 12px; padding: 10px 12px; font-size: 14.5px; font-family: inherit; resize: vertical; min-height: 78px; }
-.dc-review textarea:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.dc-review textarea:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .dc-err { font-style: normal; font-size: 12.5px; font-weight: 600; color: #dc2626; }
 .dc-review.sent { flex-direction: row; align-items: center; flex-wrap: wrap; background: #f0faf3; border-color: #cfe9d8; }
 .dc-tick { width: 40px; height: 40px; border-radius: 50%; background: #16a34a; color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 18px; flex-shrink: 0; }
@@ -453,7 +453,7 @@ export const DC_CSS = `
 
 .dc-mini { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid #e4ece7; color: #0f172a !important; text-decoration: none !important; transition: border-color .15s, box-shadow .15s; }
 .dc-mini:hover { border-color: #b7dcc4; box-shadow: 0 10px 24px -18px rgba(4,60,30,.5); }
-.dc-mini-ic { width: 40px; height: 40px; border-radius: 12px; background: #e7f6ec; color: #166534; display: grid; place-items: center; flex-shrink: 0; }
+.dc-mini-ic { width: 40px; height: 40px; border-radius: 12px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; flex-shrink: 0; }
 .dc-mini-ic.blue { background: #e0f2fe; color: #0369a1; }
 .dc-mini-ic svg { font-size: 22px; }
 .dc-mini b { display: block; font-size: 14.5px; font-weight: 800; }

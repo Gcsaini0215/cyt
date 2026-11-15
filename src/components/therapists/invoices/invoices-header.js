@@ -41,7 +41,7 @@ export default function InvoicesHeader({ invoices = [], loading, since }) {
       <Box component="nav" aria-label="breadcrumb" sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1.5, fontSize: 13, color: "#64748b", fontWeight: 600 }}>
         <Link href="/therapist-dashboard" style={{ color: "inherit", textDecoration: "none" }}>Dashboard</Link>
         <ChevronRightRoundedIcon sx={{ fontSize: 16 }} />
-        <Box component="span" sx={{ color: "#166534" }}>Invoices</Box>
+        <Box component="span" sx={{ color: "#14532d" }}>Invoices</Box>
       </Box>
 
       <Box sx={{

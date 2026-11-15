@@ -452,7 +452,7 @@ export default function ViewProfile({ initialProfile, id, urlKey, related = [], 
         <meta name="twitter:site" content="@chooseyourtherapist" />
 
         {/* Additional */}
-        <meta name="theme-color" content="#228756" />
+        <meta name="theme-color" content="#1e7a4c" />
         <meta name="application-name" content="Choose Your Therapist" />
         <link rel="canonical" href={currentUrl} />
 
@@ -529,7 +529,7 @@ const PR_CSS = `
 .pr-about p { margin: 0 0 12px; font-size: 15px; line-height: 1.7; color: #334155; max-width: 860px; }
 .pr-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 14px; }
 .pr-links span { font-size: 14px; font-weight: 700; color: #0f2a1d; margin-right: 2px; }
-.pr-links a { padding: 6px 13px; border-radius: 999px; background: #ecfdf3; border: 1px solid #bfe8cf; color: #166534; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background .15s; }
+.pr-links a { padding: 6px 13px; border-radius: 999px; background: #ecfdf3; border: 1px solid #bfe8cf; color: #14532d; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background .15s; }
 .pr-links a:hover { background: #dcfce7; }
 .pr-place { font-size: 14px !important; color: #64748b !important; }
 .pr-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 14px; }
@@ -540,7 +540,7 @@ const PR_CSS = `
 .pr-badge.silver { background: #f3f5f7; border-color: #d3d9df; color: #475569; }
 .pr-badge.gold { background: #fdf6e3; border-color: #ecd18f; color: #8a5a06; }
 .pr-badge.platinum { background: #e9f7ee; border-color: #a9dcbb; color: #14532d; }
-.pr-place a { color: #166534; font-weight: 700; }
+.pr-place a { color: #14532d; font-weight: 700; }
 .vp-body .rt { padding-left: 32px; padding-right: 32px; padding-bottom: 40px; }
 @media (max-width: 599px) {
   .pr-about { padding: 28px 14px 4px; }

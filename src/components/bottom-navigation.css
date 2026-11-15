@@ -67,12 +67,12 @@
 }
 
 .bottom-nav-item:hover {
-  color: #228756;
+  color: #1e7a4c;
   transform: translateY(-1px);
 }
 
 .bottom-nav-item.active {
-  color: #228756;
+  color: #1e7a4c;
   transform: translateY(-2px);
 }
 
@@ -92,7 +92,7 @@
 
 .bottom-nav-item.active .nav-icon i {
   transform: scale(1.15);
-  color: #228756;
+  color: #1e7a4c;
   filter: drop-shadow(0 2px 4px rgba(34, 135, 86, 0.3));
 }
 
@@ -109,7 +109,7 @@
 }
 
 .bottom-nav-item.active .nav-label {
-  color: #228756;
+  color: #1e7a4c;
   font-weight: 700;
 }
 

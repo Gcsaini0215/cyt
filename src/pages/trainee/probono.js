@@ -144,7 +144,7 @@ function Req({ r, act }) {
 }
 
 const CSS = `
-.pbt-msg { margin: 0 0 12px; font-size: 14px; font-weight: 700; color: #166534; }
+.pbt-msg { margin: 0 0 12px; font-size: 14px; font-weight: 700; color: #14532d; }
 .pbt-msg.bad { color: #b91c1c; }
 .pbt-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
 .pbt-stats > div { background: #fff; border: 1px solid #e4ece7; border-top: 3px solid #16a34a; border-radius: 14px; padding: 14px; }
@@ -156,13 +156,13 @@ const CSS = `
 .pbt-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
 .pbt-row p { margin: 0; flex: 1 1 260px; font-size: 14px; color: #475569; }
 .pbt-none { padding: 16px 20px; font-size: 14px; color: #64748b; }
-.pbt-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border: 1px solid #166534; border-radius: 10px; background: #166534; color: #fff !important; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
-.pbt-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.pbt-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border: 1px solid #14532d; border-radius: 10px; background: #14532d; color: #fff !important; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
+.pbt-btn.ghost { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .pbt-btn.danger { background: #b91c1c; border-color: #b91c1c; }
 .pbt-btn:disabled { opacity: .55; cursor: not-allowed; }
 .pbt-req { margin-bottom: 10px; padding: 16px; }
 .pbt-req-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-.pbt-req-top b { font-size: 15.5px; color: #0f172a; } .pbt-req-top small { font-size: 13px; font-weight: 600; color: #64748b; } .pbt-req-top span { font-size: 13.5px; font-weight: 700; color: #166534; }
+.pbt-req-top b { font-size: 15.5px; color: #0f172a; } .pbt-req-top small { font-size: 13px; font-weight: 600; color: #64748b; } .pbt-req-top span { font-size: 13.5px; font-weight: 700; color: #14532d; }
 .pbt-req p { margin: 6px 0 12px; font-size: 14px; color: #475569; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
 .pbt-acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .pbt-decline label { display: block; margin-bottom: 6px; font-size: 13.5px; font-weight: 700; color: #334155; }

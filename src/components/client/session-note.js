@@ -73,9 +73,9 @@ const CSN_CSS = `
 .csn-tog .chev { color: #64748b; transition: transform .2s; } .csn.open .csn-tog .chev { transform: rotate(180deg); }
 .csn-body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; }
 .csn-prompts { display: flex; flex-wrap: wrap; gap: 6px; }
-.csn-prompts button { border: 1px solid #d6e9dc; background: #fff; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 700; color: #166534; cursor: pointer; }
+.csn-prompts button { border: 1px solid #d6e9dc; background: #fff; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 700; color: #14532d; cursor: pointer; }
 .csn textarea { width: 100%; border: 1px solid #d6e0da; border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 14px; resize: vertical; min-height: 90px; background: #fff; box-sizing: border-box; }
-.csn textarea:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.csn textarea:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .csn-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; color: #64748b; }
 .csn-foot span { display: inline-flex; align-items: center; gap: 4px; } .csn-foot svg { font-size: 14px; }
 .csn-foot em { font-style: normal; font-weight: 700; color: #16a34a; } .csn-foot em.error { color: #dc2626; } .csn-foot em.saving { color: #64748b; }

@@ -24912,7 +24912,7 @@ textarea:-ms-input-placeholder {
   white-space: nowrap;
 }
 .rbt-gradient-border {
-  background: linear-gradient(-145deg, #228756, #59c82f) !important;
+  background: linear-gradient(-145deg, #1e7a4c, #59c82f) !important;
   z-index: 10;
 }
 .rbt-gradient-border:before {
@@ -44957,7 +44957,7 @@ blockquote.has-text-align-right cite {
 }
 
 .social-links-mobile a:hover {
-  color: #228756;
+  color: #1e7a4c;
   transform: translateY(-2px);
 }
 
@@ -44975,7 +44975,7 @@ blockquote.has-text-align-right cite {
 }
 
 .contact-pill-mobile i {
-  color: #228756;
+  color: #1e7a4c;
 }
 
 .home-banner-with-img {

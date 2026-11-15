@@ -173,18 +173,18 @@ export const CSC_CSS = `
 .csc { background: #fff; border: 1px solid #e4ece7; border-left: 3px solid #0369a1; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .csc.live { border-left-color: #d97706; } .csc.done { border-left-color: #16a34a; } .csc.cancel, .csc.missed { border-left-color: #94a3b8; }
 .csc-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.csc-av { width: 44px; height: 44px; border-radius: 13px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; font-size: 16px; flex-shrink: 0; overflow: hidden; }
+.csc-av { width: 44px; height: 44px; border-radius: 13px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; font-weight: 800; font-size: 16px; flex-shrink: 0; overflow: hidden; }
 .csc-av img { width: 100%; height: 100%; object-fit: cover; }
 .csc-who { flex: 1; min-width: 0; }
 .csc-who b { display: block; font-size: 15.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .csc-who span { display: block; font-size: 12.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .csc-st { font-size: 11px; font-weight: 800; border-radius: 999px; padding: 3px 10px; white-space: nowrap; flex-shrink: 0; }
-.csc-st.new { background: #e0f2fe; color: #0369a1; } .csc-st.live { background: #fef3c7; color: #b45309; } .csc-st.done { background: #e7f6ec; color: #166534; }
+.csc-st.new { background: #e0f2fe; color: #0369a1; } .csc-st.live { background: #fef3c7; color: #b45309; } .csc-st.done { background: #e7f6ec; color: #14532d; }
 .csc-st.cancel { background: #fee2e2; color: #b91c1c; } .csc-st.missed { background: #f1f5f9; color: #475569; }
 .csc-when { display: flex; flex-direction: column; gap: 3px; background: #f6f8f7; border-radius: 12px; padding: 10px 12px; }
 .csc-when b { font-size: 14.5px; font-weight: 800; }
 .csc-when span { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: #475569; }
-.csc-when svg { font-size: 16px; color: #166534; }
+.csc-when svg { font-size: 16px; color: #14532d; }
 .csc-local { font-style: normal; font-size: 12.5px; font-weight: 700; color: #0369a1; }
 .csc-place { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: #fffaf0; border: 1px solid #f3e2a4; }
 .csc-place > svg { font-size: 20px; color: #b7791f; flex-shrink: 0; }
@@ -200,9 +200,9 @@ export const CSC_CSS = `
 .csc-steps li.done::before, .csc-steps li.now::before { background: #16a34a; }
 .csc-steps .dot { position: relative; z-index: 1; width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #cbd5e1; color: #94a3b8; font-size: 11px; font-weight: 800; display: grid; place-items: center; }
 .csc-steps li.done .dot { background: #16a34a; border-color: #16a34a; color: #fff; }
-.csc-steps li.now .dot { border-color: #16a34a; color: #166534; box-shadow: 0 0 0 4px rgba(22,163,74,.15); }
+.csc-steps li.now .dot { border-color: #16a34a; color: #14532d; box-shadow: 0 0 0 4px rgba(22,163,74,.15); }
 .csc-steps .lbl { font-size: 10.5px; font-weight: 700; color: #94a3b8; line-height: 1.2; }
-.csc-steps li.done .lbl { color: #166534; } .csc-steps li.now .lbl { color: #0f172a; }
+.csc-steps li.done .lbl { color: #14532d; } .csc-steps li.now .lbl { color: #0f172a; }
 .csc-hint { margin: 0; font-size: 13px; color: #334155; line-height: 1.5; }
 .csc-acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .csc-acts:empty { display: none; }
@@ -211,7 +211,7 @@ export const CSC_CSS = `
 .csc-btn svg { font-size: 18px; }
 .csc-btn.primary { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; flex: 1; min-width: 140px; }
 .csc-btn.wait { background: #f1f5f9; color: #475569; flex: 1; min-width: 140px; cursor: default; }
-.csc-btn.soft { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.csc-btn.soft { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .csc-btn.ghost { background: #fff; color: #475569 !important; border-color: #e2e8f0; }
 .csc.compact .csc-when { padding: 8px 10px; }
 @media (max-width: 480px) {

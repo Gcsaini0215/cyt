@@ -146,7 +146,7 @@ export const KPI_CSS = `
 .ck-scr-h > div { flex: 1; min-width: 0; }
 .ck-scr-h b { display: block; font-size: 17px; font-weight: 800; color: #0f172a; }
 .ck-scr-h > div > span { display: block; font-size: 12.5px; color: #64748b; margin-top: 1px; }
-.ck-scr-all { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px; background: #eef7f1; color: #166534 !important; font-size: 13px; font-weight: 800; text-decoration: none !important; }
+.ck-scr-all { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 8px 12px; border-radius: 999px; background: #eef7f1; color: #14532d !important; font-size: 13px; font-weight: 800; text-decoration: none !important; }
 .ck-scr-all svg { font-size: 16px; }
 .ck-scr-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
 .ck-sc { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; padding: 14px; border-radius: 16px; background: var(--sc-bg); border: 1px solid var(--sc-line);
@@ -199,11 +199,11 @@ a.ck:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px rgba(15,
 @keyframes ckSk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
 .ck-act { position: relative; }
 .ck-empty { margin: 0 0 10px; padding: 10px 12px; border-radius: 12px; background: #f3faf5; color: #334155; font-size: 13px; font-weight: 600; }
-.ck-empty a { color: #166534 !important; font-weight: 800; text-decoration: none !important; }
+.ck-empty a { color: #14532d !important; font-weight: 800; text-decoration: none !important; }
 
 .ck-card { background: #fff; border: 1px solid #e6ece8; border-radius: 18px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 10px 24px -20px rgba(15,23,42,.35); }
 .ck-h { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.ck-h-ic { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: #e7f6ec; color: #166534; flex: none; }
+.ck-h-ic { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: #e7f6ec; color: #14532d; flex: none; }
 .ck-h-ic svg { font-size: 20px; }
 .ck-h b { display: block; font-size: 15.5px; font-weight: 800; color: #0f172a; }
 .ck-h > div > span { display: block; font-size: 12.5px; color: #64748b; }
@@ -215,7 +215,7 @@ a.ck:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -18px rgba(15,
 .ck-col i.dn, .ck-legend i.dn { background: linear-gradient(180deg, #34c27a, #15803d); }
 .ck-col i.up, .ck-legend i.up { background: repeating-linear-gradient(135deg, #a7d8bc 0 5px, #c9ead6 5px 10px); }
 .ck-bar span { font-size: 12px; font-weight: 700; color: #64748b; }
-.ck-bar.now span { color: #166534; font-weight: 800; }
+.ck-bar.now span { color: #14532d; font-weight: 800; }
 .ck-legend { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; font-weight: 700; color: #64748b; }
 .ck-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .ck-legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }

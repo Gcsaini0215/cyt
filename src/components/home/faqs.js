@@ -6,7 +6,7 @@ export const faqCategories = [
   {
     icon: Brain,
     label: "About Therapy",
-    color: "#228756",
+    color: "#1e7a4c",
     bg: "#f0fdf4",
     faqs: [
       {
@@ -260,7 +260,7 @@ export default function Faqs() {
 const CSS = `
 .hfq { background: #fff; padding: 64px 0 72px; }
 .hfq-head { margin-bottom: 26px; max-width: 760px; }
-.hfq-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #d4a24c; margin-bottom: 12px; }
+.hfq-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #e3a83a; margin-bottom: 12px; }
 .hfq .hfq-title { font-size: clamp(24px, 3vw, 34px); font-weight: 800; color: #0b1712; margin: 0 0 6px; line-height: 1.2; }
 .hfq-title span { color: #a86e0e; }
 .hfq .hfq-sub { color: #64748b; font-size: 15px; line-height: 1.6; margin: 0; padding: 0; }

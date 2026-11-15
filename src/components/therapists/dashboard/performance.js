@@ -52,7 +52,7 @@ export default function DashboardSections({ pageData }) {
       {/* Compact Banner */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #1b5e20 0%, #228756 55%, #2ecc71 100%)",
+          background: "linear-gradient(135deg, #1b5e20 0%, #1e7a4c 55%, #2ecc71 100%)",
           borderRadius: "20px",
           p: { xs: "22px 20px", md: "26px 36px" },
           mb: 2.5,

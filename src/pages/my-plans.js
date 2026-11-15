@@ -188,10 +188,10 @@ const MP_CSS = `
 .mp-card.bad { background: linear-gradient(160deg, #fff5f5, #fff 60%); border-color: #fecaca; }
 .mp-card-h { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .mp-card-h h2 { flex: 1; min-width: 0; font-family: inherit; font-size: 15px; font-weight: 800; color: #0f172a; margin: 0; }
-.mp-ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: #e7f6ec; color: #166534; flex-shrink: 0; }
+.mp-ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: #e7f6ec; color: #14532d; flex-shrink: 0; }
 .mp-ic svg { font-size: 20px; }
 .mp-chip { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
-.mp-chip.ok { background: #dcfce7; color: #166534; } .mp-chip.soon { background: #fef3c7; color: #92400e; }
+.mp-chip.ok { background: #dcfce7; color: #14532d; } .mp-chip.soon { background: #fef3c7; color: #92400e; }
 .mp-chip.bad { background: #fee2e2; color: #991b1b; } .mp-chip.off { background: #f1f5f9; color: #475569; }
 .mp-body { display: flex; align-items: center; gap: 12px; flex: 1; }
 .mp-txt { min-width: 0; } .mp-txt b { display: block; font-size: 15px; font-weight: 800; color: #0f172a; } .mp-txt span { display: block; font-size: 12.5px; color: #64748b; margin-top: 2px; }
@@ -202,7 +202,7 @@ const MP_CSS = `
 .mp-inf { width: 54px; height: 54px; border-radius: 50%; flex-shrink: 0; display: grid; place-items: center; font-size: 28px; font-weight: 900; color: #a37a16; background: linear-gradient(145deg, #fff8e6, #fbefcc); box-shadow: inset 0 0 0 2px #ecd49a; }
 .mp-note { font-size: 12.5px; color: #64748b; margin: 12px 0 0; line-height: 1.45; }
 .mp-act { margin-top: 14px; }
-.mp-btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #166534; background: #fff; color: #166534 !important; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; transition: background .15s; }
+.mp-btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #14532d; background: #fff; color: #14532d !important; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none !important; transition: background .15s; }
 .mp-btn:hover { background: #ecfdf3; }
 .mp-btn.gold { border: 0; color: #fff !important; background: linear-gradient(135deg, #8a6312, #d4a12f); box-shadow: 0 6px 14px -8px rgba(176,134,30,.8); }
 .mp-btn.gold:hover { filter: brightness(1.07); }
@@ -212,7 +212,7 @@ const MP_CSS = `
 .mp-hist { list-style: none; margin: 0; padding: 0; }
 .mp-hist li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #eef2f0; margin: 0; }
 .mp-hist li:first-child { border-top: 0; padding-top: 2px; }
-.mp-hic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #e7f6ec; color: #166534; }
+.mp-hic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #e7f6ec; color: #14532d; }
 .mp-hic.coupons, .mp-hic.assessments { background: #fdf3d4; color: #a37a16; }
 .mp-hic svg { font-size: 19px; }
 .mp-hmain { flex: 1; min-width: 0; } .mp-hmain b { display: block; font-size: 14px; color: #0f172a; }

@@ -221,30 +221,30 @@ export default function MySchedule() {
       <style dangerouslySetInnerHTML={{ __html: `
         .ms-page { font-family: inherit; }
         .ms-title { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; color: #122019; margin: 0; }
-        .ms-title i { color: #1a6b3a; font-size: 22px; }
+        .ms-title i { color: #1e7a4c; font-size: 22px; }
         .ms-sub { font-size: 13.5px; color: #64748b; margin: 4px 0 18px; }
         .ms-groups { display: flex; align-items: flex-end; gap: 22px; border-bottom: 1px solid #e3e8e5; margin-bottom: 14px; overflow-x: auto; }
         .ms-group { display: inline-flex; align-items: center; gap: 8px; border: none; background: none; padding: 10px 2px; font-size: 14.5px; font-weight: 600; color: #8a978f; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
-        .ms-group.on { color: #1a6b3a; border-bottom-color: #1a6b3a; }
+        .ms-group.on { color: #1e7a4c; border-bottom-color: #1e7a4c; }
         .ms-group .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
         .ms-group-link { margin-left: auto; font-size: 13.5px; font-weight: 600; color: #8a978f; text-decoration: none; padding: 10px 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
-        .ms-group-link:hover { color: #1a6b3a; }
+        .ms-group-link:hover { color: #1e7a4c; }
         .ms-setup-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
         .ms-sum { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 1px solid #e3e8e5; border-radius: 14px; padding: 12px 14px; cursor: pointer; font-family: inherit; min-width: 0; }
         .ms-sum:hover { border-color: #bbf7d0; }
-        .ms-sum > i { width: 38px; height: 38px; border-radius: 11px; background: #ecfdf3; color: #166534; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
+        .ms-sum > i { width: 38px; height: 38px; border-radius: 11px; background: #ecfdf3; color: #14532d; display: grid; place-items: center; font-size: 17px; flex-shrink: 0; }
         .ms-sum > span { flex: 1; min-width: 0; }
         .ms-sum small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #8a978f; }
         .ms-sum b { display: block; font-size: 14.5px; color: #122019; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ms-sum em { font-style: normal; font-size: 12.5px; font-weight: 800; color: #166534; flex-shrink: 0; }
+        .ms-sum em { font-style: normal; font-size: 12.5px; font-weight: 800; color: #14532d; flex-shrink: 0; }
         .ms-sum.todo { background: #fffbeb; border-color: #fde68a; } .ms-sum.todo > i { background: #fef3c7; color: #b45309; } .ms-sum.todo em { color: #b45309; }
         .ms-tabs { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
         .ms-tab { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid #e3e8e5; background: #fff; font-size: 14px; font-weight: 700; color: #475569; cursor: pointer; white-space: nowrap; font-family: inherit; position: relative; }
-        .ms-tab.on { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+        .ms-tab.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
         .ms-tab .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
         .ms-subs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
         .ms-sub-tab { border: 1px solid #e3e8e5; background: #fff; border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 600; color: #334155; cursor: pointer; font-family: inherit; }
-        .ms-sub-tab.on { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+        .ms-sub-tab.on { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
         .ms-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
         .ms-card-s { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 16px; min-height: 88px; }
         .ms-card-s small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #8a978f; }
@@ -254,12 +254,12 @@ export default function MySchedule() {
         .ms-search { flex: 1 1 280px; max-width: 380px; position: relative; }
         .ms-search i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
         .ms-search input { width: 100%; height: 42px; border: 1px solid #e3e8e5; border-radius: 10px; padding: 0 12px 0 38px; font-size: 14px; background: #fff; outline: none; box-sizing: border-box; font-family: inherit; }
-        .ms-search input:focus { border-color: #1a6b3a; }
+        .ms-search input:focus { border-color: #1e7a4c; }
         .ms-seg { display: inline-flex; background: #eef1ef; border-radius: 10px; padding: 3px; }
         .ms-seg button { border: none; background: none; padding: 8px 14px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: #8a978f; cursor: pointer; font-family: inherit; }
-        .ms-seg button.on { background: #fff; color: #1a6b3a; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+        .ms-seg button.on { background: #fff; color: #1e7a4c; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
         .ms-btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #e3e8e5; background: #fff; border-radius: 10px; padding: 0 14px; height: 42px; font-size: 13.5px; font-weight: 600; color: #122019; cursor: pointer; font-family: inherit; }
-        .ms-btn.on { border-color: #1a6b3a; color: #1a6b3a; background: #f0fdf4; }
+        .ms-btn.on { border-color: #1e7a4c; color: #1e7a4c; background: #f0fdf4; }
         .ms-right { margin-left: auto; display: flex; gap: 8px; }
         .ms-grp-title { font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #8a978f; margin: 16px 0 8px; }
         .ms-list { display: flex; flex-direction: column; gap: 8px; }
@@ -284,7 +284,7 @@ export default function MySchedule() {
         .ms-count { border: 1px solid #e3e8e5; background: #fff; border-radius: 10px; padding: 8px 12px; font-size: 12.5px; color: #8a978f; }
         .ms-count b { font-size: 16px; margin-right: 5px; }
         .ms-free { display: flex; flex-wrap: wrap; gap: 6px; }
-        .ms-free span { font-size: 12.5px; font-weight: 700; color: #166534; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 5px 10px; border-radius: 999px; }
+        .ms-free span { font-size: 12.5px; font-weight: 700; color: #14532d; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 5px 10px; border-radius: 999px; }
         .ms-box { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 16px; margin-top: 14px; }
         .ms-box h3 { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #8a978f; margin: 0 0 10px; }
         .ms-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #475569; margin-left: auto; }
@@ -292,12 +292,12 @@ export default function MySchedule() {
         .ms-grid-wrap { overflow-x: auto; border: 1px solid #e3e8e5; border-radius: 12px; background: #fff; }
         .ms-grid { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 720px; }
         .ms-grid th { background: #f7f9f8; font-size: 12.5px; font-weight: 700; color: #122019; padding: 10px 6px; border-bottom: 1px solid #e3e8e5; text-align: center; }
-        .ms-grid th.today { background: #1a6b3a; color: #fff; }
+        .ms-grid th.today { background: #1e7a4c; color: #fff; }
         .ms-grid td { padding: 3px; border-bottom: 1px solid #f1f5f3; }
         .ms-grid td.t { font-size: 12px; font-weight: 700; color: #64748b; white-space: nowrap; padding: 0 10px; width: 80px; }
         .ms-c { height: 38px; border-radius: 8px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .ms-c.free { background: #f0fdf4; color: #16a34a; border: 1px dashed #86efac; }
-        .ms-c.booked { background: #1a6b3a; color: #fff; cursor: pointer; }
+        .ms-c.booked { background: #1e7a4c; color: #fff; cursor: pointer; }
         .ms-c.past { background: #f8fafc; color: #cbd5e1; }
         .ms-c.off { background: repeating-linear-gradient(45deg, #fafafa, #fafafa 6px, #f3f4f6 6px, #f3f4f6 12px); }
         .ms-panel { background: #fff; border: 1px solid #e3e8e5; border-radius: 12px; padding: 18px; }
@@ -313,7 +313,7 @@ export default function MySchedule() {
         .ms-kv span { color: #8a978f; font-weight: 600; }
         .ms-actions { display: flex; gap: 8px; }
         .ms-actions a, .ms-actions button { flex: 1; text-align: center; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; font-family: inherit; }
-        .ms-actions a { background: #1a6b3a; color: #fff !important; border: none; }
+        .ms-actions a { background: #1e7a4c; color: #fff !important; border: none; }
         .ms-actions button { background: #fff; border: 1px solid #e3e8e5; color: #334155; }
         @media (max-width: 640px) {
           .ms-right { margin-left: 0; width: 100%; }
@@ -424,7 +424,7 @@ export default function MySchedule() {
               </div>
               <span className="ms-daylabel">{days[0].getDate()} {MONS[days[0].getMonth()]} – {days[6].getDate()} {MONS[days[6].getMonth()]}</span>
               <div className="ms-legend">
-                <span><i style={{ background: "#1a6b3a" }} />Booked</span>
+                <span><i style={{ background: "#1e7a4c" }} />Booked</span>
                 <span><i style={{ background: "#f0fdf4", border: "1px dashed #86efac" }} />Free</span>
                 <span><i style={{ background: "#f3f4f6" }} />Not working</span>
               </div>

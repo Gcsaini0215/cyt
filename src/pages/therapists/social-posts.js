@@ -24,7 +24,7 @@ const THEMES = [
   { k: "sunset", label: "Sunset", c: "linear-gradient(135deg, #ffd89a, #ec5b3f 55%, #b8320f)" },
   { k: "rose", label: "Rose", c: "linear-gradient(135deg, #ffd3de, #c53d6c 55%, #7a1f45)" },
   { k: "teal", label: "Teal", c: "linear-gradient(135deg, #9be8dc, #0b7a73 55%, #043f3c)" },
-  { k: "midnight", label: "Midnight", c: "linear-gradient(135deg, #d4a24c, #26335e 40%, #070b18)" },
+  { k: "midnight", label: "Midnight", c: "linear-gradient(135deg, #e3a83a, #26335e 40%, #070b18)" },
 ];
 const GENERAL = [
   "Asking for help is not weakness. It's one of the bravest things you can do for yourself.",
@@ -228,7 +228,7 @@ const SP_CSS = `
 .spp-card h2 { font-size: 14px; font-weight: 800; color: var(--ink); margin: 0 0 10px; }
 .spp-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
 .spp-row h2 { margin: 0; }
-.spp-idea { display: inline-flex; align-items: center; gap: 5px; border: 0; background: #f0faf3; color: #166534; font-weight: 800; font-size: 13px; padding: 7px 12px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+.spp-idea { display: inline-flex; align-items: center; gap: 5px; border: 0; background: #f0faf3; color: #14532d; font-weight: 800; font-size: 13px; padding: 7px 12px; border-radius: 999px; cursor: pointer; font-family: inherit; }
 .spp-idea svg { font-size: 17px; }
 .spp-card textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.55; font-family: inherit; resize: vertical; color: var(--ink); height: auto; }
 .spp-card textarea:focus { outline: none; border-color: #1e7a4c; }
@@ -241,7 +241,7 @@ const SP_CSS = `
 .spp-th small { font-size: 12px; font-weight: 700; color: var(--mut); }
 .spp-th:hover .spp-sw { transform: translateY(-2px); }
 .spp-th.on .spp-sw { box-shadow: 0 0 0 3px #fff, 0 0 0 5.5px #1e7a4c, 0 8px 16px -8px rgba(15,23,42,.55); }
-.spp-th.on small { color: #166534; font-weight: 800; }
+.spp-th.on small { color: #14532d; font-weight: 800; }
 .spp-preview { display: flex; flex-direction: column; align-items: center; gap: 12px; position: sticky; top: 76px; }
 .spp-frame { position: relative; width: 100%; max-width: 440px; border-radius: 16px; overflow: hidden; background: #eef3ef; box-shadow: 0 16px 36px -22px rgba(15,23,42,.45); }
 .spp-frame.post { aspect-ratio: 1 / 1; }
@@ -254,7 +254,7 @@ const SP_CSS = `
 .spp-b { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 16px; border-radius: 12px; font-size: 14px; font-weight: 800; border: 0; cursor: pointer; font-family: inherit; }
 .spp-b svg { font-size: 18px; }
 .spp-b.gold { background: linear-gradient(180deg, #f6d27a, #e3a83a); color: #1f2a14; }
-.spp-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #166534; }
+.spp-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #14532d; }
 .spp-b:disabled { opacity: .6; cursor: default; }
 .spp-note { margin: 0; font-size: 12.5px; color: var(--mut); text-align: center; max-width: 440px; }
 @media (max-width: 1023px) {

@@ -185,7 +185,7 @@ const CSS = `
 .aq-b { display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 20px; border-radius: 12px; font-size: 15px; font-weight: 800; border: 0; cursor: pointer; font-family: inherit; text-decoration: none !important; }
 .aq-b.main { background: linear-gradient(180deg, #1f7a4a, #14532d); color: #fff !important; }
 .aq-form > .aq-b.main { width: 100%; margin-top: 16px; }
-.aq-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #166534 !important; }
+.aq-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #14532d !important; }
 .aq-b.sm { height: 38px; font-size: 13.5px; padding: 0 14px; }
 .aq-b:disabled { opacity: .65; }
 .aq-done { padding: 6px 2px; }
@@ -204,7 +204,7 @@ const CSS = `
 .aq-q-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
 .aq-tag { font-size: 12px; font-weight: 700; color: var(--g); background: #ecfdf3; padding: 3px 9px; border-radius: 999px; }
 .aq-status { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
-.aq-status.ok { color: #166534; background: #dcfce7; }
+.aq-status.ok { color: #14532d; background: #dcfce7; }
 .aq-status.wait { color: #8a5a06; background: #fdf3dc; }
 .aq-date { margin-left: auto; font-size: 12px; color: #94a3b8; }
 .aq-q-body { margin: 0; font-size: 15px; line-height: 1.6; color: #1f2937; white-space: pre-line; }

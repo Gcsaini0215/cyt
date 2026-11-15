@@ -211,14 +211,14 @@ const CSS = `
 .fs-track li { position: relative; display: flex; gap: 12px; padding-bottom: 18px; }
 .fs-track li:last-child { padding-bottom: 0; }
 .fs-track li:not(:last-child)::before { content: ""; position: absolute; left: 14px; top: 30px; bottom: 0; width: 2px; background: #e2e8f0; }
-.fs-track li.done:not(:last-child)::before { background: #166534; }
+.fs-track li.done:not(:last-child)::before { background: #14532d; }
 .fs-track i { flex: none; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #f1f5f9; color: #64748b; font-style: normal; font-size: 14px; font-weight: 800; }
-.fs-track .done i, .fs-track .now i { background: #166534; color: #fff; }
+.fs-track .done i, .fs-track .now i { background: #14532d; color: #fff; }
 .fs-track .now i { box-shadow: 0 0 0 4px #dcfce7; }
 .fs-track b { display: block; font-size: 14.5px; line-height: 1.35; color: #0f172a; }
 .fs-track .next b { color: #475569; }
 .fs-track span { display: block; margin-top: 2px; font-size: 13.5px; line-height: 1.45; color: #64748b; }
-.fs-track-in > a { font-size: 14px; font-weight: 700; color: #166534; text-decoration: underline; }
+.fs-track-in > a { font-size: 14px; font-weight: 700; color: #14532d; text-decoration: underline; }
 .fs-track em, .fs-track-now { display: none; }
 /* desktop: both columns run the full width and end level with each other */
 @media (min-width: 1200px) {
@@ -250,7 +250,7 @@ const CSS = `
 .fs-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 18px; margin-bottom: 14px; }
 .ch-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
 .ch-card h3 { font-size: 16px; font-weight: 800; margin: 0 0 6px; color: #0f172a; font-family: inherit; }
-.ch-req b { display: block; font-size: 14px; color: #166534; } .ch-req span { font-size: 14px; color: #475569; }
+.ch-req b { display: block; font-size: 14px; color: #14532d; } .ch-req span { font-size: 14px; color: #475569; }
 .fs-card h2 { margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #0f172a; font-family: inherit; }
 .fs-note { margin: 0 0 12px; font-size: 14px; color: #64748b; }
 .fs-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
@@ -262,13 +262,13 @@ const CSS = `
 .fs-terms { margin: 16px 0 12px; padding: 14px 16px; border-radius: 12px; background: #f6faf7; border: 1px solid #e0ece4; }
 .fs-terms h3 { margin: 0 0 6px; font-size: 14.5px; font-weight: 800; color: #14532d; font-family: inherit; }
 .fs-terms ul { margin: 0 0 8px; padding-left: 18px; font-size: 14px; color: #475569; line-height: 1.6; }
-.fs-terms a { font-size: 14px; font-weight: 800; color: #166534; text-decoration: underline; }
+.fs-terms a { font-size: 14px; font-weight: 800; color: #14532d; text-decoration: underline; }
 .fs-card label.fs-check { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; line-height: 1.5; cursor: pointer; }
-.fs-check input { position: static !important; opacity: 1 !important; display: block !important; appearance: auto !important; width: 18px !important; height: 18px !important; margin: 2px 0 0 !important; flex: none; accent-color: #166534; }
-.fs-check a { color: #166534; font-weight: 800; text-decoration: underline; }
+.fs-check input { position: static !important; opacity: 1 !important; display: block !important; appearance: auto !important; width: 18px !important; height: 18px !important; margin: 2px 0 0 !important; flex: none; accent-color: #14532d; }
+.fs-check a { color: #14532d; font-weight: 800; text-decoration: underline; }
 .fs-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-.fs-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border: 1px solid #166534; border-radius: 10px; background: #166534; color: #fff !important; font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
-.fs-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.fs-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border: 1px solid #14532d; border-radius: 10px; background: #14532d; color: #fff !important; font: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
+.fs-btn.ghost { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .fs-btn:disabled { background: #cbd5e1; border-color: #cbd5e1; color: #64748b !important; cursor: not-allowed; }
 .fs-err { color: #b91c1c; font-size: 14px; font-weight: 700; }
 .fs dl { margin: 8px 0 14px; } .fs dt { font-size: 12.5px; font-weight: 700; color: #64748b; margin-top: 8px; } .fs dd { margin: 1px 0 0; font-size: 14.5px; color: #0f172a; overflow-wrap: anywhere; white-space: pre-wrap; }

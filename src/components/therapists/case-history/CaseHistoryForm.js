@@ -185,7 +185,7 @@ export default function CaseHistoryForm() {
     <Box sx={{ mb: 3, mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <Box>
         <Typography variant="h4" sx={{ fontWeight: 800, color: '#1a4d33', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ width: 8, height: 40, bgcolor: '#228756', borderRadius: 1 }} />
+          <Box sx={{ width: 8, height: 40, bgcolor: '#1e7a4c', borderRadius: 1 }} />
           {title}
         </Typography>
         {subtitle && <Typography variant="h6" color="text.secondary" sx={{ mt: 0.5, fontWeight: 500 }}>{subtitle}</Typography>}
@@ -195,13 +195,13 @@ export default function CaseHistoryForm() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 2, py: 1, borderRadius: '12px' }}>
           {savingStatus === "saving" || savingStatus === "autosaving" ? (
             <>
-              <CircularProgress size={14} sx={{ color: '#228756' }} />
+              <CircularProgress size={14} sx={{ color: '#1e7a4c' }} />
               <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }}>Saving...</Typography>
             </>
           ) : savingStatus === "saved" ? (
             <>
-              <CheckCircleIcon sx={{ fontSize: 14, color: '#228756' }} />
-              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#228756' }}>Saved</Typography>
+              <CheckCircleIcon sx={{ fontSize: 14, color: '#1e7a4c' }} />
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#1e7a4c' }}>Saved</Typography>
             </>
           ) : null}
         </Box>
@@ -234,11 +234,11 @@ export default function CaseHistoryForm() {
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#1a4d33', mb: 1 }}>CLINICAL CASE SUMMARY</Typography>
           <Typography variant="body2" color="text.secondary">Detailed Intake & Mental Status Record</Typography>
-          <Divider sx={{ mt: 2, bgcolor: '#228756', height: 2 }} />
+          <Divider sx={{ mt: 2, bgcolor: '#1e7a4c', height: 2 }} />
         </Box>
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ color: '#228756', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>1. Personal Identification</Typography>
+          <Typography variant="h6" sx={{ color: '#1e7a4c', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>1. Personal Identification</Typography>
           <Grid container spacing={1}>
             <Grid item xs={12} md={6}><SummaryRow label="Patient Name" value={data.clientName} /></Grid>
             <Grid item xs={12} md={6}><SummaryRow label="Age / Gender" value={`${data.age} / ${data.gender}`} /></Grid>
@@ -254,7 +254,7 @@ export default function CaseHistoryForm() {
         </Box>
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ color: '#228756', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>2. Clinical History</Typography>
+          <Typography variant="h6" sx={{ color: '#1e7a4c', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>2. Clinical History</Typography>
           <Box sx={{ mb: 3, p: 2, bgcolor: '#f8fafc', borderRadius: '8px' }}>
             <Typography sx={{ fontWeight: 700, color: '#64748b', mb: 1, fontSize: '13px' }}>PRESENTING COMPLAINTS:</Typography>
             <Typography sx={{ color: '#1e293b', lineHeight: 1.6 }}>{data.presentingComplaints || 'None reported'}</Typography>
@@ -266,7 +266,7 @@ export default function CaseHistoryForm() {
         </Box>
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ color: '#228756', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>3. Mental Status Examination (MSE)</Typography>
+          <Typography variant="h6" sx={{ color: '#1e7a4c', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>3. Mental Status Examination (MSE)</Typography>
           <Grid container spacing={2}>
             {MSE_FIELDS.map(field => (
               <Grid item xs={12} md={6} key={field.id}>
@@ -280,7 +280,7 @@ export default function CaseHistoryForm() {
         </Box>
 
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" sx={{ color: '#228756', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>4. Case Conceptualization</Typography>
+          <Typography variant="h6" sx={{ color: '#1e7a4c', fontWeight: 700, mb: 2, textTransform: 'uppercase', fontSize: '16px' }}>4. Case Conceptualization</Typography>
           <Box sx={{ p: 2.5, bgcolor: '#f0f9ff', borderRadius: '12px', border: '1px solid #e0f2fe' }}>
             <Typography sx={{ color: '#0369a1', fontWeight: 500, lineHeight: 1.8, fontStyle: 'italic' }}>
               {data.caseConceptualization || 'No narrative conceptualization provided.'}
@@ -322,8 +322,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -340,8 +340,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -357,8 +357,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -377,8 +377,8 @@ export default function CaseHistoryForm() {
                         px: 2,
                         cursor: 'pointer',
                         bgcolor: formData.gender === opt ? '#eefdf5' : '#fff',
-                        color: formData.gender === opt ? '#228756' : '#64748b',
-                        border: `1px solid ${formData.gender === opt ? '#228756' : '#f1f5f9'}`,
+                        color: formData.gender === opt ? '#1e7a4c' : '#64748b',
+                        border: `1px solid ${formData.gender === opt ? '#1e7a4c' : '#f1f5f9'}`,
                         fontWeight: formData.gender === opt ? 700 : 500,
                         transition: 'all 0.2s',
                         borderRadius: '8px',
@@ -402,8 +402,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -419,8 +419,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -439,8 +439,8 @@ export default function CaseHistoryForm() {
                         px: 2,
                         cursor: 'pointer',
                         bgcolor: formData.maritalStatus === opt ? '#eefdf5' : '#fff',
-                        color: formData.maritalStatus === opt ? '#228756' : '#64748b',
-                        border: `1px solid ${formData.maritalStatus === opt ? '#228756' : '#f1f5f9'}`,
+                        color: formData.maritalStatus === opt ? '#1e7a4c' : '#64748b',
+                        border: `1px solid ${formData.maritalStatus === opt ? '#1e7a4c' : '#f1f5f9'}`,
                         fontWeight: formData.maritalStatus === opt ? 700 : 500,
                         transition: 'all 0.2s',
                         borderRadius: '8px',
@@ -464,8 +464,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -481,8 +481,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -498,8 +498,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -516,8 +516,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -533,8 +533,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -557,8 +557,8 @@ export default function CaseHistoryForm() {
                       borderRadius: '8px', 
                       fontSize: '14px',
                       bgcolor: formData.presentingComplaints.includes(tag) ? '#eefdf5' : '#f8fafc',
-                      color: formData.presentingComplaints.includes(tag) ? '#228756' : '#64748b',
-                      border: `1px solid ${formData.presentingComplaints.includes(tag) ? '#228756' : '#f1f5f9'}`,
+                      color: formData.presentingComplaints.includes(tag) ? '#1e7a4c' : '#64748b',
+                      border: `1px solid ${formData.presentingComplaints.includes(tag) ? '#1e7a4c' : '#f1f5f9'}`,
                       '&:hover': { bgcolor: '#f1f5f9' }
                     }}
                   />
@@ -577,8 +577,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -594,8 +594,8 @@ export default function CaseHistoryForm() {
                       borderRadius: '8px', 
                       fontSize: '14px',
                       bgcolor: formData.medicalHistory.includes(tag) ? '#eefdf5' : '#f8fafc',
-                      color: formData.medicalHistory.includes(tag) ? '#228756' : '#64748b',
-                      border: `1px solid ${formData.medicalHistory.includes(tag) ? '#228756' : '#f1f5f9'}`,
+                      color: formData.medicalHistory.includes(tag) ? '#1e7a4c' : '#64748b',
+                      border: `1px solid ${formData.medicalHistory.includes(tag) ? '#1e7a4c' : '#f1f5f9'}`,
                       '&:hover': { bgcolor: '#f1f5f9' }
                     }}
                   />
@@ -614,8 +614,8 @@ export default function CaseHistoryForm() {
                 inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                 sx={{
                   '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                  '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                  '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                  '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                 }}
               />
             </Grid>
@@ -650,8 +650,8 @@ export default function CaseHistoryForm() {
                         borderRadius: '8px', 
                         fontSize: '14px',
                         bgcolor: formData.mse[mseField.id].includes(tag) ? '#eefdf5' : '#fff',
-                        color: formData.mse[mseField.id].includes(tag) ? '#228756' : '#64748b',
-                        border: `1px solid ${formData.mse[mseField.id].includes(tag) ? '#228756' : '#f1f5f9'}`,
+                        color: formData.mse[mseField.id].includes(tag) ? '#1e7a4c' : '#64748b',
+                        border: `1px solid ${formData.mse[mseField.id].includes(tag) ? '#1e7a4c' : '#f1f5f9'}`,
                       }}
                     />
                   ))}
@@ -665,8 +665,8 @@ export default function CaseHistoryForm() {
                   inputProps={{ sx: { fontSize: '15px', py: 0.5, fontWeight: 500, color: '#1e293b' } }}
                   sx={{
                     '& .MuiInput-underline:before': { borderBottomColor: '#f1f5f9' },
-                    '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#228756' },
-                    '& .MuiInput-underline:after': { borderBottomColor: '#228756' },
+                    '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottomColor: '#1e7a4c' },
+                    '& .MuiInput-underline:after': { borderBottomColor: '#1e7a4c' },
                   }}
                 />
               </Grid>
@@ -694,8 +694,8 @@ export default function CaseHistoryForm() {
                   borderRadius: '16px',
                   bgcolor: '#fcfcfc',
                   '& fieldset': { borderColor: '#f1f5f9' },
-                  '&:hover fieldset': { borderColor: '#228756' },
-                  '&.Mui-focused fieldset': { borderColor: '#228756' },
+                  '&:hover fieldset': { borderColor: '#1e7a4c' },
+                  '&.Mui-focused fieldset': { borderColor: '#1e7a4c' },
                 } 
               }}
             />
@@ -736,7 +736,7 @@ export default function CaseHistoryForm() {
           disabled={savingStatus === "saving"}
           startIcon={savingStatus === "saving" ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
           sx={{
-            bgcolor: '#228756',
+            bgcolor: '#1e7a4c',
             color: '#fff',
             borderRadius: '12px',
             px: 6,
@@ -755,7 +755,7 @@ export default function CaseHistoryForm() {
         </Button>
         
         {savingStatus === "saved" && (
-          <Box sx={{ display: 'flex', alignItems: 'center', color: '#228756', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', color: '#1e7a4c', gap: 0.5 }}>
             <CheckCircleIcon sx={{ fontSize: 20 }} />
             <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>All changes saved</Typography>
           </Box>
@@ -775,7 +775,7 @@ export default function CaseHistoryForm() {
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
           <Typography variant="h6" sx={{ fontWeight: 800, color: '#1a4d33' }}>Case History Summary</Typography>
           <Box>
-            <IconButton onClick={() => window.print()} sx={{ color: '#228756', mr: 1 }}>
+            <IconButton onClick={() => window.print()} sx={{ color: '#1e7a4c', mr: 1 }}>
               <PrintIcon />
             </IconButton>
             <IconButton onClick={() => setShowSummary(false)} sx={{ color: '#64748b' }}>
@@ -798,7 +798,7 @@ export default function CaseHistoryForm() {
             onClick={() => window.print()}
             variant="contained"
             startIcon={<PrintIcon />}
-            sx={{ bgcolor: '#228756', borderRadius: '12px', px: 4, py: 1, fontWeight: 700, '&:hover': { bgcolor: '#1b6843' } }}
+            sx={{ bgcolor: '#1e7a4c', borderRadius: '12px', px: 4, py: 1, fontWeight: 700, '&:hover': { bgcolor: '#1b6843' } }}
           >
             Print Summary
           </Button>

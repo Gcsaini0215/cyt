@@ -190,7 +190,7 @@ const CSS = `
 .lc-head b { font-size:19px; font-weight:800; color:#0b1712; }
 .lc-status { display:inline-flex; align-items:center; gap:7px; padding:5px 11px; border-radius:999px; background:#f3f4f2; color:#5b6660; font-size:12.5px; font-weight:700; white-space:nowrap; }
 .lc-status i { width:8px; height:8px; border-radius:50%; background:#a3aca7; }
-.lc-status.on { background:#e7f6ec; color:#166534; }
+.lc-status.on { background:#e7f6ec; color:#14532d; }
 .lc-status.on i { background:#22c55e; animation:lcPulse 1.8s infinite; }
 .lc-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .lc-field { display:flex; flex-direction:column; gap:6px; min-width:0; }
@@ -204,7 +204,7 @@ const CSS = `
 .lc-q span { font-weight:500; color:#7c8b83; }
 .lc-topics { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px; }
 .lc-topics button { height:36px; padding:0 14px; border-radius:999px; border:1.5px solid #dbe5df; background:#fff; color:#334155; font-size:13.5px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all .15s ease; }
-.lc-topics button:hover { border-color:#1e7a4c; color:#166534; }
+.lc-topics button:hover { border-color:#1e7a4c; color:#14532d; }
 .lc-topics button.on { background:#1e7a4c; border-color:#1e7a4c; color:#fff; }
 .lc-agree { position:relative; overflow:hidden; display:flex; gap:10px; align-items:flex-start; font-size:12.5px; color:#64748b; line-height:1.5; margin:0 0 14px; cursor:pointer; }
 /* the theme hides native checkboxes (position:absolute, full width) for its own styling — that

@@ -223,7 +223,7 @@ const SAF_CSS = `
 .saf-opt.on .saf-dot { border-color: var(--c); background: var(--c); box-shadow: inset 0 0 0 4px #fff; }
 .saf-nav { display: flex; gap: 10px; margin-top: 20px; }
 .saf-btn { flex: 1; height: 48px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; border: 1.5px solid transparent; display: inline-flex; align-items: center; justify-content: center; text-decoration: none !important; }
-.saf-btn.ghost { background: #fff; border-color: #d5e3da; color: #166534 !important; }
+.saf-btn.ghost { background: #fff; border-color: #d5e3da; color: #14532d !important; }
 .saf-btn.solid { background: var(--c); color: #fff !important; }
 .saf-btn:disabled { opacity: .45; cursor: not-allowed; }
 .saf-miss { margin: 10px 0 0; font-size: 12.5px; color: #b45309; font-weight: 600; }
@@ -248,8 +248,8 @@ const SAF_CSS = `
 .sar-ref b { font-size: 13px; color: #0f172a; }
 .sar-ref p { margin: 4px 0 0; font-size: 12.5px; color: #475569; line-height: 1.55; }
 .sar-ref .sar-lic { color: #64748b; font-style: italic; }
-.sar-save { font-weight: 700; } .sar-ref .sar-save.ok { color: #166534; } .sar-ref .sar-save.err { color: #b91c1c; }
-.sar-save a, .sar-save button { color: #166534 !important; font-weight: 800; text-decoration: underline; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; }
+.sar-save { font-weight: 700; } .sar-ref .sar-save.ok { color: #14532d; } .sar-ref .sar-save.err { color: #b91c1c; }
+.sar-save a, .sar-save button { color: #14532d !important; font-weight: 800; text-decoration: underline; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; }
 .sar-note { margin: 4px 0 0; text-align: center; font-size: 12.5px; color: #64748b; }
 @media (max-width: 560px) {
   .saf { padding: 16px 0 32px; }

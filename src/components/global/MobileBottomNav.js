@@ -188,18 +188,18 @@ export default function MobileBottomNav() {
           }
 
           .mobile-bottom-nav li.active a {
-            color: #228756;
+            color: #1e7a4c;
             transform: translateY(-3px) scale(1.02);
           }
 
           .mobile-bottom-nav li.active a i {
-            color: #228756;
+            color: #1e7a4c;
             transform: scale(1.15) rotate(5deg);
             filter: drop-shadow(0 2px 4px rgba(34, 135, 86, 0.3));
           }
 
           .mobile-bottom-nav li a:hover {
-            color: #228756;
+            color: #1e7a4c;
             transform: translateY(-2px);
           }
 

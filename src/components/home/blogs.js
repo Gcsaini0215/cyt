@@ -89,7 +89,7 @@ export default function Blogs() {
 const CSS = `
 .hbl { background: #fbfaf6; padding: 64px 0; }
 .hbl-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
-.hbl-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #d4a24c; margin-bottom: 12px; }
+.hbl-bar { display: block; width: 42px; height: 4px; border-radius: 2px; background: #e3a83a; margin-bottom: 12px; }
 .hbl .hbl-title { font-size: clamp(24px, 3vw, 34px); font-weight: 800; color: #0b1712; margin: 0 0 6px; line-height: 1.2; }
 .hbl-title span { color: #a86e0e; }
 .hbl .hbl-sub { color: #64748b; font-size: 15px; line-height: 1.6; margin: 0; padding: 0; }

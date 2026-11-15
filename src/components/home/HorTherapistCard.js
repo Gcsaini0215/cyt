@@ -109,7 +109,7 @@ const HorTherapistCards = () => {
           }}>
             <div style={{ flex: 1 }}>
               <h2 style={{
-                background: 'linear-gradient(135deg, #228756 0%, #007f99 100%)',
+                background: 'linear-gradient(135deg, #1e7a4c 0%, #007f99 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -136,7 +136,7 @@ const HorTherapistCards = () => {
                 <Link
                   href="/view-all-therapist"
                   style={{
-                    background: 'linear-gradient(135deg, #228756 0%, #1a6b45 100%)',
+                    background: 'linear-gradient(135deg, #1e7a4c 0%, #1a6b45 100%)',
                     color: '#fff',
                     padding: '14px 28px',
                     borderRadius: '50px',
@@ -154,12 +154,12 @@ const HorTherapistCards = () => {
                     border: '1px solid rgba(255, 255, 255, 0.2)'
                   }}
                   onMouseOver={(e) => {
-                    e.target.style.background = 'linear-gradient(135deg, #1a6b45 0%, #228756 100%)';
+                    e.target.style.background = 'linear-gradient(135deg, #1a6b45 0%, #1e7a4c 100%)';
                     e.target.style.transform = 'translateY(-3px) scale(1.02)';
                     e.target.style.boxShadow = '0 8px 25px rgba(34, 135, 86, 0.4)';
                   }}
                   onMouseOut={(e) => {
-                    e.target.style.background = 'linear-gradient(135deg, #228756 0%, #1a6b45 100%)';
+                    e.target.style.background = 'linear-gradient(135deg, #1e7a4c 0%, #1a6b45 100%)';
                     e.target.style.transform = 'translateY(0) scale(1)';
                     e.target.style.boxShadow = '0 4px 15px rgba(34, 135, 86, 0.3)';
                   }}
@@ -229,7 +229,7 @@ const HorTherapistCards = () => {
             <Box
               component="button"
               sx={{
-                color: '#228756',
+                color: '#1e7a4c',
                 fontWeight: 500,
                 ml: 1,
                 border: 'none',

@@ -74,10 +74,10 @@ const PGR_CSS = `
 .pgr-info b { color: #0f172a; font-weight: 700; }
 .pgr-btns { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .pgr button { display: inline-flex; align-items: center; justify-content: center; gap: 2px; height: 36px; min-width: 36px; padding: 0 9px; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; color: #334155; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .12s, border-color .12s; }
-.pgr button:hover:not(:disabled) { background: #f0fdf4; border-color: #bbe5c8; color: #166534; }
+.pgr button:hover:not(:disabled) { background: #f0fdf4; border-color: #bbe5c8; color: #14532d; }
 .pgr button:disabled { opacity: .4; cursor: default; }
 .pgr button svg { font-size: 20px; }
-.pgr .pgr-num.on { background: #166534; border-color: #166534; color: #fff; }
+.pgr .pgr-num.on { background: #14532d; border-color: #14532d; color: #fff; }
 .pgr-gap { padding: 0 4px; color: #94a3b8; font-weight: 700; }
 .pgr-c { justify-content: center; gap: 10px; margin: 0; padding: 10px 12px; border-top: 1px solid #eef2f0; }
 .pgr-c span { font-size: 12.5px; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums; min-width: 44px; text-align: center; }

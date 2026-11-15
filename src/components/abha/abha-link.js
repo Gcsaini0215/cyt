@@ -298,7 +298,7 @@ const CSS = `
 /* the site theme (App.css) hides every checkbox (opacity 0, absolute) for its own label styling — undo that here */
 .ab .ab-consent input[type="checkbox"] { opacity: 1; position: static; -webkit-appearance: checkbox; appearance: auto; width: 20px; height: 20px; min-width: 20px; margin: 1px 0 0; padding: 0; accent-color: var(--g2); cursor: pointer; flex: none; }
 .ab-consent:has(input:checked) { border-color: #9fd3b4; background: #ecfdf3; }
-.ab-note { margin: 0 0 4px; font-size: 13.5px; color: #166534; background: #ecfdf3; border: 1px solid #c7ecd5; padding: 9px 12px; border-radius: 10px; }
+.ab-note { margin: 0 0 4px; font-size: 13.5px; color: #14532d; background: #ecfdf3; border: 1px solid #c7ecd5; padding: 9px 12px; border-radius: 10px; }
 .ab-otp { display: flex; gap: 8px; }
 .ab-otp input { width: 48px; height: 54px; text-align: center; font-size: 22px; font-weight: 800; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; color: var(--ink); }
 .ab-mob { display: flex; align-items: stretch; }
@@ -309,7 +309,7 @@ const CSS = `
 .ab-err { margin-top: 14px; font-size: 14px; color: #b42318; background: #fef3f2; border: 1px solid #fecdca; padding: 10px 12px; border-radius: 10px; }
 .ab-b { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 48px; padding: 0 20px; border-radius: 12px; font-size: 15px; font-weight: 800; border: 0; cursor: pointer; font-family: inherit; }
 .ab-b.main { width: 100%; margin-top: 18px; color: #fff; background: linear-gradient(180deg, #1f7a4a, #14532d); box-shadow: 0 10px 20px -12px rgba(20,83,45,.7); }
-.ab-b.ghost { background: #fff; border: 1.5px solid #cfe3d6; color: #166534; height: 42px; }
+.ab-b.ghost { background: #fff; border: 1.5px solid #cfe3d6; color: #14532d; height: 42px; }
 .ab-b.danger { background: #b42318; color: #fff; height: 42px; }
 .ab-b:disabled { opacity: .65; cursor: default; }
 .ab-done { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: start; }

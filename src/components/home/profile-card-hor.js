@@ -343,7 +343,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: bookmark ? "#228756" : "#94a3b8",
+                    color: bookmark ? "#1e7a4c" : "#94a3b8",
                     transition: "all 0.3s ease",
                     flexShrink: 0
                   }}
@@ -363,7 +363,7 @@ export default function ProfileCardHor({ pageData, favrioutes, showRecommended =
           <ul className="rbt-meta" style={{ marginTop: "6px", gap: "6px", display: "flex", flexWrap: "wrap", alignItems: "center", padding: 0, listStyle: "none" }}>
             {pageData.state && (
               <li style={{ display: "flex", alignItems: "center", gap: "3px", fontSize: "12px", color: "#64748b", fontWeight: "600" }}>
-                <LocationOnIcon sx={{ fontSize: 14, color: "#228756" }} /> {pageData.state}
+                <LocationOnIcon sx={{ fontSize: 14, color: "#1e7a4c" }} /> {pageData.state}
               </li>
             )}
             {pageData.language_spoken && (

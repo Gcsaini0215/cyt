@@ -37,7 +37,7 @@ export const CouponTicket = ({ c, compact = false, children }) => (
 
 export const COUPON_TICKET_CSS = `
 .cpt { display: flex; align-items: stretch; border-radius: 14px; overflow: hidden; background: #fff; border: 1.5px dashed #9fd5b3; min-width: 0; }
-.cpt-l { flex: 0 0 38%; background: linear-gradient(150deg, #166534, #0f3d24); color: #fff; padding: 14px 12px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+.cpt-l { flex: 0 0 38%; background: linear-gradient(150deg, #14532d, #0f3d24); color: #fff; padding: 14px 12px; display: flex; flex-direction: column; justify-content: center; position: relative; }
 .cpt-l::after { content: ""; position: absolute; right: -8px; top: 50%; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%; background: #fff; }
 .cpt-l b { font-size: 22px; font-weight: 800; letter-spacing: -.3px; line-height: 1.1; }
 .cpt-l small { font-size: 12px; opacity: .85; margin-top: 4px; line-height: 1.35; }

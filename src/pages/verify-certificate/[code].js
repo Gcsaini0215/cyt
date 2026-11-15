@@ -123,12 +123,12 @@ const VC_CSS = `
 .vc-form { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 .vc-form input { flex: 1 1 200px; min-width: 0; height: 48px; padding: 0 14px; border: 1.5px solid #cfe0d5; border-radius: 12px; font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
 .vc-form input:focus { outline: none; border-color: #16a34a; }
-.vc-form button { height: 48px; padding: 0 24px; border: 0; border-radius: 12px; background: #166534; color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; }
+.vc-form button { height: 48px; padding: 0 24px; border: 0; border-radius: 12px; background: #14532d; color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; }
 .vc-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 .vc-about { margin-top: 26px; color: #64748b; font-size: 13.5px; line-height: 1.6; }
 .vc-regs { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin: 12px 0; }
 .vc-regs img { height: 34px; width: auto; }
-.vc-help a { color: #166534; font-weight: 700; }
+.vc-help a { color: #14532d; font-weight: 700; }
 @media (max-width: 560px) {
   .vc { padding-top: 24px; }
   .vc-card { padding: 18px; }

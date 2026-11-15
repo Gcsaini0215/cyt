@@ -92,10 +92,10 @@ const IPS_CSS = `
 .ips-sub { margin: 0 0 14px; font-size: 13.5px; color: #475569; line-height: 1.55; }
 .ips-code { width: 100%; height: 56px; border: 1.5px solid #d5e3da; border-radius: 12px; text-align: center; font-size: 28px; font-weight: 800; letter-spacing: 12px; font-family: ui-monospace, monospace; color: #0f172a; }
 .ips-code:focus { outline: none; border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
-.ips-msg { margin: 10px 0 0; font-size: 13px; font-weight: 700; color: #166534; } .ips-msg.err { color: #b91c1c; }
+.ips-msg { margin: 10px 0 0; font-size: 13px; font-weight: 700; color: #14532d; } .ips-msg.err { color: #b91c1c; }
 .ips-go { margin-top: 14px; width: 100%; height: 48px; border-radius: 12px; border: 0; background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; font-weight: 800; font-size: 15px; cursor: pointer; font-family: inherit; }
 .ips-go:disabled { opacity: .55; cursor: not-allowed; }
-.ips-resend { margin-top: 8px; border: 0; background: none; color: #166534; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+.ips-resend { margin-top: 8px; border: 0; background: none; color: #14532d; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
 .ips-resend:disabled { color: #94a3b8; cursor: default; }
 @media (max-width: 560px) { .ips-wrap { place-items: end center; padding: 0; } .ips { width: 100%; border-radius: 22px 22px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); } }
 `;

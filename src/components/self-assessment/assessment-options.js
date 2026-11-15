@@ -198,18 +198,18 @@ const AOP_CSS = `
 .aop-skel { height: 110px; border-radius: 12px; background: #f1f5f4; margin-top: 12px; }
 .aop-list { display: flex; flex-direction: column; gap: 8px; }
 .aop-t { display: flex; align-items: center; gap: 10px; border: 1px solid #e3eae6; border-radius: 12px; padding: 10px; }
-.aop-av { width: 42px; height: 42px; border-radius: 12px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; overflow: hidden; flex-shrink: 0; }
+.aop-av { width: 42px; height: 42px; border-radius: 12px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; font-weight: 800; overflow: hidden; flex-shrink: 0; }
 .aop-av img { width: 100%; height: 100%; object-fit: cover; }
 .aop-who { flex: 1; min-width: 0; } .aop-who b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .aop-who span { display: block; font-size: 12px; color: #64748b; }
-.aop-btn { height: 36px; padding: 0 14px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #166534; color: #fff !important; text-decoration: none !important; border: 1.5px solid #166534; white-space: nowrap; }
-.aop-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.aop-btn { height: 36px; padding: 0 14px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #14532d; color: #fff !important; text-decoration: none !important; border: 1.5px solid #14532d; white-space: nowrap; }
+.aop-btn.ghost { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .aop-sum { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #f3faf5; border: 1px solid #d9eadf; border-radius: 14px; padding: 10px 12px; }
-.aop-stack { display: inline-flex; } .aop-stack span { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; background: #e7f6ec; color: #166534; font-weight: 800; font-size: 13px; display: grid; place-items: center; overflow: hidden; }
+.aop-stack { display: inline-flex; } .aop-stack span { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; margin-left: -8px; background: #e7f6ec; color: #14532d; font-weight: 800; font-size: 13px; display: grid; place-items: center; overflow: hidden; }
 .aop-stack span:first-child { margin-left: 0; } .aop-stack img { width: 100%; height: 100%; object-fit: cover; }
 .aop-sum-t { flex: 1 1 160px; font-size: 13.5px; color: #334155; } .aop-sum-t b { color: #14532d; }
 .aop-help { margin-top: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; }
-.aop-help b { font-size: 15px; color: #14532d; } .aop-help > span { font-size: 13.5px; color: #166534; line-height: 1.55; }
+.aop-help b { font-size: 15px; color: #14532d; } .aop-help > span { font-size: 13.5px; color: #14532d; line-height: 1.55; }
 .aop-help-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
 @media (max-width: 560px) {
   .aop { padding: 16px; border-radius: 16px; }
@@ -299,7 +299,7 @@ const APV_CSS = `
 .apv-card { background: #fff; border: 1px solid #e3eae6; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: box-shadow .2s, border-color .2s; }
 .apv-card:hover { border-color: #b9d7c4; box-shadow: 0 14px 30px -22px rgba(15,23,42,.45); }
 .apv-top { display: flex; gap: 10px; align-items: center; min-width: 0; }
-.apv-av { width: 54px; height: 54px; border-radius: 14px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; font-size: 20px; overflow: hidden; flex-shrink: 0; }
+.apv-av { width: 54px; height: 54px; border-radius: 14px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; font-weight: 800; font-size: 20px; overflow: hidden; flex-shrink: 0; }
 .apv-av img { width: 100%; height: 100%; object-fit: cover; }
 .apv-who { min-width: 0; } .apv-who b { display: block; font-size: 14.5px; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .apv-who span { display: block; font-size: 12px; color: #64748b; }
@@ -309,11 +309,11 @@ const APV_CSS = `
 .apv-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2f0; display: flex; flex-direction: column; gap: 8px; }
 .apv-fee { font-size: 12.5px; color: #64748b; } .apv-fee b { color: #0f172a; font-size: 14px; }
 .apv-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.apv-btn { height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #166534; color: #fff !important; text-decoration: none !important; border: 1.5px solid #166534; }
-.apv-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.apv-btn { height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #14532d; color: #fff !important; text-decoration: none !important; border: 1.5px solid #14532d; }
+.apv-btn.ghost { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .apv-none { font-size: 14px; color: #64748b; }
 .apv-more { text-align: center; margin-top: 14px; }
-.apv-more button { height: 42px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #cfe3d6; background: #fff; color: #166534; font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; }
+.apv-more button { height: 42px; padding: 0 20px; border-radius: 12px; border: 1.5px solid #cfe3d6; background: #fff; color: #14532d; font: inherit; font-weight: 800; font-size: 14px; cursor: pointer; }
 @media (max-width: 1100px) { .apv-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 800px) { .apv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .apv-tools, .apv-tools input { width: 100%; } }
 @media (max-width: 520px) { .apv-grid { grid-template-columns: 1fr; } }

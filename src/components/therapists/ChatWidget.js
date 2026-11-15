@@ -51,7 +51,7 @@ export default function ChatWidget() {
         .cw-fab {
           position: fixed; bottom: 20px; z-index: 1250;
           width: 52px; height: 52px; border-radius: 50%;
-          background: linear-gradient(135deg,#166534,#16a34a);
+          background: linear-gradient(135deg,#14532d,#16a34a);
           border: none; cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           font-size: 22px; color: #fff;
@@ -82,7 +82,7 @@ export default function ChatWidget() {
         }
         @keyframes cwPop { from { transform: translateY(12px) scale(.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
         .cw-panel-head {
-          background: linear-gradient(135deg,#0f3d24,#175c37); border-bottom: 3px solid #d4af37;
+          background: linear-gradient(135deg,#0f3d24,#175c37); border-bottom: 3px solid #e3a83a;
           padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
         }
         .cw-panel-head span { color: #fff; font-size: 13px; font-weight: 800; }

@@ -183,12 +183,12 @@ const PO_CSS = `
 .po-tbl td small { display: block; font-size: 12px; color: #64748b; margin-top: 2px; }
 .po-tbl .r { text-align: right; white-space: nowrap; }
 .po-tbl .mut { color: #94a3b8; }
-.po-tbl b.earn { color: #166534; font-size: 14.5px; }
+.po-tbl b.earn { color: #14532d; font-size: 14.5px; }
 .pt-chip.due { background: #fef3c7; color: #92400e; }
 .po-count { font-size: 12.5px; color: #64748b; padding-top: 10px; border-top: 1px solid #eef2f0; margin-top: 4px; }
 .po-acct { display: grid; gap: 10px; }
 .po-acct > div { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; background: #f6f8f7; }
-.po-acct svg { color: #166534; font-size: 22px; flex-shrink: 0; }
+.po-acct svg { color: #14532d; font-size: 22px; flex-shrink: 0; }
 .po-acct b { display: block; font-size: 13.5px; }
 .po-acct small { display: block; font-size: 12.5px; color: #64748b; font-variant-numeric: tabular-nums; }
 .po-missing { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px; }

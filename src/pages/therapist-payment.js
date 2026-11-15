@@ -9,7 +9,7 @@ import { apiUrl, checkTherapistStatusUrl, verifyTherapistSubscriptionUrl, create
 import { postData } from "../utils/actions";
 
 const G    = "#0f3d24";
-const GOLD = "#d4af37";
+const GOLD = "#e3a83a";
 const GRAD = `linear-gradient(135deg, ${G}, #175c37)`;
 
 const PLANS = [
@@ -365,9 +365,9 @@ export default function TherapistPayment() {
                 <div className="section-card" style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "space-between", flexWrap: "wrap" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <i className="feather-check-circle" style={{ fontSize: 18, color: "#166534" }}></i>
+                      <i className="feather-check-circle" style={{ fontSize: 18, color: "#14532d" }}></i>
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 800, color: "#166534", margin: "0 0 2px" }}>Your profile is live on Choose Your Therapist</p>
+                        <p style={{ fontSize: 14, fontWeight: 800, color: "#14532d", margin: "0 0 2px" }}>Your profile is live on Choose Your Therapist</p>
                         <p style={{ fontSize: 12.5, color: "#3f6212", margin: 0 }}>
                           {profile.subscription?.startedAt
                             ? <>Live since <strong>{fmtDate(profile.subscription.startedAt)}</strong>{profile.subscription.expiresAt ? <> — valid until <strong>{fmtDate(profile.subscription.expiresAt)}</strong></> : ""}.</>
@@ -377,7 +377,7 @@ export default function TherapistPayment() {
                     </div>
                     {!showUpgrade && (
                       <button type="button" onClick={() => setShowUpgrade(true)} style={{
-                        background: "none", border: "none", padding: 0, color: "#166534", fontSize: 13, fontWeight: 800,
+                        background: "none", border: "none", padding: 0, color: "#14532d", fontSize: 13, fontWeight: 800,
                         cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3, flexShrink: 0,
                       }}>
                         Upgrade Plan →
@@ -420,7 +420,7 @@ export default function TherapistPayment() {
                             )}
                             <p style={{ fontSize: 13, fontWeight: 700, color: "#64748b", margin: "6px 0 4px" }}>{plan.label}</p>
                             <p style={{ fontSize: 26, fontWeight: 900, color: G, margin: "0 0 4px" }}>{fmtINR(plan.amount)}</p>
-                            <p style={{ display: "inline-block", margin: "0 0 14px", padding: "2px 8px", borderRadius: 999, background: "#e8f5ee", color: "#166534", fontSize: 12, fontWeight: 800 }}>
+                            <p style={{ display: "inline-block", margin: "0 0 14px", padding: "2px 8px", borderRadius: 999, background: "#e8f5ee", color: "#14532d", fontSize: 12, fontWeight: 800 }}>
                               ≈ ₹{Math.round(plan.amount / ({ 1: 30, 6: 182, 12: 365 }[plan.months] || plan.months * 30))} / day
                             </p>
                             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>

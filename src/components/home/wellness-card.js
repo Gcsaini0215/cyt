@@ -44,7 +44,7 @@ export default function WellnessCard({ data }) {
         }
         .wc-price-badge {
           position:absolute; bottom:12px; right:12px;
-          background:rgba(255,255,255,.95); color:#228756;
+          background:rgba(255,255,255,.95); color:#1e7a4c;
           font-size:13px; font-weight:900;
           padding:4px 10px; border-radius:20px;
           box-shadow:0 2px 8px rgba(0,0,0,.15);
@@ -59,23 +59,23 @@ export default function WellnessCard({ data }) {
           display:-webkit-box; -webkit-line-clamp:2;
           -webkit-box-orient:vertical; overflow:hidden;
         }
-        .wc-card:hover .wc-title { color:#228756; }
+        .wc-card:hover .wc-title { color:#1e7a4c; }
         .wc-meta {
           display:flex; align-items:center; gap:6px;
           font-size:12px; color:#64748b; font-weight:600;
         }
-        .wc-meta i { color:#228756; font-size:12px; }
+        .wc-meta i { color:#1e7a4c; font-size:12px; }
         .wc-footer {
           display:flex; align-items:center;
           justify-content:space-between; margin-top:auto;
         }
         .wc-price-wrap {}
         .wc-price-label { font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
-        .wc-price { font-size:20px; font-weight:900; color:#228756; line-height:1; }
+        .wc-price { font-size:20px; font-weight:900; color:#1e7a4c; line-height:1; }
         .wc-mrp { font-size:12px; color:#cbd5e1; text-decoration:line-through; margin-left:4px; }
         .wc-cta {
           display:inline-flex; align-items:center; gap:5px;
-          background:linear-gradient(135deg,#228756,#1a6b44);
+          background:linear-gradient(135deg,#1e7a4c,#1a6b44);
           color:#fff; font-size:12.5px; font-weight:700;
           padding:8px 16px; border-radius:50px;
           text-decoration:none;

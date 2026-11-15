@@ -32,7 +32,7 @@ const missionStyles = `
 
 .mission-icon {
   background-color: #f0fdf4;
-  color: #228756;
+  color: #1e7a4c;
 }
 
 .vision-icon {
@@ -46,7 +46,7 @@ const missionStyles = `
 }
 
 .section-tag {
-  color: #228756;
+  color: #1e7a4c;
   font-weight: 800;
   letter-spacing: 1.5px;
   font-size: 12px;

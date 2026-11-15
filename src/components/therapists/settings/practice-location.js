@@ -75,8 +75,8 @@ export default function PracticeLocation() {
 .stg-ploc p { margin: 0; font-size: 12.5px; color: #475569; line-height: 1.55; }
 .stg-ploc-kind { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 8px; }
 .stg-ploc-kind label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1.5px solid #e4ece7; border-radius: 12px; cursor: pointer; background: #fff; }
-.stg-ploc-kind label.on { border-color: #166534; background: #f0faf3; }
-.stg-ploc-kind input { accent-color: #166534; width: 17px; height: 17px; margin: 2px 0 0; flex-shrink: 0; }
+.stg-ploc-kind label.on { border-color: #14532d; background: #f0faf3; }
+.stg-ploc-kind input { accent-color: #14532d; width: 17px; height: 17px; margin: 2px 0 0; flex-shrink: 0; }
 .stg-ploc-kind b { display: block; font-size: 13.5px; color: #0f172a; } .stg-ploc-kind small { display: block; font-size: 12px; color: #64748b; margin-top: 2px; line-height: 1.4; }
 .stg-ploc p.warn { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 10px; font-weight: 600; }
 .stg-ploc-acts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

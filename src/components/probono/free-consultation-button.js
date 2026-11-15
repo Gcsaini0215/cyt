@@ -141,7 +141,7 @@ export default function FreeConsultationButton() {
 }
 
 const CSS = `
-.fc-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 48px; padding: 0 26px; border: 1.5px solid #166534; border-radius: 12px; background: #166534; color: #fff !important; font: inherit; font-size: 15.5px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
+.fc-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: 48px; padding: 0 26px; border: 1.5px solid #14532d; border-radius: 12px; background: #14532d; color: #fff !important; font: inherit; font-size: 15.5px; font-weight: 800; cursor: pointer; text-decoration: none !important; }
 .fc-btn:hover { background: #14532d; }
 .fc-btn:disabled { background: #cbd5e1; border-color: #cbd5e1; color: #64748b !important; cursor: not-allowed; }
 .fc-wide { width: 100%; margin-top: 14px; }
@@ -152,7 +152,7 @@ const CSS = `
 .fc-pop > p { margin: 0 0 14px; font-size: 14.5px; line-height: 1.5; color: #475569; }
 .fc-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 6px; border-radius: 12px; background: #f1f5f9; }
 .fc-tabs button { min-height: 40px; border: 0; border-radius: 9px; background: none; font: inherit; font-size: 14.5px; font-weight: 700; color: #475569; cursor: pointer; }
-.fc-tabs button.on { background: #fff; color: #166534; box-shadow: 0 1px 3px rgba(15,23,42,.14); }
+.fc-tabs button.on { background: #fff; color: #14532d; box-shadow: 0 1px 3px rgba(15,23,42,.14); }
 .fc-pop label { display: block; margin: 12px 0 5px; font-size: 14px; font-weight: 700; color: #334155; }
 .fc-pop input:not([autocomplete=one-time-code]):not(.otp) { width: 100%; box-sizing: border-box; min-height: 46px; padding: 9px 12px; border: 1.5px solid #dbe5df; border-radius: 10px; background: #fff; font: inherit; font-size: 16px; color: #0f172a; outline: none; }
 .fc-pop form input:focus { border-color: #15803d; }
@@ -160,6 +160,6 @@ const CSS = `
 .fc-err { margin: 10px 0 0; font-size: 14px; font-weight: 700; color: #b91c1c; }
 .fc-note { margin: 8px 0 0; padding: 9px 12px; border-radius: 10px; background: #fffbeb; font-size: 14px; color: #78350f; }
 .fc-links { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
-.fc-links button { min-height: 40px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; color: #166534; cursor: pointer; }
+.fc-links button { min-height: 40px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; color: #14532d; cursor: pointer; }
 .fc-links button:disabled { color: #94a3b8; cursor: default; }
 `;

@@ -16,17 +16,17 @@ export default function ServiceQuality() {
 
         .sq-cols { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 56px); position: relative; margin-top: 48px; }
         .sq-cols::before { content: ""; position: absolute; top: 4px; bottom: 4px; left: 50%; width: 1px; background: rgba(255,255,255,.1); }
-        .sq-col h3 { font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #d4af37; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid rgba(212,175,55,.4); display: inline-block; }
+        .sq-col h3 { font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #e3a83a; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid rgba(212,175,55,.4); display: inline-block; }
         .sq-col p { font-size: 14.5px; line-height: 1.85; color: rgba(255,255,255,.62); margin: 0 0 16px; }
         .sq-col p:last-child { margin-bottom: 0; }
         .sq-col p strong { color: rgba(255,255,255,.85); font-weight: 700; }
         .sq-col p a { color: rgba(255,255,255,.88); text-decoration: underline; text-decoration-color: rgba(212,175,55,.55); text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
-        .sq-col p a:hover { color: #d4af37; text-decoration-color: #d4af37; }
+        .sq-col p a:hover { color: #e3a83a; text-decoration-color: #e3a83a; }
 
         .sq-reg { margin: 0 0 18px; border: 1px solid rgba(212,175,55,.3); border-radius: 12px; background: rgba(212,175,55,.06); overflow: hidden; }
         .sq-reg-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; }
         .sq-reg-row + .sq-reg-row { border-top: 1px solid rgba(212,175,55,.18); }
-        .sq-reg dt { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #d4af37; }
+        .sq-reg dt { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #e3a83a; }
         .sq-reg dt span { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: rgba(255,255,255,.5); }
         .sq-reg dd { margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; font-weight: 700; letter-spacing: .04em; color: #fff; white-space: nowrap; user-select: all; }
         @media (max-width: 400px) {

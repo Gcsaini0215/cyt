@@ -11,7 +11,7 @@ export const THEME_COLORS = {
   secondary: '#2ecc71',    // Accent green
   
   // Brand Colors  
-  therapistGreen: '#228756',  // Custom therapist green
+  therapistGreen: '#1e7a4c',  // Custom therapist green
   therapistGreenLight: '#e8f5e8',
   therapistGreenDark: '#1b6843',
   
@@ -47,10 +47,10 @@ export const THEME_COLORS = {
 };
 
 export const GRADIENTS = {
-  primary: 'linear-gradient(90deg, #228756, #56ab2f)',
+  primary: 'linear-gradient(90deg, #1e7a4c, #56ab2f)',
   secondary: 'linear-gradient(90deg, #004e92, #005bea)',
   therapist: 'linear-gradient(135deg, #36b477ff 0%, #35c06fff 50%, #2c7754ff 100%)',
-  green: 'linear-gradient(270deg, #59c82f 0%, #228756 100%)',
+  green: 'linear-gradient(270deg, #59c82f 0%, #1e7a4c 100%)',
 };
 
 export const SHADOWS = {

@@ -220,8 +220,8 @@ const ML_CSS = `
 .ml-b.sm { height: 36px; padding: 0 12px; font-size: 13px; border-radius: 10px; }
 .ml-b.gold { background: linear-gradient(180deg, #f6d27a, #e3a83a); color: #1f2a14 !important; }
 .ml-b.ghost { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff !important; }
-.ml-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #166534 !important; }
-.ml-b.line:hover { border-color: #166534; }
+.ml-b.line { background: #fff; border: 1.5px solid #cfe3d6; color: #14532d !important; }
+.ml-b.line:hover { border-color: #14532d; }
 .ml-b.wa { background: #25d366; color: #fff !important; }
 .ml-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; margin-bottom: 14px; }
 .ml-card { margin: 0; padding: 18px 20px; }

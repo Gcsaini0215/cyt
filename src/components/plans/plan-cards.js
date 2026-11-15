@@ -135,7 +135,7 @@ export default function PlansCards({ planType, setPlanType }) {
         <div className="container">
           <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{
-              bgcolor: '#228756',
+              bgcolor: '#1e7a4c',
               color: 'white',
               px: 3,
               py: 1.5,
@@ -169,7 +169,7 @@ export default function PlansCards({ planType, setPlanType }) {
                   padding: isMobile ? '8px 20px' : '10px 32px',
                   borderRadius: '50px',
                   border: 'none',
-                  backgroundColor: planType === "individual" ? '#228756' : 'transparent',
+                  backgroundColor: planType === "individual" ? '#1e7a4c' : 'transparent',
                   color: planType === "individual" ? 'white' : '#64748b',
                   fontWeight: 800,
                   fontSize: isMobile ? '13px' : '14px',
@@ -186,7 +186,7 @@ export default function PlansCards({ planType, setPlanType }) {
                   padding: isMobile ? '8px 20px' : '10px 32px',
                   borderRadius: '50px',
                   border: 'none',
-                  backgroundColor: planType === "couple" ? '#228756' : 'transparent',
+                  backgroundColor: planType === "couple" ? '#1e7a4c' : 'transparent',
                   color: planType === "couple" ? 'white' : '#64748b',
                   fontWeight: 800,
                   fontSize: isMobile ? '13px' : '14px',
@@ -215,7 +215,7 @@ export default function PlansCards({ planType, setPlanType }) {
                     position: 'relative',
                     cursor: 'pointer',
                     transition: 'all 0.25s ease',
-                    border: plan.popular ? '2px solid #228756' : '1px solid #eef1f4',
+                    border: plan.popular ? '2px solid #1e7a4c' : '1px solid #eef1f4',
                     boxShadow: plan.popular
                       ? '0 8px 20px rgba(34, 135, 86, 0.12)'
                       : '0 2px 10px rgba(15, 23, 42, 0.05)',
@@ -234,7 +234,7 @@ export default function PlansCards({ planType, setPlanType }) {
                       top: '8px',
                       left: '8px',
                       zIndex: 10,
-                      backgroundColor: '#228756',
+                      backgroundColor: '#1e7a4c',
                       color: 'white',
                       px: 1,
                       py: 0.3,
@@ -368,7 +368,7 @@ export default function PlansCards({ planType, setPlanType }) {
               {selectedPlan.popular && (
                 <Box sx={{
                   position: 'absolute', top: 12, left: 12,
-                  backgroundColor: '#228756', color: 'white',
+                  backgroundColor: '#1e7a4c', color: 'white',
                   px: 1.4, py: 0.4, borderRadius: '20px',
                   fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px'
                 }}>
@@ -416,7 +416,7 @@ export default function PlansCards({ planType, setPlanType }) {
                       flexShrink: 0,
                       mt: '2px'
                     }}>
-                      <i className="feather-check" style={{ color: '#228756', fontSize: '12px', fontWeight: 900 }}></i>
+                      <i className="feather-check" style={{ color: '#1e7a4c', fontSize: '12px', fontWeight: 900 }}></i>
                     </Box>
                     <Typography sx={{ fontSize: '14.5px', color: '#475569', lineHeight: 1.5, fontWeight: 500 }}>
                       {feature}
@@ -436,7 +436,7 @@ export default function PlansCards({ planType, setPlanType }) {
                   mt: 4,
                   py: 2,
                   borderRadius: '16px',
-                  backgroundColor: '#228756',
+                  backgroundColor: '#1e7a4c',
                   fontSize: '16px',
                   fontWeight: 800,
                   textTransform: 'none',
@@ -533,12 +533,12 @@ export default function PlansCards({ planType, setPlanType }) {
             gap: 2,
             mx: 'auto'
           }}>
-            <QrCodeScannerIcon sx={{ color: '#228756' }} />
+            <QrCodeScannerIcon sx={{ color: '#1e7a4c' }} />
             <Box sx={{ textAlign: 'left' }}>
-              <Typography sx={{ fontSize: '13px', color: '#228756', fontWeight: 800 }}>
+              <Typography sx={{ fontSize: '13px', color: '#1e7a4c', fontWeight: 800 }}>
                 Amount: ₹{selectedPlan?.price}
               </Typography>
-              <Typography sx={{ fontSize: '11px', color: '#228756', opacity: 0.8 }}>
+              <Typography sx={{ fontSize: '11px', color: '#1e7a4c', opacity: 0.8 }}>
                 VPA: chooseyourtherapist@okhdfcbank
               </Typography>
             </Box>

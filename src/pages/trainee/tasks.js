@@ -122,7 +122,7 @@ const CSS = `
 .tk-tag { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; display: inline-flex; align-items: center; gap: 5px; }
 .tk-tag.hi { background: #fef2f2; color: #b91c1c; }
 .tk-tag.lo { background: #f1f5f9; color: #64748b; }
-.tk-tag.due { background: #f0faf3; color: #166534; }
+.tk-tag.due { background: #f0faf3; color: #14532d; }
 .tk-tag.due.today { background: #fff7e6; color: #b45309; }
 .tk-tag.due.late { background: #fef2f2; color: #b91c1c; }
 .tk-from { font-size: 12px; color: #94a3b8; font-weight: 600; }
@@ -130,7 +130,7 @@ const CSS = `
 .tk-details { margin: 8px 0 0; font-size: 14px; color: #475569; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
 .tk-status { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid #eef2f0; }
 .tk-st { height: 34px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #e2e8e4; background: #fff; font: inherit; font-size: 13px; font-weight: 700; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-.tk-st:hover:not(:disabled) { border-color: #b7dcc4; color: #166534; }
+.tk-st:hover:not(:disabled) { border-color: #b7dcc4; color: #14532d; }
 .tk-st.on.todo { background: #f1f5f9; border-color: #cbd5e1; color: #334155; }
 .tk-st.on.doing { background: #fff7e6; border-color: #ecc77d; color: #8a5a0b; }
 .tk-st.on.done { background: #15803d; border-color: #15803d; color: #fff; }
@@ -142,7 +142,7 @@ const CSS = `
 .tk-reply textarea, .tk-reply input { width: 100%; box-sizing: border-box; border: 1.5px solid #dbe5df; border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 14px; outline: none; resize: vertical; }
 .tk-reply textarea:focus, .tk-reply input:focus { border-color: #15803d; box-shadow: 0 0 0 3px rgba(21,128,61,.12); }
 .tk-a { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
-.tk-ok { font-size: 13px; color: #166534; font-weight: 700; }
+.tk-ok { font-size: 13px; color: #14532d; font-weight: 700; }
 .tk-bad { font-size: 13px; color: #b91c1c; font-weight: 700; }
 @media (max-width: 640px) { .tk-more { margin-left: 0; width: 100%; justify-content: flex-start; padding-top: 4px; } .tk-st { flex: 1; justify-content: center; padding: 0 8px; } }
 `;

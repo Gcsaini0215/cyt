@@ -10,7 +10,7 @@ export const PLACE_CSS = `
 .pl-crumbs { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 14px; }
 .pl-crumbs a { color: rgba(255,255,255,.85); font-weight: 600; text-decoration: none; }
 .pl-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 0; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ecc77d; }
-.pl-eyebrow::before { content: ""; width: 22px; height: 2px; background: #d4a24c; }
+.pl-eyebrow::before { content: ""; width: 22px; height: 2px; background: #e3a83a; }
 .pl-banner h1 { font-size: clamp(30px, 4.4vw, 48px); font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -.02em; line-height: 1.12; }
 .pl-banner h1 span { color: #ecc77d; }
 .pl-sub { font-size: clamp(15px, 1.4vw, 17px); color: rgba(255,255,255,.88); line-height: 1.6; margin: 0 0 18px; padding: 0; max-width: 600px; }

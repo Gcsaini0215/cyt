@@ -73,7 +73,7 @@ export default function PrivacyPolicy() {
             <Box component="nav" aria-label="Contents" sx={{ my: 3, p: 2.5, borderRadius: "12px", background: "#f3f8f5", border: "1px solid #dcebe2" }}>
               <Typography sx={{ fontSize: 13, fontWeight: 800, color: "#14532d", mb: 1, letterSpacing: ".4px", textTransform: "uppercase" }}>Contents</Typography>
               <Box component="ol" sx={{ m: 0, pl: 2.5, columns: { xs: 1, md: 2 }, fontSize: 14, lineHeight: 1.9 }}>
-                {TOC.map(([id, label]) => <li key={id}><a href={`#${id}`} style={{ color: "#166534", fontWeight: 600 }}>{label}</a></li>)}
+                {TOC.map(([id, label]) => <li key={id}><a href={`#${id}`} style={{ color: "#14532d", fontWeight: 600 }}>{label}</a></li>)}
               </Box>
             </Box>
 
@@ -154,7 +154,7 @@ export default function PrivacyPolicy() {
               <P>
                 In line with applicable Indian law, including the Digital Personal Data Protection Act, 2023, you can ask us to access,
                 correct or delete your personal information, or withdraw a consent you gave. Write to{" "}
-                <a href={`mailto:${EMAIL}`} style={{ color: "#166534", fontWeight: 700 }}>{EMAIL}</a> from the email on your account and we
+                <a href={`mailto:${EMAIL}`} style={{ color: "#14532d", fontWeight: 700 }}>{EMAIL}</a> from the email on your account and we
                 will respond within a reasonable time. Some records may need to be kept where the law requires it.
               </P>
             </Section>
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
               </UL>
               <P sx={{ mb: 0 }}>
                 Choose Your Therapist&apos;s use and transfer of information received from Google APIs adheres to the{" "}
-                <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" style={{ color: "#166534", fontWeight: 700 }}>Google API Services User Data Policy</a>, including the Limited Use requirements.
+                <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" style={{ color: "#14532d", fontWeight: 700 }}>Google API Services User Data Policy</a>, including the Limited Use requirements.
               </P>
             </Section>
 
@@ -244,8 +244,8 @@ export default function PrivacyPolicy() {
               <H id="contact" n={13}>Contact us</H>
               <P sx={{ mb: 0 }}>
                 Choose Your Therapist LLP, Gate No-3, D-137, Block D, Sector 51, Noida, Uttar Pradesh 201301, India ·{" "}
-                <a href={`mailto:${EMAIL}`} style={{ color: "#166534", fontWeight: 700 }}>{EMAIL}</a> · +91 80777 57951. See also our{" "}
-                <Link href="/terms-conditions" style={{ color: "#166534", fontWeight: 700 }}>Terms &amp; Conditions</Link>.
+                <a href={`mailto:${EMAIL}`} style={{ color: "#14532d", fontWeight: 700 }}>{EMAIL}</a> · +91 80777 57951. See also our{" "}
+                <Link href="/terms-conditions" style={{ color: "#14532d", fontWeight: 700 }}>Terms &amp; Conditions</Link>.
               </P>
             </Section>
           </Box>

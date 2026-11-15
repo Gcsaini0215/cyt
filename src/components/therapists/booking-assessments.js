@@ -75,7 +75,7 @@ const BAX_CSS = `
 .bax { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .bax-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; border: 1px solid transparent; text-decoration: none !important; white-space: nowrap; }
 .bax-chip.wait { background: #fff7e6; color: #92400e !important; border-color: #f6d9a2; }
-.bax-chip.ready { background: #e7f6ec; color: #166534 !important; border-color: #b7e2c6; }
+.bax-chip.ready { background: #e7f6ec; color: #14532d !important; border-color: #b7e2c6; }
 .bax-chip.done { background: #f1f5f9; color: #334155 !important; border-color: #e2e8f0; }
 a.bax-chip:hover { filter: brightness(.97); text-decoration: underline !important; }
 .bax.compact .bax-chip { font-size: 11px; padding: 2px 8px; }

@@ -73,8 +73,8 @@ export default function TherapistReupload() {
             .ru-doc-name { flex: 1; min-width: 160px; }
             .ru-doc-name b { display: block; font-size: 14px; color: #1e293b; }
             .ru-doc-name span { font-size: 12px; color: #64748b; word-break: break-all; }
-            .ru-pick { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #166534; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; }
-            .ru-go { width: 100%; margin-top: 8px; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg,#1b5e20,#228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
+            .ru-pick { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #14532d; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; }
+            .ru-go { width: 100%; margin-top: 8px; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg,#1b5e20,#1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
             .ru-go:disabled { opacity: .7; cursor: wait; }
             .ru-err { color: #dc2626; font-size: 13px; font-weight: 600; margin: 6px 0 0; }
           ` }} />

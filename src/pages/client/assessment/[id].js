@@ -61,5 +61,5 @@ const CAS_CSS = `
 .cas-skel { height: 320px; border-radius: 18px; background: #e9eeeb; max-width: 760px; }
 .cas-box { max-width: 560px; background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
 .cas-box b { font-size: 16px; color: #0f172a; } .cas-box span { font-size: 13.5px; color: #475569; }
-.cas-box a { margin-top: 6px; font-weight: 800; color: #166534 !important; }
+.cas-box a { margin-top: 6px; font-weight: 800; color: #14532d !important; }
 `;

@@ -154,30 +154,30 @@ const HP_CSS = `
 .hp-contact { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
 .hp-c { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 14px 16px; text-decoration: none !important; color: #0f172a; min-width: 0; transition: border-color .15s, background .15s; }
 .hp-c:hover { border-color: #a7d7b8; background: #f8fcf9; }
-.hp-c > svg { font-size: 26px; color: #166534; flex-shrink: 0; }
+.hp-c > svg { font-size: 26px; color: #14532d; flex-shrink: 0; }
 .hp-c.wa > svg { color: #16a34a; }
 .hp-c span { min-width: 0; } .hp-c b { display: block; font-size: 14px; } .hp-c small { display: block; font-size: 12.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .hp-kinds { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .hp-kind { height: 36px; padding: 0 14px; border-radius: 999px; border: 1.5px solid #dfe7e2; background: #fff; color: #334155; font-weight: 600; font-size: 13px; font-family: inherit; cursor: pointer; }
-.hp-kind.on { background: #166534; border-color: #166534; color: #fff; }
+.hp-kind.on { background: #14532d; border-color: #14532d; color: #fff; }
 .hp-ta { width: 100%; border: 1px solid #d6e0da !important; border-radius: 12px !important; padding: 10px 12px; font-weight: 400; font-size: 14.5px; line-height: 1.55; font-family: inherit; resize: vertical; min-height: 120px; color: #0f172a; box-shadow: none; }
-.hp-ta:focus { outline: none; border-color: #166534 !important; box-shadow: 0 0 0 3px rgba(22,101,52,.12) !important; }
+.hp-ta:focus { outline: none; border-color: #14532d !important; box-shadow: 0 0 0 3px rgba(22,101,52,.12) !important; }
 .hp-send { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
-.hp-msg { font-size: 13px; font-weight: 600; } .hp-msg.ok { color: #166534; } .hp-msg.err { color: #dc2626; }
+.hp-msg { font-size: 13px; font-weight: 600; } .hp-msg.ok { color: #14532d; } .hp-msg.err { color: #dc2626; }
 .hp-list { list-style: none; margin: 0; padding: 0; }
 .hp-list li { padding: 12px 0; border-top: 1px solid #eef2f0; margin: 0; } .hp-list li:first-child { border-top: 0; padding-top: 0; }
 .hp-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; } .hp-top time { margin-left: auto; font-size: 12px; color: #94a3b8; }
 .hp-q { font-size: 13.5px; color: #334155; margin: 8px 0 0; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
-.hp-reply { margin-top: 8px; background: #f3fbf6; border-left: 3px solid #166534; border-radius: 0 10px 10px 0; padding: 8px 12px; font-size: 12px; color: #64748b; }
-.hp-reply b { color: #166534; } .hp-reply p { font-size: 13.5px; color: #0f172a; margin: 4px 0 0; line-height: 1.55; white-space: pre-wrap; }
+.hp-reply { margin-top: 8px; background: #f3fbf6; border-left: 3px solid #14532d; border-radius: 0 10px 10px 0; padding: 8px 12px; font-size: 12px; color: #64748b; }
+.hp-reply b { color: #14532d; } .hp-reply p { font-size: 13.5px; color: #0f172a; margin: 4px 0 0; line-height: 1.55; white-space: pre-wrap; }
 .hp-faq details { border-top: 1px solid #eef2f0; } .hp-faq details:first-child { border-top: 0; }
 .hp-faq summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; cursor: pointer; font-size: 14px; font-weight: 700; color: #0f172a; line-height: 1.4; }
 .hp-faq summary::-webkit-details-marker { display: none; }
 .hp-faq summary svg { color: #94a3b8; flex-shrink: 0; transition: transform .2s; }
 .hp-faq details[open] summary svg { transform: rotate(180deg); }
 .hp-faq details > div { font-size: 13.5px; color: #475569; line-height: 1.6; padding: 0 0 12px; }
-.hp-faq a { color: #166534 !important; font-weight: 700; }
+.hp-faq a { color: #14532d !important; font-weight: 700; }
 @media (max-width: 1023px) { .hp-grid { grid-template-columns: 1fr; } }
 @media (max-width: 767px) {
   .hp-contact { grid-template-columns: 1fr; gap: 8px; }

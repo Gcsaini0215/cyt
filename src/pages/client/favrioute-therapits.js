@@ -118,20 +118,20 @@ const SV_CSS = `
 .sv-heart { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #fecdd3; background: #fff1f2; color: #e11d48; display: grid; place-items: center; cursor: pointer; }
 .sv-heart:hover { background: #ffe4e6; } .sv-heart svg { font-size: 19px; }
 .sv-top { display: flex; align-items: center; gap: 12px; padding-right: 40px; min-width: 0; color: #0f172a !important; text-decoration: none !important; }
-.sv-av { width: 60px; height: 60px; border-radius: 16px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-weight: 800; font-size: 22px; flex-shrink: 0; overflow: hidden; }
+.sv-av { width: 60px; height: 60px; border-radius: 16px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; font-weight: 800; font-size: 22px; flex-shrink: 0; overflow: hidden; }
 .sv-av img { width: 100%; height: 100%; object-fit: cover; }
 .sv-who { min-width: 0; }
 .sv-who b { display: block; font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sv-who span { display: block; font-size: 12.5px; color: #64748b; margin-top: 2px; }
 .sv-meta { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .sv-meta li { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #475569; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sv-meta svg { font-size: 16px; color: #166534; flex-shrink: 0; }
+.sv-meta svg { font-size: 16px; color: #14532d; flex-shrink: 0; }
 .sv-foot { display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 10px; border-top: 1px solid #eef2f0; }
 .sv-fee { flex: 1; font-size: 12.5px; color: #64748b; } .sv-fee b { color: #0f172a; font-size: 14px; }
 .sv-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 10px; font-size: 13.5px; font-weight: 800; text-decoration: none !important; border: 1px solid transparent; font-family: inherit; }
 .sv-btn svg { font-size: 18px; }
 .sv-btn.primary { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff !important; }
-.sv-btn.ghost { background: #fff; color: #166534 !important; border-color: #cfe3d6; }
+.sv-btn.ghost { background: #fff; color: #14532d !important; border-color: #cfe3d6; }
 .sv-empty { background: #fff; border: 1px dashed #cfe3d6; border-radius: 16px; padding: 34px 18px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sv-empty > svg { font-size: 38px; color: #fda4af; }
 .sv-empty b { font-size: 16px; } .sv-empty p { margin: 0 0 10px; font-size: 13.5px; color: #64748b; }

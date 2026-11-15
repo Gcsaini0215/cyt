@@ -91,7 +91,7 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
         <div className="pcr-meta">
           {avg && (
             <span className="pcr-rate">
-              <StarIcon sx={{ color: "#d4a24c", fontSize: 16 }} /> <span className="pcr-avg">{avg}</span> <small>({reviews.length})</small>
+              <StarIcon sx={{ color: "#e3a83a", fontSize: 16 }} /> <span className="pcr-avg">{avg}</span> <small>({reviews.length})</small>
             </span>
           )}
           {exp && <span><i className="feather-briefcase" /> {exp} exp.</span>}
@@ -143,7 +143,7 @@ export default function ProfileCardRow({ data, favrioutes, highlight = "", now =
         <button type="button" className={`pcr-bk${bookmark ? " on" : ""}`} onClick={handleBookmark}
           aria-label={bookmark ? "Remove from saved therapists" : "Save therapist"} aria-pressed={bookmark}>
           {bookmark
-            ? <BookmarkAddedIcon sx={{ fontSize: 17, color: "#d4a24c" }} />
+            ? <BookmarkAddedIcon sx={{ fontSize: 17, color: "#e3a83a" }} />
             : <BookmarkBorderIcon sx={{ fontSize: 17, color: "#94a3b8" }} />}
         </button>
       )}
@@ -199,7 +199,7 @@ export const CARD_CSS = `
   .pcr-mq-set { flex-wrap: wrap; }
   .pcr-mq-set[aria-hidden] { display: none; }
 }
-.pcr-spec { flex-shrink: 0; white-space: nowrap; font-size: 11.5px; font-weight: 700; color: #166534; background: #ecfdf3; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 999px; }
+.pcr-spec { flex-shrink: 0; white-space: nowrap; font-size: 11.5px; font-weight: 700; color: #14532d; background: #ecfdf3; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 999px; }
 .pcr-spec.hit { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
 .pcr-spec.more { background: #fff; color: #1e7a4c; border-color: #cfe3d6; text-decoration: none; }
 

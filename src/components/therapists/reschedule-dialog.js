@@ -70,11 +70,11 @@ const RS_CSS = `
 .rs label span { font-size: 12.5px; font-weight: 700; color: #334155; }
 .rs label small { font-weight: 600; color: #94a3b8; }
 .rs input { height: 44px; border: 1px solid #d6e0da; border-radius: 10px; padding: 0 12px; font-size: 15px; font-family: inherit; color: #0f172a; background: #fff; width: 100%; box-sizing: border-box; }
-.rs input:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.rs input:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .rs-err { font-size: 13px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; }
 .rs-acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
 .rs-btn { height: 42px; padding: 0 18px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; border: 1px solid transparent; }
-.rs-btn.primary { background: #166534; color: #fff; } .rs-btn.primary:hover { background: #0f3d24; }
+.rs-btn.primary { background: #14532d; color: #fff; } .rs-btn.primary:hover { background: #0f3d24; }
 .rs-btn.ghost { background: #fff; color: #475569; border-color: #e2e8f0; }
 .rs-btn:disabled { opacity: .6; cursor: default; }
 @media (max-width: 420px) { .rs-row { grid-template-columns: 1fr; gap: 0; } .rs input { font-size: 16px; } }

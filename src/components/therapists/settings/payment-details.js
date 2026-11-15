@@ -206,7 +206,7 @@ export default function PaymentDetails({ onDirty }) {
         </div>
 
         <div className="stg-tip" style={{ marginTop: 16, display: "flex", gap: 8, alignItems: "flex-start" }}>
-          <LockRoundedIcon style={{ fontSize: 17, color: "#166534", marginTop: 1 }} />
+          <LockRoundedIcon style={{ fontSize: 17, color: "#14532d", marginTop: 1 }} />
           <span>Only Choose Your Therapist&apos;s accounts team can see these details. We&apos;ll never ask for your PIN or OTP.</span>
         </div>
       </Section>

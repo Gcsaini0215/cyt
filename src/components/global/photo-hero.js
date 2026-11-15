@@ -42,7 +42,7 @@ const PHX_CSS = `
 @media (min-width: 1024px) { .phx-in { padding: 0 clamp(40px, 4.5vw, 56px); } }
 @media (min-width: 1300px) { .phx-in { padding: 0 40px; } }
 .phx-in > * { max-width: 920px; }
-.phx-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.82); border: 1px solid #e3cc96; font-size: 13px; font-weight: 700; color: #166534; box-shadow: 0 6px 16px -10px rgba(20,83,45,.35); }
+.phx-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.82); border: 1px solid #e3cc96; font-size: 13px; font-weight: 700; color: #14532d; box-shadow: 0 6px 16px -10px rgba(20,83,45,.35); }
 .phx-pill i, .phx-pill svg { font-size: 14px; }
 .phx .phx-title { color: #173c2a; font-size: clamp(26px, 3.2vw, 38px); line-height: 1.15; margin: 10px 0 8px; padding: 0; font-weight: 800; letter-spacing: -0.02em; }
 .phx .phx-title span { color: #a86e0e; }

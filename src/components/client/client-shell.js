@@ -380,13 +380,13 @@ export default function ClientShell({ title, children }) {
 
 const CLS_CSS = `
 :root { --cls-h: 60px; }
-.cls { --g: #166534; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8;
+.cls { --g: #14532d; --g-dk: #0f3d24; --g-bg: #e7f6ec; --line: #e4ece7; --ink: #0f172a; --mut: #64748b; --faint: #94a3b8;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); min-height: 100vh;
   background: #f1f3f5; } /* plain grey page, white cards */
 .cls *, .cls *::before, .cls *::after { box-sizing: border-box; }
 .cls svg { font-size: 20px; }
 .cls-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 1200; height: var(--cls-h); display: flex; align-items: center; gap: 12px; padding: 0 16px;
-  background: linear-gradient(90deg, #0b3320 0%, #14532d 55%, #166534 100%); box-shadow: 0 6px 18px -10px rgba(4,30,16,.55); }
+  background: linear-gradient(90deg, #0b3320 0%, #14532d 55%, #14532d 100%); box-shadow: 0 6px 18px -10px rgba(4,30,16,.55); }
 .cls-burger { width: 40px; height: 40px; margin-left: -6px; border-radius: 11px; border: 0; background: transparent; color: #fff; display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .cls-burger:hover { background: rgba(255,255,255,.14); } .cls-burger svg { font-size: 24px; }
 .cls-logo img { width: 36px; height: 36px; background: #fff; border-radius: 11px; padding: 3px; display: block; }
@@ -420,7 +420,7 @@ body:has(.cls) { padding-bottom: 0 !important; } /* the shell keeps its own room
 .cls-item:hover { background: #e7f6ec; color: var(--g) !important; } .cls-item:hover svg { color: var(--g); }
 .cls-item.on { position: relative; background: none; color: var(--g) !important; font-weight: 800; }
 .cls-item.on svg { color: var(--g); }
-.cls-item.on > span { padding-bottom: 3px; border-bottom: 2.5px solid #d4a24c; }
+.cls-item.on > span { padding-bottom: 3px; border-bottom: 2.5px solid #e3a83a; }
 .cls-item.out { color: #dc2626 !important; } .cls-item.out svg { color: #dc2626; }
 .cls-dd-group { display: flex; flex-direction: column; gap: 2px; }
 .cls-chev { margin-left: auto; font-size: 19px !important; color: #94a3b8 !important; transition: transform .18s ease; }
@@ -440,7 +440,7 @@ body:has(.cls) { padding-bottom: 0 !important; } /* the shell keeps its own room
 @media (max-width: 1023px) {
   .cls-rail { width: 76px; padding: 12px 10px; }
   .cls-item { justify-content: center; padding: 0; } .cls-item span, .cls-item .cls-ext, .cls-chev { display: none; }
-  .cls-item.on::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #d4a24c; }
+  .cls-item.on::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #e3a83a; }
   .cls-dd-kids { margin-left: 0; padding-left: 0; border-left: 0; background: #f4f8f5; border-radius: 12px; }
   .cls-item.kid { padding: 0; }
   .cls-rail-group { margin-top: 10px; padding-top: 10px; }
@@ -450,7 +450,7 @@ body:has(.cls) { padding-bottom: 0 !important; } /* the shell keeps its own room
 @media (min-width: 1024px) {
   html.cls-mini .cls .cls-rail { width: 76px; padding: 12px 10px; }
   html.cls-mini .cls .cls-item { justify-content: center; padding: 0; }
-  html.cls-mini .cls .cls-item.on::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #d4a24c; }
+  html.cls-mini .cls .cls-item.on::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 22px; height: 3px; margin-left: -11px; border-radius: 2px; background: #e3a83a; }
   html.cls-mini .cls .cls-item span, html.cls-mini .cls .cls-item .cls-ext, html.cls-mini .cls .cls-chev { display: none; }
   html.cls-mini .cls .cls-dd-kids { margin-left: 0; padding-left: 0; border-left: 0; background: #f4f8f5; border-radius: 12px; }
   html.cls-mini .cls .cls-item.kid { padding: 0; }
@@ -476,7 +476,7 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   body:has(.cls) #cyt-cookie-consent-bar { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important; } /* never over the bar's buttons */
   body:has(.cls-sheet) #cyt-cookie-consent-bar { display: none !important; }
   .cls-mob-line { position: absolute; top: 0; left: 4px; width: calc((100% - 8px) / var(--n)); height: 3px; transform: translateX(calc(100% * var(--i))); transition: transform .24s cubic-bezier(.22,.8,.3,1); pointer-events: none; }
-  .cls-mob-line::after { content: ""; display: block; width: 34px; height: 100%; margin: 0 auto; border-radius: 0 0 4px 4px; background: #d4a24c; }
+  .cls-mob-line::after { content: ""; display: block; width: 34px; height: 100%; margin: 0 auto; border-radius: 0 0 4px 4px; background: #e3a83a; }
   .cls-mob-item { flex: 1; min-width: 0; min-height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 8px 0 6px; color: #64748b !important; font-size: 11.5px; font-weight: 600; text-decoration: none !important; -webkit-tap-highlight-color: transparent; transition: color .18s ease; }
   .cls-mob-item:active .cls-mob-ic { transform: scale(.88); }
   .cls-mob-ic { display: grid; place-items: center; width: 48px; height: 28px; border-radius: 999px; transition: transform .18s ease, background .18s ease; }
@@ -501,13 +501,13 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-tiles { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: min-content; align-content: start; gap: 12px 2px; padding: 12px 8px 6px; }
   .cls-dots { display: flex; justify-content: center; gap: 6px; padding: 2px 0 calc(10px + env(safe-area-inset-bottom, 0px)); }
   .cls-dots button { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 7px; background: #d6dfda; cursor: pointer; transition: width .2s ease, background .2s ease; }
-  .cls-dots button.on { width: 20px; background: #d4a24c; }
+  .cls-dots button.on { width: 20px; background: #e3a83a; }
   .cls-tiles > * { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 2px; border: 0; background: none; color: #334155 !important; font: inherit; font-size: 12px; font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none !important; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .cls-tile-ic { flex: none; width: 50px; height: 50px; border-radius: 16px; background: #f1f6f3; display: grid; place-items: center; }
   .cls-tile-ic svg { font-size: 24px; color: var(--g); }
   .cls-tile-tx { position: relative; padding-bottom: 4px; }
   /* the golden underline draws in from the left when tapped, and stays on the current page */
-  .cls-tile-tx::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.5px; border-radius: 2px; background: #d4a24c; transform: scaleX(0); transform-origin: left; transition: transform .22s ease; }
+  .cls-tile-tx::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2.5px; border-radius: 2px; background: #e3a83a; transform: scaleX(0); transform-origin: left; transition: transform .22s ease; }
   .cls-tiles > :hover .cls-tile-tx::after, .cls-tiles > :active .cls-tile-tx::after, .cls-tiles > :focus-visible .cls-tile-tx::after, .cls-tiles > .on .cls-tile-tx::after { transform: scaleX(1); }
   .cls-tiles > .on { color: var(--g) !important; font-weight: 800; }
   .cls-tiles > .on .cls-tile-ic { background: #e3f4e9; }
@@ -516,7 +516,7 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
   .cls-tiles > .out svg { color: #dc2626; }
   .cls-sheet { position: relative; }
   .cls-grip { position: absolute; top: 8px; left: 50%; width: 40px; height: 4px; margin: 0 0 0 -20px; border-radius: 4px; background: rgba(255,255,255,.45); }
-  .cls-sheet-head { padding: 18px 14px 10px; border: 0; background: linear-gradient(100deg, #0b3320, #166534); color: #fff; }
+  .cls-sheet-head { padding: 18px 14px 10px; border: 0; background: linear-gradient(100deg, #0b3320, #14532d); color: #fff; }
   .cls-sheet-head b { color: #fff; }
   .cls-sheet-head > div > .cls-room { color: #f5c542; }
   .cls-sheet-head button { background: rgba(255,255,255,.14); color: #fff; }
@@ -642,7 +642,7 @@ html.cls-anim .cls-rail, html.cls-anim .cls-main { transition: width .2s ease, p
     font-family: "SF Pro Rounded", ui-rounded, Inter, -apple-system, sans-serif; font-variant-numeric: tabular-nums; line-height: 1; }
   .cls-clock b { font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
   .cls-clock .h { color: #1c1c1e; } .cls-clock .m { color: #1e8a4f; }
-  .cls-clock i { font-style: normal; font-size: 24px; font-weight: 900; color: #d4a24c; margin: 0 1px; animation: clsBlink 1s steps(1) infinite; }
+  .cls-clock i { font-style: normal; font-size: 24px; font-weight: 900; color: #e3a83a; margin: 0 1px; animation: clsBlink 1s steps(1) infinite; }
   .cls-clock small { font-size: 11px; font-weight: 800; color: #6e6e73; margin-left: 4px; letter-spacing: .04em; }
   @keyframes clsBlink { 50% { opacity: .25; } }
   /* the Dock fills the width: 3 extra favourites in portrait, 7 in landscape */

@@ -13,7 +13,7 @@ const banners = [
     description: "Connect with verified mental health professionals for personalized care and support.",
     buttonText: "Browse Therapists",
     link: "/view-all-therapist",
-    gradient: "linear-gradient(135deg, #228756 0%, #2e7d32 50%, #1b5e20 100%)",
+    gradient: "linear-gradient(135deg, #1e7a4c 0%, #2e7d32 50%, #1b5e20 100%)",
     headingColor: "#ffffff",
     buttonColor: "#66bb6a",
     buttonTextColor: "#ffffff",

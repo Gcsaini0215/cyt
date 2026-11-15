@@ -91,14 +91,14 @@ export default function TherapistComplete() {
             .cp-field label { display: block; font-size: 13.5px; font-weight: 800; color: #1e293b; margin-bottom: 4px; }
             .cp-hint { font-size: 12px; color: #64748b; margin: 0 0 6px; }
             .cp-in { width: 100%; box-sizing: border-box; border: 1.5px solid #cbd5c9; border-radius: 10px; padding: 11px 13px; font-size: 14.5px; font-family: inherit; outline: none; }
-            .cp-in:focus { border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.1); }
-            .cp-count { font-size: 12px; margin-top: 4px; color: #64748b; } .cp-count.bad { color: #b45309; font-weight: 700; } .cp-count.ok { color: #166534; font-weight: 700; }
+            .cp-in:focus { border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.1); }
+            .cp-count { font-size: 12px; margin-top: 4px; color: #64748b; } .cp-count.bad { color: #b45309; font-weight: 700; } .cp-count.ok { color: #14532d; font-weight: 700; }
             .cp-doc { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border: 2px dashed #cbd5c9; border-radius: 12px; padding: 14px; }
             .cp-doc.has { border-style: solid; border-color: #86efac; background: #f0fdf4; }
             .cp-doc-name { flex: 1; min-width: 160px; font-size: 12.5px; color: #64748b; word-break: break-all; }
-            .cp-pick { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #166534; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; text-decoration: none; }
+            .cp-pick { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #14532d; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; text-decoration: none; }
             .cp-dash { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px 14px; margin: 4px 0 16px; font-size: 13.5px; color: #1e3a8a; line-height: 1.6; }
-            .cp-go { width: 100%; margin-top: 6px; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg,#1b5e20,#228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
+            .cp-go { width: 100%; margin-top: 6px; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg,#1b5e20,#1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
             .cp-go:disabled { opacity: .7; cursor: wait; }
             .cp-err { color: #dc2626; font-size: 13px; font-weight: 600; margin: 6px 0 0; }
           ` }} />

@@ -12,7 +12,7 @@ import { getToken, getDecodedToken, setToken } from "../../utils/jwt";
 import { istDay, isAwayFromIst, localTimeLabel } from "../../utils/ist";
 
 const G  = "#1a5c38";
-const GL = "#228756";
+const GL = "#1e7a4c";
 const GB = "#f0fdf4";
 
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];

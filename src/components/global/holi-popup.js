@@ -82,7 +82,7 @@ const HoliPopup = () => {
                 sx={{
                   fontWeight: 900,
                   fontSize: { xs: '2.5rem', md: '3.5rem' },
-                  background: 'linear-gradient(45deg, #228756, #e91e63, #ff9800, #228756, #2196f3, #9c27b0)',
+                  background: 'linear-gradient(45deg, #1e7a4c, #e91e63, #ff9800, #1e7a4c, #2196f3, #9c27b0)',
                   backgroundSize: '300% 300%',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -110,7 +110,7 @@ const HoliPopup = () => {
                 variant="contained"
                 onClick={handleClose}
                 sx={{
-                  background: 'linear-gradient(135deg, #228756 0%, #1a6b44 100%)',
+                  background: 'linear-gradient(135deg, #1e7a4c 0%, #1a6b44 100%)',
                   color: '#fff',
                   padding: '12px 40px',
                   borderRadius: '50px',
@@ -156,7 +156,7 @@ const HoliPopup = () => {
               left: -50px;
               width: 150px;
               height: 150px;
-              background: #228756;
+              background: #1e7a4c;
               animation: splash-float 7s infinite;
             }
 

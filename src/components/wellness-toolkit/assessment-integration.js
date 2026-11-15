@@ -17,7 +17,7 @@ export default function AssessmentIntegration() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 p: { xs: '40px', md: '60px' },
-                background: 'linear-gradient(135deg, #228756 0%, #1a4d32 100%)',
+                background: 'linear-gradient(135deg, #1e7a4c 0%, #1a4d32 100%)',
                 borderRadius: '32px',
                 boxShadow: '0 30px 60px rgba(34, 135, 86, 0.2)',
                 overflow: 'hidden'
@@ -47,7 +47,7 @@ export default function AssessmentIntegration() {
               <div className="section-title text-start mb--30">
                 <Typography 
                   sx={{ 
-                    color: '#228756', 
+                    color: '#1e7a4c', 
                     fontWeight: 800, 
                     textTransform: 'uppercase', 
                     letterSpacing: '2px', 
@@ -71,7 +71,7 @@ export default function AssessmentIntegration() {
                     mb: 3
                   }}
                 >
-                  Know your <span style={{ color: '#228756' }}>Mental Health</span> Score
+                  Know your <span style={{ color: '#1e7a4c' }}>Mental Health</span> Score
                 </Typography>
                 <Typography 
                   variant="body1" 
@@ -100,7 +100,7 @@ export default function AssessmentIntegration() {
                         width: '24px', 
                         height: '24px', 
                         borderRadius: '50%', 
-                        backgroundColor: '#228756', 
+                        backgroundColor: '#1e7a4c', 
                         display: 'flex', 
                         alignItems: 'center', 
                         justifyContent: 'center',
@@ -117,7 +117,7 @@ export default function AssessmentIntegration() {
                   <Button 
                     variant="contained" 
                     sx={{ 
-                      backgroundColor: '#228756', 
+                      backgroundColor: '#1e7a4c', 
                       color: 'white',
                       px: 5,
                       py: 2,

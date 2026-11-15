@@ -97,7 +97,7 @@ const TOPIC_MAP = [
     service: "Counselling Psychology",
     label: "General Counselling",
     icon: "🌱",
-    color: "#228756",
+    color: "#1e7a4c",
     bg: "#f0fdf4",
     border: "#86efac",
     desc: "Counselling psychologists for everyday mental health, stress, and personal growth.",
@@ -520,7 +520,7 @@ export default function BlogDetails({ initialBlog, blogTherapists = [], authorIn
 const CSS = `
 .bd-page { background: #fff; overflow-x: hidden; }
 .bd-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 10000; background: transparent; }
-.bd-progress span { display: block; height: 100%; background: linear-gradient(90deg, #1e7a4c, #d4a24c); transition: width .1s linear; }
+.bd-progress span { display: block; height: 100%; background: linear-gradient(90deg, #1e7a4c, #e3a83a); transition: width .1s linear; }
 
 .bd-head { position: relative; overflow: hidden; background: linear-gradient(135deg, #c3e3cd 0%, #f0dfb4 52%, #cfe6d3 100%); padding: 26px 16px 84px; }
 .bd-blob { position: absolute; border-radius: 50%; pointer-events: none; }
@@ -529,7 +529,7 @@ const CSS = `
 /* title, image and text share one left edge: the same width as the article + side column */
 .bd-head-in { position: relative; z-index: 1; max-width: 1076px; margin: 0 auto; text-align: left; }
 .bd-crumbs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: #5b6b62; margin-bottom: 12px; }
-.bd-crumbs a { color: #166534 !important; font-weight: 700; text-decoration: none !important; }
+.bd-crumbs a { color: #14532d !important; font-weight: 700; text-decoration: none !important; }
 .bd-crumbs b { color: #8a5a0b; }
 .bd-page .bd-title { margin: 0; max-width: 900px; font-size: clamp(26px, 3.6vw, 42px); line-height: 1.15; font-weight: 800; letter-spacing: -.02em; color: #173c2a; }
 .bd-gold { color: #a86e0e; }
@@ -569,7 +569,7 @@ const CSS = `
 .bd-body li::marker { color: #a86e0e; font-weight: 800; }
 .bd-body strong, .bd-body b { color: #13261c; font-weight: 700; }
 .bd-body a { color: #1e7a4c !important; text-decoration: underline; text-decoration-color: #ecc77d; text-decoration-thickness: 2px; text-underline-offset: 3px; }
-.bd-body blockquote { margin: 1.6em 0; padding: 4px 0 4px 20px; border-left: 4px solid #d4a24c; font-size: 1.1em; color: #173c2a; font-style: italic; }
+.bd-body blockquote { margin: 1.6em 0; padding: 4px 0 4px 20px; border-left: 4px solid #e3a83a; font-size: 1.1em; color: #173c2a; font-style: italic; }
 .bd-body img { height: auto; border-radius: 16px; margin: 1.2em 0; }
 .bd-body table { width: 100%; border-collapse: collapse; margin: 1.4em 0; font-size: 16px; display: block; overflow-x: auto; }
 .bd-body th, .bd-body td { border: 1px solid #e6ece8; padding: 10px 12px; text-align: left; }

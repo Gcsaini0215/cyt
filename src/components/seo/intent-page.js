@@ -231,7 +231,7 @@ const IP_CSS = `
 .ip-row { display: flex; flex-direction: column; gap: 6px; }
 .ip-dist { align-self: flex-start; font-size: 13px; font-weight: 700; color: #14532d; background: #ecfdf3; border: 1px solid #c7ecd5; border-radius: 999px; padding: 4px 12px; }
 .ip-geo { margin-top: 10px !important; font-size: 13.5px !important; color: #8a5a06 !important; }
-.ip-geo.ok { color: #166534 !important; }
+.ip-geo.ok { color: #14532d !important; }
 .ip-centre { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; margin: 0 0 16px; padding: 14px 18px; border-radius: 16px; background: linear-gradient(135deg, #f3f9f5, #fdf8ec); border: 1px solid #cfe3d6; text-decoration: none !important; }
 .ip-centre b { color: #0b1712; font-size: 15.5px; }
 .ip-centre span { grid-column: 1; color: #475569; font-size: 13.5px; }

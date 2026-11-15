@@ -22,14 +22,14 @@ import { unlockSound, soundOn, setSoundOn, playChime } from "../../utils/notif-s
 // moment something happens (fed by store/notifStore's live stream — no refresh needed).
 
 const KIND = {
-  booking: { Icon: EventAvailableRoundedIcon, fg: "#166534", bg: "#dcfce7" },
+  booking: { Icon: EventAvailableRoundedIcon, fg: "#14532d", bg: "#dcfce7" },
   joined: { Icon: VideoCallRoundedIcon, fg: "#7c2d12", bg: "#fde68a" },
   cancelled: { Icon: EventBusyRoundedIcon, fg: "#b91c1c", bg: "#fee2e2" },
   review: { Icon: StarRateRoundedIcon, fg: "#b45309", bg: "#fef3c7" },
   session: { Icon: TaskAltRoundedIcon, fg: "#0f766e", bg: "#ccfbf1" },
   notice: { Icon: CampaignRoundedIcon, fg: "#1d4ed8", bg: "#dbeafe" },
   action: { Icon: AssignmentLateRoundedIcon, fg: "#9a3412", bg: "#ffedd5" },
-  payout: { Icon: PaymentsRoundedIcon, fg: "#166534", bg: "#dcfce7" },
+  payout: { Icon: PaymentsRoundedIcon, fg: "#14532d", bg: "#dcfce7" },
   reply: { Icon: ForumRoundedIcon, fg: "#6d28d9", bg: "#ede9fe" },
   addon: { Icon: TaskAltRoundedIcon, fg: "#14532d", bg: "#dcfce7" },
 };
@@ -177,7 +177,7 @@ const NB_CSS = `
 @keyframes nbIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .nb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; border-bottom: 1px solid #eef2f6; }
 .nb-head b { font-size: 15px; font-weight: 800; color: #0f172a; }
-.nb-head button { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: #166534; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
+.nb-head button { display: inline-flex; align-items: center; gap: 4px; border: 0; background: none; color: #14532d; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
 .nb-head button:hover { background: #f0fdf4; }
 .nb-head button svg { font-size: 16px; }
 .nb-head-acts { display: inline-flex; align-items: center; gap: 2px; }
@@ -197,7 +197,7 @@ const NB_CSS = `
 .nb-txt em { font-style: normal; font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
 .nb-dot { flex-shrink: 0; width: 9px; height: 9px; border-radius: 50%; background: #16a34a; margin-top: 6px; }
 .nb-empty { padding: 26px 18px; text-align: center; font-size: 13px; color: #64748b; line-height: 1.5; }
-.nb-all { display: block; text-align: center; padding: 11px; font-size: 13px; font-weight: 700; color: #166534 !important; text-decoration: none !important; border-top: 1px solid #eef2f6; background: #fafcfb; }
+.nb-all { display: block; text-align: center; padding: 11px; font-size: 13px; font-weight: 700; color: #14532d !important; text-decoration: none !important; border-top: 1px solid #eef2f6; background: #fafcfb; }
 .nb-all:hover { background: #f0fdf4; }
 
 .nb-toasts { position: absolute; top: calc(100% + 10px); right: -6px; width: 350px; max-width: calc(100vw - 20px); display: flex; flex-direction: column; gap: 8px; z-index: 1300; pointer-events: none; }

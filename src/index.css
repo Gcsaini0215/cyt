@@ -4,7 +4,7 @@
    these is a separate, owner-approved step. */
 :root {
   --brand-primary: #1e7a4c;        /* buttons, links, active states */
-  --brand-primary-strong: #166534; /* the most-used darker green */
+  --brand-primary-strong: #14532d; /* the most-used darker green */
   --brand-primary-dark: #14532d;   /* headings, deep surfaces, footer */
   --brand-accent: #e3a83a;         /* gold: highlights, dividers, focus */
   --brand-accent-soft: #ecc77d;    /* light gold */

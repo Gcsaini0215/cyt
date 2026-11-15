@@ -389,7 +389,7 @@ export default function Profile({ onDirty }) {
           </div>
           <div style={{ padding: "12px 18px 4px", display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 12.5, fontWeight: 700, color: "#64748b" }}>Zoom</span>
-            <Slider value={zoom} min={1} max={3} step={0.05} aria-label="Zoom" onChange={(e, z) => setZoom(z)} sx={{ color: "#166534" }} />
+            <Slider value={zoom} min={1} max={3} step={0.05} aria-label="Zoom" onChange={(e, z) => setZoom(z)} sx={{ color: "#14532d" }} />
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "8px 18px 18px" }}>
             <button type="button" className="stg-btn ghost" onClick={() => setIsCropModalOpen(false)}>Cancel</button>

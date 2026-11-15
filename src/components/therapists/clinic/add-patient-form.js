@@ -63,7 +63,7 @@ export default function AddClientForm() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4 }}>
-          <Avatar sx={{ bgcolor: '#e8f5e9', color: '#228756', width: 56, height: 56 }}>
+          <Avatar sx={{ bgcolor: '#e8f5e9', color: '#1e7a4c', width: 56, height: 56 }}>
             <PersonAddIcon />
           </Avatar>
           <Box>
@@ -181,7 +181,7 @@ export default function AddClientForm() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <CurrencyRupeeIcon sx={{ fontSize: 20, color: '#228756' }} />
+                      <CurrencyRupeeIcon sx={{ fontSize: 20, color: '#1e7a4c' }} />
                     </InputAdornment>
                   ),
                 }}
@@ -209,7 +209,7 @@ export default function AddClientForm() {
                 variant="contained"
                 size="large"
                 sx={{ 
-                  bgcolor: '#228756', 
+                  bgcolor: '#1e7a4c', 
                   '&:hover': { bgcolor: '#1b6843' },
                   borderRadius: '12px',
                   py: 1.8,

@@ -40,7 +40,7 @@ export default function LocalFaqs() {
                 alignItems: 'center', 
                 gap: '8px', 
                 backgroundColor: 'rgba(34, 135, 86, 0.1)', 
-                color: '#228756', 
+                color: '#1e7a4c', 
                 padding: '8px 20px', 
                 borderRadius: '100px',
                 fontSize: '14px',

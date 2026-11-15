@@ -50,7 +50,7 @@ const ProgressBar = styled(LinearProgress)(({ theme }) => ({
   zIndex: 9999,
   backgroundColor: 'rgba(34, 135, 86, 0.1)',
   '& .MuiLinearProgress-bar': {
-    backgroundColor: '#228756',
+    backgroundColor: '#1e7a4c',
     borderRadius: '0 4px 4px 0'
   }
 }));
@@ -115,7 +115,7 @@ const ArticleContainer = styled(Paper)(({ theme }) => ({
 }));
 
 const CategoryChip = styled(Chip)(({ theme }) => ({
-  backgroundColor: '#228756',
+  backgroundColor: '#1e7a4c',
   color: '#fff',
   fontWeight: 700,
   fontSize: '12px',
@@ -314,7 +314,7 @@ export default function BlogView() {
               alignItems="center"
             >
               <Stack direction="row" spacing={1.5} alignItems="center">
-                <Avatar sx={{ bgcolor: '#228756', width: 48, height: 48, boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)' }}>A</Avatar>
+                <Avatar sx={{ bgcolor: '#1e7a4c', width: 48, height: 48, boxShadow: '0 4px 12px rgba(34, 135, 86, 0.2)' }}>A</Avatar>
                 <Box sx={{ textAlign: 'left' }}>
                   <Typography sx={{ fontWeight: 800, fontSize: '16px', color: '#ffffff' }}>{blogData.author}</Typography>
                   <Typography sx={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 500 }}>{blogData.authorRole}</Typography>
@@ -363,7 +363,7 @@ export default function BlogView() {
                 '& ul': { mb: 4, pl: 3 },
                 '& li': { fontSize: '22px', mb: 2, color: '#334155' },
                 '& blockquote': { 
-                  borderLeft: '5px solid #228756', 
+                  borderLeft: '5px solid #1e7a4c', 
                   pl: 4, 
                   py: 1, 
                   my: 6, 
@@ -390,7 +390,7 @@ export default function BlogView() {
                           bgcolor: '#f1f5f9', 
                           fontWeight: 600, 
                           cursor: 'pointer',
-                          '&:hover': { bgcolor: '#e2e8f0', color: '#228756' } 
+                          '&:hover': { bgcolor: '#e2e8f0', color: '#1e7a4c' } 
                         }} 
                       />
                     </Link>
@@ -403,7 +403,7 @@ export default function BlogView() {
               {/* 3. Author Bio Section */}
               <Paper sx={{ p: 4, borderRadius: '24px', bgcolor: '#f8fafc', border: '1px solid #e2e8f0', mb: 6 }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems="center">
-                  <Avatar sx={{ width: 100, height: 100, bgcolor: '#228756', fontSize: '40px' }}>A</Avatar>
+                  <Avatar sx={{ width: 100, height: 100, bgcolor: '#1e7a4c', fontSize: '40px' }}>A</Avatar>
                   <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
                     <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>About {blogData.author}</Typography>
                     <Typography sx={{ color: '#64748b', mb: 2, lineHeight: 1.6 }}>
@@ -438,7 +438,7 @@ export default function BlogView() {
                       <Button 
                         variant="contained" 
                         endIcon={<Send size={16} />}
-                        sx={{ mt: 2, bgcolor: '#228756', borderRadius: '10px', textTransform: 'none', px: 4 }}
+                        sx={{ mt: 2, bgcolor: '#1e7a4c', borderRadius: '10px', textTransform: 'none', px: 4 }}
                       >
                         Post Comment
                       </Button>
@@ -513,7 +513,7 @@ export default function BlogView() {
                         color: '#64748b', 
                         cursor: 'pointer',
                         transition: '0.2s',
-                        '&:hover': { color: '#228756', pl: 1 }
+                        '&:hover': { color: '#1e7a4c', pl: 1 }
                       }}
                     >
                       {item.title}
@@ -544,7 +544,7 @@ export default function BlogView() {
                 <Stack spacing={4}>
                   {relatedBlogs.map((item) => (
                     <Link key={item.id} href={`/blog-details/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <Stack direction="row" spacing={2.5} sx={{ cursor: 'pointer', '&:hover h6': { color: '#228756' } }}>
+                      <Stack direction="row" spacing={2.5} sx={{ cursor: 'pointer', '&:hover h6': { color: '#1e7a4c' } }}>
                         <Box sx={{ width: 100, height: 75, borderRadius: '12px', overflow: 'hidden', flexShrink: 0 }}>
                           <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </Box>
@@ -576,7 +576,7 @@ export default function BlogView() {
                           fontSize: '16px',
                           py: 1.5,
                           px: 2,
-                          '&:hover': { color: '#228756', bgcolor: '#f0fdf4' }
+                          '&:hover': { color: '#1e7a4c', bgcolor: '#f0fdf4' }
                         }}
                       >
                         {cat}
@@ -611,7 +611,7 @@ export default function BlogView() {
                     '&:hover': { 
                       transform: 'translateY(-12px)', 
                       boxShadow: '0 30px 60px rgba(0,0,0,0.08)',
-                      borderColor: '#228756'
+                      borderColor: '#1e7a4c'
                     },
                     '&:hover img': { transform: 'scale(1.1)' }
                   }}>
@@ -630,7 +630,7 @@ export default function BlogView() {
                         position: 'absolute', 
                         top: 20, 
                         left: 20, 
-                        bgcolor: '#228756', 
+                        bgcolor: '#1e7a4c', 
                         color: '#fff', 
                         px: 2, 
                         py: 0.5, 
@@ -668,7 +668,7 @@ export default function BlogView() {
                       }}>
                         {item.excerpt}
                       </Typography>
-                      <Stack direction="row" alignItems="center" spacing={1} sx={{ color: '#228756', fontWeight: 800 }}>
+                      <Stack direction="row" alignItems="center" spacing={1} sx={{ color: '#1e7a4c', fontWeight: 800 }}>
                         <Typography sx={{ fontWeight: 800, fontSize: '15px' }}>Read More</Typography>
                         <ChevronRight size={18} />
                       </Stack>
@@ -700,13 +700,13 @@ export default function BlogView() {
           visibility: showBackToTop ? 'visible' : 'hidden',
           transition: 'all 0.3s ease',
           '&:hover .top-icon': { bgcolor: '#1a6b44', transform: 'translateY(-5px)' },
-          '&:hover .top-text': { color: '#228756' }
+          '&:hover .top-text': { color: '#1e7a4c' }
         }}
       >
         <IconButton 
           className="top-icon"
           sx={{ 
-            bgcolor: '#228756', 
+            bgcolor: '#1e7a4c', 
             color: '#fff',
             boxShadow: '0 10px 30px rgba(34, 135, 86, 0.3)',
             transition: 'all 0.3s ease',

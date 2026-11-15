@@ -185,7 +185,7 @@ const PRV_CSS = `
 .prv-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; padding: 0 20px; border-radius: 10px; border: 1.5px solid #0f3d24;
   background: #0f3d24; color: #fff; font-family: inherit; font-size: 14.5px; font-weight: 800; cursor: pointer; transition: background .15s, color .15s; }
 .prv-btn svg { font-size: 19px; }
-.prv-btn:hover { background: #166534; border-color: #166534; }
+.prv-btn:hover { background: #14532d; border-color: #14532d; }
 .prv-btn:disabled { opacity: .65; cursor: default; }
 .prv-btn.outline { background: #fff; color: #0f3d24; }
 .prv-btn.outline:hover { background: #ecfdf3; }
@@ -204,13 +204,13 @@ const PRV_CSS = `
 .prv-form input { height: 46px; }
 .prv-form textarea { padding: 12px 14px; resize: vertical; min-height: 110px; line-height: 1.5; }
 .prv-form input::placeholder, .prv-form textarea::placeholder { color: #94a3b8; opacity: 1; }
-.prv-form input:focus, .prv-form textarea:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.prv-form input:focus, .prv-form textarea:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .prv-err { font-size: 13.5px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 9px 12px; }
 .prv-acts { display: flex; gap: 8px; }
 .prv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .prv-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(15,61,36,.05); min-width: 0; }
 .prv-top { display: flex; align-items: center; gap: 12px; }
-.prv-av { flex: 0 0 40px; height: 40px; border-radius: 50%; background: linear-gradient(145deg, #dcf3e5, #bfe5cd); color: #166534; display: grid; place-items: center; font-size: 16px; font-weight: 800; }
+.prv-av { flex: 0 0 40px; height: 40px; border-radius: 50%; background: linear-gradient(145deg, #dcf3e5, #bfe5cd); color: #14532d; display: grid; place-items: center; font-size: 16px; font-weight: 800; }
 .prv-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .prv-who b { font-size: 15px; font-weight: 800; color: #0f2a1d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prv-top time { flex-shrink: 0; font-size: 12.5px; color: #94a3b8; align-self: flex-start; padding-top: 2px; }

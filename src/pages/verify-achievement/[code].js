@@ -66,7 +66,7 @@ const VA_CSS = `
 .va-who { margin: 0; font-size: 17px; color: #334155; } .va-line { margin: 4px 0 16px; color: #64748b; }
 .va img { width: 100%; height: auto; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 20px 40px -30px rgba(0,0,0,.4); }
 .va-acts { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
-.va-btn { padding: 11px 18px; border-radius: 11px; background: #166534; color: #fff !important; font-weight: 800; text-decoration: none !important; }
-.va-link { color: #166534 !important; font-weight: 700; }
+.va-btn { padding: 11px 18px; border-radius: 11px; background: #14532d; color: #fff !important; font-weight: 800; text-decoration: none !important; }
+.va-link { color: #14532d !important; font-weight: 700; }
 .va-no { padding: 40px 0; } .va-no p { color: #475569; }
 `;

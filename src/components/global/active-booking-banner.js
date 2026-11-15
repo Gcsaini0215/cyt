@@ -87,12 +87,12 @@ export default function ActiveBookingBanner() {
           border-radius: 50%;
           object-fit: cover;
           flex-shrink: 0;
-          border: 2px solid #228756;
+          border: 2px solid #1e7a4c;
         }
         .abb-badge {
           font-size: 10px;
           font-weight: 700;
-          color: #228756;
+          color: #1e7a4c;
           text-transform: uppercase;
           letter-spacing: 0.6px;
         }
@@ -116,13 +116,13 @@ export default function ActiveBookingBanner() {
           font-size: 12px;
           font-weight: 700;
           color: #fff;
-          background: #228756;
+          background: #1e7a4c;
           border-radius: 8px;
           padding: 5px 14px;
           text-decoration: none;
           transition: background 0.2s;
         }
-        .abb-btn:hover { background: #1a6b3a; color: #fff; }
+        .abb-btn:hover { background: #1e7a4c; color: #fff; }
         .abb-close {
           position: absolute;
           top: 8px; right: 10px;

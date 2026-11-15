@@ -105,7 +105,7 @@ const AWARENESS = [
 ];
 
 // a soft tint per category, so the cards aren't all one colour
-const TINTS = [["#e7f6ec", "#166534"], ["#e8f1fd", "#1d4ed8"], ["#fdeef2", "#be185d"], ["#fdf4e3", "#b45309"], ["#efeafd", "#6d28d9"], ["#e3f6f4", "#0f766e"]];
+const TINTS = [["#e7f6ec", "#14532d"], ["#e8f1fd", "#1d4ed8"], ["#fdeef2", "#be185d"], ["#fdf4e3", "#b45309"], ["#efeafd", "#6d28d9"], ["#e3f6f4", "#0f766e"]];
 const tintOf = (cat) => TINTS[[...String(cat)].reduce((a, c) => a + c.charCodeAt(0), 0) % TINTS.length];
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }) : "");
 const hrefOf = (p) => blogPath(p);
@@ -321,7 +321,7 @@ const BL_CSS = `
 .bl-hero-in { position: relative; z-index: 1; }
 @media (max-width: 767px) { .bl-hero { background: linear-gradient(135deg, #e3f2e8 0%, #f8f1de 52%, #e6f3ea 100%); } .bl-blob { opacity: .4; } }
 .bl-crumbs { display: flex; gap: 8px; align-items: center; font-size: 13px; color: #5b6b62; margin-bottom: 18px; }
-.bl-crumbs a { color: #166534 !important; font-weight: 700; text-decoration: none !important; }
+.bl-crumbs a { color: #14532d !important; font-weight: 700; text-decoration: none !important; }
 .bl-crumbs b { color: #334155; }
 .bl-eyebrow { margin: 0 0 6px; font-size: 13px; font-weight: 800; letter-spacing: .4px; color: #3f7a58; }
 .bl-hero h1 { margin: 0; font-size: clamp(30px, 4.6vw, 52px); line-height: 1.1; font-weight: 800; letter-spacing: -.5px; color: #173c2a; font-family: inherit; }

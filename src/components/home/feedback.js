@@ -125,19 +125,19 @@ const CSS = `
 .hrv-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px 32px; margin-bottom: 28px; }
 .hrv-intro { min-width: 0; }
 .hrv .hrv-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
-.hrv .hrv-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+.hrv .hrv-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .hrv .hrv-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .hrv-title span { color: #1e7a4c; }
 .hrv .hrv-sub { color: #4b5b53; font-size: 16px; line-height: 1.6; margin: 0; padding: 0; max-width: 60ch; }
 
 .hrv-google { flex-shrink: 0; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0 14px; min-width: 280px; padding: 16px 20px; border-radius: 20px; background: #fff; border: 1px solid #e6dcc3; text-decoration: none !important; transition: border-color .2s ease; }
-.hrv-google:hover { border-color: #d4a24c; }
+.hrv-google:hover { border-color: #e3a83a; }
 .hrv-g-n { font-size: 40px; font-weight: 900; color: #0b1712; line-height: 1; letter-spacing: -.02em; }
 .hrv-g-r { display: flex; flex-direction: column; gap: 4px; }
 .hrv-g-stars { color: #e3a83a; font-size: 17px; letter-spacing: 2px; line-height: 1; }
 .hrv-g-l { font-size: 13px; color: #4b5b53; font-weight: 600; }
 .hrv-g-l b { color: #0b1712; }
-.hrv-g-s { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eadfc4; font-size: 13px; font-weight: 800; color: #166534; }
+.hrv-g-s { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eadfc4; font-size: 13px; font-weight: 800; color: #14532d; }
 .hrv-g-go { margin-left: auto; color: #a86e0e; }
 
 .hrv-swiper { overflow: hidden; padding: 2px !important; }
@@ -151,7 +151,7 @@ const CSS = `
 .hrv-stars i.on { color: #e3a83a; }
 .hrv-text { flex: 1; margin: 0; padding: 0; border: none; font-size: 14px; line-height: 1.6; color: #26342d; font-style: normal; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .hrv-text::before, .hrv-text::after { content: none; }
-.hrv-ok { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #166534; background: #eef7f1; border-radius: 999px; padding: 2px 8px; }
+.hrv-ok { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: #14532d; background: #eef7f1; border-radius: 999px; padding: 2px 8px; }
 .hrv-foot { display: flex; align-items: center; gap: 9px; text-align: left; padding-top: 10px; border-top: 1px solid #eef2ef; }
 .hrv-av { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; }
 .hrv-who { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }

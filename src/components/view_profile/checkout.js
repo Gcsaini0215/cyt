@@ -147,7 +147,7 @@ export default function TherapistCheckout({ profile }) {
           email: info.email || userInfo?.email,
           contact: info.phone || userInfo?.phone,
         },
-        theme: { color: "#228756" },
+        theme: { color: "#1e7a4c" },
         modal: {
           ondismiss: function () {
             releaseBookingSlot(bookingId); // closed without paying — the slot is free again
@@ -381,7 +381,7 @@ export default function TherapistCheckout({ profile }) {
       {couponError && (
         <span style={{
           fontSize: "12px", fontWeight: 600, display: "block", marginTop: "7px",
-          color: couponError.includes("success") ? "#228756" : "#ef4444"
+          color: couponError.includes("success") ? "#1e7a4c" : "#ef4444"
         }}>
           {couponError}
         </span>
@@ -395,7 +395,7 @@ export default function TherapistCheckout({ profile }) {
         onClick={handleSubmit}
         style={{
           width: "100%", height, borderRadius: radius, border: "none",
-          background: "linear-gradient(135deg,#228756,#1a6b44)",
+          background: "linear-gradient(135deg,#1e7a4c,#1a6b44)",
           color: "#fff", fontSize, fontWeight: 800, cursor: "pointer",
           letterSpacing: "0.3px", boxShadow: "0 8px 20px rgba(34,135,86,0.3)"
         }}
@@ -410,9 +410,9 @@ export default function TherapistCheckout({ profile }) {
       <style dangerouslySetInnerHTML={{ __html: `
         .ck-label{display:block;font-size:11.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
         .ck-input,.ck-select{border-radius:12px!important;height:50px!important;border:1.5px solid #e8edf2!important;background:#f8fafc!important;font-size:14.5px!important;width:100%!important;padding:0 14px!important;transition:border-color .2s,box-shadow .2s;margin-bottom:0!important;color:#1e293b!important}
-        .ck-input:focus,.ck-select:focus{border-color:#228756!important;background:#fff!important;box-shadow:0 0 0 3px rgba(34,135,86,.08)!important;outline:none!important}
+        .ck-input:focus,.ck-select:focus{border-color:#1e7a4c!important;background:#fff!important;box-shadow:0 0 0 3px rgba(34,135,86,.08)!important;outline:none!important}
         .ck-textarea{border-radius:13px!important;border:1.5px solid #e8edf2!important;background:#f8fafc!important;font-size:14px!important;width:100%!important;padding:13px 14px!important;min-height:120px;transition:border-color .2s,box-shadow .2s;margin-bottom:0!important;resize:vertical;color:#1e293b!important}
-        .ck-textarea:focus{border-color:#228756!important;background:#fff!important;box-shadow:0 0 0 3px rgba(34,135,86,.08)!important;outline:none!important}
+        .ck-textarea:focus{border-color:#1e7a4c!important;background:#fff!important;box-shadow:0 0 0 3px rgba(34,135,86,.08)!important;outline:none!important}
         .ck-field{margin-bottom:18px}
         .ck-card{background:#fff;border-radius:24px;border:1px solid #f1f5f9;box-shadow:0 4px 24px rgba(0,0,0,.04)}
         .ck-srv-tag{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid rgba(34,135,86,.12);border-radius:14px;padding:14px 16px}
@@ -424,7 +424,7 @@ export default function TherapistCheckout({ profile }) {
         .ck-live-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f8fafc;animation:ckFadeIn .25s ease}
         .ck-live-row:last-child{border-bottom:none;padding-bottom:0}
         .ck-live-icon{width:30px;height:30px;border-radius:9px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .ck-live-icon i{color:#228756;font-size:13px}
+        .ck-live-icon i{color:#1e7a4c;font-size:13px}
         .ck-live-lbl{font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.4px;line-height:1}
         .ck-live-val{font-size:13.5px;color:#1e293b;font-weight:700;line-height:1.3;margin-top:2px;word-break:break-all}
         .ck-live-block{background:#f8fafc;border-radius:14px;padding:4px 12px;margin-bottom:16px}
@@ -449,16 +449,16 @@ export default function TherapistCheckout({ profile }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 800, fontSize: "15px", color: "#1e293b", display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
                 {profile.user?.name}
-                <i className="feather-check-circle" style={{ color: "#228756", fontSize: "14px" }}></i>
+                <i className="feather-check-circle" style={{ color: "#1e7a4c", fontSize: "14px" }}></i>
               </div>
               <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
-                <span style={{ color: "#228756", fontWeight: 700 }}>{profile.profile_type}</span>
+                <span style={{ color: "#1e7a4c", fontWeight: 700 }}>{profile.profile_type}</span>
                 <span style={{ margin: "0 5px", color: "#cbd5e1" }}>•</span>
                 <span style={{ fontWeight: 600 }}>{profile.year_of_exp} exp</span>
               </div>
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ fontSize: "20px", fontWeight: 900, color: "#228756", lineHeight: 1 }}>₹{amountInfo.afterdiscount}</div>
+              <div style={{ fontSize: "20px", fontWeight: 900, color: "#1e7a4c", lineHeight: 1 }}>₹{amountInfo.afterdiscount}</div>
               <div style={{ fontSize: "10px", color: "#94a3b8", fontWeight: 600, marginTop: "2px" }}>per session</div>
             </div>
           </div>
@@ -682,7 +682,7 @@ export default function TherapistCheckout({ profile }) {
                           {info.format} session
                         </div>
                       </div>
-                      <div style={{ fontWeight: 900, fontSize: "18px", color: "#228756" }}>₹{amountInfo.amount}</div>
+                      <div style={{ fontWeight: 900, fontSize: "18px", color: "#1e7a4c" }}>₹{amountInfo.amount}</div>
                     </div>
                   </div>
 
@@ -692,7 +692,7 @@ export default function TherapistCheckout({ profile }) {
                       <span>Subtotal</span><span>₹{amountInfo.amount}</span>
                     </div>
                     {amountInfo.discount > 0 && (
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#228756", fontWeight: 700 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", color: "#1e7a4c", fontWeight: 700 }}>
                         <span>Coupon Discount</span><span>− ₹{amountInfo.discount}</span>
                       </div>
                     )}
@@ -753,13 +753,13 @@ export default function TherapistCheckout({ profile }) {
             </div>
             <div style={{ fontSize: "22px", fontWeight: 900, color: "#1e293b", lineHeight: 1.1 }}>₹{amountInfo.afterdiscount}</div>
             {amountInfo.discount > 0 && (
-              <div style={{ fontSize: "11px", color: "#228756", fontWeight: 700 }}>Saved ₹{amountInfo.discount}</div>
+              <div style={{ fontSize: "11px", color: "#1e7a4c", fontWeight: 700 }}>Saved ₹{amountInfo.discount}</div>
             )}
           </div>
           <button
             onClick={handleSubmit}
             style={{
-              background: "linear-gradient(135deg,#228756,#1a6b44)",
+              background: "linear-gradient(135deg,#1e7a4c,#1a6b44)",
               border: "none", borderRadius: "14px", color: "#fff",
               fontSize: "15px", fontWeight: 800, padding: "0 28px", height: "52px",
               cursor: "pointer", whiteSpace: "nowrap",

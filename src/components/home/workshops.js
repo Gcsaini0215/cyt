@@ -31,7 +31,7 @@ export default function HomeWorkshop() {
   if (!data || data.length === 0) return null;
 
   return (
-    <section style={{ background: "linear-gradient(135deg,#0f3d24,#175c37)", padding: "64px 0 72px", position: "relative", overflow: "hidden", borderTop: "3px solid #d4af37", borderBottom: "3px solid #d4af37" }}>
+    <section style={{ background: "linear-gradient(135deg,#0f3d24,#175c37)", padding: "64px 0 72px", position: "relative", overflow: "hidden", borderTop: "3px solid #e3a83a", borderBottom: "3px solid #e3a83a" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         /* ── Decorative bg ───────────────────────────── */
         .wk-bg-dot {
@@ -49,17 +49,17 @@ export default function HomeWorkshop() {
         .wk-tag {
           display:inline-flex; align-items:center; gap:8px;
           font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
-          color:#d4af37; margin-bottom:12px;
+          color:#e3a83a; margin-bottom:12px;
         }
-        .wk-tag-dot { width:20px; height:2px; background:#d4af37; display:inline-block; }
+        .wk-tag-dot { width:20px; height:2px; background:#e3a83a; display:inline-block; }
         .wk-title { font-size:clamp(1.5rem,3.4vw,2.1rem); font-weight:800; color:#fff; margin:0 0 8px; line-height:1.25; }
-        .wk-title span { color:#d4af37; }
+        .wk-title span { color:#e3a83a; }
         .wk-sub { color:rgba(255,255,255,.7); font-size:14.5px; margin:0; max-width:460px; line-height:1.6; }
         .wk-view-all {
           display:inline-flex; align-items:center; gap:7px;
           font-size:13px; font-weight:700; color:#0f3d24;
-          border:1px solid #d4af37;
-          background:#d4af37;
+          border:1px solid #e3a83a;
+          background:#e3a83a;
           padding:10px 22px; border-radius:6px;
           text-decoration:none; white-space:nowrap;
           transition:all .2s; flex-shrink:0;
@@ -84,7 +84,7 @@ export default function HomeWorkshop() {
           white-space:nowrap;
         }
         .wk-pill.active {
-          background:#d4af37; border-color:#d4af37; color:#0f3d24;
+          background:#e3a83a; border-color:#e3a83a; color:#0f3d24;
         }
         .wk-pill:hover:not(.active) { border-color:rgba(255,255,255,.32); color:#fff; }
 
@@ -98,7 +98,7 @@ export default function HomeWorkshop() {
         /* ── Bottom CTA ───────────────────────────────── */
         .wk-bottom-btn {
           display:inline-flex; align-items:center; gap:8px;
-          background:#d4af37;
+          background:#e3a83a;
           color:#0f3d24; font-size:14px; font-weight:700;
           padding:13px 36px; border-radius:6px;
           text-decoration:none;

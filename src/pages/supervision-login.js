@@ -146,7 +146,7 @@ export default function SupervisionLogin() {
         .sl-back:hover{color:#13261c;}
         .sl-resend{background:none;border:none;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;padding:0;}
         .sl-wait{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0;}
-        .sl-wait-ic{width:52px;height:52px;border-radius:50%;background:#dcfce7;color:#166534;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+        .sl-wait-ic{width:52px;height:52px;border-radius:50%;background:#dcfce7;color:#14532d;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;}
         .sl-wait b{font-size:17px;color:#13261c;}
         .sl-wait p{margin:0 0 6px;font-size:13.5px;line-height:1.6;color:#5b6b62;}
         .sl-foot{text-align:center;margin-top:20px;font-size:13px;color:#64748b;}

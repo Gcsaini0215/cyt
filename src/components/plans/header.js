@@ -4,7 +4,7 @@ import { Box, Container, useMediaQuery } from "@mui/material";
 const styles = `
 .plans-banner {
   position: relative;
-  background: linear-gradient(120deg, #145c38 0%, #1a6b44 45%, #228756 100%);
+  background: linear-gradient(120deg, #145c38 0%, #1a6b44 45%, #1e7a4c 100%);
   padding: 28px 0;
   overflow: hidden;
   margin-top: 0px;

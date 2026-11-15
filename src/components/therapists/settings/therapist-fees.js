@@ -169,16 +169,16 @@ const FE_CSS = `
   background: linear-gradient(160deg, #f0fdf4, #fff 70%); border: 1px solid #cdeedb; border-radius: 14px; padding: 14px 16px; }
 .fe-quick-txt { grid-area: txt; } .fe-quick-row { grid-area: row; display: flex; gap: 8px; } .fe-presets { grid-area: presets; display: flex; gap: 6px; flex-wrap: wrap; }
 .fe-quick-txt b { display: block; font-size: 15px; color: #0f172a; } .fe-quick-txt span { font-size: 12.5px; color: #64748b; }
-.fe-presets button { border: 1px solid #cfe3d6; background: #fff; color: #166534; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: inherit; }
-.fe-presets button.on { background: #166534; color: #fff; border-color: #166534; }
+.fe-presets button { border: 1px solid #cfe3d6; background: #fff; color: #14532d; border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.fe-presets button.on { background: #14532d; color: #fff; border-color: #14532d; }
 .fe-money { display: inline-flex; align-items: center; gap: 4px; height: 40px; border: 1.5px solid #d6e0da; border-radius: 10px; background: #fff; padding: 0 10px; margin: 0; }
-.fe-money:focus-within { border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.fe-money:focus-within { border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .fe-money span { font-weight: 800; color: #64748b; }
 .fe-money input { width: 78px; border: 0; outline: none; font-size: 15px; font-weight: 800; color: #0f172a; background: transparent; padding: 0; height: 100%; font-family: inherit; -moz-appearance: textfield; }
 .fe-money input::-webkit-outer-spin-button, .fe-money input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .fe-money.big input { width: 110px; }
-.fe-btn { height: 40px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #cfe3d6; background: #fff; color: #166534; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; }
-.fe-btn.primary { background: #166534; border-color: #166534; color: #fff; }
+.fe-btn { height: 40px; padding: 0 16px; border-radius: 10px; border: 1.5px solid #cfe3d6; background: #fff; color: #14532d; font-size: 13.5px; font-weight: 800; cursor: pointer; white-space: nowrap; font-family: inherit; }
+.fe-btn.primary { background: #14532d; border-color: #14532d; color: #fff; }
 .fe-btn:disabled { opacity: .55; cursor: default; }
 .fe-list { display: flex; flex-direction: column; gap: 10px; }
 .fe-svc { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 10px 16px; align-items: center; background: #fff; border: 1px solid #e3e8e5; border-radius: 14px; padding: 12px 14px; }
@@ -188,7 +188,7 @@ const FE_CSS = `
 .fe-fmt.on { background: #fff; border-color: #bfe3cb; }
 .fe-fmt.bad { border-color: #f59e0b; background: #fffbeb; }
 .fe-fmt-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fe-fmt-name i { color: #166534; margin-right: 3px; }
+.fe-fmt-name i { color: #14532d; margin-right: 3px; }
 .fe-fmt:not(.on) .fe-fmt-name { color: #94a3b8; } .fe-fmt:not(.on) .fe-fmt-name i { color: #94a3b8; }
 .fe-off { font-size: 12px; color: #94a3b8; font-weight: 600; }
 .fe-fmt .fe-money { height: 36px; } .fe-fmt .fe-money input { width: 64px; font-size: 14px; }
@@ -197,7 +197,7 @@ const FE_CSS = `
 .fe-switch[aria-checked="true"] { background: #16a34a; } .fe-switch[aria-checked="true"] i { transform: translateX(14px); }
 .fe-bar { position: sticky; bottom: 12px; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 10px 16px; border-radius: 14px;
   background: #fff; border: 1px solid #e3e8e5; box-shadow: 0 10px 30px -14px rgba(15,23,42,.35); font-size: 13px; font-weight: 700; color: #475569; }
-.fe-bar.show { border-color: #166534; background: #f0fdf4; color: #14532d; }
+.fe-bar.show { border-color: #14532d; background: #f0fdf4; color: #14532d; }
 @media (max-width: 900px) {
   .fe-svc { grid-template-columns: 1fr; }
 }

@@ -248,7 +248,7 @@ const CSS = `
 .th-hdr-a { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
 .th-act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 11px; padding: 10px 18px; font: inherit; font-size: 13px; font-weight: 800; white-space: nowrap; cursor: pointer; text-decoration: none !important; background: #14532d; color: #fff !important; box-shadow: 0 8px 18px -10px rgba(20,83,45,.6); transition: transform .15s; }
 .th-act:hover { transform: translateY(-1px); }
-.th-act.gold { background: #fff; color: #166534 !important; border: 1.5px solid #15803d; box-shadow: none; }
+.th-act.gold { background: #fff; color: #14532d !important; border: 1.5px solid #15803d; box-shadow: none; }
 .th-act:disabled { opacity: .7; cursor: wait; }
 .th-hdr-meta { display: flex; align-items: center; gap: 12px; }
 .th-upd { border: 0; background: none; padding: 0; display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 11px; font-weight: 600; color: #94a3b8; cursor: pointer; }
@@ -300,7 +300,7 @@ const CSS = `
 .th-steps li.done { color: #14532d; }
 .th-steps li.done i { background: #1f6b47; border-color: #1f6b47; color: #fff; }
 .th-steps li.done:not(:last-child)::after { background: #1f6b47; }
-.th-steps li.now { color: #166534; }
+.th-steps li.now { color: #14532d; }
 .th-steps li.now i { border-color: #22a35a; color: #15803d; }
 .th-apply p { margin: 0 0 14px; color: #64748b; font-size: 14px; }
 
@@ -331,7 +331,7 @@ const CSS = `
 .th-task-t { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .th-task-t b { font-size: 14px; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .th-task-t small { font-size: 12px; color: #94a3b8; font-weight: 600; }
-.th-due { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; background: #f0faf3; color: #166534; white-space: nowrap; }
+.th-due { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; background: #f0faf3; color: #14532d; white-space: nowrap; }
 .th-due.today { background: #fff7e6; color: #b45309; }
 .th-due.late { background: #fef2f2; color: #b91c1c; }
 .th-note-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex-shrink: 0; background: #e7eef6; color: #2f5d8a; }
@@ -413,7 +413,7 @@ const CSS = `
 .th .th-ring { background: conic-gradient(from -90deg, #16a34a 0 calc(var(--p) * 1%), #dcefe3 calc(var(--p) * 1%)) !important; }
 .th .th-ring b { color: #14532d !important; }
 .th .th-bar-col span { background: #0d9488; }
-.th .th-bar.today .th-bar-col span { background: #d4a24c; }
+.th .th-bar.today .th-bar-col span { background: #e3a83a; }
 .th .th-task-ic { background: #fde8c8; color: #b45309; }
 .th .th-note-ic { background: #e0e2fb; color: #4f46e5; }
 .th .th-seal { background: #f5c542; color: #3d2a00; border-radius: 50%; }

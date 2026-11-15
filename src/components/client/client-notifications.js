@@ -134,13 +134,13 @@ const CN_CSS = `
 .cn-panel { position: absolute; right: -6px; top: calc(100% + 8px); width: 360px; max-height: min(520px, 75vh); display: flex; flex-direction: column; background: #fff; border: 1px solid #e4ece7; border-radius: 16px; box-shadow: 0 22px 50px rgba(15,23,42,.22); z-index: 1300; overflow: hidden; }
 .cn-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid #eef2f0; }
 .cn-head b { font-size: 15px; color: #0f172a; }
-.cn-head button { border: 0; background: none; color: #166534; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+.cn-head button { border: 0; background: none; color: #14532d; font-weight: 800; font-size: 12.5px; cursor: pointer; font-family: inherit; }
 .cn-allow { margin: 10px 12px 0; border: 1px dashed #c7d2fe; background: #eef2ff; color: #3730a3; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; text-align: left; font-family: inherit; }
 .cn-list { overflow-y: auto; padding: 6px; }
 .cn-row { display: flex; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 10px; border-radius: 12px; cursor: pointer; font-family: inherit; }
 /* the app bar styles its icon buttons as 38px circles — never the rows in this panel */
 .cn-panel button.cn-row { width: 100% !important; height: auto !important; border-radius: 12px !important; display: flex !important; place-items: initial; }
-.cn-panel .cn-head button { width: auto !important; height: auto !important; border-radius: 8px !important; background: none !important; color: #166534 !important; display: inline !important; }
+.cn-panel .cn-head button { width: auto !important; height: auto !important; border-radius: 8px !important; background: none !important; color: #14532d !important; display: inline !important; }
 .cn-row:hover { background: #f6f8f7; }
 .cn-row.unread { background: #f0fdf4; }
 .cn-ic { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; }

@@ -168,7 +168,7 @@ const CSS = `
 .pf-ro i { color: #94a3b8; font-size: 13px; }
 .pf-bar { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: flex-end; gap: 14px; padding: 12px 0; background: linear-gradient(180deg, rgba(243,246,244,0), #f3f6f4 40%); }
 .pf-bar .tl-btn { height: 46px; padding: 0 26px; }
-.pf-ok { font-size: 13.5px; font-weight: 700; color: #166534; }
+.pf-ok { font-size: 13.5px; font-weight: 700; color: #14532d; }
 .pf-bad { font-size: 13.5px; font-weight: 700; color: #b91c1c; }
 @media (max-width: 900px) { .pf-grid { grid-template-columns: 1fr; } .pf-side { position: static; } }
 @media (max-width: 640px) { .pf-row, .pf-row.three { grid-template-columns: 1fr; gap: 0; } .pf-bar .tl-btn { flex: 1; } .pf-bar { flex-wrap: wrap; } }

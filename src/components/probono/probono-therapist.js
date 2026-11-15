@@ -25,7 +25,7 @@ export default function ProbonoTherapist() {
             <Box component="ol" sx={{ listStyle: "none", m: 0, mb: 4, p: 0 }}>
               {STEPS.map(([title, text], i) => (
                 <Stack key={title} component="li" direction="row" spacing={2} sx={{ py: 1.75, borderTop: i ? "1px solid #eef2f0" : "none" }}>
-                  <Box sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: "50%", background: "#166534", color: "#fff", display: "grid", placeItems: "center", fontWeight: 800, fontSize: 14 }}>
+                  <Box sx={{ width: 32, height: 32, flexShrink: 0, borderRadius: "50%", background: "#14532d", color: "#fff", display: "grid", placeItems: "center", fontWeight: 800, fontSize: 14 }}>
                     {i + 1}
                   </Box>
                   <Box>

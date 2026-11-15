@@ -73,7 +73,7 @@ export default function AIRecommender() {
           sx={{ 
             p: { xs: 3, md: 6 }, 
             borderRadius: '32px', 
-            border: '2px solid #228756',
+            border: '2px solid #1e7a4c',
             backgroundColor: '#ffffff',
             textAlign: 'center',
             boxShadow: '0 20px 50px rgba(34, 135, 86, 0.1)',
@@ -95,7 +95,7 @@ export default function AIRecommender() {
           <Box sx={{ mb: 4 }}>
             <Avatar 
               sx={{ 
-                bgcolor: '#228756', 
+                bgcolor: '#1e7a4c', 
                 width: 60, 
                 height: 60, 
                 margin: '0 auto 20px',
@@ -105,7 +105,7 @@ export default function AIRecommender() {
               <SmartToyIcon />
             </Avatar>
             <Typography variant="h3" sx={{ fontWeight: 900, color: '#1e293b', mb: 2, fontSize: { xs: '28px', md: '36px' } }}>
-              AI Tool <span style={{ color: '#228756' }}>Recommender</span>
+              AI Tool <span style={{ color: '#1e7a4c' }}>Recommender</span>
             </Typography>
             <Typography sx={{ color: '#64748b', fontSize: '18px', maxWidth: '600px', margin: '0 auto' }}>
               Tell me how you're feeling today, and I'll suggest the best tool from 
@@ -135,8 +135,8 @@ export default function AIRecommender() {
                   borderRadius: '16px',
                   backgroundColor: '#f8fafc',
                   '& fieldset': { borderColor: '#e2e8f0' },
-                  '&:hover fieldset': { borderColor: '#228756' },
-                  '&.Mui-focused fieldset': { borderColor: '#228756' },
+                  '&:hover fieldset': { borderColor: '#1e7a4c' },
+                  '&.Mui-focused fieldset': { borderColor: '#1e7a4c' },
                 }
               }}
             />
@@ -149,7 +149,7 @@ export default function AIRecommender() {
                 borderRadius: '16px',
                 px: 4,
                 py: { xs: 1.5, md: 0 },
-                backgroundColor: '#228756',
+                backgroundColor: '#1e7a4c',
                 fontWeight: 800,
                 textTransform: 'none',
                 fontSize: '16px',
@@ -168,13 +168,13 @@ export default function AIRecommender() {
                   p: 3, 
                   backgroundColor: '#f1f8f5', 
                   borderRadius: '20px', 
-                  border: '1.5px dashed #228756',
+                  border: '1.5px dashed #1e7a4c',
                   maxWidth: '700px',
                   margin: '0 auto',
                   textAlign: 'left'
                 }}
               >
-                <Typography sx={{ fontWeight: 800, color: '#228756', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography sx={{ fontWeight: 800, color: '#1e7a4c', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                   <AutoAwesomeIcon sx={{ fontSize: 18 }} /> AI RECOMMENDATION:
                 </Typography>
                 <Typography sx={{ color: '#1e293b', lineHeight: 1.6, fontSize: '16px', fontWeight: 500 }}>
@@ -188,7 +188,7 @@ export default function AIRecommender() {
                       const el = document.getElementById('resources-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    sx={{ color: '#228756', fontWeight: 800, textTransform: 'none', p: 0 }}
+                    sx={{ color: '#1e7a4c', fontWeight: 800, textTransform: 'none', p: 0 }}
                   >
                     Go to Tools ↓
                   </Button>

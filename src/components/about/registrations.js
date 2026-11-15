@@ -26,7 +26,7 @@ const styles = `
     font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
     color: rgba(255,255,255,.7); margin: 0 0 22px;
   }
-  .rg-label::before, .rg-label::after { content: ""; width: 28px; height: 2px; background: #d4af37; display: inline-block; }
+  .rg-label::before, .rg-label::after { content: ""; width: 28px; height: 2px; background: #e3a83a; display: inline-block; }
 
   .rg-viewport {
     overflow: hidden;
@@ -112,7 +112,7 @@ const gridStyles = `
     font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
     color: #8a5a0b; margin: 0 0 14px;
   }
-  .rgg-label::before, .rgg-label::after { content: ""; width: 28px; height: 2px; background: #d4a24c; display: inline-block; }
+  .rgg-label::before, .rgg-label::after { content: ""; width: 28px; height: 2px; background: #e3a83a; display: inline-block; }
   .rgg-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
   .rgg-card {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;

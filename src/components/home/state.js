@@ -66,7 +66,7 @@ export default function State() {
           <h2 style={{
             fontSize: '3rem',
             fontWeight: '800',
-            background: 'linear-gradient(135deg, #228756 0%, #007f99 100%)',
+            background: 'linear-gradient(135deg, #1e7a4c 0%, #007f99 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -98,7 +98,7 @@ export default function State() {
             }}>
               Available in{" "}
               <span className="highlight" style={{
-                color: '#228756',
+                color: '#1e7a4c',
                 fontWeight: '700',
                 fontSize: '1.2rem'
               }}>

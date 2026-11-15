@@ -38,7 +38,7 @@ const LocalPresence = () => {
             color: "#1e293b",
             mb: 2
           }}>
-            Our Presence in <span style={{ color: '#228756' }}>Noida & Delhi</span>
+            Our Presence in <span style={{ color: '#1e7a4c' }}>Noida & Delhi</span>
           </Typography>
           <Typography sx={{ color: '#64748b', fontSize: '1.2rem', maxWidth: '700px', mx: 'auto' }}>
             Visit our centers or book an in-person session with the best psychologists in Noida and Delhi NCR.
@@ -55,17 +55,17 @@ const LocalPresence = () => {
                       <Typography variant="h3" sx={{ fontWeight: 800, mb: 3, color: '#1e293b' }}>{loc.city} Center</Typography>
                       
                       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                        <LocationOn sx={{ color: '#228756' }} />
+                        <LocationOn sx={{ color: '#1e7a4c' }} />
                         <Typography sx={{ color: '#475569', fontWeight: 500, fontSize: '1.1rem' }}>{loc.address}</Typography>
                       </Box>
                       
                       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                        <Phone sx={{ color: '#228756' }} />
+                        <Phone sx={{ color: '#1e7a4c' }} />
                         <Typography sx={{ color: '#475569', fontWeight: 500, fontSize: '1.1rem' }}>{loc.phone}</Typography>
                       </Box>
                       
                       <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-                        <Email sx={{ color: '#228756' }} />
+                        <Email sx={{ color: '#1e7a4c' }} />
                         <Typography sx={{ color: '#475569', fontWeight: 500, fontSize: '1.1rem' }}>{loc.email}</Typography>
                       </Box>
 
@@ -75,7 +75,7 @@ const LocalPresence = () => {
                         href={loc.mapUrl}
                         target="_blank"
                         sx={{ 
-                          bgcolor: '#228756', 
+                          bgcolor: '#1e7a4c', 
                           borderRadius: 3, 
                           px: 4,
                           py: 1.5, 

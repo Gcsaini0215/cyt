@@ -170,7 +170,7 @@ export const NX_CSS = `
 .nx-dot { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 0 2px #fff; flex-shrink: 0; }
 .nx-tone { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
 .nx-tone::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.nx-tone.ok { background: #e7f6ec; color: #166534; }
+.nx-tone.ok { background: #e7f6ec; color: #14532d; }
 .nx-tone.warn { background: #fef3c7; color: #92400e; }
 .nx-tone.off { background: #fee2e2; color: #b91c1c; }
 `;

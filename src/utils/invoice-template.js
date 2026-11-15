@@ -158,7 +158,7 @@ export function buildInvoiceHtml(booking, therapist) {
   .totals td:last-child { text-align: right; font-weight: 700; }
   .totals tr + tr td { border-top: 1px solid #edf1ee; }
   .totals .grand td { background: #0f3d24; color: #fff; font-size: 15px; font-weight: 800; }
-  .totals .bal td { color: #166534; }
+  .totals .bal td { color: #14532d; }
 
   .stamp { position: absolute; right: 16mm; top: 47mm; transform: rotate(-14deg); border: 3px solid ${isPaid ? "#16a34a" : "#d97706"}; color: ${isPaid ? "#16a34a" : "#d97706"}; font-weight: 800; font-size: 18px; letter-spacing: 4px; padding: 3px 14px; border-radius: 8px; opacity: .6; z-index: 2; background: rgba(255,255,255,.6); }
 
@@ -249,7 +249,7 @@ export function buildInvoiceHtml(booking, therapist) {
         <div class="pay">
           <p class="lbl">Payment details</p>
           <table>
-            <tr><td>Status</td><td style="color:${isPaid ? "#166534" : "#b45309"}">${esc(isPaid ? "Paid" : statusName || "Pending")}</td></tr>
+            <tr><td>Status</td><td style="color:${isPaid ? "#14532d" : "#b45309"}">${esc(isPaid ? "Paid" : statusName || "Pending")}</td></tr>
             ${tx.payment_method ? `<tr><td>Method</td><td>${esc(tx.payment_method)}</td></tr>` : ""}
             ${tx.transaction_id ? `<tr><td>Transaction ID</td><td>${esc(tx.transaction_id)}</td></tr>` : ""}
             ${tx.createdAt ? `<tr><td>Paid on</td><td>${esc(fmtDate(tx.createdAt))}, ${esc(fmtTime(tx.createdAt))}</td></tr>` : ""}

@@ -127,13 +127,13 @@ function JourneySteps({ current, isMobile }) {
                   width: circleSize, height: circleSize, borderRadius: "50%", flexShrink: 0,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   background: state === "done" ? "#0f3d24" : state === "active" ? "#f0fdf4" : "#fff",
-                  border: `2px solid ${state === "active" ? "#228756" : color}`,
+                  border: `2px solid ${state === "active" ? "#1e7a4c" : color}`,
                   boxShadow: state === "active" ? "0 0 0 3px rgba(34,135,86,0.12)" : "none",
                   transition: "all 0.2s",
                 }}>
                   {state === "done"
                     ? <i className="feather-check" style={{ fontSize: isMobile ? 10 : 12, color: "#fff" }}></i>
-                    : <i className={s.icon} style={{ fontSize: isMobile ? 10 : 12, color: state === "active" ? "#228756" : "#94a3b8" }}></i>}
+                    : <i className={s.icon} style={{ fontSize: isMobile ? 10 : 12, color: state === "active" ? "#1e7a4c" : "#94a3b8" }}></i>}
                 </div>
                 <span style={{
                   fontSize: isMobile ? 8.5 : 12, fontWeight: state === "upcoming" ? 600 : 800,
@@ -322,7 +322,7 @@ function SuccessScreen({ name, email }) {
         </p>
 
         <div style={{ background: "#f0fdf4", border: "1.5px solid #bbf7d0", borderRadius: 14, padding: "18px 20px", marginBottom: 24, textAlign: "left" }}>
-          <p style={{ fontSize: 13, fontWeight: 800, color: "#166534", margin: "0 0 4px" }}>Need further assistance?</p>
+          <p style={{ fontSize: 13, fontWeight: 800, color: "#14532d", margin: "0 0 4px" }}>Need further assistance?</p>
           <p style={{ fontSize: 12.5, color: "#3f6212", margin: "0 0 12px", lineHeight: 1.6 }}>
             Message us on WhatsApp or email us — our team is happy to help with any questions about your application.
           </p>
@@ -333,7 +333,7 @@ function SuccessScreen({ name, email }) {
               <i className="feather-message-circle"></i> WhatsApp Us
             </a>
             <a href="mailto:hello@chooseyourtherapist.in"
-              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#fff", color: "#166534", border: "1.5px solid #86efac", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
+              style={{ display: "inline-flex", alignItems: "center", gap: 7, textDecoration: "none", background: "#fff", color: "#14532d", border: "1.5px solid #86efac", padding: "9px 16px", borderRadius: 10, fontSize: 12.5, fontWeight: 700 }}>
               <i className="feather-mail"></i> hello@chooseyourtherapist.in
             </a>
           </div>
@@ -342,7 +342,7 @@ function SuccessScreen({ name, email }) {
         <Link href="/" style={{
           textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
           padding: "13px 28px", borderRadius: 12,
-          background: "linear-gradient(135deg,#1b5e20,#228756)",
+          background: "linear-gradient(135deg,#1b5e20,#1e7a4c)",
           color: "#fff", fontWeight: 700, fontSize: 14,
           boxShadow: "0 4px 14px rgba(34,135,86,0.25)",
         }}>
@@ -624,26 +624,26 @@ export default function TherapistRegistration() {
       </Head>
 
       <style dangerouslySetInnerHTML={{ __html: `
-        input:focus, select:focus, textarea:focus { border-color: #228756 !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
+        input:focus, select:focus, textarea:focus { border-color: #1e7a4c !important; box-shadow: 0 0 0 3px rgba(34,135,86,0.08) !important; }
         .req { color: #ef4444; }
         .section-card { background: #fff; border: 1px solid #dbe3df; border-radius: 4px; padding: 26px 28px; margin-bottom: 20px; }
         @media (max-width: 991px) { .section-card { padding: 18px 16px; } }
         @keyframes trspin { to { transform: rotate(360deg); } }
 
         .af-doc { border: 1px solid #dbe3df; border-radius: 4px; background: #fff; overflow: hidden; }
-        .af-titlebar { background: #0f3d24; text-align: left; padding: 18px 24px; border-radius: 4px 4px 0 0; border-bottom: 3px solid #d4af37; }
+        .af-titlebar { background: #0f3d24; text-align: left; padding: 18px 24px; border-radius: 4px 4px 0 0; border-bottom: 3px solid #e3a83a; }
         .af-titlebar-eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.65) !important; margin: 0 0 4px; }
         .af-titlebar-title { font-size: 18px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin: 0; color: #ffffff !important; }
         .af-titlebar-sub { font-size: 12px; color: rgba(255,255,255,0.7) !important; margin: 6px 0 0; }
         .tr-steps { display: flex; gap: 8px; margin-bottom: 10px; }
         .tr-step { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
         .tr-step-dot { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800; background: #fff; border: 2px solid #cbd5c9; color: #94a3b8; }
-        .tr-step.on .tr-step-dot { border-color: #228756; color: #166534; background: #f0fdf4; box-shadow: 0 0 0 3px rgba(34,135,86,.12); }
-        .tr-step.done .tr-step-dot { background: #166534; border-color: #166534; color: #fff; }
+        .tr-step.on .tr-step-dot { border-color: #1e7a4c; color: #14532d; background: #f0fdf4; box-shadow: 0 0 0 3px rgba(34,135,86,.12); }
+        .tr-step.done .tr-step-dot { background: #14532d; border-color: #14532d; color: #fff; }
         .tr-step-label { font-size: 13px; font-weight: 700; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .tr-step.on .tr-step-label, .tr-step.done .tr-step-label { color: #0f3d24; }
         .tr-bar { height: 4px; border-radius: 999px; background: #e8efeb; margin-bottom: 22px; overflow: hidden; }
-        .tr-bar i { display: block; height: 100%; background: linear-gradient(90deg, #22a35a, #166534); border-radius: 999px; transition: width .35s ease; }
+        .tr-bar i { display: block; height: 100%; background: linear-gradient(90deg, #22a35a, #14532d); border-radius: 999px; transition: width .35s ease; }
         .tr-note { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
         .tr-note button { margin-left: auto; background: none; border: none; color: #1d4ed8; font-weight: 800; text-decoration: underline; cursor: pointer; font-size: 13px; }
         .pk-intro { margin: 0 0 16px; font-size: 13.5px; color: #475569; line-height: 1.6; }
@@ -652,12 +652,12 @@ export default function TherapistRegistration() {
         .pk-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; padding: 18px 16px 16px; border-radius: 14px; border: 1.5px solid #dbe5df; background: #fff; cursor: pointer; font-family: inherit; transition: border-color .15s, box-shadow .15s, background .15s; }
         .pk-card:hover { border-color: #9fcdb2; }
         .pk-card.on { border-color: #1e7a4c; background: #f3faf6; box-shadow: 0 0 0 3px #dcefe3; }
-        .pk-tag { position: absolute; top: -10px; left: 14px; padding: 2px 9px; border-radius: 999px; background: #d4af37; color: #3a2d05; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; }
+        .pk-tag { position: absolute; top: -10px; left: 14px; padding: 2px 9px; border-radius: 999px; background: #e3a83a; color: #3a2d05; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; }
         .pk-radio { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #cbd5e1; background: #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
         .pk-card.on .pk-radio { border-color: #1e7a4c; background: #1e7a4c; }
         .pk-label { font-size: 13px; font-weight: 700; color: #475569; }
         .pk-price { font-size: 26px; font-weight: 900; color: #0f3d24; line-height: 1.15; }
-        .pk-day { display: inline-block; margin: 3px 0 2px; padding: 2px 8px; border-radius: 999px; background: #e8f5ee; color: #166534; font-size: 12px; font-weight: 800; }
+        .pk-day { display: inline-block; margin: 3px 0 2px; padding: 2px 8px; border-radius: 999px; background: #e8f5ee; color: #14532d; font-size: 12px; font-weight: 800; }
         .pk-per { font-size: 12px; color: #64748b; margin-bottom: 8px; }
         .pk-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
         .pk-card li { margin: 0; display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; color: #334155; line-height: 1.4; }
@@ -668,7 +668,7 @@ export default function TherapistRegistration() {
         .pk-terms ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; line-height: 1.55; }
         .pk-terms li { margin: 0; }
         .pk-check { display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid #cbd5c9; background: #fafafa; cursor: pointer; font-size: 13.5px; color: #334155; line-height: 1.55; }
-        .pk-check.on { border-color: #86efac; background: #f0fdf4; color: #166534; }
+        .pk-check.on { border-color: #86efac; background: #f0fdf4; color: #14532d; }
         .pk-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: #1e7a4c; position: static; opacity: 1; }
         @media (max-width: 1180px) and (min-width: 900px) { .pk-grid { grid-template-columns: 1fr; } }
         @media (max-width: 640px) { .pk-grid { grid-template-columns: 1fr; gap: 14px; } }
@@ -676,7 +676,7 @@ export default function TherapistRegistration() {
         .tr-chips { display: flex; flex-wrap: wrap; gap: 8px; }
         .tr-chip { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 999px; border: 1.5px solid #cbd5c9; background: #fff; color: #334155; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
         .tr-chip:hover { border-color: #86efac; }
-        .tr-chip.on { border-color: #228756; background: #f0fdf4; color: #166534; font-weight: 700; }
+        .tr-chip.on { border-color: #1e7a4c; background: #f0fdf4; color: #14532d; font-weight: 700; }
         .tr-chip.sm { padding: 7px 12px; font-size: 12.5px; }
         .tr-chip i { font-size: 13px; }
         .tr-upload { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border: 2px dashed #cbd5c9; border-radius: 12px; padding: 14px; background: #fafafa; }
@@ -684,8 +684,8 @@ export default function TherapistRegistration() {
         .tr-upload-name { flex: 1; min-width: 140px; display: flex; flex-direction: column; }
         .tr-upload-name b { font-size: 13.5px; color: #1e293b; word-break: break-all; }
         .tr-upload-name span { font-size: 11.5px; color: #64748b; }
-        .tr-btn-sm { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #166534; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; }
-        .tr-btn-sm.ghost { background: #fff; color: #166534; border: 1.5px solid #86efac; }
+        .tr-btn-sm { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #14532d; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; }
+        .tr-btn-sm.ghost { background: #fff; color: #14532d; border: 1.5px solid #86efac; }
         .tr-link { background: none; border: none; color: #dc2626; font-size: 12.5px; font-weight: 700; cursor: pointer; }
         .tr-file-err { margin: 6px 0 0; font-size: 12.5px; color: #dc2626; font-weight: 600; }
         .tr-nav { display: flex; gap: 10px; margin-top: 4px; }
@@ -700,7 +700,7 @@ export default function TherapistRegistration() {
         .tr-words.over { color: #dc2626; }
         @media (max-width: 575px) { .tr-map { height: 240px; } }
         .tr-back { flex: 1; padding: 14px; border-radius: 10px; border: 1.5px solid #cbd5c9; background: #fff; color: #374151; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .tr-next { flex: 2; padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #1b5e20, #228756); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .tr-next { flex: 2; padding: 14px; border-radius: 10px; border: none; background: linear-gradient(135deg, #1b5e20, #1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .tr-next:disabled { opacity: .7; cursor: not-allowed; }
         @media (max-width: 575px) {
           .tr-step-label { font-size: 11px; }
@@ -720,7 +720,7 @@ export default function TherapistRegistration() {
         .trs-share-row { display: flex; align-items: center; gap: 8px; }
         .trs-share-row > small { flex: 0 0 56px; text-align: right; font-size: 11px; font-weight: 800; color: #8a5a06; white-space: nowrap; }
         .trs-share-bar { flex: 1; min-width: 0; position: relative; display: flex; align-items: center; height: 24px; border-radius: 7px; background: #fdf3dc; overflow: hidden; }
-        .trs-share-bar i { display: flex; align-items: center; height: 100%; background: linear-gradient(90deg, #166534, #22a35a); border-radius: 7px 0 0 7px; }
+        .trs-share-bar i { display: flex; align-items: center; height: 100%; background: linear-gradient(90deg, #14532d, #22a35a); border-radius: 7px 0 0 7px; }
         .trs-share-bar em { font-style: normal; font-size: 11.5px; font-weight: 800; color: #fff; padding-left: 8px; white-space: nowrap; }
         .trs-share-txt { font-size: 12px; color: #475569; line-height: 1.4; } .trs-share-txt b { color: #0f3d24; margin-right: 6px; }
         .trs-share p { margin: 0; font-size: 11.5px; color: #64748b; line-height: 1.5; }
@@ -767,7 +767,7 @@ export default function TherapistRegistration() {
           .trs-h { font-size: 19px; }
           .trs-sub { display: none; }
               }
-        .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #d4af37; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
+        .af-notice { display: flex; gap: 10px; align-items: flex-start; background: #fffbeb; border: 1px solid #fde68a; border-left: 3px solid #e3a83a; border-radius: 3px; padding: 12px 14px; margin: 18px; font-size: 11.5px; color: #78350f; line-height: 1.6; }
       ` }} />
 
       <MyNavbar />
@@ -805,11 +805,11 @@ export default function TherapistRegistration() {
               <div style={{ padding: "26px 28px" }}>
                 <div style={{ textAlign: "center", marginBottom: 20 }}>
                   <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#f0fdf4", border: "2px solid #bbf7d0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px" }}>
-                    <i className="feather-mail" style={{ fontSize: 22, color: "#166534" }}></i>
+                    <i className="feather-mail" style={{ fontSize: 22, color: "#14532d" }}></i>
                   </div>
                   <p style={{ fontSize: 13, color: "#64748b", margin: 0, lineHeight: 1.6 }}>
                     We've sent a 6-digit code to<br />
-                    <strong style={{ color: "#166534" }}>{registeredEmail}</strong>
+                    <strong style={{ color: "#14532d" }}>{registeredEmail}</strong>
                   </p>
                 </div>
 
@@ -827,10 +827,10 @@ export default function TherapistRegistration() {
                 </div>
 
                 {otpError && <p style={{ color: "#dc2626", fontSize: 13, marginBottom: 8, textAlign: "center", fontWeight: 600 }}>{otpError}</p>}
-                {resendMsg && <p style={{ color: "#228756", fontSize: 13, marginBottom: 8, textAlign: "center", fontWeight: 600 }}>{resendMsg}</p>}
+                {resendMsg && <p style={{ color: "#1e7a4c", fontSize: 13, marginBottom: 8, textAlign: "center", fontWeight: 600 }}>{resendMsg}</p>}
 
                 <button onClick={verifyOtp} disabled={loading}
-                  style={{ width: "100%", padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                  style={{ width: "100%", padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#1e7a4c)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                   {loading
                     ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span> Verifying...</>
                     : <><i className="feather-check-circle"></i> Verify &amp; Complete Registration</>}
@@ -839,7 +839,7 @@ export default function TherapistRegistration() {
                 <p style={{ textAlign: "center", marginTop: 14, fontSize: 13, color: "#94a3b8" }}>
                   Didn't receive the code?{" "}
                   <button onClick={resendOtp} disabled={resendLoading}
-                    style={{ background: "none", border: "none", color: "#228756", fontWeight: 700, fontSize: 13, cursor: "pointer", padding: 0, opacity: resendLoading ? 0.6 : 1 }}>
+                    style={{ background: "none", border: "none", color: "#1e7a4c", fontWeight: 700, fontSize: 13, cursor: "pointer", padding: 0, opacity: resendLoading ? 0.6 : 1 }}>
                     {resendLoading ? "Sending..." : "Resend"}
                   </button>
                 </p>
@@ -889,7 +889,7 @@ export default function TherapistRegistration() {
                 )}
 
                 {[
-                  { title: "Personal Details", icon: "feather-user", color: "#228756", rows: [
+                  { title: "Personal Details", icon: "feather-user", color: "#1e7a4c", rows: [
                     ["Full Name", form.name], ["Email", form.email], ["Phone", form.phone],
                   ]},
                   { title: "Professional Profile", icon: "feather-briefcase", color: "#0ea5e9", rows: [
@@ -941,7 +941,7 @@ export default function TherapistRegistration() {
                       { label: `ID Card${form.idCardType ? ` (${form.idCardType})` : ""}`, file: form.idCardFile, icon: "feather-credit-card" },
                     ].map(({ label, file, icon }) => (
                       <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <i className={icon} style={{ fontSize: 14, color: file ? "#228756" : "#cbd5e1", flexShrink: 0 }}></i>
+                        <i className={icon} style={{ fontSize: 14, color: file ? "#1e7a4c" : "#cbd5e1", flexShrink: 0 }}></i>
                         <div>
                           <span style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>{label}</span>
                           <span style={{ fontSize: 13, color: file ? "#374151" : "#94a3b8" }}>{file ? file.name : "Not uploaded"}</span>
@@ -957,7 +957,7 @@ export default function TherapistRegistration() {
                     <i className="feather-edit-2"></i> Edit Details
                   </button>
                   <button type="button" onClick={handleSubmit} disabled={loading}
-                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#228756)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                    style={{ flex: 2, minWidth: 180, padding: "14px", borderRadius: 3, border: "none", background: "linear-gradient(135deg,#1b5e20,#1e7a4c)", color: "#fff", fontSize: 14, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
                     {loading
                       ? <><span style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "trspin 0.8s linear infinite" }}></span> Submitting...</>
                       : <><i className="feather-send"></i> Confirm &amp; Submit</>}
@@ -1046,12 +1046,12 @@ export default function TherapistRegistration() {
                           const checked = form.mode === m.value;
                           return (
                             <button type="button" key={m.value} onClick={() => set("mode", m.value)} aria-pressed={checked} style={{
-                              border: `1.5px solid ${checked ? "#228756" : "#cbd5c9"}`, borderRadius: 10, padding: "12px 8px", cursor: "pointer",
+                              border: `1.5px solid ${checked ? "#1e7a4c" : "#cbd5c9"}`, borderRadius: 10, padding: "12px 8px", cursor: "pointer",
                               background: checked ? "#f0fdf4" : "#fff", transition: "all 0.15s", fontFamily: "inherit",
                               display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                             }}>
-                              <i className={m.icon} style={{ fontSize: 18, color: checked ? "#228756" : "#94a3b8" }}></i>
-                              <span style={{ fontSize: 12.5, fontWeight: checked ? 700 : 500, color: checked ? "#166534" : "#475569" }}>{m.label}</span>
+                              <i className={m.icon} style={{ fontSize: 18, color: checked ? "#1e7a4c" : "#94a3b8" }}></i>
+                              <span style={{ fontSize: 12.5, fontWeight: checked ? 700 : 500, color: checked ? "#14532d" : "#475569" }}>{m.label}</span>
                             </button>
                           );
                         })}
@@ -1131,7 +1131,7 @@ export default function TherapistRegistration() {
                           {form[key] ? (
                             <>
                               <FileThumb file={form[key]} />
-                              {!form[key].type?.startsWith("image/") && <i className={icon} style={{ fontSize: 26, color: "#228756" }} />}
+                              {!form[key].type?.startsWith("image/") && <i className={icon} style={{ fontSize: 26, color: "#1e7a4c" }} />}
                               <div className="tr-upload-name">
                                 <b>{form[key].name}</b>
                                 <span>{(form[key].size / 1048576).toFixed(1)}MB · ready</span>
@@ -1173,7 +1173,7 @@ export default function TherapistRegistration() {
                         {form.idCardFile ? (
                           <>
                             <FileThumb file={form.idCardFile} />
-                            {!form.idCardFile.type?.startsWith("image/") && <i className="feather-credit-card" style={{ fontSize: 26, color: "#228756" }} />}
+                            {!form.idCardFile.type?.startsWith("image/") && <i className="feather-credit-card" style={{ fontSize: 26, color: "#1e7a4c" }} />}
                             <div className="tr-upload-name">
                               <b>{form.idCardFile.name}</b>
                               <span>{(form.idCardFile.size / 1048576).toFixed(1)}MB · ready</span>
@@ -1203,14 +1203,14 @@ export default function TherapistRegistration() {
                     {/* Terms */}
                     <label style={{ display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", marginTop: 6, padding: "14px 16px", borderRadius: 10, border: `1.5px solid ${form.agreeTerms ? "#86efac" : "#cbd5c9"}`, background: form.agreeTerms ? "#f0fdf4" : "#fafafa", transition: "all 0.2s" }}>
                       <input type="checkbox" checked={form.agreeTerms} onChange={e => set("agreeTerms", e.target.checked)} style={{ position: "absolute", opacity: 0, width: 1, height: 1 }} />
-                      <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#228756" : "#cbd5e1"}`, background: form.agreeTerms ? "#228756" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1, border: `2px solid ${form.agreeTerms ? "#1e7a4c" : "#cbd5e1"}`, background: form.agreeTerms ? "#1e7a4c" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>
                         {form.agreeTerms && <i className="feather-check" style={{ fontSize: 12, color: "#fff" }}></i>}
                       </div>
-                      <span style={{ fontSize: 12.5, color: form.agreeTerms ? "#166534" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
+                      <span style={{ fontSize: 12.5, color: form.agreeTerms ? "#14532d" : "#475569", lineHeight: 1.7, fontWeight: form.agreeTerms ? 600 : 400 }}>
                         I agree to the{" "}
-                        <Link href="/terms-conditions" style={{ color: "#228756", fontWeight: 700 }}>Terms &amp; Conditions</Link>{" "}
+                        <Link href="/terms-conditions" style={{ color: "#1e7a4c", fontWeight: 700 }}>Terms &amp; Conditions</Link>{" "}
                         and{" "}
-                        <Link href="/privacy-policy" style={{ color: "#228756", fontWeight: 700 }}>Privacy Policy</Link>,
+                        <Link href="/privacy-policy" style={{ color: "#1e7a4c", fontWeight: 700 }}>Privacy Policy</Link>,
                         and confirm that the information and documents are accurate and mine.
                       </span>
                     </label>
@@ -1279,7 +1279,7 @@ export default function TherapistRegistration() {
 
                 <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
                   <Link href="/login" style={{ fontSize: 13, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>
-                    Already have an account? <span style={{ color: "#228756" }}>Login here</span>
+                    Already have an account? <span style={{ color: "#1e7a4c" }}>Login here</span>
                   </Link>
                 </div>
               </form>

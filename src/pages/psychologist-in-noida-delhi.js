@@ -131,7 +131,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                 </p>
                 <div className="hero-btns-container" style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
                   <a href="#consultation" className="rbt-btn btn-gradient">Get a Call Back</a>
-                  <a href="/view-all-therapist" className="rbt-btn btn-white" style={{ border: 'none', background: '#ffffff', color: '#228756', fontWeight: '800' }}>Find Your Therapist</a>
+                  <a href="/view-all-therapist" className="rbt-btn btn-white" style={{ border: 'none', background: '#ffffff', color: '#1e7a4c', fontWeight: '800' }}>Find Your Therapist</a>
                 </div>
               </div>
               <div className="col-lg-5">
@@ -231,16 +231,16 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                       Our own therapy centre offers calm, private counselling rooms. When you call back, we can book you in person there or with a psychologist online.
                     </p>
                     
-                    <div className="clinic-details mt--30" style={{ background: '#f8fafc', padding: '25px', borderRadius: '15px', borderLeft: '5px solid #228756', textAlign: 'left' }}>
+                    <div className="clinic-details mt--30" style={{ background: '#f8fafc', padding: '25px', borderRadius: '15px', borderLeft: '5px solid #1e7a4c', textAlign: 'left' }}>
                       <div className="d-flex align-items-start mb--15" style={{ textAlign: 'left' }}>
-                        <i className="feather-map-pin mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px', flexShrink: 0 }}></i>
+                        <i className="feather-map-pin mr--15" style={{ color: '#1e7a4c', fontSize: '20px', marginTop: '5px', flexShrink: 0 }}></i>
                         <div>
                           <h5 style={{ marginBottom: '5px', fontWeight: 700, textAlign: 'left' }}>Address</h5>
                           <p style={{ margin: 0, textAlign: 'left' }}>D-137, Sector 51 (Near LPS Global School), Noida, Uttar Pradesh 201301. Serving Sector 50, 34, and nearby areas.</p>
                         </div>
                       </div>
                       <div className="d-flex align-items-start" style={{ textAlign: 'left' }}>
-                        <i className="feather-clock mr--15" style={{ color: '#228756', fontSize: '20px', marginTop: '5px', flexShrink: 0 }}></i>
+                        <i className="feather-clock mr--15" style={{ color: '#1e7a4c', fontSize: '20px', marginTop: '5px', flexShrink: 0 }}></i>
                         <div>
                           <h5 style={{ marginBottom: '5px', fontWeight: 700, textAlign: 'left' }}>Working Hours</h5>
                           <p style={{ margin: 0, textAlign: 'left' }}>Open 24/7 for Scheduled Appointments</p>
@@ -285,7 +285,7 @@ export default function LocalLandingPage({ ncrCards = [] }) {
                   title: "Anxiety & Stress Management", 
                   desc: "Specialized therapy for fast-paced city life. Overcome work-related stress and chronic anxiety.",
                   icon: "feather-wind",
-                  color: "#228756"
+                  color: "#1e7a4c"
                 },
                 { 
                   title: "Relationship & Couple Counseling", 

@@ -231,7 +231,7 @@ const PIT_CSS = `
 .pit-tab { background: none; border: 0; border-bottom: 2.5px solid transparent; padding: 12px 2px; margin-bottom: -1px; cursor: pointer; white-space: nowrap;
   font-family: inherit; font-size: 15px; font-weight: 700; color: #64748b; transition: color .15s, border-color .15s; }
 .pit-tab:hover { color: #0f3d24; }
-.pit-tab.on { color: #0f3d24; border-bottom-color: #166534; }
+.pit-tab.on { color: #0f3d24; border-bottom-color: #14532d; }
 .pit-stack { display: grid; gap: 16px; }
 .pit-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 24px 26px; box-shadow: 0 1px 3px rgba(15,61,36,.05); }
 .pit-h { font-family: inherit; font-size: 18px; font-weight: 800; color: #0f2a1d; margin: 0 0 12px; letter-spacing: -.1px; display: flex; align-items: baseline; gap: 10px; }
@@ -245,9 +245,9 @@ const PIT_CSS = `
 .pit-h small { font-size: 12.5px; font-weight: 600; color: #94a3b8; }
 .pit-bio { font-size: 16px; line-height: 1.75; color: #334155; margin: 0; white-space: pre-line; text-align: left; }
 .pit-bio.clamp { display: -webkit-box; -webkit-line-clamp: 8; -webkit-box-orient: vertical; overflow: hidden; }
-.pit-more { margin-top: 10px; background: none; border: 0; padding: 0; color: #166534; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.pit-more { margin-top: 10px; background: none; border: 0; padding: 0; color: #14532d; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
 .pit-more:hover { text-decoration: underline; }
-.pit-count { font-size: 12px; font-weight: 800; color: #166534; background: #ecfdf3; border-radius: 999px; padding: 1px 8px; }
+.pit-count { font-size: 12px; font-weight: 800; color: #14532d; background: #ecfdf3; border-radius: 999px; padding: 1px 8px; }
 .pit-lines { display: grid; gap: 14px; }
 .pit-lg h3 { font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #64748b; margin: 0 0 6px; }
 .pit-lg ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; }
@@ -263,11 +263,11 @@ const PIT_CSS = `
 .pit-rows li { padding: 0 !important; }
 .pit-row-a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 12px 14px; color: inherit !important; text-decoration: none !important; transition: background .15s; }
 .pit-row-a:hover { background: #f6fbf8; }
-.pit-go { flex-shrink: 0; font-size: 12.5px; font-weight: 800; color: #166534; border: 1px solid #cfe6d8; border-radius: 999px; padding: 3px 10px; transition: background .15s, color .15s; }
-.pit-row-a:hover .pit-go { background: #166534; color: #fff; border-color: #166534; }
+.pit-go { flex-shrink: 0; font-size: 12.5px; font-weight: 800; color: #14532d; border: 1px solid #cfe6d8; border-radius: 999px; padding: 3px 10px; transition: background .15s, color .15s; }
+.pit-row-a:hover .pit-go { background: #14532d; color: #fff; border-color: #14532d; }
 .pit-week { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
 .pit-wd { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; background: #eef1ef; color: #94a3b8; }
-.pit-wd.on { background: #166534; color: #fff; box-shadow: 0 3px 8px -3px rgba(22,101,52,.5); }
+.pit-wd.on { background: #14532d; color: #fff; box-shadow: 0 3px 8px -3px rgba(22,101,52,.5); }
 .pit-wd.now { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #d4a12f; }
 .pit-wk-sum { margin-left: 6px; font-size: 13.5px; font-weight: 700; color: #4b6b58; }
 .pit-days { background: #fff; }
@@ -278,7 +278,7 @@ const PIT_CSS = `
 .pit-rows, .pit-days { list-style: none; margin: 0; padding: 0; border: 1px solid #e4ece7; border-radius: 12px; overflow: hidden; }
 .pit-rows li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin: 0; border-top: 1px solid #eef2f0; }
 .pit-rows li:first-child, .pit-days li:first-child { border-top: 0; }
-.pit-ic { flex: 0 0 34px; height: 34px; border-radius: 10px; background: #ecfdf3; color: #166534; display: grid; place-items: center; }
+.pit-ic { flex: 0 0 34px; height: 34px; border-radius: 10px; background: #ecfdf3; color: #14532d; display: grid; place-items: center; }
 .pit-ic svg { font-size: 19px; }
 .pit-lbl { flex: 1; font-size: 15px; font-weight: 600; color: #1e293b; }
 .pit-fee { font-size: 16px; font-weight: 800; color: #0f2a1d; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -287,10 +287,10 @@ const PIT_CSS = `
 .pit-day { flex: 0 0 150px; font-size: 15px; font-weight: 700; color: #0f2a1d; display: flex; align-items: center; gap: 8px; }
 .pit-day em { font-style: normal; font-size: 11px; font-weight: 800; color: #fff; background: #16a34a; border-radius: 999px; padding: 2px 8px; }
 .pit-times { flex: 1; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-.pit-time { white-space: nowrap; font-size: 13.5px; font-weight: 600; color: #166534; background: #ecfdf3; border: 1px solid #c6ecd5; border-radius: 8px; padding: 4px 10px; font-variant-numeric: tabular-nums; }
+.pit-time { white-space: nowrap; font-size: 13.5px; font-weight: 600; color: #14532d; background: #ecfdf3; border: 1px solid #c6ecd5; border-radius: 8px; padding: 4px 10px; font-variant-numeric: tabular-nums; }
 .pit-off { font-size: 13.5px; color: #94a3b8; }
 .pit-cta { display: inline-flex; align-items: center; justify-content: center; margin-top: 16px; height: 44px; padding: 0 22px; border-radius: 10px; background: #0f3d24; color: #fff !important; font-size: 14.5px; font-weight: 800; text-decoration: none !important; transition: background .15s; }
-.pit-cta:hover { background: #166534; }
+.pit-cta:hover { background: #14532d; }
 .pit-empty { margin: 0; font-size: 14.5px; color: #64748b; }
 @media (max-width: 1023px) { .pit-lg ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 380px) { .pit-lg li { font-size: 13px !important; } .pit-lg li .pit-kw { font-weight: 700; } }
@@ -310,7 +310,7 @@ const PIT_CSS = `
   .pit-svcgrid.two { grid-template-columns: 1fr; }
   .pit-row-a { padding: 11px 12px; gap: 10px; }
   .pit-go { font-size: 0; border: 0; padding: 0 2px; }
-  .pit-go::after { content: "›"; font-size: 22px; font-weight: 700; color: #166534; line-height: 1; }
+  .pit-go::after { content: "›"; font-size: 22px; font-weight: 700; color: #14532d; line-height: 1; }
   .pit-row-a:hover .pit-go { background: none; }
   .pit-week { gap: 5px; }
   .pit-wd { width: 38px; height: 38px; font-size: 11px; }

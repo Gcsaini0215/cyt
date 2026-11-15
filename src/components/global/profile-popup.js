@@ -103,7 +103,7 @@ export default function ProfilePopup({ open, onClose, therapist }) {
         
         <Typography
           sx={{
-            color: "#228756",
+            color: "#1e7a4c",
             fontWeight: 700,
             mb: 1.5,
             textTransform: "uppercase",
@@ -150,8 +150,8 @@ export default function ProfilePopup({ open, onClose, therapist }) {
             </Box>
           )}
           <Box sx={{ bgcolor: "#f0fdf4", px: 1.5, py: 0.5, borderRadius: "50px", border: "1px solid #dcfce7", display: "flex", alignItems: "center", gap: 0.5 }}>
-            <CheckCircle sx={{ fontSize: 14, color: "#228756" }} />
-            <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#228756" }}>
+            <CheckCircle sx={{ fontSize: 14, color: "#1e7a4c" }} />
+            <Typography sx={{ fontSize: "12px", fontWeight: 700, color: "#1e7a4c" }}>
               Verified
             </Typography>
           </Box>
@@ -211,7 +211,7 @@ export default function ProfilePopup({ open, onClose, therapist }) {
             variant="contained"
             fullWidth
             sx={{
-              bgcolor: "#228756",
+              bgcolor: "#1e7a4c",
               color: "white",
               py: 1.5,
               borderRadius: "14px",

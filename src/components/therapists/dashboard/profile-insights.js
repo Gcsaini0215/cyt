@@ -9,7 +9,7 @@ import { apiUrl } from "../../../utils/url";
    headline numbers only (locked). A package ending within 7 days shows a renew note with the numbers. */
 
 const SRC = [
-  ["google", "Google search", "#1e7a4c"], ["directory", "Therapist directory", "#2f9a63"], ["home", "Home page", "#d4a24c"],
+  ["google", "Google search", "#1e7a4c"], ["directory", "Therapist directory", "#2f9a63"], ["home", "Home page", "#e3a83a"],
   ["city", "City & topic pages", "#7bb38f"], ["blog", "Blogs", "#e7c27d"], ["social", "WhatsApp / social", "#5b8f74"],
   ["mylink", "Your booking link", "#b7791f"], ["qr", "Your QR code", "#8a5a08"], ["gmaps", "Your Google Maps listing", "#4285f4"],
   ["direct", "Direct / bookmarked", "#a3c9b1"], ["other", "Other", "#cdd9d1"],
@@ -58,7 +58,7 @@ function AreaChart({ daily }) {
 
 function Ring({ value }) {
   const r = 30, c = 2 * Math.PI * r;
-  const tone = value >= 80 ? "#1e7a4c" : value >= 50 ? "#d4a24c" : "#c2410c";
+  const tone = value >= 80 ? "#1e7a4c" : value >= 50 ? "#e3a83a" : "#c2410c";
   return (
     <svg className="pi-ring" viewBox="0 0 76 76" aria-hidden="true">
       <circle cx="38" cy="38" r={r} fill="none" stroke="#eef2ef" strokeWidth="8" />
@@ -153,7 +153,7 @@ const SPOT_CSS = `
 .pvs-v { display: flex; align-items: center; gap: 8px; }
 .pvs-v b { font-size: 30px; font-weight: 900; color: #13261c; line-height: 1.1; }
 .pvs .pi-trend { font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 1px 7px; }
-.pvs .pi-trend.up { color: #166534; background: #dcfce7; } .pvs .pi-trend.down { color: #b91c1c; background: #fee2e2; }
+.pvs .pi-trend.up { color: #14532d; background: #dcfce7; } .pvs .pi-trend.down { color: #b91c1c; background: #fee2e2; }
 .pvs-s { font-size: 12.5px; color: #4b5d53; line-height: 1.45; }
 .pvs-bars { display: flex; align-items: flex-end; gap: 3px; height: 40px; margin-top: 6px; }
 .pvs-bars i { flex: 1; border-radius: 3px 3px 0 0; background: #8cc7a3; }
@@ -302,7 +302,7 @@ const CSS = `
 .pi-kpi-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .pi-kpi.lock > b { color: #b9c5bd; letter-spacing: 2px; }
 .pi-trend { align-self: flex-start; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 1px 7px; }
-.pi-trend.up { color: #166534; background: #dcfce7; }
+.pi-trend.up { color: #14532d; background: #dcfce7; }
 .pi-trend.down { color: #b91c1c; background: #fee2e2; }
 
 .pi-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
@@ -325,7 +325,7 @@ const CSS = `
 .pi-funnel div { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; }
 .pi-funnel b { font-size: 18px; font-weight: 900; color: #13261c; }
 .pi-funnel span { font-size: 11px; color: #6b7c72; }
-.pi-funnel i { font-style: normal; color: #d4a24c; font-weight: 800; }
+.pi-funnel i { font-style: normal; color: #e3a83a; font-weight: 800; }
 
 .pi-locked { position: relative; margin-top: 12px; border-radius: 14px; overflow: hidden; border: 1px solid #e8efea; min-height: 190px; }
 .pi-locked-blur { position: absolute; inset: 0; filter: blur(6px); opacity: .55; padding: 16px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }

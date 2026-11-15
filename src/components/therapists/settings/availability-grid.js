@@ -196,7 +196,7 @@ export default function AvailabilityGrid({ onSuccess }) {
         }
         .avg-cell { height: 34px; border-radius: 7px; border: 1.5px dashed #d8e4dc; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: transparent; transition: background .1s; }
         .avg-cell:hover { border-color: #86efac; }
-        .avg-cell.on { background: #1a6b3a; border: 1.5px solid #1a6b3a; color: #fff; }
+        .avg-cell.on { background: #1e7a4c; border: 1.5px solid #1e7a4c; color: #fff; }
         .avg-cell:focus-visible { outline: 2px solid #f59e0b; outline-offset: 1px; }
         .avg-save { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
         .avg-save button { background: #0f3d24; color: #fff; border: none; border-radius: 10px; padding: 12px 24px; font-weight: 800; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; }

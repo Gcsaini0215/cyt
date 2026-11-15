@@ -38,7 +38,7 @@ export default function Faq(props) {
               flexShrink: 0,
               transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
               transition: "transform 0.25s ease",
-              color: "#166534",
+              color: "#14532d",
             }}
           />
         </button>
@@ -56,7 +56,7 @@ export default function Faq(props) {
         <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", justifyContent: "flex-end", marginTop: "8px" }}>
           <div
             style={{
-              background: "linear-gradient(135deg,#1a6f47,#166534)",
+              background: "linear-gradient(135deg,#1a6f47,#14532d)",
               borderRadius: "14px 4px 14px 14px",
               padding: "12px 14px", maxWidth: "88%",
               color: "#fff", fontSize: "13.5px", lineHeight: 1.7, textAlign: "left",
@@ -67,7 +67,7 @@ export default function Faq(props) {
           <span
             style={{
               width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
-              background: "#d4af37", color: "#0f3d24", fontSize: "10px", fontWeight: 800,
+              background: "#e3a83a", color: "#0f3d24", fontSize: "10px", fontWeight: 800,
               display: "flex", alignItems: "center", justifyContent: "center", marginTop: "2px",
             }}
           >

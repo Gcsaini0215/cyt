@@ -202,14 +202,14 @@ const CP_CSS = `
 .cp h1 { font-size: clamp(21px, 2.4vw, 26px); font-weight: 800; margin: 0; letter-spacing: -.3px; font-family: inherit; }
 .cp-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .cp-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 5px 12px; background: #eef2f0; color: #475569; }
-.cp-status.saved { background: #e7f6ec; color: #166534; } .cp-status.invalid { background: #fef3c7; color: #92400e; } .cp-status.error { background: #fee2e2; color: #b91c1c; }
+.cp-status.saved { background: #e7f6ec; color: #14532d; } .cp-status.invalid { background: #fef3c7; color: #92400e; } .cp-status.error { background: #fee2e2; color: #b91c1c; }
 .cp-status button { border: 0; background: #fff; color: #b91c1c; font-weight: 800; font-size: 12px; border-radius: 999px; padding: 2px 10px; cursor: pointer; font-family: inherit; }
 .cp-sub { margin: 4px 0 14px; font-size: 13.5px; color: #64748b; line-height: 1.5; }
 .cp-skel { height: 420px; border-radius: 16px; background: linear-gradient(90deg,#eef2f0 0%,#f7f9f8 40%,#eef2f0 80%); background-size: 600px 100%; animation: cpsk 1.3s infinite linear; }
 @keyframes cpsk { from { background-position: -300px 0; } to { background-position: 300px 0; } }
 .cp-card { background: #fff; border: 1px solid #e4ece7; border-radius: 16px; padding: 18px 20px; }
 .cp-photo { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #eef2f0; }
-.cp-av { width: 84px; height: 84px; border-radius: 22px; background: #e7f6ec; color: #166534; display: grid; place-items: center; font-size: 30px; font-weight: 800; overflow: hidden; flex-shrink: 0; }
+.cp-av { width: 84px; height: 84px; border-radius: 22px; background: #e7f6ec; color: #14532d; display: grid; place-items: center; font-size: 30px; font-weight: 800; overflow: hidden; flex-shrink: 0; }
 .cp-av img { width: 100%; height: 100%; object-fit: cover; }
 .cp-photo b { display: block; font-size: 16px; } .cp-photo span { display: block; font-size: 12.5px; color: #64748b; margin: 2px 0 8px; word-break: break-all; }
 .cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
@@ -219,17 +219,17 @@ const CP_CSS = `
 .cp-grid small.hint { font-size: 12px; }
 .cp-grid input, .cp-grid select { height: 44px; border: 1px solid #d6e0da; border-radius: 10px; padding: 0 12px; font-size: 14.5px; font-family: inherit; color: #0f172a; background: #fff; width: 100%; }
 .cp-grid input[readonly] { background: #f6f8f7; color: #64748b; }
-.cp-grid input:focus, .cp-grid select:focus { outline: none; border-color: #166534; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
+.cp-grid input:focus, .cp-grid select:focus { outline: none; border-color: #14532d; box-shadow: 0 0 0 3px rgba(22,101,52,.12); }
 .cp-grid label.err input { border-color: #ef4444; }
 .cp-grid em { font-style: normal; font-size: 12px; color: #dc2626; font-weight: 600; }
 .cp-loaderr { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .cp-foot { display: flex; align-items: center; justify-content: flex-end; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
-.cp-msg { font-size: 13px; font-weight: 600; } .cp-msg.ok { color: #166534; } .cp-msg.err { color: #dc2626; }
+.cp-msg { font-size: 13px; font-weight: 600; } .cp-msg.ok { color: #14532d; } .cp-msg.err { color: #dc2626; }
 .cp-btn { display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 18px; border-radius: 11px; font-size: 14px; font-weight: 700; cursor: pointer; border: 1px solid transparent; font-family: inherit; }
 .cp-btn svg { font-size: 18px; }
 .cp-btn.primary { background: linear-gradient(135deg, #14532d, #16a34a); color: #fff; }
 .cp-btn.primary:disabled { opacity: .65; cursor: default; }
-.cp-btn.soft { background: #fff; color: #166534; border-color: #cfe3d6; height: 38px; font-size: 13px; }
+.cp-btn.soft { background: #fff; color: #14532d; border-color: #cfe3d6; height: 38px; font-size: 13px; }
 @media (max-width: 767px) {
   .cp-card { padding: 14px; }
   .cp-grid { grid-template-columns: 1fr; }

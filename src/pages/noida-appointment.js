@@ -254,7 +254,7 @@ function fireConfetti() {
   canvas.height = window.innerHeight;
   document.body.appendChild(canvas);
   const ctx = canvas.getContext("2d");
-  const colors = ["#1a6b3a", "#f59e0b", "#dc2626", "#3b82f6", "#a855f7", "#16a34a"];
+  const colors = ["#1e7a4c", "#f59e0b", "#dc2626", "#3b82f6", "#a855f7", "#16a34a"];
   const particles = Array.from({ length: 120 }, () => ({
     x: Math.random() * canvas.width,
     y: -20 - Math.random() * canvas.height * 0.3,
@@ -1960,7 +1960,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           razorpay_signature: response.razorpay_signature,
         }),
         prefill: { name: effectiveName, email: form.email, contact: form.phone },
-        theme: { color: "#1a6b3a" },
+        theme: { color: "#1e7a4c" },
         modal: {
           ondismiss: () => {
             setStatus(null);
@@ -2221,8 +2221,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-welcome-sub { margin: 6px 0 22px; font-size: 13.5px; color: #64748b; line-height: 1.5; }
         .na-welcome-options { display: flex; flex-direction: column; gap: 10px; }
         .na-welcome-opt { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px 16px; border: 1.5px solid #e2e8f0; border-radius: 14px; background: #fff; cursor: pointer; font-family: inherit; transition: all .15s; }
-        .na-welcome-opt:hover { border-color: #1a6b3a; background: #f6fbf8; transform: translateY(-1px); }
-        .na-welcome-opt-icon { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: #f0fdf4; color: #166534; display: flex; align-items: center; justify-content: center; }
+        .na-welcome-opt:hover { border-color: #1e7a4c; background: #f6fbf8; transform: translateY(-1px); }
+        .na-welcome-opt-icon { flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: #f0fdf4; color: #14532d; display: flex; align-items: center; justify-content: center; }
         .na-welcome-opt-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
         .na-welcome-opt-label { font-size: 14.5px; font-weight: 800; color: #0f172a; }
         .na-welcome-opt-sub { font-size: 12px; color: #64748b; }
@@ -2244,13 +2244,13 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-team-modal .na-welcome-close { z-index: 2; }
         .na-team-head { padding: 28px 26px 12px; }
         .na-team-head .na-welcome-sub { margin: 6px 0 0; }
-        .na-team-slot { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; padding: 5px 10px; border-radius: 999px; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 700; }
+        .na-team-slot { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; padding: 5px 10px; border-radius: 999px; background: #f0fdf4; color: #14532d; font-size: 12.5px; font-weight: 700; }
         .na-team-body { flex: 1; overflow-y: auto; padding: 4px 26px 18px; overscroll-behavior: contain; }
         .na-team-card { display: flex; align-items: center; gap: 13px; width: 100%; text-align: left; padding: 12px 14px; margin-bottom: 9px; border: 1.5px solid #e2e8f0; border-radius: 16px; background: #fff; cursor: pointer; font-family: inherit; transition: border-color .15s, background .15s, transform .15s; }
-        .na-team-card:hover { border-color: #1a6b3a; background: #f6fbf8; }
+        .na-team-card:hover { border-color: #1e7a4c; background: #f6fbf8; }
         .na-team-card:active { transform: scale(.985); }
         .na-team-any { border-style: dashed; }
-        .na-team-av { position: relative; flex-shrink: 0; border-radius: 50%; overflow: hidden; background: #e7f5ec; color: #166534; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+        .na-team-av { position: relative; flex-shrink: 0; border-radius: 50%; overflow: hidden; background: #e7f5ec; color: #14532d; font-weight: 800; display: flex; align-items: center; justify-content: center; }
         .na-team-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .na-team-av-any { background: #fef3c7; color: #b45309; }
         .na-team-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -2258,7 +2258,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-team-meta { font-size: 12.5px; color: #475569; }
         .na-team-sub { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11.5px; color: #64748b; }
         .na-team-rate { color: #b45309; font-weight: 700; font-size: 12px; }
-        .na-team-view { flex-shrink: 0; font-size: 12px; font-weight: 700; color: #1a6b3a; padding: 6px 10px; border-radius: 999px; background: #f0fdf4; }
+        .na-team-view { flex-shrink: 0; font-size: 12px; font-weight: 700; color: #1e7a4c; padding: 6px 10px; border-radius: 999px; background: #f0fdf4; }
         .na-team-go { flex-shrink: 0; font-size: 22px; color: #94a3b8; }
         .na-team-back { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin: 18px 0 4px 20px; padding: 6px 10px; border: none; border-radius: 10px; background: #f1f5f9; color: #334155; font: 700 13px 'Inter', sans-serif; cursor: pointer; }
         .na-team-hero { display: flex; align-items: center; gap: 16px; padding: 10px 0 14px; }
@@ -2273,14 +2273,14 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-team-sec-h { font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
         .na-team-bio { margin: 0; font-size: 13.5px; line-height: 1.6; color: #334155; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
         .na-team-bio.open { display: block; }
-        .na-team-more { margin-top: 4px; padding: 0; border: none; background: none; color: #1a6b3a; font: 700 13px 'Inter', sans-serif; cursor: pointer; }
+        .na-team-more { margin-top: 4px; padding: 0; border: none; background: none; color: #1e7a4c; font: 700 13px 'Inter', sans-serif; cursor: pointer; }
         .na-team-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-        .na-team-chips span, .na-team-chips button { padding: 5px 10px; border-radius: 999px; background: #f0fdf4; color: #166534; font: 600 12px 'Inter', sans-serif; border: 1px solid #dcfce7; }
-        .na-team-chips button { background: #fff; color: #1a6b3a; cursor: pointer; }
-        .na-team-full { display: inline-block; font-size: 13px; font-weight: 700; color: #1a6b3a; text-decoration: none; }
+        .na-team-chips span, .na-team-chips button { padding: 5px 10px; border-radius: 999px; background: #f0fdf4; color: #14532d; font: 600 12px 'Inter', sans-serif; border: 1px solid #dcfce7; }
+        .na-team-chips button { background: #fff; color: #1e7a4c; cursor: pointer; }
+        .na-team-full { display: inline-block; font-size: 13px; font-weight: 700; color: #1e7a4c; text-decoration: none; }
         .na-team-full:hover { text-decoration: underline; }
         .na-team-foot { padding: 12px 26px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid #eef2f0; background: #fff; }
-        .na-team-cta { width: 100%; padding: 14px; border: none; border-radius: 14px; background: #1a6b3a; color: #fff; font: 800 15px 'Inter', sans-serif; cursor: pointer; box-shadow: 0 8px 18px -10px rgba(26,107,58,.7); }
+        .na-team-cta { width: 100%; padding: 14px; border: none; border-radius: 14px; background: #1e7a4c; color: #fff; font: 800 15px 'Inter', sans-serif; cursor: pointer; box-shadow: 0 8px 18px -10px rgba(26,107,58,.7); }
         .na-team-cta:hover { background: #155a30; }
         @media (max-width: 600px) {
           .na-team-modal { max-width: none; padding: 0; max-height: 90vh; }
@@ -2291,9 +2291,9 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           .na-team-view { padding: 5px 8px; font-size: 11.5px; }
         }
 
-        .na-back { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: all .15s; }
+        .na-back { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; border: 1px solid #d5e3da; background: #fff; color: #1e7a4c; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: all .15s; }
         .na-back:hover { background: #f0fdf4; border-color: #86efac; }
-        .na-back:focus-visible { outline: 2px solid #1a6b3a; outline-offset: 2px; }
+        .na-back:focus-visible { outline: 2px solid #1e7a4c; outline-offset: 2px; }
         @media (max-width: 640px) { .na-back { width: 30px; height: 30px; border-radius: 9px; } }
 
         .na-exit-overlay { position: fixed; inset: 0; z-index: 210; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(15,23,20,.45); animation: naWelcomeFade .2s ease; }
@@ -2303,22 +2303,22 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-exit-reasons { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
         .na-exit-reason { display: inline-flex; align-items: center; gap: 4px; padding: 8px 13px; border-radius: 999px; border: 1.5px solid #e2e8f0; background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; transition: all .15s; text-align: left; }
         .na-exit-reason:hover { border-color: #86efac; }
-        .na-exit-reason.on { border-color: #1a6b3a; background: #f0fdf4; color: #166534; }
+        .na-exit-reason.on { border-color: #1e7a4c; background: #f0fdf4; color: #14532d; }
         .na-exit-label { display: block; margin: 8px 0 6px; font-size: 13px; font-weight: 800; color: #0f172a; }
         .na-exit-label span { font-weight: 500; color: #94a3b8; }
         .na-exit-input { width: 100%; height: 44px; box-sizing: border-box; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 0 12px; font-family: inherit; font-size: 14px; color: #0f172a; outline: none; background: #f8fafc; margin-bottom: 6px; }
-        .na-exit-input:focus { border-color: #1a6b3a; background: #fff; }
+        .na-exit-input:focus { border-color: #1e7a4c; background: #fff; }
         .na-exit-hint { margin: 0 0 14px; font-size: 12px; color: #94a3b8; }
         .na-exit-err { margin: -6px 0 12px; font-size: 12.5px; color: #dc2626; font-weight: 600; }
         .na-exit-actions { display: flex; gap: 8px; }
         .na-exit-btn { flex: 1; height: 46px; border-radius: 12px; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; transition: all .15s; }
-        .na-exit-btn.primary { border: none; background: #1a6b3a; color: #fff; }
+        .na-exit-btn.primary { border: none; background: #1e7a4c; color: #fff; }
         .na-exit-btn.primary:disabled { background: #a7c4b2; cursor: not-allowed; }
-        .na-exit-btn.ghost { border: 1.5px solid #d5e3da; background: #fff; color: #1a6b3a; }
+        .na-exit-btn.ghost { border: 1.5px solid #d5e3da; background: #fff; color: #1e7a4c; }
         .na-exit-btn.ghost:hover { background: #f0fdf4; }
         .na-exit-skip { display: block; margin: 12px auto 0; border: none; background: none; font-family: inherit; font-size: 12.5px; color: #94a3b8; text-decoration: underline; cursor: pointer; }
         .na-exit-done { text-align: center; padding: 18px 0 10px; }
-        .na-exit-done-icon { width: 52px; height: 52px; border-radius: 50%; background: #f0fdf4; color: #166534; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+        .na-exit-done-icon { width: 52px; height: 52px; border-radius: 50%; background: #f0fdf4; color: #14532d; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
         .na-exit-done .na-exit-title { padding-right: 0; }
         @media (max-width: 480px) {
           .na-exit-overlay { align-items: flex-end; padding: 0; }
@@ -2339,7 +2339,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-offer-tag { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: #dc2626; color: #fff; font-size: 10px; font-weight: 900; font-style: normal; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px #fff; pointer-events: none; }
         .na-offer-tag.inline { position: static; display: inline-flex; vertical-align: -3px; box-shadow: none; }
         .na-offer-pill { display: inline-block; background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; font-weight: 800; font-size: 12.5px; padding: 4px 10px; border-radius: 999px; margin-bottom: 10px; }
-        .na-offer-code { font-size: 26px; font-weight: 900; letter-spacing: 2px; color: #166534; border: 2px dashed #16a34a; border-radius: 12px; padding: 12px; margin: 10px 0 12px; user-select: all; }
+        .na-offer-code { font-size: 26px; font-weight: 900; letter-spacing: 2px; color: #14532d; border: 2px dashed #16a34a; border-radius: 12px; padding: 12px; margin: 10px 0 12px; user-select: all; }
         .na-offer-consent { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: #475569; margin: 6px 0 12px; cursor: pointer; }
         .na-offer-consent input { margin-top: 2px; }
         .na-coupon-hint { font-size: 12.5px; color: #c2410c; font-weight: 700; margin-top: 6px; }
@@ -2349,7 +2349,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-topbar { max-width: 1100px; margin: 0 auto; padding: 18px 20px 4px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
         .na-topbar-tabs { display: flex; gap: 6px; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px rgba(15,61,34,.08); }
         .na-topbar-tab { border: none; background: none; padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 800; color: #64748b; cursor: pointer; transition: all .15s; white-space: nowrap; }
-        .na-topbar-tab.active { background: #1a6b3a; color: #fff; }
+        .na-topbar-tab.active { background: #1e7a4c; color: #fff; }
         .na-centre { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 320px; }
         .na-centre-mark { flex-shrink: 0; width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid #d9e7de; padding: 6px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(15,61,34,.08); }
         .na-centre-mark img { width: 100%; height: 100%; object-fit: contain; display: block; }
@@ -2357,7 +2357,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-centre-name { font-size: 14px; font-weight: 800; color: #0f2a1d; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .na-centre-addr { font-size: 12px; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .na-centre-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 4px; }
-        .na-centre-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 8px; border: 1px solid #d5e3da; background: #fff; color: #1a6b3a; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+        .na-centre-btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border-radius: 8px; border: 1px solid #d5e3da; background: #fff; color: #1e7a4c; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
         .na-centre-btn:hover { background: #f0fdf4; border-color: #86efac; }
         .na-centre-btn.wa { color: #15803d; }
         .na-chips-host { flex: 1 1 100%; display: flex; justify-content: flex-end; }
@@ -2386,8 +2386,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-shell .na-fullslots-wrap.na-tab { padding: 8px 10px 20px; }
         .na-shell .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
         .na-shell .na-fullslots-card, .na-shell .na-card { background: transparent; box-shadow: none; border-radius: 0; }
-        .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
-        .na-wa-btn:hover { background: #f0fdf4; border-color: #1a6b3a; }
+        .na-wa-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 16px; border-radius: 999px; background: #fff; border: 1.5px solid #bbf7d0; color: #14532d; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; transition: all .15s; font-family: inherit; }
+        .na-wa-btn:hover { background: #f0fdf4; border-color: #1e7a4c; }
         .na-skel { display: block; border-radius: 8px; background: linear-gradient(90deg, #e8eeeb 25%, #f6f8f7 37%, #e8eeeb 63%); background-size: 400% 100%; animation: naShimmer 1.4s ease infinite; }
         /* the site's bottom navigation reserves 75px of body padding up to 1200px wide; let the grey footer fill it */
         @media (max-width: 1200px) { .na-page { margin-bottom: -75px; } .na-foot-in { padding-bottom: 75px; } }
@@ -2396,7 +2396,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-rv { margin: 22px 0 6px; }
         .na-rv-sum { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; font-size: 13.5px; color: #64748b; }
         .na-rv-sum b { font-size: 30px; font-weight: 800; color: #14532d; line-height: 1; }
-        .na-rv-stars { color: #d4a24c; letter-spacing: 1px; font-size: 16px; }
+        .na-rv-stars { color: #e3a83a; letter-spacing: 1px; font-size: 16px; }
         .na-rv-stars i { font-style: normal; color: #e2e8e4; }
         .na-rv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 12px; }
         .na-rv-card { margin: 0; padding: 16px; border-radius: 16px; background: #f6faf7; border: 1px solid #e2ece5; display: flex; flex-direction: column; gap: 8px; }
@@ -2416,7 +2416,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-seo .na-seo-in .na-seo-links { font-size: 14px; color: #64748b; }
         .na-seo .na-seo-in table, .na-seo .na-seo-in td, .na-seo .na-seo-in th { font-size: 14px; color: #334155; }
         .na-seo .na-seo-in th { color: #0f2a1d; }
-        .na-seo a { color: #166534; font-weight: 600; }
+        .na-seo a { color: #14532d; font-weight: 600; }
         .na-seo-table-wrap { overflow-x: auto; }
         .na-seo-table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .na-seo-table th, .na-seo-table td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #e2e8f0; }
@@ -2460,8 +2460,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-card-inner { max-width: 560px; margin: 0 auto; }
         .na-card { background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); padding: 28px 24px 32px; }
 
-        .na-picked-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 700; margin-bottom: 18px; }
-        .na-picked-change { background: none; border: none; color: #1a6b3a; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer; flex-shrink: 0; padding: 12px 10px; margin: -12px -10px; font-family: inherit; }
+        .na-picked-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; border-radius: 12px; padding: 10px 14px; font-size: 13px; font-weight: 700; margin-bottom: 18px; }
+        .na-picked-change { background: none; border: none; color: #1e7a4c; font-size: 12px; font-weight: 800; text-decoration: underline; cursor: pointer; flex-shrink: 0; padding: 12px 10px; margin: -12px -10px; font-family: inherit; }
 
         .na-fullslots-wrap { max-width: 1100px; margin: 0 auto; padding: 20px 20px 60px; }
         .na-fullslots-card { background: #fff; border-radius: 20px; box-shadow: 0 20px 50px rgba(15,61,34,.14); padding: 26px 26px 22px; }
@@ -2476,8 +2476,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-fullslots-table th:first-child { width: 104px; }
         .na-slotcell { display: flex; align-items: center; justify-content: center; width: 100%; min-width: 68px; height: 44px; border-radius: 12px; border: 1.5px solid transparent; font-size: 13px; font-weight: 800; cursor: default; box-sizing: border-box; font-family: inherit; }
         button.na-slotcell.open { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; cursor: pointer; transition: all .15s; }
-        button.na-slotcell.open:hover { background: #1a6b3a; border-color: #1a6b3a; color: #fff; transform: translateY(-1px); }
-        button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; box-shadow: 0 0 0 3px rgba(26,107,58,.2); }
+        button.na-slotcell.open:hover { background: #1e7a4c; border-color: #1e7a4c; color: #fff; transform: translateY(-1px); }
+        button.na-slotcell.open.selected { background: #1e7a4c; border-color: #1e7a4c; color: #fff; box-shadow: 0 0 0 3px rgba(26,107,58,.2); }
         button.na-slotcell.open.selected:hover { transform: none; }
         button.na-slotcell.lastminute { background: #fffbeb; border-color: #fde68a; color: #b45309; cursor: pointer; transition: all .15s; }
         button.na-slotcell.lastminute:hover { background: #b45309; border-color: #b45309; color: #fff; transform: translateY(-1px); }
@@ -2499,22 +2499,22 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-sw-mine { background: #eff6ff; border: 1.5px solid #bfdbfe; }
         .na-sw-past { background: #f1f5f9; }
         .na-sw-closed { background: repeating-linear-gradient(135deg, #f8fafc 0 3px, #dbe2ea 3px 6px); border: 1px solid #e2e8f0; }
-        .na-fullslots-table th.na-th-today { color: #166534; background: #e7f5ec; border-radius: 12px; }
+        .na-fullslots-table th.na-th-today { color: #14532d; background: #e7f5ec; border-radius: 12px; }
         .na-th-m.na-th-today { background: transparent; }
         .na-td-today button.na-slotcell.open { border-color: #86efac; }
         .na-foot-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-        .na-foot-link:hover { color: #166534; }
+        .na-foot-link:hover { color: #14532d; }
         .na-hd { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 12px; row-gap: 2px; margin-bottom: 10px; }
         .na-hd .na-fullslots-sub { margin: 0; }
         .na-hd-r { justify-self: end; min-width: 0; }
         .na-hd .na-next-btn { padding: 5px 11px; font-size: 12px; }
         .na-hd .na-chip { padding: 4px 10px; font-size: 12px; }
         .na-fnote { margin-top: 5px; font-size: 12px; font-weight: 600; color: #b45309; }
-        .na-draft-note { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 600; }
-        .na-linkbtn { background: none; border: none; padding: 0; color: #166534; font-size: 13px; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-family: inherit; }
+        .na-draft-note { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-bottom: 14px; padding: 10px 14px; border-radius: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 13px; font-weight: 600; }
+        .na-linkbtn { background: none; border: none; padding: 0; color: #14532d; font-size: 13px; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; font-family: inherit; }
         .na-alts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -4px 0 14px; }
         .na-alts-k { font-size: 12.5px; font-weight: 700; color: #475569; }
-        .na-alt { padding: 7px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .na-alt { padding: 7px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #14532d; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; }
         .na-alt:hover { background: #dcfce7; border-color: #4ade80; }
         .na-perks .na-help-link { margin: 0; font-size: 12px; }
         .na-selbar-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
@@ -2598,16 +2598,16 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-chips { display: inline-flex; gap: 6px; flex-wrap: wrap; }
         .na-chip { padding: 7px 13px; border-radius: 999px; border: 1.5px solid #e2e8f0; background: #fff; color: #475569; font-size: 12.5px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
         .na-chip:hover { border-color: #94a3b8; }
-        .na-chip.on { background: #166534; border-color: #166534; color: #fff; }
+        .na-chip.on { background: #14532d; border-color: #14532d; color: #fff; }
         button.na-slotcell.recommended:not(.selected) { box-shadow: 0 0 0 3px rgba(34,197,94,.28); animation: naRecPulse 2.2s ease-in-out infinite; }
         @keyframes naRecPulse { 0%, 100% { box-shadow: 0 0 0 2px rgba(34,197,94,.22); } 50% { box-shadow: 0 0 0 5px rgba(34,197,94,.32); } }
         .na-perks { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid #eef2f6; }
         .na-perks span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #475569; }
-        .na-perks svg { color: #166534; }
+        .na-perks svg { color: #14532d; }
         .na-perks .na-perk-price { color: #0f172a; font-weight: 800; }
-        .na-help-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 12.5px; font-weight: 700; color: #166534; text-decoration: none; }
+        .na-help-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 12.5px; font-weight: 700; color: #14532d; text-decoration: none; }
         .na-help-link:hover { text-decoration: underline; }
-        .na-next-btn { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 8px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #166534; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
+        .na-next-btn { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 8px 14px; border-radius: 999px; border: 1.5px solid #86efac; background: #f0fdf4; color: #14532d; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
         .na-next-btn:hover { background: #dcfce7; border-color: #4ade80; }
         /* phones: compact app bar — no logo tile, name + address on one line each, slimmer tabs and offer bar */
         @media (max-width: 640px) {
@@ -2651,7 +2651,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m .na-wd { font-size: 9.5px; letter-spacing: .3px; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m .na-dn { display: block !important; width: auto !important; height: auto !important; margin: 0; font-size: 13.5px; line-height: 1.15; text-align: center !important; background: none !important; color: #0f172a; border-radius: 0; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m .na-mo { font-size: 8.5px; font-weight: 700; color: #94a3b8; line-height: 1.1; }
-          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today { background: #1a6b3a !important; border-color: #1a6b3a; box-shadow: 0 4px 10px -5px rgba(26,107,58,.5); }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today { background: #1e7a4c !important; border-color: #1e7a4c; box-shadow: 0 4px 10px -5px rgba(26,107,58,.5); }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today .na-wd, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today .na-dn, .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th.na-th-m.na-th-today .na-mo { color: #fff; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe th:first-child { background: #fff; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe td.na-time-col { background: #fff; color: #334155; font-size: 12px; box-shadow: -8px 0 0 #fff, 0 -6px 0 #fff, 6px 0 8px -7px rgba(15,61,34,.25); border-radius: 0; }
@@ -2660,7 +2660,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open .na-wm { display: none; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open::after { content: "Available"; font-size: 12px; font-weight: 800; letter-spacing: .2px; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected::after { content: "✓"; font-size: 20px; line-height: 1; }
-          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+          .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell:active { transform: scale(.95); }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken { background: #fef2f2; border-color: #fecaca; }
           .na-page.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-taken-stamp { color: #dc2626; font-size: 11.5px; font-weight: 600; }
@@ -2680,12 +2680,12 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-steps { display: flex; align-items: center; gap: 6px; margin-bottom: 22px; }
         .na-step-dot { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
         .na-step-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 2px solid #cbd5e1; color: #64748b; background: #fff; transition: all .2s; }
-        .na-step-dot.done .na-step-circle { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
-        .na-step-dot.active .na-step-circle { border-color: #1a6b3a; color: #1a6b3a; }
+        .na-step-dot.done .na-step-circle { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
+        .na-step-dot.active .na-step-circle { border-color: #1e7a4c; color: #1e7a4c; }
         .na-step-label { font-size: 10.5px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .4px; }
-        .na-step-dot.active .na-step-label, .na-step-dot.done .na-step-label { color: #1a6b3a; }
+        .na-step-dot.active .na-step-label, .na-step-dot.done .na-step-label { color: #1e7a4c; }
         .na-step-line { position: relative; overflow: hidden; flex: 1.4; height: 2px; background: #e2e8f0; margin-top: -22px; }
-        .na-step-line::after { content: ""; position: absolute; inset: 0; background: #1a6b3a; transform: scaleX(0); transform-origin: left center; transition: transform .45s ease; }
+        .na-step-line::after { content: ""; position: absolute; inset: 0; background: #1e7a4c; transform: scaleX(0); transform-origin: left center; transition: transform .45s ease; }
         .na-step-line.done::after { transform: scaleX(1); }
         .na-step-dot.active .na-step-circle { box-shadow: 0 0 0 4px rgba(26,107,58,.14); }
         .na-step-dot.done .na-step-circle svg { animation: naPop .35s ease; }
@@ -2695,25 +2695,25 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-pill-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .na-pill { flex: 1; min-width: 90px; padding: 10px 8px; border-radius: 10px; text-align: center; border: 1.5px solid #e2e8f0; background: #fff; cursor: pointer; transition: all .15s; font-size: 12.5px; font-weight: 700; color: #334155; }
         .na-pill:hover { border-color: #94a3b8; }
-        .na-pill.active { background: #f0fdf4; border-color: #1a6b3a; color: #15803d; }
+        .na-pill.active { background: #f0fdf4; border-color: #1e7a4c; color: #15803d; }
         .na-pill-price { display: block; font-size: 10.5px; font-weight: 600; color: #64748b; margin-top: 2px; }
         .na-pill.active .na-pill-price { color: #15803d; }
 
         .na-pkg-card-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
         .na-pkg-custom { flex-wrap: wrap; gap: 10px 12px; }
         .na-stepper { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
-        .na-stepper button { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #cbd5e1; background: #fff; color: #1a6b3a; font-size: 20px; line-height: 1; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; }
+        .na-stepper button { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid #cbd5e1; background: #fff; color: #1e7a4c; font-size: 20px; line-height: 1; cursor: pointer; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-family: inherit; }
         .na-stepper button:disabled { opacity: .35; cursor: default; }
         .na-stepper span { min-width: 28px; text-align: center; font-size: 16px; font-weight: 600; color: #0f172a; }
         .na-pkg-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; transition: all .15s; }
         .na-pkg-card:hover { border-color: #94a3b8; }
-        .na-pkg-card.active { background: #f0fdf4; border-color: #1a6b3a; }
+        .na-pkg-card.active { background: #f0fdf4; border-color: #1e7a4c; }
         .na-pkg-card-name { font-size: 13px; font-weight: 700; color: #0f172a; }
         .na-pkg-card-meta { font-size: 11.5px; color: #64748b; margin-top: 2px; }
-        .na-pkg-card-price { font-size: 14px; font-weight: 800; color: #1a6b3a; }
+        .na-pkg-card-price { font-size: 14px; font-weight: 800; color: #1e7a4c; }
 
         .na-inp { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 11px 13px; font-size: 14px; color: #0f172a; outline: none; background: #f8fafc; box-sizing: border-box; font-family: inherit; transition: border-color .15s; }
-        .na-inp:focus { border-color: #1a6b3a; background: #fff; }
+        .na-inp:focus { border-color: #1e7a4c; background: #fff; }
         .na-textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
         .na-lbl { font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 6px; }
         .na-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
@@ -2722,14 +2722,14 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-btn-row { display: flex; gap: 10px; margin-top: 10px; }
         .na-btn-back { flex: 0 0 auto; padding: 15px 20px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; color: #475569; font-size: 14px; font-weight: 700; cursor: pointer; transition: all .15s; }
         .na-btn-back:hover { border-color: #94a3b8; }
-        .na-submit { display: block; width: 100%; flex: 1; padding: 15px 0; border: none; border-radius: 12px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .2s; box-shadow: 0 6px 18px rgba(22,101,52,.28); }
+        .na-submit { display: block; width: 100%; flex: 1; padding: 15px 0; border: none; border-radius: 12px; background: linear-gradient(135deg, #14532d, #1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; transition: all .2s; box-shadow: 0 6px 18px rgba(22,101,52,.28); }
         .na-submit:disabled { opacity: .6; cursor: not-allowed; }
 
         .na-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; }
 
         .na-lookup-box { border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .na-lookup-checking { background: #f8fafc; color: #64748b; }
-        .na-lookup-found { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-weight: 700; }
+        .na-lookup-found { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-weight: 700; }
         .na-lookup-notfound { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
         .na-lookup-link { background: none; border: none; color: inherit; text-decoration: underline; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; flex-shrink: 0; }
 
@@ -2740,7 +2740,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-th-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
         .na-th-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer; text-align: left; font-family: inherit; min-width: 0; transition: all .15s; }
         .na-th-card:hover { border-color: #94a3b8; }
-        .na-th-card.on { background: #f0fdf4; border-color: #1a6b3a; }
+        .na-th-card.on { background: #f0fdf4; border-color: #1e7a4c; }
         .na-th-av { position: relative; width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; background: #e2e8f0; color: #475569; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .na-th-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .na-th-any { background: #f1f5f9; color: #64748b; font-size: 17px; }
@@ -2756,16 +2756,16 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           .na-th-card { flex: 0 0 212px; scroll-snap-align: start; min-height: 60px; }
         }
         .na-coupon { padding: 4px 0 10px; }
-        .na-coupon-link { background: none; border: none; color: #1a6b3a; font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 10px 0; font-family: inherit; }
+        .na-coupon-link { background: none; border: none; color: #1e7a4c; font-size: 13px; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 10px 0; font-family: inherit; }
         .na-coupon-row { display: flex; gap: 8px; padding-top: 6px; }
         .na-coupon-row .na-inp { flex: 1; min-width: 0; text-transform: uppercase; letter-spacing: .5px; }
-        .na-coupon-btn { height: 46px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #1a6b3a; background: #fff; color: #1a6b3a; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .na-coupon-btn { height: 46px; padding: 0 18px; border-radius: 10px; border: 1.5px solid #1e7a4c; background: #fff; color: #1e7a4c; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
         .na-coupon-btn:disabled { opacity: .55; cursor: default; }
         .na-coupon-err { margin-top: 8px; font-size: 12.5px; color: #b91c1c; }
-        .na-coupon-applied { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; padding: 10px 12px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; }
+        .na-coupon-applied { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; padding: 10px 12px; border-radius: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 13px; }
         .na-coupon-applied button { background: none; border: none; color: inherit; text-decoration: underline; font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 6px 0 6px 8px; font-family: inherit; }
         .na-price-breakdown { border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 8px; }
-        .na-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #1a6b3a; margin-top: 4px; }
+        .na-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 800; color: #1e7a4c; margin-top: 4px; }
 
         .na-lastmin-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px 18px; margin-top: 4px; }
         .na-lastmin-title { font-size: 14px; font-weight: 800; color: #92400e; margin-bottom: 6px; }
@@ -2777,9 +2777,9 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-success p { font-size: 14px; color: #64748b; line-height: 1.7; margin-bottom: 20px; }
         .na-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; text-align: left; font-size: 13.5px; color: #334155; line-height: 2; }
         .na-address-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 18px; text-align: left; margin-top: 12px; }
-        .na-address-title { font-size: 12.5px; font-weight: 800; color: #166534; margin-bottom: 6px; }
+        .na-address-title { font-size: 12.5px; font-weight: 800; color: #14532d; margin-bottom: 6px; }
         .na-address-text { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
-        .na-address-link { font-size: 12.5px; font-weight: 700; color: #1a6b3a; text-decoration: none; }
+        .na-address-link { font-size: 12.5px; font-weight: 700; color: #1e7a4c; text-decoration: none; }
         .na-address-link:hover { text-decoration: underline; }
 
         .na-pager-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; padding: 0 2px; }
@@ -2795,12 +2795,12 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         /* breathing room between the tabs above and the title/chips line */
         @media (max-width: 640px) { .na-page .na-shell .na-pager-row { margin-top: 10px; } }
         .na-pager-btns { display: flex; gap: 6px; flex-shrink: 0; }
-        .na-pager-btn { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #fff; color: #1a6b3a; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+        .na-pager-btn { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #fff; color: #1e7a4c; font-size: 22px; font-weight: 800; line-height: 1; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; font-family: inherit; }
         .na-pager-btn:disabled { color: #cbd5e1; background: #f8fafc; cursor: default; }
         .na-th-m { padding: 0 0 6px !important; }
         .na-wd { font-size: 10px; font-weight: 800; letter-spacing: .5px; color: #64748b; text-transform: uppercase; }
         .na-dn { margin: 3px auto 0; width: 26px; height: 26px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #0f172a; }
-        .na-dn.today { background: #1a6b3a; color: #fff; }
+        .na-dn.today { background: #1e7a4c; color: #fff; }
         .na-mo { font-size: 9.5px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 1px; }
         .na-selbar { position: fixed; left: 0; right: 0; bottom: var(--na-ck, 0px); z-index: 50; display: flex; align-items: center; gap: 12px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #e2e8f0; box-shadow: 0 -8px 24px rgba(15,61,34,.10); }
         @media (min-width: 641px) { .na-selbar { padding-left: max(16px, calc((100vw - 1100px) / 2 + 26px)); padding-right: max(16px, calc((100vw - 1100px) / 2 + 26px)); } }
@@ -2808,7 +2808,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-selbar-k { font-size: 10.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: #64748b; }
         .na-selbar-v { font-size: 15px; font-weight: 800; color: #0f172a; margin-top: 1px; }
         .na-selbar-h { font-size: 12px; color: #64748b; margin-top: 1px; }
-        .na-selbar-btn { flex-shrink: 0; height: 52px; padding: 0 22px; border: none; border-radius: 12px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(22,101,52,.28); font-family: inherit; }
+        .na-selbar-btn { flex-shrink: 0; height: 52px; padding: 0 22px; border: none; border-radius: 12px; background: linear-gradient(135deg, #14532d, #1e7a4c); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(22,101,52,.28); font-family: inherit; }
         .na-fullslots-wrap.has-bar { padding-bottom: calc(140px + var(--na-ck, 0px)); }
         .na-rv { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; color: #334155; padding: 9px 0; }
         .na-rv + .na-rv { border-top: 1px solid #eef2f6; }
@@ -2844,20 +2844,20 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-tab-legend { margin: 0; padding: 0; border: none; max-width: 300px; justify-content: flex-end; gap: 8px 16px; }
         .na-tab-selcard { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 24px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); position: sticky; bottom: 10px; z-index: 5; }
         .na-tab-selv { font-size: 21px; font-weight: 800; color: #0f172a; margin-top: 3px; }
-        .na-tab-cta { flex-shrink: 0; height: 56px; padding: 0 40px; border: none; border-radius: 14px; background: linear-gradient(135deg, #166534, #1a6b3a); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(22,101,52,.28); font-family: inherit; }
+        .na-tab-cta { flex-shrink: 0; height: 56px; padding: 0 40px; border: none; border-radius: 14px; background: linear-gradient(135deg, #14532d, #1e7a4c); color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(22,101,52,.28); font-family: inherit; }
         .na-tab-cta:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
         .na-tab-cta-dock { position: sticky; bottom: 0; z-index: 2; margin: 0 -22px -22px; padding: 12px 22px 22px; background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 22%); border-radius: 0 0 22px 22px; }
         .na-tab-panel { flex-shrink: 0; width: 330px; box-sizing: border-box; padding: 22px; background: #fff; border-radius: 22px; box-shadow: 0 20px 50px rgba(15,61,34,.12); display: flex; flex-direction: column; gap: 14px; }
         .na-tab-panel-title { font-size: 20px; font-weight: 800; color: #0f172a; }
         .na-tab-slotbox { padding: 16px 18px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; }
-        .na-tab-slotbox-k { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #166534; }
+        .na-tab-slotbox-k { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #14532d; }
         .na-tab-slotbox-v { font-size: 18px; font-weight: 800; color: #14532d; margin-top: 4px; }
-        .na-tab-slotbox-t { font-size: 15px; font-weight: 600; color: #166534; margin-top: 2px; }
+        .na-tab-slotbox-t { font-size: 15px; font-weight: 600; color: #14532d; margin-top: 2px; }
         .na-tab-pills { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; }
         .na-tab-pill { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 56px; border-radius: 12px; border: 1.5px solid #e2e8f0; background: #fff; color: #334155; font-size: 14px; font-weight: 700; padding: 0; cursor: pointer; font-family: inherit; }
         .na-tab-pill.short { height: 48px; font-size: 13px; }
         .na-tab-pill small { font-size: 12px; font-weight: 600; color: #64748b; }
-        .na-tab-pill.on { background: #f0fdf4; border-color: #1a6b3a; color: #15803d; }
+        .na-tab-pill.on { background: #f0fdf4; border-color: #1e7a4c; color: #15803d; }
         .na-tab-pill.on small { color: #15803d; }
         .na-tab-price { padding: 4px 16px 12px; border: 1px solid #e2e8f0; border-radius: 14px; }
         .na-centerwrap.na-tab .na-card { max-width: 700px; margin: 0 auto; padding: 32px 36px 36px; }
@@ -2923,7 +2923,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-tick-p { fill: none; stroke: #16a34a; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: naDraw .35s ease .55s forwards; }
         .na-ticket { margin-top: 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; text-align: left; overflow: hidden; box-shadow: 0 8px 24px rgba(15,61,34,.08); }
         .na-ticket-top { display: flex; align-items: center; gap: 16px; padding: 18px; }
-        .na-ticket-date { flex: 0 0 auto; width: 68px; border-radius: 14px; background: #1a6b3a; color: #fff; text-align: center; padding: 8px 0 9px; line-height: 1.1; }
+        .na-ticket-date { flex: 0 0 auto; width: 68px; border-radius: 14px; background: #1e7a4c; color: #fff; text-align: center; padding: 8px 0 9px; line-height: 1.1; }
         .na-ticket-date span { display: block; font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; opacity: .85; }
         .na-ticket-date b { display: block; font-size: 26px; font-weight: 800; margin: 2px 0; }
         .na-ticket-time { font-size: 17px; font-weight: 800; color: #0f172a; }
@@ -2933,8 +2933,8 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-ticket-row { display: flex; justify-content: space-between; gap: 14px; font-size: 13px; color: #475569; padding: 5px 0; }
         .na-ticket-row b { color: #0f172a; font-weight: 700; text-align: right; overflow-wrap: anywhere; }
         .na-succ-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 14px; }
-        .na-succ-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #bbf7d0; background: #f0fdf4; color: #166534; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; font-family: inherit; transition: all .15s; }
-        .na-succ-btn:hover { border-color: #1a6b3a; background: #e3f8ea; }
+        .na-succ-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 12px; border-radius: 12px; border: 1.5px solid #bbf7d0; background: #f0fdf4; color: #14532d; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; font-family: inherit; transition: all .15s; }
+        .na-succ-btn:hover { border-color: #1e7a4c; background: #e3f8ea; }
         .na-succ-hint { font-size: 12.5px; color: #64748b; margin: 14px 0 0 !important; }
         @media (prefers-reduced-motion: reduce) {
           .na-fullslots-table td .na-slotcell, button.na-slotcell.selected, button.na-slotcell.recommended, .na-selbar, .na-selbar-v, .na-tab-selv, .na-tab-slotbox, .na-tab-slotbox-v, .na-tab-slotbox-t, .na-tick-bg, .na-step-dot.done .na-step-circle svg { animation: none; }
@@ -2966,7 +2966,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           .na-page:not(.is-tablet) .na-topbar .na-chip.on { background: #fff; border-color: #fff; color: #145c32; }
           .na-page:not(.is-tablet) .na-shell.fit-slots .na-offerbar { margin-top: 12px; }
           .na-page:not(.is-tablet) .na-shell .na-fullslots-table thead th:not(:first-child) { background: #fff; border: 1px solid #e6ece8; border-radius: 12px; padding: 6px 4px !important; color: #334155; }
-          .na-page:not(.is-tablet) .na-shell .na-fullslots-table thead th.na-th-today { background: #1a6b3a !important; border-color: #1a6b3a; color: #fff; box-shadow: 0 6px 14px -6px rgba(26,107,58,.5); }
+          .na-page:not(.is-tablet) .na-shell .na-fullslots-table thead th.na-th-today { background: #1e7a4c !important; border-color: #1e7a4c; color: #fff; box-shadow: 0 6px 14px -6px rgba(26,107,58,.5); }
           .na-page:not(.is-tablet) .na-shell .na-fullslots-table td.na-time-col { background: #f4f7f5; }
         }
 
@@ -2987,7 +2987,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-page.is-tablet .na-topbar .na-topbar-tab { height: 34px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.9); letter-spacing: -.1px; }
         .na-page.is-tablet .na-topbar .na-topbar-tab.active { background: #fff; color: #145c32; box-shadow: 0 3px 8px rgba(0,0,0,.15), 0 3px 1px rgba(0,0,0,.04); }
         .na-page.is-tablet .na-chip { background: rgba(118,118,128,.12); border: none; color: #000; font-weight: 600; }
-        .na-page.is-tablet .na-chip.on { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-chip.on { background: #1e7a4c; color: #fff; }
         .na-page.is-tablet .na-topbar .na-chip { background: rgba(255,255,255,.14); color: #fff; }
         .na-page.is-tablet .na-topbar .na-chip.on { background: #fff; color: #145c32; }
         .na-page.is-tablet .na-offerbar { border-radius: 14px; border: none; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
@@ -2998,11 +2998,11 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-page.is-tablet .na-fullslots-table th { color: #8e8e93; font-weight: 600; }
         .na-page.is-tablet .na-fullslots-table th.na-th-today { background: transparent !important; }
         .na-page.is-tablet .na-dn { color: #000; font-weight: 600; }
-        .na-page.is-tablet .na-dn.today { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-dn.today { background: #1e7a4c; color: #fff; }
         .na-page.is-tablet .na-fullslots-table td.na-time-col { background: transparent; color: #8e8e93; font-weight: 600; }
         .na-page.is-tablet .na-fullslots-table .na-slotcell { border: none; border-radius: 10px; }
         .na-page.is-tablet .na-fullslots-table button.na-slotcell.open { background: rgba(52,199,89,.13); color: #1b7a3a; }
-        .na-page.is-tablet .na-fullslots-table button.na-slotcell.open.selected { background: #1a6b3a; color: #fff; }
+        .na-page.is-tablet .na-fullslots-table button.na-slotcell.open.selected { background: #1e7a4c; color: #fff; }
         .na-page.is-tablet .na-fullslots-table button.na-slotcell.lastminute { background: rgba(255,149,0,.14); color: #b25000; }
         .na-page.is-tablet .na-fullslots-table .na-slotcell.taken { background: rgba(255,59,48,.1); }
         .na-page.is-tablet .na-fullslots-table .na-taken-stamp { color: #d70015; }
@@ -3019,7 +3019,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-wb-hi { font-size: 18px; }
         .na-wb-txt { flex: 1; min-width: 0; font-size: 13px; color: #1f3d2c; line-height: 1.4; }
         .na-wb-txt b { color: #14532d; }
-        .na-wb-btn { flex-shrink: 0; border: none; background: #1a6b3a; color: #fff; font-family: inherit; font-weight: 700; font-size: 12.5px; padding: 8px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+        .na-wb-btn { flex-shrink: 0; border: none; background: #1e7a4c; color: #fff; font-family: inherit; font-weight: 700; font-size: 12.5px; padding: 8px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
         .na-wb-x { flex-shrink: 0; border: none; background: none; color: #64748b; font-family: inherit; font-size: 12px; text-decoration: underline; cursor: pointer; padding: 4px; }
         @media (max-width: 640px) { .na-wb { margin: 8px 10px 2px; flex-wrap: wrap; } .na-wb-hi { display: none; } .na-wb-txt { flex-basis: 100%; font-size: 12.5px; } .na-wb-btn { flex: 1; } }
         .na-page.is-tablet .na-wb { background: #fff; border: none; }
@@ -3048,7 +3048,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           .na-topbar-bgs::after { background: linear-gradient(180deg, rgba(4,22,12,.8), rgba(6,28,16,.72)); }
         }
         @media (prefers-reduced-motion: reduce) { .na-topbar-bg { transition: none; transform: none; } }
-        .na-hd-price { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; padding: 4px 11px; border-radius: 999px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 800; vertical-align: 2px; white-space: nowrap; }
+        .na-hd-price { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; padding: 4px 11px; border-radius: 999px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 13px; font-weight: 800; vertical-align: 2px; white-space: nowrap; }
 
         /* ════ desktop slots: quiet booked cells, a dot for open ones — the time shows on hover ════ */
         @media (min-width: 641px) {
@@ -3071,7 +3071,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         @media (min-width: 641px) { .na-page.na-hero .na-seo-in { max-width: 1120px; padding: 38px 44px 30px; } }
         .na-page.na-hero .na-seo .na-seo-in .na-seo-lead, .na-page.na-hero .na-seo .na-seo-in .na-seo-text, .na-page.na-hero .na-seo .na-seo-in .na-seo-note { max-width: 780px; }
         .na-page.na-hero .na-seo h3 { margin-top: 34px; }
-        .na-card-ic { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: #f0fdf4; color: #166534; margin-bottom: 10px; }
+        .na-card-ic { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: #f0fdf4; color: #14532d; margin-bottom: 10px; }
         .na-price-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
         .na-price-card { border: 1px solid #e2eae5; border-radius: 16px; padding: 18px 18px 8px; background: #fff; }
         .na-price-mode { font-size: 17px; font-weight: 800; color: #0f2a1d; }
@@ -3087,13 +3087,13 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-find { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; align-items: stretch; }
         .na-find-info h4 { font-size: 15px; font-weight: 800; color: #0f2a1d; margin: 18px 0 6px; }
         .na-find-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-        .na-page .na-seo a.na-find-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 11px; border: 1.5px solid #d5e3da; background: #fff; color: #1a6b3a; font-size: 14px; font-weight: 800; text-decoration: none; }
-        .na-page .na-seo a.na-find-btn.primary { background: #1a6b3a; border-color: #1a6b3a; color: #fff; }
+        .na-page .na-seo a.na-find-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 11px; border: 1.5px solid #d5e3da; background: #fff; color: #1e7a4c; font-size: 14px; font-weight: 800; text-decoration: none; }
+        .na-page .na-seo a.na-find-btn.primary { background: #1e7a4c; border-color: #1e7a4c; color: #fff; }
         .na-find-map { min-height: 300px; border-radius: 16px; overflow: hidden; border: 1px solid #e2eae5; background: #eef2f0; }
         .na-find-map iframe { display: block; width: 100%; height: 100%; min-height: 300px; border: 0; }
         .na-steps4 { list-style: none; counter-reset: st; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 0 0 12px; padding: 0; }
         .na-steps4 li { counter-increment: st; position: relative; padding: 16px 16px 14px 56px; border-radius: 14px; background: #f6f9f7; border: 1px solid #e2eae5; }
-        .na-steps4 li::before { content: counter(st); position: absolute; left: 16px; top: 16px; width: 28px; height: 28px; border-radius: 50%; background: #1a6b3a; color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+        .na-steps4 li::before { content: counter(st); position: absolute; left: 16px; top: 16px; width: 28px; height: 28px; border-radius: 50%; background: #1e7a4c; color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
         .na-steps4 b { display: block; font-size: 14.5px; color: #0f2a1d; }
         .na-steps4 span { font-size: 13.5px; color: #475569; line-height: 1.5; }
         .na-page.na-hero .na-seo-faq { max-width: 860px; }
@@ -3128,7 +3128,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-page .na-seo .na-rvs-card blockquote { margin: 0; flex: 1; font-size: 15px; line-height: 1.6; color: #1f2937; font-style: normal; }
         .na-page .na-seo .na-rvs-card blockquote.muted { color: #64748b; font-size: 14px; }
         .na-rvs-card figcaption { display: flex; align-items: center; gap: 10px; padding-top: 10px; border-top: 1px solid #f1f5f3; }
-        .na-rvs-av { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #1a6b3a; color: #fff; font-weight: 800; font-size: 14px; }
+        .na-rvs-av { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #1e7a4c; color: #fff; font-weight: 800; font-size: 14px; }
         .na-rvs-card figcaption b { display: block; font-size: 14px; color: #0f2a1d; }
         .na-rvs-card figcaption small { display: block; font-size: 12px; color: #64748b; }
         .na-rvs-more { margin-top: 12px; border: 1px solid #bfe0cc; background: #fff; color: #14532d; border-radius: 999px; padding: 8px 16px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
@@ -3151,7 +3151,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
           box-shadow: 0 10px 26px -18px rgba(15,61,34,.35); transition: transform .18s ease, box-shadow .18s ease;
         }
         .na-price-card:hover, .na-help-card:hover, .na-steps4 li:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -18px rgba(15,61,34,.4); }
-        .na-price-card .na-card-ic, .na-help-card .na-card-ic { background: var(--pc-ic, #f0fdf4); color: var(--pc-fg, #166534); width: 44px; height: 44px; border-radius: 14px; }
+        .na-price-card .na-card-ic, .na-help-card .na-card-ic { background: var(--pc-ic, #f0fdf4); color: var(--pc-fg, #14532d); width: 44px; height: 44px; border-radius: 14px; }
         .na-price-card { padding: 20px 20px 10px; border-radius: 20px; }
         .na-price-card .na-price-mode { color: var(--pc-fg, #0f2a1d); }
         .na-price-card li { border-top-color: var(--pc-bd, #f1f5f3); }
@@ -3159,7 +3159,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-help-card { border-radius: 20px; padding: 18px; }
         .na-help-card b { color: #0f172a; }
         .na-steps4 li { border-radius: 18px; }
-        .na-steps4 li::before { background: var(--pc-fg, #1a6b3a); box-shadow: 0 0 0 4px var(--pc-ic, #e7f5ec); }
+        .na-steps4 li::before { background: var(--pc-fg, #1e7a4c); box-shadow: 0 0 0 4px var(--pc-ic, #e7f5ec); }
         .na-page.na-hero .na-seo .na-seo-in .na-seo-addr { background: linear-gradient(160deg, #ecfdf3, #fff 80%); border-color: #c6f0d6; border-radius: 16px; }
         .na-find-map { border-radius: 20px; border-color: #cfe3fb; box-shadow: 0 10px 26px -18px rgba(29,78,216,.35); }
         .na-page.na-hero .na-seo-faq details { border-radius: 14px; border-color: #e6ece8; background: #fff; transition: background .15s, border-color .15s; }
@@ -3167,7 +3167,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-page.na-hero .na-seo-faq details[open] { background: linear-gradient(160deg, #f5f0ff, #fff 70%); border-color: #e0d4fb; }
         .na-page.na-hero .na-seo-faq summary { list-style: none; position: relative; padding-right: 30px; }
         .na-page.na-hero .na-seo-faq summary::-webkit-details-marker { display: none; }
-        .na-page.na-hero .na-seo-faq summary::after { content: "+"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: #f1f5f3; color: #166534; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .na-page.na-hero .na-seo-faq summary::after { content: "+"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border-radius: 50%; background: #f1f5f3; color: #14532d; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
         .na-page.na-hero .na-seo-faq details[open] summary::after { content: "–"; background: #ebe2ff; color: #6d28d9; }
         .na-page.na-hero .na-seo-note { display: inline-block; padding: 8px 12px; border-radius: 10px; background: #fffbea; border: 1px solid #f6e7a8; color: #854d0e !important; }
         @media (prefers-reduced-motion: reduce) { .na-price-card, .na-help-card, .na-steps4 li { transition: none; } .na-price-card:hover, .na-help-card:hover, .na-steps4 li:hover { transform: none; } }
@@ -3189,7 +3189,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-nextfree:hover, .na-hoffer:hover { transform: translateY(-1px); }
         .na-nextfree-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.22); animation: naNfPulse 2s ease-in-out infinite; }
         @keyframes naNfPulse { 50% { box-shadow: 0 0 0 6px rgba(34,197,94,.12); } }
-        .na-nextfree-cta { margin-left: 4px; padding: 4px 10px; border-radius: 999px; background: #1a6b3a; color: #fff; font-weight: 800; font-size: 12.5px; }
+        .na-nextfree-cta { margin-left: 4px; padding: 4px 10px; border-radius: 999px; background: #1e7a4c; color: #fff; font-weight: 800; font-size: 12.5px; }
         .na-hoffer { background: linear-gradient(90deg, #fef3c7, #fde68a); color: #7c2d12; box-shadow: 0 6px 16px -8px rgba(0,0,0,.3); }
         .na-hoffer b { font-weight: 800; max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
         .na-hoffer-cta { margin-left: 4px; padding: 4px 10px; border-radius: 999px; background: #c2410c; color: #fff; font-weight: 800; font-size: 12.5px; }
@@ -3211,7 +3211,7 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         @media (max-width: 640px) {
           .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open { background: #f0fdf4; border-color: #bbf7d0; }
           .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.14); }
-          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1a6b3a; border-color: #1a6b3a; }
+          .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected { background: #1e7a4c; border-color: #1e7a4c; }
           .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe button.na-slotcell.open.selected::after { content: attr(data-t); width: auto; height: auto; border-radius: 0; background: none; box-shadow: none; color: #fff; font-size: 12px; font-weight: 800; line-height: 1.1; white-space: nowrap; letter-spacing: -.1px; }
           .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken:not(.mine) { background: #f8fafc; border-color: #eef2f6; }
           .na-page.na-hero.na-fit .na-shell.fit-slots .na-fullslots-scroll.swipe .na-slotcell.taken:not(.mine) .na-taken-stamp { color: #94a3b8; font-weight: 500; }
@@ -3244,19 +3244,19 @@ export default function NoidaAppointment({ seoPricing = null, seoReviews = null,
         .na-page .na-topbar .na-centre-name { color: #173c2a !important; }
         .na-page .na-topbar .na-centre-addr, .na-page .na-topbar .na-centre-addr svg { color: #4b6b57 !important; }
         .na-page .na-topbar .na-centre-mark { background: #fff !important; border: 1px solid #d9e7de !important; box-shadow: 0 2px 8px rgba(15,61,34,.08) !important; }
-        .na-page .na-topbar .na-back, .na-page .na-topbar .na-centre-btn { background: #fff !important; border: 1px solid #d5e3da !important; color: #1a6b3a !important; box-shadow: 0 1px 3px rgba(15,61,34,.06); }
+        .na-page .na-topbar .na-back, .na-page .na-topbar .na-centre-btn { background: #fff !important; border: 1px solid #d5e3da !important; color: #1e7a4c !important; box-shadow: 0 1px 3px rgba(15,61,34,.06); }
         .na-page .na-topbar .na-back:hover, .na-page .na-topbar .na-centre-btn:hover { background: #f0f8f3 !important; }
         .na-page .na-topbar a.na-rate { background: #fff !important; border-color: #f1e3c4 !important; color: #5b3a05 !important; }
         /* (doubled .na-page outranks the older dark-banner rules, which also use !important) */
         .na-page.na-page .na-topbar .na-topbar-tabs { background: #fff !important; box-shadow: 0 4px 16px rgba(15,61,34,.1) !important; border: 1px solid #dbe7df; }
         .na-page.na-page .na-topbar .na-topbar-tab { color: #1f3d2c !important; font-weight: 700; }
         .na-page.na-page .na-topbar .na-topbar-tab:hover:not(.active) { background: #f0f8f3 !important; color: #14532d !important; }
-        .na-page.na-page .na-topbar .na-topbar-tab.active { background: #1a6b3a !important; color: #fff !important; }
-        .na-page .na-topbar .na-topbar-tab.active { background: #1a6b3a !important; color: #fff !important; box-shadow: 0 3px 8px rgba(26,107,58,.25) !important; }
+        .na-page.na-page .na-topbar .na-topbar-tab.active { background: #1e7a4c !important; color: #fff !important; }
+        .na-page .na-topbar .na-topbar-tab.active { background: #1e7a4c !important; color: #fff !important; box-shadow: 0 3px 8px rgba(26,107,58,.25) !important; }
         .na-page .na-topbar .na-topbar-h1 { color: #173c2a !important; text-shadow: none !important; }
         .na-page .na-topbar .na-hoffer { background: #fff !important; color: #7c2d12 !important; border: 1px solid #fde2c4 !important; box-shadow: 0 4px 12px -6px rgba(124,45,18,.25) !important; }
-        .na-page .na-topbar .na-chip { background: #fff !important; border-color: #d5e3da !important; color: #1a6b3a !important; }
-        .na-page .na-topbar .na-chip.on { background: #1a6b3a !important; border-color: #1a6b3a !important; color: #fff !important; }
+        .na-page .na-topbar .na-chip { background: #fff !important; border-color: #d5e3da !important; color: #1e7a4c !important; }
+        .na-page .na-topbar .na-chip.on { background: #1e7a4c !important; border-color: #1e7a4c !important; color: #fff !important; }
         /* a slimmer banner on desktop + iPad: tighter padding and gaps, smaller pills */
         @media (min-width: 641px) {
           .na-page .na-topbar { padding-top: 10px !important; padding-bottom: 10px !important; row-gap: 8px !important; }

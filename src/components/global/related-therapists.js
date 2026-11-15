@@ -44,19 +44,19 @@ const RT_CSS = `
 .rt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .rt-head h2 { margin: 0; font-size: 24px; font-weight: 800; color: #0f2a1d; letter-spacing: -.2px; }
 .rt-head p { margin: 4px 0 0; font-size: 14.5px; color: #64748b; }
-.rt-more { font-size: 14px; font-weight: 800; color: #1a6b3a; text-decoration: none; white-space: nowrap; }
+.rt-more { font-size: 14px; font-weight: 800; color: #1e7a4c; text-decoration: none; white-space: nowrap; }
 .rt-more:hover { text-decoration: underline; }
 .rt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 12px; }
 .rt-card { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 16px; background: linear-gradient(160deg, #f3faf6, #fff 75%); border: 1px solid #dfece4; text-decoration: none; color: inherit; transition: transform .15s, box-shadow .15s, border-color .15s; }
 .rt-card:hover { transform: translateY(-2px); border-color: #b7dcc5; box-shadow: 0 12px 26px -16px rgba(15,61,34,.4); }
 .rt-av { flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #e7f5ec; display: flex; align-items: center; justify-content: center; }
 .rt-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.rt-av b { font-size: 22px; color: #1a6b3a; }
+.rt-av b { font-size: 22px; color: #1e7a4c; }
 .rt-info { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .rt-name { font-size: 15.5px; font-weight: 800; color: #0f172a; }
 .rt-type { font-size: 13px; color: #475569; }
 .rt-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; color: #334155; margin-top: 2px; }
 .rt-star { color: #b45309; font-weight: 700; }
-.rt-tags { font-size: 12px; color: #1a6b3a; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rt-tags { font-size: 12px; color: #1e7a4c; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 640px) { .rt { padding: 26px 12px 18px; } .rt-head h2 { font-size: 20px; } }
 `;

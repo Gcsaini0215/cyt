@@ -72,7 +72,7 @@ function ProfileNotFound() {
               background: "#e8f5ee",
             }}
           >
-            <SearchOffRoundedIcon sx={{ fontSize: 40, color: "#228756" }} />
+            <SearchOffRoundedIcon sx={{ fontSize: 40, color: "#1e7a4c" }} />
           </Box>
 
           <Typography sx={{ fontWeight: 900, fontSize: 22, color: "#1e293b", mb: 1 }}>
@@ -93,7 +93,7 @@ function ProfileNotFound() {
                 sx={{
                   borderRadius: "12px",
                   py: 1.3,
-                  background: "linear-gradient(135deg,#166534,#16a34a)",
+                  background: "linear-gradient(135deg,#14532d,#16a34a)",
                   color: "white",
                   fontWeight: 800,
                   fontSize: 14.5,

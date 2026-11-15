@@ -43,7 +43,7 @@ export default function ProfileCheckoutCard({ pageData }) {
           position: 'absolute',
           bottom: isMobile ? '5px' : '5px',
           right: isMobile ? '5px' : '5px',
-          background: '#228756',
+          background: '#1e7a4c',
           color: '#fff',
           width: '26px',
           height: '26px',
@@ -76,7 +76,7 @@ export default function ProfileCheckoutCard({ pageData }) {
           }}>
             {pageData.user.name}
           </h4>
-          <i className="feather-check-circle" style={{ color: '#228756', fontSize: '20px' }}></i>
+          <i className="feather-check-circle" style={{ color: '#1e7a4c', fontSize: '20px' }}></i>
         </Box>
 
         <Box sx={{ 
@@ -88,7 +88,7 @@ export default function ProfileCheckoutCard({ pageData }) {
         }}>
           <Typography sx={{
             fontSize: '13px',
-            color: '#228756',
+            color: '#1e7a4c',
             fontWeight: 800,
             textTransform: 'uppercase',
             letterSpacing: '0.8px'
@@ -120,7 +120,7 @@ export default function ProfileCheckoutCard({ pageData }) {
           borderRadius: '12px',
           border: '1px solid rgba(34, 135, 86, 0.1)'
         }}>
-          <i className="feather-award" style={{ color: '#228756', fontSize: '16px' }}></i>
+          <i className="feather-award" style={{ color: '#1e7a4c', fontSize: '16px' }}></i>
           <Typography sx={{
             fontSize: '13px',
             color: '#1e293b',

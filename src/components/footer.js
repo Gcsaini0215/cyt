@@ -10,12 +10,12 @@ export default function Footer() {
     <footer className="rbt-footer footer-style-1 cyt-footer-academic">
       <style dangerouslySetInnerHTML={{ __html: `
         html, body { background-color: #0f1a13 !important; }
-        .cyt-footer-academic { background: #0f1a13; border-top: 3px solid #d4af37; overscroll-behavior-y: none; }
+        .cyt-footer-academic { background: #0f1a13; border-top: 3px solid #e3a83a; overscroll-behavior-y: none; }
         .cyt-footer-academic .footer-top { padding-top: 52px; padding-bottom: 28px; }
         .cyt-footer-academic .footer-widget { margin-bottom: 26px; }
         .cyt-footer-academic .footer-logo-chip { display: inline-block; background: #fff; border-radius: 10px; padding: 10px 14px; }
         .cyt-footer-academic .description { color: rgba(255,255,255,.65) !important; opacity: 1 !important; line-height: 1.6 !important; }
-        .cyt-footer-academic .ft-title { color: #7fd8a5 !important; font-size: 14px; font-weight: 800 !important; letter-spacing: .2px; margin-bottom: 4px; padding-bottom: 6px; border-bottom: 2px solid #d4af37; display: inline-block; }
+        .cyt-footer-academic .ft-title { color: #7fd8a5 !important; font-size: 14px; font-weight: 800 !important; letter-spacing: .2px; margin-bottom: 4px; padding-bottom: 6px; border-bottom: 2px solid #e3a83a; display: inline-block; }
         /* Tighten the generic spacing utilities, scoped to the footer only */
         .cyt-footer-academic .mt--25 { margin-top: 12px !important; }
         .cyt-footer-academic .mt--20 { margin-top: 12px !important; }
@@ -23,7 +23,7 @@ export default function Footer() {
         .cyt-footer-academic .mb--10 { margin-bottom: 6px !important; }
         .cyt-footer-academic .ft-link a,
         .cyt-footer-academic .ft-link a.color-black { color: rgba(255,255,255,.75) !important; font-size: 14px; line-height: 1.3; transition: color .15s ease; }
-        .cyt-footer-academic .ft-link a:hover { color: #d4af37 !important; }
+        .cyt-footer-academic .ft-link a:hover { color: #e3a83a !important; }
         .cyt-footer-academic .ft-cities-col { column-count: 2; column-gap: 18px; }
         .cyt-footer-academic .ft-cities-col li { break-inside: avoid; -webkit-column-break-inside: avoid; }
 
@@ -34,7 +34,7 @@ export default function Footer() {
           color: #fff;
           transition: all .18s ease;
         }
-        .cyt-footer-academic .social-icon a:hover { background: rgba(212,175,55,.15); border-color: #d4af37; transform: translateY(-2px); }
+        .cyt-footer-academic .social-icon a:hover { background: rgba(212,175,55,.15); border-color: #e3a83a; transform: translateY(-2px); }
 
         .cyt-footer-academic .single-info .icon { background: rgba(255,255,255,.08) !important; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .cyt-footer-academic .single-info .icon i { color: #7fd8a5 !important; font-size: 15px !important; }
@@ -46,7 +46,7 @@ export default function Footer() {
         .cyt-footer-academic .single-info .text span.color-black {
           color: #fff !important; font-size: 14px !important; font-weight: 400 !important; line-height: 1.4;
         }
-        .cyt-footer-academic .single-info .text a:hover { color: #d4af37 !important; }
+        .cyt-footer-academic .single-info .text a:hover { color: #e3a83a !important; }
 
         .cyt-footer-academic .disclaimer-bar { background: #0a1310 !important; border-top: 1px solid rgba(255,255,255,.08) !important; border-bottom: 1px solid rgba(255,255,255,.08); padding: 32px 0 26px !important; }
         .cyt-footer-academic .disclaimer-bar p { color: rgba(255,255,255,.6) !important; }
@@ -63,7 +63,7 @@ export default function Footer() {
         .cyt-footer-academic .copyright-area p a { color: #fff !important; font-size: 14px !important; font-weight: 700 !important; }
         .cyt-footer-academic .copyright-link { font-size: 14px !important; }
         .cyt-footer-academic .copyright-link a { color: #fff !important; font-size: 14px !important; font-weight: 600 !important; }
-        .cyt-footer-academic .copyright-area a:hover { color: #d4af37 !important; }
+        .cyt-footer-academic .copyright-area a:hover { color: #e3a83a !important; }
         .cyt-footer-academic .copyright-link .separator { color: rgba(255,255,255,.3) !important; font-size: 14px !important; }
 
         .cyt-footer-academic .footer-logo-chip img { max-width: 100%; height: auto; }

@@ -110,7 +110,7 @@ const CSS = `
 .sp-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; margin-bottom: 28px; }
 .sp-head > div { min-width: 0; flex: 1 1 520px; }
 .sp-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #a86e0e; }
-.sp-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+.sp-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .sp-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #0b1712; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .sp-title span { color: #1e7a4c; }
 .sp-sub { color: #4b5b53; font-size: 16px; line-height: 1.6; margin: 0; padding: 0; max-width: 62ch; }
@@ -147,7 +147,7 @@ const CSS = `
 .sp-card:hover .sp-cta i { transform: translateX(3px); }
 
 .sp-helpcard { contain: size; isolation: isolate; background: radial-gradient(120% 90% at 100% 0%, #1f7a4a 0%, #135c37 45%, #0b3f26 100%); border: 1px solid #0f4a2c; padding: 16px 16px 15px; justify-content: flex-start; gap: 8px; color: #fff; box-shadow: 0 18px 36px -20px rgba(11,63,38,.65); }
-.sp-helpcard:hover { border-color: #d4a24c; box-shadow: 0 22px 40px -18px rgba(11,63,38,.7); }
+.sp-helpcard:hover { border-color: #e3a83a; box-shadow: 0 22px 40px -18px rgba(11,63,38,.7); }
 .sp-hc-glow { position: absolute; z-index: -1; width: 220px; height: 220px; right: -90px; top: -100px; border-radius: 50%; background: radial-gradient(circle, rgba(242,201,76,.38), rgba(242,201,76,0) 65%); pointer-events: none; }
 .sp-hc-rings { position: absolute; z-index: -1; right: -46px; bottom: -46px; width: 150px; height: 150px; pointer-events: none; }
 .sp-hc-rings i { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.10); animation: sp-breathe 6s ease-in-out infinite; }

@@ -220,7 +220,7 @@ const CSS = `
 .tt-sec .container { position: relative; z-index: 1; }
 .tt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; margin-bottom: 26px; }
 .tt-eyebrow { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #ecc77d; }
-.tt-eyebrow::before { content: ""; width: 26px; height: 2px; background: #d4a24c; }
+.tt-eyebrow::before { content: ""; width: 26px; height: 2px; background: #e3a83a; }
 .tt-title { font-size: clamp(1.95rem, 3.6vw, 2.9rem); font-weight: 800; color: #fff; margin: 0 0 10px; line-height: 1.12; letter-spacing: -.02em; }
 .tt-title span { color: #ecc77d; }
 .tt-sub { font-size: 16px; line-height: 1.6; color: #c9dbd0; margin: 0; padding: 0; max-width: 60ch; }
@@ -283,7 +283,7 @@ const CSS = `
 
 .tt-more { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding: 26px; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 1.5px dashed rgba(236,199,125,.45); box-shadow: none; text-decoration: none !important; }
 .tt-more:hover { background: rgba(255,255,255,.1); box-shadow: none; }
-.tt-more-ic { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f3d48f, #d4a24c); color: #14532d; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.tt-more-ic { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f3d48f, #e3a83a); color: #14532d; display: flex; align-items: center; justify-content: center; font-size: 24px; }
 .tt-more .tt-more-a { color: #fff !important; font-size: 17px; font-weight: 800; text-decoration: none !important; }
 .tt-stretch::after { content: ""; position: absolute; inset: 0; z-index: 1; }
 .tt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

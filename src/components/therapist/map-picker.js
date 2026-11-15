@@ -155,7 +155,7 @@ export default function MapPicker({ value, center, onChange, search = false }) {
     const L = window.L, map = mapRef.current;
     if (!L || !map || r?.lat == null) return;
     map.setView([r.lat, r.lng], Math.max(map.getZoom(), 15));
-    if (!previewRef.current) previewRef.current = L.circleMarker([r.lat, r.lng], { radius: 9, color: "#166534", weight: 2, fillColor: "#22c55e", fillOpacity: 0.35 }).addTo(map);
+    if (!previewRef.current) previewRef.current = L.circleMarker([r.lat, r.lng], { radius: 9, color: "#14532d", weight: 2, fillColor: "#22c55e", fillOpacity: 0.35 }).addTo(map);
     else previewRef.current.setLatLng([r.lat, r.lng]);
   };
 
@@ -272,7 +272,7 @@ const MP_CSS = `
 .mp .tr-map-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
 .mp .tr-map-status { font-size: 12.5px; color: #475569; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
 .mp .tr-map-status i { color: #16a34a; }
-.mp .tr-btn-sm { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #fff; color: #166534; border: 1.5px solid #86efac; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; font-family: inherit; }
+.mp .tr-btn-sm { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 9px; background: #fff; color: #14532d; border: 1.5px solid #86efac; font-size: 13px; font-weight: 700; cursor: pointer; margin: 0; font-family: inherit; }
 .mp .tr-btn-sm:disabled { opacity: .7; cursor: default; }
 .mp .tr-file-err { margin: 6px 0 0; font-size: 12.5px; color: #dc2626; font-weight: 600; }
 .mp-search { position: relative; margin-bottom: 8px; }
@@ -291,7 +291,7 @@ const MP_CSS = `
 .mp-results button.on, .mp-results button:hover { background: #f0faf3; }
 .mp-none { display: block; padding: 10px 12px; font-size: 13px; color: #64748b; }
 .mp-src { display: block; padding: 7px 12px; font-size: 11.5px; font-style: normal; color: #94a3b8; background: #fafafa; }
-.mp-acc { margin: 8px 0 0; font-size: 12.5px; font-weight: 600; color: #166534; }
+.mp-acc { margin: 8px 0 0; font-size: 12.5px; font-weight: 600; color: #14532d; }
 .mp-acc.rough { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 10px; }
 @media (max-width: 575px) { .mp .tr-map { height: 260px; } }
 `;

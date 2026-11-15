@@ -96,7 +96,7 @@ function OTPLogin({ onSuccess }) {
         <form onSubmit={sendOtp} style={{ display:"flex", flexDirection:"column", gap:12 }}>
           <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="Your email address" style={S} autoFocus />
           {error && <div style={{ fontSize:12, color:"#ef4444" }}>{error}</div>}
-          <button type="submit" disabled={loading} style={{ padding:"12px", background:"linear-gradient(135deg,#228756,#16a34a)", border:"none", borderRadius:11, color:"#fff", fontWeight:800, fontSize:14, cursor:"pointer", boxShadow:"0 4px 14px rgba(34,135,86,0.3)" }}>
+          <button type="submit" disabled={loading} style={{ padding:"12px", background:"linear-gradient(135deg,#1e7a4c,#16a34a)", border:"none", borderRadius:11, color:"#fff", fontWeight:800, fontSize:14, cursor:"pointer", boxShadow:"0 4px 14px rgba(34,135,86,0.3)" }}>
             {loading ? "Sending…" : "Send OTP"}
           </button>
         </form>
@@ -116,7 +116,7 @@ function OTPLogin({ onSuccess }) {
             ))}
           </div>
           {error && <div style={{ fontSize:12, color:"#ef4444", textAlign:"center" }}>{error}</div>}
-          <button type="submit" disabled={loading} style={{ padding:"12px", background:"linear-gradient(135deg,#228756,#16a34a)", border:"none", borderRadius:11, color:"#fff", fontWeight:800, fontSize:14, cursor:"pointer" }}>
+          <button type="submit" disabled={loading} style={{ padding:"12px", background:"linear-gradient(135deg,#1e7a4c,#16a34a)", border:"none", borderRadius:11, color:"#fff", fontWeight:800, fontSize:14, cursor:"pointer" }}>
             {loading ? "Verifying…" : "Verify & Continue"}
           </button>
           <button type="button" onClick={() => setStep("email")} style={{ background:"none", border:"none", fontSize:12, color:"#64748b", cursor:"pointer", textDecoration:"underline" }}>
@@ -125,7 +125,7 @@ function OTPLogin({ onSuccess }) {
           {cooldown > 0 ? (
             <div style={{ fontSize:12, color:"#94a3b8", textAlign:"center" }}>Resend OTP in {cooldown}s</div>
           ) : (
-            <button type="button" onClick={sendOtp} style={{ background:"none", border:"none", fontSize:12, color:"#228756", cursor:"pointer", fontWeight:700 }}>
+            <button type="button" onClick={sendOtp} style={{ background:"none", border:"none", fontSize:12, color:"#1e7a4c", cursor:"pointer", fontWeight:700 }}>
               Resend OTP
             </button>
           )}
@@ -136,7 +136,7 @@ function OTPLogin({ onSuccess }) {
         <form onSubmit={saveName} style={{ display:"flex", flexDirection:"column", gap:12 }}>
           <input value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" style={S} autoFocus />
           {error && <div style={{ fontSize:12, color:"#ef4444" }}>{error}</div>}
-          <button type="submit" disabled={loading} style={{ padding:"12px", background:"linear-gradient(135deg,#228756,#16a34a)", border:"none", borderRadius:11, color:"#fff", fontWeight:800, fontSize:14, cursor:"pointer" }}>
+          <button type="submit" disabled={loading} style={{ padding:"12px", background:"linear-gradient(135deg,#1e7a4c,#16a34a)", border:"none", borderRadius:11, color:"#fff", fontWeight:800, fontSize:14, cursor:"pointer" }}>
             {loading ? "Saving…" : "Continue to Chat"}
           </button>
         </form>
@@ -269,7 +269,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
         <div style={{ width:38, height:38, borderRadius:"50%", overflow:"hidden", border:"2px solid rgba(255,255,255,0.3)", flexShrink:0 }}>
           {therapistPhoto
             ? <img src={therapistPhoto} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-            : <div style={{ width:"100%", height:"100%", background:"#228756", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:15 }}>{therapistName?.[0]}</div>
+            : <div style={{ width:"100%", height:"100%", background:"#1e7a4c", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:15 }}>{therapistName?.[0]}</div>
           }
         </div>
         <div style={{ flex:1 }}>
@@ -302,14 +302,14 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
                     <div style={{ width:28, height:28, borderRadius:"50%", overflow:"hidden", flexShrink:0, marginRight:7, alignSelf:"flex-end" }}>
                       {therapistPhoto
                         ? <img src={therapistPhoto} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-                        : <div style={{ width:"100%", height:"100%", background:"#228756", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:12 }}>{therapistName?.[0]}</div>
+                        : <div style={{ width:"100%", height:"100%", background:"#1e7a4c", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:800, fontSize:12 }}>{therapistName?.[0]}</div>
                       }
                     </div>
                   )}
                   <div style={{ maxWidth:"72%" }}>
                     <div style={{
                       padding:"9px 13px", borderRadius: isUser ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
-                      background: isUser ? "linear-gradient(135deg,#228756,#16a34a)" : "#fff",
+                      background: isUser ? "linear-gradient(135deg,#1e7a4c,#16a34a)" : "#fff",
                       color: isUser ? "#fff" : "#0f172a",
                       fontSize:13, lineHeight:1.55, fontWeight:500,
                       boxShadow: isUser ? "0 2px 8px rgba(34,135,86,0.25)" : "0 2px 6px rgba(0,0,0,0.07)",
@@ -347,7 +347,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
                 <div style={{ fontSize:12, color:"#64748b", marginBottom:12, lineHeight:1.5 }}>You've used all 5 free messages in the last 24 hrs. Book a session to continue.</div>
                 <button
                   onClick={() => { onClose(); window.location.href = `/book/${therapistId}`; }}
-                  style={{ padding:"9px 18px", background:"linear-gradient(135deg,#228756,#16a34a)", color:"#fff", borderRadius:10, fontSize:13, fontWeight:700, border:"none", cursor:"pointer", boxShadow:"0 4px 12px rgba(34,135,86,0.3)" }}>
+                  style={{ padding:"9px 18px", background:"linear-gradient(135deg,#1e7a4c,#16a34a)", color:"#fff", borderRadius:10, fontSize:13, fontWeight:700, border:"none", cursor:"pointer", boxShadow:"0 4px 12px rgba(34,135,86,0.3)" }}>
                   Book a Session →
                 </button>
               </div>
@@ -374,7 +374,7 @@ export default function ChatBox({ therapistId, therapistName, therapistPhoto, on
                     autoFocus
                   />
                   <button type="submit" disabled={!input.trim() || sending}
-                    style={{ width:40, height:40, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#228756,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
+                    style={{ width:40, height:40, borderRadius:10, background: input.trim() ? "linear-gradient(135deg,#1e7a4c,#16a34a)" : "#e2e8f0", border:"none", cursor: input.trim() ? "pointer" : "default", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={input.trim() ? "#fff" : "#94a3b8"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
                     </svg>

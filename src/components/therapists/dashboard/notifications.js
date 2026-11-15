@@ -28,7 +28,7 @@ const PAGE = 30;
 
 const TYPES = {
   booking:   { label: "Bookings", icon: EventAvailableRoundedIcon, fg: "#1d4ed8", bg: "#eff6ff" },
-  payment:   { label: "Payments", icon: PaymentsRoundedIcon,      fg: "#166534", bg: "#e7f6ec" },
+  payment:   { label: "Payments", icon: PaymentsRoundedIcon,      fg: "#14532d", bg: "#e7f6ec" },
   session:   { label: "Sessions", icon: TaskAltRoundedIcon,        fg: "#0f766e", bg: "#e6f6f4" },
   started:   { label: "Sessions", icon: PlayCircleRoundedIcon,     fg: "#0f766e", bg: "#e6f6f4" },
   cancelled: { label: "Bookings", icon: EventBusyRoundedIcon,      fg: "#b91c1c", bg: "#fef2f2" },
@@ -118,15 +118,15 @@ const styles = `
   .nt-up{background:#fff;border:1px solid #e4ece7;border-radius:12px;padding:12px 14px;margin-bottom:12px;}
   .nt-up-h{font-size:10.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#8a978f;margin-bottom:8px;}
   .nt-up-row{display:flex;align-items:center;gap:10px;padding:6px 0;color:#14251b;text-decoration:none;font-size:13px;}
-  .nt-up-row:hover{color:#166534;}
-  .nt-up-time{margin-left:auto;font-weight:800;color:#166534;font-size:12.5px;white-space:nowrap;}
+  .nt-up-row:hover{color:#14532d;}
+  .nt-up-time{margin-left:auto;font-weight:800;color:#14532d;font-size:12.5px;white-space:nowrap;}
 
   .nt-tabs{display:flex;gap:4px;background:#f1f5f3;border-radius:10px;padding:3px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;width:fit-content;max-width:100%;}
   .nt-tabs::-webkit-scrollbar{display:none;}
   .nt-tab{border:0;background:none;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:700;color:#5b6b62;cursor:pointer;white-space:nowrap;font-family:inherit;}
   .nt-tab.on{background:#fff;color:#0f3d24;box-shadow:0 1px 3px rgba(15,23,42,.12);}
   .nt-tab i{font-style:normal;margin-left:6px;font-size:11px;background:#e2e8e4;border-radius:999px;padding:1px 7px;}
-  .nt-tab.on i{background:#e7f6ec;color:#166534;}
+  .nt-tab.on i{background:#e7f6ec;color:#14532d;}
 
   .nt-card{background:#fff;border:1px solid #e4ece7;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04),0 10px 26px rgba(15,23,42,.05);}
   .nt-grp{font-size:10.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:#8a978f;padding:12px 16px 6px;background:#fafcfb;border-bottom:1px solid #f0f3f1;}
@@ -143,7 +143,7 @@ const styles = `
   .nt-meta{font-size:12px;color:#6b7a71;margin-top:2px;overflow:hidden;text-overflow:ellipsis;}
   .nt-ago{font-size:11.5px;color:#8a978f;font-weight:600;white-space:nowrap;margin-left:8px;}
   .nt-new{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-left:6px;vertical-align:middle;}
-  .nt-more{display:block;width:100%;border:0;border-top:1px solid #f0f3f1;background:#fafcfb;padding:12px;font-size:13px;font-weight:800;color:#166534;cursor:pointer;font-family:inherit;}
+  .nt-more{display:block;width:100%;border:0;border-top:1px solid #f0f3f1;background:#fafcfb;padding:12px;font-size:13px;font-weight:800;color:#14532d;cursor:pointer;font-family:inherit;}
   .nt-empty{padding:48px 20px;text-align:center;color:#5b6b62;}
   .nt-empty h3{font-size:16px;font-weight:800;color:#0f172a;margin:10px 0 4px;}
   @media (max-width:600px){
@@ -256,7 +256,7 @@ export default function Notification() {
           <div className="nt-up-h">Coming up in the next 24 hours</div>
           {upcoming.slice(0, 4).map(({ b, at }) => (
             <Link key={b._id} href="/appointments" className="nt-up-row">
-              <ScheduleRoundedIcon sx={{ fontSize: 18, color: "#166534" }} />
+              <ScheduleRoundedIcon sx={{ fontSize: 18, color: "#14532d" }} />
               <span><b>{b.client?.name || "Client"}</b> · {b.service || "Session"} · {b.format || "Online"}</span>
               <span className="nt-up-time">{at.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" })}</span>
             </Link>
@@ -284,7 +284,7 @@ export default function Notification() {
           </div>
         ) : shown.length === 0 ? (
           <div className="nt-empty">
-            <NotificationsActiveRoundedIcon sx={{ fontSize: 40, color: "#166534" }} />
+            <NotificationsActiveRoundedIcon sx={{ fontSize: 40, color: "#14532d" }} />
             <h3>{feed.length ? "Nothing here" : "No notifications yet"}</h3>
             <p style={{ margin: 0, fontSize: 13 }}>{feed.length ? "Try another filter." : "New bookings, payments and reviews will show up here."}</p>
           </div>

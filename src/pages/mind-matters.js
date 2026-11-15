@@ -18,7 +18,7 @@ export default function MindMatters() {
         <div className="container mt--20">
           <div className="row justify-content-center">
             <div className="col-lg-8 col-md-12 col-sm-12 col-12 text-center">
-              <p className="title h1" style={{ fontSize: "3rem", marginBottom: "20px", color: "#228756" }}>
+              <p className="title h1" style={{ fontSize: "3rem", marginBottom: "20px", color: "#1e7a4c" }}>
                 Mind Matters Programs
               </p>
               <p className="description" style={{ fontSize: "1.2rem", color: "#666", marginBottom: "30px" }}>
