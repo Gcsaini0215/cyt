@@ -19,4 +19,10 @@
     <lastmod>2026-06-16</lastmod>
   </sitemap>
 
+  <!-- Ask a Psychologist answers — dynamically generated -->
+  <sitemap>
+    <loc>https://www.chooseyourtherapist.in/api/sitemap-questions.xml</loc>
+    <lastmod>2026-11-15</lastmod>
+  </sitemap>
+
 </sitemapindex>
