@@ -170,14 +170,10 @@ export const releaseBookingSlot = (bookingId) => {
 };
 export const sendGuestEmailOtpUrl = `${apiUrl}/send-guest-email-otp`;
 export const verifyGuestEmailOtpUrl = `${apiUrl}/verify-guest-email-otp`;
-export const pendingPaymentUrl = `${apiUrl}/get-payment`;
-export const savePaymentUrl = `${apiUrl}/save-payment`;
 export const getBookings = `${apiUrl}/get-bookings`;
 export const deleteBookingUrl = `${apiUrl}/delete-booking`;
 export const bookWorkshopUrl = `${apiUrl}/book-workshop`;
-export const getPaymentQrUrl = `${apiUrl}/get-payment-qr`;
 export const getClientDashboardDataUrl = `${apiUrl}/get-client-dashboard`;
-export const saveWorkshopPaymentUrl = `${apiUrl}/save-workshop-payment`;
 export const GetMyWorkshopBooking = `${apiUrl}/get-my-workshop-bookings`;
 export const GetCouponsUrl = `${apiUrl}/coupon/get`;
 export const CreateCouponsUrl = `${apiUrl}/coupon/create`;

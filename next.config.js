@@ -28,6 +28,9 @@ const nextConfig = {
       { source: "/plans", destination: "/view-all-therapist", permanent: true },
       // the Daily Journal was removed (owner request, 2026-11-15) — old links land on the wellness tools
       { source: "/daily-journal", destination: "/wellness-toolkit", permanent: true },
+      // manual UPI pages removed (2026-11-15): old pending links pay through Razorpay instead
+      { source: "/payment-pending/:id", destination: "/complete-payment/:id", permanent: true },
+      { source: "/payment-workshop/:id", destination: "/allworkshop", permanent: true },
       {
         source: "/:path*",
         has: [{ type: "host", value: "chooseyourtherapist.in" }],
