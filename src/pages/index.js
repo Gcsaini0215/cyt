@@ -178,11 +178,13 @@ export default function HomePage({ initialBanner = [], initialTop = [], stats = 
     }
   }, [userState]);
 
-  // the server already sent the lists; fetch again only to put the visitor's own state first
-  // (or if the server couldn't reach the API)
+  // The server already sent the lists. Knowing the visitor's state only re-orders the top therapists, which
+  // the server-sent list can do on its own — it used to download every therapist again (~280 KB) just for that.
+  // Fetch only if the server couldn't reach the API. (2026-11-15 speed)
   useEffect(() => {
-    if (userState || initialTop.length === 0) getTopTherapists();
-  }, [getTopTherapists]);
+    if (initialTop.length === 0) { getTopTherapists(); return; }
+    if (userState) setTopTherapists(pickTop(initialTop, userState));
+  }, [getTopTherapists]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // full brand name in the title: people searching for "choose your therapist" didn't recognise "CYT"
   const pageTitle = userCity
