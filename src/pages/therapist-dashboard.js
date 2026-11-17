@@ -161,8 +161,8 @@ const DASH_CSS = `
   box-shadow: 0 6px 12px -7px var(--k2), inset 0 1px 0 rgba(255,255,255,.35); }
 .ov .ov-kpi-ic svg { font-size: 20px; color: #fff; }
 .ov .ov-kpi.green { --k1: #4fd38b; --k2: #12804a; --kc: #15803d; --kc-b: #c6ead3; }
-.ov .ov-kpi.teal { --k1: #ffc65a; --k2: #f07b12; --kc: #c2570c; --kc-b: #f6d8b8; }
-.ov .ov-kpi.gold { --k1: #c58cff; --k2: #8a3fd6; --kc: #7c3aed; --kc-b: #e2d2fb; }
+.ov .ov-kpi.teal { --ov-teal: #f5922a; --k1: #ffc65a; --k2: #f07b12; --kc: #c2570c; --kc-b: #f6d8b8; }
+.ov .ov-kpi.gold { --ov-gold: #8a3fd6; --k1: #c58cff; --k2: #8a3fd6; --kc: #7c3aed; --kc-b: #e2d2fb; }
 .ov .ov-kpi.amber { --k1: #ffd66b; --k2: #e09a12; --kc: #b7791f; --kc-b: #f3e0b0; } /* phones/iPad colour the title: same colour as the tile */
 .ov .ov-kpis .ov-kpi-label { font-size: 14px; font-weight: 600; color: var(--ap-ink); letter-spacing: -.01em; }
 .ov .ov-kpis .ov-kpi-val { font-size: clamp(26px, 2.6vw, 34px); font-weight: 800; letter-spacing: -.035em; color: var(--ap-ink); }
@@ -206,6 +206,84 @@ const DASH_CSS = `
 .ov .ov-seg button.on { color: var(--ap-ink); box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 1px rgba(0,0,0,.04); }
 .ov .ov-btn { border-radius: 12px; }
 .ov .ov-card.ov-next.hero { border-radius: 22px !important; }
+/* no empty space inside cards (2026-11-17): each card is as tall as what it holds */
+.ov .ov-main-grid { align-items: start; }
+.ov .ov-main-grid > div > :last-child { flex: none; }
+/* a number card with no graph yet keeps its link at the bottom, so the card never looks half-empty */
+.ov .ov-kpi-hint { margin-top: auto; padding-top: 8px; }
+.ov .ov-kpi > :is(.ov-spark-wrap, .ov-bars-wrap, .ov-stars-wrap) ~ .ov-kpi-hint { margin-top: 0; }
+/* To-do never makes the left side taller: on wide screens it is as tall as the cards beside it and scrolls inside */
+@media (min-width: 900px) {
+  .ov .ov-top > .ov-todo { height: 0; min-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+  .ov .ov-top > .ov-todo ul { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-right: 2px; }
+  /* four number cards in one row: the short names, so nothing is cut off */
+  .ov .ov-top:not(.no-next) .ov-kpi-label .full { display: none; }
+  .ov .ov-top:not(.no-next) .ov-kpi-label .short { display: inline; }
+  /* not enough room for the name and the ▲/▼ badge on one line: the badge drops below, the name stays whole */
+  .ov .ov-top:not(.no-next) .ov-kpi-top { flex-wrap: wrap; row-gap: 6px; }
+  .ov .ov-top:not(.no-next) .ov-kpi-label { overflow: visible; }
+}
+
+/* ── Next session: an iPad widget — white, a soft green glow, a Calendar-style date tile, an iOS details list ── */
+.ov .ov-card.ov-next.hero { background: radial-gradient(120% 90% at 0% 0%, #e4f6eb 0%, rgba(228,246,235,0) 55%), #fff; border: 0 !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 14px 32px -20px rgba(15,23,42,.3) !important; padding: 18px 20px; gap: 14px; }
+.ov .ov-card.ov-next.hero.live { background: radial-gradient(120% 90% at 0% 0%, #d3f2df 0%, rgba(211,242,223,0) 60%), #fff;
+  box-shadow: 0 0 0 2px #34c759, 0 0 0 7px rgba(52,199,89,.16), 0 14px 32px -20px rgba(15,23,42,.3) !important; }
+.ov .ov-next.hero .ov-next-k { font-size: 15px; font-weight: 700; letter-spacing: -.01em; text-transform: none; color: var(--ap-ink); gap: 10px; }
+.ov .ov-next.hero .ov-next-k span { background: #e3f4e9; border: 0; color: #14532d; font-size: 12.5px; font-weight: 700; padding: 4px 10px; }
+.ov .ov-next.hero.live .ov-next-k span { background: #34c759; color: #fff; }
+.ov .ov-next.hero .ov-mode { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; border: 0; border-radius: 999px; background: #f2f4f3; color: var(--ap-ink); font-size: 12.5px; font-weight: 600; }
+.ov .ov-next.hero .ov-mode svg { font-size: 17px; color: #0a84ff; }
+.ov .ov-next.hero .ov-mode.ip svg { color: #f07b12; }
+.ov .ov-next.hero .ov-next-nav { background: #f2f4f3; border: 0; padding: 3px; }
+.ov .ov-next.hero .ov-next-nav button { color: var(--ap-ink); }
+.ov .ov-next.hero .ov-next-nav button:hover { background: #fff; }
+.ov .ov-next.hero .ov-next-nav b { color: var(--ap-ink); }
+.ov .ov-next.hero .ov-next-nav b i { color: var(--ap-3); }
+.ov .ov-next-dots button { background: #d6dcd8; }
+.ov .ov-next-dots button.on { background: var(--ap-green); }
+
+.ov .ov-next.hero .ov-next-row { gap: 14px; }
+.ov .ov-next-cal { flex: none; width: 58px; height: 62px; border-radius: 14px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 14px -8px rgba(15,23,42,.3), inset 0 0 0 1px rgba(60,60,67,.08); }
+.ov .ov-next-cal span { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #ff3b30; line-height: 1; }
+.ov .ov-next-cal b { font-size: 28px; font-weight: 700; letter-spacing: -.03em; color: var(--ap-ink); line-height: 1.05; margin-top: 3px; }
+.ov .ov-next.hero .ov-next-av { width: 48px; height: 48px; border-radius: 50%; box-shadow: 0 0 0 2px #fff, 0 4px 10px -4px rgba(15,23,42,.35); }
+.ov .ov-next.hero .ov-next-av.ini { background: linear-gradient(160deg, #4fd38b, #12804a); }
+.ov .ov-next.hero .ov-next-av.ini b { font-size: 16px; }
+.ov .ov-next.hero .ov-next-name { font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: var(--ap-ink); }
+.ov .ov-next.hero .ov-next-sub { font-size: 13.5px; color: var(--ap-2); margin-top: 1px; }
+.ov .ov-next.hero .ov-next-contact { gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.ov .ov-next.hero .ov-next-contact a, .ov .ov-next.hero .ov-inv-link { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 999px; background: #f2f4f3;
+  color: var(--ap-ink); font-size: 12px; font-weight: 600; text-decoration: none; }
+.ov .ov-next.hero .ov-next-contact a:hover, .ov .ov-next.hero .ov-inv-link:hover { background: #e3f4e9; color: #14532d; text-decoration: none; }
+
+/* buttons: one filled green, the rest tinted — rounded like iPadOS */
+.ov .ov-next.hero .ov-btn { height: 40px; padding: 0 16px; border-radius: 12px; font-size: 13.5px; font-weight: 700; border: 0; box-shadow: none; }
+.ov .ov-next.hero .ov-next-btns > :first-child { background: var(--ap-green); color: #fff !important; box-shadow: 0 8px 16px -10px rgba(30,138,79,.8); }
+.ov .ov-next.hero .ov-next-btns > :first-child:hover { background: #17713f; }
+.ov .ov-next.hero .ov-next-btns > :first-child.gold { background: #34c759; color: #fff !important; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child), .ov .ov-next.hero .ov-next-rbtns .ov-btn { background: #e3f4e9; color: #14532d !important; }
+.ov .ov-next.hero .ov-next-btns > :not(:first-child):hover, .ov .ov-next.hero .ov-next-rbtns .ov-btn:hover { background: #d2ecdb; }
+.ov .ov-next.hero .ov-btn.ov-opens { background: #f2f4f3 !important; color: var(--ap-2) !important; box-shadow: none !important; }
+
+/* details: an iOS grouped list — label on the left, value on the right */
+.ov .ov-next.hero .ov-next-right { background: #f6f7f7; border: 0; border-radius: 16px; padding: 4px 14px; gap: 0; align-items: stretch; }
+.ov .ov-next.hero .ov-next-dl { display: flex; flex-direction: column; gap: 0; }
+.ov .ov-next.hero .ov-next-dl div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 0; }
+.ov .ov-next.hero .ov-next-dl div + div { box-shadow: inset 0 1px 0 var(--ap-line); }
+.ov .ov-next.hero .ov-next-dl dt { font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ap-2); flex: none; }
+.ov .ov-next.hero .ov-next-dl dd { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--ap-ink); text-align: right; min-width: 0; }
+.ov .ov-next.hero .ov-next-notes { padding: 9px 0; box-shadow: inset 0 1px 0 var(--ap-line); font-size: 13px; color: var(--ap-2); }
+.ov .ov-next.hero .ov-next-notes b { color: var(--ap-ink); font-weight: 600; }
+.ov .ov-next.hero .ov-next-right .ov-next-assess, .ov .ov-next.hero .ov-next-rbtns { padding: 9px 0; box-shadow: inset 0 1px 0 var(--ap-line); }
+.ov .ov-next.hero .ov-next-assess > span:first-child { font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ap-2); }
+@media (max-width: 767px) {
+  .ov .ov-next-cal { display: none; }
+  .ov .ov-card.ov-next.hero { padding: 14px 16px; }
+  .ov .ov-next.hero .ov-next-btns > :first-child { height: 46px; border-radius: 14px; font-size: 14.5px; }
+  .ov .ov-next.hero .ov-next-btns > :not(:first-child) { height: 40px; }
+}
 @media (prefers-reduced-motion: reduce) { .ov .ov-day { transition: none; } }
 `;
 
@@ -898,7 +976,7 @@ export default function TherapistDashboard() {
   const [invoices, setInvoices] = React.useState([]);
   const [myReviews, setMyReviews] = React.useState([]);
   const upPg = usePager(upcomingSessions, 5);
-  const invPg = usePager(invoices, 9);
+  const invPg = usePager(invoices, 5); // 5 like Upcoming, so the two columns end close together
   // Overview "start fresh" date (server-side, per therapist); null = all-time.
   const [since, setSince] = React.useState(null);
   const [savingSince, setSavingSince] = React.useState(false);

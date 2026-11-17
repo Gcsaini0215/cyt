@@ -12,6 +12,7 @@ import StopRoundedIcon from "@mui/icons-material/StopRounded";
 import ScheduleRoundedIcon from "@mui/icons-material/ScheduleRounded";
 import EventRepeatRoundedIcon from "@mui/icons-material/EventRepeatRounded";
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
+import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import { earningOf } from "../../../utils/earning";
 
 /* Pieces of the therapist dashboard Overview (2026-10 redesign): a slim "today" bar, KPI cards
@@ -226,13 +227,18 @@ export function NextSessionCard({ s, loading, onJoin, onReschedule, therapist, o
       <div className="ov-next-top">
         <div className="ov-next-k">{started ? "In session" : live ? "Starting now" : upcoming ? "Upcoming session" : "Next session"} <span>{started ? "started" : when}</span></div>
         <span className="ov-next-tr">
-          <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? "📍 In person" : "🎥 Video session"}</span>
+          <span className={`ov-mode ${inPerson ? "ip" : "vid"}`}>{inPerson ? <><PlaceRoundedIcon aria-hidden="true" /> In person</> : <><VideocamRoundedIcon aria-hidden="true" /> Video session</>}</span>
           {nav}
         </span>
       </div>
       <div className="ov-next-grid">
         <div className="ov-next-left">
           <div className="ov-next-row">
+            {/* a Calendar-app style date tile (desktop / iPad) */}
+            <div className="ov-next-cal" aria-hidden="true">
+              <span>{new Date(s.date).toLocaleDateString("en-IN", { weekday: "short", timeZone: IST })}</span>
+              <b>{new Date(s.date).toLocaleDateString("en-IN", { day: "numeric", timeZone: IST })}</b>
+            </div>
             <div className={`ov-next-av${s.imgSrc ? "" : " ini"}`}>{s.imgSrc ? <img src={s.imgSrc} alt="" /> : <b>{String(s.name || "Client").trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join("").toUpperCase()}</b>}</div>
             <div className="ov-next-info">
               <div className="ov-next-name">{s.name}</div>
